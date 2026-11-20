@@ -8,15 +8,8 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 public sealed class WalkingSpacePirateEnemyState
 {
-    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
-    internal WalkingSpacePirateSpawnSettings Settings { get; }
-
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal WalkingSpacePirateEnemyState(WalkingSpacePirateAction action, WalkingSpacePirateSpawnSettings settings)
-    {
-        Settings = Ensure.NotNull(settings);
-        Action = action;
-    }
+    internal WalkingSpacePirateEnemyState(WalkingSpacePirateAction action) => Action = action;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<WalkingSpacePirateSegment> Playback { get; set; }

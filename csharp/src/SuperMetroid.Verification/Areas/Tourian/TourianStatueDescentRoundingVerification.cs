@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -22,7 +21,7 @@ internal static class TourianStatueDescentRoundingVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
             runtime.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
         foreach (StoryEvent grey in new[] { StoryEvent.PhantoonStatueGrey, StoryEvent.RidleyStatueGrey,
@@ -33,7 +32,7 @@ internal static class TourianStatueDescentRoundingVerification
         AssertTrue(runtime.Display.Latched is not OrdinaryRoomFrameLatch { TourianStatueVerticalOffset: not null },
             "a room without the statues latches no descent");
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
-        runtime.Player.Samus.Control.LockOutPlayer();
+        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
 
         // The statue's base decoration reads the descent from the room each update and so sits that far below its anchor
         // on the update the descent moves (#2033).

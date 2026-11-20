@@ -43,7 +43,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed.HeldOccupant(), deathAnimation: EnemyDeathExplosion.Small, fixture.Samus);
         EnemyProjectile dying = fixture.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         int updates = 0;
-        while (IsExploding(dying))
+        while (ProgramOf(dying) == EnemyDeathAndDropSegment.SmallExplosion)
         {
             fixture.System.Projectiles.AdvanceEnemyProjectileAnimations(dying, samus, Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
             AssertTrue(++updates < 64, "the small explosion converts within its six frames");

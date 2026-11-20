@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
@@ -43,13 +42,13 @@ internal static class GameplaySnapshotTestsVerification
             ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
         var layer = new GameplaySceneLayer(registers, rooms, scrolls);
         AssertThrows<ArgumentException>(() => new LayeredScene(memory,
-            new DisplayLayer[] { new SpritesLayer([]), layer }, 15), "base cannot erase prior operations");
+            new DisplayLayer[] { new SpritesLayer([]), layer }, DisplayBrightness.Full), "base cannot erase prior operations");
 
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(runtime.PublishDisplayFrame().Latched is PerspectiveFloorFrameLatch,
             "the Mode-7 shaft latches its perspective floor, never ordinary tiles");

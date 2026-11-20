@@ -50,7 +50,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.MotherBrainGlassShard or RoomEnemyProjectileKind.MotherBrainGlassSparkle or
                 RoomEnemyProjectileKind.MotherBrainHandBeamCharging or RoomEnemyProjectileKind.MotherBrainHandBeamFired or
                 RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame or
-                RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or RoomEnemyProjectileKind.RidleyFireball or
+                RoomEnemyProjectileKind.RidleyFireball or
                 RoomEnemyProjectileKind.RidleyAfterburnCenter or RoomEnemyProjectileKind.RidleyHorizontalAfterburn or
                 RoomEnemyProjectileKind.RidleyVerticalAfterburn or
                 RoomEnemyProjectileKind.SporeSpawnStalk or RoomEnemyProjectileKind.SporeSpawnSpore or
@@ -84,7 +84,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 // explosion, whose spawners start the program they choose.
                 RoomEnemyProjectileKind.MotherBrainDeathExplosion or RoomEnemyProjectileKind.DustOrExplosion ||
                 // The projectiles whose spawners start typed programs (#1291, #1395, #1760).
-                FamilyProjectileStarts.StartsTypedAnimation(kind);
+                FamilyProjectileStarts.StartingAnimation(kind) is not null;
             AssertTrue(typed, $"Projectile {kind} starts a typed program");
             // Every cartridge definition of the kind is checked: identical definitions name one kind (#2278).
             foreach (ushort definitionWord in EnemyProjectileNativeWords.Kinds.WordsByIdentity[kind])
@@ -94,7 +94,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             // Mother Brain's onion ring starts a typed touch program too (#1292).
             if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.MotherBrainOnionRing))
-                VerifySharedDelete(rom.ReadCartridgeWord(
+                VerifySharedDelete(CartridgeImportSource.Require(rom).ReadCartridgeWord(
                     NativeEnemyProjectileListDefinitions.ProjectileBank | (definitionWord + TouchListOffset)), "touch");
             if (kind is not (RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.DraygonGoop or
                 RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
@@ -108,7 +108,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.KagoBug or RoomEnemyProjectileKind.EyeDoorProjectile or
                 // A shot Draygon wall turret runs the typed misc-dust small explosion (#1292).
                 RoomEnemyProjectileKind.DraygonWallTurret))
-                VerifySharedDelete(rom.ReadCartridgeWord(
+                VerifySharedDelete(CartridgeImportSource.Require(rom).ReadCartridgeWord(
                     NativeEnemyProjectileListDefinitions.ProjectileBank | (definitionWord + ShotListOffset)), "shot");
             }
 
@@ -118,7 +118,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 if (address == 0)
                     return;
                 AssertEqual((ushort)NativeEnemyProjectileInstruction.Delete,
-                    rom.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | address),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | address),
                     $"Projectile {kind} {role} list $86:{address:X4} is the shared delete");
                 entryCount++;
                 reactionCount++;

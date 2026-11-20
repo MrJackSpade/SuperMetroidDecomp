@@ -2,8 +2,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Rooms;
 
-using SuperMetroid.Core.Enemies;
-
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>How a room load enters its room, beyond the door, room definition, camera and viewport mode.</summary>
@@ -21,10 +19,4 @@ internal readonly record struct RoomEntry
 
     /// <summary>The load station the room is entered at; null for a room entered otherwise.</summary>
     public LoadStation? LoadStation { get; init; }
-
-    /// <summary>
-    /// What an attract demo's room setup composes over the room's enemies before they load (#2554), such as the Kraid demo's
-    /// phase wait; null for a room no demo sets up.
-    /// </summary>
-    public Action<IEnemyAttractDemoHooks>? AttractDemoEnemySetup { get; init; }
 }

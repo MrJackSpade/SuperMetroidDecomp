@@ -65,7 +65,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.Crocomire, body.KeptDefinition);
         enemies.CrocomireBehavior.Fight.InitializeCrocomire(body.HeldOccupant(), body);
-        CrocomireEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<CrocomireBodyEntity>(body).State;
+        CrocomireEnemyState state = body.RequireSpeciesState<CrocomireEnemyState>();
         AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.Fighting>(), state.DeathStage,
             "installed Crocomire colors leave living fight phase unchanged");
         AssertEqual(new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.IdleSway), AnimationPlace.StartOfAnimation),
@@ -101,7 +101,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         void VerifyBand(int source, int count, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < count; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     source + color * sizeof(ushort)), resolve(color),
                     $"installed Crocomire {name} color {color} preserves native RGB5");
         }

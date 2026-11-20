@@ -35,13 +35,13 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         foreach (TileTransferDefinition record in records)
         {
             int address = 0xa60000 | record.Pointer;
-            AssertEqual(record.ByteCount, rom.ReadCartridgeWord(address),
+            AssertEqual(record.ByteCount, CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 $"Ceres transfer ${record.Pointer:X4} byte count");
-            AssertEqual(SnesAddressMath.OffsetInBank(record.SourceAddress), rom.ReadCartridgeWord((address + 2)),
+            AssertEqual(SnesAddressMath.OffsetInBank(record.SourceAddress), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)),
                 $"Ceres transfer ${record.Pointer:X4} source offset");
             AssertEqual(SnesAddressMath.BankNumber(record.SourceAddress), rom.ReadCartridgeByte(address + 4),
                 $"Ceres transfer ${record.Pointer:X4} source bank");
-            AssertEqual(record.DestinationWord, rom.ReadCartridgeWord((address + 5)),
+            AssertEqual(record.DestinationWord, CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 5)),
                 $"Ceres transfer ${record.Pointer:X4} VRAM destination");
             AssertTrue(CeresEscapeVramTransferDefinitions.TryGet(record.Pointer,
                     out var selected) && selected == record,
@@ -49,7 +49,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         }
         foreach (ushort terminator in new ushort[] { 0xc3d4, 0xc4fc, 0xc536 })
         {
-            AssertEqual(0, rom.ReadCartridgeWord((0xa60000 | terminator)),
+            AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | terminator)),
                 $"Ceres transfer ${terminator:X4} native terminator");
             AssertTrue(CeresEscapeVramTransferDefinitions.IsTerminator(terminator),
                 $"Ceres transfer ${terminator:X4} compiled terminator");
@@ -62,7 +62,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         CeresEscapeOverlays overlay =
             CeresEscapeOverlays.Load(new MemoryStream(
                 CeresEscapeOverlayTilemapFiles.Extract(rom), writable: false));
-        var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
+        var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: new SuperMetroid.Verification.Enemies.StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The warning fixture generates no random numbers.")));
         // The wait for the warning lasts one update for each ROM-checked record of the timer-sprite list, the warning look
         // showing on the last (#1538, #2469); where each record's page lands is the import's, which the Ceres escape tile

@@ -65,9 +65,9 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
                 $"Draygon OAM frame {frame.Name} has bounded components");
             for (int component = 0; component < componentCount; component++)
             {
-                ushort listPointer = rom.ReadCartridgeWord((root + 2 + component * 8 + 6));
+                ushort listPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 2 + component * 8 + 6));
                 AssertEqual((ushort)0,
-                    rom.ReadCartridgeWord((((int)new SnesAddress(frame.Bank, listPointer)))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord((((int)new SnesAddress(frame.Bank, listPointer)))),
                     $"Draygon OAM frame {frame.Name} component {component} native hitbox count");
                 componentsChecked++;
             }

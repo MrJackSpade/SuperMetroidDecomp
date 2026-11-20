@@ -43,7 +43,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
             {
                 int source = EnemyRomTablePointers.Ceres.RidleyEyeFadePaletteRows +
                     nativeSchedule[update] * 6 + color * 2;
-                ushort expectedColor = rom.ReadCartridgeWord(source);
+                ushort expectedColor = CartridgeImportSource.Require(rom).ReadCartridgeWord(source);
                 AssertEqual(expectedColor, cgram[252 + color],
                     $"production Ceres eye-fade update {update} color {color}");
             }

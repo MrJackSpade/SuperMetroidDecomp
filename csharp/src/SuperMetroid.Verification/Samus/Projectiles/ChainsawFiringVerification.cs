@@ -56,7 +56,7 @@ internal static class ChainsawFiringVerification
 
         // A missing shot also leaves an empty slot, so checking deletion alone would
         // incorrectly pass the existing silent >=12 rejection in HandleBeamInput.
-        AssertTrue(projectiles.LastFrameResult.FiringSound?.SoundEffect is not null,
+        AssertTrue(firingSound is not null,
             "native Chainsaw admits and allocates the shot");
         AssertEqual(0, projectiles.Pool.ShotCount.Count, "inactive Power Bomb deletes Chainsaw on first update");
         AssertEqual(0, projectiles.Shots[0].InstructionPointer, "deleted Chainsaw has no animation list");

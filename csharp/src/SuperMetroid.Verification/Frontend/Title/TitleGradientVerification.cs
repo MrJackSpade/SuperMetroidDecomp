@@ -114,7 +114,7 @@ internal static class TitleGradientVerification
             ?? throw new InvalidDataException("Extracted title map document is null.");
         AssertEqual(TitleGraphicsFormat.SpriteFrameCount, spriteDocument.Sprites.Length,
             "title extraction covers all cartridge-selected OBJ frames");
-        ushort yearPointer = RomDataReader.ReadWordFixedBank(bus,
+        ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             TitleSourceDefinitions.TextLists[TitleSequencePhase.YearText] + 6);
         AssertEqual(TitleGraphicsFormat.Typings.Count, spriteDocument.Cards.Length,
             "title extraction covers every card typing step");
@@ -187,7 +187,7 @@ internal static class TitleGradientVerification
 
         void AssertSource(int address, int count, ReadOnlySpan<byte> actual, string description)
         {
-            byte[] source = RomDataReader.Decompress(bus, address);
+            byte[] source = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), address);
             if (!source.AsSpan(0, count).SequenceEqual(actual))
                 throw new InvalidDataException($"Extracted {description} differ from cartridge data.");
         }
@@ -251,7 +251,7 @@ internal static class TitleGradientVerification
                         definition.FramePointer(frame) + sizeof(ushort) +
                         color * sizeof(ushort)));
                     ushort expected = RomDataReader.ReadWordFixedBank(
-                        bus,
+                        CartridgeImportSource.Require(bus),
                         RoomFxBankSourceDefinitions.PaletteFx | pointer);
                     if (!presentation.TryReadColor(pointer, out RgbColor actual) ||
                         actual.ToWord() != expected)
@@ -373,7 +373,7 @@ internal static class TitleGradientVerification
         TitleGradientPresentation installed = InstalledFixtures.Maps.TitleGradient;
         for (ushort zoom = 0; zoom <= FloorZoom.OwnSize.TwoHundredFiftySixths; zoom++)
         {
-            ScreenGradient decoded = TitleGradientDecoder.Decode(bus, zoom);
+            ScreenGradient decoded = TitleGradientDecoder.Decode(CartridgeImportSource.Require(bus), zoom);
             if (!presentation.Resolve(FloorZoomConstants.FromTwoHundredFiftySixths(zoom)).Equals(decoded))
                 throw new InvalidDataException($"Extracted title gradient differs at zoom ${zoom:X2}.");
             if (!installed.Resolve(FloorZoomConstants.FromTwoHundredFiftySixths(zoom)).Equals(decoded))

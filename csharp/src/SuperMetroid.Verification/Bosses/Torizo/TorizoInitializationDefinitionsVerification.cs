@@ -18,9 +18,9 @@ internal static class TorizoInitializationDefinitionsVerification
     {
         for (int variant = 0; variant < 2; variant++)
         {
-            ushort[] native = [rom.ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXPositions + variant * 2), rom.ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYPositions + variant * 2),
-                rom.ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeAnimationScripts + variant * 2), rom.ReadCartridgeWord(EnemyRomTablePointersTorizo.WakePropertyMasks + variant * 2),
-                rom.ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXRadii + variant * 2), rom.ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYRadii + variant * 2)];
+            ushort[] native = [CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXPositions + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYPositions + variant * 2),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeAnimationScripts + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakePropertyMasks + variant * 2),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXRadii + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYRadii + variant * 2)];
             var compiled = variant == 0 ? TorizoInitializationDefinitions.Bomb : TorizoInitializationDefinitions.Golden;
             ushort[] actual = [compiled.Position.X, compiled.Position.Y, TorizoNativeListAddresses.Entry(compiled.Animation), checked((ushort)EnemyPropertyWordCodec.EncodePropertyWord(new EnemyPropertyState(EnemyContact.None, compiled.Processing, EnemyPresence.None, CollidesByFrameHitboxes: false, NewInstructionFrame: false))), compiled.Radius.X, compiled.Radius.Y];
             AssertTrue(native.SequenceEqual(actual), "Every Torizo initialization record word matches ROM");
@@ -52,7 +52,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 initialize(actor);
                 AssertEqual(native[0], actor.Position.X.Whole, "Real Torizo initial X");
                 AssertEqual(native[1], actor.Position.Y.Whole, "Real Torizo initial Y");
-                TorizoEnemyState started = SuperMetroid.Core.Enemies.EnemyPartners.Listed<TorizoEntity>(actor).State;
+                TorizoEnemyState started = actor.RequireSpeciesState<TorizoEnemyState>();
                 AssertEqual(native[2], TorizoNativeListAddresses.Entry(TorizoAnimations.Playing(started.BodyPlayback)), "Real Torizo initial program selection");
                 AssertEqual(TorizoAnimations.Start(TorizoAnimations.Playing(started.BodyPlayback)), started.BodyPlayback, "Real Torizo starts its initial animation");
                 EnemyPropertyState initialized = EnemyPropertyWordCodec.Decode(properties | native[3], 0);

@@ -13,9 +13,8 @@ internal static class SpeciesIdentityAnalyzerTests
     private const string EnemyTypes = """
         namespace SuperMetroid.Core.Enemies
         {
-            public enum EnemyDefinitionId { None, FooBody, FooArm, Bar, Baz }
+            public enum EnemyDefinitionId { None, FooBody, FooArm, Bar }
             public interface IEnemyEntityFactory { System.Collections.Generic.IReadOnlyList<EnemyDefinitionId> Definitions { get; } }
-            public interface IEnemySettingsFactory<TSettings> { System.Collections.Generic.IReadOnlyList<EnemyDefinitionId> Definitions { get; } }
         }
         """;
 
@@ -25,16 +24,6 @@ internal static class SpeciesIdentityAnalyzerTests
         {
             using System.Collections.Generic;
             sealed class BarBehavior : IEnemyEntityFactory { public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Bar]; }
-        }
-        """;
-
-    /// <summary>A species whose factory takes the settings its entries tell it (#2554).</summary>
-    private const string SettingsFactory = """
-        namespace SuperMetroid.Core.Enemies.Baz
-        {
-            using System.Collections.Generic;
-            sealed record BazSettings(int Speed);
-            sealed class BazBehavior : IEnemySettingsFactory<BazSettings> { public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Baz]; }
         }
         """;
 
@@ -65,10 +54,6 @@ internal static class SpeciesIdentityAnalyzerTests
         Expect("Enemies/Bar/T.cs", testsFooArm, reported: true);
         Expect("Enemies/Bar/T.cs", testsBar, reported: false);
         Expect("Enemies/Foo/T.cs", testsBar, reported: true);
-        // A species whose factory takes its entries' settings owns its definitions as one built by definition does (#2554).
-        const string testsBaz = "namespace SuperMetroid.Core.Enemies { class T { bool M(EnemyDefinitionId id) => id == EnemyDefinitionId.Baz; } }";
-        Expect("Enemies/Baz/T.cs", testsBaz, reported: false);
-        Expect("Enemies/Bar/T.cs", testsBaz, reported: true);
     }
 
     /// <summary>Compiles both species and one tester at <paramref name="path"/> under Core and checks the result.</summary>
@@ -80,7 +65,6 @@ internal static class SpeciesIdentityAnalyzerTests
             CSharpSyntaxTree.ParseText(EnemyTypes, new CSharpParseOptions(LanguageVersion.Preview), path: root + "Enemies/EnemyDefinitionId.cs"),
             CSharpSyntaxTree.ParseText(ListedFactory, new CSharpParseOptions(LanguageVersion.Preview), path: root + "Enemies/Bar/BarBehavior.cs"),
             CSharpSyntaxTree.ParseText(CatalogFactory, new CSharpParseOptions(LanguageVersion.Preview), path: root + "Enemies/Foo/FooBehavior.cs"),
-            CSharpSyntaxTree.ParseText(SettingsFactory, new CSharpParseOptions(LanguageVersion.Preview), path: root + "Enemies/Baz/BazBehavior.cs"),
             CSharpSyntaxTree.ParseText(tester, new CSharpParseOptions(LanguageVersion.Preview), path: root + path),
         ];
         var compilation = CSharpCompilation.Create("SuperMetroid.Core", trees, AnalyzerTests.References,

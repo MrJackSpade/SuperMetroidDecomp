@@ -84,8 +84,8 @@ internal static class PauseReserveTankAssetsVerification
         foreach (ushort id in new ushort[] { 0x1b, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27 })
         {
             Add(0x82c569 + id * 2, 2);
-            int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(source, 0x82c569 + id * 2);
-            Add(pointer, 2 + RomDataReader.ReadWordFixedBank(source, pointer) * 5);
+            int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c569 + id * 2);
+            Add(pointer, 2 + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), pointer) * 5);
         }
         return new CartridgeReadGuard(source).Forbid(blocked.Contains,
             address => $"Installed pause read reserve visual ROM at {address:X6}.");

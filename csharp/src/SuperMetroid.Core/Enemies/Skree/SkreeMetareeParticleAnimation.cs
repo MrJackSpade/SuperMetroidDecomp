@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>Skree/Metaree particle's typed animation.</summary>
 internal sealed class SkreeMetareeParticleAnimation(SkreeMetareeParticleSegment segment)
-    : EnemyProjectileCommonFrameAnimation<SkreeMetareeParticleSegment>(SkreeMetareeParticleAnimations.StartingWith(segment))
+    : EnemyProjectileFrameAnimation<SkreeMetareeParticleSegment, EnemyProjectileCommonCue>(SkreeMetareeParticleAnimations.StartingWith(segment), EnemyProjectileCueRunners.Common<SkreeMetareeParticleSegment>())
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<SkreeMetareeParticleSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => SkreeMetareeParticleAnimations.Segments;

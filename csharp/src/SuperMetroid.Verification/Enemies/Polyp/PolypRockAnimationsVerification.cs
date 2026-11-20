@@ -13,11 +13,11 @@ internal static class PolypRockAnimationsVerification
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyPolypRockAnimations(CartridgeImportAddressSpace rom)
     {
-        int steps = Family.CompareAll(rom);
+        int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         foreach (EnemyProjectileFrameId frame in PolypRockFrameToolingDefinitions.Frames)
         {
             ushort key = EnemyProjectileProgramFrameSources.Operand(frame);
-            AssertEqual(rom.ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), PolypRockFrameToolingDefinitions.Spritemap(frame),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), PolypRockFrameToolingDefinitions.Spritemap(frame),
                 $"Polyp lava rock frame {frame} spritemap");
             AssertTrue(PolypRockFrameToolingDefinitions.TryFrame(key, out EnemyProjectileFrameId found) && found == frame, $"Polyp lava rock frame {frame} is found by its key");
         }

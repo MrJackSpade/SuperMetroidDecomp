@@ -22,7 +22,7 @@ internal static class CrocomireSkeletonFrameGeometryVerification
             AssertEqual(expected[index], EnemyCompositionSchemaTooling.CompositionOf(CrocomireSkeletonVisualDefinitions.Frames[index]).Native,
                 "native skeleton identity and name");
             int address = 0xa40000 | expected[index].Pointer;
-            int count = rom.ReadCartridgeWord(address);
+            int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(index < 13 ? 5 : index < 21 ? collapseCounts[index - 13] : 1,
                 count, "native skeleton component count");
             if (index + 1 < expected.Length)

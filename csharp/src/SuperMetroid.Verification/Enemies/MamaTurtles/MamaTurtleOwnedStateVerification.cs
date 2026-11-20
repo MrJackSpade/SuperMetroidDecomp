@@ -48,10 +48,10 @@ internal static class MamaTurtleOwnedStateVerification
             enemies.MamaTurtleBehavior.InitializeBabyTurtle(baby.HeldOccupant(), baby);
         }
         var samus = new SuperMetroid.Core.Samus.SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
-        enemies.MamaTurtleBehavior.RunMamaTurtleMainAi(mama.HeldOccupant(), mama.RequireSpeciesState<MamaTurtleEnemyState>(), new ClockedEnemyAiFrame(
+        enemies.MamaTurtleBehavior.RunMamaTurtleMainAi(mama.HeldOccupant(), new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), 0) with { Samus = samus },
             new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero)));
-        AssertEqual(MamaTurtleAction.Asleep, SuperMetroid.Core.Enemies.EnemyPartners.Listed<MamaTurtleEntity>(mama).State.Action,
+        AssertEqual(MamaTurtleAction.Asleep, mama.RequireSpeciesState<MamaTurtleEnemyState>().Action,
             "a Mama listed second links the four babies listed after her and falls asleep");
         Console.WriteLine("Mama Turtle owned state: the hover add, cap, wall reversal quirk and her babies' links match.");
     }

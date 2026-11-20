@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>The Multiviola species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySettingsFactory<MultiviolaSpawnSettings>
+internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Multiviola];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MultiviolaSpawnSettings settings) => new MultiviolaEntity(this, occupant, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MultiviolaEntity(this, occupant, place, common));
 
     /// <summary>Room collision mover used after each attempted Multiviola velocity component.</summary>
     private readonly EnemyTerrain _terrain;
@@ -24,14 +24,14 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySettingsFactory<
     }
 
     /// <summary>Initializes the Multiviola.</summary>
-    internal static MultiviolaEnemyState InitializeMultiviola(RoomEnemyOccupant occupant, MultiviolaSpawnSettings settings)
+    internal static void InitializeMultiviola(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        var state = new MultiviolaEnemyState(settings)
+        var state = new MultiviolaEnemyState
         {
-            Heading = settings.Heading,
+            Heading = occupant.SpawnSettings<MultiviolaSpawnSettings>().Heading,
         };
+        place.SetSpeciesState(state);
         state.Playback = new(MultiviolaAnimations.StartingWith(MultiviolaSegment.Flying), AnimationPlace.StartOfAnimation);
-        return state;
     }
 
     /// <summary>Runs the Multiviola's main AI.</summary>
@@ -43,7 +43,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySettingsFactory<
         // Each update takes the velocity afresh from the heading the bounces turn (#2531). It is not
         // EnemyMath.VelocityAlong: an axis the Multiviola heads left or up along moves at MultiviolaLeftOrUpSpeed, which is
         // not the speed's exact reverse and moves it a pixel an update even where the axis has no speed.
-        FixedVector<RoomPixels> velocity = MultiviolaLeftOrUpSpeed.VelocityAlong(state.Heading, state.Settings.Speed);
+        FixedVector<RoomPixels> velocity = MultiviolaLeftOrUpSpeed.VelocityAlong(state.Heading, occupant.SpawnSettings<MultiviolaSpawnSettings>().Speed);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
@@ -62,14 +62,14 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySettingsFactory<
     }
 
     /// <summary>Advances Multiviola's typed animation.</summary>
-    internal static void AdvanceMultiviolaTypedAnimation(RoomEnemyPlace place, MultiviolaEnemyState multiviolaEnemyState) =>
-        EnemyAnimationPlayback.Advance(place, multiviolaEnemyState, MultiviolaAnimations.Segments,
+    internal static void AdvanceMultiviolaTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, MultiviolaAnimations.Segments,
             static (MultiviolaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Multiviola animation raised {cue}."));
 
     /// <summary>Runs Multiviola's main AI.</summary>
-    internal void RunMultiviolaMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, MultiviolaEnemyState state, IEnemyAiFrame frame)
+    internal void RunMultiviolaMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunMultiviolaMain(occupant, place, state, frame.Level);
+        RunMultiviolaMain(occupant, place, place.RequireSpeciesState<MultiviolaEnemyState>(), frame.Level);
     }
 }

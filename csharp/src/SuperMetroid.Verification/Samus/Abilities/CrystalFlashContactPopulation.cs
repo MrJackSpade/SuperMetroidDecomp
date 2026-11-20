@@ -52,7 +52,4 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
     }
     /// <summary>Forwards mutable bus writes outside the fixture's read-only population overlay.</summary>
     public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
-
-    /// <summary>Reads the wrapped address space's cartridge byte.</summary>
-    public byte ReadCartridgeByte(int address) => inner.ReadCartridgeByte(address);
 }

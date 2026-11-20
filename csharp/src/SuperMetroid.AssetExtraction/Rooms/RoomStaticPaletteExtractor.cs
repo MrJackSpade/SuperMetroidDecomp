@@ -19,7 +19,7 @@ public static class RoomStaticPaletteExtractor
     {
         Ensure.NotNull(bus);
         var files = new Dictionary<string, byte[]>();
-        RoomTilesetSourceMap sources = RoomTilesetSources.Read(bus);
+        RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
         foreach (TilesetDefinition tileset in RoomTilesets.All)
         {
             RoomPaletteSet set = tileset.Palette;
@@ -27,7 +27,7 @@ public static class RoomStaticPaletteExtractor
             string name = RoomStaticPaletteFormat.FileName(set);
             if (files.ContainsKey(name)) continue;
 
-            byte[] decompressed = RomDataReader.Decompress(bus, address);
+            byte[] decompressed = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address);
             if (decompressed.Length < RoomStaticPaletteFormat.ByteCount)
                 throw new InvalidDataException(
                     $"Room palette {address} has only ${decompressed.Length:X} bytes.");

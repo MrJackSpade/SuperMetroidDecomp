@@ -20,6 +20,7 @@ using static SuperMetroid.Verification.Audio.AudioVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidDeathExplosionSoundVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidVictimVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.ZebetiteShotShareVerification;
+using static SuperMetroid.Verification.Enemies.EnemyOccupantStatesVerification;
 using static SuperMetroid.Verification.Enemies.KilledEnemyCompatibilityVerification;
 using static SuperMetroid.Verification.Bosses.BossRuleRangesVerification;
 using static SuperMetroid.Verification.Enemies.EnemyRuleRangesVerification;
@@ -1226,6 +1227,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyBabyMetroidVictim), () => VerifyBabyMetroidVictim()),
         new(nameof(VerifyBabyMetroidFeeding), () => VerifyBabyMetroidFeeding()),
         new(nameof(VerifyZebetiteShotShare), () => VerifyZebetiteShotShare()),
+        new(nameof(VerifyEnemyOccupantStates), () => VerifyEnemyOccupantStates()),
         new(nameof(VerifyKilledEnemyCompatibility), () => VerifyKilledEnemyCompatibility()),
         new(nameof(VerifyBossRandomRolls), () => VerifyBossRandomRolls()),
         new(nameof(VerifyMetroidClosingDistance), () => VerifyMetroidClosingDistance()),

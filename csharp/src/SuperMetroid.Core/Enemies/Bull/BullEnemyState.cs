@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// </summary>
 public sealed class BullEnemyState
 {
-    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
-    internal BullSpawnSettings Settings { get; }
-
     /// <summary>Starts one Bull with the shot-reaction guard the previous Bull in its place left, or none for the place's first.</summary>
     /// <remarks>
     /// The Bull's setup writes only the speed and interval settings. The guard's countdown is
@@ -20,10 +17,8 @@ public sealed class BullEnemyState
     /// </remarks>
     /// <param name="previous">The place's previous Bull, or null for the place's first in the room.</param>
     /// <param name="action">The action the Bull starts in.</param>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
-    internal BullEnemyState(BullEnemyState? previous, BullAction action, BullSpawnSettings settings)
+    internal BullEnemyState(BullEnemyState? previous, BullAction action)
     {
-        Settings = Ensure.NotNull(settings);
         Action = action;
         ShotReactionDisableTimer = UpdateCountdown.For(previous?.ShotReactionDisableTimer.UpdatesLeft ?? 0);
     }

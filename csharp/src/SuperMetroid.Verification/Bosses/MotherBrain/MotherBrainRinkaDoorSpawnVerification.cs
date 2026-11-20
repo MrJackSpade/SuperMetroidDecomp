@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus.Drawing;
@@ -38,9 +37,9 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         progress.Runtime = runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RinkaShaft);
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingLeftNormalPose;
         samus.Position = samus.Position.WithWhole(new(0x14, 0x028b));
         samus.Control.LockOutPlayer();
@@ -63,8 +62,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
             selected = true;
         }
         AssertTrue(selected, "the shaft has a door into Mother Brain's room");
-        game.Session.EnterDoor(runtime.RoomObjects.DoorContacts.EnteredDoor
-            ?? throw new InvalidOperationException("Verification requires the shaft's door to be entered."));
+        game.Session.Enter(DoorTransitionStep.EnteringDoor);
         for (int guard = 0; game.GameState != SuperMetroidGameState.MainGameplay && guard < 600; guard++)
             game.Step(0);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the door transition completes");
@@ -82,7 +80,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
             AssertEqual(expected[index].X, rinkas[index].Position.X.Whole, $"Rinka {index} X follows the loader's camera");
             AssertEqual(expected[index].Y, rinkas[index].Position.Y.Whole, $"Rinka {index} Y follows the loader's camera");
             // The point a Rinka moves to becomes the spawn point it respawns at; its population entry is never rewritten (#2256).
-            RinkaSpawnPoint point = SuperMetroid.Core.Enemies.EnemyPartners.Listed<RinkaEntity>(rinkas[index]).State?.SharedSpawn?.SpawnPoint
+            RinkaSpawnPoint point = rinkas[index].SpeciesState<RinkaEnemyState>()?.SharedSpawn?.SpawnPoint
                 ?? throw new InvalidOperationException($"Special Rinka {index} holds no spawn point.");
             AssertEqual(rinkas[index].Position.Whole, RinkaSpawnReservations.Centre(point), $"Rinka {index} respawns at the point it moved to");
             AssertEqual(EnemyPlacing.At(populated[index]), rinkas[index].HeldOccupant().Spawn.Placing, $"Rinka {index}'s population entry keeps its placement");

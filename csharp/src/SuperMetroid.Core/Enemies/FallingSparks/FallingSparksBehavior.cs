@@ -29,88 +29,87 @@ internal sealed class FallingSparksBehavior
     }
 
     /// <summary>Allocates and initializes a falling spark projectile.</summary>
-    internal void SpawnFallingSpark(RoomEnemyPlace source)
+    internal void SpawnFallingSpark(RoomEnemyOccupant occupant, RoomEnemyPlace source)
     {
-        var spark = new FallingSparkState(launch);
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FallingSpark, Spark(spark), SpriteGraphics.SpawnedBy(source));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FallingSpark, Spark, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 
-        // The spark drifts sideways by a random launch: the setup takes a random number, the authored launches one short
-        // of the eight selections; the last selection drifts by FallingSparkUnauthoredLaunch.
+        // The spark starts as its definition has it: blank at first, with its animation, size, damage and the way it
+        // touches Samus. It then appears below its source, still, and drifts sideways by a random launch.
+        projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.Falling));
+        projectile.Position = source.Position.WithWholeY(source.Position.Y.Whole + FallingSparkMotionDefinitions.SpawnBelowSource);
+
+        // The setup zeros both ordinary velocities, then takes a random number. The
+        // authored launches are one short of the eight selections; the last selection drifts by
+        // FallingSparkUnauthoredLaunch.
+        projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
         Func<int> nextRandom = _room.Random.Generate;
         SignedSixteenSixteen launch = FallingSparkLaunchDefinitions.Launch.Choose(nextRandom())
             .DriftWith(() => _room.Session.Overreads.FallingSparkUnauthoredLaunch);
-
-        // The spark starts as its definition has it: blank at first, with its animation, size, damage and the way it
-        // touches Samus. It then appears below its source, still, both ordinary velocities zero.
-        projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.Falling));
-        projectile.Position = source.Position.WithWholeY(source.Position.Y.Whole + FallingSparkMotionDefinitions.SpawnBelowSource);
-        projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
+        Spark.States.Start(projectile, new FallingSparkState(launch));
     }
 
 
     /// <summary>Moves the falling spark one update.</summary>
-    /// <summary>The behaviour of a falling spark keeping <paramref name="spark"/>: it falls, drifting as its launch set.</summary>
-    /// <param name="spark">What the spark keeps: its horizontal step.</param>
-    internal EnemyProjectileBehavior Spark(FallingSparkState spark) =>
-        new SingleMotionProjectileBehavior(context => FallFallingSpark(context.Projectile, spark, context.Level, context.ShortCounter));
-
-    internal void FallFallingSpark(
+    private void FallFallingSpark(
         EnemyProjectile projectile,
-        FallingSparkState spark,
         RoomLevelData level,
         int frameCycle)
     {
         // A falling spark first looks for the floor: the probe creeps it down (FallingSparkFloorProbe) through the
         // enemy projectiles' block collision, slope reactions included, and the creep stays on top of the spark's own
         // fall below.
+        FallingSparkState spark = Spark.States.Of(projectile);
         if (!spark.VerticalSpeed.IsNegative)
         {
             if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical, _floorProbe.CreepFor(spark.VerticalSpeed)))
             {
-                BeginFallingSparkFloorImpact(projectile, spark);
+                BeginFallingSparkFloorImpact(projectile);
                 return;
             }
 
-            // Gravity adds a quarter pixel to the speed's fraction; a fraction that passes a whole pixel raises the
+            // Gravity adds to the speed's fraction; a fraction that passes a whole pixel raises the
             // whole speed by one.
             SignedSixteenSixteen accelerated = spark.VerticalSpeed + FallingSparkMotionDefinitions.Gravity;
 
-            // The whole speed stops rising once it would reach four. The fraction still keeps its quarter-pixel
-            // increment, giving the slightly asymmetric cap.
+            // The whole speed stops rising once it would reach its terminal speed. The fraction still keeps its
+            // gravity's increment, giving the slightly asymmetric cap.
             spark.VerticalSpeed = accelerated.WholePixels < FallingSparkMotionDefinitions.TerminalWholeSpeed
                 ? accelerated
                 : accelerated.WithWholePixels(spark.VerticalSpeed.WholePixels);
         }
 
-        AddFallingSparkVerticalVelocity(projectile, spark);
-        AddFallingSparkHorizontalVelocity(projectile, spark);
+        AddFallingSparkVerticalVelocity(projectile);
+        AddFallingSparkHorizontalVelocity(projectile);
 
-        if (FallingSparkCadenceDefinitions.TrailEveryFourthUpdate.IsDue(frameCycle))
+        if (FallingSparkCadenceDefinitions.SparkTrail.IsDue(frameCycle))
             SpawnFallingSparkTrail(projectile);
     }
 
-    /// <summary>Adds the spark's vertical speed to its position, the fraction's overflow passing into the whole.</summary>
-    private static void AddFallingSparkVerticalVelocity(
-        EnemyProjectile projectile, FallingSparkState spark) =>
-        projectile.Position = projectile.Position.AdvanceY(spark.VerticalSpeed);
+    /// <summary>Moves the spark by its vertical speed, a fraction past a whole pixel carrying into the whole
+    /// pixels.</summary>
+    private void AddFallingSparkVerticalVelocity(
+        EnemyProjectile projectile) =>
+        projectile.Position = projectile.Position.AdvanceY(Spark.States.Of(projectile).VerticalSpeed);
 
-    /// <summary>Adds the spark's horizontal drift, the fraction's overflow passing into the whole.</summary>
-    internal static void AddFallingSparkHorizontalVelocity(
-        EnemyProjectile projectile, FallingSparkState spark) =>
-        projectile.Position = projectile.Position.AdvanceX(spark.HorizontalStep);
+    /// <summary>Moves the spark by its horizontal drift, a fraction past a whole pixel carrying into the whole
+    /// pixels.</summary>
+    private void AddFallingSparkHorizontalVelocity(
+        EnemyProjectile projectile) =>
+        projectile.Position = projectile.Position.AdvanceX(Spark.States.Of(projectile).HorizontalStep);
 
     /// <summary>
-    /// Switches a falling spark to its floor-impact animation and scales its stored
-    /// horizontal delta, the fraction's overflow passing into the whole.
+    /// Switches a falling spark to its floor-impact animation and scales its sideways drift, a fraction past a whole
+    /// pixel carrying into the whole pixels.
     /// </summary>
-    internal static void BeginFallingSparkFloorImpact(EnemyProjectile projectile, FallingSparkState spark)
+    private void BeginFallingSparkFloorImpact(EnemyProjectile projectile)
     {
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.HitFloor));
 
-        // The impact quadruples the sideways drift, wrapping round past the largest drift: the unauthored launch the last
-        // random selection reads can be any drift, so its quadruple can pass the largest the drift holds.
+        // The impact scales up the sideways drift, wrapping round past the largest drift: the unauthored launch the last
+        // random selection reads can be any drift, so its scaled drift can pass the largest the drift holds.
+        FallingSparkState spark = Spark.States.Of(projectile);
         spark.HorizontalStep *= FallingSparkMotionDefinitions.ImpactDriftScale;
 
         // While the bounce carries the spark upward, later updates skip collision and gravity as the
@@ -128,4 +127,7 @@ internal sealed class FallingSparksBehavior
             projectile.Graphics);
     }
 
+    /// <summary>A falling spark (#1760): it drops under gravity, bouncing on the floor and leaving a trail.</summary>
+    private StatefulSingleMotionProjectileBehavior<FallingSparkState> Spark => field ??= new(
+        context => FallFallingSpark(context.Projectile, context.Level, context.ShortCounter));
 }

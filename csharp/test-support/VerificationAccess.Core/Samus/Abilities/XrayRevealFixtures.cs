@@ -53,7 +53,7 @@ internal static class XrayRevealFixtures
         shape switch
         {
             XrayRevealShape.CopyWide => XrayRevealVisualBlocks.Wide(topLeft, topRight),
-            XrayRevealShape.CopyTall => XrayRevealVisualBlocks.Tall(topLeft, bottomLeft),
+            XrayRevealShape.CopyTall => XrayRevealVisualBlocks.Tall(SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(topLeft), SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(bottomLeft)),
             XrayRevealShape.CopySquare => XrayRevealVisualBlocks.Square(topLeft, topRight, bottomLeft, bottomRight),
             XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar => XrayRevealVisualBlocks.One(topLeft),
             XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension =>

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 
@@ -16,10 +15,10 @@ internal sealed class CapturedGameplayFrames : IGameplayFramePublication
     }
 
     /// <inheritdoc />
-    public DisplayPacket Publish(SuperMetroidRuntime runtime, RoomScope loaded, DisplayPacket current, int frameNumber)
+    public DisplayPacket Publish(SuperMetroidRuntime runtime, DisplayPacket current, int frameNumber)
     {
         Ensure.NotNull(runtime);
-        GameplayDisplayFrame frame = runtime.PublishDisplayFrame(loaded);
+        GameplayDisplayFrame frame = runtime.PublishDisplayFrame();
         return new(frameNumber, GameplayDisplayCapture.Capture(frame));
     }
 }

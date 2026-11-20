@@ -62,19 +62,6 @@ public sealed class SaveSlotStore
     }
 
     /// <summary>
-    /// A detached copy of the save in <paramref name="slot"/>, which the game was chosen from or has just written
-    /// (#2554): the file select's existing save, the copy it made, or the save a continue resumes.
-    /// </summary>
-    /// <param name="slot">A slot holding a valid save.</param>
-    /// <exception cref="InvalidDataException">The slot holds no valid save.</exception>
-    public SuperMetroidSaveSlot ReadSavedSlot(SaveSlot slot)
-    {
-        RequireSlot(slot);
-        return slots.TryGetValue(slot, out SuperMetroidSaveSlot? saved) ? Detached(saved, slot)
-            : throw new InvalidDataException($"Save slot {slot} holds no valid save.");
-    }
-
-    /// <summary>
     /// Saves a slot: stores the slot as the game would read it back, so what a save does not keep (exploration
     /// of map runs no stock cell occupies, Ceres's exploration) is gone when the slot is read back.
     /// </summary>

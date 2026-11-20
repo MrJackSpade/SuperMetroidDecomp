@@ -36,10 +36,10 @@ internal static class NorfairLavaJumperOwnedStateVerification
             "the placement builds each part's own entity (#2164): the jumper and its follower");
 
         parentState.YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-512);
-        enemies.SqueeptBehavior.RunNorfairLavaJumperFollowerMain(follower, follower.RequireSpeciesState<NorfairLavaJumperFollowerState>());
+        enemies.SqueeptBehavior.RunNorfairLavaJumperFollowerMain(follower);
         AssertTrue(!follower.Presence.HasAny(EnemyPresence.Hidden), "the follower shows while its parent rises");
         parentState.YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);
-        enemies.SqueeptBehavior.RunNorfairLavaJumperFollowerMain(follower, follower.RequireSpeciesState<NorfairLavaJumperFollowerState>());
+        enemies.SqueeptBehavior.RunNorfairLavaJumperFollowerMain(follower);
         AssertTrue(follower.Presence.HasAny(EnemyPresence.Hidden), "the follower hides while its parent falls");
         Console.WriteLine("Norfair lava jumper owned state: gravity carrying the velocity through zero and the follower's parent velocity read match.");
     }

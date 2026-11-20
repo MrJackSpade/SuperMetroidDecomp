@@ -38,12 +38,12 @@ internal static class AudioMusicProgramsVerification
                     raw.ReadApuByteForVerification(address),
                     $"{bank.Name} compiled music byte ${address:X4}");
             }
-            for (int track = 0; track < bank.MusicTracks.Count; track++)
+            foreach (AudioMusicTrackMetadata track in bank.MusicTracks)
             {
-                int pointer = SpcDriverDefinitions.Ram.DefaultMusicPointer + track * 2;
+                int pointer = SpcDriverDefinitions.Ram.DefaultMusicPointer + MusicTrackNumbers.Number(definition.DataSet, track.Song) * 2;
                 ushort actual = unchecked(
                     LittleEndianBytes.Word(raw.ReadApuByteForVerification(pointer), raw.ReadApuByteForVerification(pointer + 1)));
-                AssertEqual(SpcMusicDefinitionCodec.DriverPointer(bank.MusicTracks[track]), (int)actual, $"{bank.Name} track {track} route");
+                AssertEqual(track.Address, actual, $"{bank.Name} {track.Song} route");
             }
         }
 

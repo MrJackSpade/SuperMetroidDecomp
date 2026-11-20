@@ -10,29 +10,27 @@ internal sealed class DownwardsElevatorWait
 {
     /// <summary>
     /// The delay loading stays paused for, over once its frames have passed: a delay of <c>n</c> pauses <c>n</c> frames and
-    /// resumes loading on the frame after them (#2488).
+    /// resumes loading on the frame after them (#2488); none while loading is not paused.
     /// </summary>
-    private UpdateCountdown delay = UpdateCountdown.Ended();
+    private UpdateCountdown? delay;
 
-    /// <summary>Whether room loading is paused for the downward elevator: from its delay's start until loading resumes.</summary>
-    internal bool Waiting { get; private set; }
+    /// <summary>Whether room loading is paused for the downward elevator.</summary>
+    internal bool Waiting => delay is not null;
 
     /// <summary>Starts the elevator's delay.</summary>
-    internal void Begin()
-    {
-        delay = UpdateCountdown.For(ElevatorDoorDefinitions.DownwardsElevatorDelayFrames);
-        Waiting = true;
-    }
+    internal void Begin() => delay = UpdateCountdown.For(ElevatorDoorDefinitions.DownwardsElevatorDelayFrames);
 
-    /// <summary>Counts one frame of the delay the door's wait began; returns whether loading resumes.</summary>
+    /// <summary>Counts one frame of the delay; returns whether loading resumes.</summary>
+    /// <exception cref="InvalidOperationException">Loading is not paused.</exception>
     internal bool CountFrame()
     {
-        if (delay.IsRunning)
+        UpdateCountdown paused = delay ?? throw new InvalidOperationException("The downward elevator's delay is counted while loading is not paused.");
+        if (paused.IsRunning)
         {
-            delay.Count();
+            paused.Count();
             return false;
         }
-        Waiting = false;
+        delay = null;
         return true;
     }
 }

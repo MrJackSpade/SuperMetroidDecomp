@@ -2,18 +2,19 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Beam combination attacks (charge plus special weapon): activation, and the ice, plasma, spazer and wave combo steps with the Spacetime shot's colour copy.</summary>
+/// <summary>Beam combination attacks (charge plus special weapon): activation, and the ice, plasma, spazer and wave
+/// combo steps with the Spacetime shot's change to saved progress.</summary>
 internal sealed class BeamCombos
 {
     /// <summary>Ends expired special attack particles through the same projectile lifecycle as ordinary beams.</summary>
     private readonly ProjectileAnimation _animation;
     /// <summary>Resets Samus's charge flare while combo particles control shared firing state.</summary>
     private readonly BeamChargeState _charge;
-    /// <summary>The shot pool whose first four places a special beam attack's particles take together.</summary>
+    /// <summary>The shot pool whose first places a special beam attack's particles take together.</summary>
     private readonly SamusShotPool _pool;
     /// <summary>Spawns periodic Wave and other special attack trails from their live particles.</summary>
     private readonly ProjectileTrails _trails;
-    /// <summary>What the Spacetime shot's runaway colour copy overwrites in saved progression.</summary>
+    /// <summary>What the Spacetime shot changes in saved progress.</summary>
     private readonly SpaceTimeProgressionOverwrite<SamusProjectileSegmentBeat, ProgressionOverwrite> _spaceTimeOverwrite;
 
     /// <summary>Connects special beam activation and particle updates to shared projectile, charge, and trail owners.</summary>
@@ -61,35 +62,39 @@ internal sealed class BeamCombos
             // and each plays its part.
             IReadOnlyList<SpecialAttackParticle> parts = SpecialAttackParticleDefinitions.InPlaceOrder;
             SamusProjectile[] particles = SpecialAttackReplacesFirstShots.ParticleShots(parts.Count, _pool.Occupy);
-            // The Ice and Plasma particles turn round Samus four steps on each update, or four steps back (a full circle
-            // less four) when a left-facing Samus starts the attack, which carries them the opposite way by as much.
+            // The Ice and Plasma particles turn round Samus by OrbitTurnOn each update, or by OrbitTurnBack (a full circle
+            // less as much) when a left-facing Samus starts the attack, which carries them the opposite way by as much.
             TrigonometryAngle orbitTurn = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right)
                 ? BeamComboDefinitions.OrbitTurnOn
                 : BeamComboDefinitions.OrbitTurnBack;
-            // A Spazer attack's particles' flights, in place order, which pair once every particle has its own.
-            List<SpazerParticleState> spazerParticles = [];
             for (int partIndex = 0; partIndex < parts.Count; partIndex++)
             {
                 SpecialAttackParticle part = parts[partIndex];
                 SamusProjectile shot = particles[partIndex];
-                shot.Type = SamusProjectileType.Beam(beam, charged: true);
+                // A Spazer attack's trailing particle is the Spazer echo from the start; every other particle is the
+                // combination's charged beam. Each deals the damage of the projectile it plays.
+                bool spazerTrail = kind == SamusComboKind.Spazer && part.SpazerTrail;
+                BeamComboShotKind shotKind = kind == SamusComboKind.Ice ? BeamComboShotKind.Charged
+                    : spazerTrail ? BeamComboShotKind.Echo : BeamComboShotKind.Combo;
+                SamusProjectileOccupant held = OccupyComboShot(shot, spazerTrail
+                    ? SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail)
+                    : SamusProjectileType.Beam(beam, charged: true), shotKind);
                 shot.PicturedBeams = beam;
                 shot.Direction = kind == SamusComboKind.Spazer ? SamusProjectileDirection.DownFacingLeft : SamusProjectileDirection.UpFacingRight;
                 switch (kind)
                 {
                     case SamusComboKind.Wave:
-                        shot.Install(new WaveSpecialAttackHoming(new WaveParticleState(part)));
+                        held.Install(SamusShotBehaviors.WaveSpecialAttack, new WaveParticleState(part));
                         break;
                     case SamusComboKind.Ice:
-                        shot.Install(new IceSpecialAttackOrbit(new IceParticleState(part, orbitTurn)));
+                        held.Install(SamusShotBehaviors.IceSpecialAttackInward, new IceParticleState(part, orbitTurn));
                         break;
                     case SamusComboKind.Spazer:
-                        var spazer = new SpazerParticleState(part, SpazerTurn(part.SpazerTurn, BeamComboDefinitions.SpazerCirclingTurn));
-                        spazerParticles.Add(spazer);
-                        shot.Install(new SpazerSpecialAttackFlight(spazer));
+                        held.Install(SamusShotBehaviors.SpazerSpecialAttack,
+                            new SpazerParticleState(part, SpazerTurn(part.SpazerTurn, BeamComboDefinitions.SpazerCirclingTurn)));
                         break;
                     case SamusComboKind.Plasma:
-                        shot.Install(new PlasmaSpecialAttackRing(new PlasmaParticleState(part, orbitTurn)));
+                        held.Install(SamusShotBehaviors.PlasmaSpecialAttack, new PlasmaParticleState(part, orbitTurn));
                         break;
                     default:
                         throw new InvalidOperationException($"Undefined combo {kind}.");
@@ -102,53 +107,67 @@ internal sealed class BeamCombos
                     shot.Position = shot.Position.WithoutFractions();
                 if (kind == SamusComboKind.Wave)
                 {
-                    // A Wave particle starts 128 pixels from Samus on each axis, so near the room's top or left edge it
+                    // A Wave particle starts its wave start away from Samus on each axis, so near the room's top or left edge it
                     // starts above or left of the room's origin, a place OffRoomPlaces gives it.
                     shot.Position = shot.Position.WithWhole(new(OffRoomPlaces.Place(samus.Position.X.Whole + part.WaveStart.X), OffRoomPlaces.Place(samus.Position.Y.Whole + part.WaveStart.Y)));
                 }
-                if (kind == SamusComboKind.Spazer && part.SpazerTrail) shot.Type = SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail);
-                InitializeComboShot(shot, kind == SamusComboKind.Ice ? new BeamComboShot.Charged()
-                    : kind == SamusComboKind.Spazer && part.SpazerTrail ? new BeamComboShot.Echo(SamusBeamEcho.SpazerComboTrail)
-                    : new BeamComboShot.SpecialAttack(kind));
+                StartComboShot(held, shotKind);
             }
             // Each Spazer beam particle pairs with the trailing particle that turns its way.
             if (kind == SamusComboKind.Spazer)
             {
-                for (int index = 0; index < spazerParticles.Count; index++)
-                {
-                    SpazerParticleState spazer = spazerParticles[index];
-                    spazerParticles[index].Partner = particles[Enumerable.Range(0, spazerParticles.Count).Single(other =>
-                        other != index && spazerParticles[other].Part.SpazerTurn == spazer.Part.SpazerTurn)];
-                }
+                foreach (SamusProjectile particle in particles)
+                    particle.KindStateAs<SpazerParticleState>().Partner = particles.Single(other => !ReferenceEquals(other, particle) &&
+                        PartOf(other).SpazerTurn == PartOf(particle).SpazerTurn);
             }
             _pool.ShotCount.CountSpecialAttack(parts.Count);
             // The attack waits the cooldown of its first place's projectile: the combination's charged shot.
             shared.SetSharedCooldown(SamusProjectileCooldowns.Read(beam, BeamShotCooldowns.Shot.Charged));
-            sound = BeamComboDefinitions.ActivationSounds.TryGetValue(kind, out SoundEffectId? activationSound)
+            sound = BeamComboDefinitions.ActivationSounds.TryGetValue(kind, out SoundEffectId activationSound)
                 ? activationSound
                 : throw new InvalidOperationException($"Undefined combo {kind}.");
         }
         if (samus.PowerBombs == 0)
-            samus.SelectedHudItem = samus.AutoCancelledItem = HudItem.Beam;
+            samus.SelectedHudItem = HudItem.Beam;
+            samus.AutoCancelledItem = null;
         return activated;
     }
 
-    /// <summary>Gives a particle the damage and animation of the charged beam, the special attack or the Spazer echo, and starts its first frame.</summary>
-    internal static void InitializeComboShot(SamusProjectile shot, BeamComboShot shotKind)
+    /// <summary>The projectile whose damage and animation a particle of <paramref name="type"/> takes as the charged beam, the special attack or the Spazer echo.</summary>
+    private static SamusProjectileKind ComboShotKind(SamusProjectileType type, BeamComboShotKind shotKind) => shotKind switch
     {
-        SamusProjectileKind projectileKind = shotKind switch
-        {
-            BeamComboShot.Charged => SamusProjectileSelection.BeamShot(shot.Type.BeamCombination, charged: true),
-            BeamComboShot.Echo echo => SamusProjectileSelection.Echo(echo.Of),
-            BeamComboShot.SpecialAttack attack => SamusProjectileSelection.SpecialAttack(attack.Attack),
-            _ => throw new ArgumentOutOfRangeException(nameof(shotKind), shotKind, "Undefined combo shot kind."),
-        };
-        shot.Damage = SamusProjectileDamage.Read(projectileKind);
-        SamusProjectileSegment segment = shotKind is BeamComboShot.SpecialAttack
+        BeamComboShotKind.Charged => SamusProjectileSelection.BeamShot(type.BeamCombination, charged: true),
+        BeamComboShotKind.Echo => SamusProjectileSelection.Echo(
+            type.Echo ?? throw new InvalidOperationException("Only an echo projectile takes the echo's damage and animation.")),
+        BeamComboShotKind.Combo => SamusProjectileSelection.SpecialAttack(type.BeamCombination)
+            ?? throw new InvalidDataException($"{type.BeamCombination}'s special attack has no particles of its own."),
+        _ => throw new ArgumentOutOfRangeException(nameof(shotKind), shotKind, "Undefined combo shot kind."),
+    };
+
+    /// <summary>
+    /// Takes <paramref name="shot"/>'s place with a particle of <paramref name="type"/> dealing the damage of the charged
+    /// beam, the special attack or the Spazer echo it plays.
+    /// </summary>
+    internal static SamusProjectileOccupant OccupyComboShot(SamusProjectile shot, SamusProjectileType type, BeamComboShotKind shotKind) =>
+        Ensure.NotNull(shot).Occupy(type, SamusProjectileDamage.Read(ComboShotKind(type, shotKind)));
+
+    /// <summary>Gives a particle the damage and animation of the charged beam, the special attack or the Spazer echo, and starts its first frame.</summary>
+    private static void InitializeComboShot(SamusProjectileOccupant held, BeamComboShotKind shotKind)
+    {
+        held.Damage = SamusProjectileDamage.Read(ComboShotKind(held.Type, shotKind));
+        StartComboShot(held, shotKind);
+    }
+
+    /// <summary>Starts a particle's animation as the charged beam, the special attack or the Spazer echo, from its first frame.</summary>
+    internal static void StartComboShot(SamusProjectileOccupant held, BeamComboShotKind shotKind)
+    {
+        SamusProjectile shot = held.Projectile;
+        SamusProjectileKind projectileKind = ComboShotKind(held.Type, shotKind);
+        SamusProjectileSegment segment = shotKind == BeamComboShotKind.Combo
             ? SamusProjectileKinds.SoleAnimation(projectileKind)
             : SamusProjectileKinds.Animation(projectileKind, shot.Direction);
         shot.Animation = SamusProjectilePlayback.Start(segment);
-        if (shotKind is BeamComboShot.Charged)
+        if (shotKind == BeamComboShotKind.Charged)
             shot.Radius = SamusProjectilePlayback.InitialRadius(segment);
     }
 
@@ -156,16 +175,18 @@ internal sealed class BeamCombos
     /// Runs one update of an Ice special attack particle orbiting Samus, and returns its optional Samus-library sound
     /// request: the attack's end sound when it is spent, or when its lifetime ends and it turns outward to spread.
     /// </summary>
-    internal SoundEffectId? StepIceOrbit(SamusState samus, SamusProjectile shot, IceParticleState ice, SamusBombProjectileSystem shared)
+    internal SoundEffectId? StepIceOrbit(SamusState samus, SamusProjectileOccupant held, SamusBombProjectileSystem shared)
     {
+        SamusProjectile shot = held.Projectile;
+        IceParticleState ice = shot.KindStateAs<IceParticleState>();
         if (shot.IsSpent)
         {
             _animation.ClearProjectile(shot);
             return SamusSound.IceSpecialAttackEnd;
         }
-        StepTrail(shot);
+        StepTrail(held);
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(ice.Angle, ice.Radius);
-        // An Ice particle circles Samus 32 pixels out, further than her centre lies from a wall at the room's left edge, so
+        // An Ice particle circles Samus at its orbit radius, further than her centre lies from a wall at the room's left edge, so
         // it passes left of the room's origin there, and above it where the room is open at the top, places
         // OffRoomPlaces gives it.
         shot.Position = OffRoomPlaces.WithWholeX(shot.Position, samus.Position.X.Whole + orbit.X);
@@ -174,7 +195,7 @@ internal sealed class BeamCombos
         SoundEffectId? sound = null;
         if (ice.Lifetime.Count())
         {
-            shot.Behavior = new IceSpecialAttackSpread(ice);
+            shot.Behavior = SamusShotBehaviors.IceSpecialAttackOutward;
             ice.Radius = BeamComboDefinitions.IceSpreadStartRadius;
             sound = SamusSound.IceSpecialAttackEnd;
         }
@@ -187,26 +208,27 @@ internal sealed class BeamCombos
     /// Runs one update of an Ice special attack particle spreading outward round Samus, its circle growing, until it leaves
     /// the view; it makes no sound.
     /// </summary>
-    internal void StepIceSpread(SamusState samus, SamusProjectile shot, IceParticleState ice, SamusBombProjectileSystem shared,
-        Position16<RoomPixels> camera)
+    internal void StepIceSpread(SamusState samus, SamusProjectileOccupant held, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
     {
+        SamusProjectile shot = held.Projectile;
+        IceParticleState ice = shot.KindStateAs<IceParticleState>();
         if (shot.IsSpent)
         {
             _animation.ClearProjectile(shot);
             return;
         }
-        StepTrail(shot);
+        StepTrail(held);
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(ice.Angle, ice.Radius);
         // The spreading circle grows until its particles leave the view, so beside the room's top or left edge they pass
         // above or left of the room's origin first, places OffRoomPlaces gives them.
         shot.Position = OffRoomPlaces.WithWholeX(shot.Position, samus.Position.X.Whole + orbit.X);
-        if (LeftViewHorizontally(shot, camera))
+        if (LeftViewHorizontally(held, camera))
         {
             _animation.ClearProjectile(shot);
             return;
         }
         shot.Position = OffRoomPlaces.WithWholeY(shot.Position, samus.Position.Y.Whole + orbit.Y);
-        if (LeftViewVertically(shot, camera))
+        if (LeftViewVertically(held, camera))
         {
             _animation.ClearProjectile(shot);
             return;
@@ -218,10 +240,11 @@ internal sealed class BeamCombos
     }
 
     /// <summary>Counts down a particle's trail countdown, and spawns a trail behind it and starts the countdown again when it runs out.</summary>
-    private void StepTrail(SamusProjectile shot)
+    private void StepTrail(SamusProjectileOccupant held)
     {
+        SamusProjectile shot = held.Projectile;
         if (shot.CountsDownToTrail(ProjectileTimingDefinitions.TrailInterval))
-            _trails.SpawnTrail(shot);
+            _trails.SpawnTrail(held);
     }
 
     /// <summary>
@@ -229,22 +252,32 @@ internal sealed class BeamCombos
     /// edge, or its reach or more right of it. A particle circles Samus within a ring's largest radius, so it stays within
     /// a room's breadth of the view and its distance from the view's edge is an ordinary one.
     /// </summary>
-    private static bool LeftViewHorizontally(SamusProjectile shot, Position16<RoomPixels> camera) =>
-        CameraPastRoomEdge.FromCamera(shot.Position.X.Whole, camera.X) is
+    private static bool LeftViewHorizontally(SamusProjectileOccupant held, Position16<RoomPixels> camera)
+    {
+        SamusProjectile shot = held.Projectile;
+        return CameraPastRoomEdge.FromCamera(shot.Position.X.Whole, camera.X) is
             < -BeamComboDefinitions.ViewLeftMargin or >= BeamComboDefinitions.ViewRightReach;
+    }
 
     /// <summary>
     /// Whether a special attack particle has flown out of the view up or down: above its top reach below the view's top
     /// edge, or at its bottom reach or below.
     /// </summary>
-    private static bool LeftViewVertically(SamusProjectile shot, Position16<RoomPixels> camera) =>
-        CameraPastRoomEdge.FromCamera(shot.Position.Y.Whole, camera.Y) is
+    private static bool LeftViewVertically(SamusProjectileOccupant held, Position16<RoomPixels> camera)
+    {
+        SamusProjectile shot = held.Projectile;
+        return CameraPastRoomEdge.FromCamera(shot.Position.Y.Whole, camera.Y) is
             < BeamComboDefinitions.ViewTopReach or >= BeamComboDefinitions.ViewBottomReach;
+    }
 
     /// <summary>The Plasma ring update: the ring grows, shrinks and grows again by its phase.</summary>
     internal void StepPlasmaCombo(SamusState samus,
-        SamusProjectile shot, PlasmaParticleState ring, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
+        SamusProjectileOccupant held, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
     {
+        SamusProjectile shot = held.Projectile;
+        if (shot.Behavior is not PlasmaSpecialAttackRing)
+            throw new InvalidOperationException("Plasma update requires its own behaviour.");
+        PlasmaParticleState ring = shot.KindStateAs<PlasmaParticleState>();
         if (shot.IsSpent)
         {
             _animation.ClearProjectile(shot);
@@ -253,7 +286,7 @@ internal sealed class BeamCombos
         shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.SpecialAttackHold);
         _charge.ClearCount();
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(ring.Angle, ring.Radius);
-        // A Plasma ring grows as far as 192 pixels round Samus, so near the room's top or left edge it passes above or left
+        // A Plasma ring grows as far as its outer radius round Samus, so near the room's top or left edge it passes above or left
         // of the room's origin, places OffRoomPlaces gives it.
         shot.Position = shot.Position.WithWhole(new(OffRoomPlaces.Place(orbit.X + samus.Position.X.Whole), OffRoomPlaces.Place(orbit.Y + samus.Position.Y.Whole)));
         ring.Turn();
@@ -270,7 +303,7 @@ internal sealed class BeamCombos
             case PlasmaRingPhase.FinalExpansion:
                 // Only the final expansion checks visibility. The first two phases
                 // intentionally keep rings alive beyond the viewport, unlike Ice.
-                if (LeftViewHorizontally(shot, camera) || LeftViewVertically(shot, camera))
+                if (LeftViewHorizontally(held, camera) || LeftViewVertically(held, camera))
                     _animation.ClearProjectile(shot);
                 else ring.Radius = ComboRingCollapse.Grown(ring.Radius, BeamComboDefinitions.PlasmaRadiusStep);
                 break;
@@ -284,9 +317,10 @@ internal sealed class BeamCombos
     /// progression is kept (owner decision on #1318).
     /// </summary>
     /// <param name="progression">The progression the overwrite turns on and off.</param>
-    /// <param name="shot">The Spacetime shot.</param>
-    internal void RunSpaceTimeProgressionOverwrite(SharedGameState progression, SamusProjectile shot)
+    /// <param name="held">The Spacetime shot.</param>
+    internal void RunSpaceTimeProgressionOverwrite(SharedGameState progression, SamusProjectileOccupant held)
     {
+        SamusProjectile shot = held.Projectile;
         Ensure.NotNull(progression);
         Ensure.NotNull(shot);
         if (shot.Sprite is null || shot.Playback is not { } playback)
@@ -296,8 +330,10 @@ internal sealed class BeamCombos
     }
     /// <summary>Runs the Spazer combo, including paired-hit cleanup and retagging the primary particles as falling trails.</summary>
     internal SoundEffectId? StepSpazerCombo(SamusState samus,
-        SamusProjectile shot, SpazerParticleState spazer, SamusBombProjectileSystem shared, int cameraY)
+        SamusProjectileOccupant held, SamusBombProjectileSystem shared, int cameraY)
     {
+        SamusProjectile shot = held.Projectile;
+        SpazerParticleState spazer = shot.KindStateAs<SpazerParticleState>();
         if (shot.IsSpent)
         {
             SamusProjectile partner = spazer.Partner;
@@ -308,11 +344,11 @@ internal sealed class BeamCombos
             return null;
         }
         if (spazer.LeavesTrails)
-            StepTrail(shot);
+            StepTrail(held);
         switch (spazer.Phase)
         {
             case SpazerComboPhase.Circling:
-                PlaceSpazerParticle(samus, shot, spazer);
+                PlaceSpazerParticle(samus, held, spazer);
                 spazer.Turn();
                 if (spazer.Angle == TrigonometryAngle.HalfTurn)
                 {
@@ -324,9 +360,9 @@ internal sealed class BeamCombos
                 }
                 break;
             case SpazerComboPhase.FlyingUpTowardsPoint:
-                PlaceSpazerParticle(samus, shot, spazer);
+                PlaceSpazerParticle(samus, held, spazer);
                 if (CameraPastRoomEdge.FromCamera(shot.Position.Y.Whole, cameraY) < BeamComboDefinitions.SpazerFallScreenLine)
-                    BeginSpazerFall(shot, spazer);
+                    BeginSpazerFall(held, spazer);
                 else
                 {
                     spazer.Turn();
@@ -344,14 +380,14 @@ internal sealed class BeamCombos
                 }
                 break;
             case SpazerComboPhase.FlyingUpAwayFromPoint:
-                PlaceSpazerParticle(samus, shot, spazer);
+                PlaceSpazerParticle(samus, held, spazer);
                 if (CameraPastRoomEdge.FromCamera(shot.Position.Y.Whole, cameraY) < BeamComboDefinitions.SpazerFallScreenLine)
-                    BeginSpazerFall(shot, spazer);
+                    BeginSpazerFall(held, spazer);
                 else
                 {
                     spazer.Turn();
                     spazer.Radius += BeamComboDefinitions.SpazerFlyingRadiusStep;
-                    if (spazer.Radius >= BeamComboDefinitions.SpazerFallingRadius) BeginSpazerFall(shot, spazer);
+                    if (spazer.Radius >= BeamComboDefinitions.SpazerFallingRadius) BeginSpazerFall(held, spazer);
                 }
                 break;
             case SpazerComboPhase.Falling:
@@ -370,6 +406,10 @@ internal sealed class BeamCombos
         return null;
     }
 
+    /// <summary>The part <paramref name="particle"/> plays in its special attack.</summary>
+    private static SpecialAttackParticle PartOf(SamusProjectile particle) =>
+        particle.KindStateAs<SpecialAttackParticleState>().Part;
+
     /// <summary>
     /// The turn per update that carries a Spazer particle <paramref name="by"/> round its circle <paramref name="turn"/>:
     /// the turn itself clockwise, a full circle less it counterclockwise.
@@ -385,21 +425,23 @@ internal sealed class BeamCombos
     /// Places a flying Spazer particle on its circle: round Samus while it circles her, round the point above her once it
     /// flies up.
     /// </summary>
-    private static void PlaceSpazerParticle(SamusState samus, SamusProjectile shot, SpazerParticleState spazer)
+    private static void PlaceSpazerParticle(SamusState samus, SamusProjectileOccupant held, SpazerParticleState spazer)
     {
+        SamusProjectile shot = held.Projectile;
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(spazer.Angle, spazer.Radius);
         int centreHeight = spazer.Phase == SpazerComboPhase.Circling ? 0 : BeamComboDefinitions.SpazerFlightCentreHeight;
-        // A Spazer particle circles Samus 40 pixels out, then as far as 160 round a point 114 above her, so near the room's
+        // A Spazer particle circles Samus close in, then far out round a point above her, so near the room's
         // top or left edge it passes above or left of the room's origin, places OffRoomPlaces gives it.
         shot.Position = shot.Position.WithWhole(new(OffRoomPlaces.Place(samus.Position.X.Whole + orbit.X),
             OffRoomPlaces.Place(samus.Position.Y.Whole + orbit.Y - centreHeight)));
     }
 
     /// <summary>Moves a circling Spazer particle outward and switches its beam pair to falling echo artwork.</summary>
-    private static void BeginSpazerFall(SamusProjectile shot, SpazerParticleState spazer)
+    private static void BeginSpazerFall(SamusProjectileOccupant held, SpazerParticleState spazer)
     {
+        SamusProjectile shot = held.Projectile;
         // The particle can lie left of the room's origin as its flight ends (PlaceSpazerParticle), and the step out moves it
-        // sixteen pixels either way, so its place is one OffRoomPlaces gives it.
+        // its side step either way, so its place is one OffRoomPlaces gives it.
         shot.Position = OffRoomPlaces.WithWholeX(shot.Position, shot.Position.X.Whole +
             BeamComboDefinitions.SpazerFallSideStep.Toward(spazer.Part.SpazerTrail ? HorizontalDirection.Left : HorizontalDirection.Right));
         shot.Direction = SamusProjectileDirection.DownFacingLeft;
@@ -408,16 +450,20 @@ internal sealed class BeamCombos
         spazer.Phase = SpazerComboPhase.Falling;
         if (!spazer.Part.SpazerTrail)
         {
-            shot.Type = SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail);
-            InitializeComboShot(shot, new BeamComboShot.Echo(SamusBeamEcho.SpazerComboTrail));
+            held.Type = SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail);
+            InitializeComboShot(held, BeamComboShotKind.Echo);
         }
     }
     /// <summary>
     /// Runs one update of a Wave special attack particle, which swings back and forth through Samus as it homes on her.
     /// </summary>
     internal SoundEffectId? StepWaveCombo(SamusState samus,
-        SamusProjectile shot, WaveParticleState wave, SamusBombProjectileSystem shared)
+        SamusProjectileOccupant held, SamusBombProjectileSystem shared)
     {
+        SamusProjectile shot = held.Projectile;
+        if (shot.Behavior is not WaveSpecialAttackHoming)
+            throw new InvalidOperationException("Wave update requires its own behaviour.");
+        WaveParticleState wave = shot.KindStateAs<WaveParticleState>();
         // A hit skips even the lifetime decrement. Expiry and collision both queue
         // the terminal sound, unlike Ice's silent outward-phase removal.
         if (shot.IsSpent)
@@ -431,8 +477,8 @@ internal sealed class BeamCombos
             return BeamComboDefinitions.WaveRemovalSound;
         }
         SignedEightEight oldXSpeed = shot.Velocity.X;
-        StepTrail(shot);
-        // A Wave particle starts 128 pixels from Samus on each axis and swings through her as far again, ignoring
+        StepTrail(held);
+        // A Wave particle starts its wave start away from Samus on each axis and swings through her as far again, ignoring
         // terrain, so near the room's top or left edge it lies above or left of the room's origin; it homes on her the
         // short way, as DistanceAcrossRoomEdge.Apart gives it.
         shot.Velocity = shot.Velocity.WithX(AccelerateWaveAxis(shot.Velocity.X, DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, shot.Position.X.Whole)));

@@ -36,7 +36,8 @@ public static class TitleGradientFile
         {
             document = JsonAssetDocument.Read<TitleGradientDocument>(
                 json,
-                ArtworkJson.Options);
+                ArtworkJson.Options)
+                ?? throw new InvalidDataException("Title gradient presentation is null.");
         }
         catch (JsonException error)
         {
@@ -60,8 +61,10 @@ public static class TitleGradientFile
                 throw new InvalidDataException($"Title gradient variant {variant} must contain stops.");
 
             var stops = ImmutableArray.CreateBuilder<GradientStop>(source.Stops.Length);
-            foreach (TitleGradientStop value in source.Stops)
+            foreach (TitleGradientStop? value in source.Stops)
             {
+                if (value is null)
+                    throw new InvalidDataException($"Title gradient variant {variant}, stop {stops.Count} is missing.");
                 RgbColor colour = InstalledColourText.ParseOnFadeScale(value.Colour, $"Title gradient variant {variant}, stop {stops.Count}");
                 bool placed = stops.Count == 0 ? value.Line == 0 : value.Line > stops[^1].Line && value.Line < ScreenGeometry.ScreenHeightPixels;
                 if (!placed)
@@ -73,7 +76,8 @@ public static class TitleGradientFile
             }
             variants[variant] = new ScreenGradient(stops.MoveToImmutable(), ScreenGeometry.ScreenHeightPixels);
         }
-        return new TitleGradientPresentation(variants);
+        // The installed file's first gradient, the no-zoom range's, is also the one the floor shows at its own size.
+        return new TitleGradientPresentation(variants, ownSize: variants[0]);
     }
 
     /// <summary>

@@ -23,7 +23,7 @@ internal static class RuntimeOverlayTests
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         long sequence = 0;
         Check("Ceres mixed-mode initial publication");
@@ -38,8 +38,8 @@ internal static class RuntimeOverlayTests
         for (int tick = 0; tick < 50; tick++) runtime.BombProjectiles.PowerBombExplosion.StepFrame(runtime.Artwork.SamusArtwork.PowerBombGlowColors);
         runtime.MessageBox.Begin(GameplayMessageId.MapDataAccessCompleted, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
         for (int tick = 0; tick < 13; tick++) runtime.MessageBox.Step(0);
-        runtime.SuitPickup.Begin(runtime.Player.Samus, new(0, 0), SamusSuitPickupKind.Varia);
-        runtime.SuitPickup.Step(runtime.Player.Samus, runtime.Player.Colours);
+        runtime.SuitPickup.Begin(runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
+        runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Player.Colours);
         var initial = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         if (initial.Layers.Length != 5 || initial.Layers[0] is not GameplaySceneLayer
             || initial.Layers[1] is not HudLayer
@@ -53,7 +53,7 @@ internal static class RuntimeOverlayTests
             var retained = Check($"combined overlay tick {tick}");
             runtime.BombProjectiles.PowerBombExplosion.StepFrame(runtime.Artwork.SamusArtwork.PowerBombGlowColors);
             runtime.MessageBox.Step(0);
-            runtime.SuitPickup.Step(runtime.Player.Samus, runtime.Player.Colours);
+            runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Player.Colours);
             // Force GPU resources to contain the next frame before replaying the old
             // packet. A cached output or borrowed live palette cannot satisfy this.
             Check($"updated overlay tick {tick}");

@@ -107,7 +107,7 @@ internal static class RoomBlockUploads
             {
                 TilesetDefinition tileset = RoomTilesets.Get(state.GraphicsSet);
                 if (!tilesets.TryGetValue(tileset, out TilesetUploads? uploads))
-                    tilesets.Add(tileset, uploads = new TilesetUploads(ceres, inputs, Loaded(inputs, tileset)));
+                    tilesets.Add(tileset, uploads = new TilesetUploads(ceres, inputs));
                 else if (uploads.Ceres != ceres)
                     throw new InvalidDataException($"Tileset {tileset} is loaded both inside and outside Ceres.");
                 foreach (AppearanceOption option in Of(inputs, state))
@@ -142,7 +142,7 @@ internal static class RoomBlockUploads
                 }
                 // BG3 shows the HUD over the layer-3 characters the room's load binds, and its effects' pages over their
                 // frames.
-                uploads.AddBg3(EffectsIn(state));
+                uploads.AddBg3(Loaded(inputs, tileset), EffectsIn(state));
                 TileWordWriter[] writers = [.. WritersIn(state)];
                 if (writers.Length > 0 && arena)
                 {
@@ -192,7 +192,7 @@ internal static class RoomBlockUploads
         {
             yield return new AppearanceOption(AppearanceInputSpellings.KraidBackdrop, RoomAppearanceValues.Shown,
                 new BgCharacterUpload(RoomBgArtwork.KraidBackdrop, BgCharacterSet.Tiles, RoomTileCharacters.KraidBackdropFirst,
-                    inputs.Bosses.KraidBackground
+                    (inputs.Bosses.KraidBackground ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters."))
                         .RoomBackgroundTiles.Characters));
         }
     }
@@ -235,7 +235,8 @@ internal static class RoomBlockUploads
     /// </summary>
     private static IEnumerable<AnimatedCharacterPlacement> CrocomireMeltBandFrames(RoomBlockSheetInputs inputs)
     {
-        CrocomireMeltingArtwork artwork = inputs.Bosses.CrocomireMelting;
+        CrocomireMeltingArtwork artwork = inputs.Bosses.CrocomireMelting
+            ?? throw new InvalidDataException("Installed boss artwork has no Crocomire melting graphics.");
         foreach (CrocomireMeltingIllustration illustration in MeltingOrder)
         {
             byte[] image = artwork.Characters(illustration).ToArray();
@@ -332,18 +333,16 @@ internal static class RoomBlockUploads
     {
         foreach (ComposedEncounter encounter in EncounterLookUploads.Of(RoomEnemyGraphicsSetLists.MembersOf(RoomEnemyGraphicsSetLists.Of(state))))
         {
-            if (!EncounterLookUploads.IsShown(encounter) || !EncounterLookUploads.ShownIn(encounter, state))
+            if (EncounterLookUploads.ShownAs(encounter) is not EncounterArtwork shownAs || !EncounterLookUploads.ShownIn(encounter, state))
                 continue;
-            EncounterArtwork shownAs = EncounterLookUploads.ShownAs(encounter);
             EncounterLookSteps steps = EncounterLookUploads.Steps(encounter, inputs.Objects);
-            IReadOnlyList<ComposedLook> looks = EncounterLookUploads.Looks(encounter);
-            for (int look = 1; look < looks.Count; look++)
+            foreach (ComposedLook look in steps.Looks.Where(look => !look.IsLoaded))
             {
-                var appearance = new EncounterLookAppearance(new EncounterLook(shownAs, looks[look].Name));
-                EncounterArtworkUpload[] copies = [.. steps.Looks.Take(look + 1).SelectMany(earlier => earlier)];
+                var appearance = new EncounterLookAppearance(new EncounterLook(shownAs, look.Name));
+                EncounterArtworkUpload[] copies = [.. steps.CopiesThrough(look)];
                 for (int copy = 0; copy < copies.Length; copy++)
                     yield return new AppearanceOption(appearance, RoomAppearanceValues.Shown,
-                        new BgCharacterUpload(new BgArtworkIdentity($"{encounter} look {looks[look].Name} copy {copy}"), BgCharacterSet.Tiles,
+                        new BgCharacterUpload(new BgArtworkIdentity($"{encounter} look {look.Name} copy {copy}"), BgCharacterSet.Tiles,
                             copies[copy].FirstCharacter, copies[copy].Characters));
             }
         }
@@ -448,8 +447,7 @@ internal static class RoomBlockUploads
     /// <summary>What one tileset's rooms show over their characters.</summary>
     /// <param name="ceres">Whether the tileset's rooms are Ceres rooms, which load no common room elements.</param>
     /// <param name="inputs">The installed artwork the uploads are drawn from.</param>
-    /// <param name="bg3Content">The tileset's BG3 content, read whole.</param>
-    internal sealed class TilesetUploads(bool ceres, RoomBlockSheetInputs inputs, BgArtworkBindings bg3Content)
+    internal sealed class TilesetUploads(bool ceres, RoomBlockSheetInputs inputs)
     {
         /// <summary>What the rooms show over their tile characters after loading, collectibles aside, each once.</summary>
         private readonly List<AppearanceOption> options = [];
@@ -525,8 +523,8 @@ internal static class RoomBlockUploads
                 RidleyLooks = looks;
         }
 
-        /// <summary>What the tileset's rooms show BG3's words over: the layer-3 characters the tileset's load binds.</summary>
-        internal BgArtworkBindings Bg3Content { get; } = bg3Content;
+        /// <summary>What the first room shows BG3's words over, or null before a room is recorded.</summary>
+        internal BgArtworkBindings? Bg3Content { get; private set; }
 
         /// <summary>The room effects whose BG3 pages the tileset's rooms show.</summary>
         internal HashSet<RoomFxType> FxTypes { get; } = [];
@@ -534,9 +532,10 @@ internal static class RoomBlockUploads
         /// <summary>What the tileset's rooms show over BG3's characters after loading: their effects' frames.</summary>
         internal IReadOnlyList<AppearanceOption> Bg3Options => bg3Options;
 
-        /// <summary>Records a room showing BG3 over <see cref="Bg3Content"/>, with <paramref name="effects"/>' pages.</summary>
-        internal void AddBg3(IEnumerable<RoomFxType> effects)
+        /// <summary>Records a room showing BG3 over <paramref name="content"/>'s layer-3 characters, with <paramref name="effects"/>' pages.</summary>
+        internal void AddBg3(BgArtworkBindings content, IEnumerable<RoomFxType> effects)
         {
+            Bg3Content ??= content;
             foreach (RoomFxType effect in effects)
             {
                 if (!FxTypes.Add(effect))

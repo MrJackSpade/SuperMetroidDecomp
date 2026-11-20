@@ -31,7 +31,7 @@ public static class GameOptionsPresentationExtractor
         var pages = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationFormat.BackgroundPageName] = Cells(
-                RomDataReader.ReadFixedBank(bus, MapSourceDefinitions.Menu.Background,
+                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.Background,
                     GameOptionsSourceDefinitions.TilemapByteCount)),
             [GameOptionsNames.PageName(GameOptionsScreen.Primary)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Primary]),
             [GameOptionsNames.PageName(GameOptionsScreen.ControllerEnglish)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerEnglish]),
@@ -44,17 +44,16 @@ public static class GameOptionsPresentationExtractor
         for (int index = 0; index < GameOptionsPresentationDefinitions.ControllerLabelButtons.Count; index++)
         {
             labels.Add(GameOptionsNames.ControllerLabelName(GameOptionsPresentationDefinitions.ControllerLabelButtons[index]), Cells(
-                RomDataReader.ReadFixedBank(bus,
+                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     GameOptionsSourceDefinitions.MenuBank | GameOptionsSourceDefinitions.ControllerLabelSources[index],
                     GameOptionsPageDefinitions.ControllerLabelCellCount * sizeof(ushort))));
         }
 
-        Position16<CharacterCells>[] controllerAnchors = Enumerable.Range(0, GameOptionsPageRows.ControllerActions.Count)
+        Position16<CharacterCells>[] controllerAnchors = GameOptionsPageRows.ControllerActions
             .Select(GameOptionsPageCells.ControllerLabelAnchor)
             .ToArray();
         GameOptionsLanguageRegionDocument[] languageRegions =
-            Enumerable.Range(0, GameOptionsPageDefinitions.LanguageRegions.RowCount)
-                .Select(GameOptionsPageCells.LanguagePaletteRegion)
+            GameOptionsPageCells.LanguagePaletteRegions
                 .Select(region => new GameOptionsLanguageRegionDocument
                 {
                     Cells = CellRange(region.ByteOffset, region.ByteCount),
@@ -119,7 +118,7 @@ public static class GameOptionsPresentationExtractor
 
         MapPresentationCell[] Page(GameOptionsPageResource resource)
         {
-            byte[] bytes = RomDataReader.Decompress(bus, resource.Address,
+            byte[] bytes = RomDataReader.Decompress(CartridgeImportSource.Require(bus), resource.Address,
                 maximumOutputBytes: GameOptionsSourceDefinitions.TilemapByteCount);
             if (bytes.Length != GameOptionsSourceDefinitions.TilemapByteCount)
             {
@@ -130,7 +129,7 @@ public static class GameOptionsPresentationExtractor
             return Cells(bytes);
         }
 
-        int Word(int address) => RomDataReader.ReadWordFixedBank(bus, address);
+        int Word(int address) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
         Offset16<ScreenPixels> Heading(GameOptionsPage page) =>
             Offset16<ScreenPixels>.Of(Word(GameOptionsSourceDefinitions.HeadingColumnOperands[page]), headingRow);
@@ -153,17 +152,8 @@ public static class GameOptionsPresentationExtractor
         var cells = new MapPresentationCell[bytes.Length / sizeof(ushort)];
         for (int index = 0; index < cells.Length; index++)
         {
-            var word = new SnesBgTilemapWord(unchecked(
-                LittleEndianBytes.Word(bytes[index * 2], bytes[index * 2 + 1])));
-            cells[index] = new()
-            {
-                TileColumn = word.CharacterIndex % MapTileAtlasFormat.TileColumns,
-                TileRow = word.CharacterIndex / MapTileAtlasFormat.TileColumns,
-                Palette = word.PaletteIndex,
-                Priority = word.HasPriority,
-                FlipX = word.FlipHorizontally,
-                FlipY = word.FlipVertically,
-            };
+            cells[index] = MapPresentationCell.Of(BackgroundTileWords.ToTile(
+                LittleEndianBytes.Word(bytes[index * 2], bytes[index * 2 + 1])), MapTileAtlasFormat.TileColumns);
         }
         return cells;
     }

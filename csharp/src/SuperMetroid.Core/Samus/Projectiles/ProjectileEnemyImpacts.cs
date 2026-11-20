@@ -70,7 +70,7 @@ internal sealed class ProjectileEnemyImpacts
             // Reflection deletes the projectile in the place the Super Missile names as its link
             // (UnlinkedSuperMissileLink) before repurposing the owner; it does not broadly delete
             // unrelated Super Missiles.
-            if (shot.KindState is SuperMissileShotState { LinkPlace: { } linkPlace } && linkPlace != shot.Place &&
+            if (shot.KindStateAs<SuperMissileShotState>().LinkChainPosition is { } linkPlace && linkPlace != shot.Place &&
                 _pool.Shots[linkPlace].IsActive)
                 _animation.ClearProjectile(_pool.Shots[linkPlace]);
         }
@@ -109,17 +109,17 @@ internal sealed class ProjectileEnemyImpacts
         shot.Radius = SamusProjectilePlayback.InitialRadius(segment);
 
         if (family == SamusProjectileFamily.Missile)
-            held.Install(new MissileFlight(new MissileShotState(new SamusMissileIgnition.PendingAfterReflection())));
+            held.Install(SamusShotBehaviors.Missile, new MissileShotState(new SamusMissileIgnition.PendingAfterReflection()));
         else if (family == SamusProjectileFamily.SuperMissile)
         {
-            held.Install(new SuperMissileFlight(
-                new SuperMissileShotState(new SamusMissileIgnition.PendingAfterReflection(), linkPlace: null)));
+            held.Install(SamusShotBehaviors.SuperMissile,
+                new SuperMissileShotState(new SamusMissileIgnition.PendingAfterReflection(), linkPlace: null));
         }
         else
         {
             held.Install(!held.Type.BeamCombination.HasWave
                 ? SamusShotBehaviors.Beam
-                : SamusShotBehaviors.WaveBeamTrail);
+                : SamusShotBehaviors.WaveBeamTrail, kindState: null);
         }
     }
 

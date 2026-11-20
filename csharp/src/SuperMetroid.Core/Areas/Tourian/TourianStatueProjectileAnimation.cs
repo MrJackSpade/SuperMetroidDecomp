@@ -4,10 +4,10 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>A Tourian statue projectile's typed animation.</summary>
-/// <param name="segment">The segment the animation starts at.</param>
-/// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
-internal sealed class TourianStatueProjectileAnimation(TourianStatueProjectileSegment segment, IEnemyProjectileCues<TourianStatueProjectileCue> cues)
-    : EnemyProjectileFrameAnimation<TourianStatueProjectileSegment, TourianStatueProjectileCue>(TourianStatueProjectileAnimations.StartingWith(segment), cues)
+/// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
+/// <param name="segment">Where the animation starts.</param>
+internal sealed class TourianStatueProjectileAnimation(IEnemyProjectileCues<TourianStatueProjectileCue> owner, TourianStatueProjectileSegment segment)
+    : EnemyProjectileFrameAnimation<TourianStatueProjectileSegment, TourianStatueProjectileCue>(TourianStatueProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunner<TourianStatueProjectileSegment, TourianStatueProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<TourianStatueProjectileSegment, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments => TourianStatueProjectileAnimations.Segments;

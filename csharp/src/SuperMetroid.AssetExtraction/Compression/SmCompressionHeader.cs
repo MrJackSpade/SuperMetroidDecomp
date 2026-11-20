@@ -16,7 +16,7 @@ public readonly record struct SmCompressionHeader
     ];
 
     /// <summary>Decodes the short, long, or terminator header.</summary>
-    private SmCompressionHeader(int firstByte, int lengthByte)
+    private SmCompressionHeader(int firstByte, int? secondByte)
     {
         firstByte = Ensure.BetweenInclusive(0, byte.MaxValue, firstByte);
         IsTerminator = firstByte == SmCompressionCodes.Terminator;
@@ -35,7 +35,7 @@ public readonly record struct SmCompressionHeader
         Command = CommandOfNumber(normalizedCommand >> SmCompressionCodes.CommandFieldShift);
         Length = isLong
             ? LittleEndianBytes.Word(
-                checked((byte)lengthByte),
+                checked((byte)(secondByte ?? throw new InvalidDataException("Long compression header is missing its length byte."))),
                 (byte)(firstByte & SmCompressionCodes.LongLengthHighMask)) + 1
             : (firstByte & SmCompressionCodes.ShortLengthMask) + 1;
         HeaderByteCount = isLong ? 2 : 1;
@@ -97,25 +97,11 @@ public readonly record struct SmCompressionHeader
     private static SmCompressionCommand CommandOfNumber(int number) =>
         commandsByNumber[Ensure.BetweenInclusive(0, commandsByNumber.Length - 1, number)];
 
-    /// <summary>
-    /// Decodes a one-byte header, a short header or the <c>$FF</c> terminator, without consuming or validating its payload;
-    /// a long header is decoded with its length byte by <see cref="DecodeLong"/>.
-    /// </summary>
-    /// <param name="firstByte">The header byte.</param>
-    /// <returns>A header retaining the supplied byte and exposing its decoded fields.</returns>
-    /// <exception cref="InvalidDataException"><paramref name="firstByte"/> opens a long header, which has a second byte.</exception>
-    public static SmCompressionHeader Decode(int firstByte) =>
-        firstByte != SmCompressionCodes.Terminator && SmCompressionCodes.IsLongHeader(firstByte)
-            ? throw new InvalidDataException("Long compression header is missing its length byte.")
-            : new(firstByte, 0);
-
-    /// <summary>Decodes a long header and its low length byte, without consuming or validating its payload.</summary>
-    /// <param name="firstByte">The first header byte, which opens a long header.</param>
-    /// <param name="lengthByte">The low length byte.</param>
+    /// <summary>Decodes the command and expanded run length without consuming or validating its payload.</summary>
+    /// <param name="firstByte">The first encoded header byte, including the optional <c>$FF</c> terminator.</param>
+    /// <param name="secondByte">The required low length byte for a long header; ignored for short headers and terminators.</param>
     /// <returns>A header retaining the supplied bytes and exposing their decoded fields.</returns>
-    /// <exception cref="ArgumentException"><paramref name="firstByte"/> opens no long header.</exception>
-    public static SmCompressionHeader DecodeLong(int firstByte, int lengthByte) =>
-        firstByte == SmCompressionCodes.Terminator || !SmCompressionCodes.IsLongHeader(firstByte)
-            ? throw new ArgumentException($"${firstByte:X2} opens no long compression header.", nameof(firstByte))
-            : new(firstByte, lengthByte);
+    /// <exception cref="InvalidDataException">A long header is supplied without its second byte.</exception>
+    public static SmCompressionHeader Decode(int firstByte, int? secondByte = null) =>
+        new(firstByte, secondByte);
 }

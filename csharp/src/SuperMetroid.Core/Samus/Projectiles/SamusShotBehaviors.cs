@@ -1,9 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>
-/// The one shared instance of each behaviour Samus's shots run whose kind keeps nothing of its own (#1923); a kind that
-/// keeps a record runs a behaviour created with it (#2554).
-/// </summary>
+/// <summary>The one shared instance of each behaviour Samus's shots run (#1923).</summary>
 internal static class SamusShotBehaviors
 {
     /// <summary>A beam without the Wave Beam: it stops at the first block it meets.</summary>
@@ -17,6 +14,33 @@ internal static class SamusShotBehaviors
 
     /// <summary>The Hyper Beam shot.</summary>
     internal static SamusShotBehavior HyperBeam { get; } = new HyperBeamFlight();
+
+    /// <summary>A missile.</summary>
+    internal static SamusShotBehavior Missile { get; } = new MissileFlight();
+
+    /// <summary>A Super Missile.</summary>
+    internal static SamusShotBehavior SuperMissile { get; } = new SuperMissileFlight();
+
+    /// <summary>A Super Missile's invisible link.</summary>
+    internal static SamusShotBehavior SuperMissileLink { get; } = new SuperMissileLinkHold();
+
+    /// <summary>An Ice special attack particle orbiting inward.</summary>
+    internal static SpecialAttackParticleBehavior IceSpecialAttackInward { get; } = new IceSpecialAttackOrbit();
+
+    /// <summary>An Ice special attack particle that has turned outward.</summary>
+    internal static SpecialAttackParticleBehavior IceSpecialAttackOutward { get; } = new IceSpecialAttackSpread();
+
+    /// <summary>A Wave special attack particle.</summary>
+    internal static SpecialAttackParticleBehavior WaveSpecialAttack { get; } = new WaveSpecialAttackHoming();
+
+    /// <summary>A Spazer special attack particle, circling, flying up and falling.</summary>
+    internal static SpecialAttackParticleBehavior SpazerSpecialAttack { get; } = new SpazerSpecialAttackFlight();
+
+    /// <summary>A Plasma special attack particle.</summary>
+    internal static SpecialAttackParticleBehavior PlasmaSpecialAttack { get; } = new PlasmaSpecialAttackRing();
+
+    /// <summary>A shinespark crash echo.</summary>
+    internal static SamusShotBehavior ShinesparkEcho { get; } = new ShinesparkEchoFlight();
 
     /// <summary>The Spacetime shot, an uncharged Spazer, Plasma and Ice beam.</summary>
     internal static SamusShotBehavior Spacetime { get; } = new SpacetimeShotOverwrite();

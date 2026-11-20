@@ -15,7 +15,7 @@ internal static class MamaTurtleAnimationsVerification
     /// </summary>
     internal static void VerifyMamaTurtleAnimations(CartridgeImportAddressSpace rom)
     {
-        int mamaBeats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
+        int mamaBeats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             MamaTurtleAnimations.Segments, MamaTurtleAnimations.StartingAt, MamaTurtleFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<MamaTurtleCue>(
                 word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
@@ -26,7 +26,7 @@ internal static class MamaTurtleAnimationsVerification
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 },
                 static _ => false));
-        int babyBeats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, BabyEntries,
+        int babyBeats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, BabyEntries,
             BabyTurtleAnimations.Segments, BabyTurtleAnimations.StartingAt, MamaTurtleFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<BabyTurtleCue>(
                 word => BabyInstructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,

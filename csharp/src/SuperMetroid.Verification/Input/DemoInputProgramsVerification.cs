@@ -23,7 +23,7 @@ internal static class DemoInputProgramsVerification
     /// <summary>Every object and program matches bank $91.</summary>
     internal static void VerifyDemoInputPrograms(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ushort Word(int address) => cartridge.ReadCartridgeWord(DemoInputListWords.ListBank | address);
 
         AssertEqual(Enum.GetValues<DemoInputRecordingId>().Length, DemoInputNativeListAddresses.Entries.Length, "every demo recording has a native entry");
@@ -77,7 +77,8 @@ internal static class DemoInputProgramsVerification
                         int loopsFrom = target == entry ? 0
                             : loop is { } own && target == own.Entry ? own.FirstRecord
                             : throw new InvalidDataException($"{at}: goto ${target:X4} leaves the recording.");
-                        AssertEqual(DemoRecordingEnd.LoopsFrom(loopsFrom), recording.End, $"{at}: the recording loops");
+                        AssertEqual(recording.Inputs.Count - 1, loopsFrom, $"{at}: the recording loops its last input");
+                        AssertEqual(DemoRecordingEnd.HoldsLastInput, recording.End, $"{at}: the recording holds its last input");
                         break;
                     case DemoInputInstruction.Delete:
                         AssertEqual(DemoRecordingEnd.Stops, recording.End, $"{at}: the recording ends");

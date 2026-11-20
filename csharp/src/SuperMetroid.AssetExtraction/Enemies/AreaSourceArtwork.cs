@@ -13,20 +13,30 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 public sealed record AreaSourceArtwork
 {
     /// <summary>The Ceres door's characters and colours.</summary>
-    public required CeresDoorSourceArtwork CeresDoor { get; init; }
+    public CeresDoorSourceArtwork? CeresDoor { get; init; }
 
     /// <summary>The Ceres door's colours, which the import pre-colours the doors' and the elevator room's shades from (#1512).</summary>
-    public CeresDoorVisuals CeresDoorVisual => CeresDoor.Visuals;
+    public CeresDoorVisuals? CeresDoorVisual => CeresDoor?.Visuals;
 
     /// <summary>Editable Tourian statue entrance, eye and grey colours, which the import pre-colours the statues' shades from (#1512).</summary>
-    public required TourianStatuePalettes TourianStatueColors { get; init; }
+    public TourianStatuePalettes? TourianStatueColors { get; init; }
 
     /// <summary>Editable warning-text and door character pages for the Ceres escape.</summary>
-    public required CeresEscapeTileArtwork CeresEscapeTiles { get; init; }
+    public CeresEscapeTileArtwork? CeresEscapeTiles { get; init; }
 
     /// <summary>
     /// Editable English and Japanese tile words of the Ceres warning pages, which only the written picture sheets are composed
     /// from (#1466): gameplay writes each page's picture by name.
     /// </summary>
-    public required CeresEscapeOverlays CeresEscapeOverlayTilemaps { get; init; }
+    public CeresEscapeOverlays? CeresEscapeOverlayTilemaps { get; init; }
+
+    /// <summary>Returns installed area artwork, which must carry both Ceres transfer providers.</summary>
+    /// <exception cref="InvalidDataException">Either Ceres transfer provider is absent.</exception>
+    public static AreaSourceArtwork FromInstalledArtwork(AreaSourceArtwork artwork)
+    {
+        Ensure.NotNull(artwork);
+        if (artwork.CeresEscapeTiles is null || artwork.CeresEscapeOverlayTilemaps is null)
+            throw new InvalidDataException("Installed area artwork requires both Ceres transfer providers.");
+        return artwork;
+    }
 }

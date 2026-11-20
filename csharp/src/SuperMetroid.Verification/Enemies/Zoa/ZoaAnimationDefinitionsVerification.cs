@@ -20,7 +20,7 @@ internal static class ZoaAnimationDefinitionsVerification
         for (int index = 0; index < 4; index++)
         {
             ZoaSegment selector = ZoaNativeWords.AnimationSelectorOf(index);
-            AssertEqual(rom.ReadCartridgeWord((ZoaAnimationDefinitionsConstants.ReferenceAddress + index * 2)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((ZoaAnimationDefinitionsConstants.ReferenceAddress + index * 2)),
                 NativeEnemyAnimationOracle.EntryOf(ZoaNativeListAddresses.Entries, selector),
                 $"Zoa animation selector {selector}");
         }
@@ -98,7 +98,7 @@ internal static class ZoaAnimationDefinitionsVerification
 
     /// <summary>Seeds nondefault list and timer values so animation handoff writes are visible.</summary>
     private static RoomEnemyPlace NewZoaAnimationPlace() =>
-        new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers()).WithAnimationClock(hold: 0x2222);
+        new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()).WithAnimationClock(hold: 0x2222);
 
     /// <summary>Checks the started animation and reset timers.</summary>
     private static void AssertZoaAnimationHandoff(

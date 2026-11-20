@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// </summary>
 /// <param name="Wetness">When the ground is wet, so that her footsteps and landings splash.</param>
 /// <param name="DryLandingsRaiseDust">Whether her landings raise dust while the ground is dry; otherwise they raise nothing.</param>
-public sealed record SamusGround(SamusGroundWetness Wetness, bool DryLandingsRaiseDust)
+internal sealed record SamusGround(SamusGroundWetness Wetness, bool DryLandingsRaiseDust)
 {
     /// <summary>
     /// The ground of <paramref name="room"/>: Crateria's by its rooms' policy, the Green Pirates Shaft's dusty; Brinstar's

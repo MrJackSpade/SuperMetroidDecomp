@@ -26,14 +26,17 @@ internal sealed class KraidBodyLayer : IBossBodyDisplay
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
 
+    /// <summary>Kraid's parts, his body among them.</summary>
+    private readonly KraidParts _parts;
 
     /// <summary>The body last shown, and its layer.</summary>
     private KraidShownBody? shown;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidBodyLayer(BossArtworkBinding bossArtwork)
+    internal KraidBodyLayer(BossArtworkBinding bossArtwork, KraidParts parts)
     {
         _bossArtwork = bossArtwork;
+        _parts = parts;
     }
 
     /// <summary>
@@ -69,7 +72,7 @@ internal sealed class KraidBodyLayer : IBossBodyDisplay
     /// Where Kraid's body is placed while it is shown (#1352, #2031): his position, against which each of his body's
     /// installed frames lies; otherwise null.
     /// </summary>
-    internal Position16<RoomPixels>? Placement => Kraid is { ShowsBodyLayer: true } kraid ? kraid.Parts.Body.Position.Whole : null;
+    internal Position16<RoomPixels>? Placement => Kraid is { ShowsBodyLayer: true } ? _parts.Body.Position.Whole : null;
 
     /// <summary>
     /// The body <paramref name="appearance"/> shows, drawn from <paramref name="sheet"/>: nothing while it is hidden, and

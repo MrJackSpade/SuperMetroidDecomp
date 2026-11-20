@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies.Projectiles;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -26,15 +25,15 @@ internal static class FrozenTimeEnemyProjectilesVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MtEverest);
-        runtime.Player.Samus.Control.LockOutPlayer();
+        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
         RoomEnemyPlace victim = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Sciser));
-        runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(victim.HeldOccupant(), EnemyDeathExplosion.Normal, runtime.Player.Samus);
+        runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(victim.HeldOccupant(), EnemyDeathExplosion.Normal, runtime.Player.IntroducedSamus);
         EnemyProjectile explosion = runtime.Enemies.Projectiles.EnemyProjectiles
             .Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         runtime.StepFrame(0);
-        var program = (EnemyDeathExplosionAnimation)(explosion.Animation ?? throw new InvalidOperationException("The explosion plays a program."));
+        var program = (EnemyDeathAndDropAnimation)(explosion.Animation ?? throw new InvalidOperationException("The explosion plays a program."));
         var playback = program.PlaybackOf();
         ushort timer = explosion.FrameHold.RawValue;
 

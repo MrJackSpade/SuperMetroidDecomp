@@ -19,7 +19,7 @@ internal static class ChootOwnedStateVerification
         place.Bind(EnemyDefinitionId.Choot, place.KeptDefinition);
         place.Position = place.Position.WithWhole(new(0x0100, 0x0200));
         place.SetSpawnParameter1(EnemyDefinitionId.Choot, 2);
-        ChootBehavior.InitializeChoot(place, place.SpawnSettings<ChootSpawnSettings>());
+        ChootBehavior.InitializeChoot(place.HeldOccupant(), place);
         ChootEnemyState state = enemies.ChootStates[0]
             ?? throw new InvalidOperationException("The initialized Choot has no state.");
 
@@ -35,7 +35,7 @@ internal static class ChootOwnedStateVerification
         }
         AssertEqual(initial / 2 + 1, jumpingUpdates, "the apex is the update that takes the index below zero");
         AssertEqual(QuadraticSpeedCurvePlace.FromMarks(-2), state.YSpeedCurvePlace, "the index stays below zero through the fall");
-        AssertEqual(0, ((ChootFallLoop.AtSample)state.FallingLoop).Age, "the fall starts at its first frame");
+        AssertEqual(0, state.FallingLoop.Age, "the fall starts at its first frame");
         Console.WriteLine("Choot owned state: the apex underflow matches.");
     }
 

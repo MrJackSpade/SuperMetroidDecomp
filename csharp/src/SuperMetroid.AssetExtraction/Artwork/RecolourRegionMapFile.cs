@@ -83,8 +83,8 @@ internal static class RecolourRegionMapFile
         if (document.Maps is null)
             throw new InvalidDataException($"Recolour-region maps {name} list no maps.");
         var maps = new Dictionary<string, PictureMap<int>>(StringComparer.Ordinal);
-        foreach ((string tag, MapDocument map) in document.Maps)
-            maps.Add(tag, Decoded($"{name} map {tag}", map));
+        foreach ((string tag, MapDocument? map) in document.Maps)
+            maps.Add(tag, Decoded($"{name} map {tag}", map ?? throw new InvalidDataException($"Recolour-region maps {name} map {tag} is null.")));
         return maps;
     }
 

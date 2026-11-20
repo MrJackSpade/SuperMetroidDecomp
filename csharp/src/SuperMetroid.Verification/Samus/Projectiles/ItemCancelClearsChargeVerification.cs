@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -28,9 +27,9 @@ internal static class ItemCancelClearsChargeVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
-        SamusState samus = runtime.Player.Samus;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.EquippedBeams = SamusBeamFlags.Charge;
         samus.Pose = SamusPoseId.FacingRightNormalPose;

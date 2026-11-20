@@ -96,7 +96,7 @@ internal static class YardTrajectoriesVerification
 
     /// <summary>Reads the parameter-selected crawl speed from the retail bank-$A3 table.</summary>
     private static ushort ReadNativeYardCrawlSpeed(ISnesAddressSpace bus, int parameter) =>
-        RomDataReader.ReadWordFixedBank(bus, 0xa3e5f0 + parameter * 2);
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3e5f0 + parameter * 2);
 
     /// <summary>Runs the Yard trajectory verification suite.</summary>
     [VerificationCommand("--yard-trajectories")]

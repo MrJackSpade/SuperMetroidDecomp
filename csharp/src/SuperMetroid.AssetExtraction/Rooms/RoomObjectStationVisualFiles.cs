@@ -36,10 +36,15 @@ public static class RoomObjectStationVisualFiles
     /// its second block beside or above the first, a save pod its six two-block rows upward, and a retracted map arm its
     /// second block three across.
     /// </summary>
-    private static RoomObjectDrawLists.DrawList DrawList(StationDraw frame)
+    private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
+        if (!RoomObjectDrawIdentity.TryShape(StationObjectDraws.Family, request, out RoomBlockShape? shape))
+        {
+            list = default;
+            return false;
+        }
         RoomObjectShapeRun own = RoomObjectShapeRun.Row(new(0, 0), 1);
-        return RoomObjectShapeRun.DrawList(StationObjectDraws.Family.Of(frame), StationObjectDraws.Family.Shape(frame), frame switch
+        list = RoomObjectShapeRun.DrawList(request, shape, RoomObjectDrawIdentity.FrameOf<StationDraw>(request, "station") switch
         {
             StationDraw.MapDim or StationDraw.MapLit or StationDraw.MapBright => [own, RoomObjectShapeRun.Row(new(-1, 0), 1)],
             StationDraw.EnergyDim or StationDraw.EnergyLit or StationDraw.EnergyBright or StationDraw.MissileDim
@@ -50,8 +55,9 @@ public static class RoomObjectStationVisualFiles
             StationDraw.MapLeftRetracted => [own, RoomObjectShapeRun.Row(new(3, 0), 1)],
             StationDraw.MapRightExtended or StationDraw.MapLeftExtended or StationDraw.ResourceRightRetracted
                 or StationDraw.ResourceRightExtended or StationDraw.ResourceLeftRetracted or StationDraw.ResourceLeftExtended => [own],
-            _ => throw new InvalidOperationException($"Undefined station draw {frame}."),
+            var frame => throw new InvalidOperationException($"Undefined station draw {frame}."),
         });
+        return true;
     }
 
     /// <summary>
@@ -68,7 +74,7 @@ public static class RoomObjectStationVisualFiles
         {
             foreach (StationDraw frame in RoomObjectVisualIdDefinitions.StationPublishedOrder)
             {
-                yield return DrawList(frame);
+                yield return DrawListOf(StationObjectDraws.Family.Of(frame));
             }
         }
     }

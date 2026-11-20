@@ -18,8 +18,8 @@ public enum GrappleEnemyReaction
     /// <summary>Touching the enemy with the beam hurts Samus.</summary>
     HurtSamus,
     /// <summary>
-    /// The enemy names no grapple reaction (#2554): the elevator names its own behaviour there, which no grapple reaction of
-    /// the game's runs, so the beam touching it runs no grapple behaviour at all.
+    /// The enemy has no reaction to the grapple beam (#2283, #2558): the elevator, whose own behaviour carries on. The beam
+    /// never meets it, and reaching it fails.
     /// </summary>
-    NamesNoReaction,
+    Unreactive,
 }

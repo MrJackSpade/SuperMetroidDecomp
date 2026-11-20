@@ -7,15 +7,8 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 /// </summary>
 public sealed class FirefleaEnemyState
 {
-    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
-    internal FirefleaSpawnSettings Settings { get; }
-
     /// <summary>Starts the state of a Fireflea flying <paramref name="flight"/>.</summary>
-    internal FirefleaEnemyState(FirefleaFlightState flight, FirefleaSpawnSettings settings)
-    {
-        Settings = Ensure.NotNull(settings);
-        Flight = Ensure.NotNull(flight);
-    }
+    internal FirefleaEnemyState(FirefleaFlightState flight) => Flight = Ensure.NotNull(flight);
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<FirefleaSegment> Playback { get; set; }

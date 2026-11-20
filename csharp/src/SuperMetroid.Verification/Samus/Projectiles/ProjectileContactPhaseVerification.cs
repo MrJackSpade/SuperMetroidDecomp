@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
@@ -24,7 +23,7 @@ internal static class ProjectileContactPhaseVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(runtime.Room.LoadedRoom.Definition, new Position16<RoomPixels>(0, 0));
         var level = runtime.Room.LoadedLevelData;
         for (int y = 0; y <= 16; y++)
@@ -34,14 +33,13 @@ internal static class ProjectileContactPhaseVerification
             actor.Presence = actor.Presence.With(EnemyPresence.Deleted);
         foreach (var actor in runtime.Enemies.Projectiles.EnemyProjectiles) actor.Delete();
         runtime.InitializeDebugGroundedSamus(128, 235, 16);
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.Health = 99;
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
-        var projectile = runtime.Enemies.Projectiles.ProjectileInPlace(17);
-        projectile.Kind = RoomEnemyProjectileKind.RidleyFireball;
-        projectile.Rebind(FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile, projectile.Kind));
-        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));
+        var projectile = runtime.Enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.RidleyFireball);
+        global::SuperMetroid.Core.PrivateState.Set(projectile, "Behavior", (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile.Kind)));
+        projectile.StartAnimation(new RidleyFireballAnimation(runtime.Enemies.RidleyProjectiles.Fireballs, RidleyFireballSegment.Fireball));
         projectile.HoldStill();
         projectile.FrameHold = WrappingCountdown.Start(2);
         projectile.Position = projectile.Position.WithWhole(new(128, 235));
@@ -79,17 +77,16 @@ internal static class ProjectileContactPhaseVerification
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
-            var samus = runtime.Player.Samus;
+            runtime.RoomLoader.InitializeCeresStartSamus();
+            var samus = runtime.Player.IntroducedSamus;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.Position = samus.Position.WithWhole(new(120, 120));
             samus.Health = 99;
             samus.EquippedItems = suit;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            var projectile = runtime.Enemies.Projectiles.ProjectileInPlace(17);
-            projectile.Kind = RoomEnemyProjectileKind.RidleyFireball;
-            projectile.Rebind(FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile, projectile.Kind));
-            projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));
+            var projectile = runtime.Enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.RidleyFireball);
+            global::SuperMetroid.Core.PrivateState.Set(projectile, "Behavior", (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile.Kind)));
+            projectile.StartAnimation(new RidleyFireballAnimation(runtime.Enemies.RidleyProjectiles.Fireballs, RidleyFireballSegment.Fireball));
             projectile.HoldStill();
             projectile.FrameHold = WrappingCountdown.Start(2);
             projectile.Position = projectile.Position.WithWhole(new(120, 120));

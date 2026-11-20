@@ -6,11 +6,8 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// </summary>
 internal static class EvirPartListingDefinitions
 {
-    /// <summary>The places after its body the room lists an Evir's arms: right after it.</summary>
-    internal const int ArmsPlacesAfterBody = 1;
-
-    /// <summary>The places after its body the room lists an Evir's spit: behind its arms.</summary>
-    internal const int SpitPlacesAfterBody = 2;
+    /// <summary>The body, then its arms, then its spit.</summary>
+    internal static EnemyComposite<EvirMember> Listing { get; } = new([EvirMember.Body, EvirMember.Arms, EvirMember.Spit]);
 
     /// <summary>The enemies a body's or its arms' follow-up to a hit reaches: the two the room lists after the struck part.</summary>
     internal const int FollowUpReach = 2;

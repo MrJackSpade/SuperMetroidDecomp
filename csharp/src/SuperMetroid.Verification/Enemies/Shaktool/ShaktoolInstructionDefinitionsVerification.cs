@@ -25,13 +25,13 @@ internal static class ShaktoolInstructionDefinitionsVerification
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
             CompassDirection aim = AimAngleConstants.FromClockwiseSteps(bucket).DirectionOfEighth();
-            AssertEqual(ShaktoolNativeListAddresses.AimedSpritemap(rom, bucket),
+            AssertEqual(ShaktoolNativeListAddresses.AimedSpritemap(CartridgeImportSource.Require(rom), bucket),
                 ShaktoolFrameToolingDefinitions.Spritemap(ShaktoolHeadPictures.Aiming(aim)),
                 $"Shaktool orientation picture {bucket:X2}");
         }
         for (int index = 0; index < 7; index++)
         {
-            AssertEqual(rom.ReadCartridgeWord((0xaadf13 + index * 2)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadf13 + index * 2)),
                 NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolSegmentDefinitions.Segments[index].CollisionAnimation),
                 $"Shaktool collision list {index}");
         }

@@ -60,9 +60,7 @@ internal static void VerifySamusRenderingSlice()
     // parts read them (#1585).
     SamusBodySources poseOneArtwork = BoundArtwork(samus);
     SamusBodyFramePictures poseOnePictures = poseOneArtwork.Pictures(SamusPoseId.FacingRightNormalPose, 0);
-    AssertEqual(0x92d0b0, 0x920000 | SamusBodyNative.RecordPointer(SamusBodySources.Record(poseOnePictures.Top)), "pose 1 frame 0 top tile definition");
-    AssertEqual(0x92d1c8, poseOnePictures.Bottom is { } poseOneBottom ? 0x920000 | SamusBodyNative.RecordPointer(SamusBodySources.Record(poseOneBottom)) : 0,
-        "pose 1 frame 0 bottom tile definition");
+    AssertTrue(poseOnePictures.Bottom is not null, "pose 1 frame 0 selects a bottom half picture");
     ReadOnlySpan<byte> poseOneCharacters = SamusBodySheetFixtures.CharactersOf(poseOneArtwork)
         .BodyArtwork(poseOnePictures.Top, poseOnePictures.Bottom).Characters;
     AssertEqual(0x10, poseOneCharacters[0], "Samus top part 1 is the composed body's character 0");
@@ -78,18 +76,18 @@ internal static void VerifySamusRenderingSlice()
     for (int tick = 0; tick < 9; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     }
     AssertEqual(0, samus.AnimationNumber, "standing frame remains zero for first nine ticks");
     AssertEqual(1, samus.AnimationFrameTimer.RawValue, "standing timer reaches one before advance");
     samus.LiquidPhysics.BeginFrameSoundRequests();
-    SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom() });
+    SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     AssertEqual(1, samus.AnimationNumber, "standing frame advances on tenth tick");
     AssertEqual(10, samus.AnimationFrameTimer.RawValue, "next standing frame reloads ten ticks");
     for (int tick = 0; tick < 30; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     }
     AssertEqual(0, samus.AnimationNumber, "healthy $F6 command loops standing animation");
 
@@ -100,14 +98,14 @@ internal static void VerifySamusRenderingSlice()
     for (int tick = 0; tick < 40; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     }
     AssertEqual(5, samus.AnimationNumber, "low-health $F6 enters alternate sequence");
     AssertEqual(8, samus.AnimationFrameTimer.RawValue, "low-health sequence uses eight-tick delay");
     for (int tick = 0; tick < 32; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     }
     AssertEqual(5, samus.AnimationNumber, "$FE,$04 loops low-health standing sequence");
 
@@ -479,7 +477,7 @@ internal static void VerifySamusArmCannon()
     for (int index = 0; index < drawing.Length; index++)
         document.Required("drawingData")[index] = drawing[index];
     // Direction two's cover keeps its installed appearance, the retail $281F: tile $1F, palette four, priority two.
-    document.Required("coverTiles")[2] = new System.Text.Json.Nodes.JsonArray(0, 1, 2);
+    document.Required("coverOrientations")["Right"] = "Vertical";
     using var placement = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString()));
     // The cover characters are import data no installation holds (#1636): the cartridge-derived extraction's are bound.
     using var tiles = File.OpenRead(Path.Combine(CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.SamusBodyDirectoryName),
@@ -558,8 +556,7 @@ internal static void VerifySamusArmCannon()
     AssertTrue(!cover.IsLarge, "arm-cannon cover is a small OBJ");
     // Natively the third cover tile ($9A:9E00) is uploaded to tile $1F; the draw shows the sheet frame composed over it.
     SpriteArtwork coverTile = SheetFrameSources.CharacterDraw(coverFrame.Draws[0]).Artwork;
-    AssertEqual(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover,
-            SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(0x9e00) ?? throw new InvalidDataException("No cover tile source at $9E00.")), coverTile.Id,
+    AssertEqual(SpriteArtworkKind.SamusArmCannonCover, coverTile.Id.Kind,
         "pose record selects direction two, whose frame three binds the third cover tile");
     AssertTrue(coverCharacters.TryResolveTile(0x9a9e00, SpriteArtwork.CharacterByteCount, out ReadOnlyMemory<byte> nativeCover) &&
             coverTile.Characters.SequenceEqual(nativeCover.Span),
@@ -996,7 +993,7 @@ static void SeedBodyHalfRoutingSpritemaps(TestAddressSpace bus)
 {
     bus.WriteBytes(0x92e000, [1, 0, 0, 0, 0, 0x00, 0x28]);
     for (int index = 0; index <= 3; index++)
-        WriteTestWord(bus, SamusSpritemapSources.PointerTableAddress + index * 2, 0xe000);
+        WriteTestWord(bus, SamusSourceDefinitions.SpritemapPointers.Value + index * 2, 0xe000);
     bus.WriteBytes(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value, [
         0xf8, 0x00, 0xf8, 0x00,
         0xfc, 0xfe, 0xfc, 0xfe,

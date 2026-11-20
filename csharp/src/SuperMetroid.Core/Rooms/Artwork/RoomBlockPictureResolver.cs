@@ -28,8 +28,8 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     /// <summary>The value each input of each used picture took when it was last resolved, by used picture.</summary>
     private string[][] values = [];
 
-    /// <summary>The table the last resolution returned; before the first, the table of no block's picture.</summary>
-    private RoomBlockPictureTable table = RoomBlockPictureTable.NoneDrawn(sheet);
+    /// <summary>The last table resolved.</summary>
+    private RoomBlockPictureTable? table;
 
     /// <summary>The room tileset's block sheet.</summary>
     public RoomBlockSheet Sheet { get; } = Ensure.NotNull(sheet);
@@ -51,8 +51,8 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     {
         Ensure.NotNull(foreground);
         HashSet<RoomCellPicture> also = [.. Ensure.NotNull(alsoShown)];
-        RoomBlockPictureTable previous = table;
-        bool fresh = foregroundPlane is null || !ReferenceEquals(foregroundPlane, foreground) || !ReferenceEquals(backgroundPlane, background)
+        RoomBlockPictureTable? previous = table;
+        bool fresh = previous is null || !ReferenceEquals(foregroundPlane, foreground) || !ReferenceEquals(backgroundPlane, background)
             || !also.SetEquals(further);
         if (fresh)
         {
@@ -81,17 +81,18 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
                 continue;
             if (blocks is null || collectibles is null)
             {
-                blocks = Copy(previous);
-                collectibles = new Dictionary<CollectiblePicture, LayeredPicture>(previous.Collectibles);
+                RoomBlockPictureTable changing = previous ?? throw new InvalidOperationException("A changed block was resolved with no table to change.");
+                blocks = Copy(changing);
+                collectibles = new Dictionary<CollectiblePicture, LayeredPicture>(changing.Collectibles);
             }
             LayeredPicture picture = PictureOf(shown, inputs, shownValues);
-            if (shown.Collectible is { } collectible)
-                collectibles[collectible] = picture;
+            if (shown.ShowsCollectible)
+                collectibles[shown.Collectible] = picture;
             else
                 blocks[shown.Block] = picture;
         }
         RoomBlockPictureTable resolved = blocks is null || collectibles is null
-            ? previous
+            ? previous ?? throw new InvalidOperationException("An unchanged resolution has no table.")
             : new RoomBlockPictureTable(blocks, collectibles);
         table = resolved;
         return resolved;
@@ -120,7 +121,7 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     /// </summary>
     /// <exception cref="InvalidDataException">The sheet has no picture of the block for those values, or of the collectible (#1636).</exception>
     private LayeredPicture PictureOf(RoomCellPicture shown, ImmutableArray<AppearanceInput> inputs, string[] shownValues) =>
-        shown.Collectible is { } collectible ? Sheet.PictureOf(collectible) : Sheet.BlockPicture(shown.Block, inputs, shownValues);
+        shown.ShowsCollectible ? Sheet.PictureOf(shown.Collectible) : Sheet.BlockPicture(shown.Block, inputs, shownValues);
 
     /// <summary>A copy of a table's block pictures, for a table that changes in some.</summary>
     private static LayeredPicture?[] Copy(RoomBlockPictureTable previous)

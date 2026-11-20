@@ -88,8 +88,8 @@ internal static class FamilyTrigonometryVerification
         {
             uint initial = bullOrigins[heading / 256];
             int angle = heading % 256;
-            var bull = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers());
-            var bullState = new BullEnemyState(previous: null, BullAction.MovementDelay, new BullSpawnSettings(default, SignedEightEight.Zero));
+            var bull = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
+            var bullState = new BullEnemyState(previous: null, BullAction.MovementDelay);
             for (int speed = 0; speed <= 2880; speed++)
             {
                 bull.Position = new(SixteenSixteenWords.ToCoordinate(initial), SixteenSixteenWords.ToCoordinate(initial));
@@ -121,10 +121,10 @@ internal static class FamilyTrigonometryVerification
             // The leading saw starts the chain the second segment joins (#2452); the second segment finds the saw it
             // orbits as production places it, right after the saw.
             previous.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 0);
-            enemies.ShaktoolBehavior.InitializeShaktool(previous.HeldOccupant(), previous, previous.SpawnSettings<ShaktoolSpawnSettings>());
+            enemies.ShaktoolBehavior.InitializeShaktool(previous.HeldOccupant(), previous);
             segment.Bind(EnemyDefinitionId.Shaktool, segment.KeptDefinition);
             segment.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 2);
-            enemies.ShaktoolBehavior.InitializeShaktool(segment, segment.SpawnSettings<ShaktoolSpawnSettings>());
+            enemies.ShaktoolBehavior.InitializeShaktool(segment.HeldOccupant(), segment);
             var segmentState = new ShaktoolSegmentState();
             Action<RoomEnemyPlace, ShaktoolSegmentState> place = enemies.ShaktoolBehavior.PositionShaktoolAroundPreviousSegment;
             int firstAngle = block * AnglesPerBlock;

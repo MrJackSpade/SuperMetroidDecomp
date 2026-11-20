@@ -24,7 +24,7 @@ internal static class PauseMapAreaLabelsVerification
     internal static void VerifyPauseMapAreaLabels()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var cart = bus;
+        var cart = CartridgeImportSource.Require(bus);
         foreach (AreaId area in new[] { AreaId.Crateria, AreaId.Brinstar, AreaId.Norfair, AreaId.WreckedShip, AreaId.Maridia })
         {
             var system = new SharedGameState(new SharedRandom());

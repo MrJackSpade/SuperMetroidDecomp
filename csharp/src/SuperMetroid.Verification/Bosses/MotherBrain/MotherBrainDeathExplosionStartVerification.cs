@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Runtime;
@@ -29,7 +28,7 @@ internal static class MotherBrainDeathExplosionStartVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
@@ -52,13 +51,13 @@ internal static class MotherBrainDeathExplosionStartVerification
         PrivateState.Set(state.Bursts, "Place", 2);
         PrivateState.SetField(state.Bursts, "burstWait", UpdateCountdown.For(0 + 1));
         var frame = MotherBrainLateFightFixtures.QuietFrame(0, 0) with { NextRandomNumber = () => 0 };
-        MotherBrainRainbowBeamAttackStepResult first = sequence.Step(runtime.Player.Samus, frame);
+        MotherBrainRainbowBeamAttackStepResult first = sequence.Step(runtime.Player.IntroducedSamus, frame);
         AssertEqual(MotherBrainDeathDefinitions.EscapeDoorDustPositions[2],
             (first.EscapeDoorExplosion ?? throw new InvalidOperationException("The door's first dust did not burst.")).Position,
             "the door's first dust takes the position before the death explosions' place");
         AssertEqual(4, (PrivateState.Field<MotherBrainBurstCycle, UpdateCountdown>(state.Bursts, "burstWait").UpdatesLeft - 1), "the door's dust waits four updates after a burst");
         PrivateState.SetField(state.Bursts, "burstWait", UpdateCountdown.For(1 + 1));
-        AssertTrue(sequence.Step(runtime.Player.Samus, frame).EscapeDoorExplosion is null,
+        AssertTrue(sequence.Step(runtime.Player.IntroducedSamus, frame).EscapeDoorExplosion is null,
             "the door's dust waits while the interval it continues has not run out");
 
         // The group selects positions only: every group draws one random number per explosion.

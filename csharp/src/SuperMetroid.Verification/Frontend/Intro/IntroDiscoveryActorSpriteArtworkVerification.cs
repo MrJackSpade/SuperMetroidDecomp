@@ -64,11 +64,11 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroDiscoveryActors);
         var stockState = CreateRetailIntroFixture(characterArtwork: stock);
         stockState.SetupFirstIllustratedPage();
-        stockState.SetupMotherBrainFlashback((stockState.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun.")));
-        stockState.SetupBabyDiscoveryCrossfade((stockState.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun.")), stockState.MotherBrainFlashback ?? throw new InvalidOperationException("The discovery follows the Mother Brain flashback."));
+        stockState.SetupMotherBrainFlashback();
+        stockState.SetupBabyDiscoveryCrossfade();
         for (int frame = 0; frame < 128 &&
             stockState.Phase == IntroCinematicPhase.BabyDiscoveryCrossfade; frame++)
-            stockState.StepBabyDiscoveryCrossfade((stockState.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun.")), stockState.CurrentBabyDiscovery ?? throw new InvalidOperationException("The discovery crossfade shows the discovery."));
+            stockState.StepBabyDiscoveryCrossfade();
         AssertEqual(IntroCinematicPhase.BabyDiscovery, stockState.Phase,
             "discovery actor visual probe reached the lit gameplay palette");
         (stockState.CurrentBabyDiscovery ?? throw new InvalidOperationException("Verification requires discovery.")).Step(0, crossfadeFinishing: false);

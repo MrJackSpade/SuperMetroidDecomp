@@ -12,12 +12,8 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
 /// <param name="gameplay">The main gameplay update, which runs behind the white-out.</param>
-/// <param name="step">The step the time-up is at.</param>
-internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePhases gameplay, TimeUpStep step) : IGameplayPhase
+internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePhases gameplay) : IGamePhase
 {
-    /// <summary>The step the time-up is at.</summary>
-    internal TimeUpStep CurrentStep => step;
-
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.TimeUp;
 
@@ -26,65 +22,65 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
     /// The white-out runs gameplay, which advances the generator itself. The fade to black runs no gameplay; the room
     /// liquid's wave and the statues' descent still advance before the generator until it clears the room's effects.
     /// </remarks>
-    public PhaseRandomStep RandomStep => step switch
+    public PhaseRandomStep RandomStep => session.TimeUpStep switch
     {
         TimeUpStep.WhiteningOut => PhaseRandomStep.RuntimeOwned,
         TimeUpStep.FadingToBlack => PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance,
-        _ => throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {step}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {session.TimeUpStep}."),
     };
 
     /// <inheritdoc/>
     public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
     /// <inheritdoc/>
-    public string Name => step switch
+    public string Name => session.TimeUpStep switch
     {
         TimeUpStep.WhiteningOut => "Time up: white-out",
         TimeUpStep.FadingToBlack => "Time up: fade to black",
-        _ => throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {step}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {session.TimeUpStep}."),
     };
 
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <inheritdoc/>
-    public void Step(ControllerButton controllerInput, LoadedGameplay live)
+    public void Step(ControllerButton controllerInput)
     {
-        switch (step)
+        switch (session.TimeUpStep)
         {
             case TimeUpStep.WhiteningOut:
-                WhiteOut(controllerInput, live);
+                WhiteOut(controllerInput);
                 break;
             case TimeUpStep.FadingToBlack:
-                FadeToBlack(controllerInput, live);
+                FadeToBlack(controllerInput);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {step}.");
+                throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {session.TimeUpStep}.");
         }
     }
 
     /// <summary>One update of gameplay while every colour whitens.</summary>
-    private void WhiteOut(ControllerButton controllerInput, LoadedGameplay live)
+    private void WhiteOut(ControllerButton controllerInput)
     {
         // The white-out runs the whole main-gameplay update, then advances every colour
-        // toward the white target with denominator eight. It owns that update, so a Samus out of
+        // toward the white target by the white-out's step. It owns that update, so a Samus out of
         // health without reserves does not die behind it (#2509).
-        gameplay.RunMainGameplayUpdate(controllerInput, GameplayUpdateOwner.TimeUpWhiteOut, live);
-        if (live.Runtime.FadeOut.Step())
+        gameplay.RunMainGameplayUpdate(controllerInput, GameplayUpdateOwner.TimeUpWhiteOut);
+        if (session.GameplayRuntime.FadeOut.Step())
         {
             session.Enter(TimeUpStep.FadingToBlack);
             session.screenFade.StepEvery(1);
         }
-        session.display.PublishGameplay(live);
+        session.display.PublishGameplay(session.GameplayRuntime);
     }
 
     /// <summary>One update of the whitened screen fading to black.</summary>
-    private void FadeToBlack(ControllerButton controllerInput, LoadedGameplay live)
+    private void FadeToBlack(ControllerButton controllerInput)
     {
         // The time-up black-out runs no gameplay: it fades the whitened frame to black.
-        live.Runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
+        session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         if (session.StepScreenFadeOut())
-            FinishTimeUpBlackOut(live);
+            FinishTimeUpBlackOut();
     }
 
     /// <summary>
@@ -92,19 +88,19 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
     /// timer and Ceres effects, silence all three sound libraries, then lose Samus with Ceres
     /// or, once the Zebes time bomb is set, cut straight to the death black-out.
     /// </summary>
-    private void FinishTimeUpBlackOut(LoadedGameplay live)
+    private void FinishTimeUpBlackOut()
     {
         session.screenFade.StepEvery(1);
-        live.Runtime.FadeOut.End();
-        live.Runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
-        live.Runtime.EscapeTimer.StopAtTimeUp();
+        session.GameplayRuntime.FadeOut.End();
+        session.GameplayRuntime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
+        session.GameplayRuntime.EscapeTimer.StopAtTimeUp();
         session.audio.QueueCancelSoundEffects(SoundRequestPriority.Essential);
         session.display.PublishBlack();
-        if (live.Runtime.System.HasEvent(StoryEvent.ZebesTimebombSet))
+        if (session.GameplayRuntime.System.HasEvent(StoryEvent.ZebesTimebombSet))
         {
             session.BeginBlackDeathBlackOut();
             return;
         }
-        session.BeginCeresDestruction(CeresDestructionOutcome.SamusAboard, live.Runtime);
+        session.BeginCeresDestruction(CeresDestructionOutcome.SamusAboard);
     }
 }

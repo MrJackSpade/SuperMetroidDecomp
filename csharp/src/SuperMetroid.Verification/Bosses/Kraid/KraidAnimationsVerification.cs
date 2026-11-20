@@ -35,7 +35,7 @@ internal static class KraidAnimationsVerification
     /// </summary>
     internal static void VerifyKraidPartAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(Enum.GetValues<KraidPartSegment>().Length, PartEntries.Length, "every typed Kraid part program has a native entry");
         AssertTrue(PartEntriesAscend, "native Kraid part entries ascend");
 
@@ -367,7 +367,7 @@ internal static class KraidAnimationsVerification
         KraidNailState part = state.Nail(KraidNailPart.First);
         RoomEnemyPlace nail = part.Place;
         nail.Bind(EnemyDefinitionId.KraidFirstNail, nail.KeptDefinition);
-        KraidProjectiles.InitializeKraidNail(nail, nail.RequireSpeciesState<KraidEnemyState>(), KraidNailPart.First);
+        enemies.KraidBehavior.Projectiles.InitializeKraidNail(nail, KraidNailPart.First);
         AssertEqual((EnemyFrameId?)EnemyFrameId.KraidNailTurned0, nail.Frame, "a fingernail set up shows its spin's first pose");
         AssertEqual(KraidAnimations.StartingWith(KraidPartSegment.NailLoop), part.Playback.Animation, "the pose is its spin's");
         AssertTrue(nail.AnimationClock.IsStopped, "the set-up fingernail's spin waits");
@@ -407,7 +407,7 @@ internal static class KraidAnimationsVerification
     /// </summary>
     internal static void VerifyKraidRockAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(Enum.GetValues<KraidRockSegment>().Length, RockEntries.Length, "every typed rock program has a native entry");
         VerifyRockProducers();
         foreach ((KraidRockSegment program, ushort entry) in RockEntries)
@@ -439,8 +439,11 @@ internal static class KraidAnimationsVerification
         Console.WriteLine("  Kraid rock programs: the poses and burst match bank $86 every update, with the stopped flight and deletion.");
     }
 
-    /// <summary>A Kraid body position and art for the real rock producers.</summary>
-    private static RoomEnemyPlace NewRockSource() => new(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers())
+    /// <summary>
+    /// A Kraid body position and art for the real rock producers: the first place of <paramref name="enemies"/> past Kraid's
+    /// eight parts, whose registry holds every species a producer's check binds.
+    /// </summary>
+    private static RoomEnemyPlace NewRockSource(RoomEnemySystem enemies)
     {
         RoomEnemyPlace source = enemies.Places.InUpdateOrder[8];
         source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 224));
@@ -463,7 +466,7 @@ internal static class KraidAnimationsVerification
         enemies.KraidBehavior.Background.SpawnKraidCeilingRock(96);
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidCeilingRock),
             "the real ceiling producer allocates its rock in the enemy projectile pool");
-        var state = new KraidEnemyState(KraidPartsAccess.Standalone());
+        var state = new KraidEnemyState(new KraidParts());
         random = 0;
         enemies.KraidBehavior.Rise.RequestKraidRisingRock(source);
         random = 16;

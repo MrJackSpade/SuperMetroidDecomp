@@ -39,7 +39,7 @@ internal static class RoomEnemyDefinitionImporterAccess
                 ? compiled
                 : EnemyDefinitionFixtures.Blank;
             Ensure.NotNull(bus);
-            IImportCartridgeSource cartridge = bus;
+            IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
             ushort Word(int offset) => RoomEnemyDefinitionImporter.ReadWord(cartridge, headerPointer, offset);
             byte Byte(int offset) => RoomEnemyDefinitionImporter.ReadByte(cartridge, headerPointer, offset);
             int bank = Byte(RoomEnemyDefinitionImporter.BankOffset);

@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("a Spazer and Plasma beam fires with the sounds that follow the beam sound lists")]
 public sealed class UnauthoredBeamSounds<TBeams, TSound>
     where TBeams : notnull
-    where TSound : notnull
+    where TSound : struct
 {
     /// <summary>The sound each combination's uncharged shot fires with, or none.</summary>
     private readonly IReadOnlyDictionary<TBeams, TSound?> _uncharged;

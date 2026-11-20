@@ -9,9 +9,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 internal sealed class PooledFileBytes : IDisposable
 {
     /// <summary>Rented backing array returned to the shared pool when this read is disposed.</summary>
-    private readonly byte[] buffer;
-    /// <summary>Whether the buffer has gone back to the pool, after which this wrapper rejects every access.</summary>
-    private bool returned;
+    private byte[]? buffer;
     /// <summary>Actual file length; the rented array may have greater capacity.</summary>
     private readonly int length;
 
@@ -44,20 +42,13 @@ internal sealed class PooledFileBytes : IDisposable
     public MemoryStream OpenRead() => new(Buffer, 0, length, writable: false, publiclyVisible: true);
 
     /// <summary>Rejects access after the buffer has been returned to the pool.</summary>
-    private byte[] Buffer
-    {
-        get
-        {
-            ObjectDisposedException.ThrowIf(returned, this);
-            return buffer;
-        }
-    }
+    private byte[] Buffer => buffer ?? throw new ObjectDisposedException(nameof(PooledFileBytes));
 
     /// <summary>Returns the rented array once and rejects later accesses through this wrapper.</summary>
     public void Dispose()
     {
-        if (returned) return;
-        returned = true;
+        if (buffer is null) return;
         ArrayPool<byte>.Shared.Return(buffer);
+        buffer = null;
     }
 }

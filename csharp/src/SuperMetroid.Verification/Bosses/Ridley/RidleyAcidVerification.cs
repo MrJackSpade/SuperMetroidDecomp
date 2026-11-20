@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -27,7 +26,7 @@ internal static class RidleyAcidVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         // The room load's queued uploads, the acid's characters among them, are shown once its first frame drains them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -53,7 +52,7 @@ internal static class RidleyAcidVerification
         state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff;
         runtime.Enemies.NorfairRidleyBehavior.BeginRoarHold(state);
         for (int frame = 0; frame < 200 && state.RevealPhase == RidleyRevealPhase.WaitBeforeLiftoff; frame++)
-            runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, SamusBombs = runtime.BombProjectiles });
+            runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, SamusBombs = runtime.BombProjectiles });
         AssertEqual(440, fx.NamedTargetSurface, "native reveal writes acid rise target to shared FX");
         AssertEqual(unchecked((ushort)-96), fx.LiquidLevelSpeed.RawValue, "native reveal writes rising velocity");
         AssertEqual((ushort)32, fx.LiquidMoveDelay.RawValue, "native reveal writes rise delay once");
@@ -62,7 +61,7 @@ internal static class RidleyAcidVerification
         AssertAcidVisible(true);
         state.Phase = NorfairRidleyPhase.DeathRoar;
         state.PhaseTimer.LastFor(1);
-        runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, SamusBombs = runtime.BombProjectiles });
+        runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, SamusBombs = runtime.BombProjectiles });
         AssertEqual(528, fx.NamedTargetSurface, "native death roar writes acid drain target");
         AssertEqual((ushort)64, fx.LiquidLevelSpeed.RawValue, "native death writes draining velocity");
         AssertEqual((ushort)1, fx.LiquidMoveDelay.RawValue, "native death writes drain delay once");
@@ -82,9 +81,9 @@ internal static class RidleyAcidVerification
                 fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay()."),
                 FxOverlayFixtures.ArtworkOf(fx.EffectPlane, InstalledFixtures.ImportMaps.RoomFxPages, runtime.ComposedVram(),
                     GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources))));
-            var baseline = DisplayRendering.Render(new LayeredScene(memory, [], 15));
+            var baseline = DisplayRendering.Render(new LayeredScene(memory, [], DisplayBrightness.Full));
             var actual = DisplayRendering.Render(new LayeredScene(memory,
-                effect is null ? [] : new DisplayLayer[] { effect }, 15));
+                effect is null ? [] : new DisplayLayer[] { effect }, DisplayBrightness.Full));
             AssertEqual(expectedVisible, !actual.SequenceEqual(baseline), "acid visibility at lower-arena camera");
             AssertTrue(actual.Take(32 * 256).SequenceEqual(baseline.Take(32 * 256)), "acid does not overwrite HUD");
         }

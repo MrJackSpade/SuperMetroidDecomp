@@ -17,14 +17,13 @@ public static class BeamPaletteExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var palettes = new Dictionary<string, PaletteRgb5[]>();
-        for (int index = 0; index < BeamTileAtlasDefinitions.SelectionCount; index++)
+        foreach (SamusBeamCombination selection in BeamTileAtlasDefinitions.Equippable)
         {
-            SamusBeamCombination selection = SamusBeamCombinationTableOrder.FromTableIndex(index);
-            int pointer = RomDataReader.ReadWordFixedBank(bus, SamusSourceDefinitions.PalettePointers.Value + selection.TableIndex * 2);
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.PalettePointers.Value + selection.TableIndex * 2);
             var colors = new PaletteRgb5[BeamPaletteDefinitions.ColorCount];
             for (int i = 0; i < colors.Length; i++)
             {
-                colors[i] = PaletteRgb5.From(RgbColor.FromWord(RomDataReader.ReadWordFixedBank(bus,
+                colors[i] = PaletteRgb5.From(RgbColor.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     SamusSourceDefinitions.MovementBank.Value | (pointer + i * 2))));
             }
             palettes.Add(BeamPaletteFile.Key(selection), colors);

@@ -133,6 +133,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.RetractHead();
+            _state.BabyMetroidSpawned = true;
             requests.Start(MotherBrainStepEffect.BabySpawn);
             Encounter.FinishOffPhase = MotherBrainFinishOffPhase.FireFinalBeam;
             Encounter.PhaseTimer.LastFor(MotherBrainWaitDefinitions.FinalBeamFireDelayUpdates);

@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rooms.RoomObjects;
-
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
@@ -14,21 +11,13 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// The sinking's end is a latch of its own beside the releases: the base decoration marks it once the statues rest, and a
 /// room entered after the descent has unlocked Tourian marks it on every update while its releases never begin.
 /// </remarks>
-[RoomLifetime]
 public sealed class TourianStatueAnimation
 {
-    /// <summary>Makes the room-load state, whose sinking marks <paramref name="finished"/>, the room's progress.</summary>
-    /// <param name="finished">The room's statue progress, which the room's grey caps read (#2554).</param>
-    internal TourianStatueAnimation(TourianStatueProgress finished) => _finished = Ensure.NotNull(finished);
-
-    /// <summary>The room's statue progress, which the sinking's end marks.</summary>
-    private readonly TourianStatueProgress _finished;
-
     /// <summary>
     /// Whether the entrance statue has finished sinking. The statue's base decoration sets it once the sinking animation
     /// has ended.
     /// </summary>
-    public bool Finished => _finished.IsFinished;
+    public bool Finished { get; private set; }
 
     /// <summary>The statues running their idle or release animation.</summary>
     public TourianGreyStatues Animating { get; private set; }
@@ -54,7 +43,7 @@ public sealed class TourianStatueAnimation
     public bool AtRest => Animating == TourianGreyStatues.None && Release == TourianStatueReleasePhase.NoneReleasing;
 
     /// <summary>The entrance statue has finished sinking.</summary>
-    internal void FinishSinking() => _finished.Finish();
+    internal void FinishSinking() => Finished = true;
 
     /// <summary><paramref name="statue"/> starts running its idle or release animation.</summary>
     internal void MarkAnimating(TourianGreyStatues statue) => Animating |= statue;

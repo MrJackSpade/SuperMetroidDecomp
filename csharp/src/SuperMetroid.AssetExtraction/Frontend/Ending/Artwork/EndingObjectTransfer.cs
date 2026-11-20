@@ -16,9 +16,9 @@ public enum EndingObjectTransfer
     /// <summary>BG2 waiting-scene tilemap.</summary>
     WaitingTilemap,
     /// <summary>BG3 transformation-character transfer.</summary>
-    PostCreditsFragmentA,
+    TransformationCharacters,
     /// <summary>BG3 transformation tilemap.</summary>
-    PostCreditsFragmentB,
+    TransformationMap,
     /// <summary>Final-logo character stream.</summary>
     PostShotLogoTiles,
     /// <summary>Final-logo tilemap.</summary>

@@ -24,20 +24,21 @@ internal static class SoundEffectRendering
     internal sealed record LoopingLayer(short[] Clip, long LoopStart);
 
     /// <summary>
-    /// Prepares <paramref name="renderer"/>, attached to <paramref name="observer"/>, having uploaded the common and
+    /// Creates a renderer, attached to <paramref name="observer"/>, that has uploaded the common and
     /// <paramref name="context"/> banks on frame 0 (rendered when <paramref name="synthesize"/>,
     /// otherwise only sequenced) and queued <paramref name="library"/>'s request
     /// <paramref name="command"/> for frame 1, over <paramref name="catalog"/>.
     /// </summary>
-    internal static void Start(
-        SpcAudioClipRenderer renderer,
+    internal static SpcAudioClipRenderer Start(
+        ExtractedAudioAssetCatalog catalog,
         AudioBank? context,
         SoundEffectLibrary library,
         int command,
         SoundEffectObserver observer,
         bool synthesize)
     {
-        renderer.Observe(observer);
+        var renderer = new SpcAudioClipRenderer(catalog, observer);
+        observer.Attach(renderer);
         renderer.LoadBank(AudioAssetCatalogDefinitions.Common.AudioSet);
         if (context is not null)
             renderer.LoadBank(context.Value);
@@ -46,6 +47,7 @@ internal static class SoundEffectRendering
         else
             renderer.AdvanceSequencerFrame();
         renderer.RequestSound(SoundEffectCommands.Decode(library, command));
+        return renderer;
     }
 
     /// <summary>
@@ -56,38 +58,16 @@ internal static class SoundEffectRendering
     {
         short[] frame = new short[SpcAudioClipRenderer.NativeSamplesPerFrame];
         do
-            RenderFrameFromStart(renderer, observer, pcm, frame);
+        {
+            renderer.RenderFrame(frame);
+            if (observer.StartSample is long start)
+            {
+                long frameStart = (renderer.Frame - 1) * ManagedSnesDsp.NativeStereoFramesPerVideoFrame;
+                int skip = (int)Math.Max(0, start - frameStart) * 2;
+                pcm.AddRange(frame.AsSpan(skip));
+            }
+        }
         while (!done(frame));
-    }
-
-    /// <summary>
-    /// Renders frames as <see cref="RenderFromStart"/> does until <paramref name="finished"/> yields its result for the
-    /// frame just rendered, and returns that result.
-    /// </summary>
-    private static T RenderUntil<T>(SpcAudioClipRenderer renderer, SoundEffectObserver observer, List<short> pcm, Func<short[], T?> finished)
-        where T : class
-    {
-        short[] frame = new short[SpcAudioClipRenderer.NativeSamplesPerFrame];
-        T? result;
-        do
-        {
-            RenderFrameFromStart(renderer, observer, pcm, frame);
-            result = finished(frame);
-        }
-        while (result is null);
-        return result;
-    }
-
-    /// <summary>Renders one frame into <paramref name="frame"/>, appending its samples from the observed start to <paramref name="pcm"/>.</summary>
-    private static void RenderFrameFromStart(SpcAudioClipRenderer renderer, SoundEffectObserver observer, List<short> pcm, short[] frame)
-    {
-        renderer.RenderFrame(frame);
-        if (observer.StartSample is long start)
-        {
-            long frameStart = (renderer.Frame - 1) * ManagedSnesDsp.NativeStereoFramesPerVideoFrame;
-            int skip = (int)Math.Max(0, start - frameStart) * 2;
-            pcm.AddRange(frame.AsSpan(skip));
-        }
     }
 
     /// <summary>
@@ -97,24 +77,25 @@ internal static class SoundEffectRendering
     internal static OneShot RenderOneShot(
         ExtractedAudioAssetCatalog catalog, AudioBank? context, SoundEffectLibrary library, int command)
     {
-        var renderer = new SpcAudioClipRenderer(catalog);
-        var observer = new SoundEffectObserver(renderer, library, command);
-        Start(renderer, context, library, command, observer, synthesize: true);
+        var observer = new SoundEffectObserver(library, command);
+        SpcAudioClipRenderer renderer = Start(catalog, context, library, command, observer, synthesize: true);
         bool silentAfterEnd = false;
         var pcm = new List<short>();
-        SoundEffectSpan lifetime = RenderUntil(renderer, observer, pcm, frame =>
+        RenderFromStart(renderer, observer, pcm, frame =>
         {
-            if (observer.Ended is not { } ended)
-                return null;
+            if (observer.EndSample is null)
+                return false;
             if (silentAfterEnd)
-                return ended;
+                return true;
             silentAfterEnd = Array.TrueForAll(frame, sample => sample == 0);
-            return null;
+            return false;
         });
+        long start = observer.StartSample ?? throw new InvalidDataException($"{library} ${command:X2} never started.");
+        long end = observer.EndSample ?? throw new InvalidDataException($"{library} ${command:X2} never ended.");
         int frames = pcm.Count / 2;
         while (frames > 0 && pcm[frames * 2 - 1] == 0 && pcm[frames * 2 - 2] == 0)
             frames--;
-        return new OneShot(CollectionsMarshal.AsSpan(pcm)[..(frames * 2)].ToArray(), lifetime.EndSample - lifetime.StartSample);
+        return new OneShot(CollectionsMarshal.AsSpan(pcm)[..(frames * 2)].ToArray(), end - start);
     }
 
     /// <summary>
@@ -129,12 +110,11 @@ internal static class SoundEffectRendering
         int command,
         int allocatedChannels)
     {
-        var sequencer = new SpcAudioClipRenderer(catalog);
-        var finder = new SoundEffectObserver(sequencer, library, command);
-        Start(sequencer, context, library, command, finder, synthesize: false);
+        var finder = new SoundEffectObserver(library, command);
+        SpcAudioClipRenderer sequencer = Start(catalog, context, library, command, finder, synthesize: false);
         while (!finder.AllChannelLoopsFound)
         {
-            if (finder.Ended is not null)
+            if (finder.EndSample is not null)
                 throw new InvalidDataException($"Never-ending {library} ${command:X2} reached its logical end.");
             sequencer.AdvanceSequencerFrame();
         }
@@ -148,9 +128,8 @@ internal static class SoundEffectRendering
         var layers = new List<LoopingLayer>(loops.Count);
         foreach ((long first, long second, int voice) in loops)
         {
-            var renderer = new SpcAudioClipRenderer(catalog);
-            var observer = new SoundEffectObserver(renderer, library, command);
-            Start(renderer, context, library, command, observer, synthesize: true);
+            var observer = new SoundEffectObserver(library, command);
+            SpcAudioClipRenderer renderer = Start(catalog, context, library, command, observer, synthesize: true);
             renderer.Player.dsp.OutputVoices = voice;
             // The last frame overshoots E2 by less than a frame, so the buffer never regrows.
             int length = checked((int)(second * 2));

@@ -132,9 +132,8 @@ public static class RomDataReader
             int first = Next();
             if (first == SmCompressionCodes.Terminator)
                 return SmCompression.Decompress(stored.AsSpan(0, length), maximumOutputBytes);
-            SmCompressionHeader header = SmCompressionCodes.IsLongHeader(first)
-                ? SmCompressionHeader.DecodeLong(first, Next())
-                : SmCompressionHeader.Decode(first);
+            int? second = SmCompressionCodes.IsLongHeader(first) ? Next() : null;
+            SmCompressionHeader header = SmCompressionHeader.Decode(first, second);
             for (int operand = 0; operand < header.PayloadByteCount; operand++)
                 Next();
         }

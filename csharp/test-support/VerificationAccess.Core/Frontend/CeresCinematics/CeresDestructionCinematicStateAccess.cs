@@ -11,8 +11,7 @@ internal static class CeresDestructionCinematicStateAccess
         /// <summary>Number of cinematic actors the scene still holds: those over Ceres, or the Zebes reveal's.</summary>
         internal int ActiveActorCount =>
             PrivateState.Field<CeresDestructionCinematicState, List<CeresSceneActor>>(self, "ceresActors").Count +
-            PrivateState.Field<CeresDestructionCinematicState, List<ZebesRevealSlider>>(self, "revealSliders").Count +
-            PrivateState.Field<CeresDestructionCinematicState, List<ZebesRevealCaption>>(self, "revealCaptions").Count;
+            PrivateState.Field<CeresDestructionCinematicState, List<ZebesRevealActor>>(self, "revealActors").Count;
 
         /// <summary>Puts the cinematic at <paramref name="phase"/>, for a check that starts at that step without running the updates that reach it.</summary>
         internal void SkipToPhase(CeresDestructionPhase phase) =>

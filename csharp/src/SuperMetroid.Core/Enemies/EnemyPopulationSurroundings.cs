@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// What a room's population load hands the enemies it places (#2455): the room's level data, Samus, and the frame's
 /// controller input and camera. An enemy spawned on another enemy's behalf has no surroundings: it initializes without
-/// them (<see cref="EnemySetup.Spawned"/>).
+/// them (<see cref="IEnemyInitialization"/>).
 /// </summary>
 /// <param name="Level">The room's level data.</param>
 /// <param name="Samus">Samus, as the load hands her to its enemies.</param>

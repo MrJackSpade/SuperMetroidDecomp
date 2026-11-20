@@ -17,7 +17,7 @@ internal static class BombTorizoDroolSineVerification
     internal static void VerifyBombTorizoDroolSine(CartridgeImportAddressSpace rom)
     {
         Action<RoomEnemySystem, RoomEnemyPlace> spawn =
-            (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoLowHealthDrool(torizo, torizo.RequireSpeciesState<TorizoEnemyState>());
+            (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoLowHealthDrool(torizo.HeldOccupant(), torizo);
 
         for (int random = byte.MinValue; random <= byte.MaxValue; random++)
         {
@@ -103,7 +103,7 @@ internal static class BombTorizoDroolSineVerification
         int wordOffset)
     {
         int address = table + wordOffset;
-        return rom.ReadCartridgeWord(address);
+        return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
     }
 
 

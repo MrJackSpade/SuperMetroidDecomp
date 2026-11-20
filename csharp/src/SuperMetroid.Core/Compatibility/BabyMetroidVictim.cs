@@ -19,17 +19,13 @@ public static class BabyMetroidVictim
     /// <summary>The enemy placed directly after the Baby Metroid.</summary>
     /// <typeparam name="TPlace">An enemy place.</typeparam>
     /// <param name="places">Every enemy place, in placement order.</param>
-    /// <param name="babyMetroid">The Baby Metroid's zero-based place in <paramref name="places"/>.</param>
+    /// <param name="babyMetroid">The Baby Metroid's place, one of <paramref name="places"/>.</param>
     /// <exception cref="ArgumentOutOfRangeException">The Baby Metroid is not in a place, or is in the final place.</exception>
-    public static TPlace Of<TPlace>(IReadOnlyList<TPlace> places, int babyMetroid)
+    public static TPlace Of<TPlace>(IReadOnlyList<TPlace> places, TPlace babyMetroid) where TPlace : class
     {
-        Ensure.NotNull(places);
-        int victim = babyMetroid + 1;
-        if (babyMetroid < 0 || victim >= places.Count)
-        {
-            throw new ArgumentOutOfRangeException(nameof(babyMetroid), babyMetroid,
-                $"The Baby Metroid in place {babyMetroid} has no enemy placed after it among {places.Count}.");
-        }
+        int victim = PlaceOf(places, babyMetroid, nameof(babyMetroid)) + 1;
+        if (victim >= places.Count)
+            throw new ArgumentOutOfRangeException(nameof(babyMetroid), babyMetroid, $"The Baby Metroid in the final place has no enemy placed after it.");
         return places[victim];
     }
 
@@ -40,13 +36,25 @@ public static class BabyMetroidVictim
     /// </summary>
     /// <typeparam name="TPlace">An enemy place.</typeparam>
     /// <param name="places">Every enemy place, in placement order.</param>
-    /// <param name="victim">The victim's zero-based place in <paramref name="places"/>.</param>
+    /// <param name="victim">The victim's place, one of <paramref name="places"/>.</param>
     /// <exception cref="ArgumentOutOfRangeException">The victim is not in a place.</exception>
-    public static TPlace? FeederOf<TPlace>(IReadOnlyList<TPlace> places, int victim) where TPlace : class
+    public static TPlace? FeederOf<TPlace>(IReadOnlyList<TPlace> places, TPlace victim) where TPlace : class
+    {
+        int place = PlaceOf(places, victim, nameof(victim));
+        return place == 0 ? null : places[place - 1];
+    }
+
+    /// <summary>Where <paramref name="enemy"/> lies among <paramref name="places"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="enemy"/> is none of the places.</exception>
+    private static int PlaceOf<TPlace>(IReadOnlyList<TPlace> places, TPlace enemy, string name) where TPlace : class
     {
         Ensure.NotNull(places);
-        if (victim < 0 || victim >= places.Count)
-            throw new ArgumentOutOfRangeException(nameof(victim), victim, $"The victim in place {victim} is not among {places.Count} places.");
-        return victim == 0 ? null : places[victim - 1];
+        Ensure.NotNull(enemy);
+        for (int place = 0; place < places.Count; place++)
+        {
+            if (ReferenceEquals(places[place], enemy))
+                return place;
+        }
+        throw new ArgumentOutOfRangeException(name, enemy, $"The enemy is not among the {places.Count} places.");
     }
 }

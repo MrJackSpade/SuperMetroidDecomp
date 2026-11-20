@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
@@ -27,11 +26,6 @@ public sealed record SamusAnimationStep
 
     /// <summary>Whether a demo, not the player, drives the pose input; a demo's turn never arms the automatic jump.</summary>
     public bool DemoPoseInput { get; init; } = false;
-
-    /// <summary>
-    /// The ground her running footsteps go by: the room's, or a scene's own where no room has loaded (#2554).
-    /// </summary>
-    public required SamusGround Ground { get; init; }
 
     /// <summary>Whether the room has a boss, which suppresses the running-footstep sound.</summary>
     public bool BossPresent { get; init; } = false;

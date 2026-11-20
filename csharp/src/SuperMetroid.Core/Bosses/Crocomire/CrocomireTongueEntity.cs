@@ -7,17 +7,17 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// Crocomire's component contact. Its frames carry no hitboxes (#1870, #1889).
 /// </summary>
 /// <param name="species">The Crocomire species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the tongue occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="crocomire">The encounter his body began, which the tongue joins.</param>
-internal sealed class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CrocomireEnemyState crocomire)
+internal sealed class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CrocomireEntity(species, occupant, place, common)
 {
-    /// <summary>The tongue's state, which it builds joining the encounter as it is built (#2554).</summary>
-    internal CrocomireTongueState State { get; } = CrocomireFight.InitializeCrocomireTongue(place, crocomire);
+    /// <inheritdoc/>
+    public override void Initialize() => Species.Fight.InitializeCrocomireTongue(Place);
 
     /// <summary>The encounter the tongue joined as it set up.</summary>
-    internal override CrocomireEnemyState Encounter => State.Crocomire;
+    internal override CrocomireEnemyState Encounter => Place.RequireSpeciesState<CrocomireTongueState>().Crocomire;
 
     /// <summary>Takes no action of its own; the tongue follows the body through its animation and frames.</summary>
     /// <param name="frame">The enemy frame.</param>
@@ -26,7 +26,7 @@ internal sealed class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemy
     }
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CrocomireFight.AdvanceCrocomireTongueAnimation(Place, State);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CrocomireFight.AdvanceCrocomireTongueAnimation(Place);
 
     /// <summary>No probe overlaps the tongue: its frames carry no hitboxes.</summary>
     public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe)

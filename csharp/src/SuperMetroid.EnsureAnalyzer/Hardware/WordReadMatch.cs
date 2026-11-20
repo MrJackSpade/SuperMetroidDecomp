@@ -10,6 +10,8 @@ namespace SuperMetroid.EnsureAnalyzer.Hardware;
 /// <param name="Address">The low byte's address.</param>
 /// <param name="Progression">How the high byte's address follows.</param>
 /// <param name="OtherOperands">Further operands OR'd into the same expression, such as a bank.</param>
+/// <param name="ViaAddressSpace">True when the bytes came through the address space's import capability, which the
+/// canonical read names explicitly with <c>CartridgeImportSource.Require</c>.</param>
 /// <param name="Long">True for a 24-bit value: a canonical word and the byte after it.</param>
 public sealed record WordReadMatch(
     ExpressionSyntax Expression,
@@ -18,10 +20,11 @@ public sealed record WordReadMatch(
     ExpressionSyntax Address,
     WordReadProgression Progression,
     ImmutableArray<ExpressionSyntax> OtherOperands,
+    bool ViaAddressSpace,
     bool Long = false)
 {
     /// <summary>The receiver of the canonical read as source text.</summary>
-    public string CanonicalReceiver => Receiver.ToString();
+    public string CanonicalReceiver => ViaAddressSpace ? $"CartridgeImportSource.Require({Receiver})" : Receiver.ToString();
 
     /// <summary>
     /// The canonical word operation for this byte source and progression, or null when the progression is

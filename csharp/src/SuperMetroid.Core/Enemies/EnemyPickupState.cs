@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// What a dropped pickup keeps: what it restores and how long it remains collectible (#2455). A pickup a death explosion
-/// became also keeps the enemy it came from (<see cref="EnemyKilledEnemyPickupState"/>).
+/// What a dropped pickup keeps: what it restores and how long it remains collectible (#2455).
 /// </summary>
 /// <param name="kind">What the pickup restores.</param>
 /// <param name="lifetime">Updates the pickup remains collectible.</param>

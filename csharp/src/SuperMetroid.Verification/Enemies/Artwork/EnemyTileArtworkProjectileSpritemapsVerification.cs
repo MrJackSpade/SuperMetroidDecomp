@@ -219,7 +219,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             ShownFamily("enemy pickup", RoomEnemyProjectileKind.EnemyDeathPickup, PickupFrames),
             ShownFamily("enemy death", RoomEnemyProjectileKind.EnemyDeathExplosion,
-                EnemyDeathExplosionAnimations.Segments.Frames.Except(PickupFrames)),
+                EnemyDeathAndDropAnimations.Segments.Frames.Except(PickupFrames)),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, IReadOnlyList<EnemyProjectileFrameId> frames) in genericDeathFamilies)
         {
@@ -601,7 +601,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             EnemyProjectileFrameId frame, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
             // Typed programs (#641) present their frames by identity.
-            return TypedProgramKinds.Contains(kind) || FamilyProjectileStarts.StartsTypedAnimation(kind)
+            return TypedProgramKinds.Contains(kind) || FamilyProjectileStarts.StartingAnimation(kind) is not null
                 ? DrawPresentedFrame(artwork, frame, source, kind)
                 : throw new InvalidOperationException($"Projectile {kind} plays no typed program.");
         }
@@ -644,10 +644,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             // The shard is spawned as the tube's spawner spawns it, bound to the tube pieces' behaviour that carries out its
             // cues (#1760). The first shard's animation opens on its flying loop, whose first beat is the reflecting flicker.
-            FamilyProjectileStarts.Initialize(enemies, slot, RoomEnemyProjectileKind.NoobTubeShard, SpawnedGraphics);
-            var debris = enemies.NoobTubeBehavior.DebrisPiece(new NoobTubeDebrisState(column: 128), NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownOutward], NoobTubePieceMotion.ShardFlying);
-            slot.Rebind(debris);
-            slot.StartAnimation(debris.Animation);
+            EnemyProjectile slot = FamilyProjectileStarts.Spawn(enemies, 0, RoomEnemyProjectileKind.NoobTubeShard, SpawnedGraphics);
+            enemies.NoobTubeBehavior.TubePieces.Pieces.Start(slot, new NoobTubeDebrisState(column: 128));
             slot.Position = slot.Position.WithWhole(new(128, 96));
             enemies.Projectiles.AdvanceEnemyProjectileAnimations(slot, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
             // It draws from the sheets a set spawning it composes from this artwork.

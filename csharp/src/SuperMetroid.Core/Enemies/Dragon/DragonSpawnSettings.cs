@@ -5,11 +5,4 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// entity (#2175).
 /// </summary>
 /// <param name="Part">Which part of the dragon it is.</param>
-internal sealed record DragonSpawnSettings(DragonPart Part) : EnemySpawnSettings
-{
-    /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacementRequest placing) => Ensure.NotNull(species).Place(this, placing);
-
-    /// <inheritdoc/>
-    internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);
-}
+internal sealed record DragonSpawnSettings(DragonPart Part) : EnemySpawnSettings;

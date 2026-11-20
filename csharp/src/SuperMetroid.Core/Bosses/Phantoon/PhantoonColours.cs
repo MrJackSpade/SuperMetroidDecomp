@@ -20,8 +20,8 @@ internal sealed class PhantoonColours : IGameplayShadingSource
     /// <summary>The colouring his body last showed whole, or null while it shows his room's own colours or a fade's start.</summary>
     private PhantoonBodyLook? settled;
 
-    /// <summary>What his body showed when the running fade started: his room's own colours until he shows a colouring.</summary>
-    private PictureShading from = PictureShading.Standard;
+    /// <summary>What his body showed when the running fade started, or null before he shows any colouring.</summary>
+    private PictureShading? from;
 
     /// <summary>The running fade, or null while none runs.</summary>
     private RunningBodyFade? fade;
@@ -48,6 +48,7 @@ internal sealed class PhantoonColours : IGameplayShadingSource
     /// <param name="to">The colouring faded toward.</param>
     /// <param name="step">The step's place in the fade (<see cref="PhantoonFadeProgress.TakeStep"/>).</param>
     /// <param name="length">The fade's length in steps.</param>
+    /// <exception cref="InvalidOperationException">His body has shown no colouring to fade from.</exception>
     internal void Fade(PhantoonBodyLook to, int step, int length)
     {
         if (fade is { } running && running.To == to)
@@ -60,7 +61,8 @@ internal sealed class PhantoonColours : IGameplayShadingSource
             from = PictureShading.Standard.With(other.Shown);
             settled = null;
         }
-        fade = new RunningBodyFade(from, to, StartedAt: step, Step: step, Length: length);
+        PictureShading start = from ?? throw new InvalidOperationException("Phantoon's body fades once it has shown a colouring.");
+        fade = new RunningBodyFade(start, to, StartedAt: step, Step: step, Length: length);
     }
 
     /// <summary>Completes his body's running fade: his body shows the colouring it faded to from now on.</summary>

@@ -14,20 +14,23 @@ namespace SuperMetroid.Core.World;
 [RoomLifetime]
 public sealed class TourianStatueRoom : ITourianStatueRoom, ITourianStatueProgress
 {
-    /// <summary>The room effect's water surface, which the liquid step moves.</summary>
-    private readonly RoomLiquidSurface _water;
+    /// <summary>The room's effect, whose water surface the liquid step moves.</summary>
+    private readonly RoomFxOverlayState _roomFxOverlay;
 
-    /// <summary>Builds the statue room over its effect's water, the statue standing raised.</summary>
-    /// <param name="water">The room effect's water surface, which the particles splash through (#2486, #2554).</param>
-    /// <param name="progress">The room's statue progress, which the sinking's end marks and the room's grey caps read.</param>
-    internal TourianStatueRoom(RoomLiquidSurface water, TourianStatueProgress progress)
+    /// <summary>Builds the statue room over its effect, the statue standing raised.</summary>
+    /// <param name="roomFxOverlay">The room's effect, whose water the particles splash through.</param>
+    /// <exception cref="InvalidDataException">The room's effect, as its load selected it, names no water surface.</exception>
+    internal TourianStatueRoom(RoomFxOverlayState roomFxOverlay)
     {
-        _water = Ensure.NotNull(water);
-        Animation = new TourianStatueAnimation(progress);
+        _roomFxOverlay = Ensure.NotNull(roomFxOverlay);
+        // The statue room is composed only over water (#2486): its load rejects an effect without a surface, which no liquid
+        // step takes away, so the statues' particles always have a surface to cross.
+        if (roomFxOverlay.Surface is null)
+            throw new InvalidDataException("The Tourian statue room's effect names no water surface.");
     }
 
     /// <inheritdoc/>
-    public TourianStatueAnimation Animation { get; }
+    public TourianStatueAnimation Animation { get; } = new();
 
     /// <inheritdoc/>
     public bool IsFinished => Animation.Finished;
@@ -47,6 +50,11 @@ public sealed class TourianStatueRoom : ITourianStatueRoom, ITourianStatueProgre
     public int StatueOffset => (-Descent).WholePixels;
 
     /// <inheritdoc/>
-    /// <remarks>Read live from the room effect's water, which the update's liquid step has already moved.</remarks>
-    public int WaterSurface => _water.Line;
+    /// <remarks>
+    /// Read live from the room's effect, which the update's liquid step has already moved. The effect keeps a liquid's
+    /// surface once its load has given it one, so the guard below fails only if that invariant of the effect breaks.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">The statue room's effect has lost the water surface its load gave it.</exception>
+    public int WaterSurface => _roomFxOverlay.Surface ??
+        throw new InvalidOperationException("The Tourian statue room's effect has lost the water surface its load gave it.");
 }

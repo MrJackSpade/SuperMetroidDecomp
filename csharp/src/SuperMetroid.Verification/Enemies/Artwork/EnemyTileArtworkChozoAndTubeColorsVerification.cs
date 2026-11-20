@@ -50,10 +50,10 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         Type type = typeof(RoomEnemySystem);
         var guarded = NewChozoAndTubePaletteReadGuard(rom);
         Suite(nameof(VerifyLive), () => VerifyLive(0, PictureShading.Shaded(ChozoAndTubeShades.WreckedShipStatue),
-            "Wrecked Ship Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue, statue.SpawnSettings<ChozoStatueSpawnSettings>()),
+            "Wrecked Ship Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue.HeldOccupant(), statue),
             ChozoStatueSegment.WreckedShipIdle));
         Suite(nameof(VerifyLive), () => VerifyLive(2, PictureShading.Shaded(ChozoAndTubeShades.LowerNorfairStatue),
-            "Lower Norfair Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue, statue.SpawnSettings<ChozoStatueSpawnSettings>()),
+            "Lower Norfair Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue.HeldOccupant(), statue),
             ChozoStatueSegment.LowerNorfairIdle));
 
         visual.TubeCracks[5] = visual.TubeCracks[5] with { Blue = 32 };
@@ -64,7 +64,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         void VerifyBand(int source, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     source + color * sizeof(ushort)), resolve(color),
                     $"installed {name} color {color} preserves native RGB5");
         }
@@ -81,7 +81,8 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             if (expectedProgram is not null)
             {
                 AssertEqual(new AnimationPlayback<ChozoStatueSegment>(ChozoStatueAnimations.StartingWith(expectedProgram.Value), AnimationPlace.StartOfAnimation),
-                    (SuperMetroid.Core.Enemies.EnemyPartners.Listed<ChozoStatueEntity>(statue).State).Playback,
+                    (statue.SpeciesState<ChozoStatueState>()
+                        ?? throw new InvalidOperationException($"{name} has no statue state.")).Playback,
                     $"{name} keeps native animation selection");
                 AssertTrue(enemies.ChozoStatueObjectRequests.Count != 0,
                     $"{name} still publishes its native PLM request");

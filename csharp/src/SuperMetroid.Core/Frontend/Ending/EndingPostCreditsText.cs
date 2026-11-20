@@ -13,10 +13,13 @@ internal sealed class EndingPostCreditsText
     internal EndingPostCreditsPanel Panel { get; private set; }
 
     /// <summary>
-    /// The typed texts the screen shows, in the order they started (#2541): none until the logo's end, then the item
+    /// The typed texts the screen shows, by the text each types (#2541, #2556): none until the logo's end, then the item
     /// percentage, then, from the end of the move down on, the final message below which the item percentage stays shown.
     /// </summary>
-    private readonly List<EndingTypewriter> typed = [];
+    private readonly Dictionary<EndingTextSequence, EndingTypewriter> typed = [];
+
+    /// <summary>The order the screen draws the typed texts in: the item percentage, then the final message.</summary>
+    private static readonly EndingTextSequence[] DrawnOrder = [EndingTextSequence.ItemPercentage, EndingTextSequence.FinalMessage];
 
     /// <summary>Pixels the text is moved down the screen, zero until the item percentage's move down.</summary>
     internal int Drop { get; set; }
@@ -46,7 +49,7 @@ internal sealed class EndingPostCreditsText
     /// <summary>Starts the item-percentage text, the first typed text the screen shows.</summary>
     /// <returns>The text started.</returns>
     /// <exception cref="InvalidOperationException">A typed text has already started.</exception>
-    internal EndingTypewriter StartItemPercentage(EndingTypewriterSetup setup) => Start(setup, EndingTextSequence.ItemPercentage, typedBefore: 0);
+    internal EndingTypewriter StartItemPercentage(EndingTypewriterSetup setup) => Start(setup, EndingTextSequence.ItemPercentage, typedBefore: []);
 
     /// <summary>Starts the final message, below which the item-percentage text stays shown.</summary>
     /// <returns>The text started.</returns>
@@ -55,19 +58,19 @@ internal sealed class EndingPostCreditsText
 
     /// <summary>Starts typing <paramref name="sequence"/> after the <paramref name="typedBefore"/> texts that type before it.</summary>
     /// <exception cref="InvalidOperationException">The screen does not show exactly those texts.</exception>
-    private EndingTypewriter Start(EndingTypewriterSetup setup, EndingTextSequence sequence, int typedBefore)
+    private EndingTypewriter Start(EndingTypewriterSetup setup, EndingTextSequence sequence, IReadOnlyCollection<EndingTextSequence> typedBefore)
     {
-        if (typed.Count != typedBefore)
-            throw new InvalidOperationException($"The {sequence} text starts after {typedBefore} typed texts, not {typed.Count}.");
+        if (typed.Count != typedBefore.Count || !typedBefore.All(typed.ContainsKey))
+            throw new InvalidOperationException($"The {sequence} text starts after {string.Join(", ", typedBefore)}, not {string.Join(", ", typed.Keys.Order())}.");
         var started = new EndingTypewriter(setup, sequence);
-        typed.Add(started);
+        typed.Add(sequence, started);
         return started;
     }
 
     /// <summary>Binds the typed texts' installed text when the game is bound to its installed content.</summary>
     internal void BindText(EndingTypewriterText value)
     {
-        foreach (EndingTypewriter text in typed)
+        foreach (EndingTypewriter text in typed.Values)
             text.BindText(value);
     }
 
@@ -88,8 +91,10 @@ internal sealed class EndingPostCreditsText
             default:
                 throw new InvalidOperationException($"Undefined post-credits panel {Panel}.");
         }
-        foreach (EndingTypewriter text in typed)
+        foreach (EndingTextSequence sequence in DrawnOrder)
         {
+            if (!typed.TryGetValue(sequence, out EndingTypewriter? text))
+                continue;
             foreach (EndingShownText shown in text.Shown())
                 yield return shown;
         }

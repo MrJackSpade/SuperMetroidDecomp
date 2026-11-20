@@ -12,13 +12,17 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 /// <param name="ceres">Ceres Ridley's encounter behaviour.</param>
 /// <param name="escape">The station's escape progress, which ends his body's touch and drawing.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place Ridley occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class CeresRidleyEntity(CeresRidleyBehavior ceres, ICeresEscapeStatus escape, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : RidleyEntity(ceres.Body, occupant, place, common), IEnemyShotAdmission
 {
     /// <summary>The Ceres encounter his body holds from its initialization.</summary>
-    internal override CeresRidleyState Encounter { get; } = ceres.Flight.InitializeCeresRidley(place);
+    internal override CeresRidleyState Encounter => Place.RequireSpeciesState<CeresRidleyState>();
+
+    /// <inheritdoc/>
+    public override void Initialize() => ceres.Flight.InitializeCeresRidley(Place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) =>
@@ -57,7 +61,7 @@ internal sealed class CeresRidleyEntity(CeresRidleyBehavior ceres, ICeresEscapeS
         if (context.SelectedShot != RidleyReactions.Shot)
             return base.TryReactToBomb(context);
         // Ceres Ridley takes no damage: an exploding bomb counts toward his hits like any shot, the bomb already marked
-        // as having struck, while Ridley alternates his hurt timing and moves on toward his hundredth hit's escape.
+        // as having struck, while Ridley alternates his hurt timing and moves on toward the escape his last hit brings.
         CeresRidleyHits.ResolveCeresRidleyShotAfterCollision(Place, Encounter);
         return true;
     }

@@ -59,11 +59,6 @@ public sealed class ManagedSpcAudioBackend
                     LoadBank(AudioAssetCatalogDefinitions.BankOf(change.DataSet));
                     loadedDataSet = change.DataSet;
                     break;
-                case AudioEvent.InstallSharedSounds:
-                    RequireBeforeTicks(ticks, audioEvent);
-                    LoadBank(AudioAssetCatalogDefinitions.BankOf(null));
-                    loadedDataSet = null;
-                    break;
                 case AudioEvent.SelectMusicTrack selection:
                     RequireBeforeTicks(ticks, audioEvent);
                     Player.WriteMusicPort(checked((byte)MusicTrackNumbers.Number(loadedDataSet, selection.Track)));
@@ -96,7 +91,7 @@ public sealed class ManagedSpcAudioBackend
     {
         Player.Uploads.Upload(assets.GetUpload(bank).Span);
         Player.Uploads.ApplyInstrumentDefinitions(assets.GetInstrumentBank(bank));
-        Player.Uploads.ApplyMusicDefinitions(assets.GetMusicBank(bank), assets.GetCompiledMusicBank(bank));
+        Player.Uploads.ApplyMusicDefinitions(assets.GetMusicBank(bank), AudioAssetCatalogDefinitions.Get(bank).DataSet, assets.GetCompiledMusicBank(bank));
         Player.Uploads.ApplySoundEffectDefinitions(assets.SoundEffectImage);
         Player.SetSampleBank(assets.GetSampleBank(bank));
     }
@@ -112,7 +107,7 @@ public sealed class ManagedSpcAudioBackend
     private static SoundClockStep<SoundEffectLibrary, byte> StartAt(SoundClockStep<SoundEffectLibrary, byte> tick, SoundEffectId soundEffect)
     {
         // The emulated driver reads the request number the sound has in its library.
-        SoundRequestCheck<byte> start = new SoundRequestCheck<byte>(new RequestedSound<byte>(checked((byte)SoundEffectCommands.Command(soundEffect))), Changed: true);
+        SoundRequestCheck<byte> start = new SoundRequestCheck<byte>(checked((byte)SoundEffectCommands.Command(soundEffect)), Changed: true);
         SoundEffectLibrary started = soundEffect.Library;
         if (!SoundEffectLibraries.InQueueOrder.Contains(started))
             throw new ArgumentOutOfRangeException(nameof(soundEffect), started, "The tick's checks hold no check for this library.");

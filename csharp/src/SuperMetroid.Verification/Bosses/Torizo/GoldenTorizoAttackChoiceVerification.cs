@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -22,15 +21,15 @@ internal static class GoldenTorizoAttackChoiceVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.GoldenTorizo);
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         RoomEnemyPlace torizo = runtime.Enemies.Places.InUpdateOrder.Single(place =>
             place.Holds(EnemyDefinitionId.GoldenTorizo));
 
         samus.Position = samus.Position.WithWholeX(0x01b8);
         samus.Missiles = 187;
-        TorizoEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<TorizoEntity>(torizo).State;
+        TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
         state.BodyPlayback = TorizoAnimations.Start(TorizoNativeListAddresses.AnimationAt(landedFacingLeft)
             ?? throw new InvalidOperationException("No Torizo animation starts at the landing list."));
         torizo.AnimationClock.StepOnNextUpdate();

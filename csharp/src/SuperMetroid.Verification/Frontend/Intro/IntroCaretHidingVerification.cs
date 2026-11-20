@@ -15,17 +15,17 @@ internal static class IntroCaretHidingVerification
     {
         IntroCinematicState intro = InstalledFixtures.CreateIntro();
         intro.SetupFirstIllustratedPage();
-        IntroNarrationActors narration = (intro.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun."));
+        IntroNarrationActors narration = intro.Narration;
         narration.Step(0);
         AssertTrue(narration.CaretPose is not null, "the narration's caret shows its program's pose");
-        int shownDraws = intro.PrepareIllustratedPageSprites((intro.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun."))).Draws.Length;
+        int shownDraws = intro.PrepareIllustratedPageSprites().Draws.Length;
         AssertTrue(shownDraws > 0, "the shown caret is drawn");
 
         narration.HideCaret();
         for (int frame = 0; frame < 3; frame++)
         {
             AssertTrue(narration.CaretPose is null, $"the hidden caret shows no pose on hidden frame {frame}");
-            AssertEqual(0, intro.PrepareIllustratedPageSprites((intro.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun."))).Draws.Length, $"the hidden caret is not drawn on hidden frame {frame}");
+            AssertEqual(0, intro.PrepareIllustratedPageSprites().Draws.Length, $"the hidden caret is not drawn on hidden frame {frame}");
             narration.Step(0);
         }
 
@@ -34,7 +34,7 @@ internal static class IntroCaretHidingVerification
             narration.Caret, "the next page restores the caret to the first text line");
         narration.Step(0);
         AssertTrue(narration.CaretPose is not null, "the next page shows the caret again");
-        AssertEqual(shownDraws, intro.PrepareIllustratedPageSprites((intro.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun."))).Draws.Length, "the restored caret is drawn again");
+        AssertEqual(shownDraws, intro.PrepareIllustratedPageSprites().Draws.Length, "the restored caret is drawn again");
         Console.WriteLine("Intro caret: hidden while an illustration owns the screen, drawn again on the next page.");
     }
 }

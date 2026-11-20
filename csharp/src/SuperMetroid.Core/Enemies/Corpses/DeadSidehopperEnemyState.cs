@@ -10,11 +10,11 @@ public sealed class DeadSidehopperEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<DeadTourianSegment> Playback { get; set; }
 
-    /// <summary>Captures one corpse's own rot schedule and its drain, and starts its own rows and its first action.</summary>
-    internal DeadSidehopperEnemyState(CorpseRotSchedule rot, DeadSidehopperAction action, SidehopperDrain drain)
+    /// <summary>Captures one corpse's own rot schedule and layout, and starts its own rows and its first action.</summary>
+    internal DeadSidehopperEnemyState(CorpseRotSchedule rot, DeadSidehopperAction action, SidehopperCorpseLayout layout)
     {
         Action = action;
-        Drain = Ensure.NotNull(drain);
+        Layout = Ensure.NotNull(layout);
         Rot = Ensure.NotNull(rot);
         Rows = new RottingCorpseRows(rot.Rows.Count);
     }
@@ -37,28 +37,29 @@ public sealed class DeadSidehopperEnemyState
     public UpdateCountdown DrainStageWait { get; internal set; } = UpdateCountdown.Lasting(DeadSidehopperVictimDefinitions.DrainUpdatesPerStage);
 
     /// <summary>
-    /// The corpse's drain (#2369, #2554): the victim's is the Baby Metroid's, which the Baby latches on; a corpse placed
-    /// already dead lies drained from the start.
+    /// How the corpse lies in its room (#2558): placed already dead, or Baby Metroid's victim, whose drain has gone as far as
+    /// its stage (#2369).
     /// </summary>
-    internal SidehopperDrain Drain { get; }
-
-    /// <summary>How far the corpse's drain has gone.</summary>
-    public SidehopperDrainStage DrainStage => Drain.Stage;
+    public SidehopperCorpseLayout Layout
+    {
+        get;
+        internal set => field = Ensure.NotNull(value);
+    }
 
     /// <summary>
     /// Whether the corpse is drained, placed already dead or turned into a corpse by Baby Metroid's feeding, so a shot, touch
     /// or Power Bomb starts it rotting.
     /// </summary>
-    internal bool IsDrained => Drain.IsDrained;
+    internal bool IsDrained => Layout.IsDrained;
 
     /// <summary>
     /// Whether draining has begun: Baby Metroid has fed on the corpse, or it was placed already dead. The hop's end and the
     /// post-landing pause turn to the drain once it has.
     /// </summary>
-    internal bool HasBegunDraining => Drain.HasBegun;
+    internal bool HasBegunDraining => Layout.HasBegunDraining;
 
-    /// <summary>The colours the corpse shows, from how far its drain has gone (#1512).</summary>
-    internal PictureShading Shading => Drain.Shading;
+    /// <summary>The colours the corpse shows, from its layout and how far its drain has gone (#1512).</summary>
+    internal PictureShading Shading => Layout.Shading;
 
     /// <summary>The hop velocity, horizontal and vertical, in pixels per update.</summary>
     public PixelVelocity<RoomPixels> Velocity { get; internal set; }

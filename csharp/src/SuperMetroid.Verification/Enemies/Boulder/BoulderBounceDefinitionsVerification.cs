@@ -18,7 +18,7 @@ internal static class BoulderBounceDefinitionsVerification
         Action<RoomEnemyPlace, BoulderEnemyState, RoomLevelData> fall = (fixturePlace, fixtureArg1, fixtureArg2) => enemies.BoulderBehavior.RunBoulderFalling(fixturePlace.HeldOccupant(), fixturePlace, fixtureArg1, fixtureArg2);
         RoomLevelData level = VerificationHelpersVerification.CreateSolidRowsRoom(new(8, 8), firstSolidRow: 4, solidRowCount: 4);
         RoomEnemyPlace actor = enemies.Places.InUpdateOrder[0];
-        var state = new BoulderEnemyState(BoulderAction.WaitingForSamus, actor.SpawnSettings<BoulderSpawnSettings>());
+        var state = new BoulderEnemyState(BoulderAction.WaitingForSamus);
         // The fall reads the placement's roll where it uses it (#2476): an ordinary boulder, which bounces at each impact.
         actor.BindPlaced(EnemyDefinitionId.Boulder, new BoulderSpawnSettings(TriggerHeight: 8, TriggerReach: 8, Start: new BoulderStart.FallsFrom(1), Roll: BoulderRoll.Right));
         actor.Position = actor.Position.WithWholeX(40);
@@ -28,7 +28,7 @@ internal static class BoulderBounceDefinitionsVerification
             // The cartridge's table is indexed by the bounces left, two for the first impact and zero for the last.
             int bouncesLeft = BoulderBounces.ImpactCount - 1 - impactsSoFar;
             int address = 0xa686f1 + (bouncesLeft - 1) * 2;
-            ushort expected = rom.ReadCartridgeWord(address);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(expected, BoulderBounces.RestartPlace(impactsSoFar).InTwoHundredFiftySixthsOfMark, "Boulder native leading-zero/bounce word");
             actor.Position = actor.Position.WithY(new(55, 0));
             state.ImpactsSoFar = impactsSoFar;

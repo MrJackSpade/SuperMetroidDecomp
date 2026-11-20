@@ -9,15 +9,8 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// </summary>
 public sealed class NuclearWaffleEnemyState
 {
-    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
-    internal NuclearWaffleSpawnSettings Settings { get; }
-
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal NuclearWaffleEnemyState(NuclearWaffleAction action, NuclearWaffleSpawnSettings settings)
-    {
-        Settings = Ensure.NotNull(settings);
-        Action = action;
-    }
+    internal NuclearWaffleEnemyState(NuclearWaffleAction action) => Action = action;
 
     /// <summary>Where the body's typed animation (#641) resumes.</summary>
     internal AnimationPlayback<NuclearWaffleSegment> Playback { get; set; }

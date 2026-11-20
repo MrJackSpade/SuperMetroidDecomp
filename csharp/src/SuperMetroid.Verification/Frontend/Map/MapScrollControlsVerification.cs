@@ -22,8 +22,8 @@ internal static class MapScrollControlsVerification
         for (int index = 0; index < buttons.Length; index++)
         {
             int record = MapSourceDefinitions.FileSelectMap.ScrollArrows + index * 10;
-            buttons[index] = ControllerWordCodec.FromJoypadWord(RomDataReader.ReadWordFixedBank(bus, record + 6), "native map scroll mask");
-            AssertEqual(index + 1, RomDataReader.ReadWordFixedBank(bus, record + 8), "compiled map direction order matches native records");
+            buttons[index] = ControllerWordCodec.FromJoypadWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6), "native map scroll mask");
+            AssertEqual(index + 1, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 8), "compiled map direction order matches native records");
             AssertEqual(buttons[index], MapScrollControls.Buttons[index], "compiled map controller mask matches native record");
         }
         var guard = NewMapScrollControlGuard(bus);

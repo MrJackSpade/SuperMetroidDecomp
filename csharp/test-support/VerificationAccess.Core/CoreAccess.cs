@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -91,38 +90,6 @@ internal static class CoreAccess
         /// <summary>Native projectile counter for the intro flashback's private shot system.</summary>
         internal int ActiveFlashbackProjectileCount =>
             intro.flashbackProjectiles.Pool.ShotCount.Count;
-        /// <summary>The Mother Brain flashback's Samus while the flashback runs.</summary>
-        internal SamusState? CurrentFlashbackSamus => intro.MotherBrainFlashback?.Samus;
-        /// <summary>The Mother Brain flashback's scripted input while the flashback runs.</summary>
-        internal DemoInputState? CurrentFlashbackDemoInput => intro.MotherBrainFlashback?.DemoInput;
-        /// <summary>The Mother Brain flashback's Mother Brain sprite while the flashback runs.</summary>
-        internal IntroMotherBrainSpriteState? CurrentFlashbackMotherBrain => intro.MotherBrainFlashback?.MotherBrain;
-        /// <summary>The Mother Brain flashback's collision room while the flashback runs.</summary>
-        internal RoomLevelData? CurrentFlashbackLevel => intro.MotherBrainFlashback?.Level;
-        /// <summary>The running Mother Brain flashback, which the fixture set up.</summary>
-        private IntroMotherBrainFlashback RunningFlashback => intro.MotherBrainFlashback
-            ?? throw new InvalidOperationException("The fixture runs the Mother Brain flashback after setting it up.");
-        /// <summary>Runs the running flashback's demo step.</summary>
-        internal void StepMotherBrainDemo() => intro.StepMotherBrainDemo(intro.RunningFlashback);
-        /// <summary>Prepares the running flashback's sprites.</summary>
-        internal SpriteFrameBuffer PrepareMotherBrainSprites() => intro.PrepareMotherBrainSprites(intro.RunningFlashback);
-        /// <summary>The running discovery scene's crossfade step.</summary>
-        internal void StepBabyDiscoveryCrossfade() => intro.StepBabyDiscoveryCrossfade(Narration, intro.CurrentBabyDiscovery
-            ?? throw new InvalidOperationException("The fixture steps the discovery's crossfade after setting it up."));
-        /// <summary>The pages' narration actors, which the fixture's pages created.</summary>
-        internal IntroNarrationActors Narration => intro.CurrentNarration
-            ?? throw new InvalidOperationException("The fixture runs the intro's pages after they begin.");
-        /// <summary>The discovery scene, which the fixture set up.</summary>
-        internal IntroBabyDiscoveryState BabyDiscovery => intro.CurrentBabyDiscovery
-            ?? throw new InvalidOperationException("The fixture reads the discovery after setting it up.");
-        /// <summary>The scientist scene, which the fixture set up.</summary>
-        internal IntroScientistCutsceneState ScientistCutscene => intro.CurrentScientistCutscene
-            ?? throw new InvalidOperationException("The fixture reads the scientist scene after setting it up.");
-        /// <summary>The flight to Ceres, which the fixture reached.</summary>
-        internal IntroCeresFlightState CeresFlight => intro.CurrentCeresFlight
-            ?? throw new InvalidOperationException("The fixture reads the Ceres flight after reaching it.");
-        /// <summary>Sets up the discovery after the running flashback.</summary>
-        internal void SetupBabyDiscoveryCrossfade() => intro.SetupBabyDiscoveryCrossfade(Narration, intro.RunningFlashback);
         /// <summary>Flashback Samus's whole-pixel X coordinate when that actor exists.</summary>
         internal ushort FlashbackSamusX => intro.CurrentFlashbackSamus?.Position.X.Whole ?? 0;
         /// <summary>Flashback Samus's whole-pixel Y coordinate when that actor exists.</summary>
@@ -136,7 +103,7 @@ internal static class CoreAccess
     extension(EndingCreditsState ending)
     {
         /// <summary>Current credits fade brightness, 0 (black) through 15 (full), from the private cinematic state.</summary>
-        internal int Brightness => ending.Stage.Brightness;
+        internal int Brightness => ending.Stage.Brightness.StepsAboveBlack;
         /// <summary>Cinematic calls the ending has made so far.</summary>
         internal int CinematicFrame => PrivateState.Field<EndingCreditsState, int>(ending, "cinematicFrame");
         /// <summary>Whole-pixel vertical credits scroll position while the staff credits show, or zero in every other scene.</summary>
@@ -223,7 +190,7 @@ internal static class CoreAccess
             [.. enemies.PassEvents.Published.OfType<ChozoStatueObjectAsked>().Select(asked => asked.Request)];
         /// <summary>Per-slot Chozo statue states, including unused physical enemy slots.</summary>
         internal IReadOnlyList<ChozoStatueState?> ChozoStatueStates =>
-            [.. enemies.Places.InUpdateOrder.Select(place => SuperMetroid.Core.Enemies.EnemyPartners.Listed<ChozoStatueEntity>(place).State)];
+            [.. enemies.Places.InUpdateOrder.Select(place => place.SpeciesState<ChozoStatueState>())];
         /// <summary>Per-slot ninja pirate states for native slot-index verification.</summary>
         internal IReadOnlyList<NinjaSpacePirateEnemyState?> NinjaSpacePirateStates =>
             [.. enemies.Places.InUpdateOrder.Select(place => place.EntityState<NinjaSpacePirateEntity, NinjaSpacePirateEnemyState>())];

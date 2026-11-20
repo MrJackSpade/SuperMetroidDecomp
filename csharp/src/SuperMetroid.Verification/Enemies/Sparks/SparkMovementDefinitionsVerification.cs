@@ -26,8 +26,8 @@ internal static class SparkMovementDefinitionsVerification
         place.Bind(EnemyDefinitionId.Spark, place.KeptDefinition);
         for (ushort selector = 0; selector < 3; selector++)
         {
-            ushort nativeList = rom.ReadCartridgeWord(SparkNativeValues.AnimationScriptTable + selector * 2);
-            var nativeAction = SparksNativeWords.SparkActions.Decode(rom.ReadCartridgeWord(SparkNativeValues.FunctionTable + selector * 2),
+            ushort nativeList = CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.AnimationScriptTable + selector * 2);
+            var nativeAction = SparksNativeWords.SparkActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.FunctionTable + selector * 2),
                 $"Spark selector {selector}'s function");
             SparkMovementDefinition definition = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.SparkStart(selector);
             AssertEqual(nativeList, NativeEnemyAnimationOracle.EntryOf(SparkNativeListAddresses.Entries, definition.Animation),
@@ -36,7 +36,7 @@ internal static class SparkMovementDefinitionsVerification
 
             place.SetSpawnParameter1(EnemyDefinitionId.Spark, selector);
             place.SetSpawnParameter2(EnemyDefinitionId.Spark, 5);
-            SparkBehavior.InitializeSpark(place, place.SpawnSettings<SparkSpawnSettings>());
+            SparkBehavior.InitializeSpark(place.HeldOccupant(), place);
             SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
             AssertEqual(new AnimationPlayback<SparkSegment>(SparkAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation),
                 state.Playback, $"Spark production animation selector {selector}");
@@ -78,7 +78,7 @@ internal static class SparkMovementDefinitionsVerification
         place.Bind(EnemyDefinitionId.Spark, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnSettings(new SparkSpawnSettings(Start: SparkMovementDefinitions.AlwaysActive, BaseActionTime: 0));
-        SparkBehavior.InitializeSpark(place, place.SpawnSettings<SparkSpawnSettings>());
+        SparkBehavior.InitializeSpark(place.HeldOccupant(), place);
         SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
         state.Playback = new(SparkAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();

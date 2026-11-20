@@ -1,8 +1,5 @@
-using SuperMetroid.Core.Rooms.LevelData;
-
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
-/// <summary>The collision type and offset a scroll extension block writes.</summary>
-/// <param name="CollisionType">The collision type.</param>
-/// <param name="Offset">The signed block offset the extension's behaviour names, -1 or 1.</param>
-internal readonly record struct ScrollExtension(RoomCollisionType CollisionType, int Offset);
+/// <summary>What a scroll extension block writes: an extension leading one block back toward the trigger it extends.</summary>
+/// <param name="TowardTrigger">The way back to the trigger.</param>
+internal readonly record struct ScrollExtension(ScrollExtensionDirection TowardTrigger);

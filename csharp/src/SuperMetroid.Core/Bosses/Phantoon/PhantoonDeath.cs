@@ -168,7 +168,7 @@ internal sealed class PhantoonDeath
 
 
     /// <summary>Hides his whole body, every part showing nothing (#1515), and starts the power's delay.</summary>
-    internal static void ClearPhantoonDeathGraphics(PhantoonEnemyState state)
+    internal void ClearPhantoonDeathGraphics(PhantoonEnemyState state)
     {
         state.Death.PixelationSize = PhantoonDeathDefinitions.InitialPixelationSize;
         state.Wave.End();
@@ -178,7 +178,7 @@ internal sealed class PhantoonDeath
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.PowerReturnDelayUpdates);
         state.BodyFade.Resume();
 
-        state.BodyParts.Clear();
+        _presentation.RequireBossBody().Clear();
     }
 
     /// <summary>Enables the cleared Wrecked Ship room and its post-boss state.</summary>

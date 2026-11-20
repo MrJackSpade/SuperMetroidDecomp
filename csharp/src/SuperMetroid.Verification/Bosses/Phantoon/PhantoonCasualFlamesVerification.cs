@@ -17,14 +17,14 @@ internal static class PhantoonCasualFlamesVerification
     {
         for (int pattern = 0; pattern < 4; pattern++)
         {
-            int pointer = 0xa70000 | rom.ReadCartridgeWord((0xa7ccfd + pattern * 2));
+            int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + pattern * 2));
             PhantoonCasualFlameSchedule compiled = PhantoonCasualFlameDefinitions.Burst.Choose(pattern);
-            int flames = rom.ReadCartridgeWord(pointer);
+            int flames = CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer);
             AssertEqual(flames, compiled.Flames.Count, "Native casual flame count");
-            AssertEqual(rom.ReadCartridgeWord(pointer + 2), compiled.Cooldown, "Native casual flame cooldown");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer + 2), compiled.Cooldown, "Native casual flame cooldown");
             // The native table stores the intervals last flame first; the burst lists them first flame first.
             for (int flame = 0; flame < flames; flame++)
-                AssertEqual(rom.ReadCartridgeWord(pointer + (flames + 1 - flame) * 2),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer + (flames + 1 - flame) * 2),
                     compiled.Flames[flame].WaitBeforeUpdates, "Native casual flame interval");
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
@@ -44,10 +44,10 @@ internal static class PhantoonCasualFlamesVerification
             state.CasualFlames.NextFlame = null;
             int before = calls;
             step(mouth);
-            int pointer = 0xa70000 | rom.ReadCartridgeWord((0xa7ccfd + (raw & 3) * 2));
+            int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + (raw & 3) * 2));
             AssertEqual(PhantoonCasualFlameDefinitions.Burst.Choose(raw & 3), state.CasualFlames.Schedule, "Actual casual RNG burst selector");
-            AssertEqual(rom.ReadCartridgeWord(pointer), FlamesToCome(state), "Actual casual initial remaining count");
-            AssertEqual(rom.ReadCartridgeWord((pointer + (rom.ReadCartridgeWord(pointer) + 1) * 2)) - 1, state.CasualFlames.Hold.CartridgeCount, "Actual casual reverse initial timer: the wait lasts its updates");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer), FlamesToCome(state), "Actual casual initial remaining count");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + (CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer) + 1) * 2)) - 1, state.CasualFlames.Hold.CartridgeCount, "Actual casual reverse initial timer: the wait lasts its updates");
             AssertEqual(before + 1, calls, "Casual selection consumes exactly one RNG call");
         }
         // Trace multiple complete schedules. Native $CFFF branches on zero as well
@@ -59,11 +59,11 @@ internal static class PhantoonCasualFlamesVerification
             state.CasualFlames.Hold.LastFor(1);
             state.CasualFlames.NextFlame = null;
             ushort timer = 0, count = 0xffff;
-            int pointer = 0xa70000 | rom.ReadCartridgeWord((0xa7ccfd + pattern * 2));
+            int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + pattern * 2));
             for (int frame = 0; frame < 2048; frame++)
             {
                 // The mouth rests closed before each update; only the casual trigger installs its flame-spitting animation.
-                SuperMetroid.Core.Enemies.EnemyPartners.Listed<PhantoonEntity>(mouth).Part.Playback = PhantoonPart.Starting(PhantoonPartSegment.MouthInitial);
+                mouth.RequireSpeciesState<PhantoonPart>().Playback = PhantoonPart.Starting(PhantoonPartSegment.MouthInitial);
                 mouth.AnimationClock.HoldFor(RestingMouthHold);
                 bool draw = false;
                 timer = WrappingCounter.Decrement(timer).Value;
@@ -75,15 +75,15 @@ internal static class PhantoonCasualFlamesVerification
                         if ((short)count <= 0)
                         {
                             count = 0xffff;
-                            timer = rom.ReadCartridgeWord((pointer + 2));
+                            timer = CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 2));
                         }
-                        else timer = rom.ReadCartridgeWord((pointer + (count + 1) * 2));
+                        else timer = CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + (count + 1) * 2));
                         draw = true;
                     }
                     else
                     {
-                        count = rom.ReadCartridgeWord(pointer);
-                        timer = rom.ReadCartridgeWord((pointer + (count + 1) * 2));
+                        count = CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer);
+                        timer = CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + (count + 1) * 2));
                     }
                 }
                 step(mouth);
@@ -93,7 +93,7 @@ internal static class PhantoonCasualFlamesVerification
                 // mouth holds as no count (#1627).
                 AssertEqual(unchecked((short)count) < 0 ? null : unchecked((short)count), FlamesToCome(state),
                     "Actual casual frame remaining count");
-                AssertEqual(PhantoonPart.Starting(draw ? PhantoonPartSegment.MouthSpawnFlame : PhantoonPartSegment.MouthInitial), SuperMetroid.Core.Enemies.EnemyPartners.Listed<PhantoonEntity>(mouth).Part.Playback,
+                AssertEqual(PhantoonPart.Starting(draw ? PhantoonPartSegment.MouthSpawnFlame : PhantoonPartSegment.MouthInitial), mouth.RequireSpeciesState<PhantoonPart>().Playback,
                     "Exact casual mouth animation trigger frame");
                 AssertEqual(draw ? 1 : RestingMouthHold, mouth.AnimationClock.Hold, "Exact casual instruction timer reset, the resting hold kept otherwise");
             }

@@ -40,7 +40,7 @@ internal static class PhantoonPositionVerification
             var boundary = CreateRetailRuntimeFixture();
             boundary.HudSetup.InitializeHud(HudSnapshot.NewGame);
             boundary.RoomLoader.InitializeStartingCeresRoom();
-            boundary.RoomLoader.InitializeCeresStartSamus(boundary.Room.Loaded);
+            boundary.RoomLoader.InitializeCeresStartSamus();
             boundary.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomDefinitions.Phantoon);
             var state = boundary.Enemies.BossEncounters.Phantoon;
             PhantoonEnemyState boundaryState = state ?? throw new InvalidOperationException("Verification requires state.");
@@ -54,12 +54,12 @@ internal static class PhantoonPositionVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Phantoon);
         PhantoonEnemyState loaded = runtime.Enemies.BossEncounters.Phantoon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.Phantoon.");
         AssertEqual(120, loaded.PhaseWait.UpdatesLeft,
             "Original NTSC Phantoon initializer waits 120 frames, not PAL's 96");
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(40, 184));
         samus.Control.LockOutPlayer();
         var positions = new HashSet<MotherBrainRinkaDoorSpawnExpected>();

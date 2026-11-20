@@ -49,7 +49,7 @@ internal static class CeresRidleyColorsVerification
             Check(RidleySourceDefinitions.Ceres.HealthColors + row *
                 CeresRidleyColorFormat.HealthColorCount * sizeof(ushort),
                 CeresRidleyColorFormat.HealthColorCount,
-                color => native.ResolveHealth(row, color));
+                color => native.ResolveHealth(RidleyHealthShadeDefinitions.LeastHurtFirst[row], color));
         for (int row = 0; row < CeresRidleyColorFormat.AlarmStepCount; row++)
             Check(RidleySourceDefinitions.Ceres.AlarmColors + row *
                 CeresRidleyColorFormat.AlarmColorCount * sizeof(ushort),
@@ -129,7 +129,7 @@ internal static class CeresRidleyColorsVerification
             int row = count < 70 ? 0 : 2;
             CheckCgram(state, CeresRidleyColorFormat.HealthColorCount,
                 CeresRidleyShadeDefinitionsConstants.HealthCgramIndex,
-                color => InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveHealth(row, color),
+                color => InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveHealth(RidleyHealthShadeDefinitions.LeastHurtFirst[row], color),
                 $"Ceres Ridley hit count {count}");
         }
         Suite(nameof(VerifyNorfairHealthPalette), () => VerifyNorfairHealthPalette());
@@ -250,5 +250,5 @@ internal static class CeresRidleyColorsVerification
 
     /// <summary>Reads one BGR555 word from the pinned retail palette oracle.</summary>
     private static ushort ReadNativeCeresRidleyColor(ISnesAddressSpace rom, int address) =>
-        RomDataReader.ReadWordFixedBank(rom, address);
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
 }

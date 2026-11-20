@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -32,7 +31,7 @@ internal static class PhantoonBodyPublicationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Phantoon);
         PhantoonEnemyState state = runtime.Enemies.BossEncounters.Phantoon
             ?? throw new InvalidOperationException("Phantoon's room loads Phantoon.");
@@ -41,7 +40,7 @@ internal static class PhantoonBodyPublicationVerification
         // The body frame draws on his body layer from his installed body sheet (#1466).
         EnemyFrameId frame = PhantoonBg2FrameDefinitions.Frames[1].Frame;
         SuperMetroid.Core.PrivateState.Set(body.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), true);
-        EnemyAnimationPlayer.DrawBossBodyFrame(body, body.HeldOccupant(), frame);
+        runtime.Enemies.AnimationPlayer.DrawBossBodyFrame(body, body.HeldOccupant(), frame);
         // The retail runtime draws Phantoon's body from the installation's body sheet, composed from these frames.
         BossSourceArtwork bosses = InstalledFixtures.BossArtwork;
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];

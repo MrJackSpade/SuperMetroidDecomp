@@ -59,10 +59,11 @@ internal sealed class MotherBrainBody
     /// Runs a falling tube's animation where the shared enemy animation runs: its still picture shows on the update the
     /// timer expires, and the animation then holds it.
     /// </summary>
-    internal static void AdvanceMotherBrainTubeAnimation(RoomEnemyPlace tube, MotherBrainFallingTubeState tubeState)
+    internal static void AdvanceMotherBrainTubeAnimation(RoomEnemyPlace tube)
     {
         if (!tube.AnimationClock.Expire())
             return;
+        MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
         AnimationPlayback<MotherBrainTubePiece> playback = tubeState.Playback;
         EnemyAnimationPlayback.Play(tube, MotherBrainTubeAnimations.Segments, ref playback,
             cue => throw new InvalidOperationException($"Falling-tube animations raise no event {cue}."));
@@ -70,8 +71,9 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>Sets Mother Brain's body up when the room spawns it.</summary>
-    internal MotherBrainEnemyState InitializeMotherBrainBody(RoomEnemyPlace body)
+    internal void InitializeMotherBrainBody(RoomEnemyOccupant occupant)
     {
+        RoomEnemyPlace body = occupant.Place;
         body.AnimationClock.StepOnNextUpdate();
         body.Contact = body.Contact.With(EnemyContact.BlocksPlasmaBeam | EnemyContact.IgnoresSamus);
         body.Presence = body.Presence.With(EnemyPresence.Hidden);
@@ -80,27 +82,27 @@ internal sealed class MotherBrainBody
         // The encounter's setup creates the walk credit, the burst cycle and the brain animation the encounter and its later
         // sequence share.
         // The body begins the encounter, which it holds from here and her head joins (#2218).
-        MotherBrainEnemyState state = _motherBrainEncounter.Begin(new MotherBrainEnemyState(body, _places.ListedRunAfter(body, MotherBrainFightDefinitions.PartsAfterBody)[0],
+        MotherBrainEnemyState state = _motherBrainEncounter.Begin(new MotherBrainEnemyState(occupant, _places.Member(body, MotherBrainFightDefinitions.Listing, EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead),
             new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation())
         {
             Form = MotherBrainForm.Glass,
             HitboxesEnabled = MotherBrainHitboxParts.Brain,
             BrainAction = MotherBrainBrainAction.ShowsBrainAlone,
         });
+        body.SetSpeciesState(state);
         // Her body frames show on her body from here, which her room does not show over the pipe background until her
         // phase-two transition reveals it (#1356, #1515).
-        _presentation.AttachBossBody(state.BodyParts);
+        _presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain, state));
         // Her glass shards and tube projectiles show their own colours, MotherBrainColours.GlassAndTubes (#1544).
         // Her room's acid rises, which the room loader applies after enemy initialization.
         _passEvents.Publish(new MotherBrainAcidChange(MotherBrainRoomFxDefinitions.AcidRises));
         SpawnMotherBrainInitialTurrets(state);
-        return state;
     }
 
     /// <summary>Updates the glass-bound first phase and advances its scripted reaction to Samus.</summary>
     internal void RunMotherBrainFirstPhase(MotherBrainEnemyState state, SamusState samus)
     {
-        // Until the glass has taken its nineteen missile hits and finished shattering 48 frames later, the first phase
+        // Until the glass has taken its missile hits and finished shattering, the first phase
         // changes nothing. Head-vs-Samus and
         // projectile interactions are separate collision passes and remain outside this
         // body phase.
@@ -192,8 +194,7 @@ internal sealed class MotherBrainBody
                 return;
             }
             case MotherBrainBodyCue.Signal { Kind: MotherBrainBodyCueKind.AdvanceHandBeamPhase }:
-                // The hand beam's hold has elapsed: firing finishes. The game steps the hand beam's phase on by one here,
-                // and only the firing phase plays this animation, which starts as the phase becomes firing (#2471).
+                // The hand beam's hold has elapsed: the hand beam finishes (#2471).
                 state.HandBeamPhase = MotherBrainHandBeamPhase.Finish;
                 return;
             default:
@@ -207,7 +208,7 @@ internal sealed class MotherBrainBody
     /// ordinary enemy radius. Phase one enables only the brain list; later phases also
     /// admit the body and three independently positioned neck segments.
     /// </summary>
-    internal static bool ResolveMotherBrainSamusCollision(
+    internal static void ResolveMotherBrainSamusCollision(
         MotherBrainEnemyState state,
         SamusState samus)
     {
@@ -218,7 +219,7 @@ internal sealed class MotherBrainBody
                 MotherBrainContactPart.Body,
                 state.Body.Position.Whole))
         {
-            return true;
+            return;
         }
 
         RoomEnemyPlace head = state.Head;
@@ -228,7 +229,7 @@ internal sealed class MotherBrainBody
                 MotherBrainContactPart.Brain,
                 head.Position.Whole))
         {
-            return true;
+            return;
         }
 
         if ((enabled & MotherBrainHitboxParts.Neck) != MotherBrainHitboxParts.None)
@@ -241,15 +242,14 @@ internal sealed class MotherBrainBody
                         MotherBrainContactPart.Neck,
                         joint.Position))
                 {
-                    return true;
+                    return;
                 }
             }
         }
-        return false;
     }
 
     /// <summary>Checks a single head or body contact region and applies the phase-specific collision response.</summary>
-    internal static bool ResolveMotherBrainSamusCollisionPart(
+    private static bool ResolveMotherBrainSamusCollisionPart(
         MotherBrainEnemyState state,
         SamusState samus,
         MotherBrainContactPart contactPart,
@@ -287,7 +287,7 @@ internal sealed class MotherBrainBody
             {
                 // The hurting touch is an ordinary enemy touch: suit-divided damage, the hit's invincibility, and
                 // knockback away from her body.
-                EnemyCollision.ApplyOrdinaryTouchDamage(samus, state.Body.Definition.Damage, state.Body.Position.X.Whole);
+                EnemyCollision.ApplyOrdinaryTouchDamage(samus, state.BodyOccupant.Definition.Damage, state.Body.Position.X.Whole);
             }
             return true;
         }
@@ -298,12 +298,11 @@ internal sealed class MotherBrainBody
     /// Runs the hand beam's charging setup. The body—not the articulated
     /// head—is the source: its frame puts the hand at its hand offset.
     /// </summary>
-    internal void SpawnMotherBrainHandBeamCharging(
+    private void SpawnMotherBrainHandBeamCharging(
         MotherBrainEnemyState state,
         SamusState samus)
     {
-        var behavior = _projectileAttacks.WithEncounter(new MotherBrainProjectileState(state));
-        EnemyProjectile? beam = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainHandBeamCharging, behavior, SpriteGraphics.SharedIn(state.Colours.OwnShading));
+        EnemyProjectile? beam = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainHandBeamCharging, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         if (beam is null)
             return;
 
@@ -320,12 +319,12 @@ internal sealed class MotherBrainBody
             EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle),
             EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
-        beam.StartAnimation(new MotherBrainHandBeamAnimation(behavior));
+        _projectileAttacks.Projectile.MotherBrains.Start(beam, new MotherBrainProjectileState(state));
+        beam.StartAnimation(new MotherBrainHandBeamAnimation(_projectileAttacks.Projectile));
     }
 
     /// <summary>
-    /// Body movement: moves her, and her body's pictures with her (#1949, #2031), keeping the large body art rigidly
-    /// attached to its small hitbox record.
+    /// Body movement: moves her, and her body's pictures with her (#1949, #2031).
     /// </summary>
     private static void MoveMotherBrainBody(MotherBrainEnemyState state, Offset16<RoomPixels> displacement) =>
         state.Body.Position += displacement;
@@ -341,7 +340,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Makes the twelve turret spawns the body's setup requests. Each turret takes the highest free place, so the first
+    /// Makes the turret spawns the body's setup requests (<see cref="MotherBrainTurretDefinitions.Turrets"/>). Each turret takes the highest free place, so the first
     /// takes the highest place and each later one the next place below.
     /// </summary>
     private void SpawnMotherBrainInitialTurrets(MotherBrainEnemyState state)
@@ -351,20 +350,19 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>Spawns one of Mother Brain's turrets, <paramref name="definition"/>.</summary>
-    internal void SpawnMotherBrainTurret(MotherBrainEnemyState state, MotherBrainTurretDefinition definition)
+    private void SpawnMotherBrainTurret(MotherBrainEnemyState state, MotherBrainTurretDefinition definition)
     {
-        var behavior = _projectileAttacks.Turret(turretState);
-        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRoomTurret, behavior, MotherBrainTurretDefinitions.Graphics);
+        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRoomTurret, _projectileAttacks.Projectile, MotherBrainTurretDefinitions.Graphics);
         if (turret is null)
             return;
 
-        var turretState = new MotherBrainTurretState(state, definition);
 
         turret.Position = turret.Position.WithWhole(definition.Position);
-        turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(definition.InitialDirection), behavior));
+        _projectileAttacks.Projectile.Turrets.Start(turret, new MotherBrainTurretState(state, definition));
+        turret.StartAnimation(new MotherBrainTurretAnimation(_projectileAttacks.Projectile, MotherBrainTurretPose.Turret(definition.InitialDirection)));
 
         // A new turret draws a random number for each of its two waits, its turning wait first.
-        _projectileAttacks.Projectile.ResetMotherBrainTurretRotationTimer(turretState);
-        _projectileAttacks.Projectile.ResetMotherBrainTurretCooldown(turretState);
+        _projectileAttacks.Projectile.ResetMotherBrainTurretRotationTimer(turret);
+        _projectileAttacks.Projectile.ResetMotherBrainTurretCooldown(turret);
     }
 }

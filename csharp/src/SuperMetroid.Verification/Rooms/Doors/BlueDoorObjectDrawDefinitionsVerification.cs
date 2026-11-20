@@ -29,10 +29,10 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
         RoomObjectDrawLists.DrawList[] lists =
             BlueDoorObjectDrawDefinitionsTooling.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
         InstalledRoomObjectBlueDoorVisuals stock = InstalledRoomObjectBlueDoorVisuals.Stock();
-        ushort leftFirstDraw = rom.ReadCartridgeWord((0x840000 | (DoorObjectNativeListAddresses.Blue(ColoredDoorOrientation.Left).Opening + 5)));
+        ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (DoorObjectNativeListAddresses.Blue(ColoredDoorOrientation.Left).Opening + 5)));
         AssertEqual("left-ajar", RoomObjectBlueDoorVisualFiles.VisualId(NativeObjectDraws.At<BlueDoorCaps.Draw>(leftFirstDraw)),
             "the left blue door opens on its first opening frame");
-        AssertEqual(RoomLevelWordCodec.Decode(rom.ReadCartridgeWord(0x840000 | (leftFirstDraw + 2))).Appearance,
+        AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x840000 | (leftFirstDraw + 2))).Appearance,
             stock.Image(NativeObjectDraws.At<BlueDoorCaps.Draw>(leftFirstDraw)).At(Offset16<RoomBlocks>.Zero),
             "stock blue-door visual retains native tile choice");
         Suite(nameof(VerifyBlueCapGeometry), () => VerifyBlueCapGeometry(rom));
@@ -42,7 +42,7 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
         foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
         {
             ushort openingList = DoorObjectNativeListAddresses.Blue(orientation).Opening;
-            ushort firstDraw = rom.ReadCartridgeWord((0x840000 | (openingList + 5)));
+            ushort firstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (openingList + 5)));
             AssertTrue(RoomObjectBlueDoorVisualFiles.TryGet(NativeObjectDraws.At<BlueDoorCaps.Draw>(firstDraw), out var selected),
                 $"{orientation} opening program selects a compiled draw");
 

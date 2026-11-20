@@ -94,7 +94,7 @@ internal static class SimulationProfile
     }
 
     /// <summary>Accepts either of the game's two stable pause states during the paused profile.</summary>
-    private static bool IsPaused(SuperMetroidGame game) => game.IsAt(PauseMenuStep.FadingIn) || game.IsAt(PauseMenuStep.Menu);
+    private static bool IsPaused(SuperMetroidGame game) => game.IsAt(PauseStep.FadingIn) || game.IsAt(PauseStep.Menu);
     /// <summary>Sorts measured samples and selects nearest-rank percentiles plus the maximum.</summary>
     private static Timing Distribution(double[] values)
     {

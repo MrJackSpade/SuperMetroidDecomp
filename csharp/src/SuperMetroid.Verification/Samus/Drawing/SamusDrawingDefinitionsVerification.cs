@@ -23,7 +23,7 @@ internal static class SamusDrawingDefinitionsVerification
         }
 
         CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        int poseCount = SuperMetroid.AssetExtraction.Samus.SamusBodySources.PoseCount;
+        int poseCount = SuperMetroid.AssetExtraction.Samus.SamusBodyTableDecoding.PoseCount;
 
         TouchRange(bus, SamusDrawingDefinitionsBodyConstants.TopSpritemapBaseIndices,
             poseCount * sizeof(ushort), "top spritemap base-index table");
@@ -54,7 +54,7 @@ internal static class SamusDrawingDefinitionsVerification
         // checks the indirection used by live rendering, not only the pointer table itself.
         for (int pose = 0; pose < poseCount; pose++)
         {
-            ushort pointer = bus.ReadCartridgeWord((SamusSourceDefinitions.AnimationDefinitionListPointers.Value +
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.AnimationDefinitionListPointers.Value +
                     pose * sizeof(ushort)));
             AssertTrue(pointer >= 0x8000,
                 $"pose ${pose:X2} graphics selector remains in bank $92 ROM");

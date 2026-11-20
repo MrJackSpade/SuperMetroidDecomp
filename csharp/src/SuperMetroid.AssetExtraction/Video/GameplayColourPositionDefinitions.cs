@@ -11,6 +11,13 @@ namespace SuperMetroid.AssetExtraction.Video;
 internal static class GameplayColourPositionDefinitions
 {
 
+    /// <summary>
+    /// The colour a room shows where nothing is drawn: the background half's first, which the room's colour effects change
+    /// as they change its tiles' colours (#1544). The import turns it into the colour a block sheet's manifest names as its
+    /// rooms' backdrop.
+    /// </summary>
+    internal const int RoomBackdrop = 0;
+
     /// <summary>The first sprite set's first colour: the image's upper half.</summary>
     internal const int SpriteSetsFirst = 128;
 

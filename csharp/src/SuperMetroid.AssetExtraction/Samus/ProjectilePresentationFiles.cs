@@ -96,9 +96,9 @@ public static class ProjectilePresentationFiles
         InstalledBeamPalettes beamPalettes = Read(BeamPaletteFile.FileName).Compile(BeamPaletteFile.Read);
         HyperBeamFxColours hyperBeamFxColors = Read(HyperBeamFxColorFormat.FileName).Compile(stream => HyperBeamFxColorFile.Read(stream).ToColours());
         return new ImportProjectileArtwork(presentation,
-            BeamTileCatalog.FromAtlases(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount)
-                .Select(index => Read(BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(index)))
-                    .Compile(stream => BeamTileAtlas.Load(stream, BeamTileAtlasDefinitions.SelectionAt(index)))).ToArray(),
+            BeamTileCatalog.FromAtlases(BeamTileAtlasDefinitions.Pictured.ToDictionary(selection => selection,
+                selection => Read(BeamTileAtlasDefinitions.FileName(selection))
+                    .Compile(stream => BeamTileAtlas.Load(stream, selection))),
                 beamPalettes, hyperBeamFxColors),
             beamPalettes,
             hyperBeamFxColors,

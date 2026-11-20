@@ -15,12 +15,12 @@ internal static class KraidMouthReopenCountVerification
     {
         for (int pending = 0; pending <= 3; pending++)
         {
-            var armed = global::SuperMetroid.Core.PrivateState.With<KraidEnemyState>(new KraidEnemyState(KraidPartsAccess.Standalone()), "PendingMouthReopens", pending);
+            var armed = global::SuperMetroid.Core.PrivateState.With<KraidEnemyState>(new KraidEnemyState(new KraidParts()), "PendingMouthReopens", pending);
             armed.ArmMouthReopens();
             AssertEqual(3, armed.PendingMouthReopens, $"arming from {pending} pending reopens leaves three");
         }
 
-        var state = new KraidEnemyState(KraidPartsAccess.Standalone());
+        var state = new KraidEnemyState(new KraidParts());
         state.ArmMouthReopens();
         for (int expected = 2; expected >= 0; expected--)
         {
@@ -49,7 +49,7 @@ internal static class KraidMouthReopenCountVerification
     /// </summary>
     private static void VerifyKraidHurtFlash()
     {
-        var state = new KraidEnemyState(KraidPartsAccess.Standalone());
+        var state = new KraidEnemyState(new KraidParts());
         AssertTrue(state.HurtFlash is { IsResting: true, Shown: KraidHurtFlashShade.BandColours }, "an encounter starts with no flash, showing his band's colours");
         AssertEqual<KraidHurtFlashShade?>(null, state.HurtFlash.StepToNewFrame(), "a flash at rest shows nothing new");
 

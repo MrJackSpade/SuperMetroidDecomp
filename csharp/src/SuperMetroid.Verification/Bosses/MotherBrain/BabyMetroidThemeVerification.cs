@@ -19,9 +19,9 @@ internal static class BabyMetroidThemeVerification
         enemies.MotherBrainEncounter.BeginAsSetUp(state);
         var sequence = MotherBrainLateFightFixtures.NewSequence();
         // The Baby's health lives in the place the final beam's spawn makes it in (#2572).
-        var baby = MotherBrainLateFightFixtures.Arrive(sequence, FixedPosition<RoomPixels>.State.Zero);
-        global::SuperMetroid.Core.PrivateState.Set(baby.Arrived(), "Phase", BabyMetroidCutscenePhase.FinalCharge);
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Arrived().Health", 0);
+        var baby = MotherBrainLateFightFixtures.Arrive(sequence, FixedPosition<RoomPixels>.Zero);
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.FinalCharge);
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Health", 0);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         Action<BabyMetroidCutsceneStepResult> apply = step => enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(state.Colours, step);
         var begin = new Action(enemies.BeginEnemySoundRequestFrame);
@@ -46,7 +46,7 @@ internal static class BabyMetroidThemeVerification
             if (frame == 72)
             {
                 AssertEqual(BabyMetroidCutscenePhase.PrepareSamusForHyperBeam, step.PhaseAfter, "Theme starts at preparation transition");
-                AssertEqual(11, baby.Arrived().PhaseTimer.CartridgeCount, "Theme transition retains same-call Hyper Beam preparation decrement");
+                AssertEqual(11, baby.PhaseTimer.CartridgeCount, "Theme transition retains same-call Hyper Beam preparation decrement");
             }
         }
         Console.WriteLine("Baby Metroid music: fatal stop, 72-frame theme boundary, ordered data/track, eight-frame delays and no duplicate requests passed.");

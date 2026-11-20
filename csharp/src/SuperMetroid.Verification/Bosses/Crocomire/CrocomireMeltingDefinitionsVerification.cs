@@ -70,7 +70,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     /// <summary>Checks each pass's header: its distortion rows, its copy length and its graphics bank.</summary>
     internal static void VerifyCrocomireMeltHeaders(CartridgeImportAddressSpace rom)
     {
-        var source = rom;
+        var source = CartridgeImportSource.Require(rom);
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             int header = HeaderAddress(pass);
@@ -89,7 +89,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     /// <summary>Checks every band copy each pass makes: its graphics source and where in the image it lands.</summary>
     internal static void VerifyCrocomireMeltCopies(CartridgeImportAddressSpace rom)
     {
-        var source = rom;
+        var source = CartridgeImportSource.Require(rom);
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             int bands = CrocomireMelting.BandRound(pass);
@@ -109,7 +109,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     /// <summary>Checks every band upload each pass makes: its size, the characters it shows over and its row of the image.</summary>
     internal static void VerifyCrocomireMeltUploads(CartridgeImportAddressSpace rom)
     {
-        var source = rom;
+        var source = CartridgeImportSource.Require(rom);
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             int bands = CrocomireMelting.BandRound(pass);
@@ -132,7 +132,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     /// <summary>Compares all 49 extraction erase steps with an independently calculated bitplane silhouette.</summary>
     internal static void VerifyCrocomireMeltingProductionSequence(CartridgeImportAddressSpace rom)
     {
-        var image = Enumerable.Repeat((byte)0xff, CrocomireMeltingArtworkFormat.SecondByteCount).ToArray();
+        var image = Enumerable.Repeat((byte)0xff, CrocomireMeltingArtworkFormat.BareSkullByteCount).ToArray();
         var expected = (byte[])image.Clone();
         for (int step = 0; step < CrocomireMeltingDefinitions.ColumnCount; step++)
         {
@@ -172,8 +172,8 @@ internal static class CrocomireMeltingDefinitionsVerification
     {
         int sourceAddress = CrocomireMeltingSources.Tilemap(source);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.Crocomire), enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1]);
-        state.TongueState.BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset;
+        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.Crocomire), enemies.Places.InUpdateOrder[0]);
+        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         // Crocomire's initialization attaches the body his melt image shows on (#1355, #1466, #1515).
@@ -185,14 +185,14 @@ internal static class CrocomireMeltingDefinitionsVerification
         AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.SinkThroughBridge>(), state.DeathStage,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} phase timing");
         // His body shows the melt image alone, in place of his body frame.
-        ushort[] shown = BossBodyWords.Of(((BossBodyParts)enemies.Presentation.BossBodyDisplay!).Publish(), BossBodyOwner.Crocomire, artwork.Bosses);
-        AssertEqual(1, ((BossBodyParts)enemies.Presentation.BossBodyDisplay!).Publish().Frames.Length,
+        ushort[] shown = BossBodyWords.Of(enemies.Presentation.RequireBossBody().Publish(), BossBodyOwner.Crocomire, artwork.Bosses);
+        AssertEqual(1, enemies.Presentation.RequireBossBody().Publish().Frames.Length,
             $"installed Crocomire tilemap ${sourceAddress:X6} shows only the melt image");
         ushort[] result = shown[32..(32 + CrocomireMeltingArtworkFormat.TilemapCellCount)];
         for (int index = 0; index < result.Length; index++)
         {
             int address = sourceAddress + index * 2;
-            ushort expected = rom.ReadCartridgeWord(address);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             if (compareRom)
                 AssertEqual(expected, result[index],
                     $"installed Crocomire tilemap ${sourceAddress:X6} cell {index}");

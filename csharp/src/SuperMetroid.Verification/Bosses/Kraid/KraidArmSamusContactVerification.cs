@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -26,7 +25,7 @@ internal static class KraidArmSamusContactVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid);
         RoomEnemyPlace arm = runtime.Enemies.Places.InUpdateOrder[1];
@@ -38,7 +37,7 @@ internal static class KraidArmSamusContactVerification
         arm.Contact = EnemyContact.None;
         arm.Processing = EnemyProcessing.OffScreen | EnemyProcessing.Animates;
         arm.Presence = EnemyPresence.None;
-        SamusState samus = runtime.Player.Samus;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(0x007f, 0x019a));
         samus.Kinematics.Radius = new(5, 19);
         samus.InvincibilityTimer = WrappingCountdown.Start(0);

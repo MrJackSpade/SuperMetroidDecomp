@@ -32,7 +32,7 @@ internal static class RoomBackgroundTilemapsVerification
         var compiled = new Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas>();
         foreach ((RoomBackgroundTilemap tilemap, int source) in RoomBackgroundSourceDefinitions.Tilemaps)
         {
-            byte[] native = RomDataReader.Decompress(bus, source);
+            byte[] native = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), source);
             RoomBackgroundTilemapAtlas atlas = RoomBackgroundTilemapAtlas.Load(
                 new MemoryStream(files[RoomBackgroundTilemapArtworkFiles.FileName(tilemap)],
                     writable: false), native.Length);

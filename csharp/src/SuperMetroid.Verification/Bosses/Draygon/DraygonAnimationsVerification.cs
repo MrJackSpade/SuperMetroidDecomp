@@ -31,7 +31,7 @@ internal static class DraygonAnimationsVerification
     /// </summary>
     internal static void VerifyDraygonAnimations(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(Enum.GetValues<DraygonSegment>().Length, Entries.Length, "every typed Draygon program has a native entry");
         for (int index = 0; index < Entries.Length; index++)
             AssertEqual((DraygonSegment)index, Entries[index].Program, "the Draygon programs are declared in authored order");
@@ -217,12 +217,14 @@ internal static class DraygonAnimationsVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.KeptDefinition);
         body.Position = body.Position.WithWhole(new(256, 384));
-        // Draygon is set up through his group's factory, his eye, tail and arms built as its parts in the places after him.
-        RoomEnemyPlace eye = enemies.Places.InUpdateOrder[1], tail = enemies.Places.InUpdateOrder[2], arms = enemies.Places.InUpdateOrder[3];
-        eye.Bind(EnemyDefinitionId.DraygonEye, eye.Definition);
-        tail.Bind(EnemyDefinitionId.DraygonTail, tail.Definition);
-        arms.Bind(EnemyDefinitionId.DraygonArms, arms.Definition);
-        var state = body.SetUpPlaced<DraygonEnemyState>(eye, tail, arms);
+        var state = new DraygonEnemyState(body.HeldOccupant(), enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+        body.SetSpeciesState(state);
+        state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.KeptDefinition);
+        state.Eye.SetSpeciesState(state.EyePart);
+        state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.KeptDefinition);
+        state.Tail.SetSpeciesState(state.TailPart);
+        state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.KeptDefinition);
+        state.Arms.SetSpeciesState(state.ArmsPart);
         foreach (DraygonPart part in new[] { state.BodyPart, state.EyePart, state.TailPart, state.ArmsPart })
             part.SetAnimation(DraygonSegment.Rest);
         enemies.VerificationServices().NextRandom = () => 4660;
@@ -325,7 +327,7 @@ internal static class DraygonAnimationsVerification
     /// </summary>
     internal static void VerifyDraygonProjectileAnimations(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(Enum.GetValues<DraygonProjectileSegment>().Length, ProjectileEntries.Length, "every projectile segment has a native entry");
         Dictionary<DraygonProjectileSegment, NativeEnemyList<DraygonProjectileSegment>> projectileLists =
             ProjectileEntries.ToDictionary(item => item.Program, item => ReadProjectileList(cartridge, item.Program, item.Entry));
@@ -339,8 +341,8 @@ internal static class DraygonAnimationsVerification
             "the real goop producer starts the typed goop loop");
         goop.StartAnimation(new DraygonProjectileAnimation(enemies.DraygonBehavior.Shots.Goop, DraygonProjectileSegment.GoopTouch));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
-        enemies.Projectiles.AdvanceEnemyProjectileAnimations(goop, samus, Position16<RoomPixels>.Zero, shortCounter: 0);
-        AssertEqual<Enum?>(DraygonShotMotion.GoopStuckToSamus, goop.MotionKind, "the goop touch sticks the goop to Samus");
+        enemies.Projectiles.AdvanceEnemyProjectileAnimations(goop, samus, Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
+        AssertTrue(goop.IsMovingBy(enemies.DraygonBehavior.Shots.Goop.GoopStuckToSamus), "the goop touch sticks the goop to Samus");
         AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.DraygonGoopSpiky), goop.PresentationOperandAddress,
             "the goop touch shows the goop's first frame in the same update");
         AssertEqual((ushort)10, goop.FrameHold.RawValue, "the goop's first frame lasts ten updates");

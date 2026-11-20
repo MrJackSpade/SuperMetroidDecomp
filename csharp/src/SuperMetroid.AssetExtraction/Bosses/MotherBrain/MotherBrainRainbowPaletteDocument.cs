@@ -18,7 +18,7 @@ public sealed record MotherBrainRainbowPaletteDocument
     /// <summary>Eight $AD:ED9C revival phases, each containing 13 body/brain colors, five rear-leg colors, and a trailing WRAM word; the final two body/brain inks are preserved.</summary>
     public required MotherBrainRainbowPaletteFrameDocument[] FromGrey { get; init; }
     /// <summary>Eight ordered rows of three brain-only RGB5 inks corresponding to $AD:ED8A, applied beginning at CGRAM color $91.</summary>
-    public required PaletteRgb5[][] FakeDeathToGrey { get; init; }
+    public PaletteRgb5[][]? FakeDeathToGrey { get; init; }
     /// <summary>Normal restoration frame with 15 shared body/brain inks and 15 rear-leg inks, matching the roles of $A9:9474/$9494; no trailing word is allowed.</summary>
     public required MotherBrainRainbowPaletteFrameDocument Normal { get; init; }
 }

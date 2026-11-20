@@ -4,10 +4,10 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>Ki-Hunter acid spit's typed animation.</summary>
-/// <param name="segment">The segment the animation starts at.</param>
-/// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
-internal sealed class KiHunterAcidSpitAnimation(KiHunterAcidSpitSegment segment, IEnemyProjectileCues<KiHunterAcidSpitCue> cues)
-    : EnemyProjectileFrameAnimation<KiHunterAcidSpitSegment, KiHunterAcidSpitCue>(KiHunterAcidSpitAnimations.StartingWith(segment), cues)
+/// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
+/// <param name="segment">Where the animation starts.</param>
+internal sealed class KiHunterAcidSpitAnimation(IEnemyProjectileCues<KiHunterAcidSpitCue> owner, KiHunterAcidSpitSegment segment)
+    : EnemyProjectileFrameAnimation<KiHunterAcidSpitSegment, KiHunterAcidSpitCue>(KiHunterAcidSpitAnimations.StartingWith(segment), EnemyProjectileCueRunner<KiHunterAcidSpitSegment, KiHunterAcidSpitCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<KiHunterAcidSpitSegment, EnemyProjectileFrameId, KiHunterAcidSpitCue> Segments => KiHunterAcidSpitAnimations.Segments;

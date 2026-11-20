@@ -34,8 +34,8 @@ internal static class OumBounceVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.Oum, place.KeptDefinition);
-            OumBehavior.InitializeOum();
-            OumEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<OumEntity>(place).State;
+            OumBehavior.InitializeOum(place);
+            OumEnemyState state = place.RequireSpeciesState<OumEnemyState>();
             place.Radius = new(16, 16);
             // On the floor level the lowest pixel row already rests in the floor, so even a sub-pixel fall lands.
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(64, level == floor ? (ushort)49 : (ushort)48));
@@ -47,7 +47,7 @@ internal static class OumBounceVerification
                 RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
                 new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
 
-            enemies.OumBehavior.RunOumMainAi(place, place.RequireSpeciesState<OumEnemyState>(), frame);
+            enemies.OumBehavior.RunOumMainAi(place, frame);
 
             AssertEqual(expected, state.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, $"Oum {context}: record");
             AssertEqual(expectedPhase, state.BouncePhase, $"Oum {context}: bounce phase");

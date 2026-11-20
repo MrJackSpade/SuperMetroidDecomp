@@ -25,7 +25,7 @@ internal sealed class RoomEffectActors
     private readonly List<RoomEffectActor> _objects = [];
 
     /// <summary>The place each object in <see cref="_objects"/> took, for those that took one.</summary>
-    private readonly Dictionary<RoomEffectActor, int> _takenPlaces = [];
+    private readonly Dictionary<RoomEffectActor, EffectActorPlaces.TakenPlace> _takenPlaces = [];
 
     /// <summary>Told of each object the draw reaches, which a Puyo's later ceiling strike reads.</summary>
     private readonly PuyoCeilingTurnFromLastDraw _puyoCeilingTurn;
@@ -53,7 +53,7 @@ internal sealed class RoomEffectActors
     {
         ForgetEnded();
         var spawned = new RoomEffectActor(kind, position, graphics);
-        if (_places.Take() is int place)
+        if (_places.Take() is { } place)
             _takenPlaces.Add(spawned, place);
         _objects.Add(spawned);
         return spawned;
@@ -61,15 +61,15 @@ internal sealed class RoomEffectActors
 
     /// <summary>The place <paramref name="spawned"/> took when it spawned, or null when every place was taken.</summary>
     /// <param name="spawned">The object most recently spawned.</param>
-    internal int? PlaceOf(RoomEffectActor spawned) =>
-        _takenPlaces.TryGetValue(Ensure.NotNull(spawned), out int place) ? place : null;
+    internal EffectActorPlaces.TakenPlace? PlaceOf(RoomEffectActor spawned) =>
+        _takenPlaces.GetValueOrDefault(Ensure.NotNull(spawned));
 
     /// <summary>Forgets every object that has ended, freeing the places they took.</summary>
     private void ForgetEnded()
     {
         foreach (RoomEffectActor ended in _objects)
         {
-            if (ended.IsActive || !_takenPlaces.Remove(ended, out int place))
+            if (ended.IsActive || !_takenPlaces.Remove(ended, out EffectActorPlaces.TakenPlace? place))
                 continue;
             _places.Free(place);
         }
@@ -111,20 +111,17 @@ internal sealed class RoomEffectActors
                 CameraPastRoomEdge.FromCamera(spawned.Position.Whole.Y, camera.Y));
 
             // A hit burst shows Samus's burst sprites, every other object a frame of its enemy sheet (#1817).
-            _ = spawned.Frame.Select(
-                shown =>
-                {
-                    // The empty frame, between a Metroid's crackles and its shell's flashes, draws nothing.
-                    if (!CommonEnemyEmptyFrames.DrawsNothing(shown))
-                        _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomEffectActor),
-                            EnemySheetDefinitions.EffectActorFrameName(shown), screen, spawned.Graphics);
-                    return true;
-                },
-                burst =>
-                {
-                    hitBursts.Draw(sprites, burst, screen);
-                    return true;
-                });
+            if (spawned.Frame.HitBurst is { } burst)
+            {
+                hitBursts.Draw(sprites, burst, screen);
+                continue;
+            }
+            EnemyFrameId shown = spawned.Frame.RequireEnemyFrame();
+            // The empty frame, between a Metroid's crackles and its shell's flashes, draws nothing.
+            if (CommonEnemyEmptyFrames.DrawsNothing(shown))
+                continue;
+            _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomEffectActor),
+                EnemySheetDefinitions.EffectActorFrameName(shown), screen, spawned.Graphics);
         }
     }
 }

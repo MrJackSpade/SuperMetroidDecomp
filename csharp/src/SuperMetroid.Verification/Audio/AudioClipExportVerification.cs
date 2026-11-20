@@ -124,7 +124,7 @@ internal static class AudioClipExportVerification
     private static void VerifySoundEffect(InstalledClipAudioLibrary clips, SoundEffectId effect)
     {
         InstalledSoundEffectClip entry = clips.Manifest.SoundEffects.Single(candidate => candidate.Sound == effect);
-        AssertEqual(effect == RoomSound.SpeedBooster, entry is InstalledSoundEffectClip.Repeating, $"{effect} never ends exactly when it repeats forever");
+        AssertEqual(effect == RoomSound.SpeedBooster, entry.ActiveFrames is null, $"{effect} never ends exactly when it repeats forever");
     }
 
     /// <summary>An escaping clip path and a wrong manifest format version are each rejected.</summary>
@@ -172,7 +172,7 @@ internal static class AudioClipExportVerification
         int kept = 0;
         IReadOnlyList<AudioRequest>[] script =
         [
-            [new AudioRequest.InstallSharedSounds(), new AudioRequest.ChangeMusicDataSet(context)],
+            [new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(context)],
             [request],
         ];
         for (int index = 0; kept < pcm.Length; index++)

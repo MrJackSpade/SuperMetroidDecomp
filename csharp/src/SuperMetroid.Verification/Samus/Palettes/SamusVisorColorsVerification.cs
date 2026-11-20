@@ -41,7 +41,7 @@ internal static class SamusVisorColorsVerification
         for (int index = 0; index < SamusVisorColorFormat.ColorCount; index++)
         {
             int address = SamusSourceDefinitions.VisorColors.Value + index * sizeof(ushort);
-            ushort native = rom.ReadCartridgeWord(address);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, catalog.Resolve(index), $"native visor color {index}");
         }
 
@@ -63,7 +63,7 @@ internal static class SamusVisorColorsVerification
         for (int index = 0; index < colors.Length; index++)
         {
             int address = SamusSourceDefinitions.VisorColors.Value + index * sizeof(ushort);
-            ushort word = rom.ReadCartridgeWord(address);
+            ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             colors[index] = new PaletteRgb5
             {
                 Red = word & 31,
@@ -72,7 +72,7 @@ internal static class SamusVisorColorsVerification
             };
         }
         return SamusVisorColorFile.Read(new MemoryStream(SamusVisorColorFile.Write(
-            new SamusVisorColorDocument { Version = SamusVisorColorFile.Version, Colors = colors })));
+            new SamusVisorColorDocument { Version = SamusVisorColorFile.Version, Widening = colors[..3], Cycle = colors[3..] })));
     }
 
     /// <summary>Compares 32 room updates for timer, source offset, and CGRAM slot 196 without installed table reads.</summary>
@@ -100,7 +100,7 @@ internal static class SamusVisorColorsVerification
             bool actualWrite = installed.Cycle.UpdatesLeft == SamusShadeDefinitionsVisorConstants.FrameDelay;
             // The room's cycle is stored after the widening glow's shades.
             if (expectedWrite)
-                AssertEqual(rom.ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value +
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value +
                         (SamusShadeDefinitions.Visor.XrayWideningShades + native.Cycle.Showing.Step) * sizeof(ushort)), installedColours.ShownVisor(installedSources),
                     $"room visor frame {frame} matches native color word");
             AssertEqual(expectedWrite, actualWrite, $"room visor frame {frame} action");
@@ -140,7 +140,7 @@ internal static class SamusVisorColorsVerification
                 int sourceShade = shown.Effect == SamusShades.VisorCycle[0].Effect
                     ? SamusShadeDefinitions.Visor.XrayWideningShades + shown.Step
                     : shown.Step;
-                AssertEqual(rom.ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value + sourceShade * sizeof(ushort)), installedColours.ShownVisor(installedSources),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value + sourceShade * sizeof(ushort)), installedColours.ShownVisor(installedSources),
                     $"X-ray visor call {call} matches native color word");
             }
             AssertEqual(expected, actual, $"X-ray visor call {call} write");
@@ -187,7 +187,7 @@ internal static class SamusVisorColorsVerification
             ?? throw new InvalidDataException("Stock Samus visor color document is null.");
         AssertThrows<InvalidDataException>(() => SamusVisorColorFile.Read(new MemoryStream(SamusVisorColorFile.Write(document with
         {
-            Colors = [.. document.Colors.Take(3), document.Colors[3] with { Red = 32 }, .. document.Colors.Skip(4)],
+            Cycle = [document.Cycle[0] with { Red = 32 }, .. document.Cycle.Skip(1)],
         }))), "out-of-range visor color fails loudly");
     }
 

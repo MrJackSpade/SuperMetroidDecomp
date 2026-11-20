@@ -44,7 +44,7 @@ internal static class GameOverSheetComposer
     {
         Ensure.NotNull(maps);
         GameOverSourcePresentation gameOver = maps.GameOverSource;
-        SpriteArtwork page = maps.Sprites.Page;
+        SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
         var frames = new List<SheetFrameSource>();
         foreach (GameOverBabyFrame frame in BabyFrames)
             frames.Add(Frame(GameOverPresentationNames.BabyFrameName(frame), gameOver.babySprites[frame], page, gameOver.BabyPaletteIndex));

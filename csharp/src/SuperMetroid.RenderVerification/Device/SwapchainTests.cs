@@ -377,7 +377,7 @@ internal static partial class SwapchainTests
             {
                 var actual = Step(tick is 10 or >= 100 and <= 105 ? ControllerButton.Start : ControllerButton.None);
                 worker.Publish(new RenderFrame(new(sequence, 1), actual.Snapshot));
-                paused |= legacy.IsAt(PauseMenuStep.FadingIn) || legacy.IsAt(PauseMenuStep.Menu);
+                paused |= legacy.IsAt(PauseStep.FadingIn) || legacy.IsAt(PauseStep.Menu);
                 if (tick % 40 == 39) CompareRuntimeGraphs($"room slice tick {tick}");
             }
             var positions = new HashSet<OptionalScreenPosition>();

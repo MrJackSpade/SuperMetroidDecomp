@@ -48,10 +48,6 @@ public static class SamusGrappleBeamDrawing
         if (grapple.FlareStage == GrappleFlareStage.JustFired)
             grapple.Flare.RestartAtLoop();
         grapple.Flare.PlayForward();
-        // The flare plays only forward, and a flare played forward always shows a picture: only the Hyper Beam's backward
-        // count shows none.
-        if (grapple.Flare.Picture is not { } shown)
-            return false;
 
         Offset16<ScreenPixels> place = grapple.FlareOrigin.RelativeToCamera(cameraPosition);
         // The flare is published wherever it lies; the display clips it to the view (#1541).
@@ -60,7 +56,7 @@ public static class SamusGrappleBeamDrawing
         // shows the sheet of the beams she has equipped (#1586).
         ProjectileSpriteId picture =
             ChargeFlarePictures.Of(ChargeFlareComponent.MainFlare, facingLeft: false,
-                shown);
+                grapple.Flare.Picture ?? throw new InvalidOperationException("The grapple's flare plays only forward, so it always shows a picture."));
         SpriteSheetFrame image = sheets.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(
             picture));
         sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image, place));

@@ -22,38 +22,38 @@ internal static class ChootPatternDefinitionsVerification
         {
             ChootFallingPath fallingPath = DecodedFallingPath(patternIndex);
             int loopYDistance = ChootFalls.LoopYDistance(fallingPath);
-            ushort nativePointer = rom.ReadCartridgeWord((0xa2df5e + patternIndex * 2));
-            ushort distancePointer = rom.ReadCartridgeWord((0xa2df6a + patternIndex * 2));
+            ushort nativePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df5e + patternIndex * 2));
+            ushort distancePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df6a + patternIndex * 2));
             AssertEqual(nativePointer, ChootNativeWords.ChootFallingPaths.Word(fallingPath),
                 $"Choot pattern pointer {patternIndex}");
-            AssertEqual(rom.ReadCartridgeWord((0xa20000 | distancePointer)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | distancePointer)),
                 loopYDistance,
                 $"Choot pattern distance {patternIndex}");
 
             int pathAddress = 0xa20000 | ChootNativeWords.ChootFallingPaths.Word(fallingPath);
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {
-                Offset16<RoomPixels> point = ChootFallLoopAccess.OffsetAt(
+                Offset16<RoomPixels> point = ChootFalls.At(
                     fallingPath,
                     frameIndex) ?? throw new InvalidDataException($"Choot path {patternIndex} ends early at {frameIndex}.");
-                AssertEqual(rom.ReadCartridgeWord((pathAddress + frameIndex * 4)),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + frameIndex * 4)),
                     unchecked((ushort)point.X),
                     $"Choot path X {patternIndex}/{frameIndex}");
-                AssertEqual(rom.ReadCartridgeWord((pathAddress + frameIndex * 4 + 2)),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + frameIndex * 4 + 2)),
                     unchecked((ushort)point.Y),
                     $"Choot path Y {patternIndex}/{frameIndex}");
             }
 
             // The native path ends each loop with a (-32768, -32768) pair; the port's path ends at that frame.
             int endFrame = frameCounts[patternIndex] - 1;
-            AssertEqual((ushort)0x8000, rom.ReadCartridgeWord((pathAddress + endFrame * 4)),
+            AssertEqual((ushort)0x8000, CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + endFrame * 4)),
                 $"Choot path {patternIndex} native loop end X");
-            AssertEqual((ushort)0x8000, rom.ReadCartridgeWord((pathAddress + endFrame * 4 + 2)),
+            AssertEqual((ushort)0x8000, CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + endFrame * 4 + 2)),
                 $"Choot path {patternIndex} native loop end Y");
-            AssertTrue(ChootFallLoopAccess.AtAge(fallingPath, endFrame) is ChootFallLoop.Over, $"Choot path {patternIndex} ends its loop at the native end frame");
+            AssertTrue(ChootFalls.At(fallingPath, endFrame) is null, $"Choot path {patternIndex} ends its loop at the native end frame");
 
-            AssertThrows<InvalidOperationException>(
-                () => ChootFallLoopAccess.OffsetAt(
+            AssertThrows<InvalidDataException>(
+                () => ChootFalls.At(
                     fallingPath,
                     frameCounts[patternIndex]),
                 $"Choot path {patternIndex} rejects the frame after its loop's end");
@@ -89,12 +89,12 @@ internal static class ChootPatternDefinitionsVerification
             initializeFall(fallPlace);
             ChootEnemyState fallState = (fallEnemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires fallEnemies.ChootStates[0]."));
             fallState.FallingOrigin = new(0x4000, 0x5000);
-            fallState.FallingLoop = ChootFallLoop.Starting(fallingPath);
+            fallState.FallingLoop = UpdateCountdown.Lasting(ChootFalls.LoopUpdates(fallingPath));
             fallState.FallingPatternLoopCounter = 2;
 
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {
-                Offset16<RoomPixels> point = ChootFallLoopAccess.OffsetAt(
+                Offset16<RoomPixels> point = ChootFalls.At(
                     fallingPath,
                     frameIndex) ?? throw new InvalidDataException($"Choot path {patternIndex} ends early at {frameIndex}.");
                 runFall(fallPlace, fallState);
@@ -105,12 +105,12 @@ internal static class ChootPatternDefinitionsVerification
                     fallPlace.Position.Y.Whole,
                     $"Choot production fall Y {patternIndex}/{frameIndex}");
                 AssertEqual(frameIndex + 1,
-                    ChootFallLoopAccess.AgeOf(fallState.FallingLoop, fallingPath),
+                    fallState.FallingLoop.Age,
                     $"Choot production fall cursor {patternIndex}/{frameIndex}");
             }
 
             runFall(fallPlace, fallState);
-            AssertEqual(0, ChootFallLoopAccess.AgeOf(fallState.FallingLoop, fallingPath),
+            AssertEqual(0, fallState.FallingLoop.Age,
                 $"Choot production loop cursor reset {patternIndex}");
             AssertEqual(1, fallState.FallingPatternLoopCounter,
                 $"Choot production loop counter {patternIndex}");
@@ -118,7 +118,7 @@ internal static class ChootPatternDefinitionsVerification
                 fallState.FallingOrigin.Y,
                 $"Choot production loop Y advance {patternIndex}");
 
-            fallState.FallingLoop = ChootFallLoopAccess.AtAge(fallingPath, frameCounts[patternIndex] - 1);
+            fallState.FallingLoop = UpdateCountdownAccess.AtAge(ChootFalls.LoopUpdates(fallingPath), frameCounts[patternIndex] - 1);
             runFall(fallPlace, fallState);
             AssertEqual((ushort)0x3456, fallPlace.Position.X.Whole,
                 $"Choot production final spawn X {patternIndex}");

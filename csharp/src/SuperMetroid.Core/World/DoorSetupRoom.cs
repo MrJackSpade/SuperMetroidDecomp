@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Gameplay;
@@ -28,6 +29,9 @@ internal sealed class DoorSetupRoom : IDoorEventRoom
     /// <summary>The destination's block animations, which the treadmill setups start.</summary>
     internal required RoomBlockAnimations BlockAnimations { get; init; }
 
+    /// <summary>The room being loaded, whose elevatube ride, where its main composed one, the tube's entry doors start.</summary>
+    internal required RoomScopeConstruction Scope { get; init; }
+
     /// <summary>Samus, whom the elevatube's setups place and release.</summary>
     internal required SamusState Samus { get; init; }
 
@@ -38,7 +42,13 @@ internal sealed class DoorSetupRoom : IDoorEventRoom
     internal required SharedGameState System { get; init; }
 
     /// <inheritdoc/>
-    public void HoldSamusStill() => Samus.Control.LockStationary();
+    /// <exception cref="InvalidDataException">The room's main composed no elevatube ride.</exception>
+    public void StartElevatubeRide(ElevatubeEntry entry)
+    {
+        MaridiaElevatubeRoomMainState ride = Scope.MaridiaElevatube ?? throw new InvalidDataException(
+            $"A door's setup starts the elevatube ride {entry} in room {Scope.Room.Definition.Name}, whose main composes no elevatube.");
+        ride.StartRide(entry, Samus);
+    }
 
     /// <inheritdoc/>
     public void ShowOrdinaryDisplay() => Display.ActiveTurningFloor = null;

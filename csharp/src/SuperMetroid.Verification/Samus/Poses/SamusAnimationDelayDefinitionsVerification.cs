@@ -20,7 +20,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
     /// </summary>
     internal static void VerifySamusAnimationDelayDefinitions(ISnesAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = bus;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         var checkedAnimations = new HashSet<SamusAnimationName>();
         for (int number = 0; number < SamusAnimationProgramCodec.PoseCount; number++)
         {

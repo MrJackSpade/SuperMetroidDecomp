@@ -1,5 +1,4 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Frontend.Intro;
@@ -8,6 +7,7 @@ using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Poses;
@@ -118,7 +118,7 @@ internal static class MovieDesyncComparison
                     $"pos={Native(slotBase + 2)}.{Native(slotBase + 4)}/{Native(slotBase + 6)}.{Native(slotBase + 8)}");
             }
         }
-        if (game.RuntimeForVerification?.Enemies.BossEncounters.MotherBrain?.RainbowBeamSequence?.State.Baby is SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidArrival.Arrived { Baby: var baby })
+        if (game.RuntimeForVerification?.Enemies.BossEncounters.MotherBrain?.RainbowBeamSequence?.Baby is { } baby)
         {
             // Baby Metroid cutscene actor: $0FA8+$40n function words; velocities at +2/+4.
             Console.WriteLine($"  baby port   pos={baby.Position.X.Whole:X4}.{baby.Position.X.Fraction:X4}/{baby.Position.Y.Whole:X4}.{baby.Position.Y.Fraction:X4} v={baby.Velocity.X.RawValue:X4}/{baby.Velocity.Y.RawValue:X4}");
@@ -227,7 +227,7 @@ internal static class MovieDesyncComparison
             CheckArrivalSlot(17, (arrival ?? throw new InvalidOperationException("Verification requires arrival.")).PadActive, 0xa387, arrival.PadPosition.Y);
             CheckArrivalSlot(16, arrival.PlatformActive, 0xa395, arrival.PlatformPosition.Y);
         }
-        for (int slot = 0; slot < (arrivalLive ? 16 : SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount); slot++)
+        for (int slot = 0; slot < (arrivalLive ? 16 : SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity); slot++)
         {
             // The port's projectile kind is the native bank-$86 header pointer.
             var latest = projectiles.LatestInPlace(slot);
@@ -235,7 +235,7 @@ internal static class MovieDesyncComparison
             // Identical cartridge definitions that differ only in their way or look name one kind (#2278).
             Check($"Enemy projectile {slot} ID", latest is { IsActive: true }
                     ? EnemyProjectileNativeWords.IdentityWord(latest.Kind, Word(memory, MovieDesyncMemory.EnemyProjectileIds + offset))
-                    : (ushort)0,
+                    : projectiles.HoldsForPrePhantoonRoom(slot) ? EnemyProjectileNativeWords.PrePhantoonRoomHeldPlace : (ushort)0,
                 MovieDesyncMemory.EnemyProjectileIds + offset);
             if (latest is not { IsActive: true } projectile) continue;
             // $86:8097 leaves the whole X word unwritten and the n00b-tube bubble's init only
@@ -248,7 +248,7 @@ internal static class MovieDesyncComparison
             // The cartridge hides a n00b-tube crack or shard by parking it at X $EE00; the port keeps its column and marks it
             // hidden (#1839), so a hidden piece's native X is that parking column. Hidden pieces have no contact radius.
             if (!bubbleXUnwritten)
-                Check($"Enemy projectile {slot} X", projectile.Behavior.IsHidden
+                Check($"Enemy projectile {slot} X", projectile.Behavior is { } behavior && behavior.IsHidden(projectile)
                         ? HiddenPieceNativeColumn : projectile.Position.X.Whole,
                     MovieDesyncMemory.EnemyProjectileX + offset);
             Check($"Enemy projectile {slot} Y", projectile.Position.Y.Whole, MovieDesyncMemory.EnemyProjectileY + offset);
@@ -279,7 +279,7 @@ internal static class MovieDesyncComparison
     /// counting.
     /// </summary>
     private static Position16<RoomPixels> NativeWholePosition(RoomEnemyPlace actor) =>
-        SuperMetroid.Core.Enemies.EnemyPartners.Listed<PhantoonEntity>(actor).Part is { Phantoon: { } phantoon } && phantoon.Phase == SuperMetroid.Core.Bosses.Phantoon.PhantoonPhase.Dead &&
+        actor.SpeciesState<SuperMetroid.Core.Bosses.Phantoon.PhantoonPart>() is { Phantoon: { } phantoon } && phantoon.Phase == SuperMetroid.Core.Bosses.Phantoon.PhantoonPhase.Dead &&
         (ReferenceEquals(actor, phantoon.Body) || phantoon.PhaseWait.CartridgeCount != ClearedPhantoonPowerDelay)
             ? ClearedPhantoonNativePlace
             : actor.Position.Whole;

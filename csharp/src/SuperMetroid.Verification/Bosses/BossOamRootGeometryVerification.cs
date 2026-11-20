@@ -56,7 +56,7 @@ internal static class BossOamRootGeometryVerification
         {
             AssertEqual(expected[index], actual(index), "original selected OAM root");
             int address = ((int)new SnesAddress(bank, expected[index]));
-            int count = rom.ReadCartridgeWord(address);
+            int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(componentCount(index), count, "native component count explains record geometry");
         }
         foreach (int invalid in new[] { -1, expected.Length, int.MaxValue })

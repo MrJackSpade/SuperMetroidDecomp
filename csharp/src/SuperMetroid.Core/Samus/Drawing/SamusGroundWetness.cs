@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>When the ground Samus stands on is wet, so that her running footsteps and her landings splash (#2416).</summary>
-public enum SamusGroundWetness
+internal enum SamusGroundWetness
 {
     /// <summary>Dry: her footsteps raise dust only while she speed-boosts, and her landings raise what the ground's dry landings do.</summary>
     Dry,

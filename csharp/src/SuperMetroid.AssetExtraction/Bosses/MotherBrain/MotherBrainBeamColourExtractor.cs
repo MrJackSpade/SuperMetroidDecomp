@@ -21,7 +21,7 @@ internal static class MotherBrainBeamColourExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        IImportCartridgeSource cartridge = bus;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         var cycle = new RgbColor[MotherBrainRainbowPaletteGeometry.BeamCycleColorCount];
         for (int index = 0; index < cycle.Length; index++)
         {

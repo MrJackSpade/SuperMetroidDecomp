@@ -28,16 +28,6 @@ public sealed class SamusKinematicsState
     /// </summary>
     internal WallJumpLaunchShake<ISolidEnemy> WallJumpLaunch { get; } = new();
 
-    /// <summary>
-    /// Contact-damage snapshot for ownerless geometry probes. Sand still reads this
-    /// collision input even when a probe deliberately cannot mutate the full owner.
-    /// </summary>
-    internal SamusBodyAttack? ProbeBodyAttack { get; init; }
-
-    /// <summary>The captured contact mode of an ownerless probe, otherwise <paramref name="owner"/>'s live mode.</summary>
-    internal SamusBodyAttack CollisionBodyAttack(SamusState owner) =>
-        ProbeBodyAttack ?? owner.HorizontalSpeed.BodyAttack;
-
     /// <summary>Constructs kinematics with no owner, for block collision that moves no Samus.</summary>
     public SamusKinematicsState()
     {

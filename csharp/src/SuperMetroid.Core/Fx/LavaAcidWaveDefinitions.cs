@@ -36,7 +36,7 @@ public static class LavaAcidWaveDefinitions
     /// three bubbling sounds in turn, so the first two play three times in eight and the third twice.
     /// </summary>
     internal static readonly WeightedRandomChoice<SoundEffectId> AmbientSound = WeightedRandomChoice<SoundEffectId>.InTurn(
-        new RandomSampleField(0, 3), EnemySound.LavaBubbling1, EnemySound.LavaBubbling2, EnemySound.LavaBubbling3);
+        new RandomSampleField(0, 3), EnemySound.LavaBubblingBurst, EnemySound.LavaBubblingFalling, EnemySound.LavaBubblingRising);
 
     /// <summary>The request priority of lava's ambient sound.</summary>
     public static readonly SoundRequestPriority AmbientSoundPriority = SoundRequestPriority.Normal;

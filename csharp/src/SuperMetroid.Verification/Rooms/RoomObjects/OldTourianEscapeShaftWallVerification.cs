@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
@@ -30,7 +29,7 @@ internal static class OldTourianEscapeShaftWallVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Climb);
         AssertTrue(runtime.RoomObjects.PopulationPlaces.Any(place => place.Behaviour is OldTourianWallObject),
@@ -38,7 +37,7 @@ internal static class OldTourianEscapeShaftWallVerification
 
         int Explosions() => runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion);
-        SamusState samus = runtime.Player.Samus;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(0x00e8, 0x088b));
         runtime.StepFrame(0);
         AssertEqual(0, Explosions(), "Samus left of X $F0 leaves the wall asleep");
@@ -69,7 +68,7 @@ internal static class OldTourianEscapeShaftWallVerification
     /// </summary>
     private static void VerifyWallExplosionProgramAgainstRom(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ushort Word(int address) => cartridge.ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
         var segments = OldTourianWallExplosionAnimation.AllSegments;
         Animation<OldTourianWallExplosionSegment> animation = OldTourianWallExplosionAnimation.AllAnimations[OldTourianWallExplosionSegment.Start];
@@ -127,7 +126,7 @@ internal static class OldTourianEscapeShaftWallVerification
     /// </summary>
     private static void VerifyWallListAgainstRom(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ushort Word(int address) => cartridge.ReadCartridgeWord(0x840000 | address);
         RoomObjectInstruction InstructionWord(int address) => (RoomObjectInstruction)Word(address);
         ushort entry = Word(NativeWallHeader + 2);

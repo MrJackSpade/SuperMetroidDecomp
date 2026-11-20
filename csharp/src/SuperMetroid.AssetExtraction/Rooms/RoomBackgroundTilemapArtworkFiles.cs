@@ -49,7 +49,7 @@ public static class RoomBackgroundTilemapArtworkFiles
         {
             string name = FileName(tilemap);
             byte[] json = files[name];
-            int byteCount = RomDataReader.Decompress(bus, address).Length;
+            int byteCount = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address).Length;
             RoomBackgroundTilemapFormat.ValidatePageCount(byteCount);
             using (var output = new FileStream(Path.Combine(importData, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(json);

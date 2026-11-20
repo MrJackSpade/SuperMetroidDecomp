@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Assets;
@@ -44,9 +43,9 @@ internal static class DraygonPrebattleXrayVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.Position = samus.Position.WithWhole(new(456, 459));
@@ -59,7 +58,7 @@ internal static class DraygonPrebattleXrayVerification
         AssertTrue(samus.Xray.IsActive, "bottom-right arena position activates X-Ray through held Run");
         for (int frame = 0; frame < 40; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         var boss = runtime.Enemies.Draygon;
-        AssertTrue(((boss ?? throw new InvalidOperationException("Verification requires boss.")).Phase) is DraygonPhase.IntroInitialDelay, "X-Ray preserves the pre-battle phase");
+        AssertEqual(DraygonPhase.IntroInitialDelay, (boss ?? throw new InvalidOperationException("Verification requires boss.")).Phase, "X-Ray preserves the pre-battle phase");
         var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var math = (GameplayBlendLayer)scene.Layers[0];
         var r = math.Gameplay.View;

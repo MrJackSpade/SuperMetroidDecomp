@@ -78,7 +78,7 @@ internal static class BoyonBehaviorVerification
         for (int selector = 0; selector < BouncedHeightSelectors; selector++)
             derivations += CheckBaseline(samples, multiplier, rom.ReadCartridgeWord(0xa286ef + selector * 2));
 
-        AssertThrows<ArgumentOutOfRangeException>(() => BoyonBehavior.DeriveBoyonArcBaseline(new BoyonEnemyState(new BoyonSpawnSettings(SpeedMultiplier: 1, JumpHeight: 0, TriggerDistance: 0)), 1, SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-1)),
+        AssertThrows<ArgumentOutOfRangeException>(() => BoyonBehavior.DeriveBoyonArcBaseline(new BoyonEnemyState(), 1, SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-1)),
             "a negative arc is refused");
         AssertThrows<ArgumentOutOfRangeException>(() => BoyonBounceCurve.Multiply(BoyonCurvePlace.Top, 0), "a Boyon with multiplier 0 is refused");
         Console.WriteLine($"  Boyon arc baseline: {derivations} derivations end at the original's entry and distance.");
@@ -143,7 +143,7 @@ internal static class BoyonBehaviorVerification
     /// <summary>Checks one derivation against the original's; returns one.</summary>
     private static int CheckBaseline(int[] samples, int multiplier, int height)
     {
-        var state = new BoyonEnemyState(new BoyonSpawnSettings(SpeedMultiplier: 1, JumpHeight: 0, TriggerDistance: 0));
+        var state = new BoyonEnemyState();
         BoyonBehavior.DeriveBoyonArcBaseline(state, multiplier, SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(height));
         (int entry, int distance) = OriginalBaseline(samples, multiplier, height);
         // The arc's distance is the derivation's working sum; the entry it ends at is what the Boyon keeps (#2432).
@@ -192,7 +192,7 @@ internal static class BoyonBehaviorVerification
         // Parameter two is the horizontal trigger range Samus must be within to start a bounce.
         place.SetSpawnParameter2(EnemyDefinitionId.Boyon, 64);
         place.Position = place.Position.WithWhole(new(256, 512));
-        BoyonBehavior.InitializeBoyon(place, place.SpawnSettings<BoyonSpawnSettings>());
+        BoyonBehavior.InitializeBoyon(place);
         return new BoyonBehaviorCreateResult(enemies, place, enemies.BoyonStates[0] ?? throw new InvalidOperationException("Boyon has no state."));
     }
 

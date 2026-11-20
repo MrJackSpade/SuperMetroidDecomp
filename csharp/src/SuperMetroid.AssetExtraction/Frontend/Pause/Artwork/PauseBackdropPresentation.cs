@@ -42,7 +42,8 @@ public sealed class PauseBackdropPresentation
     public static PauseBackdropPresentation Load(Stream json)
     {
         PauseBackdropDocument document;
-        try { document = JsonAssetDocument.Read<PauseBackdropDocument>(json, ArtworkJson.Options); }
+        try { document = JsonAssetDocument.Read<PauseBackdropDocument>(json, ArtworkJson.Options)
+            ?? throw new InvalidDataException("Pause backdrop document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause backdrop JSON.", error); }
         if (document.Version != PauseBackdropDefinitions.Version || document.Areas is null || document.Areas.Count != AreaIds.All.Count)
             throw new InvalidDataException("Pause backdrops require version 1 and all seven named areas.");

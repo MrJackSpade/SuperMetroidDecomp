@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -25,18 +24,19 @@ internal static class BabyMetroidScrollPairVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemyPlace babyMetroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
             place.Holds(EnemyDefinitionId.BabyMetroid));
-        BabyMetroidEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BabyMetroidEntity>(babyMetroid).State;
+        BabyMetroidEnemyState state = babyMetroid.SpeciesState<BabyMetroidEnemyState>()
+            ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
         RoomScrollGrid scrolls = runtime.Room.LoadedCamera.Scrolls;
         AssertEqual(new Extent16<RoomScreens>(4, 1), scrolls.Size, "the Big Boy room is one row of four screens");
         var camera = new Position16<RoomPixels>(512, 0);
 
         Seed(scrolls, [RoomScrollState.Open, RoomScrollState.Open, RoomScrollState.OpenAlignedToTop, RoomScrollState.Open, RoomScrollState.Open]);
         state.Action = BabyMetroidAction.WaitForCamera;
-        runtime.Enemies.BabyMetroidBehavior.RunBabyMetroidMain(babyMetroid, babyMetroid.RequireSpeciesState<BabyMetroidEnemyState>(), runtime.Player.Samus, camera, runtime.BombProjectiles);
+        runtime.Enemies.BabyMetroidBehavior.RunBabyMetroidMain(babyMetroid, runtime.Player.IntroducedSamus, camera, runtime.BombProjectiles);
         AssertEqual(BabyMetroidAction.BeginEntranceDelay, state.Action, "the camera at X 512 starts the entrance");
         Expect(scrolls, [RoomScrollState.Open, RoomScrollState.Closed, RoomScrollState.OpenAlignedToTop, RoomScrollState.Closed, RoomScrollState.Open],
             "the entrance");
@@ -44,7 +44,7 @@ internal static class BabyMetroidScrollPairVerification
         Seed(scrolls, [RoomScrollState.Closed, RoomScrollState.Closed, RoomScrollState.Open, RoomScrollState.Closed, RoomScrollState.Closed]);
         state.Action = BabyMetroidAction.RiseAfterFeeding;
         state.StateTimer.LastFor(1);
-        runtime.Enemies.BabyMetroidBehavior.RunBabyMetroidMain(babyMetroid, babyMetroid.RequireSpeciesState<BabyMetroidEnemyState>(), runtime.Player.Samus, camera, runtime.BombProjectiles);
+        runtime.Enemies.BabyMetroidBehavior.RunBabyMetroidMain(babyMetroid, runtime.Player.IntroducedSamus, camera, runtime.BombProjectiles);
         AssertEqual(BabyMetroidAction.HoverNearSamus, state.Action, "the rise's timer running out starts the hover");
         Expect(scrolls, [RoomScrollState.Closed, RoomScrollState.OpenAlignedToTop, RoomScrollState.Open, RoomScrollState.OpenAlignedToTop, RoomScrollState.Closed],
             "the rise after feeding");

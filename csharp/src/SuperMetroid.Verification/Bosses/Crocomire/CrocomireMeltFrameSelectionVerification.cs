@@ -62,7 +62,7 @@ internal static class CrocomireMeltFrameSelectionVerification
                 AssertBands(fixture, expected, $"{pass} dissolve update");
             }
             AssertEqual(CrocomireMeltingDefinitions.ColumnCount, step, $"{pass} dissolve erases every column before it ends");
-            fixture.Call(_ => CrocomireMelting.FinishCrocomireMeltingPass);
+            fixture.Call(c => c.Melting.FinishCrocomireMeltingPass);
             AssertBands(fixture, expected, $"{pass} pass finishes");
         }
         Console.WriteLine($"  Crocomire melt: {updates} updates over both passes select each band's picture on the cartridge's schedule.");

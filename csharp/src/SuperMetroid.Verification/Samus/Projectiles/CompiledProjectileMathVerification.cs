@@ -24,7 +24,7 @@ internal static class CompiledProjectileMathVerification
         for (int i = 0; i < native.Length; i++)
         {
             int address = EnemyMathReferenceData.SignedNegativeCosine + i * 2;
-            native[i] = unchecked((short)rom.ReadCartridgeWord(address));
+            native[i] = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
         var enemy = new Func<ushort, byte, int>((speed, angle) => EnemyMath.SineSpeed(new SignedEightEight(speed), new TrigonometryAngle(angle)).RawValue);
         var baby = new Func<ushort, byte, int>((babySpeed, babyAngle) => SpeedAlongAngle.Along(new SignedEightEight(babySpeed), new TrigonometryAngle(babyAngle)).RawValue);
@@ -39,7 +39,7 @@ internal static class CompiledProjectileMathVerification
         NoobTubeBehavior.NoobTubeProjectileBehavior pieces = SuperMetroid.Verification.Harness.EnemySystemFixtures.New(
             SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySessionFixtures.WithInstalledServices(),
             SuperMetroid.Core.World.RoomEnemyCompatibilityFixtures.ForNewRoom()).NoobTubeBehavior.TubePieces;
-        var arc = new Action<NoobTubeDebrisState, int>((projectile, swaySteps) => NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc(pieces, projectile, swaySteps));
+        var arc = new Action<EnemyProjectile, int>((projectile, swaySteps) => NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc(pieces, projectile, swaySteps));
         var crocomire = new Func<byte, PixelVelocity<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(AimAngleConstants.FromClockwiseSteps(bearing)));
         var echo = new Func<RotationAngle, int, Offset16<RoomPixels>>(SamusShinesparkState.OffsetAlong);
 
@@ -121,7 +121,8 @@ internal static class CompiledProjectileMathVerification
             uint expected = unchecked(initial + (uint)(velocity * 256));
             var debris = new NoobTubeDebrisState(column: 0) { X = SixteenSixteenWords.ToCoordinate(initial) };
             debris.StartSway(RotationAngleConstants2.FromHalfSteps(phase));
-            arc(debris, swaySteps);
+            pieces.Pieces.Start(projectile, debris);
+            arc(projectile, swaySteps);
             var after = new NoobTubeDebrisState(column: 0);
             after.StartSway(RotationAngleConstants2.FromHalfSteps((phase + 2 * swaySteps) % 512));
             if (debris.X.Whole != SixteenSixteenWords.WholeOf(expected) || debris.X.Fraction != SixteenSixteenWords.FractionOf(expected) ||

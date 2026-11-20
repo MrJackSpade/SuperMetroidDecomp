@@ -23,8 +23,8 @@ public static class ChargeFlarePlacementExtractor
             int row = SamusProjectileDirectionCodec.FlarePlacementRow(placement.Aim);
             offsets.Add(ChargeFlarePlacementFile.Key(placement), new()
             {
-                X = unchecked((short)RomDataReader.ReadWordFixedBank(bus, x + row * 2)),
-                Y = unchecked((short)RomDataReader.ReadWordFixedBank(bus, y + row * 2)),
+                X = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), x + row * 2)),
+                Y = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), y + row * 2)),
             });
         }
         return ChargeFlarePlacementFile.Write(new() { Version = ChargeFlarePlacementFile.Version, Offsets = offsets });

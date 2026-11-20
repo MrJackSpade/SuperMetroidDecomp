@@ -82,7 +82,8 @@ public sealed class GameOverSourcePresentation
         try
         {
             document = JsonAssetDocument.Read<GameOverPresentationDocument>(
-                bytes, ArtworkJson.Options);
+                bytes, ArtworkJson.Options) ??
+                throw new InvalidDataException("Game-over presentation document is null.");
         }
         catch (JsonException error)
         {
@@ -116,15 +117,8 @@ public sealed class GameOverSourcePresentation
         var tilemap = new BackgroundTile[GameOverPageDefinitions.TilemapCellCount];
         for (int index = 0; index < document.Tilemap.Length; index++)
         {
-            MapPresentationCell? cell = document.Tilemap[index];
-            if (cell is null ||
-                (uint)cell.TileColumn >= MapTileAtlasFormat.TileColumns ||
-                (uint)cell.TileRow >= MapPresentationFormat.AtlasRows ||
-                (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
-                throw new InvalidDataException(
-                    $"Game-over tilemap cell {index} has an invalid atlas coordinate or palette.");
-            tilemap[index] = new BackgroundTile(cell.TileRow * MapTileAtlasFormat.TileColumns + cell.TileColumn, cell.Palette,
-                cell.FlipX, cell.FlipY, cell.Priority);
+            tilemap[index] = document.Tilemap[index]?.Placement(MapTileAtlasFormat.TileColumns, MapTileAtlasFormat.TileRows)
+                ?? throw new InvalidDataException($"Game-over tilemap cell {index} has an invalid atlas coordinate or palette.");
         }
 
         var babySprites = Enum.GetValues<GameOverBabyFrame>().ToDictionary(frame => frame,

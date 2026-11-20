@@ -80,10 +80,11 @@ internal sealed class ProjectileTrails
         side.Animation = ProjectileTrailSparkleAnimations.Start(segment);
 
     /// <summary>
-    /// The frame a trail starts from <paramref name="projectile"/> at: the frame its animation last showed, or null while it
-    /// shows none, before its animation has shown one or once it has ended.
+    /// The frame a trail starts from <paramref name="projectile"/> at: the frame its animation last showed, or null before
+    /// its animation has shown one.
     /// </summary>
-    private static SamusProjectileFrameId? GetTrailFrame(SamusProjectile projectile) => projectile.Animation?.Shown;
+    private static SamusProjectileFrameId? GetTrailFrame(SamusProjectile projectile) =>
+        (projectile.Animation ?? throw new InvalidOperationException("A trail read the frame of an inactive projectile.")).Shown;
 
     /// <summary>
     /// Advances every trail one update, left sparkle before right, unless time is frozen, and removes the trails whose

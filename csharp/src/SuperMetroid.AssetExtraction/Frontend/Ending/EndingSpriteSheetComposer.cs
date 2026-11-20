@@ -64,7 +64,7 @@ internal static class EndingSpriteSheetComposer
                 string name = EndingShootingStarFrames.SheetFrameName(frame);
                 return new ColouredFrame<EndingSpriteColouring>(new SheetFrameSource(name,
                     new SpriteFrame(name, [EndingShootingStarParts.Appearance(frame).ToFramePart(0, sizes)]), characters, stars),
-                    [EndingShootingStarDefinitions.Colouring]);
+                    EndingShootingStarDefinitions.Colouring, [EndingShootingStarDefinitions.Colouring]);
             }));
         }
         ColouringPictures<EndingSpriteColouring> pictures = ColouringPictures<EndingSpriteColouring>.Of(frames, EndingScreenInks.SpriteSet);
@@ -130,7 +130,7 @@ internal static class EndingSpriteSheetComposer
             string name = CinematicSpriteSheet.FrameName(family.Family, pose);
             EndingSpriteColouring[] colourings = [.. poses[pose]];
             frames.Add(new ColouredFrame<EndingSpriteColouring>(
-                new SheetFrameSource(name, composition.ToFrame(name, 0, sizes), characters, EndingScreenInks.SpriteSet(colourings[0])), colourings));
+                new SheetFrameSource(name, composition.ToFrame(name, 0, sizes), characters, EndingScreenInks.SpriteSet(colourings[0])), colourings[0], colourings));
         }
         if (family.Family != EndingTextAnimations.Family)
             return;
@@ -149,7 +149,7 @@ internal static class EndingSpriteSheetComposer
                     continue;
                 }
                 frames.Add(new ColouredFrame<EndingSpriteColouring>(new SheetFrameSource(name, new SpriteFrame(name, [.. letters[letter]]), characters,
-                    EndingScreenInks.SpriteSet(colourings[0])), [.. colourings]));
+                    EndingScreenInks.SpriteSet(colourings[0])), colourings[0], [.. colourings]));
             }
         }
     }
@@ -193,8 +193,8 @@ internal static class EndingSpriteSheetComposer
     /// <summary>The transfers that give the logo its characters: the post-credits art, then every post-shot part.</summary>
     private static IReadOnlyList<EndingTransfer> LogoTransfers =>
     [
-        new EndingTransfer.CreditsCharacterArt(),
-        .. Enumerable.Range(0, EndingPostShotUploadDefinitions.Count).Select(index => new EndingTransfer.PostShotPart(index)),
+        new EndingSheetTransfer(EndingTransferKind.CreditsCharacterArt),
+        .. EndingPostShotUploads.InOrder.Select(part => new EndingPostShotPartTransfer(part)),
     ];
 
     /// <summary>The page ending sheet <paramref name="sheet"/> shows.</summary>
@@ -202,13 +202,13 @@ internal static class EndingSpriteSheetComposer
     {
         return sheet switch
         {
-            SpriteSheetId.EndingCloudSprites => new([new EndingSheetTransfer.EscapeClouds()],
+            SpriteSheetId.EndingCloudSprites => new([new EndingSheetTransfer(EndingTransferKind.EscapeClouds)],
                 [CinematicSpriteFamily.EndingCloud], Logo: false, EscapeColours),
             SpriteSheetId.EndingExplosionSprites => new(
                 [
-                    new EndingTransfer.ExplosionObjects(),
-                    .. EndingObjectArtworkFormat.ExplosionPictures.Select(fragment => new EndingTransfer.ExplosionMap(fragment)),
-                    new EndingTransfer.EndingFont(),
+                    new EndingSheetTransfer(EndingTransferKind.ExplosionObjects),
+                    .. EndingObjectArtworkFormat.ExplosionPictures.Select(fragment => new EndingExplosionMapTransfer(fragment)),
+                    new EndingSheetTransfer(EndingTransferKind.EndingFont),
                 ],
                 [CinematicSpriteFamily.EndingExplosion, CinematicSpriteFamily.EndingCompletionText, CinematicSpriteFamily.EndingAnimalEscape], Logo: false,
                 palettes => SpritesOf(palettes, EndingPaletteId.Explosion)),
@@ -249,7 +249,7 @@ internal static class EndingSpriteSheetComposer
 
     /// <summary>The post-credits reward page of an ending of <paramref name="reward"/>.</summary>
     private static EndingPage Reward(EndingReward reward) => new(
-        [new EndingSheetTransfer.CreditsCharacterArt(), new EndingRewardCharactersTransfer(reward)],
+        [new EndingSheetTransfer(EndingTransferKind.CreditsCharacterArt), new EndingRewardCharactersTransfer(reward)],
         [CinematicSpriteFamily.EndingReward], Logo: false, PostCreditsColours);
 
     /// <summary>
@@ -257,7 +257,7 @@ internal static class EndingSpriteSheetComposer
     /// the scene ends on over its own characters. The reward's characters lie outside this page, so it dresses none.
     /// </summary>
     private static EndingPage Shooting => new(
-        [new EndingSheetTransfer.CreditsCharacterArt()], [CinematicSpriteFamily.EndingReward], Logo: true, PostCreditsColours);
+        [new EndingSheetTransfer(EndingTransferKind.CreditsCharacterArt)], [CinematicSpriteFamily.EndingReward], Logo: true, PostCreditsColours);
 
     /// <summary>The escape scenes' sprite colours.</summary>
     private static RgbColor[] EscapeColours(EndingPaletteSet palettes) => SpritesOf(palettes, EndingPaletteId.Escape);

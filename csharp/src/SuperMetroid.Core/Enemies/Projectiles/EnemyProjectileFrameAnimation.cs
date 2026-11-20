@@ -12,41 +12,9 @@ internal abstract class EnemyProjectileFrameAnimation<TSegment, TEvent> : EnemyP
     where TSegment : struct
     where TEvent : notnull
 {
-    /// <summary>Starts <paramref name="animation"/> before its first play, its cues carried out by <paramref name="cues"/>.</summary>
-    /// <param name="animation">The animation.</param>
-    /// <param name="cues">The behaviour that owns the animation's cues.</param>
-    private protected EnemyProjectileFrameAnimation(Animation<TSegment> animation, IEnemyProjectileCues<TEvent> cues)
+    /// <summary>Starts <paramref name="animation"/> before its first play, its events carried out by <paramref name="cues"/>.</summary>
+    private protected EnemyProjectileFrameAnimation(Animation<TSegment> animation, EnemyProjectileCueRunner<TSegment, TEvent> cues)
         : base(animation, cues)
-    {
-    }
-
-    /// <summary>
-    /// Starts <paramref name="animation"/> before its first play, its cues carried out by <paramref name="cues"/>, whose
-    /// reactions may continue the play elsewhere.
-    /// </summary>
-    /// <param name="animation">The animation.</param>
-    /// <param name="cues">The behaviour that owns the animation's cues.</param>
-    private protected EnemyProjectileFrameAnimation(Animation<TSegment> animation, IEnemyProjectileBranchingCues<TSegment, TEvent> cues)
-        : base(animation, cues)
-    {
-    }
-
-    /// <summary>
-    /// Starts <paramref name="animation"/> before its first play, its cues carried out by <paramref name="cues"/>, whose
-    /// reactions may hand the play over to another family's animation.
-    /// </summary>
-    /// <param name="animation">The animation.</param>
-    /// <param name="cues">The behaviour that owns the animation's cues.</param>
-    private protected EnemyProjectileFrameAnimation(Animation<TSegment> animation, IEnemyProjectileHandingOverCues<TEvent> cues)
-        : base(animation, cues)
-    {
-    }
-
-    /// <summary>Starts <paramref name="animation"/> before its first play, its cues carried out by <paramref name="runCue"/>.</summary>
-    /// <param name="animation">The animation.</param>
-    /// <param name="runCue">Carries out each of the animation's cues.</param>
-    private protected EnemyProjectileFrameAnimation(Animation<TSegment> animation, EnemyProjectileCueRunner<TSegment, TEvent> runCue)
-        : base(animation, runCue)
     {
     }
 

@@ -22,7 +22,7 @@ internal static class AudioUploadCatalogVerification
                 continue;
             }
             int address = 0x8fe7e1 + index;
-            int pointer = (rom.ReadCartridgeLong(address));
+            int pointer = (CartridgeImportSource.Require(rom).ReadCartridgeLong(address));
             var actual = AudioAssetCatalogDefinitions.ResolveDataIndex((byte)index);
             AssertEqual(pointer, actual.SnesAddress, "original upload pointer");
             AssertEqual((byte)index, actual.DataIndex, "native byte offset identity");

@@ -28,7 +28,7 @@ public sealed class CeresDepartureState
     private readonly ScreenFade fade = new(DisplayBrightness.Full);
 
     /// <summary>The screen's brightness during the blackout, from full down to black.</summary>
-    public int Brightness => fade.Level;
+    public DisplayBrightness Brightness => fade.Level;
 
     /// <summary>Begins the departure when Samus reaches the elevator, as the Ceres room asks.</summary>
     /// <exception cref="InvalidOperationException">The departure has already begun or completed; a state instance admits the sequence only once.</exception>

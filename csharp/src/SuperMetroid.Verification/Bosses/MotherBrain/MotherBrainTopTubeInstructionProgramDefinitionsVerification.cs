@@ -32,7 +32,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         {
             InstructionMechanicsWord definition =
                 MotherBrainTopTubeInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            ushort native = rom.ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
             AssertEqual(definition.Value, native,
                 $"Mother Brain ceiling-tube mechanics word $86:{definition.Address:X4}");
         }
@@ -42,7 +42,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         var executedOperands = new HashSet<ushort>();
         var guard = NewMotherBrainTopTubeInstructionReadGuard(rom);
         Func<EnemyProjectileAnimation, ushort?> nativePointers =
-            MotherBrainTopTubeNativeListAddresses.Family.NativePointers(rom);
+            MotherBrainTopTubeNativeListAddresses.Family.NativePointers(CartridgeImportSource.Require(rom));
 
         foreach (TopTubeLaunchCase item in
                  new TopTubeLaunchCase[]
@@ -63,7 +63,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         {
             RoomEnemySystem enemies = NewSystem();
             // The collapse step names the pose its spawn falls in, the one the kind's spawn starts.
-            MotherBrainTopTubeSegment pose = FamilyProjectileStarts.StartingAnimation(FamilyProjectileStarts.BehaviorOf(enemies, enemies.Projectiles.ProjectileInPlace(0), item.Kind), item.Kind)?.Invoke(enemies) is MotherBrainTopTubeAnimation started
+            MotherBrainTopTubeSegment pose = FamilyProjectileStarts.StartingAnimation(item.Kind)?.Invoke(enemies) is MotherBrainTopTubeAnimation started
                 ? started.PlayingSegment
                 : throw new InvalidOperationException($"{item.Kind} is not a top tube.");
             enemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainTopTube(item.Kind, pose, new Position16<RoomPixels>(item.X, item.Y));

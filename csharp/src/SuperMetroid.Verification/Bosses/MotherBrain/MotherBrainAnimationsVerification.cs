@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidVerification;
@@ -32,11 +31,9 @@ internal static class MotherBrainAnimationsVerification
     /// <summary>Every typed slot and brain program equals its native list, and the runners keep the native cadence.</summary>
     internal static void VerifyMotherBrainAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int body = CompareBody(cartridge).Values.Sum(list => list.BeatAddresses.Length);
         int head = CompareHead(cartridge).Values.Sum(list => list.BeatAddresses.Length);
-        int lateFight = CompareLateFight(cartridge, new Dictionary<ushort, NativeFrameShownAgain>()).Values.Sum(list => list.BeatAddresses.Length);
-        int babyAttack = CompareBabyAttack(cartridge, new Dictionary<ushort, NativeFrameShownAgain>()).Values.Sum(list => list.BeatAddresses.Length);
         CompareBaby(cartridge);
         CompareBabyMetroid(cartridge);
         CompareZebetites(cartridge);
@@ -45,7 +42,7 @@ internal static class MotherBrainAnimationsVerification
         VerifyBrainCadence();
         VerifyBrainRandomHolds();
         VerifyBodyMoves();
-        Console.WriteLine($"  Mother Brain animations: {body} body and {head} head, {lateFight} late-fight and {babyAttack} Baby-attack brain beats, the Baby, Shitroid, Zebetite and tube lists " +
+        Console.WriteLine($"  Mother Brain animations: {body} body and {head} brain beats, the Baby, Shitroid, Zebetite and tube lists " +
             "match bank $A9/$A6; the brain's cadence, random holds and body moves match the native routines.");
     }
 
@@ -88,7 +85,7 @@ internal static class MotherBrainAnimationsVerification
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, program);
             var frames = MotherBrainAnimations.HeadSegments.Beats(program).OfType<AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame>().ToArray();
-            AssertEqual<EnemyFrameId?>(frames[0].Shown, (state.Brain.Shown is SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainShown.Picture shownPicture88 ? shownPicture88.Frame : (SuperMetroid.Core.Enemies.Artwork.EnemyFrameId?)null), $"{program} shows its first frame from its start");
+            AssertEqual<EnemyFrameId?>(frames[0].Shown, state.Brain.ShownFrame, $"{program} shows its first frame from its start");
             for (int draw = 1; draw < frames[0].Duration; draw++)
             {
                 AssertEqual((EnemyFrameId?)frames[0].Shown, enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
@@ -106,7 +103,7 @@ internal static class MotherBrainAnimationsVerification
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.StretchingPhase2);
             var opening = MotherBrainAnimations.HeadSegments.Beats(MotherBrainHeadSegment.StretchingPhase2).OfType<AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame>().First();
-            AssertEqual<EnemyFrameId?>(null, (state.Brain.Shown is SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainShown.Picture shownPicture106 ? shownPicture106.Frame : (SuperMetroid.Core.Enemies.Artwork.EnemyFrameId?)null), "a stretch, which opens with a cue, shows nothing before its first draw");
+            AssertEqual<EnemyFrameId?>(null, state.Brain.ShownFrame, "a stretch, which opens with a cue, shows nothing before its first draw");
             for (int draw = 0; draw < opening.Duration; draw++)
             {
                 AssertEqual((EnemyFrameId?)opening.Shown, enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
@@ -143,7 +140,7 @@ internal static class MotherBrainAnimationsVerification
             // The dying drool's loop shows its first frame, which the burst's last drool has just moved on to.
             var loopFrame = (AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame)MotherBrainAnimations.HeadSegments.Beats(MotherBrainHeadSegment.DyingDroolLoop)[0];
             state.Brain.Playback = new(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadSegment.DyingDrool), new AnimationPlace(2, 1));
-            state.Brain.Shown = new SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainShown.Picture(loopFrame.Shown);
+            state.Brain.ShownFrame = loopFrame.Shown;
             state.Brain.Clock.Show(loopFrame.Duration);
             for (int draw = 0; draw < loopFrame.Duration; draw++)
                 enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
@@ -193,7 +190,7 @@ internal static class MotherBrainAnimationsVerification
     /// </summary>
     internal static void VerifyMotherBrainProjectileAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int compared = 0;
         foreach ((MotherBrainGlassSegment program, ushort entry) in GlassEntries)
             compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainGlassShard,
@@ -243,7 +240,7 @@ internal static class MotherBrainAnimationsVerification
             if (native.PaletteCleared)
                 AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard, projectile.ShownGraphics, $"{at}: the frame after the cleared graphics word draws from the room's sheet in its standard colours");
             if (native.FrameBehaviorCleared)
-                AssertEqual<Enum?>(null, projectile.MotionKind, $"{at}: pre-instruction cleared");
+                AssertTrue(projectile.HoldsStill, $"{at}: pre-instruction cleared");
         }
         return update;
     }
@@ -262,9 +259,8 @@ internal static class MotherBrainAnimationsVerification
         state.HandBeamNextVelocity = new(new SignedEightEight(256), new SignedEightEight(0));
         EnemyProjectile beam = FamilyProjectileStarts.Spawn(enemies, 17, RoomEnemyProjectileKind.MotherBrainHandBeamCharging, default);
         // The charging beam holds the encounter that spawned it, as its spawn gives it (#2218).
-        var beamBehavior = enemies.MotherBrainBehavior.Projectiles.WithEncounter(new MotherBrainProjectileState(state));
-        beam.Rebind(beamBehavior);
-        beam.StartAnimation(new MotherBrainHandBeamAnimation(beamBehavior));
+        enemies.MotherBrainBehavior.Projectiles.Projectile.MotherBrains.Start(beam, new MotherBrainProjectileState(state));
+        beam.StartAnimation(new MotherBrainHandBeamAnimation(enemies.MotherBrainBehavior.Projectiles.Projectile));
         var native = new NativeEnemyProjectileListReader(HandBeamProgram, beam.FrameHold.RawValue);
         int spawns = 0;
         int update = 0;

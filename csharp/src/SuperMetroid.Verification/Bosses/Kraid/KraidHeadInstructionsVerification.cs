@@ -28,7 +28,7 @@ internal static class KraidHeadInstructionsVerification
 
         var unstarted = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
         Func<KraidEnemyState, KraidHeadAnimationResult> run = unstarted.KraidBehavior.Head.RunKraidHeadAnimationStep;
-        AssertThrows<InvalidDataException>(() => run(new KraidEnemyState(KraidPartsAccess.Standalone())),
+        AssertThrows<InvalidDataException>(() => run(new KraidEnemyState(new KraidParts())),
             "an unstarted Kraid head program fails loudly, as an unset native cursor did");
 
         Console.WriteLine(
@@ -38,7 +38,7 @@ internal static class KraidHeadInstructionsVerification
     /// <summary>Executes the head program from every native cursor and checks poses, durations, image uploads, cries and the resting cursor.</summary>
     private static void VerifyProductionInterpreter(CartridgeImportAddressSpace rom)
     {
-        var native = new KraidHeadNativeCursors(rom);
+        var native = new KraidHeadNativeCursors(CartridgeImportSource.Require(rom));
         foreach (KraidHeadNativeRecord record in native.Records)
         {
             var guard = new KraidHeadProgramReadGuard(rom);
@@ -46,7 +46,7 @@ internal static class KraidHeadInstructionsVerification
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             Func<KraidEnemyState, KraidHeadAnimationResult> execute = enemies.KraidBehavior.Head.RunKraidHeadAnimationStep;
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            var state = new KraidEnemyState(KraidPartsAccess.Standalone()) { HeadPlayback = record.Playback };
+            var state = new KraidEnemyState(new KraidParts()) { HeadPlayback = record.Playback };
 
             KraidHeadAnimationResult result = execute(state);
             if (record.IsTerminator)

@@ -126,7 +126,7 @@ internal static class QuicksandVerification
             };
             SignedSixteenSixteen displacement = SignedSixteenSixteen.FromParts(2, 32768);
             SpecialAirCollisionOutcome outcome = SamusInsideBlockReactions.ReactCollision(
-                new(body, body.CollisionBodyAttack(SamusBlockMoveOwner.NewSamus)),
+                new(body, SamusBodyAttack.None),
                 new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() },
                 new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80 + index)),
                 axis: Axis.Vertical,
@@ -176,7 +176,7 @@ internal static class QuicksandVerification
             if (instruction)
             {
                 // The reaction's native list plays as its typed change does (#1554): it ends on its first update.
-                NativeTerrainChanges.Compare(rom, TerrainChange.MadeAtSpawn, native, NativeTerrainChanges.NoSteps,
+                NativeTerrainChanges.Compare(CartridgeImportSource.Require(rom), TerrainChange.MadeAtSpawn, native, NativeTerrainChanges.NoSteps,
                     $"quicksand header {(int)header:X4}", out bool began);
                 AssertTrue(!began, $"quicksand header {(int)header:X4} opens nothing");
             }
@@ -251,7 +251,7 @@ internal static class QuicksandVerification
             };
             SignedSixteenSixteen displacement = SixteenSixteenWords.ToDisplacement(probe);
             SamusInsideBlockReactions.ReactCollision(
-                new(body, body.CollisionBodyAttack(SamusBlockMoveOwner.NewSamus)),
+                new(body, SamusBodyAttack.None),
                 new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() },
                 new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80)),
                 axis: Axis.Vertical,

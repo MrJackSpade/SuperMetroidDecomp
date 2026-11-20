@@ -26,7 +26,7 @@ public readonly record struct FadeLevelColour
     /// The level whose plain value each channel value 0-<see cref="RgbColor.FullChannel"/> is, or none for a value that is
     /// no level's (#1627), so reading a colour's levels costs a look-up a channel.
     /// </summary>
-    private static readonly Dictionary<int, int> LevelByChannel = LevelsByChannel();
+    private static readonly int?[] LevelByChannel = LevelsByChannel();
 
     /// <summary>Makes a colour from its three levels, each 0-<see cref="FullLevel"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">A level is outside 0-<see cref="FullLevel"/>.</exception>
@@ -63,6 +63,14 @@ public readonly record struct FadeLevelColour
 
     /// <summary>The plain colour these levels show: the levels spread evenly over each channel from none to full.</summary>
     public RgbColor ToColour() => new(Shown(Red), Shown(Green), Shown(Blue));
+
+    /// <summary>
+    /// The grey <paramref name="level"/> fade levels above black in every channel: black at zero, white at
+    /// <see cref="FullLevel"/>.
+    /// </summary>
+    /// <param name="level">The grey's fade level, from zero through <see cref="FullLevel"/>.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The level is below black or above white.</exception>
+    public static FadeLevelColour Grey(int level) => new(level, level, level);
 
     /// <summary>
     /// The colour <paramref name="progress"/> of <paramref name="length"/> of the way from <paramref name="from"/> to
@@ -112,7 +120,7 @@ public readonly record struct FadeLevelColour
     /// <exception cref="ArgumentException"><paramref name="channel"/> is not the plain value of a level.</exception>
     private static int LevelOf(int channel, RgbColor colour)
     {
-        return LevelByChannel.TryGetValue(channel, out int level)
+        return LevelByChannel[channel] is int level
             ? level
             : throw new ArgumentException($"{colour} is not a colour of thirty-two levels a channel.", nameof(colour));
     }
@@ -121,9 +129,9 @@ public readonly record struct FadeLevelColour
     private static int Shown(int level) => level * ChannelValuesPerLevel + level / LevelsPerSpread;
 
     /// <summary>Builds <see cref="LevelByChannel"/>: each level at its plain value, every other channel value no level's.</summary>
-    private static Dictionary<int, int> LevelsByChannel()
+    private static int?[] LevelsByChannel()
     {
-        var levels = new Dictionary<int, int>();
+        var levels = new int?[RgbColor.FullChannel + 1];
         for (int level = 0; level <= FullLevel; level++)
             levels[Shown(level)] = level;
         return levels;

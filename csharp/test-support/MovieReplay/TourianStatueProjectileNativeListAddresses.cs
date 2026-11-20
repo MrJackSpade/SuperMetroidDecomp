@@ -21,6 +21,9 @@ internal static class TourianStatueProjectileNativeListAddresses
         new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Particle, TourianStatueProjectileInstructionProgramDefinitions.Particle),
         new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Tail, TourianStatueProjectileInstructionProgramDefinitions.Tail),
         new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Soul, TourianStatueProjectileInstructionProgramDefinitions.Soul),
+        new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.BaseDecoration, TourianStatueProjectileInstructionProgramDefinitionsConstants.BaseDecoration),
+        new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Ridley, TourianStatueProjectileInstructionProgramDefinitionsConstants.Ridley),
+        new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Phantoon, TourianStatueProjectileInstructionProgramDefinitionsConstants.Phantoon),
     ];
 
     /// <summary>$86:B818, the spawn-tail routine the particle's list would run on into once its counter ran out.</summary>
@@ -35,6 +38,7 @@ internal static class TourianStatueProjectileNativeListAddresses
         [(ushort)TourianStatueInstruction.SpawnParticle] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Signal(TourianStatueProjectileCueKind.SpawnParticle)), 0),
         [(ushort)TourianStatueInstruction.SpawnTail] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Signal(TourianStatueProjectileCueKind.SpawnTail)), 0),
         [(ushort)TourianStatueInstruction.AddY] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Of<TourianStatueProjectileCue.MoveDown>(""), 2),
+        [(ushort)NativeEnemyProjectileInstruction.FrameBehaviorInY] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Signal(TourianStatueProjectileCueKind.FollowReveal)), 2),
     };
 
     /// <summary>The oracle rules for the statue projectile programs.</summary>
@@ -51,6 +55,11 @@ internal static class TourianStatueProjectileNativeListAddresses
                     break;
                 case TourianStatueProjectileCue.MoveDown moveDown:
                     VerificationAssertions.AssertEqual((short)(operands[0] | operands[1] << 8), moveDown.Pixels, $"{at}: Y offset");
+                    break;
+                case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.FollowReveal }:
+                    // Setting the reveal-following routine is the cue that starts the base decoration following the reveal.
+                    VerificationAssertions.AssertTrue(EnemyProjectileMotionAccess.StandsFor((ushort)(operands[0] | operands[1] << 8),
+                        TourianStatueDecorationMotion.FollowingReveal), $"{at}: movement");
                     break;
                 case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.Delete } or TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.Earthquake } or TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.SpawnParticle } or TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.SpawnTail }:
                     break;

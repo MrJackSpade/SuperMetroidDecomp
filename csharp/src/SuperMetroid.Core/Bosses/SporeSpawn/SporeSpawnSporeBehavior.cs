@@ -9,46 +9,50 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// deletes itself.
 /// </summary>
 /// <param name="deathsAndDrops">The killed sound and the drop a shot spore leaves.</param>
-/// <param name="drift">What the spore keeps: the way it drifts and where on its path it stands.</param>
-internal sealed class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops, SporeSpawnSporeState drift)
-    : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving), IEnemyProjectileCues<SporeSpawnSporeCue>
+internal sealed class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops)
+    : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving), IEnemyProjectileCues<SporeSpawnProjectileCue>
 {
+    /// <summary>The way each spore drifts and its step along its path, given as its spawner releases it.</summary>
+    internal EnemyProjectileStates<SporeSpawnSporeState> Drifts { get; } = new();
+
     /// <inheritdoc/>
-    internal override EnemyProjectileAnimation ShotAnimation() => new SporeSpawnSporeAnimation(SporeSpawnProjectileSegment.SporeShot, this);
+    internal override EnemyProjectileAnimation ShotAnimation() =>
+        new SporeSpawnProjectileAnimation(this, SporeSpawnProjectileSegment.SporeShot);
 
     /// <summary>Drifts the spore one step along its path.</summary>
     /// <param name="context">The spore and what its pass hands every motion.</param>
     /// <param name="motion">The spore's one motion, its drift.</param>
-    internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) => DriftSpore(context.Projectile, drift);
+    internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) => DriftSpore(context.Projectile);
 
     /// <summary>Carries out a cue of a shot spore's burst: its impact properties, the killed sound, its drop and its deletion.</summary>
-    public void RunCue(EnemyProjectileCueContext context, SporeSpawnSporeCue cue)
+    public void RunCue(EnemyProjectileCueContext context, SporeSpawnProjectileCue cue)
     {
         EnemyProjectile spore = context.Projectile;
         switch (cue)
         {
-            case SporeSpawnSporeCue.SetImpactProperties:
+            case SporeSpawnProjectileCue.SetImpactProperties:
                 SetImpactProperties(spore);
                 return;
-            case SporeSpawnSporeCue.QueueKilledSound:
+            case SporeSpawnProjectileCue.QueueKilledSound:
                 deathsAndDrops.QueueEnemyKilledSound();
                 return;
-            case SporeSpawnSporeCue.RequestDrop:
+            case SporeSpawnProjectileCue.RequestDrop:
                 deathsAndDrops.SpawnEnemyDropFromChanceTable(spore.Position.Whole, SporeSpawnProjectileDefinitions.SporeDropChances, context.Samus);
                 return;
-            case SporeSpawnSporeCue.Delete:
+            case SporeSpawnProjectileCue.Delete:
                 spore.Delete();
                 return;
+            case SporeSpawnProjectileCue.SpawnSpore:
+                throw new InvalidOperationException("A spore's animations release no spores.");
             default:
-                throw new InvalidOperationException($"Undefined {nameof(SporeSpawnSporeCue)} {cue}.");
+                throw new InvalidOperationException($"Undefined {nameof(SporeSpawnProjectileCue)} {cue}.");
         }
     }
 
     /// <summary>Drifts a spore one step along its path, deleting it once it falls below the room.</summary>
-    private void DriftSpore(EnemyProjectile spore, SporeSpawnSporeState drift)
+    private void DriftSpore(EnemyProjectile spore)
     {
-        Ensure.NotNull(spore);
-        Ensure.NotNull(drift);
+        SporeSpawnSporeState drift = Drifts.Of(Ensure.NotNull(spore));
         Offset16<RoomPixels> movement = drift.PathStep.Entry;
         int xDelta = movement.X;
         if (drift.Drift == HorizontalDirection.Left)

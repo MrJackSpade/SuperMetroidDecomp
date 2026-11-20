@@ -21,7 +21,7 @@ internal static class SpcPitchBasisAlgorithmVerification
         for (int note = 0; note <= 12; note++)
         {
             int address = SpcMusicTables.BaseNoteReferenceAddress + note * 2;
-            int original = rom.ReadCartridgeWord(address);
+            int original = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(original, (int)SpcMusicTables.BaseNoteFrequency(note), $"Original pitch basis {note}");
             // Exact rational bounds establish the equal-temperament explanation without libm.
             int steps = Math.Abs(note - 9);

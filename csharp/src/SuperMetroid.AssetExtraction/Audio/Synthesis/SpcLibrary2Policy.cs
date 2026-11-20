@@ -4,11 +4,11 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 internal enum SpcLibrary2Policy
 {
     /// <summary>SPC $3987, nSound2Voices_1_sound2Priority_0.</summary>
-    OneVoiceLowPriority = 0,
+    OneVoiceLowPriority,
     /// <summary>SPC $3992, nSound2Voices_1_sound2Priority_1.</summary>
-    OneVoiceHighPriority = 1,
+    OneVoiceHighPriority,
     /// <summary>SPC $399D, nSound2Voices_2_sound2Priority_0.</summary>
-    TwoVoicesLowPriority = 2,
+    TwoVoicesLowPriority,
     /// <summary>SPC $39A8, nSound2Voices_2_sound2Priority_1.</summary>
-    TwoVoicesHighPriority = 3,
+    TwoVoicesHighPriority,
 }

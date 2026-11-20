@@ -10,34 +10,26 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>The Phantoon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
+internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
         [EnemyDefinitionId.PhantoonBody, EnemyDefinitionId.PhantoonEye, EnemyDefinitionId.PhantoonMouth, EnemyDefinitionId.PhantoonTentacles];
 
-    /// <inheritdoc/>
-    public EnemyDefinitionId HeadDefinition => EnemyDefinitionId.PhantoonBody;
-
-    /// <inheritdoc/>
-    public int PartCount => PhantoonPartListingDefinitions.PartsAfterBody;
-
-    /// <summary>
-    /// Phantoon's body, which heads his eye, tentacles and mouth, listed right after it in that order (#2146, #2252, #2554):
-    /// his body begins the encounter over their places, and each part joins it from its setup.
-    /// </summary>
-    public EnemyPlaced CreateGroup(EnemyGroupPlaces places, EnemyCommonParticipation common)
+    /// <summary>Phantoon's body, eye, tentacles or mouth (#2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no Phantoon definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        RoomEnemyPlace head = Ensure.NotNull(places).Head;
-        IReadOnlyList<RoomEnemyPlace> parts = places.Parts;
-        var body = new PhantoonBodyEntity(this, head, common, _bossArtwork, parts);
-        PhantoonEnemyState phantoon = body.Part.Phantoon;
-        return new EnemyPlaced(body,
-        [
-            (eye, partCommon, _) => new PhantoonEyeEntity(this, eye, partCommon, _bossArtwork, phantoon),
-            (tentacles, partCommon, _) => new PhantoonTentaclesEntity(this, tentacles, partCommon, _bossArtwork, phantoon),
-            (mouth, partCommon, _) => new PhantoonMouthEntity(this, mouth, partCommon, _bossArtwork, phantoon),
-        ]);
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
+        if (definition == EnemyDefinitionId.PhantoonBody)
+            return EnemyOccupant.Of(new PhantoonBodyEntity(this, occupant, place, common, _bossArtwork));
+        if (definition == EnemyDefinitionId.PhantoonEye)
+            return EnemyOccupant.Of(new PhantoonEyeEntity(this, occupant, place, common, _bossArtwork));
+        if (definition == EnemyDefinitionId.PhantoonTentacles)
+            return EnemyOccupant.Of(new PhantoonTentaclesEntity(this, occupant, place, common, _bossArtwork));
+        if (definition == EnemyDefinitionId.PhantoonMouth)
+            return EnemyOccupant.Of(new PhantoonMouthEntity(this, occupant, place, common, _bossArtwork));
+        throw new InvalidOperationException($"The Phantoon species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
@@ -57,7 +49,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
     internal PhantoonCombat Combat { get; }
 
     /// <summary>Phantoon's fades, health colors, wave amplitude and animations, shared by every phase of the fight.</summary>
-    internal PhantoonPresentation Presentation { get; }
+    private PhantoonPresentation Presentation { get; }
 
     /// <summary>Phantoon's attack rounds: figure eights, eye tracking, swoops, flame rain and rage.</summary>
     internal PhantoonPatterns Patterns { get; }
@@ -89,14 +81,16 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
     /// Sets Phantoon's body up when the room spawns it: it begins the encounter with his eye, tentacles and mouth, which
     /// his room lists right after his body (#2252), and holds its part of it.
     /// </summary>
-    internal PhantoonPart InitializePhantoonBody(RoomEnemyPlace body, IReadOnlyList<RoomEnemyPlace> parts)
+    internal void InitializePhantoonBody(RoomEnemyOccupant occupant, RoomEnemyPlace body)
     {
-        var state = new PhantoonEnemyState(body, eye: parts[0], tentacles: parts[1], mouth: parts[2]);
+        var state = new PhantoonEnemyState(occupant, body, eye: Partner(body, EnemyDefinitionId.PhantoonBody, EnemyDefinitionId.PhantoonEye),
+            tentacles: Partner(body, EnemyDefinitionId.PhantoonBody, EnemyDefinitionId.PhantoonTentacles),
+            mouth: Partner(body, EnemyDefinitionId.PhantoonBody, EnemyDefinitionId.PhantoonMouth));
         // The room steps his body wave and visibility and its display latches them from the room from here (#2194).
         _encounters.Attach(state);
 
         // Phantoon shows his body, eye, tentacle and mouth frames on his body (#1353, #1466, #1515), nothing at first.
-        _presentation.AttachBossBody(state.BodyParts);
+        _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Phantoon, state));
         _presentation.BossShadings.Show(BossShadingLayer.Phantoon, state.Colours);
 
         // His body is black as the fight starts, which his later fades start from (#1512).
@@ -107,39 +101,48 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
         state.StartingFlames.Orbiting = false;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         StartPhantoonPart(state.BodyPart);
-        // The body starts asking for no flame rain; no reader consumes it before a phase sets it (#1472).
-        state.NextPattern = PhantoonPatternChoice.FigureEight;
+        body.SetSpeciesState(state.BodyPart);
         // The encounter starts asking to hide his body, with no casual-flame burst, which the fight only starts much later;
         // his parts set up in the same pass, before anything reads either.
         state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Hide;
         state.CasualFlames.NextFlame = null;
-        return state.BodyPart;
     }
 
+    /// <summary>The member of Phantoon's that plays <paramref name="role"/>, as his room lists them (#2252, #2556).</summary>
+    private RoomEnemyPlace Partner(RoomEnemyPlace member, EnemyDefinitionId memberRole, EnemyDefinitionId role) =>
+        _places.Member(member, PhantoonPartListingDefinitions.Listing, memberRole, role);
+
+    /// <summary>The encounter a part playing <paramref name="role"/> joins as it sets up, which his body began (#2252).</summary>
+    private PhantoonEnemyState JoiningEncounter(RoomEnemyPlace part, EnemyDefinitionId role) =>
+        Partner(part, role, EnemyDefinitionId.PhantoonBody).RequireSpeciesState<PhantoonPart>().Phantoon;
+
     /// <summary>Sets Phantoon's eye up, listed right after his body, closed; its start ends any wave.</summary>
-    /// <param name="state">The encounter his body began, which the part joins (#2252).</param>
-    internal static PhantoonPart InitializePhantoonEye(PhantoonEnemyState state)
+    internal void InitializePhantoonEye(RoomEnemyPlace eye)
     {
+        PhantoonEnemyState state = JoiningEncounter(eye, EnemyDefinitionId.PhantoonEye);
         StartPhantoonPart(state.EyePart);
-        state.Wave.Length = null;
-        return state.EyePart;
+        state.Wave.End();
+        JoinPhantoon(state.EyePart);
     }
 
     /// <summary>Sets Phantoon's tentacles up, listed after his eye.</summary>
-    /// <param name="state">The encounter his body began, which the part joins (#2252).</param>
-    internal static PhantoonPart InitializePhantoonTentacles(PhantoonEnemyState state)
+    internal void InitializePhantoonTentacles(RoomEnemyPlace tentacles)
     {
+        PhantoonEnemyState state = JoiningEncounter(tentacles, EnemyDefinitionId.PhantoonTentacles);
         StartPhantoonPart(state.TentaclesPart);
-        return state.TentaclesPart;
+        JoinPhantoon(state.TentaclesPart);
     }
 
     /// <summary>Sets Phantoon's mouth up, listed after his tentacles.</summary>
-    /// <param name="state">The encounter his body began, which the part joins (#2252).</param>
-    internal static PhantoonPart InitializePhantoonMouth(PhantoonEnemyState state)
+    internal void InitializePhantoonMouth(RoomEnemyPlace mouth)
     {
+        PhantoonEnemyState state = JoiningEncounter(mouth, EnemyDefinitionId.PhantoonMouth);
         StartPhantoonPart(state.MouthPart);
-        return state.MouthPart;
+        JoinPhantoon(state.MouthPart);
     }
+
+    /// <summary>Ends a drawing part's setup: the part holds its part of the encounter.</summary>
+    private static void JoinPhantoon(PhantoonPart part) => part.Place.SetSpeciesState(part);
 
     /// <summary>
     /// Gives a drawing part the body's colours and runs the animation it was made playing (#2319), its first step on the
@@ -148,7 +151,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
     private static void StartPhantoonPart(PhantoonPart part)
     {
         RoomEnemyPlace place = part.Place;
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.Restart();
         place.Shading = part.Phantoon.Body.Shading;
     }
@@ -161,110 +164,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
         RoomEnemyPlace body = state.Body;
         PhantoonPhase phase = state.Phase;
 
-        switch (phase)
-        {
-            case PhantoonPhase.SpawnStartingFlames:
-                Opening.RunPhantoonStartingFlameSpawner(state);
-                break;
-            case PhantoonPhase.WaitBeforeActivatingStartingFlames:
-                PhantoonOpening.RunPhantoonStartingFlamePause(state);
-                break;
-            case PhantoonPhase.WaitForStartingFlamesToDisappear:
-                Opening.RunPhantoonStartingFlameOrbitWait(state);
-                break;
-            case PhantoonPhase.WavyFadeIn:
-                Opening.RunPhantoonWavyFadeIn(body, state);
-                break;
-            case PhantoonPhase.PickFirstRoundPattern:
-                Patterns.RunPhantoonPickFirstRoundPattern(state);
-                break;
-            case PhantoonPhase.MoveInFigureEightThenOpenEye:
-                Patterns.RunPhantoonFirstRoundFigureEight(body, state);
-                break;
-            case PhantoonPhase.EyeTracksSamus:
-                PhantoonPatterns.RunPhantoonEyeTracking(body, state, samus);
-                break;
-            case PhantoonPhase.BecomeSolidAndSwoop:
-                PhantoonPatterns.BeginPhantoonVulnerableSwoop(body, state, samus);
-                break;
-            case PhantoonPhase.Swooping:
-                PhantoonPatterns.RunPhantoonSwoop(body, state, samus);
-                break;
-            case PhantoonPhase.FadeOutWhileSwooping:
-                Patterns.RunPhantoonFadeOutWhileSwooping(
-                    body,
-                    state,
-                    samus);
-                break;
-            case PhantoonPhase.WaitAfterFadeOut:
-                PhantoonPatterns.RunPhantoonHiddenWait(state);
-                break;
-            case PhantoonPhase.PickNextAppearance:
-                Patterns.PlacePhantoonForNextFigureEight(body, state);
-                break;
-            case PhantoonPhase.FadeInBeforeFigureEight:
-                Patterns.RunPhantoonFadeInBeforeFigureEight(body, state);
-                break;
-            case PhantoonPhase.BecomeSolidAfterFlameRain:
-                PhantoonPatterns.BeginPhantoonFlameRainVulnerableWindow(state);
-                break;
-            case PhantoonPhase.FadeInDuringFlameRain:
-                Patterns.RunPhantoonFlameRainFadeIn(body, state);
-                break;
-            case PhantoonPhase.TrackSamusDuringFlameRain:
-                PhantoonPatterns.RunPhantoonFlameRainVulnerableWindow(body, state);
-                break;
-            case PhantoonPhase.FadeOutDuringFlameRain:
-                Patterns.RunPhantoonFlameRainFadeOut(state);
-                break;
-            case PhantoonPhase.SpawnFlameRain:
-                Patterns.RunPhantoonHiddenFlameRain(body, state);
-                break;
-            case PhantoonPhase.FadeOutBeforeFirstFlameRain:
-                Patterns.RunPhantoonInitialFlameRain(body, state);
-                break;
-            case PhantoonPhase.FadeOutBeforeRage:
-                Patterns.RunPhantoonFadeOutBeforeRage(state);
-                break;
-            case PhantoonPhase.MoveToTopCenterForRage:
-                PhantoonPatterns.RunPhantoonRageHiddenWait(body, state);
-                break;
-            case PhantoonPhase.FadeInForRage:
-                Patterns.RunPhantoonRageFadeIn(body, state);
-                break;
-            case PhantoonPhase.Enraged:
-                Patterns.RunPhantoonRage(state);
-                break;
-            case PhantoonPhase.FadeOutAfterRage:
-                Patterns.RunPhantoonRageFadeOut(state);
-                break;
-            case PhantoonPhase.FinishFatalSwoop:
-                PhantoonDeath.RunPhantoonFatalSwoop(body, state, samus);
-                break;
-            case PhantoonPhase.DyingFadeInOut:
-                Death.RunPhantoonDyingFadeCycles(body, state);
-                break;
-            case PhantoonPhase.DyingExplosions:
-                Death.RunPhantoonDyingExplosions(body, state);
-                break;
-            case PhantoonPhase.BeginFinalWavyDeath:
-                Death.BeginPhantoonWavyPixelatedDeath(state);
-                break;
-            case PhantoonPhase.DyingFadeOut:
-                Death.RunPhantoonWavyPixelatedDeath(state);
-                break;
-            case PhantoonPhase.AlmostDead:
-                PhantoonDeath.ClearPhantoonDeathGraphics(state);
-                break;
-            case PhantoonPhase.Dead:
-                Death.ActivateWreckedShipAfterPhantoon(body, state, samus);
-                break;
-            case PhantoonPhase.WaitingOnEye:
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Phantoon has no behaviour for phase {state.Phase}.");
-        }
+        phase.Run(this, state, samus);
 
         // The three drawing parts follow the body to its new place, except on the update the almost-dead phase runs.
         if (phase == PhantoonPhase.AlmostDead)
@@ -300,7 +200,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
     }
 
     /// <summary>Shows his body in the colours of his health band.</summary>
-    internal static void ShowPhantoonHealthColours(PhantoonEnemyState state) =>
+    private static void ShowPhantoonHealthColours(PhantoonEnemyState state) =>
         state.Colours.Show(PhantoonBodyLook.Health(PhantoonPresentation.HealthBand(state.Body)));
 
     /// <summary>
@@ -325,7 +225,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
     }
 
     /// <summary>Carries out one cue of a Phantoon part animation.</summary>
-    internal void ApplyPhantoonPartCue(
+    private void ApplyPhantoonPartCue(
         PhantoonEnemyState state,
         PhantoonPartCue cue)
     {
@@ -338,8 +238,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
 
             case PhantoonPartCue.BeginEyeTracking:
                 BeginPhantoonEyeTracking(state);
-                // The advance resumes its own cursor after the cue, so the animation's hold overwrites the
-                // eye animation this installs, as a rest does; the body's animation survives.
+                // The eye shows its tracking animation from the next update; the body keeps its own animation.
                 return;
 
             case PhantoonPartCue.PickNewPattern:
@@ -347,7 +246,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
                 return;
 
             case PhantoonPartCue.SpawnCasualFlame:
-                Patterns.SpawnPhantoonCasualFlame(state.Body);
+                Patterns.SpawnPhantoonCasualFlame(state.BodyOccupant, state.Body);
                 _audio.QueueEnemySound(PhantoonSoundDefinitions.CasualFlame, PhantoonSoundDefinitions.CasualFlamePriority);
                 return;
 
@@ -357,7 +256,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
     }
 
     /// <summary>Starts the eye's Samus-tracking animation for the current attack phase.</summary>
-    internal void BeginPhantoonEyeTracking(PhantoonEnemyState state)
+    private void BeginPhantoonEyeTracking(PhantoonEnemyState state)
     {
         state.WindowEnd = PhantoonWindowEnd.EyeCloses;
         RoomEnemyPlace body = state.Body;

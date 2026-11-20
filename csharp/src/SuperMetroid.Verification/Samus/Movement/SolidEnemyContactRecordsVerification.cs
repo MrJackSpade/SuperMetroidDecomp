@@ -93,9 +93,9 @@ internal static class SolidEnemyContactRecordsVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.ThreeMusketeers);
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         RoomEnemyPlace replaced = runtime.Enemies.Places.InUpdateOrder[10];
         foreach (SamusCollisionDirection direction in ContactDirections)
             samus.Kinematics.RecordSolidEnemyCollision(direction, replaced);

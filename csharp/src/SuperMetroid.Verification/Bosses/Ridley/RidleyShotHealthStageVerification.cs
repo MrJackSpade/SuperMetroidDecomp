@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Verification.Samus.Projectiles;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
@@ -30,13 +29,13 @@ internal static class RidleyShotHealthStageVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
-        SamusState samus = runtime.Player.Samus;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.LockOutPlayer();
         RoomEnemyPlace ridley = runtime.Enemies.Places.InUpdateOrder[0];
         AssertEqual(EnemyDefinitionId.Ridley, ridley.Occupant?.DefinitionId, "slot zero is Norfair Ridley");
-        var state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<NorfairRidleyEntity>(ridley).Encounter;
+        var state = ridley.RequireSpeciesState<NorfairRidleyState>();
 
         // Native update 56046: Ridley on frame $E983, both Super Missile slots on his body.
         ridley.Position = ridley.Position.WithWhole(new(0x00a4, 0x0148));

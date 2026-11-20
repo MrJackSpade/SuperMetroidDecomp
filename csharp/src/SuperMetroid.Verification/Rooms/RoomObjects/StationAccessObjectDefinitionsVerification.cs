@@ -62,15 +62,15 @@ internal static class StationAccessObjectDefinitionsVerification
             AssertTrue(decodes, $"Station access BTS ${raw:X2} decodes");
             AssertEqual(NativeOrder[raw - 0x47], access, "Station access original enumeration order");
             StationAccessObjectDefinition selected = StationAccessObjectDefinitions.Arms[access];
-            ushort header = rom.ReadCartridgeWord((0x9491c7 + (raw - 0x47) * 2));
-            ushort program = rom.ReadCartridgeWord((0x840000 | (header + 2)));
+            ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x9491c7 + (raw - 0x47) * 2));
+            ushort program = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (header + 2)));
             if (field >= 2)
             {
                 bool extended = field == 3;
                 // Map lists start with a packed three-byte sound command. Resource
                 // lists first have a four-byte full-resource branch, then the sound.
                 int operand = program + (raw <= 0x48 ? 5 : 9) + (extended ? 4 : 0);
-                ushort expected = rom.ReadCartridgeWord((0x840000 | operand));
+                ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | operand));
                 AssertEqual(expected, RoomObjectDrawAddressCodec.Of(StationObjectDraws.Family.Of(extended ? selected.Extended : selected.Retracted)),
                     "Station native access draw operand");
                 AssertEqual(expected, RoomObjectDrawAddressCodec.Of(StationObjectDraws.Family.Of(extended ? selected.Extended : selected.Retracted)), "Station public phase selection");

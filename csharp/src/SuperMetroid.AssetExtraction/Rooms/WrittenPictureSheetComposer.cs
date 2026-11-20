@@ -164,7 +164,7 @@ internal static class WrittenPictureSheetComposer
     /// <exception cref="InvalidDataException">No room of the tileset records what BG3 shows over.</exception>
     private static WrittenOptions Bg3Options(TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads) =>
         new(new AppearanceOptions(uploads.Bg3Options), BgCharacterSet.Layer3, [],
-            uploads.Bg3Content);
+            uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."));
 
     /// <summary>
     /// The pictures effect <paramref name="type"/> shows of its transfer <paramref name="words"/> (#1706): a liquid's surface
@@ -190,8 +190,13 @@ internal static class WrittenPictureSheetComposer
         ];
     }
 
-    /// <summary>The name of the part holding shelf <paramref name="shelf"/> of the HUD's images.</summary>
-    private static string HudShelfName(int shelf) => $"HudShelf{shelf}";
+    /// <summary>
+    /// The name of the part holding shelf <paramref name="shelf"/> of <paramref name="hud"/>'s images, named for the first
+    /// image it holds (#2556), which no other shelf holds.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The shelf holds no image.</exception>
+    private static string HudShelfName(HudSheetLayout hud, int shelf) =>
+        $"HudImagesFrom.{(hud.Placements.FirstOrDefault(placed => placed.Shelf == shelf) ?? throw new InvalidOperationException($"HUD shelf {shelf} holds no image.")).Image.Image.FrameName}";
 
     /// <summary>Each shelf of <paramref name="hud"/>'s images as a fixed part: each image's tiles at its place on the shelf.</summary>
     private static IEnumerable<WrittenSubject> HudShelves(HudSheetLayout hud)
@@ -211,13 +216,13 @@ internal static class WrittenPictureSheetComposer
                         new SnesBgTilemapWord(BackgroundTileWords.ToWord(image.Tiles[row * image.Size.X + column]))));
                 }
             }
-            yield return new WrittenSubject(HudShelfName(shelf), [.. words]);
+            yield return new WrittenSubject(HudShelfName(hud, shelf), [.. words]);
         }
     }
 
     /// <summary>The frame of each of <paramref name="hud"/>'s images, within its shelf's part.</summary>
     private static IEnumerable<PartFrame> HudFrames(HudSheetLayout hud) =>
-        hud.Placements.Select(placed => new PartFrame(placed.Image.Image.FrameName, HudShelfName(placed.Shelf),
+        hud.Placements.Select(placed => new PartFrame(placed.Image.Image.FrameName, HudShelfName(hud, placed.Shelf),
             HudImageSheet.Pixels(placed.Cell), HudImageSheet.Pixels(placed.Image.Size)));
 
     /// <summary>
@@ -252,9 +257,7 @@ internal static class WrittenPictureSheetComposer
                 if (!RoomAppearanceComposition.InputsOver(options.Set, [character], options.Options).IsEmpty)
                     throw new InvalidDataException($"{sheetName} part {part.Name} reads {options.Set} character {character}, which a room can show other artwork at.");
             }
-            if (!TryShown(part, part.Name, [], [], out ShownPicture? fixedPicture))
-                throw new InvalidDataException($"{sheetName} part {part.Name} reads a character its room loads nothing over.");
-            pictures.Add(fixedPicture);
+            pictures.Add(Shown(part, part.Name, [], []) ?? throw new InvalidDataException($"{sheetName} part {part.Name} reads a character its room loads nothing over."));
         }
         var inputsOf = new Dictionary<string, ImmutableArray<AppearanceInput>>(StringComparer.Ordinal);
         // Each subject's pictures are installed as their two parts (#1634); the fixed parts and the frames cut from them, the
@@ -269,7 +272,8 @@ internal static class WrittenPictureSheetComposer
             foreach (string[] values in RoomAppearanceComposition.Assignments(depends, options.Options, withLoaded: true))
             {
                 bool loaded = values.All(value => value == RoomAppearanceValues.Loaded);
-                if (TryShown(subject, AppearancePictureNames.Of(subject.Name, depends, values), depends, values, out ShownPicture? shown))
+                ShownPicture? shown = Shown(subject, AppearancePictureNames.Of(subject.Name, depends, values), depends, values);
+                if (shown is not null)
                 {
                     pictures.Add(shown);
                     split.Add(shown.Name);
@@ -317,11 +321,9 @@ internal static class WrittenPictureSheetComposer
         return new ComposedPictures(canvas.ToSplitRoomSheet(colours, frames, split, kind, keepsEmpty: true), inputsOf);
 
         // `subject`'s words as they show while `depends` take `values`, named `name`, laid from its top-left written tile;
-        // none where a word's character shows nothing for them.
-        bool TryShown(WrittenSubject subject, string name, ImmutableArray<AppearanceInput> depends, string[] values,
-            [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out ShownPicture? picture)
+        // null where a word's character shows nothing for them.
+        ShownPicture? Shown(WrittenSubject subject, string name, ImmutableArray<AppearanceInput> depends, string[] values)
         {
-            picture = null;
             int left = subject.Words.Min(word => word.Corner.X), top = subject.Words.Min(word => word.Corner.Y);
             int right = subject.Words.Max(word => word.Corner.X), bottom = subject.Words.Max(word => word.Corner.Y);
             var origin = new Position16<ImagePixels>(left, top);
@@ -331,11 +333,10 @@ internal static class WrittenPictureSheetComposer
                 SnesBgTilemapWord word = written.Word;
                 if (!RoomAppearanceComposition.TryShowing(new CharacterSpan(options.Set, word.CharacterIndex, 1), depends, values,
                         options.Options, content, out BgArtworkShown shown))
-                    return false;
+                    return null;
                 words.Add(new PictureWord(written.Corner - origin, new ShownWord(word, shown)));
             }
-            picture = new ShownPicture(name, new(right - left + TilePixels, bottom - top + TilePixels), words, subject.Origin);
-            return true;
+            return new ShownPicture(name, new(right - left + TilePixels, bottom - top + TilePixels), words, subject.Origin);
         }
 
         void Paint(Position16<ImagePixels> corner, ShownWord word)
@@ -394,12 +395,15 @@ internal static class WrittenPictureSheetComposer
     /// <exception cref="InvalidDataException">The installed area artwork has no Ceres warning pages, or a page runs past its row.</exception>
     private static IEnumerable<WrittenSubject> CeresWarningPages(RoomBlockSheetInputs inputs)
     {
-        CeresEscapeOverlays overlays = inputs.Objects.Areas.CeresEscapeOverlayTilemaps;
+        CeresEscapeOverlays overlays = inputs.Objects.Areas.CeresEscapeOverlayTilemaps
+            ?? throw new InvalidDataException("The installed area artwork has no Ceres warning tilemaps.");
         foreach (CeresEscapeWarningPicture page in CeresEscapeOverlayPages.All)
         {
             if (page.Corner.X / ScreenGeometry.BackgroundCellSizePixels % SheetTiles + page.Width > SheetTiles)
                 throw new InvalidDataException($"The Ceres warning page {page.Name} runs past the end of its row.");
-            yield return new WrittenSubject(page.Picture, Rows(BackgroundTileWords.ToWords(overlays.PageTiles(page)), page.Width));
+            if (!overlays.TryResolve(page, out ReadOnlyMemory<BackgroundTile> tiles))
+                throw new InvalidDataException($"The installed Ceres warning tilemaps hold no {page.Name} page.");
+            yield return new WrittenSubject(page.Picture, Rows(BackgroundTileWords.ToWords(tiles.Span), page.Width));
         }
     }
 

@@ -67,7 +67,8 @@ public sealed class EndingTextPresentation
     /// <exception cref="InvalidDataException">The artwork document does not decode.</exception>
     internal static byte[] ExtractTypewriter(byte[] artwork)
     {
-        EndingTextDocument document = JsonAssetDocument.Read<EndingTextDocument>(artwork, ArtworkJson.Options);
+        EndingTextDocument document = JsonAssetDocument.Read<EndingTextDocument>(artwork, ArtworkJson.Options)
+            ?? throw new InvalidDataException("Ending-text document is null.");
         return JsonSerializer.SerializeToUtf8Bytes(new EndingTypewriterDocument
         {
             Version = TypewriterVersion, PercentageHeading = document.PercentageHeading, PercentageDetail = document.PercentageDetail,
@@ -86,7 +87,8 @@ public sealed class EndingTextPresentation
         EndingTypewriterDocument document;
         try
         {
-            document = JsonAssetDocument.Read<EndingTypewriterDocument>(json, ArtworkJson.Options);
+            document = JsonAssetDocument.Read<EndingTypewriterDocument>(json, ArtworkJson.Options)
+                ?? throw new InvalidDataException("Ending typewriter document is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid ending typewriter JSON.", error); }
         if (document.Version != TypewriterVersion)
@@ -123,7 +125,8 @@ public sealed class EndingTextPresentation
         try
         {
             document = JsonAssetDocument.Read<EndingTextDocument>(source,
-                ArtworkJson.Options);
+                ArtworkJson.Options)
+                ?? throw new InvalidDataException("Ending-text document is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid ending-text JSON.", error); }
 

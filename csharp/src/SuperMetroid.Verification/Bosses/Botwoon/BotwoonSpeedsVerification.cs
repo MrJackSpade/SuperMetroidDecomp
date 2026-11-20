@@ -28,12 +28,12 @@ internal static class BotwoonSpeedsVerification
         for (int row = 0; row < CartridgeOrder.Length; row++)
         {
             BotwoonSpeedStage stage = CartridgeOrder[row];
-            AssertEqual(rom.ReadCartridgeWord(BotwoonSpeedStageDefinitions.MovementReferenceAddress + row * 4), stage.MovementSpeed, $"Botwoon {stage} native movement speed");
-            AssertEqual(rom.ReadCartridgeWord(0xb39e77 + row * 2), stage.SpitSpeed, $"Botwoon {stage} native spit speed");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(BotwoonSpeedStageDefinitions.MovementReferenceAddress + row * 4), stage.MovementSpeed, $"Botwoon {stage} native movement speed");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb39e77 + row * 2), stage.SpitSpeed, $"Botwoon {stage} native spit speed");
         }
         Action<RoomEnemyPlace, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonSpeedStage;
         var head = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
-        var state = new BotwoonEnemyState(_ => []) { StartingHealth = 3000 };
+        var state = new BotwoonEnemyState(body: []) { StartingHealth = 3000 };
         for (int health = 0; health <= 3000; health++)
         {
             head.Health = (ushort)health;
@@ -41,7 +41,7 @@ internal static class BotwoonSpeedsVerification
             state.InsideHole = false;
             update(head, state);
             AssertEqual(CartridgeOrder[row], state.SpeedStage, $"Botwoon at health {health} takes its speed stage");
-            AssertEqual(rom.ReadCartridgeWord(BotwoonSpeedStageDefinitions.MovementReferenceAddress + row * 4), state.SpeedStage.MovementSpeed, "Botwoon real stage speed");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(BotwoonSpeedStageDefinitions.MovementReferenceAddress + row * 4), state.SpeedStage.MovementSpeed, "Botwoon real stage speed");
             state.InsideHole = true;
             head.Health = (ushort)(3000 - health);
             update(head, state);
@@ -56,7 +56,7 @@ internal static class BotwoonSpeedsVerification
         for (int row = 0; row < CartridgeOrder.Length; row++)
         {
             int address = BotwoonSpeedStageDefinitions.MovementReferenceAddress + row * 4 + 2;
-            ushort expected = rom.ReadCartridgeWord(address);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             // The cartridge spaces segments by a byte distance into its four-byte history entries.
             AssertEqual(expected, BotwoonSpeedStageDefinitions.HistoryEntryBytes * CartridgeOrder[row].SegmentSpacingEntries,
                 $"Botwoon native body spacing for {CartridgeOrder[row]}");

@@ -16,7 +16,7 @@ internal static class EnemyFireballLaunchDefinitionsVerification
         AlcoonFireballLaunch[] launches =
             [AlcoonFireballLaunchDefinitions.Upward, AlcoonFireballLaunchDefinitions.Level, AlcoonFireballLaunchDefinitions.Downward];
         for (int record = 0; record < launches.Length; record++)
-            AssertEqual(rom.ReadCartridgeWord(0x869ef9 + record * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x869ef9 + record * 2),
                 launches[record].YVelocity.RawValue, "Alcoon launch vertical velocity");
     }
 
@@ -39,7 +39,7 @@ internal static class EnemyFireballLaunchDefinitionsVerification
             for (int index = 0; index < 8; index++)
             {
                 var settings = (FuneSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Fune, PopulationWords.Parameters(0, (high << 8) | index));
-                ushort expected = rom.ReadCartridgeWord(((left ? 0x86deb6 : 0x86deb8) + index * 4));
+                ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(((left ? 0x86deb6 : 0x86deb8) + index * 4));
                 AssertEqual(expected, left ? settings.LaunchSpeed.Negated().RawValue : settings.LaunchSpeed.RawValue,
                     left ? "NamiFune native negative horizontal speed and high-byte aliases" : "NamiFune native positive horizontal speed and high-byte aliases");
             }

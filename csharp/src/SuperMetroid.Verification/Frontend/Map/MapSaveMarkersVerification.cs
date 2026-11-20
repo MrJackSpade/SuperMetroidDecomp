@@ -20,13 +20,13 @@ internal static class MapSaveMarkersVerification
         foreach (AreaId area in AreaIds.Zebes)
         {
             int areaNumber = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area);
-            int pointer = RomDataReader.ReadWordFixedBank(bus, (int)FrontendSourceDefinitions.SavePointMapPointers + areaNumber * 2);
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), (int)FrontendSourceDefinitions.SavePointMapPointers + areaNumber * 2);
             int nativeMask = 0;
             var expectedStations = new List<LoadStation>();
             // Each native marker list holds a slot for each number the area's station list can give a station.
             for (int index = 0; index < 16; index++)
             {
-                ushort x = RomDataReader.ReadWordFixedBank(bus, MapSourceDefinitions.Menu.ObjectBank | (pointer + index * 4));
+                ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | (pointer + index * 4));
                 AssertTrue(x != ushort.MaxValue, "all sixteen native save/elevator slots precede the terminator");
                 bool usable = x != ushort.MaxValue - 1;
                 LoadStation? station = SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Find(area, index);

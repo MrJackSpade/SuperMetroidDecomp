@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -14,14 +13,13 @@ using SuperMetroid.Core.Enemies.Deaths;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The enemy-projectile engine: the room's enemy-projectile places (<see cref="PlaceCount"/>), spawning a fresh projectile into a free
+/// The enemy-projectile engine: the room's enemy-projectile places (<see cref="EnemyProjectilePlaces"/>), spawning a fresh projectile into a free
 /// place and its definition setup, the per-frame pass (motions, then each animation), the animation runner,
 /// both draw-priority passes and the Samus collision passes. Each projectile runs through the behaviour its spawner bound
 /// to it (<see cref="EnemyProjectileBehavior"/>, #1760); the engine names no species.
 /// <para>
-/// The places are ordered, and gameplay reads the order: spawns take the free place searched from the last down, and
-/// every pass (movement and animations, collisions, drawing) runs from the last place down, so a projectile spawned below
-/// the one being run runs later in the same pass and one spawned above it waits for the next.
+/// The places are ordered, and gameplay reads the order: the compatibility service <see cref="EnemyProjectilePlaces"/>
+/// holds their number and the order spawns search them and every pass runs them.
 /// </para>
 /// </summary>
 [RoomLifetime]
@@ -57,38 +55,60 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Queues species projectile sounds under queue limits.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Connects the room's enemy projectiles to room sprites, earthquakes and audio.</summary>
+    /// <summary>Connects the room's enemy projectiles to their places, room sprites, earthquakes and audio.</summary>
     internal EnemyProjectileEngine(EnemyRoomBinding room, EnemyPresentation presentation, RoomEffectActors effectActors,
-        RoomEarthquake earthquake, EnemyAudioQueue audio)
+        RoomEarthquake earthquake, EnemyAudioQueue audio, EnemyProjectilePlaces places)
     {
         _room = room;
         _presentation = presentation;
         _effectActors = effectActors;
         _earthquake = earthquake;
         _audio = audio;
-        _places = [.. Enumerable.Range(0, PlaceCount).Select(place => new EnemyProjectilePlace(place, _leftovers))];
+        Places = Ensure.NotNull(places);
     }
-    /// <summary>The number of enemy-projectile places.</summary>
-    internal const int PlaceCount = 18;
 
-    /// <summary>The places, in place order: each free or held by its live projectile.</summary>
-    private readonly EnemyProjectilePlace[] _places;
+    /// <summary>The room's enemy-projectile places, the order spawns search them and passes run them, and what the latest spawn took.</summary>
+    internal EnemyProjectilePlaces Places { get; }
+
+    /// <summary>
+    /// Each place's latest projectile of this room, live or gone, or null while the room has spawned none into it: the place
+    /// is free while it holds none, or its projectile is gone or has freed it.
+    /// </summary>
+    private readonly EnemyProjectile?[] _places = new EnemyProjectile?[EnemyProjectilePlaces.Capacity];
 
     /// <summary>What each new projectile starts from: what its place's previous projectile left there, in this room or the room before.</summary>
-    private readonly EnemyProjectilePlaceLeftovers _leftovers = new(PlaceCount);
+    private readonly EnemyProjectilePlaceLeftovers _leftovers = new(EnemyProjectilePlaces.Capacity);
 
-    /// <summary>The places, in place order: each free or held by its live projectile.</summary>
-    public IReadOnlyList<EnemyProjectilePlace> Places => _places;
+    /// <summary>
+    /// The place the pre-Phantoon room's setup holds, while it holds it (#1851, #2556); none while the room holds no place.
+    /// No projectile stands in it: a spawn passes it by, the projectile pass counts its hold at its turn, and it keeps what
+    /// its previous projectile left there for the spawn that takes it once the hold frees it.
+    /// </summary>
+    private HeldPlace? _heldPlace;
 
-    /// <summary>The live projectiles holding their places, in place order: the places' occupants.</summary>
-    public IEnumerable<EnemyProjectile> EnemyProjectiles => _places.Select(place => place.Occupant).OfType<EnemyProjectile>();
+    /// <summary>A place the room holds and the hold that counts it.</summary>
+    /// <param name="Place">The zero-based enemy-projectile place.</param>
+    /// <param name="Hold">The hold, which frees the place on the update after it runs out.</param>
+    private sealed record HeldPlace(int Place, PrePhantoonRoomHeldProjectilePlace Hold);
 
-    /// <summary>How many places no live projectile holds: the free places a spawn can take.</summary>
-    public int FreePlaceCount => _places.Count(place => place.Occupant is null);
+    /// <summary>Whether <paramref name="place"/> is free for a spawn: no live projectile and no hold of the room's holds it.</summary>
+    private bool IsFree(int place) => _places[place] is not { IsActive: true } && _heldPlace?.Place != place;
 
-    /// <summary>The live projectile holding <paramref name="place"/>, or none while the place is free.</summary>
+    /// <summary>The projectiles holding their places, in place order: the pool's occupants (#2558).</summary>
+    public IEnumerable<EnemyProjectile> EnemyProjectiles => _places.OfType<EnemyProjectile>().Where(projectile => projectile.IsActive);
+
+    /// <summary>How many places neither a live projectile nor the room's hold holds: the free places a spawn can take.</summary>
+    public int FreePlaceCount => Enumerable.Range(0, EnemyProjectilePlaces.Capacity).Count(IsFree);
+
+    /// <summary>The latest projectile of <paramref name="place"/>, live or gone, or null while the room has spawned none into it.</summary>
     /// <param name="place">The zero-based enemy-projectile place, zero for the last place spawns search.</param>
-    public EnemyProjectile? OccupantOf(int place) => _places[Ensure.BetweenInclusive(0, PlaceCount - 1, place)].Occupant;
+    public EnemyProjectile? LatestInPlace(int place) => _places[Ensure.BetweenInclusive(0, EnemyProjectilePlaces.Capacity - 1, place)];
+
+    /// <summary>
+    /// The latest projectile of the place spawns search last, live or gone, or null while the room has spawned none into it:
+    /// the one a falling statue piece's acceleration reads (<see cref="FirstPlaceFallAcceleration"/>, #2556).
+    /// </summary>
+    internal EnemyProjectile? LatestInFirstPlace => _places[0];
 
     /// <summary>
     /// Starts each place from what the room this one replaces left in it (<see cref="EnemyProjectilePlaceLeftovers"/>), which
@@ -96,14 +116,14 @@ internal sealed class EnemyProjectileEngine
     /// </summary>
     internal void TakeOverFrom(RoomHandOver handOver)
     {
+        Array.Clear(_places);
+        _heldPlace = null;
         _leftovers.TakeOverFrom(handOver);
-        foreach (EnemyProjectilePlace place in _places)
-            place.StartRoom();
     }
 
     /// <summary>Leaves what each place's latest projectile left there for the room that replaces this one (<see cref="EnemyProjectilePlaceLeftovers"/>).</summary>
     internal void HandOverTo(RoomHandOver handOver) =>
-        _leftovers.HandOverTo(handOver, [.. _places.Select(place => place.LeftByLastProjectile)]);
+        _leftovers.HandOverTo(handOver, [.. _places.Select(projectile => projectile?.LeftInPlace)]);
 
     /// <summary>
     /// Queues the dud sound a rejected Samus shot makes, at <paramref name="priority"/>: a protected body part's dud competes at
@@ -124,11 +144,9 @@ internal sealed class EnemyProjectileEngine
         Ensure.NotNull(projectiles);
         Ensure.NotNull(samusBombs);
 
-        for (int enemyProjectileIndex = _places.Length - 1;
-             enemyProjectileIndex >= 0;
-             enemyProjectileIndex--)
+        foreach (int enemyProjectileIndex in EnemyProjectilePlaces.InRunOrder)
         {
-            if (_places[enemyProjectileIndex].Occupant is not { } enemyProjectile ||
+            if (_places[enemyProjectileIndex] is not { IsActive: true } enemyProjectile ||
                 !enemyProjectile.BlocksSamusProjectiles ||
                 enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.NoCollision)
                 continue;
@@ -159,7 +177,7 @@ internal sealed class EnemyProjectileEngine
                 else
                 {
                     // Every shot animation without a typed reaction of its own is the shared delete animation.
-                    enemyProjectile.StartAnimation(enemyProjectile.Behavior.ShotAnimation());
+                    enemyProjectile.StartAnimation(BehaviorOf(enemyProjectile).ShotAnimation());
                     enemyProjectile.HoldStill();
 
                     // A shot that destroys a projectile strips its behaviours and keeps only its damage: it no
@@ -194,19 +212,26 @@ internal sealed class EnemyProjectileEngine
         // snapshot. The distinction is observable whenever a motion or animation cue spawns another projectile:
         // spawns search from the last place down, so one spawned below the place being run is reached later in THIS
         // pass, and one spawned above it waits for the next.
-        for (int place = _places.Length - 1; place >= 0; place--)
+        foreach (int place in EnemyProjectilePlaces.InRunOrder)
         {
-            if (_places[place].Occupant is not { } projectile)
+            if (_heldPlace is { } held && held.Place == place)
+            {
+                if (held.Hold.FreesOnThisUpdate())
+                    _heldPlace = null;
+                continue;
+            }
+            if (_places[place] is not { IsActive: true } projectile)
                 continue;
 
-            projectile.Motion?.Move(
+            BehaviorOf(projectile).RunMotion(
                 new EnemyProjectileMotionContext(projectile, level, samus, camera, shortCounter, frameCounter, samusBombs));
-            // The animation that runs next is that of the live projectile the place holds after the motion, or the
-            // one that ran when the place is free. A projectile that ended and spawned its replacement into its own place
-            // hands the rest of the pass to the replacement, whose animation starts in this pass. One that freed its place without ending finishes
+            // The animation that runs next is that of whatever projectile the place holds after the motion, live
+            // or not. A projectile that ended and spawned its replacement into its own place hands the rest of the pass
+            // to the replacement, whose animation starts in this pass. One that freed its place without ending finishes
             // its update with its animation (a power-bombed Draygon goop that reaches Samus sticks to her through its
             // touch animation, EnemyProjectile.FreePlace). One that ended plays no animation, so nothing runs.
-            AdvanceEnemyProjectileAnimations(_places[place].Occupant ?? projectile, samus, camera, shortCounter, samusBombs);
+            AdvanceEnemyProjectileAnimations(_places[place] ?? throw new InvalidOperationException(
+                $"Enemy-projectile place {place} lost its projectile during its own motion."), samus, camera, shortCounter, samusBombs);
         }
     }
 
@@ -223,9 +248,9 @@ internal sealed class EnemyProjectileEngine
             return;
 
         KnockbackHorizontalDirection? finalKnockbackXDirection = null;
-        for (int index = _places.Length - 1; index >= 0; index--)
+        foreach (int index in EnemyProjectilePlaces.InRunOrder)
         {
-            if (_places[index].Occupant is { } projectile)
+            if (_places[index] is { IsActive: true } projectile)
             {
                 finalKnockbackXDirection =
                     ResolveEnemyProjectileSamusCollision(projectile, samus) ??
@@ -296,10 +321,10 @@ internal sealed class EnemyProjectileEngine
         bool timeIsFrozen)
     {
         Offset16<RoomPixels> shake = _earthquake.GetEnemyProjectileShake(timeIsFrozen);
-        for (int place = _places.Length - 1; place >= 0; place--)
+        foreach (int place in EnemyProjectilePlaces.InRunOrder)
         {
-            if (_places[place].Occupant is not { } projectile ||
-                projectile.Behavior.IsHidden ||
+            if (_places[place] is not { IsActive: true } projectile ||
+                BehaviorOf(projectile).IsHidden(projectile) ||
                 projectile.Depth != depth ||
                 projectile.Frame is not { } frame)
                 continue;
@@ -322,34 +347,41 @@ internal sealed class EnemyProjectileEngine
     /// <param name="graphics">The sheet and shading the projectile draws with.</param>
     internal EnemyProjectile? AllocateEnemyProjectile(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics)
     {
-        Ensure.NotNull(behavior);
-        return AllocateEnemyProjectileFor(kind, _ => behavior, graphics)?.Projectile;
+        foreach (int place in EnemyProjectilePlaces.InRunOrder)
+        {
+            if (!IsFree(place))
+                continue;
+            Places.RecordSpawn(place);
+            var projectile = new EnemyProjectile(place, _leftovers.StartOf(place, _places[place]?.LeftInPlace), kind);
+            _places[place] = projectile;
+            InitializeEnemyProjectileFromDefinition(projectile, kind, behavior, graphics);
+            return projectile;
+        }
+        Places.RecordSpawn(null);
+        return null;
     }
 
     /// <summary>
-    /// Spawns a fresh projectile of <paramref name="kind"/> as <see cref="AllocateEnemyProjectile"/> does, bound to the
-    /// behaviour <paramref name="behaviorFor"/> creates for it: a behaviour whose state holds the projectile it shows, as a
-    /// Botwoon body segment's does. Returns the spawned projectile with its behaviour, or null when every place is held.
+    /// Holds the first free place, searched from the last down as a spawn searches, for the pre-Phantoon room's setup
+    /// (<see cref="PrePhantoonRoomHeldProjectilePlace"/>): the setup takes the place as a spawn does, and the place stays
+    /// taken until the projectile pass counts the hold out or a room load clears the pool.
     /// </summary>
-    /// <typeparam name="TBehavior">The behaviour's type, which the spawner reads its state through.</typeparam>
-    /// <param name="kind">What the projectile is, which names its definition.</param>
-    /// <param name="behaviorFor">Creates the behaviour for the spawned projectile.</param>
-    /// <param name="graphics">The sheet and shading the projectile draws with.</param>
-    internal EnemyProjectileSpawn<TBehavior>? AllocateEnemyProjectileFor<TBehavior>(
-        RoomEnemyProjectileKind kind, Func<EnemyProjectile, TBehavior> behaviorFor, SpriteGraphics graphics)
-        where TBehavior : EnemyProjectileBehavior
+    /// <param name="hold">The hold that counts the place.</param>
+    /// <exception cref="InvalidOperationException">Every place is held.</exception>
+    internal void HoldFirstFreePlace(PrePhantoonRoomHeldProjectilePlace hold)
     {
-        Ensure.NotNull(behaviorFor);
-        for (int place = _places.Length - 1; place >= 0; place--)
+        Ensure.NotNull(hold);
+        foreach (int place in EnemyProjectilePlaces.InRunOrder)
         {
-            if (_places[place].Occupant is not null)
-                continue;
-            TBehavior? created = null;
-            EnemyProjectile projectile = _places[place].Take(kind, shown => created = behaviorFor(shown));
-            InitializeEnemyProjectileFromDefinition(projectile, kind, projectile.Behavior, graphics);
-            return new EnemyProjectileSpawn<TBehavior>(projectile, Ensure.NotNull(created));
+            if (IsFree(place))
+            {
+                Places.RecordSpawn(place);
+                hold.Take();
+                _heldPlace = new HeldPlace(place, hold);
+                return;
+            }
         }
-        return null;
+        throw new InvalidOperationException("The pre-Phantoon room's held place found no free place in a freshly cleared pool.");
     }
 
     /// <summary>
@@ -384,6 +416,12 @@ internal sealed class EnemyProjectileEngine
         projectile.CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
         projectile.Graphics = graphics;
     }
+
+    /// <summary>The behaviour bound to <paramref name="projectile"/> at its spawn.</summary>
+    /// <exception cref="InvalidOperationException">The projectile was given a kind without a behaviour.</exception>
+    private static EnemyProjectileBehavior BehaviorOf(EnemyProjectile projectile) =>
+        projectile.Behavior ?? throw new InvalidOperationException(
+            $"Enemy projectile {projectile.Kind} in place {projectile.Place} has no behaviour bound.");
 
     /// <summary>
     /// Moves one projectile axis by its own velocity on that axis through each crossed room block, colliding with the
@@ -536,7 +574,7 @@ internal sealed class EnemyProjectileEngine
         // prevents later persistent projectile families from needing bespoke hit effects.
         bool startsTouchReaction = EnemyProjectileKinds.Get(projectile.Kind).SamusTouch == EnemyProjectileSamusTouch.StartsTouchReaction;
         // Every touch animation without a typed reaction of its own is the shared delete animation.
-        if (projectile.Behavior.TouchAnimation() is { } touchAnimation)
+        if (BehaviorOf(projectile).TouchAnimation() is { } touchAnimation)
             projectile.StartAnimation(touchAnimation);
         else if (startsTouchReaction)
             projectile.StartAnimation(EnemyProjectileDeleteAnimation.Instance);

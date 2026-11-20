@@ -18,7 +18,7 @@ public static class EscapeTimerTileAtlasExtractor
         Ensure.NotNull(bus);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(
             RomDataReader.ReadFixedBank(
-                bus,
+                CartridgeImportSource.Require(bus),
                 EscapeSourceDefinitions.TimerCharacters,
                 EscapeTimerTileAtlasFormat.TotalByteCount),
             EscapeTimerTileAtlasFormat.BitsPerPixel,

@@ -69,6 +69,7 @@ public sealed class HudState
     /// <summary>Sets the HUD up showing <paramref name="snapshot"/>'s values, the minimap showing the template's starter picture.</summary>
     public void Initialize(HudSnapshot snapshot)
     {
+        _ = Presentation ?? throw new InvalidOperationException("HUD initialization requires installed presentation assets.");
         values = snapshot;
         Minimap = null;
         // Setting the HUD up starts the previous selection at the beam; the HUD's update

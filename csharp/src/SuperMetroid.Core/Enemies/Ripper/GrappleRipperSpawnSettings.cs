@@ -5,11 +5,4 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 /// <param name="Direction">The direction it starts moving in.</param>
 /// <param name="MinimumX">The room column it turns back at moving left.</param>
 /// <param name="MaximumX">The room column it turns back at moving right.</param>
-internal sealed record GrappleRipperSpawnSettings(SignedSixteenSixteen Speed, HorizontalDirection Direction, int MinimumX, int MaximumX) : EnemySpawnSettings
-{
-    /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacementRequest placing) => Ensure.NotNull(species).Place(this, placing);
-
-    /// <inheritdoc/>
-    internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);
-}
+internal sealed record GrappleRipperSpawnSettings(SignedSixteenSixteen Speed, HorizontalDirection Direction, int MinimumX, int MaximumX) : EnemySpawnSettings;

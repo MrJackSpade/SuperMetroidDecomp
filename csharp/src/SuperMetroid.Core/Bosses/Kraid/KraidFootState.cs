@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's foot's own state beside what every part holds: the phase it runs and its second-phase thinking.</summary>
@@ -7,9 +6,9 @@ public sealed class KraidFootState : KraidAnimatedPartState
 {
     /// <summary>Makes the foot of <paramref name="kraid"/>'s encounter.</summary>
     /// <param name="kraid">The encounter the foot is part of.</param>
-    /// <param name="place">The place the part occupies, which his body heads.</param>
-    internal KraidFootState(KraidEnemyState kraid, RoomEnemyPlace place)
-        : base(kraid, place, KraidPartSegment.FootInitial)
+    /// <param name="reference">Kraid's reference to the foot, which it joins as it sets up.</param>
+    internal KraidFootState(KraidEnemyState kraid, KraidPartReference reference)
+        : base(kraid, reference, KraidPartSegment.FootInitial)
     {
     }
 

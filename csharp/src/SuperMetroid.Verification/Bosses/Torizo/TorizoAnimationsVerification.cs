@@ -103,7 +103,7 @@ internal static class TorizoAnimationsVerification
     /// <summary>Every body animation matches the native lists it plays, and every native list is played by some animation.</summary>
     internal static void VerifyTorizoAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertTrue(BodyLists.Zip(BodyLists.Skip(1), (first, second) => first < second).All(ascends => ascends), "native Torizo body lists ascend");
         AssertTrue(AnimationEntries.Keys.ToHashSet().SetEquals(TorizoAnimations.StartingAt.Keys), "every Torizo body animation starts at a native place");
         AssertEqual(AnimationEntries.Count, AnimationEntries.Values.Distinct().Count(), "no two Torizo body animations start at one native place");

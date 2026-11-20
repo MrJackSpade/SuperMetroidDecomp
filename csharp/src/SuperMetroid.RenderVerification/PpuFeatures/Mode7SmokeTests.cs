@@ -41,15 +41,15 @@ internal static class Mode7SmokeTests
         {
             var registers = new FloorView(angle, scale, new Offset16<FloorPixels>(128, 112), new Offset16<FloorPixels>(offset, offset), overflow);
             var frame = new DisplayPacket(0,
-                new FloorScene(memory, new PlacedFloor(registers, map), DisplayBrightness.Combine(13, 11)));
+                new FloorScene(memory, new PlacedFloor(registers, map), DisplayBrightness.Combine(DisplayBrightness.StepsAbove(13), DisplayBrightness.StepsAbove(11))));
             Check(frame);
             Check(new DisplayPacket(0, new LayeredScene(new FramePaint(memory.Backdrop),
                 new DisplayLayer[] { new SpritesLayer(memory.SpriteDraws), new TurningFloorLayer(registers, map),
-                    new ScreenTintLayer(new FadeLevelColour(3, 7, 11).ToColour()) }, 15)));
+                    new ScreenTintLayer(new FadeLevelColour(3, 7, 11).ToColour()) }, DisplayBrightness.Full)));
             Check(new DisplayPacket(0, new LayeredScene(memory,
-                new DisplayLayer[] { new TurningFloorLayer(registers, map, FloorColorBlend.AddForeground) }, 15)));
+                new DisplayLayer[] { new TurningFloorLayer(registers, map, FloorColorBlend.AddForeground) }, DisplayBrightness.Full)));
         }
-        Check(new DisplayPacket(0, new FloorScene(memory, null, 15)));
+        Check(new DisplayPacket(0, new FloorScene(memory, null, DisplayBrightness.Full)));
         foreach (int hud in new[] { 0, 8, 32, 208 })
         foreach (int? floorStart in new int?[] { null, 208, 223 })
         foreach (double scale in new[] { 1, 0.5, 2, 0 })
@@ -61,7 +61,7 @@ internal static class Mode7SmokeTests
                 new FloorView(0.27, scale, new(128, 112), new(-17, 211), FloorOverflowMode.Wrap),
                 map, hud, band);
             Check(new DisplayPacket(0,
-                new LayeredScene(gameplayMemory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, 13)));
+                new LayeredScene(gameplayMemory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, DisplayBrightness.StepsAbove(13))));
         }
         // A Ceres room's floor with its floor animation frames drawn over it (#1467), and the fixture's floor, with outside
         // pixels transparent, as Ceres rooms show them, or repeating.
@@ -79,7 +79,7 @@ internal static class Mode7SmokeTests
                 new FloorView(-0.27, scale, new(128, 112), new(-17, 211), fill ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
                 shown, hud, null);
             Check(new DisplayPacket(0,
-                new LayeredScene(gameplayMemory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, 13)));
+                new LayeredScene(gameplayMemory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, DisplayBrightness.StepsAbove(13))));
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact Mode 7 comparisons passed.");
 

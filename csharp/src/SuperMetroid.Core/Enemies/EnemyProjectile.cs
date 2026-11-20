@@ -19,19 +19,14 @@ public sealed class EnemyProjectile
     /// <param name="place">The zero-based enemy-projectile place the projectile takes.</param>
     /// <param name="left">What the place's previous projectile left there.</param>
     /// <param name="kind">What the projectile is.</param>
-    /// <param name="behaviorFor">
-    /// Creates what the projectile's kind does for the projectile, bound to it for its life: a behaviour whose state holds
-    /// the projectile it shows is created with it.
-    /// </param>
-    internal EnemyProjectile(int place, EnemyProjectileHandOver left, RoomEnemyProjectileKind kind, Func<EnemyProjectile, EnemyProjectileBehavior> behaviorFor)
+    internal EnemyProjectile(int place, EnemyProjectileHandOver left, RoomEnemyProjectileKind kind)
     {
-        Place = Ensure.BetweenInclusive(0, EnemyProjectileEngine.PlaceCount - 1, place);
+        Place = Ensure.BetweenInclusive(0, EnemyProjectilePlaces.Capacity - 1, place);
         Position = FixedPosition<RoomPixels>.FromWhole(left.Position);
         Velocity = left.Velocity;
         Vacate();
         Kind = kind;
         IsActive = true;
-        Behavior = Ensure.NotNull(Ensure.NotNull(behaviorFor)(this));
     }
 
     /// <summary>
@@ -99,18 +94,17 @@ public sealed class EnemyProjectile
     /// <summary>The frame the projectile shows: the blank frame from its spawn until its animation shows one, none once it is gone.</summary>
     public EnemyProjectileFrameId? Frame { get; internal set; }
     /// <summary>
-    /// How the projectile moves itself on each pass, before its animation advances (#1843): one of the motions of the
-    /// behaviour that started it, bound with that behaviour (<see cref="EnemyProjectileMotion"/>), or null while it holds
-    /// still. Its behaviour starts it at spawn and changes it; a shot that destroys the projectile stops it.
+    /// How the projectile moves itself on each pass, before its animation advances (#1843): one of the motions its
+    /// behaviour owns (<see cref="EnemyProjectileMotionBehavior{TMotion}"/>), held through that behaviour (#2571), or null
+    /// while it holds still. Its behaviour starts it at spawn and changes it; a shot that destroys the projectile stops it.
     /// </summary>
     internal EnemyProjectileMotion? Motion { get; private set; }
     /// <summary>
     /// What the projectile's kind does (#1760): it moves the projectile each update, carries out its animations'
-    /// cues, names its shot and touch animations and holds what its family keeps on the projectile (#2554). The spawner
-    /// binds it with the kind; a projectile its spawner has not yet given a kind holds still. A projectile that ends keeps
-    /// it, so the cues its animation publishes on the way out still reach their owner.
+    /// cues and names its shot and touch animations. The spawner binds it with the kind; none until then. A projectile
+    /// that ends keeps it, so the cues its animation publishes on the way out still reach their owner.
     /// </summary>
-    internal EnemyProjectileBehavior Behavior { get; private set; }
+    internal EnemyProjectileBehavior? Behavior { get; private set; }
     /// <summary>Gets the sheet and shading the projectile draws its own pictures with, as its spawner supplied them.</summary>
     public SpriteGraphics Graphics { get; internal set; }
 
@@ -163,40 +157,34 @@ public sealed class EnemyProjectile
 
     /// <summary>
     /// Makes the projectile <paramref name="kind"/> with <paramref name="behavior"/> bound to it for its life (#1760), in
-    /// the motion the behaviour starts with (#1843).
+    /// the motion the behaviour starts that kind with (#1843).
     /// </summary>
     internal void Bind(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior)
     {
         Kind = kind;
         Behavior = Ensure.NotNull(behavior);
-        Motion = behavior.StartingMotion;
+        Motion = behavior.InitialMotion(kind);
     }
 
     /// <summary>
-    /// Hands the projectile, keeping its kind, to <paramref name="behavior"/>, in the motion that behaviour starts with: what
-    /// its family keeps on it becomes another of the family's states, as a death explosion that becomes its pickup (#2554).
+    /// Moves the projectile by <paramref name="motion"/>, one of <paramref name="owner"/>'s motions, from its next pass (#2571):
+    /// <paramref name="owner"/> is the behaviour bound to the projectile, which its own code and its spawner hold typed, so
+    /// the motion is held through it with no test of the behaviour's type.
     /// </summary>
-    /// <param name="behavior">The behaviour the projectile is handed to.</param>
-    internal void Rebind(EnemyProjectileBehavior behavior)
-    {
-        Behavior = Ensure.NotNull(behavior);
-        Motion = behavior.StartingMotion;
-    }
-
-    /// <summary>Moves the projectile by <paramref name="motion"/>, one of <paramref name="owner"/>'s motions, from its next pass.</summary>
-    /// <typeparam name="TMotion">The owning behaviour's motions.</typeparam>
-    /// <param name="owner">The behaviour bound to the projectile, which owns the motion.</param>
-    /// <param name="motion">The motion.</param>
+    /// <typeparam name="TMotion">The behaviour's motions.</typeparam>
+    /// <param name="owner">The projectile's behaviour, which owns <paramref name="motion"/>.</param>
+    /// <param name="motion">The motion the projectile moves by.</param>
     internal void StartMotion<TMotion>(EnemyProjectileMotionBehavior<TMotion> owner, TMotion motion) where TMotion : struct, Enum =>
         Motion = Ensure.NotNull(owner).Moving(motion);
 
-    /// <summary>Moves the projectile by <paramref name="motion"/>, a motion its behaviour started, from its next pass.</summary>
-    /// <param name="motion">The motion.</param>
+    /// <summary>
+    /// Moves the projectile by <paramref name="motion"/>, one of its behaviour's own motion objects, from its next pass (#2571).
+    /// </summary>
+    /// <param name="motion">The motion the projectile moves by.</param>
     internal void StartMotion(EnemyProjectileMotion motion) => Motion = Ensure.NotNull(motion);
 
-    /// <summary>Whether the projectile moves by <paramref name="motion"/>.</summary>
-    /// <typeparam name="TMotion">The owning behaviour's motions.</typeparam>
-    /// <param name="motion">The motion asked about.</param>
+    /// <summary>Whether the projectile moves by <paramref name="motion"/>, one of its behaviour's motions.</summary>
+    /// <typeparam name="TMotion">The behaviour's motions.</typeparam>
     internal bool MovesBy<TMotion>(TMotion motion) where TMotion : struct, Enum =>
         Motion is EnemyProjectileFamilyMotion<TMotion> moving && EqualityComparer<TMotion>.Default.Equals(moving.Motion, motion);
 

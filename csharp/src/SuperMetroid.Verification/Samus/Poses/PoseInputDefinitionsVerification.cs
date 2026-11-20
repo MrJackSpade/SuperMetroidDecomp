@@ -28,12 +28,12 @@ internal static class PoseInputDefinitionsVerification
         {
             if (!SamusPoseNumbering.NamesPose(poseIndex)) continue;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(poseIndex);
-            ushort pointer = rom.ReadCartridgeWordFixedBank((SamusMovementDefinitionsPosesConstants.TransitionListPointers + SamusPoseNumbers.Number(pose) * 2));
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((SamusMovementDefinitionsPosesConstants.TransitionListPointers + SamusPoseNumbers.Number(pose) * 2));
             var native = new List<PoseInputDefinitionsNative>();
-            for (int address = 0x910000 | pointer; rom.ReadCartridgeWordFixedBank(address) != ushort.MaxValue; address += 6)
+            for (int address = 0x910000 | pointer; CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address) != ushort.MaxValue; address += 6)
             {
                 if (native.Count >= 1000) throw new InvalidDataException("Native pose-input fixture does not terminate.");
-                native.Add(new PoseInputDefinitionsNative(rom.ReadCartridgeWordFixedBank(address), rom.ReadCartridgeWordFixedBank((address + 2)), rom.ReadCartridgeWordFixedBank((address + 4))));
+                native.Add(new PoseInputDefinitionsNative(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 4))));
             }
             SamusPoseInputList inputList = SamusPoseTraits.Of(pose).Inputs;
             // Poses share a list exactly when their native lists hold the same live conditions, the conditions no earlier

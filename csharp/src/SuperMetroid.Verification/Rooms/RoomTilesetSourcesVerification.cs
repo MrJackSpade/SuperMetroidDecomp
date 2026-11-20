@@ -13,7 +13,7 @@ internal static class RoomTilesetSourcesVerification
     internal static void VerifyRoomTilesetSources()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        RoomTilesetSourceMap sources = RoomTilesetSources.Read(rom);
+        RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(rom));
         Check(RoomTilesetNative.RetailCharacters, sources.Characters, "character sheet");
         Check(RoomTilesetNative.RetailBlocks, sources.Blocks, "block table");
         Check(RoomTilesetNative.RetailPalettes, sources.Palettes, "palette");

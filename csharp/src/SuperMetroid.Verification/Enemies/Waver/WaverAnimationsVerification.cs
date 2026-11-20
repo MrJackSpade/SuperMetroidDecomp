@@ -12,7 +12,7 @@ internal static class WaverAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyWaverAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             WaverAnimations.Segments, WaverAnimations.StartingAt, WaverFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<WaverCue>(
                 word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,

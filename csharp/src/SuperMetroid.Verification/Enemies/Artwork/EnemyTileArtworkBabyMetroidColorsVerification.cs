@@ -34,7 +34,7 @@ internal static class EnemyTileArtworkBabyMetroidColorsVerification
             throw new InvalidDataException("Installed enemy art has no Shitroid colors.");
         for (int frame = 0; frame < BabyMetroidColorDefinitions.NormalFrameCount; frame++)
         for (int color = 0; color < BabyMetroidColorDefinitions.NormalColorsPerFrame; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     MotherBrainSourceDefinitions.BabyMetroidEnemy.NormalCycle +
                     (frame * BabyMetroidColorDefinitions.NormalColorsPerFrame + color) * 2),
                 native.NormalColor(frame, color),
@@ -64,7 +64,7 @@ internal static class EnemyTileArtworkBabyMetroidColorsVerification
         Type type = typeof(RoomEnemySystem);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         BabyMetroidBehavior.InitializeBabyMetroid(place, 0);
-        BabyMetroidEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BabyMetroidEntity>(place).State;
+        BabyMetroidEnemyState state = place.RequireSpeciesState<BabyMetroidEnemyState>();
         // The Baby Metroid draws in its entry's target colours, which the import pre-colours its sheets in (#1512); the drained
         // corpses' target is the corpses' own drained shade.
         AssertEqual(BabyMetroidShades.InTargetColours, place.Shading, "the Shitroid draws in its entry's target colours");
@@ -96,7 +96,7 @@ internal static class EnemyTileArtworkBabyMetroidColorsVerification
         void VerifyTarget(BabyMetroidColorTarget target, int source)
         {
             for (int color = 0; color < BabyMetroidColorDefinitions.TargetColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom, source + color * 2),
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source + color * 2),
                     native.TargetColor(target, color),
                     $"installed Shitroid {target} target color {color}");
         }

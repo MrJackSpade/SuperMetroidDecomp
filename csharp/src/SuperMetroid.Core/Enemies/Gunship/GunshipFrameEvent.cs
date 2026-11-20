@@ -13,6 +13,8 @@ public enum GunshipFrameEvent
     EntryStarted,
     /// <summary>Samus has been lowered inside the ship and the entrance-pad closing animation has started.</summary>
     EntryPadClosing,
+    /// <summary>Ordinary restoration has finished and the gunship requests the save-confirmation prompt.</summary>
+    SavePromptRequested,
     /// <summary>Samus has risen to the exit target and the pad begins closing before input is restored.</summary>
     ExitPadClosing,
     /// <summary>Ordinary gunship exit has completed, restoring idle gunship behavior and unlocking Samus input.</summary>

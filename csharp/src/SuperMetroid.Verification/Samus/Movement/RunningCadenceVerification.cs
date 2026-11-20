@@ -19,7 +19,7 @@ internal static class RunningCadenceVerification
     /// </summary>
     internal static void VerifyRunningCadence(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertSequenceEqual(SamusRunningCadenceCodec.OrdinaryDelays(cartridge), SamusRunningCadenceDefinitions.Timings[SamusRunningCadence.Ordinary].Delays, "ordinary running delays");
         for (int stage = 0; stage < SamusSpeedBoostCounter.AuthoredStages; stage++)
             AssertSequenceEqual(SamusRunningCadenceCodec.BoostDelays(cartridge, stage),

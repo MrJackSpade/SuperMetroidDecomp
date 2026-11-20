@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
@@ -25,9 +24,9 @@ internal static class ShutterRidingVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope, camera: new Position16<RoomPixels>(0x100, 0));
-            var samus = runtime.Player.Samus;
+            var samus = runtime.Player.IntroducedSamus;
             var platform = runtime.Enemies.Places.InUpdateOrder[slot];
             var state = runtime.Enemies.VerticalShutterStates[slot];
             samus.Pose = SamusPoseId.MorphBallGroundRightPose;

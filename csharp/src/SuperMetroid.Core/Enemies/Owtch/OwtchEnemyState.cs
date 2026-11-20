@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 /// </summary>
 public sealed class OwtchEnemyState
 {
-    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
-    internal OwtchSpawnSettings Settings { get; }
-
-    /// <summary>Creates the state of an enemy whose entry told its species <paramref name="settings"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
-    internal OwtchEnemyState(OwtchSpawnSettings settings) => Settings = Ensure.NotNull(settings);
-
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<OwtchSegment> Playback { get; set; }
 

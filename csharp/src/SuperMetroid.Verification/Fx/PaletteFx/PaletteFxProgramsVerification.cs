@@ -18,7 +18,7 @@ internal static class PaletteFxProgramsVerification
     /// <summary>Every native list matches the steps it is in each animation, and every animation its lists' control flow.</summary>
     internal static void VerifyPaletteFxPrograms(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertTrue(Enum.GetValues<ColourEffectId>().SelectMany(PaletteFxNativeProgramOracle.AnimationsOf)
                 .All(typed => PaletteFxNativeListAddresses.Entries.Any(entry => entry.Effect == typed.Effect && entry.FirstStep == 0 && entry.Entry == typed.Start)),
             "every typed colour effect starts at a native list");

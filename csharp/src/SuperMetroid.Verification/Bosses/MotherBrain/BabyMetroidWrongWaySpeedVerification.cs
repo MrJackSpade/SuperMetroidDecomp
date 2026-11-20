@@ -18,8 +18,8 @@ internal static class BabyMetroidWrongWaySpeedVerification
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)) };
         var motherBrain = MotherBrainLateFightFixtures.NewSequence();
         var baby = MotherBrainLateFightFixtures.Arrive(motherBrain, FixedPosition<RoomPixels>.FromStoredParts(0, 0x1400, 0, 0x3100));
-        baby.Phase = BabyMetroidCutscenePhase.MoveToFinalChargeStart;
-        baby.Position = FixedPosition<RoomPixels>.FromWhole(new(0x0133, 0x004d)).WithFractionsOf(baby.Position);
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.MoveToFinalChargeStart);
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Position", FixedPosition<RoomPixels>.FromWhole(new(0x0133, 0x004d)).WithFractionsOf(baby.Position));
         baby.Velocity = new PixelVelocity<RoomPixels>(new SignedEightEight(0x015f), new SignedEightEight(0x012b));
 
         // Layer-1 X zero puts X $133 beyond the $120-wide vaguely-on-screen band.

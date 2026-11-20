@@ -93,10 +93,10 @@ internal static class EnemyRomTablePointersVerification
         CartridgeImportAddressSpace rom)
     {
 
-        AssertEqual(rom.ReadCartridgeWord(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers),
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers),
             TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileSegment.SuperMissileLeft),
             "Golden Torizo left reflected-Super list");
-        AssertEqual(rom.ReadCartridgeWord((EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 2)),
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 2)),
             TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileSegment.SuperMissileRight),
             "Golden Torizo right reflected-Super list");
         Suite(nameof(VerifyWorkRobotInitialSelection), () => VerifyWorkRobotInitialSelection(rom));
@@ -125,7 +125,7 @@ internal static class EnemyRomTablePointersVerification
             RoomEnemyPlace torizo = system.Places.InUpdateOrder[0];
             torizo.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             torizo.BindTorizoFixtureState(facingRight ? 0x8000 : 0, TorizoVariant.Golden);
-            system.TorizoBehavior.Attacks.SpawnGoldenTorizoSuperMissile(torizo, torizo.RequireSpeciesState<TorizoEnemyState>());
+            system.TorizoBehavior.Attacks.SpawnGoldenTorizoSuperMissile(torizo.HeldOccupant(), torizo);
             EnemyProjectile projectile = system.Projectiles.EnemyProjectiles.Single(
                 candidate => candidate.IsActive);
             AssertEqual(

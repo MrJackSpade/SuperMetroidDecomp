@@ -8,13 +8,6 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 /// </summary>
 public sealed class PlatformEnemyState
 {
-    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
-    internal PlatformSpawnSettings Settings { get; }
-
-    /// <summary>Creates the state of an enemy whose entry told its species <paramref name="settings"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
-    internal PlatformEnemyState(PlatformSpawnSettings settings) => Settings = Ensure.NotNull(settings);
-
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<PlatformSegment> Playback { get; set; }
 

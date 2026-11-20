@@ -65,8 +65,8 @@ internal sealed class SaveStationObject(LoadStation savedAt) : RoomObjectBehavio
     internal void StartSaveAnimation(IRoomObjectDrawing drawing, RoomLevelData level, Position16<RoomBlocks> block)
     {
         SavePhase = SaveStationPhase.Animating;
-        StationDraw first = _flash.Show(StationAnimationDefinitions.Animations[StationAnimation.SaveFlash]);
-        StationObjectDraws.Family.Draw(level, block, Ensure.NotNull(drawing), first);
+        _flash.Show(StationAnimationDefinitions.Animations[StationAnimation.SaveFlash]);
+        StationObjectDraws.Family.Draw(level, block, Ensure.NotNull(drawing), _flash.Showing);
     }
 
     /// <summary>Runs the accepted save's flash until the saved-game message can be published.</summary>

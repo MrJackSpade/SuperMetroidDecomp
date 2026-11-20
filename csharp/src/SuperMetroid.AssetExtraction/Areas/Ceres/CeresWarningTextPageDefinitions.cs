@@ -3,9 +3,6 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// <summary>Where the Ceres warning text's page looks come from among the installed Ceres escape characters (#1463).</summary>
 internal static class CeresWarningTextPageDefinitions
 {
-    /// <summary>The installed Ceres escape character page holding the warning text.</summary>
-    internal const int InstalledPage = 0;
-
     /// <summary>The warning text's pages: four full pages, then a half page.</summary>
     internal const int PageCount = 5;
 

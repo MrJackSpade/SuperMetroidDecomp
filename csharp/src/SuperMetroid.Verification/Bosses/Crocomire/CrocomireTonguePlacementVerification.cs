@@ -27,15 +27,19 @@ internal static class CrocomireTonguePlacementVerification
         body.Bind(EnemyDefinitionId.Crocomire, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.Crocomire));
         body.Position = body.Position.WithWhole(new(576, 144));
         body.Radius = new(body.Definition.Radius.X, body.Definition.Radius.Y);
-        RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
-        tongue.Bind(EnemyDefinitionId.CrocomireTongue, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.CrocomireTongue));
-        var state = body.SetUpPlaced<CrocomireEnemyState>(tongue);
-        state.Phase = CrocomirePhase.SteppingForward;
-        state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(
-                CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.StepForward), AnimationPlace.StartOfAnimation);
-        state.TongueState.BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset;
+        var state = new CrocomireEnemyState(body.HeldOccupant(), body)
+        {
+            Phase = CrocomirePhase.SteppingForward,
+            BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(
+                CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.StepForward), AnimationPlace.StartOfAnimation),
+        };
+        body.SetSpeciesState(state);
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
+        RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
+        tongue.Bind(EnemyDefinitionId.CrocomireTongue, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.CrocomireTongue));
+        tongue.SetSpeciesState(new CrocomireTongueState(state));
+        state.JoinTongue(tongue);
         body.AnimationClock.StepOnNextUpdate();
 
         var tongueOffset = new Offset16<RoomPixels>(CrocomireFightDefinitions.TongueBodyXOffset, 0);

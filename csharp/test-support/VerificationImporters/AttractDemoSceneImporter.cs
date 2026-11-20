@@ -16,7 +16,7 @@ internal static class AttractDemoSceneImporter
         Ensure.AtLeastZero(scene);
         if ((uint)set >= StockAttractDemoScenes.CompletedGamePlaylist.Count)
             throw new ArgumentOutOfRangeException(nameof(set));
-        IImportCartridgeSource cartridge = bus;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         int roomList = RomDataReader.ReadWordFixedBank(cartridge, AttractDemoSceneSources.RoomSetPointers + set * 2);
         int roomAddress = RecordAddress(AttractDemoSceneSources.RoomBank, roomList, scene, AttractDemoSceneSources.RoomRecordBytes);
         ushort Room(int offset) => RomDataReader.ReadWordFixedBank(cartridge, roomAddress + offset);

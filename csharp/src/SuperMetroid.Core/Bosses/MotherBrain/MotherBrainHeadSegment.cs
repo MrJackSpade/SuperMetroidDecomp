@@ -59,6 +59,19 @@ public enum MotherBrainHeadSegment
     /// opening.
     /// </summary>
     TwoOnionRingsPhase2,
+    /// <summary>Her damaged head counts an attack on the Baby Metroid and aims its onion rings at it.</summary>
+    AttackingBabyMetroid,
+    /// <summary>Her damaged head clears its count of attacks on the Baby Metroid and aims its onion rings at Samus.</summary>
+    AttackingSamusFourOnionRingsPhase3,
+    /// <summary>
+    /// Her damaged head opens wide, cries unless this is her silent attack (<see cref="MotherBrainFightDefinitions.SilentBabyAttackCount"/>), and fires the first of her onion
+    /// rings where it aimed them: the volley's opening.
+    /// </summary>
+    FourOnionRingsPhase3,
+    /// <summary>Her damaged head, its mouth at its widest, fires one more onion ring where it aimed them.</summary>
+    OnionRingShotPhase3,
+    /// <summary>Her damaged head closes its mouth after its volley's last onion ring and lets her neck move again.</summary>
+    OnionRingVolleyEndPhase3,
     /// <summary>Her whole head opens wide with an attack cry and lobs a bomb that leaves seven afterburns.</summary>
     BombPhase2,
     /// <summary>Her damaged head opens wide with an attack cry and lobs a bomb that leaves one afterburn.</summary>

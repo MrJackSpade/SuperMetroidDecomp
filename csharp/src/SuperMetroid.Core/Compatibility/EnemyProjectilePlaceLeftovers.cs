@@ -46,7 +46,6 @@ public sealed class EnemyProjectilePlaceLeftovers
     public EnemyProjectileHandOver StartOf(int place, EnemyProjectileHandOver? leftByLastProjectile) =>
         leftByLastProjectile ?? _fromRoomBefore[place];
 
-
     /// <summary>Leaves what each place holds for the room that replaces this one.</summary>
     /// <param name="handOver">What this room leaves for the next.</param>
     /// <param name="leftByLastProjectiles">What each place's last projectile of this room leaves, in place order; null for a place this room spawned nothing into.</param>

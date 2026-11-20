@@ -79,8 +79,8 @@ internal static void VerifyObjRendering()
 
     // The frontend capture converts the screen's OAM storage into the sprite draw it stands for;
     // the display renderer then shows that draw over the backdrop.
-    RgbaPixel[] backdrop = DisplayRendering.Render(FramePaint.FromNative(cgram.Colors, []).SpritesScene(DisplayBrightness.Full));
-    RgbaPixel[] pixels = DisplayRendering.Render(FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0).SpritesScene(DisplayBrightness.Full));
+    RgbaPixel[] backdrop = DisplayRendering.Render(FramePaint.FromNative(cgram.Colors, []).SpritesScene(DisplayBrightness.Full.StepsAboveBlack));
+    RgbaPixel[] pixels = DisplayRendering.Render(FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0).SpritesScene(DisplayBrightness.Full.StepsAboveBlack));
     AssertEqual(new RgbaPixel(255, 0, 0), pixels[20 * 256 + 10], "OBJ colored planar pixel");
     AssertEqual(backdrop[20 * 256 + 11], pixels[20 * 256 + 11], "OBJ color zero shows the backdrop");
 
@@ -94,7 +94,7 @@ internal static void VerifyObjRendering()
     oam.AddRawSmallSprite(position: new Position16<ScreenPixels>(10, 20), attributes: 0x2400); // OAM 0: OBJ2, palette 2.
     oam.AddRawSmallSprite(position: new Position16<ScreenPixels>(10, 20), attributes: 0x3600); // OAM 1: OBJ3, palette 3.
     oam.FinalizeFrame();
-    RgbaPixel[] overlap = DisplayRendering.Render(FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0).SpritesScene(DisplayBrightness.Full));
+    RgbaPixel[] overlap = DisplayRendering.Render(FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0).SpritesScene(DisplayBrightness.Full.StepsAboveBlack));
     AssertEqual(
         new RgbaPixel(255, 0, 0),
         overlap[20 * 256 + 10],
@@ -268,7 +268,7 @@ internal static void VerifyHudState()
 
 /// <summary>Reads the synthetic Crateria map tile before a fixture temporarily replaces it.</summary>
 static ushort ReadFixtureMapWord(TestAddressSpace bus, Position16<MapTiles> tile) =>
-    SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(bus,
+    SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
         0xb58000 + AreaMapPages.GetTilemapWordIndex(tile) * 2);
 
 /// <summary>Overwrites the synthetic Crateria bank-$B5 area-map tilemap word at <paramref name="tile"/>.</summary>

@@ -29,8 +29,8 @@ internal static class NinjaSpacePiratePostsVerification
         {
             slot.Position = slot.Position.WithWhole(new(x, 128));
             slot.SetSpawnSettings(new NinjaSpacePirateSpawnSettings(start, distance));
-            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot.HeldOccupant(), slot, slot.SpawnSettings<NinjaSpacePirateSpawnSettings>());
-            NinjaSpacePirateEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<NinjaSpacePirateEntity>(slot).State;
+            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot.HeldOccupant(), slot);
+            NinjaSpacePirateEnemyState state = slot.RequireSpeciesState<NinjaSpacePirateEnemyState>();
 
             bool startsAtLeft = start == NinjaSpacePirateStartPost.Left;
             int left = startsAtLeft ? x : (x - distance) & ushort.MaxValue;

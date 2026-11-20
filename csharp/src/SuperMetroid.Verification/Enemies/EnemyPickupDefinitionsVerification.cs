@@ -4,6 +4,8 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies;
@@ -15,46 +17,46 @@ internal static class EnemyPickupDefinitionsVerification
     internal static void VerifyEnemyPickupDefinitions(CartridgeImportAddressSpace rom)
     {
         // Selector zero is the program table's empty first entry, which no pickup kind names.
-        AssertEqual((ushort)0, rom.ReadCartridgeWord(0x86ef04), "enemy pickup program table's empty first entry");
+        AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86ef04), "enemy pickup program table's empty first entry");
         AssertThrows<InvalidDataException>(() => EnemyPickupNativeWords.Selectors.Decode(0, "enemy pickup selector"),
             "no pickup kind names selector zero");
         for (int index = 1; index < 6; index++)
         {
             EnemyPickupKind kind = EnemyPickupNativeWords.Selectors.Decode(index, "enemy pickup selector");
             EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
-            AssertEqual(rom.ReadCartridgeWord((0x86ef04 + index * 2)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + index * 2)),
                 EnemyDeathProjectileNativeListAddresses.Entry(animation.Animation),
                 $"enemy pickup program {kind}");
         }
 
+        // A pickup runs the room's deaths and drops, which carry out its animation's events.
+        RoomEnemySystem enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            definitions: CompiledRoomEnemyDefinitions.Instance);
         for (int index = 1; index <= 5; index++)
         {
             EnemyPickupKind kind = EnemyPickupNativeWords.Selectors.Decode(index, "enemy pickup selector");
-            var projectile = new EnemyProjectile(index, default)
+            var projectile = new EnemyProjectile(index, default, RoomEnemyProjectileKind.EnemyDeathPickup)
             {
                 FrameHold = WrappingCountdown.Start(0xffff),
+
                 PersistsOnSamusContact = true,
             };
-            EnemyDeathsAndDropsConstants.BeginEnemyPickup(projectile, kind);
+            EnemyDeathsAndDropsConstants.BeginEnemyPickup(enemies.DeathsAndDrops, projectile, kind);
             EnemyPickupAnimationDefinition expected = EnemyPickups.Animation(kind);
-            AssertEqual(kind, projectile.StateOf<EnemyPickupState>().Kind,
+            AssertEqual(kind, enemies.DeathsAndDrops.Pickups.Of(projectile).Kind,
                 $"production pickup kind {kind}");
             AssertEqual(expected.Animation, ProgramOf(projectile),
                 $"production pickup program {kind}");
             AssertEqual(1, projectile.FrameHold.RawValue,
                 $"production pickup instruction timer {kind}");
-            AssertEqual(400, projectile.StateOf<EnemyPickupState>().Lifetime.UpdatesLeft,
+            AssertEqual(400, enemies.DeathsAndDrops.Pickups.Of(projectile).Lifetime.UpdatesLeft,
                 $"production pickup lifetime {kind}");
-            AssertEqual<Enum?>(SingleMotion.Moving,
-                projectile.MotionKind,
+            AssertTrue(projectile.MovesBy(SingleMotion.Moving),
                 $"production pickup pre-instruction {kind}");
             AssertTrue(!projectile.PersistsOnSamusContact,
                 $"production pickup contact persistence {kind}");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => EnemyPickups.Animation(EnemyPickupKind.NoDrop),
-            "no-drop pickup has no animation entry");
         Console.WriteLine(
             "Enemy pickup definitions: six native selectors and all five live pickup initialization paths pass without the pointer table.");
     }

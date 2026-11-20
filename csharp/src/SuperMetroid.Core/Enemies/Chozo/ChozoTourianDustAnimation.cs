@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// dust, started by name (<see cref="ChozoTourianDustAnimations.TourianDescentDust"/>, #2061).
 /// </summary>
 internal sealed class ChozoTourianDustAnimation(Animation<ChozoTourianDustSegment> animation)
-    : EnemyProjectileCommonFrameAnimation<ChozoTourianDustSegment>(animation)
+    : EnemyProjectileFrameAnimation<ChozoTourianDustSegment, EnemyProjectileCommonCue>(animation, EnemyProjectileCueRunners.Common<ChozoTourianDustSegment>())
 {
     /// <summary>The segment <paramref name="started"/> starts at: the descent dust's puff, or the segment the footsteps are keyed by.</summary>
     private protected override ChozoTourianDustSegment SegmentStartedAt(Animation<ChozoTourianDustSegment> started) =>

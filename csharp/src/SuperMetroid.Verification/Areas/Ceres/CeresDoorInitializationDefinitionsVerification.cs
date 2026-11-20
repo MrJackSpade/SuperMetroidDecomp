@@ -38,13 +38,13 @@ internal static class CeresDoorInitializationDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.StartCeresDoorOrWall(actor, settings);
 
-            AssertEqual(rom.ReadCartridgeWord((functionTable + selector * 2)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((functionTable + selector * 2)),
                 CeresNativeWords.MainBehaviourWord(place),
                 $"production Ceres {actor} {settings} main behaviour, function selector {selector}");
             AnimationPlayback<CeresDoorSegment> playback = place.RequireSpeciesState<CeresDoorAnimationState>().Playback;
             CeresDoorSegment started = CeresDoorAnimations.StartingAt.Keys.Single(segment =>
                 new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation).Equals(playback));
-            AssertEqual(rom.ReadCartridgeWord((instructionTable + selector * 2)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + selector * 2)),
                 NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.Entries, started),
                 $"production Ceres {actor} {settings} animation, instruction selector {selector}");
             AssertEqual(1, place.AnimationClock.Hold,

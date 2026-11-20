@@ -31,7 +31,7 @@ internal static class BombTorizoMovementDefinitionsVerification
         foreach (Offset16<RoomPixels> displacement in displacements)
         foreach (bool sitDown in new[] { false, true })
         {
-            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers())
+            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 500)),
             };
@@ -47,12 +47,13 @@ internal static class BombTorizoMovementDefinitionsVerification
         AssertTrue(velocities.Length > 1, "Bomb Torizo's animations carry walking velocities");
         foreach (int velocity in velocities)
         {
-            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers())
+            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
                 Radius = new(8, 8),
             };
             var state = new TorizoEnemyState(TorizoVariant.Bomb);
+            place.SetSpeciesState(state);
             var next = enemies.TorizoBehavior.Choices.ProcessTorizoWalkStep(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), level,
                 TorizoWalkerDefinitions.BombTorizo, velocity);
             AssertEqual(velocity, state.Velocity.X.InTwoHundredFiftySixthsOfPixel, $"Bomb Torizo walk consumer velocity {velocity}");

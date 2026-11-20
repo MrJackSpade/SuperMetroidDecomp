@@ -38,7 +38,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         var colors = new PaletteRgb5[EnemyPaletteSheetFile.ColorCount];
         for (int color = 0; color < colors.Length; color++)
         {
-            ushort word = rom.ReadCartridgeWord((NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource + color * 2));
+            ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord((NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource + color * 2));
             colors[color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         }
         // This instruction-only fixture never renders character graphics, but the
@@ -48,7 +48,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         using var tilePng = new MemoryStream();
         IndexedPng.Write(tilePng, size, pixels, SnesGraphics.DiagnosticPalette(16));
         tilePng.Position = 0;
-        var artwork = EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
+        var artwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
                 [EnemyDefinitionId.PirateGoldWall] = RoomCharacterAtlasPng.Read(tilePng, RoomCharacterAtlasFormat.BytesPerTile),
             }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
@@ -158,7 +158,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 ushort expectedY = unchecked((ushort)(place.Position.Y.Whole - nativeSpeed / 256));
                 nativeSpeed = unchecked((ushort)(nativeSpeed - speedStep));
                 bool riseEnds = unchecked((short)nativeSpeed) < 0;
-                enemies.NinjaSpacePirateBehavior.RunNinjaSpacePirateMainAi(place, place.RequireSpeciesState<NinjaSpacePirateEnemyState>(), frame);
+                enemies.NinjaSpacePirateBehavior.RunNinjaSpacePirateMainAi(place, frame);
                 AssertEqual(expectedY, place.Position.Y.Whole, $"ninja divekick rise update {update} climbs by the speed's whole pixels");
                 if (!riseEnds)
                 {
@@ -239,7 +239,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
             place.Radius = new(8, 16);
             place.SetSpawnParameter2(EnemyDefinitionId.PirateSilverNinja, 0x0080);
-            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place, place.SpawnSettings<NinjaSpacePirateSpawnSettings>());
+            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place.HeldOccupant(), place);
             return new NinjaSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, place, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) });
         }
 

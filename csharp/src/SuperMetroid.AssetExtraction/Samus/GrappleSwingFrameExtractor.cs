@@ -22,12 +22,12 @@ public static class GrappleSwingFrameExtractor
     /// <remarks>This is an orientation-art selection, not a physical body-offset table; extraction does not modify swing geometry or facing.</remarks>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        var frames = new Dictionary<int, int>();
+        var frames = new int?[GrappleSwingDirection.Count];
         for (int angle = 0; angle < CartridgeAngleCount; angle++)
         {
             int frame = bus.ReadCartridgeByte(SamusSourceDefinitions.GrappleSwingFrameByAngle.Value + angle);
             int direction = GrappleSwingDirection.Nearest(new TrigonometryAngle(angle)).Number;
-            if (frames.TryGetValue(direction, out int chosen) && chosen != frame)
+            if (frames[direction] is { } chosen && chosen != frame)
                 throw new InvalidDataException(
                     $"Grapple swing angle {angle} selects frame {frame}, but its swing direction {direction} already selects frame {chosen}.");
             frames[direction] = frame;
@@ -36,8 +36,7 @@ public static class GrappleSwingFrameExtractor
         return GrappleSwingFrameFile.Write(new()
         {
             Version = GrappleSwingFrameFile.Version,
-            Frames = [.. Enumerable.Range(0, GrappleSwingDirection.Count).Select(direction => frames.TryGetValue(direction, out int frame) ? frame
-                : throw new InvalidDataException($"Grapple swing direction {direction} holds no angle."))],
+            Frames = [.. frames.Select(frame => frame ?? throw new InvalidDataException("A grapple swing direction holds no angle."))],
         });
     }
 

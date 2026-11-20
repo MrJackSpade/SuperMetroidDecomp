@@ -81,16 +81,11 @@ internal static class EncounterArtworkDrawingDefinitions
             Frames = [.. TorizoAnimations.Segments.Frames],
         };
 
-    /// <summary>Every frame the Torizos' projectile families show (#2554).</summary>
-    private static IEnumerable<EnemyProjectileFrameId> TorizoProjectileFrames =>
-        TorizoProjectileAnimations.Segments.Frames.Union(TorizoExplosionAnimations.Segments.Frames).Union(TorizoChozoOrbAnimations.Segments.Frames)
-            .Union(GoldenTorizoEggAnimations.Segments.Frames).Union(GoldenTorizoWeaponAnimations.Segments.Frames);
-
     /// <summary>Bomb Torizo's projectiles, which fly only once it has woken.</summary>
     private static readonly EncounterArtworkDrawing BombTorizoProjectiles =
         new(ComposedEncounter.BombTorizo, [.. Bomb(L.EyesGlowingFullyAgain, L.GutBlownUp, L.FaceHalfBlownAway, L.FaceBlownUp)])
         {
-            Projectiles = [.. TorizoProjectileFrames],
+            Projectiles = [.. TorizoProjectileAnimations.Segments.Frames],
         };
 
     /// <summary>
@@ -106,7 +101,7 @@ internal static class EncounterArtworkDrawingDefinitions
             L.StunnedEyesDark, L.StunnedEyesGlowingFaintly, L.StunnedEyesGlowingBrightly, L.StunnedEyesGlowingFully)])
         {
             Frames = [.. TorizoAnimations.Segments.Frames],
-            Projectiles = [.. TorizoProjectileFrames],
+            Projectiles = [.. TorizoProjectileAnimations.Segments.Frames],
         };
 
     /// <summary>
@@ -238,7 +233,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing MotherBrainEffects =
         new(ComposedEncounter.MotherBrain, [ComposedLook.Loaded(ComposedEncounter.MotherBrain)])
         {
-            Projectiles = [.. MotherBrainEffectAnimations.Segments.Frames.Union(MotherBrainBreathAnimations.Segments.Frames)
+            Projectiles = [.. MotherBrainEffectAnimations.Segments.Frames
                 .Except(MotherBrainRings).Except(MotherBrainAttackEffects).Except(MotherBrainDoorFragments).Except(MotherBrainSubtitle)],
         };
 

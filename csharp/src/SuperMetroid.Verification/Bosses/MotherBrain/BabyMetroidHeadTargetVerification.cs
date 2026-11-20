@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -22,21 +21,21 @@ internal static class BabyMetroidHeadTargetVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemyPlace head = state.Head;
         MotherBrainRainbowBeamAttackSequence sequence = state.BeginLateFight();
         runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(sequence);
-        BabyMetroidCutsceneState baby = sequence.State.Baby.Arrived() ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.");
+        BabyMetroidCutsceneState baby = sequence.Baby ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.");
         RoomEnemyPlace place = baby.Place;
 
         head.Position = head.Position.WithWhole(new(0x007d, 0x005d));
         global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody);
         global::SuperMetroid.Core.PrivateState.Set(baby, "Position", FixedPosition<RoomPixels>.FromWhole(new(0x007d, 0x0045)).WithFractionsOf(baby.Position));
 
-        runtime.Enemies.BabyMetroidCutsceneBehavior.RunMotherBrainBabyMetroidMain((place), (place).RequireSpeciesState<BabyMetroidCutsceneState>(), runtime.Player.Samus, Position16<RoomPixels>.Zero);
+        runtime.Enemies.BabyMetroidCutsceneBehavior.RunMotherBrainBabyMetroidMain((place), runtime.Player.IntroducedSamus, Position16<RoomPixels>.Zero);
         AssertEqual(BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse, baby.Phase, "the Baby reaches the head");
         AssertEqual((ushort)0x007d, place.Position.X.Whole, "the Baby pins to the head enemy's current X");
         AssertEqual((ushort)0x0045, place.Position.Y.Whole, "the Baby pins $18 above the head enemy's current Y");

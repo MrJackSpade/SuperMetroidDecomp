@@ -14,6 +14,7 @@ public sealed class RidleyFade
     {
         Key = Ensure.NotNull(key);
         Images = [.. Enumerable.Range(0, Ensure.BetweenInclusive(1, int.MaxValue, imageCount)).Select(step => new RidleyFadeImage(this, step))];
+        End = Images[^1];
     }
 
     /// <summary>The name of its installed shades.</summary>
@@ -21,6 +22,9 @@ public sealed class RidleyFade
 
     /// <summary>Its images, in their installed order.</summary>
     public IReadOnlyList<RidleyFadeImage> Images { get; }
+
+    /// <summary>The image the run ends on: a fade's full colours, which the encounter holds once the fade is over.</summary>
+    public RidleyFadeImage End { get; }
 
     /// <summary>
     /// The image a quantity selects by its place in the run, counting from zero (#2409): the getaway floor's shade for its

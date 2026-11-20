@@ -31,7 +31,7 @@ public static class SamusChargeColorExtractor
         {
             // The list is read backward from its last pointer, skipping the padding word before its first.
             int tableOffset = (SamusChargeColorFormat.HyperFrameCount - frame) * sizeof(ushort);
-            int pointer = RomDataReader.ReadWordFixedBank(bus,
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 SamusSourceDefinitions.HyperBeamShotPointers.Value + tableOffset);
             hyper[frame] = ReadColors(pointer);
         }
@@ -45,12 +45,12 @@ public static class SamusChargeColorExtractor
 
         PaletteRgb5[][] ReadSixPhaseList(int topAddress, int suit)
         {
-            int list = RomDataReader.ReadWordFixedBank(bus,
+            int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 topAddress + suit * sizeof(ushort));
             var phases = new PaletteRgb5[SamusChargeColorFormat.PhasesPerSuit][];
             for (int phase = 0; phase < phases.Length; phase++)
             {
-                int pointer = RomDataReader.ReadWordFixedBank(bus,
+                int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     SamusSourceDefinitions.PoseBank.Value | (list + phase * sizeof(ushort)));
                 phases[phase] = ReadColors(pointer);
             }
@@ -59,7 +59,7 @@ public static class SamusChargeColorExtractor
 
         PaletteRgb5[] ReadColors(int pointer)
         {
-            byte[] source = RomDataReader.ReadFixedBank(bus,
+            byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 SamusSourceDefinitions.PaletteBank.Value | pointer,
                 SamusChargeColorFormat.ColorsPerPalette * sizeof(ushort));
             var result = new PaletteRgb5[SamusChargeColorFormat.ColorsPerPalette];

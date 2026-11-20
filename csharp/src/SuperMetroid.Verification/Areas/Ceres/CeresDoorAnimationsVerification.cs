@@ -12,7 +12,7 @@ internal static class CeresDoorAnimationsVerification
     /// <summary>Every segment matches its native list and every animation the lists' control flow.</summary>
     internal static void VerifyCeresDoorAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries, CeresDoorAnimations.Segments, CeresDoorAnimations.StartingAt,
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, CeresDoorAnimations.Segments, CeresDoorAnimations.StartingAt,
             CeresDoorFrameDefinitionsConstants.Spritemap,
             new NativeEnemyCueRules<CeresDoorCue>(word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null, (word, operands, cue, at) =>
             {

@@ -61,20 +61,21 @@ internal static class RidleySheetShades
     private static readonly int[] WarningColoursFromHud = [1, 3];
 
     /// <summary>The shades of both encounters' sprite sheets and the objects they spawn.</summary>
-    internal static IReadOnlyList<SheetShade> Sprites(CeresRidleyColorCatalog ceres, BossSourceArtwork bosses)
+    /// <exception cref="InvalidDataException">An encounter's colours are not installed.</exception>
+    internal static IReadOnlyList<SheetShade> Sprites(CeresRidleyColorCatalog? ceres, BossSourceArtwork bosses)
     {
-        Ensure.NotNull(ceres);
         Ensure.NotNull(bosses);
-        return [.. CeresSprites(ceres), .. NorfairSprites(bosses.NorfairRidleyColors)];
+        return [.. CeresSprites(ceres ?? throw Missing("Ceres Ridley")), .. NorfairSprites(bosses.NorfairRidleyColors ?? throw Missing("Norfair Ridley"))];
     }
 
     /// <summary>The shades of both encounters' rooms' pictures.</summary>
+    /// <exception cref="InvalidDataException">An encounter's colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> Room(ImportAreaMapPresentation maps, BossSourceArtwork bosses)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(bosses);
         return [.. CeresRoom(maps.CeresRidleyColors, maps.CeresRidleyFloorColors),
-            .. NorfairRoom(bosses.NorfairRidleyColors)];
+            .. NorfairRoom(bosses.NorfairRidleyColors ?? throw Missing("Norfair Ridley"))];
     }
 
     /// <summary>
@@ -136,11 +137,10 @@ internal static class RidleySheetShades
             shades.Add(new SheetShade(RidleyShades.Fade(image),
                 [.. Enumerable.Range(ShadowRow + 1, body.Length), .. Enumerable.Range(OwnRow + 1, body.Length)], [.. body, .. body]));
         }
-        for (int row = 0; row < CeresRidleyColorFormat.HealthBandCount; row++)
+        foreach (RidleyHealthShade band in RidleyHealthShadeDefinitions.LeastHurtFirst)
         {
-            int shown = row;
-            shades.Add(SheetShade.Run(RidleyShades.Health(RidleyHealthShadeDefinitions.LeastHurtFirst[shown]), OwnRow + 1,
-                Colours(CeresRidleyColorFormat.HealthColorCount, colour => ceres.ResolveHealth(shown, colour))));
+            shades.Add(SheetShade.Run(RidleyShades.Health(band), OwnRow + 1,
+                Colours(CeresRidleyColorFormat.HealthColorCount, colour => ceres.ResolveHealth(band, colour))));
         }
         foreach (CeresBabyShade baby in BabyShadeOrder)
             shades.Add(SheetShade.Run(RidleyShades.Baby(baby), BabyRow + 1,
@@ -190,4 +190,6 @@ internal static class RidleySheetShades
     /// <summary><paramref name="count"/> colours, each from <paramref name="colour"/>.</summary>
     private static RgbColor[] Colours(int count, Func<int, RgbColor> colour) => [.. Enumerable.Range(0, count).Select(colour)];
 
+    /// <summary>The error for an encounter whose colours are not installed.</summary>
+    private static InvalidDataException Missing(string encounter) => new($"{encounter} is shaded from its installed colours.");
 }

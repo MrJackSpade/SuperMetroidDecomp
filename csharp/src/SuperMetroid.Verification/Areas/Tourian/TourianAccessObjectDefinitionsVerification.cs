@@ -51,8 +51,8 @@ internal static class TourianAccessObjectDefinitionsVerification
         TourianAccessObjectDefinitionsCase[] cases = [new TourianAccessObjectDefinitionsCase(false,0x88dc9f), new TourianAccessObjectDefinitionsCase(true,0x88db99)];
         foreach (var item in cases)
         {
-            ushort header = rom.ReadCartridgeWord(item.SpawnOperand);
-            ushort list = rom.ReadCartridgeWord(0x840000 | (header + 2));
+            ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord(item.SpawnOperand);
+            ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x840000 | (header + 2));
             AssertEqual(item.Clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble,
                 RoomObjectNativeListAddresses.TourianAccessEntries.Single(entry => entry.Entry == list).Program,
                 $"Tourian native spawn clear={item.Clear} starts its floor's list");

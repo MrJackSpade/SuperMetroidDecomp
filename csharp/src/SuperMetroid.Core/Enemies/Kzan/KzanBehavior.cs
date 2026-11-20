@@ -5,35 +5,20 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>The Kzan species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemySettingsFactory<KzanSpawnSettings>
+internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.KzanBottom, EnemyDefinitionId.KzanTop];
 
-    /// <summary>A Kzan's top, falling as its placement names (#2146).</summary>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, KzanSpawnSettings settings) =>
-        new KzanTopEntity(this, occupant, place, common, settings);
-
-    /// <inheritdoc/>
-    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)
-    {
-        IEnemyEntityFactory untold = this;
-        Ensure.NotNull(registry).Add(untold);
-        registry.Add<KzanSpawnSettings>(this);
-    }
-
     /// <summary>A Kzan's top, or the bottom that follows it (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Kzan definition.</exception>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
+        if (definition == EnemyDefinitionId.KzanTop)
+            return EnemyOccupant.Of(new KzanTopEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.KzanBottom)
-        {
-            // The bottom follows the top listed before it as it is built (#2554).
-            var bottom = new KzanBottomEntity(this, occupant, place, common);
-            InitializeKzanBottom(place);
-            return bottom;
-        }
+            return EnemyOccupant.Of(new KzanBottomEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The Kzan species creates no {occupant.DefinitionId}.");
     }
 
@@ -53,38 +38,30 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     }
 
     /// <summary>Initializes the top's idle animation, fall speed, fall distance and wait timer from its spawn settings.</summary>
-    internal static KzanEnemyState InitializeKzanTop(RoomEnemyPlace place, KzanSpawnSettings settings)
+    internal static void InitializeKzanTop(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        var state = new KzanEnemyState(KzanAction.WaitingToFall, settings);
+        var state = new KzanEnemyState(KzanAction.WaitingToFall);
+        place.SetSpeciesState(state);
 
         state.Playback = EnemyAnimationPlayback.Start(place, KzanAnimations.StartingWith(KzanSegment.Idle));
 
-        // The spawn settings name the speed the fall starts at. Placements include four pixels per update,
-        // the fastest the fall reaches.
-        state.FallingSpeed = settings.FallSpeed;
+        // The spawn settings name the speed the fall starts at. Placements include the fastest the fall
+        // reaches.
+        state.FallingSpeed = occupant.SpawnSettings<KzanSpawnSettings>().FallSpeed;
 
         // The spawn settings name the fall distance in pixels and the top's wait. A wait of zero does not run out at
         // once: it runs the full countdown (WrappingCountdown).
         int spawnY = place.Position.Y.Whole;
-        state.FallingTargetY = spawnY + settings.FallDistance;
+        state.FallingTargetY = spawnY + occupant.SpawnSettings<KzanSpawnSettings>().FallDistance;
         state.RisingTargetY = spawnY;
-        state.FallWaitTimer = WrappingCountdown.Start(settings.FallWait);
-        return state;
+        state.FallWaitTimer = WrappingCountdown.Start(occupant.SpawnSettings<KzanSpawnSettings>().FallWait);
     }
 
-    /// <summary>Places the lower actor twelve pixels below the preceding top during setup.</summary>
+    /// <summary>Places the lower actor below the preceding top (<see cref="KzanMotionDefinitions.BottomBelowTop"/>) during setup.</summary>
     /// <exception cref="InvalidDataException">The enemy before the bottom is not a Kzan top.</exception>
     internal void InitializeKzanBottom(RoomEnemyPlace place)
     {
-        // The bottom follows whatever enemy precedes it. Every room with Kzans (the Wasteland and the
-        // Wrecked Ship's main shaft) places each bottom directly after its top, so that enemy is its top; any
-        // other placement is refused rather than followed.
-        if (_places.ListedBeforeOrNone(place, 1) is not { DefinitionId: EnemyDefinitionId.KzanTop } top)
-        {
-            throw new InvalidDataException(
-                $"Kzan bottom in place {place.Ordinal} does not directly follow a Kzan top, as every room with Kzans places it.");
-        }
-        _tops.Place(place, top);
+        _tops.Place(place, _places.Member(place, KzanPartListingDefinitions.Listing, EnemyDefinitionId.KzanBottom, EnemyDefinitionId.KzanTop));
         FollowKzanTop(place);
     }
 
@@ -101,16 +78,16 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
         bottom.Position = bottom.Position.WithWhole(new(top.Position.X.Whole, top.Position.Y.Whole + KzanMotionDefinitions.BottomBelowTop));
     }
 
-    /// <summary>Runs the top actor through fall wait, accelerated descent, rise wait, and half-pixel ascent.</summary>
+    /// <summary>Runs the top actor through fall wait, accelerated descent, rise wait, and slow ascent.</summary>
     private void RunKzanTopMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         KzanEnemyState state,
         SamusState samus)
     {
         switch (state.Action)
         {
             case KzanAction.WaitingToFall:
-                RunKzanWaitingToFall(state);
+                RunKzanWaitingToFall(occupant, state);
                 return;
 
             case KzanAction.Falling:
@@ -132,14 +109,14 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     }
 
     /// <summary>Decrements the wrapping top wait and resets the fall speed when descent begins.</summary>
-    private static void RunKzanWaitingToFall(KzanEnemyState state)
+    private static void RunKzanWaitingToFall(RoomEnemyOccupant occupant, KzanEnemyState state)
     {
         state.FallWaitTimer = state.FallWaitTimer.Decrement().Remaining;
         if (!state.FallWaitTimer.IsZero)
             return;
 
-        state.FallWaitTimer = WrappingCountdown.Start(state.Settings.FallWait);
-        state.FallingSpeed = state.Settings.FallSpeed;
+        state.FallWaitTimer = WrappingCountdown.Start(occupant.SpawnSettings<KzanSpawnSettings>().FallWait);
+        state.FallingSpeed = occupant.SpawnSettings<KzanSpawnSettings>().FallSpeed;
         state.Action = KzanAction.Falling;
     }
 
@@ -173,7 +150,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
             state.Action = KzanAction.Rising;
     }
 
-    /// <summary>Subtracts one-half pixel per update, stops at the spawn height, and carries Samus by the whole-pixel step.</summary>
+    /// <summary>Rises by <see cref="KzanMotionDefinitions.RisingStep"/> each update, stops at the spawn height, and carries Samus by the whole-pixel step.</summary>
     private static void RunKzanRising(
         RoomEnemyPlace place,
         KzanEnemyState state,
@@ -181,7 +158,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     {
         int previousY = place.Position.Y.Whole;
 
-        // The Kzan rises by exactly half a pixel per update.
+        // The Kzan rises by exactly its rising step each update.
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(KzanMotionDefinitions.RisingStep));
         if (place.Position.Y.Whole < state.RisingTargetY)
         {
@@ -208,14 +185,14 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     }
 
     /// <summary>Advances Kzan's typed animation.</summary>
-    internal static void AdvanceKzanTypedAnimation(RoomEnemyPlace place, KzanEnemyState kzanEnemyState, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, kzanEnemyState, KzanAnimations.Segments,
+    internal static void AdvanceKzanTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, KzanAnimations.Segments,
             static (KzanEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Kzan animation raised {cue}."));
 
     /// <summary>Runs KzanTop's main AI.</summary>
-    internal void RunKzanTopMainAi(RoomEnemyPlace place, KzanEnemyState state, IEnemyAiFrame frame)
+    internal void RunKzanTopMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunKzanTopMain(place, state, frame.Samus);
+        RunKzanTopMain(occupant, place, place.RequireSpeciesState<KzanEnemyState>(), frame.Samus);
     }
 }

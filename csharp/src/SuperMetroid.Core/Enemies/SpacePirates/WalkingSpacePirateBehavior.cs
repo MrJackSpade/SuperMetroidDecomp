@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The walking space pirate species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettingsFactory<WalkingSpacePirateSpawnSettings>
+internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWalking, EnemyDefinitionId.PirateGreenWalking, EnemyDefinitionId.PirateGreyWalking, EnemyDefinitionId.PirateMagentaWalking, EnemyDefinitionId.PirateRedWalking, EnemyDefinitionId.PirateSilverWalking];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WalkingSpacePirateSpawnSettings settings) => new WalkingSpacePirateEntity(this, occupant, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WalkingSpacePirateEntity(this, occupant, place, common));
 
     /// <summary>Supplies solid-ground and ledge probes for the patrol AI.</summary>
     private readonly EnemyTerrain _terrain;
@@ -45,24 +45,24 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
     /// Carries out one cue of the walking Space Pirates' animations. Choosing a movement continues at the walk or laser
     /// animation it selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private WalkingSpacePirateSegment? ApplyWalkingSpacePirateCue(RoomEnemyPlace place, WalkingSpacePirateEnemyState state, WalkingSpacePirateCue cue, SamusState samus)
+    private WalkingSpacePirateSegment? ApplyWalkingSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, WalkingSpacePirateCue cue, SamusState samus)
     {
         switch (cue)
         {
             case WalkingSpacePirateCue.FireLaser fireLaser:
-                _ = SpawnSpacePirateLaser(place, fireLaser.Direction, fireLaser.LaserHeight,
-                    state.Settings.LaserSpeed);
+                _ = SpawnSpacePirateLaser(occupant, fireLaser.Direction, fireLaser.LaserHeight,
+                    occupant.SpawnSettings<WalkingSpacePirateSpawnSettings>().LaserSpeed);
                 return null;
             case WalkingSpacePirateCue.Signal { Kind: WalkingSpacePirateCueKind.ChooseMovement }:
                 return SelectWalkingSpacePirateMovement(place, samus);
             case WalkingSpacePirateCue.Begin begin:
                 // The pirate animation does not jump to the stand or walk it begins: main AI runs it from the next
                 // frame, as the animation runs on.
-                RequireWalkingSpacePirateState(state).Action = begin.Action;
+                RequireWalkingSpacePirateState(place).Action = begin.Action;
                 return null;
             case WalkingSpacePirateCue.BeginHeading begin:
                 // As a plain begin, main AI runs the walk from the next frame, the cue's way (#2165).
-                WalkingSpacePirateEnemyState walker = RequireWalkingSpacePirateState(state);
+                WalkingSpacePirateEnemyState walker = RequireWalkingSpacePirateState(place);
                 walker.Action = begin.Action;
                 walker.Heading = begin.Heading;
                 return null;
@@ -79,11 +79,13 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
         _audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Initializes the walking Space Pirate.</summary>
-    internal static WalkingSpacePirateEnemyState InitializeWalkingSpacePirate(RoomEnemyPlace place, WalkingSpacePirateSpawnSettings settings)
+    internal static void InitializeWalkingSpacePirate(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        var state = new WalkingSpacePirateEnemyState(WalkingSpacePirateAction.StandingStill, settings);
+        var state = new WalkingSpacePirateEnemyState(WalkingSpacePirateAction.StandingStill);
+        place.SetSpeciesState(state);
 
         // The placement's facing alone selects the first walk.
+        WalkingSpacePirateSpawnSettings settings = occupant.SpawnSettings<WalkingSpacePirateSpawnSettings>();
         state.Playback = new(WalkingSpacePirateAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
             ? WalkingSpacePirateSegment.WalkingRight
             : WalkingSpacePirateSegment.WalkingLeft), AnimationPlace.StartOfAnimation);
@@ -93,12 +95,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
         // sees each post on its own side of the pirate.
         state.RightPostX = OffRoomPlaces.Place(place.Position.X.Whole + settings.PatrolReach);
         state.LeftPostX = OffRoomPlaces.Place(place.Position.X.Whole - settings.PatrolReach);
-        return state;
     }
 
     /// <summary>Runs the walking Space Pirate's main AI.</summary>
     private void RunWalkingSpacePirateMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         WalkingSpacePirateEnemyState state,
         SamusState samus,
         RoomLevelData level,
@@ -124,7 +125,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
 
         // A pirate placed to flinch looks for Samus's shots after its normal AI, and a flinch may replace an animation
         // selected just above.
-        if (state.Settings.ShotWatch == WalkingSpacePirateShotWatch.FlinchesFromShots)
+        if (occupant.SpawnSettings<WalkingSpacePirateSpawnSettings>().ShotWatch == WalkingSpacePirateShotWatch.FlinchesFromShots)
             TryTriggerWalkingSpacePirateFlinch(place, state, samus, samusProjectiles);
     }
 
@@ -220,7 +221,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
         SamusProjectileSystem projectiles)
     {
         // A walking pirate reacts to any shot by its kind, not its picture.
-        SamusProjectile? shot = PirateFlinchFromHighestShot.Shot(projectiles.Shots, projectile => !projectile.Type.IsNone);
+        SamusProjectile? shot = PirateFlinchFromHighestShot.Shot(projectiles.Shots, projectile => projectile.IsOccupied);
         if (shot is null ||
             Math.Abs(shot.Position.X.Whole - place.Position.X.Whole) >=
                 SpacePirateMotionDefinitions.WalkingFlinchReach ||
@@ -257,7 +258,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
             : WalkingSpacePirateSegment.WalkingRight;
     }
 
-    /// <summary>Tests signed vertical separation against the sixteen-pixel firing band.</summary>
+    /// <summary>Tests vertical separation against the firing band (<see cref="SpacePirateMotionDefinitions.WalkingFiringBand"/>).</summary>
     private static bool WalkingSpacePirateIsVerticallyClose(
         RoomEnemyPlace place,
         SamusState samus) =>
@@ -293,17 +294,18 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
     /// placement names for its lasers (#2453).
     /// </summary>
     internal bool SpawnSpacePirateLaser(
-        RoomEnemyPlace source,
+        RoomEnemyOccupant source,
         HorizontalDirection direction,
         int laserHeight,
         PirateLaserSpeed speed)
     {
+        RoomEnemyPlace place = Ensure.NotNull(source).Place;
         EnemyProjectile? projectile = SpawnPirateMotherBrainLaser(
             source,
             new(
-                source.Position.X.Whole +
+                place.Position.X.Whole +
                     (SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead.Toward(direction)),
-                source.Position.Y.Whole - laserHeight),
+                place.Position.Y.Whole - laserHeight),
             direction,
             speed);
         if (projectile is null)
@@ -324,41 +326,42 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
     /// <param name="direction">The way the laser travels.</param>
     /// <param name="speed">The laser's speed, which the firing enemy's placement names.</param>
     internal EnemyProjectile? SpawnPirateMotherBrainLaser(
-        RoomEnemyPlace source,
+        RoomEnemyOccupant source,
         Position16<RoomPixels> muzzle,
         HorizontalDirection direction,
         PirateLaserSpeed speed)
     {
-        var laser = new LaserBehavior(new PirateLaserState(speed, direction));
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateMotherBrainLaser, laser, SpriteGraphics.SharedStandard);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateMotherBrainLaser, Laser, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return null;
 
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(muzzle);
-        projectile.StartAnimation(new SpacePirateLaserAnimation(direction == HorizontalDirection.Right
-            ? SpacePirateLaserSegment.LaserRight
-            : SpacePirateLaserSegment.LaserLeft, laser));
+        projectile.StartAnimation(new SpacePirateProjectileAnimation(Laser, direction == HorizontalDirection.Right
+            ? SpacePirateProjectileSegment.LaserRight
+            : SpacePirateProjectileSegment.LaserLeft));
 
-        // The laser holds still through its three two-frame muzzle frames until its animation fires it, running its flight
+        // The laser holds still through its muzzle frames until its animation fires it, running its flight
         // at once.
+        Laser.Lasers.Start(projectile, new PirateLaserState(speed, direction));
 
         // The setup replaces the projectile definition's properties with the enemy's damage and the
         // laser's own property. The laser does not take the Pirate's pictures or colours: it draws from the room's
         // shared sheet in its standard colours.
-        projectile.Damage = source.Definition.Damage;
+        projectile.Damage = Ensure.NotNull(source).Definition.Damage;
         projectile.CanDamageSamus = true;
         projectile.PersistsOnSamusContact = false;
         projectile.BlocksSamusProjectiles = false;
         return projectile;
     }
 
-    /// <summary>Flies a laser one step its way, deleting it once it leaves the 256x256 camera square.</summary>
+    /// <summary>Flies a laser one step its way, deleting it once it leaves the camera's view.</summary>
     private static void FlyPirateLaser(
+        LaserBehavior owner,
         EnemyProjectile projectile,
-        PirateLaserState laser,
         Position16<RoomPixels> camera)
     {
+        PirateLaserState laser = owner.Lasers.Of(projectile);
         int pixels = laser.Speed == PirateLaserSpeed.Slow
             ? SpacePirateMotionDefinitions.WalkingSlowLaserStep
             : SpacePirateMotionDefinitions.WalkingFastLaserStep;
@@ -374,51 +377,68 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
     }
 
     /// <summary>Requires the enemy to have been initialized as a walking pirate.</summary>
-    internal static WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(WalkingSpacePirateEnemyState state) =>
-        state;
+    internal static WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(
+        RoomEnemyPlace place) =>
+        place.SpeciesState<WalkingSpacePirateEnemyState>() ?? throw new InvalidOperationException(
+            $"Enemy place {place.Ordinal} has no initialized walking Space Pirate state.");
+
+    /// <summary>
+    /// The Pirates' and Mother Brain's laser (#1760): its spawner starts its animation and chooses its way, and the
+    /// animation fires it.
+    /// </summary>
+    private LaserBehavior Laser { get; } = new();
 
     /// <summary>A laser: it flies its way until it leaves the camera, once its animation fires it (#2278).</summary>
-    /// <param name="laser">What the laser keeps: its speed and the way it flies.</param>
-    internal sealed class LaserBehavior(PirateLaserState laser)
-        : SingleMotionProjectileBehavior(context => FlyPirateLaser(context.Projectile, laser, context.Camera), initial: null),
-            IEnemyProjectileCues<SpacePirateLaserCue>
+    internal sealed class LaserBehavior()
+        : EnemyProjectileMotionBehavior<SingleMotion>(initial: null), IEnemyProjectileCues<SpacePirateProjectileCue>
     {
+        /// <summary>Each laser's speed and way, given as its firer aims it.</summary>
+        internal EnemyProjectileStates<PirateLaserState> Lasers { get; } = new();
+
         /// <inheritdoc/>
-        /// <exception cref="InvalidOperationException">The cue fires the laser a way other than its firer chose.</exception>
-        public void RunCue(EnemyProjectileCueContext context, SpacePirateLaserCue cue)
+        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
+            FlyPirateLaser(this, context.Projectile, context.Camera);
+
+        /// <inheritdoc/>
+        /// <exception cref="InvalidOperationException">
+        /// The cue is not a laser's firing, or fires the laser a way other than its firer chose.
+        /// </exception>
+        public void RunCue(EnemyProjectileCueContext context, SpacePirateProjectileCue cue)
         {
+            if (cue.Kind != SpacePirateProjectileCueKind.FireLaser)
+                throw new InvalidOperationException($"A laser's animation published {cue}.");
             EnemyProjectile projectile = context.Projectile;
-            HorizontalDirection chosen = laser.Direction;
+            HorizontalDirection chosen = Lasers.Of(projectile).Direction;
             if (cue.Direction != chosen)
                 throw new InvalidOperationException($"A laser its firer aimed {chosen} played the animation that fires it {cue.Direction}.");
 
             // The laser flies from now on, and its first flight runs at once, so it moves on the update it fires and may
             // leave the screen then.
-            StartMoving(projectile);
-            FlyPirateLaser(projectile, laser, context.Camera);
+            projectile.StartMotion(this, SingleMotion.Moving);
+            FlyPirateLaser(this, projectile, context.Camera);
         }
     }
 
     /// <summary>Runs the walking Space Pirate's main AI.</summary>
-    internal void RunWalkingSpacePirateMainAi(RoomEnemyPlace place, WalkingSpacePirateEnemyState state, IEnemyAiFrame frame)
+    internal void RunWalkingSpacePirateMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         RunWalkingSpacePirateMain(
-            place,
-            RequireWalkingSpacePirateState(state),
+            occupant, place,
+            RequireWalkingSpacePirateState(place),
             frame.Samus,
             frame.Level,
             frame.SamusProjectiles);
     }
 
     /// <summary>Advances the walking Space Pirate's typed animation.</summary>
-    internal void AdvanceWalkingSpacePirateTypedAnimation(RoomEnemyPlace place, WalkingSpacePirateEnemyState walkingSpacePirateEnemyState, EnemyAnimationCueContext context)
+    internal void AdvanceWalkingSpacePirateTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context)
     {
         if (!place.AnimationClock.Expire())
             return;
-        var state = RequireWalkingSpacePirateState(walkingSpacePirateEnemyState);
+        var state = RequireWalkingSpacePirateState(place);
         AnimationPlayback<WalkingSpacePirateSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, WalkingSpacePirateAnimations.Segments, ref playback,
-            cue => ApplyWalkingSpacePirateCue(place, walkingSpacePirateEnemyState, cue, context.Samus) is { } continuesAt
+            cue => ApplyWalkingSpacePirateCue(occupant, place, cue, context.Samus) is { } continuesAt
                 ? new AnimationContinuation<WalkingSpacePirateSegment>(WalkingSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
@@ -436,12 +456,12 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
             // selected reaction runs. Normal hits get the equivalent lifecycle transition from TryStartEnemyImpact;
             // rejected and reflected hits return before that shared path. An enemy that stops the Plasma Beam also
             // forces the mark.
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
         {
-            // The Ninja body reaction deliberately returns for a just-fired Super Missile that has no link yet.
-            // The frame-hitbox collision walk nevertheless exits after running that reaction.
+            // The ninja's body ignores a just-fired Super Missile that has no link yet; the ignored shot is consumed
+            // and touches no further hitbox.
             return true;
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Reflect)
@@ -461,7 +481,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
             c.Projectile.Direction = reflected;
             c.Projectile.FlyOn();
             c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus,
-                c.Projectile);
+                c.Shot);
             RequestSpacePirateSound(EnemySoundEffectDefinitions.WalkingPirateReflectSound);
             return true;
         }
@@ -511,7 +531,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
     internal EnemyShotReaction GoldNinjaShotReaction => field ??= new()
     {
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
-            c.UsesFrameHitboxes && ResolveSpacePirateHitboxShot(c, PirateHitboxShotActions.SelectGoldNinjaHitboxShotAction(c.Enemy, c.Projectile, c.HitboxShot)),
+            c.UsesFrameHitboxes && ResolveSpacePirateHitboxShot(c, PirateHitboxShotActions.SelectGoldNinjaHitboxShotAction(c.Occupant, c.Shot, c.HitboxShot)),
         ShowsHitBurst = c => PirateHitboxShotActions.GoldNinjaShowsHitBurst(c.HitboxShot),
         ReplacesGenericDeath = c =>
         {
@@ -529,8 +549,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
     /// <summary>Starts a Pirate's death by a shot: the big explosion its shot's death animation rule chooses.</summary>
     private void StartPirateDeath(EnemyShotContext c) =>
         _deathsAndDrops.StartGenericEnemyDeath(
-            c.Enemy,
-            EnemyDeathsAndDrops.ShotKillExplosion(c.Enemy, c.ProjectileType, rule: ShotDeathAnimationRule.PirateBigExplosion),
+            c.Occupant,
+            EnemyDeathsAndDrops.ShotKillExplosion(c.Occupant, c.ProjectileType, rule: ShotDeathAnimationRule.PirateBigExplosion),
             c.Samus);
 
     /// <summary>Skips frozen contact and rejects unsupported extended hitbox reactions before normal touch damage.</summary>
@@ -541,7 +561,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
         if (context.UsesFrameHitboxes && context.HitboxTouch != SpacePirateReactions.Touch)
         {
             throw new InvalidDataException(
-                $"Space Pirate has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
+                $"Space Pirate has no response to touch reaction {context.HitboxTouch}.");
         }
         // While the Pirate is frozen, touching it deals neither Samus nor the Pirate contact damage.
         if (context.Place.Freeze.IsRunning)

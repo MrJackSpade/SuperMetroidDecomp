@@ -8,25 +8,22 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 public sealed class KraidEnemyState
 {
     /// <summary>
-    /// Begins an encounter whose parts each hold it from their setup (#2218): each part's state knows the place
-    /// <paramref name="parts"/> name for it, and each animated part plays the animation its setup starts (#2298).
+    /// Begins an encounter whose parts each hold it from their setup (#2218): each part's state knows the place that joins
+    /// <paramref name="parts"/>' reference to it, and each animated part plays the animation its setup starts (#2298).
     /// </summary>
-    /// <param name="parts">His parts' places in his room, which his body heads.</param>
+    /// <param name="parts">Kraid's references to his parts in his room.</param>
     internal KraidEnemyState(KraidParts parts)
     {
-        Parts = Ensure.NotNull(parts);
-        BodyState = new(this, parts.Body);
-        ArmState = new(this, parts.Arm);
-        TopLintState = new(this, parts.TopLint);
-        MiddleLintState = new(this, parts.MiddleLint);
-        BottomLintState = new(this, parts.BottomLint);
-        FootState = new(this, parts.Foot);
-        FirstNailState = new(this, parts.FirstNail, sibling: parts.SecondNail);
-        SecondNailState = new(this, parts.SecondNail, sibling: parts.FirstNail);
+        Ensure.NotNull(parts);
+        BodyState = new(this, parts.BodyReference);
+        ArmState = new(this, parts.ArmReference);
+        TopLintState = new(this, parts.TopLintReference);
+        MiddleLintState = new(this, parts.MiddleLintReference);
+        BottomLintState = new(this, parts.BottomLintReference);
+        FootState = new(this, parts.FootReference);
+        FirstNailState = new(this, parts.FirstNailReference, sibling: parts.SecondNailReference);
+        SecondNailState = new(this, parts.SecondNailReference, sibling: parts.FirstNailReference);
     }
-
-    /// <summary>His parts' places in his room, which his body heads (#2554).</summary>
-    internal KraidParts Parts { get; }
 
     /// <summary>Kraid's body's, sprite parts' and eyes' colours (#1512).</summary>
     internal KraidColours Colours { get; } = new();
@@ -140,10 +137,10 @@ public sealed class KraidEnemyState
     internal KraidHeadFrame? DisplayedHeadFrame { get; private set; }
 
     /// <summary>
-    /// Kraid's playing head animation and where it stands; <see cref="HeadHold"/> paces it. He rises with his roar selected,
-    /// the animation his rise's last update selects again for his first attack; nothing reads his head before then.
+    /// Kraid's playing head animation and where it stands; <see cref="HeadHold"/> paces it. Null until the first attack, glow
+    /// or death starts an animation.
     /// </summary>
-    internal AnimationPlayback<KraidHeadSegment> HeadPlayback { get; set; } = KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Playback;
+    internal AnimationPlayback<KraidHeadSegment>? HeadPlayback { get; set; }
 
     /// <summary>
     /// His head's hold on the pose it shows (#2538): each pose the head shows or enters holds for its duration, and the head

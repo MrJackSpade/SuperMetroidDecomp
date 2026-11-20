@@ -61,20 +61,20 @@ internal static class EndingPaletteImport
         int count)
     {
         if (id != EndingPaletteId.LogoCrossfade)
-            return RomDataReader.ReadFixedBank(bus,
+            return RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 EndingPaletteSources.Source(id), count * sizeof(ushort));
 
         var native = new byte[count * sizeof(ushort)];
         for (int step = 0; step < EndingLogoDefinitions.CrossfadeSteps; step++)
-        for (int palette = 0; palette < 2; palette++)
+        for (int palette = 0; palette < EndingPaletteSources.CrossfadeLayers.Count; palette++)
         for (int color = 0; color < 16; color++)
         {
-            SnesAddress source = EndingPaletteSources.LogoCrossfadeSource(step, palette)
+            SnesAddress source = EndingPaletteSources.LogoCrossfadeSource(step, EndingPaletteSources.CrossfadeLayers[palette])
                 .AddWithinBank(-(15 - color) * sizeof(ushort));
             int index = (step * 2 + palette) * 16 + color;
             BinaryPrimitives.WriteUInt16LittleEndian(
                 native.AsSpan(index * sizeof(ushort)),
-                RomDataReader.ReadWordFixedBank(bus,
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     CartridgeBankWindow.At(EndingSourceDefinitions.LogoPaletteBank, source.Offset)));
         }
         return native;

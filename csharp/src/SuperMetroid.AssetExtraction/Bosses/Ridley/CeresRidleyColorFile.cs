@@ -35,7 +35,8 @@ public static class CeresRidleyColorFile
             Background = Compile(document.RetreatBg, CeresRidleyColorFormat.RetreatBgColorCount, "retreat BG"),
             Shared = Compile(document.RetreatShared, CeresRidleyColorFormat.RetreatSharedColorCount, "retreat shared"),
         };
-        CeresBabyShadeColours baby = CompileShades(document.BabyShades);
+        CeresBabyShadeColours baby = CompileShades(document.BabyShades
+            ?? throw new InvalidDataException("Ceres Ridley Baby requires its shades."));
         return new CeresRidleyColorCatalog(start, eyeFade, bodyFade, health, alarm, retreat, baby);
     }
 

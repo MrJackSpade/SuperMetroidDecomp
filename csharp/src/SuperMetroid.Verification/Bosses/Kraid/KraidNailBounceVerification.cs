@@ -21,15 +21,15 @@ internal static class KraidNailBounceVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.Places.BindKraidPartsInRoomOrder();
         _ = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
-        Action<RoomEnemyPlace, RoomLevelData> tick = (place, room) => enemies.KraidBehavior.Projectiles.TickKraidNailFlight(place, place.RequireSpeciesState<KraidNailState>(), room);
+        Action<RoomEnemyPlace, RoomLevelData> tick = (place, room) => enemies.KraidBehavior.Projectiles.TickKraidNailFlight(place, ((KraidNailState)place.RequireSpeciesState<KraidPartState>()), room);
         var nail = enemies.Places.InUpdateOrder[6];
         nail.Radius = new(4, 4);
         for (int speed = 1; speed <= 4; speed++)
         {
             nail.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
-            nail.RequireSpeciesState<KraidNailState>().NailVelocity = FixedVector<RoomPixels>.FromWholePixels(new(speed, 0));
+            ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity = FixedVector<RoomPixels>.FromWholePixels(new(speed, 0));
             tick(nail, level);
-            AssertEqual(SignedSixteenSixteen.FromWholePixels(-speed), nail.RequireSpeciesState<KraidNailState>().NailVelocity.X, "the contour reverses the nail's speed");
+            AssertEqual(SignedSixteenSixteen.FromWholePixels(-speed), ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.X, "the contour reverses the nail's speed");
             AssertEqual((ushort)(128 + speed), nail.Position.X.Whole, "the bounce follows the current horizontal move");
             AssertEqual((ushort)0, nail.Position.X.Fraction, "a whole-pixel move keeps the nail on a whole pixel");
         }
@@ -40,9 +40,9 @@ internal static class KraidNailBounceVerification
         for (int speed = 1; speed <= 4; speed++)
         {
             nail.Position = FixedPosition<RoomPixels>.FromWhole(new(140, 128));
-            nail.RequireSpeciesState<KraidNailState>().NailVelocity = FixedVector<RoomPixels>.FromWholePixels(new(speed, 0));
+            ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity = FixedVector<RoomPixels>.FromWholePixels(new(speed, 0));
             tick(nail, wallRoom);
-            AssertEqual(SignedSixteenSixteen.FromWholePixels(-speed), nail.RequireSpeciesState<KraidNailState>().NailVelocity.X, "the wall reverses the nail's speed");
+            AssertEqual(SignedSixteenSixteen.FromWholePixels(-speed), ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.X, "the wall reverses the nail's speed");
             AssertEqual((ushort)140, nail.Position.X.Whole, "wall collision keeps the nail against the wall");
         }
         Console.WriteLine("Kraid nail bounce: the contour and a wall reverse whole-pixel nail speeds.");

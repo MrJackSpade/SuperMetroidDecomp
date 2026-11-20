@@ -51,8 +51,10 @@ internal static class EnemyEffectsFixtureVerification
         internal CrocomireEffectFixture(CrocomireMeltingArtwork? art = null)
         {
             if (art is not null)
-                Enemies.BossArtwork = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { CrocomireMelting = art };
-            Actor = new CrocomireEnemyState(Enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.Crocomire), Enemies.Places.InUpdateOrder[0], Enemies.Places.InUpdateOrder[1]);
+                Enemies.BossArtwork = new BossSourceArtwork { CrocomireMelting = art };
+            Actor = new CrocomireEnemyState(Enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.Crocomire), Enemies.Places.InUpdateOrder[0]);
+            Enemies.Places.InUpdateOrder[1].SetSpeciesState(new CrocomireTongueState(Actor));
+            Actor.JoinTongue(Enemies.Places.InUpdateOrder[1]);
             Actor.Body.Position = Actor.Body.Position.WithWhole(new(400, 144));
             Actor.Tongue.Position = Actor.Tongue.Position.WithWholeY(160);
             // The fight's initialization attaches the cleared body canvases the melting body is drawn on (#1466).
@@ -61,6 +63,7 @@ internal static class EnemyEffectsFixtureVerification
             Effect.AcidSmokeWait.LastFor(1);
             Effect.MeltDistortion = CrocomireMeltDistortion.Level(19);
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
+            Actor.Body.SetSpeciesState(Actor);
             Enemies.VerificationServices().ReadRandom = () => 0x1234;
         }
 
@@ -141,13 +144,13 @@ internal static class EnemyEffectsFixtureVerification
     internal static CrocomireMeltingArtwork MeltEffectArtwork(byte pattern = 0x55,
         int seed = 0, string? firstJson = null)
     {
-        using var first = EffectPng(CrocomireMeltingArtworkFormat.FirstByteCount,
+        using var first = EffectPng(CrocomireMeltingArtworkFormat.FleshByteCount,
             CrocomireMeltingArtwork.UsedByteCount(CrocomireMeltingIllustration.Flesh), pattern);
-        using var second = EffectPng(CrocomireMeltingArtworkFormat.SecondByteCount,
+        using var second = EffectPng(CrocomireMeltingArtworkFormat.BareSkullByteCount,
             CrocomireMeltingArtwork.UsedByteCount(CrocomireMeltingIllustration.BareSkull), pattern);
         using var firstMap = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(firstJson ?? MeltEffectJson(seed)));
         using var secondMap = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(MeltEffectJson(seed)));
-        return CrocomireMeltingArtwork.Load(RoomCharacterAtlasPng.Read(first, CrocomireMeltingArtworkFormat.FirstByteCount),
-            RoomCharacterAtlasPng.Read(second, CrocomireMeltingArtworkFormat.SecondByteCount), firstMap, secondMap);
+        return CrocomireMeltingArtwork.Load(RoomCharacterAtlasPng.Read(first, CrocomireMeltingArtworkFormat.FleshByteCount),
+            RoomCharacterAtlasPng.Read(second, CrocomireMeltingArtworkFormat.BareSkullByteCount), firstMap, secondMap);
     }
 }

@@ -39,9 +39,28 @@ public sealed class SamusProjectileOccupant
     }
 
     /// <summary>
+    /// What the projectile's kind keeps beyond what every projectile keeps (#2346), created when the kind's behaviour is
+    /// installed (<see cref="Install"/>) and kept through its later behaviours and its explosion; null for a beam, the
+    /// Hyper Beam, and before its behaviour is installed.
+    /// </summary>
+    internal SamusShotKindState? KindState { get; private set; }
+
+    /// <summary>
     /// Whether enemy collision admits the projectile: a beam, missile or Super Missile, even when it has no animation to
     /// play, as the left-facing Murder Beam, whose type and damage remain live while it has none.
     /// </summary>
     public bool HasEnemyCollisionPayload => Type.Family.IsBeamOrMissile;
 
+    /// <summary>
+    /// Gives the projectile its kind's behaviour with the state the kind starts with: firing, a special attack, an
+    /// echo's release, a Super Missile's link and a reflection install one. A particle moving on to its next behaviour
+    /// keeps its state and changes only <see cref="SamusProjectile.Behavior"/>.
+    /// </summary>
+    /// <param name="behavior">The behaviour the projectile runs from its next update.</param>
+    /// <param name="kindState">The state the kind keeps, new for this installation, or null for a kind that keeps none.</param>
+    internal void Install(SamusShotBehavior behavior, SamusShotKindState? kindState)
+    {
+        Projectile.Behavior = Ensure.NotNull(behavior);
+        KindState = kindState;
+    }
 }

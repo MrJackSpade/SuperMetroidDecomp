@@ -25,20 +25,20 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("when each sound library accepts a request, and the acknowledgement the game reads back")]
 public sealed class SoundAcceptanceClock<TLibrary, TSound>
     where TLibrary : struct, Enum
-    where TSound : notnull, IEquatable<TSound>
+    where TSound : struct, IEquatable<TSound>
 {
     /// <summary>The libraries, distinct, in the order each request check serves them; every array below follows it.</summary>
     private readonly ImmutableArray<TLibrary> libraries;
     /// <summary>The library that reports a music load in progress instead of an acknowledgement.</summary>
     private readonly TLibrary musicLoadReporter;
     /// <summary>The game's most recent request to each library; none requests nothing.</summary>
-    private readonly RequestedSound<TSound>?[] requested;
+    private readonly TSound?[] requested;
     /// <summary>What each library reports back as acknowledged.</summary>
     private readonly SoundAcknowledgement<TSound>[] acknowledged;
     /// <summary>The request each library took at its most recent check, which the next check acts on.</summary>
-    private readonly RequestedSound<TSound>?[] taken;
+    private readonly TSound?[] taken;
     /// <summary>The request each library acted on at its most recent check, for detecting a change.</summary>
-    private readonly RequestedSound<TSound>?[] actedOn;
+    private readonly TSound?[] actedOn;
     /// <summary>
     /// Samples elapsed since the last step, 0 through <see cref="SoundClockTiming.SamplesPerStep"/>; a step that falls
     /// exactly on an update boundary runs at the start of the next update.
@@ -62,10 +62,10 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
             throw new ArgumentOutOfRangeException(nameof(musicLoadReporter), musicLoadReporter, "The music-load reporter must be one of the libraries.");
         this.libraries = libraries;
         this.musicLoadReporter = musicLoadReporter;
-        requested = new RequestedSound<TSound>?[libraries.Length];
+        requested = new TSound?[libraries.Length];
         acknowledged = new SoundAcknowledgement<TSound>[libraries.Length];
-        taken = new RequestedSound<TSound>?[libraries.Length];
-        actedOn = new RequestedSound<TSound>?[libraries.Length];
+        taken = new TSound?[libraries.Length];
+        actedOn = new TSound?[libraries.Length];
     }
 
     /// <summary>What each library reports back as acknowledged.</summary>
@@ -74,7 +74,7 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
 
     /// <summary>Records the game's current request to <paramref name="library"/>; none withdraws it.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The clock was not given <paramref name="library"/>.</exception>
-    public void Request(TLibrary library, RequestedSound<TSound>? request) => requested[PositionOf(library)] = request;
+    public void Request(TLibrary library, TSound? request) => requested[PositionOf(library)] = request;
 
     /// <summary>
     /// Loading new music stops the music player: the music-load reporter reports the load in progress instead of an
@@ -130,8 +130,8 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
     private SoundRequestCheck<TSound> Check(TLibrary library)
     {
         int position = PositionOf(library);
-        RequestedSound<TSound>? previous = actedOn[position];
-        RequestedSound<TSound>? request = taken[position];
+        TSound? previous = actedOn[position];
+        TSound? request = taken[position];
         actedOn[position] = request;
         acknowledged[position] = SoundAcknowledgement<TSound>.Of(request);
         taken[position] = requested[position];

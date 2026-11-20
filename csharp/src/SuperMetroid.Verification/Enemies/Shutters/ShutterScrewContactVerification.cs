@@ -36,7 +36,7 @@ internal static class ShutterScrewContactVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         // Places 11 and 14 share only the shutter's position bits; the shutter's and place 5's share none of them.
         Confirm(runtime, SamusBodyAttack.ScrewAttack, [ShutterPlace, null, null, null], reacts: true, "the shutter met moving left");
         Confirm(runtime, SamusBodyAttack.None, [ShutterPlace, null, null, null], reacts: false, "the shutter met without contact damage");
@@ -48,7 +48,7 @@ internal static class ShutterScrewContactVerification
         static void Confirm(SuperMetroidRuntime runtime, SamusBodyAttack contactDamage, int?[] contactPlaces, bool reacts, string contacts)
         {
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.ThreeMusketeers);
-            var samus = runtime.Player.Samus;
+            var samus = runtime.Player.IntroducedSamus;
             RoomEnemyPlace shutter = runtime.Enemies.Places.InUpdateOrder[ShutterPlace];
             VerticalShutterEnemyState state = (runtime.Enemies.VerticalShutterStates[ShutterPlace] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.VerticalShutterStates[10]."));
             AssertEqual(ShutterTriggerMode.OneShotReaction, shutter.HeldOccupant().SpawnSettings<ShutterSpawnSettings>().TriggerMode, "the movie's shutter waits only for a shot");

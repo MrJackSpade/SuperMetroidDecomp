@@ -12,7 +12,7 @@ internal static class FakeKraidAnimationsVerification
     /// <summary>Every segment matches its native list and every animation the lists' control flow.</summary>
     internal static void VerifyFakeKraidAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries, FakeKraidAnimations.Segments, FakeKraidAnimations.StartingAt,
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, FakeKraidAnimations.Segments, FakeKraidAnimations.StartingAt,
             FakeKraidFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<FakeKraidCue>(word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null, (word, operands, cue, at) =>
             {

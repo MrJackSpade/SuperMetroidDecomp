@@ -5,11 +5,4 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// The unpowered pose it holds: <see cref="WorkRobotSegment.NoPowerNeutral"/>, <see cref="WorkRobotSegment.NoPowerLeaningLeft"/>
 /// or <see cref="WorkRobotSegment.NoPowerLeaningRight"/>.
 /// </param>
-internal sealed record WorkRobotSpawnSettings(WorkRobotSegment Pose) : EnemySpawnSettings
-{
-    /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacementRequest placing) => Ensure.NotNull(species).Place(this, placing);
-
-    /// <inheritdoc/>
-    internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);
-}
+internal sealed record WorkRobotSpawnSettings(WorkRobotSegment Pose) : EnemySpawnSettings;

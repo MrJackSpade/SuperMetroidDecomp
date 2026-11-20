@@ -4,10 +4,10 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>A Phantoon flame's typed animation.</summary>
-/// <param name="segment">The segment the animation starts at.</param>
-/// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
-internal sealed class PhantoonFlameAnimation(PhantoonFlameSegment segment, IEnemyProjectileCues<PhantoonFlameCue> cues)
-    : EnemyProjectileFrameAnimation<PhantoonFlameSegment, PhantoonFlameCue>(PhantoonFlameAnimations.StartingWith(segment), cues)
+/// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
+/// <param name="segment">Where the animation starts.</param>
+internal sealed class PhantoonFlameAnimation(IEnemyProjectileCues<PhantoonFlameCue> owner, PhantoonFlameSegment segment)
+    : EnemyProjectileFrameAnimation<PhantoonFlameSegment, PhantoonFlameCue>(PhantoonFlameAnimations.StartingWith(segment), EnemyProjectileCueRunner<PhantoonFlameSegment, PhantoonFlameCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments =>

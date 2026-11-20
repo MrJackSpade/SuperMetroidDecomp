@@ -94,7 +94,7 @@ internal static class EndingSnapshotTestsVerification
                                 AssertTrue(sprite.Inks.SequenceEqual(Enumerable.Range(start, 16)), "an explosion OBJ fade level covers its colour group");
                                 for (int i = start; i < start + 16; i++)
                                 {
-                                    ushort source = RomDataReader.ReadWordFixedBank(bus, 0x8cebe9 + i * 2);
+                                    ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8cebe9 + i * 2);
                                     ushort expectedColor = (ushort)(((source & 31) * level / 32)
                                         | (((source >> 5 & 31) * level / 32) << 5)
                                         | (((source >> 10 & 31) * level / 32) << 10));
@@ -120,7 +120,7 @@ internal static class EndingSnapshotTestsVerification
                     RgbColor[] colors = [.. Enumerable.Repeat(RgbColor.Black, 32), .. waiting.Colours];
                     for (int i = 32; i < 48; i++)
                     {
-                        ushort source = RomDataReader.ReadWordFixedBank(bus, 0x8ce7e9 + i * 2);
+                        ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + i * 2);
                         int expectedColor = ((source & 31) * elapsed / 32)
                             | (((source >> 5 & 31) * elapsed / 32) << 5)
                             | (((source >> 10 & 31) * elapsed / 32) << 10);
@@ -252,7 +252,7 @@ internal static class EndingSnapshotTestsVerification
                         AssertTrue(legacy.screen.Colours.Shading.Shades.Contains(level.Shade), "the screen names the reward dissolve's fade level");
                         for (int i = start; i < start + 16; i++)
                         {
-                            ushort source = RomDataReader.ReadWordFixedBank(bus, 0x8ce7e9 + i * 2);
+                            ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + i * 2);
                             ushort expectedColor = (ushort)(((source & 31) * factor / 32)
                                 | (((source >> 5 & 31) * factor / 32) << 5)
                                 | (((source >> 10 & 31) * factor / 32) << 10));
@@ -361,7 +361,7 @@ internal static class EndingSnapshotTestsVerification
                     IReadOnlyList<IReadOnlyList<ShownColourSource>> blankSources = SceneShownColours.SourcesByPlace(blank);
                     for (int color = 4; color < 256; color++)
                     {
-                        RgbColor native = RgbColor.FromWord(RomDataReader.ReadWordFixedBank(bus, 0x8ce7e9 + color * 2));
+                        RgbColor native = RgbColor.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + color * 2));
                         ShownColourSource[] wrong = [.. blankSources[color].Where(source => source.Colour != native)];
                         AssertTrue(wrong.Length == 0, $"native end-credits Intro4 palette colour {color} ({native}): " +
                             string.Join("; ", wrong.Select(source => $"{source.Picture} colour key {source.Key} under {source.Shading} shows {source.Colour}")));

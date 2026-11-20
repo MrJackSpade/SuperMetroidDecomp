@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Video;
@@ -21,19 +20,19 @@ internal static class PauseHudLocationVerification
     internal static void VerifyPauseHudLocation()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var cart = bus;
+        var cart = CartridgeImportSource.Require(bus);
         var maps = RetailPresentationFixture();
         foreach (byte phase in new byte[] { 0, 8 })
         {
             // A runtime belongs to the one session that runs it, as every runtime a session builds does (its audio
             // requests reach that session's queues alone), so each phase's new game adopts a runtime of its own.
             var random = new SharedRandom();
-            var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, hostServices: SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random: random);
+            var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroidGameHostServices.Default, random });
             var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
-            var samus = runtime.Player.Samus;
+            runtime.RoomLoader.InitializeCeresStartSamus();
+            var samus = runtime.Player.IntroducedSamus;
             samus.Position = samus.Position.WithWhole(new(0x200, 0x300));
             runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(28, 2), RoomSize = new(0x90, 0x50), Samus = samus.Position.Whole, FrameCounter = phase, PresentationMap = maps.Get(AreaId.Crateria), MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
             ushort center = runtime.Hud.Tiles(runtime.InstalledHudArtwork)[60].PackedWord;
@@ -48,7 +47,8 @@ internal static class PauseHudLocationVerification
             int inks = ((center >> 10) & 7) * 4;
             RgbColor[] centerColors = [.. Enumerable.Range(inks + 1, 3).Select(color => RgbColor.FromWord(checked(RomDataReader.ReadWordFixedBank(cart, 0xb6f000 + color * 2))))];
             game.AdoptRuntime(runtime);
-            game.Session.Enter(PauseMenuStep.Menu, pause);
+            game.Session.Show(pause);
+            game.Session.Enter(PauseStep.Menu);
             for (int frame = 0; frame < 24; frame++)
             {
                 game.StepCaptured(0);

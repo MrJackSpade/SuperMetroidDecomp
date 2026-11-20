@@ -75,7 +75,7 @@ internal static class BossDisplayBindingsResourcesVerification
         var state = new PhantoonEnemyState(body.HeldOccupant(), body, fixture.Enemies.Places.InUpdateOrder[1], fixture.Actor, fixture.Enemies.Places.InUpdateOrder[3]);
         fixture.Enemies.BeginPhantoonAsSetUp(state);
         fixture.SetFrame(0, false);
-        SuperMetroid.Core.Enemies.EnemyPartners.Listed<PhantoonEntity>(fixture.Actor).Part.Playback = PhantoonPart.Starting(PhantoonPartSegment.Tentacles);
+        fixture.Actor.RequireSpeciesState<PhantoonPart>().Playback = PhantoonPart.Starting(PhantoonPartSegment.Tentacles);
         fixture.Actor.AnimationClock.StepOnNextUpdate();
         return fixture;
     }

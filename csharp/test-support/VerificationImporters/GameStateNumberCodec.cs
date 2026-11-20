@@ -38,9 +38,9 @@ internal static class GameStateNumberCodec
         new(session => session.Enter(DoorTransitionStep.Transitioning), session => session.IsAt(DoorTransitionStep.Transitioning)),
         new(session => session.Enter(PauseStep.DarkeningGameplay), session => session.IsAt(PauseStep.DarkeningGameplay)),
         new(session => session.Enter(PauseStep.PreparingPauseScreen), session => session.IsAt(PauseStep.PreparingPauseScreen)),
-        new(EnterPauseScreen, session => session.IsAt(PauseMenuStep.FadingIn)),
-        new(EnterPauseScreen, session => session.IsAt(PauseMenuStep.Menu)),
-        new(EnterPauseScreen, session => session.IsAt(PauseMenuStep.FadingOut)),
+        new(session => session.Enter(PauseStep.FadingIn), session => session.IsAt(PauseStep.FadingIn)),
+        new(session => session.Enter(PauseStep.Menu), session => session.IsAt(PauseStep.Menu)),
+        new(session => session.Enter(PauseStep.FadingOut), session => session.IsAt(PauseStep.FadingOut)),
         new(session => session.Enter(PauseStep.RestoringGameplay), session => session.IsAt(PauseStep.RestoringGameplay)),
         new(session => session.Enter(PauseStep.BrighteningGameplay), session => session.IsAt(PauseStep.BrighteningGameplay)),
         new(session => session.Enter(DeathSequenceStep.FinalGameplayPass), session => session.IsAt(DeathSequenceStep.FinalGameplayPass)),
@@ -71,9 +71,6 @@ internal static class GameStateNumberCodec
         new(session => session.Enter(AttractDemoStep.Unloading), session => session.IsAt(AttractDemoStep.Unloading)),
         new(session => session.Enter(AttractDemoStep.Routing), session => session.IsAt(AttractDemoStep.Routing)),
     ];
-
-    /// <summary>The number of the pause screen's stable map and equipment step, which the pause import enters with its menu.</summary>
-    internal const int PauseMenuNumber = 15;
 
     /// <summary>Enters <paramref name="game"/> at the step the cartridge numbers <paramref name="number"/>.</summary>
     /// <exception cref="InvalidDataException">The number names no step the game has, or one the import cannot enter.</exception>
@@ -114,13 +111,6 @@ internal static class GameStateNumberCodec
     /// </summary>
     private static void EnterGameDataLoad(FrontendSession session) =>
         throw new InvalidDataException("A snapshot taken during the game-data load does not say which load it runs.");
-
-    /// <summary>
-    /// A step showing the pause screen is entered with the menu it shows (#2554), which only the pause import builds
-    /// (<see cref="PauseMenuNumber"/>).
-    /// </summary>
-    private static void EnterPauseScreen(FrontendSession session) =>
-        throw new InvalidDataException("A snapshot taken on the pause screen enters it with the menu the pause import builds.");
 
     /// <summary>Whether the session runs Samus's death animation while her death sequence is at <paramref name="phase"/>.</summary>
     private static bool IsDying(FrontendSession session, SamusDeathSequencePhase phase) =>

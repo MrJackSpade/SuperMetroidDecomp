@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Runtime;
@@ -22,9 +21,9 @@ internal static class FirefleaDoubleDeathVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LowerNorfairFireflea);
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         RoomEnemyPlace fireflea = runtime.Enemies.Places.InUpdateOrder.First(place =>
             place.Holds(EnemyDefinitionId.Fireflea));
         ushort x = fireflea.Position.X.Whole, y = fireflea.Position.Y.Whole;
@@ -43,7 +42,7 @@ internal static class FirefleaDoubleDeathVerification
         AssertEqual((ushort)0, cleared.Position.X.Whole, "the second explosion reads the cleared X position");
         AssertEqual((ushort)0, cleared.Position.Y.Whole, "the second explosion reads the cleared Y position");
         AssertTrue(runtime.Enemies.DeathsAndDrops.Explosions.Of(cleared).Dropper is null, "the second explosion carries header zero");
-        AssertEqual(EnemyDeathExplosionSegment.SmallExplosion, ExplosionProgramOf(cleared),
+        AssertEqual(EnemyDeathAndDropSegment.SmallExplosion, ProgramOf(cleared),
             "EnemyDeath's returned A selects the small explosion");
         AssertEqual(killsBefore + 2, runtime.Enemies.RoomStatus.EnemiesKilled, "both deaths count a kill");
         Console.WriteLine("Fireflea double death: a killing touch also spawns the cleared-slot small explosion.");

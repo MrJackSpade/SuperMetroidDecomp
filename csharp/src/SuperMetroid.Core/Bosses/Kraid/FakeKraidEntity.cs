@@ -4,20 +4,20 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>One Fake Kraid occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Fake Kraid species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="setup">How the enemy comes to be set up, whose surroundings its initialization reads.</param>
-internal sealed class FakeKraidEntity(FakeKraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class FakeKraidEntity(FakeKraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal FakeKraidEnemyState State { get; } = species.SetUpFakeKraid(place, setup.SurroundingsOf(place));
+    /// <inheritdoc/>
+    public void Initialize(EnemyPopulationSurroundings surroundings) => species.SetUpFakeKraid(Place, surroundings);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunFakeKraidMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunFakeKraidMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFakeKraidTypedAnimation(Place, State, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFakeKraidTypedAnimation(Occupant, Place, context);
 
     /// <summary>Whether the fake Kraid's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == KraidReactions.FakeKraidTouch || base.ReactsToTouch;
@@ -43,6 +43,6 @@ internal sealed class FakeKraidEntity(FakeKraidBehavior species, RoomEnemyOccupa
     public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? species.FakeKraidPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The fake Kraid's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
+    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == KraidReactions.FakeKraidShot;
 }

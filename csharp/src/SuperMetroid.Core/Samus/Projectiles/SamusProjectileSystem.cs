@@ -264,7 +264,8 @@ public sealed class SamusProjectileSystem
         Ensure.NotNull(samus);
         Ensure.NotNull(samusBombs);
 
-        SoundRequest? firingSound = null;
+        SoundEffectId? queuedSound = null;
+        SoundRequestPriority? queuedSoundPriority = null;
 
         // Her standing form's producer is selected by the live HUD item. The beam and Power Bombs
         // share the beam producer; Missiles and Super Missiles reach the missile producer. Ball poses still
@@ -299,7 +300,7 @@ public sealed class SamusProjectileSystem
                 (buttons.ControllerInput & GameplayAction.Dash) == GameplayAction.None;
             if (samus.SelectedHudItem is HudItem.Beam or HudItem.PowerBomb || xrayBeamFallback)
             {
-                firingSound = Firing.HandleBeamInput(
+                (queuedSound, queuedSoundPriority) = Firing.HandleBeamInput(
                     terrain.Level,
                     samus,
                     buttons.ControllerInput,
@@ -310,8 +311,13 @@ public sealed class SamusProjectileSystem
             }
             else if (samus.SelectedHudItem is HudItem.Missile or HudItem.SuperMissile)
             {
-                if (Firing.TryFireMissile(samus, buttons.ControllerNewInput, buttons.ControllerPreviousNewInput, samusBombs)?.Sound is { } missileSound)
-                    firingSound = new SoundRequest(missileSound, SoundRequestPriority.Normal);
+                queuedSound = Firing.TryFireMissile(
+                    samus,
+                    buttons.ControllerNewInput,
+                    buttons.ControllerPreviousNewInput,
+                    samusBombs)?.Sound;
+                if (queuedSound is not null)
+                    queuedSoundPriority = SoundRequestPriority.Normal;
             }
         }
         // Firing queues its sound as it fires, before any projectile moves.
@@ -355,8 +361,8 @@ public sealed class SamusProjectileSystem
 
             // Killing a projectile replaces rather than clears a live beam. Consequently the
             // explosion's first frame is selected in this same projectile pass.
-            if (shot.Animation is { } animation)
-                Animation.AdvanceProjectileAnimation(shot, animation);
+            if (shot.Playback is not null)
+                Animation.AdvanceProjectileAnimation(shot);
         }
     }
 
@@ -436,9 +442,9 @@ public sealed class SamusProjectileSystem
                 continue;
 
             // Unlike a bomb or an explosion, a live shot is drawn wherever it lies, offscreen included; the display clips it.
-            if (shot.Sprite is { } sprite)
+            if (shot.Sprite is not null)
                 ProjectileAnimation.DrawShot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile),
-                    shot, sprite, cameraPosition, artwork);
+                    shot, cameraPosition, artwork);
         }
     }
 
@@ -473,15 +479,14 @@ public sealed class SamusProjectileSystem
 
         foreach (SamusProjectile shot in Pool.InUpdateOrder)
         {
-            // An explosion shows its picture from the update its animation selects its first.
-            if (!shot.IsActive || shot.Sprite is not { } sprite || shot.Occupant is not { } held || held.Type.Family is not (
+            if (!shot.IsActive || shot.Occupant is not { } held || held.Type.Family is not (
                     SamusProjectileFamily.BeamExplosion or
                     SamusProjectileFamily.MissileExplosion))
                 continue;
             _ = held.Type.Family;
 
             ProjectileAnimation.DrawShot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile),
-                shot, sprite, cameraPosition, artwork);
+                shot, cameraPosition, artwork);
         }
     }
 

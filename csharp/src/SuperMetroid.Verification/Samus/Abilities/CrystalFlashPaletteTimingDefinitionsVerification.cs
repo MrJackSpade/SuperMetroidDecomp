@@ -28,7 +28,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
         {
             int address = CrystalFlashPaletteTimingDefinitionsConstants.NativeFirstTimerAddress +
                 record * CrystalFlashPaletteTimingDefinitionsConstants.RecordByteCount;
-            ushort nativeDuration = rom.ReadCartridgeWord(address);
+            ushort nativeDuration = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             var beat = (AnimationBeat<PictureShade, NoAnimationCue>.Frame)pulse[record];
             AssertEqual(nativeDuration, beat.Duration, $"Crystal Flash body-palette duration {record}");
             AssertEqual(SamusShades.CrystalFlashBody[record], beat.Shown, $"Crystal Flash body pulse shade {record}");

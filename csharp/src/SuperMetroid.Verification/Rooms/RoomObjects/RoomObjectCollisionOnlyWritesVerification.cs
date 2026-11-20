@@ -114,7 +114,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
             system.RecordBossesDefeated(AreaId.WreckedShip, DefeatedBosses.AreaBoss);
             int activations = 0;
             RoomObjectSystem roomObjects = RoomObjectFixtures.Bound(new RoomObjectRoom(level, system, AreaId.WreckedShip),
-                RoomObjectServiceFixtures.Uninstalled with { Enemies = new FixtureObjectEnemyEffects { ChozoStatueHandActivated = () => { activations++; return []; } } },
+                RoomObjectServiceFixtures.Uninstalled with { Enemies = new FixtureObjectEnemyEffects { ChozoStatueHandActivated = _ => activations++ } },
                 RoomObjectFixtures.Unbound());
             roomObjects.ChozoStatue.NotifyChozoStatueHandCollision(level, hand, samus, SamusPoseId.MorphBallGroundRightPose, movingDown: true);
             AssertEqual(1, activations, "the morphed Samus landing on the hand wakes the statue");
@@ -213,7 +213,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
             new ScrollTriggerObject(RoomScrollChange.LandingSiteOpensScreen1x2TopAligned).Rest(level, block));
         kept.Check("a scroll extension's setup", Solid, [block], level =>
             ScrollObjects.SetupScrollExtension(level, PlaceAt(RoomObjectFixtures.Unbound(), block),
-                new ScrollExtension(RoomCollisionType.HorizontalExtension, -1)));
+                new ScrollExtension(ScrollExtensionDirection.Left)));
         kept.AssertEveryCaseKept();
     }
 

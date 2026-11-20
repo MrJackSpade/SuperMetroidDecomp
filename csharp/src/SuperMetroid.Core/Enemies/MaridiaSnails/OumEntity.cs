@@ -2,19 +2,20 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>One Oum occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Oum species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class OumEntity(OumBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
-    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal OumEnemyState State { get; } = OumBehavior.InitializeOum();
+    /// <inheritdoc/>
+    public void Initialize() => OumBehavior.InitializeOum(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunOumMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunOumMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceOumTypedAnimation(Place, State, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceOumTypedAnimation(Place);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => OumBehavior.FindHitboxReaction(Place, probe);
@@ -23,20 +24,14 @@ internal sealed class OumEntity(OumBehavior species, RoomEnemyOccupant occupant,
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
-    /// <summary>The large snail's harmless touch, which its definition leaves to it.</summary>
-    public EnemyReaction? SpeciesTouch => OumReactions.NonDamagingTouch;
-
-    /// <summary>The large snail's shot reaction, which its definition leaves to it.</summary>
-    public EnemyReaction? SpeciesShot => OumReactions.Shot;
-
     /// <summary>Whether the snail's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => Occupant.Definition.Touch == OumReactions.Touch || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == OumReactions.NonDamagingTouch || base.ReactsToTouch;
 
     /// <summary>Runs the snail's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Occupant.Definition.Touch == OumReactions.Touch)
+        if (Occupant.Definition.Touch == OumReactions.NonDamagingTouch)
             species.ReactToOumTouch(context);
         else
             base.ReactToTouch(context);
@@ -53,7 +48,7 @@ internal sealed class OumEntity(OumBehavior species, RoomEnemyOccupant occupant,
             : base.CommonBombDamageReaction(context);
 
     /// <summary>The large snail's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) =>
         reaction == OumReactions.Shot;
 }

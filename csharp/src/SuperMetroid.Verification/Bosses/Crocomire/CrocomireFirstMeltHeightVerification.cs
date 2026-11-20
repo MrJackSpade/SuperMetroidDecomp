@@ -74,12 +74,12 @@ internal static class CrocomireFirstMeltHeightVerification
             global::SuperMetroid.Core.PrivateState.Set(state, "DeathStage", phase);
             state.VerticalSpeed = SignedEightEight.FromPixels(1);
             body.Position = body.Position.WithWholeY(y);
-            fixture.Enemies.CrocomireBehavior.RunCrocomireMain(body, body.RequireSpeciesState<CrocomireEnemyState>(), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), camera);
+            fixture.Enemies.CrocomireBehavior.RunCrocomireMain(body.HeldOccupant(), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), camera);
             AssertEqual(CrocomireBodyAnimations.StartingWith(animation), state.BodyPlayback.Animation, $"{at}: animation");
             AssertEqual(AnimationPlace.StartOfAnimation, state.BodyPlayback.Place, $"{at}: the animation starts afresh");
             AssertEqual(1, body.AnimationClock.Hold, $"{at}: its first picture is due this update");
 
-            fixture.Enemies.CrocomireBehavior.Fight.AdvanceCrocomireBodyAnimation(body, body.RequireSpeciesState<CrocomireEnemyState>(), samus, level, camera.X);
+            fixture.Enemies.CrocomireBehavior.Fight.AdvanceCrocomireBodyAnimation(body, samus, level, camera.X);
             AssertEqual((EnemyFrameId?)frame, body.Frame, $"{at}: picture");
             ReadOnlySpan<EnemyCollisionComponent> components = CrocomireBodyCollision.ComponentsAt(body.Frame);
             AssertEqual(1, components.Length, $"{at}: collision components");

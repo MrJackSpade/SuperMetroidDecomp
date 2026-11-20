@@ -43,11 +43,11 @@ public static class SamusBodyPlacementDecoding
         Ensure.NotNull(landingOffsets);
         Ensure.NotNull(postureOffsets);
         Ensure.NotNull(drainedOffsets);
-        if (artOrigins.Count != SamusBodySources.PoseCount || landingOffsets.Count != LandingByteCount ||
+        if (artOrigins.Count != SamusBodyTableDecoding.PoseCount || landingOffsets.Count != LandingByteCount ||
             postureOffsets.Count != PostureByteCount || drainedOffsets.Count != DrainedByteCount)
             throw new InvalidDataException("Samus body placement tables have an invalid length.");
         var placements = new Dictionary<SamusPoseId, SamusBodyPosePlacement>();
-        for (int number = 0; number < SamusBodySources.PoseCount; number++)
+        for (int number = 0; number < SamusBodyTableDecoding.PoseCount; number++)
         {
             // A record no pose names is never drawn (#1517).
             if (!SamusPoseNumbering.NamesPose(number))

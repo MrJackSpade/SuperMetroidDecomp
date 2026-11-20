@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -620,15 +619,15 @@ internal static class RoomFxRetailInventoryVerification
         string name)
     {
         int header = RoomFxNativeSources.AnimatedTilesBank | objectPointer;
-        AssertEqual(expectedInstruction, RomDataReader.ReadWordFixedBank(bus, header),
+        AssertEqual(expectedInstruction, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), header),
             $"retail {name} animated-tile instruction list");
-        AssertEqual(expectedSize, RomDataReader.ReadWordFixedBank(bus, header + 2),
+        AssertEqual(expectedSize, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), header + 2),
             $"retail {name} animated-tile frame size");
-        AssertEqual(expectedDestination, RomDataReader.ReadWordFixedBank(bus, header + 4),
+        AssertEqual(expectedDestination, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), header + 4),
             $"retail {name} animated-tile VRAM destination");
         AssertEqual(expectedFirstSource,
             RomDataReader.ReadWordFixedBank(
-                bus,
+                CartridgeImportSource.Require(bus),
                 RoomFxNativeSources.AnimatedTilesBank | expectedInstruction + 2),
             $"retail {name} animated-tile first source frame");
     }
@@ -638,7 +637,7 @@ internal static class RoomFxRetailInventoryVerification
     {
         if ((uint)fieldOffset >= RoomFxToolingRomData.Record.ByteCount)
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
-        return bus.ReadCartridgeByte(
+        return CartridgeImportSource.Require(bus).ReadCartridgeByte(
             RoomFxRomDataBanksTooling.RoomDefinitions | (record + fieldOffset));
     }
 
@@ -647,7 +646,7 @@ internal static class RoomFxRetailInventoryVerification
     {
         if ((uint)fieldOffset > RoomFxToolingRomData.Record.ByteCount - sizeof(ushort))
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
-        return RomDataReader.ReadWordFixedBank(bus,
+        return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             RoomFxRomDataBanksTooling.RoomDefinitions | (record + fieldOffset));
     }
 
@@ -787,7 +786,7 @@ internal static class RoomFxRetailInventoryVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomThroughDoorForVerification(door);
         if (runtime.Player.Samus is null)
             throw new InvalidDataException("Room $02/$28 runtime load omitted Samus.");
@@ -827,8 +826,8 @@ internal static class RoomFxRetailInventoryVerification
         static bool Shook(RoomShakeFrameResult shake) => shake != default;
         // The runtime's update records every system's sounds in one ordered list (#1620); the effect's are its quake and lava sounds.
         IReadOnlyList<SoundRequest> EffectSounds() => [.. runtime.AudioRequests.SoundRequests.Where(request =>
-            request.SoundEffect == EnemySound.Lavaquake || request.SoundEffect == EnemySound.LavaBubbling1 ||
-            request.SoundEffect == EnemySound.LavaBubbling2 || request.SoundEffect == EnemySound.LavaBubbling3)];
+            request.SoundEffect == EnemySound.Lavaquake || request.SoundEffect == EnemySound.LavaBubblingBurst ||
+            request.SoundEffect == EnemySound.LavaBubblingFalling || request.SoundEffect == EnemySound.LavaBubblingRising)];
 
         runtime.StepFrame(0);
         AssertTrue(!Shook(runtime.Enemies.Earthquake.LastRoomShake), "room $02/$28 callback install pass does not shake");
@@ -859,13 +858,13 @@ internal static class RoomFxRetailInventoryVerification
         int table = RoomFxNativeSources.EarthquakeDisplacementTable +
             NativeEarthquakeTypes.TypeOf(RoomEarthquakeDefinitions.RisingLiquidShake) *
             RoomFxNativeSources.EarthquakeDisplacementRecordBytes;
-        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table)),
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table)),
             firstActiveShake.Foreground.X, "room $02/$28 first shake BG1 X");
-        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table + 2)),
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 2)),
             firstActiveShake.Foreground.Y, "room $02/$28 first shake BG1 Y");
-        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table + 4)),
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 4)),
             firstActiveShake.Background.X, "room $02/$28 first shake BG2 X");
-        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table + 6)),
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 6)),
             firstActiveShake.Background.Y, "room $02/$28 first shake BG2 Y");
 
         StepAndVerifySound(2);

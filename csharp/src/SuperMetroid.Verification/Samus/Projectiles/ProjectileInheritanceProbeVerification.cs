@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -182,7 +181,7 @@ internal static class ProjectileInheritanceProbeVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         var level = runtime.Room.LoadedLevelData;
         for (int y = 16; y < 36; y++)
@@ -193,7 +192,7 @@ internal static class ProjectileInheritanceProbeVerification
                 y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
             level.SetBehavior(index, RoomBlockBehavior.None);
         }
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(0);
         samus.Missiles = samus.MaxMissiles = 10;
@@ -234,7 +233,7 @@ internal static class ProjectileInheritanceProbeVerification
             var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RestoreGraph<SuperMetroidRuntime>(captured, InstalledFixtures.BoundContent);
             // The host binds a restored runtime to its content as it binds a new one.
             BindRetailRuntimeFixture(restored);
-            restored.Player.Samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(weapon);
+            restored.Player.IntroducedSamus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(weapon);
             restored.StepFrame((ControllerButton.Right | restored.Options.ControllerBindings.Shoot));
             var shot = restored.Projectiles.Shots.First(slot => slot.IsActive);
             AssertEqual(family, shot.HeldShot().Type.Family, "Each resumed runtime fires the weapon it selected");
@@ -246,7 +245,7 @@ internal static class ProjectileInheritanceProbeVerification
     /// <summary>The two retail speed words the uncharged power beam adds to inherited launch velocity.</summary>
     private static int ReadPowerBeamLaunchSpeedSum(ISnesAddressSpace rom)
     {
-        return rom.ReadCartridgeWord(0x90c2d1) + rom.ReadCartridgeWord(0x90c357);
+        return CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90c2d1) + CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90c357);
     }
 
     /// <summary>Runs the projectile velocity inheritance verification command.</summary>

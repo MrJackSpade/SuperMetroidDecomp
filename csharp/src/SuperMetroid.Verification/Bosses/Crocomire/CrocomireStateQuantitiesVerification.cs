@@ -131,14 +131,14 @@ internal static class CrocomireStateQuantitiesVerification
         for (int frame = 0; frame < 400; frame++)
         {
             bool moving = NativeSinkStep(ref acceleration, ref speed, ref subposition, ref y);
-            CrocomireBridgeCollapse.RunCrocomireSink(state, default);
+            enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireSink(state, default);
             if (!moving)
             {
                 AssertEqual(CrocomireDeathStages.Nth<CrocomireDeathStage.SubmergedPause>(2), state.DeathStage, $"{name}: ends on the native frame");
                 return;
             }
             AssertMotionWords(state, SinkAccelerationHeld(acceleration), speed, subposition, y, $"{name} frame {frame}");
-            AssertEqual<int?>(288 - body.Position.Y.Whole, ((BossBodyParts)enemies.Presentation.BossBodyDisplay!).Publish().ShownAbove,
+            AssertEqual<int?>(288 - body.Position.Y.Whole, enemies.Presentation.RequireBossBody().Publish().ShownAbove,
                 $"{name} frame {frame}: the acid hides his body from room row 288 where he now lies");
         }
         throw new InvalidOperationException($"Verification failed: {name} did not reach the acid floor.");
@@ -377,7 +377,7 @@ internal static class CrocomireStateQuantitiesVerification
 
         global::SuperMetroid.Core.PrivateState.Set(state, "DeathStage", CrocomireDeathStages.Nth<CrocomireDeathStage.Sink>(1));
         body.Position = body.Position.WithWholeY(CrocomireBridgeCollapseDefinitions.SunkenY);
-        CrocomireBridgeCollapse.RunCrocomireSink(state, default);
+        enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireSink(state, default);
         AssertEqual(CrocomireDeathStages.Nth<CrocomireDeathStage.SubmergedPause>(2), state.DeathStage, "the sink ends at the acid's floor");
         for (int update = 1; update <= 48; update++)
         {
@@ -396,9 +396,9 @@ internal static class CrocomireStateQuantitiesVerification
         body.Bind(EnemyDefinitionId.Crocomire, body.KeptDefinition);
         body.Position = body.Position.WithWhole(new(576, 144));
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
-        tongue.Bind(EnemyDefinitionId.CrocomireTongue, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.CrocomireTongue));
-        var state = body.SetUpPlaced<CrocomireEnemyState>(tongue);
+        var state = new CrocomireEnemyState(body.HeldOccupant(), body);
+        body.SetSpeciesState(state);
+        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
         // Crocomire's initialisation attaches the body his sink hides (#1446, #1466, #1515).
         BossBodyCanvasFixtures.AttachCrocomire(enemies, InstalledFixtures.BossBodySheets);
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;

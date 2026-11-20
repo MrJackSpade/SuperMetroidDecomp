@@ -7,11 +7,4 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 /// The accelerating updates after which its rising or sinking speed stops growing: each accelerating update takes the
 /// next step of the shared quadratic speed curve until this many steps are taken.
 /// </param>
-internal sealed record PlatformSpawnSettings(HorizontalDirection Movement, SignedSixteenSixteen Speed, int VerticalAccelerationUpdates) : EnemySpawnSettings
-{
-    /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacementRequest placing) => Ensure.NotNull(species).Place(this, placing);
-
-    /// <inheritdoc/>
-    internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);
-}
+internal sealed record PlatformSpawnSettings(HorizontalDirection Movement, SignedSixteenSixteen Speed, int VerticalAccelerationUpdates) : EnemySpawnSettings;

@@ -18,7 +18,7 @@ public static class SamusVisorColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        byte[] source = RomDataReader.ReadFixedBank(bus,
+        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             SamusSourceDefinitions.VisorColors.Value,
             SamusVisorColorFormat.ColorCount * sizeof(ushort));
         var colors = new PaletteRgb5[SamusVisorColorFormat.ColorCount];
@@ -35,7 +35,8 @@ public static class SamusVisorColorExtractor
         return SamusVisorColorFile.Write(new SamusVisorColorDocument
         {
             Version = SamusVisorColorFile.Version,
-            Colors = colors,
+            Widening = colors[..(colors.Length / 2)],
+            Cycle = colors[(colors.Length / 2)..],
         });
     }
 }

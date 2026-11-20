@@ -35,12 +35,12 @@ internal static class EnemyTileArtworkDachoraColorsVerification
             VerifyFrame(DachoraColourPhase.Shine, frame);
             AssertEqual(unchecked((ushort)DachoraColorSources.Source(
                     DachoraColourPhase.Speed, frame)),
-                RomDataReader.ReadWordFixedBank(rom,
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     DachoraColorSources.SpeedPointerTable + frame * sizeof(ushort)),
                 $"native Dachora speed selector {frame}");
             AssertEqual(unchecked((ushort)DachoraColorSources.Source(
                     DachoraColourPhase.Shine, frame)),
-                RomDataReader.ReadWordFixedBank(rom,
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     DachoraColorSources.ShinePointerTable + frame * sizeof(ushort)),
                 $"native Dachora shine selector {frame}");
         }
@@ -65,7 +65,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Position = place.Position.WithWhole(new(96, 96));
         place.Radius = new(8, 8);
-        var state = new DachoraEnemyState(DachoraAction.WaitingForSamus, []);
+        var state = new DachoraEnemyState(DachoraAction.WaitingForSamus);
         DachoraBehavior.ShowDachoraColours(place, DachoraColourPhase.Default, 0);
         CheckLive(DachoraColourPhase.Default, 0);
 
@@ -100,7 +100,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         {
             int source = DachoraColorSources.Source(phase, frame);
             for (int color = 0; color < DachoraColorFormat.ColorsPerFrame; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     source + color * sizeof(ushort)),
                     native.Resolve(phase, frame, color),
                     $"installed Dachora {phase} frame {frame} color {color}");

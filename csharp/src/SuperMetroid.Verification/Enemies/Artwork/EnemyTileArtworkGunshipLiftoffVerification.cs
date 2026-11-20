@@ -33,9 +33,9 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         for (int index = 0; index < transfers.Length; index++)
         {
             GunshipLiftoffTransferDefinition transfer = transfers[index];
-            ushort source = RomDataReader.ReadWordFixedBank(bus,
+            ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 EnemyRomTablePointersGunship.LiftoffGraphicsSourceWords + index * 2);
-            ushort destination = RomDataReader.ReadWordFixedBank(bus,
+            ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 EnemyRomTablePointersGunship.LiftoffVramDestinationWords + index * 2);
             AssertEqual(0x940000 | source, EnemySourceDefinitions.GunshipLiftoffPageSource(index),
                 $"gunship frame {index}'s import source matches the cartridge's takeoff list");
@@ -79,8 +79,9 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), installedBosses: art.Bosses);
             RoomEnemyPlace top = enemies.Places.InUpdateOrder[0];
             var part = new GunshipState(GunshipPhase.WaitForEngines) { PhaseTimer = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineStartUpdates) };
+            top.SetSpeciesState(part);
             for (int index = 0; index < GunshipTakeoffDefinitions.EngineStartUpdates; index++)
-                enemies.GunshipBehavior.WaitForGunshipEngines(part);
+                enemies.GunshipBehavior.WaitForGunshipEngines(top);
             AssertTrue(enemies.Presentation.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook), "the engines firing up shows the takeoff look");
             return EncounterArtworkPlacements.Of(enemies.Presentation.Looks, resolver);
         }

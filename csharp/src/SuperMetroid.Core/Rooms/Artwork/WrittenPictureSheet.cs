@@ -55,17 +55,15 @@ public sealed class WrittenPictureSheet
     /// The picture of <paramref name="picture"/> while the room's appearance inputs take the values
     /// <paramref name="appearance"/> reads, as its part behind and its part in front (#1634).
     /// </summary>
-    /// <exception cref="InvalidDataException">
-    /// The sheet pictures nothing by that name, or nothing for those values, or names the picture as one that shows nothing.
-    /// </exception>
-    public ShownLayeredPicture Picture([InstalledKey] string picture, RoomAppearanceView appearance)
+    /// <exception cref="InvalidDataException">The sheet pictures nothing by that name, or nothing for those values.</exception>
+    public LayeredPicture Picture([InstalledKey] string picture, RoomAppearanceView appearance)
     {
         if (!inputs.TryGetValue(Ensure.NotNull(picture), out ImmutableArray<AppearanceInput> depends))
             throw new InvalidDataException($"{Name} pictures nothing named {picture}.");
         var values = new string[depends.Length];
         for (int input = 0; input < depends.Length; input++)
             values[input] = appearance.ValueOf(depends[input]);
-        return Sheet.ShownPicture(AppearancePictureNames.Of(picture, depends, values));
+        return Sheet.Picture(AppearancePictureNames.Of(picture, depends, values));
     }
 
     /// <summary>

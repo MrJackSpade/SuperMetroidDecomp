@@ -19,7 +19,8 @@ public static class PauseReserveUiFile
     public static PauseReserveUiPresentation Read(Stream json)
     {
         PauseReserveUiDocument document;
-        try { document = JsonAssetDocument.Read<PauseReserveUiDocument>(json, ArtworkJson.Options); }
+        try { document = JsonAssetDocument.Read<PauseReserveUiDocument>(json, ArtworkJson.Options)
+            ?? throw new InvalidDataException("Pause reserve UI document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause reserve UI JSON.", error); }
         if (document.Version != PauseReserveUiDefinitions.Version || document.Labels is null || document.Labels.Count != 4 ||
             document.Digits is null || document.Digits.Cells is null || document.Digits.Cells.Length != PauseReserveUiDefinitions.DigitCount ||
@@ -42,16 +43,16 @@ public static class PauseReserveUiFile
         int[] arrowCells = document.Arrow.Cells.Select((point, index) => Cell(point, $"Arrow.{index}")).ToArray();
         if (arrowCells.Distinct().Count() != arrowCells.Length) throw new InvalidDataException("Reserve arrow cells must be unique.");
         var frames = document.Arrow.Frames.Select((frame, index) =>
-            new ReserveArrowColors(Color(frame?.Color6, $"arrow frame {index} color 6"), Color(frame?.Color11, $"arrow frame {index} color 11"))).ToArray();
+            new ReserveArrowColors(Color(frame?.Shade, $"arrow frame {index} shade"), Color(frame?.Light, $"arrow frame {index} light"))).ToArray();
         int digitCell = Cell(document.Digits.Anchor, "Digits");
-        RgbColor solidColor6 = Color(document.Arrow.SolidColor6, "solid color 6");
-        RgbColor solidColor11 = Color(document.Arrow.SolidColor11, "solid color 11");
+        RgbColor solidShade = Color(document.Arrow.SolidShade, "solid shade");
+        RgbColor solidLight = Color(document.Arrow.SolidLight, "solid light");
         return PauseReserveUiPresentation.Create(new PauseReserveUiSelection
         {
             LabelCells = labelCells, LabelTiles = labelTiles, DigitCell = digitCell, Digits = digits,
             ArrowCells = arrowCells, EnabledPalette = document.Arrow.EnabledPalette,
             DisabledPalette = document.Arrow.DisabledPalette,
-            ArrowColours = new PauseReserveArrowColours(solidColor6, solidColor11, frames),
+            ArrowColours = new PauseReserveArrowColours(solidShade, solidLight, frames),
         });
 
         // Converts a bounded equipment-page cell coordinate to its row-major cell.

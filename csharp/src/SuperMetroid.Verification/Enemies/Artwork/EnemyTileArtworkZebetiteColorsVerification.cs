@@ -79,8 +79,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             "the Zebetite pulse steps again once the door fade completes");
         counterBeforeGate = Counter(selected);
         // The place now holds a linked half, which the pulse skips.
-        selected.Places.InUpdateOrder[0].SetSpawnSettings(new ZebetiteSpawnSettings(ZebetiteHalf.Linked, destroyed: 0));
-        selected.Places.InUpdateOrder[0].SetUpPlacedAs<ZebetiteEnemyState>(EnemyDefinitionId.Zebetite);
+        selected.Places.InUpdateOrder[0].SetSpeciesState(new ZebetiteEnemyState(Zebetites.SpawnPopulation(ZebetiteHalf.Linked, destroyed: 0)));
         Cycle(selected);
         AssertEqual(counterBeforeGate, Counter(selected),
             "Zebetite secondary-half gate remains an engine-owned condition");
@@ -98,8 +97,9 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies),
                 RoomEnemyCompatibilityFixtures.ForNewRoom(fadeStepCount, new UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             RoomEnemyPlace primaryPlace = enemies.Places.InUpdateOrder[0];
-            primaryPlace.SetSpawnSettings(new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
-            primaryPlace.SetUpPlacedAs<ZebetiteEnemyState>(EnemyDefinitionId.Zebetite);
+            primaryPlace.BindPlaced(EnemyDefinitionId.Zebetite, new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
+            var primary = new ZebetiteEnemyState(primaryPlace.HeldOccupant().Spawn);
+            primaryPlace.SetSpeciesState(primary);
             return enemies;
         }
 
@@ -130,7 +130,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             {
                 int address = 0xa6fd87 + counter * 4 + color * 2;
                 cgram.SetColor(PulseFirstColour + color,
-                    RgbColor.FromWord(bus.ReadCartridgeWord(address)));
+                    RgbColor.FromWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(address)));
             }
         }
 

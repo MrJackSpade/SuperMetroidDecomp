@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
@@ -23,19 +22,19 @@ internal static class FirefleaEyeVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LowerNorfairFireflea);
         AssertEqual(RoomFxType.Fireflea, runtime.RoomFxOverlay.Type, "reported room uses Fireflea darkness");
         var eye = runtime.Enemies.Places.InUpdateOrder[0];
         AssertEqual(EnemyDefinitionId.Fune, eye.Occupant?.DefinitionId, "reported rock eye is retail Fune/Namihe family");
         ushort cameraX = 368, cameraY = 608;
-        runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(cameraX, cameraY), TimeIsFrozen = false, Samus = runtime.Player.Samus });
+        runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(cameraX, cameraY), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus });
         // The display reads the state the NMI latches (#1307); latch the loaded room's darkness once, as its first frame would.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        var prepared = runtime.Enemies.Drawing.Advance(new(cameraX, cameraY));
-        runtime.Enemies.Drawing.Draw(prepared, sprites, new(cameraX, cameraY), runtime.Player.Samus);
+        runtime.Enemies.Drawing.Advance(new(cameraX, cameraY));
+        runtime.Enemies.Drawing.Draw(sprites, new(cameraX, cameraY), runtime.Player.IntroducedSamus);
         sprites.FinalizeFrame();
         AssertTrue(sprites.Draws.Length > 0, "retail rock eye emits sprites");
         // The eye shows its own picture's colours under the shading its draw publishes (#1512, #1544). The gameplay colour

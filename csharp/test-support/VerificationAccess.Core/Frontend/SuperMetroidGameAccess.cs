@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Progression;

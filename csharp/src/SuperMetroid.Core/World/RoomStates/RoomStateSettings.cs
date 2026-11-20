@@ -25,12 +25,6 @@ public sealed record RoomStateSettings(
     /// <summary>The state's name.</summary>
     public string Name { get; init; } = Ensure.NotNull(Name);
 
-    /// <summary>
-    /// What the state's load sets up besides its definition (#2287), checked once against the state's effects as the state
-    /// is defined (#2554).
-    /// </summary>
-    public RoomSetupBehavior SetupBehavior { get; init; } = RoomSetupBehavior.Checked(SetupBehavior, Name, Fx);
-
     /// <summary>The level the state loads: its initial blocks, block types and background blocks, shared with the room's other states that load the same one.</summary>
     public RoomLevelId Level { get; init; } = Level;
 

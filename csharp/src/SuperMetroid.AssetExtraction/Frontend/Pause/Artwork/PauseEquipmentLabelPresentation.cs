@@ -77,7 +77,8 @@ public sealed class PauseEquipmentLabelPresentation
         PauseEquipmentLabelDocument document;
         try
         {
-            document = JsonAssetDocument.Read<PauseEquipmentLabelDocument>(source, ArtworkJson.Options);
+            document = JsonAssetDocument.Read<PauseEquipmentLabelDocument>(source, ArtworkJson.Options)
+                ?? throw new InvalidDataException("Pause equipment label document is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause equipment label JSON.", error); }
 

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Fx;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -33,7 +32,7 @@ internal static class TreadmillVisualVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.System.RecordBossesDefeated(AreaId.WreckedShip, DefeatedBosses.AreaBoss);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Get(pointer));
             var room = runtime.Room.LoadedRoom;

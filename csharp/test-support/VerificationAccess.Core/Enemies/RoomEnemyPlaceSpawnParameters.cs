@@ -53,15 +53,4 @@ internal static class RoomEnemyPlaceSpawnParameters
     internal static RoomEnemyPlacement PlacementFor(EnemyDefinitionId species, EnemySpawnSettings settings) =>
         new(species, EnemyPlacing.At(Position16<RoomPixels>.Zero), EnemyContact.None, EnemyProcessing.None, EnemyPresence.None,
             CollidesByFrameHitboxes: false, settings);
-
-    /// <summary>
-    /// The settings a fixture slot's population entry gives its species, as the <typeparamref name="T"/> the check placed it
-    /// with: the species itself receives them typed from its entry (#2554).
-    /// </summary>
-    internal static T SpawnSettings<T>(this RoomEnemyPlace place) where T : EnemySpawnSettings =>
-        (T)place.Spawn.Population.SpawnSettings;
-
-    /// <summary>The settings a population entry gives its species, as the <typeparamref name="T"/> the check knows it carries.</summary>
-    internal static T SpawnSettingsOf<T>(this RoomEnemyPlacement placement) where T : EnemySpawnSettings =>
-        (T)placement.SpawnSettings;
 }

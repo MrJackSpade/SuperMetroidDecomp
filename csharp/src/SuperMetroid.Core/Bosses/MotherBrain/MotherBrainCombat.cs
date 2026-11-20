@@ -34,10 +34,8 @@ internal sealed class MotherBrainCombat
     }
 
     /// <summary>Runs the head's reaction to a bomb that selects its shot reaction.</summary>
-    /// <param name="c">The bomb contact.</param>
-    /// <param name="state">The encounter.</param>
-    internal void ReactToMotherBrainHeadBomb(EnemyBombContext c, MotherBrainEnemyState state) =>
-        ResolveMotherBrainHeadNormalBomb(c.Occupant, state, c.PlacedBomb);
+    internal void ReactToMotherBrainHeadBomb(EnemyBombContext c) =>
+        ResolveMotherBrainHeadNormalBomb(c.Occupant, c.PlacedBomb);
 
     /// <summary>The body's shot response for each combat phase.</summary>
     internal EnemyShotReaction BodyShotReaction => field ??= new()
@@ -60,12 +58,11 @@ internal sealed class MotherBrainCombat
     };
 
     /// <summary>The head's shot response for each combat phase.</summary>
-    /// <param name="state">The encounter, which the reaction acts on.</param>
-    internal EnemyShotReaction HeadShotReactionOf(MotherBrainEnemyState state) => new()
+    internal EnemyShotReaction HeadShotReaction => field ??= new()
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            ResolveMotherBrainHeadShot(c.Occupant, state, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
+            ResolveMotherBrainHeadShot(c.Occupant, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
             return true;
         },
     };
@@ -78,7 +75,6 @@ internal sealed class MotherBrainCombat
     /// </summary>
     private void ResolveMotherBrainHeadShot(
         RoomEnemyOccupant brain,
-        MotherBrainEnemyState state,
         SamusProjectileOccupant held,
         SamusProjectileSystem projectiles,
         SamusProjectileType projectileType,
@@ -86,6 +82,7 @@ internal sealed class MotherBrainCombat
     {
         RoomEnemyPlace head = brain.Place;
         SamusProjectile projectile = held.Projectile;
+        MotherBrainEnemyState state = MotherBrainEntity.EncounterOf(head);
         SamusProjectileFamily family = projectileType.Family;
         if (state.Form != MotherBrainForm.Glass)
         {
@@ -191,9 +188,9 @@ internal sealed class MotherBrainCombat
     /// </summary>
     private void ResolveMotherBrainHeadNormalBomb(
         RoomEnemyOccupant head,
-        MotherBrainEnemyState state,
         SamusBombOccupant bomb)
     {
+        MotherBrainEnemyState state = MotherBrainEntity.EncounterOf(head.Place);
 
         if (state.Form == MotherBrainForm.Glass)
             return;

@@ -28,18 +28,18 @@ internal static class EndingCompletionTextInstructionsVerification
         ];
         string[] expectedKeys =
         [
-            "operation-00", "operation-01", "operation-02", "operation-03", "operation-04",
-            "operation-05", "operation-06", "operation-07", "operation-08", "operation-09",
-            "operation-10", "operation-11", "operation-12", "operation-13", "operation-14",
-            "completed-00", "completed-01", "completed-02", "completed-03", "completed-04",
-            "completed-05", "completed-06", "completed-07", "completed-08", "completed-09",
-            "completed-10", "completed-11", "completed-12", "completed-13", "completed-14",
-            "completed-15", "completed-16", "completed-17", "completed-18", "completed-19",
-            "completed-20", "clear-time-00", "clear-time-01", "clear-time-02", "clear-time-03",
-            "clear-time-04", "clear-time-05", "clear-time-06", "clear-time-07", "clear-time-08",
+            "OperationWas.Letter1", "OperationWas.Letter2", "OperationWas.Letter3", "OperationWas.Letter4", "OperationWas.Letter5",
+            "OperationWas.Letter6", "OperationWas.Letter7", "OperationWas.Letter8", "OperationWas.Letter9", "OperationWas.Letter10",
+            "OperationWas.Letter11", "OperationWas.Letter12", "OperationWas.Letter13", "OperationWas.Letter14", "OperationWas.Letter15",
+            "CompletedSuccessfully.Letter1", "CompletedSuccessfully.Letter2", "CompletedSuccessfully.Letter3", "CompletedSuccessfully.Letter4", "CompletedSuccessfully.Letter5",
+            "CompletedSuccessfully.Letter6", "CompletedSuccessfully.Letter7", "CompletedSuccessfully.Letter8", "CompletedSuccessfully.Letter9", "CompletedSuccessfully.Letter10",
+            "CompletedSuccessfully.Letter11", "CompletedSuccessfully.Letter12", "CompletedSuccessfully.Letter13", "CompletedSuccessfully.Letter14", "CompletedSuccessfully.Letter15",
+            "CompletedSuccessfully.Letter16", "CompletedSuccessfully.Letter17", "CompletedSuccessfully.Letter18", "CompletedSuccessfully.Letter19", "CompletedSuccessfully.Letter20",
+            "CompletedSuccessfully.Letter21", "ClearTime.Letter1", "ClearTime.Letter2", "ClearTime.Letter3", "ClearTime.Letter4",
+            "ClearTime.Letter5", "ClearTime.Letter6", "ClearTime.Letter7", "ClearTime.Letter8", "ClearTime.Letter9",
             "digit-00", "digit-01", "digit-02", "digit-03", "digit-04",
             "digit-05", "digit-06", "digit-07", "digit-08", "digit-09",
-            "colon-00",
+            "colon",
         ];
         AssertEqual(expectedKeys.Length, catalog.Length, "completion catalog count");
         int catalogIndex = 0;
@@ -54,9 +54,9 @@ internal static class EndingCompletionTextInstructionsVerification
             for (int letter = 0; letter < line.Letters; letter++)
             {
                 int operand = 0x8b0000 | (line.Start + letter * 4 + 2);
-                int map = bus.ReadCartridgeWord(operand);
+                int map = CartridgeImportSource.Require(bus).ReadCartridgeWord(operand);
                 int address = 0x8c0000 | map;
-                int count = bus.ReadCartridgeWord(address);
+                int count = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
                 AssertEqual(2 * (letter + 1), count, "original prefix sprite count");
                 AssertEqual(new EndingTextTyping(texts[text], letter + 1), EndingCompletionTextSpriteDefinitions.Typings[catalogIndex].Typed,
                     "completion step typed as far as its letter");
@@ -68,9 +68,9 @@ internal static class EndingCompletionTextInstructionsVerification
         for (int glyph = 0; glyph < 11; glyph++, catalogIndex++)
         {
             int operand = 0x8bec83 + glyph * 8;
-            ushort map = bus.ReadCartridgeWord(operand);
+            ushort map = CartridgeImportSource.Require(bus).ReadCartridgeWord(operand);
             int header = 0x8c0000 | map;
-            int parts = bus.ReadCartridgeWord(header);
+            int parts = CartridgeImportSource.Require(bus).ReadCartridgeWord(header);
             AssertEqual(map, catalog[catalogIndex].Spritemap, "completion glyph catalog pointer");
             AssertEqual(parts, catalog[catalogIndex].StockPartCount, "completion glyph catalog part count");
         }

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -45,7 +44,7 @@ internal static class SquareSlopeBeamCollisionVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         RoomLevelData level = runtime.Room.LoadedLevelData;
         const int SlopeColumn = 40, BeamRow = 30, WallColumn = 44;
@@ -59,7 +58,7 @@ internal static class SquareSlopeBeamCollisionVerification
             level.SetTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None, type));
             level.SetBehavior(index, RoomBlockBehaviorCodec.Decode(type == RoomCollisionType.Slope ? slopeBts : 0));
         }
-        SamusState samus = runtime.Player.Samus;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(512, 490));

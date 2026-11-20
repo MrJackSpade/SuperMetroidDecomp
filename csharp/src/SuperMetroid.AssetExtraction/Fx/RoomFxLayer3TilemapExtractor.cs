@@ -24,14 +24,14 @@ public static class RoomFxLayer3TilemapExtractor
         foreach (RoomFxType type in RoomFxLayer3TilemapFormat.Types)
         {
             int source = RoomFxLayer3TilemapSources.Page(type).Value;
-            int pointer = RomDataReader.ReadWordFixedBank(bus,
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 RoomFxLayer3SourceDefinitions.Layer3TilemapPointers.AddWithinBank(RoomFxRecordWords.Types.Word(type)));
             if ((RoomFxBankSourceDefinitions.Tilemaps | pointer) != source)
                 throw new InvalidDataException(
                     $"Room-FX {type} tilemap pointer ${pointer:X4} does not select ${source:X6}.");
             byte[] native = type is RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water
                 ? RoomFxLiquidTilemapDefinitions.ComposePage(type)
-                : RomDataReader.ReadFixedBank(bus, source,
+                : RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source,
                     RoomFxLayer3TilemapFormat.PageByteCount);
             var cells = new RoomBackgroundTilemapCell[RoomFxLayer3TilemapFormat.CellsPerPage];
             for (int index = 0; index < cells.Length; index++)
@@ -42,16 +42,7 @@ public static class RoomFxLayer3TilemapExtractor
                 if (type is RoomFxType.Rain or RoomFxType.Fog)
                     raw = (ushort)((raw & ~RoomFxAtmosphereTilemapDefinitions.CalculatedMask(type)) |
                         RoomFxAtmosphereTilemapDefinitions.CalculatedFields(type, index));
-                var word = new SnesBgTilemapWord(checked((ushort)raw));
-                cells[index] = new RoomBackgroundTilemapCell
-                {
-                    TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
-                    TileRow = word.CharacterIndex / RoomBackgroundTilemapFormat.TileColumns,
-                    Palette = word.PaletteIndex,
-                    Priority = word.HasPriority,
-                    FlipX = word.FlipHorizontally,
-                    FlipY = word.FlipVertically,
-                };
+                cells[index] = RoomBackgroundTilemapCell.Of(checked((ushort)raw));
             }
             pages.Add(RoomFxTypeKeys.Installed.Of(type), cells);
         }

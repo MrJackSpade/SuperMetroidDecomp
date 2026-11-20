@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.TestSupport.Assertions;
@@ -62,7 +61,7 @@ internal static class NativeSnapshotImport
         var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saves, renderGameplayFrames: false, hostServices: hostServices, random: random);
         var runtime = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.CreateRuntime(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Options.MoonwalkEnabled = W(NativeSnapshotMemory.MoonwalkOption) != 0;
         // The initial import reads the native progression tables through the cartridge's table codec.
         PersistentProgress progress = runtime.System.Progress;
@@ -119,7 +118,7 @@ internal static class NativeSnapshotImport
             // plays, one of the heat shimmer's for an effect that chooses one; its native timer counts the plays its repeated
             // phase has left (#2006).
             PaletteFxImportedPlace resumed = PaletteFxNativeProgramOracle.PlaceAt(
-                paletteFxLists ??= PaletteFxNativeProgramOracle.Lists(bus),
+                paletteFxLists ??= PaletteFxNativeProgramOracle.Lists(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus)),
                 PaletteFxNativeProgramOracle.AnimationsOf(effect), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
             // A Torizo's belly glow watches the room's Torizo, which the room's load set up (#1700).
             ILitTorizo? litTorizo = effect is ColourEffectId.BombTorizoBelly or ColourEffectId.GoldenTorizoBelly
@@ -332,8 +331,8 @@ internal static class NativeSnapshotImport
             initialObjects[index].Delete();
         }
         // Every place takes the snapshot's projectile, or, for a free one, what it holds for the room's next spawn there.
-        for (int place = 0; place < EnemyProjectileEngine.PlaceCount; place++)
-            ImportNativeEnemyProjectile(runtime.Enemies, place, runtime.Enemies.GraphicsSet, bus, W);
+        for (int place = 0; place < SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity; place++)
+            ImportNativeEnemyProjectile(runtime.Enemies, place, runtime.Enemies.GraphicsSet, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
         // This is a one-time initial snapshot import. No native state is fed back during replay.
         runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
         runtime.Enemies.FrameContext.SeedEnemyPassCount(W(NativeSnapshotMemory.MainEnemyRoutineCount));
@@ -354,8 +353,8 @@ internal static class NativeSnapshotImport
             // The surface word is a signed line: one a tide carries above the room's top is negative.
             surface: CoordinateAxis.AsSigned(W(NativeSnapshotMemory.AcidSurface)));
         samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
-        var pipeBugPointers = new PipeBugNativeInstructionPointers(bus);
-        var kraidHeadCursors = new KraidHeadNativeCursors(bus);
+        var pipeBugPointers = new PipeBugNativeInstructionPointers(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
+        var kraidHeadCursors = new KraidHeadNativeCursors(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
         // EnemyData +$0E onward; +$00 is the identity, +$02..+$08 the 16.16 position and
         // +$0A/+$0C the radii, each imported as one typed value below.
         for (int index = 0; index < runtime.Enemies.Places.InUpdateOrder.Count; index++)
@@ -409,18 +408,12 @@ internal static class NativeSnapshotImport
                 int extra = NativeSnapshotMemory.EnemyExtra + index * NativeSnapshotMemory.EnemyExtraBytes;
                 NativeEnemyFamilyStateImport.ImportExtraWords(enemy, words, offset => W(extra + offset));
             }
-            // A recorded swoop path's length is word C; before Draygon plans his first swoop it is zero and he has none. A swoop
-            // or goop phase is built with the path.
-            if (W(address) != 0 && SuperMetroid.Core.Enemies.EnemyPartners.Listed<DraygonBodyEntity>(enemy).State is { } draygon && words.A != 0 &&
-                SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.Phases.Decode(words.A, "recorded DraygonPhase") is (var draygonKind, _) &&
-                SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.CarriesSwoopPath(draygonKind))
-            {
-                draygon.Phase = SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.PhaseOf(draygonKind,
-                    words.C != 0 ? SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.SwoopPathAt(W, words.C) : null);
-            }
+            // A recorded swoop path's length is word C; before Draygon plans his first swoop it is zero and he has none.
+            if (W(address) != 0 && enemy.SpeciesState<SuperMetroid.Core.Bosses.Draygon.DraygonEnemyState>() is { } draygon && words.C != 0)
+                draygon.SwoopPath = SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.SwoopPathAt(W, words.C);
             // Kraid's head program is typed and kept in the encounter state; the recorded body word is its native cursor,
             // which only this import translates. Before the first attack the word names no head record and the head stays unstarted.
-            if (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>(enemy).PartState is SuperMetroid.Core.Bosses.Kraid.KraidBodyState kraidBody)
+            if (enemy.SpeciesState<SuperMetroid.Core.Bosses.Kraid.KraidPartState>() is SuperMetroid.Core.Bosses.Kraid.KraidBodyState kraidBody)
                 kraidBody.Kraid.HeadPlayback = kraidHeadCursors.TryPlaybackAt(words.B);
             // A Pipe Bug's animation runs as a typed program (#641): resume it where the recorded pointer stands.
             if (enemy.PipeBugPlayback is not null)
@@ -443,7 +436,7 @@ internal static class NativeSnapshotImport
             }
         }
         if (runtime.Enemies.BossEncounters.MotherBrain is not null)
-            ImportNativeMotherBrain(runtime, bus, W);
+            ImportNativeMotherBrain(runtime, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
         runtime.Clock.Import(memory[NativeSnapshotMemory.NmiCounterByte], W(NativeSnapshotMemory.NmiCounter));
         samus.CollectedItems = SamusEquipmentWordCodec.FromEquipmentWord(W(NativeSnapshotMemory.CollectedItems)); samus.CollectedBeams = SamusEquipmentWordCodec.FromBeamWord(W(NativeSnapshotMemory.CollectedBeams));
         samus.Missiles = SamusCountWords.Decode(W(NativeSnapshotMemory.Missiles)); samus.MaxMissiles = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxMissiles));
@@ -456,15 +449,13 @@ internal static class NativeSnapshotImport
         runtime.PlayerActions.Latch(GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.HeldInput), "native held input"));
         game.AdoptRuntime(runtime);
         global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
-        // The pause screen's import enters it with the menu it builds (below); every other step is entered here.
-        if (W(NativeSnapshotMemory.GameState) != GameStateNumberCodec.PauseMenuNumber)
-            GameStateNumberCodec.Enter(game, W(NativeSnapshotMemory.GameState));
+        GameStateNumberCodec.Enter(game, W(NativeSnapshotMemory.GameState));
         // The room load showed the colours of the Samus the Ceres start made; the imported equipment names the suit and
         // beams whose colours the cartridge loaded (#1512), under which her palette-FX records are then laid.
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(runtime.Player.Colours, samus.EquippedItems);
         SamusProjectileSystem.ShowBeamShade(runtime.Player.Colours, samus.EquippedBeams);
         ImportShownPaletteFxFrames(runtime);
-        if (W(NativeSnapshotMemory.GameState) == GameStateNumberCodec.PauseMenuNumber)
+        if (game.IsAt(PauseStep.Menu))
             ImportNativePauseMenu(game, runtime, W, memory);
         return new ImportNativeSnapshotResult(bus, runtime, samus, game);
     }

@@ -176,7 +176,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         RgbaPixel color = scene.Colour;
         uint[] data = ClearUploadConstants();
         data[0] = D3D11ConstantPacking.Bytes(color.R, color.G, color.B, color.A);
-        data[1] = (uint)scene.Brightness;
+        data[1] = (uint)scene.Brightness.StepsAboveBlack;
         data[2] = packet.Size.X; data[3] = packet.Size.Y;
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.CSSetShader(shader);
@@ -966,7 +966,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             }
         }
         // The frame's one brightness dims the composed scene once.
-        DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = (uint)packet.Brightness });
+        DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = (uint)packet.Brightness.StepsAboveBlack });
     }
 
     /// <summary>Draws <paramref name="run"/> into the sprite layer unless it holds that run already (#1514).</summary>

@@ -12,7 +12,7 @@ internal static class ImportedSpritemapsVerification
 {
     /// <summary>Draws a native enemy map through the import boundary, including constructed cartridge fixtures.</summary>
     internal static void DrawImportedEnemySpritemap(ISnesAddressSpace bus, OamBuffer oam, NativeEnemySpritemapDraw draw) =>
-        ImportedSpritemapOracle.DrawEnemy(bus, oam, draw);
+        ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(bus), oam, draw);
 
     /// <summary>
     /// The cartridge spritemap an enemy projectile draws this frame. Installed-presentation frames
@@ -21,7 +21,7 @@ internal static class ImportedSpritemapsVerification
     /// </summary>
     internal static ushort NativeEnemyProjectileSpritemap(ISnesAddressSpace bus, EnemyProjectile projectile) =>
         projectile.PresentationOperandAddress != 0
-            ? SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(bus,
+            ? SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 0x860000 | projectile.PresentationOperandAddress)
             : projectile.SpritemapPointer;
 
@@ -29,7 +29,7 @@ internal static class ImportedSpritemapsVerification
     internal static void DrawImportedEnemyProjectileSpritemap(ISnesAddressSpace bus, OamBuffer oam,
         ushort bank8dSpritemapPointer, Position16<ScreenPixels> origin,
         ushort graphicsIndex, bool originYIsOnScreen) =>
-        ImportedSpritemapOracle.DrawEnemyProjectile(bus, oam,
+        ImportedSpritemapOracle.DrawEnemyProjectile(CartridgeImportSource.Require(bus), oam,
             bank8dSpritemapPointer, origin, graphicsIndex, originYIsOnScreen);
 
 

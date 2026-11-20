@@ -43,7 +43,7 @@ internal static class RoomEnemyPlaceFrameAccess
         {
             // One of Kraid's parts shows a pose, whose record is the first that stores it (#2210).
             // A slot showing no frame, a free one among them, names no header and shows zero.
-            get => SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>(self).PartState?.Pose is { } pose ? KraidPartFrameToolingDefinitions.Spritemap(pose)
+            get => self.SpeciesState<KraidPartState>()?.Pose is { } pose ? KraidPartFrameToolingDefinitions.Spritemap(pose)
                 : self.Frame is null ? (ushort)0
                 : EnemyFrameCartridgeLookupTooling.WordIn(self.NativeHeader.Bank, self.Frame, self.CollidesByFrameHitboxes);
             set
@@ -57,7 +57,7 @@ internal static class RoomEnemyPlaceFrameAccess
                 try
                 {
                     // One of Kraid's parts shows the pose its record stores: the picture, its step and its depth (#2210).
-                    if (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>(self).PartState is { } part
+                    if (self.SpeciesState<KraidPartState>() is { } part
                         && KraidPartFrameToolingDefinitionsConstants.PoseAt(value) is { } pose)
                     {
                         self.Frame = part.Show(pose);

@@ -8,8 +8,8 @@ internal abstract class EnemyProjectileAnimation
 {
     /// <summary>
     /// Advances one projectile pass: the frame expires on the update its timer would. A cue published
-    /// on the way may end the animation (deleting the projectile or starting another animation); the pass then stops, as
-    /// the cue that did so would. A cue that hands the projectile over to another family's animation goes on in it. An animation that has shown a frame for good, or rests where its timeline
+    /// on the way may end the animation (deleting the projectile or handing it to another segment); the pass
+    /// then stops, as the cue that did so would. An animation that has shown a frame for good, or rests where its timeline
     /// holds, has stopped its hold and takes no step (#2380).
     /// </summary>
     /// <param name="context">The projectile, Samus, the pass's camera and the engine, for cues that act on them.</param>
@@ -22,17 +22,8 @@ internal abstract class EnemyProjectileAnimation
         projectile.FrameHold = frameStep.Remaining;
         if (!frameStep.IsZero)
             return;
-        // A cue that hands the projectile over to another animation ends this one's play; the projectile plays on in the
-        // animation handed to, from its start, within this same pass (#2554).
-        EnemyProjectileAnimation playing = this;
         EnemyProjectileFrameStep step = NextFrame(context);
-        while (step is EnemyProjectileFrameStep.HandOver handOver)
-        {
-            playing = handOver.Next;
-            projectile.InstallAnimation(playing);
-            step = playing.NextFrame(context);
-        }
-        if (projectile.Animation != playing)
+        if (projectile.Animation != this)
             return;
         switch (step)
         {

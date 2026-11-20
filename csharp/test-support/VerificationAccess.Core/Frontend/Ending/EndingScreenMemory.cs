@@ -21,39 +21,37 @@ internal static class EndingScreenMemory
     {
         ArgumentNullException.ThrowIfNull(loads);
         var vram = new SnesVram();
-        // The transfers that read the ending's objects or font read them installed.
-        EndingTransferArtwork Artwork() => new(objects ?? throw new InvalidOperationException("The ending's object transfers require installed object artwork."),
-            font ?? throw new InvalidOperationException("The ending's font transfer requires installed font artwork."));
+        var artwork = new EndingTransferArtwork(objects, font);
         if (loads.FloorScene is { } loaded)
         {
             EndingFloorSceneArtwork scene = Required(floor)[loaded];
             var mode7 = new Mode7Vram(vram);
             mode7.LoadMap(scene.Map.Span);
             mode7.LoadMap(scene.Map.Span, cell: EndingFloorArtworkFormat.MapByteCount);
-            mode7.LoadCharacters((scene as EndingFloorSceneCharacters ?? throw new InvalidOperationException($"The ending's {loaded} floor scene is not installed characters.")).Characters.Span);
+            mode7.LoadCharacters(EndingFloorSceneCharacters.Of(scene).Characters.Span);
         }
         if (loads.FlyawayFloor)
             for (int chunk = 0; chunk < FlyawayChunks; chunk++)
                 Flyaway(vram, chunk, flight);
         if (loads.PostCreditsArt)
         {
-            EndingScreenImage.Execute(vram, new EndingSheetTransfer.CreditsCharacterArt(), Artwork());
+            EndingScreenImage.Execute(vram, new EndingSheetTransfer(EndingTransferKind.CreditsCharacterArt), artwork);
             EndingScreenImage.Execute(vram, new EndingRewardCharactersTransfer(reward), artwork);
         }
         if (loads.RewardIcon)
             for (int chunk = 0; chunk < EndingRewardGraphicsUploadDefinitions.ChunkCount; chunk++)
                 vram.LoadBytes(EndingVramDestinationsConstants.RewardChunkWordOf(chunk) * sizeof(ushort),
-                    (Required(floor).RewardIcon as EndingRewardIconCharacters ?? throw new InvalidOperationException("The ending's reward icon is not installed characters.")).Bytes.Span.Slice(
+                    EndingRewardIconCharacters.Of(Required(floor).RewardIcon).Bytes.Span.Slice(
                         EndingRewardGraphicsUploads.ChunkOffset(chunk), EndingRewardGraphicsUploadDefinitions.ChunkBytes));
         if (loads.ExplosionMaps)
         {
-            EndingScreenImage.Execute(vram, new EndingSheetTransfer.ExplosionObjects(), Artwork());
+            EndingScreenImage.Execute(vram, new EndingSheetTransfer(EndingTransferKind.ExplosionObjects), artwork);
             foreach (EndingExplosionPicture map in Enum.GetValues<EndingExplosionPicture>())
-                EndingScreenImage.Execute(vram, new EndingTransfer.ExplosionMap(map), Artwork());
-            EndingScreenImage.Execute(vram, new EndingTransfer.EndingFont(), Artwork());
+                EndingScreenImage.Execute(vram, new EndingExplosionMapTransfer(map), artwork);
+            EndingScreenImage.Execute(vram, new EndingSheetTransfer(EndingTransferKind.EndingFont), artwork);
         }
         for (int part = 0; part < loads.PostShotParts; part++)
-            EndingScreenImage.Execute(vram, new EndingTransfer.PostShotPart(part), Artwork());
+            EndingScreenImage.Execute(vram, new EndingPostShotPartTransfer(EndingPostShotUploads.InOrder[part]), artwork);
         return vram.CaptureImage();
     }
 

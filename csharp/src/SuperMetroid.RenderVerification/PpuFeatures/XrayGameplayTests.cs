@@ -59,7 +59,7 @@ internal static class XrayGameplayTests
             XrayRoomBlendMode dimming = !half && sub ? XrayRoomBlendMode.Fireflea : XrayRoomBlendMode.RevealBlocks;
             var layer = new GameplayBlendLayer(new(registers, bg1), lines, reveal,
                 new XrayDimmingBlend(dimming, subtract, new RgbColor(57, 57, 57)), bg3);
-            var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, 15);
+            var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, DisplayBrightness.Full);
             count++;
             var packet = new DisplayPacket(0, scene);
             var pixels = DisplayRendering.Render(scene);
@@ -104,7 +104,7 @@ internal static class XrayGameplayTests
                             ? new BossBodyView(RoomBackgroundsFixtures.UniformBody(new(2), new(512, 256), vram.Bytes, bodyColors), bodyRegisters.BackgroundScroll)
                             : null,
                     }, ScreenWindow.Closed, false, PhantoonTranslucenceBlend.Body, backgroundBehind: true);
-                    var addScene = new LayeredScene(FramePaint.FromOamGameplay(vram.Bytes, bodyColors, oam, 1, 0), [additive], 15);
+                    var addScene = new LayeredScene(FramePaint.FromOamGameplay(vram.Bytes, bodyColors, oam, 1, 0), [additive], DisplayBrightness.Full);
                     var addPixels = DisplayRendering.Render(addScene);
                     var yellow = new RgbaPixel(255, blackBody ? (byte)0 : (byte)165, 0);
                     Check(addPixels[64 * 256 + 64], yellow, "BG2 additive color contribution / black identity");
@@ -122,7 +122,7 @@ internal static class XrayGameplayTests
                 // native Fireflea source selection from a whole-frame dark overlay.
                 vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg2TilemapWord + 8 * 32 + 9, 1);
                 var dark = new GameplayBlendLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(8, 8, new(4)), new TilemapCell(9, 8, new(4)))), ScreenWindow.Closed, false, new FirefleaDarknessBlend(new RgbColor(148, 148, 148)));
-                var darkScene = new LayeredScene(FramePaint.FromOamGameplay(vram.Bytes, cgram.Colors, oam, 1, 0), new DisplayLayer[] { dark }, 15);
+                var darkScene = new LayeredScene(FramePaint.FromOamGameplay(vram.Bytes, cgram.Colors, oam, 1, 0), new DisplayLayer[] { dark }, DisplayBrightness.Full);
                 var darkPixels = DisplayRendering.Render(darkScene);
                 Check(darkPixels[64 * 256 + 64], new(0, 16, 0, 255), "Fireflea BG2 subtraction");
                 Check(darkPixels[64 * 256 + 72], new(0, 0, 0, 255), "Fireflea backdrop subtraction");
@@ -169,7 +169,7 @@ internal static class XrayGameplayTests
                 bg2Subscreen || frame % 3 == 0 ? null : bg3, bg2Subscreen);
             byte obsel = (byte)random.Next(256);
             var memory = FramePaint.FromOamGameplay(bytes, colors, oam, 128, obsel);
-            var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, (byte)(frame % 16));
+            var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, DisplayBrightness.StepsAbove((byte)(frame % 16)));
             count++;
             var packet = new DisplayPacket(0, scene);
             var expected = DisplayRendering.Render(scene);
@@ -190,7 +190,7 @@ internal static class XrayGameplayTests
             var lines = RandomWindow(random);
             var layer = new GameplayBlendLayer(gameplay, lines, true, RandomBlend(random), null);
             var memory = FramePaint.FromOamGameplay(bytes, colors, oam, 128, 3);
-            var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, 15);
+            var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, DisplayBrightness.Full);
             count++;
             var packet = new DisplayPacket(0, scene);
             PixelComparison.Verify(packet, DisplayRendering.Render(scene), renderer.RenderForReadback(packet),

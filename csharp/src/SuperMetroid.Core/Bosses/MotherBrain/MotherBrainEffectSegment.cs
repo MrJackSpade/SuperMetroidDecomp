@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's onion-ring, bomb, rainbow-charge, drool, escape-door and subtitle animations (#641).
+/// Mother Brain's onion-ring, bomb, rainbow-charge, drool, escape-door, purple-breath and subtitle animations (#641).
 /// Their steps are <see cref="MotherBrainEffectAnimations"/>.
 /// </summary>
 internal enum MotherBrainEffectSegment
@@ -20,6 +20,10 @@ internal enum MotherBrainEffectSegment
     DroolHitFloor,
     /// <summary>A fragment of the escape door Mother Brain blew apart.</summary>
     EscapeDoorParticle,
+    /// <summary>A large puff of Mother Brain's purple breath, stopping where it is and growing into a plume that disperses and fades.</summary>
+    PurpleBreathBig,
+    /// <summary>A small puff of Mother Brain's purple breath, stopping where it is and swelling into a cloud that disperses and fades.</summary>
+    PurpleBreathSmall,
     /// <summary>The Japanese subtitle that the time bomb is set, shown as the escape begins.</summary>
     EscapeSubtitle,
 }

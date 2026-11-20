@@ -30,15 +30,14 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     /// Copies population and definition fields into a place, showing its sheet's standard colours, and records a spawn
     /// snapshot before initialization AI runs.
     /// </summary>
-    /// <returns>The occupant installed, which its setup builds the enemy for.</returns>
-    internal static RoomEnemyOccupant InitializePlaceFromDefinition(
+    internal static void InitializePlaceFromDefinition(
         RoomEnemyPlace place,
         RoomEnemyPlacement population,
         RoomEnemyDefinition definition)
     {
         // The occupant carries its placement into the entity its species creates, so a species that places several actors
         // creates the one the placement names (#1953).
-        RoomEnemyOccupant occupant = place.Bind(population, definition);
+        place.Bind(population, definition);
         place.Radius = new(definition.Radius.X, definition.Radius.Y);
         place.Health = definition.Health;
         place.Position = population.Placing.Place(place.Position);
@@ -52,70 +51,62 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         place.FrameCounter = 0;
         place.HurtFlashFrames = definition.HurtFlashFrames;
         place.Shading = PictureShading.Standard;
-        return occupant;
     }
 
     /// <summary>
-    /// Builds the enemy for an occupant the room's population load has just placed, with its state: its species'
-    /// initialization runs as it is built. A group's head takes its parts' places from <paramref name="listedAfter"/>.
+    /// Runs the setup of the enemy the room's population load has just placed: its own, or the one it runs from the load's
+    /// <paramref name="surroundings"/>, which the load has; nothing for an enemy that has none.
     /// </summary>
-    /// <returns>How each part of the group the enemy heads is built, in listing order; empty when it heads none.</returns>
-    internal static IReadOnlyList<EnemyPartBuild> SetUpEnemy(RoomEnemyOccupant occupant, EnemyPopulationSurroundings surroundings,
-        IReadOnlyList<RoomEnemyPlace> listedAfter) =>
-        Ensure.NotNull(occupant).Place.SetUpListed(occupant, new EnemySetup.Loaded(Ensure.NotNull(surroundings)), listedAfter);
+    /// <exception cref="InvalidDataException">The place holds no entity.</exception>
+    private static void SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
+    {
+        Ensure.NotNull(surroundings);
+        EnemyOccupant occupant = OccupantOf(place);
+        occupant.Initialization?.Initialize();
+        occupant.SurroundingsInitialization?.Initialize(surroundings);
+    }
 
     /// <summary>
-    /// Builds the enemy for an occupant spawned on another enemy's behalf, which has no population load's surroundings
-    /// (#2455); its species' initialization runs as it is built.
+    /// Runs the setup of an enemy spawned on another enemy's behalf, or rebuilt by a respawn (#2455): its own, and nothing
+    /// for an enemy that has none. Such a spawn has no population load's surroundings, so a setup that reads them is the
+    /// population load's alone.
     /// </summary>
-    internal static void SetUpSpawnedEnemy(RoomEnemyOccupant occupant) =>
-        Ensure.NotNull(occupant).Place.SetUp(occupant, new EnemySetup.Spawned());
+    /// <exception cref="InvalidDataException">The place holds no entity.</exception>
+    private static void SetUpSpawnedEnemy(RoomEnemyPlace place) =>
+        OccupantOf(place).Initialization?.Initialize();
+
+    /// <summary>The occupant <paramref name="place"/> holds.</summary>
+    /// <exception cref="InvalidDataException">The place holds no entity.</exception>
+    private static EnemyOccupant OccupantOf(RoomEnemyPlace place) =>
+        Ensure.NotNull(place).BoundEntity ?? throw new InvalidDataException($"Enemy place {place.Ordinal} has no entity to set up.");
 
     /// <summary>Exposes setting up a listed enemy from its population entry to the enemy loader.</summary>
-    RoomEnemyOccupant IEnemyLifecycle.InitializePlaceFromDefinition(
+    void IEnemyLifecycle.InitializePlaceFromDefinition(
         RoomEnemyPlace place, RoomEnemyPlacement population, RoomEnemyDefinition definition) =>
         InitializePlaceFromDefinition(place, population, definition);
 
     /// <summary>Lets the population loader run the place's species initialization.</summary>
-    IReadOnlyList<EnemyPartBuild> IEnemyLifecycle.SetUpEnemy(RoomEnemyOccupant occupant, EnemyPopulationSurroundings surroundings,
-        IReadOnlyList<RoomEnemyPlace> listedAfter) =>
-        SetUpEnemy(occupant, surroundings, listedAfter);
-
-    /// <inheritdoc/>
-    void IEnemyLifecycle.SetUpPart(RoomEnemyOccupant occupant, EnemyPartBuild build, EnemyPopulationSurroundings surroundings) =>
-        Ensure.NotNull(occupant).Place.SetUpAsPart(occupant, build, new EnemySetup.Loaded(Ensure.NotNull(surroundings)));
-
-    /// <inheritdoc/>
-    void IEnemyLifecycle.RespawnEnemy(RoomEnemyOccupant occupant) =>
-        Ensure.NotNull(occupant).Place.SetUpAgain(occupant, new EnemySetup.Spawned());
+    void IEnemyLifecycle.SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
+        SetUpEnemy(place, surroundings);
 
     /// <summary>Lets a species run the initialization of an enemy it spawned on another enemy's behalf.</summary>
-    void IEnemyLifecycle.SetUpSpawnedEnemy(RoomEnemyOccupant occupant) => SetUpSpawnedEnemy(occupant);
-
-    /// <inheritdoc/>
-    void IEnemyLifecycle.SetUpJoiningEnemy<TEncounter>(RoomEnemyOccupant occupant, TEncounter encounter) =>
-        Ensure.NotNull(occupant).Place.SetUp(occupant, new EnemySetup.Joining<TEncounter>(Ensure.NotNull(encounter)));
+    void IEnemyLifecycle.SetUpSpawnedEnemy(RoomEnemyPlace place) => SetUpSpawnedEnemy(place);
 
     /// <inheritdoc/>
     RoomEnemyPlace? IEnemyLifecycle.SpawnEnemyJoining<TEncounter>(RoomEnemyPlacement population, TEncounter encounter) =>
-        Spawn(population, new EnemySetup.Joining<TEncounter>(Ensure.NotNull(encounter)));
+        Spawn(population, place => place.SetSpeciesState(Ensure.NotNull(encounter)));
 
     /// <summary>
-    /// Installs <paramref name="population"/> in the first free place, builds its enemy as <paramref name="setup"/> sets it
-    /// up, which runs its initialization, starts its animation when it runs one and extends the live enemy range.
+    /// Installs <paramref name="population"/> in the first free place, gives it what <paramref name="joining"/> installs (nothing for a plain spawn),
+    /// runs its initialization AI, starts its animation when it runs one and extends the live enemy range.
     /// </summary>
-    private RoomEnemyPlace? Spawn(RoomEnemyPlacement population, EnemySetup setup) =>
-        _places.FindFreePlace() is { } place ? SpawnAt(place, population, setup) : null;
-
-    /// <summary>
-    /// Installs <paramref name="population"/> in <paramref name="place"/>, a free one, builds its enemy as
-    /// <paramref name="setup"/> sets it up, which runs its initialization, starts its animation when it runs one and
-    /// extends the live enemy range.
-    /// </summary>
-    private RoomEnemyPlace SpawnAt(RoomEnemyPlace place, RoomEnemyPlacement population, EnemySetup setup)
+    private RoomEnemyPlace? Spawn(RoomEnemyPlacement population, Action<RoomEnemyPlace> joining)
     {
-        RoomEnemyOccupant occupant = InitializePlaceFromDefinition(place, population, _room.Definitions.ReadEnemyDefinition(population.DefinitionId));
-        place.SetUp(occupant, setup);
+        if (_places.FindFreePlace() is not { } place)
+            return null;
+        InitializePlaceFromDefinition(place, population, _room.Definitions.ReadEnemyDefinition(population.DefinitionId));
+        joining(place);
+        SetUpSpawnedEnemy(place);
         // Spawning writes the empty frame after initialization, before the first animation tick.
         place.Frame = place.Processing.HasAny(EnemyProcessing.Animates)
             ? EnemyFrameId.PointAtOrigin
@@ -132,12 +123,9 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     IReadOnlyList<RoomEnemyOccupant> IEnemyLifecycle.InteractiveEnemies => _processingWindow.InteractiveEnemies;
 
     /// <summary>
-    /// Runs the main AI of the enemy a loaded place holds through its shared main-AI contract, and nothing for one that has
-    /// none, as a place awaiting its enemy's respawn has none: the enemy pass still counts its update.
+    /// Runs the main AI the entity bound in a loaded place carries, and nothing for one that has none, as a place awaiting
+    /// its enemy's respawn has none: the enemy pass still counts its update.
     /// </summary>
-    internal static void RunMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        if (Ensure.NotNull(place).Entity is IEnemyAi entity)
-            entity.RunMainAi(frame);
-    }
+    internal static void RunMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
+        Ensure.NotNull(place).BoundEntity?.MainAi?.RunMainAi(frame);
 }

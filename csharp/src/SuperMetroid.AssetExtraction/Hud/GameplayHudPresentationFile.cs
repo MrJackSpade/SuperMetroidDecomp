@@ -35,7 +35,8 @@ public static class GameplayHudPresentationFile
         GameplayHudPresentationDocument document;
         try
         {
-            document = JsonAssetDocument.Read<GameplayHudPresentationDocument>(source, ArtworkJson.Options);
+            document = JsonAssetDocument.Read<GameplayHudPresentationDocument>(source, ArtworkJson.Options) ??
+                throw new InvalidDataException("Gameplay HUD presentation document is null.");
         }
         catch (JsonException error)
         {

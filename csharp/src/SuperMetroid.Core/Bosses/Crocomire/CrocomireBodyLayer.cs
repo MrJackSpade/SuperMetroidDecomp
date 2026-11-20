@@ -51,34 +51,33 @@ internal sealed class CrocomireBodyLayer
     /// His body shows <paramref name="frame"/> from now on in place of whatever it showed (#1355, #1515, #1540), as a melt
     /// image replaces it: his body is the one part he draws on it.
     /// </summary>
-    internal static void ShowCrocomireBodyFrame(CrocomireEnemyState state, BossBodyFrame frame) =>
-        state.BodyParts.Show(EnemyDefinitionId.Crocomire, frame);
+    internal void ShowCrocomireBodyFrame(BossBodyFrame frame) =>
+        _presentation.RequireBossBody().Show(EnemyDefinitionId.Crocomire, frame);
 
     /// <summary>His body shows nothing from now on, until a frame is shown on it again (#1515).</summary>
-    internal static void ClearCrocomireBody(CrocomireEnemyState state) => state.BodyParts.Clear();
+    internal void ClearCrocomireBody() => _presentation.RequireBossBody().Clear();
 
     /// <summary>
     /// Hides his body from room row <paramref name="roomRow"/> down, until a frame is shown on it again (#1515, #2031): his
     /// body's picture shows only above that row, reckoned from where he lies.
     /// </summary>
-    internal static void HideCrocomireBodyBelow(CrocomireEnemyState state, int roomRow) =>
-        state.BodyParts.ShowAbove(roomRow - state.Body.Position.Y.Whole);
+    internal void HideCrocomireBodyBelow(CrocomireEnemyState state, int roomRow) =>
+        _presentation.RequireBossBody().ShowAbove(roomRow - state.Body.Position.Y.Whole);
 
     /// <summary>Levels the melt's stretch: every line shows his body as it lies now (#1468, #1802, #2031).</summary>
     internal static void LevelCrocomireMeltDistortion(CrocomireEnemyState state) =>
         state.Death.MeltDistortion = CrocomireMeltDistortion.Level(state.Body.Position.Y.Whole);
 
     /// <summary>
-    /// Places the tongue at the body: a normal second enemy, it lies at its body-relative X offset, and every placement of
-    /// his body during the fight and his death moves it there, even while the body's bulk shows as his body's pictures.
+    /// Places the tongue at the body: his tongue part lies at its offset beside his body, and every placement of his
+    /// body during the fight and his death moves it there, even while the body's bulk shows as his body's pictures.
     /// The tongue's picture is drawn where the tongue lies until his steps move his body later in the update (#2031).
     /// </summary>
     internal static void PlaceCrocomireTongue(CrocomireEnemyState state)
     {
         RoomEnemyPlace body = state.Body;
         RoomEnemyPlace tongue = state.Tongue;
-        int offset = state.TongueState.BodyXOffset;
-        tongue.Position = tongue.Position.WithWhole(new(body.Position.X.Whole + offset, body.Position.Y.Whole));
+        tongue.Position = tongue.Position.WithWhole(new(body.Position.X.Whole + CrocomireFightDefinitions.TongueBodyXOffset, body.Position.Y.Whole));
         tongue.DrawOffset = Offset16<RoomPixels>.Zero;
     }
 
@@ -106,6 +105,6 @@ internal sealed class CrocomireBodyLayer
         _effectActors.SpawnRoomEffectActor(
             new(state.Body.Position.X.Whole + xOffset, acidY + CrocomireBridgeCollapseDefinitions.AcidSmokeDepth - CrocomireRandomDefinitions.AcidSmokeRise.Of(random)),
             RoomEffectActorKind.BigDustCloud,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
     }
 }

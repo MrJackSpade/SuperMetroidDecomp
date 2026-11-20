@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -11,7 +12,7 @@ internal static class AudioAssetJson
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
-        Converters = { new ExactByteListConverter(), new MusicInstructionConverter() },
+        Converters = { new ExactByteListConverter(), new MusicInstructionConverter(), new MusicTrackJsonConverter() },
     };
 
     /// <summary>
@@ -30,11 +31,9 @@ internal static class AudioAssetJson
         {
             if (reader.TokenType != JsonTokenType.StartObject)
                 throw new JsonException("Expected a music instruction object.");
-            // Each member is read where its property stands; whether it has been read is the reading's own state.
-            MusicOperation operation = default;
+            MusicOperation? operation = null;
             int opcode = 0;
-            IReadOnlyList<byte> timing = [], arguments = [];
-            bool hasOperation = false, hasTiming = false, hasArguments = false;
+            IReadOnlyList<byte>? timing = null, arguments = null;
             var bytes = (JsonConverter<IReadOnlyList<byte>>)options.GetConverter(typeof(IReadOnlyList<byte>));
             while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
             {
@@ -43,9 +42,7 @@ internal static class AudioAssetJson
                 if (reader.ValueTextEquals("operation"u8))
                 {
                     reader.Read();
-                    hasOperation = reader.TokenType != JsonTokenType.Null;
-                    if (hasOperation)
-                        operation = Operation(ref reader);
+                    operation = reader.TokenType == JsonTokenType.Null ? null : Operation(ref reader);
                 }
                 else if (reader.ValueTextEquals("opcode"u8))
                 {
@@ -55,18 +52,12 @@ internal static class AudioAssetJson
                 else if (reader.ValueTextEquals("timing"u8))
                 {
                     reader.Read();
-                    hasTiming = reader.TokenType != JsonTokenType.Null;
-                    if (hasTiming)
-                        timing = bytes.Read(ref reader, typeof(IReadOnlyList<byte>), options)
-                            ?? throw new JsonException("Music instruction timing bytes read as null.");
+                    timing = reader.TokenType == JsonTokenType.Null ? null : bytes.Read(ref reader, typeof(IReadOnlyList<byte>), options);
                 }
                 else if (reader.ValueTextEquals("arguments"u8))
                 {
                     reader.Read();
-                    hasArguments = reader.TokenType != JsonTokenType.Null;
-                    if (hasArguments)
-                        arguments = bytes.Read(ref reader, typeof(IReadOnlyList<byte>), options)
-                            ?? throw new JsonException("Music instruction argument bytes read as null.");
+                    arguments = reader.TokenType == JsonTokenType.Null ? null : bytes.Read(ref reader, typeof(IReadOnlyList<byte>), options);
                 }
                 else
                 {
@@ -76,15 +67,14 @@ internal static class AudioAssetJson
             }
             if (reader.TokenType != JsonTokenType.EndObject)
                 throw new JsonException("Music instruction is not terminated.");
-            if (!hasOperation)
-                throw new JsonException("Music instruction requires an operation.");
-            if (!hasTiming)
-                throw new JsonException("Music instruction requires its timing bytes.");
-            if (!hasArguments)
-                throw new JsonException("Music instruction requires its argument bytes.");
-            if (operation.Effect is { } effect && !NamesEffect(opcode, effect))
+            MusicOperation named = operation ?? throw new JsonException("Music instruction requires an operation.");
+            if (named.Effect is { } effect && !NamesEffect(opcode, effect))
                 throw new JsonException($"Music instruction opcode ${opcode:X2} is no '{SpcMusicEffectKeys.Installed.Of(effect)}' command.");
-            return new AudioMusicInstructionMetadata(operation.Kind, opcode, timing, arguments);
+            return new AudioMusicInstructionMetadata(
+                named.Kind,
+                opcode,
+                timing ?? throw new JsonException("Music instruction requires its timing bytes."),
+                arguments ?? throw new JsonException("Music instruction requires its argument bytes."));
         }
 
         /// <summary>Whether <paramref name="opcode"/> is the opcode of <paramref name="effect"/>.</summary>

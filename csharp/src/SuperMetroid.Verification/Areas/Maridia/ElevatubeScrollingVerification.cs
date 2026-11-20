@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -22,7 +21,7 @@ internal static class ElevatubeScrollingVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+            runtime.RoomLoader.InitializeCeresStartSamus();
             var door = SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, fromNorth
                 ? DoorPointers.MaridiaElevatubeFromNorth : DoorPointers.MaridiaElevatubeFromSouth);
             // Clear the constructor's Ceres arrival fixture before applying the real
@@ -30,7 +29,7 @@ internal static class ElevatubeScrollingVerification
             runtime.LoadCartridgeRoomForDebug(door.DestinationRoom);
             runtime.LoadCartridgeRoomThroughDoorForVerification(door,
                 camera: new Position16<RoomPixels>(0, fromNorth ? (ushort)0 : (ushort)2304));
-            var samus = runtime.Player.Samus;
+            var samus = runtime.Player.IntroducedSamus;
             var camera = runtime.Room.LoadedCamera;
             samus.Position = samus.Position.WithWholeX(MaridiaElevatubeDefinitions.SamusCenterX);
             samus.Position = samus.Position.WithWholeY(fromNorth ? MaridiaElevatubeDefinitions.FromNorth.StartingY

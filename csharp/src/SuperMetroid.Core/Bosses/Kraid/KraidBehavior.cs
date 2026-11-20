@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The Kraid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
+internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
 
     /// <inheritdoc/>
@@ -20,51 +20,49 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
         EnemyDefinitionId.KraidSecondNail,
     ];
 
-    /// <inheritdoc/>
-    public EnemyDefinitionId HeadDefinition => EnemyDefinitionId.Kraid;
-
-    /// <inheritdoc/>
-    public int PartCount => KraidParts.PartCount;
-
-    /// <summary>
-    /// Kraid's body, which heads his other seven parts, listed right after it (#1877, #2146, #2554): his body begins the
-    /// encounter over their places, and each part, a respawned fingernail again, joins it from its setup.
-    /// </summary>
-    public EnemyPlaced CreateGroup(EnemyGroupPlaces places, EnemyCommonParticipation common)
+    /// <summary>One of Kraid's eight parts, each joining its own reference as it initializes (#1877, #2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no Kraid definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        RoomEnemyPlace head = Ensure.NotNull(places).Head;
-        IReadOnlyList<RoomEnemyPlace> parts = places.Parts;
-        var body = new KraidBodyEntity(this, head, common, new KraidParts(head, parts));
-        KraidEnemyState kraid = body.Encounter;
-        return new EnemyPlaced(body,
-        [
-            (arm, partCommon, _) => new KraidArmEntity(this, arm, partCommon, kraid),
-            (lint, partCommon, _) => new KraidLintEntity(this, lint, partCommon, kraid, KraidLintPart.Top),
-            (lint, partCommon, _) => new KraidLintEntity(this, lint, partCommon, kraid, KraidLintPart.Middle),
-            (lint, partCommon, _) => new KraidLintEntity(this, lint, partCommon, kraid, KraidLintPart.Bottom),
-            (foot, partCommon, _) => new KraidFootEntity(this, foot, partCommon, kraid),
-            (nail, partCommon, _) => new KraidNailEntity(this, nail, partCommon, kraid, KraidNailPart.First),
-            (nail, partCommon, _) => new KraidNailEntity(this, nail, partCommon, kraid, KraidNailPart.Second),
-        ]);
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
+        if (definition == EnemyDefinitionId.Kraid)
+            return EnemyOccupant.Of(new KraidBodyEntity(this, occupant, place, common));
+        if (definition == EnemyDefinitionId.KraidArm)
+            return EnemyOccupant.Of(new KraidArmEntity(this, occupant, place, common));
+        if (definition == EnemyDefinitionId.KraidFoot)
+            return EnemyOccupant.Of(new KraidFootEntity(this, occupant, place, common));
+        if (definition == EnemyDefinitionId.KraidLintTop)
+            return EnemyOccupant.Of(new KraidLintEntity(this, occupant, place, common, Parts.TopLintReference, KraidLintPart.Top));
+        if (definition == EnemyDefinitionId.KraidLintMiddle)
+            return EnemyOccupant.Of(new KraidLintEntity(this, occupant, place, common, Parts.MiddleLintReference, KraidLintPart.Middle));
+        if (definition == EnemyDefinitionId.KraidLintBottom)
+            return EnemyOccupant.Of(new KraidLintEntity(this, occupant, place, common, Parts.BottomLintReference, KraidLintPart.Bottom));
+        if (definition == EnemyDefinitionId.KraidFirstNail)
+            return EnemyOccupant.Of(new KraidNailEntity(this, occupant, place, common, Parts.FirstNailReference, KraidNailPart.First));
+        if (definition == EnemyDefinitionId.KraidSecondNail)
+            return EnemyOccupant.Of(new KraidNailEntity(this, occupant, place, common, Parts.SecondNailReference, KraidNailPart.Second));
+        throw new InvalidOperationException($"The Kraid species creates no {occupant.DefinitionId}.");
     }
     /// <summary>Kraid's body layer: the body frame he shows, drawn from his installed body sheet.</summary>
-    internal KraidBodyLayer BodyLayer { get; }
+    private KraidBodyLayer BodyLayer { get; }
 
     /// <summary>Kraid's arrival: his room setup, the rise through the floor and his growth into the second phase.</summary>
     internal KraidRise Rise { get; }
 
     /// <summary>Kraid's part animations and states, random numbers and his sound and music requests.</summary>
-    internal KraidEncounterAccess Access { get; }
+    private KraidEncounterAccess Access { get; }
 
+    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
+    internal KraidParts Parts { get; }
 
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
-    internal KraidBackground Background { get; }
+    private KraidBackground Background { get; }
 
     /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health colours.</summary>
-    internal KraidHead Head { get; }
+    private KraidHead Head { get; }
 
     /// <summary>Kraid's death: the sink below the floor, hiding his body and the background fade.</summary>
-    internal KraidDeath Death { get; }
+    private KraidDeath Death { get; }
 
     /// <summary>Kraid's arm and foot: their setup, animations, lunges, retreats and walks.</summary>
     internal KraidLimbs Limbs { get; }
@@ -83,15 +81,16 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
     internal KraidBehavior(KraidBehaviorDependencies dependencies)
     {
         _bossArtwork = dependencies.Presentation.Artwork;
+        Parts = new KraidParts();
         Access = new KraidEncounterAccess(dependencies.Room, dependencies.Audio);
-        BodyLayer = new KraidBodyLayer(_bossArtwork);
-        Background = new KraidBackground(dependencies.Projectiles, dependencies.Presentation.Surfaces, Access, _bossArtwork);
-        Head = new KraidHead(dependencies.Room, dependencies.Projectiles, Access, Background);
-        Rise = new KraidRise(new KraidRiseDependencies { PassEvents = dependencies.PassEvents, Room = dependencies.Room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation.Surfaces, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head, BodyLayer = BodyLayer, Encounters = dependencies.Encounters });
-        Death = new KraidDeath(new KraidDeathDependencies { PassEvents = dependencies.PassEvents, Room = dependencies.Room, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation.Surfaces, DeathsAndDrops = dependencies.DeathsAndDrops, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head });
-        Limbs = new KraidLimbs(dependencies.Room, dependencies.Earthquake, Access);
-        Projectiles = new KraidProjectiles(dependencies.Room, dependencies.Terrain, dependencies.Collision, dependencies.DeathsAndDrops, Access);
-        Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.EffectActors, dependencies.Collision);
+        BodyLayer = new KraidBodyLayer(_bossArtwork, Parts);
+        Projectiles = new KraidProjectiles(dependencies.Room, dependencies.Terrain, Parts, dependencies.Collision, dependencies.DeathsAndDrops, Access);
+        Background = new KraidBackground(dependencies.Projectiles, dependencies.Presentation.Surfaces, Access, _bossArtwork, Projectiles.Rocks);
+        Head = new KraidHead(dependencies.Room, dependencies.Projectiles, Parts, Access, Background, Projectiles.SpitRock);
+        Rise = new KraidRise(new KraidRiseDependencies { PassEvents = dependencies.PassEvents, Room = dependencies.Room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Parts = Parts, Presentation = dependencies.Presentation.Surfaces, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head, BodyLayer = BodyLayer });
+        Death = new KraidDeath(new KraidDeathDependencies { PassEvents = dependencies.PassEvents, Room = dependencies.Room, Earthquake = dependencies.Earthquake, Parts = Parts, Presentation = dependencies.Presentation.Surfaces, DeathsAndDrops = dependencies.DeathsAndDrops, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head });
+        Limbs = new KraidLimbs(dependencies.Room, dependencies.Earthquake, Parts, Access);
+        Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.EffectActors, Parts, dependencies.Collision);
     }
 
     /// <summary>
@@ -100,8 +99,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
     /// killing mouth hit therefore reaches colour handling, which settles his hurt flash on his health band's colours,
     /// before the death setup runs in this same update.
     /// </summary>
-    internal void RunKraidBodyMain(
-        RoomEnemyPlace body,
+    private void RunKraidBodyMain(
+        RoomEnemyOccupant kraid,
         KraidEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
@@ -109,18 +108,20 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
         SamusProjectileSystem samusProjectiles,
         SamusBombProjectileSystem samusBombs)
     {
+        RoomEnemyPlace body = kraid.Place;
         IReadOnlyList<KraidPassProjectile> tested = TestedByShotPasses(samusProjectiles, samusBombs);
-        Combat.ResolveKraidMouthProjectileHits(body, state, tested);
+        Combat.ResolveKraidMouthProjectileHits(kraid, state, tested);
         Head.RunKraidHurtColours(body, state);
         Combat.ResolveKraidBodyProjectileHits(body, state, tested);
-        Combat.ResolveKraidBodyContact(body, state, samus, pseudoScrew);
+        Combat.ResolveKraidBodyContact(kraid, state, samus, pseudoScrew);
         RunKraidBodyStage(body, state, camera.X, samus);
     }
 
     /// <summary>Runs Kraid's main AI for his body in <paramref name="place"/>.</summary>
-    internal void RunKraidMainAi(RoomEnemyPlace place, KraidEnemyState state, IEnemyAiFrame frame)
+    internal void RunKraidMainAi(RoomEnemyOccupant kraid, KraidEnemyState state, IEnemyAiFrame frame)
     {
-        RunKraidBodyMain(place, state, frame.Samus, frame.PseudoScrew, frame.Camera, frame.SamusProjectiles, frame.SamusBombs);
+        _ = kraid.Place;
+        RunKraidBodyMain(kraid, state, frame.Samus, frame.PseudoScrew, frame.Camera, frame.SamusProjectiles, frame.SamusBombs);
     }
 
     /// <summary>
@@ -130,7 +131,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
     /// </summary>
     /// <param name="projectiles">Samus's shots.</param>
     /// <param name="bombs">Samus's bombs.</param>
-    internal static IReadOnlyList<KraidPassProjectile> TestedByShotPasses(
+    private static IReadOnlyList<KraidPassProjectile> TestedByShotPasses(
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem bombs)
     {
@@ -150,8 +151,13 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
         {
         }
 
-        /// <summary>Reads the projectile's position, radius, type and damage.</summary>
-        public abstract KraidCollisionShot Read();
+        /// <summary>
+        /// Whether a projectile holds the tested place (#2558). A pass reaches the place past Samus's counted shots and her
+        /// first bomb whether or not either holds one; an empty place lies at rest at the room's origin with no extent,
+        /// which Kraid's mouth and body, standing in his room's lower half, never meet, so a pass skips it.
+        /// </summary>
+        /// <value>The position, radius, type and damage of the projectile holding the place, or null while none holds it.</value>
+        public abstract KraidCollisionShot? Held { get; }
 
         /// <summary>Marks the projectile as having collided with Kraid.</summary>
         public abstract void MarkCollision();
@@ -167,8 +173,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
             internal Shot(SamusProjectile shot) => _shot = Ensure.NotNull(shot);
 
             /// <inheritdoc/>
-            public override KraidCollisionShot Read() =>
-                new(_shot.Position.Whole, _shot.Radius, _shot.Type, _shot.Damage, IsPlacedBomb: false);
+            public override KraidCollisionShot? Held => _shot.Occupant is { } held
+                ? new(_shot.Position.Whole, _shot.Radius, held.Type, held.Damage, IsPlacedBomb: false)
+                : null;
 
             /// <inheritdoc/>
             public override void MarkCollision() => _shot.Spend();
@@ -185,8 +192,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
             internal Bomb(SamusBomb bomb) => _bomb = Ensure.NotNull(bomb);
 
             /// <inheritdoc/>
-            public override KraidCollisionShot Read() =>
-                new(_bomb.Position.Whole, _bomb.Radius, _bomb.Type, _bomb.Damage, IsPlacedBomb: !_bomb.IsBombSpread);
+            public override KraidCollisionShot? Held => _bomb.Occupant is { } placed
+                ? new(_bomb.Position.Whole, _bomb.Radius, placed.Type, placed.Damage, IsPlacedBomb: !_bomb.IsBombSpread)
+                : null;
 
             /// <inheritdoc/>
             public override void MarkCollision() => _bomb.Spend();
@@ -203,7 +211,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
 
 
     /// <summary>Runs the phase of the stage the body is in: his rise, his fight, his growth or his death.</summary>
-    internal void RunKraidBodyStage(
+    private void RunKraidBodyStage(
         RoomEnemyPlace body,
         KraidEnemyState state,
         int cameraX,
@@ -267,7 +275,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
                 return;
 
             case KraidFightPhase.HeadAnimationBeforeGrowth:
-                _ = Head.AdvanceKraidHeadAnimation(state);
+                Head.AdvanceKraidHeadAnimation(state);
                 if (state.BodyState.PhaseWait.StepRunsOut())
                     state.BodyState.GrowthPhase = KraidGrowthPhase.ReleaseCamera;
                 return;

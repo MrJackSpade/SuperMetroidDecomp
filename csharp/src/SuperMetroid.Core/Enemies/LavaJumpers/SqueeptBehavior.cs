@@ -4,16 +4,16 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>The Squeept species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySettingsFactory<EnemyFollowerSpawnSettings>
+internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Squeept];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EnemyFollowerSpawnSettings settings) =>
-        settings.Role == EnemyFollowerRole.Follower
-            ? new NorfairLavaJumperFollowerEntity(this, occupant, place, common)
-            : new SqueeptEntity(this, occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
+            ? EnemyOccupant.Of(new NorfairLavaJumperFollowerEntity(this, occupant, place, common))
+            : EnemyOccupant.Of(new SqueeptEntity(this, occupant, place, common));
 
     /// <summary>Supplies one random number per parent and follower AI frame.</summary>
     private readonly EnemyRoomBinding _room;
@@ -34,37 +34,38 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySettingsFactory<Ene
     }
 
     /// <summary>Initializes a lava jumper's cosmetic follower.</summary>
-    internal NorfairLavaJumperFollowerState InitializeNorfairLavaJumperFollower(RoomEnemyPlace place)
+    internal void InitializeNorfairLavaJumperFollower(RoomEnemyPlace place)
     {
         // Every room with it places this cosmetic second half immediately after its moving parent, which it
         // finds when it is placed and follows from then on; a population that places anything else there is refused.
-        _parents.Place(place, _places.ListedBefore(place, 1));
-        return new NorfairLavaJumperFollowerState(ValidateSqueeptParent(place))
+        place.SetSpeciesState(new NorfairLavaJumperFollowerState
         {
             Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation),
-        };
+        });
+        _parents.Place(place, _places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader));
+        ValidateSqueeptParent(place);
     }
 
     /// <summary>Initializes a jumping lava jumper, hidden in the lava at its population position.</summary>
-    internal static SqueeptState InitializeSqueept(RoomEnemyPlace place)
+    internal static void InitializeSqueept(RoomEnemyPlace place)
     {
         var state = new SqueeptState(SqueeptAction.BeginJump);
+        place.SetSpeciesState(state);
 
         // The jumping parent returns to exactly these whole population coordinates after every arc; where it lies
         // within a pixel carries over from one jump to the next.
         state.SpawnPosition = place.Position.Whole;
         state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Hidden), AnimationPlace.StartOfAnimation);
-        return state;
     }
 
     /// <summary>
     /// Runs the follower's main behaviour. Main advances the shared random numbers once for the follower as for the
     /// parent; the follower discards the number, which still affects later room actors.
     /// </summary>
-    internal void RunNorfairLavaJumperFollowerMain(RoomEnemyPlace follower, NorfairLavaJumperFollowerState state)
+    internal void RunNorfairLavaJumperFollowerMain(RoomEnemyPlace follower)
     {
         _room.Random.Generate();
-        FollowSqueeptParent(follower, state);
+        FollowSqueeptParent(follower);
     }
 
     /// <summary>
@@ -152,12 +153,12 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySettingsFactory<Ene
     /// Shows the cosmetic follower at the preceding parent's height while the parent rises and is not frozen, and hides
     /// it otherwise.
     /// </summary>
-    private void FollowSqueeptParent(RoomEnemyPlace follower, NorfairLavaJumperFollowerState state)
+    private void FollowSqueeptParent(RoomEnemyPlace follower)
     {
         RoomEnemyPlace parent = GetPrecedingSqueeptPlace(follower);
 
         // The follower reads its parent's health, freeze, vertical speed and position in the parent's place; a parent
-        // deleted without a kill is read as it left them (the parent it holds), and a killed parent's emptied place
+        // deleted without a kill is read as it left them (RoomEnemyPlace.FoundState), and a killed parent's emptied place
         // ends the follower.
         if (parent.Health == 0)
         {
@@ -166,7 +167,8 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySettingsFactory<Ene
         }
 
         // The pair is checked when the follower is placed, not on every update.
-        SqueeptState parentState = state.Parent;
+        SqueeptState parentState = parent.FoundState<SqueeptState>() ?? throw new InvalidOperationException(
+            $"Lava jumper follower {follower.Ordinal} finds no lava jumper in its parent's place {parent.Ordinal}.");
         if (parent.Freeze.IsRunning || !parentState.YVelocity.IsNegative)
         {
             // The second half appears only while the parent is travelling upward. At the
@@ -182,12 +184,11 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySettingsFactory<Ene
     /// <summary>The parent the follower found when it was placed, the enemy its room lists directly before it.</summary>
     private RoomEnemyPlace GetPrecedingSqueeptPlace(RoomEnemyPlace follower) => _parents.Of(follower);
 
-    /// <summary>The state of the same-species parent directly before the follower, which a follower population entry needs.</summary>
-    /// <exception cref="InvalidDataException">The room lists no lava jumper right before the follower.</exception>
-    private SqueeptState ValidateSqueeptParent(RoomEnemyPlace follower)
+    /// <summary>Rejects a follower population entry without a same-species parent directly before it.</summary>
+    private void ValidateSqueeptParent(RoomEnemyPlace follower)
     {
         RoomEnemyPlace parent = GetPrecedingSqueeptPlace(follower);
-        if (parent.Entity is not SqueeptEntity squeept)
+        if (parent.Entity is not SqueeptEntity)
         {
             throw new InvalidDataException(
                 $"Norfair lava-jumping follower in place {follower.Ordinal} must immediately follow " +
@@ -195,7 +196,6 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySettingsFactory<Ene
                 $"Preceding place: definition={parent.Occupant?.DefinitionId}, " +
                 $"health={parent.Health}, spawn={parent.Occupant?.Spawn.SpawnSettings}, contact={parent.Contact}, processing={parent.Processing}, presence={parent.Presence}.");
         }
-        return squeept.State;
     }
 
     /// <summary>Moves the jumper up or down by one update of its vertical speed.</summary>
@@ -214,20 +214,20 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySettingsFactory<Ene
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, NorfairLavaJumperAnimations.StartingWith(segment));
 
     /// <summary>Runs a jumping lava jumper's main AI.</summary>
-    internal void RunSqueeptMainAi(RoomEnemyPlace place, SqueeptState state) =>
+    internal void RunSqueeptMainAi(RoomEnemyPlace place) =>
         RunSqueeptMain(
             place,
-            state);
+            place.RequireSpeciesState<SqueeptState>());
 
     /// <summary>Advances a lava jumper follower's looping typed animation, which raises no cue.</summary>
-    internal static void AdvanceNorfairLavaJumperFollowerTypedAnimation(RoomEnemyPlace place, NorfairLavaJumperFollowerState norfairLavaJumperFollowerState) =>
-        EnemyAnimationPlayback.Advance(place, norfairLavaJumperFollowerState, NorfairLavaJumperAnimations.Segments,
+    internal static void AdvanceNorfairLavaJumperFollowerTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, NorfairLavaJumperAnimations.Segments,
             static (NorfairLavaJumperFollowerState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"The Squeept follower's animation raised {cue}."));
 
     /// <summary>Advances a jumping lava jumper's typed animation, whose jump raises its finishing cue.</summary>
-    internal static void AdvanceSqueeptTypedAnimation(RoomEnemyPlace place, SqueeptState squeeptState) =>
-        EnemyAnimationPlayback.Advance(place, squeeptState, NorfairLavaJumperAnimations.Segments,
+    internal static void AdvanceSqueeptTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, NorfairLavaJumperAnimations.Segments,
             static (SqueeptState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

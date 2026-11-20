@@ -86,8 +86,8 @@ internal static class BossBodyDissolveMapFile
         if (document.Maps is null)
             throw new InvalidDataException($"Dissolve maps {name} list no maps.");
         var maps = new Dictionary<string, PictureDissolve>(StringComparer.Ordinal);
-        foreach ((string tag, MapDocument map) in document.Maps)
-            maps.Add(tag, Decoded($"{name} map {tag}", map));
+        foreach ((string tag, MapDocument? map) in document.Maps)
+            maps.Add(tag, Decoded($"{name} map {tag}", map ?? throw new InvalidDataException($"Dissolve maps {name} map {tag} is null.")));
         return maps;
     }
 

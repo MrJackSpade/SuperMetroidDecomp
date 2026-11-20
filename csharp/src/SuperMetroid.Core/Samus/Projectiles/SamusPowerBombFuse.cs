@@ -25,9 +25,12 @@ public static class SamusPowerBombFuse
     }
 
     /// <summary>Switches a bomb or Power Bomb's live animation onto the same frame of its fast animation.</summary>
+    /// <exception cref="InvalidOperationException">The bomb has no animation.</exception>
     /// <exception cref="InvalidDataException">The animation is not at a slow bomb or Power Bomb place.</exception>
-    internal static void SwitchToFastAnimation(AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> live)
+    internal static void SwitchToFastAnimation(AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue>? animation)
     {
+        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> live = animation
+            ?? throw new InvalidOperationException("A bomb with no animation has no fast animation to switch to.");
         SamusProjectileSegmentBeat at = SamusProjectilePlayback.BeatOf(live.Playback);
         live.GoOnFrom(SamusPowerBombFuseData.FastCounterparts.TryGetValue(at, out SamusProjectileSegmentBeat fast)
             ? SamusProjectilePlayback.PlaybackAt(fast)

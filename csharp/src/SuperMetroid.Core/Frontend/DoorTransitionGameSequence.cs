@@ -11,12 +11,8 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Going through a door: reaching it, beginning the transition, then loading and showing the next room.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-/// <param name="step">The step the door transition is at.</param>
-internal sealed class DoorTransitionGameSequence(FrontendSession session, DoorTransitionStep step) : IGameplayPhase
+internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGamePhase
 {
-    /// <summary>The step the door transition is at.</summary>
-    internal DoorTransitionStep CurrentStep => step;
-
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.DoorTransition;
 
@@ -31,34 +27,34 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session, DoorTr
         : GamePhaseAudio.DoorTransition;
 
     /// <inheritdoc/>
-    public string Name => step switch
+    public string Name => session.DoorTransitionStep switch
     {
         DoorTransitionStep.EnteringDoor => "Door collision",
         DoorTransitionStep.BeginningTransition => "Loading destination room",
         DoorTransitionStep.Transitioning => "Destination room ready",
-        _ => throw new InvalidOperationException($"Undefined {nameof(DoorTransitionStep)} {step}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(DoorTransitionStep)} {session.DoorTransitionStep}."),
     };
 
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <inheritdoc/>
-    public void Step(ControllerButton controllerInput, LoadedGameplay live)
+    public void Step(ControllerButton controllerInput)
     {
-        switch (step)
+        switch (session.DoorTransitionStep)
         {
             case DoorTransitionStep.EnteringDoor:
-                if (StepEnteringDoor(controllerInput, live))
-                    BeginTransition(controllerInput, live);
+                if (StepEnteringDoor(controllerInput))
+                    BeginTransition(controllerInput);
                 break;
             case DoorTransitionStep.BeginningTransition:
-                BeginTransition(controllerInput, live);
+                BeginTransition(controllerInput);
                 break;
             case DoorTransitionStep.Transitioning:
-                StepTransition(controllerInput, live);
+                StepTransition(controllerInput);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(DoorTransitionStep)} {step}.");
+                throw new InvalidOperationException($"Undefined {nameof(DoorTransitionStep)} {session.DoorTransitionStep}.");
         }
     }
 
@@ -66,16 +62,16 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session, DoorTr
     /// Runs this update of reaching the door. Returns true when the door is entered, so the transition begins in the same
     /// update.
     /// </summary>
-    private bool StepEnteringDoor(ControllerButton controllerInput, LoadedGameplay live)
+    private bool StepEnteringDoor(ControllerButton controllerInput)
     {
         if (!session.DownwardsElevator.Waiting)
         {
             // An ordinary door finishes at once.
-            if (live.Room.Enemies.Elevator.DoorArming == ElevatorArming.None)
+            if (session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.DoorArming == ElevatorArming.None)
                 return true;
             // The elevator locks Samus; an upward elevator then finishes at once.
-            live.Runtime.Player.Samus.Control.LockOutPlayer();
-            if (live.Room.Enemies.Elevator.ElevatorTravel == ElevatorTravelDirection.Up)
+            session.GameplayRuntime.Player.IntroducedSamus.Control.LockOutPlayer();
+            if (session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.ElevatorTravel == ElevatorTravelDirection.Up)
                 return true;
             session.DownwardsElevator.Begin();
         }
@@ -83,23 +79,23 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session, DoorTr
         // A downward elevator's delay. The elevator gate is still clear, so the ride continues behind it.
         if (session.DownwardsElevator.CountFrame())
             return true;
-        live.Runtime.DoorTransition.RunDoorSoundWaitFrame(controllerInput, live.Room, live.Runtime.Player.Samus);
-        session.display.PublishGameplay(live);
+        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitFrame(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus);
+        session.display.PublishGameplay(session.GameplayRuntime);
         return false;
     }
 
     /// <summary>Begins the transition, then enters the room loading in the same update, which publishes the update's display.</summary>
-    private void BeginTransition(ControllerButton controllerInput, LoadedGameplay live)
+    private void BeginTransition(ControllerButton controllerInput)
     {
         // The update's liquid wave and statue descent advance before this step. A rising
         // liquid's rumble or ambient sound they request is queued as it runs, ahead of the cancels.
-        live.Runtime.DoorTransition.RunDoorWaitOpening(controllerInput, live.Room, live.Runtime.Player.Samus);
+        session.GameplayRuntime.DoorTransition.RunDoorWaitOpening(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus);
         // The door sets the door/enemy pause flags, then runs the source
         // enemy/draw owners while sounds are still admitted, so an enemy cue's
         // sound on this frame is queued, as it runs, before the door's cancels.
-        session.doorTransition.Begin(live.Runtime, live.Room);
-        SamusState doorSamus = live.Runtime.Player.Samus;
-        live.Runtime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, live.Room, doorSamus);
+        session.doorTransition.Begin(session.GameplayRuntime);
+        SamusState doorSamus = session.GameplayRuntime.Player.IntroducedSamus;
+        session.GameplayRuntime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, session.GameplayRuntime.Room.LoadedScope, doorSamus);
         // The door queues Samus's door-entry sound stop, then queues
         // the enemy library's silence so movement/charge loops terminate rather than leaking
         // into the next room.
@@ -113,8 +109,8 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session, DoorTr
                 priority: SoundRequestPriority.Essential);
         }
         // The door's spin-sound check tests whether Shoot is held.
-        else if (!live.Runtime.PlayerActions.Current.HasAny(GameplayAction.Shoot) &&
-            !live.Runtime.BeamCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
+        else if (!session.GameplayRuntime.PlayerActions.Current.HasAny(GameplayAction.Shoot) &&
+            !session.GameplayRuntime.BeamCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
         {
             session.audio.QueueSound(SamusSound.Silence,
                 priority: SoundRequestPriority.Essential);
@@ -128,10 +124,10 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session, DoorTr
     }
 
     /// <summary>One update of loading, scrolling into and fading in the next room, which returns to gameplay once complete.</summary>
-    private void StepTransition(ControllerButton controllerInput, LoadedGameplay live)
+    private void StepTransition(ControllerButton controllerInput)
     {
-        session.doorTransition.Step(live.Runtime, live.Room, session.audio, controllerInput, session.RoomLoadProgress);
-        session.display.PublishGameplay(live);
+        session.doorTransition.Step(session.GameplayRuntime, session.audio, controllerInput, session.RoomLoadProgress);
+        session.display.PublishGameplay(session.GameplayRuntime);
         if (session.doorTransition.Phase == DoorTransitionPhase.Complete)
         {
             // The door forces full brightness before the destination fade-in, so a door
@@ -139,8 +135,8 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session, DoorTr
             session.RecordFullBrightness();
             // Returning to gameplay restores sound admission (#2499). The game resumes spin audio only after it is
             // restored at the final fade boundary, not on each fade frame.
-            session.EnterMainGameplay();
-            if (SamusSpinSound.Select(live.Runtime.Player.Samus) is { } spinSound)
+            session.Enter(session.Phases.MainGameplay);
+            if (SamusSpinSound.Select(session.GameplayRuntime.Player.IntroducedSamus) is { } spinSound)
                 session.audio.QueueSound(spinSound, priority: SoundRequestPriority.High);
         }
     }

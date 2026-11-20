@@ -61,7 +61,7 @@ public static class RoomBlockAppearanceFiles
             throw new InvalidDataException($"Block appearance record {path} describes {document.Tileset}, not {RoomBlockSheet.NameOf(tileset)}.");
         try
         {
-            Dictionary<int, string[]?> blocks = document.Blocks;
+            Dictionary<int, string[]> blocks = document.Blocks;
             if (document.Count < 0 || blocks.Keys.Any(block => block < 0 || block >= document.Count))
                 throw new InvalidDataException($"A block appearance record of {document.Count} blocks lists a block outside them.");
             int[] shown = [.. blocks.Keys.Order()];
@@ -73,23 +73,23 @@ public static class RoomBlockAppearanceFiles
         }
 
         // Each block's inputs, as the record spells them; none for a block no room shows, which the record does not list.
-        static ImmutableArray<AppearanceInput>[] Inputs(int count, Dictionary<int, string[]?> blocks) =>
-            [.. Enumerable.Range(0, count).Select(block => !blocks.TryGetValue(block, out string?[]? tokens)
+        static ImmutableArray<AppearanceInput>[] Inputs(int count, Dictionary<int, string[]> blocks) =>
+            [.. Enumerable.Range(0, count).Select(block => !blocks.TryGetValue(block, out string[]? tokens)
                 ? ImmutableArray<AppearanceInput>.Empty
-                : ImmutableArray.CreateRange((tokens ?? throw new InvalidDataException($"Block {block} lists null inputs.")).Select(AppearanceInputSpellings.Parse)))];
+                : ImmutableArray.CreateRange(tokens.Select(AppearanceInputSpellings.Parse)))];
     }
 
     /// <summary>The inputs of each block a room shows, as the record spells them, by block.</summary>
-    private static Dictionary<int, string[]?> Tokens(RoomBlockAppearances appearances) =>
+    private static Dictionary<int, string[]> Tokens(RoomBlockAppearances appearances) =>
         Enumerable.Range(0, appearances.Count).Where(appearances.Shows)
-            .ToDictionary(block => block, block => (string?[]?)[.. appearances.Of(block).Select(input => input.Token)]);
+            .ToDictionary(block => block, block => appearances.Of(block).Select(input => input.Token).ToArray());
 
     /// <summary>One tileset's record.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Tileset">The tileset's installed name.</param>
     /// <param name="Count">How many blocks the tileset holds.</param>
     /// <param name="Blocks">The inputs of each block a room shows, by block index; a block no room shows has no entry.</param>
-    private sealed record BlockAppearancesDocument(int Version, string Tileset, int Count, Dictionary<int, string[]?> Blocks);
+    private sealed record BlockAppearancesDocument(int Version, string Tileset, int Count, Dictionary<int, string[]> Blocks);
 
     /// <summary>Strict camel-case record fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

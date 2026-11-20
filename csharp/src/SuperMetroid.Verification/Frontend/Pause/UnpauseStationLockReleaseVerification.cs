@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
@@ -25,23 +24,24 @@ internal static class UnpauseStationLockReleaseVerification
     internal static void VerifyUnpauseStationLockRelease()
     {
         var random = new SharedRandom();
-        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, hostServices: SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random: random);
+        var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroidGameHostServices.Default, random });
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
-        SamusState samus = runtime.Player.Samus;
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.Control.LockAtStation();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(0, 1), GameplayHud = runtime.AcceptedHud, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
         EnterPauseEquipment(pause);
         game.AdoptRuntime(runtime);
-        game.Session.Enter(PauseMenuStep.Menu, pause);
+        game.Session.Show(pause);
+        game.Session.Enter(PauseStep.Menu);
 
-        for (int frame = 0; frame < 8 && game.IsAt(PauseMenuStep.Menu); frame++)
+        for (int frame = 0; frame < 8 && game.IsAt(PauseStep.Menu); frame++)
             game.StepCaptured(ControllerButton.Start);
-        AssertTrue(game.IsAt(PauseMenuStep.FadingOut), "Start closes the menu");
+        AssertTrue(game.IsAt(PauseStep.FadingOut), "Start closes the menu");
         AssertTrue(samus.Control.InputLocked && samus.Control.Mode.Movement == SamusMovementMode.RefillStation, "the station lock holds through the fade");
         while (!game.IsAt(PauseStep.BrighteningGameplay))
             game.StepCaptured(0);

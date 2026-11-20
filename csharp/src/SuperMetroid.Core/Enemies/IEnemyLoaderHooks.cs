@@ -7,10 +7,10 @@ internal interface IEnemyLoaderHooks
     bool HasDeferredLoaderTimeCameraReads { get; }
 
     /// <summary>Completes the setups deferred to the loader's camera, of the enemies in places the loader has initialized.</summary>
-    void CompleteLoaderTimeCameraReads(Func<int, bool> loaderInitializedPlace, Position16<RoomPixels> camera);
+    void CompleteLoaderTimeCameraReads(Func<RoomEnemyPlace, bool> loaderInitializedPlace, Position16<RoomPixels> camera);
 
-    /// <summary>Spawns the pre-Phantoon room's setup projectile.</summary>
-    void SpawnPrePhantoonRoomProjectile();
+    /// <summary>Holds the pre-Phantoon room's setup's projectile place.</summary>
+    void HoldPrePhantoonRoomProjectilePlace();
 
     /// <summary>Whether a boss whose encounter hides the HUD's minimap is present in the room.</summary>
     bool BossHidesMinimap { get; }

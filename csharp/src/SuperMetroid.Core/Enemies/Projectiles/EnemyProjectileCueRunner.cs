@@ -35,20 +35,6 @@ internal abstract class EnemyProjectileCueRunner<TSegment, TEvent>
     internal static EnemyProjectileCueRunner<TSegment, TEvent> By(IEnemyProjectileBranchingCues<TSegment, TEvent> owner) =>
         new ByBranchingOwner(Ensure.NotNull(owner));
 
-    /// <summary>
-    /// A runner for one animation whose events <paramref name="owner"/> carries out, each of which may hand the projectile
-    /// over to another family's animation (#2554): the animation's own play is then over, and the projectile plays on in the
-    /// animation handed to within the same pass.
-    /// </summary>
-    /// <param name="owner">The family's cue owner.</param>
-    internal static EnemyProjectileCueRunner<TSegment, TEvent> HandingOverBy(IEnemyProjectileHandingOverCues<TEvent> owner) =>
-        new ByHandingOverOwner(Ensure.NotNull(owner));
-
-    /// <summary>
-    /// The animation one of the events this runner carried out handed the projectile over to; none while none has.
-    /// </summary>
-    internal virtual EnemyProjectileAnimation? HandedOverTo => null;
-
     /// <summary>Hands each event to a cue owner that runs on.</summary>
     /// <param name="owner">The family's cue owner.</param>
     private sealed class ByOwner(IEnemyProjectileCues<TEvent> owner) : EnemyProjectileCueRunner<TSegment, TEvent>
@@ -60,31 +46,6 @@ internal abstract class EnemyProjectileCueRunner<TSegment, TEvent>
             {
                 owner.RunCue(context, cue);
                 return null;
-            });
-    }
-
-    /// <summary>Runs each event in a cue owner that may hand the projectile over, ending the animation's own play when it does.</summary>
-    /// <param name="owner">The family's cue owner.</param>
-    private sealed class ByHandingOverOwner(IEnemyProjectileHandingOverCues<TEvent> owner) : EnemyProjectileCueRunner<TSegment, TEvent>
-    {
-        /// <summary>An animation of no phase that is over at once: the play continues in it to end where a cue handed it over.</summary>
-        private static Animation<TSegment> PlayOver { get; } = new([], AnimationEnd.Stops);
-
-        /// <summary>The animation a cue handed the projectile over to; none before.</summary>
-        private EnemyProjectileAnimation? _handedOverTo;
-
-        /// <inheritdoc/>
-        internal override EnemyProjectileAnimation? HandedOverTo => _handedOverTo;
-
-        /// <inheritdoc/>
-        internal override AnimationShown<TSegment, TFrame> PlayToNextFrame<TFrame>(AnimationSegments<TSegment, TFrame, TEvent> segments,
-            EnemyProjectileCueContext context, ref Animation<TSegment> animation, ref AnimationPlace place) =>
-            Ensure.NotNull(segments).PlayToNextFrame(ref animation, ref place, (cue, _) =>
-            {
-                if (owner.RunCue(context, cue) is not { } next)
-                    return null;
-                _handedOverTo = next;
-                return new AnimationContinuation<TSegment>(PlayOver, AnimationPlace.StartOfAnimation);
             });
     }
 

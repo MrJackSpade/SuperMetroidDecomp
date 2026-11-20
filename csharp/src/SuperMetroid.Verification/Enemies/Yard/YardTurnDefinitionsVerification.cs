@@ -37,13 +37,13 @@ internal static class YardTurnDefinitionsVerification
         {
             YardCrawlStep definition =
                 YardTurns.ForCrawl(movement, suppressed);
-            AssertEqual(unchecked((short)rom.ReadCartridgeWord(address)), definition.Lookahead.X,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address)), definition.Lookahead.X,
                 $"Yard turn {movement}/{suppressed} lookahead X");
-            AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 2))), definition.Lookahead.Y,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), definition.Lookahead.Y,
                 $"Yard turn {movement}/{suppressed} lookahead Y");
-            AssertEqual(rom.ReadCartridgeWord((address + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.WhenSurfaceEnds),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.WhenSurfaceEnds),
                 $"Yard turn {movement}/{suppressed} outside list");
-            AssertEqual(rom.ReadCartridgeWord((address + 6)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.WhenSurfaceMet),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.WhenSurfaceMet),
                 $"Yard turn {movement}/{suppressed} inside list");
         }
 
@@ -99,7 +99,7 @@ internal static class YardTurnDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Position = place.Position.WithWhole(new(0x0200, 0x0200));
             place.Radius = new(8, 8);
-            var state = global::SuperMetroid.Core.PrivateState.With<YardEnemyState>(new YardEnemyState(YardMovement.HoldingStill, new YardSpawnSettings(default, SignedEightEight.Zero))
+            var state = global::SuperMetroid.Core.PrivateState.With<YardEnemyState>(new YardEnemyState(YardMovement.HoldingStill)
             {
                 // A hiding animation is never a turn's result, so the assertion sees the turn's own choice.
                 Playback = new(YardAnimations.StartingWith(YardSegment.HidingOnFloorMovingLeft), AnimationPlace.StartOfAnimation),

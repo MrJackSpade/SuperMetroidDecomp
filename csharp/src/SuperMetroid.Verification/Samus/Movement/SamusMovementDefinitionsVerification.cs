@@ -21,7 +21,7 @@ internal static class SamusMovementDefinitionsVerification
         }
 
         CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        int poseCount = SuperMetroid.AssetExtraction.Samus.SamusBodySources.PoseCount;
+        int poseCount = SuperMetroid.AssetExtraction.Samus.SamusBodyTableDecoding.PoseCount;
 
         TouchRange(
             bus,
@@ -43,8 +43,8 @@ internal static class SamusMovementDefinitionsVerification
         // than merely proving that the pointer-table bytes themselves happen to be mapped.
         for (int pose = 0; pose < poseCount; pose++)
         {
-            ushort animationPointer = bus.ReadCartridgeWord((SamusMovementDefinitionsPosesConstants.AnimationDelayListPointers + pose * sizeof(ushort)));
-            ushort transitionPointer = bus.ReadCartridgeWord((SamusMovementDefinitionsPosesConstants.TransitionListPointers + pose * sizeof(ushort)));
+            ushort animationPointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusMovementDefinitionsPosesConstants.AnimationDelayListPointers + pose * sizeof(ushort)));
+            ushort transitionPointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusMovementDefinitionsPosesConstants.TransitionListPointers + pose * sizeof(ushort)));
             AssertTrue(animationPointer >= 0x8000,
                 $"pose ${pose:X2} animation list remains in bank $91 ROM");
             AssertTrue(transitionPointer >= 0x8000,

@@ -11,7 +11,7 @@ internal static class IntroEggEffectProgramsVerification
     internal static void VerifyIntroEggEffectFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["shell-upper-left", "shell-upper-right", "shell-left", "shell-centre", "shell-right", "shell-lower",
-            "slime-moving", "slime-impact-0", "slime-impact-1", "slime-impact-2", "slime-impact-3"];
+            "slime-moving", "slime-splash-crown", "slime-splash-peak", "slime-splash-sinking", "slime-puddle"];
         var frames = IntroEggEffectSpriteDefinitions.Frames;
         AssertEqual(11, frames.Count, "eleven egg-effect frames");
         for (int index = 0; index < 11; index++)

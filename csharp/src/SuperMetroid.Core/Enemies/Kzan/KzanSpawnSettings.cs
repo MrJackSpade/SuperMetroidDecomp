@@ -4,11 +4,4 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// <param name="FallSpeed">The speed, in pixels per update, at which each fall starts; the fall then accelerates.</param>
 /// <param name="FallWait">The updates it waits between falls.</param>
 /// <param name="FallDistance">The pixels it falls.</param>
-internal sealed record KzanSpawnSettings(SignedSixteenSixteen FallSpeed, int FallWait, int FallDistance) : EnemySpawnSettings
-{
-    /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacementRequest placing) => Ensure.NotNull(species).Place(this, placing);
-
-    /// <inheritdoc/>
-    internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);
-}
+internal sealed record KzanSpawnSettings(SignedSixteenSixteen FallSpeed, int FallWait, int FallDistance) : EnemySpawnSettings;

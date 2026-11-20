@@ -16,6 +16,12 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
+    /// How many onion-ring attacks Mother Brain has begun against the Baby, from none up to its limit, where it stays; one
+    /// attack is made without her attack cry (<see cref="MotherBrainFightDefinitions.SilentBabyAttackCount"/>).
+    /// </summary>
+    public int BabyMetroidAttackCounter { get; internal set; }
+
+    /// <summary>
     /// Starts her inanimate wait as a grey corpse; the wait starts on the next update. True when her next phase runs on
     /// in this same update.
     /// </summary>
@@ -133,7 +139,7 @@ internal sealed class MotherBrainRevivalPhases
     {
         // Starting the neck's bob for the Baby's death takes one update and moves on in that same update; her body may
         // still be finishing the last walk.
-        _state.ResetBabyMetroidAttacks();
+        BabyMetroidAttackCounter = 0;
         Encounter.NeckMovementEnabled = true;
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
@@ -167,8 +173,10 @@ internal sealed class MotherBrainRevivalPhases
         _state.MaybeRequestStandUpOrLeanDown(frame.RandomNumberSeed);
         if (frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.BabyVolleyFires))
         {
-            // She fires her volley at the Baby once the Baby has arrived; before that, at Samus.
-            _state.FireVolleyAtBaby();
+            // She fires her volley at the Baby once the Baby has appeared; before that, at Samus.
+            _state.SetHeadAnimation(_state.BabyMetroidSpawned
+                ? MotherBrainHeadSegment.AttackingBabyMetroid
+                : MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
             Encounter.RevivalPhase = MotherBrainRevivalPhase.MurderBabyAttackCooldown;
             Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.BabyAttackCooldownUpdates);
         }
@@ -203,7 +211,7 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool FireFinalBabyAttack()
     {
-        _state.FireVolleyAtBaby();
+        _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingBabyMetroid);
         Encounter.RevivalPhase = MotherBrainRevivalPhase.FinalBabyAttackHolding;
         return false;
     }

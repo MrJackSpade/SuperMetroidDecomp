@@ -4,8 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// A cinematic actor: its position and colouring, playing one of its family's typed animations (#641, #1600, #2197)
-/// where every cinematic sprite's update ran its animation.
+/// A cinematic actor: its position and colouring, playing one of its family's typed animations (#641, #1600, #2197).
 /// </summary>
 /// <remarks>
 /// The actor's motion belongs to the owner that steps it (#1903): every cue goes to that owner, and an owner-less cue
@@ -68,7 +67,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     }
 
     /// <summary>The drawn shade of the colouring the current frame's recolourable parts draw in (#1512).</summary>
-    public PictureShade Colouring { get; private set; }
+    private PictureShade Colouring { get; set; }
 
     /// <summary>Applies a cinematic cue's change of the colours the actor draws in.</summary>
     public void SetColouring(PictureShade colouring) => Colouring = colouring;
@@ -77,7 +76,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     internal TFrame? Shown { get; private set; }
 
     /// <summary>The actor's animation and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<TAnimation> Playback { get; private set; }
+    private AnimationPlayback<TAnimation> Playback { get; set; }
 
     /// <summary>Starts <paramref name="animation"/> on the actor's next update, discarding the old frame countdown.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No actor of the family starts <paramref name="animation"/>.</exception>
@@ -108,31 +107,28 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
 
     /// <summary>
     /// Advances the actor by one update: when the frame expires, plays the animation on until it shows a frame, holds or
-    /// ends. An actor stepped with no owner has none to hand a cue to: an animation that raises one fails.
+    /// ends. Owner cues go to <paramref name="ownerCue"/>; an animation that raises one with no owner fails.
     /// </summary>
-    public void Step() => Step(cue => throw new InvalidOperationException(
-        $"Cinematic sprite animation in {Playback.PlayingSegment} raised {cue} with no owner to act on it."));
-
-    /// <summary>
-    /// Advances the actor by one update as <see cref="Step()"/> does, handing each cue its animation raises to
-    /// <paramref name="ownerCue"/>.
-    /// </summary>
-    public void Step(Action<TCue> ownerCue)
+    public void Step(Action<TCue>? ownerCue = null)
     {
-        Ensure.NotNull(ownerCue);
         if (!IsActive || held || !frameHold.Step())
             return;
 
         Animation<TAnimation> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
         AnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
-            animation, ref place, ownerCue);
+            animation, ref place, cue => ApplyCue(cue, ownerCue));
         Playback = new AnimationPlayback<TAnimation>(animation, place);
         switch (shown)
         {
             case AnimationShown<TAnimation, TFrame>.Frame frame:
                 frameHold.Restart(frame.Duration);
                 Shown = frame.Shown;
+                return;
+            case AnimationShown<TAnimation, TFrame>.Hidden hidden:
+                // A hidden beat shows no pose for its updates (#2558).
+                frameHold.Restart(hidden.Duration);
+                Shown = null;
                 return;
             case AnimationShown<TAnimation, TFrame>.HeldFrame rested:
                 // A held frame shows from now on: the animation plays on no further until its owner starts another.
@@ -151,6 +147,13 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
         }
     }
 
+    /// <summary>Hands the cue to the actor's owner.</summary>
+    private void ApplyCue(TCue cue, Action<TCue>? ownerCue)
+    {
+        (ownerCue ?? throw new InvalidOperationException(
+            $"Cinematic sprite animation in {Playback.PlayingSegment} raised {cue} with no owner to act on it."))(cue);
+    }
+
     /// <summary>
     /// The width, in pixels, of the loop the actor drifts round, or null for an actor that drifts round none. The loop's
     /// first half is the screen and its second half an equally wide stretch of space left of the screen, so an actor that
@@ -159,11 +162,13 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     internal int? DriftLoopWidth { get; init; }
 
     /// <summary>
-    /// Moves a looping actor by <paramref name="horizontalDelta"/> and carries it round its loop, <paramref name="loop"/>
-    /// pixels wide (<see cref="DriftLoopWidth"/>): its whole pixels stay within the loop, from zero up to the loop's width.
+    /// Moves a looping actor by <paramref name="horizontalDelta"/> and carries it round its loop
+    /// (<see cref="DriftLoopWidth"/>): its whole pixels stay within the loop, from zero up to the loop's width.
     /// </summary>
-    internal void DriftRoundLoop(SignedSixteenSixteen horizontalDelta, int loop)
+    /// <exception cref="InvalidOperationException">The actor travels no loop.</exception>
+    internal void DriftRoundLoop(SignedSixteenSixteen horizontalDelta)
     {
+        int loop = DriftLoopWidth ?? throw new InvalidOperationException("A cinematic actor with no loop drifted round one.");
         SignedSixteenSixteen x = Position.X + horizontalDelta;
         Position = Position.WithX(x.WithWholePixels(AlongLoop(x.WholePixels, loop)));
     }

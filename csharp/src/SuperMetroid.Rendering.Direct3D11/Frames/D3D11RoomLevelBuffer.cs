@@ -189,7 +189,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>The entry of <paramref name="table"/> holding the picture of <paramref name="shown"/>.</summary>
     private static int EntryOf(RoomBlockPictureTable table, RoomCellPicture shown) =>
         shown.ShowsNothing ? table.Blocks + CollectiblePicture.All.Length
-            : shown.Collectible is { } collectible ? table.Blocks + CollectibleEntries[collectible] : shown.Block;
+            : shown.ShowsCollectible ? table.Blocks + CollectibleEntries[shown.Collectible] : shown.Block;
 
     /// <summary>Creates an empty buffer.</summary>
     internal D3D11RoomLevelBuffer(ID3D11Device device)

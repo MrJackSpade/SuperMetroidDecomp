@@ -62,35 +62,35 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
     private static void VerifyStatueFragmentProgramField(ISnesAddressSpace rom)
     {
         for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentNativeOrder.Pieces.Count; fragment++, parameter += 2)
-            AssertEqual(rom.ReadCartridgeWord((0x86a7ab + parameter)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86a7ab + parameter)),
                 TorizoNativeListAddresses.ProjectileEntry(BombTorizoStatueFragmentDefinitions.Fragments[BombTorizoStatueFragmentNativeOrder.Pieces[fragment]].Animation), "statue native program field");
     }
     /// <summary>Checks signed horizontal offsets.</summary>
     private static void VerifyStatueFragmentXField(ISnesAddressSpace rom)
     {
         for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentNativeOrder.Pieces.Count; fragment++, parameter += 2)
-            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0x86a7cb + parameter))),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86a7cb + parameter))),
                 BombTorizoStatueFragmentDefinitions.Fragments[BombTorizoStatueFragmentNativeOrder.Pieces[fragment]].Offset.X, "statue native signed X field");
     }
     /// <summary>Checks the eight-row vertical offset table.</summary>
     private static void VerifyStatueFragmentYField(ISnesAddressSpace rom)
     {
         for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentNativeOrder.Pieces.Count; fragment++, parameter += 2)
-            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0x86a7eb + parameter))),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86a7eb + parameter))),
                 BombTorizoStatueFragmentDefinitions.Fragments[BombTorizoStatueFragmentNativeOrder.Pieces[fragment]].Offset.Y, "statue native signed Y field");
     }
     /// <summary>Checks the repeated native vertical launch speed entries.</summary>
     private static void VerifyStatueFragmentVelocityField(ISnesAddressSpace rom)
     {
         for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentNativeOrder.Pieces.Count; fragment++, parameter += 2)
-            AssertEqual(rom.ReadCartridgeWord((0x86a7fb + parameter)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86a7fb + parameter)),
                 BombTorizoStatueFragmentDefinitions.Fragments[BombTorizoStatueFragmentNativeOrder.Pieces[fragment]].InitialFallSpeed.RawValue, "statue native constant launch velocity field");
     }
     /// <summary>Checks the repeated native vertical acceleration entries.</summary>
     private static void VerifyStatueFragmentAccelerationField(ISnesAddressSpace rom)
     {
         for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentNativeOrder.Pieces.Count; fragment++, parameter += 2)
-            AssertEqual(rom.ReadCartridgeWord((0x86a80b + parameter)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86a80b + parameter)),
                 BombTorizoStatueFragmentDefinitions.Fragments[BombTorizoStatueFragmentNativeOrder.Pieces[fragment]].Acceleration.RawValue, "statue native constant acceleration field");
     }
     /// <summary>Forbids production rereads of the five compiled statue-fragment physical tables.</summary>

@@ -10,5 +10,5 @@ internal static class NativeEnemyVisualSelectorsVerification
     /// <paramref name="bank"/>, the high byte wrapping within the bank as the instruction interpreter's reads do.
     /// </summary>
     internal static ushort ReadNativeEnemyVisualSelector(ISnesAddressSpace rom, byte bank, ushort operand) =>
-        rom.ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, operand)));
+        CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, operand)));
 }

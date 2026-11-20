@@ -16,14 +16,14 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="kind">The item or tank.</param>
 /// <param name="presentation">How the item lies: exposed, in a Chozo orb or in a shot block.</param>
-/// <param name="pictured">How the item shows its looks: a tank by its kind's own blocks, or through the block pair it took.</param>
+/// <param name="terrain">The terrain the item writes its looks into: a tank's own blocks, or the block pair an item that shows its own picture took.</param>
 /// <param name="phase">The phase the item's setup leaves it in.</param>
 /// <param name="location">Where the item lies in the game's item record, as its placement named it.</param>
 /// <param name="savedTerrain">The block the item's setup left at its place, which a shot block's return restores.</param>
 internal sealed class CollectibleObject(
     InWorldCollectibleKind kind,
     CollectiblePresentation presentation,
-    CollectiblePictured pictured,
+    CollectibleTerrain terrain,
     CollectiblePhase phase,
     ItemLocation location,
     RoomTerrainBlock savedTerrain) : RoomObjectBehaviour
@@ -41,14 +41,11 @@ internal sealed class CollectibleObject(
     public InWorldCollectibleKind Kind { get; } = kind;
     /// <summary>Exposed, Chozo orb, or shot-block reveal behavior.</summary>
     public CollectiblePresentation Presentation { get; } = presentation;
-    /// <summary>How the item shows its looks: a tank by its kind's own blocks, or through the block pair it took.</summary>
-    internal CollectiblePictured Pictured { get; } = Ensure.NotNull(pictured);
-
     /// <summary>
     /// The terrain the item writes its looks into (#2558): a tank's own blocks, or the block pair an item that shows its own
     /// picture took (<see cref="CollectibleBlockPairs"/>).
     /// </summary>
-    public CollectibleBlockPairs.Pair? BlockPair => Pictured is CollectiblePictured.OwnPicture own ? own.Pair : null;
+    internal CollectibleTerrain Terrain { get; } = Ensure.NotNull(terrain);
     /// <summary>Current reveal, visible, message, empty, or respawn phase.</summary>
     public CollectiblePhase Phase { get; private set; } = phase;
     /// <summary>
@@ -240,7 +237,8 @@ internal sealed class CollectibleObject(
     /// <summary>Starts <paramref name="animation"/> and draws its first image, which shows on this update.</summary>
     private void Show(Animation<CollectibleSequence> animation, IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
     {
-        Draw(_shown.Show(animation), drawing, level, place);
+        _shown.Show(animation);
+        Draw(_shown.Showing, drawing, level, place);
     }
 
     /// <summary>
@@ -249,26 +247,13 @@ internal sealed class CollectibleObject(
     /// </summary>
     private void Draw(CollectibleImage image, IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
     {
-        _ = image.Select(
-            draw =>
-            {
-                draw.Draw(level, place.Block, drawing);
-                return true;
-            },
-            look =>
-            {
-                switch (Pictured)
-                {
-                    case CollectiblePictured.Tank:
-                        CollectibleObjectDraws.TankFrame(Kind, look).Draw(level, place.Block, drawing);
-                        return true;
-                    case CollectiblePictured.OwnPicture own:
-                        CollectibleObjectDraws.OwnPictureFrame(own.Pair, look).Draw(level, place.Block, drawing);
-                        level.ShowCollectible(place.Block, new CollectiblePicture(Kind, look));
-                        return true;
-                    default:
-                        throw new InvalidOperationException($"Undefined {nameof(CollectiblePictured)} {Pictured}.");
-                }
-            });
+        if (image.Look is not { } look)
+        {
+            (image.Draw ?? throw new InvalidOperationException("A collectible image draws nothing.")).Draw(level, place.Block, drawing);
+            return;
+        }
+        Terrain.VisibleFrame(Kind, look).Draw(level, place.Block, drawing);
+        if (Terrain.ShowsOwnPicture)
+            level.ShowCollectible(place.Block, new CollectiblePicture(Kind, look));
     }
 }

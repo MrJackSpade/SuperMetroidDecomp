@@ -7,11 +7,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// own (<see cref="MotherBrainFallingTubePopulationDefinitions.MainFallWaitUpdates"/>).
 /// </summary>
 /// <param name="Piece">The tube piece.</param>
-internal sealed record MotherBrainTubeSpawnSettings(MotherBrainTubePiece Piece) : EnemySpawnSettings
-{
-    /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacementRequest placing) => Ensure.NotNull(species).Place(this, placing);
-
-    /// <inheritdoc/>
-    internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);
-}
+internal sealed record MotherBrainTubeSpawnSettings(MotherBrainTubePiece Piece) : EnemySpawnSettings;

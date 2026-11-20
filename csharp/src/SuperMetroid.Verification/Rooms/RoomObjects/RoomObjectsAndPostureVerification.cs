@@ -259,7 +259,7 @@ level, SamusPoseId.CrouchingTransitionRightPose, frameCounter: 0, roomObjects: S
     for (int tick = 0; tick < 3; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     }
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "crouch FD applies");
     AssertEqual(SamusPoseId.CrouchingRightPose, samus.Pose, "crouch transition target");
@@ -285,7 +285,7 @@ level, SamusPoseId.StandingTransitionRightPose, frameCounter: 1, roomObjects: Sa
     for (int tick = 0; tick < 3; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     }
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "standing FD applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "standing transition target");
@@ -312,7 +312,7 @@ level, aimedSamus, unchecked((ushort)index), roomObjects: SamusRoomObjectFixture
         for (int tick = 0; tick < 3; tick++)
         {
             aimedSamus.LiquidPhysics.BeginFrameSoundRequests();
-            SamusPresentation.Animate(aimedSamus, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom() });
+            SamusPresentation.Animate(aimedSamus, new SamusAnimationStep { Random = new SharedRandom() });
         }
         AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(aimedSamus), "aimed crouch FD applies");
         AssertEqual(aimedCrouchTargets[index], aimedSamus.Pose, "aimed crouch FD target");
@@ -333,7 +333,7 @@ level, aimedStandTransitions[index], unchecked((ushort)index), roomObjects: Samu
         for (int tick = 0; tick < 3; tick++)
         {
             aimedSamus.LiquidPhysics.BeginFrameSoundRequests();
-            SamusPresentation.Animate(aimedSamus, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom() });
+            SamusPresentation.Animate(aimedSamus, new SamusAnimationStep { Random = new SharedRandom() });
         }
         AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(aimedSamus), "aimed stand FD applies");
         AssertEqual(aimedStandTargets[index], aimedSamus.Pose, "aimed stand FD target");

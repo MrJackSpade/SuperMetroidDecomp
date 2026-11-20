@@ -20,7 +20,7 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
     {
         for (int index = 0; index < 16; index++)
         {
-            ushort header = rom.ReadCartridgeWord((0xa0c2da + index * 2));
+            ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa0c2da + index * 2));
             AssertEqual(index == 15 ? NativeEnemyBreakableBlockHeader : (ushort)0,
                 header,
                 $"enemy spike reaction header {index}");

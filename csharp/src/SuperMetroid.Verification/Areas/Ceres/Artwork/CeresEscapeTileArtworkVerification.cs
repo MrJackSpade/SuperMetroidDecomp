@@ -31,7 +31,7 @@ internal static class CeresEscapeTileArtworkVerification
         for (int pageIndex = 0; pageIndex < CeresEscapeTileArtworkDefinitions.All.Length; pageIndex++)
         {
             TileSheetDefinition page = CeresEscapeTileArtworkDefinitions.All[pageIndex];
-            AssertTrue((stock.Areas.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires stock.Areas.CeresEscapeTiles.")).TryResolve(pageIndex, 0,
+            AssertTrue((stock.Areas.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires stock.Areas.CeresEscapeTiles.")).TryResolve(SuperMetroid.AssetExtraction.Areas.Ceres.Artwork.CeresEscapeTileArtworkDefinitions.All[pageIndex], 0,
                     page.ByteCount, out ReadOnlyMemory<byte> nativePage),
                 $"Ceres escape page {page.FileName} resolves completely");
             for (int offset = 0; offset < page.ByteCount; offset++)
@@ -64,9 +64,9 @@ internal static class CeresEscapeTileArtworkVerification
                 transfer.Pointer >= CeresEscapeVramTransferDefinitions.TimerBackgrounds)
                 continue;
             int descriptor = 0xa60000 | transfer.Pointer;
-            ushort byteCount = rom.ReadCartridgeWord(descriptor);
-            int source = (rom.ReadCartridgeLong(descriptor + 2));
-            ushort destination = rom.ReadCartridgeWord((descriptor + 5));
+            ushort byteCount = CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor);
+            int source = (CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2));
+            ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5));
             nativeQueue.Enqueue(byteCount, source, VramDmaDestination.FromNative(destination));
         }
         var nativeVram = new SnesVram();
@@ -83,7 +83,7 @@ internal static class CeresEscapeTileArtworkVerification
             CeresEscapeTileArtworkDefinitions.WarningText;
         CeresEscapeTileArtwork stockArt = stock.Areas.CeresEscapeTiles
             ?? throw new InvalidOperationException("Stock Ceres escape art was not installed.");
-        AssertTrue(stockArt.TryResolve(0, 0,
+        AssertTrue(stockArt.TryResolve(CeresEscapeTileArtworkDefinitions.WarningText, 0,
                 0x0200, out ReadOnlyMemory<byte> stockChunk),
             "Ceres warning transfer resolves in stock artwork");
         // The warning text's first page follows the timer-sprite list's timer pages.
@@ -103,7 +103,7 @@ internal static class CeresEscapeTileArtworkVerification
 
         // The pictures of the warning pages are composed from the installed characters; composing them without those
         // characters fails rather than falling back to cartridge bytes.
-        var missing = new EnemyTileTransfers(new ImportEnemyArtwork(stock.Enemies, stock.Bosses, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AreaArtwork), timer: timer);
+        var missing = new EnemyTileTransfers(new ImportEnemyArtwork(stock.Enemies, stock.Bosses, new AreaSourceArtwork()), timer: timer);
         AssertThrows<InvalidDataException>(() => EncounterLookUploads.Steps(ComposedEncounter.CeresEscape, missing),
             "Ceres warning pictures reject missing installed character artwork");
         Console.WriteLine(

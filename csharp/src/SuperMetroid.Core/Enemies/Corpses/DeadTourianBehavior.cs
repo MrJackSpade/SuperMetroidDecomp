@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The dead Tourian corpse species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySettingsFactory<CorpseSpawnSettings>
+internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DeadTourianCorpseSpeciesDefinitions.Species.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CorpseSpawnSettings settings) => new DeadTourianEntity(this, occupant, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new DeadTourianEntity(this, occupant, place, common));
 
     /// <summary>Supplies the room RNG used during decomposition.</summary>
     private readonly EnemyRoomBinding _room;
@@ -47,25 +47,26 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySettingsFactory
             : throw new ArgumentOutOfRangeException(nameof(definitionId));
 
     /// <summary>Initializes a Tourian corpse, checking its corpse is one of its species' before registering state and starting its rot.</summary>
-    internal static DeadTourianCorpseEnemyState InitializeDeadTourianCorpse(RoomEnemyPlace place, CorpseSpawnSettings settings)
+    internal static void InitializeDeadTourianCorpse(RoomEnemyPlace place, RoomEnemyOccupant occupant)
     {
-        DeadTourianCorpseSpecies species = SpeciesOf(place.DefinitionId);
-        DeadTourianCorpseDefinition definition = settings.Corpse;
+        DeadTourianCorpseSpecies species = SpeciesOf(Ensure.NotNull(occupant).DefinitionId);
+        DeadTourianCorpseDefinition definition = occupant.SpawnSettings<CorpseSpawnSettings>().Corpse;
         if (definition.Species != species)
         {
             throw new InvalidDataException(
                 $"Dead {species} placement names a corpse that is not one of its species'.");
         }
-        var state = new DeadTourianCorpseEnemyState(species, new CorpseRotSchedule(definition.RowCount), DeadTourianCorpsePhase.Waiting);
+        var state = new DeadTourianCorpseEnemyState(new CorpseRotSchedule(definition.RowCount), DeadTourianCorpsePhase.Waiting);
+        place.SetSpeciesState(state);
 
         place.Shading = TourianCorpseShades.InDrainedColours;
         state.Playback = DeadSidehopperBehavior.StartDeadTourianAnimation(place, definition.InitialAnimation);
-        return state;
     }
 
     /// <summary>Runs the shared corpse behaviour: Samus touching it starts its wait before rotting (<see cref="CorpseRotScheduleDefinitions.PreRotDelayUpdates"/>), then the corpse rots until its last row has fallen.</summary>
-    private void RunDeadTourianCorpseMain(RoomEnemyPlace place, DeadTourianCorpseEnemyState state, SamusState samus)
+    private void RunDeadTourianCorpseMain(RoomEnemyPlace place, SamusState samus)
     {
+        DeadTourianCorpseEnemyState state = place.RequireSpeciesState<DeadTourianCorpseEnemyState>();
         switch (state.Phase)
         {
             case DeadTourianCorpsePhase.Waiting:
@@ -86,23 +87,24 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySettingsFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Dead {state.Species} has no behaviour for phase {state.Phase}.");
+                    $"Dead Tourian enemy in place {place.Ordinal} has no behaviour for phase {state.Phase}.");
         }
     }
 
     /// <summary>Touch and shot reactions for these three corpse-only actors are identical.</summary>
-    internal static void TriggerDeadTourianCorpseRotting(RoomEnemyPlace place, DeadTourianCorpseEnemyState state)
+    internal static void TriggerDeadTourianCorpseRotting(RoomEnemyPlace place)
     {
+        DeadTourianCorpseEnemyState state = place.RequireSpeciesState<DeadTourianCorpseEnemyState>();
         state.Phase = DeadTourianCorpsePhase.Rotting;
         place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
     }
 
     /// <summary>Power-bomb reactions reject actors whose decomposition already made them intangible.</summary>
-    private static void ResolveDeadTourianCorpsePowerBomb(RoomEnemyPlace place, DeadTourianCorpseEnemyState state)
+    private static void ResolveDeadTourianCorpsePowerBomb(RoomEnemyPlace place)
     {
         if (!place.Contact.HasAny(EnemyContact.IgnoresSamus))
-            TriggerDeadTourianCorpseRotting(place, state);
+            TriggerDeadTourianCorpseRotting(place);
     }
 
     /// <summary>
@@ -120,21 +122,22 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySettingsFactory
     }
 
     /// <summary>The rows <paramref name="place"/>'s frames show: its corpse's own, as its rot has left them (#1539).</summary>
-    internal static CorpseRotRows ShownDeadTourianRows(DeadTourianCorpseEnemyState state) => state.Rows.Shown;
+    internal static CorpseRotRows ShownDeadTourianRows(RoomEnemyPlace place) => place.RequireSpeciesState<DeadTourianCorpseEnemyState>().Rows.Shown;
 
     /// <summary>Spawns randomized dust for a completed rot row and gates its sound on the enemy counter.</summary>
     private void FinishDeadTourianCorpseRow(RoomEnemyPlace place) =>
         _rowDust.Spawn(place, _room.Random.Read(), _projectiles, _frameContext.EnemyPassCount);
 
     /// <summary>Routes bomb hits through the shared shot reaction, which begins decomposition.</summary>
-    internal static void ReplaceDeadTourianBombDamage(EnemyBombContext c, DeadTourianCorpseEnemyState state) =>
-        TriggerDeadTourianCorpseRotting(c.Enemy, state);
+    internal static void ReplaceDeadTourianBombDamage(EnemyBombContext c) =>
+        TriggerDeadTourianCorpseRotting(c.Enemy);
 
     /// <summary>Advances the Tourian corpses' typed animation.</summary>
-    internal static void AdvanceDeadTourianTypedAnimation(RoomEnemyPlace place, DeadTourianCorpseEnemyState state, EnemyAnimationCueContext _)
+    internal static void AdvanceDeadTourianTypedAnimation(RoomEnemyPlace place)
     {
         if (!place.AnimationClock.Expire())
             return;
+        DeadTourianCorpseEnemyState state = place.RequireSpeciesState<DeadTourianCorpseEnemyState>();
         AnimationPlayback<DeadTourianSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, DeadTourianAnimations.Segments, ref playback,
             cue => throw new InvalidDataException($"A corpse pose published {cue.Kind}."));
@@ -142,35 +145,32 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySettingsFactory
     }
 
     /// <summary>Runs the Tourian corpses' main AI.</summary>
-    internal void RunDeadTourianMainAi(RoomEnemyPlace place, DeadTourianCorpseEnemyState state, IEnemyAiFrame frame)
+    internal void RunDeadTourianMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunDeadTourianCorpseMain(place, state, frame.Samus);
+        RunDeadTourianCorpseMain(place, frame.Samus);
     }
 
     /// <summary>The power-bomb response, which ignores corpses already marked decomposed.</summary>
-    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
-    internal static EnemyPowerBombReaction DeadTourianPowerBombReactionOf(DeadTourianCorpseEnemyState state) => new()
+    internal static EnemyPowerBombReaction DeadTourianPowerBombReaction { get; } = new()
     {
-        ReplacesCommon = c => ResolveDeadTourianCorpsePowerBomb(c.Enemy, state),
+        ReplacesCommon = c => ResolveDeadTourianCorpsePowerBomb(c.Enemy),
     };
 
-    /// <summary>Shot handling that applies the collision prelude and starts decomposition without health damage.</summary>
-    /// <remarks>The species reactions run after the ordinary projectile prelude, set process-offscreen plus
-    /// intangibility, and select their species rot reaction. No vulnerability, health damage, or projectile impact
-    /// follows.</remarks>
-    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
-    internal static EnemyShotReaction DeadTourianShotReactionOf(DeadTourianCorpseEnemyState state) => new()
+    /// <summary>Shot handling that marks the shot's hit and starts decomposition without health damage.</summary>
+    /// <remarks>A shot makes the corpse keep updating off screen and lets Samus pass through it, and starts its rot; it
+    /// deals no damage and makes no impact.</remarks>
+    internal static EnemyShotReaction DeadTourianShotReaction { get; } = new()
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
-            TriggerDeadTourianCorpseRotting(c.Enemy, state);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+            TriggerDeadTourianCorpseRotting(c.Enemy);
             return true;
         },
     };
 
     /// <summary>Starts decomposition on physical contact without applying ordinary enemy contact damage.</summary>
-    internal static void ReactToDeadTourianTouch(EnemyTouchContext context, DeadTourianCorpseEnemyState state) =>
+    internal static void ReactToDeadTourianTouch(EnemyTouchContext context) =>
         // Touching a dead Zoomer, Ripper or Skree starts its rot just as a shot does; a corpse never deals contact damage.
-        TriggerDeadTourianCorpseRotting(context.Place, state);
+        TriggerDeadTourianCorpseRotting(context.Place);
 }

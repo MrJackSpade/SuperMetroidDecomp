@@ -15,7 +15,14 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyDeathsAndDrops
+    : EnemyProjectileMotionBehavior<SingleMotion>, IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>
 {
+    /// <summary>The enemy each death explosion came from and that enemy's definition, given as the enemy dies.</summary>
+    private EnemyProjectileStates<EnemyDeathExplosionState> Explosions { get; } = new();
+
+    /// <summary>What each pickup is, how long it has left and the enemy it came from, given as it drops.</summary>
+    private EnemyProjectileStates<EnemyPickupState> Pickups { get; } = new();
+
     /// <summary>Tracks the room's cumulative enemy-kill count.</summary>
     private readonly EnemyRoomStatus _roomStatus;
     /// <summary>Allocates death explosions and direct item-drop projectiles.</summary>
@@ -30,6 +37,7 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Connects death animation, pickup, and respawn processing to the room systems.</summary>
     internal EnemyDeathsAndDrops(EnemyRoomStatus roomStatus, EnemyProjectileEngine projectiles, EnemyRoomBinding room,
         IEnemyLifecycle lifecycle, PowerBombRadiusAfterKill powerBombRadius, EnemyAudioQueue audio)
+        : base(StartingMotions)
     {
         _audio = audio;
         _roomStatus = roomStatus;
@@ -38,6 +46,12 @@ internal sealed class EnemyDeathsAndDrops
         _lifecycle = lifecycle;
         _powerBombRadius = powerBombRadius;
     }
+    /// <summary>A pickup starts counting its lifetime; a death explosion holds still while its animation plays.</summary>
+    private static readonly Dictionary<RoomEnemyProjectileKind, SingleMotion?> StartingMotions = new()
+    {
+        [RoomEnemyProjectileKind.EnemyDeathPickup] = SingleMotion.Moving,
+        [RoomEnemyProjectileKind.EnemyDeathExplosion] = null,
+    };
 
     /// <summary>Requests a collected drop's sound; it joins the queue only when the sound queue is idle.</summary>
     private void RequestPickupSound(SoundEffectId sound) =>
@@ -65,24 +79,25 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>
     /// Starts an enemy's generic death. The enemy is cleared immediately,
-    /// while the death explosion retains the definition, position, and optional respawn index until
+    /// while the death explosion keeps the killed enemy, its position and whether it respawns until
     /// its authored animation reaches its become-pickup cue.
     /// </summary>
-    /// <param name="enemy">The dying enemy.</param>
+    /// <param name="killed">The dying enemy, whose place its death empties.</param>
     /// <param name="deathAnimation">The explosion it dies in.</param>
     /// <param name="samus">Samus, whose grapple a grappled enemy's death drops.</param>
     internal void StartGenericEnemyDeath(
-        RoomEnemyPlace enemy,
+        RoomEnemyOccupant killed,
         EnemyDeathExplosion deathAnimation,
         SamusState samus)
     {
         Ensure.NotNull(samus);
+        RoomEnemyPlace enemy = Ensure.NotNull(killed).Place;
         RecordKill(enemy);
         // The death puts the grapple into its dropped phase before clearing the enemy.
         // Only an enemy the grapple kills outright counts, not one it reacts to otherwise.
         if (enemy.AiStates == EnemyAiStates.Grappled)
             samus.Grapple.Phase = GrapplePhase.Dropped;
-        RemoveKilledEnemy(enemy, deathAnimation, respawns: enemy.Presence.HasAny(EnemyPresence.RespawnsIfKilled));
+        RemoveKilledEnemy(killed, deathAnimation, respawns: enemy.Presence.HasAny(EnemyPresence.RespawnsIfKilled));
         _roomStatus.RecordKill();
     }
 
@@ -93,28 +108,28 @@ internal sealed class EnemyDeathsAndDrops
     /// cue rebuilds the enemy from that entry. When every projectile place is held the explosion is lost, and with it the
     /// enemy's drop and its only respawn cue.
     /// </summary>
-    /// <param name="enemy">The killed enemy.</param>
+    /// <param name="killed">The killed enemy, whose place is emptied.</param>
     /// <param name="deathAnimation">The explosion it dies in.</param>
     /// <param name="respawns">Whether the explosion's respawn cue rebuilds the enemy.</param>
-    internal void RemoveKilledEnemy(RoomEnemyPlace enemy, EnemyDeathExplosion deathAnimation, bool respawns)
+    internal void RemoveKilledEnemy(RoomEnemyOccupant killed, EnemyDeathExplosion deathAnimation, bool respawns)
     {
-        Ensure.NotNull(enemy);
-        var behavior = Explosion(new EnemyDeathExplosionState(KilledEnemy.Of(enemy, respawns), enemy.DefinitionId));
-        EnemyProjectile? explosion = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathExplosion, behavior, default);
+        RoomEnemyPlace enemy = Ensure.NotNull(killed).Place;
+        EnemyProjectile? explosion = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathExplosion, ExplosionsAndPickups, graphics: SpriteGraphics.SharedStandard);
+        Position16<RoomPixels> killedAt = enemy.Position.Whole;
+        // A second death of an occupant already killed finds its place holding none, and its explosion drops nothing.
+        RoomEnemyOccupant? dropper = enemy.Occupant;
+        PopulatedEnemyPlace killedIn = killed.Kill(respawns);
         if (explosion is not null)
         {
-            explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
-            explosion.StartAnimation(new EnemyDeathExplosionAnimation(EnemyDeathExplosions.Animation(deathAnimation), behavior));
+            explosion.Position = explosion.Position.WithWhole(killedAt);
+            Explosions.Start(explosion, new EnemyDeathExplosionState(KilledEnemy.Of(killedIn, respawns), dropper));
+            explosion.StartAnimation(new EnemyDeathAndDropAnimation(this, EnemyDeathExplosions.Animation(deathAnimation)));
         }
-
-        enemy.Clear();
-        if (respawns)
-            enemy.AwaitRespawn();
     }
 
     /// <summary>Chooses the definition's death explosion, raising the smaller ones for Super Missile kills.</summary>
     internal static EnemyDeathExplosion ShotKillExplosion(
-        RoomEnemyPlace enemy,
+        RoomEnemyOccupant enemy,
         SamusProjectileType projectileType,
         ShotDeathAnimationRule rule = ShotDeathAnimationRule.ByProjectile)
     {
@@ -127,7 +142,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// The twelve item drops' shared behaviour.
+    /// Spawns <paramref name="count"/> drops scattered around a base, each placed by one random sample.
     /// Each pickup advances RNG once for both coordinates; spawning the pickup
     /// and choosing its drop then advance it on their own inside the pickup. Both scatters read
     /// their fields from the one sample.
@@ -143,7 +158,7 @@ internal sealed class EnemyDeathsAndDrops
         ScatterDrops(count, xBase, xScatter, yBase, yScatter, position => SpawnEnemyDropFromDefinition(position, definitionId, samus));
 
     /// <summary>
-    /// The twelve item drops' shared behaviour, each rolling <paramref name="dropChances"/> (#2244): a fight whose drops
+    /// Spawns <paramref name="count"/> drops that each roll <paramref name="dropChances"/> (#2244): a fight whose drops
     /// roll a table of their own rather than an enemy's.
     /// </summary>
     internal void SpawnEnemyDropScatter(
@@ -204,11 +219,12 @@ internal sealed class EnemyDeathsAndDrops
         EnemyDefinitionId definitionId,
         SamusState samus)
     {
-        EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathPickup, ExplosionsAndPickups, graphics: SpriteGraphics.SharedStandard);
         if (pickup is null)
             return null;
 
-        InitializeDirectEnemyPickup(pickup, position, DropChancesOf(definitionId), samus);
+        pickup.Position = pickup.Position.WithWhole(position);
+        InitializeDirectEnemyPickup(pickup, _room.Definitions.ReadEnemyDefinition(definitionId).Drops, samus);
         return pickup;
     }
 
@@ -221,11 +237,12 @@ internal sealed class EnemyDeathsAndDrops
         EnemyDropChances dropChances,
         SamusState samus)
     {
-        EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathPickup, drop.Behavior, default);
+        EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathPickup, ExplosionsAndPickups, graphics: SpriteGraphics.SharedStandard);
         if (pickup is null)
             return null;
 
-        InitializeDirectEnemyPickup(pickup, position, dropChances, samus);
+        pickup.Position = pickup.Position.WithWhole(position);
+        InitializeDirectEnemyPickup(pickup, EnemyDrops.Rolling(dropChances), samus);
         return pickup;
     }
 
@@ -233,67 +250,48 @@ internal sealed class EnemyDeathsAndDrops
     /// Rolls a direct drop's <paramref name="dropChances"/>, none when its enemy drops nothing, and either starts its
     /// pickup animation or the ending it plays when nothing drops.
     /// </summary>
-    private void InitializeDirectEnemyPickup(EnemyProjectile pickup, Position16<RoomPixels> position, EnemyDropChances? dropChances,
-        SamusState samus)
+    private void InitializeDirectEnemyPickup(EnemyProjectile pickup, EnemyDrops drops, SamusState samus)
     {
-        // The pickup takes its definition and place, then rolls its drop. Unlike a finished death explosion, a direct drop
-        // becomes a pickup in any place for an enemy projectile, the first included. The roll reads the drop's definition
-        // straight back from the pickup that holds it.
-        EnemyPickupKind kind = SelectRandomEnemyDrop(dropChances, samus);
-        DropBinding drop = kind == EnemyPickupKind.NoDrop
-            ? DropBinding.Of(new DormantDropBehavior(this, KilledEnemy.None))
-            : DropBinding.Of(Pickup(new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, KilledEnemy.None)));
-        pickup.Position = pickup.Position.WithWhole(position);
-        pickup.StartAnimation(new EnemyDeathAndDropAnimation(kind == EnemyPickupKind.NoDrop
-            ? ConfigureDormantPickup(pickup)
-            : ConfigurePickup(pickup, kind), drop.Cues));
-    }
+        EnemyDropRoll roll = SelectRandomEnemyDrop(drops, samus);
 
-    /// <summary>A direct drop's behaviour, both as the behaviour bound to it and as the owner of its animations' cues.</summary>
-    /// <param name="Behavior">The behaviour bound to the drop.</param>
-    /// <param name="Cues">The same behaviour, which owns the drop's animations' cues.</param>
-    private sealed record DropBinding(EnemyProjectileBehavior Behavior, IEnemyProjectileCues<EnemyDeathAndDropCue> Cues)
-    {
-        /// <summary>The binding of <paramref name="drop"/>.</summary>
-        /// <typeparam name="TDrop">The drop's behaviour.</typeparam>
-        /// <param name="drop">The drop's behaviour.</param>
-        internal static DropBinding Of<TDrop>(TDrop drop)
-            where TDrop : EnemyProjectileBehavior, IEnemyProjectileCues<EnemyDeathAndDropCue> => new(drop, drop);
+        // Unlike a finished death explosion, a direct drop becomes a pickup in any place for
+        // an enemy projectile, the first included. The roll reads the drop's definition straight back from
+        // the pickup that holds it.
+        pickup.StartAnimation(new EnemyDeathAndDropAnimation(this, roll is EnemyDropRoll.PickupDrops drop
+            ? ConfigurePickup(pickup, drop.Kind)
+            : ConfigureDormantPickup(pickup)));
     }
 
     /// <summary>
-    /// Converts a completed enemy-death explosion in place into its drop and returns the drop's animation, which the
-    /// explosion's play goes on in (#2554): the projectile is handed to its pickup, or to a dormant drop that shows the
-    /// respawn pause. Keeping the actor in its existing place keeps both its retained killed enemy and whether it drops at
-    /// all: an explosion in the first place never converts (<see cref="FirstPlaceExplosionLeavesNoPickup"/>).
+    /// Converts a completed enemy-death explosion in place and returns the animation it continues at: its drop's, or the
+    /// respawn pause's. Keeping the actor in its existing place keeps both its retained killed enemy and whether it drops
+    /// at all: an explosion in the first place never converts (<see cref="FirstPlaceExplosionLeavesNoPickup"/>).
     /// </summary>
     /// <param name="projectile">The finished death explosion.</param>
-    /// <param name="explosion">What the explosion keeps: the enemy it came from and the definition its drop rolls by.</param>
     /// <param name="samus">Samus, whose energy and ammunition the drop's roll reads.</param>
-    internal EnemyDeathAndDropAnimation ConvertEnemyDeathExplosionToPickup(EnemyProjectile projectile, EnemyDeathExplosionState explosion,
-        SamusState samus)
+    private EnemyDeathAndDropSegment ConvertEnemyDeathExplosionToPickup(EnemyProjectile projectile, SamusState samus)
     {
-        Ensure.NotNull(projectile);
-        Ensure.NotNull(explosion);
-        EnemyPickupKind kind = SelectRandomEnemyDrop(DropChancesOf(explosion.DropDefinitionId), samus);
-        if (!FirstPlaceExplosionLeavesNoPickup.BecomesPickup(projectile.Place) || kind == EnemyPickupKind.NoDrop)
-        {
-            var dormant = new DormantDropBehavior(this, explosion.KilledEnemy);
-            projectile.Rebind(dormant);
-            return new EnemyDeathAndDropAnimation(ConfigureDormantPickup(projectile), dormant);
-        }
-        var pickup = Pickup(new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, explosion.KilledEnemy));
-        projectile.Rebind(pickup);
-        return new EnemyDeathAndDropAnimation(ConfigurePickup(projectile, kind), pickup);
+        EnemyDeathExplosionState explosion = Explosions.Of(Ensure.NotNull(projectile));
+        EnemyDropRoll roll = SelectRandomEnemyDrop(
+            explosion.Dropper is { } dropper ? _room.Definitions.ReadEnemyDefinition(dropper.DefinitionId).Drops : EnemyDrops.Nothing, samus);
+        return FirstPlaceExplosionLeavesNoPickup.BecomesPickup(projectile.Place) && roll is EnemyDropRoll.PickupDrops drop
+            ? ConfigurePickup(projectile, drop.Kind)
+            : ConfigureDormantPickup(projectile);
     }
 
     /// <summary>
-    /// Gives the projectile, whose behaviour already holds the pickup and moves it as a pickup, the selected pickup's
-    /// collision reaction, and returns its animation.
+    /// Gives the projectile the selected pickup's identity, life (<see cref="EnemyPickupDefinitions.Lifetime"/>) and collision reaction, and
+    /// returns its animation.
     /// </summary>
-    internal static EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind)
+    private EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind) =>
+        ConfigurePickup(projectile, kind, new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime));
+
+    /// <summary>Gives the projectile the pickup <paramref name="state"/> of <paramref name="kind"/> and its animation.</summary>
+    private EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind, EnemyPickupState state)
     {
         EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
+        Pickups.Start(projectile, state);
+        projectile.StartMotion(this, SingleMotion.Moving);
 
         // A pickup is gone when Samus touches it; it keeps the explosion's other behaviours.
         projectile.PersistsOnSamusContact = false;
@@ -301,8 +299,8 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Leaves a collected or expired drop blank and harmless until it is removed.</summary>
-    private static void MakeEnemyPickupDormant(EnemyProjectile projectile, IEnemyProjectileCues<EnemyDeathAndDropCue> cues) =>
-        projectile.StartAnimation(new EnemyDeathAndDropAnimation(ConfigureDormantPickup(projectile), cues));
+    private void MakeEnemyPickupDormant(EnemyProjectile projectile) =>
+        projectile.StartAnimation(new EnemyDeathAndDropAnimation(this, ConfigureDormantPickup(projectile)));
 
     /// <summary>Makes the projectile a blank, harmless drop and returns the respawn pause it shows until it is removed.</summary>
     private static EnemyDeathAndDropSegment ConfigureDormantPickup(EnemyProjectile projectile)
@@ -324,13 +322,13 @@ internal sealed class EnemyDeathsAndDrops
     /// the <see cref="EnemyDropSelectionDefinitions.MajorDrops"/>, and the first whose accumulated chance reaches the random
     /// draw is chosen; the draw is read before anything else, as the game reads it.
     /// </summary>
-    /// <param name="dropChances">The chances rolled; none when the drop's enemy drops nothing.</param>
+    /// <param name="drops">What the drop's enemy drops: nothing, with no roll made, or the chances rolled.</param>
     /// <param name="samus">Samus, whose energy and ammunition decide which drops are offered.</param>
-    internal EnemyPickupKind SelectRandomEnemyDrop(EnemyDropChances? dropChances, SamusState samus)
+    private EnemyDropRoll SelectRandomEnemyDrop(EnemyDrops drops, SamusState samus)
     {
         Ensure.NotNull(samus);
-        if (dropChances is not { } table)
-            return EnemyPickupKind.NoDrop;
+        if (drops is not EnemyDrops.Rolled { Chances: var table })
+            return EnemyDropRoll.Nothing;
         // Every authored table's chances sum to the whole budget, so the pooled weights and the budget left for the major
         // drops stay within it (#1620).
         if (table.Total > EnemyDropSelectionDefinitions.FullWeightBudget)
@@ -355,88 +353,80 @@ internal sealed class EnemyDeathsAndDrops
         // hysteresis/grace period, not an omitted assignment.
 
         int pooledMinorWeight;
-        var offered = new HashSet<EnemyPickupKind>();
+        var offered = new HashSet<EnemyDropRoll>();
         if (_room.Session.CriticalEnergyDropBias)
         {
             pooledMinorWeight = table.SmallEnergy + table.BigEnergy;
-            offered.Add(EnemyPickupKind.SmallEnergy);
-            offered.Add(EnemyPickupKind.BigEnergy);
+            offered.Add(EnemyDropRoll.Pickup(EnemyPickupKind.SmallEnergy));
+            offered.Add(EnemyDropRoll.Pickup(EnemyPickupKind.BigEnergy));
         }
         else
         {
             pooledMinorWeight = table.Nothing;
-            offered.Add(EnemyPickupKind.NoDrop);
+            offered.Add(EnemyDropRoll.Nothing);
             if (samus.Health != samus.MaxHealth ||
                 samus.ReserveEnergy != samus.MaxReserveEnergy)
             {
                 pooledMinorWeight += table.SmallEnergy + table.BigEnergy;
-                offered.Add(EnemyPickupKind.SmallEnergy);
-                offered.Add(EnemyPickupKind.BigEnergy);
+                offered.Add(EnemyDropRoll.Pickup(EnemyPickupKind.SmallEnergy));
+                offered.Add(EnemyDropRoll.Pickup(EnemyPickupKind.BigEnergy));
             }
             if (samus.Missiles != samus.MaxMissiles)
             {
                 pooledMinorWeight += table.Missile;
-                offered.Add(EnemyPickupKind.Missile);
+                offered.Add(EnemyDropRoll.Pickup(EnemyPickupKind.Missile));
             }
             if (samus.SuperMissiles != samus.MaxSuperMissiles)
             {
                 majorAdjustedBudget -= table.SuperMissile;
-                offered.Add(EnemyPickupKind.SuperMissile);
+                offered.Add(EnemyDropRoll.Pickup(EnemyPickupKind.SuperMissile));
             }
             if (samus.PowerBombs != samus.MaxPowerBombs)
             {
                 majorAdjustedBudget -= table.PowerBomb;
-                offered.Add(EnemyPickupKind.PowerBomb);
+                offered.Add(EnemyDropRoll.Pickup(EnemyPickupKind.PowerBomb));
             }
         }
 
         // With no pooled minor weight the minor drops are passed over and the major drops are offered alone.
         if (pooledMinorWeight != 0)
         {
-            foreach (EnemyPickupKind kind in EnemyDropSelectionDefinitions.MinorDrops)
+            foreach (EnemyDropRoll outcome in EnemyDropSelectionDefinitions.MinorDrops)
             {
-                if (!offered.Contains(kind))
+                if (!offered.Contains(outcome))
                     continue;
 
                 // A minor drop's share of the budget the major drops leave, rounded down; the shares and the major chances
                 // sum to at most the whole budget twice over.
-                accumulated += majorAdjustedBudget * table.Of(kind) / pooledMinorWeight;
+                accumulated += majorAdjustedBudget * table.Of(outcome) / pooledMinorWeight;
                 if (accumulated >= random)
-                    return kind;
+                    return outcome;
             }
         }
 
-        foreach (EnemyPickupKind kind in EnemyDropSelectionDefinitions.MajorDrops)
+        foreach (EnemyDropRoll outcome in EnemyDropSelectionDefinitions.MajorDrops)
         {
-            if (!offered.Contains(kind))
+            if (!offered.Contains(outcome))
                 continue;
 
-            accumulated += table.Of(kind);
+            accumulated += table.Of(outcome);
             if (accumulated >= random)
-                return kind;
+                return outcome;
         }
 
-        return EnemyPickupKind.NoDrop;
+        return EnemyDropRoll.Nothing;
     }
 
-    /// <summary>
-    /// The drop chances of <paramref name="definitionId"/>'s definition, none when it drops nothing; a death explosion from
-    /// a cleared enemy place names no enemy and drops nothing.
-    /// </summary>
-    private EnemyDropChances? DropChancesOf(EnemyDefinitionId definitionId) =>
-        definitionId == EnemyDefinitionId.None ? null : _room.Definitions.ReadEnemyDefinition(definitionId).DropChances;
-
     /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>
-    internal void TendEnemyPickup(
+    private void TendEnemyPickup(
         EnemyProjectile projectile,
-        EnemyPickupState pickup,
-        SamusState samus,
-        IEnemyProjectileCues<EnemyDeathAndDropCue> cues)
+        SamusState samus)
     {
         // The lifetime is counted first; the pickup expires on the update it ends.
+        EnemyPickupState pickup = Pickups.Of(projectile);
         if (pickup.Lifetime.Count())
         {
-            MakeEnemyPickupDormant(projectile, cues);
+            MakeEnemyPickupDormant(projectile);
             return;
         }
 
@@ -445,13 +435,13 @@ internal sealed class EnemyDeathsAndDrops
         // The grapple's endpoint and Samus reach such a pickup from the room's top row or left column the short way, as
         // DistanceAcrossRoomEdge.Between gives it.
         // The grapple query reports any grapple phase but inactive. A pickup is immune to its
-        // endpoint for the first sixteen decrements, then uses strict 16-pixel axis tests.
+        // endpoint for its grapple delay's decrements, then uses strict axis tests.
         if (samus.Grapple.Phase != GrapplePhase.Inactive &&
             pickup.Lifetime.UpdatesLeft < EnemyPickupDefinitions.Lifetime - EnemyPickupDefinitions.GrappleDelay &&
             DistanceAcrossRoomEdge.Between(projectile.Position.X.Whole, samus.Grapple.Anchor.X) < EnemyPickupDefinitions.GrappleReach &&
             DistanceAcrossRoomEdge.Between(projectile.Position.Y.Whole, samus.Grapple.Anchor.Y) < EnemyPickupDefinitions.GrappleReach)
         {
-            CollectEnemyPickup(projectile, pickup.Kind, samus, cues);
+            CollectEnemyPickup(projectile, samus);
             return;
         }
 
@@ -465,16 +455,15 @@ internal sealed class EnemyDeathsAndDrops
             return;
         }
 
-        CollectEnemyPickup(projectile, pickup.Kind, samus, cues);
+        CollectEnemyPickup(projectile, samus);
     }
 
     /// <summary>Applies health or ammo from a touched pickup, publishes its sound, and makes it dormant.</summary>
     private void CollectEnemyPickup(
         EnemyProjectile projectile,
-        EnemyPickupKind kind,
-        SamusState samus,
-        IEnemyProjectileCues<EnemyDeathAndDropCue> cues)
+        SamusState samus)
     {
+        EnemyPickupKind kind = Pickups.Of(projectile).Kind;
         switch (kind)
         {
             case EnemyPickupKind.SmallEnergy:
@@ -497,13 +486,12 @@ internal sealed class EnemyDeathsAndDrops
                 RestoreEnemyDropSuperMissiles(samus, EnemyPickupDefinitions.SuperMissileAmount);
                 RequestPickupSound(EnemySound.SuperMissilePickup);
                 break;
-            case EnemyPickupKind.NoDrop:
             default:
                 throw new InvalidDataException(
                     $"The enemy pickup in place {projectile.Place} holds no restorable pickup ({kind}).");
         }
 
-        MakeEnemyPickupDormant(projectile, cues);
+        MakeEnemyPickupDormant(projectile);
     }
 
     /// <summary>Fills health first, spilling excess into capped reserves and enabling reserve auto mode.</summary>
@@ -551,133 +539,91 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>
     /// Runs the respawn cue for the respawning enemy a death actor retains: the enemy is set up again from the population
-    /// it spawned from.
+    /// entry its place keeps when the cue runs (#1542).
     /// </summary>
-    internal void RespawnEnemyFromSnapshot(RoomEnemyPlace place)
+    internal void RespawnEnemyFromSnapshot(PopulatedEnemyPlace killedIn)
     {
-        RoomEnemySpawnSnapshot spawn = place.Spawn;
-        if (spawn.Population.DefinitionId == EnemyDefinitionId.None)
-        {
-            throw new InvalidDataException(
-                $"Enemy place {place.Ordinal} has no surviving population snapshot to respawn.");
-        }
-
-        RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(spawn.Population.DefinitionId);
-        // Unlike the room's enemy setup and an ordinary enemy spawn, a respawn
-        // never sets the frame: the actor keeps the empty frame its death left,
-        // or what its init AI set, until its first cue. An empty frame is also
-        // the contact gate, so the respawned actor cannot touch Samus before then.
-        _lifecycle.InitializePlaceFromDefinition(place, spawn.Population, definition);
-        _lifecycle.RespawnEnemy(place);
+        RoomEnemyPlace place = killedIn.Place;
+        RoomEnemyPlacement spawn = killedIn.LastSpawn;
+        RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(spawn.DefinitionId);
+        // A respawned enemy keeps the empty frame its death left unless its setup chooses one, until its first cue. An
+        // empty frame also keeps the respawned enemy from touching Samus before then.
+        _lifecycle.InitializePlaceFromDefinition(place, spawn, definition);
+        _lifecycle.SetUpSpawnedEnemy(place);
     }
 
+    /// <summary>
+    /// The death explosions and the pickups they and direct drops become (#1760). Each spawner starts the explosion or
+    /// pickup animation it chooses.
+    /// </summary>
+    private EnemyDeathsAndDrops ExplosionsAndPickups => this;
 
-    /// <summary>What a drop's behaviour answers for its animations' cues: the enemy it came from.</summary>
-    private interface IDropCues
-    {
-        /// <summary>The enemy the drop came from, which its respawn cue rebuilds when it respawns.</summary>
-        KilledEnemy KilledEnemy { get; }
-    }
+    /// <summary>
+    /// Moves a pickup, the one kind here that moves: it counts its lifetime, then tests its grapple endpoint, then Samus's
+    /// body contact, and is collected on contact. A death explosion, and a pickup gone dormant, hold still.
+    /// </summary>
+    /// <param name="context">The projectile and what its pass hands every motion.</param>
+    /// <param name="motion">The pickup's one motion.</param>
+    internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
+        TendEnemyPickup(context.Projectile, context.Samus);
 
-    /// <summary>The behaviour of a death explosion keeping <paramref name="explosion"/>.</summary>
-    /// <param name="explosion">What the explosion keeps: the enemy it came from and the definition its drop rolls by.</param>
-    internal ExplosionBehavior Explosion(EnemyDeathExplosionState explosion) => new(this, explosion);
-
-    /// <summary>The behaviour of a pickup keeping <paramref name="pickup"/>.</summary>
-    /// <param name="pickup">What the pickup keeps: its kind, lifetime and the enemy it came from.</param>
-    internal PickupBehavior Pickup(EnemyPickupState pickup) => new(this, pickup);
-
-    /// <summary>A death explosion, holding the enemy it came from and the definition its drop rolls by.</summary>
-    /// <param name="drops">The room's deaths and drops, which run the explosion's cues.</param>
-    /// <param name="explosion">What the explosion keeps.</param>
-    internal sealed class ExplosionBehavior(EnemyDeathsAndDrops drops, EnemyDeathExplosionState explosion)
-        : EnemyProjectileBehavior, IEnemyProjectileHandingOverCues<EnemyDeathExplosionCue>
-    {
-        /// <inheritdoc/>
-        public EnemyProjectileAnimation? RunCue(EnemyProjectileCueContext context, EnemyDeathExplosionCue cue) =>
-            drops.ApplyEnemyDeathExplosionCue(context.Projectile, explosion, cue, context.Samus);
-    }
-
-    /// <summary>A pickup, holding what it restores, how long it lasts and the enemy it came from; it waits to be collected.</summary>
-    /// <param name="drops">The room's deaths and drops, which tend the pickup and run its cues.</param>
-    /// <param name="pickup">What the pickup keeps.</param>
-    internal sealed class PickupBehavior(EnemyDeathsAndDrops drops, EnemyPickupState pickup)
-        : EnemyProjectileMotionBehavior<SingleMotion>(initial: SingleMotion.Moving),
-            IEnemyProjectileCues<EnemyDeathAndDropCue>, IDropCues
-    {
-        /// <inheritdoc/>
-        public KilledEnemy KilledEnemy => pickup.KilledEnemy;
-
-        /// <inheritdoc/>
-        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
-            drops.TendEnemyPickup(context.Projectile, pickup, context.Samus, this);
-
-        /// <inheritdoc/>
-        public void RunCue(EnemyProjectileCueContext context, EnemyDeathAndDropCue cue) => drops.ApplyEnemyDeathAndDropCue(context.Projectile, this, cue);
-    }
-
-    /// <summary>A drop that rolled no pickup, or a collected one: it holds still through its pause, then ends.</summary>
-    /// <param name="drops">The room's deaths and drops, which run the drop's cues.</param>
-    /// <param name="killedEnemy">The enemy the drop came from.</param>
-    private sealed class DormantDropBehavior(EnemyDeathsAndDrops drops, KilledEnemy killedEnemy)
-        : EnemyProjectileBehavior, IEnemyProjectileCues<EnemyDeathAndDropCue>, IDropCues
-    {
-        /// <inheritdoc/>
-        public KilledEnemy KilledEnemy => killedEnemy;
-
-        /// <inheritdoc/>
-        public void RunCue(EnemyProjectileCueContext context, EnemyDeathAndDropCue cue) => drops.ApplyEnemyDeathAndDropCue(context.Projectile, this, cue);
-    }
+    /// <summary>
+    /// Carries out a cue of the death and drop animations (sprite spawns, sounds, drop conversion and respawn), returning
+    /// where a converted explosion continues (the start of the drop's animation), or null to run on.
+    /// </summary>
+    /// <param name="context">The projectile, Samus and the camera of the pass running the animation.</param>
+    /// <param name="cue">The cue the animation published.</param>
+    /// <param name="pastCue">The place just past the cue; a converted explosion starts its drop's animation instead.</param>
+    public AnimationContinuation<EnemyDeathAndDropSegment>? RunCue(EnemyProjectileCueContext context, EnemyDeathAndDropCue cue,
+        AnimationPlayback<EnemyDeathAndDropSegment> pastCue) =>
+        ApplyEnemyDeathAndDropCue(context.Projectile, cue, context.Samus) is { } converted
+            ? new(EnemyDeathAndDropAnimations.StartingWith(converted), AnimationPlace.StartOfAnimation)
+            : null;
 
     /// <summary>Queues the enemy-killed sound, as the death explosion's cue does.</summary>
     internal void QueueEnemyKilledSound() => RequestDeathSound(EnemyKilledSound);
 
     /// <summary>
-    /// Carries out one cue of <paramref name="explosion"/>'s animation, returning the drop's animation its play goes on in
-    /// once it becomes its drop, or null to run on.
+    /// Carries out one cue of the death and drop animations, returning the segment a converted explosion continues at, or
+    /// null to run on.
     /// </summary>
-    private EnemyDeathAndDropAnimation? ApplyEnemyDeathExplosionCue(EnemyProjectile projectile, EnemyDeathExplosionState explosion,
-        EnemyDeathExplosionCue cue, SamusState samus)
+    private EnemyDeathAndDropSegment? ApplyEnemyDeathAndDropCue(EnemyProjectile projectile, EnemyDeathAndDropCue cue,
+        SamusState samus)
     {
-        switch (cue)
+        if (cue is EnemyDeathAndDropCue.SpawnEffectActor spawn)
         {
-            case EnemyDeathExplosionCue.SpawnEffectActor spawn:
-                _projectiles.SpawnRandomEnemyDeathSprite(projectile, spawn.EffectActor, spawn.Spread);
+            _projectiles.SpawnRandomEnemyDeathSprite(projectile, spawn.EffectActor, spawn.Spread);
+            return null;
+        }
+        EnemyDeathAndDropCueKind kind = ((EnemyDeathAndDropCue.Signal)cue).Kind;
+        switch (kind)
+        {
+            case EnemyDeathAndDropCueKind.Delete:
+                projectile.Delete();
                 return null;
-            case EnemyDeathExplosionCue.Signal { Kind: EnemyDeathExplosionCueKind.PlayEnemyKilledSound }:
+            case EnemyDeathAndDropCueKind.PlayEnemyKilledSound:
                 // The sound-queueing cue continues to the next cue, so the following duration starts the next frame.
                 QueueEnemyKilledSound();
                 return null;
-            case EnemyDeathExplosionCue.Signal { Kind: EnemyDeathExplosionCueKind.PlaySmallExplosionSound }:
+            case EnemyDeathAndDropCueKind.PlaySmallExplosionSound:
                 RequestDeathSound(EnemySoundEffectDefinitions.DeathSmallExplosionSound);
                 return null;
-            case EnemyDeathExplosionCue.Signal { Kind: EnemyDeathExplosionCueKind.PlayContactKilledSound }:
+            case EnemyDeathAndDropCueKind.PlayContactKilledSound:
                 RequestDeathSound(EnemySoundEffectDefinitions.DeathContactKilledSound);
                 return null;
-            case EnemyDeathExplosionCue.Signal { Kind: EnemyDeathExplosionCueKind.BecomePickup }:
-                return ConvertEnemyDeathExplosionToPickup(projectile, explosion, samus);
+            case EnemyDeathAndDropCueKind.BecomePickup:
+                if (projectile.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
+                    throw new InvalidDataException($"Enemy projectile {projectile.Kind} reached the become-pickup cue, which only a death explosion runs.");
+                return ConvertEnemyDeathExplosionToPickup(projectile, samus);
+            case EnemyDeathAndDropCueKind.RespawnEnemy:
+                // A death explosion rebuilds the enemy it came from when that enemy respawns; a drop came from no enemy,
+                // whatever an earlier projectile in its place came from.
+                if (projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion &&
+                    Explosions.Of(projectile).KilledEnemy is { Respawns: true } killed)
+                    RespawnEnemyFromSnapshot(killed.Enemy);
+                return null;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(EnemyDeathExplosionCue)} {cue}.");
-        }
-    }
-
-    /// <summary>Carries out one cue of the animation of <paramref name="drop"/>, the drop a death explosion became or a direct drop.</summary>
-    private void ApplyEnemyDeathAndDropCue(EnemyProjectile projectile, IDropCues drop, EnemyDeathAndDropCue cue)
-    {
-        switch (cue)
-        {
-            case EnemyDeathAndDropCue.Signal { Kind: EnemyDeathAndDropCueKind.Delete }:
-                projectile.Delete();
-                return;
-            case EnemyDeathAndDropCue.Signal { Kind: EnemyDeathAndDropCueKind.RespawnEnemy }:
-                // The pickup a death explosion became rebuilds the enemy it came from when that enemy respawns; a drop
-                // spawned directly came from no enemy.
-                // Only a killed enemy respawns (KilledEnemy.Of), so a respawning drop always names its enemy.
-                if (drop.KilledEnemy is { Respawns: true, Enemy: { } respawning })
-                    RespawnEnemyFromSnapshot(respawning);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EnemyDeathAndDropCue)} {cue}.");
+                throw new InvalidOperationException($"Undefined {nameof(EnemyDeathAndDropCueKind)} {kind}.");
         }
     }
 }

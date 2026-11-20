@@ -38,7 +38,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Page to load when the current page has dissolved to black.</summary>
     private GameOptionsPage dissolveDestination = GameOptionsPage.Primary;
     /// <summary>The screen's brightness, which the page fades and final exits step one level an update.</summary>
-    private readonly ScreenFade fade = new(0);
+    private readonly ScreenFade fade = new(DisplayBrightness.Black);
     /// <summary>The primary page's selected row, which its cursor shows while the primary page does.</summary>
     private GameOptionsPrimaryRow primaryRow = GameOptionsPageRows.Primary.Top;
     /// <summary>The controller page's selected row, which its cursor shows while the controller page does.</summary>

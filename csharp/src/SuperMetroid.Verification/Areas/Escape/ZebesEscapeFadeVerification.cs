@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Areas.Escape;
@@ -18,7 +17,7 @@ internal static class ZebesEscapeFadeVerification
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
 
         game.Session.BeginZebesEscapeFade();
         AssertTrue(game.IsAt(EndingStep.LeavingZebes), "the takeoff publishes state $26");

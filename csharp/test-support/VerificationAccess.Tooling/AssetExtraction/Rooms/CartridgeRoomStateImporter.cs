@@ -21,7 +21,7 @@ public static class CartridgeRoomStateImporter
     {
         Ensure.NotNull(bus);
         int address = 0x8f0000 | statePointer;
-        IImportCartridgeSource cartridge = bus;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         byte Byte(int offset) => cartridge.ReadCartridgeByte(address + offset);
         ushort Word(int offset) => RomDataReader.ReadWordFixedBank(cartridge, address + offset);
         int Long(int offset) => RomDataReader.ReadLongFixedBank(cartridge, address + offset);
@@ -43,34 +43,34 @@ public static class CartridgeRoomStateImporter
     /// background and the boss's body.
     /// </summary>
     public static ushort LibraryBackgroundPointer(ISnesAddressSpace bus, ushort statePointer) =>
-        RomDataReader.ReadWordFixedBank(Ensure.NotNull(bus), (0x8f0000 | statePointer) + 22);
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(Ensure.NotNull(bus)), (0x8f0000 | statePointer) + 22);
 
     /// <summary>
     /// The cartridge pointer of the enemy graphics set the bank-$8F room-state payload at <paramref name="statePointer"/>
     /// names, which the import's own catalogue decodes once (#1599); the game's room state names no set.
     /// </summary>
     public static ushort EnemyGraphicsSetPointer(ISnesAddressSpace bus, ushort statePointer) =>
-        RomDataReader.ReadWordFixedBank(Ensure.NotNull(bus), (0x8f0000 | statePointer) + 10);
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(Ensure.NotNull(bus)), (0x8f0000 | statePointer) + 10);
 
     /// <summary>
     /// The bank-$8F room-main code offset the room-state payload at <paramref name="statePointer"/> stores, before the
     /// import decodes it to its typed callback.
     /// </summary>
     public static ushort MainCodePointer(ISnesAddressSpace bus, ushort statePointer) =>
-        RomDataReader.ReadWordFixedBank(Ensure.NotNull(bus), (0x8f0000 | statePointer) + 18);
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(Ensure.NotNull(bus)), (0x8f0000 | statePointer) + 18);
 
     /// <summary>
     /// The bank-$8F room-setup code offset the room-state payload at <paramref name="statePointer"/> stores, before the
     /// import decodes it to its typed callback.
     /// </summary>
     public static ushort SetupCodePointer(ISnesAddressSpace bus, ushort statePointer) =>
-        RomDataReader.ReadWordFixedBank(Ensure.NotNull(bus), (0x8f0000 | statePointer) + 24);
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(Ensure.NotNull(bus)), (0x8f0000 | statePointer) + 24);
 
     /// <summary>Whether the bank-$8F routine at <paramref name="codePointer"/> returns at once: its first instruction is a return.</summary>
     public static bool RoutineReturnsAtOnce(ISnesAddressSpace bus, ushort codePointer) =>
-        Ensure.NotNull(bus).ReadCartridgeByte(0x8f0000 | codePointer) == 0x60;
+        CartridgeImportSource.Require(Ensure.NotNull(bus)).ReadCartridgeByte(0x8f0000 | codePointer) == 0x60;
 
     /// <summary>The compressed level-data source the bank-$8F room-state payload at <paramref name="statePointer"/> names.</summary>
     public static int LevelSource(ISnesAddressSpace bus, ushort statePointer) =>
-        RomDataReader.ReadLongFixedBank(Ensure.NotNull(bus), 0x8f0000 | statePointer);
+        RomDataReader.ReadLongFixedBank(CartridgeImportSource.Require(Ensure.NotNull(bus)), 0x8f0000 | statePointer);
 }

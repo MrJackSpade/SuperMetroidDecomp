@@ -7,14 +7,14 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoRandomizedProjectileDefinitions
 {
     /// <summary>Bomb Torizo's Chozo-orb launch, the way it faces.</summary>
-    internal static TorizoLaunch<TorizoChozoOrbSegment> BombChozoOrb { get; } = new(TorizoChozoOrbSegment.ChozoOrbMovingLeft, TorizoChozoOrbSegment.ChozoOrbMovingRight,
+    internal static TorizoLaunch BombChozoOrb { get; } = new(TorizoProjectileSegment.ChozoOrbMovingLeft, TorizoProjectileSegment.ChozoOrbMovingRight,
         new(27, -40), new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(25, 16), SignedEightEight.FromPixelFraction(-13, 8)));
 
     /// <summary>Golden Torizo's Chozo-orb launch, the way it faces.</summary>
-    internal static TorizoLaunch<TorizoChozoOrbSegment> GoldenChozoOrb { get; } = new(TorizoChozoOrbSegment.ChozoOrbMovingLeft, TorizoChozoOrbSegment.ChozoOrbMovingRight,
+    internal static TorizoLaunch GoldenChozoOrb { get; } = new(TorizoProjectileSegment.ChozoOrbMovingLeft, TorizoProjectileSegment.ChozoOrbMovingRight,
         new(27, -40), new PixelVelocity<RoomPixels>(SignedEightEight.FromPixels(1), SignedEightEight.FromPixelFraction(-7, 4)));
 
     /// <summary>Golden Torizo's egg launch, the way it faces as it lays the egg.</summary>
-    internal static TorizoLaunch<GoldenTorizoEggSegment> GoldenEgg { get; } = new(GoldenTorizoEggSegment.EggBouncingLeft, GoldenTorizoEggSegment.EggBouncingRight,
+    internal static TorizoLaunch GoldenEgg { get; } = new(TorizoProjectileSegment.EggBouncingLeft, TorizoProjectileSegment.EggBouncingRight,
         new(16, -1), new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(1, 2), SignedEightEight.FromPixelFraction(-3, 2)));
 }

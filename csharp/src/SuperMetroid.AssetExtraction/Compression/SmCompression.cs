@@ -84,15 +84,14 @@ public static class SmCompression
                 return true;
             }
 
-            SmCompressionHeader decoded;
+            byte? longLength = null;
             if (SmCompressionCodes.IsLongHeader(header))
             {
                 if (!Next(out byte lowLength))
                     break;
-                decoded = SmCompressionHeader.DecodeLong(header, lowLength);
+                longLength = lowLength;
             }
-            else
-                decoded = SmCompressionHeader.Decode(header);
+            SmCompressionHeader decoded = SmCompressionHeader.Decode(header, longLength);
 
             switch (decoded.Command)
             {

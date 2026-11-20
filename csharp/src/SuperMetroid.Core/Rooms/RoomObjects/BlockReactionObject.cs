@@ -20,8 +20,21 @@ internal class BlockReactionObject : RoomObjectBehaviour
         _images = Playing(change);
     }
 
+    /// <summary>
+    /// A reaction of <paramref name="change"/>'s timing whose setup saved <paramref name="savedTerrain"/>, which its images
+    /// restore where they ask for it (#2484).
+    /// </summary>
+    internal BlockReactionObject(BlockReactionChange change, RoomTerrainBlock savedTerrain)
+        : this(change) => SavedTerrain = savedTerrain;
+
     /// <summary>The reaction's authored timing.</summary>
     internal BlockReactionChange Change { get; }
+
+    /// <summary>
+    /// The terrain the reaction's setup saved at its block, which it restores as the block grows back; null when its setup
+    /// saved none. Grapple setup saves the earlier block; collision-bomb setup saves the bomb block's parent instead.
+    /// </summary>
+    private RoomTerrainBlock? SavedTerrain { get; }
 
     /// <summary>
     /// The reaction's images playing, each for its own updates: its first shows on the update its first delay runs out
@@ -57,15 +70,13 @@ internal class BlockReactionObject : RoomObjectBehaviour
         context.RoomObjects.BlockReactions.RecordImageShown(place.Block, frame.Image);
     }
 
-    /// <summary>
-    /// Restores the terrain the reaction's setup saved where an image asks for it: a reaction whose setup saved a block
-    /// restores it (<see cref="RestoringBlockReactionObject"/>), and no image of one whose setup saved none asks.
-    /// </summary>
+    /// <summary>Restores the terrain the reaction's setup saved where an image asks for it.</summary>
     /// <param name="place">The reaction's place.</param>
     /// <param name="context">The update.</param>
     /// <exception cref="InvalidOperationException">The reaction's setup saved no terrain.</exception>
     private protected virtual void RestoreBlock(RoomObjectPlace place, RoomObjectStepContext context) =>
-        throw new InvalidOperationException($"The block reaction at block {Ensure.NotNull(place).Block} restores a block its setup never saved.");
+        context.DrawSavedTerrain(place, SavedTerrain
+            ?? throw new InvalidOperationException($"The block reaction at block {place.Block} restores a block its setup never saved."));
 
     /// <summary><paramref name="change"/>'s images, played from its first delay.</summary>
     private static AnimationPlayer<RoomObjectFrameRun, BlockReactionFrame, NoAnimationCue> Playing(BlockReactionChange change)

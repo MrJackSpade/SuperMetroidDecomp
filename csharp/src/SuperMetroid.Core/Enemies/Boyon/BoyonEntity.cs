@@ -6,19 +6,19 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 /// occupant of the same place never sees the previous one's values.
 /// </summary>
 /// <param name="species">The Boyon species owner, which publishes the bounce sound.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the Boyon occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class BoyonEntity(BoyonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BoyonSpawnSettings settings)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
+internal sealed class BoyonEntity(BoyonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
-    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal BoyonEnemyState State { get; } = BoyonBehavior.InitializeBoyon(place, settings);
+    /// <inheritdoc/>
+    public void Initialize() => BoyonBehavior.InitializeBoyon(Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        BoyonBehavior.RunBoyonMain(Place, State, frame.Samus);
+        BoyonBehavior.RunBoyonMain(Occupant, Place, Place.RequireSpeciesState<BoyonEnemyState>(), frame.Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBoyonAnimation(Place, State, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBoyonAnimation(Place);
 }

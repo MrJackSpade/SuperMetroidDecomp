@@ -45,7 +45,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
     /// </summary>
     private static void VerifyChozoTerrainHeaders(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ChozoStatueRoomObject[] statueObjects = [ChozoStatueRoomObject.LowerNorfairHand, ChozoStatueRoomObject.WreckedShipHand,
             ChozoStatueRoomObject.SlopeAccessOpening, ChozoStatueRoomObject.SlopeAccessClosing, ChozoStatueRoomObject.PlugCrumbleAtHand,
             ChozoStatueRoomObject.PlugCrumbleUnderFootstep];

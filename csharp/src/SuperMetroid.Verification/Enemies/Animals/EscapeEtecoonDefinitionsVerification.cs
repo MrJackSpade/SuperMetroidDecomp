@@ -29,17 +29,17 @@ internal static class EscapeEtecoonDefinitionsVerification
             ushort parameter = unchecked((ushort)(role * 2));
             EscapeEtecoonInitialization initialization =
                 EscapeEtecoons.Initialization(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.EscapeEtecoonRole(parameter));
-            AssertEqual(rom.ReadCartridgeWord((xTable + parameter)), initialization.Position.X,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((xTable + parameter)), initialization.Position.X,
                 $"escape Etecoon role {role} X");
-            AssertEqual(rom.ReadCartridgeWord((yTable + parameter)), initialization.Position.Y,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yTable + parameter)), initialization.Position.Y,
                 $"escape Etecoon role {role} Y");
-            AssertEqual(AnimalsNativeWords.EscapeEtecoonActions.Decode(rom.ReadCartridgeWord((frameBehaviorTable + parameter)), "escape Etecoon pre-instruction"),
+            AssertEqual(AnimalsNativeWords.EscapeEtecoonActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord((frameBehaviorTable + parameter)), "escape Etecoon pre-instruction"),
                 initialization.Action,
                 $"escape Etecoon role {role} pre-instruction");
-            AssertEqual(rom.ReadCartridgeWord((instructionTable + parameter)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + parameter)),
                 NativeEnemyAnimationOracle.EntryOf(EscapeEtecoonNativeListAddresses.Entries, initialization.Animation),
                 $"escape Etecoon role {role} instruction");
-            AssertEqual(rom.ReadCartridgeWord((speedTable + parameter)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((speedTable + parameter)),
                 (initialization.Direction == HorizontalDirection.Left ? initialization.Speed.Negated() : initialization.Speed).RawValue,
                 $"escape Etecoon role {role} speed");
         }
@@ -57,8 +57,8 @@ internal static class EscapeEtecoonDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.EtecoonEscape, parameter);
             place.Position = place.Position.WithWhole(new(0xaaaa, 0xbbbb));
-            place.Bind(EnemyDefinitionId.EtecoonEscape, place.Definition);
-            enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(place, place.SpawnSettings<EscapeEtecoonSpawnSettings>());
+            place.Bind(EnemyDefinitionId.EtecoonEscape, place.KeptDefinition);
+            enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(place.HeldOccupant(), place);
 
             int role = parameter >> 1;
             EscapeEtecoonInitialization expected =
@@ -151,7 +151,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         etecoon.Bind(EnemyDefinitionId.EtecoonEscape, etecoon.KeptDefinition);
         etecoon.Bind(etecoon.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         etecoon.SetSpawnParameter1(EnemyDefinitionId.EtecoonEscape, 0);
-        enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(etecoon, etecoon.SpawnSettings<EscapeEtecoonSpawnSettings>());
+        enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(etecoon.HeldOccupant(), etecoon);
         return enemies;
     }
 

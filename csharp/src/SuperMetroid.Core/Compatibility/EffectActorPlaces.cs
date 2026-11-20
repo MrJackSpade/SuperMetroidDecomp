@@ -27,24 +27,39 @@ public sealed class EffectActorPlaces
 
     /// <summary>Takes the highest free place for a spawn.</summary>
     /// <returns>The place taken, or null when every place is taken.</returns>
-    internal int? Take()
+    internal TakenPlace? Take()
     {
         for (int place = PlaceCount - 1; place >= 0; place--)
         {
             if (_taken[place])
                 continue;
             _taken[place] = true;
-            return place;
+            return new TakenPlace(place);
         }
         return null;
     }
 
     /// <summary>Frees <paramref name="place"/>, whose object has ended.</summary>
     /// <param name="place">A place a spawn took.</param>
-    internal void Free(int place)
+    internal void Free(TakenPlace place)
     {
-        if (!_taken[Ensure.BetweenInclusive(0, PlaceCount - 1, place)])
-            throw new InvalidOperationException($"Effect-actor place {place} is not taken.");
-        _taken[place] = false;
+        int number = Ensure.NotNull(place).Number;
+        if (!_taken[number])
+            throw new InvalidOperationException($"Effect-actor place {number} is not taken.");
+        _taken[number] = false;
+    }
+
+    /// <summary>
+    /// A place an effect actor's spawn took: what the spawn leaves for Kraid's mouth pass to read
+    /// (<see cref="KraidPassBounds.LeaveAfterDud"/>) and what frees the place once the actor ends. Only the compatibility
+    /// services that reproduce those reads look at its number.
+    /// </summary>
+    public sealed class TakenPlace
+    {
+        /// <summary>Holds the place numbered <paramref name="number"/>, zero for the lowest.</summary>
+        internal TakenPlace(int number) => Number = Ensure.BetweenInclusive(0, PlaceCount - 1, number);
+
+        /// <summary>The place's number among the thirty-two, zero for the lowest.</summary>
+        internal int Number { get; }
     }
 }

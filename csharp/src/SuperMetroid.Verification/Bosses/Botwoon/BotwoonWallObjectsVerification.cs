@@ -33,7 +33,7 @@ internal static class BotwoonWallObjectsVerification
         AssertEqual(9, draw.Runs.Span[0].Count,
             "Botwoon clear is nine blocks tall");
         int cursor = RoomObjectDrawAddressCodec.Of(draw.Draw);
-        AssertRunHeader(rom.ReadCartridgeWordFixedBank(0x840000 | cursor), draw.Runs.Span[0],
+        AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), draw.Runs.Span[0],
             "Botwoon clear run header");
         cursor += 2;
         foreach (RoomCollisionType collision in draw.Runs.Span[0].Collisions.Span)
@@ -45,7 +45,7 @@ internal static class BotwoonWallObjectsVerification
         AssertEqual(9, shape.Cells.Count, "Botwoon clear shape covers exactly the column's nine cells");
         for (int index = 0; index < 9; index++)
         {
-            RoomTerrainBlock native = RoomLevelWordCodec.Decode(rom.ReadCartridgeWord(0x849311 + index * 2));
+            RoomTerrainBlock native = RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x849311 + index * 2));
             Offset16<RoomBlocks> place = new(0, index);
             AssertEqual(place, draw.Runs.Span[0].CellAt(index), "Botwoon clear run places the native word down its column");
             AssertEqual(native.Collision, shape.CollisionAt(place), "Botwoon clear shape collision matches the native word");
@@ -71,7 +71,7 @@ internal static class BotwoonWallObjectsVerification
 
         void AssertCollision(RoomCollisionType expected)
         {
-            AssertEqual(RoomLevelWordCodec.Decode(rom.ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
+            AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
                 expected, $"Botwoon draw collision +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)}");
 
             cursor += 2;

@@ -7,15 +7,8 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// </summary>
 public sealed class ChootEnemyState
 {
-    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
-    internal ChootSpawnSettings Settings { get; }
-
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal ChootEnemyState(ChootAction action, ChootSpawnSettings settings)
-    {
-        Settings = Ensure.NotNull(settings);
-        Action = action;
-    }
+    internal ChootEnemyState(ChootAction action) => Action = action;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<ChootSegment> Playback { get; set; }
@@ -31,10 +24,10 @@ public sealed class ChootEnemyState
     public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
 
     /// <summary>
-    /// The falling pattern's current loop, counted once each falling update: the sample it is at says where the next
-    /// falling update places the Choot, and the update after it is over ends the loop and starts the next.
+    /// The falling pattern's current loop, counted once each falling update: its age is the update of the loop the next
+    /// falling update takes, and the update after it is over ends the loop and starts the next.
     /// </summary>
-    internal ChootFallLoop FallingLoop { get; set; } = ChootFallLoop.Over.Instance;
+    public UpdateCountdown FallingLoop { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The falling pattern's loops left, the current one included: its population's loop count, at least one, and the

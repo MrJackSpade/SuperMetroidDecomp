@@ -39,9 +39,9 @@ public static class EndingMode7ArtworkFiles
         foreach (EndingFloorSceneId id in Enum.GetValues<EndingFloorSceneId>())
         {
             (int characterSource, int packedMapSource) = EndingArtworkSources.Floor(id);
-            byte[] characters = RomDataReader.Decompress(bus, characterSource,
+            byte[] characters = RomDataReader.Decompress(CartridgeImportSource.Require(bus), characterSource,
                 EndingSourceDefinitions.Artwork.DecompressionLimit);
-            byte[] packedMap = RomDataReader.Decompress(bus, packedMapSource,
+            byte[] packedMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus), packedMapSource,
                 EndingSourceDefinitions.Artwork.DecompressionLimit);
             if (characters.Length < EndingFloorArtworkFormat.CharacterByteCount ||
                 packedMap.Length < EndingFloorArtworkFormat.CharacterByteCount)
@@ -75,7 +75,7 @@ public static class EndingMode7ArtworkFiles
             Write(importData, EndingFloorArtworkFormat.MapFileName(id), mapFile);
             Write(importData, EndingFloorArtworkFormat.CharacterFileName(id), pngFile);
         }
-        byte[] reward = RomDataReader.Decompress(bus,
+        byte[] reward = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters,
             EndingSourceDefinitions.Artwork.DecompressionLimit);
         if (reward.Length < EndingRewardIconArtworkFormat.ByteCount)
@@ -165,7 +165,7 @@ public static class EndingMode7ArtworkFiles
             LoadScene(EndingFloorSceneId.PlanetExplosion),
             LoadRewardIcon());
 
-        EndingRewardIconCharacters LoadRewardIcon()
+        EndingRewardIconArtwork LoadRewardIcon()
         {
             (string mapPath, byte[] map) = ReadExtracted(EndingRewardIconArtworkFormat.MapFileName);
             (string pngPath, byte[] png) = ReadExtracted(EndingRewardIconArtworkFormat.CharacterFileName);
@@ -182,7 +182,7 @@ public static class EndingMode7ArtworkFiles
             }
         }
 
-        EndingFloorSceneCharacters LoadScene(EndingFloorSceneId id)
+        EndingFloorSceneArtwork LoadScene(EndingFloorSceneId id)
         {
             (string mapPath, byte[] map) = ReadExtracted(EndingFloorArtworkFormat.MapFileName(id));
             (string pngPath, byte[] png) = ReadExtracted(EndingFloorArtworkFormat.CharacterFileName(id));

@@ -35,7 +35,8 @@ public static class IntroNarrationFile
         try
         {
             document = JsonAssetDocument.Read<IntroNarrationDocument>(
-                source, ArtworkJson.Options);
+                source, ArtworkJson.Options)
+                ?? throw new InvalidDataException("Opening-narration document is null.");
         }
         catch (JsonException error)
         {

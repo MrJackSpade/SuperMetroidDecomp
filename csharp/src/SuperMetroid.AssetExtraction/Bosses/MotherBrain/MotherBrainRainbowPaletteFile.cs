@@ -47,9 +47,9 @@ public static class MotherBrainRainbowPaletteFile
     }
 
     /// <summary>Requires eight three-ink brain frames, with no rear-leg or trailing color.</summary>
-    private static InstalledMotherBrainRainbowPalette.PaletteFrame[] CompileFakeDeathFrames(PaletteRgb5[][] source)
+    private static InstalledMotherBrainRainbowPalette.PaletteFrame[] CompileFakeDeathFrames(PaletteRgb5[][]? source)
     {
-        if (source.Length != MotherBrainFakeDeathFadeDefinitions.FrameCount)
+        if (source is null || source.Length != MotherBrainFakeDeathFadeDefinitions.FrameCount)
             throw new InvalidDataException("Mother Brain fake-death fade requires eight frames.");
         var frames = new InstalledMotherBrainRainbowPalette.PaletteFrame[source.Length];
         for (int frame = 0; frame < source.Length; frame++)

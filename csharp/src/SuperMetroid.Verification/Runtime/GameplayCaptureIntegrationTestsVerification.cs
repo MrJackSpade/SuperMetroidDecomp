@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Assets;
@@ -27,7 +26,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
     {
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.FrameBoundary.BeginAcceptedFrame(0);
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -38,8 +37,8 @@ internal static class GameplayCaptureIntegrationTestsVerification
         for (int i = 0; i < 50; i++) runtime.BombProjectiles.PowerBombExplosion.StepFrame(runtime.Artwork.SamusArtwork.PowerBombGlowColors);
         runtime.MessageBox.Begin(GameplayMessageId.MapDataAccessCompleted, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
         for (int i = 0; i < 13; i++) runtime.MessageBox.Step(0);
-        runtime.SuitPickup.Begin(runtime.Player.Samus, new(0, 0), SamusSuitPickupKind.Varia);
-        runtime.SuitPickup.Step(runtime.Player.Samus, runtime.Player.Colours);
+        runtime.SuitPickup.Begin(runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
+        runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Player.Colours);
         RgbaPixel[] expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
         LayeredScene captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(captured.Layers.Length == 5 && captured.Layers[0] is GameplaySceneLayer && captured.Layers[1] is HudLayer
@@ -50,7 +49,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         // The packet is drawn again only if the effect updates changed anything it reaches (#1532).
         byte[] retainedGraph = GraphDigest(retained);
         runtime.MessageBox.Step(ControllerButton.A);
-        runtime.SuitPickup.Step(runtime.Player.Samus, runtime.Player.Colours);
+        runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Player.Colours);
         runtime.BombProjectiles.PowerBombExplosion.StepFrame(runtime.Artwork.SamusArtwork.PowerBombGlowColors);
         if (!GraphDigest(retained).SequenceEqual(retainedGraph))
             AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay packet survives all effect updates");
@@ -88,11 +87,11 @@ internal static class GameplayCaptureIntegrationTestsVerification
             game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
         }
         bool sawPause = false;
-        var fadeFrames = new Dictionary<object, int>
+        var fadeFrames = new Dictionary<PauseStep, int>
         {
             [PauseStep.DarkeningGameplay] = 0,
-            [PauseMenuStep.FadingIn] = 0,
-            [PauseMenuStep.FadingOut] = 0,
+            [PauseStep.FadingIn] = 0,
+            [PauseStep.FadingOut] = 0,
             [PauseStep.BrighteningGameplay] = 0,
         };
         // The cartridge fade counter adds a hold frame for each brightness step.
@@ -100,12 +99,12 @@ internal static class GameplayCaptureIntegrationTestsVerification
         // truncated 15-frame fade that happened to finish inside 160 frames.
         for (int tick = 0; tick < 180; tick++)
         {
-            if (legacy.GameState == SuperMetroidGameState.Pause && fadeFrames.ContainsKey(legacy.Session.CurrentStep)) fadeFrames[legacy.Session.CurrentStep]++;
+            if (legacy.GameState == SuperMetroidGameState.Pause && fadeFrames.ContainsKey(legacy.Session.PauseStep)) fadeFrames[legacy.Session.PauseStep]++;
             ControllerButton input = tick is 10 or >= 100 and <= 105 ? ControllerButton.Start : 0;
             FrontendFrame reference = legacy.Step(input);
             CapturedFrontendFrame actual = packets.StepCaptured(input);
             Compare(reference, actual);
-            sawPause |= legacy.IsAt(PauseMenuStep.FadingIn) || legacy.IsAt(PauseMenuStep.Menu);
+            sawPause |= legacy.IsAt(PauseStep.FadingIn) || legacy.IsAt(PauseStep.Menu);
             AssertEqual(legacy.GameplaySamusX, packets.GameplaySamusX, "capture preserves Samus X");
             AssertEqual(legacy.GameplaySamusY, packets.GameplaySamusY, "capture preserves Samus Y");
             AssertEqual(legacy.GameplaySamusPose, packets.GameplaySamusPose, "capture preserves pose");

@@ -59,7 +59,7 @@ internal sealed class MotherBrainRainbowAndDeath
     }
 
     /// <summary>Carries out what one step of her death asked of the room: explosions, fades, music, the escape and its door.</summary>
-    internal void ApplyLiveMotherBrainDeath(MotherBrainEnemyState state, MotherBrainRainbowBeamAttackStepResult step)
+    private void ApplyLiveMotherBrainDeath(MotherBrainEnemyState state, MotherBrainRainbowBeamAttackStepResult step)
     {
         foreach (var explosion in step.DeathExplosions)
         {
@@ -74,7 +74,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.Starts(MotherBrainStepEffect.BodyFlickers))
         {
             // Her death flickers the body and the background together on every update, not just on colour steps.
-            state.DeathHidesBodyLayer = MotherBrainCadenceDefinitions.DeathFadeHidesBodyEverySecondUpdate.IsDue(state.Body.FrameCounter);
+            state.DeathHidesBodyLayer = MotherBrainCadenceDefinitions.DeathFadeHidesBody.IsDue(state.Body.FrameCounter);
             state.Body.Presence = state.DeathHidesBodyLayer
                 ? state.Body.Presence.With(EnemyPresence.Hidden)
                 : state.Body.Presence.Without(EnemyPresence.Hidden);
@@ -86,7 +86,7 @@ internal sealed class MotherBrainRainbowAndDeath
             // Her faded body is gone: the flicker stops and her body stays hidden, its picture cleared from the background.
             state.DeathHidesBodyLayer = false;
             state.Body.Presence = state.Body.Presence.With(EnemyPresence.Hidden);
-            state.BodyParts.Clear();
+            _presentation.RequireBossBody().Clear();
         }
         if (step.CorpseFadeImage is { } corpseFade)
             state.Colours.ShowCorpseFade(corpseFade);
@@ -118,37 +118,36 @@ internal sealed class MotherBrainRainbowAndDeath
         foreach (var request in step.EscapeDoorParticleSpawns) SpawnMotherBrainDoorFragment(request.Fragment);
         if (step.Starts(MotherBrainStepEffect.EscapeSubtitle))
         {
-            var subtitle = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainEscapeSubtitle, _projectileAttacks.EscapeSubtitle, SpriteGraphics.SharedStandard);
+            var subtitle = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainEscapeSubtitle, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
             if (subtitle is not null)
             {
-                subtitle.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.EscapeSubtitle, _projectileAttacks.EscapeSubtitle));
+                subtitle.StartAnimation(new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.EscapeSubtitle));
                 MotherBrainProjectiles.PinMotherBrainEscapeSubtitle(subtitle);
             }
         }
     }
 
     /// <summary>Places a death explosion with the requested position and visual phase.</summary>
-    internal void SpawnMotherBrainDeathExplosion(MotherBrainEnemyState state, MotherBrainDeathExplosionRequest request)
+    private void SpawnMotherBrainDeathExplosion(MotherBrainEnemyState state, MotherBrainDeathExplosionRequest request)
     {
         DustExplosionAnimation animation = MotherBrainDeathExplosionDefinitions.Animations[request.Animation];
-        var behavior = _projectileAttacks.BodyExplosion(explosion);
-        var projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainDeathExplosion, behavior, SpriteGraphics.SharedStandard);
-        if (projectile is null) return; // Shared-pool exhaustion drops the spawn.
-        var explosion = new MotherBrainBodyExplosionState(state, request.Offset);
+        var projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainDeathExplosion, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
+        if (projectile is null) return; // A room whose projectiles are all in flight spawns none.
         projectile.StartAnimation(new DustExplosionProjectileAnimation(animation));
+        _projectileAttacks.Projectile.BodyExplosions.Start(projectile, new MotherBrainBodyExplosionState(state, request.Offset));
         projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);
-        MotherBrainProjectiles.MotherBrainProjectileBehavior.RunMotherBrainDeathExplosion(projectile, explosion);
+        _projectileAttacks.Projectile.RunMotherBrainDeathExplosion(projectile);
     }
 
     /// <summary>Spawns the falling door fragment <paramref name="definition"/>.</summary>
-    internal void SpawnMotherBrainDoorFragment(MotherBrainDoorFragmentDefinition definition)
+    private void SpawnMotherBrainDoorFragment(MotherBrainDoorFragmentDefinition definition)
     {
-        var behavior = _projectileAttacks.DoorFragment(new MotherBrainDoorFragmentState());
-        var fragment = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, behavior, SpriteGraphics.SharedStandard);
+        var fragment = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
         if (fragment is null) return;
-        fragment.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.EscapeDoorParticle, behavior));
+        fragment.StartAnimation(new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.EscapeDoorParticle));
         fragment.Position = fragment.Position.WithWhole(new Position16<RoomPixels>(MotherBrainDeathDefinitions.DoorX, MotherBrainDeathDefinitions.DoorY) + definition.Offset);
         fragment.Velocity = definition.Velocity;
+        _projectileAttacks.Projectile.DoorFragments.Start(fragment, new MotherBrainDoorFragmentState());
     }
 
     /// <summary>Shows a glyph the Zebes escape typewriter typed over Mother Brain's room background (#1348, #1555).</summary>
@@ -184,7 +183,7 @@ internal sealed class MotherBrainRainbowAndDeath
     /// Carries out what one step of the late fight asked of the room: colours, the beam's sound and earthquake, Samus's
     /// cooldown, the Baby's spawn, beam explosions and her death's requests. The phases wrote her own state in place.
     /// </summary>
-    internal void ApplyLiveMotherBrainRainbowState(
+    private void ApplyLiveMotherBrainRainbowState(
         MotherBrainEnemyState state,
         MotherBrainRainbowBeamAttackSequence sequence,
         MotherBrainRainbowBeamAttackStepResult current,
@@ -239,16 +238,16 @@ internal sealed class MotherBrainRainbowAndDeath
     }
 
     /// <summary>Spawns a rainbow explosion that follows Samus at the requested offset.</summary>
-    internal void SpawnMotherBrainRainbowExplosion(
+    private void SpawnMotherBrainRainbowExplosion(
         Position16<RoomPixels> samusBeforeMovement,
         MotherBrainRainbowExplosionRequest request)
     {
-        var behavior = _projectileAttacks.FollowingExplosion(new MotherBrainFollowingExplosionState(request.Offset));
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion, behavior, SpriteGraphics.SharedStandard);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
 
         projectile.StartAnimation(new DustExplosionProjectileAnimation(DustExplosionAnimation.MotherBrainRainbowBeamExplosion));
+        _projectileAttacks.Projectile.FollowingExplosions.Start(projectile, new MotherBrainFollowingExplosionState(request.Offset));
         projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);
         projectile.Position = projectile.Position.WithWhole(samusBeforeMovement + request.Offset);
     }
@@ -278,7 +277,7 @@ internal sealed class MotherBrainRainbowAndDeath
             state.Colours.ShowRainbow(MotherBrainRainbowImage.Drained);
             return;
         }
-        // The rainbow colours' handler steps them only on its phase of the body's update count.
+        // The rainbow's colours step only on their update of the body's cadence.
         if (!step.Starts(MotherBrainStepEffect.RainbowColours) || !MotherBrainCadenceDefinitions.RainbowColoursStep.IsSetIn(state.Body.FrameCounter))
             return;
 

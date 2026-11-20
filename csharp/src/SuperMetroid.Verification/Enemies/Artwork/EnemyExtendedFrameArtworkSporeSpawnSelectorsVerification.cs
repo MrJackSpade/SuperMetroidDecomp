@@ -35,7 +35,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         int framesCompared = 0;
         var allNativeSelectors = new HashSet<ushort>();
         // Spore Spawn's body runs typed programs (#1288); its cursor is compared as the native pointer it stands for.
-        var steps = BodyLists(rom);
+        var steps = BodyLists(CartridgeImportSource.Require(rom));
         foreach ((SporeSpawnBodySegment program, int frames) in programs)
         {
             ushort pointer = SporeSpawnNativeListAddresses.BodyEntry(program);
@@ -142,7 +142,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
     private static SporeSpawnProgramFrame CaptureSporeSpawnProgramFrame(
         RoomEnemySystem system, RoomEnemyPlace place, Dictionary<SporeSpawnBodySegment, NativeEnemyList<SporeSpawnBodySegment>> steps)
     {
-        SporeSpawnEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<SporeSpawnEntity>(place).State;
+        SporeSpawnEnemyState state = place.RequireSpeciesState<SporeSpawnEnemyState>();
         var properties = new SuperMetroid.AssetExtraction.Enemies.EnemyPropertyState(
             place.Contact, place.Processing, place.Presence, place.CollidesByFrameHitboxes, place.AnimationClock.ShowsNewFrame);
         return new SporeSpawnProgramFrame(

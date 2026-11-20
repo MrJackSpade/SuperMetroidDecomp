@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>The nuclear waffle species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySettingsFactory<NuclearWaffleSpawnSettings>
+internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.NuclearWaffle];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, NuclearWaffleSpawnSettings settings) => new NuclearWaffleEntity(this, occupant, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new NuclearWaffleEntity(this, occupant, place, common));
 
     /// <summary>Allocates the collidable links in the articulated body.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -32,8 +32,9 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySettingsFacto
     }
 
     /// <summary>Initializes the Nuclear Waffle.</summary>
-    internal NuclearWaffleEnemyState InitializeNuclearWaffle(RoomEnemyOccupant occupant, RoomEnemyPlace place, NuclearWaffleSpawnSettings settings)
+    internal void InitializeNuclearWaffle(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
+        NuclearWaffleSpawnSettings settings = occupant.SpawnSettings<NuclearWaffleSpawnSettings>();
         NuclearWaffleSweepDefinition sweep = settings.Sweep;
 
         // The head starts on the orbit at the sweep's start angle around the placement, and every link spawns there.
@@ -42,7 +43,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySettingsFacto
         Position16<RoomPixels> initialHead = place.Position.Whole;
         SpriteGraphics graphics = SpriteGraphics.SpawnedBy(occupant, place.Shading);
 
-        var state = new NuclearWaffleEnemyState(NuclearWaffleAction.Waiting, settings)
+        var state = new NuclearWaffleEnemyState(NuclearWaffleAction.Waiting)
         {
             ProjectileLinks = SpawnNuclearWaffleProjectileLinks(place, initialHead, graphics),
             SpriteLinks = SpawnNuclearWaffleSpriteLinks(place, graphics),
@@ -51,12 +52,12 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySettingsFacto
             Origin = origin,
             Graphics = graphics,
         };
+        place.SetSpeciesState(state);
         state.Playback = EnemyAnimationPlayback.Start(place, NuclearWaffleAnimations.StartingWith(NuclearWaffleSegment.BodyLoop));
-        return state;
     }
 
     /// <summary>Runs the Nuclear Waffle's main AI.</summary>
-    internal void RunNuclearWaffleMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, NuclearWaffleEnemyState state)
+    private void RunNuclearWaffleMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, NuclearWaffleEnemyState state)
     {
         switch (state.Action)
         {
@@ -82,7 +83,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySettingsFacto
         if (!state.WaitingTimer.Step())
             return;
 
-        NuclearWaffleSpawnSettings settings = state.Settings;
+        NuclearWaffleSpawnSettings settings = occupant.SpawnSettings<NuclearWaffleSpawnSettings>();
         state.WaitingTimer = UpdateCountdown.For(settings.WaitTime + EnemyWaitDefinitions.RunOutUpdate);
         state.SweepAngle = settings.Sweep.StartAngle;
         state.Action = NuclearWaffleAction.Sweeping;
@@ -93,7 +94,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySettingsFacto
     /// <summary>Runs a sweep: the head and every link stand on the orbit of the spawn settings' radius.</summary>
     private void RunNuclearWaffleSweep(RoomEnemyOccupant occupant, RoomEnemyPlace place, NuclearWaffleEnemyState state)
     {
-        NuclearWaffleSpawnSettings settings = state.Settings;
+        NuclearWaffleSpawnSettings settings = occupant.SpawnSettings<NuclearWaffleSpawnSettings>();
         NuclearWaffleOrientation headOrientation = GetNuclearWaffleOrientation(
             settings,
             state.CurrentAngle);
@@ -128,12 +129,12 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySettingsFacto
     {
         // Each link is spawned for its own place along the waffle's arm, in the order the update later
         // walks them from the last.
-        // A link the pool has no place for is not spawned, and the arm goes on without it.
-        var links = new List<NuclearWaffleLink<EnemyProjectile>>(NuclearWaffleDefinitions.ProjectileLinks);
-        for (int segmentIndex = 0; segmentIndex < NuclearWaffleDefinitions.ProjectileLinks; segmentIndex++)
+        var links = new NuclearWaffleLink<EnemyProjectile>[NuclearWaffleDefinitions.ProjectileLinks];
+        for (int segmentIndex = 0; segmentIndex < links.Length; segmentIndex++)
         {
-            if (_projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.NuclearWaffleBody, EnemyProjectileBehavior.Still, graphics) is not { } segment)
-                continue;
+            EnemyProjectile? segment = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.NuclearWaffleBody, EnemyProjectileBehavior.Still, graphics);
+            if (segment is null)
+                throw new InvalidOperationException("Nuclear Waffle exhausted the enemy-projectile pool during room load.");
 
             // The link starts as its definition has it: its animation, size and damage. It then starts at the head
             // as one link of the body, which shots cannot destroy.
@@ -142,9 +143,9 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySettingsFacto
             // The links stop shots without being destroyed: a beam that strikes one is a dud, and the link
             // stays rather than playing its definition's destruction.
             segment.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;
-            links.Add(new NuclearWaffleLink<EnemyProjectile>(segment));
+            links[segmentIndex] = new NuclearWaffleLink<EnemyProjectile>(segment);
         }
-        return [.. links];
+        return links;
     }
 
     /// <summary>Allocates the noncolliding sprite links that interleave with projectile links, each at the head.</summary>
@@ -287,14 +288,21 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySettingsFacto
         origin + EnemyMath.CircleOffset(angle.ToRotationAngle().ToTrigonometryAngle(), radius);
 
     /// <summary>Advances the Nuclear Waffle's typed animation.</summary>
-    internal static void AdvanceNuclearWaffleTypedAnimation(RoomEnemyPlace place, NuclearWaffleEnemyState state, EnemyAnimationCueContext _)
+    internal static void AdvanceNuclearWaffleTypedAnimation(RoomEnemyPlace place)
     {
         if (!place.AnimationClock.Expire())
             return;
+        NuclearWaffleEnemyState state = place.SpeciesState<NuclearWaffleEnemyState>() ?? throw new InvalidOperationException(
+            $"Enemy place {place.Ordinal} has no initialized Nuclear Waffle state.");
         AnimationPlayback<NuclearWaffleSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, NuclearWaffleAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"Nuclear Waffle's cue-free animation raised {cue}."));
         state.Playback = playback;
     }
 
+    /// <summary>Runs the Nuclear Waffle's main AI.</summary>
+    internal void RunNuclearWaffleMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    {
+        RunNuclearWaffleMain(occupant, place, place.RequireSpeciesState<NuclearWaffleEnemyState>());
+    }
 }

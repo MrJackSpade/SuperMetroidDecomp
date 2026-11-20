@@ -9,9 +9,9 @@ internal static class CollectibleBlockPairKeys
     /// <summary>Each block pair's installed key.</summary>
     internal static InstalledKeys<CollectibleBlockPairs.Pair> Installed { get; } = new(new Dictionary<CollectibleBlockPairs.Pair, string>
     {
-        [CollectibleBlockPairs.Pair.First] = "First",
-        [CollectibleBlockPairs.Pair.Second] = "Second",
-        [CollectibleBlockPairs.Pair.Third] = "Third",
-        [CollectibleBlockPairs.Pair.Fourth] = "Fourth",
+        [CollectibleBlockPairs.Pair.Solid] = "Solid",
+        [CollectibleBlockPairs.Pair.FirstDoor] = "FirstDoor",
+        [CollectibleBlockPairs.Pair.SecondDoor] = "SecondDoor",
+        [CollectibleBlockPairs.Pair.ThirdDoor] = "ThirdDoor",
     });
 }

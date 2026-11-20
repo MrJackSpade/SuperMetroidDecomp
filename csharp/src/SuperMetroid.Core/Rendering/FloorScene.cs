@@ -26,7 +26,7 @@ public sealed class FloorScene : DisplayScene
     /// <param name="gradient">The gradient drawn over the floor, the backdrop and the sprites, or null for none.</param>
     /// <exception cref="ArgumentNullException"><paramref name="paint"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is out of range.</exception>
-    public FloorScene(FramePaint paint, PlacedFloor? floor, int brightness, ScreenGradientLayer? gradient = null)
+    public FloorScene(FramePaint paint, PlacedFloor? floor, DisplayBrightness brightness, ScreenGradientLayer? gradient = null)
         : base(brightness)
     {
         Paint = Ensure.NotNull(paint);
@@ -38,6 +38,6 @@ public sealed class FloorScene : DisplayScene
     public override void DrawWith<TDrawer>(TDrawer drawer) => drawer.DrawTurningFloor(this);
 
     /// <inheritdoc/>
-    internal override DisplayScene AtBrightness(int brightness) =>
+    internal override DisplayScene AtBrightness(DisplayBrightness brightness) =>
         brightness == Brightness ? this : new FloorScene(Paint, Floor, brightness, Gradient);
 }

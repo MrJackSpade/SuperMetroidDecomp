@@ -40,12 +40,14 @@ internal static class HopperHopArcVerification
             // The hopper reads its surface from its placement (#2474).
             place.SetSpawnSettings(new HopperSpawnSettings(HopperSurface.Floor));
             // The hop's two halves are its two actions (#2473).
-            var state = place.SetUpPlaced<HopperEnemyState>();
-            state.Action = falling ? HopperAction.Returning : HopperAction.HoppingAway;
-            state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(start);
-            state.YSpeedCurvePlaceStep = QuadraticSpeedCurvePlace.FromMarks(step);
+            var state = new HopperEnemyState(falling ? HopperAction.Returning : HopperAction.HoppingAway)
+            {
+                YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(start),
+                YSpeedCurvePlaceStep = QuadraticSpeedCurvePlace.FromMarks(step),
+            };
+            place.SetSpeciesState(state);
 
-            enemies.HoppersBehavior.RunHoppersMainAi(place.HeldOccupant(), place, place.RequireSpeciesState<HopperEnemyState>(), frame);
+            enemies.HoppersBehavior.RunHoppersMainAi(place.HeldOccupant(), place, frame);
 
             string context = $"Hopper {(falling ? "returning" : "rising")} from record {start} by {step}";
             AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected), state.YSpeedCurvePlace, context);

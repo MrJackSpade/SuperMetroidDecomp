@@ -218,10 +218,10 @@ internal static class EndingPictureSheetComposer
     {
         ImportEndingObjectArtwork objects = sources.EndingObjects;
         var characters = new Characters(RoomTileCanvas.TwoBppCharacterBytes);
-        characters.Load(0, objects.PostCreditsFragmentA.Characters.Span[..EndingTransferExtentDefinitions.PostCreditsFragmentABytes]);
+        characters.Load(0, objects.TransformationCharacters.Characters.Span[..EndingTransferExtentDefinitions.TransformationCharacterBytes]);
         var canvas = new RoomTileCanvas(ScreenSize);
         RgbColor[] colours = Colours(sources, EndingPaletteId.PostCredits);
-        PaintMap(canvas, 0, objects.PostCreditsFragmentB.Tiles.Span, characters, colours);
+        PaintMap(canvas, 0, objects.TransformationMap.Tiles.Span, characters, colours);
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
             [EndingPictureNames.WavySamus] = WrittenPictureSheetComposer.Frame(canvas, 0, ScreenCells, SpriteImageColours.TwoBppBackground),

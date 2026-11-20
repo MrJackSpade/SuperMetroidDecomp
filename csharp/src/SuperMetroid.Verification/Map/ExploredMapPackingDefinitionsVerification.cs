@@ -101,7 +101,7 @@ internal static class ExploredMapPackingDefinitionsVerification
         var saves = new SaveSlotStore(original);
         saves.SaveSlot(SaveSlot.A, snapshot);
 
-        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saves);
+        var game = new SuperMetroidGame(saves);
         game.BindArtwork(InstalledFixtures.GameArtwork with
         {
             ScreenContent = original,

@@ -136,7 +136,7 @@ public static class MapPresentationFiles
                 Page(MapTileAtlasFormat.FileName, "map tile atlas", s => MapTileCharacters.Read(s)),
                 Page(HudTileAtlasFormat.FileName, "HUD tile atlas", s => HudTileAtlasPng.Read(s)),
                 Page(PauseTileAtlasFormat.FileName, "pause artwork", s => MapTileCharacters.Read(s))),
-            Pages<MapSpriteArtwork>([MapSpriteFormat.JsonFile, MapSpriteFormat.PngFile], "map sprites", s => MapSpriteArtwork.Read(s[0], s[1])),
+            Pages<MapSpriteCompositions>([MapSpriteFormat.JsonFile, MapSpriteFormat.PngFile], "map sprites", s => MapSpriteArtwork.Read(s[0], s[1])),
             Page(EscapeTimerTileAtlasFormat.FileName, "escape timer artwork", s => EscapeTimerCharacters.Read(s)),
             Page(RoomFxBlockAnimationAtlasFile.FileName, "room-FX presentation", s => RoomFxBlockAnimationAtlasPng.Read(s)),
             Pages<WorldMapCharacters>([WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.BackgroundFile],
@@ -320,18 +320,21 @@ public static class MapPresentationFiles
     {
         /// <summary>Root of the installed map presentation files.</summary>
         private readonly string directory;
-        /// <summary>Whose read this is: the game's, which reads no import data, or the import's, with its import data and manifest.</summary>
-        private readonly MapRead reading;
+        /// <summary>The component's import-data directory holding its pages and import colours, for the import's read; none for the game's.</summary>
+        private readonly string? importData;
+        /// <summary>The extraction manifest, which lists every file the import's read reads; none for the game's read.</summary>
+        private readonly AreaMapCatalogManifest? manifest;
         /// <summary>Names actually read during this catalog load.</summary>
         private readonly HashSet<string> read = new(StringComparer.Ordinal);
         /// <summary>Buffers retained only for one load and returned to the shared pool on disposal.</summary>
         private readonly List<byte[]> rented = [];
 
         /// <summary>Starts a manifest-bound read session in the installed directory and, for the import, its import data.</summary>
-        private InstalledMapReader(string directory, MapRead reading)
+        private InstalledMapReader(string directory, string? importData, AreaMapCatalogManifest? manifest)
         {
             this.directory = directory;
-            this.reading = reading;
+            this.importData = importData;
+            this.manifest = manifest;
         }
 
         /// <summary>
@@ -342,17 +345,18 @@ public static class MapPresentationFiles
         public static InstalledMapReader Open(string directory, string? importData)
         {
             if (importData is null)
-                return new InstalledMapReader(directory, MapRead.Game.Instance);
+                return new InstalledMapReader(directory, importData: null, manifest: null);
             AreaMapCatalogManifest manifest;
             try
             {
                 manifest = JsonAssetDocument.Read<AreaMapCatalogManifest>(
-                    File.ReadAllBytes(Path.Combine(importData, AreaMapCatalogFormat.ManifestFile)), ArtworkJson.Options);
+                    File.ReadAllBytes(Path.Combine(importData, AreaMapCatalogFormat.ManifestFile)), ArtworkJson.Options)
+                    ?? throw new InvalidDataException("Map catalog manifest is null.");
             }
             catch (JsonException error) { throw new InvalidDataException($"Invalid map catalog manifest in {importData}.", error); }
             if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.All.Count + AreaMapCatalogFormat.SharedResourceCount)
                 throw new InvalidDataException($"Map catalog manifest must contain the supported version, seven maps and all {AreaMapCatalogFormat.SharedResourceCount} shared presentation resources.");
-            return new InstalledMapReader(directory, new MapRead.Import(importData, manifest));
+            return new InstalledMapReader(directory, importData, manifest);
         }
 
         /// <summary>The full path of a file, for diagnostics: an import-data file's in the import data, an installed document's in the directory.</summary>
@@ -364,13 +368,12 @@ public static class MapPresentationFiles
         /// </summary>
         /// <exception cref="InvalidOperationException">The file is import data and this read is the game's, which reads none.</exception>
         private string DirectoryOf(string file) => !ImportDataFiles.Contains(file) ? directory
-            : reading is MapRead.Import import ? import.ImportData
-            : throw new InvalidOperationException($"The game's read of the map presentation reads no import data, but {file} was asked for.");
+            : importData ?? throw new InvalidOperationException($"The game's read of the map presentation reads no import data, but {file} was asked for.");
 
         /// <summary>Rents a buffer and reads one listed file into it.</summary>
         public ArraySegment<byte> Read(string file)
         {
-            if (reading is MapRead.Import import && !import.Manifest.Sha256.ContainsKey(file))
+            if (manifest is not null && !manifest.Sha256.ContainsKey(file))
                 throw new InvalidDataException($"Map catalog manifest is missing {file}.");
             using var input = File.OpenRead(Path.Combine(DirectoryOf(file), file));
             int length = checked((int)input.Length);
@@ -415,28 +418,11 @@ public static class MapPresentationFiles
         /// <exception cref="InvalidOperationException">This read is the game's, which opens no manifest.</exception>
         public void RequireAllManifestFilesRead()
         {
-            if (reading is not MapRead.Import import)
-                throw new InvalidOperationException("The game's read of the map presentation opens no manifest.");
-            AreaMapCatalogManifest listing = import.Manifest;
+            AreaMapCatalogManifest listing = manifest
+                ?? throw new InvalidOperationException("The game's read of the map presentation opens no manifest.");
             string[] unread = listing.Sha256.Keys.Where(file => !read.Contains(file)).ToArray();
             if (unread.Length > 0)
                 throw new InvalidDataException($"Map catalog manifest lists files the catalog never reads: {string.Join(", ", unread)}.");
-        }
-
-        /// <summary>Whose read a session is.</summary>
-        private abstract record MapRead
-        {
-            /// <summary>The game's read, which reads the installed documents alone: no import data and no manifest (#1693).</summary>
-            internal sealed record Game : MapRead
-            {
-                /// <summary>The game's one read.</summary>
-                internal static Game Instance { get; } = new();
-            }
-
-            /// <summary>The import's read, of the component's import data, bound to its extraction manifest.</summary>
-            /// <param name="ImportData">The component's import-data directory holding its pages and import colours.</param>
-            /// <param name="Manifest">The extraction manifest, which lists every file the import's read reads.</param>
-            internal sealed record Import(string ImportData, AreaMapCatalogManifest Manifest) : MapRead;
         }
     }
 }

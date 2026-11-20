@@ -37,7 +37,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             PhantoonSourceDefinitions.PowerOnColourCount, color => native.ResolvePowerOnAtNative(color), "power-on"));
         for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
         for (int color = 0; color < PhantoonColorFormat.HealthBandColorCount; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     PhantoonSourceDefinitions.HealthBandColors +
                     (band * PhantoonColorFormat.HealthBandColorCount + color) *
                         sizeof(ushort)),
@@ -150,7 +150,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         void VerifyBand(int source, int count, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < count; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     source + color * sizeof(ushort)), resolve(color),
                     $"installed Phantoon {name} color {color} preserves native RGB5");
         }

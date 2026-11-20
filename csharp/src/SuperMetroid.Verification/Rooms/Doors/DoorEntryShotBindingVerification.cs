@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
@@ -37,9 +36,9 @@ internal static class DoorEntryShotBindingVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.Options.ControllerBindings = lowc;
-            var samus = runtime.Player.Samus;
+            var samus = runtime.Player.IntroducedSamus;
             samus.Control.LockOutPlayer();
             game.AdoptRuntime(runtime);
             global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));

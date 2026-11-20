@@ -23,6 +23,6 @@ internal static class EnemyGrappleResponseWords
     /// <summary>The grapple words naming no reaction (#2283): zero, and the elevator's own routine, whose behaviour carries on.</summary>
     private static readonly HashSet<ushort> NoReaction = [0x0000, 0x952a];
 
-    /// <summary>The reaction an enemy header's grapple word names, or <see cref="GrappleEnemyReaction.NamesNoReaction"/> for a word that names none.</summary>
-    internal static GrappleEnemyReaction Decode(ushort word) => NoReaction.Contains(word) ? GrappleEnemyReaction.NamesNoReaction : Reactions.Decode(word, "grapple response");
+    /// <summary>The reaction an enemy header's grapple word names, or <see cref="GrappleEnemyReaction.Unreactive"/> for a word that names none.</summary>
+    internal static GrappleEnemyReaction Decode(ushort word) => NoReaction.Contains(word) ? GrappleEnemyReaction.Unreactive : Reactions.Decode(word, "grapple response");
 }

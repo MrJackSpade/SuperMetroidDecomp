@@ -55,6 +55,6 @@ internal static class BabyMetroidRouteDefinitionsVerification
 
     /// <summary>Reads one native route word solely as the verification oracle.</summary>
     internal static ushort ReadRomWord(CartridgeImportAddressSpace bus, int address) =>
-        bus.ReadCartridgeWord(address);
+        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
 }

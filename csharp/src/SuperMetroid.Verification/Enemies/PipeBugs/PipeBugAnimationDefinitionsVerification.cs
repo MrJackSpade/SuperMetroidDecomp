@@ -28,7 +28,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                 : EnemyDefinitionId.Zeb, initializedPlace.KeptDefinition);
             initializedPlace.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? (ushort)1 : (ushort)0);
             initializedPlace.Position = initializedPlace.Position.WithWhole(new(0x0100, 0x0080));
-            PipeBugsBehavior.InitializeBrinstarPipeBug(initializedPlace, initializedPlace.SpawnSettings<BrinstarPipeBugSpawnSettings>());
+            PipeBugsBehavior.InitializeBrinstarPipeBug(initializedPlace.HeldOccupant(), initializedPlace);
             AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(
                     PipeBugAnimationChoices.Rising(kind, HorizontalDirection.Left)), AnimationPlace.StartOfAnimation),
                 (initializedEnemies.BrinstarPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires a Pipe Bug state.")).Playback,
@@ -37,12 +37,12 @@ internal static class PipeBugAnimationDefinitionsVerification
             for (int index = 0; index < 4; index++)
             {
                 PipeBugSegment selector = PipeBugsNativeWords.BrinstarAnimations(kind).Decode(index, "Pipe Bug animation index");
-                ushort expected = rom.ReadCartridgeWord(((strong ? strongTable : normalTable) + index * 2));
+                ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(((strong ? strongTable : normalTable) + index * 2));
                 AssertEqual(expected,
                     NativeEnemyAnimationOracle.EntryOf(PipeBugNativeListAddresses.Entries, selector),
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");
 
-                var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers()).WithAnimationClock(hold: 0x2222);
+                var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()).WithAnimationClock(hold: 0x2222);
                 PipeBugSegment playing = selector == PipeBugAnimationChoices.Rising(kind, HorizontalDirection.Left)
                     ? PipeBugAnimationChoices.Shooting(kind, HorizontalDirection.Left)
                     : PipeBugAnimationChoices.Rising(kind, HorizontalDirection.Left);

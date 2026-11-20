@@ -28,12 +28,6 @@ internal static class RoomBlockSheetComposer
     /// <summary>Pictures across one row of a sheet.</summary>
     private const int SheetColumns = 32;
 
-    /// <summary>
-    /// The palette index of the colour a tileset's rooms show where nothing is drawn: the background half's first, which
-    /// the room's colour effects change as they change its tiles' colours (#1544).
-    /// </summary>
-    private const int RoomBackdropIndex = 0;
-
     /// <summary>Composes every tileset's sheet, picturing the blocks <paramref name="inventory"/> finds its rooms show and no other (#1636).</summary>
     internal static RoomSheetComposition Compose(RoomBlockSheetInputs inputs, RoomBlockInventory inventory)
     {
@@ -247,12 +241,15 @@ internal static class RoomBlockSheetComposer
         }
         ComposedSpriteSheet sheet = canvas.ToSplitRoomSheet(colours, frames, RoomTileCanvas.EveryFrame(frames));
         // The tileset's rooms show its first background colour where nothing is drawn (#1544).
-        return new ComposedBlocks(sheet with { Manifest = sheet.Manifest with { Backdrop = RoomBackdropIndex } },
+        return new ComposedBlocks(sheet with { Manifest = sheet.Manifest with { Backdrop = GameplayColourPositionDefinitions.RoomBackdrop } },
             new RoomBlockAppearances(inputsByBlock, shownBlocks), cells);
 
         // Adds a picture of block `block` for each assignment of values to the inputs `candidates` give the runs of characters
         // `runs` it reads, over what `over` shows where an input shows the load; returns those inputs. A block one of whose
         // runs shows nothing for an assignment is not pictured for it.
+        // A block's number is its place in the tileset's own authored block list, which every installed level document
+        // references the block by, as an animation frame's place in its own animation names the frame (owner ruling on
+        // #2556): the block's pictures are named by it.
         ImmutableArray<AppearanceInput> AddBlock(int block, ImmutableArray<RoomBlockCharacterRun> runs, BackgroundTile[] tiles,
             AppearanceOptions candidates, BgArtworkBindings over)
         {

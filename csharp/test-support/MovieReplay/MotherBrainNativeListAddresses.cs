@@ -91,33 +91,16 @@ internal static class MotherBrainNativeListAddresses
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.TwoOnionRingsPhase2, 0x9d7f),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.OnionRingShotPhase2, 0x9d99),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.OnionRingVolleyEndPhase2, 0x9da1),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.AttackingBabyMetroid, 0x9db1),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3, 0x9dbb),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.FourOnionRingsPhase3, 0x9dc1),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.OnionRingShotPhase3, 0x9dd5),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.OnionRingVolleyEndPhase3, 0x9de7),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.BombPhase2, 0x9ecc),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.BombPhase3, 0x9f00),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.Laser, 0x9f34),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.ChargingRainbowBeam, 0x9f6c),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.ChargingRainbowBeamLoop, 0x9f7a),
-    ];
-
-    /// <summary>Each program of her late fight's volley at Samus, by its native entry point in bank $A9 (#2554).</summary>
-    internal static readonly NativeProgramEntry<MotherBrainLateFightHeadSegment>[] LateFightEntries =
-    [
-        new NativeProgramEntry<MotherBrainLateFightHeadSegment>(MotherBrainLateFightHeadSegment.NeutralPhase3, 0x9cb9),
-        new NativeProgramEntry<MotherBrainLateFightHeadSegment>(MotherBrainLateFightHeadSegment.NeutralPhase3Hold, 0x9cd1),
-        new NativeProgramEntry<MotherBrainLateFightHeadSegment>(MotherBrainLateFightHeadSegment.AttackingSamusFourOnionRingsPhase3, 0x9dbb),
-        new NativeProgramEntry<MotherBrainLateFightHeadSegment>(MotherBrainLateFightHeadSegment.FourOnionRingsPhase3, 0x9dc1),
-        new NativeProgramEntry<MotherBrainLateFightHeadSegment>(MotherBrainLateFightHeadSegment.OnionRingShotPhase3, 0x9dd5),
-        new NativeProgramEntry<MotherBrainLateFightHeadSegment>(MotherBrainLateFightHeadSegment.OnionRingVolleyEndPhase3, 0x9de7),
-    ];
-
-    /// <summary>Each program of her volley at the arrived Baby, by its native entry point in bank $A9 (#2554).</summary>
-    internal static readonly NativeProgramEntry<MotherBrainBabyAttackSegment>[] BabyAttackEntries =
-    [
-        new NativeProgramEntry<MotherBrainBabyAttackSegment>(MotherBrainBabyAttackSegment.NeutralPhase3, 0x9cb9),
-        new NativeProgramEntry<MotherBrainBabyAttackSegment>(MotherBrainBabyAttackSegment.NeutralPhase3Hold, 0x9cd1),
-        new NativeProgramEntry<MotherBrainBabyAttackSegment>(MotherBrainBabyAttackSegment.AttackingBabyMetroid, 0x9db1),
-        new NativeProgramEntry<MotherBrainBabyAttackSegment>(MotherBrainBabyAttackSegment.FourOnionRingsPhase3, 0x9dc1),
-        new NativeProgramEntry<MotherBrainBabyAttackSegment>(MotherBrainBabyAttackSegment.OnionRingShotPhase3, 0x9dd5),
-        new NativeProgramEntry<MotherBrainBabyAttackSegment>(MotherBrainBabyAttackSegment.OnionRingVolleyEndPhase3, 0x9de7),
     ];
 
     /// <summary>Each cutscene Baby program's native entry point in bank $A9.</summary>
@@ -177,18 +160,24 @@ internal static class MotherBrainNativeListAddresses
         [0x9b05] = new BodyOp(0, _ => B.AdvanceHandBeamPhase),
     };
 
-    /// <summary>The bank-$A9 brain opcodes that become a single cue every brain animation raises alike, with their operand words.</summary>
+    /// <summary>The bank-$A9 brain opcodes that become a single cue, with their operand words.</summary>
     private static readonly Dictionary<ushort, HeadCueOp> HeadCueOps = new()
     {
+        [0x9ea3] = new HeadCueOp(0, _ => H.Of(K.CountBabyMetroidAttack)),
+        [0x9eb5] = new HeadCueOp(0, _ => H.Of(K.ResetBabyMetroidAttacks)),
         [0x9b20] = new HeadCueOp(0, _ => H.Of(K.DisableNeckMovement)),
+        [0x9e37] = new HeadCueOp(0, _ => H.Of(K.AimOnionRingsAtBabyMetroid)),
         [0x9e5b] = new HeadCueOp(0, _ => H.Of(K.AimOnionRingsAtSamus)),
+        [0x9df7] = new HeadCueOp(0, _ => H.Of(K.QueueBabyMetroidAttackSound)),
         [0x9e29] = new HeadCueOp(0, _ => H.Of(K.SpawnOnionRing)),
         [0x9b32] = new HeadCueOp(1, operands => H.Sound(SoundEffectCommands.Decode(SoundEffectLibrary.Room, operands[0]))),
         [0x9b28] = new HeadCueOp(1, operands => H.Sound(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0]))),
         [0x9ebd] = new HeadCueOp(1, operands => H.Bomb(operands[0])),
         [0x9b6d] = new HeadCueOp(0, _ => H.Of(K.SpawnBigPurpleBreath)),
+        [0x9d0d] = new HeadCueOp(0, _ => H.Of(K.MaybeHoldNeutralPhase3)),
         [0x9b3c] = new HeadCueOp(0, _ => H.Of(K.SpawnDrool)),
         [0x9b77] = new HeadCueOp(0, _ => H.Of(K.ShakeBrain)),
+        [0x9cad] = new HeadCueOp(0, _ => H.Of(K.MaybeHoldNeutralPhase2)),
         [0x9f46] = new HeadCueOp(0, _ => H.Of(K.SpawnLaser)),
         [0x9f84] = new HeadCueOp(0, _ => H.Of(K.SpawnRainbowBeamChargeParticle)),
         [0x9f8e] = new HeadCueOp(0, _ => H.Of(K.PrepareRainbowBeamCharge)),
@@ -418,60 +407,20 @@ internal static class MotherBrainNativeListAddresses
         BodyOps.ToDictionary(pair => pair.Key, pair => new NativeListOp<MotherBrainBodySegment, B>(
             pair.Value.Operands, (operands, _) => new([pair.Value.Cue(operands)], null)));
 
-    /// <summary>Her head's own brain opcodes: single events, its hold chances, and the gotos that end a list.</summary>
-    private static Dictionary<ushort, NativeListOp<MotherBrainHeadSegment, MotherBrainBrainCue<MotherBrainHeadChanceCueKind>>> HeadNativeOps { get; } =
-        BuildHeadNativeOps();
+    /// <summary>The brain opcodes: single events, and the gotos that end a list.</summary>
+    private static Dictionary<ushort, NativeListOp<MotherBrainHeadSegment, H>> HeadNativeOps { get; } = BuildHeadNativeOps();
 
-    /// <summary>Her late fight's volley's opcodes at Samus: the shared events, its own cues and the gotos (#2554).</summary>
-    private static Dictionary<ushort, NativeListOp<MotherBrainLateFightHeadSegment, MotherBrainBrainCue<MotherBrainLateFightCueKind>>> LateFightNativeOps { get; } =
-        BrainNativeOps<MotherBrainLateFightHeadSegment, MotherBrainLateFightCueKind>(new Dictionary<ushort, MotherBrainLateFightCueKind>
-        {
-            [0x9eb5] = MotherBrainLateFightCueKind.ResetBabyMetroidAttacks,
-            [0x9df7] = MotherBrainLateFightCueKind.QueueBabyMetroidAttackSound,
-            [0x9d0d] = MotherBrainLateFightCueKind.MaybeHoldNeutralPhase3,
-        });
-
-    /// <summary>Her volley's opcodes at the arrived Baby: the shared events, its own cues and the gotos (#2554).</summary>
-    private static Dictionary<ushort, NativeListOp<MotherBrainBabyAttackSegment, MotherBrainBrainCue<MotherBrainBabyAttackCueKind>>> BabyAttackNativeOps { get; } =
-        BrainNativeOps<MotherBrainBabyAttackSegment, MotherBrainBabyAttackCueKind>(new Dictionary<ushort, MotherBrainBabyAttackCueKind>
-        {
-            [0x9ea3] = MotherBrainBabyAttackCueKind.CountBabyMetroidAttack,
-            [0x9e37] = MotherBrainBabyAttackCueKind.AimOnionRingsAtBabyMetroid,
-            [0x9df7] = MotherBrainBabyAttackCueKind.QueueBabyMetroidAttackSound,
-            [0x9d0d] = MotherBrainBabyAttackCueKind.MaybeHoldNeutralPhase3,
-        });
-
-    /// <summary>Adds the dying-drool pick to her head's own opcodes.</summary>
-    private static Dictionary<ushort, NativeListOp<MotherBrainHeadSegment, MotherBrainBrainCue<MotherBrainHeadChanceCueKind>>> BuildHeadNativeOps()
+    /// <summary>Adds <c>MotherBrain_GotoX</c>, the neck-enabling goto and the dying-drool pick to the brain's event opcodes.</summary>
+    private static Dictionary<ushort, NativeListOp<MotherBrainHeadSegment, H>> BuildHeadNativeOps()
     {
-        Dictionary<ushort, NativeListOp<MotherBrainHeadSegment, MotherBrainBrainCue<MotherBrainHeadChanceCueKind>>> ops =
-            BrainNativeOps<MotherBrainHeadSegment, MotherBrainHeadChanceCueKind>(new Dictionary<ushort, MotherBrainHeadChanceCueKind>
-            {
-                [0x9cad] = MotherBrainHeadChanceCueKind.MaybeHoldNeutralPhase2,
-                [0x9d0d] = MotherBrainHeadChanceCueKind.MaybeHoldNeutralPhase3,
-            });
-        // $A9:9C65, MotherBrainHead_GotoDyingDroolInstList: it picks the burst or the loop itself.
-        ops[0x9c65] = new(0, (_, _) => new([new MotherBrainBrainCue<MotherBrainHeadChanceCueKind>.Own(MotherBrainHeadChanceCueKind.MaybeDroolAgain)],
-            MotherBrainHeadSegment.DyingDroolLoop));
-        return ops;
-    }
-
-    /// <summary>
-    /// A brain catalog's opcodes: the shared single events, <paramref name="own"/>'s operandless own cues, <c>MotherBrain_GotoX</c>
-    /// and the neck-enabling goto.
-    /// </summary>
-    private static Dictionary<ushort, NativeListOp<TSegment, MotherBrainBrainCue<TOwn>>> BrainNativeOps<TSegment, TOwn>(IReadOnlyDictionary<ushort, TOwn> own)
-        where TSegment : struct, Enum
-        where TOwn : struct, Enum
-    {
-        var ops = HeadCueOps.ToDictionary(pair => pair.Key, pair => new NativeListOp<TSegment, MotherBrainBrainCue<TOwn>>(
-            pair.Value.Operands, (operands, _) => new([new MotherBrainBrainCue<TOwn>.Shared(pair.Value.Cue(operands))], null)));
-        foreach (KeyValuePair<ushort, TOwn> pair in own)
-            ops.Add(pair.Key, new(0, (_, _) => new([new MotherBrainBrainCue<TOwn>.Own(pair.Value)], null)));
+        var ops = HeadCueOps.ToDictionary(pair => pair.Key, pair => new NativeListOp<MotherBrainHeadSegment, H>(
+            pair.Value.Operands, (operands, _) => new([pair.Value.Cue(operands)], null)));
         // $A9:9B0F, MotherBrain_GotoX.
         ops[0x9b0f] = new(1, (operands, segmentAt) => new([], segmentAt(operands[0])));
         // $A9:9B14, MotherBrainHead_EnableNeckMovement_GotoX.
-        ops[0x9b14] = new(1, (operands, segmentAt) => new([new MotherBrainBrainCue<TOwn>.Shared(H.Of(K.EnableNeckMovement))], segmentAt(operands[0])));
+        ops[0x9b14] = new(1, (operands, segmentAt) => new([H.Of(K.EnableNeckMovement)], segmentAt(operands[0])));
+        // $A9:9C65, MotherBrainHead_GotoDyingDroolInstList: it picks the burst or the loop itself.
+        ops[0x9c65] = new(0, (_, _) => new([H.Of(K.MaybeDroolAgain)], MotherBrainHeadSegment.DyingDroolLoop));
         return ops;
     }
 
@@ -531,32 +480,11 @@ internal static class MotherBrainNativeListAddresses
         MotherBrainHeadSegment.CorpseHeld,
         MotherBrainHeadSegment.OnionRingShotPhase2,
         MotherBrainHeadSegment.OnionRingVolleyEndPhase2,
+        MotherBrainHeadSegment.FourOnionRingsPhase3,
+        MotherBrainHeadSegment.OnionRingShotPhase3,
+        MotherBrainHeadSegment.OnionRingVolleyEndPhase3,
         MotherBrainHeadSegment.ChargingRainbowBeamLoop,
     ];
-
-    /// <summary>Compares her late fight's volley at Samus with its native lists (#2554); returns each segment's native list.</summary>
-    internal static Dictionary<MotherBrainLateFightHeadSegment, NativeEnemyList<MotherBrainLateFightHeadSegment>> CompareLateFight(
-        IImportCartridgeSource cartridge, IDictionary<ushort, NativeFrameShownAgain> shownAgain) =>
-        Lists(cartridge, MotherBrainBank, MotherBrainAnimations.LateFightSegments, MotherBrainAnimations.LateFightStartingAt, LateFightEntries,
-            frame => MotherBrainVisualDefinitionsConstants.Frame(frame).Pointer, LateFightNativeOps,
-            new HashSet<MotherBrainLateFightHeadSegment>
-            {
-                MotherBrainLateFightHeadSegment.FourOnionRingsPhase3, MotherBrainLateFightHeadSegment.OnionRingShotPhase3,
-                MotherBrainLateFightHeadSegment.OnionRingVolleyEndPhase3, MotherBrainLateFightHeadSegment.NeutralPhase3,
-            },
-            duration => duration + 1, shownAgain);
-
-    /// <summary>Compares her volley at the arrived Baby with its native lists (#2554); returns each segment's native list.</summary>
-    internal static Dictionary<MotherBrainBabyAttackSegment, NativeEnemyList<MotherBrainBabyAttackSegment>> CompareBabyAttack(
-        IImportCartridgeSource cartridge, IDictionary<ushort, NativeFrameShownAgain> shownAgain) =>
-        Lists(cartridge, MotherBrainBank, MotherBrainAnimations.BabyAttackSegments, MotherBrainAnimations.BabyAttackStartingAt, BabyAttackEntries,
-            frame => MotherBrainVisualDefinitionsConstants.Frame(frame).Pointer, BabyAttackNativeOps,
-            new HashSet<MotherBrainBabyAttackSegment>
-            {
-                MotherBrainBabyAttackSegment.FourOnionRingsPhase3, MotherBrainBabyAttackSegment.OnionRingShotPhase3,
-                MotherBrainBabyAttackSegment.OnionRingVolleyEndPhase3, MotherBrainBabyAttackSegment.NeutralPhase3,
-            },
-            duration => duration + 1, shownAgain);
 
     /// <summary>Compares the cutscene Baby's typed segments and animations with their native lists.</summary>
     internal static void CompareBaby(IImportCartridgeSource cartridge) =>

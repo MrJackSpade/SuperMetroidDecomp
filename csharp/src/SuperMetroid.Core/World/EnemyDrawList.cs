@@ -51,6 +51,9 @@ internal sealed class EnemyDrawList
     /// </summary>
     internal void Enqueue(RoomEnemyPlace enemy, bool reached) => _queued.Add(new QueuedEnemy(Ensure.NotNull(enemy), reached));
 
+    /// <summary>The draws <see cref="Advance"/> prepared for <see cref="Draw"/> to publish next.</summary>
+    private List<PreparedEnemyDraw>? _prepared;
+
     /// <summary>
     /// The simulation half of the enemies' draw, in queue order. For each enemy the draw pass reaches, the Puyo value its
     /// draw clears is cleared, its shake tick is consumed while its origin is formed, and its boss body frame is shown;
@@ -60,8 +63,7 @@ internal sealed class EnemyDrawList
     /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
     /// <exception cref="InvalidOperationException">No installed enemy frame displays are bound.</exception>
     /// <exception cref="InvalidDataException">A reached enemy shows no frame, or an enemy shows a frame that is not installed.</exception>
-    /// <returns>The draws prepared, which <see cref="Draw"/> publishes.</returns>
-    public PreparedEnemyDraws Advance(Position16<RoomPixels> camera)
+    public void Advance(Position16<RoomPixels> camera)
     {
         var prepared = new List<PreparedEnemyDraw>();
         foreach ((RoomEnemyPlace place, bool reached) in _queued)
@@ -111,20 +113,10 @@ internal sealed class EnemyDrawList
                 throw new InvalidDataException($"Enemy {occupant.DefinitionId} frame {shown} has no installed presentation.");
             // Only the draw pass shows a boss body frame; a frame without a body shows none.
             if (reached)
-                EnemyAnimationPlayer.DrawBossBodyFrame(place, occupant, displays.GetDisplayFrame(shown));
+                _animationPlayer.DrawBossBodyFrame(place, occupant, displays.GetDisplayFrame(shown));
             prepared.Add(new PreparedEnemyDraw(place, occupant, origin, drawShading, shown, pictured, placed?.PictureDepth));
         }
-        return new PreparedEnemyDraws(prepared);
-    }
-
-    /// <summary>The enemies' draws one <see cref="Advance"/> prepared, in queue order, for <see cref="Draw"/> to publish (#2554).</summary>
-    public sealed class PreparedEnemyDraws
-    {
-        /// <summary>Keeps <paramref name="draws"/>.</summary>
-        internal PreparedEnemyDraws(IReadOnlyList<PreparedEnemyDraw> draws) => Draws = draws;
-
-        /// <summary>The prepared draws, in queue order.</summary>
-        internal IReadOnlyList<PreparedEnemyDraw> Draws { get; }
+        _prepared = prepared;
     }
 
     /// <summary>
@@ -132,15 +124,18 @@ internal sealed class EnemyDrawList
     /// occupant's supplemental sprites are written just before its body; Mother Brain's late parts and the dead Torizo's
     /// sand heap follow every queued enemy.
     /// </summary>
-    /// <param name="prepared">The draws <see cref="Advance"/> prepared.</param>
     /// <param name="sprites">The frame's sprite description; the occupants and the late draws write its sprites.</param>
     /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
     /// <param name="samus">Samus, whom Mother Brain's brain animation reads as her late parts advance it.</param>
-    public void Draw(PreparedEnemyDraws prepared, SpriteFrameBuffer sprites, Position16<RoomPixels> camera, SamusState samus)
+    /// <exception cref="InvalidOperationException">The draws were not prepared by <see cref="Advance"/>.</exception>
+    public void Draw(SpriteFrameBuffer sprites, Position16<RoomPixels> camera, SamusState samus)
     {
-        Ensure.NotNull(prepared);
         Ensure.NotNull(sprites);
-        foreach (PreparedEnemyDraw draw in prepared.Draws)
+        if (_prepared is not { } prepared)
+            throw new InvalidOperationException("The enemies were not advanced before drawing.");
+        _prepared = null;
+
+        foreach (PreparedEnemyDraw draw in prepared)
         {
             RoomEnemyPlace place = draw.Place;
             var source = new SpriteSource(SpriteSourceKind.Enemy);
@@ -180,7 +175,7 @@ internal sealed class EnemyDrawList
     /// <param name="Pictured">Whether the frame has a sheet picture: the empty frame, a frame shown only on a boss body and
     /// a frame whose pieces show nothing have none.</param>
     /// <param name="Depth">The depth the enemy places its picture at (#2210), or null for its picture's own.</param>
-    internal readonly record struct PreparedEnemyDraw(RoomEnemyPlace Place, RoomEnemyOccupant Occupant,
+    private readonly record struct PreparedEnemyDraw(RoomEnemyPlace Place, RoomEnemyOccupant Occupant,
         Offset16<ScreenPixels> Origin, PictureShading Shading, EnemyFrameId Frame, bool Pictured, ActorDepth? Depth);
 
     /// <summary>

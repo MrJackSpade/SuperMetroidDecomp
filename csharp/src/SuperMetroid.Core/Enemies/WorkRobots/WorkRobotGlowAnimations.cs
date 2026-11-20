@@ -30,7 +30,7 @@ internal static class WorkRobotGlowAnimations
 
     /// <summary>The places the glow's steps show, in the order it shows them, from its first step.</summary>
     internal static IReadOnlyList<WorkRobotGlowPlace> Cycle { get; } =
-        Segments.FramesShownBy(WorkRobotGlowSegment.Glowing);
+        [.. Segments.Beats(WorkRobotGlowSegment.Glowing).Select(beat => beat.ShownFrame ?? throw new InvalidOperationException("Every beat of the glow shows a place."))];
 
     /// <summary>
     /// Each place the glow shows, once, in the order its cycle first shows them (#2393): the import installs one shade for

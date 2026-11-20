@@ -56,7 +56,7 @@ internal static class MapSpriteCasesVerification
         OamBuffer native; var installed = ScreenSpritesFixtures.Blank();
         foreach (var frame in MapSpriteRoleOracle())
         {
-            int pointer = MapSourceDefinitions.Menu.ObjectBank | RomDataReader.ReadWordFixedBank(bus,
+            int pointer = MapSourceDefinitions.Menu.ObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 MapSourceDefinitions.Menu.SpritemapPointers + frame.NativeId * 2);
             // Origins are signed screen pixels (#1587): an X of 511 is no longer the column left of the screen, and a Y of
             // 65535 is the line above it, whose parts the display clips rather than the sprite table culling them whole.

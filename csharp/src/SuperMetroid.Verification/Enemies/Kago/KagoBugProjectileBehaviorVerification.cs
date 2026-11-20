@@ -18,14 +18,16 @@ internal static class KagoBugProjectileBehaviorVerification
     /// <summary>Each of the bug's landing, falling and jumping programs matches its native list update for update, its cues included.</summary>
     internal static void VerifyKagoBugProjectileBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, KagoBugProjectileNativeListAddresses.Extent, "Kago bug");
         foreach (KagoBugProjectileSegment program in new[] { KagoBugProjectileSegment.Landed, KagoBugProjectileSegment.Falling, KagoBugProjectileSegment.JumpStart })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().ReadRandom = () => 1;
             // The shell releases the bug with the typed state its cues keep: the source shell and its countdowns.
-            enemies.KagoBehavior.SpawnKagoBug(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers()));
+            RoomEnemyPlace shell = enemies.Places.InUpdateOrder[0];
+            shell.Bind(EnemyDefinitionId.Kago, shell.KeptDefinition);
+            enemies.KagoBehavior.SpawnKagoBug(shell.HeldOccupant(), shell);
             EnemyProjectile bug = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.KagoBug);
             bug.StartAnimation(new KagoBugProjectileAnimation(enemies.KagoBehavior.Bug, program));
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, bug, KagoBugProjectileNativeListAddresses.Entry(program), 40, program.ToString());
@@ -76,7 +78,9 @@ internal static class KagoBugProjectileBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 1;
-        enemies.KagoBehavior.SpawnKagoBug(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers()));
+        RoomEnemyPlace shell = enemies.Places.InUpdateOrder[0];
+        shell.Bind(EnemyDefinitionId.Kago, shell.KeptDefinition);
+        enemies.KagoBehavior.SpawnKagoBug(shell.HeldOccupant(), shell);
         EnemyProjectile bug = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.KagoBug);
         SpriteGraphics spawned = bug.Graphics;
         bug.StartAnimation(new KagoBugProjectileAnimation(enemies.KagoBehavior.Bug, KagoBugProjectileSegment.Shot));

@@ -14,14 +14,14 @@ namespace SuperMetroid.Core.Frontend.Map;
 public sealed class MapHighlightAnimation
 {
     /// <summary>The cycle as it plays.</summary>
-    private readonly ShowingAnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue> player;
+    private readonly AnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue> player;
 
     /// <summary>Starts the highlight cycle at its first step, one update from its next, over the installed cycle's timing.</summary>
     /// <param name="cycle">The installed cycle's timing.</param>
     public MapHighlightAnimation(MapHighlightCycle cycle)
     {
         AnimationSegments<MapHighlightSegment, MapHighlightFrame, MapHighlightCue> segments = Segments(cycle);
-        player = ShowingAnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue>.StartShowing(segments, Cycling(segments), 1);
+        player = AnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue>.StartShowing(segments, Cycling(segments), 1);
     }
 
     /// <summary>
@@ -38,7 +38,7 @@ public sealed class MapHighlightAnimation
     public void Reset() => player.Show(player.Playback.Animation, 1);
 
     /// <summary>The frame of the cycle the highlighted sprites show.</summary>
-    internal MapHighlightFrame Frame => player.Showing;
+    private MapHighlightFrame Frame => player.Showing;
 
     /// <summary>The shading the map's highlighted sprites show (#1512, #1597): the highlight shade of the step shown.</summary>
     public PictureShading Shading => PictureShading.Shaded(MapSpriteShades.Highlight(Frame));

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -28,10 +29,10 @@ internal sealed class EndingStage
     internal EndingColours Colours => screen.Colours;
 
     /// <summary>The screen's brightness and the cadence of its fades, shared through scene and colour handoffs.</summary>
-    internal ScreenFade Fade { get; } = new(0);
+    internal ScreenFade Fade { get; } = new(DisplayBrightness.Black);
 
-    /// <summary>Master brightness during cinematic fades, from black through full.</summary>
-    internal int Brightness => Fade.Level;
+    /// <summary>The screen's brightness through the scene's fades, from black through full.</summary>
+    internal DisplayBrightness Brightness => Fade.Level;
 
     /// <summary>The turning floor's view, which the escape, the explosion and the planet escape share (#2541).</summary>
     internal EndingTurningFloor Floor { get; } = new();
@@ -57,8 +58,7 @@ internal sealed class EndingStage
         Place(new EndingPictureSprite(new(position, EndingShades.Drawn(colouring), EndingSceneAnimations.Pictures, animation), role));
 
     /// <summary>Adds the typed text <paramref name="definition"/> authors in its place in the running order (#2195).</summary>
-    /// <returns>The actor added.</returns>
-    internal EndingSprite SpawnText(EndingTextDefinition definition, EndingSpriteRole role) =>
+    internal void SpawnText(EndingTextDefinition definition, EndingSpriteRole role) =>
         Place(new EndingTextSprite(new(definition.Position, EndingShades.Drawn(definition.Colouring), EndingTextAnimations.Texts, definition.Text), role));
 
     /// <summary>
@@ -69,24 +69,24 @@ internal sealed class EndingStage
     private EndingSprite Place(EndingSprite added)
     {
         EndingSpriteRole role = added.Role;
-        int rank = SoleActorRank(role);
-        if (rank >= 0)
+        int? rank = SoleActorRank(role);
+        if (rank is not null)
             sprites.RemoveAll(actor => actor.Role == role);
         // A sole actor stands before the first sole actor ranked after it; any other actor before the first sole actor.
-        int place = sprites.FindIndex(actor => SoleActorRank(actor.Role) > rank && SoleActorRank(actor.Role) >= 0);
+        int place = sprites.FindIndex(actor => SoleActorRank(actor.Role) is int other && (rank is not int own || other > own));
         sprites.Insert(place >= 0 ? place : sprites.Count, added);
         return added;
     }
 
     /// <summary>
     /// Where <paramref name="role"/> stands among the actors the ending shows one of at a time, zero for the first to run, or
-    /// minus one for an actor that runs in spawn order ahead of them.
+    /// null for an actor that runs in spawn order ahead of them.
     /// </summary>
-    private static int SoleActorRank(EndingSpriteRole role) => Array.IndexOf(EndingCastOrderDefinitions.SoleActorsLast, role);
+    private static int? SoleActorRank(EndingSpriteRole role) =>
+        Array.IndexOf(EndingCastOrderDefinitions.SoleActorsLast, role) is int rank and >= 0 ? rank : null;
 
-    /// <summary>Installs a sprite from its authored position, attributes and animation.</summary>
-    /// <returns>The actor added.</returns>
-    internal EndingSprite SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
+    /// <summary>Adds an actor from its definition's position, colouring and animation.</summary>
+    internal void SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
         SpawnSprite(
             definition.Position,
             definition.Colouring,
@@ -104,30 +104,15 @@ internal sealed class EndingStage
     /// shows that scene's own backdrop behind every layer; a load within a scene restores some of its colours.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The load is not one the ending makes.</exception>
-    internal void LoadColours(EndingColourLoad load)
+    internal void LoadColours(EndingColourLoad load) => screen.Colours.Load(load, load switch
     {
-        switch (load)
-        {
-            case EndingColourLoad.Escape:
-                screen.Colours.StartScene(load, Backdrops.Escape);
-                return;
-            case EndingColourLoad.Explosion:
-                screen.Colours.StartScene(load, Backdrops.Explosion);
-                return;
-            case EndingColourLoad.Credits:
-                screen.Colours.StartScene(load, Backdrops.Credits);
-                return;
-            case EndingColourLoad.PostCredits:
-                screen.Colours.StartScene(load, Backdrops.PostCredits);
-                return;
-            case EndingColourLoad.ExplosionBackgrounds or EndingColourLoad.FinalGunship or EndingColourLoad.RestoredShot or
-                EndingColourLoad.LogoInitial:
-                screen.Colours.Restore(load);
-                return;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(load), load, "Undefined ending colour load.");
-        }
-    }
+        EndingColourLoad.Escape => Backdrops.Escape,
+        EndingColourLoad.Explosion => Backdrops.Explosion,
+        EndingColourLoad.Credits => Backdrops.Credits,
+        EndingColourLoad.PostCredits => Backdrops.PostCredits,
+        EndingColourLoad.ExplosionBackgrounds or EndingColourLoad.FinalGunship or EndingColourLoad.RestoredShot or EndingColourLoad.LogoInitial => null,
+        _ => throw new ArgumentOutOfRangeException(nameof(load), load, "Undefined ending colour load."),
+    });
 
 
     /// <summary>Whether the exploding planet's actor is still shown.</summary>
@@ -139,10 +124,10 @@ internal sealed class EndingStage
     /// <summary>The ending scenes' installed backdrops (#1544).</summary>
     internal EndingBackdrops Backdrops { get; private set; }
 
-    /// <summary>Starts a fast fade: the next step lands two updates from now, and one every two updates after it.</summary>
+    /// <summary>Starts a fast fade, a step every <see cref="EndingCadenceDefinitions.FastFadeUpdatesPerStep"/> from now.</summary>
     internal void StartFastFade() => Fade.StepEvery(EndingCadenceDefinitions.FastFadeUpdatesPerStep);
 
-    /// <summary>Starts the post-credits reveal's slow fade: the next step lands two updates from now, then one every four updates.</summary>
+    /// <summary>Starts the post-credits reveal's slow fade: its first step lands soon, then the rest at the slow fade's pace.</summary>
     internal void StartPostCreditsFade() =>
         Fade.SetCadence(EndingCadenceDefinitions.PostCreditsFadeStepDelay, EndingCadenceDefinitions.PostCreditsFadeFirstWait);
 

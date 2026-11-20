@@ -30,9 +30,8 @@ internal static class SamusPoseNumbering
     /// </exception>
     internal static SamusPoseId FromNumber(int number) =>
         (uint)number <= byte.MaxValue
-            ? number < SamusPoseNumberDefinitions.ByNumber.Length && SamusPoseNumberDefinitions.ByNumber[number] is SamusPoseId pose
-                ? pose
-                : throw new ArgumentOutOfRangeException(nameof(number), number, "A number no gameplay path gives Samus names no pose.")
+            ? (number < SamusPoseNumberDefinitions.ByNumber.Length ? SamusPoseNumberDefinitions.ByNumber[number] : null) ??
+                throw new ArgumentOutOfRangeException(nameof(number), number, "A number no gameplay path gives Samus names no pose.")
             : throw new ArgumentOutOfRangeException(nameof(number), number, "A pose number is one byte.");
 
     /// <summary>

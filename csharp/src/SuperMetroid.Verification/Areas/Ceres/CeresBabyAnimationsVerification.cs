@@ -18,7 +18,7 @@ internal static class CeresBabyAnimationsVerification
     /// <summary>Both segments match their native lists, and both animations the lists' control flow.</summary>
     internal static void VerifyCeresBabyAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(Enum.GetValues<CeresBabySegment>().Length, Entries.Length, "every Ceres Baby segment has a native entry");
         Dictionary<CeresBabySegment, NativeEnemyList<CeresBabySegment>> lists =
             Entries.ToDictionary(item => item.Program, item => Read(cartridge, item.Program, item.Entry));

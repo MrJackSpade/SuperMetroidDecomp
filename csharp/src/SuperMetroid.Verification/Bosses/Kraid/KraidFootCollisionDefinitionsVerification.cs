@@ -24,7 +24,7 @@ internal static class KraidFootCollisionDefinitionsVerification
         installedFoot.Bind(EnemyDefinitionId.KraidFoot, EnemyDefinitionFixtures.Blank);
         installedFoot.Bind(EnemyDefinitionId.KraidFoot, installedFoot.KeptDefinition);
         // The foot shows each recorded pose through its part state, which its collision reads (#2210).
-        installedFoot.SetSpeciesState<KraidPartState>(new KraidEnemyState(KraidPartsAccess.Standalone()).FootState);
+        installedFoot.SetSpeciesState<KraidPartState>(new KraidEnemyState(new KraidParts()).FootState);
         ushort[] frames =
         [
             KraidFootCollisionDefinitions.InitialFrame,

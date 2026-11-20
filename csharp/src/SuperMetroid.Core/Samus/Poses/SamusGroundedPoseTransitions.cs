@@ -298,11 +298,10 @@ internal static class SamusGroundedPoseTransitions
 
         // Keep the old muzzle direction before starting the turn's pose. The next input phase
         // uses the handed shot to admit the turning HUD producer and forcibly release charge.
-        SamusTransitionShot? sourceShot = SamusTransitionShot.OfPose(samus);
+        SamusTransitionShot sourceShot = SamusTransitionShot.FromPose(samus);
         FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
         ApplySimpleGroundedPoseChange(samus, samus.Pose, expectedTarget, "Moonwalk turn/jump");
-        if (sourceShot is { } shot)
-            samus.TransitionShot.Hand(shot);
+        samus.TransitionShot.Hand(sourceShot);
     }
 
     /// <summary>
@@ -381,7 +380,7 @@ internal static class SamusGroundedPoseTransitions
         // The source aim is kept now so its projectile direction is still available after
         // ApplySimpleGroundedPoseChange replaces `Pose` below.
         SamusTransitionShot? moonwalkSourceShot = wasMoonwalking
-            ? SamusTransitionShot.OfPose(samus)
+            ? SamusTransitionShot.FromPose(samus)
             : null;
 
         bool rightSource = SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsRightFacingRunningPose(samus.Pose) ||

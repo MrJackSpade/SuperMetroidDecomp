@@ -12,7 +12,7 @@ internal static class SamusProjectileProgramAddresses
 {
     /// <summary>The layout, read once from the repository's cartridge.</summary>
     private static readonly Lazy<SamusProjectileListLayout> layout = new(() => SamusProjectileListEntries.Read(
-        CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        CartridgeImportSource.Require(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))));
 
     /// <summary>The layout.</summary>
     internal static SamusProjectileListLayout Layout => layout.Value;

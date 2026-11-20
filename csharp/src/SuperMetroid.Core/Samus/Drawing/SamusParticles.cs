@@ -77,12 +77,11 @@ public sealed class SamusParticles
                 _particles.RemoveAt(index);
                 continue;
             }
-            // A particle shows a picture once its hidden wait is over.
-            if (particle.Shown is not { } shown)
+            if (particle.IsHidden)
                 continue;
             if (particle.Kind == SamusParticleKind.DivingSplash)
                 particle.HoldOnLine(waterSurfaceLine);
-            sprites.Add(Draw(particle, shown, camera, sheets));
+            sprites.Add(Draw(particle, camera, sheets));
         }
     }
 
@@ -90,10 +89,10 @@ public sealed class SamusParticles
     /// The draw of a shown particle wherever it lies; the display clips it (#1541). Splashes, spray and dust are eight-pixel
     /// pictures centred on the particle; the diving splash and bubbles are placed from it.
     /// </summary>
-    private static SamusColouredDraw Draw(SamusParticle particle, SamusAtmosphereFrame shown, Position16<RoomPixels> camera,
-        InstalledSpriteSheets sheets)
+    private static SamusColouredDraw Draw(SamusParticle particle, Position16<RoomPixels> camera, InstalledSpriteSheets sheets)
     {
-        string frame = SamusAtmosphereSheetDefinitions.FrameName(shown);
+        string frame = SamusAtmosphereSheetDefinitions.FrameName(
+            particle.Shown ?? throw new InvalidOperationException("A particle drawn shows no picture."));
         Offset16<ScreenPixels> place = particle.Position.RelativeToCamera(camera);
         if (particle.Kind is SamusParticleKind.SurfaceSplash or SamusParticleKind.LavaSpray or SamusParticleKind.Dust)
             place -= Offset16<ScreenPixels>.Of(SmallParticleHalfWidth, SmallParticleHalfWidth);

@@ -19,7 +19,7 @@ internal sealed class ReferencePaletteFxColorSource(ISnesAddressSpace source) : 
     public bool TryReadColor(PaletteFxColorKey key, out RgbColor color)
     {
         int address = RoomFxBankSourceDefinitions.PaletteFx | PaletteFxRecordSources.ColorAddress(key);
-        color = RgbColor.FromWord(source.ReadCartridgeWord(address));
+        color = RgbColor.FromWord(CartridgeImportSource.Require(source).ReadCartridgeWord(address));
         return true;
     }
 }

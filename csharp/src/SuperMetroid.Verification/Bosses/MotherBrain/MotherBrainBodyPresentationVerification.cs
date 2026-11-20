@@ -78,7 +78,7 @@ internal static class MotherBrainBodyPresentationVerification
                 baseline.MotherBrainSheet.Frame(pose).Anchor, $"{pose} lies where the import places it against her");
         // Her body's pictures are composed at install (#1466), so missing BG2 art fails there, before anything draws; only the
         // boss artwork is composed, so the enemy artwork is not read again for it.
-        AssertThrows<InvalidDataException>(() => BossBodySheetFixtures.For(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { MotherBrainBodyBg2Frames = null }, BossBodyOwner.MotherBrain),
+        AssertThrows<InvalidDataException>(() => BossBodySheetFixtures.For(new BossSourceArtwork { MotherBrainBodyBg2Frames = null }, BossBodyOwner.MotherBrain),
             "missing mixed-frame BG2 art fails explicitly");
         // Installed artwork is not part of debugger states: the room binding holds it as non-serialized, and the host
         // reinstalls it after a restore.
@@ -92,8 +92,8 @@ internal static class MotherBrainBodyPresentationVerification
             EnemyTileSourceArtwork stock = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.FreshEnemyArtwork().Enemies;
             EnemyTileSourceArtwork tiles = stock.WithFrames(stock.Spritemaps, EnemyExtendedFrameDocuments.Load(author.Json(oam)));
             return new(tiles,
-                SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { MotherBrainBodyBg2Frames = MotherBrainBodyBg2FrameCatalog.Load(author.Json(bg2)) },
-                SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AreaArtwork);
+                new BossSourceArtwork { MotherBrainBodyBg2Frames = MotherBrainBodyBg2FrameCatalog.Load(author.Json(bg2)) },
+                new AreaSourceArtwork());
         }
 
         EnemyExtendedFrameDocument BodyOam()

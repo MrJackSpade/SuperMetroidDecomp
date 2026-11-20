@@ -7,4 +7,5 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// contracts; each family keeps only its own.
 /// </summary>
 public interface IRoomObjectEnemyEffects :
-    INoobTubeProjectileSpawner, IEyeDoorProjectileSpawner, IOldTourianWallExplosion, IDraygonCannonControl;
+    INoobTubeProjectileSpawner, IEyeDoorProjectileSpawner, IOldTourianWallExplosion, IDraygonCannonControl,
+    IChozoStatueHandActivation;

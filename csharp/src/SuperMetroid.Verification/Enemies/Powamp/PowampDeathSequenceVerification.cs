@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
@@ -25,16 +24,16 @@ internal static class PowampDeathSequenceVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MtEverest);
         RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Powamp) &&
             place.HeldOccupant().SpawnSettings<PowampSpawnSettings>() is PowampBodySpawnSettings);
-        var state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<PowampBodyEntity>(body).State;
+        var state = body.RequireSpeciesState<PowampBodyState>();
 
         body.Health = 0;
         state.Action = PowampAction.DeathSequence;
         state.ActionTimer = UpdateCountdown.For(1);
-        runtime.Enemies.PowampBehavior.RunPowampMain(body.HeldOccupant(), body, state, runtime.Room.LoadedLevelData, runtime.Player.Samus);
+        runtime.Enemies.PowampBehavior.RunPowampMain(body.HeldOccupant(), body, state, runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus);
 
         var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;
         AssertEqual(8, projectiles.Count(p => p.Kind == RoomEnemyProjectileKind.PowampSpike), "the eight spikes fire");

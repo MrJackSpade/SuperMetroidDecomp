@@ -7,18 +7,11 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// Firing, a special attack, an echo's release, a Super Missile's link or a reflection installs it on the shot with the
 /// state its kind keeps (<see cref="SamusProjectileOccupant.Install"/>), and a particle's change of phase moves it on to the next
 /// behaviour of its kind; the shot update runs it without naming any of them. Each behaviour is one shared instance
-/// (<see cref="SamusShotBehaviors"/>) when its kind keeps nothing of its own; a kind that keeps a record of its own
-/// (<see cref="SamusShotKindState"/>) runs a behaviour created with that record, which hands it to the update it runs
-/// (#2554). What changes from update to update is the shot's.
+/// (<see cref="SamusShotBehaviors"/>): what changes from update to update is the shot's, and what only its kind keeps
+/// is the kind's own record (<see cref="SamusShotKindState"/>).
 /// </summary>
 internal abstract class SamusShotBehavior
 {
-    /// <summary>
-    /// What the shot's kind keeps beyond what every shot keeps, which a behaviour of a kind that keeps a record is created
-    /// with; null for a behaviour whose kind keeps nothing beyond the shot's own state.
-    /// </summary>
-    internal virtual SamusShotKindState? KindState => null;
-
     /// <summary>Runs the shot's update.</summary>
     /// <param name="update">What the shot update hands every behaviour.</param>
     internal abstract void Run(SamusShotUpdate update);

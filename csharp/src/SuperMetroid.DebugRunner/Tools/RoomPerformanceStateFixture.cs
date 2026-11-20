@@ -39,8 +39,8 @@ internal static class RoomPerformanceStateFixture
             RoomDefinition room = surface ? RoomDefinitions.LandingSite : RoomDefinitions.CrateriaSave;
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(camera, camera));
         }
-        runtime.Player.Samus.Control.LockOutPlayer();
-        runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWhole(new((ushort)(camera + (surface ? 128 : 64)), (ushort)(camera + 160)));
+        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(camera + (surface ? 128 : 64)), (ushort)(camera + 160)));
         data.Game.Session.Enter(data.Game.Session.Phases.MainGameplay);
         double stepMs = 0, renderMs = 0, audioMs = 0;
         var pcm = new short[AudioSession.PcmSamplesPerFrame];

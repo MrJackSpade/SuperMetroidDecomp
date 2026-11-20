@@ -43,14 +43,13 @@ public sealed class DoorSetup
 
     /// <summary>
     /// Runs the setup in the room the door leads into, once its own room objects are placed and before its enemies and
-    /// first view are set up: its screen changes in <paramref name="scrolls"/>, then <paramref name="composed"/>, its room
-    /// event as the room's composition returned it, in <paramref name="room"/>. The first view already stands within the
-    /// changed screens' limits.
+    /// first view are set up: its screen changes in <paramref name="scrolls"/>, then its room event in
+    /// <paramref name="room"/>. The first view already stands within the changed screens' limits.
     /// </summary>
-    internal void Run(RoomScrollGrid scrolls, DoorRoomEvent composed, IDoorEventRoom room)
+    internal void Run(RoomScrollGrid scrolls, IDoorEventRoom room)
     {
         ChangeScreens(scrolls);
-        Ensure.NotNull(composed).Run(room);
+        RoomEvent.Run(room);
     }
 
     /// <inheritdoc/>

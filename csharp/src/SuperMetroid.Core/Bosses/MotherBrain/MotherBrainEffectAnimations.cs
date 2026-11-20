@@ -6,8 +6,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's onion-ring, bomb, rainbow-charge, drool, escape-door and subtitle animations (#641); her purple breath is
-/// a family of its own (<see cref="MotherBrainBreathAnimations"/>). Each
+/// Mother Brain's onion-ring, bomb, rainbow-charge, drool, escape-door, purple-breath and subtitle animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="MotherBrainEffectCue"/> with the values it acts on.
 /// </summary>
 internal static class MotherBrainEffectAnimations
@@ -95,6 +94,33 @@ internal static class MotherBrainEffectAnimations
             Show(EnemyProjectileFrameId.MotherBrainEscapeDoorDebrisEdgeTurned270, 4),
             Show(EnemyProjectileFrameId.MotherBrainEscapeDoorDebrisFaceTurned270, 4),
         ],
+        [P.PurpleBreathBig] =
+        [
+            Cue(new MotherBrainEffectCue.Signal(K.StopMoving)),
+            Show(EnemyProjectileFrameId.MotherBrainBreathLargePuff, 8),
+            Show(EnemyProjectileFrameId.MotherBrainBreathLargePlume, 8),
+            Show(EnemyProjectileFrameId.MotherBrainBreathLargePlumeLong, 9),
+            Show(EnemyProjectileFrameId.MotherBrainBreathLargePlumeFull, 9),
+            Show(EnemyProjectileFrameId.MotherBrainBreathLargeDispersing, 10),
+            Show(EnemyProjectileFrameId.MotherBrainBreathLargeThinning, 10),
+            Show(EnemyProjectileFrameId.MotherBrainBreathLargeFading, 11),
+            Show(EnemyProjectileFrameId.MotherBrainBreathLargeFaint, 11),
+            Cue(new MotherBrainEffectCue.Signal(K.Delete)),
+        ],
+        [P.PurpleBreathSmall] =
+        [
+            Cue(new MotherBrainEffectCue.Signal(K.StopMoving)),
+            Show(EnemyProjectileFrameId.MotherBrainBreathSmallPuff, 8),
+            Show(EnemyProjectileFrameId.MotherBrainBreathSmallPuffGrowing, 8),
+            Show(EnemyProjectileFrameId.MotherBrainBreathSmallCloud, 10),
+            Show(EnemyProjectileFrameId.MotherBrainBreathSmallCloudLong, 10),
+            Show(EnemyProjectileFrameId.MotherBrainBreathSmallDispersing, 11),
+            Show(EnemyProjectileFrameId.MotherBrainBreathSmallThinning, 11),
+            Show(EnemyProjectileFrameId.MotherBrainBreathSmallFading, 12),
+            Show(EnemyProjectileFrameId.MotherBrainBreathSmallFaint, 12),
+            Cue(new MotherBrainEffectCue.Signal(K.EndSmallPurpleBreath)),
+            Cue(new MotherBrainEffectCue.Signal(K.Delete)),
+        ],
         [P.EscapeSubtitle] =
         [
             Show(EnemyProjectileFrameId.MotherBrainEscapeSubtitle, 1),
@@ -111,6 +137,8 @@ internal static class MotherBrainEffectAnimations
         [P.Drool] = new([Segments.Whole(P.Drool)], AnimationEnd.Holds),
         [P.DroolHitFloor] = new([Segments.Whole(P.DroolHitFloor)], AnimationEnd.Holds),
         [P.EscapeDoorParticle] = Animation<MotherBrainEffectSegment>.Looping([Segments.Whole(P.EscapeDoorParticle)]),
+        [P.PurpleBreathBig] = new([Segments.Whole(P.PurpleBreathBig)], AnimationEnd.Holds),
+        [P.PurpleBreathSmall] = new([Segments.Whole(P.PurpleBreathSmall)], AnimationEnd.Holds),
         [P.EscapeSubtitle] = new([Segments.Whole(P.EscapeSubtitle)], AnimationEnd.Holds),
     };
 

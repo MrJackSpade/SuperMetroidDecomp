@@ -31,7 +31,7 @@ internal static class ShutterBehaviorVerification
                 place.SetSpawnSettings(new GrowingShutterSpawnSettings(
                     Wait: GrowingShutterWait.SamusNear, Growth: VerticalDirection.Down, ActivationDistance: 144, ActivationWait: 0,
                     GrowthSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(17)));
-                ShuttersBehavior.InitializeGrowingShutter(place, place.SpawnSettings<GrowingShutterSpawnSettings>());
+                ShuttersBehavior.InitializeGrowingShutter(place.HeldOccupant(), place);
             },
             enemies => enemies.Places.InUpdateOrder[0].EntityState<ShuttersEntity, GrowingShutterEnemyState>()?.Playback);
         foreach (EnemyDefinitionId definition in new[] { EnemyDefinitionId.ShutterShootable, EnemyDefinitionId.ShutterDestroyable })
@@ -39,8 +39,9 @@ internal static class ShutterBehaviorVerification
             VerifyPose(definition, ShutterSegment.FullyGrown,
                 (enemies, place) =>
                 {
-                    place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
-                    VerticalShutterEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<VerticalShutterEntity>(place).State;
+                    ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("Verification requires a bound shutter."))).Initialize();
+                    VerticalShutterEnemyState state = place.SpeciesState<VerticalShutterEnemyState>()
+                        ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");
                     AssertEqual(ShuttersBehavior.InitialAction(place.HeldOccupant().SpawnSettings<ShutterSpawnSettings>().TriggerMode), state.Action,
                         $"shutter {definition} starts in its trigger's initial action (#2075)");
                 },
@@ -52,7 +53,7 @@ internal static class ShutterBehaviorVerification
         kamer.Bind(EnemyDefinitionId.Kamer, kamer.KeptDefinition);
         // The Kamer's own entity sets it up, showing its platform (#2179).
         AssertTrue(kamer.Entity is KamerEntity, "the Kamer is its own entity");
-        kamer.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+        ((IEnemyInitialization)kamer.Entity!).Initialize();
         AssertEqual(new AnimationPlayback<ShutterSegment>(ShutterAnimations.StartingWith(ShutterSegment.KamerPlatform), AnimationPlace.StartOfAnimation),
             kamerSystem.Places.InUpdateOrder[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback, "Kamer vertical platform starts its loop");
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(ShutterAnimations.Segments, ShutterSegment.KamerPlatform, ShutterFrameToolingDefinitions.Spritemap),
@@ -133,7 +134,7 @@ internal static class ShutterBehaviorVerification
 
     /// <summary>Reads a native bank-$A2 shutter word for the oracles above.</summary>
     private static ushort ReadShutterWord(CartridgeImportAddressSpace bus, SnesAddress address) =>
-        bus.ReadCartridgeWord(address.Value);
+        CartridgeImportSource.Require(bus).ReadCartridgeWord(address.Value);
 
     /// <summary>
     /// The growing shutter's timer-mode wait holds its true duration (#2281): a placement's wait of two activates on the
@@ -141,7 +142,7 @@ internal static class ShutterBehaviorVerification
     /// </summary>
     internal static void VerifyGrowingShutterActivationTimer()
     {
-        var state = new GrowingShutterEnemyState(GrowingShutterAction.WaitForTimer, spawnY: 0, VerticalDirection.Up, new GrowingShutterSpawnSettings(default, VerticalDirection.Up, ActivationDistance: 0, ActivationWait: 0, SignedSixteenSixteen.Zero));
+        var state = new GrowingShutterEnemyState(GrowingShutterAction.WaitForTimer, spawnY: 0, VerticalDirection.Up);
         state.ActivationTimer = UpdateCountdown.For(2 + EnemyWaitDefinitions.RunOutUpdate);
         AssertEqual(false, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait does not activate on its first call");
         AssertEqual(2, state.ActivationTimer.UpdatesLeft, "the first call counts the wait down by one");
@@ -189,8 +190,9 @@ internal static class ShutterBehaviorVerification
             place.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
             place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
                 LittleEndianBytes.Word(speedIndex, primaryDirection), 0, 0, LittleEndianBytes.Word(0, travelDistance), 0));
-            ShuttersBehavior.InitializeVerticalShutter(place.HeldOccupant(), place, ShutterSegment.FullyGrown, place.SpawnSettings<ShutterSpawnSettings>());
-            VerticalShutterEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<VerticalShutterEntity>(place).State;
+            ShuttersBehavior.InitializeVerticalShutter(place.HeldOccupant(), place, ShutterSegment.FullyGrown);
+            VerticalShutterEnemyState state = place.SpeciesState<VerticalShutterEnemyState>()
+                ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");
             string context = $"primary direction {primaryDirection} at Y {spawnY}";
             AssertEqual(expectedUpperY, state.UpperEndpointY, $"{context}: upper endpoint");
             AssertEqual(expectedLowerY, state.LowerEndpointY, $"{context}: lower endpoint");
@@ -235,7 +237,7 @@ internal static class ShutterBehaviorVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[ordinal];
             place.Bind(definition, place.KeptDefinition);
             place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(2, 0));
-            place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+            ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("Verification requires a bound shutter."))).Initialize();
             place.Shading = PictureShading.Standard;
             return place;
         }

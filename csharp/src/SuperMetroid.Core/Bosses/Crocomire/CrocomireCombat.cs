@@ -33,7 +33,7 @@ internal sealed class CrocomireCombat
         _access = access;
     }
 
-    /// <summary>Runs Crocomire's eight-color body hurt flash.</summary>
+    /// <summary>Shows Crocomire's white hurt flash on his body.</summary>
     internal void ApplyCrocomireHurtFlash(RoomEnemyPlace body, CrocomireEnemyState state)
     {
         bool white = body.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.EnemyPassCount);
@@ -49,44 +49,70 @@ internal sealed class CrocomireCombat
     /// <param name="state">The encounter the bombed part is part of.</param>
     internal void ReactToCrocomireBomb(EnemyBombContext c, CrocomireEnemyState state) =>
         // Crocomire's species definition names no shot reaction; every live component supplies its own. Normal bombs
-        // therefore reach the same hit counter, dust, or mouth reaction selected by the map.
-        ResolveCrocomireHitboxShot(state, c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShot, c.Camera);
+        // therefore reach the same hit counter, dust, or mouth reaction his frame's hitbox selects.
+        ResolveCrocomireHitboxShot(state, c.PlacedBomb.Type, c.Bomb.Position.Whole, c.SelectedShot, c.Camera);
 
     /// <summary>
-    /// The mouth's shot (#1760): it aims along its volley's gradient from its spawn, then flies; its spawner starts its
-    /// animation, and a shot one runs its typed shot animation, whose drop is allocated with Crocomire's chances before the
-    /// deletion frees the exploding actor.
+    /// The mouth's shot (#1760): its spawner starts its animation, and a shot one runs its typed shot animation, whose
+    /// drop is allocated with Crocomire's chances before the deletion frees the exploding actor.
     /// </summary>
-    /// <param name="shot">What the shot keeps: the gradient its volley fires it along.</param>
-    internal MouthShotBehavior MouthShot(CrocomireProjectileState shot) => new(_projectiles, _deathsAndDrops, _access, shot);
+    internal CrocomireProjectileBehavior MouthShot => field ??= new CrocomireProjectileBehavior(_projectiles, _deathsAndDrops, _access,
+        CrocomireProjectileSegment.Shot);
 
-    /// <summary>One piece of the spike wall (#1760), which keeps its place in the wall and its fall.</summary>
-    /// <param name="piece">What the piece keeps.</param>
-    internal SpikeWallPieceBehavior SpikeWallPiece(CrocomireSpikeWallPieceState piece) =>
-        new(_projectiles, _deathsAndDrops, _access, piece);
+    /// <summary>The bridge's fragments and the spike wall's pieces (#1760): their spawners start their animations.</summary>
+    internal CrocomireProjectileBehavior Debris => field ??= new CrocomireProjectileBehavior(_projectiles, _deathsAndDrops, _access);
 
-    /// <summary>The bridge's fragments (#1760): each falls from its spawn, and their spawners start their animations.</summary>
-    internal BridgeFragmentBehavior Debris => field ??= new BridgeFragmentBehavior(_projectiles, _deathsAndDrops, _access);
-
-    /// <summary>One of Crocomire's projectiles: its motions, which each kind owns, and the shot animation's cues.</summary>
+    /// <summary>One of Crocomire's projectiles: the shot's aim and flight, the spike wall's and the bridge's falls, and their cues.</summary>
     /// <param name="projectiles">The enemy projectiles, which raise the dust a landing spike-wall piece leaves.</param>
     /// <param name="deathsAndDrops">The drops a shot mouth shot leaves.</param>
     /// <param name="access">Crocomire's last shot's gradient and his sounds.</param>
-    /// <param name="initial">How the projectile moves from its spawn.</param>
-    /// <typeparam name="TMotion">The kind's motions.</typeparam>
-    internal abstract class CrocomireProjectileBehavior<TMotion>(
+    /// <param name="shot">Where the animation a destroying shot starts begins, or null for the shared delete animation.</param>
+    internal sealed class CrocomireProjectileBehavior(
         EnemyProjectileEngine projectiles,
         EnemyDeathsAndDrops deathsAndDrops,
         CrocomireEncounterAccess access,
-        TMotion initial)
-        : EnemyProjectileMotionBehavior<TMotion>(initial), IEnemyProjectileCues<CrocomireProjectileCue>
-        where TMotion : struct, Enum
+        CrocomireProjectileSegment? shot = null)
+        : EnemyProjectileMotionBehavior<CrocomireProjectileMotion>(StartingMotions), IEnemyProjectileCues<CrocomireProjectileCue>
     {
-        /// <summary>The enemy projectiles, which raise the dust a landing spike-wall piece leaves.</summary>
-        private protected EnemyProjectileEngine Projectiles => projectiles;
+        /// <summary>The gradient each mouth shot flies along, given as Crocomire spits it.</summary>
+        internal EnemyProjectileStates<CrocomireProjectileState> Gradients { get; } = new();
 
-        /// <summary>Crocomire's last shot's gradient and his sounds.</summary>
-        private protected CrocomireEncounterAccess Access => access;
+        /// <summary>Which piece of the spike wall each falling piece is, given as the wall breaks.</summary>
+        internal EnemyProjectileStates<CrocomireSpikeWallPieceState> SpikeWallPieces { get; } = new();
+
+        /// <inheritdoc/>
+        internal override EnemyProjectileAnimation ShotAnimation() =>
+            shot is { } segment ? new CrocomireProjectileAnimation(this, segment) : base.ShotAnimation();
+
+        /// <summary>The mouth shot aims, and the bridge fragments and spike-wall pieces fall, from their spawn.</summary>
+        private static readonly Dictionary<RoomEnemyProjectileKind, CrocomireProjectileMotion?> StartingMotions = new()
+        {
+            [RoomEnemyProjectileKind.CrocomireProjectile] = CrocomireProjectileMotion.ShotAiming,
+            [RoomEnemyProjectileKind.CrocomireBridgeCrumbling] = CrocomireProjectileMotion.BridgeFragmentFalling,
+            [RoomEnemyProjectileKind.CrocomireSpikeWallPieces] = CrocomireProjectileMotion.SpikeWallCollapsing,
+        };
+
+        /// <inheritdoc/>
+        internal override void Move(EnemyProjectileMotionContext context, CrocomireProjectileMotion motion)
+        {
+            switch (motion)
+            {
+                case CrocomireProjectileMotion.ShotAiming:
+                    StartCrocomireProjectileFlight(context.Projectile, context.Level);
+                    break;
+                case CrocomireProjectileMotion.ShotFlying:
+                    RunCrocomireProjectileFlight(context.Projectile, context.Level);
+                    break;
+                case CrocomireProjectileMotion.SpikeWallCollapsing:
+                    RunCrocomireSpikeWallPiece(context.Projectile);
+                    break;
+                case CrocomireProjectileMotion.BridgeFragmentFalling:
+                    RunCrocomireBridgeFragment(context.Projectile, context.Level);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(CrocomireProjectileMotion)} {motion}.");
+            }
+        }
 
         /// <summary>Carries out a cue of the shot's animation: the drop, allocated before the deletion frees the actor, or the deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, CrocomireProjectileCue cue)
@@ -104,35 +130,6 @@ internal sealed class CrocomireCombat
                     throw new InvalidOperationException($"Undefined {nameof(CrocomireProjectileCue)} {cue}.");
             }
         }
-    }
-
-    /// <summary>Crocomire's mouth shot, which aims along its volley's gradient, then flies; a shot one drops his drop.</summary>
-    /// <param name="projectiles">The enemy projectiles.</param>
-    /// <param name="deathsAndDrops">The drops a shot mouth shot leaves.</param>
-    /// <param name="access">Crocomire's sounds.</param>
-    /// <param name="shot">What the shot keeps.</param>
-    internal sealed class MouthShotBehavior(EnemyProjectileEngine projectiles, EnemyDeathsAndDrops deathsAndDrops, CrocomireEncounterAccess access,
-        CrocomireProjectileState shot)
-        : CrocomireProjectileBehavior<CrocomireProjectileMotion>(projectiles, deathsAndDrops, access, CrocomireProjectileMotion.ShotAiming)
-    {
-        /// <inheritdoc/>
-        internal override EnemyProjectileAnimation ShotAnimation() => new CrocomireProjectileAnimation(CrocomireProjectileSegment.Shot, this);
-
-        /// <inheritdoc/>
-        internal override void Move(EnemyProjectileMotionContext context, CrocomireProjectileMotion motion)
-        {
-            switch (motion)
-            {
-                case CrocomireProjectileMotion.ShotAiming:
-                    StartCrocomireProjectileFlight(context.Projectile, context.Level);
-                    break;
-                case CrocomireProjectileMotion.ShotFlying:
-                    RunCrocomireProjectileFlight(context.Projectile, context.Level);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(CrocomireProjectileMotion)} {motion}.");
-            }
-        }
 
         /// <summary>Runs the one-frame vector setup.</summary>
         private void StartCrocomireProjectileFlight(
@@ -143,28 +140,15 @@ internal sealed class CrocomireCombat
             EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
 
             // The shot keeps the gradient its volley fires it along. The angle starts at up, not right: Y uses negative cosine.
-            int gradient = shot.Gradient;
+            int gradient = Gradients.Of(projectile).Gradient;
             projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateAimAngle(new(-CrocomireProjectileDefinitions.AimReachLeft, gradient)));
             projectile.StartMotion(this, CrocomireProjectileMotion.ShotFlying);
         }
-    }
-
-    /// <summary>A piece of the spike wall, which collapses by its place in the wall from its spawn.</summary>
-    /// <param name="projectiles">The enemy projectiles, which raise the dust a landing piece leaves.</param>
-    /// <param name="deathsAndDrops">The room's drops.</param>
-    /// <param name="access">Crocomire's sounds.</param>
-    /// <param name="piece">What the piece keeps.</param>
-    internal sealed class SpikeWallPieceBehavior(EnemyProjectileEngine projectiles, EnemyDeathsAndDrops deathsAndDrops, CrocomireEncounterAccess access,
-        CrocomireSpikeWallPieceState piece)
-        : CrocomireProjectileBehavior<SingleMotion>(projectiles, deathsAndDrops, access, SingleMotion.Moving)
-    {
-        /// <inheritdoc/>
-        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
-            RunCrocomireSpikeWallPiece(context.Projectile);
 
         /// <summary>Runs the shard motion, exact to the 256th of a pixel, whose limits each piece takes from its place in the wall.</summary>
         private void RunCrocomireSpikeWallPiece(EnemyProjectile projectile)
         {
+            CrocomireSpikeWallPieceState piece = SpikeWallPieces.Of(projectile);
             SignedSixteenSixteen maximumAcceleration = piece.Piece.MaximumAcceleration;
             SignedSixteenSixteen acceleration = piece.Acceleration;
             if (acceleration != maximumAcceleration)
@@ -185,7 +169,7 @@ internal sealed class CrocomireCombat
             // pixel stays exactly as it was.
             projectile.Position = projectile.Position.WithX(projectile.Position.X.MovedBy(xVelocity));
 
-            // The piece falls by its speed, which gains three sixteenths of a pixel of gravity per update.
+            // The piece falls by its speed, which gains the piece's gravity each update.
             piece.FallSpeed += CrocomireSpikeMotionDefinitions.PieceGravity;
             projectile.Position = projectile.Position.AdvanceY(piece.FallSpeed);
 
@@ -195,22 +179,10 @@ internal sealed class CrocomireCombat
             Position16<RoomPixels> impact = projectile.Position.Whole;
             projectile.Delete();
             if (piece.Piece.CrumbleSound is { } crumble)
-                Access.RequestCrocomireSound(crumble);
-            Projectiles.SpawnDustOrExplosion(impact, DustExplosionAnimation.BigDustCloud);
-            Access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
+                access.RequestCrocomireSound(crumble);
+            projectiles.SpawnDustOrExplosion(impact, DustExplosionAnimation.BigDustCloud);
+            access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
         }
-    }
-
-    /// <summary>A fragment of the crumbling bridge, which falls under gravity from its spawn until it strikes the room.</summary>
-    /// <param name="projectiles">The enemy projectiles.</param>
-    /// <param name="deathsAndDrops">The room's drops.</param>
-    /// <param name="access">Crocomire's sounds.</param>
-    internal sealed class BridgeFragmentBehavior(EnemyProjectileEngine projectiles, EnemyDeathsAndDrops deathsAndDrops, CrocomireEncounterAccess access)
-        : CrocomireProjectileBehavior<SingleMotion>(projectiles, deathsAndDrops, access, SingleMotion.Moving)
-    {
-        /// <inheritdoc/>
-        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
-            RunCrocomireBridgeFragment(context.Projectile, context.Level);
     }
 
     /// <summary>Routes power-bomb hits on <paramref name="body"/> to his encounter's authored reaction.</summary>
@@ -237,8 +209,8 @@ internal sealed class CrocomireCombat
                     return false;
                 if (!c.UsesFrameHitboxes)
                     throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
-                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
-                ResolveCrocomireHitboxShot(part.Encounter, c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
+                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+                ResolveCrocomireHitboxShot(part.Encounter, c.Shot.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
                 return true;
             },
         };
@@ -254,7 +226,7 @@ internal sealed class CrocomireCombat
         if ((context.HitboxTouch != CrocomireReactions.ClawTouch && context.HitboxTouch != EnemyReaction.OrdinaryTouch))
         {
             throw new InvalidDataException(
-                $"Crocomire has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(none)"}.");
+                $"Crocomire has no response to touch reaction {context.HitboxTouch}.");
         }
 
         _collision.ResolveOrdinaryTouch(context);
@@ -271,7 +243,7 @@ internal sealed class CrocomireCombat
         CrocomireEnemyState state,
         SamusProjectileType projectileType,
         Position16<RoomPixels> projectile,
-        EnemyReaction? reaction,
+        EnemyReaction reaction,
         Position16<RoomPixels> camera)
     {
         RoomEnemyPlace body = state.Body;
@@ -297,14 +269,14 @@ internal sealed class CrocomireCombat
             return;
         }
 
-        throw new InvalidOperationException($"Crocomire has no response to shot reaction {reaction?.ToString() ?? "(none)"}.");
+        throw new InvalidOperationException($"Crocomire has no response to shot reaction {reaction}.");
     }
 
     /// <summary>
     /// Resolves Crocomire's mouth reaction. Whether his body's left edge is on screen reads <paramref name="camera"/>, the
     /// camera as the shot or bomb pass runs, as the game reads the live camera there (#1875).
     /// </summary>
-    internal void ResolveCrocomireMouthShot(
+    private void ResolveCrocomireMouthShot(
         CrocomireEnemyState state,
         RoomEnemyPlace body,
         SamusProjectileType projectileType,
@@ -314,36 +286,29 @@ internal sealed class CrocomireCombat
         body.Invincibility.End();
 
         // A hit while Crocomire's body is off screen skips choosing the projectile's family and still records the
-        // pending hit. The body is on screen while its left edge lies left of the camera's right edge, 256 pixels past
+        // pending hit. The body is on screen while its left edge lies left of the camera's right edge, its screen reach past
         // the camera.
         bool bodyLeftEdgeIsOnScreen = body.Position.X.Whole - body.Radius.X - CrocomireFightDefinitions.MouthShotScreenReach < camera.X;
-        int stepCount = 0;
+        // The steps the hit pushes him back by, a hit off screen none, or null for a weapon on screen that pushes nothing.
+        int? pushedSteps = 0;
         SamusProjectileFamily family = projectileType.Family;
         if (bodyLeftEdgeIsOnScreen)
         {
-            if (family == SamusProjectileFamily.Beam)
+            if (family == SamusProjectileFamily.Beam && !projectileType.IsChargedBeam)
             {
-                if (!projectileType.IsChargedBeam)
-                {
-                    body.AnimationClock.HoldFor(CrocomireFightDefinitions.MouthShotReactionHoldFrames);
-                    SpawnCrocomireShotDust(projectileType, projectile);
-                    return;
-                }
-                stepCount = CrocomireFightDefinitions.ChargedBeamSteps;
+                body.AnimationClock.HoldFor(CrocomireFightDefinitions.MouthShotReactionHoldFrames);
+                SpawnCrocomireShotDust(projectileType, projectile);
+                return;
             }
-            else if (family == SamusProjectileFamily.Missile)
-            {
-                stepCount = CrocomireFightDefinitions.MissileSteps;
-            }
-            else if (family == SamusProjectileFamily.SuperMissile)
-            {
-                stepCount = CrocomireFightDefinitions.SuperMissileSteps;
-            }
+            pushedSteps = family == SamusProjectileFamily.Beam ? CrocomireFightDefinitions.ChargedBeamSteps
+                : family == SamusProjectileFamily.Missile ? CrocomireFightDefinitions.MissileSteps
+                : family == SamusProjectileFamily.SuperMissile ? CrocomireFightDefinitions.SuperMissileSteps
+                : null;
         }
 
-        if (!bodyLeftEdgeIsOnScreen || stepCount != 0)
+        if (pushedSteps is int steps)
         {
-            state.StepCounter += stepCount;
+            state.StepCounter += steps;
             if (state.StepBack.Ask())
                 body.AnimationClock.Extend(CrocomireFightDefinitions.MouthShotReactionHoldFrames);
         }
@@ -402,7 +367,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Projects a projectile's direction into its sideways and vertical speeds: its cosine and negative sine at the volley's speed.</summary>
-    internal static PixelVelocity<RoomPixels> CalculateCrocomireProjectileVelocity(TrigonometryAngle aim) => new(
+    private static PixelVelocity<RoomPixels> CalculateCrocomireProjectileVelocity(TrigonometryAngle aim) => new(
         EnemyMath.SineVelocity(aim + TrigonometryAngle.QuarterTurn, CrocomireProjectileDefinitions.VolleySpeed),
         EnemyMath.SineVelocity(aim + TrigonometryAngle.HalfTurn, CrocomireProjectileDefinitions.VolleySpeed));
 
@@ -421,14 +386,14 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>
-    /// The reaction of the first hitbox the probe overlaps on the body's frame, or null when the frame has no body hitboxes;
-    /// only his body's entity asks (#2179).
+    /// The first hitbox the probe overlaps on the body's frame, whose reaction runs, or none; only his body's entity asks
+    /// (#2179).
     /// </summary>
-    internal static bool? FindCrocomireBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <exception cref="InvalidDataException">The frame has no body hitboxes.</exception>
+    internal static EnemyHitboxContact FindCrocomireBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
         if (!CrocomireBodyCollision.HasFrame(enemy.Frame))
-            return null;
+            throw EnemyCollision.UncoveredFrame(enemy);
 
         // His body's hitboxes are the game's, whatever his installed pictures show; the first overlap wins, in the
         // order of his components and their hitboxes.
@@ -444,11 +409,10 @@ internal sealed class CrocomireCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
+                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
             }
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 
 }

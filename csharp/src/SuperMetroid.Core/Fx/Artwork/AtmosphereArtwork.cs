@@ -5,16 +5,17 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// <summary>An atmosphere's artwork (#1706): one picture, repeating across and down at its size.</summary>
 public sealed record AtmosphereArtwork : RoomEffectArtwork
 {
-    /// <summary>An atmosphere repeating <paramref name="picture"/>.</summary>
+    /// <summary>Checks that the picture installs a part.</summary>
     /// <param name="picture">The repeating picture.</param>
-    public AtmosphereArtwork(ShownLayeredPicture picture)
+    /// <exception cref="InvalidDataException">The picture installs neither part.</exception>
+    public AtmosphereArtwork(LayeredPicture picture)
     {
         Picture = Ensure.NotNull(picture);
-        Size = picture.Size;
+        Size = picture.Size ?? throw new InvalidDataException("An atmosphere's picture installs neither of its parts.");
     }
 
     /// <summary>The repeating picture.</summary>
-    public ShownLayeredPicture Picture { get; }
+    public LayeredPicture Picture { get; }
 
     /// <summary>The picture's width and height, at which it repeats across and down.</summary>
     public Extent16<ImagePixels> Size { get; }

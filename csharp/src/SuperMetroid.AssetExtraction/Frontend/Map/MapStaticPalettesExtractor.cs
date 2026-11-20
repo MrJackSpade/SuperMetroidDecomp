@@ -29,13 +29,13 @@ internal static class MapStaticPalettesExtractor
             foreach (AreaId area in AreaIds.Zebes)
             {
                 int offsets = area == selected ? MapSourceDefinitions.FileSelectMap.ActivePaletteOffsets : MapSourceDefinitions.FileSelectMap.InactivePaletteOffsets;
-                int cursor = MapSourceDefinitions.FileSelectMap.PalettePrograms + RomDataReader.ReadWordFixedBank(bus, offsets + AreaNumberCodec.Encode(area) * sizeof(ushort));
+                int cursor = MapSourceDefinitions.FileSelectMap.PalettePrograms + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), offsets + AreaNumberCodec.Encode(area) * sizeof(ushort));
                 bool terminated = false;
                 for (int record = 0; record < MapSourceDefinitions.Artwork.MaximumCopyRecords; record++, cursor += MapSourceDefinitions.Artwork.CopyRecordBytes)
                 {
-                    int source = RomDataReader.ReadWordFixedBank(bus, cursor);
+                    int source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
                     if (source == ushort.MaxValue) { terminated = true; break; }
-                    int destination = RomDataReader.ReadWordFixedBank(bus, cursor + sizeof(ushort));
+                    int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor + sizeof(ushort));
                     if ((destination & 1) != 0 || destination / 2 + MapSourceDefinitions.Artwork.CopyColorCount > CgramPalettes.ColorCount)
                         throw new InvalidDataException("World-map palette copy exceeds the color range.");
                     CartridgePaletteImporter.LoadToCgram(colors, bus, MapSourceDefinitions.FileSelectMap.PaletteColors + source, MapSourceDefinitions.Artwork.CopyColorCount, destination / 2);

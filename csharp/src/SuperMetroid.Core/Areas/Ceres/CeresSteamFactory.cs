@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="vents">The room's owner of the steam vents.</param>
 /// <param name="motions">The motions the room gives the vents it places.</param>
 [RoomLifetime]
-internal sealed class CeresSteamFactory(CeresSteamBehavior vents, CeresSteamVentMotions motions) : IEnemySettingsFactory<CeresSteamSpawnSettings>
+internal sealed class CeresSteamFactory(CeresSteamBehavior vents, CeresSteamVentMotions motions) : IEnemyEntityFactory
 {
     /// <summary>The room's owner of the steam vents.</summary>
     internal CeresSteamBehavior Vents { get; } = Ensure.NotNull(vents);
@@ -26,5 +26,5 @@ internal sealed class CeresSteamFactory(CeresSteamBehavior vents, CeresSteamVent
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CeresSteam];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CeresSteamSpawnSettings settings) => new CeresSteamEntity(_vents, occupant, place, common, _motions, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new CeresSteamEntity(_vents, occupant, place, common, _motions));
 }

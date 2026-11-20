@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -23,13 +22,13 @@ internal static class BabyMetroidPresenceVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         MotherBrainRainbowBeamAttackSequence lateFight = state.BeginLateFight();
         runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
-        BabyMetroidCutsceneState baby = lateFight.Baby.Arrived()
+        BabyMetroidCutsceneState baby = lateFight.Baby
             ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.");
         RoomEnemyPlace place = baby.Place;
 
@@ -44,7 +43,7 @@ internal static class BabyMetroidPresenceVerification
         {
             place.FrameCounter = enemyFrame;
             runtime.Enemies.BabyMetroidCutsceneBehavior.RunBabyMetroidCutsceneMainAi(place, new ClockedEnemyAiFrame(
-                RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), enemyFrame) with { Samus = place.RequireSpeciesState<BabyMetroidCutsceneState>(), runtime.Player.Samus },
+                RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), enemyFrame) with { Samus = runtime.Player.IntroducedSamus },
                 new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero.After(enemyFrame))));
             AssertEqual(contact, place.Contact, $"enemy frame {enemyFrame}: the Baby's contact stands");
             AssertEqual(processing, place.Processing, $"enemy frame {enemyFrame}: the Baby's processing stands");

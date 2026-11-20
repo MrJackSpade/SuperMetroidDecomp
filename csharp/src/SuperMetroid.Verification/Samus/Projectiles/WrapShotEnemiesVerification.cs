@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -31,7 +30,7 @@ internal static class WrapShotEnemiesVerification
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RedTower);
             var enemy = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Ripper));
             foreach (var other in runtime.Enemies.Places.InUpdateOrder) if (!ReferenceEquals(other, enemy)) other.Clear();
@@ -69,7 +68,7 @@ internal static class WrapShotEnemiesVerification
                 GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
                 bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
                 shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)(left ? 0 : 768), 0), bombs, new SharedGameState(new SharedRandom()));
-                runtime.Enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, runtime.Room.LoadedRoom.Area, runtime.Player.Samus);
+                runtime.Enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, runtime.Room.LoadedRoom.Area, runtime.Player.IntroducedSamus);
             }
             AssertEqual(RoomTerrainBlock.Of(0x052, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlockByIndex(target).Terrain, "Same shot actually triggers the remote tile");
             AssertEqual(health, enemy.Health, "Remote enemy health is unchanged");
@@ -79,7 +78,7 @@ internal static class WrapShotEnemiesVerification
             // live projectile. A real collision proves the negative was spatial,
             // not a dead projectile, inactive enemy or disabled collision path.
             enemy.Position = enemy.Position.WithWhole(shots.Shots[0].Position.Whole);
-            runtime.Enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, runtime.Room.LoadedRoom.Area, runtime.Player.Samus);
+            runtime.Enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, runtime.Room.LoadedRoom.Area, runtime.Player.IntroducedSamus);
             AssertTrue(shots.Shots[0].IsSpent, "World-space overlap reaches the same enemy collision dispatcher: the shot is spent on it");
         }
         Console.WriteLine("PASS wrap-shot enemy separation: both remote tile hits spare eligible enemies; world-space controls collide.");

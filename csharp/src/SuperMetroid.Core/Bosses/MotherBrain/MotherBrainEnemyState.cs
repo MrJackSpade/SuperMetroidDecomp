@@ -12,12 +12,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
-    /// <summary>
-    /// The body the boss shows its parts' frames on (#1353, #1466, #1515, #2554): its own, made as it sets up and attached
-    /// to the room's display then, nothing showing at first.
-    /// </summary>
-    internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts => field ??= SuperMetroid.Core.Enemies.BossBodies.BossBodyParts.Hidden(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.MotherBrain, this);
-
     /// <inheritdoc />
     Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => BodyPlacedAt;
 
@@ -215,10 +209,10 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// Her room's flash playing (#641, #2259, #2404): the shared animation player looping its images, or null while
     /// no flash runs.
     /// </summary>
-    internal ShowingAnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue>? RoomFlash { get; set; }
+    internal AnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue>? RoomFlash { get; set; }
 
-    /// <summary>Where the tube collapse stands: at its first tube, standing, until her fake-death flash starts it there.</summary>
-    internal MotherBrainTubeCollapseProgress TubeCollapse { get; set; } = MotherBrainTubeCollapseProgress.Start;
+    /// <summary>Where the tube collapse stands, or null until her fake-death flash starts the collapse.</summary>
+    internal MotherBrainTubeCollapseProgress? TubeCollapse { get; set; }
     /// <summary>Independent countdown used by selected tube spawn stages; a stage moves on as it runs out.</summary>
     public BossCountdown TubeCollapseTimer { get; } = new();
 

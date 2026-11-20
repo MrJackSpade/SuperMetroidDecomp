@@ -73,9 +73,8 @@ internal static class IntroScenePictureSheetComposer
             PaintRect(canvas, 0, Pages.Count * cells, cells, sources.PortraitTilemap.Span[..planeCells], characters, colours));
         for (int place = 0; place < Eyes.Count; place++)
         {
-            int record = Ensure.Listed(FrontendSourceDefinitions.IntroEyeFrameRecordOf, Eyes[place]);
             frames.Add(IntroScenePictures.Eye(Eyes[place]),
-                PaintRect(canvas, place * eye.X, (Pages.Count + 1) * cells, eye.X, sources.EyeFrames.FrameTiles(record), characters, colours));
+                PaintRect(canvas, place * eye.X, (Pages.Count + 1) * cells, eye.X, sources.EyeFrames.FrameTiles(Eyes[place]), characters, colours));
         }
         ComposedSpriteSheet sheet = canvas.ToSheet(colours, frames, SpriteImageColours.Background);
         // The scene pictures show every cross-fade level of the colour groups the opening fades (#1512), and the Mother Brain

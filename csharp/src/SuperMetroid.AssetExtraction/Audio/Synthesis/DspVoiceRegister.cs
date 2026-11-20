@@ -4,23 +4,23 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 internal enum DspVoiceRegister
 {
     /// <summary>VxVOLL: left volume.</summary>
-    VolumeLeft = 0,
+    VolumeLeft,
     /// <summary>VxVOLR: right volume.</summary>
-    VolumeRight = 1,
+    VolumeRight,
     /// <summary>VxPITCHL: pitch low byte.</summary>
-    PitchLow = 2,
+    PitchLow,
     /// <summary>VxPITCHH: pitch high bits.</summary>
-    PitchHigh = 3,
+    PitchHigh,
     /// <summary>VxSRCN: sample source number.</summary>
-    SourceNumber = 4,
+    SourceNumber,
     /// <summary>VxADSR1.</summary>
-    Adsr1 = 5,
+    Adsr1,
     /// <summary>VxADSR2.</summary>
-    Adsr2 = 6,
+    Adsr2,
     /// <summary>VxGAIN.</summary>
-    Gain = 7,
+    Gain,
     /// <summary>VxENVX: current envelope, published by the DSP.</summary>
-    EnvelopeOutput = 8,
+    EnvelopeOutput,
     /// <summary>VxOUTX: current sample, published by the DSP.</summary>
-    SampleOutput = 9,
+    SampleOutput,
 }

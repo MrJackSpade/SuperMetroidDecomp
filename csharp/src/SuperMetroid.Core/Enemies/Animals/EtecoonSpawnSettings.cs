@@ -2,11 +2,4 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>How an Etecoon starts: the route it takes after its first landing, the one thing its placements vary (#1472, #1519, #2023).</summary>
 /// <param name="Route">The route it takes after its first landing.</param>
-internal sealed record EtecoonSpawnSettings(EtecoonRoute Route) : EnemySpawnSettings
-{
-    /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacementRequest placing) => Ensure.NotNull(species).Place(this, placing);
-
-    /// <inheritdoc/>
-    internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);
-}
+internal sealed record EtecoonSpawnSettings(EtecoonRoute Route) : EnemySpawnSettings;

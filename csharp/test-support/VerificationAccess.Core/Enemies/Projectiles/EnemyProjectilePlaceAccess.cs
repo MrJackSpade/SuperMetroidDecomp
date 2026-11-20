@@ -13,16 +13,27 @@ internal static class EnemyProjectilePlaceAccess
     /// Makes <paramref name="place"/> hold a fresh projectile of <paramref name="kind"/>, starting from what the place's
     /// latest projectile left there, as a spawn into it would, for the check to set up.
     /// </summary>
-    internal static EnemyProjectile ProjectileInPlace(this EnemyProjectileEngine engine, int place) =>
-        engine.LatestInPlace(place) ?? engine.Places[place].Take();
+    internal static EnemyProjectile Occupy(this EnemyProjectileEngine engine, int place, RoomEnemyProjectileKind kind)
+    {
+        EnemyProjectile?[] places = PrivateState.Field<EnemyProjectileEngine, EnemyProjectile?[]>(engine, "_places");
+        EnemyProjectilePlaceLeftovers leftovers = PrivateState.Field<EnemyProjectileEngine, EnemyProjectilePlaceLeftovers>(engine, "_leftovers");
+        return places[place] = new EnemyProjectile(place, leftovers.StartOf(place, places[place]?.LeftInPlace), kind);
+    }
 
     /// <summary>
-    /// The last projectile the place held, gone or not, which a check reads as the native snapshot holds a free slot: at the
-    /// position and velocity its last projectile left there (#2554).
+    /// Makes <paramref name="place"/> free, holding <paramref name="leftover"/> for the room's next spawn there, as a
+    /// recorded state's free place holds what its last projectile left: no projectile holds the place.
     /// </summary>
-    internal static EnemyProjectile? LatestInPlace(this EnemyProjectileEngine engine, int place) =>
-        PrivateState.Field<EnemyProjectilePlace, EnemyProjectile?>(engine.Places[place], "_last");
+    internal static void ImportLeftover(this EnemyProjectileEngine engine, int place, EnemyProjectileHandOver leftover)
+    {
+        EnemyProjectile?[] places = PrivateState.Field<EnemyProjectileEngine, EnemyProjectile?[]>(engine, "_places");
+        EnemyProjectilePlaceLeftovers leftovers = PrivateState.Field<EnemyProjectileEngine, EnemyProjectilePlaceLeftovers>(engine, "_leftovers");
+        PrivateState.Field<EnemyProjectilePlaceLeftovers, EnemyProjectileHandOver[]>(leftovers, "_fromRoomBefore")[place] = leftover;
+        places[place] = null;
+    }
 
+    /// <summary>Every place's latest projectile in place order, for checks that fill the pool.</summary>
+    /// <exception cref="InvalidOperationException">The room has spawned nothing into some place.</exception>
     internal static EnemyProjectile[] EveryPlace(this EnemyProjectileEngine engine) =>
-        [.. Enumerable.Range(0, EnemyProjectileEngine.PlaceCount).Select(engine.SpawnedInPlace)];
+        [.. Enumerable.Range(0, EnemyProjectilePlaces.Capacity).Select(engine.SpawnedInPlace)];
 }

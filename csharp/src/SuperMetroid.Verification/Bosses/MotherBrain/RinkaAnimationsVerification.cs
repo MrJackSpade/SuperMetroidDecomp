@@ -12,7 +12,7 @@ internal static class RinkaAnimationsVerification
     /// <summary>Every segment matches its native list and every animation the lists' control flow.</summary>
     internal static void VerifyRinkaAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries, RinkaAnimations.Segments,
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, RinkaAnimations.Segments,
             RinkaAnimations.StartingAt, RinkaFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<RinkaCue>(word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
                 (word, operands, cue, at) =>

@@ -9,9 +9,9 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>
-/// The n00b tube's glass shard and released-air bubble animations (#641); the crack's are its own
-/// (<see cref="NoobTubeCrackAnimations"/>, #2554). Each frame shows a <see cref="NoobTubeProjectileFrame"/>, and a shard's
-/// its mirror image on alternate updates; each cue is a <see cref="NoobTubeProjectileCue"/>.
+/// The n00b tube's crack, glass shard and released-air bubble animations (#641). Each frame shows a
+/// <see cref="NoobTubeProjectileFrame"/>, and a shard's its mirror image on alternate updates; each cue is a
+/// <see cref="NoobTubeProjectileCue"/>.
 /// </summary>
 internal static class NoobTubeProjectileAnimations
 {
@@ -19,6 +19,51 @@ internal static class NoobTubeProjectileAnimations
     internal static AnimationSegments<NoobTubeProjectileSegment, NoobTubeProjectileFrame, NoobTubeProjectileCue> Segments { get; } = new(
         new Dictionary<NoobTubeProjectileSegment, AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>[]>
     {
+        [P.Crack] =
+        [
+            Show(F.NoobTubeCrackStarting, 12),
+            Show(F.NoobTubeCrackSpreading, 10),
+            Show(F.NoobTubeCrackWidening, 8),
+            Show(F.NoobTubeCrackReaching, 6),
+            Show(F.NoobTubeCrackSpanning, 6),
+            Show(F.NoobTubeCrackBranching, 6),
+            Cue(new(K.StartCrackFlicker)),
+            Show(F.NoobTubeShardsBursting, 1),
+            Show(F.NoobTubeShardsFlyingOut, 1),
+            Show(F.NoobTubeShardsFlyingApart, 1),
+            Show(F.NoobTubeShardsSpreading, 1),
+            Show(F.NoobTubeShardsSlowing, 1),
+            Show(F.NoobTubeShardsPeaking, 2),
+            Show(F.NoobTubeShardsTurning, 3),
+            Show(F.NoobTubeShardsCoasting, 6),
+            Show(F.NoobTubeShardsTipping, 9),
+            Show(F.NoobTubeShardsAtWidest, 8),
+            Cue(new(K.StartCrackFall)),
+            Show(F.NoobTubeShardsDipping, 7),
+            Show(F.NoobTubeShardsDropping, 7),
+            Show(F.NoobTubeShardsSinking, 7),
+            Show(F.NoobTubeShardsLowering, 7),
+            Show(F.NoobTubeShardsDescending, 7),
+            Show(F.NoobTubeShardsFalling, 7),
+            Show(F.NoobTubeShardsDrifting, 7),
+            Show(F.NoobTubeShardsFloating, 7),
+            Show(F.NoobTubeShardsWafting, 7),
+            Show(F.NoobTubeShardsGliding, 7),
+            Show(F.NoobTubeShardsSailing, 7),
+            Show(F.NoobTubeShardsFluttering, 7),
+            Show(F.NoobTubeShardsSubsiding, 7),
+            Show(F.NoobTubeShardsSlipping, 7),
+            Show(F.NoobTubeShardsSifting, 7),
+            Show(F.NoobTubeShardsSettling, 7),
+            Show(F.NoobTubeShardsSettlingLower, 7),
+            Show(F.NoobTubeShardsNearlySettled, 7),
+            Show(F.NoobTubeShardsComingToRest, 16),
+        ],
+        [P.CrackFallen] =
+        [
+            Show(F.NoobTubeShardsLanded, 16),
+            Show(F.NoobTubeShardsComingToRest, 16),
+        ],
         [P.Deletion] =
         [
             Cue(new(K.Delete)),
@@ -102,9 +147,10 @@ internal static class NoobTubeProjectileAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at: the bubbles'.</summary>
+    /// <summary>The animation that starts at each segment an owner can start or restart at: the crack's and the bubbles'.</summary>
     internal static IReadOnlyDictionary<NoobTubeProjectileSegment, Animation<NoobTubeProjectileSegment>> StartingAt { get; } = new Dictionary<NoobTubeProjectileSegment, Animation<NoobTubeProjectileSegment>>
     {
+        [P.Crack] = new([Segments.Whole(P.Crack), Segments.Repeated(P.CrackFallen, CrackFallenPlays), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
         [P.ReleasedAirBubble] = new([Segments.Whole(P.ReleasedAirBubble)], AnimationEnd.Holds),
     };
 
@@ -126,6 +172,9 @@ internal static class NoobTubeProjectileAnimations
         [S.Up] = new([Segments.Repeated(P.ShardUpFlicker, FlightFlickers), Segments.Whole(P.ShardFallStart), Segments.Repeated(P.ShardUpFlicker, FallFlickers), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
         [S.DownInner] = new([Segments.Repeated(P.ShardDownInnerFlicker, FlightFlickers), Segments.Whole(P.ShardFallStart), Segments.Repeated(P.ShardDownInnerFlicker, FallFlickers), Segments.Whole(P.Deletion)], AnimationEnd.Holds),
     };
+
+    /// <summary>The plays of the fallen crack's last pieces before it is deleted.</summary>
+    private const int CrackFallenPlays = 6;
 
     /// <summary>The flickers of a shard's flight out of the tube.</summary>
     private const int FlightFlickers = 32;
@@ -153,6 +202,5 @@ internal static class NoobTubeProjectileAnimations
 
     /// <summary>Every frame the pieces show, a shard's mirror images after its own, in the order the animations first show them.</summary>
     internal static IEnumerable<EnemyProjectileFrameId> ShownFrames =>
-        NoobTubeCrackAnimations.Segments.Frames.Concat(Segments.Frames)
-            .SelectMany(frame => frame.Mirrored is { } mirrored ? [frame.Shown, mirrored] : new[] { frame.Shown }).Distinct();
+        Segments.Frames.SelectMany(frame => frame.Mirrored is { } mirrored ? [frame.Shown, mirrored] : new[] { frame.Shown }).Distinct();
 }

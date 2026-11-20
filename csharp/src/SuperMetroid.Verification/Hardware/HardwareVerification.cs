@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -426,7 +425,7 @@ internal static void VerifyFrameRuntime()
     // Gameplay frames run in a loaded room, entered after the HUD initializes as new-game setup does.
     runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
     runtime.RoomLoader.InitializeStartingCeresRoom();
-    runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+    runtime.RoomLoader.InitializeCeresStartSamus();
     runtime.EscapeTimer.RequestCeresStart();
 
     // The shaft's room main tilts its floor during the main loop. The tilt must become visible

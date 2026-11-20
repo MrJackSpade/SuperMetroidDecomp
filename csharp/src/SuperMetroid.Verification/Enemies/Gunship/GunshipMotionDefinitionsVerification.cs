@@ -24,23 +24,26 @@ internal static class GunshipMotionDefinitionsVerification
 
         for (ushort frame = 0; frame < 17; frame++)
         {
-            short expected = unchecked((short)rom.ReadCartridgeWord((0xa2a622 + frame * 2)));
+            short expected = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2a622 + frame * 2)));
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new GunshipMotionFixtureGuard(rom));
-            var applyBrake = new Action<RoomEnemyPlace, GunshipPieces, GunshipState, SamusState>(enemies.GunshipBehavior.BouncePostCeresGunship);
+            var applyBrake = new Action<RoomEnemyPlace, SamusState>(enemies.GunshipBehavior.BouncePostCeresGunship);
             RoomEnemyPlace top = enemies.Places.InUpdateOrder[0];
             // The top hull finds the bottom hull and pad listed after it as production places it; each piece keeps its own
             // animation, which the bounce restarts on the pad. It is placed inside the room before it is raised onto its pad.
             top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
-            GunshipTop gunship = enemies.GunshipBehavior.InitializeGunshipTop(top, RoomEnemyFrameFixtures.StandaloneSamus());
+            enemies.GunshipBehavior.InitializeGunshipTop(top, RoomEnemyFrameFixtures.StandaloneSamus());
+            enemies.Places.InUpdateOrder[1].SetSpeciesState(new GunshipPieceState(default));
+            enemies.Places.InUpdateOrder[2].SetSpeciesState(new GunshipPieceState(default));
             top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
             var part = new GunshipState(GunshipPhase.ApplyLandingBrakes);
+            top.SetSpeciesState(part);
             part.LandingBrake = GunshipLandingBrake.All[frame];
             enemies.Places.InUpdateOrder[1].Position = enemies.Places.InUpdateOrder[1].Position.WithWholeY(0x2100);
             enemies.Places.InUpdateOrder[2].Position = enemies.Places.InUpdateOrder[2].Position.WithWholeY(0x2200);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x3000)) };
 
-            applyBrake(top, gunship.Pieces, part, samus);
+            applyBrake(top, samus);
 
             AssertEqual(unchecked((ushort)(0x3000 + expected)), samus.Position.Y.Whole,
                 $"gunship production brake Samus Y {frame}");
@@ -59,19 +62,20 @@ internal static class GunshipMotionDefinitionsVerification
             sbyte expectedDelta = unchecked((sbyte)GunshipMotionDefinitionsRomByte(rom, address + 1));
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new GunshipMotionFixtureGuard(rom));
-            var stepBob = new Action<GunshipPieces, GunshipState>(GunshipBehavior.StepGunshipBob);
+            var stepBob = new Action<RoomEnemyPlace>(GunshipBehavior.StepGunshipBob);
             RoomEnemyPlace top = enemies.Places.InUpdateOrder[0];
             // The top hull finds the bottom hull and pad listed after it as production places it, inside the room.
             top.Position = top.Position.WithWholeY(0x2000);
-            GunshipTop gunship = enemies.GunshipBehavior.InitializeGunshipTop(top, RoomEnemyFrameFixtures.StandaloneSamus());
+            enemies.GunshipBehavior.InitializeGunshipTop(top, RoomEnemyFrameFixtures.StandaloneSamus());
             var part = new GunshipState(GunshipPhase.Idle);
+            top.SetSpeciesState(part);
             part.Bob = GunshipIdleBob.All[phase];
             part.BobTimer = UpdateCountdown.For(1);
             top.Position = top.Position.WithWholeY(0x2000);
             enemies.Places.InUpdateOrder[1].Position = enemies.Places.InUpdateOrder[1].Position.WithWholeY(0x2100);
             enemies.Places.InUpdateOrder[2].Position = enemies.Places.InUpdateOrder[2].Position.WithWholeY(0x2200);
 
-            stepBob(gunship.Pieces, part);
+            stepBob(top);
 
             AssertEqual(expectedTimer, part.BobTimer.UpdatesLeft,
                 $"gunship production bob timer {phase}");
@@ -102,7 +106,7 @@ internal static class GunshipMotionDefinitionsVerification
         for (ushort frame = 0; frame < 17; frame++)
         {
             GunshipLandingBrake current = brake ?? throw new InvalidOperationException($"The landing brakes end before update {frame}.");
-            AssertEqual(unchecked((short)rom.ReadCartridgeWord((GunshipMotionDefinitions.BrakeReferenceAddress + 2 * frame))),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((GunshipMotionDefinitions.BrakeReferenceAddress + 2 * frame))),
                 current.YDelta, $"Original gunship brake {frame}");
             brake = current.Next;
         }

@@ -2,7 +2,9 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 
@@ -29,45 +31,29 @@ public static class SamusArmCannonArtworkFiles
         Directory.CreateDirectory(importData);
         // The pose table is read by the cartridge's pose numbers and installed by pose name (#1595).
         Dictionary<SamusPoseId, int> descriptors = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose,
-            pose => RomDataReader.ReadWordFixedBank(bus,
+            pose => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 SamusSourceDefinitions.PoseDrawingDataPointers.Value + SamusPoseNumbers.Number(pose) * 2) - SamusSourceDefinitions.ArmCannonDrawingData);
         int[] drawingData = Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount)
             .Select(index => (int)bus.ReadCartridgeByte(SamusSourceDefinitions.MovementBank.Value |
                 (SamusSourceDefinitions.ArmCannonDrawingData + index))).ToArray();
-        SpriteVisualPart[] appearances = Enumerable.Range(0, SamusProjectileDirectionCodec.Count)
-            .Select(direction => SpriteVisualPart.FromSpritePart(new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(
-                bus, SamusSourceDefinitions.ArmCannonSpriteAttributes.Value + direction * 2)).ToSinglePart(),
-                SpriteArtwork.CharactersPerRow)).ToArray();
-        int[][] coverTiles = Enumerable.Range(0, SamusProjectileDirectionCodec.Count)
-            .Select(direction =>
-            {
-                int list = RomDataReader.ReadWordFixedBank(bus,
-                    SamusSourceDefinitions.TileListPointers.Value + direction * 2);
-                ushort[] sources = [.. Enumerable.Range(0, SamusArmCannonArtworkFormat.FramesPerDirection)
-                    .Select(frame => RomDataReader.ReadWordFixedBank(bus,
-                        SamusSourceDefinitions.MovementBank.Value | (list + frame * 2)))];
-                // The closed frame uploads nothing; each opening frame names one installed cover tile.
-                if (sources[0] != 0)
-                    throw new InvalidDataException($"Arm-cannon direction {direction} uploads a closed-cover tile.");
-                return sources[1..].Select(source => ArmCannonTileSources.CoverTileDmaSources.IndexOf(source) is int tile
-                    ? tile
-                    : throw new InvalidDataException($"Arm-cannon direction {direction} names cover source ${source:X4}, which is no installed tile.")).ToArray();
-            }).ToArray();
+        Dictionary<SamusProjectileDirection, SpriteVisualPart> appearances = SamusProjectileDirectionCodec.InAimOrder.ToDictionary(
+            direction => direction,
+            direction => SpriteVisualPart.FromSpritePart(new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(
+                CartridgeImportSource.Require(bus), SamusSourceDefinitions.ArmCannonSpriteAttributes.Value + direction.ToAimIndex() * 2)).ToSinglePart(),
+                SpriteArtwork.CharactersPerRow));
+        Dictionary<SamusProjectileDirection, SamusArmCannonCoverOrientation> orientations = SamusProjectileDirectionCodec.InAimOrder
+            .ToDictionary(direction => direction, direction => CoverOrientation(bus, direction));
         var document = new SamusArmCannonArtworkDocument
         {
             Version = SamusArmCannonArtworkFormat.Version,
             PoseDescriptors = descriptors,
             DrawingData = drawingData,
             CoverAppearances = appearances,
-            CoverTiles = coverTiles,
+            CoverOrientations = orientations,
         };
-        byte[] planar = new byte[SamusArmCannonArtworkFormat.CoverTileCount *
-            SamusArmCannonArtworkFormat.CoverTileByteCount];
-        for (int tile = 0; tile < SamusArmCannonArtworkFormat.CoverTileCount; tile++)
-            for (int offset = 0; offset < SamusArmCannonArtworkFormat.CoverTileByteCount; offset++)
-                planar[tile * SamusArmCannonArtworkFormat.CoverTileByteCount + offset] =
-                    bus.ReadCartridgeByte(SamusSourceDefinitions.CharacterDataBank.Value |
-                        (ArmCannonTileSources.CoverTileDmaSources[tile] + offset));
+        // The import's cover page holds the cover pictures in the order the cartridge keeps them.
+        byte[] planar = [.. ArmCannonTileSources.InSourceOrder.SelectMany(tile => Enumerable.Range(0, SamusArmCannonArtworkFormat.CoverTileByteCount)
+            .Select(offset => bus.ReadCartridgeByte(SamusSourceDefinitions.CharacterDataBank.Value | (ArmCannonTileSources.Source(tile) + offset))))];
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
             SamusArmCannonArtworkFormat.CoverTileCount,
             out Extent16<ImagePixels> size);
@@ -77,6 +63,32 @@ public static class SamusArmCannonArtworkFiles
         byte[] json = SamusArmCannonSourceArtwork.Write(document);
         File.WriteAllBytes(Path.Combine(importData, SamusArmCannonArtworkFormat.TileFileName), png);
         File.WriteAllBytes(Path.Combine(importData, SamusArmCannonArtworkFormat.ArtworkFileName), json);
+    }
+
+    /// <summary>
+    /// The orientation whose opening <paramref name="direction"/>'s cartridge tile list uploads (#2556): its closed frame
+    /// uploads nothing and each opening frame the orientation's picture for that frame.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The list uploads a closed-cover picture, names a source that is no cover picture, or does not open one orientation's pictures in order.</exception>
+    private static SamusArmCannonCoverOrientation CoverOrientation(ISnesAddressSpace bus, SamusProjectileDirection direction)
+    {
+        int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            SamusSourceDefinitions.TileListPointers.Value + direction.ToAimIndex() * 2);
+        int Source(int frame) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            SamusSourceDefinitions.MovementBank.Value | (list + frame * 2));
+        if (Source(SamusArmCannonCoverFrameCodec.ClosedFrame) != 0)
+            throw new InvalidDataException($"Arm-cannon direction {direction} uploads a closed-cover tile.");
+        SamusArmCannonCoverOrientation? orientation = null;
+        foreach (SamusArmCannonCoverFrame frame in SamusArmCannonCoverFrameCodec.InOpeningOrder)
+        {
+            int source = Source(SamusArmCannonCoverFrameCodec.CartridgeFrame(frame));
+            if (!ArmCannonTileSources.TryDecode(source, out SamusArmCannonCoverTile tile))
+                throw new InvalidDataException($"Arm-cannon direction {direction} names cover source ${source:X4}, which is no installed tile.");
+            if (tile.Frame != frame || orientation is { } opening && opening != tile.Orientation)
+                throw new InvalidDataException($"Arm-cannon direction {direction} does not open one orientation's cover pictures in order.");
+            orientation = tile.Orientation;
+        }
+        return orientation ?? throw new InvalidDataException($"Arm-cannon direction {direction} opens no cover picture.");
     }
 
     /// <summary>

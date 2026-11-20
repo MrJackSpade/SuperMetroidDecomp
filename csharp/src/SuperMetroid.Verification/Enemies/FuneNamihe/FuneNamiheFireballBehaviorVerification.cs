@@ -23,7 +23,7 @@ internal static class FuneNamiheFireballBehaviorVerification
     /// </summary>
     internal static void VerifyFuneNamiheFireballBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, FuneNamiheFireballNativeListAddresses.Extent, "Fune/Namihe fireball");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
@@ -36,8 +36,8 @@ internal static class FuneNamiheFireballBehaviorVerification
             source.SetSpawnParameter1(species, species == EnemyDefinitionId.Namihe ? 1 : 0);
             source.SetSpawnParameter2(species, 0);
             FuneNamiheEnemyState spitter = species == EnemyDefinitionId.Namihe
-                ? new NamiheEnemyState(NamiheAction.WaitForSamus, new NamiheSpawnSettings(HorizontalDirection.Left, LaunchSpeed: SignedEightEight.Zero, YProximity: 0))
-                : new FuneEnemyState(FuneAction.WaitForCooldown, new FuneSpawnSettings(HorizontalDirection.Left, CooldownTime: 0, LaunchSpeed: SignedEightEight.Zero));
+                ? new NamiheEnemyState(NamiheAction.WaitForSamus)
+                : new FuneEnemyState(FuneAction.WaitForCooldown);
             foreach (bool movingRight in new[] { false, true })
             {
                 foreach (EnemyProjectile candidate in enemies.Projectiles.EnemyProjectiles)

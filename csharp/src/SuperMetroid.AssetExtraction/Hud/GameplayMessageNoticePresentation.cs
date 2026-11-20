@@ -14,20 +14,16 @@ public sealed class GameplayMessageNoticePresentation
 {
     /// <summary>Validated templates and bounded text overlays indexed by supported message ID.</summary>
     private readonly Dictionary<GameplayMessageId, CompiledNotice> notices;
-    /// <summary>The YES and NO selection rows of each save confirmation, the only notices that have them.</summary>
-    private readonly Dictionary<GameplayMessageId, SaveSelectionRows> selections;
     /// <summary>The 32-cell row copied above and below every notice's content.</summary>
     private readonly BackgroundTile[] border;
 
     /// <summary>Captures compiled notice data together with the hash of its original JSON bytes.</summary>
     private GameplayMessageNoticePresentation(
         Dictionary<GameplayMessageId, CompiledNotice> notices,
-        Dictionary<GameplayMessageId, SaveSelectionRows> selections,
         BackgroundTile[] border,
         string contentIdentity)
     {
         this.notices = notices;
-        this.selections = selections;
         this.border = border;
         ContentIdentity = contentIdentity;
     }
@@ -76,10 +72,12 @@ public sealed class GameplayMessageNoticePresentation
         Span<BackgroundTile> tilemap,
         bool yesSelected)
     {
-        _ = Get(messageId);
-        if (!selections.TryGetValue(messageId, out SaveSelectionRows? rows))
-            throw new InvalidDataException($"Gameplay-message notice {messageId} has no selection rows.");
-        BackgroundTile[] source = yesSelected ? rows.Yes : rows.No;
+        CompiledNotice notice = Get(messageId);
+        BackgroundTile[] source = yesSelected
+            ? notice.YesSelection ?? throw new InvalidDataException(
+                $"Gameplay-message notice {messageId} has no YES selection row.")
+            : notice.NoSelection ?? throw new InvalidDataException(
+                $"Gameplay-message notice {messageId} has no NO selection row.");
         int firstCell = GameplayMessageTilemapDefinitions.SaveSelectionRow * GameplayMessageTilemapDefinitions.TilemapWidth;
         if (tilemap.Length < firstCell + GameplayMessageTilemapDefinitions.SaveSelectionRowWords)
         {
@@ -105,7 +103,8 @@ public sealed class GameplayMessageNoticePresentation
         try
         {
             document = JsonAssetDocument.Read<GameplayMessageNoticeDocument>(
-                source, ArtworkJson.Options);
+                source, ArtworkJson.Options)
+                ?? throw new InvalidDataException("Gameplay-message notice document is null.");
         }
         catch (JsonException error)
         {
@@ -131,7 +130,6 @@ public sealed class GameplayMessageNoticePresentation
         }
 
         var compiled = new Dictionary<GameplayMessageId, CompiledNotice>();
-        var selections = new Dictionary<GameplayMessageId, SaveSelectionRows>();
         foreach (GameplayMessageId id in GameplayMessageNoticeDefinitions.MessageIds)
         {
             GameplayMessageNotice value = document.Notices[GameplayMessageIdKeys.Installed.Of(id)]
@@ -178,12 +176,14 @@ public sealed class GameplayMessageNoticePresentation
                     region.Text, region.Palette));
             }
 
-            compiled.Add(id, new(rowCount, [.. value.Template], text.ToArray()));
-            if (value.YesSelection is { } yes && value.NoSelection is { } no)
-                selections.Add(id, new([.. yes], [.. no]));
+            compiled.Add(id, new(rowCount,
+                [.. value.Template],
+                text.ToArray(),
+                value.YesSelection?.ToArray(),
+                value.NoSelection?.ToArray()));
         }
 
-        return new(compiled, selections, [.. document.Border],
+        return new(compiled, [.. document.Border],
             Convert.ToHexString(SHA256.HashData(source)));
     }
 
@@ -204,16 +204,13 @@ public sealed class GameplayMessageNoticePresentation
             : throw new ArgumentOutOfRangeException(nameof(messageId), messageId,
                 "The gameplay-message notice catalog does not own this message.");
 
-    /// <summary>Validated tilemap content.</summary>
+    /// <summary>Validated tilemap content with optional fixed save-selection variants.</summary>
     private sealed record CompiledNotice(
         int RowCount,
         BackgroundTile[] Template,
-        CompiledTextRegion[] Text);
-
-    /// <summary>A save confirmation's fixed selection rows.</summary>
-    /// <param name="Yes">The row showing YES selected.</param>
-    /// <param name="No">The row showing NO selected.</param>
-    private sealed record SaveSelectionRows(BackgroundTile[] Yes, BackgroundTile[] No);
+        CompiledTextRegion[] Text,
+        BackgroundTile[]? YesSelection,
+        BackgroundTile[]? NoSelection);
 
     /// <summary>A nonoverlapping text span whose position, width, glyphs, palette, and alignment have been checked.</summary>
     private sealed record CompiledTextRegion(

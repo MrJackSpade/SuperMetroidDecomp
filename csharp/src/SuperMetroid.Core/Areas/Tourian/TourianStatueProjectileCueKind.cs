@@ -5,6 +5,8 @@ internal enum TourianStatueProjectileCueKind
 {
     /// <summary>Deletes the projectile.</summary>
     Delete,
+    /// <summary>Starts the base decoration following the statue's reveal.</summary>
+    FollowReveal,
     /// <summary>Queues the statue release sound.</summary>
     PlayReleaseSound,
     /// <summary>Starts the unlocking earthquake.</summary>

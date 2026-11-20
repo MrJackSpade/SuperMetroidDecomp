@@ -10,11 +10,4 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <param name="GrowthSpeed">How far it grows each update, in pixels.</param>
 internal sealed record GrowingShutterSpawnSettings(
     GrowingShutterWait Wait, VerticalDirection Growth, int ActivationDistance, int ActivationWait, SignedSixteenSixteen GrowthSpeed)
-    : EnemySpawnSettings
-{
-    /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacementRequest placing) => Ensure.NotNull(species).Place(this, placing);
-
-    /// <inheritdoc/>
-    internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);
-}
+    : EnemySpawnSettings;

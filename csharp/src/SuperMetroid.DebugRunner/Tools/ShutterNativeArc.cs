@@ -111,7 +111,7 @@ internal static class ShutterNativeArc
     {
         var ram = new byte[0x20000];
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         var k = samus.Kinematics;
         var speed = samus.HorizontalSpeed;
         var level = runtime.Room.LoadedLevelData;

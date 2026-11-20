@@ -90,10 +90,19 @@ internal static class BossBodySheetComposer
     private static ComposedBossBodySheet Compose(RoomBlockSheetInputs inputs, BossBodyOwner owner)
     {
         EnemyDefinitionId enemy = Enemies[owner];
-        RoomStateSettings state = RetailRooms.All.SelectMany(RoomStateLists.GetStates)
-            .FirstOrDefault(candidate => candidate.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == enemy))
-            ?? throw new InvalidDataException($"No room state shows {owner}.");
-        BossRoomCharacters characters = RoomBlockUploads.ShownUnderBoss(inputs, state);
+        BossRoomCharacters? characters = null;
+        foreach (RoomDefinition room in RetailRooms.All)
+        {
+            RoomStateSettings? state = RoomStateLists.GetStates(room)
+                .FirstOrDefault(candidate => candidate.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == enemy));
+            if (state is not null)
+            {
+                characters = RoomBlockUploads.ShownUnderBoss(inputs, state);
+                break;
+            }
+        }
+        if (characters is null)
+            throw new InvalidDataException($"No room state shows {owner}.");
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(characters.Tileset.Palette));
         var painter = new BossBodyPainter(owner, characters, colours);
         foreach (BossBodyFrameSource frame in Frames(inputs.Bosses, owner))
@@ -125,17 +134,17 @@ internal static class BossBodySheetComposer
         switch (owner)
         {
             case BossBodyOwner.Kraid:
-                return KraidFrames(bosses.KraidBackground);
+                return KraidFrames(bosses.KraidBackground ?? throw Missing(owner));
             case BossBodyOwner.Phantoon:
-                return EnemyFrames(bosses.PhantoonBg2Frames.Writes);
+                return EnemyFrames((bosses.PhantoonBg2Frames ?? throw Missing(owner)).Writes);
             case BossBodyOwner.Draygon:
-                return EnemyFrames(bosses.DraygonBg2Frames.Writes);
+                return EnemyFrames((bosses.DraygonBg2Frames ?? throw Missing(owner)).Writes);
             case BossBodyOwner.Crocomire:
-                CrocomireMeltingArtwork melting = bosses.CrocomireMelting;
-                return [.. EnemyFrames(bosses.CrocomireBg2Frames.Writes),
+                CrocomireMeltingArtwork melting = bosses.CrocomireMelting ?? throw Missing(owner);
+                return [.. EnemyFrames((bosses.CrocomireBg2Frames ?? throw Missing(owner)).Writes),
                     .. MeltingOrder.SelectMany(image => CrocomireMeltStates(melting, image))];
             case BossBodyOwner.MotherBrain:
-                return EnemyFrames(bosses.MotherBrainBodyBg2Frames.Writes);
+                return EnemyFrames((bosses.MotherBrainBodyBg2Frames ?? throw Missing(owner)).Writes);
             default:
                 throw new InvalidDataException($"Undefined boss body owner {owner}.");
         }
@@ -284,4 +293,6 @@ internal static class BossBodySheetComposer
         }
     }
 
+    /// <summary>The failure for a boss whose installed artwork is missing.</summary>
+    private static InvalidDataException Missing(BossBodyOwner owner) => new($"The installed boss artwork has no {owner} body.");
 }

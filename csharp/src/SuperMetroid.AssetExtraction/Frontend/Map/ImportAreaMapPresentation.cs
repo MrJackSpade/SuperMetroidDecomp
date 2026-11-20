@@ -136,7 +136,7 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
     public MapCharacterArtwork Characters { get; }
 
     /// <summary>The map and menu sprites; the game draws them from the map sprite sheet, which the import composes from these (#1463).</summary>
-    public MapSpriteArtwork Sprites { get; }
+    public MapSpriteCompositions Sprites { get; }
 
     /// <summary>The escape timer's characters, which the import composes the escape encounters' sheets from (#1513).</summary>
     public EscapeTimerCharacters EscapeTimerTiles { get; }

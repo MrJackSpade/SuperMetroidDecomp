@@ -22,16 +22,4 @@ internal sealed record RoomObjectFrameFamily<TFrame>(
     /// <summary>Every frame's geometry, looked up by frame; a frame listed twice is rejected.</summary>
     public IReadOnlyDictionary<TFrame, RoomObjectFrameLayout> Layouts { get; } =
         Frames.ToDictionary(frame => frame.Frame, frame => frame.Layout);
-
-    /// <summary>
-    /// Every frame's geometry and published name as one entry, so a frame of the family always has both (#2554); a frame
-    /// listed without its published name fails the family's construction.
-    /// </summary>
-    public IReadOnlyDictionary<TFrame, RoomObjectFrameEntry> Entries { get; } =
-        Frames.ToDictionary(frame => frame.Frame, frame => new RoomObjectFrameEntry(frame.Layout, Ids[frame.Frame]));
 }
-
-/// <summary>A room-object frame's geometry and the name it is published under.</summary>
-/// <param name="Layout">The frame's geometry.</param>
-/// <param name="Id">The frame's published name.</param>
-internal sealed record RoomObjectFrameEntry(RoomObjectFrameLayout Layout, string Id);

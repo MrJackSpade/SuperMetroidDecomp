@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -103,7 +102,7 @@ internal sealed class MessageBoxFlow
             // Only a save prompt's box answers, and only a save prompt's outcome waits for its answer.
             return outcome switch
             {
-                MessageBoxOutcome.GunshipSaveAnswer gunship => ResolveGunshipSaveAnswer(gunship.Prompt, answer.Choice),
+                MessageBoxOutcome.GunshipSaveAnswer => ResolveGunshipSaveAnswer(room, answer.Choice),
                 MessageBoxOutcome.SaveConfirmation confirmation => ResolveSaveConfirmation(room, confirmation.Station, answer.Choice),
                 _ => throw new InvalidDataException(
                     $"The message box closed with {answer.Choice}, but what waited on it ('{outcome}') waits for no answer."),
@@ -146,9 +145,9 @@ internal sealed class MessageBoxFlow
     /// opening, and a YES saves at the gunship.
     /// </summary>
     /// <returns>The save at the gunship a YES completed; null for a NO.</returns>
-    private SaveStationPersistenceRequest? ResolveGunshipSaveAnswer(GunshipSavePrompt prompt, SaveChoice choice)
+    private SaveStationPersistenceRequest? ResolveGunshipSaveAnswer(RoomScope room, SaveChoice choice)
     {
-        prompt.Answer();
+        room.Enemies.Gunship.AnswerSavePrompt();
         // Message-box updates do not publish the ordinary enemy sound list, so the pad's sound goes with the box's.
         _sounds.Add(new SoundRequest(RoomSound.GunshipPadOpening, SoundRequestPriority.Normal));
         if (choice != SaveChoice.Yes)

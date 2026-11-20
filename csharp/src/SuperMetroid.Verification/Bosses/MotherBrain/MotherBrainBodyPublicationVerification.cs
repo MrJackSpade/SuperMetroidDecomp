@@ -1,4 +1,4 @@
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -28,7 +28,7 @@ internal static class MotherBrainBodyPublicationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room loads Mother Brain.");
@@ -40,8 +40,8 @@ internal static class MotherBrainBodyPublicationVerification
             "phase one publishes no body over the pipe background");
 
         // Phase two: the transition reveals her body as it stands (#1515); her posture scroll places it.
-        ushort[] staged = Words(((BossBodyParts)runtime.Enemies.Presentation.BossBodyDisplay!).Publish());
-        MotherBrainAscent.SetupMotherBrainPhaseTwoGraphics(state);
+        ushort[] staged = Words(runtime.Enemies.Presentation.RequireBossBody().Publish());
+        runtime.Enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
         // Her body is placed at her once her rise places it (#1949, #2031), each frame lying where the import placed it
         // against her.
         state.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(65, 280));

@@ -20,7 +20,7 @@ internal static class SetCharactersPrivateAccess
         }
 
         /// <summary>The private method <c>Page</c>, invoked by name.</summary>
-        internal global::SuperMetroid.AssetExtraction.Artwork.SpriteArtwork Page(global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Enemies.SetCharacters.FrameLookPart> parts, int[] combination) =>
-            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Enemies.SetCharacters, global::SuperMetroid.AssetExtraction.Artwork.SpriteArtwork>(self, "Page", [typeof(global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Enemies.SetCharacters.FrameLookPart>), typeof(int[])], new object?[] { parts, combination });
+        internal global::SuperMetroid.AssetExtraction.Artwork.SpriteArtwork Page(global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Enemies.SetCharacters.FrameLookPart> parts, global::SuperMetroid.AssetExtraction.Enemies.ComposedLook[] combination) =>
+            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Enemies.SetCharacters, global::SuperMetroid.AssetExtraction.Artwork.SpriteArtwork>(self, "Page", [typeof(global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Enemies.SetCharacters.FrameLookPart>), typeof(global::SuperMetroid.AssetExtraction.Enemies.ComposedLook[])], new object?[] { parts, combination });
     }
 }

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
@@ -35,7 +34,7 @@ internal static class CeresElevatorDoorSealVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
 
         RoomLevelData beforeEscape = LoadElevatorRoomThroughItsDoor(runtime);
         AssertTrue(ReferenceEquals(CeresRoomStateDefinitions.CeresElevatorDefault, runtime.Room.LoadedRoom.State),
@@ -95,7 +94,7 @@ internal static class CeresElevatorDoorSealVerification
     /// </summary>
     private static DoorDefinition? WalkRightIntoTheDoor(SuperMetroidRuntime runtime, RoomLevelData level, out int rightmostPixel)
     {
-        SamusState samus = runtime.Player.Samus;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(224, 640));
         samus.Kinematics.Radius = new(5, 16);
         for (int pixel = 0; pixel < 32 && runtime.RoomObjects.DoorContacts.EnteredDoor is null; pixel++)

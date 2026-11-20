@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
@@ -36,7 +35,7 @@ internal sealed class BombSpreadTransitionScenario
     /// <summary>Production gameplay runtime stepped by the scenario.</summary>
     internal SuperMetroidRuntime Runtime { get; }
     /// <summary>Samus state owned by the scenario runtime.</summary>
-    internal SamusState Samus => Runtime.Player.Samus;
+    internal SamusState Samus => Runtime.Player.IntroducedSamus;
     /// <summary>Number of updates recorded for the aerial or walljump route.</summary>
     internal int FrameCount => WallRoute ? 300 : 260;
 
@@ -53,7 +52,7 @@ internal sealed class BombSpreadTransitionScenario
         Delay = timingCase < 10 ? timingCase : timingCase + 30;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         var level = runtime.Room.LoadedLevelData;
         // Match the grounded technique clearing, extending it upward for the jump.
@@ -112,7 +111,8 @@ internal sealed class BombSpreadTransitionScenario
     /// <summary>The projectile list layout, read once from the repository's cartridge, whose instruction pointers the rows print.</summary>
     private static readonly Lazy<SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout> lists = new(() =>
         SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListEntries.Read(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))));
 
     /// <summary>The projectile list layout whose instruction pointers the rows print.</summary>
     private static SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout Lists => lists.Value;

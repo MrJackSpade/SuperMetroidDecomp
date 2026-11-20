@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -33,7 +32,7 @@ internal static class BabyMetroidInheritedFractionsVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
@@ -44,12 +43,12 @@ internal static class BabyMetroidInheritedFractionsVerification
         runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
 
         BabyMetroidCutsceneState baby = lateFight.Baby ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.");
-        AssertTrue(ReferenceEquals(free, baby.Arrived().Place), "the Baby takes the first free slot");
+        AssertTrue(ReferenceEquals(free, baby.Place), "the Baby takes the first free slot");
         AssertEqual((ushort)0x0140, free.Position.X.Whole, "init writes the Baby's X");
         AssertEqual((ushort)0x0060, free.Position.Y.Whole, "init writes the Baby's Y");
         AssertEqual((ushort)0x1400, free.Position.X.Fraction, "the Baby keeps the slot's X fraction");
         AssertEqual((ushort)0x2800, free.Position.Y.Fraction, "the Baby keeps the slot's Y fraction");
-        AssertEqual((ushort)0x2800, baby.Arrived().Position.Y.Fraction, "the actor moves from the inherited fraction");
+        AssertEqual((ushort)0x2800, baby.Position.Y.Fraction, "the actor moves from the inherited fraction");
         Console.WriteLine("Baby Metroid inherited fractions: spawn and init leave the slot's fractions in place.");
     }
 

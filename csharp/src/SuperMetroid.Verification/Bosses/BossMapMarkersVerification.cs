@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
@@ -27,14 +26,14 @@ internal static class BossMapMarkersVerification
         int markers = 0;
         for (int area = 0; area < 6; area++)
         {
-            ushort list = RomDataReader.ReadWordFixedBank(bus, MapSourceDefinitions.Landmarks.BossLists + area * 2);
+            ushort list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Landmarks.BossLists + area * 2);
             if (list == 0) continue;
             for (int record = 0; record < 8; record++)
             {
-                ushort x = RomDataReader.ReadWordFixedBank(bus, MapSourceDefinitions.Menu.ObjectBank | (list + record * 4));
+                ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | (list + record * 4));
                 if (x == ushort.MaxValue) break;
                 if (x == ushort.MaxValue - 1) continue;
-                ushort y = RomDataReader.ReadWordFixedBank(bus, MapSourceDefinitions.Menu.ObjectBank | (list + record * 4 + 2));
+                ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | (list + record * 4 + 2));
                 var system = new SharedGameState(new SharedRandom());
                 system.SetAreaMapAcquired(area);
                 var pause = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), RoomMapPosition = new(0, 1), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
@@ -89,8 +88,8 @@ internal static class BossMapMarkersVerification
                 runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
                 runtime.FrameBoundary.BeginAcceptedFrame(0);
                 runtime.RoomLoader.InitializeStartingCeresRoom();
-                runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
-                slot.ApplyTo(runtime.Player.Samus, runtime.System);
+                runtime.RoomLoader.InitializeCeresStartSamus();
+                slot.ApplyTo(runtime.Player.IntroducedSamus, runtime.System);
                 RoomDefinition room = SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(restored, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), 0).Room
                     ?? throw new InvalidDataException($"{SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area)} station 0 has no room.");
                 for (int entry = 0; entry < 2; entry++)

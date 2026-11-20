@@ -69,7 +69,7 @@ internal static class IntroCinematicArtworkVerification
                         maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount)),
                 "extracted intro BG page preserves every native tile byte");
             AssertTrue(stock.IntroObjectCharacters.Characters.Span.SequenceEqual(
-                    RomDataReader.ReadFixedBank(bus, IntroCinematicSourceDefinitions.IntroObjectCharacters,
+                    RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.IntroObjectCharacters,
                         IntroCinematicArtworkFormat.IntroObjectByteCount)),
                 "installed fixed intro OBJ PNG preserves every native tile byte");
             AssertTrue(stock.CinematicObjectCharacters.Characters.Span.SequenceEqual(
@@ -96,11 +96,11 @@ internal static class IntroCinematicArtworkVerification
                     $"final-line map tile {index} matches cartridge source");
             }
             Suite(nameof(VerifyIntroEyeInstructions), () => VerifyIntroEyeInstructions(bus));
-            for (int frame = 0; frame < IntroEyeTilemapFormat.FrameCount; frame++)
+            foreach (SuperMetroid.Core.Frontend.Intro.IntroEyeFrame frame in IntroEyeTilemapFormat.Eyes)
             {
                 int source = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
                     (ushort)(FrontendSourceDefinitions.IntroEyeFrameRecords +
-                        frame * FrontendSourceDefinitions.IntroEyeFrameRecordStride));
+                        FrontendSourceDefinitions.IntroEyeFrameRecordOf[frame] * FrontendSourceDefinitions.IntroEyeFrameRecordStride));
                 for (int cell = 0; cell < IntroEyeTilemapFormat.CellsPerFrame; cell++)
                 {
                     int wordSource = source + 4 + cell * sizeof(ushort);
@@ -120,7 +120,7 @@ internal static class IntroCinematicArtworkVerification
             Suite(nameof(VerifyIntroScientistSpriteArtwork), () => VerifyIntroScientistSpriteArtwork(bus, stock));
             Suite(nameof(VerifyIntroMotherBrainDemoInput), () => VerifyIntroMotherBrainDemoInput(bus, stock));
             AssertTrue(ScreenColourWords.Words(stock.Palette.BackgroundColours.AsSpan(), stock.Palette.SpriteColours.AsSpan()).AsSpan().SequenceEqual(
-                    RomDataReader.ReadFixedBank(bus, IntroCinematicSourceDefinitions.Palette,
+                    RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.Palette,
                         CgramPalettes.ByteCount)),
                 "installed opening palette preserves every native RGB5 word");
 
@@ -290,8 +290,8 @@ internal static class IntroCinematicArtworkVerification
         installedState.SetupFirstIllustratedPage();
         ((nativeState.CurrentNarration ?? throw new InvalidOperationException("Verification requires nativeState.objects."))).Step(0);
         ((installedState.CurrentNarration ?? throw new InvalidOperationException("Verification requires installedState.objects."))).Step(0);
-        var nativeOam = nativeState.PrepareIllustratedPageSprites((nativeState.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun."))).FinalizedAsOam();
-        var installedOam = installedState.PrepareIllustratedPageSprites((installedState.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun."))).FinalizedAsOam();
+        var nativeOam = nativeState.PrepareIllustratedPageSprites().FinalizedAsOam();
+        var installedOam = installedState.PrepareIllustratedPageSprites().FinalizedAsOam();
         AssertTrue(installedOam.ImageEquals(nativeOam),
             "installed illustrated page draws caret without cartridge spritemap reads");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -320,11 +320,11 @@ internal static class IntroCinematicArtworkVerification
     private static void VerifyIntroMotherBrainCollision(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         ImportIntroCinematicArtwork stock)
     {
-        RoomCollisionType[] native = VerifyIntroMotherBrainCollisionSource(bus);
+        RoomCollisionType[] native = VerifyIntroMotherBrainCollisionSource(CartridgeImportSource.Require(bus));
         var guarded = NewIntroArtworkSourceReadGuard(bus);
         var state = CreateRetailIntroFixture(characterArtwork: stock);
         state.SetupFirstIllustratedPage();
-        state.SetupMotherBrainFlashback((state.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun.")));
+        state.SetupMotherBrainFlashback();
         var level = state.CurrentFlashbackLevel ?? throw new InvalidOperationException("Verification requires level.");
         for (int index = 0; index < native.Length; index++)
             AssertEqual(native[index], level.GetCollisionBlockByIndex(index).Terrain.Collision,
@@ -407,7 +407,7 @@ internal static class IntroCinematicArtworkVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed intro explosion actors never reread the twelve native compositions");
 
-        document.Frames.Remove("small-explosion-0");
+        document.Frames.Remove("small-explosion-spark");
         AssertThrows<InvalidDataException>(() =>
         {
             using var malformed = new MemoryStream();

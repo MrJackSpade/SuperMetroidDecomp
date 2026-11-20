@@ -12,7 +12,7 @@ internal static class WalkingSpacePirateAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyWalkingSpacePirateAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             WalkingSpacePirateAnimations.Segments, WalkingSpacePirateAnimations.StartingAt, WalkingSpacePirateFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<WalkingSpacePirateCue>(
                 word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,

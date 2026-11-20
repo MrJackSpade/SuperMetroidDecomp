@@ -64,7 +64,7 @@ internal static class StationAnimationProgramDefinitionsVerification
             {
                 var image = AssertIs<AnimationBeat<StationDraw, NoAnimationCue>.Frame>(beats[beat], $"station {animation} image {beat}");
                 ushort address = (ushort)(StationNativeWords.Record(animation, beat) + (draw ? 2 : 0));
-                ushort expected = rom.ReadCartridgeWordFixedBank(0x840000 | address);
+                ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | address);
                 AssertEqual(expected, draw ? RoomObjectDrawAddressCodec.Of(StationObjectDraws.Family.Of(image.Shown)) : (ushort)image.Duration,
                     "Station original animation field");
                 var enumerated = words[ordinal + (draw ? 1 : 0)];

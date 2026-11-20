@@ -39,7 +39,7 @@ internal static class GameOptionsPageCasesVerification
             GameOptionsPageResource actual = GameOptionsSourceDefinitions.Pages[expected.Page];
             AssertEqual(source, actual.Address, "original options resource address");
             AssertEqual(expected.Description, actual.Description, "preserved resource diagnostic name");
-            byte[] bytes = RomDataReader.Decompress(rom, source, maximumOutputBytes: 0x800);
+            byte[] bytes = RomDataReader.Decompress(CartridgeImportSource.Require(rom), source, maximumOutputBytes: 0x800);
             AssertEqual(0x800, bytes.Length, "original options page size");
             AssertTrue(bytes.SequenceEqual(presentation.CreatePageBytes(expected.Page)),
                 "named installed page matches independently selected native resource");

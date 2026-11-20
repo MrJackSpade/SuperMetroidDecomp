@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("the request each sound library reports back as acknowledged")]
 public readonly struct SoundAcknowledgements<TLibrary, TSound> : IEquatable<SoundAcknowledgements<TLibrary, TSound>>
     where TLibrary : struct, Enum
-    where TSound : notnull, IEquatable<TSound>
+    where TSound : struct, IEquatable<TSound>
 {
     /// <summary>Each listed library's acknowledgement.</summary>
     private readonly SoundAcceptanceClock<TLibrary, TSound>.ByLibrary<SoundAcknowledgement<TSound>> byLibrary;

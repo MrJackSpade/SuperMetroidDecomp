@@ -12,7 +12,7 @@ internal static class OwtchAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyOwtchAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             OwtchAnimations.Segments, OwtchAnimations.StartingAt, OwtchFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<OwtchCue>(
                 word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,

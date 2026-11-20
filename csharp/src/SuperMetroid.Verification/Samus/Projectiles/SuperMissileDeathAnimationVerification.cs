@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
 using SuperMetroid.Core.Enemies.Deaths;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -26,23 +25,23 @@ internal static class SuperMissileDeathAnimationVerification
     /// </summary>
     internal static void VerifySuperMissileDeathAnimation()
     {
-        AssertEqual(EnemyDeathExplosionSegment.BigExplosion, SuperMissileKillProgram(EnemyDefinitionId.Dragon),
+        AssertEqual(EnemyDeathAndDropSegment.BigExplosion, SuperMissileKillProgram(EnemyDefinitionId.Dragon),
             "a Super Missile kill keeps the Dragon's big explosion");
-        AssertEqual(EnemyDeathExplosionSegment.NormalExplosion, SuperMissileKillProgram(EnemyDefinitionId.Sova),
+        AssertEqual(EnemyDeathAndDropSegment.NormalExplosion, SuperMissileKillProgram(EnemyDefinitionId.Sova),
             "a Super Missile kill raises Sova's small explosion to explosion two");
         Console.WriteLine("  Super Missile death animation: headers three and four are kept, lower ones become two.");
     }
 
     /// <summary>Kills the selected retail enemy with a Super Missile and returns the spawned explosion's program.</summary>
-    private static EnemyDeathExplosionSegment SuperMissileKillProgram(EnemyDefinitionId enemyDefinition)
+    private static EnemyDeathAndDropSegment SuperMissileKillProgram(EnemyDefinitionId enemyDefinition)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RisingTide);
-        SamusState samus = runtime.Player.Samus;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.LockOutPlayer();
         RoomEnemyPlace enemy = runtime.Enemies.Places.InUpdateOrder.First(place => place.Occupant?.DefinitionId == enemyDefinition);
         enemy.Health = 1;
@@ -64,7 +63,7 @@ internal static class SuperMissileDeathAnimationVerification
 
         EnemyProjectile explosion = runtime.Enemies.Projectiles.EnemyProjectiles
             .Single(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
-        return ExplosionProgramOf(explosion);
+        return ProgramOf(explosion);
     }
 
     /// <summary>Runs the focused Super Missile death-program check.</summary>

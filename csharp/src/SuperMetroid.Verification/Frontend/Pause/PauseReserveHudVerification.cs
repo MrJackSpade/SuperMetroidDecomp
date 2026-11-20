@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -31,12 +30,12 @@ internal static class PauseReserveHudVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var random = new SharedRandom();
-        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, hostServices: SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random: random);
+        var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroidGameHostServices.Default, random });
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
-        var samus = runtime.Player.Samus;
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        var samus = runtime.Player.IntroducedSamus;
         samus.Health = 20; samus.MaxHealth = 99;
         samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = ReserveTankMode.Auto;
         samus.CollectedBeams = SamusBeamFlags.Charge;
@@ -48,7 +47,8 @@ internal static class PauseReserveHudVerification
         // Construct just the paused dispatcher boundary. Input, HUD updates, the NMI
         // latch and presentation below are real production calls, not a fake refill.
         game.AdoptRuntime(runtime);
-        game.Session.Enter(PauseMenuStep.Menu, pause);
+        game.Session.Show(pause);
+        game.Session.Enter(PauseStep.Menu);
         // The pause screen's BG3 words: the HUD's static top row, its three mutable rows, then the cleared effect rows.
         ushort Shown(int hudCell) => pause.screen.Bg3Tiles(RetailPresentationFixture())[FxOverlayPlaneConstants.Columns + hudCell].PackedWord;
         ushort originalAuto = Shown(8);
@@ -83,12 +83,12 @@ internal static class PauseReserveHudVerification
             AssertEqual(initialHud[index], Shown(index), "reserve updates preserve other HUD cells");
         AssertTrue(initialFx.AsSpan().SequenceEqual(BackgroundTileWordBytes.Words(pause.screen.Bg3Tiles(RetailPresentationFixture()).AsSpan(FxOverlayPlaneConstants.HudRows * FxOverlayPlaneConstants.Columns, PauseClearedEffectWords))),
             "HUD synchronization preserves cleared pause FX rows");
-        for (int frame = 0; frame < 8 && game.IsAt(PauseMenuStep.Menu); frame++)
+        for (int frame = 0; frame < 8 && game.IsAt(PauseStep.Menu); frame++)
         {
             samus.Health = (ushort)(31 + frame);
             Step(ControllerButton.Start);
         }
-        AssertTrue(game.IsAt(PauseMenuStep.FadingOut), "Start begins fade after queueing HUD");
+        AssertTrue(game.IsAt(PauseStep.FadingOut), "Start begins fade after queueing HUD");
         AssertEqual(bus.ReadCartridgeWord((0x809dbf + (samus.Health - 1) % 10 * 2)), Shown(71), "last paused HUD write waits for the next accepted NMI");
         Step();
         AssertEqual(bus.ReadCartridgeWord((0x809dbf + samus.Health % 10 * 2)), Shown(71), "first fade frame accepts final paused HUD write");

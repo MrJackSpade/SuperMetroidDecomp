@@ -29,7 +29,7 @@ internal static class DustExplosionProjectileDefinitionsVerification
                 unrequested++;
                 continue;
             }
-            ushort native = rom.ReadCartridgeWord((instructionTable + index * 2));
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + index * 2));
             AssertEqual(native, DustExplosionProjectileNativeListAddresses.Entry(animation), $"misc-dust instruction selector {index}");
 
             var enemies = CreateDustExplosionEnemySystem();
@@ -57,15 +57,15 @@ internal static class DustExplosionProjectileDefinitionsVerification
             int address = placementTable + index * 8;
             DustExplosionPlacement definition = placements[index];
             // The native masks apply to the sample's low (X) and high (Y) bytes; each field reads exactly those bits.
-            int nativeXMask = rom.ReadCartridgeWord(address);
-            int nativeYMask = rom.ReadCartridgeWord((address + 2));
+            int nativeXMask = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            int nativeYMask = CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2));
             AssertEqual(nativeXMask, (definition.XScatter.Outcomes - 1) << definition.XScatter.Shift,
                 $"misc-dust placement X mask {index}");
             AssertEqual(nativeYMask << 8, (definition.YScatter.Outcomes - 1) << definition.YScatter.Shift,
                 $"misc-dust placement Y mask {index}");
-            AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 4))), definition.Base.X,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))), definition.Base.X,
                 $"misc-dust placement X base {index}");
-            AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 6))), definition.Base.Y,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6))), definition.Base.Y,
                 $"misc-dust placement Y base {index}");
 
             const ushort random = 0x5aad;

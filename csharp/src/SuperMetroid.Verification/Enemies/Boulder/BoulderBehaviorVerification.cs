@@ -23,7 +23,7 @@ internal static class BoulderBehaviorVerification
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnSettings(new BoulderSpawnSettings(TriggerHeight: 8, TriggerReach: 8, Start: new BoulderStart.FallsFrom(1), Roll: BoulderRoll.Left));
         place.Position = place.Position.WithWhole(new(256, 512));
-        BoulderBehavior.InitializeBoulder(place, place.SpawnSettings<BoulderSpawnSettings>());
+        BoulderBehavior.InitializeBoulder(place.HeldOccupant(), place);
         AssertEqual(new AnimationPlayback<BoulderSegment>(BoulderAnimations.StartingWith(BoulderSegment.Left), AnimationPlace.StartOfAnimation), (enemies.Places.InUpdateOrder[0].EntityState<BoulderEntity, BoulderEnemyState>() ?? throw new InvalidOperationException("The Boulder has no state.")).Playback,
             "Boulder initializer animation");
         place.AnimationClock.StepOnNextUpdate();
@@ -54,15 +54,15 @@ internal static class BoulderBehaviorVerification
             place.Bind(EnemyDefinitionId.Boulder, place.KeptDefinition);
             place.Position = place.Position.WithWhole(new(256, 512));
             place.SetSpawnWords(EnemyDefinitionId.Boulder, words => words);
-            BoulderBehavior.InitializeBoulder(place.HeldOccupant(), place, place.SpawnSettings<BoulderSpawnSettings>());
-            BoulderEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BoulderEntity>(place).State;
+            BoulderBehavior.InitializeBoulder(place.HeldOccupant(), place);
+            BoulderEnemyState state = place.RequireSpeciesState<BoulderEnemyState>();
             state.Action = BoulderAction.Rebound;
             state.BounceCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(start);
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) },
                 new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
 
-            enemies.BoulderBehavior.RunBoulderMainAi(place.HeldOccupant(), place, place.RequireSpeciesState<BoulderEnemyState>(), frame);
+            enemies.BoulderBehavior.RunBoulderMainAi(place.HeldOccupant(), place, frame);
 
             AssertEqual(expected, state.BounceCurvePlace.InTwoHundredFiftySixthsOfMark, $"Boulder rebound clock from {start}");
             AssertEqual(action, state.Action, $"Boulder rebound from {start} selects its next function");

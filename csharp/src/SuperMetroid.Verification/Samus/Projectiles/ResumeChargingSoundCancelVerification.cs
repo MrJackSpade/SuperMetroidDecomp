@@ -178,11 +178,12 @@ internal static class ResumeChargingSoundCancelVerification
         /// </summary>
         internal void AssertShotCancelled(string shot)
         {
-            SamusProjectileFrameResult result = Projectiles.LastFrameResult;
-            AssertTrue(result.FiringSound?.SoundEffect is not null, $"the {shot} fires and requests its sound");
+            // The firing pass fired a shot, and its one request is the shot's sound, as the requests received it.
+            AssertTrue(slotsBeforeFire.FiredSlot(Projectiles) is not null, $"the {shot} fires");
+            AssertTrue(Requests.SoundRequests.Count == 1, $"the {shot} requests its sound: [{string.Join(", ", Requests.SoundRequests)}]");
+            SoundRequest shotRequest = Requests.SoundRequests[0];
             AssertTrue(!Samus.ChargingSound.IsArmed, $"the {shot} clears the pending resume");
             PostDraw(GameplayAction.Shoot);
-            var shotRequest = result.FiringSound!.Value;
             AssertTrue(Requests.SoundRequests.SequenceEqual([shotRequest]),
                 $"the {shot} requests only its own sound, and no resume follows it: [{string.Join(", ", Requests.SoundRequests)}]");
         }

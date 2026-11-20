@@ -20,7 +20,7 @@ internal static class CeresEscapeOverlayTilemapFiles
             var source = new ushort[page.WordCount];
             SnesAddress first = Source(page);
             for (int index = 0; index < source.Length; index++)
-                source[index] = bus.ReadCartridgeWord((int)first.AddWithinBank(index * sizeof(ushort)));
+                source[index] = CartridgeImportSource.Require(bus).ReadCartridgeWord((int)first.AddWithinBank(index * sizeof(ushort)));
             pages.Add(page.Name, BackgroundTileWords.ToTiles(source));
         }
         byte[] json = CeresEscapeOverlays.Write(

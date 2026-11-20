@@ -4,15 +4,8 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// <summary>The state of one Puyo.</summary>
 public sealed class PuyoEnemyState
 {
-    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
-    internal PuyoSpawnSettings Settings { get; }
-
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal PuyoEnemyState(PuyoAction action, PuyoSpawnSettings settings)
-    {
-        Settings = Ensure.NotNull(settings);
-        Action = action;
-    }
+    internal PuyoEnemyState(PuyoAction action) => Action = action;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<PuyoSegment> Playback { get; set; }

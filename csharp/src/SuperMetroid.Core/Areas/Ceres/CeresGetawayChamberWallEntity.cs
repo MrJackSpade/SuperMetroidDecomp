@@ -7,14 +7,15 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// shows the chamber's walls (#1545), and its animation makes it ignore Samus.
 /// </summary>
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the wall occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="side">The animation the wall starts in, for the side of the chamber it stands on.</param>
 internal sealed class CeresGetawayChamberWallEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CeresDoorSegment side)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
-    /// <summary>The door's or wall's animation, which it starts as it is built (#2554).</summary>
-    internal CeresDoorAnimationState State { get; } = doors.Start(place, side);
+    /// <inheritdoc/>
+    public void Initialize() => doors.Start(Place, side);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
@@ -23,5 +24,5 @@ internal sealed class CeresGetawayChamberWallEntity(CeresDoorBehavior doors, Roo
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, State, context.Samus);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, context.Samus);
 }

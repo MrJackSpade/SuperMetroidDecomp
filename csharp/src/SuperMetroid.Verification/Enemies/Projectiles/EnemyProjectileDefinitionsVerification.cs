@@ -43,7 +43,8 @@ internal static class EnemyProjectileDefinitionsVerification
         // particles, the Work Robot's four diagonal lasers and the two each of Kraid's rising rocks, Fake Kraid's spikes and
         // Ki-Hunter acid. #2378 did the same for Ridley's two afterburn centres, his left and right and his up and down
         // afterburns, the Torizo's two feet's landing dust and Ceres's light and dark falling tiles.
-        AssertEqual(100, kinds.Length, "compiled enemy-projectile definition count");
+        // No kind stands for an empty place (#2558) or the pre-Phantoon room's held place, which holds no projectile (#2556).
+        AssertEqual(99, kinds.Length, "compiled enemy-projectile definition count");
 
         HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
         Dictionary<RoomEnemyProjectileKind, ushort[]> startingMotions = kinds.ToDictionary(kind => kind, kind => ProductionStartingMotions(rom, kind));
@@ -73,7 +74,7 @@ internal static class EnemyProjectileDefinitionsVerification
             foreach (ushort startingMotion in startingMotions[kind])
                 AssertEqual(projectile.MotionOfWord(startingMotion), projectile.Motion, $"{kind} production pre-instruction");
             // A kind whose spawner starts a typed initial program (#641, #1760) runs it in place of the definition's native list.
-            bool typedStart = FamilyProjectileStarts.StartsTypedAnimation(kind);
+            bool typedStart = FamilyProjectileStarts.StartingAnimation(kind) is not null;
             AssertEqual(typedStart, projectile.Animation is not null, $"{kind} production typed start");
             AssertEqual((ushort)1, projectile.FrameHold.RawValue,
                 $"{kind} production timer");
@@ -194,7 +195,6 @@ internal static class EnemyProjectileDefinitionsVerification
                 {
                     RoomEnemyProjectileKind.SporeSpawnStalk => SporeSpawnProjectileSegment.Stalk,
                     RoomEnemyProjectileKind.SporeSpawnSpore => SporeSpawnProjectileSegment.SporeShot,
-                    RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
                         RoomEnemyProjectileKind.YappingMawBody or
                         RoomEnemyProjectileKind.SkreeMetareeParticle or
                         RoomEnemyProjectileKind.CrocomireProjectile or
@@ -306,7 +306,6 @@ internal static class EnemyProjectileDefinitionsVerification
                 {
                     RoomEnemyProjectileKind.GoldenTorizoEgg => TorizoProjectileSegment.ChozoOrbWallImpact,
                     RoomEnemyProjectileKind.GoldenTorizoSuperMissile => TorizoProjectileSegment.SuperMissileImpact,
-                    RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
                         RoomEnemyProjectileKind.YappingMawBody or
                         RoomEnemyProjectileKind.SkreeMetareeParticle or
                         RoomEnemyProjectileKind.CrocomireProjectile or
@@ -470,7 +469,7 @@ internal static class EnemyProjectileDefinitionsVerification
         kind is RoomEnemyProjectileKind.PirateMotherBrainLaser or RoomEnemyProjectileKind.DraygonWallTurret
             ? []
             : [.. EnemyProjectileNativeWords.Kinds.WordsByIdentity[kind]
-                .Select(word => rom.ReadCartridgeWord((0x860000 | word) + 2))];
+                .Select(word => CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | word) + 2))];
 
     /// <summary>
     /// Checks every compiled enemy-projectile definition against its seven-word bank-$86 record
@@ -492,14 +491,14 @@ internal static class EnemyProjectileDefinitionsVerification
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
             // The record's radius word holds X in its low byte and Y in its high byte; its property word holds the
             // contact damage in its low twelve bits and the four behaviour bits above them.
-            ushort radiusWord = rom.ReadCartridgeWord(address + 6);
+            ushort radiusWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 6);
             AssertEqual(new Extent16<RoomPixels>(LittleEndianBytes.LowByte(radiusWord), LittleEndianBytes.HighByte(radiusWord)),
                 definition.Radius, $"{kind} radius");
-            ushort propertyWord = rom.ReadCartridgeWord(address + 8);
+            ushort propertyWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 8);
             AssertEqual(propertyWord % 4096, definition.Damage, $"{kind} contact damage");
             AssertEqual(NativeProjectileProperties(propertyWord), definition.Properties, $"{kind} behaviour properties");
             AssertEqual(NativeProjectileDepth(propertyWord), definition.Depth, $"{kind} depth relative to Samus");
-            AssertEqual(rom.ReadCartridgeWord(address + 10) != 0,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 10) != 0,
                 definition.SamusTouch == EnemyProjectileSamusTouch.StartsTouchReaction,
                 $"{kind} touch reaction");
         }

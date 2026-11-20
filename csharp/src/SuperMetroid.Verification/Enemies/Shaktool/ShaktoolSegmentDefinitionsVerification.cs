@@ -27,7 +27,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
         {
             ShaktoolSegmentDefinition definition = ShaktoolSegmentDefinitions.Segments[index];
             definitions[index] = definition;
-            AssertEqual((ushort)0, rom.ReadCartridgeWord((0xaadef7 + index * 2)),
+            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadef7 + index * 2)),
                 $"Shaktool segment {index} initialization subtrahend");
         }
 
@@ -91,10 +91,13 @@ internal static class ShaktoolSegmentDefinitionsVerification
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInitialAngleAddress,
             definition => definition.InitialOrbitAngle.RawValue, "initial angle algorithm"));
 
-    /// <summary>Checks each segment's offset back to the controlling Shaktool slot.</summary>
+    /// <summary>
+    /// Checks each segment's offset back to the controlling Shaktool slot is its place in the chain's listing
+    /// (<see cref="ShaktoolSegmentDefinitions.Chain"/>), which the segments find each other by.
+    /// </summary>
     private static void VerifyShaktoolOwnerOffsetAlgorithm(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeOwnerOffsetAddress,
-            definition => checked((ushort)(definition.OwnerPlaceDistance * SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.RecordSize)), "owner offset"));
+            definition => checked((ushort)(Array.IndexOf(ShaktoolSegmentDefinitions.Segments, definition) * SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.RecordSize)), "owner offset"));
 
     /// <summary>Checks the first animation instruction list selected for each segment.</summary>
     private static void VerifyShaktoolInitialInstructionSelection(CartridgeImportAddressSpace rom) =>
@@ -106,7 +109,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     {
         for (int index = 0; index < 7; index++)
         {
-            ushort word = rom.ReadCartridgeWord(ShaktoolSegmentDefinitions.NativeCallbackAddress + 2 * index);
+            ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(ShaktoolSegmentDefinitions.NativeCallbackAddress + 2 * index);
             AssertEqual(ShaktoolNativeWords.DecodeMotion(word, "Shaktool segment callback"), ShaktoolSegmentDefinitions.Segments[index].Motion,
                 $"Shaktool callback selection {index}");
         }
@@ -119,7 +122,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
         for (int index = 0; index < 7; index++)
         {
             int address = nativeAddress + 2 * index;
-            ushort expected = rom.ReadCartridgeWord(address);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(expected, select(ShaktoolSegmentDefinitions.Segments[index]),
                 $"Shaktool {label} original word {index}");
         }

@@ -8,14 +8,14 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>The Platforms species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<PlatformSpawnSettings>
+internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SuspensorPlatform, EnemyDefinitionId.Tripper];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, PlatformSpawnSettings settings) => new PlatformsEntity(this, occupant, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new PlatformsEntity(this, occupant, place, common));
 
     /// <summary>Clips the Tripper's and the suspensor platform's horizontal and vertical displacement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;
@@ -27,21 +27,23 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
     }
 
     /// <summary>Carries out one cue of the platforms' animations: each publishes the horizontal direction main AI moves in.</summary>
-    private static void ApplyPlatformCue(PlatformEnemyState state, PlatformCue cue) =>
-        SetPlatformHorizontalMovementFromCue(state, cue.Movement);
+    private static void ApplyPlatformCue(RoomEnemyPlace place, PlatformCue cue) =>
+        SetPlatformHorizontalMovementFromCue(place, cue.Movement);
 
     /// <summary>
     /// Sets up a Tripper or a suspensor platform: its direction and speed from its spawn settings, its first rise and the
     /// height it rests at below where it was placed.
     /// </summary>
-    internal static PlatformEnemyState InitializePlatform(RoomEnemyOccupant occupant, RoomEnemyPlace place, PlatformSpawnSettings settings)
+    internal static void InitializePlatform(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        var state = new PlatformEnemyState(settings)
+        var state = new PlatformEnemyState
         {
             Kind = place.Holds(EnemyDefinitionId.SuspensorPlatform) ? PlatformKind.SuspensorPlatform : PlatformKind.Tripper,
         };
+        place.SetSpeciesState(state);
 
         // The platform moves left or right as its spawn settings say.
+        PlatformSpawnSettings settings = occupant.SpawnSettings<PlatformSpawnSettings>();
         state.XMovement = settings.Movement;
 
         state.Playback = new(PlatformAnimations.StartingWith(PlatformAnimationChoices.SelectAnimation(
@@ -49,7 +51,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
 
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
         state.RestingY = place.Position.Y.Whole + PlatformMotionDefinitions.RestingDepthBelowPlacement;
-        return state;
     }
 
     /// <summary>Runs the Tripper's and the suspensor platform's main AI.</summary>
@@ -86,7 +87,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
         RoomLevelData level)
     {
         // The spawn settings name the speed the platform moves at.
-        SignedSixteenSixteen speed = state.Settings.Speed;
+        SignedSixteenSixteen speed = occupant.SpawnSettings<PlatformSpawnSettings>().Speed;
         SignedSixteenSixteen displacement = speed.Toward(state.XMovement);
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             return;
@@ -146,7 +147,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
         }
 
         SetPlatformVerticallyMovingAnimation(place, state);
-        IncrementAndClampPlatformYSpeed(state);
+        IncrementAndClampPlatformYSpeed(occupant, state);
         SignedSixteenSixteen displacement = state.YSpeedCurvePlace.Speed.Negative;
         if (!_terrain.MoveEnemyVertically(level, place, displacement))
             return;
@@ -170,7 +171,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
         int preHorizontalX)
     {
         // Sinking always accelerates.
-        IncrementAndClampPlatformYSpeed(state);
+        IncrementAndClampPlatformYSpeed(occupant, state);
 
         // Add the whole-pixel horizontal step to Samus's extra displacement; fractional
         // displacement is deliberately untouched because this enemy carries only whole pixels.
@@ -195,9 +196,9 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
     /// Steps the place one mark on along the quadratic speed curve, holding it at the cap its spawn settings name: as many
     /// marks on as their vertical acceleration updates.
     /// </summary>
-    internal static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)
+    private static void IncrementAndClampPlatformYSpeed(RoomEnemyOccupant occupant, PlatformEnemyState state)
     {
-        QuadraticSpeedCurvePlace cap = QuadraticSpeedCurvePlace.FromMarks(state.Settings.VerticalAccelerationUpdates);
+        QuadraticSpeedCurvePlace cap = QuadraticSpeedCurvePlace.FromMarks(occupant.SpawnSettings<PlatformSpawnSettings>().VerticalAccelerationUpdates);
         state.YSpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
         if (state.YSpeedCurvePlace >= cap)
             state.YSpeedCurvePlace = cap;
@@ -250,49 +251,48 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
     }
 
     /// <summary>Sets the direction main AI moves the platform, <paramref name="movement"/>, as a movement cue asks.</summary>
-    private static void SetPlatformHorizontalMovementFromCue(PlatformEnemyState state,
+    private static void SetPlatformHorizontalMovementFromCue(
+        RoomEnemyPlace place,
         HorizontalDirection movement)
     {
-        state.XMovement = movement;
+        place.RequireSpeciesState<PlatformEnemyState>().XMovement = movement;
     }
 
     /// <summary>Replaces a frozen Tripper's frame after common Bomb reaction using its movement direction.</summary>
-    /// <param name="state">The Tripper's state, whose movement picks the frozen frame.</param>
-    internal static EnemyBombReaction TripperBombReactionOf(PlatformEnemyState state) => new()
+    internal static EnemyBombReaction TripperBombReaction { get; } = new()
     {
         AfterCommon = c =>
         {
             if (c.Enemy.Freeze.IsRunning)
-                c.Enemy.Frame = TripperFrozenFrame(state.XMovement);
+                c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
         },
     };
 
     /// <summary>Runs Platforms's main AI.</summary>
-    internal void RunPlatformsMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, PlatformEnemyState state, IEnemyAiFrame frame)
+    internal void RunPlatformsMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunPlatformMain(occupant, place, state, frame.Samus, frame.Level);
+        RunPlatformMain(occupant, place, place.RequireSpeciesState<PlatformEnemyState>(), frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Platforms's typed animation.</summary>
-    internal static void AdvancePlatformsTypedAnimation(RoomEnemyPlace place, PlatformEnemyState platformEnemyState) =>
-        EnemyAnimationPlayback.Advance(place, platformEnemyState, PlatformAnimations.Segments,
+    internal static void AdvancePlatformsTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, PlatformAnimations.Segments,
             static (PlatformEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
-                ApplyPlatformCue(platformEnemyState, cue);
+                ApplyPlatformCue(place, cue);
                 return null;
             });
 
     /// <summary>Applies Tripper's direction-specific frozen frame after a successful common shot freeze.</summary>
     /// <remarks>After the common shot reaction freezes a Tripper at once, its current frame is replaced with its direction's
     /// frozen frame.</remarks>
-    /// <param name="state">The Tripper's state, whose movement picks the frozen frame.</param>
-    internal static EnemyShotReaction TripperShotReactionOf(PlatformEnemyState state) => new()
+    internal static EnemyShotReaction TripperShotReaction { get; } = new()
     {
         AfterCommon = c =>
         {
             if (c.Froze)
-                c.Enemy.Frame = TripperFrozenFrame(state.XMovement);
+                c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
         },
     };
 

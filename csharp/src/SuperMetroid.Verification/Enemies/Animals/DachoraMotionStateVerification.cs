@@ -54,7 +54,7 @@ internal static class DachoraMotionStateVerification
             fall.Speed = SignedSixteenSixteen.FromParts(whole, fraction);
             fallPlace.Position = fallPlace.Position.WithWhole(new(64, 32));
 
-            fallEnemies.DachoraBehavior.RunDachoraMainAi(fallPlace, fallPlace.RequireSpeciesState<DachoraEnemyState>(), frame);
+            fallEnemies.DachoraBehavior.RunDachoraMainAi(fallPlace, frame);
 
             string context = $"Dachora falling at {whole} and {fraction}/65536 pixels";
             AssertEqual(expectedWhole, fall.Speed.UnsignedWholePixels, $"{context}: whole speed word");
@@ -77,10 +77,10 @@ internal static class DachoraMotionStateVerification
         foreach ((int lifetime, ushort expected, bool invisible) in new VerifyDachoraEchoLifetimeCase[] { new VerifyDachoraEchoLifetimeCase(8, 7, false), new VerifyDachoraEchoLifetimeCase(1, 0, false), new VerifyDachoraEchoLifetimeCase(0, 0, true) })
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachoraPlace(parameter: ushort.MaxValue);
-            DachoraEchoState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<DachoraEchoEntity>(place).State;
+            DachoraEchoState state = place.SpeciesState<DachoraEchoState>() ?? throw new InvalidOperationException("A negative parameter makes an echo.");
             state.Lifetime = UpdateCountdown.For(lifetime);
 
-            DachoraBehavior.RunDachoraEchoMainAi(place, place.RequireSpeciesState<DachoraEchoState>(), frame);
+            DachoraBehavior.RunDachoraEchoMainAi(place, frame);
 
             AssertEqual(expected, state.Lifetime.UpdatesLeft, $"echo lifetime {lifetime} counts down without wrapping");
             AssertEqual(invisible, place.Presence.HasAny(EnemyPresence.Hidden), $"echo lifetime {lifetime} visibility");
@@ -106,8 +106,8 @@ internal static class DachoraMotionStateVerification
         for (int slot = 0; slot < 5; slot++)
             InitializeThroughEntity(enemies.Places.InUpdateOrder[slot]);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        DachoraEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<DachoraEntity>(body).State;
-        DachoraEchoState[] echoes = [.. Enumerable.Range(1, 4).Select(slot => SuperMetroid.Core.Enemies.EnemyPartners.Listed<DachoraEchoEntity>(enemies.Places.InUpdateOrder[slot]).State)];
+        DachoraEnemyState state = body.RequireSpeciesState<DachoraEnemyState>();
+        DachoraEchoState[] echoes = [.. Enumerable.Range(1, 4).Select(slot => enemies.Places.InUpdateOrder[slot].RequireSpeciesState<DachoraEchoState>())];
         foreach (DachoraEchoState echo in echoes)
             echo.Lifetime = UpdateCountdown.For(3);
         state.TrailTimer = UpdateCountdown.For(5);
@@ -118,7 +118,7 @@ internal static class DachoraMotionStateVerification
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
             new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
-        enemies.DachoraBehavior.RunDachoraMainAi(body, body.RequireSpeciesState<DachoraEnemyState>(), frame);
+        enemies.DachoraBehavior.RunDachoraMainAi(body, frame);
         AssertEqual(DachoraAction.Shinesparking, state.Action, "the charge launches the shinespark");
         AssertEqual(0, state.TrailTimer.UpdatesLeft, "the launch clears the body's trail timer");
         AssertTrue(echoes.All(echo => echo.Lifetime.IsOver), "the launch frees every echo");
@@ -127,7 +127,7 @@ internal static class DachoraMotionStateVerification
         int[] timers = [1, 0, 1];
         for (int update = 0; update < lives.Length; update++)
         {
-            enemies.DachoraBehavior.RunDachoraMainAi(body, body.RequireSpeciesState<DachoraEnemyState>(), frame);
+            enemies.DachoraBehavior.RunDachoraMainAi(body, frame);
             AssertEqual(timers[update], state.TrailTimer.UpdatesLeft, $"the body's trail timer after shinespark update {update}");
             AssertEqual(string.Join(",", lives[update]), string.Join(",", echoes.Select(echo => echo.Lifetime.UpdatesLeft)),
                 $"the echoes' lives after shinespark update {update}");
@@ -139,7 +139,7 @@ internal static class DachoraMotionStateVerification
     private static NewDachoraResult NewDachora(ushort parameter)
     {
         (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachoraPlace(parameter);
-        return new NewDachoraResult(enemies, place, SuperMetroid.Core.Enemies.EnemyPartners.Listed<DachoraEntity>(place).State);
+        return new NewDachoraResult(enemies, place, place.RequireSpeciesState<DachoraEnemyState>());
     }
 
     /// <summary>An initialized Dachora body or echo with spawn parameter <paramref name="parameter"/> in the first slot of a fresh room.</summary>
@@ -159,7 +159,7 @@ internal static class DachoraMotionStateVerification
     /// speed-boost echo (#2283).
     /// </summary>
     private static void InitializeThroughEntity(RoomEnemyPlace place) =>
-        place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+        (place.Entity as IEnemyInitialization ?? throw new InvalidOperationException("A Dachora place initializes.")).Initialize();
 
     /// <summary>Runs Dachora's motion-state and echo-lifetime checks.</summary>
     [VerificationCommand("--dachora-motion-state")]

@@ -144,5 +144,5 @@ internal static class SamusEaterObjectDefinitionsVerification
 
     /// <summary>Reads a native bank-$84 PLM word for independent header and program comparison.</summary>
     internal static ushort ReadSamusEaterObjectWord(CartridgeImportAddressSpace bus, int address) =>
-        bus.ReadCartridgeWord(address);
+        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 }

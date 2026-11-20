@@ -20,8 +20,8 @@ public sealed class FirefleaFxState
     /// <summary>
     /// The flash's animation (#2488), played by the shared player: each look shows for its updates, which frozen time holds.
     /// </summary>
-    private readonly ShowingAnimationPlayer<FirefleaFlashSegment, FirefleaFlashShade, NoAnimationCue> flash =
-        ShowingAnimationPlayer<FirefleaFlashSegment, FirefleaFlashShade, NoAnimationCue>.StartShowing(FirefleaFlashAnimations.Segments, FirefleaFlashAnimations.Flashing);
+    private readonly AnimationPlayer<FirefleaFlashSegment, FirefleaFlashShade, NoAnimationCue> flash =
+        AnimationPlayer<FirefleaFlashSegment, FirefleaFlashShade, NoAnimationCue>.StartShowing(FirefleaFlashAnimations.Segments, FirefleaFlashAnimations.Flashing);
 
     /// <summary>Starts the flash on its first look, held for its updates, in a room no Fireflea death has darkened.</summary>
     public FirefleaFxState() => Tint = Shade(Flash, Darkness);
@@ -61,7 +61,6 @@ public sealed class FirefleaFxState
     /// </summary>
     private static RgbColor Shade(FirefleaFlashShade flash, FirefleaDarkness darkness)
     {
-        int level = flash.Level + darkness.Level;
-        return new FadeLevelColour(level, level, level).ToColour();
+        return FadeLevelColour.Grey(flash.Level + darkness.Level).ToColour();
     }
 }

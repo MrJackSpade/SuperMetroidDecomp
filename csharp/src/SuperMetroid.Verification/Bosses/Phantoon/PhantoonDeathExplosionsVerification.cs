@@ -37,7 +37,7 @@ internal static class PhantoonDeathExplosionsVerification
             body.Position = body.Position.WithWhole(new(origin, origin));
             state.PhaseWait.LastFor(15);
             state.Phase = PhantoonPhase.DyingExplosions;
-            if (full) foreach (int place in Enumerable.Range(0, EnemyProjectileEngine.PlaceCount)) enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.DustOrExplosion);
+            if (full) foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity)) enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.DustOrExplosion);
             int index = 0, passes = 0, timer = 15, requests = 0;
             for (int frame = 0; passes < 3; frame++)
             {
@@ -70,7 +70,7 @@ internal static class PhantoonDeathExplosionsVerification
                         AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadCartridgeByte(0xa7da1e + current * 4))), explosion.Position.Y.Whole, "Real death explosion wrapped world Y");
                         int listAddress = 0x86e42c + type * 2;
                         AssertTrue(explosion.Animation is DustExplosionProjectileAnimation { PlayingSegment: var explosionProgram } &&
-                                DustExplosionProjectileNativeListAddresses.Entry(explosionProgram) == rom.ReadCartridgeWord(listAddress),
+                                DustExplosionProjectileNativeListAddresses.Entry(explosionProgram) == CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress),
                             "Real explosion animation selection");
                     }
                 }

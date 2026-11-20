@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class AttractDemoSchedule
 {
     /// <summary>The demo set the title plays.</summary>
-    internal AttractDemoSet Set { get; private set; } = StockAttractDemoScenes.FirstSet;
+    private AttractDemoSet Set { get; set; } = StockAttractDemoScenes.FirstSet;
 
     /// <summary>
     /// How many of <see cref="Set"/>'s demonstrations have begun since the set last started from its first; the next
@@ -21,13 +21,13 @@ internal sealed class AttractDemoSchedule
     internal UpdateCountdown Playback { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>The still-frame hold after the scene's scripted input, over until the script runs out.</summary>
-    internal UpdateCountdown Hold { get; private set; } = UpdateCountdown.Ended();
+    private UpdateCountdown Hold { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The blank enemy-setup waits (<see cref="GameLoadingDefinitions.EnemySetupWaits"/>) before the scene becomes visible;
-    /// over before its runtime exists (#1627).
+    /// none before its runtime exists (#1627).
     /// </summary>
-    private UpdateCountdown load = UpdateCountdown.Ended();
+    private UpdateCountdown? load;
 
     /// <summary>Whether live controller input cancelled the scene.</summary>
     internal bool Cancelled { get; private set; }
@@ -36,7 +36,7 @@ internal sealed class AttractDemoSchedule
     internal bool HasNextScene { get; private set; }
 
     /// <summary>Whether the next scene's runtime has yet to be created.</summary>
-    internal bool AwaitsScene { get; private set; } = true;
+    internal bool AwaitsScene => load is null;
 
     /// <summary>Whether the scene's scripted input has ended and its final image is holding.</summary>
     internal bool Holding => Hold.IsRunning;
@@ -46,14 +46,14 @@ internal sealed class AttractDemoSchedule
     {
         Set = StockAttractDemoScenes.FirstSet;
         ScenesBegun = 0;
-        AwaitsScene = true;
+        load = null;
     }
 
     /// <summary>The title requests a demo: its set starts again from its first scene.</summary>
     internal void RequestFromTitle()
     {
         ScenesBegun = 0;
-        AwaitsScene = true;
+        load = null;
     }
 
     /// <summary>The scene the next demo plays, or null once every demonstration of the set has begun.</summary>
@@ -62,11 +62,6 @@ internal sealed class AttractDemoSchedule
         ScenesBegun < Set.Scenes.Count ? Set.Scenes[ScenesBegun]
         : ScenesBegun == Set.Scenes.Count ? null
         : throw new InvalidOperationException($"{ScenesBegun} demonstrations began in {Set}, which holds {Set.Scenes.Count}.");
-
-    /// <summary>The scene the next demo plays, which a demo awaiting its scene always has.</summary>
-    /// <exception cref="InvalidDataException">Every demonstration of the set has begun.</exception>
-    internal AttractDemoScene SceneToBegin => ScenesBegun < Set.Scenes.Count ? Set.Scenes[ScenesBegun]
-        : throw new InvalidDataException($"The demo loader ran past the end of {Set}, which holds {Set.Scenes.Count} demonstrations.");
 
     /// <summary>Starts <paramref name="scene"/>, the next scene, with its scripted input and enemy-setup waits ahead.</summary>
     internal void Begin(AttractDemoScene scene)
@@ -77,12 +72,11 @@ internal sealed class AttractDemoSchedule
         Hold = UpdateCountdown.Ended();
         Cancelled = false;
         load = UpdateCountdown.Lasting(GameLoadingDefinitions.EnemySetupWaits);
-        AwaitsScene = false;
     }
 
     /// <summary>Counts one enemy-setup wait; returns whether it was the last.</summary>
-    /// <exception cref="InvalidOperationException">No scene is loading: its waits are over.</exception>
-    internal bool CountLoadFrame() => load.Count();
+    /// <exception cref="InvalidOperationException">No scene has begun loading.</exception>
+    internal bool CountLoadFrame() => (load ?? throw new InvalidOperationException("No attract demo scene is loading.")).Count();
 
     /// <summary>Counts one held frame; returns whether the hold ended.</summary>
     internal bool CountHoldFrame() => Hold.Count();
@@ -116,7 +110,7 @@ internal sealed class AttractDemoSchedule
     }
 
     /// <summary>The next scene of the set loads afresh.</summary>
-    internal void LoadNextScene() => AwaitsScene = true;
+    internal void LoadNextScene() => load = null;
 
     /// <summary>The set that follows <paramref name="played"/> in <paramref name="playlist"/>, which starts over after its last.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="playlist"/> does not hold <paramref name="played"/>.</exception>

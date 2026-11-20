@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Earthquakes;
 using SuperMetroid.Core.Escape;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -32,41 +31,6 @@ public abstract class RoomSetupBehavior
     /// <summary>Runs the part of the setup that acts while the room's objects are placed.</summary>
     /// <param name="placing">The room and the owners the setup reaches while its objects are placed.</param>
     internal virtual void PlaceRoomObjects(RoomSetupPlacing placing) => Ensure.NotNull(placing);
-
-    /// <summary>
-    /// Whether the setup composes over its room effect's water (<see cref="ComposeOverWater"/>), so every effect its room
-    /// state can select has a liquid surface (#2554).
-    /// </summary>
-    internal virtual bool ComposesOverWater => false;
-
-    /// <summary>
-    /// Composes what the setup builds over <paramref name="water"/>, its room effect's liquid surface, which a room whose
-    /// effect has one hands every setup as it loads (#2554).
-    /// </summary>
-    /// <param name="scope">The room being composed.</param>
-    /// <param name="water">The room effect's liquid surface.</param>
-    internal virtual void ComposeOverWater(RoomScopeConstruction scope, RoomLiquidSurface water)
-    {
-        Ensure.NotNull(scope);
-        Ensure.NotNull(water);
-    }
-
-    /// <summary>
-    /// <paramref name="setup"/>, checked once against <paramref name="fx"/>, its room state's effects, as the state is
-    /// defined (#2554): a setup that composes over its effect's water has a liquid surface in every effect the state can
-    /// select.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The setup composes over water its state's effects do not all have.</exception>
-    internal static RoomSetupBehavior Checked(RoomSetupBehavior setup, string state, SuperMetroid.Core.Fx.RoomFxSelection? fx)
-    {
-        Ensure.NotNull(setup);
-        bool everyEffectHasWater = fx is { Default.LiquidStartLevel: int _ } &&
-            fx.Effects.All(effect => effect.LiquidStartLevel.HasValue) &&
-            fx.DoorEffects.All(door => door.Effect is { LiquidStartLevel: int _ });
-        if (setup.ComposesOverWater && !everyEffectHasWater)
-            throw new InvalidDataException($"Room state {state}'s setup {setup.Name} composes over water its effects do not all have.");
-        return setup;
-    }
 
     /// <summary>Runs the part of the setup that acts once the room's enemies are loaded.</summary>
     /// <param name="loaded">The room's enemies and the owners the setup reaches once they are loaded.</param>
@@ -186,18 +150,14 @@ public abstract class RoomSetupBehavior
     }
 
     /// <summary>
-    /// The statue room's setup, which starts the statues' unlocking: it composes their room over its effect's water, whose
-    /// statues' enemies take it and whose sequence the room's load builds once its enemies are in (#2287, #2382, #2554).
-    /// Every effect of its room state has water, checked as the state is defined.
+    /// The statue room's setup, which starts the statues' unlocking: it composes their room, whose statues' enemies take it
+    /// and whose sequence the room's load builds once its enemies are in (#2287, #2382).
     /// </summary>
     private sealed class StatueUnlockingSetup() : RoomSetupBehavior(nameof(RunStatueUnlockingAnimations))
     {
         /// <inheritdoc/>
-        internal override bool ComposesOverWater => true;
-
-        /// <inheritdoc/>
-        internal override void ComposeOverWater(RoomScopeConstruction scope, RoomLiquidSurface water) =>
-            Ensure.NotNull(scope).ComposeTourianStatueRoom(water);
+        internal override void Compose(RoomSetupComposition composition) =>
+            Ensure.NotNull(composition).Scope.ComposeTourianStatueRoom(composition.FxOverlay);
     }
 
     /// <summary>An escape room's setup that starts its quake once the room's enemies are loaded.</summary>
@@ -315,7 +275,7 @@ public abstract class RoomSetupBehavior
     {
         /// <inheritdoc/>
         internal override void StartWithRoomEnemies(RoomSetupEnemiesLoaded loaded) =>
-            Ensure.NotNull(loaded).Enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile();
+            Ensure.NotNull(loaded).Enemies.LoaderHooks.HoldPrePhantoonRoomProjectilePlace();
     }
 
     /// <summary>

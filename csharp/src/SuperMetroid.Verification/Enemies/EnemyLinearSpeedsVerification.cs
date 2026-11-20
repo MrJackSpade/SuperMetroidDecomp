@@ -18,7 +18,7 @@ internal static class EnemyLinearSpeedsVerification
     /// </summary>
     internal static void VerifyCompiledLinearEnemySpeeds(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         for (int row = 0; row < EnemyLinearSpeedTable.RowCount; row++)
         {
             SignedSixteenSixteen speed = EnemyLinearSpeedTable.Speed(row);

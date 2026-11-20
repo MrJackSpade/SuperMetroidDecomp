@@ -15,14 +15,23 @@ public static class PauseWireframeExtractor
     /// <returns>UTF-8 JSON bytes keyed by wireframe kind.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
+        static int TablePlace(PauseWireframeKind kind) => kind switch
+        {
+            PauseWireframeKind.PowerSuit => 0,
+            PauseWireframeKind.PowerSuitHiJump => 1,
+            PauseWireframeKind.VariaSuit => 2,
+            PauseWireframeKind.VariaSuitHiJump => 3,
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined pause wireframe."),
+        };
+
         var frames = new Dictionary<string, PauseBackdropCell[]>();
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {
-            int pointer = RomDataReader.ReadWordFixedBank(bus, PauseMenuSourceDefinitions.PauseWireframePointers.AddWithinBank((int)kind * 2));
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseWireframePointers.AddWithinBank(TablePlace(kind) * 2));
             var cells = new PauseBackdropCell[PauseWireframeDefinitions.Cells];
             for (int index = 0; index < cells.Length; index++)
             {
-                var word = new MapTileWord(RomDataReader.ReadWordFixedBank(bus, new SnesAddress(PauseMenuSourceDefinitions.PauseWireframeBank.Bank, (ushort)(pointer + index * 2))));
+                var word = new MapTileWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), new SnesAddress(PauseMenuSourceDefinitions.PauseWireframeBank.Bank, (ushort)(pointer + index * 2))));
                 int character = word.CharacterIndex;
                 if (character >= PauseBackdropDefinitions.AtlasTileCount * 2)
                     throw new InvalidDataException($"Wireframe {kind} cell {index} references an unloaded character {character}.");

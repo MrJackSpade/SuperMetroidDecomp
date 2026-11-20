@@ -137,7 +137,6 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusState samus,
         SamusProjectileOccupant held,
-        MissileShotState missile,
         Position16<RoomPixels> cameraPosition,
         SamusBombProjectileSystem samusBombs,
         ISamusRoomObjects roomObjects)
@@ -153,6 +152,7 @@ internal sealed class ProjectileMotion
             _trails.SpawnTrail(held);
 
         SamusProjectileDirection direction = shot.Direction;
+        MissileShotState missile = shot.KindStateAs<MissileShotState>();
         if (!missile.Ignition.HasIgnited)
         {
             // A missile ignites on its first input phase: its velocity is rebuilt from its
@@ -185,7 +185,6 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusState samus,
         SamusProjectileOccupant held,
-        SuperMissileShotState superMissile,
         Position16<RoomPixels> cameraPosition,
         SamusBombProjectileSystem samusBombs,
         ISamusRoomObjects roomObjects)
@@ -205,6 +204,7 @@ internal sealed class ProjectileMotion
             _trails.SpawnTrail(held);
 
         SamusProjectileDirection direction = shot.Direction;
+        SuperMissileShotState superMissile = shot.KindStateAs<SuperMissileShotState>();
         if (!superMissile.Ignition.HasIgnited)
         {
             // A Super Missile ignites as a missile does on its first input phase, and then
@@ -317,10 +317,10 @@ internal sealed class ProjectileMotion
         // differ when her pose's muzzle has moved since the owner was placed.
         BeamFiring.InitializePosition(samus, link);
         link.Animation = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
-        linked.Install(new SuperMissileLinkHold(
-            new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place)));
+        linked.Install(SamusShotBehaviors.SuperMissileLink,
+            new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
-        ownerState.LinkPlace = link.Place;
+        ownerState.LinkChainPosition = link.Place;
         _pool.ShotCount.CountShot();
     }
 
@@ -345,7 +345,7 @@ internal sealed class ProjectileMotion
         ISamusRoomObjects roomObjects)
     {
         SamusProjectile owner = heldOwner.Projectile;
-        if (!ownerState.Ignition.HasIgnited || ownerState.LinkPlace is not { } linkPlace)
+        if (!ownerState.Ignition.HasIgnited || ownerState.LinkChainPosition is not { } linkPlace)
             return;
         SamusProjectile link = _pool.Shots[linkPlace];
         if (!link.IsActive || link.Occupant is not { } heldLink)
@@ -484,7 +484,7 @@ internal sealed class ProjectileMotion
 
             // Following the extensions leaves no extension block, so one reaching here is invalid room data.
             RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension or _ =>
-                throw new InvalidDataException($"Invalid missile collision type {block.CollisionType} at block {block.At}."),
+                throw new InvalidDataException($"Invalid missile collision type {block.CollisionType} at block {block.Position}."),
         };
     }
 

@@ -84,7 +84,7 @@ internal static class CeresColourEffectsVerification
     /// </summary>
     internal static void VerifyCeresNavigationLights(CartridgeImportAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = bus;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         AssertSpawn(cartridge, FlightEngineSpawn, EngineDefinition, CeresFlightSceneDefinitions.GunshipEngineFlicker, "the flight's rear view's engine");
         AssertSpawn(cartridge, FlightLightsSpawn, FlightLightsDefinition, CeresFlightSceneDefinitions.NavigationLights, "the flight's rear view");
         AssertSpawn(cartridge, DestructionLightsSpawn, DestructionLightsDefinition, CeresDestructionSceneDefinitions.NavigationLights, "the station's setup");
@@ -120,7 +120,7 @@ internal static class CeresColourEffectsVerification
     /// </summary>
     internal static void VerifyPlanetZebesTextFades(CartridgeImportAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = bus;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         // The caption's list: the blank hold's duration and pose, the fade in, the first hold's duration and pose, the
         // Japanese caption, the second hold's duration and pose, the fade out, then its last hold before the caption deletes
         // itself and starts the flight.

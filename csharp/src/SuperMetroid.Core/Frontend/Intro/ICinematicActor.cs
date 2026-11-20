@@ -20,9 +20,6 @@ internal interface ICinematicActor<TCue>
     /// <summary>Retires the actor and clears what it shows.</summary>
     void Delete();
 
-    /// <summary>Runs the actor's animation for one update; an animation that publishes a cue fails, having no owner to hand it to.</summary>
-    void Step();
-
     /// <summary>Runs the actor's animation for one update, handing each cue it publishes to <paramref name="ownerCue"/>.</summary>
-    void Step(Action<TCue> ownerCue);
+    void Step(Action<TCue>? ownerCue = null);
 }

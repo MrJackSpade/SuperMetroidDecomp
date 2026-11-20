@@ -98,14 +98,7 @@ internal static class TorizoSheetShades
     }
 
     /// <summary>The body's and belly's colours of <paramref name="look"/>, body first.</summary>
-    private static RgbColor[] Colours(EnemyAuxiliaryColorCatalog auxiliary, TorizoLook look) => look.Band is { } band
-        // Golden Torizo's health colouring shows its band's body and belly colours; the others are named by their kind.
-        ?
-        [
-            .. Enumerable.Range(0, LoadedSetColours.RowColours).Select(colour => auxiliary.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, HealthRow(band), colour)),
-            .. Enumerable.Range(0, LoadedSetColours.RowColours).Select(colour => auxiliary.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBelly, HealthRow(band), colour)),
-        ]
-        : look.Kind switch
+    private static RgbColor[] Colours(EnemyAuxiliaryColorCatalog auxiliary, TorizoLook look) => look.Kind switch
     {
         TorizoLookKind.BombStatue => TorizoPaletteColours.BombInitial.ToArray(),
         TorizoLookKind.GoldenInitial => TorizoPaletteColours.GoldenInitial.ToArray(),
@@ -113,15 +106,22 @@ internal static class TorizoSheetShades
         TorizoLookKind.Golden => TorizoPaletteColours.Golden.ToArray(),
         TorizoLookKind.White => [.. Enumerable.Repeat(RgbColor.White, BodyColours)],
         TorizoLookKind.Black => new RgbColor[BodyColours],
+        TorizoLookKind.GoldenHealth =>
+        [
+            .. Enumerable.Range(0, LoadedSetColours.RowColours).Select(colour => auxiliary.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, HealthRow(look), colour)),
+            .. Enumerable.Range(0, LoadedSetColours.RowColours).Select(colour => auxiliary.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBelly, HealthRow(look), colour)),
+        ],
         _ => throw new InvalidDataException($"Undefined Torizo colouring {look.Kind}."),
     };
 
     /// <summary>
-    /// The row of Golden Torizo's installed health colours <paramref name="band"/> reads: they hold his bands lowest
+    /// The row of Golden Torizo's installed health colours <paramref name="look"/>'s band reads: they hold his bands lowest
     /// first, one row per 2048 health.
     /// </summary>
-    private static int HealthRow(GoldenTorizoHealthBand band)
+    /// <exception cref="InvalidDataException"><paramref name="look"/> names no health band.</exception>
+    private static int HealthRow(TorizoLook look)
     {
+        GoldenTorizoHealthBand band = look.Band ?? throw new InvalidDataException($"The Torizo health colouring {look.Kind} names no band.");
         for (int row = 0; row < GoldenTorizoHealthBandDefinitions.LowestFirst.Count; row++)
         {
             if (GoldenTorizoHealthBandDefinitions.LowestFirst[row] == band)

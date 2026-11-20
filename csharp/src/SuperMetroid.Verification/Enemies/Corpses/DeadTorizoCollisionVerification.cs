@@ -36,21 +36,21 @@ internal static class DeadTorizoCollisionVerification
             {
                 case "contact":
                     samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(120);
-                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(place, place.RequireSpeciesState<DeadTorizoEnemyState>(), samus);
+                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(place, samus);
                     Require(samus.Kinematics.ExtraDisplacement.X.WholePixels >= 4 &&
                         samus.Kinematics.ExtraDisplacement.Y.WholePixels == 4,
                         "The custom touch rectangles must publish native displacement.");
                     break;
-                case "shot": DeadTorizoBehavior.TriggerDeadTorizoRotting(place, place.RequireSpeciesState<DeadTorizoEnemyState>()); break;
-                case "power bomb": DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(place, place.RequireSpeciesState<DeadTorizoEnemyState>()); break;
+                case "shot": DeadTorizoBehavior.TriggerDeadTorizoRotting(place); break;
+                case "power bomb": DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(place); break;
                 default:
                     samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(500); // Exercise solid-contact delay independently of custom overlap.
                     samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Right, place);
                     // The wait handler reads which enemies Samus met.
-                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(place, place.RequireSpeciesState<DeadTorizoEnemyState>(), samus);
-                    for (int frame = 0; frame < 15; frame++) enemies.DeadTorizoBehavior.RunDeadTorizoMain(place, place.RequireSpeciesState<DeadTorizoEnemyState>(), RoomEnemyFrameFixtures.StandaloneSamus());
+                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(place, samus);
+                    for (int frame = 0; frame < 15; frame++) enemies.DeadTorizoBehavior.RunDeadTorizoMain(place, RoomEnemyFrameFixtures.StandaloneSamus());
                     Require(IsInteractive(), "The native 16-frame pre-rot delay must retain collision.");
-                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(place, place.RequireSpeciesState<DeadTorizoEnemyState>(), RoomEnemyFrameFixtures.StandaloneSamus());
+                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(place, RoomEnemyFrameFixtures.StandaloneSamus());
                     break;
             }
             Require(place.Contact.HasAny(EnemyContact.IgnoresSamus),
@@ -58,10 +58,11 @@ internal static class DeadTorizoCollisionVerification
             Require(!IsInteractive(), $"{trigger}: rotting corpse must leave the interaction list.");
             samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(90);
             Require(!Probe().Collided, $"{trigger}: the same movement must pass the rotting corpse.");
-            DeadTorizoEnemyState corpse = SuperMetroid.Core.Enemies.EnemyPartners.Listed<DeadTorizoEntity>(place).State;
+            DeadTorizoEnemyState corpse = place.SpeciesState<DeadTorizoEnemyState>()
+                ?? throw new InvalidOperationException("The initialized corpse has no state.");
             DeadTorizoPhase? phase = corpse.Phase;
             corpse.Phase = DeadTorizoPhase.Finished;
-            DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(place, place.RequireSpeciesState<DeadTorizoEnemyState>());
+            DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(place);
             Require(corpse.Phase == DeadTorizoPhase.Finished, "An ignored corpse must not restart from another power bomb.");
             Require(phase == DeadTorizoPhase.Rotting, "Each trigger must enter the native rotting phase.");
 

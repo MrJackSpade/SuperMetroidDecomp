@@ -235,8 +235,8 @@ internal sealed class D3D11ImageAtlas : IDisposable
                     throw new InvalidDataException(
                         $"Sheet {sheet.Name} has {sheet.ColourKeys.Length} colour keys, more than the {MostColourKeys} a key word can place.");
                 ColourKey key = sheet.KeyAt(pixel);
-                if (!sheet.TryPlaceOf(key, out place))
-                    throw new InvalidDataException($"Sheet {sheet.Name}'s colour keys do not hold {key}, the key of its visible pixel {pixel}.");
+                place = sheet.PlaceOf(key)
+                    ?? throw new InvalidDataException($"Sheet {sheet.Name}'s colour keys do not hold {key}, the key of its visible pixel {pixel}.");
                 found.Set(shown, region, place);
             }
             bool blends = image.Blends || (!blending.IsEmpty && blending[pixel]);

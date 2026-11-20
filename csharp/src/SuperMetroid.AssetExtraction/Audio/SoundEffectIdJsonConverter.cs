@@ -27,9 +27,9 @@ internal sealed class SoundEffectIdJsonConverter : JsonConverter<SoundEffectId>
         if (reader.TokenType != JsonTokenType.String)
             throw new InvalidDataException($"A clip index sound is a {reader.TokenType}, not a sound's name.");
         string name = reader.GetString() ?? throw new InvalidDataException("A clip index sound has no name.");
-        if (!SoundsByName.TryGetValue(name, out SoundEffectId? sound))
-            throw new InvalidDataException($"The clip index names '{name}', which is no sound.");
-        return sound;
+        return SoundsByName.TryGetValue(name, out SoundEffectId sound)
+            ? sound
+            : throw new InvalidDataException($"The clip index names '{name}', which is no sound.");
     }
 
     /// <inheritdoc />

@@ -7,12 +7,28 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// that selects it.
 /// </summary>
 /// <param name="species">The Shutters species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the shutter occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class DestroyableShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, ShutterSpawnSettings settings)
-    : VerticalShutterEntity(species, occupant, place, common, ShutterSegment.FullyGrown, settings)
+internal sealed class DestroyableShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : VerticalShutterEntity(species, occupant, place, common)
 {
+    /// <summary>The shutter's own shot reaction, built for this occupant.</summary>
+    private readonly EnemyShotReaction ownShot = species.DestroyableShutterShotReaction(occupant);
+
+    /// <summary>The shutter's own stages around common bomb damage, built for this occupant.</summary>
+    private readonly EnemyBombReaction ownBomb = species.DestroyableShutterBombReaction(occupant);
+
+    /// <summary>A destroyable shutter shows the fully grown shutter.</summary>
+    protected override ShutterSegment Pose => ShutterSegment.FullyGrown;
+
+    /// <summary>Sets the shutter up as vertical shutters are, and keeps it among the shutters the escape's flash shows on (#2380).</summary>
+    public override void Initialize()
+    {
+        base.Initialize();
+        Species.KeepDestroyableShutter(this);
+    }
+
     /// <summary>
     /// Shows <paramref name="flash"/>, a frame of the escape's red shutter flash, while the shutter holds the place it was
     /// set up in (#2380): a destroyed shutter, and any enemy that took its place since, shows none.
@@ -24,16 +40,10 @@ internal sealed class DestroyableShutterEntity(ShuttersBehavior species, RoomEne
     }
 
     /// <summary>The destroyable shutter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == ShutterReactions.Shot ? OwnShotReaction : base.ShotReaction;
-
-    /// <summary>The destroyable shutter's own shot reaction, over its own state.</summary>
-    private EnemyShotReaction OwnShotReaction => field ??= Species.DestroyableShutterShotReactionOf(State);
-
-    /// <summary>The destroyable shutter's own stages around common bomb damage, over its own state.</summary>
-    private EnemyBombReaction OwnBombReaction => field ??= Species.DestroyableShutterBombReactionOf(State);
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == ShutterReactions.Shot ? ownShot : base.ShotReaction;
 
     /// <summary>The destroyable shutter's own stages around common bomb damage, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == ShutterReactions.Shot ? OwnBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == ShutterReactions.Shot ? ownBomb : base.CommonBombDamageReaction(context);
 }

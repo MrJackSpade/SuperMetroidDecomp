@@ -345,8 +345,8 @@ internal sealed class GameplayActorDrawing
         if (!deathOwnsSamus)
         {
             // The enemies draw after Samus and her projectiles, each at its frame's depth.
-            EnemyDrawList.PreparedEnemyDraws prepared = room.Enemies.Drawing.Advance(room.Camera.PixelPosition);
-            room.Enemies.Drawing.Draw(prepared, _sprites, room.Camera.PixelPosition, samus);
+            room.Enemies.Drawing.Advance(room.Camera.PixelPosition);
+            room.Enemies.Drawing.Draw(_sprites, room.Camera.PixelPosition, samus);
         }
 
         if (!deathOwnsSamus && !samus.Xray.AreEnemyProjectilesSuspended)

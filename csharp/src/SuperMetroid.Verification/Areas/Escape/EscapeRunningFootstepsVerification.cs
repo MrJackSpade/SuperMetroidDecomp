@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -51,7 +50,7 @@ internal static class EscapeRunningFootstepsVerification
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
             runtime.Player.Samus = samus;
             // Area flags are outside this fixture. Preserve the actual timer requests.
@@ -70,7 +69,7 @@ internal static class EscapeRunningFootstepsVerification
             samus.Drained.RunGetUpCheck(samus, (GameplayAction.Up | GameplayAction.Jump));
             // Before the fix, the stale failed-stand callback selects 18/1 here and the
             // real animation/footstep path throws the exact player-reported exception.
-            SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = new SuperMetroid.Core.Samus.Drawing.SamusGround(SuperMetroid.Core.Samus.Drawing.SamusGroundWetness.Dry, DryLandingsRaiseDust: false),  Random = new SharedRandom(), ControllerInput = (GameplayAction.Up | GameplayAction.Jump) });
+            SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = (GameplayAction.Up | GameplayAction.Jump) });
             AssertEqual(DrainedGetUpCheck.Inactive, samus.Drained.GetUpCheck,
                 "escape timer replaces the drained hack handler");
             AssertEqual(9, samus.AnimationNumber, "Up edge in acid advances the running animation normally");

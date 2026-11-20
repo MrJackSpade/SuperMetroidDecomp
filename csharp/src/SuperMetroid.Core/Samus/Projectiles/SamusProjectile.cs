@@ -119,7 +119,7 @@ public sealed class SamusProjectile
 
     /// <summary>
     /// What the projectile does on its update (#1923), installed when it is fired, released or changed
-    /// (<see cref="Install"/>); null for an explosion, which only plays its animation, and before
+    /// (<see cref="SamusProjectileOccupant.Install"/>); null for an explosion, which only plays its animation, and before
     /// the projectile is set up.
     /// </summary>
     internal SamusShotBehavior? Behavior { get; set; }
@@ -139,7 +139,7 @@ public sealed class SamusProjectile
     /// explosions keep no kind state and carry their fuse; a missile's explosion keeps its missile's.
     /// </summary>
     /// <exception cref="InvalidOperationException">The projectile keeps an undefined kind state or ignition.</exception>
-    internal BeamFiredOverLastShot.ReplacedShot AsReplacedByBeam => Occupant is null ? new BeamFiredOverLastShot.ReplacedShot.FreePlace() : Behavior?.KindState switch
+    internal BeamFiredOverLastShot.ReplacedShot AsReplacedByBeam => Occupant is not { } held ? new BeamFiredOverLastShot.ReplacedShot.FreePlace() : held.KindState switch
     {
         null => new BeamFiredOverLastShot.ReplacedShot.Beam(BeamFuse.UpdatesLeft),
         MissileShotState missile => missile.Ignition switch
@@ -147,12 +147,12 @@ public sealed class SamusProjectile
             SamusMissileIgnition.Pending => new BeamFiredOverLastShot.ReplacedShot.UnignitedMissile(),
             SamusMissileIgnition.PendingAfterReflection => new BeamFiredOverLastShot.ReplacedShot.ReflectedMissile(ReflectionHeadStart),
             SamusMissileIgnition.Ignited ignited => new BeamFiredOverLastShot.ReplacedShot.IgnitedMissile(
-                ignited.Speed, (missile as SuperMissileShotState)?.LinkPlace),
+                ignited.Speed, (missile as SuperMissileShotState)?.LinkChainPosition),
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusMissileIgnition)} {missile.Ignition}."),
         },
         ShinesparkEchoShotState echo => new BeamFiredOverLastShot.ReplacedShot.CrashEcho(echo.Angle),
         SpecialAttackParticleState => new BeamFiredOverLastShot.ReplacedShot.SpecialAttackParticle(),
-        { } undefined => throw new InvalidOperationException($"Undefined {nameof(SamusShotKindState)} {undefined.GetType().Name}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(SamusShotKindState)} {held.KindState.GetType().Name}."),
     };
 
     /// <summary>
@@ -162,19 +162,15 @@ public sealed class SamusProjectile
     private static SignedEightEight ReflectionHeadStart =>
         SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed - SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
 
-    /// <summary>
-    /// Gives the projectile its kind's behaviour with the state the kind starts with: firing, a special attack, an
-    /// echo's release, a Super Missile's link and a reflection install one. A particle moving on to its next behaviour
-    /// keeps its state and changes only <see cref="Behavior"/>, to the next behaviour created with that state.
-    /// </summary>
-    /// <param name="behavior">
-    /// The behaviour the projectile runs from its next update, created with the state its kind keeps, new for this
-    /// installation, when the kind keeps one.
-    /// </param>
-    internal void Install(SamusShotBehavior behavior)
+    /// <summary>The state the kind of the projectile holding the place keeps, which must be a <typeparamref name="TState"/>.</summary>
+    /// <exception cref="InvalidOperationException">No projectile holds the place, or the one holding it keeps no such state.</exception>
+    internal TState KindStateAs<TState>() where TState : SamusShotKindState => Occupant switch
     {
-        Behavior = Ensure.NotNull(behavior);
-    }
+        { KindState: TState state } => state,
+        { } held => throw new InvalidOperationException(
+            $"The projectile in place {Place} keeps no {typeof(TState).Name}; it keeps {held.KindState?.GetType().Name ?? "nothing"}."),
+        null => throw new InvalidOperationException($"No projectile holds place {Place}, so none keeps a {typeof(TState).Name}."),
+    };
 
     /// <summary>A live projectile animation marks the projectile drawable and updated.</summary>
     public bool IsActive => Animation is not null;

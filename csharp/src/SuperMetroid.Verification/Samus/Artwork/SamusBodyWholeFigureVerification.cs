@@ -115,9 +115,9 @@ internal static class SamusBodyWholeFigureVerification
             yield return $"frame {name} ({drawer}) shows a bottom composition its pose's table does not hold at the frame";
         SamusBodyFramePictures own = body.Pictures(top.Pose, top.AnimationFrame);
         if (key.TopPicture is { } topPicture && topPicture != own.Top)
-            yield return $"frame {name} ({drawer}) shows top picture {topPicture.Ordinal}, not its frame's own {own.Top.Ordinal}";
+            yield return $"frame {name} ({drawer}) shows top picture {topPicture.Name}, not its frame's own {own.Top.Name}";
         if (key.BottomPicture is { } bottomPicture && bottomPicture != own.Bottom)
-            yield return $"frame {name} ({drawer}) shows bottom picture {bottomPicture.Ordinal}, not one its frame selects";
+            yield return $"frame {name} ({drawer}) shows bottom picture {bottomPicture.Name}, not one its frame selects";
     }
 
     /// <summary>The composition <paramref name="half"/>'s pose-half table holds at its frame, or none.</summary>

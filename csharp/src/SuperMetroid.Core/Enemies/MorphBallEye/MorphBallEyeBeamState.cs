@@ -10,8 +10,8 @@ public sealed class MorphBallEyeBeamState : IDisplayLatch
     /// <summary>The beam's lifetime, advanced before enemy AI and separate from the eye's own AI action.</summary>
     public MorphBallEyeBeamPhase Phase { get; internal set; }
 
-    /// <summary>The eye that cast the beam, whose position and aim the cone follows; none while no beam exists.</summary>
-    internal MorphBallEyeBeamCaster? Caster { get; set; }
+    /// <summary>The eye body that cast the beam, whose position and aim the cone follows; none while no beam exists.</summary>
+    public RoomEnemyPlace? Body { get; internal set; }
 
     /// <summary>
     /// The angle from the beam's centre to each of its edges, with its fraction of a step: zero when the beam appears,
@@ -51,17 +51,21 @@ public sealed class MorphBallEyeBeamState : IDisplayLatch
     /// </summary>
     private MorphBallEyeBeamCone? Cone()
     {
-        // A beam exists from its eye's request until its fade removes it, always with the eye that cast it.
-        if (Caster is not { } caster)
+        if (Phase == MorphBallEyeBeamPhase.Inactive)
             return null;
-        return new MorphBallEyeBeamCone(Phase, caster.Body.Position.Whole, caster.Eye.Angle, AngularWidth, Color);
+        // A live beam always has an eye with its state; losing either is a corrupt enemy population.
+        RoomEnemyPlace body = Body
+            ?? throw new InvalidDataException($"Active Morph Ball eye beam in phase {Phase} has no eye body.");
+        MorphBallEyeEnemyState eye = body.SpeciesState<MorphBallEyeEnemyState>()
+            ?? throw new InvalidDataException($"Active Morph Ball eye beam's body in enemy place {body.Ordinal} has no eye state.");
+        return new MorphBallEyeBeamCone(Phase, body.Position.Whole, eye.Angle, AngularWidth, Color);
     }
 
     /// <summary>Ends the beam's lifetime, releases its eye and returns its colour to black.</summary>
     internal void Reset()
     {
         Phase = MorphBallEyeBeamPhase.Inactive;
-        Caster = null;
+        Body = null;
         AngularHalfWidth = RotationAngle.Zero;
         AngularHalfWidthGrowth = RotationAngle.Zero;
         NextColour = MorphBallEyeBeamColour.First;

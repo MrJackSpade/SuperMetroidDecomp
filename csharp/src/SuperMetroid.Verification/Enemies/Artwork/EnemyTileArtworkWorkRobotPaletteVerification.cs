@@ -26,8 +26,8 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
             int address = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
                 record * WorkRobotGlowDefinitions.RecordByteCount +
                 color * sizeof(ushort);
-            AssertEqual(RomDataReader.ReadWordFixedBank(rom, address),
-                native.Resolve(record, color),
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address),
+                native.GlowColours(WorkRobotGlowAnimations.Cycle[record])[color],
                 $"installed Work Robot frame {record} color {color} preserves ROM RGB5");
         }
 

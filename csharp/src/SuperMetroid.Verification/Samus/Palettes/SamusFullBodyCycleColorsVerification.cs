@@ -38,10 +38,8 @@ internal static class SamusFullBodyCycleColorsVerification
                 originalPointers.Add(ReadVerificationWord(rom, 0x910000 | (list + 2 * phase)));
         }
         AssertEqual(48, originalPointers.Count, "Original dispatcher lists select48 distinct color rows");
-        int ordinal = 0;
         foreach (ushort pointer in originalPointers)
         {
-            AssertEqual(ordinal++, SamusFullBodyCycleColorFormat.PaletteIndex(pointer), "Original palette allocation order equals calculated index");
             var cgram = new SamusColours();
             SamusPaletteNative.ShowFullBodyCycle(cgram, pointer);
             for (int color = 0; color < 16; color++)

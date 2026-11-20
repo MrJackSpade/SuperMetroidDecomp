@@ -14,12 +14,8 @@ internal sealed class FrameDrawings
     /// <summary>Every catalogue entry with the frames it lists resolved, its effect actors' frames among them.</summary>
     private static readonly ResolvedDrawing[] Entries = [.. EncounterArtworkDrawingDefinitions.All.Select(drawing => new ResolvedDrawing(drawing,
         new HashSet<EnemyFrameId>(drawing.Frames.Concat(drawing.EffectActors.SelectMany(kind =>
-            RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(kind))).SelectMany(EnemyFramesOf))),
+            RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(kind))).Select(picture => picture.RequireEnemyFrame()))),
         new HashSet<EnemyProjectileFrameId>(drawing.Projectiles)))];
-
-    /// <summary>The enemy frame an effect actor's picture shows, or none for a hit burst, which draws from the shots' sheet.</summary>
-    private static IEnumerable<EnemyFrameId> EnemyFramesOf(RoomEffectActorPicture picture) =>
-        picture.Select<IEnumerable<EnemyFrameId>>(frame => [frame], _ => []);
 
     /// <summary>The entries listing the frame.</summary>
     private readonly EncounterArtworkDrawing[] listed;
@@ -48,7 +44,7 @@ internal sealed class FrameDrawings
         bool[] own = [.. drawn.Select(entry => entry.ArtworkOfLook).Distinct()];
         if (own.Length != 1)
             throw new InvalidDataException($"Entries listing a frame for {encounter} disagree on whether its artwork is its look's own.");
-        return new FrameDrawnLooks([.. drawn.SelectMany(entry => entry.Looks).Select(look => EncounterLookUploads.IndexOf(encounter, look)).Distinct().Order()],
+        return new FrameDrawnLooks([.. drawn.SelectMany(entry => entry.Looks).Distinct().OrderBy(look => EncounterLookUploads.IndexOf(encounter, look))],
             own[0]);
     }
 

@@ -23,7 +23,7 @@ public static class EnemyOverreadFiles
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        IImportCartridgeSource cartridge = bus;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         Directory.CreateDirectory(directory);
         EnemyOverreadDocument document = EnemyOverreadDecoding.Decode(cartridge);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, EnemyOverreadFormat.JsonOptions);
@@ -51,13 +51,17 @@ public static class EnemyOverreadFiles
         Ensure.NotNull(document);
         if (document.Version != EnemyOverreadFormat.Version)
             throw new InvalidDataException("Enemy overread file has an unsupported version.");
-        IReadOnlyList<bool> apexGrowth = document.MagdolliteApexGrowthByPlace;
+        IReadOnlyList<bool> apexGrowth = Require(document.MagdolliteApexGrowthByPlace, nameof(document.MagdolliteApexGrowthByPlace));
         if (apexGrowth.Count != EnemyPlaceOrder.Capacity)
             throw new InvalidDataException(
                 $"Enemy overread file holds Magdollite apex growth for {apexGrowth.Count} places, not {EnemyPlaceOrder.Capacity}.");
-        EnemyOverreadDocument.Drift drift = document.FallingSparkUnauthoredLaunch;
+        EnemyOverreadDocument.Drift drift = Require(document.FallingSparkUnauthoredLaunch, nameof(document.FallingSparkUnauthoredLaunch));
         return new EnemyOverreadServices(
             new MagdolliteApexGrowth([.. apexGrowth]),
             new FallingSparkUnauthoredLaunch(SignedSixteenSixteen.FromPixels(drift.Pixels)));
     }
+
+    /// <summary>Requires a document member.</summary>
+    private static T Require<T>(T? value, string name) where T : class =>
+        value ?? throw new InvalidDataException($"Enemy overread file has no {name}.");
 }

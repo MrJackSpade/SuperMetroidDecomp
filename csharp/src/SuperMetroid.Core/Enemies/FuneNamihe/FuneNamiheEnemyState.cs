@@ -24,9 +24,6 @@ public abstract class FuneNamiheEnemyState
     /// </summary>
     internal abstract bool IsSpitting { get; }
 
-    /// <summary>What both kinds' placements tell them: their facing and their fireball's speed (#2554).</summary>
-    internal abstract FuneNamiheSpawnSettings SharedSettings { get; }
-
     /// <summary>The pixels the spitter's mouth, from which its fireballs leave, sits below its position in the shared art.</summary>
     internal abstract int MouthDrop { get; }
 

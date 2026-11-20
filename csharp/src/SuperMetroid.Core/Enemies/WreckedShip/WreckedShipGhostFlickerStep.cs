@@ -34,11 +34,9 @@ public sealed class WreckedShipGhostFlickerStep
     /// <exception cref="InvalidDataException">The flicker has no step.</exception>
     private static WreckedShipGhostFlickerStep Schedule(IReadOnlyList<WreckedShipGhostFlickerTiming> timings)
     {
-        if (timings.Count == 0)
-            throw new InvalidDataException("The ghost's flicker has no step.");
-        var first = new WreckedShipGhostFlickerStep(timings[^1], null);
-        for (int step = timings.Count - 2; step >= 0; step--)
-            first = new(timings[step], first);
-        return first;
+        WreckedShipGhostFlickerStep? next = null;
+        for (int step = timings.Count - 1; step >= 0; step--)
+            next = new(timings[step], next);
+        return next ?? throw new InvalidDataException("The ghost's flicker has no step.");
     }
 }

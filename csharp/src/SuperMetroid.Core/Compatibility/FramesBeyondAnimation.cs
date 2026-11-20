@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
@@ -125,17 +124,16 @@ public sealed class FramesBeyondAnimation<TAnimation, TFrame, TPlace, TStep>
             : throw new InvalidDataException($"Animation {animation} has no installed frame after {frame}.");
 
     /// <summary>
-    /// Whether <paramref name="frame"/> of <paramref name="animation"/>, read past the animation's end, reaches a step, and
-    /// what it reaches; a read that reaches no step fails the game's animation.
+    /// What <paramref name="frame"/> of <paramref name="animation"/>, read past the animation's end, reaches; null where the
+    /// read reaches no step, which fails the game's animation.
     /// </summary>
     /// <exception cref="ArgumentException"><paramref name="animation"/> is not in the layout.</exception>
-    public bool TryReadPast(TAnimation animation, TFrame frame, [NotNullWhen(true)] out Read? read)
-    {
-        if (!_cueValueSteps.ContainsKey(animation))
-            throw new ArgumentException($"Animation {animation} is not in the layout.", nameof(animation));
-        read = null;
-        return _readsPast.TryGetValue(animation, out IReadOnlyDictionary<TFrame, Read>? reads) && reads.TryGetValue(frame, out read);
-    }
+    public Read? ReadPast(TAnimation animation, TFrame frame) =>
+        !_cueValueSteps.ContainsKey(animation)
+            ? throw new ArgumentException($"Animation {animation} is not in the layout.", nameof(animation))
+            : _readsPast.TryGetValue(animation, out IReadOnlyDictionary<TFrame, Read>? reads) && reads.TryGetValue(frame, out Read? read)
+                ? read
+                : null;
 
     /// <summary>The frame of <paramref name="animation"/> that <paramref name="place"/>, named for another animation, lands on.</summary>
     /// <exception cref="InvalidDataException">The installation holds no landing of the place in the animation.</exception>

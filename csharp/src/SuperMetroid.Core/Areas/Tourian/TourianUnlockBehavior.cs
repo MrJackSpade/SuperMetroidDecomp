@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// surface. The release's cues spawn more of the effects it spawns.
 /// </summary>
 [RoomLifetime]
-internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<TourianStatueEffectMotion>, IEnemyProjectileCues<TourianStatueProjectileCue>
+internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<TourianStatueEffectMotion>
 {
     /// <summary>The room's randomness, which aims the particles.</summary>
     private readonly EnemyRoomBinding _room;
@@ -34,7 +34,7 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
     /// <summary>Binds the unlock effects to the current room's projectile, audio, FX and statue owners.</summary>
     internal TourianUnlockBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyAudioQueue audio,
         TourianEntranceStatueBehavior statue, ITourianStatueRoom statueRoom)
-        : base(initial: null)
+        : base(StartingMotions)
     {
         _room = room;
         _statueRoom = Ensure.NotNull(statueRoom);
@@ -60,23 +60,23 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
         {
             var projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TourianStatueDescentDust, Effects, _statue.SceneGraphics);
             if (projectile is null) continue;
-            projectile.Anchor = TourianStatueSequenceDefinitions.DescentDustAnchor;
             _statue.HoldSceneProjectile(projectile);
             projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustAnimations.TourianDescentDust));
+            projectile.Anchor = TourianStatueSequenceDefinitions.DescentDustAnchor;
         }
     }
 
     /// <summary>Spawns the glow of a statue's <paramref name="eye"/> and lights the eye's colours.</summary>
     public void SpawnTourianEyeGlow(TourianStatueEye eye)
     {
-        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueEyeGlow, TourianStatueProjectileSegment.EyeGlow, eye, moves: null) is null) return;
+        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueEyeGlow, TourianStatueProjectileSegment.EyeGlow, eye) is null) return;
         _statue.ShowEyeGlow(eye.Glow);
     }
 
     /// <summary>Spawns a statue's released soul, rising from its <paramref name="eye"/>.</summary>
     public void SpawnTourianSoul(TourianStatueEye eye)
     {
-        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueSoul, TourianStatueProjectileSegment.Soul, eye, TourianStatueEffectMotion.SoulRising) is not { } soul) return;
+        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueSoul, TourianStatueProjectileSegment.Soul, eye) is not { } soul) return;
         soul.Velocity = soul.Velocity.WithY(TourianStatueSoulDefinitions.LaunchSpeed);
     }
 
@@ -84,20 +84,13 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
     /// Allocates an unlock effect of <paramref name="kind"/>, starting its animation at <paramref name="start"/>, at a
     /// statue's <paramref name="eye"/>; null when the room already holds as many enemy projectiles as it can.
     /// </summary>
-    /// <param name="kind">What the effect is.</param>
-    /// <param name="start">The segment its animation starts at.</param>
-    /// <param name="eye">The statue's eye it spawns at.</param>
-    /// <param name="moves">How the effect moves from its spawn, or null when it holds still.</param>
-    private EnemyProjectile? SpawnAtStatueEye(RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start, TourianStatueEye eye,
-        TourianStatueEffectMotion? moves)
+    private EnemyProjectile? SpawnAtStatueEye(RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start, TourianStatueEye eye)
     {
         Ensure.NotNull(eye);
         var projectile = _projectiles.AllocateEnemyProjectile(kind, Effects, _statue.SceneGraphics);
         if (projectile is null) return null;
-        if (moves is { } motion)
-            projectile.StartMotion(this, motion);
         _statue.HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(start, this));
+        projectile.StartAnimation(new TourianStatueProjectileAnimation(this, start));
         projectile.Position = projectile.Position.WithWhole(eye.Position);
         return projectile;
     }
@@ -105,7 +98,7 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
     /// <summary>Spawns the splash of <paramref name="parent"/>, a particle crossing the water surface, held at the surface.</summary>
     private void SpawnTourianSplash(EnemyProjectile parent)
     {
-        if (SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueSplash, TourianStatueProjectileSegment.Splash, TourianStatueEffectMotion.SplashHolding) is not { } splash)
+        if (SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueSplash, TourianStatueProjectileSegment.Splash) is not { } splash)
             return;
         splash.Position = splash.Position.WithWholeY(WaterSurface - TourianStatueParticleDefinitions.SplashHeightAboveSurface);
     }
@@ -113,13 +106,13 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
     /// <summary>Spawns a particle thrown from <paramref name="parent"/> at a random angle.</summary>
     private void SpawnTourianParticle(EnemyProjectile parent)
     {
-        if (SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueParticle, TourianStatueProjectileSegment.Particle, TourianStatueEffectMotion.ParticleFalling) is not { } particle)
+        if (SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueParticle, TourianStatueProjectileSegment.Particle) is not { } particle)
             return;
         // A particle leaves within an eighth of a turn either side of the zero angle; one below zero lies near a full turn.
         TrigonometryAngle angle = TrigonometryAngle.Wrapped(
             _room.Random.Next(TourianStatueParticleDefinitions.LaunchAngle) - TourianStatueParticleDefinitions.LaunchAngleCentring);
-        // The particle flies one pixel an update across at the angle's sine, and four up or down at its negative cosine, the
-        // sine a quarter turn back.
+        // The particle flies its across speed at the angle's sine, and its vertical speed up or down at its negative cosine,
+        // the sine a quarter turn back.
         particle.Velocity = particle.Velocity.WithX(Trigonometry.SineVelocity(angle, TourianStatueParticleDefinitions.LaunchAcrossPixels));
         particle.Velocity = particle.Velocity.WithY(Trigonometry.SineVelocity(angle - TrigonometryAngle.QuarterTurn,
             TourianStatueParticleDefinitions.LaunchVerticalPixels));
@@ -127,26 +120,19 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
 
     /// <summary>Spawns a tail behind <paramref name="parent"/>, which holds still where it spawned.</summary>
     private void SpawnTourianTail(EnemyProjectile parent) =>
-        _ = SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueTail, TourianStatueProjectileSegment.Tail, moves: null);
+        _ = SpawnAtParent(parent, RoomEnemyProjectileKind.TourianStatueTail, TourianStatueProjectileSegment.Tail);
 
     /// <summary>
     /// Allocates an unlock effect of <paramref name="kind"/>, starting its animation at <paramref name="start"/>, at
     /// <paramref name="parent"/>; null when the room already holds as many enemy projectiles as it can.
     /// </summary>
-    /// <param name="parent">The effect it spawns at.</param>
-    /// <param name="kind">What the effect is.</param>
-    /// <param name="start">The segment its animation starts at.</param>
-    /// <param name="moves">How the effect moves from its spawn, or null when it holds still.</param>
-    private EnemyProjectile? SpawnAtParent(EnemyProjectile parent, RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start,
-        TourianStatueEffectMotion? moves)
+    private EnemyProjectile? SpawnAtParent(EnemyProjectile parent, RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start)
     {
         Ensure.NotNull(parent);
         var projectile = _projectiles.AllocateEnemyProjectile(kind, Effects, _statue.SceneGraphics);
         if (projectile is null) return null;
-        if (moves is { } motion)
-            projectile.StartMotion(this, motion);
         _statue.HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(start, this));
+        projectile.StartAnimation(new TourianStatueProjectileAnimation(this, start));
         projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
         return projectile;
     }
@@ -157,15 +143,15 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
 
     /// <summary>
     /// Raises a soul, accelerating upward, and ends it once it rises above the room's top (#2424): it leaves in its own
-    /// update, before its animation's step, and the velocity it leaves behind for the next spawn in its place still gains
-    /// this update's acceleration.
+    /// update, before its animation's step, and the velocity it leaves in its place for the next spawn there
+    /// (<see cref="Compatibility.EnemyProjectileHandOver"/>) already holds this update's acceleration.
     /// </summary>
     private static void RaiseTourianStatueSoul(EnemyProjectile projectile)
     {
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y - TourianStatueSoulDefinitions.RiseAcceleration);
         if (OffRoomPlaces.LiesBeforeRoom(projectile.Position.Y.Whole))
             projectile.Delete();
-        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y - TourianStatueSoulDefinitions.RiseAcceleration);
     }
 
     /// <summary>
@@ -190,8 +176,18 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
     /// The unlock's effects (#1760): the descending statue's dust, the eyes' glows, the released souls, particles and their
     /// tails, and the splashes. Their spawners start their animations.
     /// </summary>
-    internal EnemyProjectileBehavior Effects => this;
+    private EnemyProjectileBehavior Effects => this;
 
+    /// <summary>A splash holds at the water, a particle falls and a soul rises from their spawn; the dust, the eye glows and the tails hold still.</summary>
+    private static readonly Dictionary<RoomEnemyProjectileKind, TourianStatueEffectMotion?> StartingMotions = new()
+    {
+        [RoomEnemyProjectileKind.TourianStatueSplash] = TourianStatueEffectMotion.SplashHolding,
+        [RoomEnemyProjectileKind.TourianStatueParticle] = TourianStatueEffectMotion.ParticleFalling,
+        [RoomEnemyProjectileKind.TourianStatueSoul] = TourianStatueEffectMotion.SoulRising,
+        [RoomEnemyProjectileKind.TourianStatueEyeGlow] = null,
+        [RoomEnemyProjectileKind.TourianStatueTail] = null,
+        [RoomEnemyProjectileKind.TourianStatueDescentDust] = null,
+    };
 
     /// <summary>Moves one of the unlock's effects: the splash's hold, the particle's fall and the soul's rise.</summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>
@@ -215,24 +211,14 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
     }
 
     /// <summary>
-    /// Handles an unlock effect animation's cue: deletion, a step down, or a cue of the statues' release: its sound, its
-    /// earthquake, or a particle or tail spawned at the projectile.
+    /// Handles a cue of the statues' release: its sound, its earthquake, or a particle or tail spawned at the projectile.
     /// </summary>
-    /// <param name="context">The projectile, Samus and the camera of the pass running the animation.</param>
+    /// <param name="projectile">The projectile whose animation published the cue.</param>
     /// <param name="cue">The cue the animation published.</param>
-    public void RunCue(EnemyProjectileCueContext context, TourianStatueProjectileCue cue)
+    private protected override void RunReleaseCue(EnemyProjectile projectile, TourianStatueProjectileCue cue)
     {
-        EnemyProjectile projectile = context.Projectile;
         switch (cue)
         {
-            case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.Delete }:
-                projectile.Delete();
-                break;
-            case TourianStatueProjectileCue.MoveDown moveDown:
-                // A statue effect can stand above the room's top, its Y past the seam, and a move down carries it back
-                // across, so the move keeps its place as OffRoomPlaces does.
-                projectile.Position = OffRoomPlaces.WithWholeY(projectile.Position, projectile.Position.Y.Whole + moveDown.Pixels);
-                break;
             case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.PlayReleaseSound }:
                 _audio.QueueEnemySound(EnemySound.TourianStatueParticle, priority: SoundRequestPriority.Normal);
                 break;
@@ -246,7 +232,8 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
                 SpawnTourianTail(projectile);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(TourianStatueProjectileCueKind)} {cue}.");
+                base.RunReleaseCue(projectile, cue);
+                break;
         }
     }
 }

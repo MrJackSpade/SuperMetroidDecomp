@@ -76,8 +76,8 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>
-    /// Runs the death explosions. An authored-position small explosion appears every five updates while the
-    /// acid lowers. When its countdown runs out, Samus is released and Ridley's twelve
+    /// Runs the death explosions. An authored-position small explosion appears at the death's explosion interval while the
+    /// acid lowers. When its countdown runs out, Samus is released and Ridley's
     /// independently moving body and tail pieces take places in the room's enemy list.
     /// </summary>
     internal void TickNorfairRidleyDeathExplosions(
@@ -137,7 +137,7 @@ internal sealed class NorfairRidleyDeath
 
         _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
 
-        // The death drops scatter their pickups through Ridley's authored 128x64 arena
+        // The death drops scatter their pickups through Ridley's authored arena
         // rectangle. The body is deleted immediately afterward, so the drop actors must
         // retain Ridley's definition themselves.
         _deathsAndDrops.SpawnEnemyDropScatter(
@@ -154,7 +154,7 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>Spawns his death's next small explosion, once its wait runs out, at the next point of the shared scatter.</summary>
-    internal void SpawnSmallExplosionNearNorfairRidley(
+    private void SpawnSmallExplosionNearNorfairRidley(
         RoomEnemyPlace body,
         NorfairRidleyState state)
     {
@@ -175,7 +175,7 @@ internal sealed class NorfairRidleyDeath
     /// Allocates the body and tail pieces that continue moving after the intact body hides; each joins the breakup of
     /// <paramref name="state"/>'s body from its setup (#2231).
     /// </summary>
-    internal void SpawnNorfairRidleyBreakupActors(RoomEnemyPlace body, NorfairRidleyState state)
+    private void SpawnNorfairRidleyBreakupActors(RoomEnemyPlace body, NorfairRidleyState state)
     {
         RidleyBreakup.SpawnInBreakupOrder(SpawnPart);
 
@@ -185,24 +185,27 @@ internal sealed class NorfairRidleyDeath
             // places it where that part of Ridley still stands and starts its animation.
             RoomEnemyPlacement population = new(
                 EnemyDefinitionId.RidleyBreakupPiece,
-                Position: Position16<RoomPixels>.Zero,
+                Placing: EnemyPlacing.At(Position16<RoomPixels>.Zero),
                 Contact: EnemyContact.IgnoresSamus,
                 Processing: EnemyProcessing.Animates | EnemyProcessing.OffScreen,
                 Presence: EnemyPresence.None,
                 CollidesByFrameHitboxes: false,
                 SpawnSettings: new RidleyExplosionSpawnSettings(part));
             // Each piece's setup starts it from where its part of Ridley stands.
-            // A full pool spawns no piece, and the breakup goes on without it.
-            _ = _lifecycle.SpawnEnemyJoining(population, new RidleyBreakupSource(state, body.Position.Whole));
+            if (_lifecycle.SpawnEnemyJoining(population, new RidleyBreakupSource(state, body.Position.Whole)) is null)
+            {
+                throw new InvalidOperationException(
+                    "Lower Norfair Ridley's breakup found no place left for an enemy in the room.");
+            }
         }
     }
 
     /// <summary>Sets up one of the breakup's twelve pieces from the breakup it joined.</summary>
-    internal RidleyExplosionFragmentState InitializeNorfairRidleyExplosion(RoomEnemyPlace fragment, RidleyBreakupSource source, RidleyExplosionSpawnSettings settings)
+    internal void InitializeNorfairRidleyExplosion(RoomEnemyOccupant occupant, RoomEnemyPlace fragment)
     {
-        Ensure.NotNull(source);
+        RidleyBreakupSource source = fragment.RequireSpeciesState<RidleyBreakupSource>();
         NorfairRidleyState state = source.Ridley;
-        RidleyExplosionPart part = Ensure.NotNull(settings).Part;
+        RidleyExplosionPart part = occupant.SpawnSettings<RidleyExplosionSpawnSettings>().Part;
 
         fragment.AnimationClock.Restart();
         fragment.Shading = state.Colours.SpriteShading(flashing: false);
@@ -229,17 +232,19 @@ internal sealed class NorfairRidleyDeath
             Picture = picture,
         };
         fragmentState.Lifetime.LastFor(RidleyExplosionDefinitions.LifetimeUpdates[part]);
-        return fragmentState;
+        fragment.SetSpeciesState(fragmentState);
     }
 
     /// <summary>Runs a breakup piece's update: flicker, drag, gravity, movement, and lifetime.</summary>
-    internal void RunNorfairRidleyExplosionMain(RoomEnemyPlace fragment, RidleyExplosionFragmentState fragmentState, SamusState samus)
+    internal void RunNorfairRidleyExplosionMain(RoomEnemyOccupant piece, SamusState samus)
     {
+        RoomEnemyPlace fragment = piece.Place;
         if (RidleyCadenceDefinitions.BreakupFragmentHidden.IsSetIn(fragment.FrameCounter))
             fragment.Presence = fragment.Presence.With(EnemyPresence.Hidden);
         else
             fragment.Presence = fragment.Presence.Without(EnemyPresence.Hidden);
 
+        RidleyExplosionFragmentState fragmentState = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
         // A fragment falls only for its part's authored lifetime, so its gravity adds a few pixels an update at most.
         var velocity = new PixelVelocity<RoomPixels>(
             fragmentState.Velocity.X.SlowedBy(RidleyExplosionDefinitions.BreakupFragmentDrag),
@@ -252,6 +257,6 @@ internal sealed class NorfairRidleyDeath
 
         // A piece's lifetime ends in the small enemy death: it leaves its place at once, and the explosion it
         // becomes keeps its definition and position for the pickup it may leave.
-        _deathsAndDrops.StartGenericEnemyDeath(fragment, EnemyDeathExplosion.Small, samus);
+        _deathsAndDrops.StartGenericEnemyDeath(piece, EnemyDeathExplosion.Small, samus);
     }
 }

@@ -19,7 +19,7 @@ internal static class PhantoonSoundDefinitionsVerification
         for (int index = 0; index < 3; index++)
         {
             SoundEffectId expected = SoundEffectCommands.Decode(SoundEffectLibrary.Enemies,
-                rom.ReadCartridgeWord(sourceAddress + index * 2));
+                CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + index * 2));
             AssertEqual(expected, PhantoonSoundDefinitions.MaterializationSounds[index],
                 $"Phantoon materialization sound {index}");
         }

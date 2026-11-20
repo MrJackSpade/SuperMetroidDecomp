@@ -14,7 +14,7 @@ internal static class SurfaceMotionDefinitionsVerification
     {
         for (int shape = 0; shape < 32; shape++)
         {
-            ushort multiplier = rom.ReadCartridgeWord((0xa3e931 + shape * 4));
+            ushort multiplier = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e931 + shape * 4));
             SlopeShape slope = RoomBlockBehaviorCodec.SlopeShapeOf(shape);
             AssertEqual(multiplier, slope.CrawlerTangentShare.TwoHundredFiftySixths, "Crawler native slope multiplier");
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -29,8 +29,8 @@ internal static class SurfaceMotionDefinitionsVerification
         {
             int address = 0xa3d517 + Math.Min(speed, 15) * 4;
             var actual = YardKicks.ForHorizontalSpeed((ushort)speed);
-            AssertEqual(rom.ReadCartridgeWord(address), actual.Fraction, "Yard native capped kick fraction");
-            AssertEqual(rom.ReadCartridgeWord((address + 2)), actual.UnsignedWholePixels, "Yard native capped kick whole");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), actual.Fraction, "Yard native capped kick fraction");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), actual.UnsignedWholePixels, "Yard native capped kick whole");
         }
         Console.WriteLine("Surface motion definitions: 32 native slope multipliers, 2097152 signed displacements and 65536 Yard kick selectors match.");
     }

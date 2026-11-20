@@ -71,7 +71,8 @@ internal static class SoundQueuePowerBombAdmissionVerification
 
         // An ordinary producer's sound is turned away the same way.
         SamusState landing = SamusAt(SamusPoseId.FacingRightNormalPose, requests);
-        landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(landing, SamusGround.Of(RoomDefinitions.LandingSite),
+        landing.Ground = SamusGround.Of(RoomDefinitions.LandingSite);
+        landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(landing,
             SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, new UnsignedSixteenSixteen(5, 0));
         AssertTurnedAway(audio, requests, RoomSound.HardLanding, "a landing's sound");
 
@@ -81,7 +82,7 @@ internal static class SoundQueuePowerBombAdmissionVerification
 
         // Once the explosion ends, the same landing joins its queue.
         gameplay.PowerBombExploding = false;
-        landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(landing, SamusGround.Of(RoomDefinitions.LandingSite),
+        landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(landing,
             SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, new UnsignedSixteenSixteen(5, 0));
         AssertTrue(audio.WaitingSounds(SoundEffectLibrary.Room).Contains(RoomSound.HardLanding),
             "with no explosion the landing's sound joins its queue");

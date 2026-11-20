@@ -224,25 +224,15 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 throw new InvalidDataException($"Frame {name} at ({frame.Corner.X}, {frame.Corner.Y}) leaves its {Size.X}x{Size.Y} sheet.");
             if (!split.Contains(name))
             {
-                parts.Add(new FramePart(name, frame, PartInstallation.Whole));
+                parts.Add(new FramePart(name, frame, null, null));
                 continue;
             }
             InkedParts inked = InkedPartsOf(frame);
             // A frame kept whole though it inks nothing opaque is its part behind, and has no part in front.
             if ((twoBit || keepsEmpty) && inked == InkedParts.None)
                 inked = InkedParts.Behind;
-            PartInstallation installation = inked switch
-            {
-                InkedParts.None => PartInstallation.Blank,
-                InkedParts.Behind => PartInstallation.Behind,
-                InkedParts.InFront => PartInstallation.InFront,
-                InkedParts.Both => PlaceInFront(),
-                _ => throw new InvalidOperationException($"Undefined inked parts {inked}."),
-            };
-            parts.Add(new FramePart(name, frame, installation));
-
-            // Lays a frame's in-front part on the shelf below the sheet, when both its parts ink a pixel.
-            PartInstallation PlaceInFront()
+            Position16<ImagePixels>? moved = null;
+            if (inked == InkedParts.Both)
             {
                 if (shelfLeft + frame.Size.X > Size.X)
                 {
@@ -250,11 +240,11 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                     shelfLeft = 0;
                     shelfHeight = 0;
                 }
-                var moved = new Position16<ImagePixels>(checked((ushort)shelfLeft), checked((ushort)shelfTop));
+                moved = new Position16<ImagePixels>(checked((ushort)shelfLeft), checked((ushort)shelfTop));
                 shelfLeft += frame.Size.X;
                 shelfHeight = Math.Max(shelfHeight, frame.Size.Y);
-                return new PartInstallation.BothParts(moved);
             }
+            parts.Add(new FramePart(name, frame, inked, moved));
         }
         if (shelfTop + shelfHeight > RgbaPng.MaximumDimension)
             throw new InvalidDataException($"A {Size.X}x{Size.Y} sheet's in-front parts need {shelfTop + shelfHeight} rows, past the {RgbaPng.MaximumDimension} a sheet holds.");
@@ -267,30 +257,33 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
         var blank = new List<string>();
         foreach (FramePart part in parts)
         {
-            string inFront = PictureParts.InFront(part.Name);
-            switch (part.Installation)
+            if (part.Inked is not { } inked)
             {
-                case PartInstallation.WholeFrame:
-                    installed.Add(part.Name, part.Frame);
-                    break;
+                installed.Add(part.Name, part.Frame);
+                continue;
+            }
+            string inFront = PictureParts.InFront(part.Name);
+            switch (inked)
+            {
                 // A part that shows nothing is not installed (#1636): a picture that shows nothing at all is named as one that
                 // shows nothing, so the draw that chooses it draws nothing, and a picture with one part installs that part alone.
-                case PartInstallation.BlankFrame:
+                case InkedParts.None:
                     blank.Add(part.Name);
                     break;
-                case PartInstallation.BehindPart:
+                case InkedParts.Behind:
                     installed.Add(part.Name, part.Frame);
                     break;
-                case PartInstallation.InFrontPart:
+                case InkedParts.InFront:
                     installed.Add(inFront, part.Frame);
                     break;
-                case PartInstallation.BothParts(Position16<ImagePixels> corner):
+                case InkedParts.Both:
+                    Position16<ImagePixels> corner = part.Moved ?? throw new InvalidOperationException($"Frame {part.Name}'s in-front part was given no rectangle.");
                     SeparateParts(part.Frame, corner, size.X, twoBit, pixels, paletteIndices);
                     installed.Add(part.Name, part.Frame);
                     installed.Add(inFront, part.Frame with { Corner = corner });
                     break;
                 default:
-                    throw new InvalidOperationException($"Undefined part installation {part.Installation}.");
+                    throw new InvalidOperationException($"Undefined inked parts {inked}.");
             }
         }
         return new ComposedSpriteSheet(size, pixels, paletteIndices,
@@ -372,40 +365,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// <summary>One composed frame as the split sheet installs it.</summary>
     /// <param name="Name">The frame's composed name, which its behind part keeps.</param>
     /// <param name="Frame">The frame's composed document.</param>
-    /// <param name="Installation">How the split sheet installs it.</param>
-    private sealed record FramePart(string Name, SpriteSheetFrameDocument Frame, PartInstallation Installation);
-
-    /// <summary>
-    /// How a split sheet installs one frame (#2554): whole, as nothing, as its part behind, as its part in front, or as both
-    /// parts with the corner its in-front part is laid at.
-    /// </summary>
-    private abstract record PartInstallation
-    {
-        /// <summary>The frame is installed whole.</summary>
-        internal static readonly PartInstallation Whole = new WholeFrame();
-
-        /// <summary>The frame inks nothing and is named as showing nothing.</summary>
-        internal static readonly PartInstallation Blank = new BlankFrame();
-
-        /// <summary>Only the frame's part behind inks a pixel.</summary>
-        internal static readonly PartInstallation Behind = new BehindPart();
-
-        /// <summary>Only the frame's part in front inks a pixel.</summary>
-        internal static readonly PartInstallation InFront = new InFrontPart();
-
-        /// <summary>The frame installed whole.</summary>
-        internal sealed record WholeFrame : PartInstallation;
-
-        /// <summary>The frame shows nothing.</summary>
-        internal sealed record BlankFrame : PartInstallation;
-
-        /// <summary>The frame's part behind alone.</summary>
-        internal sealed record BehindPart : PartInstallation;
-
-        /// <summary>The frame's part in front alone.</summary>
-        internal sealed record InFrontPart : PartInstallation;
-
-        /// <summary>Both the frame's parts, its in-front part laid at <paramref name="Corner"/>.</summary>
-        internal sealed record BothParts(Position16<ImagePixels> Corner) : PartInstallation;
-    }
+    /// <param name="Inked">Which of its parts ink an opaque pixel; null for a frame installed whole.</param>
+    /// <param name="Moved">The corner its in-front part is laid at when both parts ink a pixel; null otherwise.</param>
+    private sealed record FramePart(string Name, SpriteSheetFrameDocument Frame, InkedParts? Inked, Position16<ImagePixels>? Moved);
 }

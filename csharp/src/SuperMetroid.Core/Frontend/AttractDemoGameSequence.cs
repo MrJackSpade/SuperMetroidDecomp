@@ -8,12 +8,8 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>An attract demo: loading its room, playing its recording, and returning to another demo or the title.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-/// <param name="step">The step the attract demo is at.</param>
-internal sealed class AttractDemoGameSequence(FrontendSession session, AttractDemoStep step) : IFrontendPhase, IRuntimePhase, IGameplayPhase
+internal sealed class AttractDemoGameSequence(FrontendSession session) : IGamePhase
 {
-    /// <summary>The step the attract demo is at.</summary>
-    internal AttractDemoStep CurrentStep => step;
-
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.AttractDemo;
 
@@ -25,62 +21,28 @@ internal sealed class AttractDemoGameSequence(FrontendSession session, AttractDe
     public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
     /// <inheritdoc/>
-    public string Name => $"Attract demo: {step}";
+    public string Name => $"Attract demo: {session.AttractDemoStep}";
 
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <inheritdoc/>
-    public PhaseGameplayNeed Need => step switch
+    public void Step(ControllerButton controllerInput)
     {
-        AttractDemoStep.Loading => session.Demo.AwaitsScene ? PhaseGameplayNeed.Nothing : PhaseGameplayNeed.Runtime,
-        AttractDemoStep.Starting or AttractDemoStep.Playing => PhaseGameplayNeed.LoadedRoom,
-        AttractDemoStep.Unloading or AttractDemoStep.Routing => PhaseGameplayNeed.Nothing,
-        _ => throw new InvalidOperationException($"Undefined {nameof(AttractDemoStep)} {step}."),
-    };
-
-    /// <inheritdoc/>
-    /// <remarks>The demo starts and plays in the room its load built.</remarks>
-    public void Step(ControllerButton controllerInput, LoadedGameplay live)
-    {
-        switch (step)
+        switch (session.AttractDemoStep)
         {
+            case AttractDemoStep.Loading:
+                Load(controllerInput);
+                break;
             case AttractDemoStep.Starting:
                 // The demo's first gameplay pass runs one gameplay frame before revealing the room. Its
                 // extra frame does not count down the playback.
-                live.Runtime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.AttractDemo }, live.Room);
-                session.display.PublishGameplay(live);
+                session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.AttractDemo });
+                session.display.PublishGameplay(session.GameplayRuntime);
                 session.Enter(AttractDemoStep.Playing);
                 break;
             case AttractDemoStep.Playing:
-                Play(controllerInput, live);
-                break;
-            case AttractDemoStep.Loading:
-            case AttractDemoStep.Unloading:
-            case AttractDemoStep.Routing:
-            default:
-                throw new InvalidOperationException($"The attract demo's {step} runs without its room.");
-        }
-    }
-
-    /// <inheritdoc/>
-    /// <remarks>The demo's load counts its frames in the runtime it created.</remarks>
-    public void Step(ControllerButton controllerInput, SuperMetroidRuntime runtime)
-    {
-        Ensure.NotNull(runtime);
-        runtime.RunBlankGameplayFrame(controllerInput);
-        if (session.Demo.CountLoadFrame())
-            session.Enter(AttractDemoStep.Starting);
-        session.display.PublishBlack();
-    }
-
-    /// <inheritdoc/>
-    public void Step(ControllerButton controllerInput)
-    {
-        switch (step)
-        {
-            case AttractDemoStep.Loading:
-                BeginScene();
+                Play(controllerInput);
                 break;
             case AttractDemoStep.Unloading:
                 session.Demo.AdvanceAfterScene(session.DemoPlaylist);
@@ -91,46 +53,53 @@ internal sealed class AttractDemoGameSequence(FrontendSession session, AttractDe
             case AttractDemoStep.Routing:
                 Route();
                 break;
-            case AttractDemoStep.Starting:
-            case AttractDemoStep.Playing:
             default:
-                throw new InvalidOperationException($"Undefined {nameof(AttractDemoStep)} {step}.");
+                throw new InvalidOperationException($"Undefined {nameof(AttractDemoStep)} {session.AttractDemoStep}.");
         }
     }
 
     /// <summary>Loads the next demo scene, then holds the black screen for its load frames.</summary>
-    /// <summary>Creates the demo's runtime and loads the scene it awaits.</summary>
-    private void BeginScene()
+    private void Load(ControllerButton controllerInput)
     {
-        AttractDemoScene scene = session.Demo.SceneToBegin;
-        // A separate runtime owns all demo progression and inventory. Never
-        // restore demo state into a selected save or publish checkpoints.
-        SuperMetroidRuntime demo = session.CreateGameplayRuntime(GameplayRuntimePurpose.AttractDemo);
-        demo.AttractDemo.InitializeAttractDemo(scene);
-        session.Demo.Begin(scene);
-        session.ForgetQueuedAudio();
+        if (session.Demo.AwaitsScene)
+        {
+            AttractDemoScene scene = session.Demo.NextScene
+                ?? throw new InvalidDataException("The demo loader ran past the end of its set.");
+            // A separate runtime owns all demo progression and inventory. Never
+            // restore demo state into a selected save or publish checkpoints.
+            session.CreateGameplayRuntime(GameplayRuntimePurpose.AttractDemo);
+            session.GameplayRuntime.AttractDemo.InitializeAttractDemo(scene);
+            session.Demo.Begin(scene);
+            session.ForgetQueuedAudio();
+        }
+        else
+        {
+            session.GameplayRuntime.RunBlankGameplayFrame(controllerInput);
+            if (session.Demo.CountLoadFrame())
+                session.Enter(AttractDemoStep.Starting);
+        }
         session.display.PublishBlack();
     }
 
     /// <summary>One update of the recording or of its final image's hold, either of which a newly pressed button cancels.</summary>
-    private void Play(ControllerButton controllerInput, LoadedGameplay live)
+    private void Play(ControllerButton controllerInput)
     {
         if (session.Demo.Holding)
         {
             // The final image holds: no actor, animation, or script advances during the final-image hold
             // (AttractDemoDefinitions.FinalImageHoldFrames).
-            live.Runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-            if (live.Runtime.PlayerActions.NewlyPressed != GameplayAction.None)
+            session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
+            if (session.GameplayRuntime.PlayerActions.NewlyPressed != GameplayAction.None)
                 FinishAttractPlayback(end: AttractPlaybackEnd.Cancelled);
             else if (session.Demo.CountHoldFrame())
                 FinishAttractPlayback(end: AttractPlaybackEnd.Completed);
         }
         else
         {
-            live.Runtime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.AttractDemo }, live.Room);
-            session.display.PublishGameplay(live);
-            // The demo's movement phase has restored the physical controller pair at this point.
-            if (live.Runtime.PlayerActions.NewlyPressed != GameplayAction.None)
+            session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.AttractDemo });
+            session.display.PublishGameplay(session.GameplayRuntime);
+            // The player's own actions are read again here, so a newly pressed button cancels the demo.
+            if (session.GameplayRuntime.PlayerActions.NewlyPressed != GameplayAction.None)
                 FinishAttractPlayback(end: AttractPlaybackEnd.Cancelled);
             else
                 session.Demo.CountPlaybackFrame();
@@ -146,24 +115,23 @@ internal sealed class AttractDemoGameSequence(FrontendSession session, AttractDe
             session.Enter(AttractDemoStep.Loading);
             return;
         }
-        TitleSequenceState title;
         if (session.Demo.Cancelled)
-            title = TitleSequenceState.ReturnFromDemo(
+            session.Show(TitleSequenceState.ReturnFromDemo(
                 session.audio,
                 session.Artwork.ScreenContent.TitleGradient,
                 session.Artwork.ScreenContent.TitleBackdrop,
-                session.Artwork.SpriteSheets);
+                session.Artwork.SpriteSheets));
         else
         {
             session.audio.QueueMusic(MusicRequest.Stop);
-            title = new TitleSequenceState(
+            session.Show(new TitleSequenceState(
                 session.audio,
                 session.Artwork.ScreenContent.TitleGradient,
                 session.Artwork.ScreenContent.TitleBackdrop,
-                session.Artwork.SpriteSheets);
+                session.Artwork.SpriteSheets));
         }
-        session.Enter(new TitleScreenPhase(session, title));
-        session.display.PublishMenu(title);
+        session.Enter(TitleStep.Showing);
+        session.display.PublishMenu(session.ActiveTitle);
     }
 
     /// <summary>Starts the transition out of a completed or cancelled demo scene.</summary>

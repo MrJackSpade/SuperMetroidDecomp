@@ -21,15 +21,16 @@ internal static class RipperVariantOwnedStateVerification
         const int speedRecord = 3;
         place.SetSpawnParameter1(EnemyDefinitionId.JetRipper, speedRecord);
         place.SetSpawnParameter2(EnemyDefinitionId.JetRipper, 0);
-        RipperBehavior.InitializeJetRipper(place.HeldOccupant(), place, place.SpawnSettings<RipperSpawnSettings>());
-        RipperEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<RipperEntity>(place).State;
+        RipperBehavior.InitializeJetRipper(place.HeldOccupant(), place);
+        RipperEnemyState state = place.SpeciesState<RipperEnemyState>()
+            ?? throw new InvalidOperationException("The Ripper II has no state.");
 
         SignedSixteenSixteen positive = EnemyLinearSpeedTable.Speed(speedRecord);
         SignedSixteenSixteen negative = -positive;
         AssertEqual(positive, place.HeldOccupant().SpawnSettings<RipperSpawnSettings>().Speed, "the selected speed");
         SignedSixteenSixteen speed = place.HeldOccupant().SpawnSettings<RipperSpawnSettings>().Speed;
         AssertEqual(negative, RipperBehavior.FlyingVelocity(speed, state.Heading), "the negative half is loaded");
-        RipperBehavior.ReverseRipperVariant(place, place.RequireSpeciesState<RipperEnemyState>());
+        RipperBehavior.ReverseRipperVariant(place);
         AssertEqual(positive, RipperBehavior.FlyingVelocity(speed, state.Heading), "a reversal loads the positive half");
         Console.WriteLine("Ripper variant owned state: the record's velocity halves and the reversal match.");
     }

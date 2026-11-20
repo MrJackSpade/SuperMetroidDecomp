@@ -2,31 +2,31 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>One Metroid occupant: its own AI and reactions, with the shared ones its definition names.</summary>
 /// <param name="species">The Metroid species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, MetroidSpawnSettings settings)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal MetroidEnemyState State { get; } = species.InitializeMetroid(place, settings);
+    /// <inheritdoc/>
+    public void Initialize() => species.InitializeMetroid(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMetroidTypedAnimation(Place, State, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMetroidTypedAnimation(Place);
 
     /// <summary>The Metroid's own hurt behaviour, ahead of its frozen behaviour when it is both hurt and frozen; the animation still advances.</summary>
     /// <param name="frame">The enemy frame.</param>
     public override bool RunHurt(RoomEnemyFrame frame)
     {
-        MetroidBehavior.ApplyMetroidHurt(Place, State);
+        MetroidBehavior.ApplyMetroidHurt(Place);
         return true;
     }
 
     /// <summary>The frozen Metroid's behaviour, which retains its outer-body state.</summary>
-    public override void RunFrozen() => MetroidBehavior.RunMetroidFrozen(Place, State);
+    public override void RunFrozen() => MetroidBehavior.RunMetroidFrozen(Place);
 
     /// <summary>Whether the Metroid's own touch, its attachment and suit-dependent draining, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == MetroidReactions.Touch || base.ReactsToTouch;
@@ -36,33 +36,27 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant o
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == MetroidReactions.Touch)
-            species.ResolveMetroidTouch(context.Place, State, context.Samus);
+            species.ResolveMetroidTouch(context.Place, context.Samus);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Metroid's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MetroidReactions.Shot ? OwnShotReaction : base.ShotReaction;
-
-    /// <summary>The Metroid's own shot reaction, built over its state (#2554).</summary>
-    private EnemyShotReaction OwnShotReaction => field ??= species.ShotReactionOf(State);
-
-    /// <summary>The Metroid's own Power Bomb reaction, built over its state (#2554).</summary>
-    private EnemyPowerBombReaction OwnPowerBombReaction => field ??= MetroidBehavior.PowerBombReactionOf(State);
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MetroidReactions.Shot ? species.ShotReaction : base.ShotReaction;
 
     /// <summary>The Metroid's own bomb reaction, which comes before the ignoring check, where its definition leaves shots to it.</summary>
     /// <param name="context">The bomb contact.</param>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        if (!Occupant.Definition.Shot == MetroidReactions.Shot)
+        if (Occupant.Definition.Shot != MetroidReactions.Shot)
             return base.TryReactToBomb(context);
-        species.ReactToMetroidBomb(context, State);
+        species.ReactToMetroidBomb(context);
         return true;
     }
 
     /// <summary>The Metroid's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
     public override EnemyPowerBombReaction PowerBombReaction =>
-        LeavesPowerBombToSpecies ? OwnPowerBombReaction : base.PowerBombReaction;
+        LeavesPowerBombToSpecies ? MetroidBehavior.PowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The Metroid's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path selects (none: the definition leaves shots to the Metroid), or the empty frame's.</param>

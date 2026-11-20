@@ -1,15 +1,5 @@
 namespace SuperMetroid.Core.Enemies.Powamp;
 
-/// <summary>
-/// How far the grapple pulls a Powamp's balloon (#1472, #1519, #2474): the placement of the balloon, which heads its body,
-/// names it; the body's placement names nothing (#2554).
-/// </summary>
-/// <param name="GrappleTravelDistance">The distance in pixels the grapple pulls the balloon.</param>
-internal sealed record PowampSpawnSettings(int GrappleTravelDistance) : EnemySpawnSettings
-{
-    /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacementRequest placing) => Ensure.NotNull(species).Place(this, placing);
-
-    /// <inheritdoc/>
-    internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);
-}
+/// <summary>What a Powamp placement is, its balloon or its body, and whether the half refuses Samus's touch and shots (#1472, #1519, #2474).</summary>
+/// <param name="Contact">Whether Samus's touch and shots reach the half, as its placement says.</param>
+internal abstract record PowampSpawnSettings(PowampContact Contact) : EnemySpawnSettings;

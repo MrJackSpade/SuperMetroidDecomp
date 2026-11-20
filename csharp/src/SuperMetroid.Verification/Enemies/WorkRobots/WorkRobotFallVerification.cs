@@ -32,10 +32,10 @@ internal static class WorkRobotFallVerification
             place.Bind(EnemyDefinitionId.UnpoweredWorkRobot, place.KeptDefinition);
             place.Radius = new(8, 8);
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 32));
-            var state = place.SetUpPlaced<WorkRobotEnemyState>();
-            state.FallVelocity = SignedSixteenSixteen.FromParts(whole, fraction);
+            var state = new WorkRobotEnemyState() { FallVelocity = SignedSixteenSixteen.FromParts(whole, fraction) };
+            place.SetSpeciesState(state);
 
-            enemies.WorkRobotBehavior.RunWorkRobotMainAi(place, place.RequireSpeciesState<WorkRobotEnemyState>(), frame);
+            enemies.WorkRobotBehavior.RunWorkRobotMainAi(place, frame);
 
             string context = $"Work Robot falling at {whole} and {fraction}/65536 pixels";
             AssertEqual(expectedWhole, state.FallVelocity.UnsignedWholePixels, $"{context}: whole speed word");

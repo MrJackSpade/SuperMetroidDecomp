@@ -14,6 +14,6 @@ internal static class IntroEyeTilemapPresentationPrivateAccess
     extension(global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroEyeTilemapPresentation self)
     {
         /// <summary>The private field <c>frames</c>, reached by name.</summary>
-        internal global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[][] frames => PrivateState.Field<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroEyeTilemapPresentation, global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[][]>(self, "frames");
+        internal global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Frontend.Intro.IntroEyeFrame, global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[]> frames => PrivateState.Field<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroEyeTilemapPresentation, global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Frontend.Intro.IntroEyeFrame, global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile[]>>(self, "frames");
     }
 }

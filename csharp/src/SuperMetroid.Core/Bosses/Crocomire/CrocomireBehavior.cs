@@ -8,42 +8,28 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The Crocomire species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyGroupFactory
+internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 {
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue];
 
-    /// <inheritdoc/>
-    public EnemyDefinitionId HeadDefinition => EnemyDefinitionId.Crocomire;
-
-    /// <inheritdoc/>
-    public int PartCount => CrocomireFightDefinitions.TonguePlacesAfterBody;
-
-    /// <summary>
-    /// Crocomire's body, which heads his tongue, the one part its room lists right after it (#2146, #2554): the tongue holds
-    /// his encounter from its setup; a defeated room's tongue is deleted before any setup.
-    /// </summary>
-    public EnemyPlaced CreateGroup(EnemyGroupPlaces places, EnemyCommonParticipation common)
+    /// <summary>Crocomire's body, or his tongue (#2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no Crocomire definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        RoomEnemyPlace head = Ensure.NotNull(places).Head;
-        var body = new CrocomireBodyEntity(this, head, common, _bossArtwork);
-        return new EnemyPlaced(body, [(tongue, tongueCommon, _) => Tongue(tongue, tongueCommon, body.State)]);
-    }
-
-    /// <summary>Crocomire's tongue, holding <paramref name="crocomire"/>; a defeated room's is deleted before any setup.</summary>
-    private IEnemyEntity Tongue(RoomEnemyPlace place, EnemyCommonParticipation common, CrocomireEnemyState crocomire)
-    {
-        if (!Fight.TongueIsDeletedAtOnce)
-            return new CrocomireTongueEntity(this, occupant, place, common, crocomire);
-        CrocomireFight.DeleteDefeatedTongue(place);
-        return new DefeatedCrocomireTongueEntity(occupant, place, common);
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
+        if (definition == EnemyDefinitionId.Crocomire)
+            return EnemyOccupant.Of(new CrocomireBodyEntity(this, occupant, place, common, _bossArtwork));
+        if (definition == EnemyDefinitionId.CrocomireTongue)
+            return EnemyOccupant.Of(new CrocomireTongueEntity(this, occupant, place, common));
+        throw new InvalidOperationException($"The Crocomire species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Crocomire's body layer: where it is placed, the canvas his death assembles it on, the tongue placed with it and the acid smoke drawn with it.</summary>
-    internal CrocomireBodyLayer BodyLayer { get; }
+    private CrocomireBodyLayer BodyLayer { get; }
 
     /// <summary>Crocomire's setup, its body and tongue animations and their cues, and the invisible wall that holds Samus back.</summary>
     internal CrocomireFight Fight { get; }
@@ -55,13 +41,13 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyGroupFactory
     internal CrocomireCombat Combat { get; }
 
     /// <summary>The bridge giving way under Crocomire: its fragments, the sink into the acid, the rise and the final sink.</summary>
-    internal CrocomireBridgeCollapse BridgeCollapse { get; }
+    private CrocomireBridgeCollapse BridgeCollapse { get; }
 
     /// <summary>Crocomire melting in the acid: the melt images and the dissolve passes.</summary>
-    internal CrocomireMelting Melting { get; }
+    private CrocomireMelting Melting { get; }
 
     /// <summary>Crocomire's skeleton: waiting behind the wall, breaking through, its arc and collapse, and the fight's end.</summary>
-    internal CrocomireSkeleton Skeleton { get; }
+    private CrocomireSkeleton Skeleton { get; }
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
 
@@ -82,12 +68,14 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyGroupFactory
     }
 
     /// <summary>Runs Crocomire's main AI for one update: the fight, or the stage of his death he is at.</summary>
-    internal void RunCrocomireMain(
-        RoomEnemyPlace place, CrocomireEnemyState state,
+    private void RunCrocomireMain(
+        RoomEnemyOccupant crocomire,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         Position16<RoomPixels> camera)
     {
+        RoomEnemyPlace place = crocomire.Place;
+        CrocomireEnemyState state = place.RequireSpeciesState<CrocomireEnemyState>();
 
         if (state.DeathStage.Entry is CrocomireDeathStage.Fighting)
         {
@@ -107,7 +95,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyGroupFactory
             RunCrocomireDeathSequence(state, samus, camera);
         }
 
-        Fight.HandleCrocomireInvisibleWall(place, state, samus, pseudoScrew);
+        Fight.HandleCrocomireInvisibleWall(crocomire, state, samus, pseudoScrew);
         Combat.ApplyCrocomireHurtFlash(place, state);
     }
 
@@ -136,7 +124,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyGroupFactory
                 Melting.ShowCrocomireMeltImage(state, show.Picture);
                 return;
             case CrocomireDeathStage.BeginMeltPass pass:
-                Melting.BeginCrocomireMeltPass(state, pass.Picture);
+                CrocomireMelting.BeginCrocomireMeltPass(state, pass.Picture);
                 return;
             case CrocomireDeathStage.ShowMeltBands:
                 CrocomireMelting.ShowNextCrocomireMeltBand(state);
@@ -152,7 +140,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyGroupFactory
                 Melting.RunCrocomireMelting(state);
                 return;
             case CrocomireDeathStage.ClearMeltImage:
-                CrocomireMelting.FinishCrocomireMeltingPass(state);
+                Melting.FinishCrocomireMeltingPass(state);
                 return;
             case CrocomireDeathStage.FinalSink:
                 BridgeCollapse.RunCrocomireFinalSink(state, camera);
@@ -194,14 +182,15 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyGroupFactory
     }
 
     /// <summary>Advances Crocomire's typed animation.</summary>
-    internal void AdvanceCrocomireTypedAnimation(RoomEnemyPlace place, CrocomireEnemyState state, EnemyAnimationCueContext context)
+    internal void AdvanceCrocomireTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)
     {
-        Fight.AdvanceCrocomireBodyAnimation(place, state, context.Samus, context.Level, context.Camera.X);
+        Fight.AdvanceCrocomireBodyAnimation(place, context.Samus, context.Level, context.Camera.X);
     }
 
     /// <summary>Runs Crocomire's main AI.</summary>
-    internal void RunCrocomireMainAi(RoomEnemyPlace place, CrocomireEnemyState state, IEnemyAiFrame frame)
+    internal void RunCrocomireMainAi(RoomEnemyOccupant crocomire, IEnemyAiFrame frame)
     {
-        RunCrocomireMain(place, state, frame.Samus, frame.PseudoScrew, frame.Camera);
+        _ = crocomire.Place;
+        RunCrocomireMain(crocomire, frame.Samus, frame.PseudoScrew, frame.Camera);
     }
 }

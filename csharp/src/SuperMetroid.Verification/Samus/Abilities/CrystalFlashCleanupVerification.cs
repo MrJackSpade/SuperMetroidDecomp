@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.Core.Enemies.Gunship;
@@ -43,7 +42,7 @@ internal static class CrystalFlashCleanupVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         // Keep the constructed clearing visible; the old mechanics-only fixture
         // left the displayed camera at zero, outside the tested Samus trajectory.
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite, camera: new Position16<RoomPixels>(384, 384));
@@ -59,7 +58,7 @@ internal static class CrystalFlashCleanupVerification
                 y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
             level.SetBehavior(index, RoomBlockBehavior.None);
         }
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
@@ -114,7 +113,7 @@ internal static class CrystalFlashCleanupVerification
                 // Contact runs before AI publishes its first map. Seed that same
                 // authored map so this fixture tests contact on this exact frame.
                 contactEnemy.SpritemapPointer = RipperAnimationsConstants.Spritemaps(
-                    SuperMetroid.Core.Enemies.EnemyPartners.Listed<RipperEntity>(contactEnemy).State.Playback.Animation.Phases[0].Segment).First();
+                    contactEnemy.RequireSpeciesState<RipperEnemyState>().Playback.Animation.Phases[0].Segment).First();
                 // The gunship's glow belongs to the room's colour effects, which only the room's load clears (#1783): it
                 // outlives the population it was started by and keeps showing on the gunship that started it.
                 AssertTrue(runtime.RoomPaletteFx.IsRunning(GunshipLightDefinitions.Glow),

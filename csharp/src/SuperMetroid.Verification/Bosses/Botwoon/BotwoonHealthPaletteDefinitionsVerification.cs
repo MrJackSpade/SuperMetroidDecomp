@@ -23,17 +23,17 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
     {
         var guard = NewBotwoonHealthThresholdReadGuard(rom);
         using var colors = new MemoryStream(BotwoonColorExtractor.Extract(rom), writable: false);
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { BotwoonColors = BotwoonColorFile.Read(colors) });
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: new BossSourceArtwork { BotwoonColors = BotwoonColorFile.Read(colors) });
         Action<RoomEnemyPlace, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthBand;
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-        var state = new BotwoonEnemyState(_ => []);
+        var state = new BotwoonEnemyState(body: []);
         IReadOnlyList<BotwoonHealthBand> bands = BotwoonHealthBandDefinitions.InOrderShown;
         AssertEqual(8, bands.Count, "Botwoon has eight health bands");
 
         for (int index = 0; index < bands.Count; index++)
         {
             BotwoonHealthBand? before = index == 0 ? null : bands[index - 1];
-            ushort threshold = rom.ReadCartridgeWord(BotwoonHealthBandDefinitions.NativeThresholdAddress + index * sizeof(ushort));
+            ushort threshold = CartridgeImportSource.Require(rom).ReadCartridgeWord(BotwoonHealthBandDefinitions.NativeThresholdAddress + index * sizeof(ushort));
             AssertEqual(threshold, bands[index].HealthBelow, $"Botwoon band {bands[index]} threshold");
             // Every health a boss holds: the signed difference the game compares is then the plain difference.
             for (int health = 0; health <= short.MaxValue; health++)

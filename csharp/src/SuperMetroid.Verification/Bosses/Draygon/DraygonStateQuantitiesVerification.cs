@@ -56,11 +56,9 @@ internal static class DraygonStateQuantitiesVerification
     /// <summary>Puts a blob of Draygon goop that has just stuck to Samus in the last projectile slot.</summary>
     private static EnemyProjectile AttachedGoop(RoomEnemySystem enemies)
     {
-        EnemyProjectile goop = enemies.Projectiles.ProjectileInPlace(17);
-        goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
-        goop.Rebind(new DraygonShots.StuckGoopBehavior(enemies.DraygonBehavior.Shots.Goop(AngledFlightState.Launch(TrigonometryAngle.Zero, 0)),
-            new DraygonGoopAttachedState(stackPosition: 1)));
-        goop.StartMotion(DraygonShotMotion.GoopStuckToSamus);
+        EnemyProjectile goop = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.DraygonGoop);
+        goop.StartMotion(enemies.DraygonBehavior.Shots.Goop.GoopStuckToSamus);
+        enemies.DraygonBehavior.Shots.Goop.Attached.Start(goop, new DraygonGoopAttachedState(stackPosition: 1));
         return goop;
     }
 
@@ -99,7 +97,7 @@ internal static class DraygonStateQuantitiesVerification
         // A centre on the spiral's upper limit ends the step at the lift check, before Samus is moved.
         state.SpiralCenter = DraygonRegrabSpiralLift.At(FixedPosition<RoomPixels>.FromWhole(new(256, 64)));
         Position16<RoomPixels> center = state.SpiralCenter.Center.Whole;
-        state.Phase = new DraygonPhase.FlailWithSamus();
+        state.Phase = DraygonPhase.FlailWithSamus;
 
         enemies.DraygonBehavior.Grab.CarrySamusInDraygonSpiral(state, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
 
@@ -114,7 +112,7 @@ internal static class DraygonStateQuantitiesVerification
         AssertEqual(nativeDelta, state.SpiralAngleDelta.RawValue, "the angular step slows by 1/256 unit");
         AssertEqual(unchecked((byte)(angle + EightEightOracle.UnsignedWhole(nativeDelta))), state.SpiralAngle.ToTrigonometryAngle().RawValue,
             "the angle advances by the step's whole units and wraps around the turn");
-        AssertTrue((state.Phase) is DraygonPhase.FinalTailWhips, "the lifted centre past its limit ends the spiral");
+        AssertEqual(DraygonPhase.FinalTailWhips, state.Phase, "the lifted centre past its limit ends the spiral");
     }
 
     /// <summary>
@@ -205,12 +203,14 @@ internal static class DraygonStateQuantitiesVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.KeptDefinition);
         body.Position = body.Position.WithWhole(new(256, 384));
-        // Draygon is set up through his group's factory, his eye, tail and arms built as its parts in the places after him.
-        RoomEnemyPlace eye = enemies.Places.InUpdateOrder[1], tail = enemies.Places.InUpdateOrder[2], arms = enemies.Places.InUpdateOrder[3];
-        eye.Bind(EnemyDefinitionId.DraygonEye, eye.Definition);
-        tail.Bind(EnemyDefinitionId.DraygonTail, tail.Definition);
-        arms.Bind(EnemyDefinitionId.DraygonArms, arms.Definition);
-        var state = body.SetUpPlaced<DraygonEnemyState>(eye, tail, arms);
+        var state = new DraygonEnemyState(body.HeldOccupant(), enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+        body.SetSpeciesState(state);
+        state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.KeptDefinition);
+        state.Eye.SetSpeciesState(state.EyePart);
+        state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.KeptDefinition);
+        state.Tail.SetSpeciesState(state.TailPart);
+        state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.KeptDefinition);
+        state.Arms.SetSpeciesState(state.ArmsPart);
         foreach (DraygonPart part in new[] { state.BodyPart, state.EyePart, state.TailPart, state.ArmsPart })
             part.SetAnimation(DraygonSegment.Rest);
         // A nonzero low byte keeps the spiral from inserting a tail whip.

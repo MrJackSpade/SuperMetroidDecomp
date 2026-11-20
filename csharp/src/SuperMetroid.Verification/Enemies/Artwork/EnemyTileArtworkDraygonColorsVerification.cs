@@ -45,10 +45,10 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             DraygonColorDefinitions.WhiteFlashCount, native.ResolveWhiteFlash, "white flash"));
         for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
         for (int color = 0; color < DraygonColorDefinitions.HealthBandColorCount; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     DraygonSourceDefinitions.HealthBandColors +
                     (band * DraygonColorDefinitions.HealthBandColorCount + color) * sizeof(ushort)),
-                native.ResolveHealthBand(band, color),
+                native.ResolveHealthBand(DraygonHealthBandDefinitions.HighestFirst[band], color),
                 $"installed Draygon health band {band} color {color} preserves native RGB5");
 
         string file = Path.Combine(stockDirectory, DraygonColorFormat.FileName);
@@ -90,7 +90,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         }
         DraygonEnemyState state = enemies.Draygon ??
             throw new InvalidOperationException("Draygon body initialization lost its owner.");
-        AssertTrue((state.Phase) is DraygonPhase.IntroInitialDelay,
+        AssertEqual(DraygonPhase.IntroInitialDelay, state.Phase,
             "installed Draygon colors leave intro mechanics unchanged");
         AssertBand(DraygonColorDestinations.IntroDestination,
             DraygonColorDefinitions.IntroCount, colors.ResolveIntro, "intro CGRAM");
@@ -128,7 +128,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         for (int color = 0; color < DraygonColorDefinitions.BackgroundCount; color++)
         {
             RgbColor expected = color is >= 9 and <= 12
-                ? colors.ResolveHealthBand(1, color - 9)
+                ? colors.ResolveHealthBand(DraygonHealthBandDefinitions.HighestFirst[1], color - 9)
                 : colors.ResolveBackground(color);
             AssertEqual(expected,
                 Shown()[DraygonColorDestinations.BackgroundDestination + color],
@@ -153,16 +153,12 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             state.HealthBand = DraygonHealthBandDefinitions.HighestFirst[band];
             DraygonCombat.ShowDraygonHealthBand(state);
             for (int color = 0; color < DraygonColorDefinitions.HealthBandColorCount; color++)
-                AssertEqual(colors.ResolveHealthBand(band, color),
+                AssertEqual(colors.ResolveHealthBand(DraygonHealthBandDefinitions.HighestFirst[band], color),
                     Shown()[DraygonColorDestinations.HealthDestination + color],
                     $"Draygon live health band {band} color {color}");
         }
-        AssertTrue((state.Phase) is DraygonPhase.IntroInitialDelay,
+        AssertEqual(DraygonPhase.IntroInitialDelay, state.Phase,
             "visual health-band checks leave Draygon AI unchanged");
-        AssertThrows<ArgumentOutOfRangeException>(() => colors.ResolveHealthBand(-1, 0),
-            "negative Draygon health band fails loudly");
-        AssertThrows<ArgumentOutOfRangeException>(() => colors.ResolveHealthBand(8, 0),
-            "out-of-range Draygon health-band index fails loudly");
 
         visual.HealthBands[1][1] = visual.HealthBands[1][1] with { Blue = 32 };
         AssertThrows<InvalidDataException>(() => DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(visual), writable: false)),
@@ -172,14 +168,14 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         void VerifyBand(int source, int count, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < count; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     source + color * sizeof(ushort)), resolve(color),
                     $"installed Draygon {name} color {color} preserves native RGB5");
         }
 
         void AssertStartingBandShown(string when)
         {
-            int shownBand = DraygonHealthBandDefinitions.HighestFirst.ToList().IndexOf(DraygonHealthBand.Of(body.Health));
+            DraygonHealthBand shownBand = DraygonHealthBand.Of(body.Health);
             AssertBand(DraygonColorDestinations.HealthDestination, DraygonColorDefinitions.HealthBandColorCount,
                 color => colors.ResolveHealthBand(shownBand, color), $"starting health band after {when}");
         }

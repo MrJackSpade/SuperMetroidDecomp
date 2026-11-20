@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Globalization;
@@ -77,7 +76,7 @@ internal static class GreenHillGateGlitchVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.GreenHillZone);
         RoomObjectPlaceSnapshot gate = runtime.RoomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
@@ -99,7 +98,7 @@ internal static class GreenHillGateGlitchVerification
             checked((ushort)startX),
             desiredScreenY: 171,
             minimumFloorBlockY: 60);
-        SamusState samus = runtime.Player.Samus;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.PoseId = SamusPoseId.MovingLeftGunExtendedPose;
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);

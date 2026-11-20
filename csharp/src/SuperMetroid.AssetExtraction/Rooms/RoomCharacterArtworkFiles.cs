@@ -34,7 +34,7 @@ public static class RoomCharacterArtworkFiles
         Directory.CreateDirectory(importData);
 
         IReadOnlyDictionary<string, byte[]> pngs = RoomCharacterAtlasExtractor.Extract(bus);
-        RoomTilesetSourceMap tilesets = RoomTilesetSources.Read(bus);
+        RoomTilesetSourceMap tilesets = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
         var entries = new Dictionary<string, RoomCharacterFileEntry>();
         foreach ((string name, RoomCharacterSource source) in ExpectedSources())
         {
@@ -42,7 +42,7 @@ public static class RoomCharacterArtworkFiles
             // The ghost sheet is stored uncompressed, so its length is the library background's.
             int nativeByteCount = source is RoomCharacterSource.OfSet { Set: RoomCharacterSet.TourianStatueGhost }
                 ? LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount
-                : RomDataReader.Decompress(bus, source is RoomCharacterSource.OfSet(RoomCharacterSet set)
+                : RomDataReader.Decompress(CartridgeImportSource.Require(bus), source is RoomCharacterSource.OfSet(RoomCharacterSet set)
                     ? tilesets.Characters[set]
                     : RoomTilesetSourceDefinitions.CreCharacters).Length;
             RoomCharacterAtlasFormat.ValidateTileCount(nativeByteCount);
@@ -88,17 +88,9 @@ public static class RoomCharacterArtworkFiles
             sources.Keys.Any(name => !manifest.Entries.ContainsKey(name)))
             throw new InvalidDataException($"Room character manifest {manifestPath} does not describe this installation.");
 
-        // The CRE is its own required entry; every other entry is a graphics set's sheet.
-        RoomCharacterAtlas cre = Load(RoomCharacterSheetFiles.CreFileName);
+        RoomCharacterAtlas? cre = null;
         var sheets = new Dictionary<RoomCharacterSet, RoomCharacterAtlas>();
         foreach ((string name, RoomCharacterSource source) in sources)
-        {
-            if (source.Set is { } set)
-                sheets.Add(set, Load(name));
-        }
-        return new RoomCharacterAtlases(cre, sheets);
-
-        RoomCharacterAtlas Load(string name)
         {
             RoomCharacterFileEntry entry = manifest.Entries[name];
             RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);
@@ -117,8 +109,11 @@ public static class RoomCharacterArtworkFiles
             {
                 throw new InvalidDataException($"Invalid room character PNG {path}: {error.Message}", error);
             }
-            return atlas;
+            if (source is RoomCharacterSource.OfSet(RoomCharacterSet set)) sheets.Add(set, atlas);
+            else cre = atlas;
         }
+        return new RoomCharacterAtlases(
+            cre ?? throw new InvalidDataException("Room character manifest has no CRE sheet."), sheets);
     }
 
     /// <summary>Maps the CRE, each distinct graphics-set sheet and the ghost sheet by file name to their sheet.</summary>

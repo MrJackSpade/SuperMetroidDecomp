@@ -118,11 +118,17 @@ public static class SpriteSheetFile
     private static SpriteSheet CutFrames(InstalledSheetDocument document, string name, SpriteImage image)
     {
         var frames = new Dictionary<string, SpriteSheetFrame>(StringComparer.Ordinal);
-        foreach ((string frameName, InstalledSheetFrameDocument frame) in document.Frames)
-            frames.Add(frameName, Cut(image, name, frameName, frame));
-        var blanks = new HashSet<string>(StringComparer.Ordinal);
-        foreach (string blank in document.Blank ?? [])
+        foreach ((string frameName, InstalledSheetFrameDocument? frame) in document.Frames ??
+            throw new InvalidDataException($"Sprite sheet {name} has no frame list."))
         {
+            frames.Add(frameName, Cut(image, name, frameName, frame
+                ?? throw new InvalidDataException($"Sprite sheet {name} frame {frameName} is null.")));
+        }
+        var blanks = new HashSet<string>(StringComparer.Ordinal);
+        foreach (string? blank in document.Blank ?? [])
+        {
+            if (blank is null)
+                throw new InvalidDataException($"Sprite sheet {name} names a null frame that shows nothing.");
             if (frames.ContainsKey(blank))
                 throw new InvalidDataException($"Sprite sheet {name} frame {blank} is pictured and shows nothing.");
             if (!blanks.Add(blank))

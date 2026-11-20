@@ -48,19 +48,19 @@ public sealed class IntroCrossfade
     }
 
     /// <summary>Takes one step: the outgoing scene moves one level toward black and the incoming one toward its colours.</summary>
-    /// <param name="from">The scene the crossfade fades out.</param>
-    /// <param name="to">The scene the crossfade fades in.</param>
-    /// <exception cref="InvalidOperationException">The crossfade has already taken every step.</exception>
-    private void Step(IntroCrossfadeScene from, IntroCrossfadeScene to)
+    /// <exception cref="InvalidOperationException">No crossfade has started, or the crossfade has already taken every step.</exception>
+    private void Step()
     {
+        if (incoming is null)
+            throw new InvalidOperationException("The opening has not started a crossfade.");
         if (steps == Levels)
-            throw new InvalidOperationException($"The opening's crossfade from {from} to {to} has already taken its {Levels} steps.");
+            throw new InvalidOperationException($"The opening's crossfade from {outgoing} to {incoming} has already taken its {Levels} steps.");
         steps++;
     }
 
     /// <summary>
-    /// Runs the crossfade for one update (#1980): it takes a step on every fourth update counted down to its last, so its
-    /// thirty-two steps end on that last update, and reports what it did.
+    /// Runs the crossfade for one update (#1980): it takes a step on the last update of each run of its step's updates,
+    /// so its steps end on its last update, and reports what it did.
     /// </summary>
     /// <exception cref="InvalidOperationException">No crossfade has started, or the crossfade has already ended.</exception>
     internal IntroCrossfadeTick Advance()
@@ -69,11 +69,10 @@ public sealed class IntroCrossfade
             throw new InvalidOperationException("The opening has not started a crossfade.");
         if (run.IsOver)
             throw new InvalidOperationException($"The opening's crossfade from {from} to {to} has already ended.");
-        if (IntroCadenceDefinitions.CrossfadeStepEveryFourthUpdate.IsDue(run.UpdatesLeft))
-            Step(from, to);
+        if (IntroCadenceDefinitions.CrossfadeStep.IsDue(run.UpdatesLeft))
+            Step();
         run.Count();
-        // The tick counts the updates left before the crossfade's last one: one fewer than the run has left.
-        return new IntroCrossfadeTick(from, to, run.UpdatesLeft - 1);
+        return new IntroCrossfadeTick(from, to, run.UpdatesLeft);
     }
 
     /// <summary>The level <paramref name="scene"/> shows, from zero (black) to <see cref="Levels"/> (its colours).</summary>

@@ -29,14 +29,12 @@ internal sealed class SpcAudioClipRenderer
 
     /// <summary>Creates a renderer over <paramref name="catalog"/> from the driver's power-on state.</summary>
     /// <param name="catalog">Extracted uploads, definitions and samples installed by bank loads.</param>
-    internal SpcAudioClipRenderer(ExtractedAudioAssetCatalog catalog) =>
+    /// <param name="observer">Receives the driver's tick, phrase and key events, or null.</param>
+    internal SpcAudioClipRenderer(ExtractedAudioAssetCatalog catalog, ISpcDriverObserver? observer = null)
+    {
         backend = new ManagedSpcAudioBackend(Ensure.NotNull(catalog));
-
-    /// <summary>
-    /// Sends the driver's tick, phrase and key events to <paramref name="observer"/>, which is built over this renderer
-    /// and is attached before the first frame.
-    /// </summary>
-    internal void Observe(ISpcDriverObserver observer) => backend.Player.Music.observer = Ensure.NotNull(observer);
+        backend.Player.Music.observer = observer;
+    }
 
     /// <summary>Frames advanced so far; the next frame's first native sample is <c>Frame * 534</c>.</summary>
     internal long Frame { get; private set; }
@@ -49,9 +47,7 @@ internal sealed class SpcAudioClipRenderer
     /// only the shared sounds for the resident driver's upload.
     /// </summary>
     internal void LoadBank(AudioBank bank) =>
-        pending.Add(AudioAssetCatalogDefinitions.Get(bank).DataSet is MusicDataSet set
-            ? new AudioRequest.ChangeMusicDataSet(set)
-            : new AudioRequest.InstallSharedSounds());
+        pending.Add(new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Get(bank).DataSet));
 
     /// <summary>Queues playing track <paramref name="track"/> of the loaded data set for the next frame.</summary>
     internal void PlayTrack(MusicTrack track) => pending.Add(new AudioRequest.PlayMusicTrack(track));

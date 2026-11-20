@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// and its death scatters drops.
 /// </summary>
 /// <param name="species">The ninja Space Pirate species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class GoldNinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, NinjaSpacePirateSpawnSettings settings)
-    : NinjaSpacePirateEntity(species, occupant, place, common, settings)
+internal sealed class GoldNinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : NinjaSpacePirateEntity(species, occupant, place, common)
 {
     /// <summary>The gold Ninja's own shot reaction where the definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == SpacePirateReactions.Shot ? Species.Walking.GoldNinjaShotReaction : base.ShotReaction;

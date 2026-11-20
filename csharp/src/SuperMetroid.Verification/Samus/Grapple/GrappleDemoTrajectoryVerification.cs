@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
@@ -24,7 +23,7 @@ internal static class GrappleDemoTrajectoryVerification
             "retail basic grapple demo identity");
         var runtime = CreateRetailRuntimeFixture();
         runtime.AttractDemo.InitializeAttractDemo(scene);
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         var level = runtime.Room.LoadedLevelData;
         var expectedColumns = new SortedSet<int>();
         for (int y = 0; y < level.Size.Y; y++)

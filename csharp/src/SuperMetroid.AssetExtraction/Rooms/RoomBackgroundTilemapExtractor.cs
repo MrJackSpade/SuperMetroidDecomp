@@ -20,7 +20,7 @@ public static class RoomBackgroundTilemapExtractor
         var files = new Dictionary<string, byte[]>();
         foreach ((RoomBackgroundTilemap tilemap, int source) in RoomBackgroundSourceDefinitions.Tilemaps.OrderBy(pair => pair.Key))
         {
-            byte[] native = RomDataReader.Decompress(bus, source);
+            byte[] native = RomDataReader.Decompress(CartridgeImportSource.Require(bus), source);
             files.Add(RoomBackgroundTilemapArtworkFiles.FileName(tilemap), Encode(native));
         }
         return files;
@@ -37,7 +37,7 @@ public static class RoomBackgroundTilemapExtractor
             for (int cell = 0; cell < cells.Length; cell++)
             {
                 int offset = (page * cells.Length + cell) * sizeof(ushort);
-                cells[cell] = BackgroundTileCells.Of(BinaryPrimitives.ReadUInt16LittleEndian(native[offset..]));
+                cells[cell] = RoomBackgroundTilemapCell.Of(BinaryPrimitives.ReadUInt16LittleEndian(native[offset..]));
             }
             pages[page] = new RoomBackgroundTilemapPage { Cells = cells };
         }

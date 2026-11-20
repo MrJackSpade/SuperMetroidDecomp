@@ -19,7 +19,7 @@ internal static class LoadStationEntryImporter
         Ensure.NotNull(bus);
         int areaTableIndex = AreaNumberCodec.Encode(area);
         ushort listPointer = RomDataReader.ReadWordFixedBank(
-            bus,
+            CartridgeImportSource.Require(bus),
             LoadStationRomData.PointerTable + areaTableIndex * 2);
         int address = 0x800000 | unchecked((ushort)(listPointer + stationIndex * LoadStationRomData.EntryByteCount));
         ushort room = ReadWord(bus, address);
@@ -33,7 +33,7 @@ internal static class LoadStationEntryImporter
 
     /// <summary>Reads one little-endian entry word through the cartridge import boundary.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(bus, address);
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }
 
 /// <summary>One native load-station record as the cartridge stores it; an unused slot names no room and no door.</summary>

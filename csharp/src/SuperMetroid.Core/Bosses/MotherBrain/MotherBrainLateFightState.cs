@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// What only the late fight keeps (the brain's fall, the beam's sound, the health colours, the corpse, the Baby's arrival
-/// and her count of attacks on it), over the encounter whose body, brain, phase, neck and flags every late-fight phase reads and writes in place
+/// What only the late fight keeps (the brain's fall, the beam's sound, the health colours, the corpse and the Baby's
+/// arrival), over the encounter whose body, brain, phase, neck and flags every late-fight phase reads and writes in place
 /// (#2209): the encounter is their one owner, so nothing is copied in before a step or published after it.
 /// </summary>
 internal sealed class MotherBrainLateFightState
@@ -47,59 +47,12 @@ internal sealed class MotherBrainLateFightState
     /// </summary>
     public MotherBrainPhase2CorpseState Phase2CorpseState { get; internal set; }
 
-    /// <summary>
-    /// The Baby Metroid of her late fight (#2471): awaited until the final beam's spawn builds it in its place in the room's
-    /// enemies (<see cref="BabyHasArrived"/>), from which on its own turn it latches on, drains, heals Samus and dies; her
-    /// brain's attacks on it aim at it.
-    /// </summary>
-    public BabyMetroidArrival Baby { get; private set; } = BabyMetroidArrival.NotYet;
+    /// <summary>True once the final beam's Baby spawn has requested the cutscene Baby enemy population entry.</summary>
+    public bool BabyMetroidSpawned { get; internal set; }
 
-    /// <summary>
-    /// How many four-ring attacks Mother Brain has begun against the Baby, zero through twelve, where it stays; her
-    /// eleventh attack is made without her attack cry (<see cref="MotherBrainFightDefinitions.SilentBabyAttackCount"/>).
-    /// </summary>
-    public int BabyMetroidAttackCounter { get; internal set; }
-
-    /// <summary>Holds <paramref name="baby"/>, which the final beam's spawn built in its place, as her late fight's arrived Baby.</summary>
-    internal void BabyHasArrived(BabyMetroidCutsceneState baby) => Baby = new BabyMetroidArrival.Arrived(Ensure.NotNull(baby));
-
-    /// <summary>
-    /// Counts one more four-ring attack of her head's on the Baby, up to the most it counts
-    /// (<see cref="MotherBrainLateFightDefinitions.BabyAttackCountLimit"/>).
-    /// </summary>
-    internal void CountBabyMetroidAttack() =>
-        BabyMetroidAttackCounter = Math.Min(BabyMetroidAttackCounter + 1, MotherBrainLateFightDefinitions.BabyAttackCountLimit);
-
-    /// <summary>Starts her head's count of attacks on the Baby again from none.</summary>
-    internal void ResetBabyMetroidAttacks() => BabyMetroidAttackCounter = 0;
-
-    /// <summary>Restarts her brain on her head's own animation <paramref name="segment"/>, with its timer; unlike an ordinary enemy animation it keeps no loop count.</summary>
+    /// <summary>Restarts her brain on <paramref name="segment"/>, with its timer; unlike an ordinary enemy animation it keeps no loop count.</summary>
     internal void SetHeadAnimation(MotherBrainHeadSegment segment) =>
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(Encounter, segment);
-
-    /// <summary>Restarts her brain on her four-ring volley at Samus, whose own cues act on this late fight.</summary>
-    internal void FireVolleyAtSamus() =>
-        Encounter.Brain.Start(this, MotherBrainLateFightHeadSegment.AttackingSamusFourOnionRingsPhase3);
-
-    /// <summary>
-    /// Restarts her brain on her four-ring volley at the Baby once it has arrived, whose own cues act on the arrived Baby;
-    /// before it arrives, on her volley at Samus. She chooses by whether the Baby holds its place in the room's enemies,
-    /// which its arrival gives it.
-    /// </summary>
-    internal void FireVolleyAtBaby()
-    {
-        switch (Baby)
-        {
-            case BabyMetroidArrival.Arrived arrived:
-                Encounter.Brain.Start(arrived.Baby, MotherBrainBabyAttackSegment.AttackingBabyMetroid);
-                return;
-            case BabyMetroidArrival.Awaited:
-                FireVolleyAtSamus();
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BabyMetroidArrival)} {Baby}.");
-        }
-    }
 
     /// <summary>Starts her body on <paramref name="segment"/>; the body's animation pass, later in the enemy update, plays it.</summary>
     internal void SetBodyAnimation(MotherBrainBodySegment segment) =>

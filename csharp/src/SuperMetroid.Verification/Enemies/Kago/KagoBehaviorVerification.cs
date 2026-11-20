@@ -23,7 +23,7 @@ internal static class KagoBehaviorVerification
         place.Bind(EnemyDefinitionId.Kago, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnParameter1(EnemyDefinitionId.Kago, 10);
-        KagoBehavior.InitializeKago(place, place.SpawnSettings<KagoSpawnSettings>());
+        KagoBehavior.InitializeKago(place);
         KagoEnemyState state = enemies.KagoStates[0] ?? throw new InvalidDataException("Kago initializer did not publish typed state.");
         AssertEqual(new AnimationPlayback<KagoSegment>(KagoAnimations.StartingWith(KagoSegment.Slow), AnimationPlace.StartOfAnimation), state.Playback, "Kago initializer animation");
         ushort[] slow = KagoAnimationsConstants.Spritemaps(KagoSegment.Slow).ToArray();

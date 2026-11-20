@@ -53,14 +53,14 @@ internal static class RidleyPlayerOpeningVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley, camera: new Position16<RoomPixels>(0, 0));
         // The recorded random word drives Ridley's room, so its enemies are rebuilt with case services over the room's own.
         var enemies = runtime.ReloadRoomEnemiesForVerification(loaded => new VerificationRoomEnemyServices(loaded));
-        var body = enemies.Places.InUpdateOrder[0]; var state = enemies.NorfairRidley(); var samus = runtime.Player.Samus;
+        var body = enemies.Places.InUpdateOrder[0]; var state = enemies.NorfairRidley(); var samus = runtime.Player.IntroducedSamus;
         var seed = Read(375);
         // Ridley's body plays typed animations (#1287, #1600); the recording's native pointer selects the matching playback.
-        var pointers = new RidleyBodyNativeInstructionPointers(bus);
+        var pointers = new RidleyBodyNativeInstructionPointers(CartridgeImportSource.Require(bus));
         (state ?? throw new InvalidOperationException("Verification requires Ridley's state.")).Flight.BodyPlayback = pointers.BodyPlaybackAt(W(seed, 0xf92), state.Flight.FacingDirection);
         body.AnimationClock.HoldFor(W(seed, 0xf94));
         body.FrameCounter = W(seed, 0xfa4);

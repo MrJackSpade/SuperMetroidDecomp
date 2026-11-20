@@ -10,14 +10,14 @@ internal static class ProjectileNativeFixtureVerification
     /// <summary>Follows a retail bank-$93 explosion list through timed records and branches until its delete opcode.</summary>
     internal static int NativeProjectileLifetime(CartridgeImportAddressSpace rom, int selector)
     {
-        int pointer = rom.ReadCartridgeWord(selector), ticks = 0;
+        int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(selector), ticks = 0;
         var seen = new HashSet<int>();
         while (seen.Add(pointer))
         {
             int a = 0x930000 | pointer;
-            ushort command = rom.ReadCartridgeWord(a);
+            ushort command = CartridgeImportSource.Require(rom).ReadCartridgeWord(a);
             if (command == 0x822f) return ticks;
-            if (command == 0x8239) { pointer = rom.ReadCartridgeWord((a + 2)); continue; }
+            if (command == 0x8239) { pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((a + 2)); continue; }
             AssertTrue(command is > 0 and < 0x8000, "Finite native explosion frame");
             ticks += command;
             pointer += 8;
@@ -54,7 +54,7 @@ internal static class ProjectileNativeFixtureVerification
         foreach (int table in new[] { 0x9383c1, 0x9383d9 })
         for (int beam = 0; beam < 12; beam++)
         for (int direction = 0; direction < 10; direction++)
-            Art(rom.ReadCartridgeWord((0x930000 | (rom.ReadCartridgeWord(table + beam * 2) + 2 + direction * 2))), 0xa24d);
+            Art(rom.ReadCartridgeWord((0x930000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(table + beam * 2) + 2 + direction * 2))), 0xa24d);
         for (int direction = 0; direction < 10; direction++)
         {
             Art(rom.ReadCartridgeWord((0x938643 + direction * 2)), 0xa25b);

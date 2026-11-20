@@ -43,12 +43,13 @@ public static class SpritePartFrames
         return SmallObjectFrame(centred, firstCharacter);
     }
 
-    /// <summary>The shared frame of one small piece at its own offset; a piece off the origin names its offset.</summary>
+    /// <summary>
+    /// The shared frame of one small piece at its own offset, keyed by the piece itself (#2556): every sheet frame that shows
+    /// it names it for what it shows, so its own name only says what kind of frame it is.
+    /// </summary>
     private static SpriteFrame SmallObjectFrame(SpritePart alone, int firstCharacter)
     {
         return SmallObjects.GetOrAdd(new SmallObjectKey(alone, firstCharacter), key => new SpriteFrame(
-            $"Piece.{key.Part.Character:X3}.{key.Part.Palette}.{key.Part.Depth}.{(key.Part.FlipsHorizontally ? "h" : "")}{(key.Part.FlipsVertically ? "v" : "")}"
-                + (key.Part.Offset == Offset16<ScreenPixels>.Zero ? "" : $".{key.Part.Offset.X}.{key.Part.Offset.Y}"),
-            [Part(key.Part, key.FirstCharacter)]));
+            "Single piece", [Part(key.Part, key.FirstCharacter)]));
     }
 }

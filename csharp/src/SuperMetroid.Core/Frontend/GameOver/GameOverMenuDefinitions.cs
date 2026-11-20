@@ -16,11 +16,11 @@ public static class GameOverMenuDefinitions
     public const int AcceptedAnswerHoldDuration = 180;
 
     /// <summary>The cry queued after the first cry group's first frame.</summary>
-    public static readonly SoundEffectId FirstCry = RoomSound.BabyMetroidCry1;
+    public static readonly SoundEffectId HighCry = RoomSound.BabyMetroidHighCry;
 
     /// <summary>The cry queued after the second cry group's first frame.</summary>
-    public static readonly SoundEffectId SecondCry = RoomSound.BabyMetroidCry2;
+    public static readonly SoundEffectId HitchedCry = RoomSound.BabyMetroidHitchedCry;
 
     /// <summary>The cry queued after the third cry group's first frame.</summary>
-    public static readonly SoundEffectId ThirdCry = RoomSound.BabyMetroidCry3;
+    public static readonly SoundEffectId LowCry = RoomSound.BabyMetroidLowCry;
 }

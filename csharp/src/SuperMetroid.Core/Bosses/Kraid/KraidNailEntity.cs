@@ -7,18 +7,16 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// definition leaves Samus's touch to it.
 /// </summary>
 /// <param name="species">The Kraid species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the fingernail occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="kraid">The encounter his body began, which the part joins.</param>
+/// <param name="reference">Kraid's reference to the fingernail, which it joins as it initializes.</param>
 /// <param name="nail">Which of his fingernails it is, whose state it holds from its setup (#2298).</param>
-internal sealed class KraidNailEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KraidEnemyState kraid, KraidNailPart nail)
-    : KraidEntity(species, occupant, place, common), IEnemyTypedAnimation
+internal sealed class KraidNailEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KraidPartReference reference, KraidNailPart nail)
+    : KraidEntity(species, occupant, place, common, reference), IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    internal override KraidEnemyState Encounter { get; } = KraidProjectiles.InitializeKraidNail(place, kraid, nail);
-
-    /// <inheritdoc/>
-    internal override KraidPartState PartState => Encounter.Nail(nail);
+    protected override void SetUp() => Species.Projectiles.InitializeKraidNail(Place, nail);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.Projectiles.RunKraidNailMain(Place, Encounter.Nail(nail), frame.Level);

@@ -481,23 +481,23 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(0x7f, RoomBlockBehaviorCodec.DoorLinkOf(0xff),
         "BTS door-link index");
     AssertTrue(RoomBlockBehaviorCodec.Decode(3).Grapple == GrappleReaction.UnrevealedAnchor &&
-        ShotBlockReactionReadings.HandledOrNone(RoomBlockBehaviorCodec.Decode(3).Shootable) == ShotBlockReaction.RespawningBreak,
+        ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(3).Shootable) == ShotBlockReaction.RespawningBreak,
         "BTS overlapping grapple and breakable-block views stay contextual");
-    AssertEqual(ShotBlockReaction.PermanentBreak, ShotBlockReactionReadings.HandledOrNone(RoomBlockBehaviorCodec.Decode(6).Shootable),
+    AssertEqual(ShotBlockReaction.PermanentBreak, ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(6).Shootable),
         "BTS permanent breakable-block view");
     AssertEqual(ShootableReaction.PermanentBreak1x2, RoomBlockBehaviorCodec.Decode(6).Shootable,
         "BTS permanent break keeps its block shape");
-    AssertTrue(ShotBlockReactionReadings.HandledOrNone(RoomBlockBehaviorCodec.Decode(8).Shootable) == ShotBlockReaction.RespawningPowerBombBreak &&
-        ShotBlockReactionReadings.HandledOrNone(RoomBlockBehaviorCodec.Decode(9).Shootable) == ShotBlockReaction.PermanentPowerBombBreak &&
-        ShotBlockReactionReadings.HandledOrNone(RoomBlockBehaviorCodec.Decode(10).Shootable) == ShotBlockReaction.RespawningSuperMissileBreak &&
-        ShotBlockReactionReadings.HandledOrNone(RoomBlockBehaviorCodec.Decode(11).Shootable) == ShotBlockReaction.PermanentSuperMissileBreak,
+    AssertTrue(ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(8).Shootable) == ShotBlockReaction.RespawningPowerBombBreak &&
+        ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(9).Shootable) == ShotBlockReaction.PermanentPowerBombBreak &&
+        ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(10).Shootable) == ShotBlockReaction.RespawningSuperMissileBreak &&
+        ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(11).Shootable) == ShotBlockReaction.PermanentSuperMissileBreak,
         "BTS weapon-gated shot-block views");
     for (int value = 0; value <= byte.MaxValue; value++)
     {
         // The shot-block dispatcher's own entries are 0 through 63 and 78, and the block that sets off only when solid
         // (the area entries 0 through 7); every other byte is dispatched elsewhere or has no shootable reaction.
         bool dispatched = value is >= 0 and <= 63 or 78 or >= 0x80 and <= 0x87;
-        AssertEqual(dispatched, ShotBlockReactionReadings.HandledOrNone(RoomBlockBehaviorCodec.Decode(value).Shootable) is not null,
+        AssertEqual(dispatched, ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(value).Shootable) is not null,
             $"BTS ${value:X2} reaches the shot-block dispatcher");
         AssertEqual(value is >= 17 and <= 63 or 78,
             RoomBlockBehaviorCodec.Decode(value).Shootable == ShootableReaction.IgnoresShots,

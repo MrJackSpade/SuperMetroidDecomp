@@ -111,5 +111,5 @@ internal static class IntroEyeInstructionsVerification
 
     /// <summary>Reads one cartridge word solely for the verification oracle.</summary>
     private static int IntroEyeListWord(ISnesAddressSpace rom, int address) =>
-        rom.ReadCartridgeWord(address);
+        CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
 }

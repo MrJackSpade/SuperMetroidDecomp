@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
@@ -22,7 +21,7 @@ internal static class TourianFirstRoomMapVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         AssertTrue(!runtime.System.HasAreaMap(AreaId.Tourian), "a new session has no Tourian map");
 
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Metroids1);

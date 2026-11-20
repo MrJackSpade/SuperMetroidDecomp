@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -33,12 +32,12 @@ internal static class DraygonHoldStandUpVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         // No enemy's solid body takes part in the stand-up's collision.
         foreach (var enemy in runtime.Enemies.Places.InUpdateOrder)
             enemy.Clear();
-        SamusState samus = runtime.Player.Samus;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         int ballRadius = SamusPoseMetadata.ReadPoseYRadius(SamusPoseId.DraygonHeldBallLeftPose);
         int standUpRadius = SamusPoseMetadata.ReadPoseYRadius(SamusPoseId.DraygonHeldStandingUpLeftPose);

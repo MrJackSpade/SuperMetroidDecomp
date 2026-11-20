@@ -65,7 +65,7 @@ internal static class IntroFightLightsVerification
     /// </summary>
     internal static void VerifyOldMotherBrainFightLights(CartridgeImportAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = bus;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         AssertEqual(CrossfadeIntoGameplay, cartridge.ReadCartridgeWord(CrossfadeSelectionOperand), "both flashbacks' setups select the crossfade into gameplay");
         AssertEqual(BranchIfPlus, CeresColourEffectsVerification.Byte(cartridge, FlagTest), "the crossfade's end skips the lights while the flag is positive");
         CeresColourEffectsVerification.AssertSpawn(cartridge, LightsSpawn, LightsDefinition, IntroCinematicDefinitions.FightLights, "the crossfade's end");

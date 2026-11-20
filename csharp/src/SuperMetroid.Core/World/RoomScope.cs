@@ -67,10 +67,10 @@ internal sealed record RoomScope
     public required RoomLibraryBackgroundPicture BackgroundImage { get; init; }
 
     /// <summary>
-    /// What pictures written over the room's layers are drawn from, bound at its load (#1392, #1466, #2554): Zebes's warning
-    /// over the background and Ceres's over the foreground, which no room shows both of.
+    /// Resolves what pictures written over the room's layers show, or null in a tileset nothing writes pictures over (#1392,
+    /// #1466): Zebes's warning over the background and Ceres's over the foreground, which no room shows both of.
     /// </summary>
-    public required RoomWrittenPictures WrittenPictures { get; init; }
+    public required WrittenPictureResolver? WrittenPictures { get; init; }
 
     /// <summary>Resolves what the room effect's liquid or atmosphere shows on the effect overlay (#1392, #1466, #1706).</summary>
     public required WrittenPictureResolver FxOverlayPictures { get; init; }

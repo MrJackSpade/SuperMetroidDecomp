@@ -37,7 +37,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
 
     /// <summary>The bank-$A9 configuration record the cartridge selects for <paramref name="species"/> variant <paramref name="variantIndex"/>.</summary>
     internal static ushort ConfigurationPointer(ISnesAddressSpace rom, DeadTourianCorpseSpecies species, int variantIndex) =>
-        rom.ReadCartridgeWord(Families.Single(family => family.Species == species).ConfigurationTable + variantIndex * 2);
+        CartridgeImportSource.Require(rom).ReadCartridgeWord(Families.Single(family => family.Species == species).ConfigurationTable + variantIndex * 2);
 
     /// <summary>Compares eight variant selectors and configurations and exercises their production initializers.</summary>
     internal static void VerifyDeadTourianCorpseDefinitions(CartridgeImportAddressSpace rom)
@@ -80,7 +80,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
         int variantIndex,
         DeadTourianCorpseDefinition definition)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ushort variantEntry = cartridge.ReadCartridgeWord(family.InstructionTable + variantIndex * 2);
         ushort variantSpritemap = cartridge.ReadCartridgeWord(DeadTourianNativeListAddresses.Bank << 16 | variantEntry + 2);
         EnemyFrameId corpseFrame = DeadTourianAnimations.Segments.Beats(definition.InitialAnimation)

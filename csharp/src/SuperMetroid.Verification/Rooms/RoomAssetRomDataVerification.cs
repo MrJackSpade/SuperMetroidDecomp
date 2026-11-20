@@ -70,17 +70,17 @@ internal static class RoomAssetRomDataVerification
             TilesetDefinition compiled = RoomTilesets.Get(RoomGraphicsSetCodec.Decode(graphicsSet));
             int pointerAddress = RoomTilesetTableConstants.PointerTableAddress +
                 graphicsSet * sizeof(ushort);
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus, pointerAddress);
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), pointerAddress);
             int definitionAddress = RoomTilesetTableConstants.DefinitionBank | pointer;
-            AssertEqual(RomDataReader.ReadLongFixedBank(bus,
+            AssertEqual(RomDataReader.ReadLongFixedBank(CartridgeImportSource.Require(bus),
                     definitionAddress + RoomTilesetTableConstants.BlockDefinitionsAddressOffset),
                 compiled.BlockDefinitionsAddress,
                 $"graphics set ${graphicsSet:X2} compiled block source");
-            AssertEqual(RomDataReader.ReadLongFixedBank(bus,
+            AssertEqual(RomDataReader.ReadLongFixedBank(CartridgeImportSource.Require(bus),
                     definitionAddress + RoomTilesetTableConstants.CharacterAddressOffset),
                 compiled.CharacterAddress,
                 $"graphics set ${graphicsSet:X2} compiled character source");
-            AssertEqual(RomDataReader.ReadLongFixedBank(bus,
+            AssertEqual(RomDataReader.ReadLongFixedBank(CartridgeImportSource.Require(bus),
                     definitionAddress + RoomTilesetTableConstants.PaletteAddressOffset),
                 compiled.PaletteAddress,
                 $"graphics set ${graphicsSet:X2} compiled palette source");
@@ -92,16 +92,16 @@ internal static class RoomAssetRomDataVerification
         {
             int pointerAddress = RoomTilesetTableConstants.PointerTableAddress +
                 graphicsSet * sizeof(ushort);
-            ushort definitionPointer = RomDataReader.ReadWordFixedBank(bus, pointerAddress);
+            ushort definitionPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), pointerAddress);
             int definitionAddress = RoomTilesetTableConstants.DefinitionBank | definitionPointer;
             int blockAddress = RomDataReader.ReadLongFixedBank(
-                bus,
+                CartridgeImportSource.Require(bus),
                 definitionAddress + RoomTilesetTableConstants.BlockDefinitionsAddressOffset);
             int characterAddress = RomDataReader.ReadLongFixedBank(
-                bus,
+                CartridgeImportSource.Require(bus),
                 definitionAddress + RoomTilesetTableConstants.CharacterAddressOffset);
             int paletteAddress = RomDataReader.ReadLongFixedBank(
-                bus,
+                CartridgeImportSource.Require(bus),
                 definitionAddress + RoomTilesetTableConstants.PaletteAddressOffset);
 
             AssertTrue(RomDataReader.Decompress(bus, blockAddress).Length > 0,
@@ -174,7 +174,7 @@ internal static class RoomAssetRomDataVerification
         foreach ((string name, int sourceAddress) in sources)
         {
             byte[] native = sourceAddress == ghostSource
-                ? RomDataReader.ReadFixedBank(bus, sourceAddress,
+                ? RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), sourceAddress,
                     LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount)
                 : RomDataReader.Decompress(bus, sourceAddress);
             byte[] png = files[name];

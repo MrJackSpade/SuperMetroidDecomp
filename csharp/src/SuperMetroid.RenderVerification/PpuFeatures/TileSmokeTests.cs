@@ -62,7 +62,7 @@ internal static class TileSmokeTests
         void Check(DisplayLayer[] layers, string name, byte brightness = 15)
         {
             count++;
-            var frame = new DisplayPacket(0, new LayeredScene(memory, layers, DisplayBrightness.Combine(brightness, 13, 11)));
+            var frame = new DisplayPacket(0, new LayeredScene(memory, layers, DisplayBrightness.Combine(DisplayBrightness.StepsAbove(brightness), DisplayBrightness.StepsAbove(13), DisplayBrightness.StepsAbove(11))));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame), $"{device.Kind}: {name} #{count}");
         }
     }
@@ -91,7 +91,7 @@ internal static class TileSmokeTests
         var memory = FramePaint.FromNative(palette, []);
         var frame = new DisplayPacket(0, new LayeredScene(memory,
             new DisplayLayer[] { new PictureGridLayer(VramPictureFixtures.Grid(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<CharacterCells>(32, 32)),
-                Offset16<PlanePixels>.Zero) }, 15));
+                Offset16<PlanePixels>.Zero) }, DisplayBrightness.Full));
         var expected = DisplayRendering.Render(frame);
         if (expected[0] != new RgbaPixel(255, 0, 0))
             throw new InvalidOperationException("Fourth-plane fixture no longer selects color two.");

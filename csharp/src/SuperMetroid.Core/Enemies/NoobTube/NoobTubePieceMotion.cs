@@ -5,6 +5,12 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 /// </summary>
 internal enum NoobTubePieceMotion
 {
+    /// <summary>Flickers the n00b-tube crack.</summary>
+    CrackFlickering,
+
+    /// <summary>Drops the detached n00b-tube crack.</summary>
+    CrackFalling,
+
     /// <summary>Flies a newly emitted n00b-tube shard.</summary>
     ShardFlying,
 

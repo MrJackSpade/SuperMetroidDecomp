@@ -17,7 +17,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroidCutscene];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BabyMetroidCutsceneEntity(this, occupant, place, common, setup);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BabyMetroidCutsceneEntity(this, occupant, place, common));
 
     /// <summary>Initializes the dynamically allocated Baby through the ordinary enemy lifecycle.</summary>
     private readonly IEnemyLifecycle _lifecycle;
@@ -49,16 +49,12 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Builds <paramref name="lateFight"/>'s Baby in the first free place of the room's enemies, runs its setup, and leaves
+    /// Makes <paramref name="lateFight"/>'s Baby in the first free place of the room's enemies, runs its setup, and leaves
     /// it undrawn until its first scheduled turn.
     /// </summary>
     internal void SpawnMotherBrainBabyMetroid(MotherBrainRainbowBeamAttackSequence lateFight)
     {
-        if (Ensure.NotNull(lateFight).State.Baby is not BabyMetroidArrival.Awaited)
-        {
-            throw new InvalidOperationException(
-                "Mother Brain attempted to allocate the cutscene Baby more than once.");
-        }
+        Ensure.NotNull(lateFight);
 
         // The spawn takes the first free place; the Baby is a single part. A full room spawns nothing.
         if (_places.FindFreePlace() is not { } babyPlace)
@@ -68,25 +64,26 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(population.DefinitionId);
         _lifecycle.InitializePlaceFromDefinition(babyPlace, population, definition);
-        // The Baby's setup builds the late fight's Baby in its place (#2218, #2471).
-        _lifecycle.SetUpJoiningEnemy(babyPlace, lateFight);
+        // The Baby's place holds the Baby its late fight makes there, from its setup (#2218, #2471).
+        babyPlace.SetSpeciesState(lateFight.MakeBaby(babyPlace));
+        _lifecycle.SetUpSpawnedEnemy(babyPlace);
 
         // Spawning leaves the Baby undrawn after its setup while it animates.
         // Its animation is still live and shows its first visible frame on its first
         // scheduled turn; this update's list of running enemies was fixed before the Baby was placed.
         babyPlace.Frame = babyPlace.Processing.HasAny(EnemyProcessing.Animates)
-            ? EnemyFrameId.Empty
+            ? EnemyFrameId.PointAtOrigin
             : null;
         _places.CoverSpawn(babyPlace);
     }
 
-    /// <summary>Builds <paramref name="lateFight"/>'s Baby in <paramref name="place"/> and starts its first animation and fifteen nontransparent colors.</summary>
-    internal static BabyMetroidCutsceneState InitializeMotherBrainBabyMetroid(RoomEnemyPlace place, MotherBrainRainbowBeamAttackSequence lateFight)
+    /// <summary>Sets the Baby up and starts its first animation, showing its own colours as it arrives.</summary>
+    internal static void InitializeMotherBrainBabyMetroid(RoomEnemyPlace place)
     {
-        Ensure.NotNull(lateFight);
-        MotherBrainEnemyState state = lateFight.Encounter;
+        BabyMetroidCutsceneState baby = place.RequireSpeciesState<BabyMetroidCutsceneState>();
+        MotherBrainEnemyState state = baby.LateFight.Encounter;
         // The place keeps its previous occupant's fractions, which the Baby starts from (BabyMetroidArrivalFractions).
-        BabyMetroidCutsceneState baby = lateFight.BabyArrives(place);
+        baby.Arrive();
         // The place owns the Baby's contact, processing and presence (#2310): initialization makes it block the Plasma
         // Beam and starts its animation; its population entry's presence stands.
         place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);
@@ -98,19 +95,19 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         // The Baby arrives in its own colours; where it is transparent the room's backdrop shows.
         ShowBabyMetroidArrival(state.Colours);
-        return baby;
     }
 
-    /// <summary>Lays the Baby's start colours, which leave the transparent colour untouched.</summary>
-    internal static void ShowBabyMetroidArrival(MotherBrainColours colours) =>
+    /// <summary>Shows the Baby's arrival colours.</summary>
+    private static void ShowBabyMetroidArrival(MotherBrainColours colours) =>
         Ensure.NotNull(colours).ShowBabyArrived();
 
     /// <summary>Advances the later Baby place, publishes cries/healing, and writes body and Baby animation changes for their next ordered enemy turns.</summary>
-    internal void RunMotherBrainBabyMetroidMain(
-        RoomEnemyPlace place, BabyMetroidCutsceneState baby,
+    private void RunMotherBrainBabyMetroidMain(
+        RoomEnemyPlace place,
         SamusState samus,
         Position16<RoomPixels> camera)
     {
+        BabyMetroidCutsceneState baby = place.RequireSpeciesState<BabyMetroidCutsceneState>();
         MotherBrainEnemyState state = baby.LateFight.Encounter;
 
         place.Shake.End();
@@ -132,7 +129,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         // Use the phase that ran, including its final full-health update.
         if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&
             samus.Health >= MotherBrainHealthSounds.MinimumEnergy &&
-            MotherBrainCadenceDefinitions.BabyHealSoundEveryEighthEnemyPass.IsDue(_frameContext.EnemyPassCount))
+            MotherBrainCadenceDefinitions.BabyHealSound.IsDue(_frameContext.EnemyPassCount))
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
 
@@ -174,7 +171,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         place.Shading = baby.HurtFlashShown ? EnemyShades.HurtFlashLook : colours.BabyShading;
 
     /// <summary>Applies one step's music, sounds, dust, fade and recovery-light requests to room systems.</summary>
-    internal void ApplyBabyMetroidFrameEffects(MotherBrainColours colours, BabyMetroidCutsceneStepResult step)
+    private void ApplyBabyMetroidFrameEffects(MotherBrainColours colours, BabyMetroidCutsceneStepResult step)
     {
         Ensure.NotNull(colours);
         if (step.FatalBlowStarted)
@@ -214,13 +211,13 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
     /// <summary>Shows <paramref name="image"/> of the Baby's fade to black from its installed colours.</summary>
     /// <exception cref="ArgumentException">The image is not one of the Baby's fade's.</exception>
-    internal static void ShowBabyMetroidFade(MotherBrainColours colours, MotherBrainFadeImage image) =>
+    private static void ShowBabyMetroidFade(MotherBrainColours colours, MotherBrainFadeImage image) =>
         Ensure.NotNull(colours).ShowBabyFade(image);
 
     /// <summary>Runs BabyMetroidCutscene's main AI.</summary>
-    internal void RunBabyMetroidCutsceneMainAi(RoomEnemyPlace place, BabyMetroidCutsceneState state, IEnemyAiFrame frame)
+    internal void RunBabyMetroidCutsceneMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunMotherBrainBabyMetroidMain(place, state, frame.Samus, frame.Camera);
+        RunMotherBrainBabyMetroidMain(place, frame.Samus, frame.Camera);
     }
 
     /// <summary>
@@ -228,8 +225,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     /// timer would, and the clock notes each newly shown frame. A held pose rests: the last frame stays and the clock
     /// stops.
     /// </summary>
-    internal static void AdvanceBabyMetroidCutsceneAnimation(RoomEnemyPlace place, BabyMetroidCutsceneState baby)
+    internal static void AdvanceBabyMetroidCutsceneAnimation(RoomEnemyPlace place)
     {
+        BabyMetroidCutsceneState baby = place.RequireSpeciesState<BabyMetroidCutsceneState>();
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<MotherBrainBabySegment> playback = baby.Playback;

@@ -28,12 +28,12 @@ internal static class BoyonSpeedDefinitionsVerification
             for (int multiplier = 0; multiplier < 8; multiplier++)
             {
                 actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, (ushort)((height << 8) | multiplier));
-                int authoredHeight = rom.ReadCartridgeWord((0xa286ef + height * 2));
+                int authoredHeight = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa286ef + height * 2));
                 initialize(actor);
                 initialized++;
                 // The Boyon reads its multiplier and height from its spawn settings where it uses them (#2476).
                 BoyonSpawnSettings settings = actor.HeldOccupant().SpawnSettings<BoyonSpawnSettings>();
-                AssertEqual(rom.ReadCartridgeWord((0xa286df + multiplier * 2)), settings.SpeedMultiplier, "Boyon real initialized multiplier without bus");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa286df + multiplier * 2)), settings.SpeedMultiplier, "Boyon real initialized multiplier without bus");
                 AssertEqual(authoredHeight, SignedSixteenSixteen.FromWholePixels(settings.JumpHeight).InTwoFiftySixths, "Boyon real initialized height without bus");
             }
         }
@@ -41,7 +41,7 @@ internal static class BoyonSpeedDefinitionsVerification
         AssertThrows<InvalidDataException>(() => actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, 8), "Boyon import rejects the multiplier past its table");
         AssertThrows<InvalidDataException>(() => actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, 0x900), "Boyon import rejects the height past its table");
         Func<BoyonEnemyState, int, UnsignedSixteenSixteen> multiply = BoyonBehavior.MultiplyBoyonCurveEntry;
-        var curve = new BoyonEnemyState(new BoyonSpawnSettings(SpeedMultiplier: 1, JumpHeight: 0, TriggerDistance: 0));
+        var curve = new BoyonEnemyState();
         for (int index = 0; index <= ushort.MaxValue; index++)
         {
             byte sample = index < 23 ? rom.ReadCartridgeByte(0xa28701 + index) : (byte)255;

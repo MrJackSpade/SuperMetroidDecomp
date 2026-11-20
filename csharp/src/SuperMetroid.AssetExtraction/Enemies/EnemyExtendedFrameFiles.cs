@@ -76,10 +76,10 @@ internal static class EnemyExtendedFrameFiles
         for (int index = 0; index < count; index++)
         {
             int record = unchecked((ushort)(pointer + 2 + index * 8));
-            int x = unchecked((short)bus.ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, record))));
-            int y = unchecked((short)bus.ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, unchecked((ushort)(record + 2))))));
-            int spritePointer = bus.ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, unchecked((ushort)(record + 4)))));
-            if (bus.ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, spritePointer))) ==
+            int x = unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, record))));
+            int y = unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, unchecked((ushort)(record + 2))))));
+            int spritePointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, unchecked((ushort)(record + 4)))));
+            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, spritePointer))) ==
                 EnemySourceDefinitions.Bg2StreamMarker)
             {
                 // Multipart bodies combine ordinary OAM with BG2 streams

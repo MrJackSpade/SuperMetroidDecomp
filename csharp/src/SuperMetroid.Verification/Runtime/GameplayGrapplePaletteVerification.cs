@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Drawing;
@@ -23,12 +22,12 @@ internal static class GameplayGrapplePaletteVerification
     /// <summary>Checks normal fire, pose-change refire, fixed flare color, and cancellation for two equipped beams.</summary>
     internal static void VerifyGameplayGrapplePalette()
     {
-        var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
         foreach (var enemy in runtime.Enemies.Places.InUpdateOrder) enemy.Clear();
@@ -39,7 +38,7 @@ internal static class GameplayGrapplePaletteVerification
         // pictures the room's tileset sheet holds.
         var level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(32, 16), words, new RoomBlockBehavior[512]);
         runtime.Room.Adopt(scope with { LevelData = level });
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         // The beam colours are import data (#1637): the import's read holds them.
         var palettes = InstalledFixtures.ImportProjectiles.BeamPalettes;
         // Grapple firing names the Ice beam's shade and the flare's (#1512); the import resolves both.

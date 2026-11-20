@@ -1,64 +1,75 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's eight parts in his room, by place (#1877, #2146, #2554): his body, which heads the other seven, and the places
-/// his room lists right after it, in order: his arm, his top, middle and bottom lint, his foot and his two fingernails. The
-/// population load hands his body their places as it places it, and the fight reaches each part through them. A part's
-/// place outlives the part's occupant: a deleted part leaves its last values there and a killed part is emptied, so a read
-/// of a part that has been killed finds what the kill left (<see cref="RoomEnemyPlace.FoundEnemy"/>).
+/// Kraid's eight parts in his room, which he holds by reference: his body, his arm, his top, middle and bottom lint, his
+/// foot and his two fingernails. Each part joins its own reference when it initializes (#1877, #2146), and the fight
+/// reaches it through that. A part's reference outlives the part's occupant: a deleted part leaves its last values there
+/// and a killed part is emptied, so a read of a part that has been killed finds what the kill left
+/// (<see cref="RoomEnemyPlace.FoundState{T}"/>).
 /// </summary>
+[RoomLifetime]
 internal sealed class KraidParts
 {
-    /// <summary>The places of his body and the seven parts his room lists right after it.</summary>
-    /// <param name="body">His body's place.</param>
-    /// <param name="parts">The places of his arm, top, middle and bottom lint, foot and first and second fingernail.</param>
-    /// <exception cref="InvalidDataException">The room lists other than seven parts after his body.</exception>
-    internal KraidParts(RoomEnemyPlace body, IReadOnlyList<RoomEnemyPlace> parts)
-    {
-        Body = Ensure.NotNull(body);
-        Ensure.NotNull(parts);
-        if (parts.Count != PartCount)
-            throw new InvalidDataException($"Kraid heads {PartCount} parts, but {parts.Count} places were handed to him.");
-        Arm = parts[0];
-        TopLint = parts[1];
-        MiddleLint = parts[2];
-        BottomLint = parts[3];
-        Foot = parts[4];
-        FirstNail = parts[5];
-        SecondNail = parts[6];
-    }
+    /// <summary>His body's reference, which runs first.</summary>
+    internal KraidPartReference BodyReference { get; } = new("body");
 
-    /// <summary>How many parts his room lists right after his body.</summary>
-    internal const int PartCount = 7;
+    /// <summary>His arm's reference.</summary>
+    internal KraidPartReference ArmReference { get; } = new("arm");
+
+    /// <summary>His top lint's reference.</summary>
+    internal KraidPartReference TopLintReference { get; } = new("top lint");
+
+    /// <summary>His middle lint's reference.</summary>
+    internal KraidPartReference MiddleLintReference { get; } = new("middle lint");
+
+    /// <summary>His bottom lint's reference.</summary>
+    internal KraidPartReference BottomLintReference { get; } = new("bottom lint");
+
+    /// <summary>His foot's reference.</summary>
+    internal KraidPartReference FootReference { get; } = new("foot");
+
+    /// <summary>His first fingernail's reference.</summary>
+    internal KraidPartReference FirstNailReference { get; } = new("first fingernail");
+
+    /// <summary>His second fingernail's reference, which runs last.</summary>
+    internal KraidPartReference SecondNailReference { get; } = new("second fingernail");
 
     /// <summary>His body, which runs first.</summary>
-    internal RoomEnemyPlace Body { get; }
+    internal RoomEnemyPlace Body => BodyReference.Place;
+
+    /// <summary>
+    /// The encounter his body began as it set up, which its state holds (#2218) and each of his other parts joins as it
+    /// sets up (#2420).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">His body has not set up.</exception>
+    internal KraidEnemyState Encounter => Body.RequireSpeciesState<KraidPartState>().Kraid;
 
     /// <summary>His arm.</summary>
-    internal RoomEnemyPlace Arm { get; }
+    internal RoomEnemyPlace Arm => ArmReference.Place;
 
     /// <summary>His top lint.</summary>
-    internal RoomEnemyPlace TopLint { get; }
+    internal RoomEnemyPlace TopLint => TopLintReference.Place;
 
     /// <summary>His middle lint.</summary>
-    internal RoomEnemyPlace MiddleLint { get; }
+    internal RoomEnemyPlace MiddleLint => MiddleLintReference.Place;
 
     /// <summary>His bottom lint.</summary>
-    internal RoomEnemyPlace BottomLint { get; }
+    internal RoomEnemyPlace BottomLint => BottomLintReference.Place;
 
     /// <summary>His foot.</summary>
-    internal RoomEnemyPlace Foot { get; }
+    internal RoomEnemyPlace Foot => FootReference.Place;
 
     /// <summary>His first fingernail.</summary>
-    internal RoomEnemyPlace FirstNail { get; }
+    internal RoomEnemyPlace FirstNail => FirstNailReference.Place;
 
     /// <summary>His second fingernail, which runs last.</summary>
-    internal RoomEnemyPlace SecondNail { get; }
+    internal RoomEnemyPlace SecondNail => SecondNailReference.Place;
 
     /// <summary>His lint part <paramref name="part"/>.</summary>
-    internal RoomEnemyPlace Lint(KraidLintPart part) => part switch
+    private RoomEnemyPlace Lint(KraidLintPart part) => part switch
     {
         KraidLintPart.Top => TopLint,
         KraidLintPart.Middle => MiddleLint,
@@ -94,6 +105,27 @@ internal sealed class KraidParts
         }
     }
 
+    /// <summary>The fingernails last spawned in their places, which Kraid's death kills.</summary>
+    internal IEnumerable<RoomEnemyOccupant> LatestNails
+    {
+        get
+        {
+            yield return FirstNailReference.LatestOccupant;
+            yield return SecondNailReference.LatestOccupant;
+        }
+    }
+
+    /// <summary>The lints last spawned in their places, which Kraid's death kills.</summary>
+    internal IEnumerable<RoomEnemyOccupant> LatestLints
+    {
+        get
+        {
+            yield return TopLintReference.LatestOccupant;
+            yield return MiddleLintReference.LatestOccupant;
+            yield return BottomLintReference.LatestOccupant;
+        }
+    }
+
     /// <summary>His body, arm, lints and foot, in running order: every part but the fingernails.</summary>
     internal IEnumerable<RoomEnemyPlace> AllButNails
     {
@@ -118,4 +150,5 @@ internal sealed class KraidParts
                 yield return nail;
         }
     }
+
 }

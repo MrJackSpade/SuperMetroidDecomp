@@ -26,7 +26,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroid];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BabyMetroidEntity(this, occupant, place, common, setup);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new BabyMetroidEntity(this, occupant, place, common));
 
     /// <summary>Provides the room's enemy session, room scroll values, RNG, and installed encounter colors.</summary>
     private readonly EnemyRoomBinding _room;
@@ -58,7 +58,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
     /// <summary>Sets the Baby Metroid up when the room spawns it.</summary>
-    private static BabyMetroidEnemyState InitializeBabyMetroid(RoomEnemyPlace place, int cameraX)
+    private static void InitializeBabyMetroid(RoomEnemyPlace place, int cameraX)
     {
         // The Baby Metroid stops the Plasma Beam and animates.
         place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);
@@ -78,11 +78,11 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             place.Presence = place.Presence.With(EnemyPresence.Hidden);
         }
         state.ReactsToSamus = false;
+        place.SetSpeciesState(state);
         // The entry's colours are where the room's colours fade to, and they show from the start: the Baby Metroid and
         // its victim in the entry's colours (#1512), and the drained corpses in theirs, which the corpses' own setup
         // shows.
         place.Shading = state.Shading;
-        return state;
     }
 
     /// <summary>Runs the Baby Metroid's main AI for one update.</summary>
@@ -90,14 +90,14 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="samus">Samus, when the update has one.</param>
     /// <param name="camera">The enemy pass's camera, which the wait for the camera and the off-screen test read.</param>
     /// <param name="samusBombs">Samus's bomb and projectile counters, which draining Samus locks.</param>
-    /// <param name="state">The state, which its enemy holds.</param>
     private void RunBabyMetroidMain(
-        RoomEnemyPlace place, BabyMetroidEnemyState state,
+        RoomEnemyPlace place,
         SamusState samus,
         Position16<RoomPixels> camera,
         SamusBombProjectileSystem samusBombs)
     {
         Ensure.NotNull(samusBombs);
+        BabyMetroidEnemyState state = place.RequireSpeciesState<BabyMetroidEnemyState>();
         RunBabyMetroidState(place, state, samus, camera, samusBombs);
         place.Position = place.Position.MovedBy(state.Velocity);
         // The room's enemies run between a door fade's steps; the membrane pulse waits for the fade.
@@ -166,7 +166,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BabyMetroidAction.ActivateSidehopperCorpse:
-                state.VictimDrain.LatchOn();
+                DeadSidehopperBehavior.ActivateDeadSidehopperVictim(RequireBabyMetroidVictim(place));
                 state.Action = BabyMetroidAction.RiseAfterFeeding;
                 state.StateTimer.LastFor(BabyMetroidFightDefinitions.RiseUpdates);
                 goto case BabyMetroidAction.RiseAfterFeeding;
@@ -231,7 +231,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Action = BabyMetroidAction.FlyBesideSamus;
                     state.DepartureSide = HorizontalDirection.Left;
                     state.StateTimer.LastFor(BabyMetroidFightDefinitions.FlyBesideUpdates);
-                    SetBabyMetroidAnimation(place, state, BabyMetroidSegment.LatchedOn);
+                    SetBabyMetroidAnimation(place, BabyMetroidSegment.LatchedOn);
                     goto case BabyMetroidAction.FlyBesideSamus;
                 }
                 return;
@@ -261,7 +261,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 state.Action = BabyMetroidAction.HoldSamusBeforeRelease;
                 state.StateTimer.LastFor(BabyMetroidFightDefinitions.HoldBeforeReleaseUpdates);
-                SetBabyMetroidAnimation(place, state, BabyMetroidSegment.Remorse);
+                SetBabyMetroidAnimation(place, BabyMetroidSegment.Remorse);
                 return;
             }
 
@@ -350,7 +350,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Velocity = default;
         place.Position = place.Position.WithWhole(latch);
-        SetBabyMetroidAnimation(place, state, BabyMetroidSegment.LatchedOn);
+        SetBabyMetroidAnimation(place, BabyMetroidSegment.LatchedOn);
         state.Action = BabyMetroidAction.DrainSidehopper;
         state.PaceMembrane(BabyMetroidMembranePace.Feeding);
         state.ReactsToSamus = false;
@@ -361,13 +361,12 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void DrainBabyMetroidVictim(RoomEnemyPlace place, BabyMetroidEnemyState state)
     {
         RoomEnemyPlace victim = RequireBabyMetroidVictim(place);
-        int shakeIndex = MotherBrainCadenceDefinitions.BabyMetroidShakeStep.Of(place.FrameCounter);
-        place.Position = place.Position.WithWhole(
-            victim.Position.Whole + MotherBrainShakeDefinitions.Offsets[shakeIndex] + BabyMetroidFightDefinitions.LatchOffset);
+        place.Position = place.Position.WithWhole(victim.Position.Whole
+            + MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.BabyMetroidShakeStep, place.FrameCounter) + BabyMetroidFightDefinitions.LatchOffset);
         if (state.SidehopperDrain.StepRunsOut())
         {
             state.Action = BabyMetroidAction.ActivateSidehopperCorpse;
-            SetBabyMetroidAnimation(place, state, BabyMetroidSegment.FinishDraining);
+            SetBabyMetroidAnimation(place, BabyMetroidSegment.FinishDraining);
             state.PaceMembrane(BabyMetroidMembranePace.Calm);
         }
     }
@@ -426,7 +425,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             samusBombs.ReleaseCountAfterDrain();
             state.Action = BabyMetroidAction.BeginPostDrainPause;
             state.Velocity = default;
-            SetBabyMetroidAnimation(place, state, BabyMetroidSegment.FinishDraining);
+            SetBabyMetroidAnimation(place, BabyMetroidSegment.FinishDraining);
             state.PaceMembrane(BabyMetroidMembranePace.Calm);
             samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
             samus.Drained.LetFall(samus);
@@ -445,9 +444,9 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (SamusSpeedMagnitude.WholePixelsReach(fallSpeed, BabyMetroidFightDefinitions.DrainFallSpeedLimit))
             samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(fallSpeed.WithWholePixelsOf(BabyMetroidFightDefinitions.DrainFallSpeed));
 
-        int shakeIndex = MotherBrainCadenceDefinitions.BabyMetroidShakeStep.Of(place.FrameCounter);
-        place.Position = place.Position.WithWhole(
-            samus.Position.Whole + MotherBrainShakeDefinitions.Offsets[shakeIndex] + new Offset16<RoomPixels>(rightOfShake, BabyMetroidFightDefinitions.DrainAboveSamus));
+        place.Position = place.Position.WithWhole(samus.Position.Whole
+            + MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.BabyMetroidShakeStep, place.FrameCounter)
+            + new Offset16<RoomPixels>(rightOfShake, BabyMetroidFightDefinitions.DrainAboveSamus));
 
         // The drain takes less energy with Varia than without, leaving Samus at least one.
         int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? BabyMetroidFightDefinitions.DrainWithVaria : BabyMetroidFightDefinitions.DrainWithoutVaria;
@@ -578,8 +577,9 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         DistanceAcrossRoomEdge.Between(center.Y, place.Position.Y.Whole) < place.Radius.Y + radius.Y + 1;
 
     /// <summary>Resolves the Baby's private touch reaction.</summary>
-    private static void ResolveBabyMetroidTouch(RoomEnemyPlace place, BabyMetroidEnemyState state, SamusState samus)
+    private static void ResolveBabyMetroidTouch(RoomEnemyPlace place, SamusState samus)
     {
+        BabyMetroidEnemyState state = place.RequireSpeciesState<BabyMetroidEnemyState>();
         if (!state.ReactsToSamus)
             return;
 
@@ -610,7 +610,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 BabyMetroidFlightDefinitions.LatchAcceleration,
                 samus.Position.Whole + BabyMetroidFightDefinitions.LatchOffset))
             {
-                SetBabyMetroidAnimation(place, state, BabyMetroidSegment.LatchedOn);
+                SetBabyMetroidAnimation(place, BabyMetroidSegment.LatchedOn);
                 state.PaceMembrane(BabyMetroidMembranePace.Feeding);
                 state.ReactsToSamus = false;
                 state.Velocity = default;
@@ -625,10 +625,11 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Resolves the recoil-only shot reaction: the Baby recoils away from <paramref name="recoilOrigin"/>.</summary>
     private static void ResolveBabyMetroidShot(
-        RoomEnemyPlace place, BabyMetroidEnemyState state,
+        RoomEnemyPlace place,
         int collisionDamage,
         SamusProjectile recoilOrigin)
     {
+        BabyMetroidEnemyState state = place.RequireSpeciesState<BabyMetroidEnemyState>();
         if (!state.ReactsToSamus)
             return;
 
@@ -681,44 +682,47 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts <paramref name="segment"/> with both animation timers reset.</summary>
-    private static void SetBabyMetroidAnimation(RoomEnemyPlace place, BabyMetroidEnemyState state, BabyMetroidSegment segment)
+    private static void SetBabyMetroidAnimation(RoomEnemyPlace place, BabyMetroidSegment segment)
     {
-        state.Playback = BabyMetroidAnimations.Starting(segment);
+        place.RequireSpeciesState<BabyMetroidEnemyState>().Playback = BabyMetroidAnimations.Starting(segment);
         place.AnimationClock.Restart();
     }
 
     /// <summary>Requires the Baby Metroid's victim: the enemy placed directly after it (<see cref="BabyMetroidVictim"/>).</summary>
     private RoomEnemyPlace RequireBabyMetroidVictim(RoomEnemyPlace place)
     {
-        RoomEnemyPlace victim = BabyMetroidVictim.Of(_places.InUpdateOrder, place.Ordinal);
+        RoomEnemyPlace victim = BabyMetroidVictim.Of(_places.InUpdateOrder, place);
         if (victim.IsFree)
             throw new InvalidDataException("The Baby Metroid's victim, the enemy placed after it, is missing.");
         return victim;
     }
 
     /// <summary>Uses bomb damage for recoil strength but Samus's first shot for its direction, without health loss.</summary>
-    internal static void ReactToBabyMetroidBomb(EnemyBombContext c, BabyMetroidEnemyState state) =>
+    internal static void ReactToBabyMetroidBomb(EnemyBombContext c) =>
         // The Baby's shot response reads damage from the projectile that hit it, but recoils from Samus's first shot
         // (MetroidRecoilOrigin). For a bomb collision that means the bomb's damage controls recoil strength while
         // whatever live or left-over shot is first controls direction. It never enters vulnerability damage.
-        ResolveBabyMetroidShot(c.Enemy, state, c.PlacedBomb.Damage, MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots));
+        ResolveBabyMetroidShot(c.Enemy, c.PlacedBomb.Damage, MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots));
 
     /// <summary>Runs Baby Metroid's initialization AI.</summary>
-    internal static BabyMetroidEnemyState SetUpBabyMetroid(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
+    internal static void SetUpBabyMetroid(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
+    {
         InitializeBabyMetroid(place, surroundings.Camera.X);
+    }
 
     /// <summary>Runs Baby Metroid's main AI.</summary>
-    internal void RunBabyMetroidMainAi(RoomEnemyPlace place, BabyMetroidEnemyState state, IEnemyAiFrame frame)
+    internal void RunBabyMetroidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunBabyMetroidMain(place, state, frame.Samus, frame.Camera, frame.SamusBombs);
+        RunBabyMetroidMain(place, frame.Samus, frame.Camera, frame.SamusBombs);
     }
 
     /// <summary>
     /// Plays the Baby Metroid's animation where the shared enemy animation runs: the frame expires on the update its
     /// timer would, and the clock notes each newly shown frame. Its animations only cycle.
     /// </summary>
-    internal void AdvanceBabyMetroidAnimation(RoomEnemyPlace place, BabyMetroidEnemyState state)
+    internal void AdvanceBabyMetroidAnimation(RoomEnemyPlace place)
     {
+        BabyMetroidEnemyState state = place.RequireSpeciesState<BabyMetroidEnemyState>();
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<BabyMetroidSegment> playback = state.Playback;
@@ -744,22 +748,21 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Marks projectile collision and converts shot damage into recoil without vulnerability damage.</summary>
-    /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
-    internal static EnemyShotReaction BabyMetroidShotReactionOf(BabyMetroidEnemyState state) => new()
+    internal EnemyShotReaction BabyMetroidShotReaction => field ??= new()
     {
         // A shot marks its collision and the Baby recoils, without hurting it: the shot's strength and the first shot's
         // aim decide the recoil.
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            ResolveBabyMetroidShot(c.Enemy, state, c.Shot.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Shots));
+            ResolveBabyMetroidShot(c.Enemy, c.Shot.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Shots));
             return true;
         },
     };
 
     /// <summary>Uses cutscene latching or recoil on contact instead of ordinary Samus damage.</summary>
-    internal static void ReactToBabyMetroidTouch(EnemyTouchContext context, BabyMetroidEnemyState state) =>
+    internal static void ReactToBabyMetroidTouch(EnemyTouchContext context) =>
         // The Baby Metroid's touch replaces normal touch damage entirely. Depending on its current cutscene state, contact either
         // starts pursuit/latching or adds a spin-jump recoil vector to the actor itself; Samus is never hurt here.
-        ResolveBabyMetroidTouch(context.Place, state, context.Samus);
+        ResolveBabyMetroidTouch(context.Place, context.Samus);
 }

@@ -20,11 +20,11 @@ internal static class RoomEffectActorNativeLists
 
     /// <summary>The bank-$B4 word at <paramref name="address"/>.</summary>
     internal static ushort Word(ISnesAddressSpace rom, int address) =>
-        rom.ReadCartridgeWord(0xb40000 | (address & 0xffff));
+        CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb40000 | (address & 0xffff));
 
     /// <summary>The list address selector <paramref name="selector"/> starts.</summary>
     internal static ushort Entry(ISnesAddressSpace rom, int selector) =>
-        rom.ReadCartridgeWord(SelectorTable + selector * sizeof(ushort));
+        CartridgeImportSource.Require(rom).ReadCartridgeWord(SelectorTable + selector * sizeof(ushort));
 
     /// <summary>
     /// Every spritemap the lists of the objects the game spawns show (each <see cref="RoomEffectActorKind"/>'s

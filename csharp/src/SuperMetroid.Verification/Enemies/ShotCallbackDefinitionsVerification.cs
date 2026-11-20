@@ -34,8 +34,8 @@ internal static class ShotCallbackDefinitionsVerification
             if (!match.Success) continue;
             int address = Convert.ToInt32(match.Groups[1].Value, 16);
             int bank = rom.ReadCartridgeByte(address + 12) << 16;
-            touchCallbacks.Add(bank | rom.ReadCartridgeWord((address + 48)));
-            shotCallbacks.Add(bank | rom.ReadCartridgeWord((address + 50)));
+            touchCallbacks.Add(bank | CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 48)));
+            shotCallbacks.Add(bank | CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 50)));
             headers++;
         }
         foreach (string file in Directory.EnumerateFiles(disassemblySource, "bank_*.asm"))
@@ -51,14 +51,14 @@ internal static class ShotCallbackDefinitionsVerification
                 if (!pending || !match.Success) continue;
                 pending = false;
                 int address = Convert.ToInt32(match.Groups[1].Value, 16);
-                int count = rom.ReadCartridgeWord(address);
+                int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
                 AssertTrue(count < 100, "native hitbox inventory count sanity");
                 lists++;
                 for (int box = 0; box < count; box++)
                 {
                     int hitbox = address + 2 + box * 12;
-                    touchCallbacks.Add((SnesAddressMath.BankBase(address)) | rom.ReadCartridgeWord((hitbox + 8)));
-                    shotCallbacks.Add((SnesAddressMath.BankBase(address)) | rom.ReadCartridgeWord((hitbox + 10)));
+                    touchCallbacks.Add((SnesAddressMath.BankBase(address)) | CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 8)));
+                    shotCallbacks.Add((SnesAddressMath.BankBase(address)) | CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 10)));
                     boxes++;
                 }
             }

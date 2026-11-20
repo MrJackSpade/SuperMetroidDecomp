@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -38,8 +37,8 @@ internal static class GrappleFlarePlacementVerification
             var offset = stock.Resolve(running, new SamusFlareAim.AtMuzzle(direction));
             int x = running ? SamusSourceDefinitions.GrappleRunningFlareX.Value : SamusSourceDefinitions.GrappleDefaultFlareX.Value;
             int y = running ? SamusSourceDefinitions.GrappleRunningFlareY.Value : SamusSourceDefinitions.GrappleDefaultFlareY.Value;
-            AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(rom, x + direction.ToAimIndex() * 2)), offset.X, "Extracted Grapple flare X including adjacent rows");
-            AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(rom, y + direction.ToAimIndex() * 2)), offset.Y, "Extracted Grapple flare Y including adjacent rows");
+            AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), x + direction.ToAimIndex() * 2)), offset.X, "Extracted Grapple flare X including adjacent rows");
+            AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), y + direction.ToAimIndex() * 2)), offset.Y, "Extracted Grapple flare Y including adjacent rows");
         }
         var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringOrigins);
         Func<SamusState, SamusGrappleState, Position16<RoomPixels>, GrappleAnchorKind, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
@@ -110,30 +109,30 @@ internal static class GrappleFlarePlacementVerification
         }
         AssertTrue(locked > 0, "Placement fixture exercises locked connections");
         var runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        SamusGrappleState boundGrapple = runtime.Player.Samus.Grapple;
+        SamusGrappleState boundGrapple = runtime.Player.IntroducedSamus.Grapple;
         var previousPresentation = (boundGrapple.FlarePlacement, boundGrapple.SwingFrames);
-        byte[] beforeBinding = GraphDigest(runtime.Player.Samus, InstalledFixtures.BoundContent);
+        byte[] beforeBinding = GraphDigest(runtime.Player.IntroducedSamus, InstalledFixtures.BoundContent);
         var swingFrames = GrappleSwingFrameFile.Load(new MemoryStream(GrappleSwingFrameExtractor.Extract(rom)));
         runtime.Artwork.GrappleFlarePlacement = stock;
         runtime.Artwork.GrappleSwingFrames = swingFrames;
-        AssertTrue(ReferenceEquals(stock, runtime.Player.Samus.Grapple.FlarePlacement), "Artwork rebinding reaches current Samus immediately");
-        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.Samus.Grapple.SwingFrames), "Artwork rebinding reaches current swing-frame selection");
-        (runtime.Player.Samus.Artwork.GrappleFlarePlacement, runtime.Player.Samus.Artwork.GrappleSwingFrames) = previousPresentation;
-        AssertTrue(beforeBinding.SequenceEqual(GraphDigest(runtime.Player.Samus, InstalledFixtures.BoundContent)),
+        AssertTrue(ReferenceEquals(stock, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Artwork rebinding reaches current Samus immediately");
+        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.IntroducedSamus.Grapple.SwingFrames), "Artwork rebinding reaches current swing-frame selection");
+        (runtime.Player.IntroducedSamus.Artwork.GrappleFlarePlacement, runtime.Player.IntroducedSamus.Artwork.GrappleSwingFrames) = previousPresentation;
+        AssertTrue(beforeBinding.SequenceEqual(GraphDigest(runtime.Player.IntroducedSamus, InstalledFixtures.BoundContent)),
             "Presentation binding changes only the two catalogs Samus is bound to");
-        (runtime.Player.Samus.Artwork.GrappleFlarePlacement, runtime.Player.Samus.Artwork.GrappleSwingFrames) = (stock, swingFrames);
+        (runtime.Player.IntroducedSamus.Artwork.GrappleFlarePlacement, runtime.Player.IntroducedSamus.Artwork.GrappleSwingFrames) = (stock, swingFrames);
         // Samus draws from the session's one artwork binding (#2049), so she holds no copy a frame would have to rebind:
         // what the session binds is what her producers read, through a real frame and an independent actor drawing alike.
-        AssertTrue(ReferenceEquals(runtime.Artwork.SamusArtwork, runtime.Player.Samus.Artwork),
+        AssertTrue(ReferenceEquals(runtime.Artwork.SamusArtwork, runtime.Player.IntroducedSamus.Artwork),
             "Samus draws from the session's artwork binding, not a copy of it");
         runtime.StepFrame(0);
-        AssertTrue(ReferenceEquals(stock, runtime.Player.Samus.Grapple.FlarePlacement), "Real gameplay frame keeps the session's visual origins before producers");
-        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.Samus.Grapple.SwingFrames), "Real gameplay frame keeps the session's swing art before pendulum update");
-        runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, runtime.Player.Samus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
-        AssertTrue(ReferenceEquals(stock, runtime.Player.Samus.Grapple.FlarePlacement), "Independent actor drawing keeps the session's visual origins");
-        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.Samus.Grapple.SwingFrames), "Independent actor drawing keeps the session's swing-frame selection");
+        AssertTrue(ReferenceEquals(stock, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Real gameplay frame keeps the session's visual origins before producers");
+        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.IntroducedSamus.Grapple.SwingFrames), "Real gameplay frame keeps the session's swing art before pendulum update");
+        runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, runtime.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
+        AssertTrue(ReferenceEquals(stock, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Independent actor drawing keeps the session's visual origins");
+        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.IntroducedSamus.Grapple.SwingFrames), "Independent actor drawing keeps the session's swing-frame selection");
         Console.WriteLine($"Grapple flare placement: 32 extracted pairs, {authoredPoses.Length} authored launch/late paths, {authoredPoses.Length * 10} trajectory frames and {locked} locked connections match the installed placement.");
     }
     /// <summary>Loads the retail cartridge and runs the Grapple flare placement verification.</summary>

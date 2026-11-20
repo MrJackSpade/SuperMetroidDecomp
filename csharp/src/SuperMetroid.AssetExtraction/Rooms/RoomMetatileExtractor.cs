@@ -19,7 +19,7 @@ public static class RoomMetatileExtractor
     {
         Ensure.NotNull(bus);
         var files = new Dictionary<string, byte[]>();
-        RoomTilesetSourceMap sources = RoomTilesetSources.Read(bus);
+        RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
         Add(RoomMetatileFormat.CreFileName,
             RoomTilesetSourceDefinitions.CreBlocks);
         foreach (TilesetDefinition tileset in RoomTilesets.All)
@@ -32,7 +32,7 @@ public static class RoomMetatileExtractor
 
         void Add(string name, SnesAddress source)
         {
-            byte[] native = RomDataReader.Decompress(bus, source);
+            byte[] native = RomDataReader.Decompress(CartridgeImportSource.Require(bus), source);
             int count = RoomMetatileFormat.ValidateBlockCount(native.Length);
             var blocks = new RoomMetatileDefinition[count];
             for (int index = 0; index < count; index++)

@@ -13,9 +13,11 @@ public static class SamusArmCannonArtworkFormat
     /// the descriptors and the drawing window are import data (#1638). Revision eight installs a displacement at every
     /// animation frame each pose shows: the drawing window reaches the last displacement byte a shown frame reads (#1638).
     /// Revision nine keys each displacement by its frame's name in the pose's animation rather than its place in the game's
-    /// layout of the animation (#2048).
+    /// layout of the animation (#2048). Revision ten keys each aim's cover appearance by the aim and names the orientation
+    /// whose cover pictures its opening shows, rather than listing the cover tiles' places in the cartridge's source list
+    /// (#2556).
     /// </summary>
-    public const int Version = 9;
+    public const int Version = 10;
     /// <summary>Installed layout JSON filename: each pose's typed cover placement, which the game binds (#1638).</summary>
     public const string JsonFileName = "samus-arm-cannon.json";
     /// <summary>
@@ -23,7 +25,7 @@ public static class SamusArmCannonArtworkFormat
     /// overlay sheet is composed from.
     /// </summary>
     public const string ArtworkFileName = "samus-arm-cannon-artwork.json";
-    /// <summary>Installed indexed PNG filename holding the twelve 8-by-8 cover characters in native source-identity order.</summary>
+    /// <summary>Import-data indexed PNG filename holding the twelve 8-by-8 cover characters in the order the cartridge keeps them.</summary>
     public const string TileFileName = "samus-arm-cannon-tiles.png";
     /// <summary>
     /// The 656 extracted bytes of the drawing window, $90:C9D9 through $CC68 (#1638): the pose descriptors, then the

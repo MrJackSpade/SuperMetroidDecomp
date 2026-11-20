@@ -16,13 +16,14 @@ internal static class CacatacProjectileBehaviorVerification
     /// <summary>Every launch direction spawns a spike on that direction's program, which matches its native list update for update.</summary>
     internal static void VerifyCacatacProjectileBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, CacatacProjectileNativeListAddresses.Extent, "Cacatac spike");
         foreach (CacatacSpikeDirection direction in Enum.GetValues<CacatacSpikeDirection>())
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)) };
-            enemies.CacatacBehavior.SpawnCacatacSpike(source, direction);
+            RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
+            source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
+            enemies.CacatacBehavior.SpawnCacatacSpike(source.BoundFor(EnemyDefinitionId.Cacatac), source, direction);
             EnemyProjectile spike = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.CacatacSpike);
             AssertTrue(spike.Animation is CacatacProjectileAnimation animation && animation.PlayingSegment == direction, $"a {direction} spike starts its direction's animation");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spike, CacatacProjectileNativeListAddresses.Entry(direction), 8, direction.ToString());

@@ -4,11 +4,4 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// <param name="Facing">The way it faces.</param>
 /// <param name="LaunchSpeed">The speed, in pixels per update, at which its fireballs fly away from it.</param>
 /// <param name="YProximity">The vertical distance in pixels Samus must come within to wake it.</param>
-internal sealed record NamiheSpawnSettings(HorizontalDirection Facing, SignedEightEight LaunchSpeed, int YProximity) : FuneNamiheSpawnSettings(Facing, LaunchSpeed)
-{
-    /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacementRequest placing) => Ensure.NotNull(species).Place(this, placing);
-
-    /// <inheritdoc/>
-    internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);
-}
+internal sealed record NamiheSpawnSettings(HorizontalDirection Facing, SignedEightEight LaunchSpeed, int YProximity) : FuneNamiheSpawnSettings(Facing, LaunchSpeed);

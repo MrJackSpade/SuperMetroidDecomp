@@ -27,12 +27,14 @@ public sealed class KraidHeadTilemapAtlas
         if (document.Version != KraidHeadTilemapFormat.Version ||
             document.Width != KraidHeadTilemapFormat.Width ||
             document.Height != KraidHeadTilemapFormat.Height ||
+            document.Cells is null ||
             document.Cells.Length != KraidWorkingMapDefinitions.HeadImageCells)
             throw new InvalidDataException("Kraid head tilemap must have 32 by 11 ordered cells.");
 
         var tiles = new BackgroundTile[document.Cells.Length];
         for (int index = 0; index < tiles.Length; index++)
-            tiles[index] = document.Cells[index].Placement($"Kraid head tilemap cell {index}");
+            tiles[index] = document.Cells[index]?.Placement()
+                ?? throw new InvalidDataException($"Kraid head tilemap cell {index} is invalid.");
         return new KraidHeadTilemapAtlas(tiles);
     }
 

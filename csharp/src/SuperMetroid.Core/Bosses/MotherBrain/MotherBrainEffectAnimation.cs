@@ -4,10 +4,10 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain effect's typed animation.</summary>
-/// <param name="segment">The segment the animation starts at.</param>
-/// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
-internal sealed class MotherBrainEffectAnimation(MotherBrainEffectSegment segment, IEnemyProjectileCues<MotherBrainEffectCue> cues)
-    : EnemyProjectileFrameAnimation<MotherBrainEffectSegment, MotherBrainEffectCue>(MotherBrainEffectAnimations.StartingWith(segment), cues)
+/// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
+/// <param name="segment">Where the animation starts.</param>
+internal sealed class MotherBrainEffectAnimation(IEnemyProjectileCues<MotherBrainEffectCue> owner, MotherBrainEffectSegment segment)
+    : EnemyProjectileFrameAnimation<MotherBrainEffectSegment, MotherBrainEffectCue>(MotherBrainEffectAnimations.StartingWith(segment), EnemyProjectileCueRunner<MotherBrainEffectSegment, MotherBrainEffectCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<MotherBrainEffectSegment, EnemyProjectileFrameId, MotherBrainEffectCue> Segments => MotherBrainEffectAnimations.Segments;

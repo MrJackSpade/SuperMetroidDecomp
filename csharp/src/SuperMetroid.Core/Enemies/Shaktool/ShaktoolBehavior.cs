@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>The Shaktool species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<ShaktoolSpawnSettings>
+internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Shaktool];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ShaktoolSpawnSettings settings) => new ShaktoolEntity(this, occupant, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ShaktoolEntity(this, occupant, place, common));
 
     /// <summary>Checks terrain collisions along each segment's orbit and attack path.</summary>
     private readonly EnemyTerrain _terrain;
@@ -36,28 +36,31 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
         (angle + RotationAngle.HalfTurn).WholeStep;
 
     /// <summary>Initializes the Shaktool, establishing the segment's orbit and its place in its chain.</summary>
-    internal ShaktoolSegmentState InitializeShaktool(RoomEnemyOccupant occupant, RoomEnemyPlace place, ShaktoolSpawnSettings settings)
+    internal void InitializeShaktool(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
+        ShaktoolSpawnSettings settings = occupant.SpawnSettings<ShaktoolSpawnSettings>();
         ShaktoolSegmentDefinition definition = settings.Segment;
         var state = new ShaktoolSegmentState();
+        place.SetSpeciesState(state);
 
         place.AnimationClock.Restart();
         state.ResetOrientation();
         place.Processing = place.Processing.With(definition.Processing);
         place.Contact = place.Contact.With(definition.Contact);
-        // The segment's definition names how far after the chain's leading saw the room lists it. The chain's death
-        // deletes the enemies the room lists first (ShaktoolDeathDeletesFirstListed), so the chain must be listed first.
-        RoomEnemyPlace? owner = definition.OwnerPlaceDistance == 0
+        // The segment's definition is its place in the chain, which the room lists together. The chain's death deletes
+        // the enemies the room lists first (ShaktoolDeathDeletesFirstListed), so the chain must be listed first.
+        RoomEnemyPlace owner = definition == ShaktoolSegmentDefinitions.LeadingSaw
             ? place
-            : _places.ListedBeforeOrNone(place, definition.OwnerPlaceDistance);
-        if (owner is null || !ShaktoolDeathDeletesFirstListed.DeletesOwnChain(_places.InUpdateOrder, owner))
+            : _places.Member(place, ShaktoolSegmentDefinitions.Chain, definition, ShaktoolSegmentDefinitions.LeadingSaw);
+        if (!ShaktoolDeathDeletesFirstListed.DeletesOwnChain(_places.InUpdateOrder, owner))
         {
             throw new InvalidDataException(
-                $"Shaktool's chain starts in enemy place {place.Ordinal - definition.OwnerPlaceDistance}; its death deletes the first seven places, " +
-                "where both Shaktool room states place it.");
+                $"Shaktool's chain starts at {owner}; its death deletes the first seven places, where both Shaktool room states place it.");
         }
         _chains.Place(place, new ShaktoolChainPlaces(
-            Chain: owner == place ? StartShaktoolChain(owner, settings.Motion) : JoinShaktoolChain(owner, settings.Motion)));
+            Chain: owner == place ? StartShaktoolChain(owner, settings.Motion) : JoinShaktoolChain(owner, settings.Motion),
+            Previous: _places.MemberBefore(place, ShaktoolSegmentDefinitions.Chain, definition),
+            Next: _places.MemberAfter(place, ShaktoolSegmentDefinitions.Chain, definition)));
         state.Motion = definition.Motion;
         // Initialization and synchronization both take the segment's authored angular velocity unchanged.
         state.AngularVelocity = definition.AngularVelocity;
@@ -71,7 +74,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
         // unrelated center.
         if (definition != ShaktoolSegmentDefinitions.LeadingSaw)
             PositionShaktoolAroundPreviousSegment(place, state);
-        return state;
     }
 
     /// <summary>
@@ -80,9 +82,12 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
     /// </summary>
     private ShaktoolChain StartShaktoolChain(RoomEnemyPlace leadingSaw, ShaktoolChainMotion motion)
     {
-        RoomEnemyPlace[] chainPlaces = [leadingSaw, .. _places.ListedRunAfter(leadingSaw, ShaktoolSegmentDefinitions.SegmentCount - 1)];
         return new ShaktoolChain(
-            [.. chainPlaces.Zip(ShaktoolSegmentDefinitions.Segments, (segment, part) => new ShaktoolChainSegment(segment, part))],
+            [.. ShaktoolSegmentDefinitions.Segments.Select(part => new ShaktoolChainSegment(
+                part == ShaktoolSegmentDefinitions.LeadingSaw
+                    ? leadingSaw
+                    : _places.Member(leadingSaw, ShaktoolSegmentDefinitions.Chain, ShaktoolSegmentDefinitions.LeadingSaw, part),
+                part))],
             motion);
     }
 
@@ -137,7 +142,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
         RoomEnemyPlace place,
         ShaktoolSegmentState state)
     {
-        RoomEnemyPlace previous = _places.ListedBefore(place, 1);
+        RoomEnemyPlace previous = _chains.Of(place).Previous
+            ?? throw new InvalidOperationException("Shaktool's anchor has no preceding segment.");
         // The segment placement reads the preceding segment's place without testing it. A lethal shot clears the
         // struck segment and deletes the chain, but the later segments still run this update; their final orbit uses
         // the cleared coordinates.
@@ -367,7 +373,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
         foreach (ShaktoolChainSegment segment in group)
         {
             // The chain keeps moving through the rest of the update that kills a segment, reaching the killed segment's cleared state.
-            if (segment.Place.Found is not (EnemyPlaceFinding.Enemy { Entity: ShaktoolEntity } or EnemyPlaceFinding.Killed))
+            if (segment.Place.FoundOrClearedState<ShaktoolSegmentState>() is null)
             {
                 throw new InvalidDataException(
                     $"Shaktool group rooted at place {group[0].Place.Ordinal} is missing its segment at place {segment.Place.Ordinal}.");
@@ -378,20 +384,17 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
 
     /// <summary>The enemy listed after a linked segment center, which it found when it was placed.</summary>
     private RoomEnemyPlace GetNextShaktoolSegment(RoomEnemyPlace place) =>
-        _places.ListedAfter(place, 1);
+        _chains.Of(place).Next ?? throw new InvalidDataException(
+            $"Shaktool center place {place.Ordinal} has no following segment.");
 
     /// <summary>
     /// The state of the segment in <paramref name="place"/>: its own, or, for the segment a hit killed this update, the
     /// emptied state the rest of its chain reads and writes among the states the kill cleared
-    /// (<see cref="RoomEnemyPlace.Found"/>, <see cref="RemovedEnemyLeftovers"/>).
+    /// (<see cref="RoomEnemyPlace.FoundOrClearedState{T}"/>, <see cref="RemovedEnemyLeftovers{TStates}"/>).
     /// </summary>
     private static ShaktoolSegmentState RequireShaktoolState(RoomEnemyPlace place) =>
-        place.Found switch
-        {
-            EnemyPlaceFinding.Enemy { Entity: ShaktoolEntity segment } => segment.State,
-            EnemyPlaceFinding.Killed killed => killed.Remains.ShaktoolSegment,
-            _ => throw new InvalidDataException($"Enemy place {place.Ordinal} holds no Shaktool segment."),
-        };
+        place.FoundOrClearedState<ShaktoolSegmentState>() ?? throw new InvalidOperationException(
+            $"Enemy place {place.Ordinal} has no initialized Shaktool state.");
 
     /// <summary>Carries out one cue of a Shaktool segment's animation.</summary>
     private void ApplyShaktoolCue(RoomEnemyPlace place, ShaktoolCue cue)
@@ -443,7 +446,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<Sh
     {
         if (struckSegment.Health != 0)
             return;
-        foreach (RoomEnemyPlace segment in ShaktoolDeathDeletesFirstListed.Deleted(_places.InUpdateOrder, ShaktoolSegmentDefinitions.SegmentCount))
+        foreach (RoomEnemyPlace segment in ShaktoolDeathDeletesFirstListed.Deleted(_places.InUpdateOrder, ShaktoolSegmentDefinitions.Segments.Length))
         {
             segment.Contact = EnemyContact.None;
             segment.Processing = EnemyProcessing.None;

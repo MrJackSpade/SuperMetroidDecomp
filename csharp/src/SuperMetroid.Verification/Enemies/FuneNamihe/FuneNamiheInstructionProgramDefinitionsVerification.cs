@@ -92,15 +92,17 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         var playback = new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(program.Entry), AnimationPlace.StartOfAnimation);
         if (program.Namihe)
         {
-            var namihe = enemies.Places.InUpdateOrder[0].SetUpPlaced<NamiheEnemyState>();
-            namihe.Action = program.Active ? NamiheAction.Spitting : NamiheAction.WaitForSamus;
-            namihe.Playback = playback;
+            enemies.Places.InUpdateOrder[0].SetSpeciesState(new NamiheEnemyState(program.Active ? NamiheAction.Spitting : NamiheAction.WaitForSamus)
+            {
+                Playback = playback,
+            });
         }
         else
         {
-            var fune = enemies.Places.InUpdateOrder[0].SetUpPlaced<FuneEnemyState>();
-            fune.Action = program.Active ? FuneAction.Spitting : FuneAction.WaitForCooldown;
-            fune.Playback = playback;
+            enemies.Places.InUpdateOrder[0].SetSpeciesState(new FuneEnemyState(program.Active ? FuneAction.Spitting : FuneAction.WaitForCooldown)
+            {
+                Playback = playback,
+            });
         }
 
         object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];

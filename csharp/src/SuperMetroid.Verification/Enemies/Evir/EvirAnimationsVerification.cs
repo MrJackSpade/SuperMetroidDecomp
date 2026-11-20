@@ -12,7 +12,7 @@ internal static class EvirAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyEvirAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             EvirAnimations.Segments, EvirAnimations.StartingAt, EvirFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<EvirCue>(
                 word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,

@@ -62,8 +62,8 @@ internal static class EquippedBeamProjectilePrograms
         if (beams == HyperBeamEquipped)
             starts.AddRange(BeamShotPrograms(HyperBeamFired, charged: true));
         // Only a retail combination has a special attack.
-        if (beams.CanBeEquipped && SamusComboMechanics.ComboKind(beams) is SamusComboKind combo)
-            AddSole(starts, SamusProjectileSelection.SpecialAttack(combo));
+        if (beams.CanBeEquipped && SamusProjectileSelection.SpecialAttack(beams) is { } specialAttack)
+            AddSole(starts, specialAttack);
         foreach (SamusProjectileFamily family in MissileFamilies)
             AddEveryDirection(starts, SamusProjectileSelection.NonBeam(family));
         foreach (SamusProjectileFamily family in BombFamilies)

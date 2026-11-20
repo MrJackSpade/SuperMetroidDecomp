@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <para>
 /// A behaviour of this class itself is a kind that never moves itself and whose animations publish only shared cues;
 /// families that move their projectiles derive from <see cref="EnemyProjectileMotionBehavior{TMotion}"/>, which owns their
-/// typed motions (#1843); each motion reaches only the behaviour that started it (#2554).
+/// typed motions (#1843).
 /// </para>
 /// </summary>
 internal class EnemyProjectileBehavior
@@ -48,15 +48,24 @@ internal class EnemyProjectileBehavior
     internal virtual EnemyProjectileAnimation? TouchAnimation() => _touch?.Invoke();
 
     /// <summary>
-    /// Whether the projectile's flicker hides it on this update (#1839, #2455): the family of a projectile that flickers
-    /// hides it on the updates its flicker chooses, and it is drawn only while shown. The n00b tube's crack and shards
-    /// flicker so.
+    /// The motion a projectile of <paramref name="kind"/> starts with when its spawner binds this behaviour to it (#1843),
+    /// or null when it starts holding still. A kind of this class itself never moves itself.
     /// </summary>
-    internal virtual bool IsHidden => false;
+    /// <param name="kind">What the freshly spawned projectile is.</param>
+    internal virtual EnemyProjectileMotion? InitialMotion(RoomEnemyProjectileKind kind) => null;
 
     /// <summary>
-    /// The motion a projectile starts with when its spawner binds this behaviour to it (#1843), bound with the behaviour
-    /// that runs it, or null when it starts holding still. A kind of this class itself never moves itself.
+    /// Whether the projectile's flicker hides it on this update (#1839, #2455), so it is not drawn: the n00b tube's crack
+    /// and shards flicker so. A kind of this class itself never flickers.
     /// </summary>
-    internal virtual EnemyProjectileMotion? StartingMotion => null;
+    /// <param name="projectile">A projectile this behaviour is bound to.</param>
+    internal virtual bool IsHidden(EnemyProjectile projectile) => false;
+
+    /// <summary>
+    /// Moves the projectile one projectile pass by its motion, before its animation advances (#1843): the motion moves it
+    /// through the behaviour that owns it. A projectile that holds still does not move itself: it holds still while its
+    /// animation plays, or its owner positions it.
+    /// </summary>
+    /// <param name="context">The projectile and what its pass hands every motion.</param>
+    internal virtual void RunMotion(EnemyProjectileMotionContext context) => context.Projectile.Motion?.Move(context);
 }

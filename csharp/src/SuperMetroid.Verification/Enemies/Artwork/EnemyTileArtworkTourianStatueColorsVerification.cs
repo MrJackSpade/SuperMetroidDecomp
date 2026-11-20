@@ -45,7 +45,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         for (int color = 0; color < TourianStatueColorDefinitions.EyeColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueEyeColors +
                 (row * TourianStatueColorDefinitions.EyeColorCount + color) * sizeof(ushort),
-                (colors.ResolveEye(row, color)).ToWord());
+                (colors.ResolveEye(TourianStatuePalettes.EyeRowOrder[row], color)).ToWord());
         for (int color = 0; color < TourianStatueColorDefinitions.GreyColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueGreyColors + color * sizeof(ushort),
                 colors.ResolveGrey(color).ToWord());
@@ -145,7 +145,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         {
             forbidden.Add(address);
             forbidden.Add(address + 1);
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), expected,
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), expected,
                 $"Tourian statue palette source ${address:X6}");
         }
 
@@ -188,7 +188,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             runtime.BossArtwork.KraidEyes = (artwork.Bosses.KraidColors ?? throw new InvalidOperationException("The artwork holds Kraid's colours.")).Eyes();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+            runtime.RoomLoader.InitializeCeresStartSamus();
             for (int area = 1; area <= 4; area++)
                 runtime.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
             foreach (StoryEvent greyEvent in new[] { StoryEvent.PhantoonStatueGrey, StoryEvent.RidleyStatueGrey, StoryEvent.DraygonStatueGrey, StoryEvent.KraidStatueGrey })

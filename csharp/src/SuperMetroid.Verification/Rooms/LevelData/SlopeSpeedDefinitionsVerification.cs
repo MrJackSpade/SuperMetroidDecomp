@@ -14,7 +14,7 @@ internal static class SlopeSpeedDefinitionsVerification
         for (int shape = 0; shape < multipliers.Length; shape++)
         {
             int address = SamusMovementDefinitionsSlopes.HorizontalMultipliers + shape * 4 + 2;
-            multipliers[shape] = rom.ReadCartridgeWord(address);
+            multipliers[shape] = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(multipliers[shape], RoomBlockBehaviorCodec.SlopeShapeOf(shape).GroundedSpeedShare.TwoHundredFiftySixths, "All native horizontal slope multipliers");
         }
 

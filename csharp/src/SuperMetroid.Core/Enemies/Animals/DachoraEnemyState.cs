@@ -9,19 +9,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 public sealed class DachoraEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    /// <param name="action">The body's first action.</param>
-    /// <param name="echoes">The four speed-boost echoes its room lists right after it, with the state it made for each.</param>
-    internal DachoraEnemyState(DachoraAction action, IReadOnlyList<DachoraEcho> echoes)
-    {
-        Action = action;
-        Echoes = Ensure.NotNull(echoes);
-    }
-
-    /// <summary>
-    /// The body's four speed-boost echoes, which its room lists right after it, each with the state the body made for it as
-    /// it was placed and holds from then (#2554).
-    /// </summary>
-    internal IReadOnlyList<DachoraEcho> Echoes { get; }
+    internal DachoraEnemyState(DachoraAction action) => Action = action;
 
     /// <summary>The glow cycle: the speed or shine glow frame shown next and the updates before it (#1544).</summary>
     private DachoraGlowCycle _glowCycle;

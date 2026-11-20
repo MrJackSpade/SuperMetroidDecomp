@@ -19,7 +19,7 @@ public static class CeresRidleyMode7ColorExtractor
         var rows = new PaletteRgb5[CeresRidleyShadeDefinitions.GetawayZoomStepCount][];
         for (int row = 0; row < rows.Length; row++)
         {
-            byte[] bytes = RomDataReader.ReadFixedBank(bus,
+            byte[] bytes = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 RidleySourceDefinitions.Ceres.GetawayZoomColors +
                 row * RidleySourceDefinitions.Ceres.GetawayZoomRowBytes,
                 CeresRidleyColorFormat.GetawayZoomColorCount * sizeof(ushort));

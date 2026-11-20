@@ -65,7 +65,8 @@ public sealed class CreditsPresentation
         try
         {
             document = JsonAssetDocument.Read<CreditsPresentationDocument>(
-                source, ArtworkJson.Options);
+                source, ArtworkJson.Options)
+                ?? throw new InvalidDataException("Credits document is null.");
         }
         catch (JsonException error)
         {

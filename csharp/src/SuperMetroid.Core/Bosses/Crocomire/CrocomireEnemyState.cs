@@ -12,27 +12,23 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// </remarks>
 public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
-    /// <summary>
-    /// The body the boss shows its parts' frames on (#1353, #1466, #1515, #2554): its own, made as it sets up and attached
-    /// to the room's display then, nothing showing at first.
-    /// </summary>
-    internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts => field ??= new SuperMetroid.Core.Enemies.BossBodies.BossBodyParts(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Crocomire, this);
-
     /// <inheritdoc />
     Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => Body.Position.Whole;
 
     /// <inheritdoc />
     bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => false;
 
-    /// <summary>Creates the state for Crocomire's body place and the tongue place his room lists right after it.</summary>
+    /// <summary>Creates the state for Crocomire's body place.</summary>
+    /// <param name="bodyOccupant">The enemy holding his body's place.</param>
     /// <param name="body">His body's place.</param>
-    /// <param name="tongue">His tongue's place, which the room lists right after his body.</param>
-    internal CrocomireEnemyState(RoomEnemyPlace body, RoomEnemyPlace tongue)
+    internal CrocomireEnemyState(RoomEnemyOccupant bodyOccupant, RoomEnemyPlace body)
     {
+        BodyOccupant = bodyOccupant;
         Body = body;
-        Tongue = Ensure.NotNull(tongue);
-        TongueState = new CrocomireTongueState(this);
     }
+
+    /// <summary>The enemy holding his body's place, whose sheet the objects he spawns draw from (#2558).</summary>
+    public RoomEnemyOccupant BodyOccupant { get; }
 
     /// <summary>Crocomire's body's and sprites' colours (#1512).</summary>
     internal CrocomireColours Colours { get; } = new();
@@ -66,17 +62,25 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     internal AnimationPlayback<CrocomireTongueSegment> TonguePlayback { get; set; } =
         new(CrocomireAnimations.TongueStartingWith(CrocomireTongueSegment.Fight), AnimationPlace.StartOfAnimation);
 
-    /// <summary>
-    /// Crocomire's tongue (#2400), the place the room lists right after his body, which the encounter holds from his setup;
-    /// bridge collapse rests and hides it, while later melting phases reuse its actor.
-    /// </summary>
-    public RoomEnemyPlace Tongue { get; }
+    /// <summary>The enemy that joined as his tongue, or none before the tongue set up.</summary>
+    private RoomEnemyPlace? _tongue;
 
     /// <summary>
-    /// His tongue's own values (#2554), which a living room's tongue sets as it sets up; a defeated room's tongue is
-    /// deleted before any setup and leaves them as they started.
+    /// Crocomire's tongue (#2400), which joins the encounter as it sets up, right after his body, in a living room and a
+    /// defeated one alike; bridge collapse rests and hides it, while later melting phases reuse its actor.
     /// </summary>
-    public CrocomireTongueState TongueState { get; }
+    /// <exception cref="InvalidOperationException">The tongue has not set up.</exception>
+    public RoomEnemyPlace Tongue => _tongue ?? throw new InvalidOperationException("Crocomire's tongue is reached before it set up.");
+
+    /// <summary>Joins <paramref name="tongue"/> as his tongue, as it sets up.</summary>
+    /// <exception cref="InvalidDataException">Another enemy already set up as his tongue.</exception>
+    internal void JoinTongue(RoomEnemyPlace tongue)
+    {
+        Ensure.NotNull(tongue);
+        if (_tongue is { } joined && !ReferenceEquals(joined, tongue))
+            throw new InvalidDataException($"Crocomire's tongue set up as enemy {tongue.Ordinal}, but enemy {joined.Ordinal} already is.");
+        _tongue = tongue;
+    }
 
     /// <summary>
     /// Where he stands in his course (<see cref="CrocomireDeathStageDefinitions.Stages"/>, #2540): the fight, from his setup
@@ -84,11 +88,10 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     /// </summary>
     internal ListStep<CrocomireDeathStage> DeathStage { get; private set; } = ListStep<CrocomireDeathStage>.FirstOf(CrocomireDeathStageDefinitions.Stages);
 
-    /// <summary>
-    /// Hands his death over to the stage after the one he is at. His course ends at his inert corpse, which rests there:
-    /// its own step never hands over.
-    /// </summary>
-    internal void AdvanceDeathStage() => DeathStage = DeathStage.OnToEnd;
+    /// <summary>Hands his death over to the stage after the one he is at.</summary>
+    /// <exception cref="InvalidOperationException">He is at his inert corpse, which hands over to no stage.</exception>
+    internal void AdvanceDeathStage() =>
+        DeathStage = DeathStage.Following ?? throw new InvalidOperationException($"Crocomire's death stage {DeathStage} hands over to no other stage.");
 
     /// <summary>His course stands at his inert corpse from now on, as an already-defeated room's setup leaves him.</summary>
     internal void RestAsCorpse() =>

@@ -13,11 +13,11 @@ internal static class FuneNamiheFireballAnimationsVerification
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyFuneNamiheFireballAnimations(CartridgeImportAddressSpace rom)
     {
-        int steps = Family.CompareAll(rom);
+        int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         foreach (EnemyProjectileFrameId frame in FuneNamiheFireballFrameToolingDefinitions.Frames)
         {
             ushort key = EnemyProjectileProgramFrameSources.Operand(frame);
-            AssertEqual(rom.ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), FuneNamiheFireballFrameToolingDefinitions.Spritemap(frame),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), FuneNamiheFireballFrameToolingDefinitions.Spritemap(frame),
                 $"Fune/Namihe fireball frame {frame} spritemap");
             AssertTrue(FuneNamiheFireballFrameToolingDefinitions.TryFrame(key, out EnemyProjectileFrameId found) && found == frame, $"Fune/Namihe fireball frame {frame} is found by its key");
         }

@@ -36,8 +36,8 @@ internal static class CrawlerAnimationDefinitionsVerification
         {
             // The selector's entry leads into the crawl's list (#2061).
             AssertEqual(CrawlerSurfaceAnimations.AnimationFor(family, orientations[orientation]),
-                NativeEnemyAnimationOracle.LeadsInto(rom, CrawlerNativeListAddresses.Bank, CrawlerNativeListAddresses.Entries,
-                    CrawlerAnimationsVerification.Rules, rom.ReadCartridgeWord((address + orientation * 2))),
+                NativeEnemyAnimationOracle.LeadsInto(CartridgeImportSource.Require(rom), CrawlerNativeListAddresses.Bank, CrawlerNativeListAddresses.Entries,
+                    CrawlerAnimationsVerification.Rules, CartridgeImportSource.Require(rom).ReadCartridgeWord((address + orientation * 2))),
                 $"crawler initial selector {family}/{orientation}");
         }
 
@@ -48,8 +48,8 @@ internal static class CrawlerAnimationDefinitionsVerification
         {
             CrawlerAnimationFamily family = SuperMetroid.AssetExtraction.Enemies.CrawlerSurfaceTableOrder.FamilyAt(column * 2);
             AssertEqual(CrawlerSurfaceAnimations.AnimationFor(family, orientations[orientation]),
-                NativeEnemyAnimationOracle.LeadsInto(rom, CrawlerNativeListAddresses.Bank, CrawlerNativeListAddresses.Entries,
-                    CrawlerAnimationsVerification.Rules, rom.ReadCartridgeWord((surfaceTables[orientation] + column * 2))),
+                NativeEnemyAnimationOracle.LeadsInto(CartridgeImportSource.Require(rom), CrawlerNativeListAddresses.Bank, CrawlerNativeListAddresses.Entries,
+                    CrawlerAnimationsVerification.Rules, CartridgeImportSource.Require(rom).ReadCartridgeWord((surfaceTables[orientation] + column * 2))),
                 $"crawler surface selector column {column} ({family})/{orientation}");
         }
 

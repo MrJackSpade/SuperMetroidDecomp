@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Intro;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
@@ -72,7 +73,7 @@ public static class IntroCinematicArtworkFiles
     private static readonly string[] LayoutFiles =
     [
         IntroCinematicArtworkFormat.PortraitTilemapFileName, IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
-        .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount).Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
+        .. IntroCinematicArtworkFormat.ScenePagesInTransferOrder.Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
         IntroFinalLineTilemapFormat.FileName, IntroEyeTilemapFormat.FileName, ZebesRevealArtworkFormat.MapFileName,
         CeresFlightArtworkFileFormat.MapFileName, CeresDestructionMapFormat.FileName,
     ];
@@ -103,32 +104,32 @@ public static class IntroCinematicArtworkFiles
 
         var hashes = new Dictionary<string, string>();
         WriteSheet(IntroCinematicArtworkFormat.BackgroundFileName,
-            RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.BackgroundCharacters,
+            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.BackgroundCharacters,
                 maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount),
             IntroCinematicArtworkFormat.BackgroundByteCount);
         WriteSheet(IntroCinematicArtworkFormat.IntroObjectFileName,
-            RomDataReader.ReadFixedBank(bus, IntroCinematicSourceDefinitions.IntroObjectCharacters,
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.IntroObjectCharacters,
                 IntroCinematicArtworkFormat.IntroObjectByteCount),
             IntroCinematicArtworkFormat.IntroObjectByteCount);
         WriteSheet(IntroCinematicArtworkFormat.CinematicObjectFileName,
-            RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.ObjectCharacters,
+            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.ObjectCharacters,
                 maximumOutputBytes: IntroCinematicArtworkFormat.CinematicObjectByteCount),
             IntroCinematicArtworkFormat.CinematicObjectByteCount);
         WritePage(IntroCinematicArtworkFormat.PortraitTilemapFileName,
-            RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.SamusHeadTilemap,
+            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.SamusHeadTilemap,
                 maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageByteCount));
         WritePage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
-            RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.FirstNarrationTilemap,
+            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.FirstNarrationTilemap,
                 maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageByteCount));
-        byte[] backgroundPages = RomDataReader.Decompress(bus,
+        byte[] backgroundPages = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             IntroCinematicSourceDefinitions.BackgroundPageTilemaps,
             maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageCount *
                 IntroCinematicArtworkFormat.BackgroundPageByteCount);
         if (backgroundPages.Length != IntroCinematicArtworkFormat.BackgroundPageCount *
             IntroCinematicArtworkFormat.BackgroundPageByteCount)
             throw new InvalidDataException("Opening cinematic BG tilemap has the wrong number of pages.");
-        for (int page = 0; page < IntroCinematicArtworkFormat.BackgroundPageCount; page++)
-            WritePage(IntroCinematicArtworkFormat.BackgroundPageFileName(page),
+        foreach ((IntroScenePage scene, int page) in IntroCinematicArtworkFormat.BackgroundPageOf)
+            WritePage(IntroCinematicArtworkFormat.BackgroundPageFileName(scene),
                 backgroundPages.AsSpan(page * IntroCinematicArtworkFormat.BackgroundPageByteCount,
                     IntroCinematicArtworkFormat.BackgroundPageByteCount));
         WriteFinalLine();
@@ -142,19 +143,18 @@ public static class IntroCinematicArtworkFiles
         WriteDiscoveryActorSprites();
         WriteScientistSprites();
         IntroCinematicPalette opening = WritePalette();
-        var flightFiles = new Dictionary<string, byte[]>(StringComparer.Ordinal);
+        CeresFlightPalette? flight = null;
         foreach ((string name, byte[] file) in CeresFlightArtworkExtractor.Extract(bus))
         {
             using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(file);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
-            flightFiles.Add(name, file);
+            if (name == CeresFlightPaletteFormat.FileName)
+                flight = CeresFlightPaletteFile.Read(new MemoryStream(file, writable: false));
         }
-        CeresFlightPalette flight = flightFiles.TryGetValue(CeresFlightPaletteFormat.FileName, out byte[]? flightPalette)
-            ? CeresFlightPaletteFile.Read(new MemoryStream(flightPalette, writable: false))
-            : throw new InvalidDataException("The Ceres flight extraction wrote no palette.");
         // The game reads the scenes' backdrops, taken once from their extracted colours, and neither palette (#1544).
-        WriteFile(IntroBackdropFiles.FileName, IntroBackdropFiles.Extract(opening, flight));
+        WriteFile(IntroBackdropFiles.FileName, IntroBackdropFiles.Extract(opening,
+            flight ?? throw new InvalidDataException("The Ceres flight extraction wrote no palette.")));
         foreach ((string name, byte[] file) in CeresDestructionArtworkExtractor.Extract(bus))
         {
             using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
@@ -236,16 +236,7 @@ public static class IntroCinematicArtworkFiles
             for (int index = 0; index < cells.Length; index++)
             {
                 int source = IntroCinematicSourceDefinitions.FinalTextLine + index * sizeof(ushort);
-                var word = new SnesBgTilemapWord(bus.ReadCartridgeWord(source));
-                cells[index] = new RoomBackgroundTilemapCell
-                {
-                    TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
-                    TileRow = word.CharacterIndex / RoomBackgroundTilemapFormat.TileColumns,
-                    Palette = word.PaletteIndex,
-                    Priority = word.HasPriority,
-                    FlipX = word.FlipHorizontally,
-                    FlipY = word.FlipVertically,
-                };
+                cells[index] = RoomBackgroundTilemapCell.Of(CartridgeImportSource.Require(bus).ReadCartridgeWord(source));
             }
             using var json = new MemoryStream();
             IntroFinalLineTilemap.Write(json, new IntroFinalLineTilemapDocument
@@ -263,12 +254,13 @@ public static class IntroCinematicArtworkFiles
         void WriteEyeFrames()
         {
             var frames = new IntroEyeTilemapFrame[IntroEyeTilemapFormat.FrameCount];
-            for (int frame = 0; frame < frames.Length; frame++)
+            for (int place = 0; place < frames.Length; place++)
             {
+                IntroEyeFrame frame = IntroEyeTilemapFormat.Eyes[place];
                 int pointer = FrontendSourceDefinitions.IntroEyeFrameRecords +
-                    frame * FrontendSourceDefinitions.IntroEyeFrameRecordStride;
+                    Ensure.Listed(FrontendSourceDefinitions.IntroEyeFrameRecordOf, frame) * FrontendSourceDefinitions.IntroEyeFrameRecordStride;
                 int source = (int)SnesAddress.InBank(IntroCinematicSourceDefinitions.SpritemapBank, pointer);
-                int function = bus.ReadCartridgeWord(source);
+                int function = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
                 if (function != IntroCinematicSourceDefinitions.PortraitTilemapDrawFunction ||
                     bus.ReadCartridgeByte(source + 2) != IntroEyeTilemapFormat.Columns ||
                     bus.ReadCartridgeByte(source + 3) != IntroEyeTilemapFormat.Rows)
@@ -277,18 +269,9 @@ public static class IntroCinematicArtworkFiles
                 for (int cellIndex = 0; cellIndex < cells.Length; cellIndex++)
                 {
                     int wordSource = source + 4 + cellIndex * sizeof(ushort);
-                    var word = new SnesBgTilemapWord(bus.ReadCartridgeWord(wordSource));
-                    cells[cellIndex] = new RoomBackgroundTilemapCell
-                    {
-                        TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
-                        TileRow = word.CharacterIndex / RoomBackgroundTilemapFormat.TileColumns,
-                        Palette = word.PaletteIndex,
-                        Priority = word.HasPriority,
-                        FlipX = word.FlipHorizontally,
-                        FlipY = word.FlipVertically,
-                    };
+                    cells[cellIndex] = RoomBackgroundTilemapCell.Of(CartridgeImportSource.Require(bus).ReadCartridgeWord(wordSource));
                 }
-                frames[frame] = new IntroEyeTilemapFrame
+                frames[place] = new IntroEyeTilemapFrame
                 {
                     Id = IntroEyeTilemapFormat.FrameId(frame),
                     Cells = cells,
@@ -518,7 +501,7 @@ public static class IntroCinematicArtworkFiles
     private static IntroCinematicLayouts ReadLayouts(string importData)
     {
         return new IntroCinematicLayouts(
-            [.. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
+            [.. IntroCinematicArtworkFormat.ScenePagesInTransferOrder
                 .Select(page => Page(IntroCinematicArtworkFormat.BackgroundPageFileName(page), IntroCinematicArtworkFormat.BackgroundPageByteCount))],
             Page(IntroCinematicArtworkFormat.PortraitTilemapFileName, IntroCinematicArtworkFormat.BackgroundPageByteCount),
             Page(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName, IntroCinematicArtworkFormat.BackgroundPageByteCount),
@@ -735,7 +718,7 @@ public static class IntroCinematicArtworkFiles
         IntroEggEffectSpriteFormat.FileName,
         IntroDiscoveryActorSpriteFormat.FileName,
         IntroScientistSpriteFormat.FileName,
-        .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
+        .. IntroCinematicArtworkFormat.ScenePagesInTransferOrder
             .Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
         IntroCinematicPaletteFile.FileName,
         IntroBackdropFiles.FileName,

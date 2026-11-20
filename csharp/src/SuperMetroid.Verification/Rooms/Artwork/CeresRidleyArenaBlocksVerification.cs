@@ -188,7 +188,7 @@ internal static class CeresRidleyArenaBlocksVerification
 
     /// <summary>The retail cartridge.</summary>
     internal static IImportCartridgeSource Cartridge() =>
-        CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportSource.Require(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 
     /// <summary>
     /// The word BG1's and BG2's characters begin at in the arena, decoded from the setup's own instructions: it loads the two

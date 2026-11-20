@@ -13,7 +13,7 @@ internal static class PipeBugAnimationsVerification
     /// <summary>Every segment matches its native list and every animation the lists' control flow.</summary>
     internal static void VerifyPipeBugAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries, PipeBugAnimations.Segments,
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, PipeBugAnimations.Segments,
             PipeBugAnimations.StartingAt, PipeBugFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<NoAnimationCue>(word => null,
                 (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));

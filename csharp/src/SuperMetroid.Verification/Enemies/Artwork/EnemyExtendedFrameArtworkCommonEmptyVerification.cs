@@ -24,7 +24,7 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
         foreach (byte bank in CommonEnemyEmptyFrameDefinitionsTooling.SupportedBanks)
         {
             int emptyOam = ((int)new SnesAddress(bank, CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap));
-            AssertEqual((ushort)0, rom.ReadCartridgeWord(emptyOam),
+            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord(emptyOam),
                 $"bank ${bank:X2} shared ordinary empty OAM part count");
             // Exercise the ordinary draw entry point too: unlike the extended
             // $804F root below, enemies can select $804D directly during their
@@ -42,22 +42,22 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
                 AssertEqual((byte)0, rom.ReadCartridgeByte(root + offset),
                     $"bank ${bank:X2} shared empty component offset byte {offset}");
             AssertEqual(CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap,
-                rom.ReadCartridgeWord((root + 6)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 6)),
                 $"bank ${bank:X2} shared empty OAM pointer");
             AssertEqual(CommonEnemyEmptyFrames.PointHitboxList,
-                rom.ReadCartridgeWord((root + 8)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 8)),
                 $"bank ${bank:X2} shared empty hitbox pointer");
             int hitbox = ((int)new SnesAddress(bank, CommonEnemyEmptyFrames.PointHitboxList));
-            AssertEqual((ushort)1, rom.ReadCartridgeWord(hitbox),
+            AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWord(hitbox),
                 $"bank ${bank:X2} shared point-hitbox count");
             for (int offset = 2; offset < 10; offset += 2)
-                AssertEqual((ushort)0, rom.ReadCartridgeWord((hitbox + offset)),
+                AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + offset)),
                     $"bank ${bank:X2} shared point bound {offset}");
             AssertEqual(CommonEnemyEmptyFrameDefinitionsConstants.Callback(false),
-                rom.ReadCartridgeWord((hitbox + 10)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 10)),
                 $"bank ${bank:X2} shared touch callback");
             AssertEqual(CommonEnemyEmptyFrameDefinitionsConstants.Callback(true),
-                rom.ReadCartridgeWord((hitbox + 12)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 12)),
                 $"bank ${bank:X2} shared shot callback");
 
             var visualGuard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> visualGuardBlockFrame);

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Drawing;
@@ -26,7 +25,7 @@ internal static class SpringBallEquipmentJumpVerification
         var installation = RepositoryInstallation.Installation;
         foreach (bool left in new[] { false, true })
         {
-            var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), new SuperMetroid.Core.Gameplay.GameplayAssists { SamusCannotDie = true }, hostServices: SuperMetroidGameHostServices.Default with { GameplayFrames = RetainedGameplayFrames.Instance }, random: new SharedRandom());
+            var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), (global::SuperMetroid.Core.Gameplay.GameplayAssists?)(new SuperMetroid.Core.Gameplay.GameplayAssists { SamusCannotDie = true }), global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServicesFixtures.With(gameplayFrames: RetainedGameplayFrames.Instance), new SharedRandom() });
             BindInstalledArtwork(installation)(game, false);
             game.InitializeDirectRoomVerification();
             var runtime = game.GameplayRuntimeForVerification;
@@ -37,7 +36,7 @@ internal static class SpringBallEquipmentJumpVerification
             var level = runtime.Room.LoadedLevelData;
             for (int block = 0; block < level.Size.X * level.Size.Y; block++)
             { level.SetTerrain(block, default); level.SetBehavior(block, RoomBlockBehavior.None); }
-            var samus = runtime.Player.Samus;
+            var samus = runtime.Player.IntroducedSamus;
             samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots);
             samus.CollectedItems = (samus.EquippedItems | SamusEquipmentFlags.SpringBall);
             samus.Position = samus.Position.WithWhole(new(128, (ushort)(runtime.RoomFxOverlay.NamedSurface + 96)));

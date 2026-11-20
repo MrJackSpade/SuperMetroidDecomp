@@ -53,7 +53,7 @@ internal static class RoomCharacterInstallationVerification
         LoadedRoomAssets native = LoadFixtureRoomAssets(landing);
 
         int ghostSource = RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters;
-        byte[] nativeGhost = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(bus,
+        byte[] nativeGhost = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             ghostSource, LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount);
         AssertTrue(stock.GetAt(ghostSource).Characters.Span.SequenceEqual(nativeGhost),
             "the extracted statue-ghost characters preserve every native character byte");
@@ -161,7 +161,7 @@ internal static class RoomCharacterInstallationVerification
         string skyName = RoomSkyTilemapFormat.FileName(skyPage);
         string skyStockPath = Path.Combine(backgroundImportData, skyName);
         AssertTrue(File.Exists(skyStockPath), "selected scrolling-sky page is extracted into the import data");
-        byte[] nativeSky = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(bus,
+        byte[] nativeSky = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             LibraryBackgroundOperands.SkyPageAddress(skyPage), landingSky.ByteCount);
         AssertTrue(BackgroundTileWordBytes.Of(stockSky.Page(skyPage, landingSky.ByteCount / sizeof(ushort)).Span).AsSpan().SequenceEqual(nativeSky),
             "extracted scrolling-sky page retains native door-selected bytes");

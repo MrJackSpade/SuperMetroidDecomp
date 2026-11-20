@@ -45,7 +45,7 @@ internal sealed class ActiveAssists
         if (Current.GrantedLoadout is null && assists.GrantedLoadout is not null)
             _loadoutRecipient = null;
         Current = assists;
-        GrantLoadoutToNewSamus(_player.Samus);
+        GrantLoadoutToNewSamus(_player.IntroducedSamus);
     }
 
     /// <summary>

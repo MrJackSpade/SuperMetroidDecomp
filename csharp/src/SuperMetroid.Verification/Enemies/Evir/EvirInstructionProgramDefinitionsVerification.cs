@@ -61,15 +61,17 @@ internal static class EvirInstructionProgramDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[2];
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.BindPlaced(EnemyDefinitionId.Evir, PlacedBody);
-            var bodyState = body.SetUpPlaced<EvirBodyState>();
-            bodyState.Facing = HorizontalDirection.Left;
+            var bodyState = new EvirBodyState(spit: place) { Facing = HorizontalDirection.Left };
+            body.SetSpeciesState(bodyState);
             // The spit finds its body as production places it, two places after the body.
+            place.Bind(EnemyDefinitionId.EvirProjectile, place.KeptDefinition);
+            enemies.EvirBehavior.InitializeEvirProjectile(place);
             EvirSpitState state = PrepareEvirSpit(place, EvirSegment.ProjectileRegenerating, body);
             // #1269: the projectile's own facing word disagrees with its body on purpose; $A8:879B/$87B6 follow the
             // body's installed list, so the offset starts at +8.
             state.Facing = HorizontalDirection.Right;
             state.Action = EvirSpitAction.Regenerating;
-            bodyState.Facing = HorizontalDirection.Left;
+            enemies.Places.InUpdateOrder[0].SetSpeciesState(new EvirBodyState(spit: place) { Facing = HorizontalDirection.Left });
             object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int call = 0; call < 10; call++)
             {
@@ -104,8 +106,11 @@ internal static class EvirInstructionProgramDefinitionsVerification
     internal static EvirBodyState PrepareEvirBodyLoop(RoomEnemyPlace place, EvirSegment program)
     {
         Bind(place, EnemyDefinitionId.Evir);
-        var state = place.SetUpPlaced<EvirBodyState>();
-        state.Playback = new(EvirAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        var state = new EvirBodyState(spit: place)
+        {
+            Playback = new(EvirAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
+        };
+        place.SetSpeciesState(state);
         return state;
     }
 
@@ -115,11 +120,11 @@ internal static class EvirInstructionProgramDefinitionsVerification
     internal static EvirSpitState PrepareEvirSpit(RoomEnemyPlace place, EvirSegment program, RoomEnemyPlace body)
     {
         Bind(place, EnemyDefinitionId.EvirProjectile);
-        // The spit finds its body as production places it, two places before it.
-        var state = place.SetUpPlaced<EvirSpitState>();
-        AssertTrue(ReferenceEquals(body, state.Body), "the spit's body is the place two before it");
-        state.Action = EvirSpitAction.Idle;
-        state.Playback = new(EvirAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        var state = new EvirSpitState(EvirSpitAction.Idle, body)
+        {
+            Playback = new(EvirAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
+        };
+        place.SetSpeciesState(state);
         return state;
     }
 

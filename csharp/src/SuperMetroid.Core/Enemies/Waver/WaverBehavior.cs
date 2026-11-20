@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>The Waver species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WaverBehavior : IEnemySpecies, IEnemySettingsFactory<WaverSpawnSettings>
+internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Waver];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WaverSpawnSettings settings) => new WaverEntity(this, occupant, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WaverEntity(this, occupant, place, common));
 
     /// <summary>Room collision service used to reflect horizontal motion and the sine wave on impact.</summary>
     private readonly EnemyTerrain _terrain;
@@ -41,21 +41,21 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemySettingsFactory<Waver
     }
 
     /// <summary>Initializes the Waver.</summary>
-    internal static WaverEnemyState InitializeWaver(RoomEnemyOccupant occupant, RoomEnemyPlace place, WaverSpawnSettings settings)
+    internal static void InitializeWaver(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        HorizontalDirection facing = settings.Facing;
-        var state = new WaverEnemyState(settings)
+        HorizontalDirection facing = occupant.SpawnSettings<WaverSpawnSettings>().Facing;
+        var state = new WaverEnemyState
         {
             Facing = facing,
             Angle = RotationAngle.Zero,
             Action = WaverAction.Gliding,
         };
+        place.SetSpeciesState(state);
 
         // A Waver starts with the left steady animation; a right-facing Waver then turns it to face right, while a
         // left-facing one keeps the animation already playing and its clock.
         state.Playback = new(WaverAnimations.StartingWith(WaverSegment.SteadyFacingLeft), AnimationPlace.StartOfAnimation);
         SetWaverAnimation(place, state, WaverAnimationChoices.Steady(state.Facing));
-        return state;
     }
 
     /// <summary>Runs the Waver's main AI.</summary>
@@ -115,14 +115,14 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemySettingsFactory<Waver
     }
 
     /// <summary>Runs Waver's main AI.</summary>
-    internal void RunWaverMainAi(RoomEnemyPlace place, WaverEnemyState state, IEnemyAiFrame frame)
+    internal void RunWaverMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunWaverMain(place, state, frame.Level);
+        RunWaverMain(place, place.RequireSpeciesState<WaverEnemyState>(), frame.Level);
     }
 
     /// <summary>Advances Waver's typed animation.</summary>
-    internal static void AdvanceWaverTypedAnimation(RoomEnemyPlace place, WaverEnemyState waverEnemyState) =>
-        EnemyAnimationPlayback.Advance(place, waverEnemyState, WaverAnimations.Segments,
+    internal static void AdvanceWaverTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, WaverAnimations.Segments,
             static (WaverEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

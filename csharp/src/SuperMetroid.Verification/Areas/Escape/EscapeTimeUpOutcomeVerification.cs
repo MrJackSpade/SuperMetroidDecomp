@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Hud;
@@ -57,7 +56,7 @@ internal static class EscapeTimeUpOutcomeVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(preventEscapeTimeout: preventEscapeTimeout);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.EscapeTimer.RunIntoPlace();
         runtime.EscapeTimer.SetRemaining(centiseconds);
         return runtime;

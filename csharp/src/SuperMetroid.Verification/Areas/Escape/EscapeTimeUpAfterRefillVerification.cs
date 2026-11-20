@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Frontend;
@@ -143,7 +142,7 @@ internal static class EscapeTimeUpAfterRefillVerification
     {
         var frame = new GameplayShadingBuilder();
         runtime.FadeOut.ShadeGameplay(frame);
-        return frame.Build(runtime.Room.LoadedScope.Assets.BlockSheet.Sheet.Image, runtime.Room.LoadedScope.Assets.BlockSheet.Backdrop).Fade;
+        return frame.Build(runtime.Room.LoadedScope.Assets.BlockSheet.Sheet.Image).Fade;
     }
 
     /// <summary>Whether the runtime's last update drew the escape timer.</summary>

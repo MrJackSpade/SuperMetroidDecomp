@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -6,8 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 public interface IChozoStatueHandActivation
 {
     /// <summary>
-    /// Starts the statue's hand sequence; returns the room objects it requests at once, which the statue's room objects
-    /// spawn.
+    /// Starts the statue's hand sequence and applies the room-object work it requests at once in <paramref name="level"/>.
     /// </summary>
-    IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ActivateChozoStatueHand();
+    void ActivateChozoStatueHand(RoomLevelData level);
 }

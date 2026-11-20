@@ -13,6 +13,10 @@ internal enum NoobTubeProjectileCueKind
     FlickerHidden,
     /// <summary>Places the shard at its column on odd frames and mirrored across the tube on even ones.</summary>
     FlickerReflected,
+    /// <summary>Starts the crack flickering.</summary>
+    StartCrackFlicker,
+    /// <summary>Starts the detached crack falling.</summary>
+    StartCrackFall,
     /// <summary>Starts a shard swaying down after its first flight.</summary>
     StartShardFall,
     /// <summary>Starts a released-air bubble rising.</summary>

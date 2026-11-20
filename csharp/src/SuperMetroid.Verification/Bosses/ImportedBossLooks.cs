@@ -102,7 +102,7 @@ internal static class ImportedBossLooks
         /// <summary>Lays <paramref name="shade"/> over <paramref name="cgram"/>.</summary>
         internal void ShowImported(IPaletteColors cgram, PictureShade shade)
         {
-            var bosses = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { DraygonColors = self };
+            var bosses = new BossSourceArtwork { DraygonColors = self };
             Lay(cgram, BossSheetShades.DraygonBackground(bosses), BossSheetShades.OwnRow(bosses, EnemyDefinitionId.DraygonBody, 0), shade);
         }
     }

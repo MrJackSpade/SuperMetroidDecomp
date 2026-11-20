@@ -21,7 +21,7 @@ internal static class CeresSteamAnimationsVerification
     /// </summary>
     internal static void VerifyCeresSteamAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int beats = NativeEnemyAnimationOracle.CompareAll(cartridge, Bank, Entries, CeresSteamAnimations.Segments, CeresSteamAnimations.StartingAt,
             CeresSteamFrameDefinitionsConstants.Spritemap,
             new NativeEnemyCueRules<CeresSteamCueKind>(word => Instructions.ContainsKey(word) ? 0 : null,
@@ -69,12 +69,12 @@ internal static class CeresSteamAnimationsVerification
         RoomEnemyPlace vent = enemies.Places.InUpdateOrder[0];
         vent.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)CeresSteamVariant.Up);
         vent.Bind(EnemyDefinitionId.CeresSteam, vent.KeptDefinition);
-        vent.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
-        AssertEqual(wait, SuperMetroid.Core.Enemies.EnemyPartners.Listed<CeresSteamEntity>(vent).State.UpdatesToActivation, "the vent draws its wait");
+        ((IEnemyInitialization)(vent.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
+        AssertEqual(wait, vent.RequireSpeciesState<CeresSteamEnemyState>().UpdatesToActivation, "the vent draws its wait");
 
         bool Hidden() => vent.Presence.HasAny(EnemyPresence.Hidden) && vent.Contact.HasAny(EnemyContact.IgnoresSamus);
         int update = 0;
-        void Advance() { update++; CeresSteamBehavior.AdvanceCeresSteamAnimation(vent, vent.RequireSpeciesState<CeresSteamEnemyState>()); }
+        void Advance() { update++; CeresSteamBehavior.AdvanceCeresSteamAnimation(vent); }
 
         for (int dormant = 1; dormant <= wait; dormant++)
         {

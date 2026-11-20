@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// </summary>
 public sealed class GrowingShutterEnemyState
 {
-    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
-    internal GrowingShutterSpawnSettings Settings { get; }
-
     /// <summary>Pixels between consecutive growth sections' origins along the growth direction.</summary>
     private const int SectionOriginSpacing = 8;
 
@@ -21,9 +18,8 @@ public sealed class GrowingShutterEnemyState
     /// Creates the state of a shutter spawned at row <paramref name="spawnY"/> growing <paramref name="growth"/>, starting in
     /// <paramref name="action"/>.
     /// </summary>
-    internal GrowingShutterEnemyState(GrowingShutterAction action, int spawnY, VerticalDirection growth, GrowingShutterSpawnSettings settings)
+    internal GrowingShutterEnemyState(GrowingShutterAction action, int spawnY, VerticalDirection growth)
     {
-        Settings = Ensure.NotNull(settings);
         Action = action;
         SpawnY = spawnY;
         Growth = growth;

@@ -18,7 +18,7 @@ internal static class EnemyEffectResourcesVerification
         // Mother Brain's corpse art is staged and rotted by the extraction (#1392), which fails on missing art; the
         // runtime reads none. Crocomire's melt images are composed into his body sheet at installation (#1466), which
         // fails on missing melt art; gameplay reads only his installed body sheet.
-        AssertThrows<InvalidDataException>(() => BossBodySheetComposer.Frames(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork, BossBodyOwner.Crocomire),
+        AssertThrows<InvalidDataException>(() => BossBodySheetComposer.Frames(new BossSourceArtwork(), BossBodyOwner.Crocomire),
             "missing melt art fails the installation");
         CrocomireMeltingArtwork art = MeltEffectArtwork();
         // An illustration that is neither of his two melt images names no frame of his body sheet: the frame-name table
@@ -40,7 +40,7 @@ internal static class EnemyEffectResourcesVerification
         var actual = new CrocomireEffectFixture(art);
         AssertThrows<TException>(() => operation(actual), context + " fails loudly");
         AssertCrocomireEffectMechanics(expected, actual, context);
-        AssertTrue(BossBodyCanvasFixtures.ShowSame(((BossBodyParts)expected.Enemies.Presentation.BossBodyDisplay!), ((BossBodyParts)actual.Enemies.Presentation.BossBodyDisplay!)),
+        AssertTrue(BossBodyCanvasFixtures.ShowSame(expected.Enemies.Presentation.RequireBossBody(), actual.Enemies.Presentation.RequireBossBody()),
             context + " shown body unchanged");
         AssertTrue(expected.Vram.ImageEquals(actual.Vram), context + " VRAM unchanged");
     }

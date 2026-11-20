@@ -50,7 +50,7 @@ internal static class DeadTorizoArtworkVerification
                    nativeCorpse.NextByteOffset == installedCorpse.NextByteOffset,
             "Dead Torizo private corpse hook's installed composition is the native OAM");
 
-        var missing = new ImportEnemyArtwork(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AreaArtwork);
+        var missing = new ImportEnemyArtwork(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), new BossSourceArtwork(), new AreaSourceArtwork());
         AssertThrows<InvalidDataException>(() => StageDeadTorizoArtwork(missing),
             "bound installation missing the dead-Torizo sheet fails instead of reading ROM");
 
@@ -156,7 +156,7 @@ internal static class DeadTorizoArtworkVerification
     /// <summary>Obtains a sand line's WRAM destination and sheet source from separate retail tables.</summary>
     private static ReadNativeDeadTorizoSandLineOffsetsResult ReadNativeDeadTorizoSandLineOffsets(ISnesAddressSpace rom, ushort line)
     {
-        return new ReadNativeDeadTorizoSandLineOffsetsResult(rom.ReadCartridgeWord((0xa9d67c + line * 2)), rom.ReadCartridgeWord((0xa9d69c + line * 2)));
+        return new ReadNativeDeadTorizoSandLineOffsetsResult(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d67c + line * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d69c + line * 2)));
     }
 
     /// <summary>The corpse as the character rot oracle stages it from installed art.</summary>

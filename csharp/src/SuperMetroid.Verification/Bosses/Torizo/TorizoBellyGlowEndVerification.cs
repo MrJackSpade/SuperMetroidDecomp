@@ -67,8 +67,8 @@ internal static class TorizoBellyGlowEndVerification
         RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
         torizo.Bind(definition, RoomEnemyDefinitionLookup.Get(definition));
         torizo.Health = 800;
-        var state = torizo.SetUpPlaced<TorizoEnemyState>();
-        state.Phase = TorizoPhase.Falling;
+        var state = new TorizoEnemyState(variant) { Phase = TorizoPhase.Falling };
+        torizo.SetSpeciesState(state);
         enemies.PassEvents.Begin();
         AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(
                 torizo.HeldOccupant(), torizo, state, new TorizoCueInputs { Torizo = torizo.Entity as ILitTorizo ?? throw new InvalidOperationException($"{definition} binds no Torizo."), Samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), Level = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ControllerInput = 0, FrameCounter = 0 },

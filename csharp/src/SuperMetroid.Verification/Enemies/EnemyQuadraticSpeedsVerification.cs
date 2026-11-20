@@ -18,7 +18,7 @@ internal static class EnemyQuadraticSpeedsVerification
     /// </summary>
     internal static void VerifyCompiledQuadraticEnemySpeeds(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         VerticalDirection[] directions = [VerticalDirection.Down, VerticalDirection.Up];
         for (int row = 0; row < QuadraticSpeedCurveDefinitions.MarkCount; row++)
         {

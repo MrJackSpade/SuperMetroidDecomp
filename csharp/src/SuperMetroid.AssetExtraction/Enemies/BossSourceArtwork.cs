@@ -25,71 +25,81 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 public sealed record BossSourceArtwork
 {
     /// <summary>Five editable Crocomire transfer images, which the import pre-colours Crocomire's sheets in (#1512); fight and death phases stay compiled.</summary>
-    public required CrocomireColorCatalog CrocomireColors { get; init; }
+    public CrocomireColorCatalog? CrocomireColors { get; init; }
 
     /// <summary>
     /// Kraid's installed colours, which the import pre-colours his sheets and room in (#1512), and from which the game's
     /// eye colours are read (<see cref="KraidColorCatalog.Eyes"/>). Null only for constructed fixtures.
     /// </summary>
-    public required KraidColorCatalog KraidColors { get; init; }
+    public KraidColorCatalog? KraidColors { get; init; }
 
     /// <summary>Editable Mother Brain death-fade colours, which the import pre-colours her sheets in (#1512).</summary>
-    public required MotherBrainDeathColorCatalog MotherBrainDeathColors { get; init; }
+    public MotherBrainDeathColorCatalog? MotherBrainDeathColors { get; init; }
 
     /// <summary>Editable initial and fade-to-black colours of the Mother Brain cutscene Baby, which the import pre-colours its sheet in (#1512).</summary>
-    public required BabyMetroidCutsceneColorCatalog BabyMetroidCutsceneColors { get; init; }
+    public BabyMetroidCutsceneColorCatalog? BabyMetroidCutsceneColors { get; init; }
 
     /// <summary>Editable live-Baby Metroid normal-cycle and target colours, which the import pre-colours its sheet in (#1512).</summary>
-    public required BabyMetroidColorCatalog BabyMetroidColors { get; init; }
+    public BabyMetroidColorCatalog? BabyMetroidColors { get; init; }
 
     /// <summary>Editable Phantoon health, fade-out and Wrecked Ship power-on colours, which the import pre-colours Phantoon's sheets and room in (#1512).</summary>
-    public required PhantoonColorCatalog PhantoonColors { get; init; }
+    public PhantoonColorCatalog? PhantoonColors { get; init; }
 
     /// <summary>Editable Draygon opening, normal, flash and health-band colours, which the import pre-colours Draygon's sheets in (#1512).</summary>
-    public required DraygonColorCatalog DraygonColors { get; init; }
+    public DraygonColorCatalog? DraygonColors { get; init; }
 
     /// <summary>Editable Tourian Zebetite two-colour pulse, which the import pre-colours the Zebetites' sheets in (#1512).</summary>
-    public required ZebetiteColorCatalog ZebetiteColors { get; init; }
+    public ZebetiteColorCatalog? ZebetiteColors { get; init; }
 
     /// <summary>Editable Spore Spawn spore, health and death-sequence colours, which the import pre-colours Spore Spawn's sheets in (#1512).</summary>
-    public required SporeSpawnColorCatalog SporeSpawnColors { get; init; }
+    public SporeSpawnColorCatalog? SporeSpawnColors { get; init; }
 
     /// <summary>Editable Botwoon colours for all eight health bands, which the import pre-colours Botwoon's sheets in (#1512).</summary>
-    public required BotwoonColorCatalog BotwoonColors { get; init; }
+    public BotwoonColorCatalog? BotwoonColors { get; init; }
 
     /// <summary>Editable Norfair Ridley initial and arena-reveal colours, which the import pre-colours Ridley's sheets and room in (#1512).</summary>
-    public required NorfairRidleyColorCatalog NorfairRidleyColors { get; init; }
+    public NorfairRidleyColorCatalog? NorfairRidleyColors { get; init; }
 
     /// <summary>Both of Crocomire's melts; optional only for constructed fixtures.</summary>
-    public required CrocomireMeltingArtwork CrocomireMelting { get; init; }
+    public CrocomireMeltingArtwork? CrocomireMelting { get; init; }
 
     /// <summary>Editable BG2 half of Crocomire's mixed fight-body frames.</summary>
-    public required CrocomireBg2FrameCatalog CrocomireBg2Frames { get; init; }
+    public CrocomireBg2FrameCatalog? CrocomireBg2Frames { get; init; }
 
     /// <summary>Editable Phantoon BG2 tilemap frames; collision remains engine-owned.</summary>
-    public required PhantoonBg2FrameCatalog PhantoonBg2Frames { get; init; }
+    public PhantoonBg2FrameCatalog? PhantoonBg2Frames { get; init; }
 
     /// <summary>Editable Draygon BG2 tilemap frames; collision remains engine-owned.</summary>
-    public required DraygonBg2FrameCatalog DraygonBg2Frames { get; init; }
+    public DraygonBg2FrameCatalog? DraygonBg2Frames { get; init; }
 
     /// <summary>Kraid's ordered BG2 tile references; null only for constructed fixtures.</summary>
-    public required KraidBackgroundArtwork KraidBackground { get; init; }
+    public KraidBackgroundArtwork? KraidBackground { get; init; }
 
     /// <summary>Editable BG2 body poses paired with the installed Mother Brain OAM limbs.</summary>
-    public required MotherBrainBodyBg2FrameCatalog MotherBrainBodyBg2Frames { get; init; }
+    public MotherBrainBodyBg2FrameCatalog? MotherBrainBodyBg2Frames { get; init; }
 
     /// <summary>Six editable skeleton character uploads; death timing and VRAM positions stay fixed.</summary>
-    public required CrocomireSkeletonArtwork CrocomireSkeleton { get; init; }
+    public CrocomireSkeletonArtwork? CrocomireSkeleton { get; init; }
 
     /// <summary>Editable tile pages for Bomb and Golden Torizo's instruction-time VRAM uploads.</summary>
-    public required TorizoSwapArtwork TorizoSwaps { get; init; }
+    public TorizoSwapArtwork? TorizoSwaps { get; init; }
 
     /// <summary>Editable source tile sheet for Mother Brain's corpse-rotting staging.</summary>
-    public required RoomCharacterAtlas MotherBrainCorpse { get; init; }
+    public RoomCharacterAtlas? MotherBrainCorpse { get; init; }
 
     /// <summary>Editable OBJ characters for the Mother Brain escape typewriter transfer.</summary>
-    public required RoomCharacterAtlas MotherBrainEscapeText { get; init; }
+    public RoomCharacterAtlas? MotherBrainEscapeText { get; init; }
 
     /// <summary>Editable leg, Baby, attack-restoration and exploded-door OBJ pages.</summary>
-    public required MotherBrainSpecialSpriteArtworkCatalog MotherBrainSpecialSprites { get; init; }
+    public MotherBrainSpecialSpriteArtworkCatalog? MotherBrainSpecialSprites { get; init; }
+
+    /// <summary>Returns installed boss artwork, which must carry the Torizo artwork swaps its sheets compose from.</summary>
+    /// <exception cref="InvalidDataException">The Torizo artwork swaps are absent.</exception>
+    public static BossSourceArtwork FromInstalledArtwork(BossSourceArtwork artwork)
+    {
+        Ensure.NotNull(artwork);
+        if (artwork.TorizoSwaps is null)
+            throw new InvalidDataException("Installed boss artwork requires the Torizo transfer provider.");
+        return artwork;
+    }
 }

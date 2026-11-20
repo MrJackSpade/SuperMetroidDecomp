@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="savedTerrain">The Grapple block as its setup found it, which grows back.</param>
 internal sealed class RespawningGrappleBlockObject(RoomTerrainBlock savedTerrain)
-    : RestoringBlockReactionObject(BlockReactionChangeDefinitions.RespawningBreakableGrappleBlock, savedTerrain)
+    : BlockReactionObject(BlockReactionChangeDefinitions.RespawningBreakableGrappleBlock, savedTerrain)
 {
     /// <summary>Gives the block its respawning Grapple reaction again, then restores its saved terrain.</summary>
     private protected override void RestoreBlock(RoomObjectPlace place, RoomObjectStepContext context)

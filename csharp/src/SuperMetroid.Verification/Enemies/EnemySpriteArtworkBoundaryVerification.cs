@@ -57,7 +57,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
             // The sprite list places every part at its signed position and leaves clipping at the screen edges to the
             // backend; native OAM instead parks a part that crosses the top or bottom edge at Y=$F0. The oracle therefore
             // places the native parts without that clip.
-            ImportedSpritemapOracle.DrawEnemy(source, expected, new NativeEnemySpritemapDraw
+            ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(source), expected, new NativeEnemySpritemapDraw
             {
                 Bank = 0x8d, Pointer = pointer, Origin = new(x, y),
                 PaletteBits = NativeSpriteGraphicsWords.PaletteBits(5), BaseTileIndex = 0x04, ClipVerticalWrap = false,

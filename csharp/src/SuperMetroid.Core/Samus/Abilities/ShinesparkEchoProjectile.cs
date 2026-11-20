@@ -46,8 +46,8 @@ internal sealed class ShinesparkEchoProjectile
 
         bool firstDeparts = shots < SamusProjectileSystem.PlaceCount - 1;
         if (firstDeparts)
-            first.Depart(Launch(SamusShotPool.FirstEchoPlace, angles.First, picturedBeams), crashPosition);
-        second.Depart(Launch(SamusShotPool.SecondEchoPlace, angles.Second, picturedBeams), crashPosition);
+            first.Depart(Launch(ShinesparkCrashEchoPlaces.First(SamusProjectileSystem.PlaceCount), angles.First, picturedBeams), crashPosition);
+        second.Depart(Launch(ShinesparkCrashEchoPlaces.Second(SamusProjectileSystem.PlaceCount), angles.Second, picturedBeams), crashPosition);
         return firstDeparts;
     }
 
@@ -65,16 +65,18 @@ internal sealed class ShinesparkEchoProjectile
         echo.Position = echo.Position.WithWhole(start);
         SamusProjectileOccupant released = BeamCombos.OccupyComboShot(echo, SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho), BeamComboShotKind.Echo);
         echo.PicturedBeams = picturedBeams;
-        BeamCombos.StartComboShot(released, new BeamComboShot.Echo(SamusBeamEcho.ShinesparkEcho));
-        released.Install(new ShinesparkEchoFlight(new ShinesparkEchoShotState(angle.ToTrigonometryAngle())));
+        BeamCombos.StartComboShot(released, BeamComboShotKind.Echo);
+        released.Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(angle.ToTrigonometryAngle()));
         return echo;
     }
 
     /// <summary>Runs one update of the echo <paramref name="shot"/> carries, clearing the shot once the echo leaves the screen.</summary>
     internal void StepShinesparkEcho(SamusState samus,
-        SamusProjectile shot, ShinesparkEchoShotState flight, Position16<RoomPixels> camera)
+        SamusProjectile shot, Position16<RoomPixels> camera)
     {
-        if (!samus.Shinespark.StepReleasedEcho(samus, camera, shot, flight))
+        if (shot.Behavior is not ShinesparkEchoFlight)
+            throw new InvalidOperationException("Departing echo no longer owns this shot.");
+        if (!samus.Shinespark.StepReleasedEcho(samus, camera, shot))
             _animation.ClearProjectile(shot);
     }
 }

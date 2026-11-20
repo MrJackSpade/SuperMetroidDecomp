@@ -6,7 +6,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// The ending's assembling logo, followed by sixteen colour loads: its two S halves move into place while its two
+/// The ending's assembling logo, followed by its colour loads (<see cref="EndingLogoDefinitions.CrossfadeSteps"/>): its two S halves move into place while its two
 /// circles draw in (#1979).
 /// </summary>
 internal sealed class EndingLogo
@@ -22,10 +22,7 @@ internal sealed class EndingLogo
     /// <summary>Becomes true when the grey-out cue begins paired background and sprite changes.</summary>
     public bool CrossfadeStarted { get; private set; }
     /// <summary>The crossfade step the logo showed last, or null before its crossfade shows a step.</summary>
-    public EndingLogoCrossfadeStep? ShownCrossfade { get; private set; }
-
-    /// <summary>The crossfade step the crossfade's next update shows: its first, then each after the last shown.</summary>
-    private EndingLogoCrossfadeStep nextCrossfade = EndingLogoCrossfadeStep.First;
+    private EndingLogoCrossfadeStep? ShownCrossfade { get; set; }
     /// <summary>Whether the logo has shown its crossfade's last step and hands off to the percentage text.</summary>
     public bool Completed { get; private set; }
 
@@ -51,19 +48,19 @@ internal sealed class EndingLogo
     public void Step(EndingColours colours)
     {
         if (Completed) throw new InvalidOperationException("Completed logo must hand off to percentage text.");
-        // The cinematic phase runs before sprite cues, so the first colour pair is copied on the update after the
-        // request, not on the update that requests it.
+        // The crossfade's first step shows on the update after the grey-out cue, not on the update that requests it.
         if (CrossfadeStarted)
         {
-            EndingLogoCrossfadeStep step = nextCrossfade;
+            EndingLogoCrossfadeStep step = ShownCrossfade is { } shown
+                ? shown.Following ?? throw new InvalidOperationException("The logo's crossfade showed its last step.")
+                : EndingLogoCrossfadeStep.First;
             Ensure.NotNull(colours).LogoCrossfade(step);
             ShownCrossfade = step;
-            if (step.Following is not { } following)
+            if (step.Following is null)
             {
                 Completed = true;
                 return;
             }
-            nextCrossfade = following;
         }
         // Each S half moves just before its own animation steps.
         upperS.Move();
@@ -87,7 +84,7 @@ internal sealed class EndingLogo
         }
     }
 
-    /// <summary>Places active logo actors as the supplied sprite entries.</summary>
+    /// <summary>Draws the logo's actors among the screen's sprites until the logo completes.</summary>
     public void Draw(ScreenSprites destination, IIntroCinematicSpritePresentation installedArt)
     {
         Ensure.NotNull(destination);

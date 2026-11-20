@@ -32,15 +32,15 @@ internal static class YardAirborneVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.StepFrame(0);
         AssertEqual(SignedSixteenSixteen.FromWholePixels(1), runtime.YardKickDistance.HorizontalDistancePlusOne,
             "a stationary Samus's measure includes one pixel for the next Yard kick");
-        runtime.Player.Samus.Kinematics.Position = runtime.Player.Samus.Kinematics.Position.WithFractionX(0xE000);
+        runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithFractionX(0xE000);
         runtime.StepFrame(0);
         AssertEqual(SignedSixteenSixteen.FromParts(1, 57344), runtime.YardKickDistance.HorizontalDistancePlusOne,
             "the Yard kick receives the camera's full fractional measure from its previous tracking point");
-        runtime.Player.Samus.Kinematics.Position = runtime.Player.Samus.Kinematics.Position.WithFractionX(0xC000);
+        runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithFractionX(0xC000);
         runtime.StepFrame(0);
         AssertEqual(SignedSixteenSixteen.FromParts(0, 57344), runtime.YardKickDistance.HorizontalDistancePlusOne,
             "the whole-pixel direction test leaves a measure below one pixel");
@@ -63,7 +63,7 @@ internal static class YardAirborneVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.YardKickDistance.Record(stale);
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         AssertEqual(initial, runtime.YardKickDistance.HorizontalDistancePlusOne, "starting at Ceres initialises Samus with one pixel");
         runtime.YardKickDistance.Record(stale);
         runtime.RoomLoader.InitializePostCeresZebesRoom();
@@ -96,9 +96,9 @@ internal static class YardAirborneVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.StepFrame(0);
-        runtime.Player.Samus.Kinematics.Position = runtime.Player.Samus.Kinematics.Position.WithFractionX(0xE000);
+        runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithFractionX(0xE000);
         runtime.StepFrame(0);
         SignedSixteenSixteen measured = SignedSixteenSixteen.FromParts(1, 57344);
         AssertEqual(measured, runtime.YardKickDistance.HorizontalDistancePlusOne, "the scrolling recorded the camera's measure");
@@ -112,7 +112,7 @@ internal static class YardAirborneVerification
         int yard = Enumerable.Range(0, enemies.YardStates.Count).First(place => enemies.YardStates[place] is not null);
         RoomEnemyPlace actor = enemies.Places.InUpdateOrder[yard];
         YardEnemyState state = enemies.YardStates[yard] ?? throw new InvalidOperationException("The Aqueduct's Yard has no state.");
-        SamusState samus = runtime.Player.Samus;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         // One enemy pass over the Yard, with the camera on it, makes it an enemy the touch pass reaches, as the room's

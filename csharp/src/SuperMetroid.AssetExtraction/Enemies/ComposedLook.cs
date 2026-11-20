@@ -18,6 +18,9 @@ internal readonly record struct ComposedLook(ComposedEncounter Encounter, [Insta
     /// <summary>The look of <paramref name="encounter"/> gameplay names as <paramref name="look"/>.</summary>
     internal static ComposedLook Of(ComposedEncounter encounter, EncounterLook look) => new(encounter, look.Name);
 
+    /// <summary>Whether the look is its encounter's room load, which copies nothing.</summary>
+    internal bool IsLoaded => this == Loaded(Encounter);
+
     /// <summary>Names the look for diagnostics.</summary>
     public override string ToString() => $"{Encounter} {Name}";
 }

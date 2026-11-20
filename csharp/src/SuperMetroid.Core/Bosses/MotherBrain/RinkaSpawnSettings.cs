@@ -13,12 +13,6 @@ internal abstract record RinkaSpawnSettings : EnemySpawnSettings
     {
     }
 
-    /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacementRequest placing) => Ensure.NotNull(species).Place(this, placing);
-
-    /// <inheritdoc/>
-    internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);
-
     /// <summary>An ordinary Rinka, which spawns and respawns at its own placement.</summary>
     internal static RinkaSpawnSettings AtOwnPlacement { get; } = new OwnPlacement();
 

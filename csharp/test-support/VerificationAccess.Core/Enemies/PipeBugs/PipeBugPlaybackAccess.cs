@@ -15,18 +15,18 @@ internal static class PipeBugPlaybackAccess
         /// <exception cref="InvalidOperationException">Set on a place that holds no Pipe Bug, or to null.</exception>
         internal AnimationPlayback<PipeBugSegment>? PipeBugPlayback
         {
-            get => SuperMetroid.Core.Enemies.EnemyPartners.Listed<BrinstarPipeBugEntity>(place).State?.Playback
-                ?? SuperMetroid.Core.Enemies.EnemyPartners.Listed<NorfairPipeBugEntity>(place).State?.Playback
-                ?? SuperMetroid.Core.Enemies.EnemyPartners.Listed<YellowPipeBugEntity>(place).State?.Playback;
+            get => place.SpeciesState<BrinstarPipeBugState>()?.Playback
+                ?? place.SpeciesState<NorfairPipeBugState>()?.Playback
+                ?? place.SpeciesState<YellowPipeBugState>()?.Playback;
             set
             {
                 AnimationPlayback<PipeBugSegment> playback = value
                     ?? throw new InvalidOperationException($"A Pipe Bug in slot {place.Ordinal} cannot play no animation.");
-                if (SuperMetroid.Core.Enemies.EnemyPartners.Listed<BrinstarPipeBugEntity>(place).State is { } brinstar)
+                if (place.SpeciesState<BrinstarPipeBugState>() is { } brinstar)
                     brinstar.Playback = playback;
-                else if (SuperMetroid.Core.Enemies.EnemyPartners.Listed<NorfairPipeBugEntity>(place).State is { } norfair)
+                else if (place.SpeciesState<NorfairPipeBugState>() is { } norfair)
                     norfair.Playback = playback;
-                else if (SuperMetroid.Core.Enemies.EnemyPartners.Listed<YellowPipeBugEntity>(place).State is { } yellow)
+                else if (place.SpeciesState<YellowPipeBugState>() is { } yellow)
                     yellow.Playback = playback;
                 else
                     throw new InvalidOperationException($"Slot {place.Ordinal} holds no Pipe Bug.");

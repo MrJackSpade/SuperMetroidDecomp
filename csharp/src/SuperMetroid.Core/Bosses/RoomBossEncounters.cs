@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Rooms;
@@ -27,38 +26,7 @@ internal sealed class RoomBossEncounters
     internal MotherBrainEnemyState? MotherBrain { get; private set; }
 
     /// <summary>Crocomire's body sets up: the room reads <paramref name="crocomire"/> from now on.</summary>
-    internal void Attach(CrocomireEnemyState crocomire)
-    {
-        Crocomire = Ensure.NotNull(crocomire);
-        foreach (Action<CrocomireEnemyState> joins in _crocomireJoins)
-            joins(crocomire);
-    }
-
-    /// <summary>
-    /// What waits on the room's Crocomire, composed with him as his body sets up (#2486, #2554): the room's rumble, which its
-    /// main composes before the room's enemies load.
-    /// </summary>
-    private readonly List<Action<CrocomireEnemyState>> _crocomireJoins = [];
-
-    /// <summary>Has <paramref name="joins"/> run with the room's Crocomire as his body sets up.</summary>
-    internal void WhenCrocomireJoins(Action<CrocomireEnemyState> joins) => _crocomireJoins.Add(Ensure.NotNull(joins));
-
-    /// <summary>
-    /// What waits on the room's Kraid, composed with him as his body finishes setting up (#2554): the Kraid demo's phase
-    /// wait, which the demo composes before the room's enemies load.
-    /// </summary>
-    private readonly List<Action<KraidEnemyState>> _kraidSetUps = [];
-
-    /// <summary>Has <paramref name="setUp"/> run with the room's Kraid as his body finishes setting up.</summary>
-    internal void WhenKraidSetsUp(Action<KraidEnemyState> setUp) => _kraidSetUps.Add(Ensure.NotNull(setUp));
-
-    /// <summary>Kraid's body has finished setting up the encounter <paramref name="kraid"/>: what waits on him runs.</summary>
-    internal void KraidSetUp(KraidEnemyState kraid)
-    {
-        Ensure.NotNull(kraid);
-        foreach (Action<KraidEnemyState> setUp in _kraidSetUps)
-            setUp(kraid);
-    }
+    internal void Attach(CrocomireEnemyState crocomire) => Crocomire = Ensure.NotNull(crocomire);
 
     /// <summary>Phantoon's body sets up: the room reads <paramref name="phantoon"/> from now on.</summary>
     internal void Attach(PhantoonEnemyState phantoon) => Phantoon = Ensure.NotNull(phantoon);

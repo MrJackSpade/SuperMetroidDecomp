@@ -422,7 +422,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         throw new InvalidOperationException(
-            $"Projectile hit resident-trigger block {block.At} with no active room-object owner.");
+            $"Projectile hit resident-trigger block {block.Position} with no active room-object owner.");
     }
 
     /// <summary>
@@ -540,7 +540,7 @@ internal sealed class ProjectileTerrainCollision
             if (read.StraddlesNext)
             {
                 // The straddled block is the next one in the room's reading order, on the next row past a row's end.
-                if (!level.TryGridBlockStepped(readBlock, Offset16<RoomBlocks>.OneRight, out Position16<RoomBlocks> nextBlock))
+                Position16<RoomBlocks> nextBlock = level.GridBlockStepped(readBlock, Offset16<RoomBlocks>.OneRight) ??
                     throw new NotSupportedException("A straddled Wave collision read crosses the room's grid.");
                 RoomTerrainBlock next = level.GetCollisionBlock(nextBlock).Terrain;
                 // The reaction consumes the straddled block; the behaviour and room-object setup

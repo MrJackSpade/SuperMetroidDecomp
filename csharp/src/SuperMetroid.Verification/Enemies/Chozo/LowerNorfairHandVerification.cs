@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -30,7 +29,7 @@ internal static class LowerNorfairHandVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AcidStatue);
         runtime.StepFrame(0);
         var level = runtime.Room.LoadedLevelData;
@@ -41,7 +40,7 @@ internal static class LowerNorfairHandVerification
         hand = level.GetCollisionBlock(new(4, 8));
         AssertEqual(RoomCollisionType.SpecialBlock, hand.CollisionType, "destroyed cover becomes solid hand");
         AssertEqual(ChozoStatueRoomDefinitions.LowerNorfairHandBehavior, hand.Behavior, "Norfair hand activation behaviour");
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         foreach (bool hasSpaceJump in new[] { false, true })
         {
             samus.CollectedItems = hasSpaceJump ? SamusEquipmentFlags.SpaceJump : 0;
@@ -66,7 +65,7 @@ internal static class LowerNorfairHandVerification
             rightColumn == hand.At.X,
             "downward morph contact lands on the actual hand tile");
         AssertTrue(runtime.System.HasEvent(StoryEvent.LowerNorfairChozoLoweredAcid), "hand sets native acid event");
-        AssertTrue((SuperMetroid.Core.Enemies.EnemyPartners.Listed<ChozoStatueEntity>(runtime.Enemies.Places.InUpdateOrder[0]).State).Phase
+        AssertTrue((runtime.Enemies.Places.InUpdateOrder[0].SpeciesState<ChozoStatueState>() ?? throw new InvalidOperationException("Verification requires the statue state.")).Phase
             is ChozoStatuePhase.HandTriggered or ChozoStatuePhase.HandTriggeredBeforeWaiting, "hand wakes statue");
         AssertTrue(!runtime.Player.GroundedSamusMovementEnabled, "statue takes control on hand contact");
         ushort startingAcidY = runtime.RoomFxOverlay.NamedBaseY.Whole;

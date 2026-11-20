@@ -36,14 +36,14 @@ public static class RoomObjectCollectibleVisualFiles
         CollectibleDraw.SuperMissileTankBright,
         CollectibleDraw.PowerBombTankBright,
         CollectibleDraw.PowerBombTankDim,
-        CollectibleDraw.FirstBlockPairPrimaryLook,
-        CollectibleDraw.FirstBlockPairAlternateLook,
-        CollectibleDraw.SecondBlockPairPrimaryLook,
-        CollectibleDraw.SecondBlockPairAlternateLook,
-        CollectibleDraw.ThirdBlockPairPrimaryLook,
-        CollectibleDraw.ThirdBlockPairAlternateLook,
-        CollectibleDraw.FourthBlockPairPrimaryLook,
-        CollectibleDraw.FourthBlockPairAlternateLook,
+        CollectibleDraw.SolidPairPrimaryLook,
+        CollectibleDraw.SolidPairAlternateLook,
+        CollectibleDraw.FirstDoorPairPrimaryLook,
+        CollectibleDraw.FirstDoorPairAlternateLook,
+        CollectibleDraw.SecondDoorPairPrimaryLook,
+        CollectibleDraw.SecondDoorPairAlternateLook,
+        CollectibleDraw.ThirdDoorPairPrimaryLook,
+        CollectibleDraw.ThirdDoorPairAlternateLook,
         CollectibleDraw.ShotBlockIntact,
         CollectibleDraw.ShotBlockCracking,
         CollectibleDraw.ShotBlockDust,
@@ -116,21 +116,23 @@ public static class RoomObjectCollectibleVisualFiles
             int table = look == CollectibleLook.Primary
                 ? RoomObjectDrawSourceDefinitions.CollectibleDynamicFrame0Table.Offset
                 : RoomObjectDrawSourceDefinitions.CollectibleDynamicFrame1Table.Offset;
-            int native = bus.ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(table + selector * 2)))));
-            int compiled = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.OwnPictureFrame(
+            int native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(table + selector * 2)))));
+            int compiled = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.BlockPairFrame(
                 CollectibleBlockPairs.InTurn[selector], look));
             if (native != compiled)
                 throw new InvalidDataException(
                     $"Collectible block pair selector $84:{table + selector * 2:X4} differs from the cartridge.");
         }
-        foreach ((CollectibleDraw draw, RoomTerrainBlock terrain) in CollectibleObjectDraws.BlockPairFrames)
+        foreach (RoomObjectCollectibleDrawFrame frame in All.Where(frame => !IsEditable(frame.Draw)))
         {
-            int address = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.Family.Of(draw));
-            if (bus.ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, address)) != 1 ||
-                RoomLevelWordCodec.Decode(bus.ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 2)))))) != RoomLevelWordCodec.AsStored(terrain) ||
-                bus.ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 4))))) != 0)
+            int address = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.Family.Of(frame.Draw));
+            RoomTerrainBlock terrain = CollectibleObjectDraws.BlockPairTerrain(frame.Draw)
+                ?? throw new InvalidOperationException($"Collectible draw {frame.Id} lies under the item's own picture but writes no block pair's terrain.");
+            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, address)) != 1 ||
+                RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 2)))))) != RoomLevelWordCodec.AsStored(terrain) ||
+                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 4))))) != 0)
                 throw new InvalidDataException(
-                    $"Collectible draw {draw} at $84:{address:X4} differs from compiled geometry or level word.");
+                    $"Collectible draw {frame.Id} at $84:{address:X4} differs from compiled geometry or level word.");
         }
     }
 }

@@ -12,12 +12,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class SamusDeathSheetComposer
 {
-    /// <summary>Right-facing base index in Samus's death-explosion spritemap table.</summary>
-    public const int RightExplosionSpritemap = 2076;
-
-    /// <summary>Left-facing base index in Samus's death-explosion spritemap table.</summary>
-    public const int LeftExplosionSpritemap = 2085;
-
     /// <summary>Every facing the explosion is drawn in.</summary>
     internal static IReadOnlyList<HorizontalDirection> Facings { get; } = [HorizontalDirection.Right, HorizontalDirection.Left];
 
@@ -33,13 +27,12 @@ internal static class SamusDeathSheetComposer
         var frames = new List<SheetFrameSource>();
         foreach (HorizontalDirection facing in Facings)
         {
-            // The explosion's pictures stand in the order of its spritemaps.
-            for (int frame = 0; frame < SamusDeathSheetDefinitions.Explosion.Count; frame++)
+            foreach (SamusDeathExplosionFrame frame in SamusDeathSheetDefinitions.Explosion)
             {
-                string name = SamusDeathSheetDefinitions.ExplosionFrame(facing, SamusDeathSheetDefinitions.Explosion[frame]);
-                // A zero entry in the installed pointer table names direct-page scratch the port does not model and
+                string name = SamusDeathSheetDefinitions.ExplosionFrame(facing, frame);
+                // A frame the import decoded no composition for names direct-page scratch the port does not model and
                 // draws nothing (owner decision on #1318), so its frame is empty.
-                frames.Add(new(name, body.Spritemaps.TryGetFrame(ExplosionSpritemap(facing, frame), out SpriteFrame? spritemap)
+                frames.Add(new(name, body.Spritemaps.TryGetExplosionFrame(name, out SpriteFrame? spritemap)
                     ? spritemap : new SpriteFrame(name, []), inputs.DeathTiles.Explosion));
             }
         }
@@ -59,9 +52,4 @@ internal static class SamusDeathSheetComposer
             colours[SamusSheetInks.Suitless + colour] = inputs.ShadeSources.Death.SuitlessColor(0, colour);
         return colours;
     }
-
-    /// <summary>The Samus spritemap the explosion's frame <paramref name="frame"/> shows facing <paramref name="facing"/>.</summary>
-    private static int ExplosionSpritemap(HorizontalDirection facing, int frame) =>
-        (facing == HorizontalDirection.Left ? LeftExplosionSpritemap
-            : RightExplosionSpritemap) + frame;
 }

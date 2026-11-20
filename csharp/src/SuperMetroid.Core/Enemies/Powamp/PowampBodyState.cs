@@ -8,16 +8,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 public sealed class PowampBodyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    /// <param name="action">The body's first action.</param>
-    /// <param name="balloon">The balloon the room lists before the body, which it holds from its setup.</param>
-    internal PowampBodyState(PowampAction action, PowampBalloon balloon)
-    {
-        Action = action;
-        Balloon = balloon;
-    }
-
-    /// <summary>The body's balloon, which the room lists right before it and the body holds from its setup (#2554).</summary>
-    internal PowampBalloon Balloon { get; }
+    internal PowampBodyState(PowampAction action) => Action = action;
 
     /// <summary>The body's pulse animation and where it stands in it (#1600).</summary>
     internal AnimationPlayback<PowampSegment> Playback { get; set; }

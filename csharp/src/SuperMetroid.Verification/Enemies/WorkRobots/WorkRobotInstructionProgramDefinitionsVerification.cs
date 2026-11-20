@@ -59,8 +59,8 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         robot.Bind(EnemyDefinitionId.WorkRobot, robot.KeptDefinition);
         robot.Bind(robot.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         robot.Radius = new(8, 16);
-        var state = robot.SetUpPlaced<WorkRobotEnemyState>();
-        state.Playback = new(WorkRobotAnimations.StartingWith(WorkRobotSegment.StandingFacingLeft), AnimationPlace.StartOfAnimation);
+        var state = new WorkRobotEnemyState() { Playback = new(WorkRobotAnimations.StartingWith(WorkRobotSegment.StandingFacingLeft), AnimationPlace.StartOfAnimation) };
+        robot.SetSpeciesState(state);
         return enemies;
     }
 

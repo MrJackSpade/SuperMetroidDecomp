@@ -6,38 +6,38 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 
 /// <summary>The Atomic species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class AtomicBehavior : IEnemySpecies, IEnemySettingsFactory<AtomicSpawnSettings>
+internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Atomic];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, AtomicSpawnSettings settings) => new AtomicEntity(occupant, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new AtomicEntity(occupant, place, common));
 
 
     /// <summary>Initializes the Atomic.</summary>
-    internal static AtomicEnemyState InitializeAtomic(RoomEnemyPlace place, AtomicSpawnSettings settings)
+    internal static void InitializeAtomic(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        var state = new AtomicEnemyState(settings);
+        var state = new AtomicEnemyState();
+        place.SetSpeciesState(state);
 
         place.AnimationClock.Restart();
 
+        AtomicSpawnSettings settings = occupant.SpawnSettings<AtomicSpawnSettings>();
         state.Playback = new(AtomicAnimations.StartingWith(settings.Spin), AnimationPlace.StartOfAnimation);
-        return state;
     }
 
     /// <summary>
     /// Moves the Atomic one step toward Samus on each axis at its spawn settings' speed. It ignores terrain and chooses both
     /// directions again every update.
     /// </summary>
-    private static void RunAtomicMain(
-        RoomEnemyPlace place,
-        AtomicEnemyState state,
+    internal static void MoveAtomicTowardSamus(
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         SamusState samus)
     {
         // The Atomic moves towards Samus on each axis; being level with her counts as her being below or to the right, so
         // it moves down or right.
-        SignedSixteenSixteen speed = state.Settings.Speed;
+        SignedSixteenSixteen speed = occupant.SpawnSettings<AtomicSpawnSettings>().Speed;
         SignedSixteenSixteen vertical = speed.Toward(samus.Position.Y.Whole < place.Position.Y.Whole ? VerticalDirection.Up : VerticalDirection.Down);
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(vertical));
 
@@ -46,14 +46,8 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemySettingsFactory<Atom
     }
 
     /// <summary>Advances Atomic's typed animation.</summary>
-    internal static void AdvanceAtomicTypedAnimation(RoomEnemyPlace place, AtomicEnemyState atomicEnemyState, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, atomicEnemyState, AtomicAnimations.Segments,
+    internal static void AdvanceAtomicTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, AtomicAnimations.Segments,
             static (AtomicEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Atomic animation raised {cue}."));
-
-    /// <summary>Runs Atomic's main AI.</summary>
-    internal static void RunAtomicMainAi(RoomEnemyPlace place, AtomicEnemyState state, IEnemyAiFrame frame)
-    {
-        RunAtomicMain(place, state, frame.Samus);
-    }
 }

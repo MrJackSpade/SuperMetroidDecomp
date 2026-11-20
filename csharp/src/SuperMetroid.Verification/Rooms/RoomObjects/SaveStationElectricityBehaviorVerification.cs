@@ -18,7 +18,7 @@ internal static class SaveStationElectricityBehaviorVerification
     /// <summary>The electricity's spawn starts its typed program, which cycles twenty times and deletes on the native update.</summary>
     internal static void VerifySaveStationElectricityBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, SaveStationElectricityNativeListAddresses.Extent, "save-station electricity");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.SaveStationElectricity.Spawn(new(10, 2));

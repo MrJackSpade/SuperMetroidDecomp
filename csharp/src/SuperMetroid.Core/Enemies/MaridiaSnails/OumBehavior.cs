@@ -14,7 +14,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Oum];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new OumEntity(this, occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new OumEntity(this, occupant, place, common));
 
     /// <summary>Resolves floor, ledge, and wall contact during bounce and roll phases.</summary>
     private readonly EnemyTerrain _terrain;
@@ -33,7 +33,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Oum.</summary>
-    internal static OumEnemyState InitializeOum()
+    internal static void InitializeOum(RoomEnemyPlace place)
     {
         var state = new OumEnemyState(OumAction.Idle, OumBouncePhase.Falling)
         {
@@ -43,11 +43,11 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
             Heading = HorizontalDirection.Right,
             RemainingBounces = OumMotionDefinitions.SettlingBounces,
         };
+        place.SetSpeciesState(state);
 
         // The spawn's left-facing idle disagrees with the right-facing Oum it counts as (ShowsSpawnIdle), which is
         // observable until the snail first starts an animation.
         state.Playback = new(OumAnimations.StartingWith(OumSegment.FacingLeftIdle), AnimationPlace.StartOfAnimation);
-        return state;
     }
 
     /// <summary>
@@ -418,19 +418,19 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs the Oum's main AI.</summary>
-    internal void RunOumMainAi(RoomEnemyPlace place, OumEnemyState state, IEnemyAiFrame frame)
+    internal void RunOumMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         RunOumMain(
             place,
-            state,
+            place.RequireSpeciesState<OumEnemyState>(),
             frame.Samus,
             frame.Level,
             frame.ControllerInput);
     }
 
     /// <summary>Advances the Oum's typed animation.</summary>
-    internal void AdvanceOumTypedAnimation(RoomEnemyPlace place, OumEnemyState oumEnemyState) =>
-        EnemyAnimationPlayback.Advance(place, oumEnemyState, OumAnimations.Segments,
+    internal void AdvanceOumTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, OumAnimations.Segments,
             static (OumEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Drawing;
@@ -27,7 +26,7 @@ internal sealed class ShallowWaterJumpScenario
     /// <summary>Owns the initialized retail-room runtime advanced by this scenario.</summary>
     internal SuperMetroidRuntime Runtime { get; }
     /// <summary>Exposes the runtime's Samus state for takeoff and per-frame capture.</summary>
-    internal SamusState Samus => Runtime.Player.Samus;
+    internal SamusState Samus => Runtime.Player.IntroducedSamus;
 
     /// <summary>Places Samus standing in the water and settles two frames, ready for takeoff.</summary>
     internal ShallowWaterJumpScenario(SuperMetroidRuntime runtime)
@@ -35,7 +34,7 @@ internal sealed class ShallowWaterJumpScenario
         Runtime = runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BelowSpazer, camera: new Position16<RoomPixels>(0, 256));
         var samus = Samus;
         samus.Control.Unlock();

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -35,9 +34,9 @@ internal static class XraySetupVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         var support = runtime.Enemies.Places.InUpdateOrder[1];
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;

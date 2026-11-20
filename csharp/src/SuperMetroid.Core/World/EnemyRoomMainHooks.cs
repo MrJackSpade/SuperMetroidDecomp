@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.World;
 internal sealed class EnemyRoomMainHooks(RoomBossEncounters encounters, RoomCameraDistance cameraDistance, RoomCameraFloor cameraFloor) : IEnemyRoomMainHooks
 {
     /// <inheritdoc/>
-    public void WhenCrocomireJoins(Action<CrocomireEnemyState> joins) => encounters.WhenCrocomireJoins(joins);
+    public CrocomireEnemyState? Crocomire => encounters.Crocomire;
 
     /// <inheritdoc/>
     public RoomCameraFloor CameraFloor => cameraFloor;

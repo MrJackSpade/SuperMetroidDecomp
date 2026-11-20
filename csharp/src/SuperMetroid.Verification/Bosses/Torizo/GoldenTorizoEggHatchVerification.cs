@@ -36,7 +36,7 @@ internal static class GoldenTorizoEggHatchVerification
                 Facing = laidFacingRight ? HorizontalDirection.Left : HorizontalDirection.Right,
             };
             eggState.HatchTimer.LastFor(1);
-            egg.Rebind(enemies.TorizoBehavior.Attacks.Egg(eggState));
+            enemies.TorizoBehavior.Attacks.Egg.Eggs.Start(egg, eggState);
 
             TorizoAttacks.BounceEgg(enemies.TorizoBehavior.Attacks.Egg, egg, level);
 

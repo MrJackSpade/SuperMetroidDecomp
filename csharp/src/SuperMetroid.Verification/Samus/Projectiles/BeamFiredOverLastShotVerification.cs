@@ -93,7 +93,7 @@ internal static class BeamFiredOverLastShotVerification
     private static void VerifyChainsawBurnsTheFuseItFinds()
     {
         var retail = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        int ignitedWord = retail.ReadCartridgeWord(0x90C301);
+        int ignitedWord = CartridgeImportSource.Require(retail).ReadCartridgeWord(0x90C301);
 
         (SamusProjectileSystem projectiles, SamusBombProjectileSystem shared, SamusState samus) =
             NewFixture(SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma);
@@ -145,8 +145,8 @@ internal static class BeamFiredOverLastShotVerification
     private static void VerifyFuseEachShotLeaves()
     {
         var retail = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        int ignitedWord = retail.ReadCartridgeWord(0x90C301);
-        int reflectionWord = retail.ReadCartridgeWord(0x90BE3A);
+        int ignitedWord = CartridgeImportSource.Require(retail).ReadCartridgeWord(0x90C301);
+        int reflectionWord = CartridgeImportSource.Require(retail).ReadCartridgeWord(0x90BE3A);
         AssertEqual(ignitedWord, SamusProjectileMotionDefinitions.MissileIgnitionSpeed.InTwoHundredFiftySixthsOfPixel,
             "a missile ignites at the speed its ignition adds");
         AssertEqual(ignitedWord + reflectionWord,
@@ -270,7 +270,7 @@ internal static class BeamFiredOverLastShotVerification
         state.Ignite(ignition is SamusMissileIgnition.PendingAfterReflection
             ? SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed
             : SamusProjectileMotionDefinitions.MissileIgnitionSpeed);
-        state.LinkPlace = ignitedLinkPlace;
+        state.LinkChainPosition = ignitedLinkPlace;
         missile.HeldShot().Install(SamusShotBehaviors.SuperMissile, state);
         return missile;
     }

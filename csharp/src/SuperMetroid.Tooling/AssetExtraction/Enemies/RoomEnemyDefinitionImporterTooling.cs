@@ -16,7 +16,7 @@ internal static class RoomEnemyDefinitionImporterTooling
     internal static byte Bank(ISnesAddressSpace bus, EnemyDefinitionId pointer)
     {
         Ensure.NotNull(bus);
-        return bus.ReadCartridgeByte(
+        return CartridgeImportSource.Require(bus).ReadCartridgeByte(
             SuperMetroid.AssetExtraction.CartridgeTables.EnemySourceDefinitions.EnemyHeaderBank | unchecked((ushort)(EnemyDefinitionIds.HeaderPointer(pointer) + BankOffset)));
     }
 }

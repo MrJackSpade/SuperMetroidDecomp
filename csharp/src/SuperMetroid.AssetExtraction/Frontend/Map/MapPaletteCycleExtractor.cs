@@ -27,7 +27,7 @@ internal static class MapPaletteCycleExtractor
                 break;
             PaletteRgb5[] highlight = [.. MapPaletteCycleFormat.HighlightInks.Select(ink =>
             {
-                int word = RomDataReader.ReadWordFixedBank(bus,
+                int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     MapSourceDefinitions.Animation.PaletteColors + (frame * MapPaletteCycleFormat.ColorCount + ink) * sizeof(ushort));
                 return new PaletteRgb5 { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
             })];

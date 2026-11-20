@@ -96,7 +96,4 @@ internal static class PowampMotionDefinitions
 
     /// <summary>The speed the body sinks back to its spawn height at once its balloon has deflated: a pixel an update.</summary>
     internal static SignedSixteenSixteen SinkVelocity { get; } = SignedSixteenSixteen.FromWholePixels(1);
-
-    /// <summary>How many places after its balloon the room lists a Powamp's body, the one part its balloon heads.</summary>
-    internal const int BodyPlacesAfterBalloon = 1;
 }

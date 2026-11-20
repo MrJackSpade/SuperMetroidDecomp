@@ -13,5 +13,5 @@ internal static class SoundEffectPortBytes
     /// </summary>
     internal static byte PortByte(SoundAcknowledgement<SoundEffectId> acknowledgement) =>
         acknowledgement.IsMusicLoading ? MusicLoadPortByte
-            : acknowledgement.Request?.Sound is SoundEffectId sound ? checked((byte)SoundEffectCommands.Command(sound)) : (byte)0;
+            : acknowledgement.Sound is SoundEffectId sound ? checked((byte)SoundEffectCommands.Command(sound)) : (byte)0;
 }

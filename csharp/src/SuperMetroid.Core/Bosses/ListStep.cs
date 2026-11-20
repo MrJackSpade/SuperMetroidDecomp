@@ -18,16 +18,13 @@ public readonly record struct ListStep<T>
     }
 
     /// <summary>The entry's place in its list, counting from zero.</summary>
-    public int Place { get; }
+    private int Place { get; }
 
     /// <summary>The entry.</summary>
     public T Entry => _list[Place];
 
     /// <summary>The entry after this one, or null after the list's last.</summary>
     public ListStep<T>? Following => Place + 1 < _list.Count ? new ListStep<T>(_list, Place + 1) : null;
-
-    /// <summary>The step after this one, or this one at the list's last entry: a course that ends rests at its end.</summary>
-    public ListStep<T> OnToEnd => Place + 1 < _list.Count ? new ListStep<T>(_list, Place + 1) : this;
 
     /// <summary>The entry after this one in a cycling walk: the list's first follows its last.</summary>
     public ListStep<T> NextInCycle => new(_list, (Place + 1) % _list.Count);

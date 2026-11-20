@@ -23,7 +23,7 @@ public static class RoomFxPaletteBlendExtractor
         var blends = new Dictionary<string, PaletteRgb5[]>();
         foreach (RoomEffectTint id in RoomFxPaletteBlendDocumentRules.Ids)
         {
-            byte[] source = RomDataReader.ReadFixedBank(bus,
+            byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 RoomFxLayer3TilemapSources.PaletteBlend(id), RoomFxPaletteBlendDefinitions.ColorCount * sizeof(ushort));
             var colors = new PaletteRgb5[RoomFxPaletteBlendDefinitions.ColorCount];
             for (int index = 0; index < colors.Length; index++)

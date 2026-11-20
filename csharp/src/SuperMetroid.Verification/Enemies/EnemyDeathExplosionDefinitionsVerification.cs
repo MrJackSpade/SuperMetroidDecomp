@@ -22,7 +22,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
 
         for (ushort animation = 0; animation < 5; animation++)
         {
-            ushort expected = rom.ReadCartridgeWord((0x86efd5 + animation * 2));
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86efd5 + animation * 2));
             EnemyDeathExplosion explosion = EnemyDeathExplosionWords.Selectors.Decode(animation, "death explosion");
             AssertEqual(expected,
                 EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosions.Animation(explosion)),
@@ -50,8 +50,8 @@ internal static class EnemyDeathExplosionDefinitionsVerification
         RoomEnemyPlace clampedEnemy = clamped.Places.InUpdateOrder[0];
         clampedEnemy.Bind(EnemyDefinitionId.Sciser, clampedEnemy.KeptDefinition);
         clamped.DeathsAndDrops.StartGenericEnemyDeath(clampedEnemy.HeldOccupant(), EnemyDeathExplosionDefinitions.LeftoverNumbered.Named(5), RoomEnemyFrameFixtures.StandaloneSamus());
-        AssertEqual(EnemyDeathExplosionSegment.SmallExplosion,
-            ExplosionProgramOf(clamped.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive)),
+        AssertEqual(EnemyDeathAndDropSegment.SmallExplosion,
+            ProgramOf(clamped.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive)),
             "a Fireflea health above four starts the small explosion");
 
         AssertThrows<InvalidDataException>(

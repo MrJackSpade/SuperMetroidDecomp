@@ -30,7 +30,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         {
             (ushort pointer, Enum actual) = actors[index];
             int address = IntroMotherBrainDefinitions.NativeBank | pointer;
-            AssertEqual(retail.ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual),
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual),
                 $"intro Mother Brain actor {index} instruction list");
         }
 
@@ -40,22 +40,22 @@ internal static class IntroMotherBrainDefinitionsVerification
         for (int index = 0; index < IntroMotherBrainDefinitions.BigExplosions.Count; index++)
         {
             IntroMotherBrainExplosionPlacement actual = IntroMotherBrainDefinitions.BigExplosions[index];
-            AssertEqual(unchecked((short)retail.ReadCartridgeWord((IntroMotherBrainDefinitions.BigXOffsetReferenceAddress + index * 2))),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.BigXOffsetReferenceAddress + index * 2))),
                 actual.Offset.X, $"intro Mother Brain big explosion {index} X offset");
-            AssertEqual(unchecked((short)retail.ReadCartridgeWord((IntroMotherBrainDefinitions.BigYOffsetReferenceAddress + index * 2))),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.BigYOffsetReferenceAddress + index * 2))),
                 actual.Offset.Y, $"intro Mother Brain big explosion {index} Y offset");
-            AssertEqual(retail.ReadCartridgeWord((IntroMotherBrainDefinitions.BigTimerReferenceAddress + index * 2)),
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.BigTimerReferenceAddress + index * 2)),
                 actual.StartDelayFrames, $"intro Mother Brain big explosion {index} timer");
         }
 
         for (int index = 0; index < IntroMotherBrainDefinitions.SmallExplosions.Count; index++)
         {
             IntroMotherBrainExplosionPlacement actual = IntroMotherBrainDefinitions.SmallExplosions[index];
-            AssertEqual(unchecked((short)retail.ReadCartridgeWord((IntroMotherBrainDefinitions.SmallXOffsetReferenceAddress + index * 2))),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.SmallXOffsetReferenceAddress + index * 2))),
                 actual.Offset.X, $"intro Mother Brain small explosion {index} X offset");
-            AssertEqual(unchecked((short)retail.ReadCartridgeWord((IntroMotherBrainDefinitions.SmallYOffsetReferenceAddress + index * 2))),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.SmallYOffsetReferenceAddress + index * 2))),
                 actual.Offset.Y, $"intro Mother Brain small explosion {index} Y offset");
-            AssertEqual(retail.ReadCartridgeWord((IntroMotherBrainDefinitions.SmallTimerReferenceAddress + index * 2)),
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.SmallTimerReferenceAddress + index * 2)),
                 actual.StartDelayFrames, $"intro Mother Brain small explosion {index} timer");
         }
 
@@ -70,7 +70,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             motherBrain.Step();
             int record = CinematicSpriteNativeListAddresses.Start(IntroMotherBrainAnimation.Pulsing) +
                 ((frame / 16) % 4) * 4;
-            ushort expected = retail.ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank | (record + 2)));
+            ushort expected = CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank | (record + 2)));
             AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(motherBrain.Pose),
                 $"intro Mother Brain normal frame {frame} selects its native spritemap");
         }
@@ -95,7 +95,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             // Page two's list follows the page-two start's owner instruction and cross-fade install, six bytes in, and loops by itself.
             int record = CinematicSpriteNativeListAddresses.Start(IntroMotherBrainAnimation.StartingNextPage) + 6 +
                 (((frame + 1) / 16) % 4) * 4;
-            ushort expected = retail.ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank | (record + 2)));
+            ushort expected = CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank | (record + 2)));
             AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(motherBrain.Pose),
                 $"intro Mother Brain page-two frame {frame} preserves native loop");
         }
@@ -114,12 +114,12 @@ internal static class IntroMotherBrainDefinitionsVerification
             int smallPhase = frame % LoopFrames(IntroMotherBrainExplosionAnimation.Small);
             int bigPhase = frame % LoopFrames(IntroMotherBrainExplosionAnimation.Big);
             ushort expectedSmall = smallPhase < 18
-                ? retail.ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank |
+                ? CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank |
                     (CinematicSpriteNativeListAddresses.Start(IntroMotherBrainExplosionAnimation.Small) +
                         (smallPhase / 3) * 4 + 2)))
                 : (ushort)0;
             ushort expectedBig = bigPhase < 36
-                ? retail.ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank |
+                ? CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank |
                     (CinematicSpriteNativeListAddresses.Start(IntroMotherBrainExplosionAnimation.Big) +
                         (bigPhase / 6) * 4 + 2)))
                 : (ushort)0;

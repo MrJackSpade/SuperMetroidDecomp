@@ -8,15 +8,8 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// </summary>
 public sealed class MorphBallEyeEnemyState
 {
-    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
-    internal MorphBallEyeBodySpawnSettings Settings { get; }
-
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal MorphBallEyeEnemyState(MorphBallEyeAction action, MorphBallEyeBodySpawnSettings settings)
-    {
-        Settings = Ensure.NotNull(settings);
-        Action = action;
-    }
+    internal MorphBallEyeEnemyState(MorphBallEyeAction action) => Action = action;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600): the eyelid's.</summary>
     internal AnimationPlayback<MorphBallEyeSegment> Playback { get; set; }

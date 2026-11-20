@@ -45,7 +45,7 @@ public static class DraygonColorExtractor
             for (int index = 0; index < count; index++)
             {
                 int address = source + index * sizeof(ushort);
-                int native = RomDataReader.ReadWordFixedBank(bus, address);
+                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Draygon color ${address:X6} has an unrepresentable high bit.");

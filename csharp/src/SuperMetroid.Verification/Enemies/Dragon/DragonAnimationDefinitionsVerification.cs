@@ -22,7 +22,7 @@ internal static class DragonAnimationDefinitionsVerification
         {
             // The cartridge pairs its six ordinals as facing left (even) and right (odd) within each phase.
             DragonSegment selector = Selector(index);
-            AssertEqual(rom.ReadCartridgeWord((0xa2e5ef + index * 2)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2e5ef + index * 2)),
                 NativeEnemyAnimationOracle.EntryOf(DragonNativeListAddresses.Entries, selector),
                 $"Dragon animation selector {selector}");
         }
@@ -172,7 +172,7 @@ internal static class DragonAnimationDefinitionsVerification
 
     /// <summary>Starts with nondefault instruction values so an omitted install remains observable.</summary>
     private static RoomEnemyPlace NewDragonAnimationPlace(int index) =>
-        new RoomEnemyPlace(index, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers()).WithAnimationClock(hold: 0x2222);
+        new RoomEnemyPlace(index, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()).WithAnimationClock(hold: 0x2222);
 
     /// <summary>Provides a fresh Dragon state for a standalone animation slot.</summary>
     private static DragonWingState NewDragonAnimationState() => new();

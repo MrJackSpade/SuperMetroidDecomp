@@ -22,7 +22,7 @@ public sealed class BotwoonEnemyState
     /// The independent movement behaviour, choosing direct hole movement or an authored path; he starts moving toward
     /// his target hole.
     /// </summary>
-    internal BotwoonMovement Movement { get; set; } = new BotwoonMovement.MoveTowardHole();
+    public BotwoonMovement Movement { get; internal set; } = BotwoonMovement.MoveTowardHole;
 
     /// <summary>
     /// The independent head behaviour, controlling movement orientation, aiming, spit-frame admission, and cooldown; the
@@ -78,12 +78,14 @@ public sealed class BotwoonEnemyState
     public RotationAngle MovementAngle { get; internal set; }
     /// <summary>The direction his spits fly: the bearing from his head to Samus, to which a volley's other spits add their spread.</summary>
     public RotationAngle SpitAngle { get; internal set; }
+    /// <summary>The authored path being walked; none before his first walk.</summary>
+    internal BotwoonPathDefinition? Path { get; set; }
     /// <summary>
-    /// The next step of the path he walks (<see cref="BotwoonMovement.FollowAuthoredPath"/>) to take. A forward walk ends when it passes the last step and a backward
+    /// The next step of <see cref="Path"/> to take. A forward walk ends when it passes the last step and a backward
     /// walk when it passes the first, so it ranges from one before the first step to one after the last.
     /// </summary>
     public int PathStep { get; internal set; }
-    /// <summary>Which way the path he walks is walked: a backward walk takes the steps in reverse order, each reversed.</summary>
+    /// <summary>Which way <see cref="Path"/> is walked: a backward walk takes the steps in reverse order, each reversed.</summary>
     public BotwoonPathTraversal PathTraversal { get; internal set; }
     /// <summary>The head animation the AI last installed and where it stands; reinstalling the same animation does not restart it.</summary>
     internal AnimationPlayback<BotwoonHeadAnimationSegment> HeadPlayback { get; set; } =
@@ -119,13 +121,12 @@ public sealed class BotwoonEnemyState
     /// <summary>Ring index saved at a head hole crossing so delayed body samples toggle at the same position; null means no crossing remains pending.</summary>
     public int? SavedHoleRingIndex { get; internal set; }
 
-    /// <summary>Starts Botwoon's state with the body <paramref name="spawnBody"/> spawns, each segment holding this state.</summary>
-    /// <param name="spawnBody">
-    /// Spawns his body segments from the tail to the segment behind the head (#2178), each holding the state it is given:
-    /// all <see cref="BotwoonFightDefinitions.BodySegments"/> of them, or none for a Botwoon already defeated, who spawns no
-    /// body.
+    /// <summary>Starts Botwoon's state with his <paramref name="body"/>, which his setup spawns.</summary>
+    /// <param name="body">
+    /// His body segments from the tail to the segment behind the head (#2178): all
+    /// <see cref="BotwoonFightDefinitions.BodySegments"/> of them, or none for a Botwoon already defeated, who spawns no body.
     /// </param>
-    internal BotwoonEnemyState(Func<BotwoonEnemyState, IReadOnlyList<BotwoonSegmentState>> spawnBody) => Body = Ensure.NotNull(spawnBody)(this);
+    internal BotwoonEnemyState(IReadOnlyList<BotwoonSegmentState> body) => Body = Ensure.NotNull(body);
 
     /// <summary>
     /// His body segments, from the tail (zero) to the segment behind the head: each segment's projectile, its phase and

@@ -9,9 +9,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// <param name="Top">The top hull, which runs the ship.</param>
 /// <param name="Bottom">The bottom hull, listed right after the top.</param>
 /// <param name="EntrancePad">The entrance pad, listed right after the bottom.</param>
-/// <param name="BottomState">The bottom hull's state, which the top hull made as it was placed (#2554).</param>
-/// <param name="EntrancePadState">The entrance pad's state, which the top hull made as it was placed (#2554).</param>
-internal sealed record GunshipPieces(RoomEnemyPlace Top, RoomEnemyPlace Bottom, RoomEnemyPlace EntrancePad, GunshipPieceState BottomState, GunshipPieceState EntrancePadState) : IGlowingEnemy
+internal sealed record GunshipPieces(RoomEnemyPlace Top, RoomEnemyPlace Bottom, RoomEnemyPlace EntrancePad) : IGlowingEnemy
 {
     /// <summary>The three pieces in the room's order, which the ship moves together.</summary>
     internal IEnumerable<RoomEnemyPlace> All

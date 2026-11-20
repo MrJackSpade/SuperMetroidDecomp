@@ -22,15 +22,15 @@ internal static class PauseBackdropsVerification
     internal static void VerifyPauseBackdrops(ISnesAddressSpace bus, InstalledScreenContent original)
     {
         AssertTrue(InstalledFixtures.ImportOf(original).Pause.Backdrops.CreateButtonTilemap().SequenceEqual(BackgroundTileWordBytes.Tiles(
-            RomDataReader.ReadFixedBank(bus, 0xb6e400, 0x400))), "all native mutable button tiles survive extraction");
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e400, 0x400))), "all native mutable button tiles survive extraction");
         // A debugger save state binds the installed content rather than writing it, as the debugger's store does, so
         // the round trip below carries only the pause session's own state.
         var bound = new BoundObjectGraph([original, MenuSheetFixtures.For(original), .. InstalledFixtures.BoundContent]);
         foreach (AreaId area in AreaIds.All)
         {
-            byte[] expected = RomDataReader.ReadFixedBank(bus, 0xb6e000, 0x800);
-            ushort label = RomDataReader.ReadWordFixedBank(bus, 0x82965f + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
-            RomDataReader.ReadFixedBank(bus, 0x820000 | label, 24).CopyTo(expected, 170 * 2);
+            byte[] expected = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e000, 0x800);
+            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82965f + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | label, 24).CopyTo(expected, 170 * 2);
             var tiles = new BackgroundTile[PauseBackdropDefinitions.Cells]; InstalledFixtures.ImportOf(original).Pause.Backdrops.LoadTo(tiles, area);
             AssertTrue(BackgroundTileWordBytes.Tiles(expected).SequenceEqual(tiles), "all 1024 backdrop tiles match native frame plus unmasked area lettering");
             var pause = Create(area, original);

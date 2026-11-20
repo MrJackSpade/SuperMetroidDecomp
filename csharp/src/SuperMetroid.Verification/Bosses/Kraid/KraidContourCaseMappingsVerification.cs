@@ -19,9 +19,9 @@ internal static class KraidContourCaseMappingsVerification
         {
             int address = 0xa7b161 + 4 * record;
             // Native CMP/BPL uses the sign of wrapped subtraction, not ordered signed comparison.
-            if (unchecked((short)(relativeY - rom.ReadCartridgeWord(address))) >= 0 ||
-                unchecked((short)(relativeY - rom.ReadCartridgeWord((address + 4)))) >= 0)
-                return unchecked((short)rom.ReadCartridgeWord((address + 2)));
+            if (unchecked((short)(relativeY - CartridgeImportSource.Require(rom).ReadCartridgeWord(address))) >= 0 ||
+                unchecked((short)(relativeY - CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)))) >= 0)
+                return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)));
         }
         throw new InvalidOperationException("Native Kraid body contour did not terminate within its records.");
     }
@@ -63,15 +63,15 @@ internal static class KraidContourCaseMappingsVerification
     internal static NativeKraidGrowthResumeResult NativeKraidGrowthResume(CartridgeImportAddressSpace rom, ushort tilemap)
     {
         // Decode the native LDY/CMP immediates rather than using compiled selector constants.
-        ushort offset = rom.ReadCartridgeWord(0xa7c042);
+        ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c042);
         for (int selector = 0; selector < 3; selector++)
         {
             int instruction = 0xa7c029 + 8 * selector;
-            if (tilemap != rom.ReadCartridgeWord((instruction + 4))) continue;
-            offset = rom.ReadCartridgeWord((instruction + 1));
+            if (tilemap != CartridgeImportSource.Require(rom).ReadCartridgeWord((instruction + 4))) continue;
+            offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((instruction + 1));
             break;
         }
-        return new NativeKraidGrowthResumeResult((ushort)(rom.ReadCartridgeWord(0xa7c047) + offset), rom.ReadCartridgeWord((0xa70000 | (rom.ReadCartridgeWord(0xa7c04d) + offset))));
+        return new NativeKraidGrowthResumeResult((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c047) + offset), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa70000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c04d) + offset))));
     }
 
     /// <summary>
@@ -80,7 +80,7 @@ internal static class KraidContourCaseMappingsVerification
     /// </summary>
     internal static void VerifyKraidGrowthResumeCases(CartridgeImportAddressSpace rom)
     {
-        var native = new KraidHeadNativeCursors(rom);
+        var native = new KraidHeadNativeCursors(CartridgeImportSource.Require(rom));
         var selected = new Dictionary<ushort, KraidHeadGrowthResume>
         {
             [SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Closed)] = KraidHeadGrowthResume.NextFrameClosed,

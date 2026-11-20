@@ -27,10 +27,10 @@ internal static class CeresSteamDefinitionsVerification
             CeresSteamVariant variant = variants[index];
             CeresSteamInitialization definition =
                 CeresSteamInitializations.Initialization(variant);
-            AssertEqual(rom.ReadCartridgeWord((instructionTable + index * 2)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + index * 2)),
                 NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.Entries, definition.Animation),
                 $"Ceres steam {variant} instruction list");
-            AssertEqual(CeresNativeWords.DecodeSteamAction(rom.ReadCartridgeWord(functionTable + index * 2), "native Ceres steam function"),
+            AssertEqual(CeresNativeWords.DecodeSteamAction(CartridgeImportSource.Require(rom).ReadCartridgeWord(functionTable + index * 2), "native Ceres steam function"),
                 definition.Action,
                 $"Ceres steam {variant} function");
 
@@ -42,11 +42,12 @@ internal static class CeresSteamDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)index);
             place.Bind(EnemyDefinitionId.CeresSteam, place.KeptDefinition);
-            place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+            ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
 
-            AssertEqual(new AnimationPlayback<CeresSteamSegment>(CeresSteamAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation), SuperMetroid.Core.Enemies.EnemyPartners.Listed<CeresSteamEntity>(place).State.Playback,
+            AssertEqual(new AnimationPlayback<CeresSteamSegment>(CeresSteamAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation), place.RequireSpeciesState<CeresSteamEnemyState>().Playback,
                 $"production Ceres steam {variant} program");
-            CeresSteamEnemyState steamState = SuperMetroid.Core.Enemies.EnemyPartners.Listed<CeresSteamEntity>(place).State;
+            CeresSteamEnemyState steamState = place.SpeciesState<CeresSteamEnemyState>()
+                ?? throw new InvalidOperationException("The initialized vent has no state.");
             AssertEqual<CeresSteamMotion>(definition.Action == CeresSteamAction.ApplyRotatingElevatorOffset
                     ? new CeresSteamMotion.RidesShaftTurn(shaft)
                     : CeresSteamMotion.HoldsItsPlace.Instance,

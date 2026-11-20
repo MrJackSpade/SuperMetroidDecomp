@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend;
 /// (<see cref="CeresDepartureState"/>) is the sequence's step.
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class CeresDepartureGameSequence(FrontendSession session) : IGameplayPhase
+internal sealed class CeresDepartureGameSequence(FrontendSession session) : IGamePhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.CeresDeparture;
@@ -32,15 +32,15 @@ internal sealed class CeresDepartureGameSequence(FrontendSession session) : IGam
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <inheritdoc/>
-    public void Step(ControllerButton controllerInput, LoadedGameplay live)
+    public void Step(ControllerButton controllerInput)
     {
         switch (session.ceresDeparture.Phase)
         {
             case CeresDeparturePhase.HoldingOnElevator:
-                HoldOnElevator(controllerInput, live);
+                HoldOnElevator(controllerInput);
                 break;
             case CeresDeparturePhase.FadingToBlack:
-                FadeToBlack(controllerInput, live);
+                FadeToBlack(controllerInput);
                 break;
             case CeresDeparturePhase.Inactive:
             case CeresDeparturePhase.Complete:
@@ -51,20 +51,20 @@ internal sealed class CeresDepartureGameSequence(FrontendSession session) : IGam
     }
 
     /// <summary>One update of gameplay during the elevator hold.</summary>
-    private void HoldOnElevator(ControllerButton controllerInput, LoadedGameplay live)
+    private void HoldOnElevator(ControllerButton controllerInput)
     {
         // The arrival descent runs in ordinary main gameplay while the elevator's enemy projectiles lock Samus; the
         // departure is only the hold and the fade.
-        live.Runtime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.CeresDeparture }, live.Room);
-        session.display.PublishGameplay(live);
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.CeresDeparture });
+        session.display.PublishGameplay(session.GameplayRuntime);
         session.ceresDeparture.StepHoldAfterGameplay();
     }
 
     /// <summary>One update of gameplay during the fade to black, which saves the checkpoint and starts Ceres's destruction once black.</summary>
-    private void FadeToBlack(ControllerButton controllerInput, LoadedGameplay live)
+    private void FadeToBlack(ControllerButton controllerInput)
     {
-        live.Runtime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.CeresDeparture }, live.Room);
-        session.display.PublishGameplay(live);
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.CeresDeparture });
+        session.display.PublishGameplay(session.GameplayRuntime);
         bool ceresFadeFinished = session.ceresDeparture.StepFadeAfterGameplay();
         session.SetDisplayBrightness(session.ceresDeparture.Brightness);
         if (ceresFadeFinished)
@@ -72,14 +72,14 @@ internal sealed class CeresDepartureGameSequence(FrontendSession session) : IGam
             // The blackout saves the live Ceres elevator checkpoint only after
             // the screen is blanked. This is the durable post-Ridley Ceres
             // checkpoint the loader later replaces with Zebes arrival.
-            AutomaticCheckpointSaver.SaveCeresDeparture(session.saves, live.Runtime, session.SelectedSaveSlot);
+            AutomaticCheckpointSaver.SaveCeresDeparture(session.saves, session.GameplayRuntime, session.SelectedSaveSlot);
             session.RaiseSavesChanged();
-            live.Runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
-            live.Runtime.EscapeTimer.Clear();
+            session.GameplayRuntime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
+            session.GameplayRuntime.EscapeTimer.Clear();
             // Stop music and silence all three sound libraries.
             session.audio.QueueMusic(MusicRequest.Stop);
             session.audio.QueueCancelSoundEffects(SoundRequestPriority.Essential);
-            session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped, live.Runtime);
+            session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped);
             session.display.PublishBlack();
         }
     }

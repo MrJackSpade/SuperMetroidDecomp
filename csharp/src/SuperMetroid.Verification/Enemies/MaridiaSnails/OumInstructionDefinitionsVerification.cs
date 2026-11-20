@@ -26,10 +26,10 @@ internal static class OumInstructionDefinitionsVerification
         {
             OumSegment animation = MaridiaSnailsNativeWords.OumAnimations.Decode(animationIndex, "Oum animation index");
             OumSegment program = animation;
-            AssertEqual(rom.ReadCartridgeWord(OumNativeValues.SelectorTable + animationIndex * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(OumNativeValues.SelectorTable + animationIndex * 2),
                 NativeEnemyAnimationOracle.EntryOf(OumNativeListAddresses.Entries, program),
                 $"Oum selector {animationIndex}");
-            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers());
+            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
             var state = new OumEnemyState(OumAction.Idle, OumBouncePhase.Falling);
             place.AnimationClock.HoldFor(0x1234);
             OumBehavior.StartOumAnimation(place, state, animation);
@@ -129,7 +129,7 @@ internal static class OumInstructionDefinitionsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Oum, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        OumBehavior.InitializeOum();
+        OumBehavior.InitializeOum(place);
         return new OumInstructionDefinitionsCreateResult(enemies, place, enemies.OumStates[0] ?? throw new InvalidOperationException("Oum has no state."));
     }
 

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Areas.Maridia;
 /// (<see cref="ElevatubeInheritedFraction"/>).
 /// </summary>
 [RoomLifetime]
-public sealed class MaridiaElevatubeRoomMainState : IElevatubeRide
+public sealed class MaridiaElevatubeRoomMainState
 {
     /// <summary>
     /// The tube's tracked room height (#2016): the room Y its ride moves by the velocity each update, with its fraction.
@@ -42,15 +42,18 @@ public sealed class MaridiaElevatubeRoomMainState : IElevatubeRide
 
     /// <summary>
     /// Starts the ride from <paramref name="entry"/>, as the tube's entry door does (#2485): the tube's starting height,
-    /// speed and acceleration for a ride from that end; the door then holds Samus still. The tracked fraction stays as it was.
+    /// speed and acceleration for a ride from that end, Samus held still. The tracked fraction stays as it was.
     /// </summary>
     /// <param name="entry">The end of the tube Samus enters from.</param>
-    public void Start(ElevatubeEntry entry)
+    /// <param name="samus">Samus, whom the ride holds still.</param>
+    public void StartRide(ElevatubeEntry entry, SamusState samus)
     {
+        Ensure.NotNull(samus);
         MaridiaElevatubeRideStart start = MaridiaElevatubeDefinitions.RideStarts[entry];
         TrackedY = TrackedY.WithWhole(start.StartingY);
         Velocity = start.StartingVelocity;
         Acceleration = start.Acceleration;
+        samus.Control.LockStationary();
     }
 
     /// <summary>

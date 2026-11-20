@@ -32,11 +32,11 @@ internal static class EndingRewardGestureVerification
             EndingSourceDefinitions.Artwork.DecompressionLimit);
         for (int chunk = 0; chunk < 16; chunk++)
         {
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus,
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     EndingRewardGraphicsUploadDefinitions.SourceTable + chunk * sizeof(ushort)),
                 RewardIconStagingWord + EndingRewardGraphicsUploads.ChunkOffset(chunk),
                 $"reward graphics chunk {chunk}'s offset is its native source word's offset from the staging buffer");
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus,
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     EndingRewardGraphicsUploadDefinitions.DestinationTable + chunk * sizeof(ushort)),
                 SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinationsConstants.RewardChunkWordOf(chunk),
                 $"reward graphics destination address {chunk} matches pinned cartridge");
@@ -146,24 +146,24 @@ internal static class EndingRewardGestureVerification
         foreach (var spawn in spawns)
         {
             AssertEqual((byte)0xa0, bus.ReadCartridgeByte(spawn.Load), "reward native spawn uses LDY immediate");
-            ushort pointer = bus.ReadCartridgeWord((spawn.Load + 1));
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((spawn.Load + 1));
             AssertEqual(spawn.Pointer, pointer, "named reward record matches native spawn operand");
             EndingRewardActorDefinition actual = EndingRewardActors.Get(
                 EndingRewardNativeWords.Actors.Decode(pointer, "reward actor definition"));
             int address = 0x8b0000 | pointer;
-            ushort initializer = bus.ReadCartridgeWord(address);
+            ushort initializer = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             AssertEqual(initializer, EndingRewardNativeWords.Starts.Word(actual.Start), $"reward actor ${pointer:X4} initialization callback");
             ushort routine = pointer == EndingRewardNativeWords.Actors.Word(EndingRewardActor.SuitlessUpper) ? CinematicActorNativeMotions.RewardSuitlessUpper : CinematicActorNativeMotions.NoMotion;
-            AssertEqual(bus.ReadCartridgeWord((address + 2)), routine, $"reward actor ${pointer:X4} routine: no motion until the jump starts it");
-            AssertEqual(bus.ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation), $"reward actor ${pointer:X4} instruction list");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), routine, $"reward actor ${pointer:X4} routine: no motion until the jump starts it");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation), $"reward actor ${pointer:X4} instruction list");
             if (!initializers.Add(initializer)) continue;
             int code = 0x8b0000 | initializer;
             for (int offset = 0; offset <= 12; offset += 6)
                 AssertEqual((byte)0xa9, bus.ReadCartridgeByte(code + offset), "reward initializer uses LDA immediate");
             EndingRewardStart origin = EndingRewardNativeWords.Starts.Decode(initializer, "reward initialization");
-            AssertEqual(bus.ReadCartridgeWord((code + 1)), origin.Position.X, "reward native initial X");
-            AssertEqual(bus.ReadCartridgeWord((code + 7)), origin.Position.Y, "reward native initial Y");
-            PaletteRowWords.AssertSelectsOnlyPaletteRow(bus.ReadCartridgeWord((code + 13)), EndingScreenInks.SpriteSet(origin.Colouring), "reward native initial palette selects the sprite group the import draws the reward colouring in");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 1)), origin.Position.X, "reward native initial X");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 7)), origin.Position.Y, "reward native initial Y");
+            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 13)), EndingScreenInks.SpriteSet(origin.Colouring), "reward native initial palette selects the sprite group the import draws the reward colouring in");
         }
         AssertEqual(4, initializers.Count, "reward initializer domain");
         AssertEqual(RewardActorPointers.Length, Enum.GetValues<EndingRewardActor>().Length, "reward record domain");

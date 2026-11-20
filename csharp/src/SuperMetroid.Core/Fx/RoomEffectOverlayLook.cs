@@ -18,29 +18,29 @@ public abstract record RoomEffectOverlayLook
     public RoomEffectBlend Blend { get; }
 
     /// <summary>A liquid blending as <paramref name="blend"/> describes.</summary>
-    public static RoomEffectOverlayLook Liquid(RoomEffectBlend blend) => new ShowsLiquid(blend);
+    private static ShowsLiquid Liquid(RoomEffectBlend blend) => new(blend);
 
     /// <summary>An atmosphere blending as <paramref name="blend"/> describes.</summary>
-    public static RoomEffectOverlayLook Atmosphere(RoomEffectBlend blend) => new ShowsAtmosphere(blend);
+    private static ShowsAtmosphere Atmosphere(RoomEffectBlend blend) => new(blend);
 
     /// <summary>
-    /// <paramref name="look"/>, which an effect of kind <paramref name="type"/> shows on the overlay: a liquid's for an
-    /// effect that shows its liquid there, an atmosphere's for one that shows its atmosphere, and none for an effect that
-    /// shows nothing there.
+    /// What an effect of kind <paramref name="type"/> describing <paramref name="blend"/> shows on the overlay: its liquid
+    /// or its atmosphere with that blend, or null for an effect that shows nothing there and so describes no blend.
     /// </summary>
-    /// <exception cref="ArgumentException">The look is not the kind of look the effect shows.</exception>
-    public static RoomEffectOverlayLook? Checked(RoomFxType type, RoomEffectOverlayLook? look)
+    /// <exception cref="ArgumentException">
+    /// An effect that shows on the overlay describes no blend, or one that shows nothing there describes one.
+    /// </exception>
+    public static RoomEffectOverlayLook? Of(RoomFxType type, RoomEffectBlend? blend)
     {
-        bool shows = RoomFxOverlayState.ShowsOnOverlay(type);
-        if (shows != look is not null)
+        if (!RoomFxOverlayState.ShowsOnOverlay(type))
         {
-            throw new ArgumentException(shows
-                ? $"Room effect {type} shows on the effect overlay but has no look there."
-                : $"Room effect {type} shows nothing on the effect overlay but has a look there.", nameof(look));
+            return blend is null ? null
+                : throw new ArgumentException($"Room effect {type} shows nothing on the effect overlay but describes a blend.", nameof(blend));
         }
-        if (look is not null && look is ShowsLiquid != RoomFxTypes.ShowsLiquid(type))
-            throw new ArgumentException($"Room effect {type} has the overlay look of another kind of effect: {look}.", nameof(look));
-        return look;
+        // The import installs a blend for every effect that shows on the overlay; the room's load checks it once, here.
+        RoomEffectBlend described = blend
+            ?? throw new ArgumentException($"Room effect {type} shows on the effect overlay but describes no blend.", nameof(blend));
+        return RoomFxTypes.ShowsLiquid(type) ? Liquid(described) : Atmosphere(described);
     }
 
     /// <summary>

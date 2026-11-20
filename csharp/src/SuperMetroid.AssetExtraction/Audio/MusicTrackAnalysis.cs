@@ -13,13 +13,20 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// </summary>
 /// <param name="Bank">Music bank the track belongs to.</param>
 /// <param name="Track">Track number written to the music port.</param>
-/// <param name="Period">Whether the track loops, with its loop, ends, with its end, or showed no repeat within the search bound.</param>
+/// <param name="Shape">Whether the track loops, ends, or showed no repeat within the search bound.</param>
+/// <param name="EndSample">Where an ending track returned the music port to zero, or null.</param>
+/// <param name="Arrivals">
+/// For a looping track, the first two arrivals E1 and E2 at the first repeated sequencer state;
+/// the exported clip is intro [start, E1) and loop [E1, E2). Empty otherwise.
+/// </param>
 /// <param name="StartSample">The driver tick that started the track (the music port took the track number).</param>
 /// <param name="TempoChanges">The tempo's whole byte after the start tick and after every tick that changed it, by tick sample.</param>
 internal sealed record MusicTrackAnalysis(
     AudioBank Bank,
     int Track,
-    MusicTrackPeriod Period,
+    MusicTrackShape Shape,
+    long? EndSample,
+    IReadOnlyList<long> Arrivals,
     long StartSample,
     IReadOnlyList<TempoChange> TempoChanges)
 {
@@ -30,16 +37,13 @@ internal sealed record MusicTrackAnalysis(
     /// </summary>
     internal const int NonRepeatingPassLimit = 256;
 
-    /// <summary>Whether the track loops, ends, or showed no repeat within the search bound.</summary>
-    internal MusicTrackShape Shape => Period.Shape;
-
     /// <summary>The clip's end: E2 for a looping track, the end tick for an ending one.</summary>
-    /// <exception cref="InvalidOperationException">The track showed no period, so it has no clip.</exception>
-    internal long ClipEndSample => Period switch
+    internal long ClipEndSample => Shape switch
     {
-        MusicTrackPeriod.Loop loop => loop.SecondArrival,
-        MusicTrackPeriod.Ending ending => ending.EndSample,
-        _ => throw new InvalidOperationException($"{Bank} track {Track} has no period."),
+        MusicTrackShape.Loops => Arrivals[1],
+        MusicTrackShape.Ends => EndSample ?? throw new InvalidOperationException("An ending track has an end sample."),
+        MusicTrackShape.NoPeriodFound => throw new InvalidOperationException($"{Bank} track {Track} has no period."),
+        _ => throw new InvalidOperationException($"Unknown track shape {Shape}."),
     };
 
     /// <summary>
@@ -60,28 +64,30 @@ internal sealed record MusicTrackAnalysis(
     /// <exception cref="InvalidDataException">The track never starts.</exception>
     internal static MusicTrackAnalysis Analyze(ExtractedAudioAssetCatalog catalog, AudioBank bank, int track)
     {
-        var renderer = new SpcAudioClipRenderer(catalog);
-        var observer = new LoopObserver(renderer);
-        renderer.Observe(observer);
+        var observer = new LoopObserver();
+        var renderer = new SpcAudioClipRenderer(catalog, observer);
+        observer.Attach(renderer);
         QueueBanks(renderer, bank);
         renderer.AdvanceSequencerFrame();
         renderer.PlayTrack(MusicTrackNumbers.Decode(bank, track));
-        // A period is found only among the started track's phrases, so the track has started by the time one is.
-        while (true)
-        {
-            if (observer.Outcome is { } period && observer.StartSample is long start)
-                return new MusicTrackAnalysis(bank, track, period, start, observer.TempoChanges);
+        while (observer.Outcome is null)
             renderer.AdvanceSequencerFrame();
-        }
+        return new MusicTrackAnalysis(
+            bank, track, observer.Outcome.Value, observer.EndSample, observer.AnchorArrivals,
+            observer.StartSample ?? throw new InvalidDataException($"{bank} track {track} never started."),
+            observer.TempoChanges);
     }
 
     /// <summary>The native sample position of <paramref name="tick"/> in the renderer's current frame.</summary>
     internal static long NativeSample(SpcAudioClipRenderer renderer, SoundClockStep<SoundEffectLibrary, byte> tick) =>
         (renderer.Frame - 1) * ManagedSnesDsp.NativeStereoFramesPerVideoFrame + tick.SampleOffset;
 
+    /// <summary>The attached renderer; observers are attached before the first frame.</summary>
+    internal static SpcAudioClipRenderer Required(SpcAudioClipRenderer? renderer) =>
+        renderer ?? throw new InvalidOperationException("The observer was not attached to its renderer.");
+
     /// <summary>Records phrase-start states, the track's start and end, and its tempo timeline.</summary>
-    /// <param name="renderer">The renderer whose frame count positions each tick.</param>
-    private sealed class LoopObserver(SpcAudioClipRenderer renderer) : ISpcDriverObserver
+    private sealed class LoopObserver : ISpcDriverObserver
     {
         /// <summary>First arrival of each phrase state (tempo phase excluded), by state key.</summary>
         private readonly Dictionary<string, long> arrivals = [];
@@ -89,32 +95,42 @@ internal sealed record MusicTrackAnalysis(
         private readonly Dictionary<int, int> passes = [];
         /// <summary>Reusable snapshot buffer.</summary>
         private readonly List<byte> state = [];
+        /// <summary>The renderer whose frame count positions each tick.</summary>
+        private SpcAudioClipRenderer? renderer;
         /// <summary>Native sample position of the tick being serviced.</summary>
         private long tickSample;
 
-        /// <summary>The track's period once known: its loop, its end, or none within the search bound.</summary>
-        internal MusicTrackPeriod? Outcome { get; private set; }
+        /// <summary>The analysis result once known.</summary>
+        internal MusicTrackShape? Outcome { get; private set; }
+        /// <summary>Where the track returned the port to zero, if it ended.</summary>
+        internal long? EndSample { get; private set; }
+        /// <summary>E1 and E2 once the first repeated state has arrived twice.</summary>
+        internal IReadOnlyList<long> AnchorArrivals { get; private set; } = [];
         /// <summary>The tick that started the track, once it has.</summary>
         internal long? StartSample { get; private set; }
         /// <summary>The tempo after the start tick and after each tick that changed it.</summary>
         internal List<TempoChange> TempoChanges { get; } = [];
 
+        /// <summary>Binds the renderer once it exists.</summary>
+        internal void Attach(SpcAudioClipRenderer value) => renderer = value;
+
         /// <inheritdoc />
         public void TickStarting(SoundClockStep<SoundEffectLibrary, byte> tick) =>
-            tickSample = NativeSample(renderer, tick);
+            tickSample = NativeSample(Required(renderer), tick);
 
         /// <inheritdoc />
         public void PhraseStarting()
         {
             if (Outcome is not null)
                 return;
-            ManagedSpcPlayer player = renderer.Player;
+            ManagedSpcPlayer player = Required(renderer).Player;
             state.Clear();
             player.WriteSequencerState(state, includeTempoPhase: false);
             string key = Convert.ToBase64String(CollectionsMarshal.AsSpan(state));
             if (arrivals.TryGetValue(key, out long first))
             {
-                Outcome = new MusicTrackPeriod.Loop(first, tickSample);
+                AnchorArrivals = [first, tickSample];
+                Outcome = MusicTrackShape.Loops;
                 return;
             }
             arrivals[key] = tickSample;
@@ -122,13 +138,13 @@ internal sealed record MusicTrackAnalysis(
             int count = passes.GetValueOrDefault(pointer) + 1;
             passes[pointer] = count;
             if (count > NonRepeatingPassLimit)
-                Outcome = new MusicTrackPeriod.NoneFound();
+                Outcome = MusicTrackShape.NoPeriodFound;
         }
 
         /// <inheritdoc />
         public void KeysPublished(int keyOn, int keyOff)
         {
-            ManagedSpcPlayer player = renderer.Player;
+            ManagedSpcPlayer player = Required(renderer).Player;
             if (player.Music.musicPortToSnes != 0)
             {
                 int tempo = player.ReadTempo();
@@ -138,7 +154,8 @@ internal sealed record MusicTrackAnalysis(
             }
             else if (StartSample is not null && Outcome is null)
             {
-                Outcome = new MusicTrackPeriod.Ending(tickSample);
+                EndSample = tickSample;
+                Outcome = MusicTrackShape.Ends;
             }
         }
     }

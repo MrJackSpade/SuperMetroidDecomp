@@ -21,7 +21,7 @@ internal static class NoobTubeProjectileAnimationsVerification
     /// </summary>
     internal static void VerifyNoobTubeProjectileAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int steps = Family.CompareAll(cartridge);
         Func<EnemyProjectileAnimation, ushort?> pointers = Family.NativePointers(cartridge);
         // The pieces' animations are bound to the tube's own piece behaviour, which carries out their events.

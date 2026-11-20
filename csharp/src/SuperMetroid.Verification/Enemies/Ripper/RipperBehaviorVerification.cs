@@ -27,9 +27,9 @@ internal static class RipperBehaviorVerification
                      new VerifyRipperBehaviorCase(EnemyRomTablePointersRipper.RipperPopulationRecord, EnemyDefinitionId.Ripper),
                  })
         {
-            AssertEqual(definition, EnemyDefinitionIdsConstants.FromHeaderPointer(rom.ReadCartridgeWord(record)),
+            AssertEqual(definition, EnemyDefinitionIdsConstants.FromHeaderPointer(CartridgeImportSource.Require(rom).ReadCartridgeWord(record)),
                 $"retail Ripper population ${record:X6} definition");
-            ushort extra = rom.ReadCartridgeWord(record + 10);
+            ushort extra = CartridgeImportSource.Require(rom).ReadCartridgeWord(record + 10);
             AssertTrue(!SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0, extra).CollidesByFrameHitboxes,
                 $"retail Ripper population ${record:X6} uses ordinary OAM");
         }
@@ -53,7 +53,7 @@ internal static class RipperBehaviorVerification
             place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), HorizontalDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
             place.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
-            RipperBehavior.InitializeGrappleRipper(place, place.SpawnSettings<GrappleRipperSpawnSettings>());
+            RipperBehavior.InitializeGrappleRipper(place.HeldOccupant(), place);
             VerifyInstalledLoop(enemies, place, expectedProgram, context);
         }
 
@@ -64,8 +64,8 @@ internal static class RipperBehaviorVerification
             place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), HorizontalDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
             place.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
-            RipperBehavior.InitializeGrappleRipper(place.HeldOccupant(), place, place.SpawnSettings<GrappleRipperSpawnSettings>());
-            RipperBehavior.ReverseRipperVariant(place, place.RequireSpeciesState<RipperEnemyState>());
+            RipperBehavior.InitializeGrappleRipper(place.HeldOccupant(), place);
+            RipperBehavior.ReverseRipperVariant(place);
             VerifyInstalledLoop(enemies, place, RipperSegment.GrappleRipperMovingLeft, "GrappleRipper left reversal");
         }
 
@@ -75,7 +75,7 @@ internal static class RipperBehaviorVerification
             RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.JetRipper);
             place.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
             place.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
-            RipperBehavior.InitializeJetRipper(place, place.SpawnSettings<RipperSpawnSettings>());
+            RipperBehavior.InitializeJetRipper(place.HeldOccupant(), place);
             VerifyInstalledLoop(enemies, place, expectedProgram, context);
         }
 

@@ -22,29 +22,29 @@ public sealed record EnemyTileArtworkParts
     internal IReadOnlyDictionary<UnplacedEnemyArtwork, EnemyPaletteSheet> UnplacedPalettes { get; init; } = new Dictionary<UnplacedEnemyArtwork, EnemyPaletteSheet>();
 
     /// <summary>Spritemaps.</summary>
-    public required EnemySpritemapCatalog Spritemaps { get; init; }
+    public EnemySpritemapCatalog? Spritemaps { get; init; } = null;
 
     /// <summary>Extended frames.</summary>
-    public required EnemyExtendedFrameCatalog ExtendedFrames { get; init; }
+    public EnemyExtendedFrameCatalog? ExtendedFrames { get; init; } = null;
 
     /// <summary>Gunship liftoff.</summary>
-    public required GunshipLiftoffArtworkCatalog GunshipLiftoff { get; init; }
+    public GunshipLiftoffArtworkCatalog? GunshipLiftoff { get; init; } = null;
 
     /// <summary>Projectile spritemaps.</summary>
-    public required EnemyProjectileSpritemapCatalog ProjectileSpritemaps { get; init; }
+    public EnemyProjectileSpritemapCatalog? ProjectileSpritemaps { get; init; } = null;
 
     /// <summary>Magdollite palette cycle.</summary>
-    public required MagdollitePaletteCycle MagdollitePaletteCycle { get; init; }
+    public MagdollitePaletteCycle? MagdollitePaletteCycle { get; init; } = null;
 
     /// <summary>Work robot palette cycle.</summary>
-    public required WorkRobotPaletteCycle WorkRobotPaletteCycle { get; init; }
+    public WorkRobotPaletteCycle? WorkRobotPaletteCycle { get; init; } = null;
 
     /// <summary>Chozo and tube colors.</summary>
-    public required ChozoAndTubeColorCatalog ChozoAndTubeColors { get; init; }
+    public ChozoAndTubeColorCatalog? ChozoAndTubeColors { get; init; } = null;
 
     /// <summary>Dachora colors.</summary>
-    public required DachoraColorCatalog DachoraColors { get; init; }
+    public DachoraColorCatalog? DachoraColors { get; init; } = null;
 
     /// <summary>Auxiliary colors.</summary>
-    public required EnemyAuxiliaryColorCatalog AuxiliaryColors { get; init; }
+    public EnemyAuxiliaryColorCatalog? AuxiliaryColors { get; init; } = null;
 }

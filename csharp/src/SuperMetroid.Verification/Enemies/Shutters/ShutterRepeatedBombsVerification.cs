@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -27,9 +26,9 @@ internal static class ShutterRepeatedBombsVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
-            var samus = runtime.Player.Samus;
+            var samus = runtime.Player.IntroducedSamus;
             var platform = runtime.Enemies.Places.InUpdateOrder[slotIndex];
             samus.Control.Unlock();
             samus.Pose = SamusPoseId.MorphBallGroundRightPose;

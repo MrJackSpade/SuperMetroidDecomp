@@ -10,20 +10,20 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The ninja space pirate species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFactory<NinjaSpacePirateSpawnSettings>
+internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldNinja, EnemyDefinitionId.PirateSilverNinja];
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">The place holds no ninja definition.</exception>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, NinjaSpacePirateSpawnSettings settings)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.PirateGoldNinja)
-            return new GoldNinjaSpacePirateEntity(this, occupant, place, common, settings);
+            return EnemyOccupant.Of(new GoldNinjaSpacePirateEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.PirateSilverNinja)
-            return new NinjaSpacePirateEntity(this, occupant, place, common, settings);
+            return EnemyOccupant.Of(new NinjaSpacePirateEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The ninja Space Pirate species creates no {occupant.DefinitionId}.");
     }
 
@@ -50,10 +50,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
     }
 
     /// <summary>Initializes the Ninja Space Pirate.</summary>
-    internal static NinjaSpacePirateEnemyState InitializeNinjaSpacePirate(RoomEnemyPlace place, NinjaSpacePirateSpawnSettings settings)
+    internal static void InitializeNinjaSpacePirate(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         var state = new NinjaSpacePirateEnemyState(NinjaSpacePirateAction.StandingStill);
+        place.SetSpeciesState(state);
 
+        NinjaSpacePirateSpawnSettings settings = occupant.SpawnSettings<NinjaSpacePirateSpawnSettings>();
         bool startsAtLeft = settings.StartPost switch
         {
             NinjaSpacePirateStartPost.Left => true,
@@ -65,10 +67,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
             : NinjaSpacePirateSegment.AwaitingSamusFacingLeft;
         state.Playback = new(NinjaSpacePirateAnimations.StartingWith(initial), AnimationPlace.StartOfAnimation);
 
-        // The post distance describes the requested distance between posts. The setup
-        // first establishes those requested posts around the population X coordinate, then
-        // deliberately replaces them with a symmetric pair derived from its acceleration
-        // sum. That adjustment is why the final span can differ slightly from the post distance.
+        // The posts lie symmetrically about the placement's midpoint, at the distance the spin covers, which can differ
+        // slightly from the placement's post distance.
         int requestedLeft = startsAtLeft
             ? place.Position.X.Whole
             : place.Position.X.Whole - settings.PostDistance;
@@ -92,7 +92,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
         state.LeftPostX = state.PostsMidpointX - adjustedHalfSpan;
         place.Position = place.Position.WithX(FixedCoordinate.FromWhole(startsAtLeft ? state.LeftPostX : state.RightPostX));
         state.SpawnPosition = place.Position.Whole;
-        return state;
     }
 
     /// <summary>Runs the Ninja Space Pirate's current behaviour.</summary>
@@ -253,7 +252,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
         NinjaSpacePirateEnemyState state,
         SamusState samus)
     {
-        if (!NinjaSpacePirateCadenceDefinitions.ClawAttackEverySixtyFourthUpdate.IsDue(place.FrameCounter))
+        if (!NinjaSpacePirateCadenceDefinitions.ClawAttack.IsDue(place.FrameCounter))
             return;
 
         if (place.Position.X.Whole == state.LeftPostX)
@@ -275,7 +274,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
             NinjaSpacePirateSegment.ClawAttackRight);
     }
 
-    /// <summary>Retries RNG until a nonzero dive choice after higher-priority reactions fail.</summary>
+    /// <summary>
+    /// When no reaction comes first, draws random numbers until SpacePirateDecisions.DivekickDrawnAgain no longer takes
+    /// one, then divekicks.
+    /// </summary>
     private void RunNinjaPirateReadyToDivekick(
         RoomEnemyPlace place,
         NinjaSpacePirateEnemyState state,
@@ -294,8 +296,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
             return;
         }
 
-        // Every accepted draw starts the same divekick. The draws are kept because advancing the RNG until it
-        // draws a number not divisible by four is observable.
+        // Every kept draw starts the same divekick; three draws in four are kept.
         bool drawsAgain;
         do
             drawsAgain = SpacePirateDecisions.DivekickDrawnAgain.IsTakenBy(_room.Random.Generate());
@@ -355,7 +356,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
     private static void InitializeNinjaPirateDive(NinjaSpacePirateEnemyState state) =>
         state.DiveSpeed = SpacePirateMotionDefinitions.NinjaDiveStartSpeed;
 
-    /// <summary>Rises until signed speed turns negative, then switches to the descent animation.</summary>
+    /// <summary>Rises until its speed carries it downward, then switches to the descent animation.</summary>
     private static void StepNinjaPirateDiveJump(
         RoomEnemyPlace place,
         NinjaSpacePirateEnemyState state,
@@ -381,7 +382,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
     /// Moves horizontally and falls by the divekick's step (<see cref="NinjaPirateDiveFallStep"/>) until the floor or the
     /// speed ends the dive.
     /// </summary>
-    internal void StepNinjaPirateDive(
+    private void StepNinjaPirateDive(
         RoomEnemyPlace place,
         NinjaSpacePirateEnemyState state,
         RoomLevelData level,
@@ -453,28 +454,29 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
     }
 
     /// <summary>Allocates a claw with the selected throw direction, offset, graphics, and outbound speed.</summary>
-    internal void SpawnNinjaPirateClaw(
-        RoomEnemyPlace source,
+    private void SpawnNinjaPirateClaw(
+        RoomEnemyOccupant occupant, RoomEnemyPlace source,
         HorizontalDirection thrown,
         Offset16<RoomPixels> spawnOffset)
     {
-        var claw = new ClawBehavior(new NinjaPirateClawState(SpacePirateMotionDefinitions.NinjaClawLaunchSpeed, thrown));
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateClaw, claw, SpriteGraphics.SpawnedBy(source));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateClaw, Claw, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(source.Position.Whole + spawnOffset);
-        projectile.StartAnimation(new SpacePirateClawAnimation(thrown == HorizontalDirection.Right
-            ? SpacePirateClawSegment.ClawRight
-            : SpacePirateClawSegment.ClawLeft, claw));
+        projectile.StartAnimation(new SpacePirateProjectileAnimation(Claw, thrown == HorizontalDirection.Right
+            ? SpacePirateProjectileSegment.ClawRight
+            : SpacePirateProjectileSegment.ClawLeft));
+        Claw.Claws.Start(projectile, new NinjaPirateClawState(SpacePirateMotionDefinitions.NinjaClawLaunchSpeed, thrown));
     }
 
     /// <summary>Flies a claw out along its throw and back, with exact camera culling.</summary>
     private static void FlyNinjaPirateClaw(
+        ClawBehavior owner,
         EnemyProjectile projectile,
-        NinjaPirateClawState claw,
         Position16<RoomPixels> camera)
     {
+        NinjaPirateClawState claw = owner.Claws.Of(projectile);
         HorizontalDirection thrown = claw.Thrown;
         int outbound = claw.StepAlongThrow();
 
@@ -496,8 +498,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
     /// Carries out one cue of the ninja Space Pirates' animations. Becoming active continues at the active stance facing
     /// Samus, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemyPlace place, NinjaSpacePirateEnemyState state, NinjaSpacePirateCue cue, SamusState samus)
+    private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, NinjaSpacePirateCue cue, SamusState samus)
     {
+        NinjaSpacePirateEnemyState state = place.RequireSpeciesState<NinjaSpacePirateEnemyState>();
         switch (cue)
         {
             case NinjaSpacePirateCue.SetShading setShading:
@@ -507,7 +510,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
                 Walking.RequestSpacePirateSound(playSound.Sound);
                 return null;
             case NinjaSpacePirateCue.ThrowClaw throwClaw:
-                SpawnNinjaPirateClaw(place, throwClaw.Throw, throwClaw.Offset);
+                SpawnNinjaPirateClaw(occupant, place, throwClaw.Throw, throwClaw.Offset);
                 return null;
             case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartActive }:
             {
@@ -541,7 +544,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
         }
     }
 
-    /// <summary>Installs an animation and restarts its frame timer.</summary>
+    /// <summary>Starts an animation and restarts its frame timer.</summary>
     private static void StartNinjaPirateAnimation(
         RoomEnemyPlace place,
         NinjaSpacePirateEnemyState state,
@@ -551,39 +554,54 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
         place.AnimationClock.StepOnNextUpdate();
     }
 
+    /// <summary>
+    /// A Ninja Pirate's claw (#1760): its spawner starts its animation and chooses its throw's way, and the animation throws
+    /// it.
+    /// </summary>
+    private ClawBehavior Claw { get; } = new();
+
     /// <summary>A thrown claw: it flies out and back along its throw, once its animation throws it (#2278).</summary>
-    /// <param name="claw">What the claw keeps: the way it was thrown and how far along its throw it is.</param>
-    internal sealed class ClawBehavior(NinjaPirateClawState claw)
-        : SingleMotionProjectileBehavior(context => FlyNinjaPirateClaw(context.Projectile, claw, context.Camera), initial: null),
-            IEnemyProjectileCues<SpacePirateClawCue>
+    internal sealed class ClawBehavior()
+        : EnemyProjectileMotionBehavior<SingleMotion>(initial: null), IEnemyProjectileCues<SpacePirateProjectileCue>
     {
+        /// <summary>Each claw's throw and its speed along it, given as its pirate throws it.</summary>
+        internal EnemyProjectileStates<NinjaPirateClawState> Claws { get; } = new();
+
         /// <inheritdoc/>
-        /// <exception cref="InvalidOperationException">The cue throws the claw a way other than its thrower chose.</exception>
-        public void RunCue(EnemyProjectileCueContext context, SpacePirateClawCue cue)
+        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
+            FlyNinjaPirateClaw(this, context.Projectile, context.Camera);
+
+        /// <inheritdoc/>
+        /// <exception cref="InvalidOperationException">
+        /// The cue is not a claw's throw, or throws the claw a way other than its thrower chose.
+        /// </exception>
+        public void RunCue(EnemyProjectileCueContext context, SpacePirateProjectileCue cue)
         {
-            HorizontalDirection thrown = claw.Thrown;
+            if (cue.Kind != SpacePirateProjectileCueKind.ThrowClaw)
+                throw new InvalidOperationException($"A claw's animation published {cue}.");
+            HorizontalDirection thrown = Claws.Of(context.Projectile).Thrown;
             if (cue.Direction != thrown)
                 throw new InvalidOperationException($"A claw its pirate threw {thrown} played the animation that throws it {cue.Direction}.");
-            StartMoving(context.Projectile);
+            context.Projectile.StartMotion(this, SingleMotion.Moving);
         }
     }
 
     /// <summary>Runs the ninja Space Pirate's main AI.</summary>
-    internal void RunNinjaSpacePirateMainAi(RoomEnemyPlace place, NinjaSpacePirateEnemyState state, IEnemyAiFrame frame)
+    internal void RunNinjaSpacePirateMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         RunNinjaSpacePirateMain(
             place,
-            state,
+            place.RequireSpeciesState<NinjaSpacePirateEnemyState>(),
             frame.Samus,
             frame.Level,
             frame.SamusProjectiles);
     }
 
     /// <summary>Advances the ninja Space Pirate's typed animation.</summary>
-    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemyPlace place, NinjaSpacePirateEnemyState ninjaSpacePirateEnemyState, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, ninjaSpacePirateEnemyState, NinjaSpacePirateAnimations.Segments,
+    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, NinjaSpacePirateAnimations.Segments,
             static (NinjaSpacePirateEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyNinjaSpacePirateCue(place, ninjaSpacePirateEnemyState, cue, context.Samus) is { } continuesAt
+            (state, cue) => ApplyNinjaSpacePirateCue(occupant, place, cue, context.Samus) is { } continuesAt
                 ? new AnimationContinuation<NinjaSpacePirateSegment>(NinjaSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
 

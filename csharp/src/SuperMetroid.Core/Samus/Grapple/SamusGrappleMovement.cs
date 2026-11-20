@@ -168,8 +168,9 @@ public static class SamusGrappleMovement
             case GrappleEnemyReaction.None:
             case GrappleEnemyReaction.Kill:
                 break;
-            case GrappleEnemyReaction.NamesNoReaction:
-                throw new InvalidOperationException("The grapple's endpoint reports an enemy that names no reaction, which its collision refuses.");
+            // The collision never reports an enemy with no reaction to the beam: reaching one fails there.
+            case GrappleEnemyReaction.Unreactive:
+                throw new InvalidOperationException("The grapple collision reported an enemy with no reaction to the beam.");
             default:
                 throw new InvalidOperationException($"Undefined GrappleEnemyReaction {enemy.Reaction}.");
         }
@@ -667,7 +668,7 @@ public static class SamusGrappleMovement
         ISamusRoomObjects roomObjects)
     {
         RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(endpoint.ToRoomBlock());
-        if (block.LiesBeyondRoom)
+        if (block.Position is null)
         {
             // The edge-solid block outside the room reacts as an ordinary solid endpoint: it stops
             // the beam without connecting, which queues grapple cancellation.
@@ -701,8 +702,8 @@ public static class SamusGrappleMovement
                 // beam through rejects it. Every other spike uses the empty reaction, which stops the
                 // beam without latching, and immediately deletes; the turret spike alone uses Draygon's
                 // broken-turret setup, which adds one whole periodic-damage unit and latches the beam.
-                if (block.Behavior.SpikeReading is not BlockKindReading<SpikeReaction>.Reacts { Reaction: var spike })
-                    throw new InvalidDataException($"Grapple reached spike block {block.At} with no spike reaction ({block.Behavior}).");
+                if (block.Behavior.Spike is not { } spike)
+                    throw new InvalidDataException($"Grapple reached spike block {block.Position} with no spike reaction ({block.Behavior}).");
                 if (spike.LetsGrappleBeamThrough)
                     return GrappleBlockReaction.Passes;
                 if (spike == SpikeReaction.TurretSpike)
@@ -739,7 +740,7 @@ public static class SamusGrappleMovement
                 // A grapple block with no grapple reaction would select none of the four grapple room
                 // objects.
                 throw new InvalidDataException(
-                    $"Invalid grapple block behaviour ({block.Behavior}) at {block.At}.");
+                    $"Invalid grapple block behaviour ({block.Behavior}) at {block.Position}.");
 
             case RoomCollisionType.ShootableAir:
             case RoomCollisionType.ShootableBlock:
@@ -762,7 +763,7 @@ public static class SamusGrappleMovement
                     // weapon, and decides itself whether to refuse the hit or wake up.
                     if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.GrappleTouch.Instance))
                         throw new InvalidOperationException(
-                            $"Grapple trigger block {block.At} has no resident room-object owner.");
+                            $"Grapple trigger block {block.Position} has no resident room-object owner.");
                 }
                 else if (block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
                     roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
@@ -782,7 +783,7 @@ public static class SamusGrappleMovement
                         throw new UnsupportedGameStateException(
                             $"grapple-shootable/type-{block.CollisionType}/behaviour-{block.Behavior.Shootable}",
                             $"Grapple shootable reaction type {block.CollisionType}/behaviour ({block.Behavior}) " +
-                            $"at block {block.At} has no grapple reaction.",
+                            $"at block {block.Position} has no grapple reaction.",
                             error);
                     }
                 }
@@ -802,12 +803,12 @@ public static class SamusGrappleMovement
 
             case RoomCollisionType.HorizontalExtension:
             case RoomCollisionType.VerticalExtension:
-                throw new InvalidOperationException($"Continuing block {block.At} reached the grapple's endpoint in place of the block it stands for.");
+                throw new InvalidOperationException($"Continuing block {block.Position} reached the grapple's endpoint in place of the block it stands for.");
 
             default:
                 throw new InvalidDataException(
                     $"Grapple block type {block.CollisionType} escaped the complete " +
-                    $"sixteen block kinds at {block.At}.");
+                    $"sixteen block kinds at {block.Position}.");
         }
     }
 

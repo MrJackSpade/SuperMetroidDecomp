@@ -100,7 +100,7 @@ internal static class ScrollObjectsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
             Radius = new(8, 7),
         };
-        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, body, SamusBlockMoveOwner.NewSamus, SamusBlockMoveOwner.NewSamusPose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
+        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, body, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
         AssertTrue(!movement.Collided,
             "scroll extension remains traversable special air");
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),

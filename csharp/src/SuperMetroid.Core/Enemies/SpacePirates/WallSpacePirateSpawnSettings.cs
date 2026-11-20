@@ -6,11 +6,4 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="JumpSpeed">How fast its jumps between its walls turn.</param>
 /// <param name="JumpSpan">The pixels between its walls.</param>
 internal sealed record WallSpacePirateSpawnSettings(
-    HorizontalDirection Wall, PirateLaserSpeed LaserSpeed, WallSpacePirateJumpSpeed JumpSpeed, int JumpSpan) : EnemySpawnSettings
-{
-    /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacementRequest placing) => Ensure.NotNull(species).Place(this, placing);
-
-    /// <inheritdoc/>
-    internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);
-}
+    HorizontalDirection Wall, PirateLaserSpeed LaserSpeed, WallSpacePirateJumpSpeed JumpSpeed, int JumpSpan) : EnemySpawnSettings;

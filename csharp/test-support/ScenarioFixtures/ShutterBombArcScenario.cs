@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Input;
@@ -39,7 +38,7 @@ internal sealed class ShutterBombArcScenario
     /// <summary>Initialized retail room fixture stepped by this controller sequence.</summary>
     internal SuperMetroidRuntime Runtime { get; }
     /// <summary>Samus state owned by the scenario runtime.</summary>
-    internal SamusState Samus => Runtime.Player.Samus;
+    internal SamusState Samus => Runtime.Player.IntroducedSamus;
     /// <summary>Shutter enemy tracked for position comparison.</summary>
     internal RoomEnemyPlace Platform => Runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[SlotIndex];
 
@@ -60,7 +59,7 @@ internal sealed class ShutterBombArcScenario
         Runtime = runtime;
         Runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         Runtime.RoomLoader.InitializeStartingCeresRoom();
-        Runtime.RoomLoader.InitializeCeresStartSamus(Runtime.Room.Loaded);
+        Runtime.RoomLoader.InitializeCeresStartSamus();
         Runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
         var samus = Samus;
         var platform = Platform;

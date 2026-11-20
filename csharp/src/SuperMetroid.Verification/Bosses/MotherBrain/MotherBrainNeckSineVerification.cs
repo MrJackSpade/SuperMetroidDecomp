@@ -87,7 +87,7 @@ internal static class MotherBrainNeckSineVerification
         ushort distance)
     {
         int address = EnemyMathReferenceData.SignedSine + angle * 2;
-        short sine = unchecked((short)rom.ReadCartridgeWord(address));
+        short sine = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         return unchecked((short)(EightEightOracle.Multiply(sine, (sbyte)distance)));
     }
 }

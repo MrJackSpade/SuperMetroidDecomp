@@ -19,7 +19,7 @@ internal sealed class CeresElevatorShaftMain(CeresElevatorShaftRoomMainState sha
     public RoomMainOutcome Run(RoomMainUpdate update)
     {
         CeresElevatorShaftRoomMainResult result = shaft.Step(
-            update.Player.Samus,
+            update.Player.IntroducedSamus,
             update.Room.Enemies.Ceres.CeresStatus == CeresEscapeStatus.ElevatorDoorDestroyed,
             allowDeparture: update.AllowCeresElevatorDeparture);
         if (result.TiltChanged)

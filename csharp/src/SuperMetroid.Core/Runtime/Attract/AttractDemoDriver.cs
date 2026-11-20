@@ -9,8 +9,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.World;
 
-using SuperMetroid.Core.World.RoomStates;
-
 namespace SuperMetroid.Core.Runtime.Attract;
 
 /// <summary>
@@ -55,7 +53,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     public void BeginAttractSamusInput()
     {
         if (_attractSession.Input is null) return;
-        _player.Samus.InputSnapshot.PressesSeenLastUpdate = _attractSession.Input.Script.NewlyPressed;
+        _player.IntroducedSamus.InputSnapshot.PressesSeenLastUpdate = _attractSession.Input.Script.NewlyPressed;
         _attractSession.Input.Step();
         _attractSession.InputRestore = _playerActions.UseDemoInput(
             _attractSession.Input.Script.Held, _attractSession.Input.Script.NewlyPressed);
@@ -86,8 +84,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     /// Loads the demo scene without consulting or writing a player save.
     /// Uses the ordinary room, room-object, enemy, FX, and graphics loaders with demo progression.
     /// </summary>
-    /// <returns>The runtime's loaded room, the demo's.</returns>
-    internal RoomScope InitializeAttractDemo(AttractDemoScene scene)
+    internal void InitializeAttractDemo(AttractDemoScene scene)
     {
         Ensure.NotNull(scene);
         _system.Progress.CopyFrom(DemoProgress());
@@ -119,40 +116,35 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         // The demo record independently supplies room and door. Do not replace room
         // selection with the door destination or derive placement from a load station.
         var room = _roomLoader.LoadSelectedRoom(scene.Room);
-        // The scene's room setup acts on the demo room: the Kraid demo's phase wait on Kraid, composed with the load so it runs
-        // as his body sets up (#2554), the others on the room the load built. A scene without one leaves the room as loaded.
-        AttractDemoRoomWork work = RoomWorkOf(scene.RoomSetup);
-        RoomScope loaded = _roomLoader.LoadRoom(door, room, scene.CameraPosition,
-            RoomViewportLoadMode.DisplayInitialViewport, work.Entry);
-        work.AfterLoad?.Invoke(loaded);
+        _roomLoader.LoadRoom(door, room, scene.CameraPosition,
+            RoomViewportLoadMode.DisplayInitialViewport);
+        // The scene's room setup acts on the demo room the load just built; a scene without one leaves the room as loaded.
+        if (scene.RoomSetup is { } roomSetup)
+            ApplyAttractRoomSetup(roomSetup, _room.LoadedScope.Enemies);
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
+        samus.Ground = SamusGround.Of(room.Definition);
         _player.GroundedSamusMovementEnabled = true;
         _attractSession.Input = new AttractDemoInput(scene);
-        return loaded;
     }
 
-    /// <summary>
-    /// What <paramref name="roomSetup"/> does to the scene's room: the scroll and defeated-boss setups act on the room its load
-    /// built; the Kraid timer is composed with the load, over Kraid's setup.
-    /// </summary>
-    private AttractDemoRoomWork RoomWorkOf(AttractDemoRoomSetup? roomSetup) => roomSetup switch
+    /// <summary>Applies scene-specific scroll, Kraid timer, or defeated-boss setup.</summary>
+    private void ApplyAttractRoomSetup(AttractDemoRoomSetup roomSetup, RoomEnemySystem enemies)
     {
-        null => new AttractDemoRoomWork(default, null),
-        AttractDemoRoomSetup.ChargeBeamScroll => new AttractDemoRoomWork(default,
-            room => room.Camera.Scrolls.SetRoomScreen(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed)),
-        AttractDemoRoomSetup.KraidTimer => new AttractDemoRoomWork(
-            new RoomEntry { AttractDemoEnemySetup = hooks => hooks.StartKraidPhaseWaitAsHeSetsUp(AttractDemoDefinitions.KraidPhaseWaitUpdates) },
-            null),
-        AttractDemoRoomSetup.DefeatedKraid => new AttractDemoRoomWork(default,
-            _ => _system.RecordBossesDefeated(AreaId.Brinstar, DefeatedBosses.AreaBoss)),
-        _ => throw new InvalidOperationException($"Undefined AttractDemoRoomSetup {roomSetup}."),
-    };
-
-    /// <summary>What a scene's room setup does: how the room loads, and what acts on it once loaded, if anything.</summary>
-    /// <param name="Entry">How the room loads.</param>
-    /// <param name="AfterLoad">What acts on the room once loaded, or null when nothing does.</param>
-    [RoomScopeBoundary("A per-call value, built for one room load and never kept.")]
-    private readonly record struct AttractDemoRoomWork(RoomEntry Entry, Action<RoomScope>? AfterLoad);
+        switch (roomSetup)
+        {
+            case AttractDemoRoomSetup.ChargeBeamScroll:
+                _room.LoadedCamera.Scrolls.SetRoomScreen(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed);
+                break;
+            case AttractDemoRoomSetup.KraidTimer:
+                enemies.AttractDemoHooks.StartKraidPhaseWait(AttractDemoDefinitions.KraidPhaseWaitUpdates);
+                break;
+            case AttractDemoRoomSetup.DefeatedKraid:
+                _system.RecordBossesDefeated(AreaId.Brinstar, DefeatedBosses.AreaBoss);
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined AttractDemoRoomSetup {roomSetup}.");
+        }
+    }
 }

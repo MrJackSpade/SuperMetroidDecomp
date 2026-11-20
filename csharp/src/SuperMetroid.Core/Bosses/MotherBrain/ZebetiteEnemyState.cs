@@ -8,15 +8,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class ZebetiteEnemyState
 {
     /// <summary>
-    /// Creates the state for one Zebetite half from its spawn parameters, its pairing, showing <paramref name="shown"/>. It
-    /// has no linked half until a pair links its halves.
+    /// Creates the state for one Zebetite half from its spawn parameters: its pairing. It has no linked half until a
+    /// pair links its halves.
     /// </summary>
-    /// <param name="half">Which half the placement names.</param>
-    /// <param name="shown">What the half shows: its barrier's picture, or nothing for a barrier every Zebetite's fall has destroyed.</param>
-    internal ZebetiteEnemyState(ZebetiteHalf half, ZebetiteShown shown)
+    internal ZebetiteEnemyState(RoomEnemyPlacement population)
     {
-        Shown = Ensure.NotNull(shown);
-        Half = half;
+        Half = population.SpawnSettingsOf<ZebetiteSpawnSettings>().Half;
         // A primary half first spawns its linked half, which itself waits out the door transition.
         Action = Half == ZebetiteHalf.Linked ? ZebetiteAction.WaitForDoorTransition : ZebetiteAction.SpawnLinkedHalf;
     }
@@ -39,10 +36,10 @@ public sealed class ZebetiteEnemyState
     public ZebetiteBarrierForm Form { get; internal set; }
 
     /// <summary>
-    /// What this half shows (#2250): a standing barrier's picture, chosen by its form and health at its setup and then by
-    /// each active update; nothing for a barrier set up once every Zebetite has fallen, which its setup deletes.
+    /// The picture this half shows, chosen by its form and health (#2250): by its setup, then by each active update; none
+    /// before its setup chose one.
     /// </summary>
-    internal ZebetiteShown Shown { get; set; }
+    internal EnemyFrameId? Picture { get; set; }
 
     /// <summary>
     /// The other half of a linked pair, to which a shot's health and flash are copied; null for a single barrier, which

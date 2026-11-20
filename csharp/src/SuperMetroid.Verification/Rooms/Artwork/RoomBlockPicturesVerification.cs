@@ -282,9 +282,9 @@ internal static class RoomBlockPicturesVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(hud);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(room);
-        runtime.Player.Samus.Control.LockOutPlayer();
+        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
         return runtime;
     }
 
@@ -554,9 +554,9 @@ internal static class RoomBlockPicturesVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(room);
-        runtime.Player.Samus.Control.LockOutPlayer();
+        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
         // The tileset's animations and the characters each paints are the room's, read once for all its frames.
         var animations = new RoomAnimatedCharacters(UploadsOf(runtime).Options, BgCharacterSet.Tiles, AnimatedTilesOf(runtime, room.Name));
         int rebound = 0;
@@ -645,10 +645,10 @@ internal static class RoomBlockPicturesVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         progress?.Invoke(runtime);
         runtime.LoadCartridgeRoomForDebug(room, state: state);
-        runtime.Player.Samus.Control.LockOutPlayer();
+        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
         // The tileset's animations and the characters each paints are the room's, read once for all its frames.
         var animations = new RoomAnimatedCharacters(UploadsOf(runtime).Options, BgCharacterSet.Tiles, AnimatedTilesOf(runtime, room.Name));
         int checkedPictures = 0, uploaded = 0;
@@ -732,7 +732,7 @@ internal static class RoomBlockPicturesVerification
             bool collectible = block.ShowsCollectible;
             bool overUpload = !collectible && scope.Assets.BlockSheet.Inputs.Of(block.Block)
                 .Any(input => appearance.ValueOf(input) != RoomAppearanceValues.Loaded);
-            ushort[] blockWords = collectible ? CollectibleWords(block.Collectible!.Value)
+            ushort[] blockWords = collectible ? CollectibleWords(block.Collectible)
                 : stock[(block.Block * BlockTiles)..((block.Block + 1) * BlockTiles)];
             for (int tile = 0; tile < BlockTiles; tile++)
             {
@@ -740,7 +740,7 @@ internal static class RoomBlockPicturesVerification
                 // A character an animation paints shows the frame it selected (#1406), which the composed VRAM never holds.
                 bool animated = false;
                 ReadOnlySpan<byte> bytes = collectible
-                    ? DynamicCollectibleGraphics.Get(block.Collectible!.Value.Kind).Tiles.Span[(word.CharacterIndex * BgCharacterSet.Tiles.CharacterBytes())..]
+                    ? DynamicCollectibleGraphics.Get(block.Collectible.Kind).Tiles.Span[(word.CharacterIndex * BgCharacterSet.Tiles.CharacterBytes())..]
                     : sprites ? tiles.AsSpan(word.CharacterIndex * BgCharacterSet.Tiles.CharacterBytes())
                     : tileAnimations.Bytes(latched, word.CharacterIndex, tiles, out animated);
                 for (int y = 0; y < CharacterPixels; y++)

@@ -183,7 +183,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                     ? unchecked((short)(angle - 128)) < 0
                     : unchecked((short)(angle - 256)) >= 0;
 
-                enemies.KiHunterBehavior.RunKiHunterBodyMainAi(body, body.RequireSpeciesState<KiHunterBodyState>(), frame);
+                enemies.KiHunterBehavior.RunKiHunterBodyMainAi(body, frame);
                 string side = swoopLeft ? "left" : "right";
                 AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction), SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(state.AngularVelocity.FractionsOfStep),
                     $"KiHunter {side} swoop update {update} angular velocity carries and caps only its whole part");
@@ -228,10 +228,10 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         static void Install(RoomEnemyPlace place, KiHunterSegment program)
         {
             var playback = new AnimationPlayback<KiHunterSegment>(KiHunterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            if (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KiHunterWingsEntity>(place).State is { } wings)
+            if (place.SpeciesState<KiHunterWingState>() is { } wings)
                 wings.Playback = playback;
             else
-                SuperMetroid.Core.Enemies.EnemyPartners.Listed<KiHunterBodyEntity>(place).State.Playback = playback;
+                place.RequireSpeciesState<KiHunterBodyState>().Playback = playback;
             place.AnimationClock.Restart();
         }
 

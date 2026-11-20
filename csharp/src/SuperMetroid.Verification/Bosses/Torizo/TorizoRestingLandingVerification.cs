@@ -100,8 +100,8 @@ internal static class TorizoRestingLandingVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Position = FixedPosition<RoomPixels>.FromWhole(at);
         place.Radius = Radius;
-        place.Bind(EnemyDefinitionId.BombTorizo, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.BombTorizo));
-        var state = place.SetUpPlaced<TorizoEnemyState>();
+        var state = new TorizoEnemyState(TorizoVariant.Bomb);
+        place.SetSpeciesState(state);
         return (enemies, place, state);
     }
 

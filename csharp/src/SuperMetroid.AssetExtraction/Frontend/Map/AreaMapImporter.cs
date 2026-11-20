@@ -19,16 +19,16 @@ public static class AreaMapImporter
         Ensure.NotNull(bus);
         int areaIndex = AreaNumberCodec.Encode(area);
         int tilemapAddress = RomDataReader.ReadLongFixedBank(
-            bus,
+            CartridgeImportSource.Require(bus),
             MapSourceDefinitions.AreaMaps.TilemapPointers + areaIndex * MapSourceDefinitions.AreaMaps.TilemapPointerBytes);
         int revealPointer = RomDataReader.ReadWordFixedBank(
-            bus,
+            CartridgeImportSource.Require(bus),
             MapSourceDefinitions.AreaMaps.StationRevealMaskPointers + areaIndex * sizeof(ushort));
         int revealAddress = MapSourceDefinitions.AreaMaps.StationRevealMaskBank | revealPointer;
         byte[] tilemapBytes = RomDataReader.ReadFixedBank(
-            bus, tilemapAddress, MapSourceDefinitions.AreaMaps.TilemapBytes);
+            CartridgeImportSource.Require(bus), tilemapAddress, MapSourceDefinitions.AreaMaps.TilemapBytes);
         byte[] revealBytes = RomDataReader.ReadFixedBank(
-            bus, revealAddress, MapSourceDefinitions.AreaMaps.StationRevealMaskBytes);
+            CartridgeImportSource.Require(bus), revealAddress, MapSourceDefinitions.AreaMaps.StationRevealMaskBytes);
         var tilemap = new MapTileWord[AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles];
         for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
         {

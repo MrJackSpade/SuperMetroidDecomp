@@ -20,7 +20,7 @@ internal static class PauseEquipmentBaseAssetsVerification
     internal static void VerifyPauseEquipmentBaseAssets(ISnesAddressSpace bus,
         InstalledScreenContent original)
     {
-        byte[] nativeBase = RomDataReader.ReadFixedBank(bus, PauseMenuSourceDefinitions.EquipmentPage,
+        byte[] nativeBase = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.EquipmentPage,
             PauseEquipmentBaseDefinitions.Cells * sizeof(ushort));
         AssertTrue(BackgroundTileWordBytes.Tiles(nativeBase).SequenceEqual(InstalledFixtures.ImportOf(original).Pause.EquipmentBase.CreateTilemap()),
             "all 1024 equipment base cells match the native tiles");

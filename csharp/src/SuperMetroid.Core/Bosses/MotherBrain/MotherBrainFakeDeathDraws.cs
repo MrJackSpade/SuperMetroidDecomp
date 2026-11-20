@@ -20,16 +20,18 @@ internal static class MotherBrainFakeDeathDraws
     /// </summary>
     internal static RoomObjectDrawFamily<MuralRowDraw> MuralRowFamily { get; } =
         new RoomObjectDrawFamily<MuralRowDraw>("Mother Brain mural",
-            frame => frame.Row is 0 or MotherBrainMuralDefinitions.RowCount - 1
+            frame => frame.Shape == MotherBrainMuralRowShape.Border
                 ? MotherBrainFakeDeathObjectDrawDefinitions.MuralBorderRow
                 : MotherBrainFakeDeathObjectDrawDefinitions.MuralInteriorRow);
 
     /// <summary>The draw of the mural's row <paramref name="row"/>, counted from its top row.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The mural has no such row.</exception>
     internal static RoomObjectFrameDraw<MuralRowDraw> MuralRow(int row) =>
-        MuralRowFamily.Of(new MuralRowDraw(Ensure.BetweenInclusive(0, MotherBrainMuralDefinitions.RowCount - 1, row)));
+        MuralRowFamily.Of(new MuralRowDraw(Ensure.BetweenInclusive(0, MotherBrainMuralDefinitions.RowCount - 1, row),
+            MotherBrainMuralDefinitions.RowShapes[row]));
 
     /// <summary>One row of the mural behind her tank.</summary>
     /// <param name="Row">The row, counted from the mural's top row.</param>
-    internal readonly record struct MuralRowDraw(int Row);
+    /// <param name="Shape">The block shape the row draws.</param>
+    internal readonly record struct MuralRowDraw(int Row, MotherBrainMuralRowShape Shape);
 }

@@ -55,7 +55,7 @@ internal static class RoomEnemyPopulationRecordCodec
     }
 
     /// <summary>The position words of an entry placed by <paramref name="placing"/>: an entry its setup places holds the room origin.</summary>
-    public static Position16<RoomPixels> PositionWordsOf(EnemyPlacementRequest placing) => Ensure.NotNull(placing) switch
+    public static Position16<RoomPixels> PositionWordsOf(EnemyPlacing placing) => Ensure.NotNull(placing) switch
     {
         EnemyPlacedAt at => at.Position,
         EnemyPlacedBySetup => Position16<RoomPixels>.Zero,

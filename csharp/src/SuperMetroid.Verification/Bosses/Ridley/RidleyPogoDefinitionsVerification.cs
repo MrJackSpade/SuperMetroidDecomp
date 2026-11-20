@@ -28,11 +28,11 @@ internal static class RidleyPogoDefinitionsVerification
         for (int band = 0; band < 4; band++)
         {
             int stage = band + 2;
-            int xTable = 0xa60000 | rom.ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoHorizontalPathPointers + pattern * 2));
-            int yTable = 0xa60000 | rom.ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoVerticalPathPointers + pattern * 2));
-            var native = new RidleyPogoDefinitionsReference(rom.ReadCartridgeWord((xTable + stage * 2)), rom.ReadCartridgeWord((yTable + stage * 2)),
-                rom.ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoUpwardAccelerationWords + stage * 2)),
-                rom.ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoDownwardAccelerationWords + stage * 2)));
+            int xTable = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoHorizontalPathPointers + pattern * 2));
+            int yTable = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoVerticalPathPointers + pattern * 2));
+            var native = new RidleyPogoDefinitionsReference(CartridgeImportSource.Require(rom).ReadCartridgeWord((xTable + stage * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((yTable + stage * 2)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoUpwardAccelerationWords + stage * 2)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoDownwardAccelerationWords + stage * 2)));
             reference[pattern, band] = native;
             RidleyPogoDefinition compiled = bands[band].PogoLaunch.Choose(pattern);
             AssertTrue(native == new RidleyPogoDefinitionsReference(compiled.Velocity.X.RawValue, compiled.Velocity.Y.RawValue, compiled.UpwardAcceleration.RawValue, compiled.DownwardAcceleration.RawValue),

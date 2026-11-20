@@ -9,14 +9,18 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal static class TorizoFacing
 {
-    /// <summary>Whether the Torizo whose state is <paramref name="state"/> faces right.</summary>
-    internal static bool FacesRight(TorizoEnemyState state) => Ensure.NotNull(state).Posture.Facing == HorizontalDirection.Right;
+    /// <summary>The Torizo's posture: its facing, its leading foot and whether it is turning around.</summary>
+    internal static TorizoPosture Posture(RoomEnemyPlace torizo) =>
+        Ensure.NotNull(torizo).RequireSpeciesState<TorizoEnemyState>().Posture;
+
+    /// <summary>Whether the Torizo faces right.</summary>
+    internal static bool FacesRight(RoomEnemyPlace torizo) => Posture(torizo).Facing == HorizontalDirection.Right;
 
     /// <summary>Tests whether the Torizo faces the side Samus is on, as its attack branches do.</summary>
-    internal static bool FacesSamus(RoomEnemyPlace torizo, TorizoEnemyState state, SamusState samus)
+    internal static bool FacesSamus(RoomEnemyPlace torizo, SamusState samus)
     {
         // A Torizo facing right faces Samus when she stands right of it; one facing left faces her otherwise, also when
         // she stands level with it.
-        return FacesRight(state) == torizo.Position.X.Whole < Ensure.NotNull(samus).Position.X.Whole;
+        return FacesRight(torizo) == torizo.Position.X.Whole < Ensure.NotNull(samus).Position.X.Whole;
     }
 }

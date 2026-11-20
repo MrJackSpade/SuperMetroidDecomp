@@ -17,13 +17,13 @@ internal static class MorphBallEyeAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyMorphBallEyeAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             MorphBallEyeAnimations.Segments, MorphBallEyeAnimations.StartingAt, MorphBallEyeFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<NoAnimationCue>(
                 word => null,
                 (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."),
                 OwnerLeavesAt: OpenedAt.Contains));
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         // The eye restarted its aim list every update at the frame its sixteenth of the turn numbered, so each frame's
         // duration never ran out: the k-th frame is the pose the k-th arc shows, and the list loops on itself.
         IReadOnlyList<EnemyFrameId> aims = MorphBallEyeAnimations.AimFrames.InTurnOrder;

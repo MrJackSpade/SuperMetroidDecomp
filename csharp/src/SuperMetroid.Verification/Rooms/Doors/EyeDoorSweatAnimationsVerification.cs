@@ -9,7 +9,7 @@ internal static class EyeDoorSweatAnimationsVerification
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyEyeDoorSweatAnimations(CartridgeImportAddressSpace rom)
     {
-        int steps = Family.CompareAll(rom);
+        int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         Console.WriteLine($"  eye-door sweat programs: {Entries.Length} programs ({steps} steps) match bank $86.");
     }
 }

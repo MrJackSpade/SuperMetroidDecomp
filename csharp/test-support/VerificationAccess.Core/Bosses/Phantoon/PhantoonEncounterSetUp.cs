@@ -15,6 +15,8 @@ internal static class PhantoonEncounterSetUp
         /// <returns>The encounter begun.</returns>
         internal PhantoonEnemyState BeginPhantoonAsSetUp(PhantoonEnemyState state)
         {
+            foreach (PhantoonPart part in new[] { state.BodyPart, state.EyePart, state.TentaclesPart, state.MouthPart })
+                part.Place.SetSpeciesState(part);
             enemies.BossEncounters.Attach(state);
             return state;
         }

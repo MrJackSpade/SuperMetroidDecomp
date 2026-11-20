@@ -97,11 +97,14 @@ internal static class EnemySoundOrderVerification
         enemy.Bind(EnemyDefinitionId.Metroid, enemy.KeptDefinition);
         enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         enemy.AnimationClock.StepOnNextUpdate();
-        enemy.SetSpawnSettings(new MetroidSpawnSettings(IceDamageToFreeze: 0));
-        var metroidEnemyState = enemy.SetUpPlaced<MetroidEnemyState>();
-        metroidEnemyState.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
+        enemy.SetSpeciesState(new MetroidEnemyState(
+            new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SpriteGraphics.SharedStandard),
+            new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SpriteGraphics.SharedStandard))
+        {
+            Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
                 AnimationSegments<MetroidSegment, EnemyFrameId, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
-                    MetroidSegment.ChasingCry, 0));
+                    MetroidSegment.ChasingCry, 0)),
+        });
         return enemy;
     }
 
@@ -117,8 +120,8 @@ internal static class EnemySoundOrderVerification
         enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         enemy.SetSpawnParameter2(EnemyDefinitionId.Boyon, 64);
         enemy.Position = enemy.Position.WithWhole(new(256, 512));
-        BoyonBehavior.InitializeBoyon(enemy, enemy.SpawnSettings<BoyonSpawnSettings>());
-        BoyonEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<BoyonEntity>(enemy).State;
+        BoyonBehavior.InitializeBoyon(enemy);
+        BoyonEnemyState state = enemy.RequireSpeciesState<BoyonEnemyState>();
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         samus.Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole);
         BoyonBehavior.RunBoyonMain(enemy.HeldOccupant(), enemy, state, samus);

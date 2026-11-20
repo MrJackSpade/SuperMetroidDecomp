@@ -17,15 +17,18 @@ internal sealed class KraidCombat
     private readonly EnemyAudioQueue _audio;
     /// <summary>Spawns room effect actors for Kraid's visual effects, and gives the place a dud flash took.</summary>
     private readonly RoomEffectActors _effectActors;
+    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
+    private readonly KraidParts _parts;
     /// <summary>Checks mouth, body, and part collisions against Samus and shots.</summary>
     private readonly EnemyCollision _collision;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidCombat(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, RoomEffectActors effectActors, EnemyCollision collision)
+    internal KraidCombat(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, RoomEffectActors effectActors, KraidParts parts, EnemyCollision collision)
     {
         _projectiles = projectiles;
         _audio = audio;
         _effectActors = effectActors;
+        _parts = parts;
         _collision = collision;
     }
 
@@ -260,12 +263,12 @@ internal sealed class KraidCombat
     }
 
     /// <summary>Switches the body from combat to its scripted death phases.</summary>
-    private static void BeginKraidDeath(KraidEnemyState state)
+    private void BeginKraidDeath(KraidEnemyState state)
     {
         state.BodyState.DeathPhase = KraidDeathPhase.Initialize;
         state.ClearMouthReactions();
         // His parts stop touching Samus while his death moves his body and breaks him up. The fingernails are left out: they delete themselves once his health reads zero.
-        foreach (RoomEnemyPlace part in state.Parts.AllButNails)
+        foreach (RoomEnemyPlace part in _parts.AllButNails)
             part.Contact = part.Contact.With(EnemyContact.IgnoresSamus);
     }
 

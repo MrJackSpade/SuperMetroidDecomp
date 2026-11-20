@@ -103,7 +103,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
         var (bus, runtime, samus, game) = NativeSnapshotImport.ImportNativeSnapshot(memory.ToWorkRam(), ridleyMovie.InitialSaveRam);
         Game = game;
         // Ridley's body, fragments and fireballs play typed animations (#1287, #1600); compare their playbacks as native pointers.
-        var pointers = new RidleyNativeInstructionPointers(bus);
+        var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
         RoomObjectPlace[] initialObjects = [.. runtime.RoomObjects.Places.InUpdateOrder];
         var checkedProjectileCompositions = new HashSet<CheckedProjectileComposition>();
         ushort[]? pendingLoadedOwners = null;
@@ -131,7 +131,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             : throw new InvalidOperationException("Verification requires the installation's Samus body artwork.");
         SamusBodyComposition? Drawn() => samus.Presentation.DrawnFrame is { } picture
             ? SamusBodyCompositions.Of(picture.Pose, SamusAnimationNumbers.Number(picture.Pose, picture.PictureFrame), BodyArtwork()) : null;
-        int SpritemapIndex(SamusBodyHalfFrame? drawn) => SamusSpritemapNative.Index(BodyArtwork().Spritemaps, drawn);
+        int SpritemapIndex(SamusBodyHalfFrame? drawn) => SamusSpritemapNative.Index(drawn);
         BodyRecordResult BodyRecord() =>
             new BodyRecordResult(SpritemapIndex(Drawn()?.Top), SpritemapIndex(Drawn()?.Bottom),
                 unchecked((ushort)samus.Presentation.DrawOrigin.X), unchecked((ushort)samus.Presentation.DrawOrigin.Y));
@@ -249,9 +249,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                         .Where(draw => draw.Source.Kind == SpriteSourceKind.SamusArmCannon)];
                     VerificationAssertions.AssertEqual(cannon.SpriteWritten ? 1 : 0, covers.Length, $"update {frame}: cannon draw count");
                     if (cannon.SpriteWritten && cannon.TileUploadQueued)
-                        VerificationAssertions.AssertEqual(ArmCannonTileSources.CoverTileDmaSources.IndexOf(cannon.TileSource),
-                            SheetFrameSources.CharacterDraw(covers[0]).Artwork.Id.Variant,
-                            $"update {frame}: cannon draw binds the reference cover tile");
+                        VerificationAssertions.AssertEqual(SuperMetroid.AssetExtraction.Artwork.SpriteArtworkKind.SamusArmCannonCover,
+                            SheetFrameSources.CharacterDraw(covers[0]).Artwork.Id.Kind,
+                            $"update {frame}: cannon draw binds a cover tile");
                 }
                 // The recorded cover flags are a byte each; the drawing mode is compared as the draw order it selects.
                 ushort recordedCannonFlags = W(NativeSnapshotMemory.CannonFlags);
@@ -465,7 +465,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             // Gameplay holds no colour image (#1512): its pictures show the import's colours under the shadings it publishes.
             ReadOnlySpan<RgbColor> comparedPalette = GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources);
             IEnumerable<int> comparedColours = GameplayShownColours.ComparedIn(runtime);
-            if (game.IsAt(PauseMenuStep.FadingIn) || game.IsAt(PauseMenuStep.Menu) || game.IsAt(PauseMenuStep.FadingOut) || game.IsAt(PauseStep.RestoringGameplay))
+            if (game.IsAt(PauseStep.FadingIn) || game.IsAt(PauseStep.Menu) || game.IsAt(PauseStep.FadingOut) || game.IsAt(PauseStep.RestoringGameplay))
             {
                 // The pause screen holds no colours; its pictures show the import's colours under the shadings it names (#1512).
                 PauseMenuState menu = game.Session.ScreenAs<PauseMenuState>() ?? throw new InvalidDataException("Native pause palette requires the active pause menu.");
@@ -812,7 +812,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 {
                     ushort recordedVariable = W(NativeSnapshotMemory.ProjectileVariable + index);
                     MissileShotState missile = projectile.KindStateAs<MissileShotState>();
-                    int? linkPlace = (missile as SuperMissileShotState)?.LinkPlace;
+                    int? linkPlace = (missile as SuperMissileShotState)?.LinkChainPosition;
                     if (!SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.RecordsIgnitionStage(recordedVariable, missile.Ignition) ||
                         (projectile.HeldShot().Type.Family == SamusProjectileFamily.SuperMissile &&
                         linkPlace != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileLinkSlot(recordedVariable)))
@@ -831,7 +831,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 CheckValue(owner + " Spritemap", unchecked((ushort)projectile.SpritemapPointer), nativeSpritemap == 0 ? 0 : global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(nativeSpritemap));
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
-            for (int place = 0; place < SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount; place++)
+            for (int place = 0; place < SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity; place++)
             {
                 int index = place * 2;
                 string owner = $"Enemy projectile {place}";
@@ -872,7 +872,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     var actualOam = new OamBuffer();
                     expectedOam.BeginFrame();
                     actualOam.BeginFrame();
-                    ImportedSpritemapOracle.DrawEnemyProjectile(bus, expectedOam, nativeMap, new(128, 96), 0, true);
+                    ImportedSpritemapOracle.DrawEnemyProjectile(CartridgeImportSource.Require(bus), expectedOam, nativeMap, new(128, 96), 0, true);
                     actualOam.AddEnemySpritemap(parts.Span, new Position16<ScreenPixels>(128, 96), 0, 0,
                         clipVerticalWrap: true, originYIsOnScreen: true);
                     // A picture stored again in a record that lists its objects in another order draws the same pixels
@@ -920,7 +920,6 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     case RoomEnemyProjectileKind.EnemyDeathExplosion:
                     case RoomEnemyProjectileKind.EnemyDeathPickup:
                         break;
-                    case RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace:
                     case RoomEnemyProjectileKind.YappingMawBody:
                     case RoomEnemyProjectileKind.SkreeMetareeParticle:
                     case RoomEnemyProjectileKind.CrocomireProjectile:
@@ -1024,12 +1023,12 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     // caller X ($86:EF3E/F118), not allocated-slot Y, and never read it
                     // again. Their retained per-slot word is not a live source identity, and the port's explosion drops
                     // it once it has rolled its drop (#2455).
-                    if (projectile.StateOrNull<EnemyDeathExplosionState>() is { } explosion)
-                        Check(owner + " source enemy header", SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(explosion.DropDefinitionId), NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
+                    if (projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion)
+                        Check(owner + " source enemy header", runtime.Enemies.DeathsAndDrops.Explosions.Of(projectile).Dropper is { } dropper ? SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(dropper.DefinitionId) : 0, NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
                     // The native word holds the killed slot's table offset, bit 15 for a respawn, $FFFF for none; a
                     // cleared projectile's names the first slot. Only a direct drop is made a pickup from the start: a
                     // death's pickup is its explosion's.
-                    KilledEnemy killed = projectile.StateOrNull<EnemyDeathAndDropState>() is { } dropped ? dropped.KilledEnemy : KilledEnemy.None;
+                    KilledEnemy? killed = projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion ? runtime.Enemies.DeathsAndDrops.Explosions.Of(projectile).KilledEnemy : null;
                     Check(owner + " killed enemy index", projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup ? 0xffff
                         : SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(killed?.Enemy.Place.Ordinal ?? 0) | (killed is { Respawns: true } ? 0x8000 : 0),
                         NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);

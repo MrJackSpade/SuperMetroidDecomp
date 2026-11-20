@@ -54,7 +54,8 @@ public sealed class PauseSelectorSourcePresentation
     public static PauseSelectorSourcePresentation Load(Stream json)
     {
         PauseSelectorDocument document;
-        try { document = JsonAssetDocument.Read<PauseSelectorDocument>(json, ArtworkJson.Options); }
+        try { document = JsonAssetDocument.Read<PauseSelectorDocument>(json, ArtworkJson.Options)
+            ?? throw new InvalidDataException("Pause selector document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause selector JSON.", error); }
         if (document.Version != PauseSelectorFormat.Version || (uint)document.Palette > 7 ||
             document.Frames is null || document.Frames.Count is < 1 or > PauseSelectorFormat.MaximumFrames)

@@ -21,7 +21,7 @@ public static class CartridgeRoomHeaderImporter
     private static ushort SelectImportedState(ISnesAddressSpace bus, ushort cursor,
         RoomStateSelectionContext selection)
     {
-        IImportCartridgeSource cartridge = bus;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         ushort Word(ushort pointer) => RomDataReader.ReadWordFixedBank(cartridge, 0x8f0000 | pointer);
         for (int commands = 0; commands < 256; commands++)
         {

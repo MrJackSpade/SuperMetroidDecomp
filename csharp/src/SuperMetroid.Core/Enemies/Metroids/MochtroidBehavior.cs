@@ -13,7 +13,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mochtroid];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new MochtroidEntity(this, occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MochtroidEntity(this, occupant, place, common));
 
     /// <summary>Resolves axis movement against terrain in the order for each flight mode.</summary>
     private readonly EnemyTerrain _terrain;
@@ -34,7 +34,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Mochtroid.</summary>
-    internal static MochtroidEnemyState InitializeMochtroid(RoomEnemyPlace place)
+    internal static void InitializeMochtroid(RoomEnemyPlace place)
     {
         // A new Mochtroid has started no animation, so its first request always starts one. Ordinary room loads
         // start every Mochtroid this way.
@@ -42,17 +42,18 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             MovementMode = MochtroidMovementMode.NotTouchingSamus,
         };
+        place.SetSpeciesState(state);
         SetMochtroidAnimation(
             place, state, MochtroidSegment.FreeFlight);
-        return state;
     }
 
     /// <summary>Runs a Mochtroid for one update, resetting its movement before it moves.</summary>
     private void RunMochtroidMain(
-        RoomEnemyPlace place, MochtroidEnemyState state,
+        RoomEnemyPlace place,
         SamusState samus,
         RoomLevelData level)
     {
+        MochtroidEnemyState state = place.RequireSpeciesState<MochtroidEnemyState>();
         MochtroidMovementMode selectedMode = state.MovementMode;
         state.MovementMode = MochtroidMovementMode.NotTouchingSamus;
         switch (selectedMode)
@@ -192,22 +193,20 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Mochtroid's typed animation.</summary>
-    internal static void AdvanceMochtroidTypedAnimation(RoomEnemyPlace place, MochtroidEnemyState mochtroidEnemyState) =>
-        EnemyAnimationPlayback.Advance(place, mochtroidEnemyState, MochtroidAnimations.Segments,
+    internal static void AdvanceMochtroidTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, MochtroidAnimations.Segments,
             static (MochtroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) => throw new InvalidOperationException($"Mochtroid's cue-free animation raised {cue}."));
 
     /// <summary>Runs Mochtroid's main AI.</summary>
-    internal void RunMochtroidMainAi(RoomEnemyPlace place, MochtroidEnemyState state, IEnemyAiFrame frame)
+    internal void RunMochtroidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunMochtroidMain(place, state, frame.Samus, frame.Level);
+        RunMochtroidMain(place, frame.Samus, frame.Level);
     }
 
     /// <summary>Runs the attachment and drain reaction for Samus overlap.</summary>
-    /// <param name="context">The touch.</param>
-    /// <param name="state">The enemy's own state, which the touch acts on.</param>
-    internal void ReactToMochtroidTouch(EnemyTouchContext context, MochtroidEnemyState state) =>
-        ResolveMochtroidTouch(context.Occupant, state, context.Samus, context.PseudoScrew);
+    internal void ReactToMochtroidTouch(EnemyTouchContext context) =>
+        ResolveMochtroidTouch(context.Occupant, context.Place.RequireSpeciesState<MochtroidEnemyState>(), context.Samus, context.PseudoScrew);
 
     /// <summary>The Mochtroid's own shot reaction, which runs the common shot damage with no stage of its own.</summary>
     internal static EnemyShotReaction MochtroidShotReaction { get; } = new();

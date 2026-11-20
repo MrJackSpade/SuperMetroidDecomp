@@ -43,8 +43,6 @@ internal sealed class EnemyPopulationLoader
         EnemyPopulationSurroundings surroundings)
     {
         ReadOnlySpan<RoomEnemyPlacement> placements = populationDefinition.Placements.Span;
-        // The parts of the group whose head the population placed last, built through it as the load reaches their places.
-        var parts = new Queue<EnemyPartBuild>();
         for (int ordinal = 0; ordinal < placements.Length; ordinal++)
         {
             RoomEnemyPlacement population = placements[ordinal];
@@ -57,19 +55,10 @@ internal sealed class EnemyPopulationLoader
 
             RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(enemy);
             RoomEnemyPlace place = _places.InUpdateOrder[ordinal];
-            RoomEnemyOccupant occupant = _lifecycle.InitializePlaceFromDefinition(place, population, definition);
+            _lifecycle.InitializePlaceFromDefinition(place, population, definition);
             if (definition.Boss is { } boss)
                 _roomStatus.Boss = boss;
-            if (parts.TryDequeue(out EnemyPartBuild? part))
-            {
-                _lifecycle.SetUpPart(occupant, part, surroundings);
-            }
-            else
-            {
-                RoomEnemyPlace[] listedAfter = [.. _places.InUpdateOrder.Skip(ordinal + 1).Take(placements.Length - ordinal - 1)];
-                foreach (EnemyPartBuild headed in _lifecycle.SetUpEnemy(occupant, surroundings, listedAfter))
-                    parts.Enqueue(headed);
-            }
+            _lifecycle.SetUpEnemy(place, surroundings);
 
             // Loading replaces whatever frame the initialization AI showed: an animated enemy shows the empty frame until
             // its first animation tick replaces it, and one that collides by its frames' hitboxes collides at the point

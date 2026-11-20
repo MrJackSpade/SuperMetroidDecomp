@@ -21,4 +21,4 @@ public readonly record struct SoundClockStep<TLibrary, TSound>(
     bool ChecksRequests,
     SoundRequestChecks<TLibrary, TSound> Checks)
     where TLibrary : struct, Enum
-    where TSound : notnull, IEquatable<TSound>;
+    where TSound : struct, IEquatable<TSound>;

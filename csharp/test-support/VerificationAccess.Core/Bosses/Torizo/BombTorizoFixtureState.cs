@@ -14,13 +14,11 @@ internal static class BombTorizoFixtureState
     {
         TorizoVariant bound = variant ?? TorizoVariant.Bomb;
         torizo.Bind(bound == TorizoVariant.Golden ? EnemyDefinitionId.GoldenTorizo : EnemyDefinitionId.BombTorizo, torizo.KeptDefinition);
-        // The Torizo is set up through its species as the room places it, its variant its definition's (#2554).
-        TorizoVariant shown = bound;
-        if (torizo.DefinitionId == EnemyDefinitionId.None)
-            torizo.Bind(shown == TorizoVariant.Golden ? EnemyDefinitionId.GoldenTorizo : EnemyDefinitionId.BombTorizo,
-                RoomEnemyDefinitionLookup.Get(shown == TorizoVariant.Golden ? EnemyDefinitionId.GoldenTorizo : EnemyDefinitionId.BombTorizo));
-        TorizoEnemyState state = torizo.SetUpPlaced<TorizoEnemyState>();
-        state.Posture = TorizoParameterFlagWords.PostureOf(parameter1);
+        var state = new TorizoEnemyState(bound)
+        {
+            Posture = TorizoParameterFlagWords.PostureOf(parameter1),
+        };
+        torizo.SetSpeciesState(state);
         return state;
     }
 }

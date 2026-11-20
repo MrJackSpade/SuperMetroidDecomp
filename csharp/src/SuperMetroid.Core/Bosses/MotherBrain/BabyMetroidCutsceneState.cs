@@ -21,15 +21,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class BabyMetroidCutsceneState
 {
     /// <summary>
-    /// Makes the Baby of <paramref name="lateFight"/>, which it holds from here, in <paramref name="place"/>, which the final
-    /// beam's spawn gave it, initializing from the position the place still holds from its previous occupant
-    /// (<see cref="Initialize"/>).
+    /// Makes the Baby of <paramref name="lateFight"/> in <paramref name="place"/>, the place the final beam's spawn gave it,
+    /// both of which it holds from here.
     /// </summary>
     internal BabyMetroidCutsceneState(MotherBrainRainbowBeamAttackSequence lateFight, RoomEnemyPlace place)
     {
         LateFight = Ensure.NotNull(lateFight);
         Place = Ensure.NotNull(place);
-        Initialize(place.Position);
     }
 
     /// <summary>
@@ -39,10 +37,10 @@ public sealed class BabyMetroidCutsceneState
     internal MotherBrainRainbowBeamAttackSequence LateFight { get; }
 
     /// <summary>
-    /// The Baby's place in the room's enemy list, which the final beam's spawn gave it: the Baby is an enemy of its own,
-    /// which Mother Brain's onion rings find there, not an effect her body draws.
+    /// The Baby's place in the room's enemy list, which the final beam's spawn gave it and which holds its position and
+    /// health: the Baby is an enemy of its own, which Mother Brain's onion rings find there, not an effect her body draws.
     /// </summary>
-    public RoomEnemyPlace Place { get; }
+    private RoomEnemyPlace Place { get; }
 
     /// <summary>How far the Baby's hit area reaches to either side of its center: 36 room pixels.</summary>
     public const int XHitboxRadius = 36;
@@ -78,7 +76,7 @@ public sealed class BabyMetroidCutsceneState
     public FixedPosition<RoomPixels> Position
     {
         get => Place.Position;
-        internal set => Place.Position = value;
+        private set => Place.Position = value;
     }
 
     /// <summary>
@@ -112,7 +110,7 @@ public sealed class BabyMetroidCutsceneState
     public int Health
     {
         get => Place.Health;
-        internal set => Place.Health = value;
+        private set => Place.Health = value;
     }
 
     /// <summary>
@@ -185,6 +183,11 @@ public sealed class BabyMetroidCutsceneState
         PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.ArrivalWaitUpdates);
     }
 
+    /// <summary>
+    /// The Baby's setup in its place: it initializes from the position the place still holds from its previous occupant
+    /// (<see cref="Initialize"/>).
+    /// </summary>
+    internal void Arrive() => Initialize(Place.Position);
 
     /// <summary>
     /// Runs one update of the Baby's main AI: its phase runs, then it moves by its velocity.
@@ -316,8 +319,8 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse:
             {
-                int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
-                Position = Position.WithWhole(head + MotherBrainShakeDefinitions.Offsets[shakingIndex] + BabyMetroidCutsceneFlightDefinitions.BrainLatchOffset);
+                Position = Position.WithWhole(head + MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.BabyShakeStep, enemyFrameCounter)
+                    + BabyMetroidCutsceneFlightDefinitions.BrainLatchOffset);
                 if (LateFight.State.Phase2CorpseState != MotherBrainPhase2CorpseState.Living)
                 {
                     Phase = BabyMetroidCutscenePhase.StopDraining;
@@ -415,8 +418,8 @@ public sealed class BabyMetroidCutsceneState
             {
                 // The healing step pins the actor to its four-step shake before healing; the touch that started this
                 // phase stopped the Baby, so its zero velocity keeps it pinned.
-                int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
-                Position = Position.WithWhole(samus.Position.Whole + MotherBrainShakeDefinitions.Offsets[shakingIndex] + BabyMetroidCutsceneFlightDefinitions.SamusLatchOffset);
+                Position = Position.WithWhole(samus.Position.Whole + MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.BabyShakeStep, enemyFrameCounter)
+                    + BabyMetroidCutsceneFlightDefinitions.SamusLatchOffset);
 
                 // Healing adds one energy each enemy update until Samus's health reaches her maximum.
                 int candidateHealth = samus.Health + 1;
@@ -542,8 +545,7 @@ public sealed class BabyMetroidCutsceneState
                 // The cutscene's shake first slows the Baby's rise by the finest step each update, before it moves, and
                 // places the Baby at the saved origin plus the undoubled shaking offsets.
                 Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FinestStep);
-                int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
-                Position = Position.WithWhole(FatalBlowOrigin + MotherBrainShakeDefinitions.Offsets[shakingIndex]);
+                Position = Position.WithWhole(FatalBlowOrigin + MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.BabyShakeStep, enemyFrameCounter));
                 if (PhaseTimer.StepRunsOut())
                 {
                     Position = Position.WithWhole(FatalBlowOrigin);

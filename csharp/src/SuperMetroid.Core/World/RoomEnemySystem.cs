@@ -34,9 +34,10 @@ namespace SuperMetroid.Core.World;
 /// gameplay definitions are its own; installed artwork supplies pixels and colors.
 /// </summary>
 /// <remarks>
-/// The room keeps a fixed set of enemy places in <see cref="EnemyPlaceOrder"/>, each with a stable ordinal. The ordinals
-/// are gameplay: multi-part enemies find their parts by neighbouring ordinals, Samus records the ordinal of the enemy she
-/// meets, and the gunship's lower part copies fields from the place before it. A compacted list would lose that.
+/// The room keeps a fixed set of enemy places in <see cref="EnemyPlaceOrder"/>, each fixed for the room. Multi-part enemies
+/// hold their parts as references they find once, by role, where the population lists them (<see cref="EnemyCompositeListing"/>);
+/// the rules that reproduce a reach by placement itself (a struck part's follow-up, the gunship pad's height taken from its neighbour's place, the
+/// Baby Metroid's victim) are compatibility services that read the places in order. A compacted list would lose those.
 /// </remarks>
 [RoomLifetime]
 public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
@@ -121,8 +122,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         EscapeTypewriterState? active = BossEncounters.MotherBrain?.EscapeTypewriter;
         if (active?.MessageId == EscapeTypewriterMessageId.Zebes)
             active.BindMessage(value.Get(EscapeTypewriterMessageId.Zebes));
-        EscapeTypewriterState foreground = SpeciesComposition.Displays.ForegroundTypewriter;
-        if (foreground.MessageId == EscapeTypewriterMessageId.Ceres)
+        EscapeTypewriterState? foreground = SpeciesComposition.Displays.ForegroundTypewriter;
+        if (foreground?.MessageId == EscapeTypewriterMessageId.Ceres)
             foreground.BindMessage(value.Get(EscapeTypewriterMessageId.Ceres));
     }
 
@@ -150,6 +151,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The elevator journey the runtime reads and resets.</summary>
     internal IElevatorJourney Elevator => SpeciesComposition.Elevator;
 
+    /// <summary>The gunship's save prompt and health check.</summary>
+    internal IGunshipSession Gunship => SpeciesComposition.Gunship;
 
     /// <summary>The Ceres encounter's status and runtime operations.</summary>
     internal ICeresEncounter Ceres => SpeciesComposition.Ceres;
@@ -173,7 +176,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// The statue room's entrance statue and unlock effects as its statue sequence drives them; null in every other room
     /// (#2486).
     /// </summary>
-    internal RoomTourianStatues? TourianStatue => SpeciesComposition.TourianStatue;
+    internal ITourianStatueActors? TourianStatue => SpeciesComposition.TourianStatue;
 
     /// <summary>The ceiling tiles that fall in Ceres station during its escape.</summary>
     internal CeresFallingTiles CeresFallingTiles => SpeciesComposition.CeresFallingTiles;
@@ -304,7 +307,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         Earthquake = Ensure.NotNull(dependencies.Earthquake);
         PuyoCeilingTurn = compatibility.PuyoCeilingTurn;
         EffectActors = new RoomEffectActors(Presentation, compatibility.EffectActorPlaces, PuyoCeilingTurn);
-        Projectiles = new EnemyProjectileEngine(Room, Presentation, EffectActors, Earthquake, Audio);
+        Projectiles = new EnemyProjectileEngine(Room, Presentation, EffectActors, Earthquake, Audio, new EnemyProjectilePlaces());
         Terrain = new EnemyTerrain(dependencies.BreakableTerrain);
         DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, Lifecycle, compatibility.PowerBombRadius, Audio);
         Collision = new EnemyCollision(new EnemyCollisionDependencies { Lifecycle = Lifecycle, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, Projectiles = Projectiles, EffectActors = EffectActors, Places = Places, PowerBombRadius = compatibility.PowerBombRadius });
@@ -368,8 +371,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         // A room that places no enemies keeps drawing its spawned objects from the standard artwork (#1599): an empty
         // population loads no enemy artwork, so the objects such a room shows appear in their standard variants.
         RoomEnemyPopulationDefinition population = request.Population;
-        // Every entry the room places has its factory, checked once as the room loads it (#2554).
-        Species.Validate(population);
         if (!population.Placements.IsEmpty)
             Presentation.DrawPopulation(population);
         PopulationLoader.LoadPopulation(

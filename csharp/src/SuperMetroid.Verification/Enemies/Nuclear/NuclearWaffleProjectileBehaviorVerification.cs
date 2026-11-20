@@ -15,7 +15,7 @@ internal static class NuclearWaffleProjectileBehaviorVerification
     /// <summary>The initializer's four body links start the typed loop, which matches the native list update for update.</summary>
     internal static void VerifyNuclearWaffleProjectileBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, NuclearWaffleProjectileNativeListAddresses.Extent, "Nuclear Waffle body");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace owner = enemies.Places.InUpdateOrder[0];
@@ -23,7 +23,7 @@ internal static class NuclearWaffleProjectileBehaviorVerification
         owner.SetSpawnParameter1(EnemyDefinitionId.NuclearWaffle, 8193);
         owner.SetSpawnParameter2(EnemyDefinitionId.NuclearWaffle, 8192);
         owner.Position = owner.Position.WithWhole(new(384, 512));
-        enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(owner, owner.SpawnSettings<NuclearWaffleSpawnSettings>());
+        enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(owner.HeldOccupant(), owner);
         EnemyProjectile[] links = [.. (enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Verification requires the Nuclear Waffle's state."))
             .ProjectileLinks.Select(link => link.Actor)];
         AssertEqual(4, links.Length, "the initializer spawns four body links");

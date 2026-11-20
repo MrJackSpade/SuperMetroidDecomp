@@ -40,10 +40,10 @@ internal static class MorphBallEyeBehaviorVerification
         for (ushort direction = 0; direction < mounts.Length; direction++)
         {
             RoomEnemyPlace mount = Place(parameter1: 0, parameter2: (ushort)(MorphBallEyeNativeValues.MountParameter | direction)).Place;
-            AssertTrue(mount.Entity is MorphBallEyeMountEntity && SuperMetroid.Core.Enemies.EnemyPartners.Listed<MorphBallEyeEntity>(mount).State is null,
+            AssertTrue(mount.Entity is MorphBallEyeMountEntity && mount.SpeciesState<MorphBallEyeEnemyState>() is null,
                 $"eye mount direction {direction} is placed as a mount, which keeps only its own state (#2164)");
             AssertEqual(new AnimationPlayback<MorphBallEyeSegment>(MorphBallEyeAnimations.StartingWith(mounts[direction]), AnimationPlace.StartOfAnimation),
-                SuperMetroid.Core.Enemies.EnemyPartners.Listed<MorphBallEyeMountEntity>(mount).State?.Playback, $"eye mount direction {direction}");
+                mount.SpeciesState<MorphBallEyeMountState>()?.Playback, $"eye mount direction {direction}");
         }
 
         foreach (MorphBallEyeSegment closing in new[] { MorphBallEyeSegment.FacingRightDeactivating, MorphBallEyeSegment.FacingLeftDeactivating })
@@ -70,7 +70,7 @@ internal static class MorphBallEyeBehaviorVerification
             samus.Position = FixedPosition<RoomPixels>.FromWhole(new(
                 (ushort)(128 + (int)Math.Round(48 * Math.Sin(bearing))), (ushort)(128 - (int)Math.Round(48 * Math.Cos(bearing)))));
             tracking.Action = MorphBallEyeAction.Active;
-            tracker.MorphBallEyeBehavior.RunMorphBallEyeMainAi(eye.HeldOccupant(), eye, eye.RequireSpeciesState<MorphBallEyeEnemyState>(), frame);
+            tracker.MorphBallEyeBehavior.RunMorphBallEyeMainAi(eye.HeldOccupant(), eye, frame);
             AssertEqual<EnemyFrameId?>(aims[arc], tracking.Aim, $"eye tracking Samus in arc {arc} aims along its pose");
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([MorphBallEyeFrameToolingDefinitions.Spritemap(aims[arc])], [1]),
                 EnemyInstructionRunner.ShownFrames(eye, 1), $"eye tracking Samus in arc {arc} shows its pose on the same update");
@@ -154,14 +154,14 @@ internal static class MorphBallEyeBehaviorVerification
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 1));
         enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(BrinstarRoomStateDefinitions.MorphBallDefault.EnemyPopulation, BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
         RoomEnemyPlace eye = enemies.Places.InUpdateOrder.Single(place => place.Entity is MorphBallEyeEntity);
-        MorphBallEyeEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<MorphBallEyeEntity>(eye).State;
+        MorphBallEyeEnemyState state = eye.RequireSpeciesState<MorphBallEyeEnemyState>();
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         samus.CollectedItems = SamusEquipmentFlags.MorphBall;
         samus.Position = eye.Position;
         state.Action = MorphBallEyeAction.Activating;
         state.ActionTimer = UpdateCountdown.For(1);
         var frame = new ClockedEnemyAiFrame(RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Samus = samus }, new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
-        enemies.MorphBallEyeBehavior.RunMorphBallEyeMainAi(eye.HeldOccupant(), eye, eye.RequireSpeciesState<MorphBallEyeEnemyState>(), frame);
+        enemies.MorphBallEyeBehavior.RunMorphBallEyeMainAi(eye.HeldOccupant(), eye, frame);
         AssertEqual(MorphBallEyeAction.Active, state.Action, "the eye has opened");
         AssertEqual(MorphBallEyeBeamPhase.PendingInitialization, enemies.MorphBallEyeBehavior.MorphBallEyeBeam.Phase, "the opened eye requests the beam");
         AssertTrue(ReferenceEquals(eye, enemies.MorphBallEyeBehavior.MorphBallEyeBeam.Body), "the beam follows the eye that opened");
@@ -172,9 +172,9 @@ internal static class MorphBallEyeBehaviorVerification
     private static MorphBallEyeBehaviorCreateResult Create(ushort parameter1)
     {
         (RoomEnemySystem enemies, RoomEnemyPlace place) = Place(parameter1, parameter2: 0);
-        AssertTrue(place.Entity is MorphBallEyeEntity && SuperMetroid.Core.Enemies.EnemyPartners.Listed<MorphBallEyeMountEntity>(place).State is null,
+        AssertTrue(place.Entity is MorphBallEyeEntity && place.SpeciesState<MorphBallEyeMountState>() is null,
             "a placement whose part is the eye places the eye body, which keeps only its own state (#2164)");
-        return new MorphBallEyeBehaviorCreateResult(enemies, place, SuperMetroid.Core.Enemies.EnemyPartners.Listed<MorphBallEyeEntity>(place).State);
+        return new MorphBallEyeBehaviorCreateResult(enemies, place, place.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("The eye has no state."));
     }
 
     /// <summary>
@@ -193,7 +193,7 @@ internal static class MorphBallEyeBehaviorVerification
         place.SetSpawnParameter2(EnemyDefinitionId.MorphBallEye, parameter2);
         place.Bind(EnemyDefinitionId.MorphBallEye, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+        ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("The eye bound no entity."))).Initialize();
         return (enemies, place);
     }
 

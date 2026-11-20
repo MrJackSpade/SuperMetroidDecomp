@@ -30,11 +30,11 @@ internal static class DoorAnimatedTilesVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
             runtime.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.StatuesHallway);
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         samus.Control.LockOutPlayer();
 
         // Select the source room's door into the statue room.
@@ -69,7 +69,7 @@ internal static class DoorAnimatedTilesVerification
         var reference = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         reference.HudSetup.InitializeHud(HudSnapshot.NewGame);
         reference.RoomLoader.InitializeStartingCeresRoom();
-        reference.RoomLoader.InitializeCeresStartSamus(reference.Room.Loaded);
+        reference.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
             reference.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
         reference.LoadCartridgeRoomThroughDoorForVerification((entry ?? throw new InvalidOperationException("Verification requires entry.")));

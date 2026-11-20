@@ -65,7 +65,9 @@ public static class RoomObjectDraygonCannonVisualFiles
         foreach (DraygonCannonDraw frame in FrameOrder)
         {
             RoomObjectDraw draw = DraygonCannonDraws.Family.Of(frame);
-            RoomBlockShape shape = DraygonCannonDraws.Family.Shape(frame);
+            if (!RoomObjectDrawIdentity.TryShape(DraygonCannonDraws.Family, draw, out RoomBlockShape? described))
+                throw new InvalidOperationException($"Draygon cannon frame {frame} has no shape.");
+            RoomBlockShape shape = described;
             bool right = shape.Covers(rightOfCore);
             Offset16<RoomBlocks>[] starts = right ? rightStarts : leftStarts;
             int[] counts = right ? rightCounts : leftCounts;

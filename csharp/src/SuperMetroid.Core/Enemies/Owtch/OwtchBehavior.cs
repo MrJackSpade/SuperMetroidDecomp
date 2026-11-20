@@ -4,13 +4,13 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>The Owtch species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class OwtchBehavior : IEnemySpecies, IEnemySettingsFactory<OwtchSpawnSettings>
+internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Owtch];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, OwtchSpawnSettings settings) => new OwtchEntity(this, occupant, place, common, settings);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new OwtchEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared room random sequence used for burial and emergence.</summary>
     private readonly EnemyRoomBinding _room;
@@ -26,26 +26,27 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySettingsFactory<Owtch
         SetOwtchMoving(state, cue.Direction == HorizontalDirection.Left ? OwtchBehaviorState.MovingLeft : OwtchBehaviorState.MovingRight);
 
     /// <summary>Initializes the Owtch.</summary>
-    internal static OwtchEnemyState InitializeOwtch(RoomEnemyOccupant occupant, RoomEnemyPlace place, OwtchSpawnSettings settings)
+    internal static void InitializeOwtch(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        var state = new OwtchEnemyState(settings)
+        OwtchSpawnSettings settings = occupant.SpawnSettings<OwtchSpawnSettings>();
+        var state = new OwtchEnemyState
         {
             Behavior = settings.InitialBehavior,
             UndergroundTimer = UpdateCountdown.For(settings.UndergroundWait),
             MinimumX = place.Position.X.Whole - settings.TravelDistance,
             MaximumX = place.Position.X.Whole + settings.TravelDistance,
         };
+        place.SetSpeciesState(state);
         SetOwtchAnimation(place, state, InitialAnimation(settings.InitialBehavior));
 
         // An Owtch placed underground starts buried: it moves down by whole pixels only, to the same burial depth
         // sinking reaches.
         if (state.Behavior == OwtchBehaviorState.Underground)
             place.Position = place.Position.WithWholeY(place.Position.Y.Whole + OwtchMovementDefinitions.MaximumBurialDepth);
-        return state;
     }
 
     /// <summary>Runs the Owtch's current behaviour.</summary>
-    internal void RunOwtchMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, OwtchEnemyState state)
+    private void RunOwtchMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, OwtchEnemyState state)
     {
         switch (state.Behavior)
         {
@@ -72,7 +73,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySettingsFactory<Owtch
                 if (state.Sink.Count())
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
-                    state.UndergroundTimer = UpdateCountdown.For(state.Settings.UndergroundWait);
+                    state.UndergroundTimer = UpdateCountdown.For(occupant.SpawnSettings<OwtchSpawnSettings>().UndergroundWait);
                 }
                 return;
 
@@ -125,7 +126,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySettingsFactory<Owtch
         HorizontalDirection direction)
     {
         // A fraction past a whole pixel carries into the whole pixels.
-        SignedSixteenSixteen speed = state.Settings.Speed;
+        SignedSixteenSixteen speed = occupant.SpawnSettings<OwtchSpawnSettings>().Speed;
         place.Position = place.Position.AdvanceX(speed.Toward(direction));
 
         if (direction != HorizontalDirection.Right)
@@ -170,15 +171,20 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySettingsFactory<Owtch
     }
 
     /// <summary>Allows common bomb damage only while the Owtch walks left, the one way its shell leaves it open.</summary>
-    /// <param name="state">The Owtch's state, whose walk decides the hit.</param>
-    internal static EnemyBombReaction OwtchBombReactionOf(OwtchEnemyState state) => new()
+    internal static EnemyBombReaction OwtchBombReaction { get; } = new()
     {
-        Rejects = c => !OwtchAcceptsOrdinaryShot(state),
+        Rejects = c => !OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()),
     };
 
+    /// <summary>Runs Owtch's main AI.</summary>
+    internal void RunOwtchMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    {
+        RunOwtchMain(occupant, place, place.RequireSpeciesState<OwtchEnemyState>());
+    }
+
     /// <summary>Advances Owtch's typed animation.</summary>
-    internal static void AdvanceOwtchTypedAnimation(RoomEnemyPlace place, OwtchEnemyState owtchEnemyState) =>
-        EnemyAnimationPlayback.Advance(place, owtchEnemyState, OwtchAnimations.Segments,
+    internal static void AdvanceOwtchTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, OwtchAnimations.Segments,
             static (OwtchEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
@@ -189,12 +195,11 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySettingsFactory<Owtch
     /// <summary>Turns ordinary shots away from Owtch's shell unless it is walking left.</summary>
     /// <remarks>A shot the shell turns away does no damage, and a non-Plasma shot still ends where it struck, so the
     /// shell is immune while Owtch moves right, sinks, is buried or rises.</remarks>
-    /// <param name="state">The Owtch's state, whose walk decides the hit.</param>
-    internal static EnemyShotReaction OwtchShotReactionOf(OwtchEnemyState state) => new()
+    internal static EnemyShotReaction OwtchShotReaction { get; } = new()
     {
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            if (OwtchAcceptsOrdinaryShot(state))
+            if (OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()))
                 return false;
             if (c.MarksCollision)
                 c.Projectile.Spend();

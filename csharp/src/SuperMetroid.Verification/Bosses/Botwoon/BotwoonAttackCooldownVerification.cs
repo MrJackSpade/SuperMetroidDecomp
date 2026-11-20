@@ -28,9 +28,9 @@ internal static class BotwoonAttackCooldownVerification
         movingState.Movement = BotwoonMovement.MoveTowardHole;
         movingState.HeadAction = BotwoonHeadAction.SpawnImmediateVolley;
 
-        moving.BotwoonBehavior.RunBotwoonMainAi(movingHead.HeldOccupant(), movingHead, movingHead.RequireSpeciesState<BotwoonEnemyState>(), Frame());
+        moving.BotwoonBehavior.RunBotwoonMainAi(movingHead.HeldOccupant(), movingHead, Frame());
         AssertEqual(BotwoonHeadAction.AttackCooldown, movingState.HeadAction, "the immediate volley starts the cooldown");
-        moving.BotwoonBehavior.RunBotwoonMainAi(movingHead.HeldOccupant(), movingHead, movingHead.RequireSpeciesState<BotwoonEnemyState>(), Frame());
+        moving.BotwoonBehavior.RunBotwoonMainAi(movingHead.HeldOccupant(), movingHead, Frame());
         AssertEqual(BotwoonHeadAction.AnimateFromMovement, movingState.HeadAction,
             "the immediate volley's cooldown returns the head to following its movement on the next update");
 
@@ -38,18 +38,18 @@ internal static class BotwoonAttackCooldownVerification
         hiddenState.Phase = BotwoonPhase.SpitWhileHidden;
         hiddenState.HeadAction = BotwoonHeadAction.SpitAimedVolley;
 
-        hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead.HeldOccupant(), hiddenHead, hiddenHead.RequireSpeciesState<BotwoonEnemyState>(), Frame());
+        hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead.HeldOccupant(), hiddenHead, Frame());
         AssertEqual(BotwoonHeadAction.AttackCooldown, hiddenState.HeadAction, "the aimed volley starts the cooldown");
         for (int update = 1; update <= 47; update++)
         {
-            hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead.HeldOccupant(), hiddenHead, hiddenHead.RequireSpeciesState<BotwoonEnemyState>(), Frame());
+            hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead.HeldOccupant(), hiddenHead, Frame());
             AssertEqual(BotwoonHeadAction.AttackCooldown, hiddenState.HeadAction, $"the head still cools down {update} updates after the volley");
             AssertEqual(BotwoonPhase.SpitWhileHidden, hiddenState.Phase, $"Botwoon still spits from the hole {update} updates after the volley");
         }
-        hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead.HeldOccupant(), hiddenHead, hiddenHead.RequireSpeciesState<BotwoonEnemyState>(), Frame());
+        hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead.HeldOccupant(), hiddenHead, Frame());
         AssertEqual(BotwoonHeadAction.AnimateFromMovement, hiddenState.HeadAction, "the cooldown runs out on the 48th update after the volley");
         AssertEqual(BotwoonPhase.SpitWhileHidden, hiddenState.Phase, "Botwoon stays in the hole on the update the cooldown runs out");
-        hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead.HeldOccupant(), hiddenHead, hiddenHead.RequireSpeciesState<BotwoonEnemyState>(), Frame());
+        hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead.HeldOccupant(), hiddenHead, Frame());
         AssertEqual(BotwoonPhase.FollowAuthoredPath, hiddenState.Phase, "Botwoon leaves the hole on the 49th update after the volley");
         AssertEqual(BotwoonHeadAction.AnimateFromMovement, hiddenState.HeadAction, "leaving the hidden spit returns the head to movement");
 
@@ -68,10 +68,10 @@ internal static class BotwoonAttackCooldownVerification
         state.OpeningWait.LastFor(BotwoonFightDefinitions.OpeningDelay);
         for (int update = 1; update < BotwoonFightDefinitions.OpeningDelay; update++)
         {
-            enemies.BotwoonBehavior.RunBotwoonMainAi(head.HeldOccupant(), head, head.RequireSpeciesState<BotwoonEnemyState>(), Frame());
+            enemies.BotwoonBehavior.RunBotwoonMainAi(head.HeldOccupant(), head, Frame());
             AssertEqual(BotwoonPhase.InitialDelay, state.Phase, $"Botwoon still waits in his hole on update {update}");
         }
-        enemies.BotwoonBehavior.RunBotwoonMainAi(head.HeldOccupant(), head, head.RequireSpeciesState<BotwoonEnemyState>(), Frame());
+        enemies.BotwoonBehavior.RunBotwoonMainAi(head.HeldOccupant(), head, Frame());
         AssertEqual(BotwoonPhase.ChooseNextAction, state.Phase, "the opening wait runs out on its 256th update");
         Console.WriteLine("  Botwoon opening wait: 256 updates in his hole, then he chooses his first action.");
     }
@@ -88,10 +88,10 @@ internal static class BotwoonAttackCooldownVerification
         state.ExitTransitionComplete = true;
         for (int update = 1; update <= 15; update++)
         {
-            enemies.BotwoonBehavior.RunBotwoonMainAi(head.HeldOccupant(), head, head.RequireSpeciesState<BotwoonEnemyState>(), Frame());
+            enemies.BotwoonBehavior.RunBotwoonMainAi(head.HeldOccupant(), head, Frame());
             AssertEqual(BotwoonPhase.DeathDelay, state.Phase, $"Botwoon still waits to fall on update {update} of his wait");
         }
-        enemies.BotwoonBehavior.RunBotwoonMainAi(head.HeldOccupant(), head, head.RequireSpeciesState<BotwoonEnemyState>(), Frame());
+        enemies.BotwoonBehavior.RunBotwoonMainAi(head.HeldOccupant(), head, Frame());
         AssertEqual(BotwoonPhase.HeadFalling, state.Phase, "Botwoon's head falls from the update after the sixteenth of his wait");
         Console.WriteLine("  Botwoon pre-fall wait: sixteen updates from his tail entering the wall, then his head falls.");
     }
@@ -136,8 +136,11 @@ internal static class BotwoonAttackCooldownVerification
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
         head.Bind(EnemyDefinitionId.Botwoon, head.KeptDefinition);
         head.Position = head.Position.WithWhole(new(1000, 1000));
-        var state = head.SetUpPlaced<BotwoonEnemyState>();
-        state.HealthBand = BotwoonHealthBandDefinitions.BelowEighth;
+        var state = new BotwoonEnemyState(enemies.BotwoonBehavior.SpawnBotwoonBody(head.HeldOccupant(), head))
+        {
+            HealthBand = BotwoonHealthBandDefinitions.BelowEighth,
+        };
+        head.SetSpeciesState(state);
         return new NewBotwoonHeadResult(enemies, head, state);
     }
 

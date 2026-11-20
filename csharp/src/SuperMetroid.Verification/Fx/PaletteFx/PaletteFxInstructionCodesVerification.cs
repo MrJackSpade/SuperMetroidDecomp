@@ -181,7 +181,7 @@ internal static class PaletteFxInstructionCodesVerification
     internal static void VerifyPostCreditsIconGlarePaletteFxColorDefinitions(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
-        ushort Word(int pointer) => RomDataReader.ReadWordFixedBank(bus, 0x8d0000 | pointer);
+        ushort Word(int pointer) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8d0000 | pointer);
         AssertEqual((ushort)0xc655, Word(0xdf94), "native glare set-color opcode");
         AssertEqual((ushort)0x01e0, Word(0xdf96), "native glare destination operand");
         AssertEqual(PostCreditsIconGlarePaletteFxColorDefinitionsConstants.ProgramStart, Word(0xe202), "native glare definition entry");
@@ -241,7 +241,7 @@ internal static class PaletteFxInstructionCodesVerification
     internal static void VerifyZebesExplosionGunshipPaletteFxColorDefinitions(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
-        ushort Word(int pointer) => RomDataReader.ReadWordFixedBank(bus, 0x8d0000 | pointer);
+        ushort Word(int pointer) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8d0000 | pointer);
         AssertEqual((ushort)0xc655, Word(0xd6ba), "native gunship reveal set-color opcode");
         AssertEqual((ushort)0x00a0, Word(0xd6bc), "native gunship reveal destination operand");
         AssertEqual(ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.ProgramStart, Word(0xe1e6), "native gunship reveal definition entry");

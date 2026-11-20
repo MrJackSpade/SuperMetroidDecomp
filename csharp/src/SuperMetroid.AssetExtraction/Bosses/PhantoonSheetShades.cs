@@ -22,9 +22,10 @@ internal static class PhantoonSheetShades
     private const int GroupColours = 16;
 
     /// <summary>The shades of his body sheet.</summary>
+    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> Body(BossSourceArtwork bosses)
     {
-        PhantoonColorCatalog phantoon = bosses.PhantoonColors;
+        PhantoonColorCatalog phantoon = bosses.PhantoonColors ?? throw new InvalidDataException("Phantoon is shaded from the installed Phantoon colours.");
         PhantoonBodyLook[] settled =
             [PhantoonBodyLook.Black, PhantoonBodyLook.White, PhantoonBodyLook.FadedOut,
             .. PhantoonHealthBandDefinitions.LowestFirst.Select(PhantoonBodyLook.Health)];
@@ -32,9 +33,10 @@ internal static class PhantoonSheetShades
     }
 
     /// <summary>The shades of his room's pictures: the room once the power has come on.</summary>
+    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> PowerOn(BossSourceArtwork bosses)
     {
-        PhantoonColorCatalog phantoon = bosses.PhantoonColors;
+        PhantoonColorCatalog phantoon = bosses.PhantoonColors ?? throw new InvalidDataException("Phantoon's room is shaded from the installed Phantoon colours.");
         // The parts the power recolours are the room's first colour groups, in order.
         int inks = PhantoonColorFormat.PoweredParts.Length * GroupColours;
         RgbColor[] powered = [.. Enumerable.Range(0, inks).Select(ink =>
@@ -43,20 +45,20 @@ internal static class PhantoonSheetShades
     }
 
     /// <summary>The sixteen colours of his body showing <paramref name="look"/>.</summary>
-    private static RgbColor[] Colours(PhantoonColorCatalog phantoon, PhantoonBodyLook look) => look.Band is { } band
-        // A health colouring shows its band's colours; the others are named by their kind.
-        ? [.. Enumerable.Range(0, PhantoonColorFormat.HealthBandColorCount).Select(colour => phantoon.ResolveHealth(HealthRow(band), colour))]
-        : look.Kind switch
+    private static RgbColor[] Colours(PhantoonColorCatalog phantoon, PhantoonBodyLook look) => look.Kind switch
     {
         PhantoonBodyLookKind.Black => new RgbColor[GroupColours],
         PhantoonBodyLookKind.White => [.. Enumerable.Repeat(RgbColor.White, GroupColours)],
         PhantoonBodyLookKind.FadedOut => [.. Enumerable.Range(0, PhantoonColorFormat.FadeOutCount).Select(phantoon.ResolveFadeOut)],
+        PhantoonBodyLookKind.Health => [.. Enumerable.Range(0, PhantoonColorFormat.HealthBandColorCount).Select(colour => phantoon.ResolveHealth(HealthRow(look), colour))],
         _ => throw new InvalidDataException($"Undefined Phantoon body colouring {look.Kind}."),
     };
 
-    /// <summary>The installed health colours' row of <paramref name="band"/>: they hold his bands lowest first (#2259).</summary>
-    private static int HealthRow(PhantoonHealthBand band)
+    /// <summary>The installed health colours' row of <paramref name="look"/>'s band: they hold his bands lowest first (#2259).</summary>
+    /// <exception cref="InvalidDataException">The health colouring names no band.</exception>
+    private static int HealthRow(PhantoonBodyLook look)
     {
+        PhantoonHealthBand band = look.Band ?? throw new InvalidDataException("A Phantoon health colouring names its health band.");
         for (int row = 0; row < PhantoonHealthBandDefinitions.LowestFirst.Count; row++)
         {
             if (PhantoonHealthBandDefinitions.LowestFirst[row] == band)

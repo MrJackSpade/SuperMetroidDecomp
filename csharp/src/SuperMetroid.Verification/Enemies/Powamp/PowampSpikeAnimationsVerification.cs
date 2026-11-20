@@ -9,7 +9,7 @@ internal static class PowampSpikeAnimationsVerification
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyPowampSpikeAnimations(CartridgeImportAddressSpace rom)
     {
-        int steps = Family.CompareAll(rom);
+        int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         Console.WriteLine($"  Powamp spike programs: {Entries.Length} programs ({steps} steps) match bank $86.");
     }
 }

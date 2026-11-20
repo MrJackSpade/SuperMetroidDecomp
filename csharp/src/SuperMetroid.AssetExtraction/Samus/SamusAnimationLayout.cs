@@ -136,7 +136,7 @@ internal sealed class SamusAnimationLayout
     private static int Span(SamusPoseAnimation animation, int index)
     {
         SamusAnimationSegment segment = animation.Segments[index];
-        if (segment is not SamusCuedAnimationSegment { End: var end })
+        if (segment.End is not { } end)
             return segment.Delays.Count;
         return segment.CueFrame + 1 + SamusAnimationCueValueDecoding.OperandFrames(end) + SamusAnimationUnnamedRunDefinitions.All
             .Where(run => run.Animation == animation.Name && run.After == segment.Name)
@@ -172,7 +172,7 @@ internal sealed class SamusAnimationLayout
                 int cue = start + segment.CueFrame;
                 int next = start + Span(animation, index);
                 // A lead has no cue: its last frame plays on into the next segment's first.
-                if (segment is SamusCuedAnimationSegment { End: var end })
+                if (segment.End is { } end)
                 {
                     if (end.ContinuesToNextSegment && next != cue + 1)
                         throw new InvalidDataException($"The {animation.Name} animation's {segment.Name} cue continues into the next segment past frames laid out after it.");
@@ -190,11 +190,10 @@ internal sealed class SamusAnimationLayout
 
     /// <summary>
     /// The step at <paramref name="offset"/> frames into the game's layout of <paramref name="animation"/>, reading a cue's
-    /// value or past the animation's end as the game does; false where the game's animation fails.
+    /// value or past the animation's end as the game does; null where the game's animation fails.
     /// </summary>
-    internal bool TryRead(SamusPoseAnimation animation, int offset, out StepRead found)
+    internal StepRead? Read(SamusPoseAnimation animation, int offset)
     {
-        found = default;
         SamusPoseAnimation read = animation;
         int frame = offset;
         int shift = 0;
@@ -202,14 +201,13 @@ internal sealed class SamusAnimationLayout
         while (step is null)
         {
             if (successors[read] is not { } next || frame < next.Shift)
-                return false;
+                return null;
             read = next.Animation;
             frame -= next.Shift;
             shift += next.Shift;
             step = StepOf(read, frame);
         }
-        found = new StepRead(step, read, frame, shift);
-        return true;
+        return new StepRead(step, read, frame, shift);
     }
 
     /// <summary>
@@ -220,9 +218,8 @@ internal sealed class SamusAnimationLayout
     /// <exception cref="InvalidDataException">The frame reads no step.</exception>
     internal int TargetOffset(SamusPoseAnimation animation, int offset, SamusAnimationFrame target)
     {
-        if (!TryRead(animation, offset, out StepRead read))
-            throw new InvalidDataException(
-                $"Samus animation frame {offset} of the {animation.Name} animation reads no step whose cue could name a frame.");
+        StepRead read = Read(animation, offset) ?? throw new InvalidDataException(
+            $"Samus animation frame {offset} of the {animation.Name} animation reads no step whose cue could name a frame.");
         return Offset(read.Animation, read.Animation.Require(target)) + read.Shift;
     }
 
@@ -259,7 +256,7 @@ internal sealed class SamusAnimationLayout
         }
         while (pending.TryDequeue(out LayoutPlace at))
         {
-            if (!TryRead(at.Animation, at.Offset, out StepRead read))
+            if (Read(at.Animation, at.Offset) is not { } read)
                 continue;
             if (read.Shift > 0)
                 reads[at.Animation].Add(at.Offset, ReadPast(at.Animation, read));

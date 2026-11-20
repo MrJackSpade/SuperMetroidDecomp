@@ -52,17 +52,17 @@ internal static class TorizoSwapArtworkVerification
             previousInstruction = instruction;
             authoredOpcodes.Add(instruction);
             AssertEqual(CommonEnemyInstructionConstants.CopyToVram,
-                rom.ReadCartridgeWord((0xaa0000 | instruction)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaa0000 | instruction)),
                 $"Torizo transfer $AA:{instruction:X4} opcode");
             int descriptor = 0xaa0000 | unchecked((ushort)(instruction + 2));
-            AssertEqual(transfer.ByteCount, rom.ReadCartridgeWord(descriptor),
+            AssertEqual(transfer.ByteCount, CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor),
                 $"Torizo transfer $AA:{instruction:X4} byte count");
-            int nativeSource = (rom.ReadCartridgeLong(descriptor + 2));
+            int nativeSource = (CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2));
             AssertEqual(transfer.SourceAddress, nativeSource,
                 $"Torizo transfer $AA:{instruction:X4} source");
             EncounterLook look = site.Look.Of(site.Torizo);
             EncounterArtworkUpload upload = UploadsOf(look, stock)[copy];
-            AssertEqual(ObjCharacterNativeWords.Of(upload.FirstByte / 32), rom.ReadCartridgeWord((descriptor + 5)),
+            AssertEqual(ObjCharacterNativeWords.Of(upload.FirstByte / 32), CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5)),
                 $"Torizo transfer $AA:{instruction:X4} VRAM destination");
             AssertTrue((stock.Bosses.TorizoSwaps ?? throw new InvalidOperationException("Verification requires stock.TorizoSwaps.")).TryResolve(
                     transfer.SourceAddress, transfer.ByteCount,
@@ -85,12 +85,12 @@ internal static class TorizoSwapArtworkVerification
         for (int address = 0xb000; address < 0xd369; address++)
         {
             int opcode = 0xaa0000 | address;
-            if (rom.ReadCartridgeWord(opcode) != CommonEnemyInstructionConstants.CopyToVram)
+            if (CartridgeImportSource.Require(rom).ReadCartridgeWord(opcode) != CommonEnemyInstructionConstants.CopyToVram)
                 continue;
             int descriptor = opcode + 2;
-            ushort byteCount = rom.ReadCartridgeWord(descriptor);
-            int source = (rom.ReadCartridgeLong(descriptor + 2));
-            ushort destination = rom.ReadCartridgeWord((descriptor + 5));
+            ushort byteCount = CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor);
+            int source = (CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2));
+            ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5));
             if (byteCount is 0 or > 0x2000 ||
                 (SnesAddressMath.BankNumber(source)) < 0x80 || destination > 0x7fff)
                 continue;

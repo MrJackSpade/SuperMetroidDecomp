@@ -17,7 +17,8 @@ public static class GameOverLayoutFile
     /// <exception cref="InvalidDataException">The artwork document does not decode.</exception>
     internal static byte[] Extract(byte[] artwork)
     {
-        GameOverPresentationDocument document = JsonAssetDocument.Read<GameOverPresentationDocument>(artwork, ArtworkJson.Options);
+        GameOverPresentationDocument document = JsonAssetDocument.Read<GameOverPresentationDocument>(artwork, ArtworkJson.Options)
+            ?? throw new InvalidDataException("Game-over presentation document is null.");
         return JsonSerializer.SerializeToUtf8Bytes(new GameOverPlacementDocument
         {
             Version = Version, BabyAnchor = document.BabyAnchor, CursorX = document.CursorX, YesCursorY = document.YesCursorY,
@@ -30,7 +31,8 @@ public static class GameOverLayoutFile
     public static GameOverPresentation Read(Stream json)
     {
         GameOverPlacementDocument document;
-        try { document = JsonAssetDocument.Read<GameOverPlacementDocument>(json, ArtworkJson.Options); }
+        try { document = JsonAssetDocument.Read<GameOverPlacementDocument>(json, ArtworkJson.Options)
+            ?? throw new InvalidDataException("Game-over layout is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid game-over layout JSON.", error); }
         if (document.Version != Version)
             throw new InvalidDataException($"Game-over layout version must be {Version}.");

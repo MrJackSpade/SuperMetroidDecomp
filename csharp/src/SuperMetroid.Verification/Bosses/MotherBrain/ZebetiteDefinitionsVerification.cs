@@ -39,7 +39,7 @@ internal static class ZebetiteDefinitionsVerification
             ];
             for (int field = 0; field < actual.Length; field++)
             {
-                AssertEqual(rom.ReadCartridgeWord((generationTables[field] + generation * 2)),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((generationTables[field] + generation * 2)),
                     actual[field],
                     $"Zebetite generation {generation} field {field}");
             }
@@ -59,7 +59,7 @@ internal static class ZebetiteDefinitionsVerification
                 health < 800 ? 1 : 0;
             bool linkedPair = form == ZebetiteBarrierForm.SplitPair;
             int table = linkedPair ? linkedHealthTable : bigHealthTable;
-            AssertEqual(rom.ReadCartridgeWord((table + tier * 2)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((table + tier * 2)),
                 ZebetiteList(form, health),
                 $"Zebetite {(linkedPair ? "linked" : "big")} health {health}");
         }
@@ -88,7 +88,7 @@ internal static class ZebetiteDefinitionsVerification
                 // the spawn places each half where its generation stands.
                 if (word is 1 or 2)
                     continue;
-                AssertEqual(rom.ReadCartridgeWord((record + word * 2)), actual[word],
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + word * 2)), actual[word],
                     $"Zebetite {(linkedHalf ? "linked" : "primary")} spawn word {word}");
             }
         }
@@ -111,7 +111,7 @@ internal static class ZebetiteDefinitionsVerification
                 $"production Zebetite generation {generation} form");
             AssertEqual(expected.HalfHeight, place.Radius.Y,
                 $"production Zebetite generation {generation} radius");
-            AssertEqual<EnemyFrameId?>(NativePicture(rom, ZebetiteList(expected.Form, 1000)), (state.Shown is SuperMetroid.Core.Bosses.MotherBrain.ZebetiteShown.Picture zebetitePicture110 ? zebetitePicture110.Frame : (SuperMetroid.Core.Enemies.Artwork.EnemyFrameId?)null),
+            AssertEqual<EnemyFrameId?>(NativePicture(rom, ZebetiteList(expected.Form, 1000)), state.Picture,
                 $"production Zebetite generation {generation} picture");
             AssertEqual(expected.X, place.Position.X.Whole,
                 $"production Zebetite generation {generation} X");
@@ -124,9 +124,9 @@ internal static class ZebetiteDefinitionsVerification
                 ZebetiteBehavior.ChooseZebetiteHealthPicture(place, state);
                 // The picture the native health table's list for this health shows (#2250).
                 int tier = health < 200 ? 4 : health < 400 ? 3 : health < 600 ? 2 : health < 800 ? 1 : 0;
-                ushort list = rom.ReadCartridgeWord(
+                ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(
                     (expected.Form == ZebetiteBarrierForm.SplitPair ? linkedHealthTable : bigHealthTable) + tier * 2);
-                AssertEqual<EnemyFrameId?>(NativePicture(rom, list), (state.Shown is SuperMetroid.Core.Bosses.MotherBrain.ZebetiteShown.Picture zebetitePicture125 ? zebetitePicture125.Frame : (SuperMetroid.Core.Enemies.Artwork.EnemyFrameId?)null),
+                AssertEqual<EnemyFrameId?>(NativePicture(rom, list), state.Picture,
                     $"production Zebetite generation {generation} health {health}");
             }
         }
@@ -134,8 +134,7 @@ internal static class ZebetiteDefinitionsVerification
         foreach (bool linkedHalf in new[] { false, true })
         {
             var enemies = NewZebetiteDefinitionSystem(0);
-            RoomEnemyPlace place = enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary)
-                ?? throw new InvalidOperationException("Verification spawns a Zebetite into an empty room.");
+            RoomEnemyPlace place = enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
             AssertEqual(Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, destroyed: 0), place.HeldOccupant().Spawn,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} population");
             AssertEqual(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, place.HeldOccupant().SpawnSettings<ZebetiteSpawnSettings>().Half,
@@ -187,5 +186,5 @@ internal static class ZebetiteDefinitionsVerification
 
     /// <summary>The installed frame the native bank-$A6 Zebetite list at <paramref name="list"/> shows.</summary>
     private static EnemyFrameId? NativePicture(CartridgeImportAddressSpace rom, ushort list) =>
-        RoomEnemyPlaceFrameAccess.FrameAt(0xa6, rom.ReadCartridgeWord(MotherBrainNativeListAddresses.ZebetiteBank | (list + 2)));
+        RoomEnemyPlaceFrameAccess.FrameAt(0xa6, CartridgeImportSource.Require(rom).ReadCartridgeWord(MotherBrainNativeListAddresses.ZebetiteBank | (list + 2)));
 }

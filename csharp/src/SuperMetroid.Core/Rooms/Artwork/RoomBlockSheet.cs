@@ -21,15 +21,11 @@ public sealed class RoomBlockSheet
     {
         Ensure.NotNull(sheet);
         Inputs = Ensure.NotNull(inputs);
-        if (!sheet.Image.TryGetBackdrop(out ColourKey backdrop))
+        if (sheet.Image.Backdrop is null)
             throw new InvalidDataException($"Room block sheet {sheet.Image.Name} names no backdrop colour for its rooms.");
         Tileset = tileset;
         Sheet = sheet;
-        Backdrop = backdrop;
     }
-
-    /// <summary>The colour the tileset's rooms show where nothing is drawn, as the key their shades recolour it by (#1544).</summary>
-    public ColourKey Backdrop { get; }
 
     /// <summary>The tileset whose blocks the sheet pictures.</summary>
     public TilesetDefinition Tileset { get; }

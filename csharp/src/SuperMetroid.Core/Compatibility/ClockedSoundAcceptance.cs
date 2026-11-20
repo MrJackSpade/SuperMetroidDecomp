@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("each update's sound queues see the requests the session's clock has accepted")]
 public sealed class ClockedSoundAcceptance<TLibrary, TSound> : ISoundAcceptanceTiming<TLibrary, TSound>
     where TLibrary : struct, Enum
-    where TSound : notnull, IEquatable<TSound>
+    where TSound : struct, IEquatable<TSound>
 {
     /// <summary>The shared, stateless instance every session uses.</summary>
     public static ClockedSoundAcceptance<TLibrary, TSound> Instance { get; } = new();

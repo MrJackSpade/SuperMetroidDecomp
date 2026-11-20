@@ -65,7 +65,8 @@ internal static class InstalledFixtures
 
     /// <summary>The import's analysis of the frames Samus's body can show, decided from the retail cartridge's layout of her animations, made once.</summary>
     private static readonly Lazy<SamusShownFrameAnalysis> samusShownFrameAnalysis = Shared<SamusShownFrameAnalysis>("Samus shown frames", () =>
-        new SamusShownFrameAnalysis(SamusAnimationLayout.Read(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))));
+        new SamusShownFrameAnalysis(SamusAnimationLayout.Read(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))))));
 
     /// <summary>The import's analysis of the frames Samus's body can show, decided from the retail cartridge's layout of her animations.</summary>
     internal static SamusShownFrameAnalysis SamusShownFrameAnalysis => samusShownFrameAnalysis.Value;
@@ -195,23 +196,6 @@ internal static class InstalledFixtures
     /// <summary>Lazy action that binds all installed host catalogs to a game.</summary>
     private static readonly Lazy<Action<SuperMetroidGame>> gameBindings =
         new(() => InstalledGameBindings.Create(RepositoryInstallation.Installation));
-
-    /// <summary>The installed catalogs fixture games are built with, loaded once per process.</summary>
-    private static readonly Lazy<GameArtwork> fixtureGameArtwork =
-        new(() => InstalledGameBindings.Artwork(RepositoryInstallation.Installation));
-
-    /// <summary>
-    /// The installation's enemy catalog parts as the import reads them, every member complete, loaded once per process:
-    /// what a check copies with the one catalog it replaces.
-    /// </summary>
-    internal static EnemyTileArtworkParts EnemyArtworkParts => enemyArtworkParts.Value;
-
-    /// <summary>Lazy enemy catalog parts as the import reads them.</summary>
-    private static readonly Lazy<EnemyTileArtworkParts> enemyArtworkParts = Shared<EnemyTileArtworkParts>("enemy artwork parts", () =>
-    {
-        string importData = CartridgeImportContent.ImportData(GameInstallationLayout.EnemyTileDirectoryName);
-        return EnemyTileArtworkReader.Open(importData).EnemyParts(importData);
-    });
 
     /// <summary>The installation's stock room catalogs, the cartridge reference extracted from the ROM.</summary>
     internal static RoomAssetCatalogs RoomAssets => roomAssets.Value;
@@ -521,24 +505,23 @@ internal static class InstalledFixtures
     /// <summary>Binds the host catalogs to a game restored from a save or debugger state.</summary>
     internal static void BindGame(SuperMetroidGame game) => gameBindings.Value(game);
 
-    /// <summary>A muted frontend game over <paramref name="saves"/>, built with the installation's presentation catalogs.</summary>
+    /// <summary>A frontend game over <paramref name="saves"/>, bound to the installation's presentation catalogs.</summary>
     /// <param name="saves">The saves the game owns.</param>
     /// <param name="assists">The assists the game plays under, or <see langword="null"/> for the unassisted game.</param>
     /// <param name="renderGameplayFrames">Whether gameplay frames are composited.</param>
     /// <param name="hostServices">The hardware-timing policies, or <see langword="null"/> for the lag-free defaults.</param>
     /// <param name="random">The session's random-number word, or <see langword="null"/> for a game that owns its own.</param>
-    /// <param name="mixesAudio">Whether the game mixes the installed clips into PCM; a muted game's PCM is silence.</param>
     internal static SuperMetroidGame CreateGame(SuperMetroid.Core.Saves.SaveSlotStore saves,
         SuperMetroid.Core.Gameplay.GameplayAssists? assists = null, bool renderGameplayFrames = true,
-        SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null, bool mixesAudio = false)
+        SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null)
     {
         // A fixture game without a supplied word is a session of its own.
         SuperMetroidGameHostServices services = hostServices ?? SuperMetroidGameHostServices.Default;
         if (!renderGameplayFrames)
-            services = services with { GameplayFrames = RetainedGameplayFrames.Instance };
-        return new SuperMetroidGame(saves, assists, services, random ?? new SharedRandom(),
-            mixesAudio ? SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(AudioClips) : SuperMetroid.Core.Audio.GameAudioOutput.Silent,
-            fixtureGameArtwork.Value);
+            services = SuperMetroidGameHostServicesFixtures.With(services.DoorMusicLoadFrames, services.RoomLoadProgress, services.SoundAcceptance, RetainedGameplayFrames.Instance);
+        var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { saves, assists, services, random ?? new SharedRandom() });
+        gameBindings.Value(game);
+        return game;
     }
 
     /// <summary>

@@ -20,7 +20,7 @@ public static class RoomCharacterAtlasExtractor
     {
         Ensure.NotNull(bus);
         var files = new Dictionary<string, byte[]>();
-        RoomTilesetSourceMap sources = RoomTilesetSources.Read(bus);
+        RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
         Add(RoomCharacterSheetFiles.CreFileName,
             RoomTilesetSourceDefinitions.CreCharacters);
         foreach (TilesetDefinition tileset in RoomTilesets.All)
@@ -36,8 +36,8 @@ public static class RoomCharacterAtlasExtractor
         void Add(string fileName, SnesAddress sourceAddress, bool compressed = true)
         {
             byte[] planar = compressed
-                ? RomDataReader.Decompress(bus, sourceAddress)
-                : RomDataReader.ReadFixedBank(bus, sourceAddress,
+                ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress)
+                : RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), sourceAddress,
                     LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount);
             _ = RoomCharacterAtlasFormat.ValidateTileCount(planar.Length);
             byte[] indexes = SnesGraphics.DecodePlanarTiles(planar, 4,

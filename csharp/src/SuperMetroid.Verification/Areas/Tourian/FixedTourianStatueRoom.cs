@@ -11,5 +11,5 @@ namespace SuperMetroid.Verification.Areas.Tourian;
 internal sealed record FixedTourianStatueRoom(int WaterSurface, int StatueOffset) : ITourianStatueRoom
 {
     /// <inheritdoc/>
-    public TourianStatueAnimation Animation { get; } = new(new SuperMetroid.Core.Rooms.RoomObjects.TourianStatueProgress());
+    public TourianStatueAnimation Animation { get; } = new();
 }

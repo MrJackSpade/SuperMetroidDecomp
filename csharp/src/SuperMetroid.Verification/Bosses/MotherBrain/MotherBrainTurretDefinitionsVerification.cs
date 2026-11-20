@@ -27,15 +27,15 @@ internal static class MotherBrainTurretDefinitionsVerification
             int wordOffset = parameter * 2;
             // $86:BEF9: each turret's eight allowed-direction bytes follow the previous turret's.
             ushort policyRow = (ushort)(0xbef9 + parameter * 8);
-            AssertEqual(rom.ReadCartridgeWord((0x86be89 + wordOffset)), definition.Position.X,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86be89 + wordOffset)), definition.Position.X,
                 $"Mother Brain turret X {parameter}");
-            AssertEqual(rom.ReadCartridgeWord((0x86bea1 + wordOffset)), definition.Position.Y,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bea1 + wordOffset)), definition.Position.Y,
                 $"Mother Brain turret Y {parameter}");
-            AssertEqual(rom.ReadCartridgeWord((0x86bec9 + wordOffset)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bec9 + wordOffset)),
                 policyRow,
                 $"Mother Brain turret rotation pointer {parameter}");
             // The cartridge numbers a turret's directions by their place on the turret ring.
-            AssertEqual(rom.ReadCartridgeWord((0x86bee1 + wordOffset)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bee1 + wordOffset)),
                 (ushort)MotherBrainTurretDefinitions.Ring.PositionOf(definition.InitialDirection),
                 $"Mother Brain turret initial direction {parameter}");
 
@@ -80,12 +80,13 @@ internal static class MotherBrainTurretDefinitionsVerification
             for (byte current = (byte)MotherBrainTurretDefinitions.Ring.PositionOf(definition.FirstAllowedDirection);
                 current <= MotherBrainTurretDefinitions.Ring.PositionOf(definition.LastAllowedDirection); current++)
             {
-                var rotated = new MotherBrainTurretState(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), definition)
-                    {
-                        Direction = MotherBrainTurretDefinitions.Ring.At(current),
-                        // The cartridge's forward step of one is a counterclockwise turn round the ring.
-                        Turning = delta > 0 ? RotationDirection.Counterclockwise : RotationDirection.Clockwise,
-                    };
+                var rotation = new EnemyProjectile(0, default, RoomEnemyProjectileKind.MotherBrainRoomTurret);
+                enemies.MotherBrainBehavior.Projectiles.Projectile.Turrets.Start(rotation, new MotherBrainTurretState(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), definition)
+                {
+                    Direction = MotherBrainTurretDefinitions.Ring.At(current),
+                    // The cartridge's forward step of one is a counterclockwise turn round the ring.
+                    Turning = delta > 0 ? RotationDirection.Counterclockwise : RotationDirection.Clockwise,
+                });
                 byte candidate = unchecked((byte)((current + delta) & 7));
                 bool allowed = rom.ReadCartridgeByte(
                     0x860000 | (policyRow + candidate)) != 0;
@@ -94,7 +95,8 @@ internal static class MotherBrainTurretDefinitionsVerification
                     ? candidate
                     : unchecked((byte)(current + expectedDelta));
 
-                MotherBrainProjectiles.SelectNextMotherBrainTurretDirection(rotated);
+                MotherBrainProjectiles.SelectNextMotherBrainTurretDirection(enemies.MotherBrainBehavior.Projectiles.Projectile, rotation);
+                MotherBrainTurretState rotated = enemies.MotherBrainBehavior.Projectiles.Projectile.Turrets.Of(rotation);
                 AssertEqual(MotherBrainTurretDefinitions.Ring.At(expectedDirection), rotated.Direction,
                     $"production Mother Brain turret rotation {parameter}/{current}/{delta}");
                 AssertEqual(expectedDelta > 0 ? RotationDirection.Counterclockwise : RotationDirection.Clockwise, rotated.Turning,
@@ -111,20 +113,20 @@ internal static class MotherBrainTurretDefinitionsVerification
             int wordOffset = direction * 2;
             // Both native pose tables select the list the typed turret pose matches (--mother-brain-projectile-animations).
             ushort pose = MotherBrainNativeListAddresses.TurretEntries[direction].TurretPose;
-            AssertEqual(rom.ReadCartridgeWord((0x86beb9 + wordOffset)), pose,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86beb9 + wordOffset)), pose,
                 $"Mother Brain turret initial pose {direction}");
-            AssertEqual(rom.ReadCartridgeWord((0x86c040 + wordOffset)), pose,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c040 + wordOffset)), pose,
                 $"Mother Brain turret runtime pose {direction}");
-            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0x86bf9f + wordOffset))),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bf9f + wordOffset))),
                 definition.BulletOffset.X,
                 $"Mother Brain turret bullet X offset {direction}");
-            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0x86bfaf + wordOffset))),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bfaf + wordOffset))),
                 definition.BulletOffset.Y,
                 $"Mother Brain turret bullet Y offset {direction}");
-            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0x86bfbf + wordOffset))),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bfbf + wordOffset))),
                 definition.BulletVelocity.X.InTwoHundredFiftySixthsOfPixel,
                 $"Mother Brain turret bullet X velocity {direction}");
-            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0x86bfcf + wordOffset))),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bfcf + wordOffset))),
                 definition.BulletVelocity.Y.InTwoHundredFiftySixthsOfPixel,
                 $"Mother Brain turret bullet Y velocity {direction}");
 
@@ -135,8 +137,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             };
             enemies.MotherBrainBehavior.Projectiles.Projectile.Turrets.Start(turret,
                 new MotherBrainTurretState(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), MotherBrainTurretDefinitions.Turrets[0]) { Direction = typedDirection });
-            var turretState = new MotherBrainTurretState(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), MotherBrainTurretDefinitions.Turrets[0]) { Direction = typedDirection };
-            enemies.MotherBrainBehavior.Projectiles.Projectile.SpawnMotherBrainTurretBullet(turret, turretState);
+            enemies.MotherBrainBehavior.Projectiles.Projectile.SpawnMotherBrainTurretBullet(turret);
 
             EnemyProjectile bullet =
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);

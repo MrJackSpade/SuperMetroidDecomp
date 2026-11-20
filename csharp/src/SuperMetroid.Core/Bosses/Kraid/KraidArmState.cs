@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
@@ -10,9 +9,9 @@ public sealed class KraidArmState : KraidAnimatedPartState
 {
     /// <summary>Makes the arm of <paramref name="kraid"/>'s encounter.</summary>
     /// <param name="kraid">The encounter the arm is part of.</param>
-    /// <param name="place">The place the part occupies, which his body heads.</param>
-    internal KraidArmState(KraidEnemyState kraid, RoomEnemyPlace place)
-        : base(kraid, place, KraidPartSegment.ArmRisingOrSinking)
+    /// <param name="reference">Kraid's reference to the arm, which it joins as it sets up.</param>
+    internal KraidArmState(KraidEnemyState kraid, KraidPartReference reference)
+        : base(kraid, reference, KraidPartSegment.ArmRisingOrSinking)
     {
     }
 

@@ -7,15 +7,8 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// </summary>
 public sealed class CacatacEnemyState
 {
-    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
-    internal CacatacSpawnSettings Settings { get; }
-
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal CacatacEnemyState(CacatacAction action, CacatacSpawnSettings settings)
-    {
-        Settings = Ensure.NotNull(settings);
-        Action = action;
-    }
+    internal CacatacEnemyState(CacatacAction action) => Action = action;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<CacatacSegment> Playback { get; set; }

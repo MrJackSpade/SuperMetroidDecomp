@@ -27,22 +27,22 @@ internal static class PowampBehaviorVerification
         balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
         balloon.Bind(EnemyDefinitionId.Powamp, balloon.KeptDefinition);
         balloon.Bind(balloon.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        PowampBehavior.InitializePowampBalloon(balloon, balloon.SpawnSettings<PowampSpawnSettings>());
+        PowampBehavior.InitializePowampBalloon(balloon);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
-        body.SetSpawnSettings(new PowampSpawnSettings(GrappleTravelDistance: 0));
-        body.Bind(EnemyDefinitionId.Powamp, body.Definition);
-        body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
+        body.BindPlaced(EnemyDefinitionId.Powamp, new PowampBodySpawnSettings(PowampContact.Accepts));
+        body.Bind(EnemyDefinitionId.Powamp, body.KeptDefinition);
+        body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         enemies.PowampBehavior.InitializePowampBody(body);
-        AssertEqual(new AnimationPlayback<PowampSegment>(PowampAnimations.StartingWith(PowampSegment.BalloonDeflated), AnimationPlace.StartOfAnimation), SuperMetroid.Core.Enemies.EnemyPartners.Listed<PowampBalloonEntity>(balloon).State.Playback,
+        AssertEqual(new AnimationPlayback<PowampSegment>(PowampAnimations.StartingWith(PowampSegment.BalloonDeflated), AnimationPlace.StartOfAnimation), balloon.RequireSpeciesState<PowampBalloonState>().Playback,
             "the balloon starts deflated");
-        AssertEqual(new AnimationPlayback<PowampSegment>(PowampAnimations.StartingWith(PowampSegment.BodySlow), AnimationPlace.StartOfAnimation), SuperMetroid.Core.Enemies.EnemyPartners.Listed<PowampBodyEntity>(body).State.Playback,
+        AssertEqual(new AnimationPlayback<PowampSegment>(PowampAnimations.StartingWith(PowampSegment.BodySlow), AnimationPlace.StartOfAnimation), body.RequireSpeciesState<PowampBodyState>().Playback,
             "the body starts on its slow pulse");
 
         // The ROM oracle holds every balloon beat to a four-byte native frame record, so the native pointer at a place
         // is its segment's entry plus four bytes per beat passed, the list's closing control at its end included; the
         // native record there is the pose's own.
-        IImportCartridgeSource cartridge = rom;
-        PowampBalloonState balloonState = SuperMetroid.Core.Enemies.EnemyPartners.Listed<PowampBalloonEntity>(balloon).State;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        PowampBalloonState balloonState = balloon.RequireSpeciesState<PowampBalloonState>();
         object?[] arguments = [balloon, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         foreach (PowampSegment start in new[] { PowampSegment.BalloonInflatingFromDeflated, PowampSegment.BalloonInflatingFromHalfway, PowampSegment.BalloonStartSinking, PowampSegment.BalloonDeflated })
         {

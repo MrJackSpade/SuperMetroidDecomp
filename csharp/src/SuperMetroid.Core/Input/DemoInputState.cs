@@ -100,7 +100,7 @@ public sealed class DemoInputState
 
     /// <summary>
     /// Plays the input <paramref name="position"/> names, or ends the recording as it says once its inputs have run out:
-    /// a loop plays its loop input at once, and a signal reaches the owner in <paramref name="cue"/> before the input ends.
+    /// a held last input plays again at once, and a signal reaches the owner in <paramref name="cue"/> before the input ends.
     /// </summary>
     private void PlayNextInput(DemoPlaybackPosition position, Action<DemoInputCue> cue)
     {
@@ -109,8 +109,8 @@ public sealed class DemoInputState
         {
             switch (recording.End)
             {
-                case DemoRecordingEnd.Loop loop:
-                    position = position with { NextInput = loop.Input };
+                case DemoRecordingEnd.HoldLastInput:
+                    position = position with { NextInput = recording.Inputs.Count - 1 };
                     break;
                 case DemoRecordingEnd.Signal signal:
                     cue(signal.Cue);

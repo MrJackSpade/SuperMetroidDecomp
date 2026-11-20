@@ -25,7 +25,7 @@ internal static class MetroidBehaviorVerification
         // The room spawn primes the instruction timer before the species initializer runs.
         place.AnimationClock.StepOnNextUpdate();
         place.SetSpawnWords(EnemyDefinitionId.Metroid, words => words);
-        enemies.MetroidBehavior.InitializeMetroid(place, place.SpawnSettings<MetroidSpawnSettings>());
+        enemies.MetroidBehavior.InitializeMetroid(place.HeldOccupant(), place);
         MetroidEnemyState state = enemies.MetroidStates[0] ?? throw new InvalidOperationException("The Metroid has no state.");
         AssertEqual(new AnimationPlayback<MetroidSegment>(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation),
             state.Playback, "the Metroid starts chasing");

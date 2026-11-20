@@ -53,14 +53,14 @@ internal static class FxOverlayFixtures
         if (!RoomFxTypes.ShowsLiquid(type))
         {
             int first = RoomEffectTransferCuts.AtmosphereFirstRow(transfer);
-            return new FxOverlayArtwork(new AtmosphereArtwork((ShownLayeredPicture)Picture(transfer[(first * columns)..], image, palette, (characterWord ?? GameplayVramLayout.HudCharacterWord))));
+            return new FxOverlayArtwork(new AtmosphereArtwork(Picture(transfer[(first * columns)..], image, palette, (characterWord ?? GameplayVramLayout.HudCharacterWord))));
         }
         // The strip and the body share one sheet, as an installed overlay sheet holds both.
         LiquidTransferRows cut = liquidCut ?? RoomEffectTransferCuts.Liquid(transfer);
         SpriteSheet sheet = Sheet(transfer[..((cut.BodyFirstRow + cut.BodyRows) * columns)], image, palette, (characterWord ?? GameplayVramLayout.HudCharacterWord),
             [("surface", 0, cut.BodyFirstRow, new Offset16<ImagePixels>(0, RoomEffectTransferCuts.SurfaceRow)),
              ("body", cut.BodyFirstRow, cut.BodyRows, default)]);
-        return new FxOverlayArtwork(new LiquidArtwork(sheet.ShownPicture("surface"), sheet.ShownPicture("body")));
+        return new FxOverlayArtwork(new LiquidArtwork(sheet.Picture("surface"), sheet.Picture("body")));
     }
 
     /// <summary>
@@ -102,17 +102,17 @@ internal static class FxOverlayFixtures
     /// <paramref name="firstRow"/>, repeating down and the plane's width repeating across, as the original game's plane
     /// showed a window of its rows: the plane's parts cut to those rows.
     /// </summary>
-    internal static AtmosphereArtwork Rows(ShownLayeredPicture plane, int firstRow, int rows)
+    internal static AtmosphereArtwork Rows(LayeredPicture plane, int firstRow, int rows)
     {
         Ensure.NotNull(plane);
-        Extent16<ImagePixels> pictured = plane.Size;
+        Extent16<ImagePixels> pictured = plane.Size ?? throw new InvalidOperationException("An overlay fixture's plane installs neither part.");
         var offset = new Offset16<ImagePixels>(0, firstRow * TilePixels);
         var size = new Extent16<ImagePixels>(pictured.X, checked((ushort)(rows * TilePixels)));
         if (offset.Y + size.Y > pictured.Y)
             throw new ArgumentOutOfRangeException(nameof(rows), $"Rows {firstRow} through {firstRow + rows - 1} leave the {pictured.Y / TilePixels}-row plane.");
         SpriteSheetFrame? Cut(SpriteSheetFrame? part) => part is null ? null
             : new SpriteSheetFrame(part.Sheet, part.Corner + offset, size, default) { Depth = part.Depth, Blends = part.Blends };
-        return new AtmosphereArtwork((ShownLayeredPicture)LayeredPicture.Of(Cut(plane.Behind), Cut(plane.InFront)));
+        return new AtmosphereArtwork(new LayeredPicture(Cut(plane.Behind), Cut(plane.InFront)));
     }
 
     /// <summary>

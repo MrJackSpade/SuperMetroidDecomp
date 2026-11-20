@@ -1,4 +1,4 @@
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -24,12 +24,12 @@ internal static class MotherBrainTankBackgroundVerification
     /// <summary>Verifies pipe-room VRAM survives initialization and the crouched body updates only its authored BG2 words.</summary>
     internal static int VerifyMotherBrainTankBackground(bool ascentMaskOnly = false)
     {
-        var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         if (ascentMaskOnly) return VerifyMotherBrainAscentCapture(runtime);
@@ -37,12 +37,12 @@ internal static class MotherBrainTankBackgroundVerification
         // whatever Mother Brain's initialization stages for her own BG2.
         AssertTrue(RoomShowsPipeBackground(), "Mother Brain's room shows both pages of the actual pipe-room background");
         var state = runtime.Enemies.BossEncounters.MotherBrain ?? throw new InvalidOperationException("Verification requires state.");
-        BossBodyParts image = ((BossBodyParts)runtime.Enemies.Presentation.BossBodyDisplay!);
+        BossBodyParts image = runtime.Enemies.Presentation.RequireBossBody();
         AssertTrue(!image.IsShown && Words(image.Publish()).All(word => word == 0x0338),
             "Initializer attaches her body showing nothing, which her room does not show yet");
-        MotherBrainAscent.SetupMotherBrainPhaseTwoGraphics(state);
+        runtime.Enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
         // Since #1356 her room shows her body from the transition (#1515), and the room's pipe background stays untouched.
-        AssertTrue(image.IsShown && ReferenceEquals(image, ((BossBodyParts)runtime.Enemies.Presentation.BossBodyDisplay!))
+        AssertTrue(image.IsShown && ReferenceEquals(image, runtime.Enemies.Presentation.RequireBossBody())
                 && Words(image.Publish())[..0x400].All(word => word == 0x0338),
             "Phase-two setup reveals Mother Brain's body as it stands");
         AssertTrue(RoomShowsPipeBackground(), "Phase-two setup leaves the room's library background as loaded");
@@ -50,7 +50,7 @@ internal static class MotherBrainTankBackgroundVerification
         AssertTrue((artwork.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires Mother Brain's body BG2 frames.")).TryGet(0xa252, out var writes),
             "Crouched body BG2 artwork is installed");
         SuperMetroid.Core.PrivateState.Set(state.Body.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), true);
-        EnemyAnimationPlayer.DrawBossBodyFrame(state.Body, state.Body.HeldOccupant(), EnemyFrameId.MotherBrainBodyCrouched);
+        runtime.Enemies.AnimationPlayer.DrawBossBodyFrame(state.Body, state.Body.HeldOccupant(), EnemyFrameId.MotherBrainBodyCrouched);
         var expectedImage = Enumerable.Repeat((ushort)0x0338, EnemyBg2FrameLayout.TilemapCellCount).ToArray();
         foreach (var write in writes.Span)
             write.Words.CopyTo(expectedImage.AsSpan(write.FirstCell));

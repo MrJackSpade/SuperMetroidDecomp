@@ -23,12 +23,8 @@ public sealed class SpeciesIdentityAnalyzer : DiagnosticAnalyzer
     /// <summary>The definition type whose named members are species identities.</summary>
     private const string DefinitionTypeName = "EnemyDefinitionId";
 
-    /// <summary>
-    /// The species factory contracts whose Definitions name a species' owned definitions (#2554): a species built by
-    /// definition, through the settings its entries tell it, or as the head of a group, each generic one by its name alone.
-    /// </summary>
-    private static readonly ImmutableHashSet<string> FactoryInterfaceNames = ImmutableHashSet.Create(StringComparer.Ordinal,
-        "IEnemyEntityFactory", "IEnemySettingsFactory", "IEnemyGroupFactory", "IEnemySettingsGroupFactory");
+    /// <summary>The factory interface whose Definitions name a species' owned definitions.</summary>
+    private const string FactoryInterfaceName = "IEnemyEntityFactory";
 
     /// <summary>
     /// The suffix of a species' part catalog, whose <c>Parts</c> map names the definitions the species owns when its
@@ -67,14 +63,6 @@ public sealed class SpeciesIdentityAnalyzer : DiagnosticAnalyzer
         });
     }
 
-    /// <summary>Whether <paramref name="type"/> names one of the species factory contracts, with any type arguments.</summary>
-    private static bool IsFactoryContract(TypeSyntax type) => type switch
-    {
-        GenericNameSyntax generic => FactoryInterfaceNames.Contains(generic.Identifier.Text),
-        SimpleNameSyntax simple => FactoryInterfaceNames.Contains(simple.Identifier.Text),
-        _ => false,
-    };
-
     /// <summary>Each owned definition member's owner directories, read from the factories' Definitions lists and part catalogs.</summary>
     private static Dictionary<string, List<string>> OwnerDirectories(Compilation compilation, CancellationToken cancellationToken)
     {
@@ -86,7 +74,7 @@ public sealed class SpeciesIdentityAnalyzer : DiagnosticAnalyzer
                 continue;
             foreach (TypeDeclarationSyntax type in tree.GetRoot(cancellationToken).DescendantNodes().OfType<TypeDeclarationSyntax>())
             {
-                string? ownedProperty = type.BaseList?.Types.Any(baseType => IsFactoryContract(baseType.Type)) == true
+                string? ownedProperty = type.BaseList?.Types.Any(baseType => baseType.Type.ToString() == FactoryInterfaceName) == true
                     ? "Definitions"
                     : type.Identifier.Text.EndsWith(PartCatalogSuffix, StringComparison.Ordinal) ? "Parts" : null;
                 if (ownedProperty is null)

@@ -5,13 +5,6 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// is placed, and every later segment joins it as it is placed; the chain lasts the room, and its death deletes all its
 /// segments together.
 /// </summary>
-/// <remarks>
-/// The game writes the chain's motion and target into every segment together; one owner holds them. A segment a hit kills
-/// leaves its state emptied, which the rest of its chain still reaches through the update of the kill
-/// (<see cref="RemovedEnemyLeftovers"/>), but the emptied copy of the motion and the target never shows: a killed
-/// segment runs no more, the chain-wide writes reach the emptied state as they reach the others, and the turn speeds the
-/// chain sets after a wall read each segment's copy only after the motion and target are written to it.
-/// </remarks>
 internal sealed class ShaktoolChain
 {
     /// <summary>Starts the chain of <paramref name="segments"/>, its leading saw first, moving as <paramref name="motion"/> says.</summary>

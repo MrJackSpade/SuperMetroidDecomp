@@ -2,11 +2,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
 using B = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodySegment;
 using H = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadSegment;
-using L = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainLateFightHeadSegment;
-using A = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBabyAttackSegment;
-using HeadBeats = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainBeats<SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadChanceCueKind>;
-using LateFightBeats = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainBeats<SuperMetroid.Core.Bosses.MotherBrain.MotherBrainLateFightCueKind>;
-using BabyAttackBeats = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainBeats<SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBabyAttackCueKind>;
+using M = SuperMetroid.Core.Enemies.Artwork.EnemyFrameId;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -206,179 +202,144 @@ internal static class MotherBrainAnimations
         BodyCue(new MotherBrainBodyCue.SetPose(pose));
 
     /// <summary>
-    /// Every segment of her head's own brain animations, as its list shows it (#2318). Nothing waits on her brain showing a
-    /// new frame, so a picture its list shows twice running with nothing between is one frame of both: the Hyper Beam recoil
-    /// opens her mouth as the stretch does without drooling, so its wide and its widest mouth each show as one frame. Her
-    /// still pictures hold.
+    /// Every brain segment, as it shows her brain (#2318). A picture shown twice in a row with nothing between is one
+    /// frame of both: the Hyper Beam recoil opens her mouth as the stretch does without drooling, so its wide and its
+    /// widest mouth each show as one frame. Her still pictures hold.
     /// </summary>
-    internal static AnimationSegments<H, EnemyFrameId, MotherBrainBrainCue<MotherBrainHeadChanceCueKind>> HeadSegments { get; } = new(
-        new Dictionary<H, AnimationBeat<EnemyFrameId, MotherBrainBrainCue<MotherBrainHeadChanceCueKind>>[]>
+    internal static AnimationSegments<H, EnemyFrameId, MotherBrainHeadCue> HeadSegments { get; } = new(
+        new Dictionary<H, AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[]>
     {
-        [H.StretchingPhase2] = Stretching(MotherBrainHeadMouth.Whole),
-        [H.StretchingPhase2Held] = [HeadBeats.Held(EnemyFrameId.MotherBrainHeadEyeGlaring)],
-        [H.StretchingPhase3] = Stretching(MotherBrainHeadMouth.Damaged),
-        [H.StretchingPhase3Held] = [HeadBeats.Held(EnemyFrameId.MotherBrainDarkHeadEyeGlaring)],
+        [H.StretchingPhase2] = Stretching(WholeHead),
+        [H.StretchingPhase2Held] = [Held(EnemyFrameId.MotherBrainHeadEyeGlaring)],
+        [H.StretchingPhase3] = Stretching(DamagedHead),
+        [H.StretchingPhase3Held] = [Held(EnemyFrameId.MotherBrainDarkHeadEyeGlaring)],
         [H.HyperBeamRecoil] =
         [
-            HeadBeats.Cue(MotherBrainHeadCueKind.ShakeBrain),
-            HeadBeats.Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 3),
-            HeadBeats.Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 6),
-            HeadBeats.Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath),
-            HeadBeats.Effect(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
-            HeadBeats.Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 67),
-            HeadBeats.Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 5),
+            Cue(MotherBrainHeadCueKind.ShakeBrain),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 3),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 6),
+            Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath),
+            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 67),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 5),
         ],
-        [H.HyperBeamRecoilHeld] = [HeadBeats.Held(EnemyFrameId.MotherBrainDarkHeadEyeGlaring)],
-        [H.WholeHeadMouthClosed] = [HeadBeats.Held(EnemyFrameId.MotherBrainHeadEyeShut)],
-        [H.Decapitated] = [HeadBeats.Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 9), HeadBeats.Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 5)],
-        [H.DecapitatedHeld] = [HeadBeats.Held(EnemyFrameId.MotherBrainDarkHeadEyeShut)],
+        [H.HyperBeamRecoilHeld] = [Held(EnemyFrameId.MotherBrainDarkHeadEyeGlaring)],
+        [H.WholeHeadMouthClosed] = [Held(EnemyFrameId.MotherBrainHeadEyeShut)],
+        [H.Decapitated] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 9), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 5)],
+        [H.DecapitatedHeld] = [Held(EnemyFrameId.MotherBrainDarkHeadEyeShut)],
         [H.DyingDrool] =
         [
-            HeadBeats.Cue(MotherBrainHeadCueKind.ShakeBrain),
-            HeadBeats.Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 5),
-            HeadBeats.Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 5),
-            HeadBeats.Effect(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
+            Cue(MotherBrainHeadCueKind.ShakeBrain),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 5),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 5),
+            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
         ],
-        [H.DyingDroolBurst] = [HeadBeats.Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3), HeadBeats.Cue(MotherBrainHeadCueKind.SpawnDrool)],
+        [H.DyingDroolBurst] = [Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3), Cue(MotherBrainHeadCueKind.SpawnDrool)],
         [H.DyingDroolLoop] =
         [
-            HeadBeats.Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
-            HeadBeats.Own(MotherBrainHeadChanceCueKind.MaybeDroolAgain),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
+            Cue(MotherBrainHeadCueKind.MaybeDroolAgain),
         ],
-        [H.FiringRainbowBeam] = [HeadBeats.Held(EnemyFrameId.MotherBrainHeadEyeGlaring)],
-        [H.NeutralPhase2] = HeadBeats.Neutral(MotherBrainHeadMouth.Whole),
+        [H.FiringRainbowBeam] = [Held(EnemyFrameId.MotherBrainHeadEyeGlaring)],
+        [H.NeutralPhase2] = Neutral(WholeHead),
         [H.NeutralPhase2Hold] =
         [
-            HeadBeats.Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 9),
-            HeadBeats.Own(MotherBrainHeadChanceCueKind.MaybeHoldNeutralPhase2),
-            HeadBeats.Show(EnemyFrameId.MotherBrainHeadEyeOpen, 5),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 9),
+            Cue(MotherBrainHeadCueKind.MaybeHoldNeutralPhase2),
+            Show(EnemyFrameId.MotherBrainHeadEyeOpen, 5),
         ],
-        [H.NeutralPhase3] = HeadBeats.Neutral(MotherBrainHeadMouth.Damaged),
-        [H.NeutralPhase3Hold] = HeadBeats.NeutralPhase3Hold(MotherBrainHeadChanceCueKind.MaybeHoldNeutralPhase3),
-        [H.Corpse] =
+        [H.NeutralPhase3] = Neutral(DamagedHead),
+        [H.NeutralPhase3Hold] =
         [
-            HeadBeats.Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 3), HeadBeats.Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 3),
-            HeadBeats.Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 65), HeadBeats.Show(EnemyFrameId.MotherBrainHeadCorpseSlumping, 65),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 9),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 9),
+            Cue(MotherBrainHeadCueKind.MaybeHoldNeutralPhase3),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 5),
         ],
-        [H.CorpseHeld] = [HeadBeats.Held(EnemyFrameId.MotherBrainHeadCorpseSlumped)],
+        [H.Corpse] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 3), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 3), Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 65), Show(EnemyFrameId.MotherBrainHeadCorpseSlumping, 65)],
+        [H.CorpseHeld] = [Held(EnemyFrameId.MotherBrainHeadCorpseSlumped)],
         [H.FourOnionRingsPhase2] = Phase2VolleyOpening,
-        [H.OnionRingShotPhase2] = HeadBeats.OnionRingShot(MotherBrainHeadMouth.Whole, RingAimedAtSamus),
-        [H.OnionRingVolleyEndPhase2] = HeadBeats.OnionRingVolleyEnd(MotherBrainHeadMouth.Whole),
+        [H.OnionRingShotPhase2] = OnionRingShot(WholeHead, RingAimedAtSamus),
+        [H.OnionRingVolleyEndPhase2] = OnionRingVolleyEnd(WholeHead),
         [H.TwoOnionRingsPhase2] = Phase2VolleyOpening,
-        [H.BombPhase2] = Bomb(MotherBrainHeadMouth.Whole, afterburns: 7),
-        [H.BombPhase3] = Bomb(MotherBrainHeadMouth.Damaged, afterburns: 1),
+        [H.AttackingBabyMetroid] =
+        [
+            Cue(MotherBrainHeadCueKind.CountBabyMetroidAttack),
+            Cue(MotherBrainHeadCueKind.DisableNeckMovement),
+            Cue(MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid),
+        ],
+        [H.AttackingSamusFourOnionRingsPhase3] =
+        [
+            Cue(MotherBrainHeadCueKind.ResetBabyMetroidAttacks),
+            Cue(MotherBrainHeadCueKind.DisableNeckMovement),
+            Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
+        ],
+        [H.FourOnionRingsPhase3] = OnionRingVolleyOpening(DamagedHead, [],
+            Cue(MotherBrainHeadCueKind.QueueBabyMetroidAttackSound), RingAimedBefore),
+        [H.OnionRingShotPhase3] = OnionRingShot(DamagedHead, RingAimedBefore),
+        [H.OnionRingVolleyEndPhase3] = OnionRingVolleyEnd(DamagedHead),
+        [H.BombPhase2] = Bomb(WholeHead, afterburns: 7),
+        [H.BombPhase3] = Bomb(DamagedHead, afterburns: 1),
         [H.Laser] =
         [
-            HeadBeats.Show(EnemyFrameId.MotherBrainHeadEyeOpen, 17),
-            HeadBeats.Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 5),
-            HeadBeats.Cue(MotherBrainHeadCueKind.SpawnLaser),
-            HeadBeats.Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 33),
-            HeadBeats.Cue(MotherBrainHeadCueKind.EnableNeckMovement),
+            Show(EnemyFrameId.MotherBrainHeadEyeOpen, 17),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 5),
+            Cue(MotherBrainHeadCueKind.SpawnLaser),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 33),
+            Cue(MotherBrainHeadCueKind.EnableNeckMovement),
         ],
         [H.ChargingRainbowBeam] =
         [
-            HeadBeats.Cue(MotherBrainHeadCueKind.PrepareRainbowBeamCharge),
-            HeadBeats.Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 5),
-            HeadBeats.Show(EnemyFrameId.MotherBrainHeadEyeOpen, 5),
-            HeadBeats.Show(EnemyFrameId.MotherBrainHeadEyeShut, 3),
+            Cue(MotherBrainHeadCueKind.PrepareRainbowBeamCharge),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 5),
+            Show(EnemyFrameId.MotherBrainHeadEyeOpen, 5),
+            Show(EnemyFrameId.MotherBrainHeadEyeShut, 3),
         ],
         [H.ChargingRainbowBeamLoop] =
         [
-            HeadBeats.Cue(MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle),
-            HeadBeats.Show(EnemyFrameId.MotherBrainHeadEyeShut, 31),
+            Cue(MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle),
+            Show(EnemyFrameId.MotherBrainHeadEyeShut, 31),
         ],
     });
 
     /// <summary>
-    /// Her head's own brain animations, by the segment each starts at (#1948): each lists its own segments, played once in
-    /// turn but for the dying drool's bursts and the onion rings each volley fires after its first (#2470), and the one
-    /// it loops from, or rests on the still picture it ends at (#2353). Only the segments she starts an animation at, or a
-    /// random hold or drool continues at, start one; the segments an animation only runs on into are listed in it and start
-    /// none.
+    /// The brain animations, by the segment each starts at (#1948): each lists its own segments, played once in turn but
+    /// for the dying drool's bursts and the onion rings each volley fires after its first (#2470), and the one it loops
+    /// from, or rests on the still picture it ends at (#2353). Only
+    /// the segments she starts an animation at, or a random hold or drool continues at, start one; the segments an
+    /// animation only runs on into are listed in it and start none.
     /// </summary>
     private static Dictionary<H, Animation<H>> HeadStartingAt { get; } = new Dictionary<H, Animation<H>>
     {
-        [H.StretchingPhase2] = Resting(HeadSegments, H.StretchingPhase2, H.StretchingPhase2Held),
-        [H.StretchingPhase3] = Resting(HeadSegments, H.StretchingPhase3, H.StretchingPhase3Held),
-        [H.HyperBeamRecoil] = Resting(HeadSegments, H.HyperBeamRecoil, H.HyperBeamRecoilHeld),
-        [H.WholeHeadMouthClosed] = Resting(HeadSegments, H.WholeHeadMouthClosed),
-        [H.Decapitated] = Resting(HeadSegments, H.Decapitated, H.DecapitatedHeld),
+        [H.StretchingPhase2] = Resting(H.StretchingPhase2, H.StretchingPhase2Held),
+        [H.StretchingPhase3] = Resting(H.StretchingPhase3, H.StretchingPhase3Held),
+        [H.HyperBeamRecoil] = Resting(H.HyperBeamRecoil, H.HyperBeamRecoilHeld),
+        [H.WholeHeadMouthClosed] = Resting(H.WholeHeadMouthClosed),
+        [H.Decapitated] = Resting(H.Decapitated, H.DecapitatedHeld),
         [H.DyingDrool] = Animation<H>.LeadingInto([HeadSegments.Whole(H.DyingDrool), DroolBursts], [HeadSegments.Whole(H.DyingDroolLoop)]),
         [H.DyingDroolBurst] = Animation<H>.LeadingInto([DroolBursts], [HeadSegments.Whole(H.DyingDroolLoop)]),
-        [H.FiringRainbowBeam] = Resting(HeadSegments, H.FiringRainbowBeam),
-        [H.NeutralPhase2] = Looping(HeadSegments, H.NeutralPhase2, H.NeutralPhase2Hold),
-        [H.NeutralPhase2Hold] = Looping(HeadSegments, H.NeutralPhase2Hold, H.NeutralPhase2),
-        [H.NeutralPhase3] = Looping(HeadSegments, H.NeutralPhase3, H.NeutralPhase3Hold),
-        [H.NeutralPhase3Hold] = Looping(HeadSegments, H.NeutralPhase3Hold, H.NeutralPhase3),
-        [H.Corpse] = Resting(HeadSegments, H.Corpse, H.CorpseHeld),
-        [H.FourOnionRingsPhase2] = OnionRingVolley(HeadSegments, [H.FourOnionRingsPhase2], H.OnionRingShotPhase2, RingsOfFour,
-            H.OnionRingVolleyEndPhase2, H.NeutralPhase2, H.NeutralPhase2Hold),
-        [H.TwoOnionRingsPhase2] = OnionRingVolley(HeadSegments, [H.TwoOnionRingsPhase2], H.OnionRingShotPhase2, RingsOfTwo,
-            H.OnionRingVolleyEndPhase2, H.NeutralPhase2, H.NeutralPhase2Hold),
-        [H.BombPhase2] = LeadingInto(HeadSegments, [H.BombPhase2], H.NeutralPhase2, H.NeutralPhase2Hold),
-        [H.BombPhase3] = LeadingInto(HeadSegments, [H.BombPhase3], H.NeutralPhase3, H.NeutralPhase3Hold),
-        [H.Laser] = LeadingInto(HeadSegments, [H.Laser], H.NeutralPhase2, H.NeutralPhase2Hold),
-        [H.ChargingRainbowBeam] = LeadingInto(HeadSegments, [H.ChargingRainbowBeam], H.ChargingRainbowBeamLoop),
+        [H.FiringRainbowBeam] = Resting(H.FiringRainbowBeam),
+        [H.NeutralPhase2] = Looping(H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.NeutralPhase2Hold] = Looping(H.NeutralPhase2Hold, H.NeutralPhase2),
+        [H.NeutralPhase3] = Looping(H.NeutralPhase3, H.NeutralPhase3Hold),
+        [H.NeutralPhase3Hold] = Looping(H.NeutralPhase3Hold, H.NeutralPhase3),
+        [H.Corpse] = Resting(H.Corpse, H.CorpseHeld),
+        [H.FourOnionRingsPhase2] = OnionRingVolley([H.FourOnionRingsPhase2], H.OnionRingShotPhase2, RingsOfFour, H.OnionRingVolleyEndPhase2,
+            H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.TwoOnionRingsPhase2] = OnionRingVolley([H.TwoOnionRingsPhase2], H.OnionRingShotPhase2, RingsOfTwo, H.OnionRingVolleyEndPhase2,
+            H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.AttackingBabyMetroid] = OnionRingVolley([H.AttackingBabyMetroid, H.FourOnionRingsPhase3], H.OnionRingShotPhase3, RingsOfFour,
+            H.OnionRingVolleyEndPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),
+        [H.AttackingSamusFourOnionRingsPhase3] = OnionRingVolley([H.AttackingSamusFourOnionRingsPhase3, H.FourOnionRingsPhase3], H.OnionRingShotPhase3,
+            RingsOfFour, H.OnionRingVolleyEndPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),
+        [H.BombPhase2] = LeadingInto([H.BombPhase2], H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.BombPhase3] = LeadingInto([H.BombPhase3], H.NeutralPhase3, H.NeutralPhase3Hold),
+        [H.Laser] = LeadingInto([H.Laser], H.NeutralPhase2, H.NeutralPhase2Hold),
+        [H.ChargingRainbowBeam] = LeadingInto([H.ChargingRainbowBeam], H.ChargingRainbowBeamLoop),
     };
 
-    /// <summary>Her head's own brain animation that starts at <paramref name="segment"/>.</summary>
+    /// <summary>The brain animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<H> HeadStartingWith(H segment) => HeadStartingAt[segment];
-
-    /// <summary>
-    /// Every segment of her late fight's four-ring volley at Samus (#2554): her damaged head clears its count of attacks on
-    /// the Baby and aims at Samus, then fires the volley and idles.
-    /// </summary>
-    internal static AnimationSegments<L, EnemyFrameId, MotherBrainBrainCue<MotherBrainLateFightCueKind>> LateFightSegments { get; } = new(
-        LateFightBeats.Phase3Volley(L.AttackingSamusFourOnionRingsPhase3,
-        [
-            LateFightBeats.Own(MotherBrainLateFightCueKind.ResetBabyMetroidAttacks),
-            LateFightBeats.Cue(MotherBrainHeadCueKind.DisableNeckMovement),
-            LateFightBeats.Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus),
-        ],
-        new MotherBrainVolleySegments<L>(L.FourOnionRingsPhase3, L.OnionRingShotPhase3, L.OnionRingVolleyEndPhase3, L.NeutralPhase3, L.NeutralPhase3Hold),
-        MotherBrainLateFightCueKind.QueueBabyMetroidAttackSound, MotherBrainLateFightCueKind.MaybeHoldNeutralPhase3));
-
-    /// <summary>
-    /// Her late fight's volley at Samus, by the segment each of its animations starts at (#2554): the volley, which then
-    /// idles over and over, and the idle's hold, which a random hold continues at.
-    /// </summary>
-    internal static IReadOnlyDictionary<L, Animation<L>> LateFightStartingAt { get; } = new Dictionary<L, Animation<L>>
-    {
-        [L.AttackingSamusFourOnionRingsPhase3] = OnionRingVolley(LateFightSegments, [L.AttackingSamusFourOnionRingsPhase3, L.FourOnionRingsPhase3],
-            L.OnionRingShotPhase3, RingsOfFour, L.OnionRingVolleyEndPhase3, L.NeutralPhase3, L.NeutralPhase3Hold),
-        [L.NeutralPhase3Hold] = Looping(LateFightSegments, L.NeutralPhase3Hold, L.NeutralPhase3),
-    };
-
-    /// <summary>The animation of her late fight's volley at Samus that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<L> LateFightStartingWith(L segment) => LateFightStartingAt[segment];
-
-    /// <summary>
-    /// Every segment of her volley at the arrived Baby (#2554): her damaged head counts an attack on the Baby and aims at it,
-    /// then fires the volley and idles.
-    /// </summary>
-    internal static AnimationSegments<A, EnemyFrameId, MotherBrainBrainCue<MotherBrainBabyAttackCueKind>> BabyAttackSegments { get; } = new(
-        BabyAttackBeats.Phase3Volley(A.AttackingBabyMetroid,
-        [
-            BabyAttackBeats.Own(MotherBrainBabyAttackCueKind.CountBabyMetroidAttack),
-            BabyAttackBeats.Cue(MotherBrainHeadCueKind.DisableNeckMovement),
-            BabyAttackBeats.Own(MotherBrainBabyAttackCueKind.AimOnionRingsAtBabyMetroid),
-        ],
-        new MotherBrainVolleySegments<A>(A.FourOnionRingsPhase3, A.OnionRingShotPhase3, A.OnionRingVolleyEndPhase3, A.NeutralPhase3, A.NeutralPhase3Hold),
-        MotherBrainBabyAttackCueKind.QueueBabyMetroidAttackSound, MotherBrainBabyAttackCueKind.MaybeHoldNeutralPhase3));
-
-    /// <summary>
-    /// Her volley at the arrived Baby, by the segment each of its animations starts at (#2554): the volley, which then idles
-    /// over and over, and the idle's hold, which a random hold continues at.
-    /// </summary>
-    internal static IReadOnlyDictionary<A, Animation<A>> BabyAttackStartingAt { get; } = new Dictionary<A, Animation<A>>
-    {
-        [A.AttackingBabyMetroid] = OnionRingVolley(BabyAttackSegments, [A.AttackingBabyMetroid, A.FourOnionRingsPhase3],
-            A.OnionRingShotPhase3, RingsOfFour, A.OnionRingVolleyEndPhase3, A.NeutralPhase3, A.NeutralPhase3Hold),
-        [A.NeutralPhase3Hold] = Looping(BabyAttackSegments, A.NeutralPhase3Hold, A.NeutralPhase3),
-    };
-
-    /// <summary>The animation of her volley at the arrived Baby that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<A> BabyAttackStartingWith(A segment) => BabyAttackStartingAt[segment];
 
     /// <summary>How many times her dying head drools from its widest mouth in one burst.</summary>
     private const int DroolsPerBurst = 4;
@@ -393,97 +354,176 @@ internal static class MotherBrainAnimations
     private const int RingsOfTwo = 2;
 
     /// <summary>
-    /// An onion-ring volley of <paramref name="rings"/> rings (#2470) over <paramref name="segments"/>:
-    /// <paramref name="opening"/>, which fires the first, then <paramref name="ringShot"/> for each ring after it and
-    /// <paramref name="end"/>, each played once in turn; then each of <paramref name="cycle"/> in turn, over and over.
+    /// An onion-ring volley of <paramref name="rings"/> rings (#2470): <paramref name="opening"/>, which fires the first, then
+    /// <paramref name="ringShot"/> for each ring after it and <paramref name="end"/>, each played once in turn; then each of
+    /// <paramref name="cycle"/> in turn, over and over.
     /// </summary>
-    private static Animation<TSegment> OnionRingVolley<TSegment, TCue>(AnimationSegments<TSegment, EnemyFrameId, TCue> segments,
-        TSegment[] opening, TSegment ringShot, int rings, TSegment end, params TSegment[] cycle)
-        where TSegment : struct
-        where TCue : notnull =>
-        Animation<TSegment>.LeadingInto(
-            [.. opening.Select(segments.Whole), segments.Repeated(ringShot, rings - 1), segments.Whole(end)],
-            [.. cycle.Select(segments.Whole)]);
+    private static Animation<H> OnionRingVolley(H[] opening, H ringShot, int rings, H end, params H[] cycle) =>
+        Animation<H>.LeadingInto(
+            [.. opening.Select(HeadSegments.Whole), HeadSegments.Repeated(ringShot, rings - 1), HeadSegments.Whole(end)],
+            [.. cycle.Select(HeadSegments.Whole)]);
+
+    /// <summary>
+    /// A volley's opening from <paramref name="head"/> (#2470): after <paramref name="beforeOpening"/> its mouth opens wide
+    /// with <paramref name="cry"/> and, at its widest, fires the volley's first ring, <paramref name="ring"/>, whose sound
+    /// the volley plays once. Phase two's volleys first hold her neck still and cry out; phase three's held it as they
+    /// aimed and cry unless she has attacked the Baby eleven times.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] OnionRingVolleyOpening(HeadMouth head,
+        AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] beforeOpening, AnimationBeat<EnemyFrameId, MotherBrainHeadCue> cry,
+        AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] ring) =>
+    [
+        .. beforeOpening,
+        Show(head.Open, 5),
+        Show(head.Wide, 5),
+        cry,
+        Show(head.Widest, 9),
+        .. ring,
+        HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.OnionRings)),
+    ];
+
+    /// <summary>One more ring of a volley from <paramref name="head"/> (#2470): its widest mouth, then <paramref name="ring"/>.</summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] OnionRingShot(HeadMouth head,
+        AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] ring) =>
+    [
+        Show(head.Widest, 4),
+        .. ring,
+    ];
+
+    /// <summary>
+    /// A volley's end from <paramref name="head"/> (#2470): its widest mouth holds after the last ring, closes, and lets her
+    /// neck move again.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] OnionRingVolleyEnd(HeadMouth head) =>
+    [
+        Show(head.Widest, 17),
+        Show(head.Wide, 5),
+        Show(head.Open, 17),
+        Cue(MotherBrainHeadCueKind.EnableNeckMovement),
+    ];
 
     /// <summary>
     /// The opening of phase two's volleys, of four rings or two (#2470): her neck held still, her whole head cries out and
     /// fires the first ring at Samus.
     /// </summary>
-    private static AnimationBeat<EnemyFrameId, MotherBrainBrainCue<MotherBrainHeadChanceCueKind>>[] Phase2VolleyOpening =>
-        HeadBeats.OnionRingVolleyOpening(MotherBrainHeadMouth.Whole, [HeadBeats.Cue(MotherBrainHeadCueKind.DisableNeckMovement)],
-            HeadBeats.Effect(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.AttackCry)), RingAimedAtSamus);
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] Phase2VolleyOpening =>
+        OnionRingVolleyOpening(WholeHead, [Cue(MotherBrainHeadCueKind.DisableNeckMovement)],
+            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.AttackCry)), RingAimedAtSamus);
 
     /// <summary>A ring of phase two's volleys: aimed at Samus as it is fired.</summary>
-    private static AnimationBeat<EnemyFrameId, MotherBrainBrainCue<MotherBrainHeadChanceCueKind>>[] RingAimedAtSamus =>
-        [HeadBeats.Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus), HeadBeats.Cue(MotherBrainHeadCueKind.SpawnOnionRing)];
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] RingAimedAtSamus =>
+        [Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus), Cue(MotherBrainHeadCueKind.SpawnOnionRing)];
+
+    /// <summary>A ring of phase three's volley: fired where her head aimed the volley, at Samus or the Baby, before it opened.</summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] RingAimedBefore => [Cue(MotherBrainHeadCueKind.SpawnOnionRing)];
 
     /// <summary>
     /// A stretch of <paramref name="head"/>: it shakes, opens wide and drools, lets out a big purple breath with a roar, and
     /// drools three times more from its widest mouth before it begins to close. Phase two stretches the whole head, phase
     /// three the damaged one.
     /// </summary>
-    private static AnimationBeat<EnemyFrameId, MotherBrainBrainCue<MotherBrainHeadChanceCueKind>>[] Stretching(MotherBrainHeadMouth head) =>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] Stretching(HeadMouth head) =>
     [
-        HeadBeats.Cue(MotherBrainHeadCueKind.ShakeBrain),
-        HeadBeats.Show(head.Open, 3),
-        HeadBeats.Show(head.Wide, 3),
-        HeadBeats.Cue(MotherBrainHeadCueKind.SpawnDrool),
-        HeadBeats.Show(head.Wide, 3),
-        HeadBeats.Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath),
-        HeadBeats.Effect(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
-        HeadBeats.Cue(MotherBrainHeadCueKind.SpawnDrool),
-        HeadBeats.Show(head.Widest, 17),
-        HeadBeats.Cue(MotherBrainHeadCueKind.SpawnDrool),
-        HeadBeats.Show(head.Widest, 17),
-        HeadBeats.Cue(MotherBrainHeadCueKind.SpawnDrool),
-        HeadBeats.Show(head.Widest, 33),
-        HeadBeats.Show(head.Wide, 5),
+        Cue(MotherBrainHeadCueKind.ShakeBrain),
+        Show(head.Open, 3),
+        Show(head.Wide, 3),
+        Cue(MotherBrainHeadCueKind.SpawnDrool),
+        Show(head.Wide, 3),
+        Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath),
+        HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
+        Cue(MotherBrainHeadCueKind.SpawnDrool),
+        Show(head.Widest, 17),
+        Cue(MotherBrainHeadCueKind.SpawnDrool),
+        Show(head.Widest, 17),
+        Cue(MotherBrainHeadCueKind.SpawnDrool),
+        Show(head.Widest, 33),
+        Show(head.Wide, 5),
+    ];
+
+    /// <summary>
+    /// <paramref name="head"/> idling: its mouth opens and closes again. Phase two idles with the whole head, phase three
+    /// with the damaged one.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] Neutral(HeadMouth head) =>
+    [
+        Show(head.Closed, 5),
+        Show(head.Opening, 5),
+        Show(head.Open, 9),
+        Show(head.Opening, 5),
+        Show(head.Closed, 5),
+        Show(head.Opening, 5),
     ];
 
     /// <summary>
     /// A bomb lob from <paramref name="head"/>: phase two lobs a seven-afterburn bomb from the whole head, phase three a
     /// one-afterburn bomb from the damaged one.
     /// </summary>
-    private static AnimationBeat<EnemyFrameId, MotherBrainBrainCue<MotherBrainHeadChanceCueKind>>[] Bomb(MotherBrainHeadMouth head, int afterburns) =>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] Bomb(HeadMouth head, int afterburns) =>
     [
-        HeadBeats.Show(head.Closed, 5),
-        HeadBeats.Show(head.Opening, 5),
-        HeadBeats.Show(head.Open, 9),
-        HeadBeats.Cue(MotherBrainHeadCueKind.DisableNeckMovement),
-        HeadBeats.Show(head.Open, 5),
-        HeadBeats.Show(head.Wide, 5),
-        HeadBeats.Effect(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.AttackCry)),
-        HeadBeats.Show(head.Widest, 9),
-        HeadBeats.Effect(MotherBrainHeadCue.Bomb(afterburns)),
-        HeadBeats.Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath),
-        HeadBeats.Show(head.Widest, 33),
-        HeadBeats.Show(head.Wide, 5),
-        HeadBeats.Show(head.Open, 17),
-        HeadBeats.Cue(MotherBrainHeadCueKind.EnableNeckMovement),
+        Show(head.Closed, 5),
+        Show(head.Opening, 5),
+        Show(head.Open, 9),
+        Cue(MotherBrainHeadCueKind.DisableNeckMovement),
+        Show(head.Open, 5),
+        Show(head.Wide, 5),
+        HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.AttackCry)),
+        Show(head.Widest, 9),
+        HeadCue(MotherBrainHeadCue.Bomb(afterburns)),
+        Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath),
+        Show(head.Widest, 33),
+        Show(head.Wide, 5),
+        Show(head.Open, 17),
+        Cue(MotherBrainHeadCueKind.EnableNeckMovement),
     ];
 
-    /// <summary>An animation of <paramref name="segments"/> that plays each of <paramref name="cycle"/> once in turn, over and over.</summary>
-    private static Animation<TSegment> Looping<TSegment, TCue>(AnimationSegments<TSegment, EnemyFrameId, TCue> segments, params TSegment[] cycle)
-        where TSegment : struct
-        where TCue : notnull =>
-        Animation<TSegment>.Looping([.. cycle.Select(segments.Whole)]);
+    /// <summary>A head's frames at each stage of opening its mouth, from closed to widest.</summary>
+    /// <param name="Closed">The closed mouth.</param>
+    /// <param name="Opening">The mouth starting to open.</param>
+    /// <param name="Open">The open mouth.</param>
+    /// <param name="Wide">The wide-open mouth.</param>
+    /// <param name="Widest">The widest-open mouth.</param>
+    private sealed record HeadMouth(M Closed, M Opening, M Open, M Wide, M Widest);
+
+    /// <summary>The whole head of phase two.</summary>
+    private static HeadMouth WholeHead => new(EnemyFrameId.MotherBrainHeadEyeShut, EnemyFrameId.MotherBrainHeadEyeOpen, EnemyFrameId.MotherBrainHeadEyeGlaring,
+        EnemyFrameId.MotherBrainHeadJawDropping, EnemyFrameId.MotherBrainHeadJawDropped);
+
+    /// <summary>The damaged head of phase three.</summary>
+    private static HeadMouth DamagedHead => new(EnemyFrameId.MotherBrainDarkHeadEyeShut, EnemyFrameId.MotherBrainDarkHeadEyeOpen, EnemyFrameId.MotherBrainDarkHeadEyeGlaring,
+        EnemyFrameId.MotherBrainDarkHeadJawDropping, EnemyFrameId.MotherBrainDarkHeadJawDropped);
 
     /// <summary>
-    /// An animation of <paramref name="segments"/> that plays each of <paramref name="lead"/> once in turn, then each of
-    /// <paramref name="cycle"/> in turn, over and over (#2414).
+    /// Shows brain frame <paramref name="frame"/> for <paramref name="updates"/> updates (#2317), the updates it shows at
+    /// her brain's draws.
     /// </summary>
-    private static Animation<TSegment> LeadingInto<TSegment, TCue>(AnimationSegments<TSegment, EnemyFrameId, TCue> segments, TSegment[] lead,
-        params TSegment[] cycle)
-        where TSegment : struct
-        where TCue : notnull =>
-        Animation<TSegment>.LeadingInto([.. lead.Select(segments.Whole)], [.. cycle.Select(segments.Whole)]);
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue> Show(EnemyFrameId frame, int updates) =>
+        new AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame(frame, updates);
+
+    /// <summary>Shows brain frame <paramref name="frame"/> for good: the still picture her brain rests on (#2318).</summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue> Held(EnemyFrameId frame) =>
+        new AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.HeldFrame(frame);
+
+    /// <summary>Raises a brain event that carries no values.</summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue> Cue(MotherBrainHeadCueKind kind) =>
+        HeadCue(MotherBrainHeadCue.Of(kind));
+
+    /// <summary>Raises a brain event.</summary>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue> HeadCue(MotherBrainHeadCue cue) =>
+        new AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Event(cue);
+
+    /// <summary>An animation that plays each of <paramref name="cycle"/> once in turn, over and over.</summary>
+    private static Animation<H> Looping(params H[] cycle) => Animation<H>.Looping([.. cycle.Select(HeadSegments.Whole)]);
 
     /// <summary>
-    /// An animation of <paramref name="played"/> from <paramref name="segments"/>, each played once in turn, that rests on the
-    /// still picture the last one holds (#2353): her brain shows it for good, until she plays another.
+    /// An animation that plays each of <paramref name="lead"/> once in turn, then each of <paramref name="cycle"/> in turn,
+    /// over and over (#2414).
     /// </summary>
-    private static Animation<TSegment> Resting<TSegment, TCue>(AnimationSegments<TSegment, EnemyFrameId, TCue> segments, params TSegment[] played)
-        where TSegment : struct
-        where TCue : notnull =>
-        new([.. played.Select(segments.Whole)], AnimationEnd.Holds);
+    private static Animation<H> LeadingInto(H[] lead, params H[] cycle) =>
+        Animation<H>.LeadingInto([.. lead.Select(HeadSegments.Whole)], [.. cycle.Select(HeadSegments.Whole)]);
+
+    /// <summary>
+    /// An animation of <paramref name="segments"/>, each played once in turn, that rests on the still picture the last one
+    /// holds (#2353): her brain shows it for good, until she plays another.
+    /// </summary>
+    private static Animation<H> Resting(params H[] segments) => new([.. segments.Select(HeadSegments.Whole)], AnimationEnd.Holds);
 }

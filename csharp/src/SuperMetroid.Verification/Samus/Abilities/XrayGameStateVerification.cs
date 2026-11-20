@@ -1,4 +1,4 @@
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
@@ -34,9 +34,9 @@ internal static class XrayGameStateVerification
             SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
-            SamusState samus = runtime.Player.Samus;
+            SamusState samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -70,7 +70,7 @@ internal static class XrayGameStateVerification
 
         // State $12: the unpause fade also runs the state-eight routine.
         {
-            game.Session.screenFade.Show(0);
+            game.Session.screenFade.Show(DisplayBrightness.Black);
             game.Session.Enter(PauseStep.BrighteningGameplay);
             game.Step(runtime.Options.ControllerBindings.Dash);
             AssertTrue(game.IsAt(PauseStep.BrighteningGameplay), "the held-Run frame is an unpausing gameplay frame");

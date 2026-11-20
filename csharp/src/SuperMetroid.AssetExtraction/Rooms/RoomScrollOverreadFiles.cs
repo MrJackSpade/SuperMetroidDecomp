@@ -28,7 +28,7 @@ public static class RoomScrollOverreadFiles
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        IImportCartridgeSource cartridge = bus;
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         Directory.CreateDirectory(directory);
         var cells = new Dictionary<string, IReadOnlyList<RoomScrollState>>();
         foreach (RoomScrollDefinition layout in RoomScrollDefinitions.Explicit)

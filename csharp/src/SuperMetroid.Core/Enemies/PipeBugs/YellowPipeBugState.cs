@@ -7,15 +7,8 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// </summary>
 public sealed class YellowPipeBugState
 {
-    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
-    internal YellowPipeBugSpawnSettings Settings { get; }
-
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal YellowPipeBugState(YellowPipeBugAction action, YellowPipeBugSpawnSettings settings)
-    {
-        Settings = Ensure.NotNull(settings);
-        Action = action;
-    }
+    internal YellowPipeBugState(YellowPipeBugAction action) => Action = action;
 
     /// <summary>The animation the bug plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<PipeBugSegment> Playback { get; set; }

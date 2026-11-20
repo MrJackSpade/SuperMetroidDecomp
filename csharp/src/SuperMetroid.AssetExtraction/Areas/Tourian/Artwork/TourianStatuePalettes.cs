@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
@@ -30,14 +31,20 @@ public sealed class TourianStatuePalettes
         this.greyColors = greyColors;
     }
 
-    /// <summary>Gets eye colour 0–3 of eye glow 0–3, in Phantoon, Ridley, Draygon, Kraid order.</summary>
-    public RgbColor ResolveEye(int glow, int color)
+    /// <summary>The boss statues in the order the installed eye colours list their glows: Phantoon, Ridley, Draygon, Kraid.</summary>
+    private static IReadOnlyList<TourianStatue> EyeRowOrder { get; } =
+        [TourianStatue.Phantoon, TourianStatue.Ridley, TourianStatue.Draygon, TourianStatue.Kraid];
+
+    /// <summary>Gets eye colour 0–3 of <paramref name="statue"/>'s eye glow.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The statue is undefined or the colour lies past the glow's four.</exception>
+    public RgbColor ResolveEye(TourianStatue statue, int color)
     {
-        if ((uint)glow >= TourianStatueColorDefinitions.EyeGlowCount)
-            throw new ArgumentOutOfRangeException(nameof(glow));
+        int row = EyeRowOrder.ToList().IndexOf(statue);
+        if (row < 0)
+            throw new ArgumentOutOfRangeException(nameof(statue), statue, "Undefined Tourian statue.");
         if ((uint)color >= TourianStatueColorDefinitions.EyeColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return eyeColors.Read(glow * TourianStatueColorDefinitions.EyeColorCount + color);
+        return eyeColors.Read(row * TourianStatueColorDefinitions.EyeColorCount + color);
     }
 
     /// <summary>Base-decoration colour <paramref name="color"/>, 0–15.</summary>

@@ -428,7 +428,7 @@ public static class SamusGrappleSwing
     {
         RoomCollisionBlock block =
             level.GetCollisionBlockOrEdgeSolid(blockPosition);
-        if (block.LiesBeyondRoom)
+        if (block.Position is null)
             return true;
 
         // The block an extension stands for collides in its stead, and one that leads outside the grid reads the
@@ -476,7 +476,7 @@ public static class SamusGrappleSwing
 
             case RoomCollisionType.HorizontalExtension:
             case RoomCollisionType.VerticalExtension:
-                throw new InvalidOperationException($"Continuing block {block.At} reached the grapple's swing in place of the block it stands for.");
+                throw new InvalidOperationException($"Continuing block {block.Position} reached the grapple's swing in place of the block it stands for.");
 
             default:
                 throw new InvalidDataException(

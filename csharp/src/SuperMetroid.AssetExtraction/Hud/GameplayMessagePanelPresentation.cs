@@ -81,7 +81,8 @@ public sealed class GameplayMessagePanelPresentation
         try
         {
             document = JsonAssetDocument.Read<GameplayMessagePanelDocument>(
-                source, ArtworkJson.Options);
+                source, ArtworkJson.Options)
+                ?? throw new InvalidDataException("Gameplay-message panel document is null.");
         }
         catch (JsonException error)
         {

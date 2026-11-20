@@ -15,7 +15,7 @@ internal static class IntroMotherBrainInputDefinitionsVerification
     internal static void VerifyIntroMotherBrainDemoInput(CartridgeImportAddressSpace bus,
         ImportIntroCinematicArtwork stock)
     {
-        ushort ReferenceWord(ushort pointer) => bus.ReadCartridgeWord(DemoInputRomData.BankBase | pointer);
+        ushort ReferenceWord(ushort pointer) => CartridgeImportSource.Require(bus).ReadCartridgeWord(DemoInputRomData.BankBase | pointer);
         var compiled = new DemoInputState();
         var reference = new NativeDemoInputReference(ReferenceWord);
         compiled.Clear();
@@ -50,7 +50,7 @@ internal static class IntroMotherBrainInputDefinitionsVerification
         var guarded = NewIntroArtworkSourceReadGuard(bus);
         var intro = CreateRetailIntroFixture(characterArtwork: stock);
         intro.SetupFirstIllustratedPage();
-        intro.SetupMotherBrainFlashback((intro.CurrentNarration ?? throw new InvalidOperationException("The check runs the intro once its pages have begun.")));
+        intro.SetupMotherBrainFlashback();
         intro.StepMotherBrainDemo();
         var live = intro.CurrentFlashbackDemoInput ?? throw new InvalidOperationException("Verification requires the live flashback demo.");
         var nativeFirst = new NativeDemoInputReference(ReferenceWord);

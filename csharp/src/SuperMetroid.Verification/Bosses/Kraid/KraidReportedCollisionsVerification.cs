@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend;
@@ -26,7 +25,7 @@ internal static class KraidReportedCollisionsVerification
             try { action(); Console.WriteLine(name + ": PASS"); }
             catch (Exception error) { failures.Add(error); Console.WriteLine(name + ": " + error.Message); }
         }
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         samus.SelectedHudItem = HudItem.Beam;
         samus.EquippedBeams = samus.CollectedBeams = SamusBeamFlags.Spazer;
         runtime.SamusPhases.ShowEquippedBeamColours(samus.EquippedBeams);
@@ -94,9 +93,9 @@ internal static class KraidReportedCollisionsVerification
             var lint = runtime.Enemies.Places.InUpdateOrder[2];
             lint.Position = lint.Position.WithWhole(new(126, 400));
             lint.Contact = lint.Contact.Without(EnemyContact.IgnoresSamus);
-            lint.RequireSpeciesState<KraidLintState>().Phase = KraidLintPhase.Inactive;
+            ((KraidLintState)lint.RequireSpeciesState<KraidPartState>()).Phase = KraidLintPhase.Inactive;
             ResetSamus(100, 400);
-            runtime.Enemies.KraidBehavior.Projectiles.RunKraidLintMain(lint.HeldOccupant(), lint.RequireSpeciesState<KraidLintState>(), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew());
+            runtime.Enemies.KraidBehavior.Projectiles.RunKraidLintMain(lint.HeldOccupant(), ((KraidLintState)lint.RequireSpeciesState<KraidPartState>()), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew());
             AssertEqual((ushort)(999 - lint.Definition.Damage), samus.Health, "Lint leading edge damages Samus");
             AssertEqual(-25, samus.Kinematics.ExtraDisplacement.X.WholePixels, "Native complement-based lint push");
             AssertEqual(true, lint.Contact.HasAny(EnemyContact.IgnoresSamus), "Lint becomes intangible after contact");

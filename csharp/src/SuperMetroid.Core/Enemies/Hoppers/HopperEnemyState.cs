@@ -6,15 +6,8 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 /// </summary>
 public sealed class HopperEnemyState
 {
-    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
-    internal HopperSpawnSettings Settings { get; }
-
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal HopperEnemyState(HopperAction action, HopperSpawnSettings settings)
-    {
-        Settings = Ensure.NotNull(settings);
-        Action = action;
-    }
+    internal HopperEnemyState(HopperAction action) => Action = action;
 
     /// <summary>The current hopper AI step, advanced one setup stage an update.</summary>
     public HopperAction Action { get; internal set; }

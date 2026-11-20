@@ -99,7 +99,7 @@ internal static class AudioVerification
             audio.AdvanceFrame(default);
         AssertEqual(3, reset.Count, "audio reset command count");
         AssertEqual(
-            new AudioRequest.InstallSharedSounds(),
+            new AudioRequest.ChangeMusicDataSet(null),
             reset[0],
             "power-on loads only the shared sounds");
         AssertEqual(new AudioRequest.StopMusic(), reset[1], "reset music port");
@@ -229,7 +229,7 @@ internal static class AudioVerification
         AssertEqual(new AudioRequest.RequestSound(EnemySound.DudShot), request.Single(), "SFX request write");
         AssertEqual(
             0,
-            sfx.AdvanceFrame(new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>([SoundEffectLibrary.Enemies], _ => SoundAcknowledgement<SoundEffectId>.Of(new RequestedSound<SoundEffectId>(EnemySound.DudShot)))).Count,
+            sfx.AdvanceFrame(new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>([SoundEffectLibrary.Enemies], _ => SoundAcknowledgement<SoundEffectId>.Of(EnemySound.DudShot))).Count,
             "SFX acknowledgement enters two-frame clear delay");
         AssertEqual(0, sfx.AdvanceFrame(default).Count, "SFX clear delay frame one");
         AssertEqual(

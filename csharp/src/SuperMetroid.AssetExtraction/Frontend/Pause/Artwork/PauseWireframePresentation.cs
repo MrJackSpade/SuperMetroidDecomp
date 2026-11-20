@@ -34,7 +34,8 @@ public sealed class PauseWireframePresentation
     public static PauseWireframePresentation Load(Stream json)
     {
         PauseWireframeDocument document;
-        try { document = JsonAssetDocument.Read<PauseWireframeDocument>(json, ArtworkJson.Options); }
+        try { document = JsonAssetDocument.Read<PauseWireframeDocument>(json, ArtworkJson.Options)
+            ?? throw new InvalidDataException("Pause wireframe document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause wireframe JSON.", error); }
         if (document.Version != PauseWireframeDefinitions.Version || document.Frames is null || document.Frames.Count != PauseWireframeDefinitions.Count)
             throw new InvalidDataException("Pause wireframes require version 1 and all four named frames.");

@@ -42,7 +42,7 @@ internal static class HopperAnimationDefinitionsVerification
                  })
         {
             int header = SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(hopper);
-            AssertEqual(HoppersNativeWords.HopperKinds.Decode(RoomEnemyDefinitionImporter.ReadWord(rom, header, 42), "hopper variant"),
+            AssertEqual(HoppersNativeWords.HopperKinds.Decode(RoomEnemyDefinitionImporter.ReadWord(CartridgeImportSource.Require(rom), header, 42), "hopper variant"),
                 HopperAnimationChoices.KindOf(hopper), $"{hopper}'s header names its kind");
         }
         AssertThrows<InvalidDataException>(() => HopperAnimationChoices.KindOf(EnemyDefinitionId.Zoa), "a Zoa is no hopper");
@@ -68,7 +68,7 @@ internal static class HopperAnimationDefinitionsVerification
             place.Bind(definitions[variant], place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter1(EnemyDefinitionId.Sidehopper, onCeiling ? (ushort)1 : (ushort)0);
-            enemies.HoppersBehavior.InitializeHopper(place, place.SpawnSettings<HopperSpawnSettings>());
+            enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant());
             HopperEnemyState state = enemies.HopperStates[0] ?? throw new InvalidOperationException("Verification requires enemies.HopperStates[0].");
             AssertEqual(kind, state.Kind, $"hopper kind {context}");
             HopperSegment landed = HopperAnimationChoices.Animation(kind, onCeiling ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Landed);
@@ -123,7 +123,7 @@ internal static class HopperAnimationDefinitionsVerification
         place.Bind(EnemyDefinitionId.SidehopperTourian, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnSettings(new HopperSpawnSettings(HopperSurface.Floor));
-        enemies.HoppersBehavior.InitializeHopper(place, place.SpawnSettings<HopperSpawnSettings>());
+        enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant());
         EnemyInstructionRunner.ShownFrames(place, 1);
         AssertEqual((SoundEffectId?)EnemySound.LowThud, enemies.Audio.LatestSound,
             "Tourian Sidehopper shares the large-Sidehopper landed program");
@@ -131,7 +131,7 @@ internal static class HopperAnimationDefinitionsVerification
 
     /// <summary>Reads a native hopper word for independent bank-A3 definition comparisons.</summary>
     internal static ushort ReadHopperAnimationWord(CartridgeImportAddressSpace source, int address) =>
-        source.ReadCartridgeWord(address);
+        CartridgeImportSource.Require(source).ReadCartridgeWord(address);
 
     /// <summary>Runs the hopper animation checks and the program oracle through the verification dispatcher.</summary>
     [VerificationCommand("--hopper-instruction-program-definitions")]

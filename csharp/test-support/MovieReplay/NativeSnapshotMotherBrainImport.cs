@@ -92,7 +92,7 @@ internal static class NativeSnapshotMotherBrainImport
         Dictionary<MotherBrainTubePiece, NativeEnemyList<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
         foreach (RoomEnemyPlace tube in runtime.Enemies.Places.InUpdateOrder.Where(place => place.Holds(EnemyDefinitionId.MotherBrainTubes)))
         {
-            SuperMetroid.Core.Enemies.EnemyPartners.Listed<MotherBrainTubesEntity>(tube).State.Playback = NativeEnemyAnimationOracle.PlaybackAt(
+            tube.RequireSpeciesState<MotherBrainFallingTubeState>().Playback = NativeEnemyAnimationOracle.PlaybackAt(
                 tubes, MotherBrainNativeListAddresses.TubeEntries, MotherBrainTubeAnimations.StartingAt, AnimationScript(tube));
         }
         state.BrainShake.ShakeFor(W(MotherBrainMemory.BrainMainShakeTimer));
@@ -214,18 +214,18 @@ internal static class NativeSnapshotMotherBrainImport
         {
             case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame frame:
                 brain.Playback = playback with { Place = new AnimationPlace(playback.Place.Phase, playback.Place.Beat + 1).WithPlaysLeft(playback.Place.PlaysLeft) };
-                brain.Shown = new SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainShown.Picture(frame.Shown);
+                brain.ShownFrame = frame.Shown;
                 // The frame moves on at the draw its count passes its list's duration: its updates less the draws shown.
                 brain.Clock.HoldFor(frame.Duration - drawsShown + 1);
                 return;
             case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.HeldFrame held:
                 brain.Playback = playback with { Place = AnimationPlace.HoldingIn(playback.Place.Phase, phase.BeatCount) };
-                brain.Shown = new SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainShown.Picture(held.Shown);
+                brain.ShownFrame = held.Shown;
                 brain.Clock.ShowForGood();
                 return;
             default:
                 brain.Playback = playback;
-                brain.Shown = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainShown.Nothing;
+                brain.ShownFrame = null;
                 brain.Clock.StepOnNextUpdate();
                 return;
         }
@@ -268,7 +268,7 @@ internal static class NativeSnapshotMotherBrainImport
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
         sequence.State.HealthColoursEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
-        sequence.State.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
+        sequence.Revival.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
         // Once the sequence runs, the sub-function word holds the bursts' interval; their place was imported with the
         // encounter, whose cycle the sequence shares.
         // The cartridge's interval runs below zero on the update a burst is due: a count at zero or below is due next.

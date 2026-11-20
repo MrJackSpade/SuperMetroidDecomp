@@ -30,7 +30,7 @@ internal static class HudAtlasVerification
         InstalledScreenContent original,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
-        byte[] source = RomDataReader.ReadFixedBank(bus, NativeHudCharacters, HudTileAtlasFormat.ByteCount);
+        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), NativeHudCharacters, HudTileAtlasFormat.ByteCount);
         AssertTrue(source.SequenceEqual(InstalledFixtures.ImportOf(original).Characters.Hud.Bytes.Span), "HUD PNG and compiled padding match all native bytes");
         var native = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay);
         native.Artwork.ScreenContent = original;
@@ -63,7 +63,7 @@ internal static class HudAtlasVerification
             RgbColor[] colours = new RgbColor[256];
             for (int i = 0; i < 32; i++)
                 colours[i] = RgbColor.FromWord((ushort)(i * 0x421));
-            var plane = (SuperMetroid.Core.Assets.ShownLayeredPicture)FxOverlayFixtures.Picture(runtime.FrameBoundary.CaptureFxOverlayPlane().WordsIn(InstalledFixtures.ImportMaps.RoomFxPages), runtime.ComposedVram(),
+            SuperMetroid.Core.Assets.LayeredPicture plane = FxOverlayFixtures.Picture(runtime.FrameBoundary.CaptureFxOverlayPlane().WordsIn(InstalledFixtures.ImportMaps.RoomFxPages), runtime.ComposedVram(),
                 colours);
             var layer = new OverlayBlendLayer(new AtmosphereOverlay(FxOverlayFixtures.Rows(plane, 0, FxOverlayPlaneConstants.Rows), ScrollBands.Uniform(0)), 0,
                 BlendOperation.Add, ScrollBands.Uniform(0));

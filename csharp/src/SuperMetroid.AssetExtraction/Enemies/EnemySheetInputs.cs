@@ -19,7 +19,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="EscapeTimer">The escape timer's characters, which escapes upload.</param>
 internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSourceArtwork Bosses, AreaSourceArtwork Areas,
     ReadOnlyMemory<byte> StandardObjects, GameplayBasePalette Palettes, EscapeTimerCharacters EscapeTimer)
-    : IInstalledEncounterArtwork
+    : IInstalledArtworkContent, IInstalledSpriteCharacterArtwork, IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static EnemySheetInputs Load(string content)
@@ -55,14 +55,14 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
     /// </summary>
     internal IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, RoomEnemyGraphicsSetMembers> SetMembers { get; private init; } = RoomEnemyGraphicsSetLists.Members;
 
-    /// <summary>The beam colours, which a frozen enemy's shade is coloured from (#1512).</summary>
-    internal required InstalledBeamPalettes BeamPalettes { get; init; }
+    /// <summary>The beam colours, which a frozen enemy's shade is coloured from (#1512); null for fixtures that draw no frozen enemy.</summary>
+    internal InstalledBeamPalettes? BeamPalettes { get; init; }
 
     /// <summary>
     /// The installed map presentation, which holds the colours the Ceres Ridley and Mother Brain encounters load over
-    /// their sprites (#1512).
+    /// their sprites (#1512); null for fixtures that draw neither encounter.
     /// </summary>
-    internal required ImportAreaMapPresentation Maps { get; init; }
+    internal ImportAreaMapPresentation? Maps { get; init; }
 
     /// <summary>The beam colours the import extracted at <paramref name="path"/> (#1637).</summary>
     private static InstalledBeamPalettes LoadBeamPalettes(string path)
@@ -88,8 +88,9 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
     AreaSourceArtwork IInstalledAreaSpriteCharacterArtwork.AreaTiles => Areas;
 
     /// <inheritdoc/>
+    /// <exception cref="InvalidDataException">The enemy artwork holds no gunship takeoff pictures.</exception>
     /// <exception cref="ArgumentOutOfRangeException">No catalogued upload names the asset.</exception>
     ReadOnlyMemory<byte> IInstalledArtworkContent.Resolve(InstalledArtworkId asset) =>
         asset is InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles ? EscapeTimerTilePageTransfers.Resolve(EscapeTimer, asset)
-            : Enemies.GunshipLiftoff.Resolve(asset);
+            : (Enemies.GunshipLiftoff ?? throw new InvalidDataException("Enemy sheets require the installed gunship takeoff pictures.")).Resolve(asset);
 }

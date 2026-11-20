@@ -45,29 +45,29 @@ internal enum CollectibleDraw
     /// <summary>A Power Bomb Tank dimmed, the second of its two frames.</summary>
     PowerBombTankDim,
 
-    /// <summary>The first block pair's block under an item's own picture while the picture shows its primary look.</summary>
-    FirstBlockPairPrimaryLook,
+    /// <summary>The solid pair's block under an item's own picture while the picture shows its primary look.</summary>
+    SolidPairPrimaryLook,
 
-    /// <summary>The first block pair's block under an item's own picture while the picture shows its alternate look.</summary>
-    FirstBlockPairAlternateLook,
+    /// <summary>The solid pair's block under an item's own picture while the picture shows its alternate look.</summary>
+    SolidPairAlternateLook,
 
-    /// <summary>The second block pair's block under an item's own picture while the picture shows its primary look.</summary>
-    SecondBlockPairPrimaryLook,
+    /// <summary>The first door pair's block under an item's own picture while the picture shows its primary look.</summary>
+    FirstDoorPairPrimaryLook,
 
-    /// <summary>The second block pair's block under an item's own picture while the picture shows its alternate look.</summary>
-    SecondBlockPairAlternateLook,
+    /// <summary>The first door pair's block under an item's own picture while the picture shows its alternate look.</summary>
+    FirstDoorPairAlternateLook,
 
-    /// <summary>The third block pair's block under an item's own picture while the picture shows its primary look.</summary>
-    ThirdBlockPairPrimaryLook,
+    /// <summary>The second door pair's block under an item's own picture while the picture shows its primary look.</summary>
+    SecondDoorPairPrimaryLook,
 
-    /// <summary>The third block pair's block under an item's own picture while the picture shows its alternate look.</summary>
-    ThirdBlockPairAlternateLook,
+    /// <summary>The second door pair's block under an item's own picture while the picture shows its alternate look.</summary>
+    SecondDoorPairAlternateLook,
 
-    /// <summary>The fourth block pair's block under an item's own picture while the picture shows its primary look.</summary>
-    FourthBlockPairPrimaryLook,
+    /// <summary>The third door pair's block under an item's own picture while the picture shows its primary look.</summary>
+    ThirdDoorPairPrimaryLook,
 
-    /// <summary>The fourth block pair's block under an item's own picture while the picture shows its alternate look.</summary>
-    FourthBlockPairAlternateLook,
+    /// <summary>The third door pair's block under an item's own picture while the picture shows its alternate look.</summary>
+    ThirdDoorPairAlternateLook,
 
     /// <summary>A shot block whole, as a concealed item's reveal begins and its hiding ends.</summary>
     ShotBlockIntact,

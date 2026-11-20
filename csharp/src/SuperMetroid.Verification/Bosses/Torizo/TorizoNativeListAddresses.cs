@@ -249,28 +249,28 @@ internal static class TorizoNativeListAddresses
     internal static BodyWordKind ClassifyBodyWord(ushort word) =>
         BodyWords.TryGetValue(word, out BodyWordKind kind) ? kind : BodyWordKind.Shared;
 
-    /// <summary>The native lists the drool, swipes, statue fragments, flying sonic booms and landing dust play (#1788, #2554).</summary>
+    /// <summary>
+    /// The entry of every native Torizo projectile list in bank $86, in bank order: the lists the projectile animations play
+    /// runs of, each ending where the next begins. The ninth to sixteenth statue fragments' lists ($A54B through $A5C2),
+    /// which the hand's crumble never spawns, are not reproduced (#1941): each fragment's list ends in its deletion.
+    /// </summary>
     internal static readonly ushort[] ProjectileLists =
     [
-        0xa46a, 0xa46e, 0xa472, 0xa482, 0xa48a, 0xa48e, 0xa4aa, 0xa4c3, 0xa4d4, 0xa4e5, 0xa4f6, 0xa507, 0xa518, 0xa529, 0xa53a,
-        0xadbf, 0xadca, 0xadd2, 0xaddd, 0xaf9d, 0xafb5,
+        0xa3cb, 0xa3d5, 0xa3fa, 0xa408, 0xa431, 0xa435, 0xa46a, 0xa46e,
+        0xa472, 0xa482, 0xa48a, 0xa48e, 0xa4aa, 0xa4c3, 0xa4d4, 0xa4e5,
+        0xa4f6, 0xa507, 0xa518, 0xa529, 0xa53a, 0xab15, 0xab1d, 0xab25,
+        0xab41, 0xab68, 0xadbf, 0xadca, 0xadd2, 0xaddd, 0xade5, 0xadf1,
+        0xaf9d, 0xafb5, 0xb104, 0xb10a, 0xb11c, 0xb122, 0xb134, 0xb14b,
+        0xb152, 0xb166, 0xb16d, 0xb190, 0xb1a8, 0xb293, 0xb29d, 0xb2c1,
+        0xb2cb, 0xb2ef, 0xb3cd, 0xb3e5, 0xb3e7, 0xb410,
     ];
 
-    /// <summary>The native lists the explosions and a struck sonic boom's bursts play (#2554).</summary>
-    internal static readonly ushort[] ExplosionLists = [0xa3cb, 0xa3d5, 0xa3fa, 0xa408, 0xa431, 0xa435, 0xade5, 0xadf1];
-
-    /// <summary>The native lists the Chozo orbs play (#2554).</summary>
-    internal static readonly ushort[] ChozoOrbLists = [0xab15, 0xab1d, 0xab25, 0xab41, 0xab68];
-
-    /// <summary>The native lists the egg plays: its own, and the orb's wall burst a shot egg plays (#2554).</summary>
-    internal static readonly ushort[] EggLists = [0xab25, 0xb104, 0xb10a, 0xb11c, 0xb122, 0xb134, 0xb14b, 0xb152, 0xb166, 0xb16d, 0xb190, 0xb1a8];
-
-    /// <summary>The native lists the caught super missile and the eye beam play (#2554).</summary>
-    internal static readonly ushort[] WeaponLists = [0xb293, 0xb29d, 0xb2c1, 0xb2cb, 0xb2ef, 0xb3cd, 0xb3e5, 0xb3e7, 0xb410];
-
-    /// <summary>The native list each drool, swipe, fragment, flying sonic boom and landing dust animation starts at (#1788).</summary>
+    /// <summary>The native list each projectile animation starts at (#1788).</summary>
     internal static readonly IReadOnlyDictionary<TorizoProjectileSegment, ushort> ProjectileAnimationEntries = new Dictionary<TorizoProjectileSegment, ushort>
     {
+        [TorizoProjectileSegment.LowHealthExplosion] = 0xa3cb,
+        [TorizoProjectileSegment.DeathExplosion] = 0xa3fa,
+        [TorizoProjectileSegment.DeathSmoke] = 0xa431,
         [TorizoProjectileSegment.DroolNoDelay] = 0xa472,
         [TorizoProjectileSegment.DroolWallImpact] = 0xa48a,
         [TorizoProjectileSegment.DroolFloorImpact] = 0xa48e,
@@ -283,57 +283,33 @@ internal static class TorizoNativeListAddresses
         [TorizoProjectileSegment.StatueFragmentBottomLeft] = 0xa518,
         [TorizoProjectileSegment.StatueFragmentBottomMiddle] = 0xa529,
         [TorizoProjectileSegment.StatueFragmentBottomRight] = 0xa53a,
+        [TorizoProjectileSegment.ChozoOrbMovingLeft] = 0xab15,
+        [TorizoProjectileSegment.ChozoOrbMovingRight] = 0xab1d,
+        [TorizoProjectileSegment.ChozoOrbWallImpact] = 0xab25,
+        [TorizoProjectileSegment.ChozoOrbFloorImpact] = 0xab41,
+        [TorizoProjectileSegment.ChozoOrbShot] = 0xab68,
         [TorizoProjectileSegment.SonicBoomFiredLeft] = 0xadbf,
         [TorizoProjectileSegment.SonicBoomFiredRight] = 0xadd2,
+        [TorizoProjectileSegment.SonicBoomWallImpact] = 0xade5,
         [TorizoProjectileSegment.LandingDustRightFoot] = 0xaf9d,
         [TorizoProjectileSegment.LandingDustLeftFoot] = 0xafb5,
-    };
-
-    /// <summary>The native list each explosion animation starts at (#1788, #2554).</summary>
-    internal static readonly IReadOnlyDictionary<TorizoExplosionSegment, ushort> ExplosionAnimationEntries = new Dictionary<TorizoExplosionSegment, ushort>
-    {
-        [TorizoExplosionSegment.LowHealthExplosion] = 0xa3cb,
-        [TorizoExplosionSegment.DeathExplosion] = 0xa3fa,
-        [TorizoExplosionSegment.DeathSmoke] = 0xa431,
-        [TorizoExplosionSegment.SonicBoomWallImpact] = 0xade5,
-    };
-
-    /// <summary>The native list each Chozo orb animation starts at (#1788, #2554).</summary>
-    internal static readonly IReadOnlyDictionary<TorizoChozoOrbSegment, ushort> ChozoOrbAnimationEntries = new Dictionary<TorizoChozoOrbSegment, ushort>
-    {
-        [TorizoChozoOrbSegment.ChozoOrbMovingLeft] = 0xab15,
-        [TorizoChozoOrbSegment.ChozoOrbMovingRight] = 0xab1d,
-        [TorizoChozoOrbSegment.ChozoOrbWallImpact] = 0xab25,
-        [TorizoChozoOrbSegment.ChozoOrbFloorImpact] = 0xab41,
-        [TorizoChozoOrbSegment.ChozoOrbShot] = 0xab68,
-    };
-
-    /// <summary>The native list each egg animation starts at (#1788, #2554): a shot egg bursts as an orb does on a wall.</summary>
-    internal static readonly IReadOnlyDictionary<GoldenTorizoEggSegment, ushort> EggAnimationEntries = new Dictionary<GoldenTorizoEggSegment, ushort>
-    {
-        [GoldenTorizoEggSegment.Shot] = 0xab25,
-        [GoldenTorizoEggSegment.EggBouncingLeft] = 0xb104,
-        [GoldenTorizoEggSegment.EggHatchingLeft] = 0xb10a,
-        [GoldenTorizoEggSegment.EggBouncingRight] = 0xb11c,
-        [GoldenTorizoEggSegment.EggHatchingRight] = 0xb122,
-        [GoldenTorizoEggSegment.EggHatchedLeft] = 0xb14b,
-        [GoldenTorizoEggSegment.EggHatchedRight] = 0xb166,
-        [GoldenTorizoEggSegment.EggBreakLeft] = 0xb190,
-        [GoldenTorizoEggSegment.EggBreakRight] = 0xb1a8,
-    };
-
-    /// <summary>The native list each super missile and eye beam animation starts at (#1788, #2554).</summary>
-    internal static readonly IReadOnlyDictionary<GoldenTorizoWeaponSegment, ushort> WeaponAnimationEntries = new Dictionary<GoldenTorizoWeaponSegment, ushort>
-    {
-        [GoldenTorizoWeaponSegment.SuperMissileRight] = 0xb293,
-        [GoldenTorizoWeaponSegment.SuperMissileLeft] = 0xb2c1,
-        [GoldenTorizoWeaponSegment.SuperMissileImpact] = 0xb2ef,
-        [GoldenTorizoWeaponSegment.EyeBeamWallImpact] = 0xb3cd,
-        [GoldenTorizoWeaponSegment.EyeBeamFloorImpact] = 0xb3e5,
+        [TorizoProjectileSegment.EggBouncingLeft] = 0xb104,
+        [TorizoProjectileSegment.EggHatchingLeft] = 0xb10a,
+        [TorizoProjectileSegment.EggBouncingRight] = 0xb11c,
+        [TorizoProjectileSegment.EggHatchingRight] = 0xb122,
+        [TorizoProjectileSegment.EggHatchedLeft] = 0xb14b,
+        [TorizoProjectileSegment.EggHatchedRight] = 0xb166,
+        [TorizoProjectileSegment.EggBreakLeft] = 0xb190,
+        [TorizoProjectileSegment.EggBreakRight] = 0xb1a8,
+        [TorizoProjectileSegment.SuperMissileRight] = 0xb293,
+        [TorizoProjectileSegment.SuperMissileLeft] = 0xb2c1,
+        [TorizoProjectileSegment.SuperMissileImpact] = 0xb2ef,
+        [TorizoProjectileSegment.EyeBeamWallImpact] = 0xb3cd,
+        [TorizoProjectileSegment.EyeBeamFloorImpact] = 0xb3e5,
         // The flames start just past the floor impact's loop mark, as its conditional goto continues there once the eye beam's
         // explosions are enabled (#2411).
-        [GoldenTorizoWeaponSegment.EyeBeamFloorFlames] = 0xb3ef,
-        [GoldenTorizoWeaponSegment.EyeBeam] = 0xb410,
+        [TorizoProjectileSegment.EyeBeamFloorFlames] = 0xb3ef,
+        [TorizoProjectileSegment.EyeBeam] = 0xb410,
     };
 
     /// <summary>
@@ -346,7 +322,7 @@ internal static class TorizoNativeListAddresses
         new(nameof(TorizoProjectileAnimations.DroolFormingShort), TorizoProjectileAnimations.DroolFormingShort, 0xa46e),
     ];
 
-    /// <summary>The native place a drool animation started by a segment or by its own name starts at.</summary>
+    /// <summary>The native place a projectile animation started by a segment or by its own name starts at.</summary>
     internal static ushort ProjectileEntryOf(Animation<TorizoProjectileSegment> animation) =>
         ProjectileAnimationEntries.Where(pair => ReferenceEquals(TorizoProjectileAnimations.StartingWith(pair.Key), animation)).Select(pair => pair.Value)
             .Concat(NamedProjectileAnimationEntries.Where(named => ReferenceEquals(named.Animation, animation)).Select(named => named.Entry))
@@ -359,23 +335,14 @@ internal static class TorizoNativeListAddresses
             : throw new ArgumentOutOfRangeException(nameof(animation), animation, "No native Torizo list starts this animation.");
 
     /// <summary>The native list projectile animation <paramref name="animation"/> starts at.</summary>
-    internal static ushort ProjectileEntry(TorizoProjectileSegment animation) => ProjectileAnimationEntries[animation];
+    internal static ushort ProjectileEntry(TorizoProjectileSegment animation) =>
+        ProjectileAnimationEntries.TryGetValue(animation, out ushort entry)
+            ? entry
+            : throw new ArgumentOutOfRangeException(nameof(animation), animation, "No native Torizo list starts this projectile animation.");
 
-    /// <summary>The native list explosion animation <paramref name="animation"/> starts at.</summary>
-    internal static ushort ProjectileEntry(TorizoExplosionSegment animation) => ExplosionAnimationEntries[animation];
-
-    /// <summary>The native list Chozo orb animation <paramref name="animation"/> starts at.</summary>
-    internal static ushort ProjectileEntry(TorizoChozoOrbSegment animation) => ChozoOrbAnimationEntries[animation];
-
-    /// <summary>The native list egg animation <paramref name="animation"/> starts at.</summary>
-    internal static ushort ProjectileEntry(GoldenTorizoEggSegment animation) => EggAnimationEntries[animation];
-
-    /// <summary>The native list super missile or eye beam animation <paramref name="animation"/> starts at.</summary>
-    internal static ushort ProjectileEntry(GoldenTorizoWeaponSegment animation) => WeaponAnimationEntries[animation];
-
-    /// <summary>The egg animation that starts at the native list at <paramref name="address"/>, if one does.</summary>
-    internal static GoldenTorizoEggSegment? EggAnimationAt(ushort address) =>
-        EggAnimationEntries.Where(pair => pair.Value == address).Select(pair => (GoldenTorizoEggSegment?)pair.Key).SingleOrDefault();
+    /// <summary>The projectile animation that starts at the native list at <paramref name="address"/>, if one does.</summary>
+    internal static TorizoProjectileSegment? ProjectileAnimationAt(ushort address) =>
+        ProjectileAnimationEntries.Where(pair => pair.Value == address).Select(pair => (TorizoProjectileSegment?)pair.Key).SingleOrDefault();
 
     /// <summary>The body animation that starts at the native list at <paramref name="address"/>, if one does.</summary>
     internal static TorizoAnimation? AnimationAt(ushort address) =>

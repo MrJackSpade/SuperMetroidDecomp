@@ -40,11 +40,8 @@ public sealed class ManagedSnesDsp
     /// <summary>Recent right echo samples addressed by the FIR ring cursor.</summary>
     private readonly short[] firBufferRight = new short[8];
 
-    /// <summary>
-    /// Replaceable decoded PCM selected by key-on and loop directory reads: until the first upload installs one, a bank that
-    /// maps no source, so a key-on before it is rejected by the bank as any unmapped source is.
-    /// </summary>
-    private ManagedPcmSampleBank sampleBank = new("no upload installed", default, new Dictionary<int, ManagedPcmSample>());
+    /// <summary>Replaceable decoded PCM selected by key-on and loop directory reads.</summary>
+    private ManagedPcmSampleBank? sampleBank;
     /// <summary>FLG mute bit applied after voice and echo mixing.</summary>
     private bool mute;
     /// <summary>FLG reset bit forcing voice envelopes into release.</summary>
@@ -319,9 +316,11 @@ public sealed class ManagedSnesDsp
     /// <summary>Starts a PCM source at its beginning and resets the selected voice envelope.</summary>
     private void KeyOn(Voice voice)
     {
+        ManagedPcmSampleBank bank = sampleBank ?? throw new InvalidOperationException(
+            "S-DSP received key-on before an extracted PCM sample bank was installed.");
         voice.PreviousFlags = 0;
         voice.ReleasedBrrCursor = null;
-        voice.Source = new VoiceSource.Keyed(sampleBank.Resolve(voice.SourceNumber));
+        voice.Sample = bank.Resolve(voice.SourceNumber);
         voice.SampleCursor = 0;
         Array.Clear(voice.DecodeBuffer);
         // Hardware key-on restarts the interpolation position, so every note starts its waveform
@@ -343,28 +342,28 @@ public sealed class ManagedSnesDsp
             int factor = (voices[index - 1].SampleOutput >> 4) + SnesDspRegisterLayout.PitchModulationBias;
             pitch = Math.Min(SnesDspRegisterLayout.Fields.PitchMask, (pitch * factor) >> 10);
         }
-        VoiceSource source = voice.Source;
+        ManagedPcmSample? sampleSource = voice.Sample;
         // A stock 32-kHz WAV is numerically identical to decoded BRR. Scaling the phase step
         // lets an HD replacement use a different sample rate without changing musical pitch.
-        long scaledPitch = source is not VoiceSource.Keyed { Sample: var sampleSource }
+        long scaledPitch = sampleSource is null
             ? pitch
             : ((long)pitch * sampleSource.SampleRate + InstrumentSampleFormat.StockSampleRate / 2) /
                 InstrumentSampleFormat.StockSampleRate;
         long nextCounter = voice.PitchCounter + scaledPitch;
         while (nextCounter > ushort.MaxValue)
         {
-            if (source is not VoiceSource.Keyed keyed)
+            if (sampleSource is null)
             {
                 throw new InvalidOperationException(
                     $"S-DSP voice {index} advanced without a key-on PCM sample.");
             }
-            DecodePcm(index, keyed.Sample);
+            DecodePcm(index);
             nextCounter -= ushort.MaxValue + 1L;
         }
         voice.PitchCounter = unchecked((ushort)nextCounter);
         short sample = voice.UseNoise
             ? noiseSample
-            : source is VoiceSource.Silent
+            : sampleSource is null
                 ? (short)0
                 : GetInterpolatedSample(voice, voice.PitchCounter >> 12, unchecked((byte)(voice.PitchCounter >> 4)));
 
@@ -465,7 +464,7 @@ public sealed class ManagedSnesDsp
     }
 
     /// <summary>Refills a voice's PCM window and follows live loop-directory changes at BRR end.</summary>
-    private void DecodePcm(int voiceIndex, ManagedPcmSample keyed)
+    private void DecodePcm(int voiceIndex)
     {
         Voice voice = voices[voiceIndex];
         if (voice.ReleasedBrrCursor is int releasedCursor)
@@ -473,7 +472,8 @@ public sealed class ManagedSnesDsp
             AdvanceReleasedBrr(voiceIndex, releasedCursor);
             return;
         }
-        ManagedPcmSample sample = keyed;
+        ManagedPcmSample sample = voice.Sample ?? throw new InvalidOperationException(
+            $"S-DSP voice {voiceIndex} cannot decode without a PCM sample.");
         voice.DecodeBuffer[0] = voice.DecodeBuffer[16];
         voice.DecodeBuffer[1] = voice.DecodeBuffer[17];
         voice.DecodeBuffer[2] = voice.DecodeBuffer[18];
@@ -483,7 +483,7 @@ public sealed class ManagedSnesDsp
             // KON. The sound driver can restore an instrument during release.
             // Preserve the old interpolation window above, then follow the live
             // source for the next window rather than retaining the key-on source.
-            ManagedPcmSampleBank bank = sampleBank;
+            ManagedPcmSampleBank bank = sampleBank ?? throw new InvalidOperationException("PCM loop has no installed sample bank.");
             if (!bank.Samples.ContainsKey(voice.SourceNumber) &&
                 voice.AdsrState == EnvelopeState.Release && voice.Gain == 0)
             {
@@ -498,7 +498,7 @@ public sealed class ManagedSnesDsp
                 return;
             }
             (sample, voice.SampleCursor) = bank.ResolveLoopEntry(voice.SourceNumber);
-            voice.Source = new VoiceSource.Keyed(sample);
+            voice.Sample = sample;
             if (voice.PreviousFlags == 1)
             {
                 voice.AdsrState = EnvelopeState.Release;
@@ -653,21 +653,6 @@ public sealed class ManagedSnesDsp
         Release,
     }
 
-    /// <summary>What a voice plays: nothing since reset, or the decoded source its last key-on or loop bound.</summary>
-    private abstract record VoiceSource
-    {
-        /// <summary>No source since reset: the voice outputs silence and has no block to decode.</summary>
-        internal sealed record Silent : VoiceSource
-        {
-            /// <summary>The one silent source.</summary>
-            internal static Silent Instance { get; } = new();
-        }
-
-        /// <summary>The decoded source a key-on or loop bound.</summary>
-        /// <param name="Sample">The decoded PCM.</param>
-        internal sealed record Keyed(ManagedPcmSample Sample) : VoiceSource;
-    }
-
     /// <summary>One hardware voice's interpolation window, pitch, envelope, and routing state.</summary>
     private sealed class Voice
     {
@@ -681,8 +666,8 @@ public sealed class ManagedSnesDsp
         public short[] DecodeBuffer { get; } = new short[19];
         /// <summary>Live BRR directory source number used at key-on and loop boundaries.</summary>
         public int SourceNumber;
-        /// <summary>The decoded PCM source bound to this voice, or none since reset.</summary>
-        public VoiceSource Source = VoiceSource.Silent.Instance;
+        /// <summary>Decoded PCM source currently bound to this voice.</summary>
+        public ManagedPcmSample? Sample;
         /// <summary>Next sample index within the bound PCM source.</summary>
         public int SampleCursor;
         /// <summary>Previous BRR END and LOOP flags used when the next window starts.</summary>
@@ -746,7 +731,7 @@ public sealed class ManagedSnesDsp
             PitchModulation = false;
             Array.Clear(DecodeBuffer);
             SourceNumber = 0;
-            Source = VoiceSource.Silent.Instance;
+            Sample = null;
             SampleCursor = 0;
             PreviousFlags = 0;
             ReleasedBrrCursor = null;

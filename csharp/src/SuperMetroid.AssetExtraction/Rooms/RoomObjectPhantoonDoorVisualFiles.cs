@@ -48,7 +48,9 @@ public static class RoomObjectPhantoonDoorVisualFiles
         foreach (PhantoonDoorDraw frame in FrameOrder)
         {
             RoomObjectDraw draw = PhantoonDoorDraws.Family.Of(frame);
-            RoomBlockShape shape = PhantoonDoorDraws.Family.Shape(frame);
+            if (!RoomObjectDrawIdentity.TryShape(PhantoonDoorDraws.Family, draw, out RoomBlockShape? described))
+                throw new InvalidOperationException($"Phantoon door frame {frame} has no shape.");
+            RoomBlockShape shape = described;
             int[] columns = [.. shape.Cells.Select(cell => cell.Cell.X).Distinct().Order()];
             int Height(int column) => shape.Cells.Count(cell => cell.Cell.X == columns[column]);
             layouts.Add(new(frame, RoomObjectFrameLayout.Of(draw, columns.Length, Height,

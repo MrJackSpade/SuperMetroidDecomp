@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -31,15 +30,15 @@ internal static class GoldenTorizoCartridgeFallbackVerification
         runtime.BossArtwork.KraidEyes = installedArtwork.KraidEyes;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.GoldenTorizo);
-        var samus = runtime.Player.Samus;
+        var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(0x0180, 0x0150));
         samus.MaxHealth = 1499;
         samus.Health = 1499;
         RoomEnemyPlace boss = runtime.Enemies.Places.InUpdateOrder.Single(place =>
             place.Holds(EnemyDefinitionId.GoldenTorizo));
-        TorizoEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<TorizoEntity>(boss).State;
+        TorizoEnemyState state = boss.RequireSpeciesState<TorizoEnemyState>();
         bool enteredCombat = false;
         for (int frame = 0; frame < 850; frame++)
         {

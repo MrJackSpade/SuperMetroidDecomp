@@ -7,17 +7,14 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 public sealed class DragonEnemyState : DragonPartState
 {
     /// <summary>Starts the body in <paramref name="action"/>.</summary>
-    internal DragonEnemyState(DragonAction action, DragonWing wing)
+    internal DragonEnemyState(DragonAction action, RoomEnemyPlace wing)
     {
         Action = action;
-        Wing = wing;
+        Wing = Ensure.NotNull(wing);
     }
 
-    /// <summary>
-    /// The body's cosmetic wing, which its room lists right after it, found when the body was placed with the state the body
-    /// made for it (#2554).
-    /// </summary>
-    internal DragonWing Wing { get; }
+    /// <summary>The body's cosmetic wing, which its room lists right after it, found when the body was placed.</summary>
+    internal RoomEnemyPlace Wing { get; }
 
     /// <summary>The way the body last turned to face, toward Samus (#2277); the fireball spawns on that side.</summary>
     public HorizontalDirection Facing { get; internal set; }

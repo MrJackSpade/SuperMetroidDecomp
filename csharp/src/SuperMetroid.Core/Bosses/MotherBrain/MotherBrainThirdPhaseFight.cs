@@ -168,7 +168,7 @@ internal sealed class MotherBrainThirdPhaseFight
                     return;
 
                 // On the recovery's last update the four-ring recovery animation starts.
-                _state.FireVolleyAtSamus();
+                _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
                 return;
 
@@ -266,7 +266,7 @@ internal sealed class MotherBrainThirdPhaseFight
         }
         else
         {
-            _state.FireVolleyAtSamus();
+            _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
         }
 
         Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingAttackCooldown;

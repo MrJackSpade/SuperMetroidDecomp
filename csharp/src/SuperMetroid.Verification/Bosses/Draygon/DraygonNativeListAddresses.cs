@@ -104,7 +104,7 @@ internal static class DraygonNativeListAddresses
     /// <summary>The body phases callbacks name, by native routine address.</summary>
     private static readonly Dictionary<ushort, DraygonPhase> BodyPhases = new()
     {
-        [0x9128] = new DraygonPhase.ReleaseSamus(),
+        [0x9128] = DraygonPhase.ReleaseSamus,
     };
 
     /// <summary>The operand words a native callback takes.</summary>

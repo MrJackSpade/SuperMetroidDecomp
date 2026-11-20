@@ -12,7 +12,7 @@ internal static class BoyonAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyBoyonAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
+        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             BoyonAnimations.Segments, BoyonAnimations.StartingAt, BoyonFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<BoyonCue>(
                 word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : OmittedInstructions.Contains(word) ? 0 : null,

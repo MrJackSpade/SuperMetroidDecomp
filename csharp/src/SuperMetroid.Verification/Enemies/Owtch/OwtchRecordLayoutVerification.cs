@@ -19,8 +19,9 @@ internal static class OwtchRecordLayoutVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         // Slot zero's word C carries the Zebetites' shared pulse (#2259), so the Owtch records from slot one.
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[1];
+        var state = new OwtchEnemyState();
+        place.SetSpeciesState(state);
         place.SetSpawnSettings(new OwtchSpawnSettings(OwtchBehaviorState.Underground, UndergroundWait: 1, Speed: SignedSixteenSixteen.FromParts(2, 0x1234), TravelDistance: 1));
-        var state = place.SetUpPlacedAs<OwtchEnemyState>(EnemyDefinitionId.Owtch);
         NativeEnemyFamilyStateImport.Import(enemies, place, new NativeEnemyRecordWords(
             A: 0x1234, B: 0x0002, C: 0xedcc, D: 0xfffd, E: OwtchNativeWords.Behaviors.Word(OwtchBehaviorState.Underground), F: 0x0010));
         AssertThrows<InvalidDataException>(() => NativeEnemyFamilyStateImport.Import(enemies, place, new NativeEnemyRecordWords(

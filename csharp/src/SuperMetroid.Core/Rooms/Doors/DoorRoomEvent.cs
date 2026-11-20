@@ -15,17 +15,9 @@ public abstract class DoorRoomEvent
     /// <summary>The event's name, as the door setups author it.</summary>
     public string Name { get; }
 
-    /// <summary>
-    /// Composes what the event shows from the room's first frame, before the room's graphics and actors initialize, and
-    /// returns the event that changes the room once its own room objects are placed (<see cref="Run"/>): this one, or the
-    /// one over what its composition built (#2554).
-    /// </summary>
+    /// <summary>Composes what the event shows from the room's first frame, before the room's graphics and actors initialize.</summary>
     /// <param name="load">The room being loaded.</param>
-    internal virtual DoorRoomEvent Compose(IDoorEventLoad load)
-    {
-        Ensure.NotNull(load);
-        return this;
-    }
+    internal virtual void Compose(IDoorEventLoad load) => Ensure.NotNull(load);
 
     /// <summary>Changes the room once its own room objects are placed and before its enemies load.</summary>
     /// <param name="room">The room the door leads into.</param>
@@ -70,11 +62,7 @@ public abstract class DoorRoomEvent
     private sealed class ShaftTurningFloorShown() : DoorRoomEvent(nameof(ShowsTurningFloor))
     {
         /// <inheritdoc/>
-        internal override DoorRoomEvent Compose(IDoorEventLoad load)
-        {
-            Ensure.NotNull(load).ShowShaftLevelAndStartTurn();
-            return this;
-        }
+        internal override void Compose(IDoorEventLoad load) => Ensure.NotNull(load).ShowShaftLevelAndStartTurn();
     }
 
     /// <summary>The shaft's exit door's event, which returns the screen to the ordinary room display.</summary>
@@ -109,36 +97,18 @@ public abstract class DoorRoomEvent
         }
     }
 
-    /// <summary>
-    /// An elevatube entry door's event, which composes the tube's ride, which the room's main runs, and starts it from its end
-    /// of the tube once the room's objects are placed (#2554).
-    /// </summary>
+    /// <summary>An elevatube entry door's event, which starts the ride from its end of the tube.</summary>
     /// <param name="entry">The end of the tube Samus enters from.</param>
     private sealed class ElevatubeRideStarted(ElevatubeEntry entry) : DoorRoomEvent($"StartsElevatubeRide{entry}")
     {
         /// <inheritdoc/>
-        internal override DoorRoomEvent Compose(IDoorEventLoad load) => new ElevatubeRideRun(Name, entry, Ensure.NotNull(load).ComposeElevatubeRide());
-    }
-
-    /// <summary>The elevatube ride a tube's entry door composed, which it starts from its end once the room's objects are placed.</summary>
-    /// <param name="name">The event's name.</param>
-    /// <param name="entry">The end of the tube Samus enters from.</param>
-    /// <param name="ride">The tube's ride.</param>
-    private sealed class ElevatubeRideRun(string name, ElevatubeEntry entry, IElevatubeRide ride) : DoorRoomEvent(name)
-    {
-        /// <summary>The tube's ride.</summary>
-        private readonly IElevatubeRide _ride = Ensure.NotNull(ride);
-
-        /// <inheritdoc/>
         /// <remarks>
-        /// The tube takes the starting height, speed and acceleration of a ride from its end, then Samus is held still. The
-        /// setup ignores whether the tube's room object found a free place: with every place held, Samus is still placed for
-        /// the ride and the elevatube does not appear.
+        /// The setup ignores whether the tube's room object found a free place: with every place held, Samus is still placed
+        /// for the ride and the elevatube does not appear.
         /// </remarks>
         internal override void Run(IDoorEventRoom room)
         {
-            _ride.Start(entry);
-            Ensure.NotNull(room).HoldSamusStill();
+            Ensure.NotNull(room).StartElevatubeRide(entry);
             _ = room.TrySpawnElevatube();
         }
     }

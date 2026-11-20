@@ -26,9 +26,9 @@ internal static class CeresDestructionFrameCatalogVerification
             int operand = index == subtitle ? subtitleOperand
                 : index < 7 ? backdropOperands[index] : (index < 13 ? 0xccdd : index < 17 ? 0xcd21 : 0xce1d) + 4 * frame;
             operand |= 0x8b0000;
-            ushort pointer = rom.ReadCartridgeWord(operand);
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(operand);
             int record = 0x8c0000 | pointer;
-            int count = rom.ReadCartridgeWord(record);
+            int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(record);
             string name = index == subtitle ? "planet-zebes-subtitle"
                 : index < 7 ? backdropNames[index] : $"{(index < 13 ? "small" : index < 17 ? "large" : "station")}-blast-{frame}";
             AssertEqual(pointer, CinematicSpritemapSources.Of(frames[index].Pose), "native destruction frame operand");

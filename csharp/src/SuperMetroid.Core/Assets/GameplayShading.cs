@@ -43,7 +43,7 @@ public sealed record GameplayShading
         PictureShading own = shadings.TryGetValue(pictures, out PictureShading? shading)
             ? shading
             : throw new ArgumentOutOfRangeException(nameof(pictures), pictures, "Undefined group of gameplay pictures.");
-        return Fade is not { } fade || fade.SparesHud && pictures is GameplayPictures.Hud or GameplayPictures.EscapeTimer
+        return Fade is not { } fade || fade.SparesHud && GameplayPictureDefinitions.SparedByHudSparingFade.Contains(pictures)
             ? own : own.With(fade.Effect);
     }
 

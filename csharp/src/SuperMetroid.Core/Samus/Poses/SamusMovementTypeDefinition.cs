@@ -25,6 +25,8 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// The movement the type runs for the pose that owns Samus's movement, or none for the types whose own movers own it
 /// (the Grapple, the compact airborne poses and the special movement).
 /// </param>
+/// <param name="SilencesItemSelection">Whether selecting an item in the movement plays no item-selection sound.</param>
+/// <param name="SpinSoundEndsOnDeath">Whether dying in the movement ends its looping spin sound.</param>
 internal sealed record SamusMovementTypeDefinition(
     SamusMomentumResponse NoTransitionResponse,
     SamusBombJumpSetup BombJump,
@@ -34,4 +36,6 @@ internal sealed record SamusMovementTypeDefinition(
     SamusHudSelectionMode HudSelection,
     SamusKnockbackResponse Knockback,
     SamusNoTransitionSetup NoTransitionSetup,
-    SamusPoseMovement? PoseMovement = null);
+    SamusPoseMovement? PoseMovement = null,
+    bool SilencesItemSelection = false,
+    bool SpinSoundEndsOnDeath = false);

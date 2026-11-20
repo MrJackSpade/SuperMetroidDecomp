@@ -106,7 +106,7 @@ public sealed class HudState
             PreviousSelectedItem = samus.SelectedHudItem;
 
             SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
-            if (movementType is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) &&
+            if (!SamusMovementTypeDefinitions.Movements[movementType].SilencesItemSelection &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
                 !timeIsFrozen)
                 audio.QueueSound(SamusSound.HudWeaponSelect, SoundRequestPriority.Normal);

@@ -802,8 +802,8 @@ internal static void VerifySamusDeathSequence()
         "terminal death call completes without drawing");
     AssertEqual(true, samus.DeathSequence.Explosion?.HasStopped,
         "the explosion has played its last picture");
-    AssertEqual(SuperMetroid.Core.Samus.Death.SamusWhiteoutShade.Final, samus.DeathSequence.WhiteoutShade,
-        "death terminal whiteout shade");
+    AssertEqual(SamusShades.DeathWhiteout(SuperMetroid.Core.Samus.Death.SamusWhiteoutShade.Final), samusColours.Beams,
+        "the beams show the death's terminal whiteout shade");
     AssertEqual(RgbColor.White, samus.DeathSequence.Whiteout, "death whiteout the display shows reaches the cartridge's full white");
     AssertEqual(0x7fff, samusColours.ShownBeams(deathSources)[15], "death whiteout includes the beams' last colour");
     AssertEqual(0x0220, samusColours.ShownSuit(deathSources)[0],

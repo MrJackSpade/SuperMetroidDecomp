@@ -938,8 +938,8 @@ internal static class RoomObjectPopulationVerification
         var fallback = RoomObjectFixtures.Unbound();
         AssertTrue(fallback.DoorObjects.TrySpawnDoorClosingObject(fallbackLevel, motherBrainExit),
             "special door without a resident cap spawns C8D0 fallback");
-        AssertTrue(fallback.PopulationPlaces.Single().Behaviour is MotherBrainEscapeGateObject { Change: var closing }
-                && closing == MotherBrainEscapeGateDefinitions.Closing,
+        AssertTrue(fallback.PopulationPlaces.Single().Behaviour is MotherBrainEscapeGateObject closing
+                && closing.Starts(MotherBrainEscapeGateDefinitions.Closing),
             "fallback actor is the escape gate closing behind Samus");
         AssertEqual(deactivatedGateWord, fallbackLevel.GetCollisionBlockByIndex(gateBlock).Terrain,
             "fallback C8D0 executes the shared deactivate setup");

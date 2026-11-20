@@ -137,8 +137,8 @@ internal static class DownwardGateObjectsVerification
         AssertTrue(places[0].Behaviour is DownwardGateObject,
             "first resident slot holds the closed downward gate");
         AssertEqual(1, places[1].UpdatePosition, "shot block is processed next");
-        AssertTrue(places[1].Behaviour is TerrainChangeObject { Change: var triggerChange }
-                && triggerChange == DownwardGateTriggerDefinitions.Triggers[new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left)].Change,
+        AssertTrue(places[1].Behaviour is TerrainChangeObject trigger
+                && trigger.Starts(DownwardGateTriggerDefinitions.Triggers[new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left)].Change),
             "argument zero selects the blue-left trigger's draw");
 
         for (int row = 0; row < DownwardGateDefinitions.GateHeightInBlocks; row++)

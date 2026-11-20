@@ -29,7 +29,7 @@ internal static class BotwoonObjectIdentityVerification
             var place = roomObjects.PopulationPlaces.Single(place => place.UpdatePosition == i);
             AssertEqual(new Position16<RoomBlocks>(15, 4), place.Block, "hardcoded Botwoon placement");
             TerrainChange expectedChange = (i & 1) == 0 ? BotwoonWallMutationDefinitions.Clear : BotwoonWallMutationDefinitions.Crumble;
-            AssertTrue(place.Behaviour is TerrainChangeObject { Change: var change } && change == expectedChange,
+            AssertTrue(place.Behaviour is TerrainChangeObject started && started.Starts(expectedChange),
                 "header-specific Botwoon change");
             AssertEqual((i & 1) == 0 ? 1 : 64, expectedChange.FirstFrameDelay, "header-specific Botwoon delay");
             AssertEqual((i & 1) != 0, place.Behaviour is BotwoonWallCrumbleObject, "only the crumble opens the scrolls");

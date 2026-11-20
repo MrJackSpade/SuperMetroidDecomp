@@ -25,8 +25,8 @@ internal static class TypedDoorObjectOracle
     {
         BlueDoorCapObject { Phase: BlueDoorCapPhase.Opening } blue => DoorObjectNativeListAddresses.Blue(blue.Orientation).Opening,
         BlueDoorCapObject { Phase: BlueDoorCapPhase.Closing } blue => DoorObjectNativeListAddresses.Blue(blue.Orientation).Closing,
-        MotherBrainEscapeGateObject gate when gate.Change == MotherBrainEscapeGateDefinitions.Shut => DoorObjectNativeListAddresses.EscapeGateShut,
-        MotherBrainEscapeGateObject gate when gate.Change == MotherBrainEscapeGateDefinitions.Closing => DoorObjectNativeListAddresses.EscapeGateClosing,
+        MotherBrainEscapeGateObject gate when gate.Starts(MotherBrainEscapeGateDefinitions.Shut) => DoorObjectNativeListAddresses.EscapeGateShut,
+        MotherBrainEscapeGateObject gate when gate.Starts(MotherBrainEscapeGateDefinitions.Closing) => DoorObjectNativeListAddresses.EscapeGateClosing,
         ColoredDoorObject { Phase: ColoredDoorPhase.Waiting } colored => DoorObjectNativeListAddresses.Colored(colored.PlacedColor, colored.Orientation).Waiting,
         ColoredDoorObject { Phase: ColoredDoorPhase.Closing } colored => DoorObjectNativeListAddresses.Colored(colored.PlacedColor, colored.Orientation).Closing,
         GreyDoorObject { Phase: GreyDoorPhase.Locked } grey => DoorObjectNativeListAddresses.Grey(grey.Variant).Waiting,
@@ -41,7 +41,7 @@ internal static class TypedDoorObjectOracle
         ColoredDoorObject colored => colored.Phase == ColoredDoorPhase.Closing,
         GreyDoorObject grey => grey.Phase is GreyDoorPhase.Closing or GreyDoorPhase.HeldOpen,
         BlueDoorCapObject blue => blue.Phase == BlueDoorCapPhase.Closing,
-        MotherBrainEscapeGateObject gate => gate.Change == MotherBrainEscapeGateDefinitions.Closing,
+        MotherBrainEscapeGateObject gate => gate.Draws(MotherBrainEscapeGateDefinitions.Closing),
         EyeDoorPartObject part => part.ClosesBehindSamus,
         _ => false,
     };

@@ -345,7 +345,7 @@ internal static class SamusBodyArtworkVerification
                     nativeSamus.DeathSequence.Flashing.Age == installedSamus.DeathSequence.Flashing.Age &&
                     nativeSamus.DeathSequence.Explosion?.UpdatesLeft == installedSamus.DeathSequence.Explosion?.UpdatesLeft &&
                     nativeSamus.DeathSequence.ExplosionFrame == installedSamus.DeathSequence.ExplosionFrame &&
-                    nativeSamus.DeathSequence.WhiteoutShade == installedSamus.DeathSequence.WhiteoutShade,
+                    nativeColors.Beams == installedColors.Beams,
                     $"death suit {suit} frame {frame} native/installed colors and timing");
                 if (nativeStep.Completed)
                     break;

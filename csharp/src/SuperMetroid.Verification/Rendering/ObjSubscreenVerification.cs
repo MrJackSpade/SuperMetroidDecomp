@@ -105,7 +105,7 @@ internal static class ObjSubscreenVerification
                 oam[0] = 8; oam[1] = 8; oam[3] = (byte)(priority * 16);
                 var memory = FramePaint.FromOamGameplay(vram, shownColours, oam, 1, 3);
                 var packet = new DisplayPacket(0, new LayeredScene(memory,
-                    new DisplayLayer[] { new TurningRoomLayer(registers, floor, 0) }, 15));
+                    new DisplayLayer[] { new TurningRoomLayer(registers, floor, 0) }, DisplayBrightness.Full));
                 var pixels = DisplayRendering.Render(packet);
                 RgbaPixel expected = opaqueFloor && priority == 0 ? new(0, 66, 0) : new(99, 0, 0);
                 AssertEqual(expected, pixels[8 * 256 + 8],

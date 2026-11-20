@@ -31,7 +31,8 @@ internal static class CorpseRowSources
             RottingCorpseSpecies.Zoomer => Row(0x2940 + variant * 0xc0, 0x60, index, 0),
             RottingCorpseSpecies.Ripper => Row(0x2b80 + variant * 0xc0, 0x60, index, 0),
             RottingCorpseSpecies.Skree => Row(0x2640 + variant * 0x100, 0x40, index, 0),
-            _ => throw new InvalidDataException($"Corpse kind {kind} has no row upload list."),
+            RottingCorpseSpecies.Torizo => throw new InvalidDataException($"Corpse kind {kind} has no row upload list."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(RottingCorpseSpecies)} {native.Species}."),
         };
     }
 

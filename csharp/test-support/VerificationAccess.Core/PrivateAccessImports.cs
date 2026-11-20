@@ -732,7 +732,6 @@ global using static SuperMetroid.Core.World.RoomEnemySpeciesPrivateAccess;
 global using static SuperMetroid.Core.World.RoomEnemySystemPrivateAccess;
 global using static SuperMetroid.Core.World.RoomObjectSystemPrivateAccess;
 global using static SuperMetroid.Core.World.RoomScopeConstructionPrivateAccess;
-global using static SuperMetroid.Core.World.RoomStates.RoomEnemyPopulationDefinitionsPrivateAccess;
 global using static SuperMetroid.Core.World.SamusFramePhasesPrivateAccess;
 global using static SuperMetroid.Core.World.TourianStatueSequencePrivateAccess;
 global using static SuperMetroid.Core.World.XrayRevealPrivateAccess;

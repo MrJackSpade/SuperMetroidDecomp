@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
@@ -18,29 +19,23 @@ internal static class EscapeTypewriterControlWords
     /// <summary>$A6:C2E8: the control word that starts a line at the VRAM tilemap word that follows.</summary>
     private const int LineStart = 13;
 
-    /// <summary>The command <paramref name="word"/> is, if it is one that ends a line's characters.</summary>
-    internal static bool TryDecode(int word, out EscapeTypewriterCommand command)
+    /// <summary>Each command's control word.</summary>
+    private static readonly FrozenDictionary<EscapeTypewriterCommand, int> Words = new Dictionary<EscapeTypewriterCommand, int>
     {
-        switch (word)
-        {
-            case End:
-                command = EscapeTypewriterCommand.End;
-                return true;
-            case LineStart:
-                command = EscapeTypewriterCommand.LineStart;
-                return true;
-            default:
-                command = default;
-                return false;
-        }
-    }
+        [EscapeTypewriterCommand.End] = End,
+        [EscapeTypewriterCommand.LineStart] = LineStart,
+    }.ToFrozenDictionary();
+
+    /// <summary>The command each control word between a line's characters is.</summary>
+    private static readonly FrozenDictionary<int, EscapeTypewriterCommand> Commands =
+        Words.ToFrozenDictionary(entry => entry.Value, entry => entry.Key);
+
+    /// <summary>The command <paramref name="word"/> is, if it is one that ends a line's characters.</summary>
+    internal static bool TryDecode(int word, out EscapeTypewriterCommand command) => Commands.TryGetValue(word, out command);
 
     /// <summary>The control word the cartridge writes <paramref name="command"/> as.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="command"/> is not a command.</exception>
-    internal static int Word(EscapeTypewriterCommand command) => command switch
-    {
-        EscapeTypewriterCommand.End => End,
-        EscapeTypewriterCommand.LineStart => LineStart,
-        _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Undefined escape typewriter command."),
-    };
+    internal static int Word(EscapeTypewriterCommand command) => Words.TryGetValue(command, out int word)
+        ? word
+        : throw new ArgumentOutOfRangeException(nameof(command), command, "Undefined escape typewriter command.");
 }

@@ -32,8 +32,8 @@ internal static class ArmCannonTileSources
 
     /// <summary>Each cover picture's bank-$9A source.</summary>
     private static readonly FrozenDictionary<SamusArmCannonCoverTile, ushort> Sources = InSourceOrder
-        .Select((tile, place) => (tile, source: checked((ushort)(ArmCannonTileSourceDefinitions.FirstTileSource + place * TileSourceStride))))
-        .ToFrozenDictionary(entry => entry.tile, entry => entry.source);
+        .Select((tile, place) => KeyValuePair.Create(tile, checked((ushort)(ArmCannonTileSourceDefinitions.FirstTileSource + place * TileSourceStride))))
+        .ToFrozenDictionary();
 
     /// <summary>The cover picture at each bank-$9A source.</summary>
     private static readonly FrozenDictionary<int, SamusArmCannonCoverTile> Tiles =
@@ -55,7 +55,6 @@ internal static class ArmCannonTileSources
         int bytes = SamusArmCannonArtworkFormat.CoverTileByteCount;
         if (page.Length != InSourceOrder.Count * bytes)
             throw new InvalidDataException("Arm-cannon cover characters must be the twelve cover pictures.");
-        return InSourceOrder.Select((tile, place) => (tile, characters: page.Slice(place * bytes, bytes)))
-            .ToFrozenDictionary(entry => entry.tile, entry => entry.characters);
+        return InSourceOrder.Select((tile, place) => KeyValuePair.Create(tile, page.Slice(place * bytes, bytes))).ToFrozenDictionary();
     }
 }

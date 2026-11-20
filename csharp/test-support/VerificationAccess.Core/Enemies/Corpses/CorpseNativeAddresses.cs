@@ -18,7 +18,8 @@ internal static class CorpseNativeAddresses
             RottingCorpseSpecies.Zoomer => 0xe134 + 18 * native.Variant,
             RottingCorpseSpecies.Ripper => 0xe16a + 18 * native.Variant,
             RottingCorpseSpecies.Skree => 0xe18e + 34 * native.Variant,
-            _ => throw new ArgumentOutOfRangeException(nameof(table), table, "This species has no corpse transfer lists."),
+            RottingCorpseSpecies.Torizo => throw new ArgumentOutOfRangeException(nameof(table), table, "This species has no corpse transfer lists."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(RottingCorpseSpecies)} {native.Species}."),
         }));
     }
 

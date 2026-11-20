@@ -63,6 +63,14 @@ internal static class DefinitionAudit
                     ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, EnemyProjectileProgramFrameSources.Operand(shown))))
                 exports.Add(ResourceDomains.EnemyProjectileProgram, ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, operand));
         }
+        // An operand that shows an installed program frame's picture moved off the projectile's place shows that frame there
+        // (#2557): the save-station electricity's band on its sweep.
+        foreach ((ushort operand, EnemyProjectilePlacedFrame placed) in EnemyProjectileProgramFrameDefinitions.PlacedAt)
+        {
+            if (exports.Contains(ResourceDomains.EnemyProjectileProgram,
+                    ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, EnemyProjectileProgramFrameSources.Operand(placed.Frame))))
+                exports.Add(ResourceDomains.EnemyProjectileProgram, ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, operand));
+        }
         foreach (string name in EnemyProjectileSpritemapDefinitions.FrameNames)
             exports.Add(ResourceDomains.EnemyProjectileSprite, ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx,
                 EnemyProjectileCompositionSources.Spritemap(EnemyProjectileFrames.Identity(name))));

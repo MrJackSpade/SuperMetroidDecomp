@@ -55,6 +55,12 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
     /// <summary>The projectile frame <paramref name="frame"/> shows.</summary>
     private protected abstract EnemyProjectileFrameId Present(TFrame frame);
 
+    /// <summary>
+    /// Where <paramref name="frame"/>'s picture is drawn from the projectile's place (#2557): at the place itself, unless the
+    /// family moves one picture about as it plays (the save-station electricity's band on its sweep).
+    /// </summary>
+    private protected virtual Offset16<RoomPixels> Placement(TFrame frame) => Offset16<RoomPixels>.Zero;
+
     /// <summary>Plays the animation on to its next frame.</summary>
     private protected sealed override EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context)
     {
@@ -65,9 +71,9 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
         switch (shown)
         {
             case AnimationShown<TSegment, TFrame>.Frame shownFrame:
-                return new EnemyProjectileFrameStep.Show(Present(shownFrame.Shown), shownFrame.Duration);
+                return new EnemyProjectileFrameStep.Show(Present(shownFrame.Shown), shownFrame.Duration, Placement(shownFrame.Shown));
             case AnimationShown<TSegment, TFrame>.HeldFrame held:
-                return new EnemyProjectileFrameStep.ShowForGood(Present(held.Shown));
+                return new EnemyProjectileFrameStep.ShowForGood(Present(held.Shown), Placement(held.Shown));
             case AnimationShown<TSegment, TFrame>.Held:
                 return EnemyProjectileFrameStep.Rests;
             case AnimationShown<TSegment, TFrame>.Paused:

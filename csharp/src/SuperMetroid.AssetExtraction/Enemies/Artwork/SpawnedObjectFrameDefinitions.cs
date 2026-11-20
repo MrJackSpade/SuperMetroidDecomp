@@ -4502,14 +4502,7 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>SaveStationElectricity</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonSaveStationElectricityProjectiles =
     [
-        EnemyProjectileFrameId.SaveStationElectricitySweepBeginning,
-        EnemyProjectileFrameId.SaveStationElectricitySweepDescending,
-        EnemyProjectileFrameId.SaveStationElectricitySweepLowering,
-        EnemyProjectileFrameId.SaveStationElectricitySweepNearingHalfway,
-        EnemyProjectileFrameId.SaveStationElectricitySweepPassingHalfway,
-        EnemyProjectileFrameId.SaveStationElectricitySweepPastHalfway,
-        EnemyProjectileFrameId.SaveStationElectricitySweepNearingEnd,
-        EnemyProjectileFrameId.SaveStationElectricitySweepEnding,
+        EnemyProjectileFrameId.SaveStationElectricityBand,
     ];
 
     /// <summary>The room effect actors <c>SaveStationElectricity</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>

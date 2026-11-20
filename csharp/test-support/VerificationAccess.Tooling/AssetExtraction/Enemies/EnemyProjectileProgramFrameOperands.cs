@@ -13,13 +13,24 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 internal static class EnemyProjectileProgramFrameOperands
 {
     /// <summary>
-    /// The installed program frames, by the bank-$86 operand each is stored at, and by each operand that shows its picture
-    /// again (#2210, #2249).
+    /// The installed program frames, by the bank-$86 operand each is stored at, by each operand that shows its picture
+    /// again (#2210, #2249), and by each operand that shows it moved off the projectile's place (#2557).
     /// </summary>
     private static readonly ILookup<ushort, EnemyProjectileFrameId> Frames =
         EnemyProjectileProgramFrameDefinitions.Operands.Select(pair => (Operand: pair.Value, Frame: pair.Key))
             .Concat(EnemyProjectileProgramFrameDefinitions.AlsoStoredAt.Select(pair => (Operand: pair.Key, Frame: pair.Value)))
+            .Concat(EnemyProjectileProgramFrameDefinitions.PlacedAt.Select(pair => (Operand: pair.Key, pair.Value.Frame)))
             .ToLookup(entry => entry.Operand, entry => entry.Frame);
+
+    /// <summary>
+    /// The bank-$86 operand that shows <paramref name="frame"/>'s picture drawn <paramref name="placement"/> off the
+    /// projectile's place (#2557): the frame's own operand at the place itself, otherwise the one operand that moves it there.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">No operand, or more than one, shows the picture at that placement.</exception>
+    internal static ushort KeyOf(EnemyProjectileFrameId frame, Offset16<RoomPixels> placement) =>
+        placement == Offset16<RoomPixels>.Zero
+            ? KeyOf(frame)
+            : EnemyProjectileProgramFrameDefinitions.PlacedAt.Single(pair => pair.Value == new EnemyProjectilePlacedFrame(frame, placement)).Key;
 
     /// <summary>
     /// The bank-$86 operand the installed frame shown from <paramref name="operand"/> is stored at: the operand itself, or,

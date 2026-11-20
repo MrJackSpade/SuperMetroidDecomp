@@ -137,13 +137,8 @@ public static class GameplayEffectCapture
         OverlayBehindRoomBlend behind)
     {
         Ensure.NotNull(behind);
-        return new(gameplay, ScreenWindow.Closed, false, new GameplayBlend
-        {
-            Blended = behind.Blended,
-            Operation = behind.Operation,
-            Halved = false,
-            Colour = RgbColor.Black,
-        }, CaptureRoomFxOverlay(overlay), behind.BackgroundBehind);
+        return new(gameplay, ScreenWindow.Closed, false, new EffectBehindRoomBlend(behind), CaptureRoomFxOverlay(overlay),
+            behind.BackgroundBehind);
     }
 
     /// <summary>

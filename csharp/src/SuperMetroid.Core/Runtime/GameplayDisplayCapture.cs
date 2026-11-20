@@ -265,13 +265,7 @@ public static class GameplayDisplayCapture
     /// where each is frontmost, everywhere on the screen. The foreground and Samus keep their colours.
     /// </summary>
     private static GameplayBlendLayer CaptureFirefleaDarkness(RgbColor shade, GameplaySceneLayer ordinary) =>
-        new(ordinary, ScreenWindow.Closed, revealBlocks: false, blend: new GameplayBlend
-        {
-            Blended = BlendedLayers.Background | BlendedLayers.Backdrop,
-            Operation = BlendOperation.Subtract,
-            Halved = false,
-            Colour = shade,
-        });
+        new(ordinary, ScreenWindow.Closed, revealBlocks: false, blend: new FirefleaDarknessBlend(shade));
 
     /// <summary>
     /// The pictures fixed in the room around a turning floor (#1545), each placed so its origin lands on its room point,
@@ -316,13 +310,7 @@ public static class GameplayDisplayCapture
     /// the foreground.
     /// </summary>
     private static GameplayBlendLayer PhantoonTranslucence(GameplaySceneLayer gameplay) =>
-        new(gameplay, ScreenWindow.Closed, false, new GameplayBlend
-        {
-            Blended = BlendedLayers.Foreground | BlendedLayers.Actors | BlendedLayers.Backdrop,
-            Operation = BlendOperation.Add,
-            Halved = false,
-            Colour = RgbColor.Black,
-        }, backgroundBehind: true);
+        new(gameplay, ScreenWindow.Closed, false, PhantoonTranslucenceBlend.Body, backgroundBehind: true);
 
     /// <summary>
     /// The X-ray's scene (#1514): the room, its reveal's blocks inside the cone where the room reveals them, and outside the
@@ -376,8 +364,8 @@ public static class GameplayDisplayCapture
         // The X-ray's own tint: grey in a reveal room, none elsewhere; in Fireflea's room the room's darkness shade, never
         // lighter than the reveal's grey. Its last pass clears the tint at once, except in Fireflea's room.
         int level = latched.Fireflea is { } darkness
-            ? Math.Max(darkness.Shade.FadeLevels.Red, mode.TintLevel)
-            : mode.TintLevel;
+            ? Math.Max(darkness.Shade.FadeLevels.Red, GreyLevel(mode))
+            : GreyLevel(mode);
         if (finishedThisFrame && !mode.KeepsDarkness) level = 0;
         // Releasing Run starts the beam's closing, whose window and backdrop still show until its first update is spent;
         // the X-ray keeps the display until its last step finally unfreezes gameplay.
@@ -386,13 +374,11 @@ public static class GameplayDisplayCapture
             : frame.Paint.WithBackdrop(closing ? RgbColor.Black : XrayWindowRenderDefinitions.ActiveBackdrop);
         bool closed = warmingUp || closing || xray.BeamPhase == XrayBeamPhase.NoBeam;
         ScreenWindow window = closed ? ScreenWindow.Closed : GameplayEffectCapture.CaptureXrayWindow(xray, latched.Scrolls.ForegroundPosition);
-        var layer = new GameplayBlendLayer(gameplay, window, reveal, new GameplayBlend
-        {
-            Blended = mode.Blended,
-            Operation = mode.Operation(roomDarkens),
-            Halved = mode.Halves && overlayBehind is not null,
-            Colour = new FadeLevelColour(level, level, level).ToColour(),
-        }, overlayBehind);
+        var layer = new GameplayBlendLayer(gameplay, window, reveal,
+            new XrayDimmingBlend(mode, roomDarkens, new FadeLevelColour(level, level, level).ToColour()), overlayBehind);
         return new(paint, new DisplayLayer[] { layer, basis.Hud }, DisplayBrightness.Full);
     }
+
+    /// <summary>The fade level, in every channel, of the X-ray's grey in a room <paramref name="mode"/> dims; zero for none.</summary>
+    private static int GreyLevel(XrayRoomBlendMode mode) => mode.WashesGrey ? XrayWindowRenderDefinitions.RevealTintLevel : 0;
 }

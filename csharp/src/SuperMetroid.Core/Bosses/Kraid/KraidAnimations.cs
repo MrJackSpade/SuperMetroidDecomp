@@ -109,7 +109,7 @@ internal static class KraidAnimations
         [P.ArmNormal] =
         [
             Mark(K.ArmSwingBegins),
-            .. ArmSwingPictures.Select(picture => Show(picture, 6)),
+            .. ArmSwing(6, null),
             Mark(K.ArmReachesPause),
             Show(F.KraidArmRaisedClawOpen, 6),
         ],
@@ -120,14 +120,14 @@ internal static class KraidAnimations
         ],
         [P.ArmSlow] =
         [
-            .. ArmSwingPictures.Select(picture => Show(picture, 8)),
+            .. ArmSwing(8, null),
             Show(F.KraidArmRaisedClawOpen, 8),
             Show(F.KraidArmRaisedClawClosed, 48),
             Cue(K.SlowArmBelowHalfHealth),
         ],
         [P.ArmRisingOrSinking] =
         [
-            .. ArmSwingPictures.Select(picture => Sunk(picture, 6)),
+            .. ArmSwing(6, ActorDepth.BehindFrontParts),
             Sunk(F.KraidArmRaisedClawOpen, 6),
             Sunk(F.KraidArmRaisedClawClosed, 32),
         ],
@@ -180,18 +180,32 @@ internal static class KraidAnimations
     internal static Animation<KraidPartSegment> StartingWith(KraidPartSegment segment) => StartingAt[segment];
 
     /// <summary>
-    /// The pictures of the arm's swing from raised to its lowered hook and back, in order (#2557): listed once, the normal,
-    /// slow and sunk swings each show them at their own duration and depth.
+    /// The arm's swing from raised to its lowered hook and back (#2557), its pictures listed once: the normal, slow and sunk
+    /// swings each show them at their own duration and depth.
     /// </summary>
-    private static EnemyFrameId[] ArmSwingPictures =>
+    private static AnimationBeat<KraidPartPose, KraidPartCue>[] ArmSwing(int duration, ActorDepth? depth) =>
     [
-        F.KraidArmRaisedClawClosed, F.KraidArmRaisedClawOpen, F.KraidArmLoweringClawHooked,
-        F.KraidArmLevelClawHooked, F.KraidArmLevelClawHangingDown, F.KraidArmLevelClawCurlingUnder,
-        F.KraidArmLevelClawTucked, F.KraidArmLevelClawTuckedTight, F.KraidArmLevelClawFolded,
-        F.KraidArmLevelClawFoldedFlat, F.KraidArmLevelClawTuckedTight, F.KraidArmLevelClawTucked,
-        F.KraidArmLevelClawCurlingUnder, F.KraidArmLevelClawHangingDown, F.KraidArmLevelClawHooked,
-        F.KraidArmLoweringClawHooked,
+        Pose(F.KraidArmRaisedClawClosed, duration, depth),
+        Pose(F.KraidArmRaisedClawOpen, duration, depth),
+        Pose(F.KraidArmLoweringClawHooked, duration, depth),
+        Pose(F.KraidArmLevelClawHooked, duration, depth),
+        Pose(F.KraidArmLevelClawHangingDown, duration, depth),
+        Pose(F.KraidArmLevelClawCurlingUnder, duration, depth),
+        Pose(F.KraidArmLevelClawTucked, duration, depth),
+        Pose(F.KraidArmLevelClawTuckedTight, duration, depth),
+        Pose(F.KraidArmLevelClawFolded, duration, depth),
+        Pose(F.KraidArmLevelClawFoldedFlat, duration, depth),
+        Pose(F.KraidArmLevelClawTuckedTight, duration, depth),
+        Pose(F.KraidArmLevelClawTucked, duration, depth),
+        Pose(F.KraidArmLevelClawCurlingUnder, duration, depth),
+        Pose(F.KraidArmLevelClawHangingDown, duration, depth),
+        Pose(F.KraidArmLevelClawHooked, duration, depth),
+        Pose(F.KraidArmLoweringClawHooked, duration, depth),
     ];
+
+    /// <summary>Shows <paramref name="picture"/> at <paramref name="depth"/>, where none is the part's own, for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<KraidPartPose, KraidPartCue> Pose(EnemyFrameId picture, int duration, ActorDepth? depth) =>
+        new AnimationBeat<KraidPartPose, KraidPartCue>.Frame(new KraidPartPose(picture) { Depth = depth }, duration);
 
     /// <summary>The durations of the foot's forward step as he walks, beat by beat (#2557).</summary>
     private static int[] WalkStepDurations => [.. Repeated(4, 11), 3, .. Repeated(1, 5), 16, 1, .. Repeated(4, 3), .. Repeated(1, 9)];

@@ -17,7 +17,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// Native interop is outside the rule by definition (owner decision, 2026-11-02): it is removed whole with the Godot port in
 /// v1.0.0, so it takes no per-site justification. Interop is the native host assemblies, which hand the operating system and
 /// the GPU handles and pinned buffers, and, in any other assembly, a type that declares a platform invoke together with
-/// everything nested in it.
+/// everything nested in it. An extension block of a native host type, test-support's generated access to its private
+/// members (#2570), restates that interop and is outside the rule too.
 /// </remarks>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class NativeAddressAnalyzer : DiagnosticAnalyzer
@@ -73,10 +74,22 @@ public sealed class NativeAddressAnalyzer : DiagnosticAnalyzer
                 { SpecialType: SpecialType.System_IntPtr or SpecialType.System_UIntPtr })
                 return;
         }
-        if (InInterop(node, context.SemanticModel, interop, context.CancellationToken))
+        if (InInterop(node, context.SemanticModel, interop, context.CancellationToken) ||
+            ExtendsNativeHost(node, context.SemanticModel, context.CancellationToken))
             return;
         context.ReportDiagnostic(Diagnostic.Create(Rule, node.GetLocation(), node.ToString()));
     }
+
+    /// <summary>
+    /// Whether <paramref name="node"/> lies in an extension block of a native host assembly's type: test-support's generated
+    /// access to a host's private members (#2570) restates the host's own signatures, its interop among them.
+    /// </summary>
+    private static bool ExtendsNativeHost(SyntaxNode node, SemanticModel model, CancellationToken cancellation) =>
+        node.Ancestors().OfType<BaseTypeDeclarationSyntax>().Any(declaration =>
+            model.GetDeclaredSymbol(declaration, cancellation) is INamedTypeSymbol
+            {
+                TypeKind: TypeKind.Extension, ExtensionParameter.Type: { ContainingAssembly.Name: { } assembly },
+            } && NativeHostAssemblies.Contains(assembly));
 
     /// <summary>Whether <paramref name="node"/> lies in a type that declares a platform invoke, or in one nested in it.</summary>
     private static bool InInterop(SyntaxNode node, SemanticModel model, ConcurrentDictionary<INamedTypeSymbol, bool> interop,

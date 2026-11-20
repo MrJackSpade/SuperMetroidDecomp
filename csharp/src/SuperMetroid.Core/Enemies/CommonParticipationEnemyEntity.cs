@@ -13,7 +13,7 @@ internal abstract class CommonParticipationEnemyEntity(RoomEnemyPlace place, Ene
     : IEnemyHurtReaction, IEnemyFrozenAi, IEnemyTouchReaction, IEnemyShotReaction, IEnemyBombReaction, IEnemyPowerBombReaction
 {
     /// <summary>The place the enemy occupies; its definition names the shared responses.</summary>
-    protected RoomEnemyPlace Place { get; } = place;
+    internal RoomEnemyPlace Place { get; } = place;
 
     /// <summary>The shared responses.</summary>
     protected EnemyCommonParticipation Common { get; } = common;

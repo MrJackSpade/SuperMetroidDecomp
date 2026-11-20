@@ -89,6 +89,12 @@ internal sealed class EnemyProjectileEngine
     public EnemyProjectile? LatestInPlace(int place) => _places[Ensure.BetweenInclusive(0, PlaceCount - 1, place)];
 
     /// <summary>
+    /// The latest projectile of the place spawns search last, live or gone, or null while the room has spawned none into it:
+    /// the one a falling statue piece's acceleration reads (<see cref="FirstPlaceFallAcceleration"/>, #2556).
+    /// </summary>
+    internal EnemyProjectile? LatestInFirstPlace => _places[0];
+
+    /// <summary>
     /// Starts each place from what the room this one replaces left in it (<see cref="EnemyProjectilePlaceLeftovers"/>), which
     /// the room's first spawn there starts from. Called before the room's population loads.
     /// </summary>

@@ -110,10 +110,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new YardEnemyState(YardMovement.HoldingStill)
         {
-            // The population entry selects the initial animations and velocity signs, but
-            // does not set the live direction. Only the direction cue does. A
-            // first-frame hide can bypass it and keeps the first direction.
-            Direction = YardDirection.OnLeftWallMovingUp,
+            Direction = YardDirectionDefinitions.BeforeFirstDirectionCue,
             Behavior = YardBehavior.NormalCrawling,
             CrawlSpeed = settings.CrawlSpeed,
         };

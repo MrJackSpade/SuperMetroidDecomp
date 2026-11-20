@@ -30,10 +30,8 @@ internal static class BossResetOnLoadVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var snapshot = SaveSnapshotFixtures.NewGame with
         {
-            Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave, Health = 77, MaxHealth = 199,
-            Missiles = 12, MaxMissiles = 25,
-            CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-            EquippedItems = SamusEquipmentFlags.MorphBall,
+            Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave,
+            Inventory = SaveSnapshotFixtures.NewGame.Inventory with { Health = 77, MaxHealth = 199, Missiles = 12, MaxMissiles = 25, CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs), EquippedItems = SamusEquipmentFlags.MorphBall },
         };
         // Every boss of every area, every event and door, and every third pickup.
         foreach (AreaId area in AreaIds.All)

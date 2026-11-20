@@ -541,18 +541,18 @@ internal sealed class FrontendSession
     /// clears it before the visible HUD is built.
     /// </summary>
     private static HudSnapshot SavedGameHud(SuperMetroidSaveSlot slot) => new(
-        slot.Health,
-        slot.MaxHealth,
-        slot.Missiles,
-        slot.MaxMissiles,
-        slot.SuperMissiles,
-        slot.MaxSuperMissiles,
-        slot.PowerBombs,
-        slot.MaxPowerBombs,
-        slot.EquippedItems,
+        slot.Inventory.Health,
+        slot.Inventory.MaxHealth,
+        slot.Inventory.Missiles,
+        slot.Inventory.MaxMissiles,
+        slot.Inventory.SuperMissiles,
+        slot.Inventory.MaxSuperMissiles,
+        slot.Inventory.PowerBombs,
+        slot.Inventory.MaxPowerBombs,
+        slot.Inventory.EquippedItems,
         SelectedItem: HudItem.Beam,
-        slot.ReserveEnergy,
-        slot.ReserveMode);
+        slot.Inventory.ReserveEnergy,
+        slot.Inventory.ReserveMode);
 
     /// <summary>Shows <paramref name="hud"/> as a game starts and publishes the frame shown while the game loads.</summary>
     private void ShowLoadingHud(HudSnapshot hud)

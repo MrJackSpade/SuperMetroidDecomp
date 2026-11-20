@@ -90,9 +90,9 @@ internal static class GameSaveJsonVerification
         SuperMetroidSaveSlot restoredSlot = restored.ReadSlot(SaveSlot.B) ??
             throw new InvalidOperationException("JSON round trip lost slot 1.");
         AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.RedBrinstarSave, restoredSlot.Checkpoint), "JSON checkpoint station");
-        AssertEqual(94, restoredSlot.Health, "JSON health");
-        AssertEqual(15, restoredSlot.MaxMissiles, "JSON missile capacity");
-        AssertTrue(restoredSlot.CollectedItems.HasAll(
+        AssertEqual(94, restoredSlot.Inventory.Health, "JSON health");
+        AssertEqual(15, restoredSlot.Inventory.MaxMissiles, "JSON missile capacity");
+        AssertTrue(restoredSlot.Inventory.CollectedItems.HasAll(
             SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.VariaSuit),
             "JSON collected equipment flags");
         SuperMetroidSaveSlot savedSlot = saveRam.ReadSlot(SaveSlot.B) ?? throw new InvalidOperationException("The saved slot 1 failed.");
@@ -101,7 +101,7 @@ internal static class GameSaveJsonVerification
         AssertTrue(restoredSlot.Progression.Events.Members.SequenceEqual([StoryEvent.ZebesAwake]),
             "JSON keeps the story events by name");
         AssertEqual(bindings, restoredSlot.ControllerBindings, "JSON controller bindings");
-        AssertEqual(ReserveTankMode.Auto, restoredSlot.ReserveMode, "JSON reserve-tank mode");
+        AssertEqual(ReserveTankMode.Auto, restoredSlot.Inventory.ReserveMode, "JSON reserve-tank mode");
         AssertEqual(HudItem.SuperMissile, restoredSlot.HudItem, "JSON HUD selection");
         AssertEqual(time, restoredSlot.GameTime, "JSON game time");
 
@@ -247,7 +247,7 @@ internal static class GameSaveJsonVerification
         GameSaveJsonDocument document = GameSaveJsonCodec.Capture(store);
         GameSaveSlotJsonDocument slot = document.Slots[0] ?? throw new InvalidOperationException("JSON capture lost slot 0.");
         AssertEqual(HudItem.XRay, slot.HudItem, "JSON carries the last selection of the HUD ring");
-        AssertEqual(ReserveTankMode.Manual, slot.ReserveMode, "JSON carries the manual reserve-tank mode");
+        AssertEqual(ReserveTankMode.Manual, slot.Inventory.ReserveMode, "JSON carries the manual reserve-tank mode");
         AssertEqual(SaveStartupRoute.CeresDestruction, slot.StartupRoute, "JSON names the save's startup route");
         AssertEqual(nameof(LoadStationDefinitions.DraygonSave), slot.Checkpoint, "JSON names the checkpoint's load station");
 

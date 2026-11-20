@@ -484,21 +484,9 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
         CompilationUnitSyntax unit = CSharpSyntaxTree.ParseText(existing).GetCompilationUnitRoot();
         ClassDeclarationSyntax holder = unit.DescendantNodes().OfType<ClassDeclarationSyntax>().SingleOrDefault(type => type.Identifier.ValueText == ClassName(owner))
             ?? throw new InvalidOperationException($"{Path} holds no {ClassName(owner)}.");
-        var held = new HashSet<string>(StringComparer.Ordinal);
-        foreach (MemberDeclarationSyntax member in holder.DescendantNodes().OfType<MemberDeclarationSyntax>())
-        {
-            switch (member)
-            {
-                case PropertyDeclarationSyntax property:
-                    held.Add($"property|{property.Identifier.ValueText.TrimStart('@')}");
-                    break;
-                case MethodDeclarationSyntax method:
-                    held.Add($"method|{method.Identifier.ValueText.TrimStart('@')}|{method.ParameterList.Parameters.Count}");
-                    break;
-                default:
-                    break;
-            }
-        }
+        // A member is held when its generated source is: overloads of one name and parameter count are told apart.
+        var held = holder.DescendantNodes().OfType<MemberDeclarationSyntax>().Select(member => Squashed(member.ToFullString()))
+            .ToHashSet(StringComparer.Ordinal);
         var blocks = Blocks(held);
         if (blocks.Count == 0)
             return existing;
@@ -511,12 +499,7 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
     /// <summary>The extension blocks of every member not in <paramref name="held"/>.</summary>
     private List<string> Blocks(HashSet<string> held)
     {
-        bool New(RenderedMember member)
-        {
-            string[] parts = member.Key.Split('|');
-            string key = parts[0] == "method" ? $"method|{parts[1]}|{ParameterCount(parts[2])}" : member.Key;
-            return !held.Contains(key);
-        }
+        bool New(RenderedMember member) => !held.Contains(Squashed(member.Text));
         var blocks = new List<string>();
         void Add(string header, IEnumerable<RenderedMember> members)
         {
@@ -525,7 +508,8 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
                 blocks.Add($"{header}\n{{\n{string.Join("\n\n", fresh.Select(member => Indent(member.Text, "    ")))}\n}}");
         }
         blocks.AddRange(_reading.Concat(_writing).Concat(_static).Concat(_receivers.Values.SelectMany(members => members))
-            .Where(member => member.Delegate is not null && New(member)).Select(member => member.Delegate!));
+            .Where(member => member.Delegate is not null && !held.Contains(Squashed(member.Delegate))).Select(member => member.Delegate!)
+            .Distinct(StringComparer.Ordinal));
         string generic = TypeParameterList;
         string constraints = Constraints(owner.TypeParameters);
         Add($"/// <summary>The private instance members checks read or call.</summary>\nextension{generic}({Owner} self){constraints}", _reading);
@@ -536,27 +520,8 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
         return blocks;
     }
 
-    /// <summary>
-    /// The parameters a method key's signature lists: each is its passing and its type, and a generic type's own commas
-    /// lie inside its angle brackets.
-    /// </summary>
-    private static int ParameterCount(string signature)
-    {
-        if (signature.Length == 0)
-            return 0;
-        int depth = 0;
-        int count = 1;
-        foreach (char character in signature)
-        {
-            if (character == '<')
-                depth++;
-            else if (character == '>')
-                depth--;
-            else if (character == ',' && depth == 0)
-                count++;
-        }
-        return count;
-    }
+    /// <summary>Source text without its whitespace, which tells generated members apart however they are indented.</summary>
+    private static string Squashed(string source) => string.Concat(source.Where(character => !char.IsWhiteSpace(character)));
 
     /// <summary>The <c>where</c> clauses of a generic owner's type parameters, as its blocks repeat them.</summary>
     private static string Constraints(IEnumerable<ITypeParameterSymbol> parameters)

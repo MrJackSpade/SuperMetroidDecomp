@@ -194,7 +194,7 @@ internal static class EndingSpriteSheetComposer
     private static IReadOnlyList<EndingTransfer> LogoTransfers =>
     [
         new EndingTransfer(EndingTransferKind.CreditsCharacterArt),
-        .. Enumerable.Range(0, EndingPostShotUploadDefinitions.Count).Select(index => new EndingTransfer(EndingTransferKind.PostShotPart, index)),
+        .. EndingPostShotUploads.InOrder.Select(part => new EndingTransfer(EndingTransferKind.PostShotPart, part)),
     ];
 
     /// <summary>The page ending sheet <paramref name="sheet"/> shows.</summary>

@@ -7,15 +7,19 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// </summary>
 internal static class EndingPostShotUploads
 {
-    /// <summary>The post-shot upload at <paramref name="index"/>: the subtitle, the logo's four consecutive chunks of
-    /// equal length, then the tilemap. The chunks' source offsets advance by the chunk length; the subtitle and the map
-    /// are their own transfer cases, not offsets between the chunks.</summary>
-    public static EndingPostShotUploadDefinition Get(int index)
-    {
-        if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-        if (index == 0) return new(SubtitleLength, 0, EndingPostShotUploadSource.Subtitle);
-        if (index == Count - 1) return new(LogoMapLength, 0, EndingPostShotUploadSource.LogoMap);
-        int offset = (index - 1) * LogoTileChunkLength;
-        return new(LogoTileChunkLength, offset, EndingPostShotUploadSource.LogoTiles);
-    }
+    /// <summary>The subtitle's characters.</summary>
+    internal static EndingPostShotUploadDefinition Subtitle { get; } = new(SubtitleLength, 0, EndingPostShotUploadSource.Subtitle);
+
+    /// <summary>
+    /// The logo's characters, in four consecutive chunks of equal length, each starting where the one before it ends.
+    /// </summary>
+    internal static IReadOnlyList<EndingPostShotUploadDefinition> LogoTileChunks { get; } =
+        [.. Enumerable.Range(0, Count - 2).Select(chunk => new EndingPostShotUploadDefinition(
+            LogoTileChunkLength, chunk * LogoTileChunkLength, EndingPostShotUploadSource.LogoTiles))];
+
+    /// <summary>The logo's tilemap.</summary>
+    internal static EndingPostShotUploadDefinition LogoMap { get; } = new(LogoMapLength, 0, EndingPostShotUploadSource.LogoMap);
+
+    /// <summary>The post-shot uploads in the order the ending makes them: the subtitle, the logo's chunks, then its tilemap.</summary>
+    public static IReadOnlyList<EndingPostShotUploadDefinition> InOrder { get; } = [Subtitle, .. LogoTileChunks, LogoMap];
 }

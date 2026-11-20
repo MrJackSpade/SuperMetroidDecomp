@@ -45,7 +45,7 @@ internal static class EndingScreenImage
                 ExecuteCreditsCharacterArt(ending, artwork);
                 break;
             case EndingTransferKind.PostShotPart:
-                ExecutePostShotPart(vram, transfer.Chunk, artwork);
+                ExecutePostShotPart(vram, transfer.Part ?? throw new InvalidOperationException("A post-shot transfer names no part."), artwork);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(transfer), transfer.Kind, "Undefined ending transfer.");
@@ -68,9 +68,8 @@ internal static class EndingScreenImage
     }
 
     /// <summary>One post-shot subtitle, logo-tile or logo-map part at its native word.</summary>
-    private static void ExecutePostShotPart(SnesVram vram, int index, EndingTransferArtwork artwork)
+    private static void ExecutePostShotPart(SnesVram vram, EndingPostShotUploadDefinition transfer, EndingTransferArtwork artwork)
     {
-        EndingPostShotUploadDefinition transfer = EndingPostShotUploads.Get(index);
         int length = transfer.Length;
         ReadOnlySpan<byte> bytes = transfer.Source switch
         {

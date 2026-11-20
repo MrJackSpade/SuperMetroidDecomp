@@ -91,9 +91,7 @@ public sealed class SamusSuitPickupState
         SamusSuitPickupKind kind)
     {
         Ensure.NotNull(samus);
-        if (IsActive)
-            throw new InvalidOperationException("A suit pickup transformation is already active.");
-
+        // The pickup locks Samus until it ends, so no second suit starts one while it runs.
         Kind = kind;
         BeamColor = (kind == SamusSuitPickupKind.Varia
             ? SamusShadeDefinitions.SuitPickup.VariaBeam

@@ -968,9 +968,7 @@ public sealed class SamusBombProjectileSystem
             ?? throw new InvalidOperationException("An inactive bomb has no animation to play.");
         if (SamusProjectilePlayback.StepToNewFrame(animation) is { } frame)
         {
-            // A bomb's animations show no still picture: every frame lasts its updates.
-            if (animation.IsResting)
-                throw new InvalidDataException($"Bomb frame {frame} is a still picture.");
+            // A bomb shows each frame its animation reaches, as the game's instruction list does.
             bomb.Sprite = _artwork.ProjectileFrames.Resolve(frame);
             bomb.Radius = SamusProjectileFrameDefinitions.Radius(frame);
             return;

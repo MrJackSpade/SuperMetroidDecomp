@@ -154,11 +154,8 @@ internal sealed class SamusFramePhases
         out SamusPoseId? activationPose)
     {
         activationPose = null;
-        // The HUD's selection prevents selecting the HUD item without the scope. The lower-level
-        // X-ray spawn assumes that selector has already succeeded.
-        if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
-            return false;
-
+        // The HUD's selection, which settles on the X-ray only with the scope, owns the scope requirement: the game's X-ray
+        // handler runs from the selection alone.
         return samus.Xray.TryBegin(samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.IsActive, ProjectileCooldownTimer = bombProjectiles.CooldownTimer, BombCounter = bombProjectiles.BombCounter },
             out activationPose);
     }

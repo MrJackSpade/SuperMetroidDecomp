@@ -233,12 +233,11 @@ internal sealed class IntroNarrationActors
             MarkAwaitingInput(page);
     }
 
-    /// <summary>Publishes the completed page's input wait to the outer intro state machine.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The page ends the intro instead of waiting for input.</exception>
-    private void MarkAwaitingInput(IntroNarrationPageId page) =>
-        AwaitingInputPage = IntroNarrationPageDefinitions.Pages[page].Closing != IntroNarrationPageClosing.EndsIntro
-            ? page
-            : throw new ArgumentOutOfRangeException(nameof(page), page, "The intro's last page ends the intro instead of waiting for input.");
+    /// <summary>
+    /// Publishes the completed page's input wait to the outer intro state machine: only a page that waits for input reaches
+    /// its wait, as the intro's last page ends the intro before it (<see cref="FinishInstalledNarration"/>).
+    /// </summary>
+    private void MarkAwaitingInput(IntroNarrationPageId page) => AwaitingInputPage = page;
 
     /// <summary>Shows the persistent caret again at the first text line and restarts its non-blinking sprite animation.</summary>
     private void ResetCaret()

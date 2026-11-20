@@ -43,4 +43,12 @@ public sealed class BossBodySheet
     /// <exception cref="InvalidDataException">The sheet has no such frame.</exception>
     public BossBodyFrame Frame([InstalledKey] string name) =>
         frames.TryGetValue(name, out BossBodyFrame? frame) ? frame : throw new InvalidDataException($"{Owner}'s body sheet has no frame {name}.");
+
+    /// <summary>The frame named <paramref name="name"/>, which the installed sheet must show a picture of and dissolve.</summary>
+    /// <exception cref="InvalidDataException">The sheet has no such frame, or the frame shows no picture or has no dissolve.</exception>
+    public DissolvingBossBodyFrame DissolvingFrame([InstalledKey] string name) => Frame(name) switch
+    {
+        { Picture: { } picture, Dissolve: { } dissolve } frame => new DissolvingBossBodyFrame(frame, picture, dissolve),
+        _ => throw new InvalidDataException($"{Owner}'s body sheet frame {name} is no picture that dissolves."),
+    };
 }

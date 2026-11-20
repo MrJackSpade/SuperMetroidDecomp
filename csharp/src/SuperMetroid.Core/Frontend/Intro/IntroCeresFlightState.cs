@@ -367,8 +367,8 @@ internal sealed class IntroCeresFlightState
         foreach ((CeresRearViewActorRole role, CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> actor) in RearViewActors)
         {
             CeresFlightActorDefinition definition = CeresFlightActors.RearViewActor(role);
-            if (definition.DriftsRoundLoop)
-                actor.DriftRoundLoop(definition.HorizontalDelta);
+            if (actor.DriftLoopWidth is int loop)
+                actor.DriftRoundLoop(definition.HorizontalDelta, loop);
             else
                 actor.Position = actor.Position.WithX(actor.Position.X + definition.HorizontalDelta);
             actor.Step();

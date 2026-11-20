@@ -74,8 +74,8 @@ internal sealed class CrocomireMelting
     /// </summary>
     /// <exception cref="InvalidOperationException">No boss body sheets are installed.</exception>
     /// <exception cref="InvalidDataException">His body sheet has no such melt image.</exception>
-    internal BossBodyFrame RequireCrocomireMeltingImage(CrocomireMeltingIllustration illustration) =>
-        _bossArtwork.Body(BossBodyOwner.Crocomire).Frame(CrocomireMeltingFrameNames.Of(illustration));
+    internal DissolvingBossBodyFrame RequireCrocomireMeltingImage(CrocomireMeltingIllustration illustration) =>
+        _bossArtwork.Body(BossBodyOwner.Crocomire).DissolvingFrame(CrocomireMeltingFrameNames.Of(illustration));
 
     /// <summary>Starts the selected body melting animation, which the melt image just shown on his body layer goes with.</summary>
     private static void StartCrocomireMeltingBodyAnimation(CrocomireEnemyState state, CrocomireBodyAnimation bodyAnimation)
@@ -86,7 +86,7 @@ internal sealed class CrocomireMelting
 
     /// <summary>Shows melt image <paramref name="illustration"/> as his whole body, in place of the body frame it showed (#1515).</summary>
     private void ShowCrocomireMeltingImage(CrocomireEnemyState state, CrocomireMeltingIllustration illustration) =>
-        CrocomireBodyLayer.ShowCrocomireBodyFrame(state, RequireCrocomireMeltingImage(illustration));
+        CrocomireBodyLayer.ShowCrocomireBodyFrame(state, RequireCrocomireMeltingImage(illustration).Frame);
 
     /// <summary>
     /// Begins <paramref name="pass"/>'s melt: levels the melt's stretch, resets its distortion, and starts

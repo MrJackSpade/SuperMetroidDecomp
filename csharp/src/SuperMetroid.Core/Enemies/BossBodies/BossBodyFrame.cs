@@ -70,28 +70,17 @@ public sealed class BossBodyFrame
     public HiddenPicturePixels? Hidden { get; }
 
     /// <summary>
-    /// This frame with <paramref name="hidden"/>'s pixels of its picture hidden, as a dissolve's step leaves its picture
-    /// (#1652).
+    /// This frame hiding <paramref name="hidden"/> of <paramref name="picture"/>, the picture it shows (#1652): the dissolve
+    /// of a frame that dissolves.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The frame shows no picture.</exception>
-    /// <exception cref="ArgumentException">The hidden pixels are not of the picture's size.</exception>
-    public BossBodyFrame Hiding(HiddenPicturePixels hidden)
+    /// <exception cref="ArgumentException">The hidden pixels are of a picture of another size.</exception>
+    internal BossBodyFrame Hiding(SpriteSheetFrame picture, HiddenPicturePixels hidden)
     {
-        if (Picture is null)
-            throw new InvalidOperationException($"Boss body frame {Name} shows no picture to hide pixels of.");
-        if (Ensure.NotNull(hidden).Size != Picture.Size)
+        if (Ensure.NotNull(hidden).Size != Ensure.NotNull(picture).Size)
             throw new ArgumentException($"Boss body frame {Name} hides pixels of a picture of another size.", nameof(hidden));
         return new(this, Depth, hidden);
     }
 
-    /// <summary>
-    /// This frame as its dissolve leaves its picture once each band has shown the steps <paramref name="bandSteps"/> gives
-    /// it, by band (#1652, #2478).
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The frame has no dissolve.</exception>
-    public BossBodyFrame Dissolved(ReadOnlySpan<int> bandSteps) => Dissolve is { } dissolve
-        ? Hiding(dissolve.Hidden(bandSteps))
-        : throw new InvalidOperationException($"Boss body frame {Name} has no dissolve.");
 
     /// <summary>
     /// This frame drawn at <paramref name="depth"/> instead, as Kraid's growth brings his body and the head it rises with in

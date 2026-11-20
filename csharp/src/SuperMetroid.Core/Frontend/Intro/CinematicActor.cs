@@ -158,13 +158,11 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     internal int? DriftLoopWidth { get; init; }
 
     /// <summary>
-    /// Moves a looping actor by <paramref name="horizontalDelta"/> and carries it round its loop
-    /// (<see cref="DriftLoopWidth"/>): its whole pixels stay within the loop, from zero up to the loop's width.
+    /// Moves a looping actor by <paramref name="horizontalDelta"/> and carries it round its loop, <paramref name="loop"/>
+    /// pixels wide (<see cref="DriftLoopWidth"/>): its whole pixels stay within the loop, from zero up to the loop's width.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The actor travels no loop.</exception>
-    internal void DriftRoundLoop(SignedSixteenSixteen horizontalDelta)
+    internal void DriftRoundLoop(SignedSixteenSixteen horizontalDelta, int loop)
     {
-        int loop = DriftLoopWidth ?? throw new InvalidOperationException("A cinematic actor with no loop drifted round one.");
         SignedSixteenSixteen x = Position.X + horizontalDelta;
         Position = Position.WithX(x.WithWholePixels(AlongLoop(x.WholePixels, loop)));
     }

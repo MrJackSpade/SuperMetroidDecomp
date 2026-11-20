@@ -23,7 +23,7 @@ internal sealed class CeresDestructionActor(
     /// <summary>Drifts the actor round its loop, or leaves it standing still when it drifts round none.</summary>
     internal override void Move()
     {
-        if (Definition.DriftsRoundLoop)
-            Sprite.DriftRoundLoop(Definition.HorizontalDelta);
+        if (Sprite.DriftLoopWidth is int loop)
+            Sprite.DriftRoundLoop(Definition.HorizontalDelta, loop);
     }
 }

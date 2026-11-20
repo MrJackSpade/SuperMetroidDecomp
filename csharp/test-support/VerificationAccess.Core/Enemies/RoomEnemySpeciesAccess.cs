@@ -123,6 +123,9 @@ internal static class RoomEnemySpeciesAccess
                 case SparkBehavior spark:
                     yield return spark.FallingSparks;
                     break;
+                default:
+                    // Every other factory is its species' only owner.
+                    break;
             }
         }
         foreach (IEnemySpecies participant in species.FrameParticipants)

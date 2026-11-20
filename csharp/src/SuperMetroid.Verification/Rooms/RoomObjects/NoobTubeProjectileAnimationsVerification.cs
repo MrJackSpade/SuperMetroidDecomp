@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using static SuperMetroid.TestSupport.MovieReplay.NoobTubeProjectileNativeListAddresses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Animation;

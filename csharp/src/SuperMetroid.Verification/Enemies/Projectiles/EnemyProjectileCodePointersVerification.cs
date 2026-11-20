@@ -24,7 +24,7 @@ internal static class EnemyProjectileCodePointersVerification
         // Every member of each motion type a routine stands for is a motion some routine stands for, and so is holding still.
         EnemyProjectileMotionWord[] motions = [.. EnemyProjectileMotionAccess.RoutineWords.Select(EnemyProjectileMotionAccess.FromWord)];
         AssertTrue(motions.Contains(EnemyProjectileStillWord.Instance), "holding still stands for a cartridge routine");
-        string[] named = [.. motions.Select(motion => motion.ToString())];
+        string[] named = [.. motions.Select(motion => $"{motion}")];
         foreach (string motion in motions.SelectMany(word => word.FamilyMotionNames).Distinct())
             AssertTrue(named.Contains(motion), $"motion {motion} stands for a cartridge routine");
 

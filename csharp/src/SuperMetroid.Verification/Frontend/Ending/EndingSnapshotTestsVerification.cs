@@ -319,7 +319,7 @@ internal static class EndingSnapshotTestsVerification
                     AssertTrue(Live().SpriteParts().All(part => part.Part.Palette <= 2),
                         "explosion actors delete before operation text, leaving only text OBJ palettes");
                 }
-                if (legacy.Phase >= EndingCreditsPhase.ItemPercentage)
+                if (!EndingCreditsPhaseOrder.IsBefore(legacy.Phase, EndingCreditsPhase.ItemPercentage))
                 {
                     // E58A clears cinematic actors; the independent star field survives.
                     var stars = legacy.CreditsRoll.ShootingStars;

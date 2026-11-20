@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
@@ -103,6 +104,7 @@ internal static class PhantoonFlameSpawnsVerification
             {
                 PhantoonFlameSpawnType.Rain => checked((ushort)flames.Rains.Of(flame).HangUpdates),
                 PhantoonFlameSpawnType.Enraged => unchecked((ushort)flames.Orbits.Of(flame).TurnPerUpdate.StepsFrom(TrigonometryAngle.Zero)),
+                PhantoonFlameSpawnType.Casual or PhantoonFlameSpawnType.Spiral => 0,
                 _ => 0,
             };
             AssertEqual(speed, typedSpeed, "Actual flame turn step or fall delay");

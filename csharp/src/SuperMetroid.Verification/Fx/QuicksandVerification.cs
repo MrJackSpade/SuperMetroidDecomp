@@ -165,9 +165,9 @@ internal static class QuicksandVerification
         // Original non-clone sand PLM headers, independent of the replacement's named cases.
         ushort[] headers = [0xb713, 0xb71f, 0xb723, 0xb727, 0xb72b, 0xb737, 0xb73b, 0xb73f];
         var sand = new List<(ushort Header, ushort Setup)>();
-        foreach (SpecialAirInsideReaction reaction in QuicksandDefinitions.ObjectPlacingInsideReactions)
+        foreach (SpecialAirInsideReaction reaction in SpecialAirReactionNativeWords.InsideHeaders.Keys.Where(QuicksandReactions.PlacesObject))
             sand.Add((SpecialAirReactionNativeWords.InsideHeaders[reaction], SpecialAirReactionNativeWords.InsideSetups[reaction]));
-        foreach (SpecialAirCollisionReaction reaction in QuicksandDefinitions.ObjectPlacingCollisionReactions)
+        foreach (SpecialAirCollisionReaction reaction in SpecialAirReactionNativeWords.CollisionHeaders.Keys.Where(QuicksandReactions.PlacesObject))
             sand.Add((SpecialAirReactionNativeWords.CollisionHeaders[reaction], SpecialAirReactionNativeWords.CollisionSetups[reaction]));
         AssertTrue(sand.Select(entry => entry.Header).Order().SequenceEqual(headers), "the eight sand reactions are the cartridge's sand headers");
         foreach ((ushort header, ushort setup) in sand)

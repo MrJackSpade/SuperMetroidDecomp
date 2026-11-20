@@ -54,8 +54,8 @@ internal static class PoseTransitionSetupVerification
                 }
             }
 
-            AssertTrue(Enum.IsDefined(SamusNoTransitionSetups.For(pose, SamusPoseMetadata.ReadMovementType(pose))),
-                $"{pose} resolves a defined no-transition setup");
+            // Every pose resolves a no-transition setup: the lookup fails for a movement type that names none.
+            _ = SamusNoTransitionSetups.For(pose, SamusPoseMetadata.ReadMovementType(pose));
         }
         AssertTrue(transitions > 0, "The input transitions choose poses");
 

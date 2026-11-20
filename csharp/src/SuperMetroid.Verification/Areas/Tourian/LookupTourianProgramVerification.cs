@@ -259,7 +259,7 @@ internal static class LookupTourianProgramVerification
 
     /// <summary>An event beat of <paramref name="cue"/>.</summary>
     private static Beat Cue(TourianStatueBlockCue cue) =>
-        new Beat.Event(new TourianStatueBlockCue(kind));
+        new Beat.Event(cue);
 
     /// <summary>The bank-$87 word at <paramref name="cursor"/>.</summary>
     private static ushort Word(ISnesAddressSpace rom, int cursor) =>

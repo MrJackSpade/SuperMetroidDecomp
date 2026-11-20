@@ -32,7 +32,7 @@ internal static class PostCreditsCharacterArtworkVerification
             {
                 AssertEqual(native.Phase, installed.Phase,
                     $"post-credits installed/native phase for {hours}h at frame {frame}");
-                if (native.Phase >= EndingCreditsPhase.Credits &&
+                if (!EndingCreditsPhaseOrder.IsBefore(native.Phase, EndingCreditsPhase.Credits) &&
                     checkedPhases.Add(native.Phase))
                 {
                     LayeredScene expected = EndingCreditsPresentation.ComposeScene(native);

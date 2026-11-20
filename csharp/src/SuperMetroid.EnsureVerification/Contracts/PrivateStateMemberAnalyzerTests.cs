@@ -59,7 +59,7 @@ internal static class PrivateStateMemberAnalyzerTests
     }
 
     /// <summary>The assembly <paramref name="library"/> compiles to, as a build references it: metadata, not source.</summary>
-    private static MetadataReference Image(CSharpCompilation library)
+    private static PortableExecutableReference Image(CSharpCompilation library)
     {
         using var image = new System.IO.MemoryStream();
         var emitted = library.Emit(image);

@@ -6,7 +6,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 
 /// <summary>
 /// The member a check's private-state call names (SME6477, #2570), looked up as the reflection behind the call finds it.
-/// <see cref="PrivateStateMemberAnalyzer"/> judges a build's calls with it, and the architecture audit, which binds checks
+/// The SME6477 analyzer judges a build's calls with it, and the architecture audit, which binds checks
 /// against the product's source, every call.
 /// </summary>
 public static class PrivateStateMembers

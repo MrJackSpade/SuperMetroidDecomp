@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using SuperMetroid.EnsureAnalyzer.Contracts;
 using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;
 

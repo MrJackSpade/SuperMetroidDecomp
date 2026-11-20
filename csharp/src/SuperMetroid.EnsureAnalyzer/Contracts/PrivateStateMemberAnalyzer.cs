@@ -52,14 +52,32 @@ public sealed class PrivateStateMemberAnalyzer : DiagnosticAnalyzer
         context.RegisterOperationAction(Analyze, OperationKind.Invocation);
     }
 
-    /// <summary>Reports a private-state call whose owner lacks the member it names.</summary>
+    /// <summary>
+    /// Reports a private-state call whose owner lacks the member it names. A build compiles a check against the product
+    /// assemblies' metadata, which holds none of their private members, so the rule judges only an owner whose private
+    /// members the compilation sees: one declared in its own source, or any owner when it imports every member. The
+    /// architecture audit, which binds checks against the product's source, judges every call (#2570).
+    /// </summary>
     private static void Analyze(OperationAnalysisContext context)
     {
-        var invocation = (IInvocationOperation)context.Operation;
-        IMethodSymbol method = invocation.TargetMethod;
+        if (MissingMember((IInvocationOperation)context.Operation) is not { } missing ||
+            !missing.Owner.Locations.Any(location => location.IsInSource) &&
+            context.Compilation.Options.MetadataImportOptions != MetadataImportOptions.All)
+            return;
+        context.ReportDiagnostic(Diagnostic.Create(Rule, missing.Site.GetLocation(), missing.Call, missing.Kind, missing.Name,
+            missing.Owner.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)));
+    }
+
+    /// <summary>
+    /// The member a private-state call names that its owner, as <paramref name="invocation"/>'s compilation sees it, does
+    /// not have: the name's site, the call, the kind and name of the member, and the owner; null for any other invocation.
+    /// </summary>
+    public static (SyntaxNode Site, string Call, string Kind, string Name, INamedTypeSymbol Owner)? MissingMember(IInvocationOperation invocation)
+    {
+        IMethodSymbol method = Required(invocation).TargetMethod;
         if (method.ContainingType is not { Name: "PrivateState", ContainingType: null } state ||
             state.ContainingNamespace?.ToDisplayString() != "SuperMetroid.Core")
-            return;
+            return null;
         string kind = FieldCalls.Contains(method.Name) ? "field"
             : PropertyCalls.Contains(method.Name) ? "property"
             : MethodCalls.Contains(method.Name) ? "method"
@@ -68,10 +86,13 @@ public sealed class PrivateStateMemberAnalyzer : DiagnosticAnalyzer
             invocation.Arguments.FirstOrDefault(argument => argument.Parameter?.Name is "field" or "property" or "method") is not { } named ||
             named.Value.ConstantValue is not { HasValue: true, Value: string name } ||
             Has(owner, kind, name))
-            return;
-        context.ReportDiagnostic(Diagnostic.Create(Rule, named.Value.Syntax.GetLocation(), invocation.Syntax.ToString(), kind, name,
-            owner.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)));
+            return null;
+        return (named.Value.Syntax, invocation.Syntax.ToString(), kind, name, owner);
     }
+
+    /// <summary>The invocation, which must be given.</summary>
+    private static IInvocationOperation Required(IInvocationOperation? invocation) =>
+        invocation ?? throw new ArgumentNullException(nameof(invocation));
 
     /// <summary>The owner a call states: the <c>typeof</c> its <c>owner</c> argument passes, or its first type argument.</summary>
     private static INamedTypeSymbol? Owner(IInvocationOperation invocation)

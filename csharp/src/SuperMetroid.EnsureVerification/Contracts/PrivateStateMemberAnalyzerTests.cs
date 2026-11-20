@@ -53,6 +53,50 @@ internal static class PrivateStateMemberAnalyzerTests
         Expect(Call("PrivateState.StaticGet<int>(type, \"Missing\");"), count: 0);
         Expect(Call("Reach(owner);"), count: 0);
         Expect(Call("PrivateState.New<Owner>([], []);"), count: 0);
+        // An owner another assembly compiles: its metadata holds none of its private members, so a build cannot judge the
+        // name, which the architecture audit judges against the owner's source.
+        ExpectRemoteOwnerLeftAlone();
+    }
+
+    /// <summary>The assembly <paramref name="library"/> compiles to, as a build references it: metadata, not source.</summary>
+    private static MetadataReference Image(CSharpCompilation library)
+    {
+        using var image = new System.IO.MemoryStream();
+        var emitted = library.Emit(image);
+        if (!emitted.Success)
+            throw new InvalidOperationException($"Invalid analyzer fixture: {string.Join("; ", emitted.Diagnostics)}");
+        return MetadataReference.CreateFromImage(image.ToArray());
+    }
+
+    /// <summary>A call naming a member an owner in a referenced assembly lacks reports nothing.</summary>
+    private static void ExpectRemoteOwnerLeftAlone()
+    {
+        var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable);
+        CSharpCompilation library = CSharpCompilation.Create("SuperMetroid.Core.Remote",
+            [CSharpSyntaxTree.ParseText("public sealed class Remote { private int hidden; public int Read() => hidden; }",
+                new CSharpParseOptions(LanguageVersion.Preview))], AnalyzerTests.References, options);
+        CSharpCompilation check = CSharpCompilation.Create("SuperMetroid.Verification",
+            [CSharpSyntaxTree.ParseText("""
+                namespace SuperMetroid.Core
+                {
+                    internal static class PrivateState
+                    {
+                        internal static TValue Field<TOwner, TValue>(TOwner owner, string field) where TOwner : class => default!;
+                    }
+                }
+                internal static class Check
+                {
+                    internal static int Run(Remote remote) => SuperMetroid.Core.PrivateState.Field<Remote, int>(remote, "missing");
+                }
+                """, new CSharpParseOptions(LanguageVersion.Preview))],
+            [.. AnalyzerTests.References, Image(library)], options);
+        var errors = check.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+        if (errors.Length != 0)
+            throw new InvalidOperationException($"Invalid analyzer fixture: {string.Join("; ", errors.Select(e => e.ToString()))}");
+        var diagnostics = check.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new PrivateStateMemberAnalyzer()))
+            .GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult();
+        if (diagnostics.Length != 0)
+            throw new InvalidOperationException($"Expected no SME6477 for an owner of another assembly, got [{string.Join("; ", diagnostics.Select(d => d.ToString()))}].");
     }
 
     /// <summary>A check that runs <paramref name="statements"/> against owners with known private members.</summary>

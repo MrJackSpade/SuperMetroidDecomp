@@ -1,6 +1,8 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
+using SuperMetroid.EnsureAnalyzer.Contracts;
 using SuperMetroid.ReachabilityAudit.Analysis;
 using SuperMetroid.ReachabilityAudit.Declarations;
 using SuperMetroid.ReachabilityAudit.SolutionLoading;
@@ -98,12 +100,36 @@ internal static class TestOnlyMembers
             .Select(use => new TestOnlyMemberFinding(use, Shape(use, used: true)))];
     }
 
-    /// <summary>One line per finding, in file order, for the census.</summary>
+    /// <summary>One line per finding, in file order, for the census; the private-state calls naming a missing member follow.</summary>
     public static List<string> Census(LoadedSolution solution) =>
         [.. Collect(solution).Select(finding => $"{Describe(solution.RepositoryRoot, finding.Uses.Member)} is flagged [{Finding}] " +
                 $"({finding.Shape}): no product code outside {finding.Uses.Member.ContainingType.Name} {Verb(finding.Uses.Way)} it, " +
                 $"but {finding.Uses.Checks} check site(s) do, first {finding.Uses.FirstCheck}.")
+            .Concat(MissingPrivateStateMembers(solution))
             .Order(StringComparer.Ordinal)];
+
+    /// <summary>
+    /// Every private-state call in a check that names a member its owner does not have (SME6477, #2570), judged against the
+    /// owner's source: a build sees only the product's metadata, which holds no private member, so SME6477 cannot.
+    /// </summary>
+    private static IEnumerable<string> MissingPrivateStateMembers(LoadedSolution solution)
+    {
+        foreach (var (compilation, tree, file, check) in FirstCompilations(solution))
+        {
+            if (!check)
+                continue;
+            foreach (InvocationExpressionSyntax invocation in tree.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
+            {
+                if (invocation.Expression is not MemberAccessExpressionSyntax { Expression: var state } || !state.ToString().EndsWith("PrivateState", StringComparison.Ordinal) ||
+                    SemanticModels.At(compilation, tree, invocation).GetOperation(invocation) is not IInvocationOperation operation ||
+                    PrivateStateMemberAnalyzer.MissingMember(operation) is not { } missing)
+                    continue;
+                yield return $"{file}:{missing.Site.GetLocation().GetLineSpan().StartLinePosition.Line + 1}: {missing.Call} names the " +
+                    $"{missing.Kind} '{missing.Name}', which {missing.Owner.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)} " +
+                    $"does not have [{PrivateStateMemberAnalyzer.PrivateStateMemberId}].";
+            }
+        }
+    }
 
     /// <summary>
     /// What production does with a test-only way of reaching a member: its own type reaches it that way (<c>narrow</c>:

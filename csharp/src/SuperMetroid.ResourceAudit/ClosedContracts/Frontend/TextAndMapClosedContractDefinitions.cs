@@ -10,7 +10,7 @@ internal static class TextAndMapClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTypewriterPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTypewriterDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTypewriterPresentationFile.cs")]),
-        new("SuperMetroid.Core.Frontend.Intro.Artwork.IntroNarrationPresentation", "narration-complete-compiled-pages", ["GetLines", "Compile"],
+        new("SuperMetroid.Core.Frontend.Intro.Artwork.IntroNarrationPresentation", "narration-complete-compiled-pages", ["Compile"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroNarrationPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroNarrationDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Intro/Artwork/IntroNarrationGlyphs.cs")]),

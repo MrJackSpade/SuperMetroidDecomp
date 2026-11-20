@@ -54,7 +54,7 @@ internal static class ClosedPresentationIdentityDefinitions
         ("DachoraColorCatalog", "Resolve", "phase") => Enum.GetValues<DachoraColourPhase>().Select(id => (int)id).ToArray(),
         ("BabyMetroidColorCatalog", "TargetColor", "target") => Enum.GetValues<BabyMetroidColorTarget>().Select(id => (int)id).ToArray(),
         ("EscapeTypewriterPresentation", "Get", "id") => Enum.GetValues<EscapeTypewriterMessageId>().Select(id => (int)id).ToArray(),
-        ("IntroNarrationPresentation", "GetLines" or "Compile", "page") =>
+        ("IntroNarrationPresentation", "Compile", "page") =>
             Enum.GetValues<IntroNarrationPageId>().Select(id => (int)id).ToArray(),
         ("EndingTextPresentation", "Compile", "sequence") => Enum.GetValues<EndingTextSequence>().Select(id => (int)id).ToArray(),
         ("MapSpriteSheet", "Draw", "id") => MapSpriteArtwork.FrameNames.Select(frame => (int)frame.Id).ToArray(),

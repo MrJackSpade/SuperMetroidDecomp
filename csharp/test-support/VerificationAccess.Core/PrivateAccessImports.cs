@@ -231,7 +231,6 @@ global using static SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFilesPriv
 global using static SuperMetroid.AssetExtraction.Samus.SamusBodyCharacterArtworkPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.SamusBodySourcesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.SamusDeathPaletteArtworkFilesPrivateAccess;
-global using static SuperMetroid.AssetExtraction.Samus.SamusDeathSheetComposerPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.SamusDeathTileAtlasFormatPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.SamusDeathTileAtlasPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.SamusEquipmentWordCodecPrivateAccess;

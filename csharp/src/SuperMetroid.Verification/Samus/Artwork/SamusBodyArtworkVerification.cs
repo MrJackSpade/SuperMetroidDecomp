@@ -391,7 +391,7 @@ internal static class SamusBodyArtworkVerification
         }
         int drawingWindowEnd = SamusSourceDefinitions.MovementBank.Value |
             (SamusSourceDefinitions.ArmCannonDrawingData + SamusArmCannonArtworkFormat.DrawingDataByteCount);
-        for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
+        for (int pose = 0; pose < SamusBodyTableDecoding.PoseCount; pose++)
         {
             // The typed placement gameplay reads holds what the pose's native descriptor does (#1463): its drawing mode,
             // its direction at frame zero and, when the direction byte's top bit is set, after it, then one signed X/Y

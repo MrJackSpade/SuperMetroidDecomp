@@ -96,13 +96,17 @@ public sealed class SamusSpritemapSources
     {
         foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
         {
-            foreach ((SamusBodyHalfFrame frame, SamusSpritemapId? composition) in halves.Where(pair => pair.Key.Pose == pose)
-                .OrderBy(pair => pair.Key.AnimationFrame).ThenBy(pair => pair.Key.Half))
+            foreach (int frame in halves.Keys.Where(half => half.Pose == pose).Select(half => half.AnimationFrame).Distinct().Order())
             {
-                content.AppendName("pose", SamusPoseIdKeys.Installed.Of(pose));
-                content.Append("half", frame.Half == SamusBodyHalf.Top ? 0 : 1);
-                content.Append("frame", frame.AnimationFrame);
-                content.AppendName("composition", composition?.Name ?? "");
+                foreach (SamusBodyHalf half in new[] { SamusBodyHalf.Top, SamusBodyHalf.Bottom })
+                {
+                    if (!halves.TryGetValue(new SamusBodyHalfFrame(pose, half, frame), out SamusSpritemapId? composition))
+                        continue;
+                    content.AppendName("pose", SamusPoseIdKeys.Installed.Of(pose));
+                    content.AppendName("half", half == SamusBodyHalf.Top ? "top" : "bottom");
+                    content.Append("frame", frame);
+                    content.AppendName("composition", composition?.Name ?? "");
+                }
             }
         }
         foreach ((string frame, SamusSpritemapId? composition) in explosion.OrderBy(pair => pair.Key, StringComparer.Ordinal)

@@ -46,7 +46,7 @@ internal sealed class PhantoonCombat
         // damage; a lethal hit begins his death.
         AfterCommon = c =>
         {
-            int appliedDamage = c.HealthBeforeHit - c.Enemy.Health;
+            int appliedDamage = c.HealthBefore - c.Enemy.Health;
             ResolvePhantoonShotReaction(c.Enemy, PhantoonEntity.EncounterOf(c.Enemy), c.Bomb.Type, appliedDamage);
         },
     };

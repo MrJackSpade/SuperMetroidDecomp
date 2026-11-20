@@ -574,12 +574,12 @@ internal static class SamusPoseMetadata
     /// <returns>True when the pending request was rejected and dropped.</returns>
     public static bool RejectUnsupportedPublishedBombJump(SamusState samus, bool timeIsFrozen)
     {
-        if (!samus.BombJumpRequest.AwaitsPoseHandling)
+        if (samus.BombJumpRequest is not { AwaitsPoseHandling: true })
             return false;
         SamusBombJumpSetup setup = BombJumpSetupOf(samus);
         bool reject = setup == SamusBombJumpSetup.TurnedDown ||
             timeIsFrozen && setup == SamusBombJumpSetup.ForwardJumpUnlessTimeFrozen;
-        if (reject) samus.BombJumpRequest = SamusBombJumpRequest.None;
+        if (reject) samus.BombJumpRequest = null;
         return reject;
     }
 
@@ -594,7 +594,7 @@ internal static class SamusPoseMetadata
         ISamusRoomObjects roomObjects)
     {
         Ensure.NotNull(level);
-        if (RejectUnsupportedPublishedBombJump(samus, timeIsFrozen) || !samus.BombJumpRequest.AwaitsPoseHandling)
+        if (RejectUnsupportedPublishedBombJump(samus, timeIsFrozen) || samus.BombJumpRequest is not { AwaitsPoseHandling: true })
             return false;
 
         // The rejection above has dropped every turned-down request, and a frozen-time one where frozen time turns it down.
@@ -685,7 +685,7 @@ internal static class SamusPoseMetadata
         SamusMovementHandOver.To(samus, SamusMovementOwner.BombJump);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
-        samus.BombJumpRequest = samus.BombJumpRequest.Accept();
+        samus.BombJumpRequest = (samus.BombJumpRequest ?? throw new InvalidOperationException("Only a published bomb jump can be armed.")).Accept();
         samus.BombJumpStarting = true;
         samus.BombJumpActive = false;
         samus.BombJumpPoseInputLocked = true;

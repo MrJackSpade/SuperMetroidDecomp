@@ -793,7 +793,7 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
             $"morphed pose ${(int)SamusPoseNumbers.Number(pose):X2} retains rolling animation frame");
         AssertEqual(preservedTimer, ball.AnimationFrameTimer.RawValue,
             $"morphed pose ${(int)SamusPoseNumbers.Number(pose):X2} retains rolling animation timer");
-        AssertEqual(SamusBombJumpRequest.None, ball.BombJumpRequest,
+        AssertEqual(null, ball.BombJumpRequest,
             $"morphed pose ${(int)SamusPoseNumbers.Number(pose):X2} start clears pending bomb jump");
         AssertEqual(SamusBodyAttack.None, ball.HorizontalSpeed.BodyAttack,
             $"morphed pose ${(int)SamusPoseNumbers.Number(pose):X2} start clears contact damage");

@@ -12,14 +12,14 @@ internal static class SamusBombJumpRequestCodec
     /// <summary>The bit native pose handling sets when it accepts the request.</summary>
     internal const int AcceptedBit = 1 << 11;
 
-    /// <summary>The native word a request is stored as.</summary>
-    internal static int ToNative(SamusBombJumpRequest request) =>
-        DirectionByte(request.Direction) | (request.Accepted ? AcceptedBit : 0);
+    /// <summary>The native word a request is stored as; no request is the zero word.</summary>
+    internal static int ToNative(SamusBombJumpRequest? request) => request is { } held
+        ? DirectionByte(held.Direction) | (held.Accepted ? AcceptedBit : 0)
+        : 0;
 
     /// <summary>The direction's native low byte.</summary>
-    private static int DirectionByte(SamusBombJumpDirection? direction) => direction switch
+    private static int DirectionByte(SamusBombJumpDirection direction) => direction switch
     {
-        null => 0,
         SamusBombJumpDirection.Left => 1,
         SamusBombJumpDirection.Straight => 2,
         SamusBombJumpDirection.Right => 3,

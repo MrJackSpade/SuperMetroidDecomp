@@ -34,9 +34,9 @@ internal static class SporeSpawnCameraFloorVerification
         // His body's own stages around common bomb damage, for the bomb that selects his shot reaction.
         EnemyBombReaction reaction = (body.Entity as IEnemyBombReaction)?.CommonBombDamageReaction(killingBomb)
             ?? throw new InvalidOperationException("Spore Spawn's body runs no stages of its own around common bomb damage.");
-        Action<EnemyBombContext> afterCommon = reaction.AfterCommon
+        Action<EnemyBombHitContext> afterCommon = reaction.AfterCommon
             ?? throw new InvalidOperationException("Spore Spawn's bomb reaction resolves nothing after the common damage.");
-        afterCommon(killingBomb);
+        afterCommon(new EnemyBombHitContext(killingBomb, body.Health));
         AssertTrue(defeated, "the killing bomb defeats Spore Spawn");
         AssertEqual<int?>(null, live.CameraFloor.LowestY, "Spore Spawn's death frees the camera");
 

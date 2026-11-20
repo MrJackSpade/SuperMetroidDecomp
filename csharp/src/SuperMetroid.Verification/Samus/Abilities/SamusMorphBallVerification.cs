@@ -328,7 +328,7 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
             timeIsFrozen: true,
             frameCounter: 0, controllerNewInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
         "frozen standing/crouching setup rejects bomb jump");
-    AssertEqual(SamusBombJumpRequest.None, frozenCrouchBombJump.BombJumpRequest,
+    AssertEqual(null, frozenCrouchBombJump.BombJumpRequest,
         "frozen setup clears complete published direction word");
     AssertEqual(SamusPoseId.CrouchingRightPose, frozenCrouchBombJump.Pose,
         "frozen setup retains crouching pose");
@@ -370,7 +370,7 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
             timeIsFrozen: false,
             frameCounter: 0, controllerNewInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
         "normal-jump movement type uses native carry-clear setup entry");
-    AssertEqual(SamusBombJumpRequest.None, airborneBombRejection.BombJumpRequest,
+    AssertEqual(null, airborneBombRejection.BombJumpRequest,
         "carry-clear bomb-jump family consumes and clears published direction");
     AssertTrue(!airborneBombRejection.BombJumpStarting,
         "carry-clear bomb-jump family does not install special movement");
@@ -1573,7 +1573,7 @@ empty, bombJump, frameCounter: 0, RoomObjectFixtures.Unbound());
     SamusBombJumpMovement.Step(
 empty, bombJump, frameCounter: 1, RoomObjectFixtures.Unbound());
     AssertTrue(!bombJump.BombJumpActive, "signed bomb-jump apex ends special handler");
-    AssertEqual(SamusBombJumpRequest.None, bombJump.BombJumpRequest, "bomb-jump apex drops the request");
+    AssertEqual(null, bombJump.BombJumpRequest, "bomb-jump apex drops the request");
     AssertEqual(SamusVerticalDirection.Down, bombJump.Kinematics.VerticalVelocity.Direction, "bomb-jump apex hands off downward direction");
     AssertEqual(SamusAccelerationMode.Decelerating, bombJump.HorizontalSpeed.AccelerationMode, "diagonal apex selects mode two");
 

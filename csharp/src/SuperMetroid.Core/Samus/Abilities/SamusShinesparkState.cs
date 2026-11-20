@@ -242,7 +242,7 @@ public sealed class SamusShinesparkState
         samus.HorizontalSpeed.SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage;
         samus.HorizontalSpeed.ExtraRunSpeed = ShinesparkDefinitions.WindupRunSpeed;
         samus.HorizontalSpeed.BaseSpeed = default;
-        samus.BombJumpRequest = SamusBombJumpRequest.None;
+        samus.BombJumpRequest = null;
 
         _acceleration.StartSpark(ShinesparkDefinitions.WindupInitialVerticalAcceleration);
         WindupCountdown = UpdateCountdown.For(ShinesparkDefinitions.WindupFrames);

@@ -333,7 +333,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The bomb selects the fake Kraid's own shot reaction, which its definition leaves to it, rather than the
             // empty frame's ordinary one.
-            if (c.SelectedShot is null && c.HealthBeforeHit != 0 && c.Enemy.Health == 0)
+            if (c.SelectedShot is null && c.HealthBefore != 0 && c.Enemy.Health == 0)
                 KillFakeKraid(c.Enemy, c.Samus);
         },
     };
@@ -411,7 +411,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         },
         AfterCommon = c =>
         {
-            if (!c.Froze && !c.Enemy.IsFree && c.HealthBeforeHit != 0 && c.Enemy.Health == 0)
+            if (!c.Froze && !c.Enemy.IsFree && c.HealthBefore != 0 && c.Enemy.Health == 0)
                 SpawnFakeKraidDeathDrops(c.Enemy.Position.Whole, c.Samus);
         },
     };

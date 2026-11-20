@@ -12,22 +12,17 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="SelectedShot">The named reaction of the selected hitbox (the definition's on the radius path), if named.</param>
 /// <param name="UsesFrameHitboxes">Whether the overlap came from the enemy's authored extended hitboxes.</param>
 /// <param name="Camera">The camera's position as the bomb pass runs.</param>
-/// <param name="HealthBefore">Enemy health before common bomb damage, set for the common stages; none before them.</param>
+/// <remarks>The stages around common damage receive it as an <see cref="EnemyBombHitContext"/>, which adds the sampled health.</remarks>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal readonly record struct EnemyBombContext(
+internal record EnemyBombContext(
     RoomEnemyPlace Enemy,
     SamusBomb Bomb,
     SamusProjectileSystem OrdinaryProjectiles,
     SamusState Samus,
     EnemyReaction? SelectedShot,
     bool UsesFrameHitboxes,
-    Position16<RoomPixels> Camera,
-    int? HealthBefore = null)
+    Position16<RoomPixels> Camera)
 {
-    /// <summary>Enemy health before common bomb damage, which the common stages read.</summary>
-    /// <exception cref="InvalidOperationException">A stage before the common stages reads it.</exception>
-    internal int HealthBeforeHit => HealthBefore ?? throw new InvalidOperationException("A bomb's health before the hit is set for the common stages.");
-
     /// <summary>
     /// The species states of the occupant the bomb struck, taken as the pass finds the overlap (#1543). A killing hit
     /// removes the occupant from its place before <see cref="EnemyBombReaction.AfterCommon"/> runs; a reaction that still

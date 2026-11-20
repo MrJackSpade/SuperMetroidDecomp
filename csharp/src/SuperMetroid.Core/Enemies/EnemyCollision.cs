@@ -322,8 +322,8 @@ internal sealed class EnemyCollision
 
             reaction.AfterImpact?.Invoke(shot);
 
-            shot = shot with { HealthBefore = enemy.Health };
-            if (RunShotStage(reaction.BeforeVulnerability, shot))
+            var hitShot = new EnemyShotHitContext(shot, enemy.Health);
+            if (RunShotStage(reaction.BeforeVulnerability, hitShot))
             {
                 return true;
             }
@@ -331,18 +331,18 @@ internal sealed class EnemyCollision
             NormalShotHit hit = ApplyNormalShotDamage(enemy, projectile, projectileType, projectileDamage, roomArea);
             if (hit == NormalShotHit.Froze)
             {
-                reaction.AfterCommon?.Invoke(shot with { Froze = true });
+                reaction.AfterCommon?.Invoke(hitShot with { Froze = true });
                 return true;
             }
 
             if (hit is NormalShotHit.HurtFrozen or NormalShotHit.HurtUnfrozen)
             {
-                if (hit == NormalShotHit.HurtUnfrozen && reaction.ShowsHitBurst(shot))
+                if (hit == NormalShotHit.HurtUnfrozen && reaction.ShowsHitBurst(hitShot))
                     ShowHitBurst(enemy);
                 if (enemy.Health == 0 && !reaction.ExemptFromGenericDeath)
                 {
-                    reaction.BeforeGenericDeath?.Invoke(shot);
-                    if (reaction.ReplacesGenericDeath?.Invoke(shot) != true)
+                    reaction.BeforeGenericDeath?.Invoke(hitShot);
+                    if (reaction.ReplacesGenericDeath?.Invoke(hitShot) != true)
                     {
                         _deathsAndDrops.StartGenericEnemyDeath(
                             enemy,
@@ -352,7 +352,7 @@ internal sealed class EnemyCollision
                 }
             }
 
-            reaction.AfterCommon?.Invoke(shot);
+            reaction.AfterCommon?.Invoke(hitShot);
             return true;
         }
         return false;
@@ -558,17 +558,17 @@ internal sealed class EnemyCollision
                 EnemyBombReaction? reaction = bombReactions?.CommonBombDamageReaction(bombContext);
                 if (reaction?.Rejects?.Invoke(bombContext) != true)
                 {
-                    bombContext = bombContext with { HealthBefore = enemy.Health };
-                    reaction?.BeforeCommon?.Invoke(bombContext);
+                    var hitBomb = new EnemyBombHitContext(bombContext, enemy.Health);
+                    reaction?.BeforeCommon?.Invoke(hitBomb);
                     NormalBombHit hit = HurtByNormalBomb(enemy, bomb);
                     if (hit == NormalBombHit.HurtUnfrozen &&
-                        (reaction?.ShowsHitBurst ?? EnemyBombReaction.AlwaysShowsHitBurst)(bombContext))
+                        (reaction?.ShowsHitBurst ?? EnemyBombReaction.AlwaysShowsHitBurst)(hitBomb))
                     {
                         ShowHitBurst(enemy);
                     }
                     if (hit != NormalBombHit.Dud && (reaction?.RunsGenericDeath ?? true))
                         StartNormalBombDeathIfKilled(enemy, samus);
-                    reaction?.AfterCommon?.Invoke(bombContext);
+                    reaction?.AfterCommon?.Invoke(hitBomb);
                 }
             }
 

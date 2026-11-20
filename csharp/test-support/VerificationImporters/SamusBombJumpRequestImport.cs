@@ -7,11 +7,11 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 /// <summary>Imports Samus's bomb-jump request from the native <c>$0A56</c> word of a recorded snapshot.</summary>
 internal static class SamusBombJumpRequestImport
 {
-    /// <summary>Decodes a native word; a word no native writer stores is rejected.</summary>
-    internal static SamusBombJumpRequest FromNative(int word)
+    /// <summary>Decodes a native word, the zero word to no request; a word no native writer stores is rejected.</summary>
+    internal static SamusBombJumpRequest? FromNative(int word)
     {
         if (word == 0)
-            return SamusBombJumpRequest.None;
+            return null;
         SamusBombJumpDirection direction = (word & ~SamusBombJumpRequestCodec.AcceptedBit) switch
         {
             1 => SamusBombJumpDirection.Left,

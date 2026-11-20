@@ -48,11 +48,12 @@ internal static class BullBehaviorVerification
         enemies.BullBehavior.InitializeBull(bombed);
         var bomb = new SamusBomb(0) { Type = SamusProjectileType.Of(SamusProjectileFamily.Bomb) };
         var context = new EnemyBombContext(bombed, bomb, InstalledFixtures.CreateProjectileSystem(), RoomEnemyFrameFixtures.StandaloneSamus(),
-            SelectedShot: null, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0), HealthBefore: bombed.Health)
+            SelectedShot: null, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0))
         {
             StruckOccupant = bombed.OccupantStates,
         };
-        (enemies.BullBehavior.BombReaction.AfterCommon ?? throw new InvalidOperationException("The Bull has no bomb recoil."))(context);
+        (enemies.BullBehavior.BombReaction.AfterCommon ?? throw new InvalidOperationException("The Bull has no bomb recoil."))(
+            new EnemyBombHitContext(context, bombed.Health));
         AssertEqual(BullMotion.ShotAngle(SamusProjectileDirection.UpFacingRight), bombed.RequireSpeciesState<BullEnemyState>().Angle,
             "an unhurting bomb kicks the Bull straight up");
         Console.WriteLine("  Bull behavior: the normal loop, the five-repeat immune-shot reaction and the bomb's upward kick run as the cartridge does.");

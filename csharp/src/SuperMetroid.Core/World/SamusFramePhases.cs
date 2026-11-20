@@ -935,7 +935,7 @@ internal sealed class SamusFramePhases
         // movement.
         if (_player.ProspectiveSamusPose is { } matchedBombCancel &&
             matchedBombCancel.ProspectivePose != samus.Pose)
-            samus.BombJumpRequest = SamusBombJumpRequest.None;
+            samus.BombJumpRequest = null;
         frame.SamplePoseLookup(poseLookup, samus);
         _player.ProspectiveSamusFallbackPose = null;
         _player.ProspectiveSamusWallCollisionPose = null;

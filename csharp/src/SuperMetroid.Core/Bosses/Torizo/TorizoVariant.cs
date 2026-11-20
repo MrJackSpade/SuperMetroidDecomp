@@ -18,9 +18,11 @@ internal abstract class TorizoVariant
     /// <param name="artwork">The encounter whose artwork it shows.</param>
     /// <param name="statueColouring">The colours its statue starts in.</param>
     /// <param name="secretCode">The loadout its appearance grants while the player holds its chord, or null for none.</param>
+    /// <param name="firstAttackMissiles">Samus's missiles below which it takes the first of its two attacks.</param>
     private protected TorizoVariant(TorizoInitializationDefinition start, TorizoWalker walker, TorizoDropArena dropArena, EncounterArtwork artwork,
-        TorizoLookKind statueColouring, TorizoSecretCode? secretCode)
+        TorizoLookKind statueColouring, TorizoSecretCode? secretCode, int firstAttackMissiles)
     {
+        FirstAttackMissiles = firstAttackMissiles;
         Start = start;
         Walker = walker;
         DropArena = dropArena;
@@ -40,6 +42,9 @@ internal abstract class TorizoVariant
 
     /// <summary>How it walks with its face: the turns its walk and its wait behind Samus end in (#2472).</summary>
     internal TorizoWalker Walker { get; }
+
+    /// <summary>It takes the first of its two attacks while Samus carries fewer missiles than this.</summary>
+    internal int FirstAttackMissiles { get; }
 
     /// <summary>The stretch of its room its death's drops scatter over (#2032).</summary>
     internal TorizoDropArena DropArena { get; }

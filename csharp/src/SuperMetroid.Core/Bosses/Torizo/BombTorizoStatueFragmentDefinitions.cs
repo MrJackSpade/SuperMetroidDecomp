@@ -23,13 +23,13 @@ internal static class BombTorizoStatueFragmentDefinitions
     internal static IReadOnlyDictionary<BombTorizoStatueFragment, BombTorizoStatueFragmentDefinition> Fragments { get; } =
         new Dictionary<BombTorizoStatueFragment, BombTorizoStatueFragmentDefinition>
         {
-            [F.TopMiddle] = new(P.StatueFragmentTopMiddle, new(8, -8), InitialFallSpeed, Acceleration),
-            [F.TopRight] = new(P.StatueFragmentTopRight, new(24, -8), InitialFallSpeed, Acceleration),
-            [F.MiddleLeft] = new(P.StatueFragmentMiddleLeft, new(-8, 8), InitialFallSpeed, Acceleration),
-            [F.Centre] = new(P.StatueFragmentCentre, new(8, 8), InitialFallSpeed, Acceleration),
-            [F.MiddleRight] = new(P.StatueFragmentMiddleRight, new(24, 8), InitialFallSpeed, Acceleration),
-            [F.BottomLeft] = new(P.StatueFragmentBottomLeft, new(-8, 24), InitialFallSpeed, Acceleration),
-            [F.BottomMiddle] = new(P.StatueFragmentBottomMiddle, new(8, 24), InitialFallSpeed, Acceleration),
-            [F.BottomRight] = new(P.StatueFragmentBottomRight, new(24, 24), InitialFallSpeed, Acceleration),
+            [F.TopMiddle] = new(P.StatueFragmentTopMiddle, new(8, -8)),
+            [F.TopRight] = new(P.StatueFragmentTopRight, new(24, -8)),
+            [F.MiddleLeft] = new(P.StatueFragmentMiddleLeft, new(-8, 8)),
+            [F.Centre] = new(P.StatueFragmentCentre, new(8, 8)),
+            [F.MiddleRight] = new(P.StatueFragmentMiddleRight, new(24, 8)),
+            [F.BottomLeft] = new(P.StatueFragmentBottomLeft, new(-8, 24)),
+            [F.BottomMiddle] = new(P.StatueFragmentBottomMiddle, new(8, 24)),
+            [F.BottomRight] = new(P.StatueFragmentBottomRight, new(24, 24)),
         }.ToFrozenDictionary();
 }

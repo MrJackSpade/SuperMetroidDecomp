@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal sealed class BombTorizoVariant()
     : TorizoVariant(TorizoInitializationDefinitions.Bomb, TorizoWalkerDefinitions.BombTorizo, TorizoDeathDefinitions.BombTorizoArena,
         EncounterArtwork.BombTorizo, TorizoLookKind.BombStatue,
-        secretCode: null)
+        secretCode: null, TorizoDecisionDefinitions.BombFirstAttackMissiles)
 {
     /// <summary>Bomb Torizo plays on past both of the choice's targets.</summary>
     /// <param name="alternate">The choice's walk, which Bomb Torizo does not take.</param>

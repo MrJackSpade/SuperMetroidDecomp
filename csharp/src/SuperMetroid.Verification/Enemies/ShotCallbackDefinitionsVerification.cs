@@ -131,6 +131,7 @@ internal static class ShotCallbackDefinitionsVerification
             {
                 Touch = EnemyInteractionCallbacks.DecodeTouch(touchBank, touchWord, EnemyDefinitionFixtures.Blank.Touch),
             });
+            ((List<RoomEnemyOccupant>)enemies.ProcessingWindow.InteractiveEnemies).Add(enemy.HeldOccupant());
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
@@ -156,6 +157,7 @@ internal static class ShotCallbackDefinitionsVerification
             {
                 Shot = EnemyInteractionCallbacks.DecodeShot(shotBank, shotWord, EnemyDefinitionFixtures.Blank.Shot),
             });
+            ((List<RoomEnemyOccupant>)enemies.ProcessingWindow.InteractiveEnemies).Add(enemy.HeldOccupant());
             var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             SamusProjectile projectile = projectiles.Shots[0];
             projectile.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), 20);
@@ -175,9 +177,7 @@ internal static class ShotCallbackDefinitionsVerification
         static CreateLiteralNoOpCombatSystemResult CreateLiteralNoOpCombatSystem()
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var interactive = (List<RoomEnemyPlace>)enemies.ProcessingWindow.InteractiveEnemies;
             RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[0];
-            interactive.Add(enemy);
             enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
             enemy.Frame = EnemyFrameId.SkulteraSwimmingLeftTailStraight;
             enemy.Position = enemy.Position.WithWhole(new(0x0100, 0x0100));

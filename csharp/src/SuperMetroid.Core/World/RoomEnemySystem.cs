@@ -531,8 +531,9 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         // collision reads their live position and size, so publish bodies after AI has
         // had its chance to move multi-part enemies.
         _interactiveCollisionBodies.Clear();
-        foreach (RoomEnemyPlace place in ProcessingWindow.InteractiveEnemies)
+        foreach (RoomEnemyOccupant occupant in ProcessingWindow.InteractiveEnemies)
         {
+            RoomEnemyPlace place = occupant.Place;
             _interactiveCollisionBodies.Add(new SolidEnemyCollisionBody(
                 place,
                 place.Position.Whole,

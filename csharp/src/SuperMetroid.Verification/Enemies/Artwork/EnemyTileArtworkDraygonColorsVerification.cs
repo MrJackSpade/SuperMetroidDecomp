@@ -74,7 +74,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.KeptDefinition);
-        enemies.DraygonBehavior.Parts.InitializeDraygonBody(body);
+        enemies.DraygonBehavior.Parts.InitializeDraygonBody(body.HeldOccupant());
         // His hurt update shades every part he draws (#1512), so his eye, tail and arms attach after the body as in his room.
         (EnemyDefinitionId Definition, Action<RoomEnemyPlace> Initialize)[] parts =
         [

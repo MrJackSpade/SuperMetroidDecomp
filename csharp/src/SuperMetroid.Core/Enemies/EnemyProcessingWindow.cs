@@ -25,13 +25,13 @@ internal sealed class EnemyProcessingWindow
     /// <summary>The enemies scheduled for AI this frame, including forced off-screen actors, in place order.</summary>
     private readonly List<RoomEnemyOccupant> _activeEnemies = new();
     /// <summary>The active enemies still eligible for Samus interaction and grapple endpoint scans, in place order.</summary>
-    private readonly List<RoomEnemyPlace> _interactiveEnemies = new();
+    private readonly List<RoomEnemyOccupant> _interactiveEnemies = new();
 
     /// <summary>The enemies scheduled for AI this frame, in place order.</summary>
     internal IReadOnlyList<RoomEnemyOccupant> ActiveEnemies => _activeEnemies;
 
     /// <summary>The active enemies still eligible for Samus interaction, in place order.</summary>
-    internal IReadOnlyList<RoomEnemyPlace> InteractiveEnemies => _interactiveEnemies;
+    internal IReadOnlyList<RoomEnemyOccupant> InteractiveEnemies => _interactiveEnemies;
 
     /// <summary>Rebuilds active and interactive lists after clearing deleted places and applying off-screen policy.</summary>
     internal void DetermineWhichEnemiesToProcess(Position16<RoomPixels> camera)
@@ -58,7 +58,7 @@ internal sealed class EnemyProcessingWindow
 
             _activeEnemies.Add(occupant);
             if (!place.Contact.HasAny(EnemyContact.IgnoresSamus))
-                _interactiveEnemies.Add(place);
+                _interactiveEnemies.Add(occupant);
         }
     }
 

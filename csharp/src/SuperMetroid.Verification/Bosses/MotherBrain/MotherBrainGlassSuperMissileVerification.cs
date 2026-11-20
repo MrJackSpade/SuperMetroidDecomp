@@ -32,9 +32,9 @@ internal static class MotherBrainGlassSuperMissileVerification
         head.Radius = new(16, 16);
         head.Frame = EnemyFrameId.MotherBrainBrainHitArea;
         head.Health = 3000;
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], head, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { Form = MotherBrainForm.Glass };
+        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), head, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { Form = MotherBrainForm.Glass };
         enemies.MotherBrainEncounter.BeginAsSetUp(state, head);
-        ((List<RoomEnemyPlace>)enemies.ProcessingWindow.InteractiveEnemies).Add(head);
+        ((List<RoomEnemyOccupant>)enemies.ProcessingWindow.InteractiveEnemies).Add(head.HeldOccupant());
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var shots = InstalledFixtures.CreateProjectileSystem();
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());

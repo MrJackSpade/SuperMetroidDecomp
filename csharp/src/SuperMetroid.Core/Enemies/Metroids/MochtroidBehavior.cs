@@ -177,7 +177,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus.HorizontalSpeed.BodyAttack == SamusBodyAttack.None)
         {
             // The Mochtroid's touch hurts Samus without knocking her back: only the suit-divided damage applies.
-            SamusSuitDamage.Hurt(samus, place.RequireOccupant().Definition.Damage);
+            SamusSuitDamage.Hurt(samus, mochtroid.Definition.Damage);
         }
         else
         {

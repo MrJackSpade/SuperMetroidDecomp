@@ -50,7 +50,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         switch (cue)
         {
             case WalkingSpacePirateCue.FireLaser fireLaser:
-                _ = SpawnSpacePirateLaser(place, fireLaser.Direction, fireLaser.LaserHeight,
+                _ = SpawnSpacePirateLaser(occupant, fireLaser.Direction, fireLaser.LaserHeight,
                     occupant.SpawnSettings<WalkingSpacePirateSpawnSettings>().LaserSpeed);
                 return null;
             case WalkingSpacePirateCue.Signal { Kind: WalkingSpacePirateCueKind.ChooseMovement }:
@@ -294,17 +294,18 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// placement names for its lasers (#2453).
     /// </summary>
     internal bool SpawnSpacePirateLaser(
-        RoomEnemyPlace source,
+        RoomEnemyOccupant source,
         HorizontalDirection direction,
         int laserHeight,
         PirateLaserSpeed speed)
     {
+        RoomEnemyPlace place = Ensure.NotNull(source).Place;
         EnemyProjectile? projectile = SpawnPirateMotherBrainLaser(
             source,
             new(
-                source.Position.X.Whole +
+                place.Position.X.Whole +
                     (SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead.Toward(direction)),
-                source.Position.Y.Whole - laserHeight),
+                place.Position.Y.Whole - laserHeight),
             direction,
             speed);
         if (projectile is null)
@@ -325,7 +326,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <param name="direction">The way the laser travels.</param>
     /// <param name="speed">The laser's speed, which the firing enemy's placement names.</param>
     internal EnemyProjectile? SpawnPirateMotherBrainLaser(
-        RoomEnemyPlace source,
+        RoomEnemyOccupant source,
         Position16<RoomPixels> muzzle,
         HorizontalDirection direction,
         PirateLaserSpeed speed)
@@ -347,7 +348,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // The setup replaces the projectile definition's properties with the enemy's damage and the
         // laser's own property. The laser does not take the Pirate's pictures or colours: it draws from the room's
         // shared sheet in its standard colours.
-        projectile.Damage = source.RequireOccupant().Definition.Damage;
+        projectile.Damage = Ensure.NotNull(source).Definition.Damage;
         projectile.CanDamageSamus = true;
         projectile.PersistsOnSamusContact = false;
         projectile.BlocksSamusProjectiles = false;
@@ -530,7 +531,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     internal EnemyShotReaction GoldNinjaShotReaction => field ??= new()
     {
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
-            c.UsesFrameHitboxes && ResolveSpacePirateHitboxShot(c, PirateHitboxShotActions.SelectGoldNinjaHitboxShotAction(c.Enemy, c.Shot, c.HitboxShot)),
+            c.UsesFrameHitboxes && ResolveSpacePirateHitboxShot(c, PirateHitboxShotActions.SelectGoldNinjaHitboxShotAction(c.Occupant, c.Shot, c.HitboxShot)),
         ShowsHitBurst = c => PirateHitboxShotActions.GoldNinjaShowsHitBurst(c.HitboxShot),
         ReplacesGenericDeath = c =>
         {

@@ -51,7 +51,7 @@ internal static class MotherBrainTurretDefinitionsVerification
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 0;
-            enemies.MotherBrainBehavior.Body.SpawnMotherBrainTurret(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), definition);
+            enemies.MotherBrainBehavior.Body.SpawnMotherBrainTurret(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), definition);
 
             EnemyProjectile turret =
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
@@ -81,7 +81,7 @@ internal static class MotherBrainTurretDefinitionsVerification
                 current <= MotherBrainTurretDefinitions.Ring.PositionOf(definition.LastAllowedDirection); current++)
             {
                 var rotation = new EnemyProjectile(0, default, RoomEnemyProjectileKind.MotherBrainRoomTurret);
-                enemies.MotherBrainBehavior.Projectiles.Projectile.Turrets.Start(rotation, new MotherBrainTurretState(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), definition)
+                enemies.MotherBrainBehavior.Projectiles.Projectile.Turrets.Start(rotation, new MotherBrainTurretState(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), definition)
                 {
                     Direction = MotherBrainTurretDefinitions.Ring.At(current),
                     // The cartridge's forward step of one is a counterclockwise turn round the ring.
@@ -136,7 +136,7 @@ internal static class MotherBrainTurretDefinitionsVerification
                 Position = new(new(0x0400, 0), new(0x0200, 0)),
             };
             enemies.MotherBrainBehavior.Projectiles.Projectile.Turrets.Start(turret,
-                new MotherBrainTurretState(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), MotherBrainTurretDefinitions.Turrets[0]) { Direction = typedDirection });
+                new MotherBrainTurretState(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), MotherBrainTurretDefinitions.Turrets[0]) { Direction = typedDirection });
             enemies.MotherBrainBehavior.Projectiles.Projectile.SpawnMotherBrainTurretBullet(turret);
 
             EnemyProjectile bullet =

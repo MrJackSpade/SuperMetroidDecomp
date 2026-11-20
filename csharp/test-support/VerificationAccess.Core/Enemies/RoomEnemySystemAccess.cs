@@ -98,7 +98,7 @@ internal static class RoomEnemySystemAccess
                 body.Presence.HasAny(EnemyPresence.Deleted))
                 return;
             IReadOnlyList<KraidBehavior.KraidPassProjectile> tested = KraidBehavior.TestedByShotPasses(projectiles, samusBombs);
-            self.KraidBehavior.Combat.ResolveKraidMouthProjectileHits(body, kraid, tested);
+            self.KraidBehavior.Combat.ResolveKraidMouthProjectileHits(body.HeldOccupant(), kraid, tested);
             self.KraidBehavior.Combat.ResolveKraidBodyProjectileHits(body, kraid, tested);
         }
 
@@ -290,7 +290,7 @@ internal static class RoomEnemySystemAccess
             [.. self.Places.InUpdateOrder.Select(place => place.EntityState<EtecoonEntity, EtecoonEnemyState>())];
 
         /// <summary>Native slot offsets admitted to solid-enemy interaction.</summary>
-        internal IReadOnlyList<RoomEnemyPlace> InteractiveEnemies => self.ProcessingWindow.InteractiveEnemies;
+        internal IReadOnlyList<RoomEnemyOccupant> InteractiveEnemies => self.ProcessingWindow.InteractiveEnemies;
 
         /// <summary>Typed Alcoon state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<AlcoonEnemyState?> AlcoonStates =>

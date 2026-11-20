@@ -102,7 +102,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         AssertEqual(MotherBrainLegLoadListConstants.RecordCount, MotherBrainWaitDefinitions.BeforePauseUpdates,
             "the wait before her pause lasts one update a leg-loading record");
         SnesVram ObjVram(int copied) => ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(standing.Take(copied)), resolver);
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
+        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
 
         // The rise starts the floor's clip and the wait before her pause once its preparation runs out.
         state.AscentPhase = MotherBrainAscentPhase.PrepareForRising;

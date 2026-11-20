@@ -321,7 +321,7 @@ internal static class EnemyHitBurstVerification
         place.Freeze.Restart(frozenTimer);
         // Shots reach only an enemy showing a frame.
         place.Frame = EnemyFrameId.EffectActorDudShotDot;
-        ((List<RoomEnemyPlace>)enemies.ProcessingWindow.InteractiveEnemies).Add(place);
+        ((List<RoomEnemyOccupant>)enemies.ProcessingWindow.InteractiveEnemies).Add(place.HeldOccupant());
         return (enemies, place);
     }
 

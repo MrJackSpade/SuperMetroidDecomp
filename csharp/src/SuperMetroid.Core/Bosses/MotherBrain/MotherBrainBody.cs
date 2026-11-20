@@ -71,8 +71,9 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>Sets Mother Brain's body up when the room spawns it.</summary>
-    internal void InitializeMotherBrainBody(RoomEnemyPlace body)
+    internal void InitializeMotherBrainBody(RoomEnemyOccupant occupant)
     {
+        RoomEnemyPlace body = occupant.Place;
         body.AnimationClock.StepOnNextUpdate();
         body.Contact = body.Contact.With(EnemyContact.BlocksPlasmaBeam | EnemyContact.IgnoresSamus);
         body.Presence = body.Presence.With(EnemyPresence.Hidden);
@@ -81,7 +82,7 @@ internal sealed class MotherBrainBody
         // The encounter's setup creates the walk credit, the burst cycle and the brain animation the encounter and its later
         // sequence share.
         // The body begins the encounter, which it holds from here and her head joins (#2218).
-        MotherBrainEnemyState state = _motherBrainEncounter.Begin(new MotherBrainEnemyState(body, _places.ListedRunAfter(body, MotherBrainFightDefinitions.PartsAfterBody)[0],
+        MotherBrainEnemyState state = _motherBrainEncounter.Begin(new MotherBrainEnemyState(occupant, _places.ListedRunAfter(body, MotherBrainFightDefinitions.PartsAfterBody)[0],
             new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation())
         {
             Form = MotherBrainForm.Glass,
@@ -286,7 +287,7 @@ internal sealed class MotherBrainBody
             {
                 // The hurting touch is an ordinary enemy touch: suit-divided damage, the hit's invincibility, and
                 // knockback away from her body.
-                EnemyCollision.ApplyOrdinaryTouchDamage(samus, state.Body.RequireOccupant().Definition.Damage, state.Body.Position.X.Whole);
+                EnemyCollision.ApplyOrdinaryTouchDamage(samus, state.BodyOccupant.Definition.Damage, state.Body.Position.X.Whole);
             }
             return true;
         }

@@ -120,7 +120,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         RunMainAi(place, frame);
 
     /// <summary>Exposes the enemies selected for Samus collision checks this frame.</summary>
-    IReadOnlyList<RoomEnemyPlace> IEnemyLifecycle.InteractiveEnemies => _processingWindow.InteractiveEnemies;
+    IReadOnlyList<RoomEnemyOccupant> IEnemyLifecycle.InteractiveEnemies => _processingWindow.InteractiveEnemies;
 
     /// <summary>
     /// Runs the main AI the entity bound in a loaded place carries, and nothing for one that has none, as a place awaiting

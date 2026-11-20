@@ -83,7 +83,7 @@ internal sealed class EnemyCollision
         SamusBodyAttack bodyAttack = samus.HorizontalSpeed.BodyAttack;
         if (bodyAttack == SamusBodyAttack.None && !samus.InvincibilityTimer.IsZero)
             return;
-        if (!_lifecycle.InteractiveEnemies.Contains(place))
+        if (!_lifecycle.InteractiveEnemies.Contains(occupant))
             return;
         // Collision entry rejects an enemy showing no frame before resetting Samus's invulnerability: an actor not yet
         // showing a frame must not erase the timer. The reset still precedes overlap testing, so a distant actor with a
@@ -173,7 +173,7 @@ internal sealed class EnemyCollision
         Ensure.NotNull(projectiles);
         Ensure.NotNull(samusBombs);
         RoomEnemyPlace enemy = Ensure.NotNull(occupant).Place;
-        if (!_lifecycle.InteractiveEnemies.Contains(enemy))
+        if (!_lifecycle.InteractiveEnemies.Contains(occupant))
             return;
 
         // Shots likewise strike hidden enemies, but pass an enemy that shows no frame or shows the empty frame
@@ -323,7 +323,7 @@ internal sealed class EnemyCollision
                 return;
             }
 
-            NormalShotHit hit = ApplyNormalShotDamage(enemy, projectile, projectileType, projectileDamage, roomArea).Hit;
+            NormalShotHit hit = ApplyNormalShotDamage(occupant, projectile, projectileType, projectileDamage, roomArea).Hit;
             if (hit == NormalShotHit.Froze)
             {
                 reaction.AfterCommon?.Invoke(hitShot with { Froze = true });
@@ -359,23 +359,23 @@ internal sealed class EnemyCollision
     /// frozen, takes Plasma's invincibility, and loses the damage, a lethal Ice-bearing beam freezing it instead where its
     /// vulnerability allows. The death and the hit burst that follow are the reaction's.
     /// </summary>
-    /// <param name="enemy">The enemy the shot reached.</param>
+    /// <param name="occupant">The enemy the shot reached.</param>
     /// <param name="projectile">The shot, which a dud spends.</param>
     /// <param name="projectileType">The shot's type as it reached the enemy, before any impact rewrote it.</param>
     /// <param name="projectileDamage">The shot's damage, zero or more.</param>
     /// <param name="roomArea">The area of the room the enemy is in, which decides how long a freeze lasts.</param>
     /// <returns>Whether the shot froze the enemy outright, was a dud, or hurt it while it was frozen or not, and the health it lost.</returns>
     internal NormalShotOutcome ApplyNormalShotDamage(
-        RoomEnemyPlace enemy,
+        RoomEnemyOccupant occupant,
         SamusProjectile projectile,
         SamusProjectileType projectileType,
         int projectileDamage,
         AreaId roomArea)
     {
-        Ensure.NotNull(enemy);
+        RoomEnemyPlace enemy = Ensure.NotNull(occupant).Place;
         Ensure.NotNull(projectile);
         int healthBefore = enemy.Health;
-        NormalShotVulnerability shotVulnerability = ReadNormalShotVulnerability(enemy, projectileType);
+        NormalShotVulnerability shotVulnerability = ReadNormalShotVulnerability(occupant, projectileType);
         if (shotVulnerability.FreezeImmediately)
         {
             FreezeEnemyFromNormalShot(enemy, roomArea);
@@ -398,7 +398,7 @@ internal sealed class EnemyCollision
         // same test, made here before a lethal Ice hit freezes the enemy, decides
         // the hit burst, which shows whether or not the enemy has a cry.
         bool hurtUnfrozen = enemy.Freeze.IsOver;
-        if (hurtUnfrozen && enemy.RequireOccupant().Definition.HurtSoundEffect is SoundEffectId cry)
+        if (hurtUnfrozen && occupant.Definition.HurtSoundEffect is SoundEffectId cry)
             _audio.QueueEnemySound(cry, SoundRequestPriority.Low);
         // Every plasma-family hit gives its invincibility frames (EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates).
         // Only a beam combining Plasma gives this; other projectile
@@ -559,7 +559,7 @@ internal sealed class EnemyCollision
                 {
                     var hitBomb = new EnemyBombHitContext(bombContext, enemy.Health);
                     reaction.BeforeCommon?.Invoke(hitBomb);
-                    NormalBombHit hit = HurtByNormalBomb(enemy, placed);
+                    NormalBombHit hit = HurtByNormalBomb(occupant, placed);
                     if (hit == NormalBombHit.HurtUnfrozen && reaction.ShowsHitBurst(hitBomb))
                     {
                         ShowHitBurst(enemy);
@@ -588,7 +588,7 @@ internal sealed class EnemyCollision
     /// Runs the common damage a normal bomb does through the shot reaction, without the hit burst or the death that
     /// follows: the part of the reaction a species' own bomb handling runs before deciding the enemy's death itself.
     /// </summary>
-    internal void ApplyNormalBombDamage(RoomEnemyPlace enemy, SamusBombOccupant placed) => _ = HurtByNormalBomb(enemy, placed);
+    internal void ApplyNormalBombDamage(RoomEnemyOccupant enemy, SamusBombOccupant placed) => _ = HurtByNormalBomb(enemy, placed);
 
     /// <summary>
     /// Damages <paramref name="enemy"/> by the bomb <paramref name="placed"/> through its bomb vulnerability: a zero
@@ -596,10 +596,11 @@ internal sealed class EnemyCollision
     /// loses the damage.
     /// </summary>
     /// <returns>Whether the bomb was a dud, hurt the enemy while it was frozen, or hurt it while it was not.</returns>
-    private NormalBombHit HurtByNormalBomb(RoomEnemyPlace enemy, SamusBombOccupant placed)
+    private NormalBombHit HurtByNormalBomb(RoomEnemyOccupant occupant, SamusBombOccupant placed)
     {
+        RoomEnemyPlace enemy = occupant.Place;
         SamusBomb bomb = placed.Bomb;
-        EnemyWeaponVulnerability vulnerability = EnemyVulnerabilities.Of(enemy.RequireOccupant().Definition).Ordnance.Bomb;
+        EnemyWeaponVulnerability vulnerability = EnemyVulnerabilities.Of(occupant.Definition).Ordnance.Bomb;
         int damage = vulnerability.DamageFrom(placed.Damage);
 
         // A zero multiplier still consumes the collision and leaves the hit direction on the bomb: the bomb shows the
@@ -615,7 +616,7 @@ internal sealed class EnemyCollision
         // The common shot reaction a bomb runs queues the definition's cry before subtracting health, lethal hits
         // included, as it does for a beam or a missile; a frozen enemy makes no cry.
         bool hurtUnfrozen = enemy.Freeze.IsOver;
-        if (hurtUnfrozen && enemy.RequireOccupant().Definition.HurtSoundEffect is SoundEffectId cry)
+        if (hurtUnfrozen && occupant.Definition.HurtSoundEffect is SoundEffectId cry)
             _audio.QueueEnemySound(cry, SoundRequestPriority.Low);
         enemy.Health = damage >= enemy.Health
             ? 0
@@ -758,10 +759,10 @@ internal sealed class EnemyCollision
     /// Bomb families take their own responses.
     /// </summary>
     private static NormalShotVulnerability ReadNormalShotVulnerability(
-        RoomEnemyPlace enemy,
+        RoomEnemyOccupant enemy,
         SamusProjectileType projectileType)
     {
-        EnemyVulnerabilities vulnerabilities = EnemyVulnerabilities.Of(enemy.RequireOccupant().Definition);
+        EnemyVulnerabilities vulnerabilities = EnemyVulnerabilities.Of(Ensure.NotNull(enemy).Definition);
         SamusProjectileFamily family = projectileType.Family;
         if (family != SamusProjectileFamily.Beam)
         {
@@ -811,10 +812,10 @@ internal sealed class EnemyCollision
 
     /// <summary>Selects the enemy's response to the projectile's beam combination or weapon family.</summary>
     internal static EnemyWeaponVulnerability ReadProjectileVulnerability(
-        RoomEnemyPlace enemy,
+        RoomEnemyOccupant enemy,
         SamusProjectileType projectileType)
     {
-        EnemyVulnerabilities vulnerabilities = EnemyVulnerabilities.Of(enemy.RequireOccupant().Definition);
+        EnemyVulnerabilities vulnerabilities = EnemyVulnerabilities.Of(Ensure.NotNull(enemy).Definition);
         SamusProjectileFamily family = projectileType.Family;
         return family == SamusProjectileFamily.Beam
             ? vulnerabilities.ForBeam(projectileType.BeamCombination)

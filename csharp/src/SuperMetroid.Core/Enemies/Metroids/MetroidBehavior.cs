@@ -472,7 +472,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             // the Metroid's shot reaction.
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
 
-            EnemyWeaponVulnerability frozenVulnerability = EnemyCollision.ReadProjectileVulnerability(enemy, c.ProjectileType);
+            EnemyWeaponVulnerability frozenVulnerability = EnemyCollision.ReadProjectileVulnerability(c.Occupant, c.ProjectileType);
             int frozenDamage = frozenVulnerability.DamageFrom(c.ProjectileDamage);
             if (!frozenVulnerability.FreezesWithoutDamage && frozenDamage != 0)
             {

@@ -50,9 +50,9 @@ internal static class GrappleHurtFeedbackVerification
         target.Position = target.Position.WithWhole(samus.Position.Whole);
         target.Radius = new(8, 8);
         target.Frame = EnemyFrameId.RipperFlyingLeftEyeLit; // Contact admits only an enemy showing a frame.
-        var interactive = (List<RoomEnemyPlace>)runtime.Enemies.ProcessingWindow.InteractiveEnemies;
+        var interactive = (List<RoomEnemyOccupant>)runtime.Enemies.ProcessingWindow.InteractiveEnemies;
         interactive.Clear();
-        interactive.Add(target);
+        interactive.Add(target.HeldOccupant());
         int health = samus.Health;
         runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), GameplayAction.Shoot, runtime.Room.LoadedLevelData, target.HeldOccupant(), Position16<RoomPixels>.Zero);
         AssertEqual((ushort)(health - target.Definition.Damage), samus.Health, "native contact reduces health");

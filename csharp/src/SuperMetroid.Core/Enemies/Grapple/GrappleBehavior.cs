@@ -26,8 +26,9 @@ internal sealed class GrappleBehavior : IGrappleTargets
     /// </summary>
     public GrappleEnemyCollision? ResolveGrappleEndpoint(Position16<RoomPixels> endpoint)
     {
-        foreach (RoomEnemyPlace enemy in _lifecycle.InteractiveEnemies)
+        foreach (RoomEnemyOccupant grappled in _lifecycle.InteractiveEnemies)
         {
+            RoomEnemyPlace enemy = grappled.Place;
             if (enemy.Invincibility.IsRunning)
                 continue;
 
@@ -42,7 +43,6 @@ internal sealed class GrappleBehavior : IGrappleTargets
             // Grappling replaces any hurt or frozen state the enemy had, so its next update runs its grappled
             // reaction.
             enemy.AiStates = EnemyAiStates.Grappled;
-            RoomEnemyOccupant grappled = enemy.RequireOccupant();
             GrappleEnemyReaction reaction = grappled.Definition.GrappleResponse;
             if (reaction == GrappleEnemyReaction.Unreactive)
                 throw new InvalidDataException($"Enemy {grappled.DefinitionId} has no reaction to the grapple beam.");

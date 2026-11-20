@@ -119,8 +119,9 @@ internal sealed class KraidCombat
     /// Resolves projectile hits on Kraid's mouth. Projectile
     /// removal is deferred to the projectile's own update.
     /// </summary>
-    internal void ResolveKraidMouthProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
+    internal void ResolveKraidMouthProjectileHits(RoomEnemyOccupant kraid, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
+        RoomEnemyPlace body = Ensure.NotNull(kraid).Place;
         if (!state.BodyState.ShotsCollide)
             return;
 
@@ -144,10 +145,10 @@ internal sealed class KraidCombat
                 // Every beam takes Kraid's charged-beam response; the other families take their own.
                 EnemyWeaponVulnerability vulnerability = type.Family switch
                 {
-                    SamusProjectileFamily.Beam => EnemyVulnerabilities.Of(body.RequireOccupant().Definition).ChargedBeam,
+                    SamusProjectileFamily.Beam => EnemyVulnerabilities.Of(kraid.Definition).ChargedBeam,
                     SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile or
                     SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb =>
-                        EnemyCollision.ReadProjectileVulnerability(body, type),
+                        EnemyCollision.ReadProjectileVulnerability(kraid, type),
                     SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion => EnemyWeaponVulnerability.NoDamage,
                     _ => throw new InvalidOperationException($"Undefined SamusProjectileFamily {type.Family}."),
                 };

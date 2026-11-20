@@ -35,7 +35,7 @@ internal sealed class MotherBrainCombat
 
     /// <summary>Runs the head's reaction to a bomb that selects its shot reaction.</summary>
     internal void ReactToMotherBrainHeadBomb(EnemyBombContext c) =>
-        ResolveMotherBrainHeadNormalBomb(c.Enemy, c.PlacedBomb);
+        ResolveMotherBrainHeadNormalBomb(c.Occupant, c.PlacedBomb);
 
     /// <summary>The body's shot response for each combat phase.</summary>
     internal EnemyShotReaction BodyShotReaction => field ??= new()
@@ -62,7 +62,7 @@ internal sealed class MotherBrainCombat
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            ResolveMotherBrainHeadShot(c.Enemy, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
+            ResolveMotherBrainHeadShot(c.Occupant, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
             return true;
         },
     };
@@ -74,12 +74,13 @@ internal sealed class MotherBrainCombat
     /// vulnerability damage is applied, which never deletes the head.
     /// </summary>
     private void ResolveMotherBrainHeadShot(
-        RoomEnemyPlace head,
+        RoomEnemyOccupant brain,
         SamusProjectileOccupant held,
         SamusProjectileSystem projectiles,
         SamusProjectileType projectileType,
         int projectileDamage)
     {
+        RoomEnemyPlace head = brain.Place;
         SamusProjectile projectile = held.Projectile;
         MotherBrainEnemyState state = MotherBrainEntity.EncounterOf(head);
         SamusProjectileFamily family = projectileType.Family;
@@ -87,7 +88,7 @@ internal sealed class MotherBrainCombat
         {
             ResolveMotherBrainLaterFormHeadShot(
                 state,
-                head,
+                brain,
                 held,
                 projectiles,
                 projectileType,
@@ -114,7 +115,7 @@ internal sealed class MotherBrainCombat
             ? MotherBrainFightDefinitions.HurtFlashKeepingPhase
             : MotherBrainFightDefinitions.HurtFlash);
 
-        _ = _collision.ApplyNormalShotDamage(head, projectile, projectileType, projectileDamage, _room.Area);
+        _ = _collision.ApplyNormalShotDamage(brain, projectile, projectileType, projectileDamage, _room.Area);
     }
 
     /// <summary>
@@ -124,12 +125,13 @@ internal sealed class MotherBrainCombat
     /// </summary>
     private void ResolveMotherBrainLaterFormHeadShot(
         MotherBrainEnemyState state,
-        RoomEnemyPlace head,
+        RoomEnemyOccupant brain,
         SamusProjectileOccupant held,
         SamusProjectileSystem projectiles,
         SamusProjectileType projectileType,
         int projectileDamage)
     {
+        RoomEnemyPlace head = brain.Place;
         SamusProjectile projectile = held.Projectile;
         // The shot collision marked the projectile before running this reaction.
         projectiles.EnemyImpacts.TouchEnemyWithoutImpact(
@@ -176,7 +178,7 @@ internal sealed class MotherBrainCombat
         // charged beams use the separate charged vulnerability after the ordinary
         // beam freeze check; Hyper would otherwise inherit Plasma's immunity; and Plasma's
         // hit immunity keeps a surviving penetrating beam from damaging the head every frame.
-        _ = _collision.ApplyNormalShotDamage(head, projectile, projectileType, projectileDamage, _room.Area);
+        _ = _collision.ApplyNormalShotDamage(brain, projectile, projectileType, projectileDamage, _room.Area);
     }
 
     /// <summary>
@@ -185,10 +187,10 @@ internal sealed class MotherBrainCombat
     /// her later forms take the common no-death bomb damage. The frame-hitbox collision has already marked the bomb.
     /// </summary>
     private void ResolveMotherBrainHeadNormalBomb(
-        RoomEnemyPlace head,
+        RoomEnemyOccupant head,
         SamusBombOccupant bomb)
     {
-        MotherBrainEnemyState state = MotherBrainEntity.EncounterOf(head);
+        MotherBrainEnemyState state = MotherBrainEntity.EncounterOf(head.Place);
 
         if (state.Form == MotherBrainForm.Glass)
             return;

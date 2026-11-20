@@ -364,10 +364,10 @@ internal sealed class MotherBrainHead
         RoomEnemyPlace head = state.Head;
         state.NeckMovementEnabled = false;
 
-        // The laser leaves her mouth, right of and below her head, travelling right. It is the head's
-        // shot, so it deals Mother Brain's contact damage at her laser's speed.
+        // The laser leaves her mouth, right of and below her head, travelling right. It deals Mother Brain's contact
+        // damage, her body's definition's, as her brain's and neck's touches do, at her laser's speed.
         EnemyProjectile? laser = _roomActors.SpawnPirateLaser(
-            head,
+            state.BodyOccupant,
             head.Position.Whole + MotherBrainFightDefinitions.BeamOffset,
             direction: HorizontalDirection.Right);
         if (laser is not null)

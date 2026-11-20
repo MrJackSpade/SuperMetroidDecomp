@@ -110,7 +110,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemyPlace body = kraid.Place;
         IReadOnlyList<KraidPassProjectile> tested = TestedByShotPasses(samusProjectiles, samusBombs);
-        Combat.ResolveKraidMouthProjectileHits(body, state, tested);
+        Combat.ResolveKraidMouthProjectileHits(kraid, state, tested);
         Head.RunKraidHurtColours(body, state);
         Combat.ResolveKraidBodyProjectileHits(body, state, tested);
         Combat.ResolveKraidBodyContact(kraid, state, samus, pseudoScrew);

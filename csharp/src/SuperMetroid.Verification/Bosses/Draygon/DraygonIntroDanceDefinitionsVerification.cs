@@ -106,7 +106,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         Action<DraygonEnemyState, SamusState, byte> run = (danceState, danceSamus, frameCounter) =>
             enemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounter);
         // The dance starts its own stage, as the intro's handoff does.
-        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3])
+        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.DraygonBody), enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3])
         {
             IntroStage = UpdateCountdown.Lasting(DraygonIntroDanceDefinitions.DurationFrames),
         };
@@ -183,7 +183,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         var malformedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<DraygonEnemyState, SamusState, byte> malformedRun = (danceState, danceSamus, frameCounter) =>
             malformedEnemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounter);
-        var malformedState = new DraygonEnemyState(malformedEnemies.Places.InUpdateOrder[0], malformedEnemies.Places.InUpdateOrder[1], malformedEnemies.Places.InUpdateOrder[2], malformedEnemies.Places.InUpdateOrder[3])
+        var malformedState = new DraygonEnemyState(malformedEnemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.DraygonBody), malformedEnemies.Places.InUpdateOrder[1], malformedEnemies.Places.InUpdateOrder[2], malformedEnemies.Places.InUpdateOrder[3])
         {
             // The first Evir waits the shortest, so it reaches one step past the path's end first.
             IntroStage = UpdateCountdownAccess.AtAge(DraygonIntroDanceDefinitions.DurationFrames,

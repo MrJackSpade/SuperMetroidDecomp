@@ -52,14 +52,15 @@ internal sealed class DraygonParts
     /// Sets Draygon's body up when the room spawns it: it begins the encounter with his eye, tail and arms, which his room
     /// lists right after his body (#2298), each playing the animation its setup starts.
     /// </summary>
-    internal void InitializeDraygonBody(RoomEnemyPlace body)
+    internal void InitializeDraygonBody(RoomEnemyOccupant occupant)
     {
+        RoomEnemyPlace body = occupant.Place;
 
         body.AnimationClock.StepOnNextUpdate();
 
         _frameContext.RequestFullSweep();
         RoomEnemyPlace[] parts = _places.ListedRunAfter(body, DraygonPartListingDefinitions.PartsAfterBody);
-        var draygon = new DraygonEnemyState(body, eye: parts[0], tail: parts[1], arms: parts[2])
+        var draygon = new DraygonEnemyState(occupant, eye: parts[0], tail: parts[1], arms: parts[2])
         {
             Phase = DraygonPhase.IntroInitialDelay,
         };
@@ -289,7 +290,7 @@ internal sealed class DraygonParts
     private void ApplyDraygonTailWhipHit(DraygonEnemyState state, SamusState samus)
     {
         state.SwoopAcceleration = DraygonSwoopDefinitions.InitialAcceleration;
-        SamusSuitDamage.Hurt(samus, state.Body.RequireOccupant().Definition.Damage);
+        SamusSuitDamage.Hurt(samus, state.BodyOccupant.Definition.Damage);
 
         // The tail hit also shakes the foreground strongly for its shake's updates, so the camera shows the hit as well as the
         // energy it costs.

@@ -203,7 +203,7 @@ internal static class DraygonStateQuantitiesVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.KeptDefinition);
         body.Position = body.Position.WithWhole(new(256, 384));
-        var state = new DraygonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+        var state = new DraygonEnemyState(body.HeldOccupant(), enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
         body.SetSpeciesState(state);
         state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.KeptDefinition);
         state.Eye.SetSpeciesState(state.EyePart);

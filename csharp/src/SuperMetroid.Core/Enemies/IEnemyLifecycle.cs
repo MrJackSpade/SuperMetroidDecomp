@@ -31,5 +31,5 @@ internal interface IEnemyLifecycle
     void RunMainAi(RoomEnemyPlace place, IEnemyAiFrame frame);
 
     /// <summary>The enemies admitted to interaction this frame, in place order.</summary>
-    IReadOnlyList<RoomEnemyPlace> InteractiveEnemies { get; }
+    IReadOnlyList<RoomEnemyOccupant> InteractiveEnemies { get; }
 }

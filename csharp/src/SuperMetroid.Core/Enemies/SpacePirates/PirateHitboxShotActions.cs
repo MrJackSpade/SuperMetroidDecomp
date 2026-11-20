@@ -27,7 +27,7 @@ internal static class PirateHitboxShotActions
     /// the common and Pirate reactions run the ordinary shot reaction.
     /// </summary>
     internal static PirateHitboxShotAction SelectGoldNinjaHitboxShotAction(
-        RoomEnemyPlace enemy,
+        RoomEnemyOccupant enemy,
         SamusProjectileOccupant held,
         EnemyReaction hitboxShot)
     {
@@ -50,7 +50,7 @@ internal static class PirateHitboxShotActions
         if (!IsBeamOrMissile(family))
             return PirateHitboxShotAction.Ignore;
 
-        EnemyVulnerabilities vulnerabilities = EnemyVulnerabilities.Of(enemy.RequireOccupant().Definition);
+        EnemyVulnerabilities vulnerabilities = EnemyVulnerabilities.Of(Ensure.NotNull(enemy).Definition);
         EnemyWeaponVulnerability vulnerability = family switch
         {
             SamusProjectileFamily.Beam => vulnerabilities.ForBeam(held.Type.BeamCombination),

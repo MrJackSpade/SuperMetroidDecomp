@@ -64,7 +64,7 @@ internal static class EndingSpriteSheetComposer
                 string name = EndingShootingStarFrames.SheetFrameName(frame);
                 return new ColouredFrame<EndingSpriteColouring>(new SheetFrameSource(name,
                     new SpriteFrame(name, [EndingShootingStarParts.Appearance(frame).ToFramePart(0, sizes)]), characters, stars),
-                    [EndingShootingStarDefinitions.Colouring]);
+                    EndingShootingStarDefinitions.Colouring, [EndingShootingStarDefinitions.Colouring]);
             }));
         }
         ColouringPictures<EndingSpriteColouring> pictures = ColouringPictures<EndingSpriteColouring>.Of(frames, EndingScreenInks.SpriteSet);
@@ -130,7 +130,7 @@ internal static class EndingSpriteSheetComposer
             string name = CinematicSpriteSheet.FrameName(family.Family, pose);
             EndingSpriteColouring[] colourings = [.. poses[pose]];
             frames.Add(new ColouredFrame<EndingSpriteColouring>(
-                new SheetFrameSource(name, composition.ToFrame(name, 0, sizes), characters, EndingScreenInks.SpriteSet(colourings[0])), colourings));
+                new SheetFrameSource(name, composition.ToFrame(name, 0, sizes), characters, EndingScreenInks.SpriteSet(colourings[0])), colourings[0], colourings));
         }
         if (family.Family != EndingTextAnimations.Family)
             return;
@@ -149,7 +149,7 @@ internal static class EndingSpriteSheetComposer
                     continue;
                 }
                 frames.Add(new ColouredFrame<EndingSpriteColouring>(new SheetFrameSource(name, new SpriteFrame(name, [.. letters[letter]]), characters,
-                    EndingScreenInks.SpriteSet(colourings[0])), [.. colourings]));
+                    EndingScreenInks.SpriteSet(colourings[0])), colourings[0], [.. colourings]));
             }
         }
     }

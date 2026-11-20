@@ -11,13 +11,22 @@ public sealed class TitleGradientPresentation
     /// <summary>The independently authored gradients in order of their zoom ranges, from no zoom up.</summary>
     private readonly ScreenGradient[] variants;
 
+    /// <summary>The gradient the floor shows at its own size, where the final zoom ends and the idle title screen stays.</summary>
+    private readonly ScreenGradient ownSize;
+
     /// <summary>Retains the gradients the import validated.</summary>
-    internal TitleGradientPresentation(ScreenGradient[] variants) => this.variants = variants;
+    /// <param name="variants">The gradients in order of their zoom ranges, from no zoom up.</param>
+    /// <param name="ownSize">The gradient the floor shows at its own size.</param>
+    internal TitleGradientPresentation(ScreenGradient[] variants, ScreenGradient ownSize)
+    {
+        this.variants = variants;
+        this.ownSize = ownSize;
+    }
 
     /// <summary>
     /// Returns the gradient the title shows at <paramref name="zoom"/> (#1781): the gradient whose zoom range, each
     /// <see cref="TitleGradientFormat.ZoomRangeWidth"/> wide from no zoom up, holds the zoom, and at the floor's own size
-    /// <see cref="TitleGradientFormat.OwnSizeVariant"/>.
+    /// its own-size gradient.
     /// </summary>
     /// <param name="zoom">The title floor's zoom, no larger than the floor's own size.</param>
     /// <returns>The selected gradient, covering the whole screen.</returns>
@@ -28,7 +37,7 @@ public sealed class TitleGradientPresentation
     public ScreenGradient Resolve(FloorZoom zoom)
     {
         if (zoom == FloorZoom.OwnSize)
-            return variants[TitleGradientFormat.OwnSizeVariant];
+            return ownSize;
         if (zoom > FloorZoom.OwnSize)
         {
             throw new ArgumentOutOfRangeException(nameof(zoom), zoom,

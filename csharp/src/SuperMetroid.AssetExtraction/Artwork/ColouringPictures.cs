@@ -36,9 +36,9 @@ internal sealed class ColouringPictures<TColouring>
         var pictured = new Dictionary<TColouring, SortedSet<int>>();
         foreach (ColouredFrame<TColouring> frame in frames)
         {
-            int set = setOf(frame.Colourings[0]);
+            int set = setOf(frame.Standard);
             if (frame.Frame.Palette != set)
-                throw new InvalidDataException($"Sheet frame {frame.Frame.Name} is not pictured in its standard colouring {frame.Colourings[0]}'s set {set}.");
+                throw new InvalidDataException($"Sheet frame {frame.Frame.Name} is not pictured in its standard colouring {frame.Standard}'s set {set}.");
             foreach (TColouring colouring in frame.Colourings)
             {
                 if (!pictured.TryGetValue(colouring, out SortedSet<int>? sets))

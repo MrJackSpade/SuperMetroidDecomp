@@ -14,8 +14,8 @@ public sealed record DemoRecording
             if (inputs[index].Duration < 1)
                 throw new ArgumentException($"Input {index} of a recording lasts {inputs[index].Duration} updates; every input lasts at least one.", nameof(inputs));
         }
-        if (end is DemoRecordingEnd.Loop loop && loop.Input >= inputs.Count)
-            throw new ArgumentException($"A recording of {inputs.Count} inputs cannot loop from input {loop.Input}.", nameof(end));
+        if (end is DemoRecordingEnd.HoldLastInput && inputs.Count == 0)
+            throw new ArgumentException("A recording without inputs has no last input to hold.", nameof(end));
     }
 
     /// <summary>The inputs, in the order they play.</summary>

@@ -22,7 +22,7 @@ internal static class MapSpriteSheet
     internal static void Draw(SpriteSheet sheet, MapSpriteId id, ScreenSprites sprites, Offset16<ScreenPixels> origin,
         MapSpriteScreen screen, MapSpriteColouring colouring)
     {
-        if (!Ensure.Listed(MapSpriteColourings.Drawn, id).Contains(colouring))
+        if (!Ensure.Listed(MapSpriteColourings.Drawn, id).All.Contains(colouring))
             throw new InvalidOperationException($"Map sprite {id} is not drawn in {colouring}.");
         Draw(sheet, id, sprites, origin, PictureShading.Shaded(MapSpriteShades.Drawn(screen, colouring)));
     }

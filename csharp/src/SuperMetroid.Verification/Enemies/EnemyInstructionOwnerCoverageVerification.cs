@@ -159,7 +159,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 // The registry refuses a definition no species owns; the audit records it and the caller asserts which.
                 return new DefinitionOutcome(false, false, [], WithoutSpecies: true);
             }
-            place.Bind(place.DefinitionId, definition);
+            place.Bind(place.HeldOccupant().DefinitionId, definition);
             place.Radius = new(definition.Radius.X, definition.Radius.Y);
             place.Health = definition.Health;
             place.Position = place.Position.WithWhole(new(population.Position.X, population.Position.Y));

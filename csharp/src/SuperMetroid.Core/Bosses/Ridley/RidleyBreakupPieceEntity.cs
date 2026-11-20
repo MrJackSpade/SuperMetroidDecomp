@@ -14,7 +14,7 @@ internal sealed class RidleyBreakupPieceEntity(NorfairRidleyBehavior ridley, Roo
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
     /// <inheritdoc/>
-    public void Initialize() => ridley.Death.InitializeNorfairRidleyExplosion(Place);
+    public void Initialize() => ridley.Death.InitializeNorfairRidleyExplosion(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => ridley.Death.RunNorfairRidleyExplosionMain(Place, frame.Samus);

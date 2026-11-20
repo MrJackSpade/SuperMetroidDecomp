@@ -103,7 +103,7 @@ internal static class ZebetiteDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.Zebetite, linkedHalf ? (ushort)2 : (ushort)0);
             place.Bind(EnemyDefinitionId.Zebetite, place.Definition);
-            enemies.ZebetiteBehavior.InitializeZebetite(place);
+            enemies.ZebetiteBehavior.InitializeZebetite(place.HeldOccupant(), place);
             ZebetiteEnemyState state = enemies.ZebetiteStates[0] ??
                 throw new InvalidDataException("Zebetite initializer omitted typed state.");
             ZebetiteGenerationDefinition expected = Zebetites.Generation(generation);
@@ -135,9 +135,9 @@ internal static class ZebetiteDefinitionsVerification
         {
             var enemies = NewZebetiteDefinitionSystem(0);
             RoomEnemyPlace place = enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
-            AssertEqual(Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, destroyed: 0), place.Spawn.Population,
+            AssertEqual(Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, destroyed: 0), place.HeldOccupant().Spawn,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} population");
-            AssertEqual(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, place.SpawnSettings<ZebetiteSpawnSettings>().Half,
+            AssertEqual(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, place.HeldOccupant().SpawnSettings<ZebetiteSpawnSettings>().Half,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} role");
         }
 

@@ -70,7 +70,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
 
     /// <summary>Runs the Blue Brinstar face block's main AI.</summary>
     internal void RunBlueBrinstarFaceBlockMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         BlueBrinstarFaceBlockEnemyState state,
         SamusState samus)
     {
@@ -83,17 +83,17 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             return;
 
         if (Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) >=
-            place.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
+            occupant.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 
         // How far Samus lies to the block's left or right.
         int horizontalDelta = samus.Position.X.Whole - place.Position.X.Whole;
-        if (Math.Abs(horizontalDelta) >= place.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
+        if (Math.Abs(horizontalDelta) >= occupant.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 
         // The block wakes only for Samus on the side its spawn settings face it toward (#2277).
         HorizontalDirection samusSide = horizontalDelta < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
-        if (samusSide != place.SpawnSettings<FaceBlockSpawnSettings>().Facing)
+        if (samusSide != occupant.SpawnSettings<FaceBlockSpawnSettings>().Facing)
             return;
 
         state.Playback = EnemyAnimationPlayback.Start(place, BlueBrinstarFaceBlockAnimations.StartingWith(Wake(samusSide)));
@@ -156,10 +156,10 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>Runs the blue Brinstar face block's main AI.</summary>
-    internal void RunBlueBrinstarFaceBlockMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunBlueBrinstarFaceBlockMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         RunBlueBrinstarFaceBlockMain(
-            place,
+            occupant, place,
             place.RequireSpeciesState<BlueBrinstarFaceBlockEnemyState>(),
             frame.Samus);
     }

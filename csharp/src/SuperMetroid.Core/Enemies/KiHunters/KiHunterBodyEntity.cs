@@ -12,7 +12,7 @@ internal sealed class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccu
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeKiHunter(Place);
+    public void Initialize() => species.InitializeKiHunter(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterBodyMainAi(Place, frame);

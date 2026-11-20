@@ -183,7 +183,7 @@ internal static class CrocomireBodyVisualsVerification
             enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.Crocomire, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
             // He draws as his room draws him: at his tile base and in his palette there.
             enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire));
             place.Shading = PictureShading.Standard;

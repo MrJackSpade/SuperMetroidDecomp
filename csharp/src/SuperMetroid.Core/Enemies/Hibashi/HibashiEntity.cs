@@ -12,7 +12,7 @@ internal sealed class HibashiEntity(HibashiBehavior species, RoomEnemyOccupant o
     public void Initialize() => species.InitializeHibashi(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunHibashiMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunHibashiMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceHibashiTypedAnimation(Place, context);

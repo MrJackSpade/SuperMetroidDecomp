@@ -192,7 +192,7 @@ internal static class SporeSpawnAnimationsVerification
         enemies.BossArtwork = bound.Bosses;
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
-        body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
+        body.Bind(body.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         body.AnimationClock.StepOnNextUpdate();

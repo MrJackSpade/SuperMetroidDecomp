@@ -50,7 +50,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeDeadTourianCorpse(RoomEnemyPlace place, RoomEnemyOccupant occupant)
     {
         DeadTourianCorpseSpecies species = SpeciesOf(Ensure.NotNull(occupant).DefinitionId);
-        DeadTourianCorpseDefinition definition = place.SpawnSettings<CorpseSpawnSettings>().Corpse;
+        DeadTourianCorpseDefinition definition = occupant.SpawnSettings<CorpseSpawnSettings>().Corpse;
         if (definition.Species != species)
         {
             throw new InvalidDataException(

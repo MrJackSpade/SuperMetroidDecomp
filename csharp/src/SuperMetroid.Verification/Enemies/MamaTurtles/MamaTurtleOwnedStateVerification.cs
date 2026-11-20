@@ -45,7 +45,7 @@ internal static class MamaTurtleOwnedStateVerification
             RoomEnemyPlace baby = enemies.Places.InUpdateOrder[place];
             baby.Bind(EnemyDefinitionId.BabyTurtle, baby.Definition);
             baby.SetSpawnSettings(new BabyTurtleSpawnSettings(Heading: HorizontalDirection.Right));
-            enemies.MamaTurtleBehavior.InitializeBabyTurtle(baby);
+            enemies.MamaTurtleBehavior.InitializeBabyTurtle(baby.HeldOccupant(), baby);
         }
         var samus = new SuperMetroid.Core.Samus.SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         enemies.MamaTurtleBehavior.RunMamaTurtleMainAi(mama, new ClockedEnemyAiFrame(

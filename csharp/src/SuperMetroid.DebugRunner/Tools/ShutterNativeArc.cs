@@ -52,7 +52,7 @@ internal static class ShutterNativeArc
     {
         var scenario = ShutterBombArcScenario.Reproduced(RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true));
         var shutter = scenario.Runtime.Room.LoadedScope.Enemies.VerticalShutterStates[0];
-        ShutterSpawnSettings settings = scenario.Runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[0].SpawnSettings<ShutterSpawnSettings>();
+        ShutterSpawnSettings settings = scenario.Runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[0].HeldOccupant().SpawnSettings<ShutterSpawnSettings>();
         for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
         {
             scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
@@ -147,8 +147,8 @@ internal static class ShutterNativeArc
         }
         var shutter = runtime.Room.LoadedScope.Enemies.VerticalShutterStates[0];
         RoomEnemyPlace shutterPlace = runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[0];
-        ShutterSpawnSettings settings = shutterPlace.SpawnSettings<ShutterSpawnSettings>();
-        SignedSixteenSixteen upward = ShuttersBehavior.VerticalShutterVelocity(shutterPlace, VerticalDirection.Up);
+        ShutterSpawnSettings settings = shutterPlace.HeldOccupant().SpawnSettings<ShutterSpawnSettings>();
+        SignedSixteenSixteen upward = ShuttersBehavior.VerticalShutterVelocity(shutterPlace.HeldOccupant(), shutterPlace, VerticalDirection.Up);
         Word(0xFA8, ShutterArcNativeWords.Action((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Action));
         Word(0xFB0, upward.Fraction); Word(0xFB2, upward.UnsignedWholePixels);
         Word(0xFAC, settings.Speed.Fraction); Word(0xFAE, settings.Speed.UnsignedWholePixels);

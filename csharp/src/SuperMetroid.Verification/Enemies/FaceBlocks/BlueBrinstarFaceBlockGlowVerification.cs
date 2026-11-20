@@ -47,7 +47,7 @@ internal static class BlueBrinstarFaceBlockGlowVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.FaceBlock, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         place.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
         place.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, 0);
         place.Position = place.Position.WithWhole(new(256, 256));
@@ -60,7 +60,7 @@ internal static class BlueBrinstarFaceBlockGlowVerification
             CollectedItems = SamusEquipmentFlags.MorphBall,
             Position = FixedPosition<RoomPixels>.FromWhole(new(512, 256)),
         };
-        enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place, state, samus);
+        enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place.HeldOccupant(), place, state, samus);
         AssertEqual(Shaded(cycle[^1]), place.Shading, "a started glow shows its last step's level");
 
         int updates = 0;
@@ -76,7 +76,7 @@ internal static class BlueBrinstarFaceBlockGlowVerification
         enemies.BlueBrinstarFaceBlockBehavior.StepGlow();
         enemies.BlueBrinstarFaceBlockBehavior.StepGlow();
         samus.Position = FixedPosition<RoomPixels>.FromWhole(new(224, 256));
-        enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place, state, samus);
+        enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place.HeldOccupant(), place, state, samus);
         AssertTrue(state.Activated, "the face block wakes for Samus beside it");
         AssertEqual(Shaded(cycle[^1]), place.Shading, "a waking block keeps the glow's level");
         StepUntilLevelChanges(enemies, place, ref updates, FaceBlockGlowDefinitions.FrameDuration - 1);

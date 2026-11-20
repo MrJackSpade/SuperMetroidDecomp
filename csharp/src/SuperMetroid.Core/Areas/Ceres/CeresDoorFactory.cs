@@ -29,7 +29,7 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
         EnemyDefinitionId actor = Ensure.NotNull(occupant).DefinitionId;
         if (actor == EnemyDefinitionId.CeresDoor)
         {
-            return new CeresDoorEntity(_doors, occupant, place, common, place.SpawnSettings<CeresDoorSpawnSettings>().Facing switch
+            return new CeresDoorEntity(_doors, occupant, place, common, occupant.SpawnSettings<CeresDoorSpawnSettings>().Facing switch
             {
                 HorizontalDirection.Right => CeresDoorSegment.DoorFacingRight,
                 HorizontalDirection.Left => CeresDoorSegment.DoorFacingLeft,
@@ -42,7 +42,7 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
             return new CeresElevatorRoomWallEntity(_doors, occupant, place, common);
         if (actor == EnemyDefinitionId.CeresGetawayChamberWall)
         {
-            return new CeresGetawayChamberWallEntity(_doors, occupant, place, common, place.SpawnSettings<CeresGetawayChamberWallSpawnSettings>().Side switch
+            return new CeresGetawayChamberWallEntity(_doors, occupant, place, common, occupant.SpawnSettings<CeresGetawayChamberWallSpawnSettings>().Side switch
             {
                 HorizontalDirection.Left => CeresDoorSegment.GetawayChamberLeftWall,
                 HorizontalDirection.Right => CeresDoorSegment.GetawayChamberRightWall,

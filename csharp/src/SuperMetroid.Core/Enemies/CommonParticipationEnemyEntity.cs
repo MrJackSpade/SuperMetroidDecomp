@@ -14,7 +14,7 @@ internal abstract class CommonParticipationEnemyEntity(RoomEnemyOccupant occupan
     : IEnemyHurtReaction, IEnemyFrozenAi, IEnemyTouchReaction, IEnemyShotReaction, IEnemyBombReaction, IEnemyPowerBombReaction
 {
     /// <summary>The occupant the entity is created for, which carries its identity (#2558).</summary>
-    protected RoomEnemyOccupant Occupant { get; } = Ensure.NotNull(occupant);
+    internal RoomEnemyOccupant Occupant { get; } = Ensure.NotNull(occupant);
 
     /// <summary>The place the enemy occupies; its definition names the shared responses.</summary>
     protected RoomEnemyPlace Place { get; } = place;

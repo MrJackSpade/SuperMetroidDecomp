@@ -11,7 +11,7 @@ internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemyOccupant
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeZebetite(Place);
+    public void Initialize() => species.InitializeZebetite(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunZebetiteMainAi(Place, frame);

@@ -25,7 +25,7 @@ internal static class EvirDeathFrameVerification
             // The body bobs at half a pixel per update, one of the two speeds retail Evirs use.
             if (index == 6) place.SetSpawnParameter2(EnemyDefinitionId.Evir, 8);
             place.Bind(index == 8 ? EnemyDefinitionId.EvirProjectile : EnemyDefinitionId.Evir, place.Definition);
-            place.Bind(place.DefinitionId, RoomEnemyDefinitionLookup.Get(place.DefinitionId));
+            place.Bind(place.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(place.DefinitionId));
             place.Position = place.Position.WithWhole(new(128, 128));
             place.Radius = new(place.Definition.Radius.X, place.Definition.Radius.Y);
             place.Health = place.Definition.Health;
@@ -38,7 +38,7 @@ internal static class EvirDeathFrameVerification
             else if (index == 7)
                 enemies.EvirBehavior.InitializeEvirArms(place);
             else
-                enemies.EvirBehavior.InitializeEvirBody(place, samus);
+                enemies.EvirBehavior.InitializeEvirBody(place.HeldOccupant(), place, samus);
         }
         var body = enemies.Places.InUpdateOrder[6];
         var arms = enemies.Places.InUpdateOrder[7];

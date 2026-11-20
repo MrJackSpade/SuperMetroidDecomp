@@ -51,7 +51,7 @@ internal static class MagdollitePhaseDefinitionsVerification
         var bodyState = enemies.MagdolliteStates[1] as MagdolliteBodyState ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[1].");
         var overlayState = enemies.MagdolliteStates[2] as MagdolliteOverlayState ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[2].");
         // Speed record zero holds the arm where the test puts it (#2474).
-        AssertEqual(SignedSixteenSixteen.Zero, head.SpawnSettings<MagdolliteHeadSpawnSettings>().Speed, "Magdollite speed record zero stands still");
+        AssertEqual(SignedSixteenSixteen.Zero, head.HeldOccupant().SpawnSettings<MagdolliteHeadSpawnSettings>().Speed, "Magdollite speed record zero stands still");
 
         AssertEqual(MagdolliteRiseStage.Setup.Phase.BodyAnimation,
             bodyState.Playback.PlayingSegment, "Magdollite production initial body list");

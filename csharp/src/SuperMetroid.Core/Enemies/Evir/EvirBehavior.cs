@@ -21,7 +21,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Evir)
         {
-            return place.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
+            return occupant.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
                 ? new EvirArmsEntity(this, occupant, place, common)
                 : new EvirBodyEntity(this, occupant, place, common);
         }
@@ -96,7 +96,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfter(place, distance), EvirPartListingDefinitions.FollowUpReach));
 
     /// <summary>Initializes an Evir's body, facing Samus.</summary>
-    internal void InitializeEvirBody(RoomEnemyPlace place, SamusState samus)
+    internal void InitializeEvirBody(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus)
     {
         PlaceFollowUpRecipients(place);
 
@@ -106,7 +106,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         SetEvirBodyFacing(place, state, samus);
 
         // The body bobs down at its speed and up at the same speed.
-        EvirSpawnSettings settings = place.SpawnSettings<EvirSpawnSettings>();
+        EvirSpawnSettings settings = occupant.SpawnSettings<EvirSpawnSettings>();
         state.MovementTimer = UpdateCountdown.For(EvirBorrowedFirstHalfCycle.Of(settings.Speed, _places.InUpdateOrder, PlaceLender.Instance) + EnemyWaitDefinitions.RunOutUpdate);
         state.BobbingDirection = VerticalDirection.Up;
         state.ShowsSpawnAnimation = true;
@@ -122,7 +122,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         public bool IsEmpty(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).IsFree;
 
         /// <inheritdoc/>
-        public int DirectionChangePeriod(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod;
+        /// <exception cref="InvalidOperationException">No enemy has been spawned in the place.</exception>
+        public int DirectionChangePeriod(RoomEnemyPlace enemy) => (Ensure.NotNull(enemy).LastSpawn ?? throw new InvalidOperationException(
+            $"An Evir body reads the direction-change period of enemy place {enemy.Ordinal}, where no enemy has been spawned.")).SpawnSettingsOf<EvirSpawnSettings>().DirectionChangePeriod;
 
         /// <inheritdoc/>
         public bool IsEvirSpit(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).Holds(EnemyDefinitionId.EvirProjectile);
@@ -158,7 +160,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Tracks Samus while the spit is present and alternates the body's timed vertical travel.</summary>
-    private static void RunEvirMain(RoomEnemyPlace place, EvirBodyState state, SamusState samus)
+    private static void RunEvirMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, EvirBodyState state, SamusState samus)
     {
         // Direction is allowed to follow Samus only while the projectile is fully present.
         // During regeneration the mouth, arms, and projectile retain their launch facing. The body reads its spit's place
@@ -167,7 +169,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Spit.FoundState<EvirSpitState>() is not { Action: EvirSpitAction.Regenerating })
             SetEvirBodyFacing(place, state, samus);
 
-        EvirSpawnSettings settings = place.SpawnSettings<EvirSpawnSettings>();
+        EvirSpawnSettings settings = occupant.SpawnSettings<EvirSpawnSettings>();
         place.Position = place.Position.AdvanceY(state.BobbingVelocity(settings.Speed));
 
         // Every later half of the bobbing lasts the body's whole direction-change period and the update it turns on,
@@ -425,8 +427,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs an Evir body's main AI: it bobs and turns.</summary>
-    internal static void RunEvirBodyMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunEvirMain(place, place.RequireSpeciesState<EvirBodyState>(), frame.Samus);
+    internal static void RunEvirBodyMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame) =>
+        RunEvirMain(occupant, place, place.RequireSpeciesState<EvirBodyState>(), frame.Samus);
 
     /// <summary>Runs an Evir's arms' main AI: they follow the body.</summary>
     internal static void RunEvirArmsMainAi(RoomEnemyPlace place) =>

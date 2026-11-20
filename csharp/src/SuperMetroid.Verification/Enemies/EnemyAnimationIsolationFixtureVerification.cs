@@ -72,7 +72,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Enemies.VerificationServices().SetAreaTorizoDefeated = () => BossBitCalls++;
 
             Actor.Bind(EnemyDefinitionId.Boyon, Actor.Definition);
-            Actor.Bind(Actor.DefinitionId, RoomEnemyDefinitionLookup.Get(Actor.DefinitionId));
+            Actor.Bind(Actor.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(Actor.DefinitionId));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Position = Actor.Position.WithWhole(new(128, (ushort)(FloorY - Actor.Radius.Y - 12)));
@@ -89,7 +89,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             // fixture inputs, not authored animation/gameplay tuning.
             Actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, (3 << 8) | 2);
             Actor.SetSpawnParameter2(EnemyDefinitionId.Boyon, Actor.Position.Y.Whole);
-            new Action<RoomEnemyPlace>(BoyonBehavior.InitializeBoyon)(Actor);
+            new Action<RoomEnemyPlace>(fixturePlace => BoyonBehavior.InitializeBoyon(fixturePlace.HeldOccupant(), fixturePlace))(Actor);
         }
 
         /// <summary>Advances enemy projectiles before the enemy frame using the same frame counter.</summary>

@@ -11,7 +11,7 @@ internal sealed class DachoraEchoEntity(RoomEnemyOccupant occupant, RoomEnemyPla
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => DachoraBehavior.InitializeDachoraEcho(Place);
+    public void Initialize() => DachoraBehavior.InitializeDachoraEcho(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => DachoraBehavior.RunDachoraEchoMainAi(Place, frame);

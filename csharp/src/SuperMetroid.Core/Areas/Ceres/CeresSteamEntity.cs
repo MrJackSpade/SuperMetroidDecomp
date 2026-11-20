@@ -12,7 +12,7 @@ internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemyOccu
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeCeresSteam(Place, motions);
+    public void Initialize() => species.InitializeCeresSteam(Occupant, Place, motions);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => CeresSteamBehavior.RunCeresSteamMainAi(Place);

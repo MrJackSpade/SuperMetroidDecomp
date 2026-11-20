@@ -76,7 +76,7 @@ internal static class GerutaInstructionProgramDefinitionsVerification
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         parent.Bind(EnemyDefinitionId.Geruta, parent.Definition);
-        parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
+        parent.Bind(parent.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         GerutaBehavior.InitializeGeruta(parent);
         AssertEqual(new AnimationPlayback<GerutaSegment>(GerutaAnimations.StartingWith(GerutaSegment.Idle), AnimationPlace.StartOfAnimation),
             enemies.Places.InUpdateOrder[0].EntityState<GerutaEntity, GerutaEnemyState>()?.Playback,
@@ -85,7 +85,7 @@ internal static class GerutaInstructionProgramDefinitionsVerification
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, 0x8000);
         follower.Bind(EnemyDefinitionId.Geruta, follower.Definition);
-        follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
+        follower.Bind(follower.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         enemies.GerutaBehavior.InitializeGerutaFollower(follower);
         AssertEqual(new AnimationPlayback<GerutaSegment>(GerutaAnimations.StartingWith(GerutaSegment.FlamesAscending), AnimationPlace.StartOfAnimation),
             enemies.Places.InUpdateOrder[1].EntityState<GerutaFollowerEntity, GerutaFollowerState>()?.Playback,
@@ -101,7 +101,7 @@ internal static class GerutaInstructionProgramDefinitionsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         place.Bind(EnemyDefinitionId.Geruta, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         place.AnimationClock.StepOnNextUpdate();
         var state = new GerutaEnemyState(GerutaAction.WaitForAttackOpportunity) { Playback = new(GerutaAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
         place.SetSpeciesState(state);

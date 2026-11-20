@@ -50,9 +50,9 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         var enemies = EnemySystemFixtures.New((artwork is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(artwork.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork?.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Puyo, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         place.SetSpawnSettings(new PuyoSpawnSettings(HopCooldown: 0, HopDistance: 0));
-        PuyoBehavior.InitializePuyo(place);
+        PuyoBehavior.InitializePuyo(place.HeldOccupant(), place);
         return new PuyoInstructionProgramDefinitionsCreateResult(enemies, place, enemies.PuyoStates[0] ?? throw new InvalidOperationException("Puyo has no state."));
     }
 

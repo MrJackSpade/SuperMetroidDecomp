@@ -37,7 +37,7 @@ internal static class TorizoSwapArtworkVerification
         var installedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         RoomEnemyPlace installedPlace = installedEnemies.Places.InUpdateOrder[0];
         installedPlace.Bind(EnemyDefinitionId.GoldenTorizo, installedPlace.Definition);
-        installedPlace.Bind(installedPlace.DefinitionId, default(RoomEnemyDefinition));
+        installedPlace.Bind(installedPlace.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
 
         ushort previousInstruction = 0;
         var authoredOpcodes = new HashSet<ushort>();
@@ -107,7 +107,7 @@ internal static class TorizoSwapArtworkVerification
         var goldenEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         RoomEnemyPlace goldenPlace = goldenEnemies.Places.InUpdateOrder[0];
         goldenPlace.Bind(EnemyDefinitionId.GoldenTorizo, goldenPlace.Definition);
-        goldenPlace.Bind(goldenPlace.DefinitionId, installedPlace.Definition);
+        goldenPlace.Bind(goldenPlace.HeldOccupant().DefinitionId, installedPlace.Definition);
         // Golden Torizo's initial program shows its awakening sheet first.
         TorizoArtworkLook goldenAwakening = TorizoAnimations.Segments.Beats(TorizoBodySegment.GoldenTorizoDormant)
             .OfType<AnimationBeat<EnemyFrameId, TorizoCue>.Event>().Select(beat => beat.Raised).OfType<TorizoCue.ShowArtwork>().First().Look;

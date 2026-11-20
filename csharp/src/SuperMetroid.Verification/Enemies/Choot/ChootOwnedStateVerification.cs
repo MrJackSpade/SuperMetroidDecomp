@@ -19,7 +19,7 @@ internal static class ChootOwnedStateVerification
         place.Bind(EnemyDefinitionId.Choot, place.Definition);
         place.Position = place.Position.WithWhole(new(0x0100, 0x0200));
         place.SetSpawnParameter1(EnemyDefinitionId.Choot, 2);
-        ChootBehavior.InitializeChoot(place);
+        ChootBehavior.InitializeChoot(place.HeldOccupant(), place);
         ChootEnemyState state = enemies.ChootStates[0]
             ?? throw new InvalidOperationException("The initialized Choot has no state.");
 
@@ -29,7 +29,7 @@ internal static class ChootOwnedStateVerification
         int jumpingUpdates = 0;
         while (state.Action != ChootAction.Falling)
         {
-            ChootBehavior.RunChootJump(place, state);
+            ChootBehavior.RunChootJump(place.HeldOccupant(), place, state);
             jumpingUpdates++;
             AssertTrue(jumpingUpdates <= initial, "the jump reaches its apex");
         }

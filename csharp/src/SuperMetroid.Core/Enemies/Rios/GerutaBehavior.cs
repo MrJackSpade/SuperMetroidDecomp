@@ -14,7 +14,7 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
+        occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
             ? new GerutaFollowerEntity(this, occupant, place, common)
             : new GerutaEntity(this, occupant, place, common);
 

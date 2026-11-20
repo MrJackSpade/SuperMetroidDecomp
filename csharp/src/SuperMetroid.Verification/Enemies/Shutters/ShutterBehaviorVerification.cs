@@ -31,7 +31,7 @@ internal static class ShutterBehaviorVerification
                 place.SetSpawnSettings(new GrowingShutterSpawnSettings(
                     Wait: GrowingShutterWait.SamusNear, Growth: VerticalDirection.Down, ActivationDistance: 144, ActivationWait: 0,
                     GrowthSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(17)));
-                ShuttersBehavior.InitializeGrowingShutter(place);
+                ShuttersBehavior.InitializeGrowingShutter(place.HeldOccupant(), place);
             },
             enemies => enemies.Places.InUpdateOrder[0].EntityState<ShuttersEntity, GrowingShutterEnemyState>()?.Playback);
         foreach (EnemyDefinitionId definition in new[] { EnemyDefinitionId.ShutterShootable, EnemyDefinitionId.ShutterDestroyable })
@@ -42,7 +42,7 @@ internal static class ShutterBehaviorVerification
                     ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("Verification requires a bound shutter."))).Initialize();
                     VerticalShutterEnemyState state = place.SpeciesState<VerticalShutterEnemyState>()
                         ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");
-                    AssertEqual(ShuttersBehavior.InitialAction(place.SpawnSettings<ShutterSpawnSettings>().TriggerMode), state.Action,
+                    AssertEqual(ShuttersBehavior.InitialAction(place.HeldOccupant().SpawnSettings<ShutterSpawnSettings>().TriggerMode), state.Action,
                         $"shutter {definition} starts in its trigger's initial action (#2075)");
                 },
                 enemies => enemies.Places.InUpdateOrder[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback);
@@ -85,7 +85,7 @@ internal static class ShutterBehaviorVerification
     {
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(definition, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(2, 0));
         return place;
     }
@@ -190,7 +190,7 @@ internal static class ShutterBehaviorVerification
             place.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
             place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
                 LittleEndianBytes.Word(speedIndex, primaryDirection), 0, 0, LittleEndianBytes.Word(0, travelDistance), 0));
-            ShuttersBehavior.InitializeVerticalShutter(place, ShutterSegment.FullyGrown);
+            ShuttersBehavior.InitializeVerticalShutter(place.HeldOccupant(), place, ShutterSegment.FullyGrown);
             VerticalShutterEnemyState state = place.SpeciesState<VerticalShutterEnemyState>()
                 ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");
             string context = $"primary direction {primaryDirection} at Y {spawnY}";
@@ -198,9 +198,9 @@ internal static class ShutterBehaviorVerification
             AssertEqual(expectedLowerY, state.LowerEndpointY, $"{context}: lower endpoint");
             SignedSixteenSixteen down = EnemyLinearSpeedTable.Speed(speedIndex);
             SignedSixteenSixteen up = -down;
-            AssertEqual(down, ShuttersBehavior.VerticalShutterVelocity(place, VerticalDirection.Down),
+            AssertEqual(down, ShuttersBehavior.VerticalShutterVelocity(place.HeldOccupant(), place, VerticalDirection.Down),
                 $"{context}: downward velocity is the speed record's first entry");
-            AssertEqual(up, ShuttersBehavior.VerticalShutterVelocity(place, VerticalDirection.Up),
+            AssertEqual(up, ShuttersBehavior.VerticalShutterVelocity(place.HeldOccupant(), place, VerticalDirection.Up),
                 $"{context}: upward velocity is the speed record's second entry");
         }
     }

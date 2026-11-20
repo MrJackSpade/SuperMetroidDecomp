@@ -203,18 +203,18 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         CreatePairResult CreatePair()
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace> initializeBody = enemies.KiHunterBehavior.InitializeKiHunter;
-            Action<RoomEnemyPlace> initializeWings = enemies.KiHunterBehavior.InitializeKiHunterWings;
+            Action<RoomEnemyPlace> initializeBody = fixturePlace => enemies.KiHunterBehavior.InitializeKiHunter(fixturePlace.HeldOccupant(), fixturePlace);
+            Action<RoomEnemyPlace> initializeWings = fixturePlace => enemies.KiHunterBehavior.InitializeKiHunterWings(fixturePlace.HeldOccupant(), fixturePlace);
 
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.Bind(EnemyDefinitionId.KihunterGreen, body.Definition);
-            body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
+            body.Bind(body.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
             // The header's collision half-extents: the terrain movers scan the rows the body spans.
             body.Radius = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.KihunterGreen).Radius;
             body.Position = body.Position.WithWhole(new(0x0080, 0x0080));
             RoomEnemyPlace wings = enemies.Places.InUpdateOrder[1];
             wings.Bind(EnemyDefinitionId.KihunterGreenWings, wings.Definition);
-            wings.Bind(wings.DefinitionId, default(RoomEnemyDefinition));
+            wings.Bind(wings.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
             // A winged pair's population entries, as the room load gives them: the body keeps its wings, and the wing
             // entry's detachment health is never reached by these unhurt programs.
             body.SetSpawnSettings(new KiHunterSpawnSettings(KiHunterWings.Winged));

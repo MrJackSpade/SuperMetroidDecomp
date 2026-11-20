@@ -201,11 +201,11 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>Sets up one of the breakup's twelve pieces from the breakup it joined.</summary>
-    internal void InitializeNorfairRidleyExplosion(RoomEnemyPlace fragment)
+    internal void InitializeNorfairRidleyExplosion(RoomEnemyOccupant occupant, RoomEnemyPlace fragment)
     {
         RidleyBreakupSource source = fragment.RequireSpeciesState<RidleyBreakupSource>();
         NorfairRidleyState state = source.Ridley;
-        RidleyExplosionPart part = fragment.Spawn.Population.SpawnSettingsOf<RidleyExplosionSpawnSettings>().Part;
+        RidleyExplosionPart part = occupant.SpawnSettings<RidleyExplosionSpawnSettings>().Part;
 
         fragment.AnimationClock.Restart();
         fragment.Shading = state.Colours.SpriteShading(flashing: false);

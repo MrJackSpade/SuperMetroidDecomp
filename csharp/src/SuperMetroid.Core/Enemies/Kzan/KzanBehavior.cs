@@ -38,7 +38,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the top's idle animation, fall speed, fall distance and wait timer from its spawn settings.</summary>
-    internal static void InitializeKzanTop(RoomEnemyPlace place)
+    internal static void InitializeKzanTop(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         var state = new KzanEnemyState(KzanAction.WaitingToFall);
         place.SetSpeciesState(state);
@@ -47,14 +47,14 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The spawn settings name the speed the fall starts at. Placements include four pixels per update,
         // the fastest the fall reaches.
-        state.FallingSpeed = place.SpawnSettings<KzanSpawnSettings>().FallSpeed;
+        state.FallingSpeed = occupant.SpawnSettings<KzanSpawnSettings>().FallSpeed;
 
         // The spawn settings name the fall distance in pixels and the top's wait. A wait of zero does not run out at
         // once: it runs the full countdown (WrappingCountdown).
         int spawnY = place.Position.Y.Whole;
-        state.FallingTargetY = spawnY + place.SpawnSettings<KzanSpawnSettings>().FallDistance;
+        state.FallingTargetY = spawnY + occupant.SpawnSettings<KzanSpawnSettings>().FallDistance;
         state.RisingTargetY = spawnY;
-        state.FallWaitTimer = WrappingCountdown.Start(place.SpawnSettings<KzanSpawnSettings>().FallWait);
+        state.FallWaitTimer = WrappingCountdown.Start(occupant.SpawnSettings<KzanSpawnSettings>().FallWait);
     }
 
     /// <summary>Places the lower actor twelve pixels below the preceding top during setup.</summary>
@@ -88,14 +88,14 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the top actor through fall wait, accelerated descent, rise wait, and half-pixel ascent.</summary>
     private void RunKzanTopMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         KzanEnemyState state,
         SamusState samus)
     {
         switch (state.Action)
         {
             case KzanAction.WaitingToFall:
-                RunKzanWaitingToFall(place, state);
+                RunKzanWaitingToFall(occupant, place, state);
                 return;
 
             case KzanAction.Falling:
@@ -117,14 +117,14 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Decrements the wrapping top wait and resets the fall speed when descent begins.</summary>
-    private static void RunKzanWaitingToFall(RoomEnemyPlace place, KzanEnemyState state)
+    private static void RunKzanWaitingToFall(RoomEnemyOccupant occupant, RoomEnemyPlace place, KzanEnemyState state)
     {
         state.FallWaitTimer = state.FallWaitTimer.Decrement().Remaining;
         if (!state.FallWaitTimer.IsZero)
             return;
 
-        state.FallWaitTimer = WrappingCountdown.Start(place.SpawnSettings<KzanSpawnSettings>().FallWait);
-        state.FallingSpeed = place.SpawnSettings<KzanSpawnSettings>().FallSpeed;
+        state.FallWaitTimer = WrappingCountdown.Start(occupant.SpawnSettings<KzanSpawnSettings>().FallWait);
+        state.FallingSpeed = occupant.SpawnSettings<KzanSpawnSettings>().FallSpeed;
         state.Action = KzanAction.Falling;
     }
 
@@ -199,8 +199,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"A cue-free Kzan animation raised {cue}."));
 
     /// <summary>Runs KzanTop's main AI.</summary>
-    internal void RunKzanTopMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunKzanTopMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunKzanTopMain(place, place.RequireSpeciesState<KzanEnemyState>(), frame.Samus);
+        RunKzanTopMain(occupant, place, place.RequireSpeciesState<KzanEnemyState>(), frame.Samus);
     }
 }

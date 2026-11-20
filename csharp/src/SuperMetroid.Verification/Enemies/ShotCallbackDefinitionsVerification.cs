@@ -127,7 +127,7 @@ internal static class ShotCallbackDefinitionsVerification
                 CreateLiteralNoOpCombatSystem();
             byte touchBank = SnesLittleEndianConstants.BankByte(callback);
             ushort touchWord = unchecked((ushort)callback);
-            enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
+            enemy.Bind(enemy.HeldOccupant().DefinitionId, default(RoomEnemyDefinition) with
             {
                 Touch = EnemyInteractionCallbacks.DecodeTouch(touchBank, touchWord),
             });
@@ -153,7 +153,7 @@ internal static class ShotCallbackDefinitionsVerification
                 CreateLiteralNoOpCombatSystem();
             byte shotBank = SnesLittleEndianConstants.BankByte(callback);
             ushort shotWord = unchecked((ushort)callback);
-            enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
+            enemy.Bind(enemy.HeldOccupant().DefinitionId, default(RoomEnemyDefinition) with
             {
                 Shot = EnemyInteractionCallbacks.DecodeShot(shotBank, shotWord),
             });

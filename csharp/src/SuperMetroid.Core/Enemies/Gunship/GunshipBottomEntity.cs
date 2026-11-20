@@ -12,7 +12,7 @@ internal sealed class GunshipBottomEntity(GunshipBehavior species, RoomEnemyOccu
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) => species.InitializeGunshipBottom(Place, surroundings.Samus);
+    public void Initialize(EnemyPopulationSurroundings surroundings) => species.InitializeGunshipBottom(Occupant, Place, surroundings.Samus);
 
     /// <summary>Takes no action of its own; the top hull moves the ship.</summary>
     /// <param name="frame">The enemy frame.</param>

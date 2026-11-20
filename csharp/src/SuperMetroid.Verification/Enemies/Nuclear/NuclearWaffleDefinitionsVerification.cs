@@ -59,7 +59,7 @@ internal static class NuclearWaffleDefinitionsVerification
 
             NuclearWaffleEnemyState state = (enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NuclearWaffleStates[0]."));
             // The waffle reads the sweep its placement's direction runs where it uses it (#2474); it starts at that sweep's start.
-            AssertEqual(definition, place.SpawnSettings<NuclearWaffleSpawnSettings>().Sweep,
+            AssertEqual(definition, place.HeldOccupant().SpawnSettings<NuclearWaffleSpawnSettings>().Sweep,
                 $"Nuclear Waffle production sweep {direction}");
             AssertEqual(definition.StartAngle, state.CurrentAngle,
                 $"Nuclear Waffle production current angle {direction}");
@@ -105,10 +105,10 @@ internal static class NuclearWaffleDefinitionsVerification
         place.Position = place.Position.WithWhole(new(384, 512));
         enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(place.HeldOccupant(), place);
         NuclearWaffleEnemyState state = enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Nuclear Waffle has no state.");
-        AssertEqual(NuclearWaffleSweepDirection.Forward, place.SpawnSettings<NuclearWaffleSpawnSettings>().Direction, "Nuclear Waffle direction one sweeps forward");
-        AssertEqual(SixteenSixteenWords.ToDisplacement(oneUnit + oneUnit / 2), SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(place.SpawnSettings<NuclearWaffleSpawnSettings>().AngularSpeed.FractionsOfStep), "Nuclear Waffle speed record 24 is 1.5 units per update");
+        AssertEqual(NuclearWaffleSweepDirection.Forward, place.HeldOccupant().SpawnSettings<NuclearWaffleSpawnSettings>().Direction, "Nuclear Waffle direction one sweeps forward");
+        AssertEqual(SixteenSixteenWords.ToDisplacement(oneUnit + oneUnit / 2), SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(place.HeldOccupant().SpawnSettings<NuclearWaffleSpawnSettings>().AngularSpeed.FractionsOfStep), "Nuclear Waffle speed record 24 is 1.5 units per update");
 
-        enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(place, Frame());
+        enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(place.HeldOccupant(), place, Frame());
         AssertEqual(NuclearWaffleAction.Sweeping, state.Action, "Nuclear Waffle zero wait expires on the first update");
         AssertEqual(NuclearWaffleSweepAngle.FromSteps(startAngle), state.SweepAngle, "Nuclear Waffle sweep restarts at its start angle");
 
@@ -116,7 +116,7 @@ internal static class NuclearWaffleDefinitionsVerification
         {
             if (update == 96)
                 enemies.Audio.BeginFrame();
-            enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(place, Frame());
+            enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(place.HeldOccupant(), place, Frame());
             AssertEqual(SixteenSixteenWords.ToDisplacement(startAngle * oneUnit + (update + 1) * (oneUnit + oneUnit / 2)), SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(state.SweepAngle.FractionsOfStep),
                 $"Nuclear Waffle sweep angle after sweep update {update}");
             AssertEqual(update == finishingUpdate ? NuclearWaffleAction.Waiting : NuclearWaffleAction.Sweeping, state.Action,

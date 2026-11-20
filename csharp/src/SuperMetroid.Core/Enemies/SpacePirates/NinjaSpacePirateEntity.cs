@@ -15,7 +15,7 @@ internal class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnem
     protected NinjaSpacePirateBehavior Species => species;
 
     /// <inheritdoc/>
-    public void Initialize() => NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(Place);
+    public void Initialize() => NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunNinjaSpacePirateMainAi(Place, frame);

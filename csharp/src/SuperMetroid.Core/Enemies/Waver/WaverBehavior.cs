@@ -41,9 +41,9 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Waver.</summary>
-    internal static void InitializeWaver(RoomEnemyPlace place)
+    internal static void InitializeWaver(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        HorizontalDirection facing = place.SpawnSettings<WaverSpawnSettings>().Facing;
+        HorizontalDirection facing = occupant.SpawnSettings<WaverSpawnSettings>().Facing;
         var state = new WaverEnemyState
         {
             Facing = facing,

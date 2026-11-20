@@ -69,7 +69,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The shell withstands as many shots as its placement names and dies of the next (#2340).
-        if (++state.HitsTaken > place.SpawnSettings<KagoSpawnSettings>().HitCount)
+        if (++state.HitsTaken > occupant.SpawnSettings<KagoSpawnSettings>().HitCount)
         {
             // The shot's damage may already have killed the 1600-health shell, which counts its death once.
             if (!place.Presence.HasAny(EnemyPresence.Deleted))

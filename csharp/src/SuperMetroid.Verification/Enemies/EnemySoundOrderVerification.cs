@@ -98,7 +98,7 @@ internal static class EnemySoundOrderVerification
     {
         RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[place];
         enemy.Bind(EnemyDefinitionId.Metroid, enemy.Definition);
-        enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition));
+        enemy.Bind(enemy.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         enemy.AnimationClock.StepOnNextUpdate();
         enemy.SetSpeciesState(new MetroidEnemyState(
             new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SpriteGraphics.SharedStandard),
@@ -120,15 +120,15 @@ internal static class EnemySoundOrderVerification
     {
         RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[place];
         enemy.Bind(EnemyDefinitionId.Boyon, enemy.Definition);
-        enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition));
+        enemy.Bind(enemy.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         enemy.SetSpawnParameter2(EnemyDefinitionId.Boyon, 64);
         enemy.Position = enemy.Position.WithWhole(new(256, 512));
-        BoyonBehavior.InitializeBoyon(enemy);
+        BoyonBehavior.InitializeBoyon(enemy.HeldOccupant(), enemy);
         BoyonEnemyState state = enemy.RequireSpeciesState<BoyonEnemyState>();
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         samus.Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole);
-        BoyonBehavior.RunBoyonMain(enemy, state, samus);
-        BoyonBehavior.RunBoyonMain(enemy, state, samus);
+        BoyonBehavior.RunBoyonMain(enemy.HeldOccupant(), enemy, state, samus);
+        BoyonBehavior.RunBoyonMain(enemy.HeldOccupant(), enemy, state, samus);
         AssertEqual(new AnimationPlayback<BoyonSegment>(BoyonAnimations.StartingWith(BoyonSegment.Bouncing), AnimationPlace.StartOfAnimation),
             state.Playback, "Samus on the Boyon starts its bouncing animation");
         enemy.AnimationClock.StepOnNextUpdate();

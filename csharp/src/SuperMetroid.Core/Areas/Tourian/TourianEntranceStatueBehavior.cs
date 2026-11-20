@@ -154,7 +154,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         if (!_occupants.Contains(occupant))
             _occupants.Add(occupant);
         // The base decoration, Ridley and Phantoon spawn in this order, which gives them their authored draw order.
-        if (statue.Spawn.Population.SpawnSettingsOf<TourianEntranceStatueSpawnSettings>().Role == TourianEntranceStatueRole.SpawnsDecorations)
+        if (occupant.Occupant.SpawnSettings<TourianEntranceStatueSpawnSettings>().Role == TourianEntranceStatueRole.SpawnsDecorations)
         {
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatueBaseDecoration,

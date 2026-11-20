@@ -11,7 +11,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
+        occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
             ? new NorfairLavaJumperFollowerEntity(this, occupant, place, common)
             : new SqueeptEntity(this, occupant, place, common);
 
@@ -194,7 +194,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Norfair lava-jumping follower in place {follower.Ordinal} must immediately follow " +
                 "a parent of the same definition. " +
                 $"Preceding place: definition={parent.Occupant?.DefinitionId}, " +
-                $"health={parent.Health}, spawn={parent.Spawn.Population.SpawnSettings}, contact={parent.Contact}, processing={parent.Processing}, presence={parent.Presence}.");
+                $"health={parent.Health}, spawn={parent.Occupant?.Spawn.SpawnSettings}, contact={parent.Contact}, processing={parent.Processing}, presence={parent.Presence}.");
         }
     }
 

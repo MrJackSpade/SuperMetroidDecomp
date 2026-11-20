@@ -24,7 +24,7 @@ internal static class EtecoonFanfareVerification
         {
             var place = enemies.Places.InUpdateOrder[index];
             place.Bind(EnemyDefinitionId.Etecoon, place.Definition);
-            place.Bind(place.DefinitionId, RoomEnemyDefinitionLookup.Get(place.DefinitionId));
+            place.Bind(place.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(place.DefinitionId));
             place.Health = place.Definition.Health;
             place.Radius = new(place.Definition.Radius.X, place.Definition.Radius.Y);
             place.Position = place.Position.WithWhole(new((ushort)(0x25f + index * 16), 0xb98));
@@ -32,7 +32,7 @@ internal static class EtecoonFanfareVerification
             place.Processing = EnemyProcessing.OffScreen;
             place.Presence = EnemyPresence.None;
             place.SetSpawnParameter2(EnemyDefinitionId.Etecoon, (ushort)index);
-            EtecoonBehavior.InitializeEtecoon(place);
+            EtecoonBehavior.InitializeEtecoon(place.HeldOccupant(), place);
         }
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = new(new(0x240, 0), new(0xb98, 0)), Health = 999, MaxHealth = 999 };
         RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(48, 192));

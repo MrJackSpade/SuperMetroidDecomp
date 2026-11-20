@@ -8,10 +8,10 @@ internal sealed class BrinstarPipeBugEntity(RoomEnemyOccupant occupant, RoomEnem
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => PipeBugsBehavior.InitializeBrinstarPipeBug(Place);
+    public void Initialize() => PipeBugsBehavior.InitializeBrinstarPipeBug(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunBrinstarPipeBugMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunBrinstarPipeBugMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PipeBugsBehavior.AdvanceBrinstarPipeBugTypedAnimation(Place);

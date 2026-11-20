@@ -50,12 +50,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Initializes the Ninja Space Pirate.</summary>
-    internal static void InitializeNinjaSpacePirate(RoomEnemyPlace place)
+    internal static void InitializeNinjaSpacePirate(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         var state = new NinjaSpacePirateEnemyState(NinjaSpacePirateAction.StandingStill);
         place.SetSpeciesState(state);
 
-        NinjaSpacePirateSpawnSettings settings = place.SpawnSettings<NinjaSpacePirateSpawnSettings>();
+        NinjaSpacePirateSpawnSettings settings = occupant.SpawnSettings<NinjaSpacePirateSpawnSettings>();
         bool startsAtLeft = settings.StartPost switch
         {
             NinjaSpacePirateStartPost.Left => true,

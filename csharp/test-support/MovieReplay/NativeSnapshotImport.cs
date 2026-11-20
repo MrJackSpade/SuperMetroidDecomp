@@ -423,7 +423,7 @@ internal static class NativeSnapshotImport
                 pipe.SpawnPosition = new(words.B, words.C);
                 pipe.RespawnDelay = UpdateCountdownAccess.Recorded(unchecked((short)words.D));
                 SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugKind kind =
-                    runtime.Enemies.Places.InUpdateOrder[index].SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind;
+                    runtime.Enemies.Places.InUpdateOrder[index].HeldOccupant().SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind;
                 pipe.EmergenceTopY = W(NativeSnapshotMemory.EnemyExtra + index * NativeSnapshotMemory.EnemyExtraBytes);
                 // The game keeps the requested animation beside the installed one and installs a request in the same AI
                 // update, so a record whose two differ fails (#1810). Core keeps only the playing animation (#2145): the

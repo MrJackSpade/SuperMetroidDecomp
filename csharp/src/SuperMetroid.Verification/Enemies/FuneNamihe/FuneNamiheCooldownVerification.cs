@@ -43,7 +43,7 @@ internal static class FuneNamiheCooldownVerification
         place.SetSpawnSettings(new FuneSpawnSettings(Facing: HorizontalDirection.Left, CooldownTime: CooldownTime, LaunchSpeed: SignedEightEight.Zero));
         var state = new FuneEnemyState(FuneAction.WaitForCooldown) { Cooldown = UpdateCountdownAccess.AtAge(CooldownTime, count) };
         place.SetSpeciesState(state);
-        FuneNamiheBehavior.RunFuneMain(place, state);
+        FuneNamiheBehavior.RunFuneMain(place.HeldOccupant(), place, state);
         return state;
     }
 

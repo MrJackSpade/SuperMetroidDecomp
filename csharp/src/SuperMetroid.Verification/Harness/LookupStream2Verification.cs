@@ -904,11 +904,11 @@ internal static class LookupStream2Verification
                 var place = enemies.Places.InUpdateOrder[member];
                 place.Bind(EnemyDefinitionId.Gamet, place.Definition);
                 place.Position = place.Position.WithWhole(new(128, 128)); place.SetSpawnParameter2(EnemyDefinitionId.Gamet, 64);
-                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(place);
+                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(place.HeldOccupant(), place);
                 place.AnimationClock.HoldFor((ushort)(member + 4));
             }
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
-            enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.Places.InUpdateOrder[0], (enemies.NorfairPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NorfairPipeBugStates[0].")), samus);
+            enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.Places.InUpdateOrder[0].HeldOccupant(), enemies.Places.InUpdateOrder[0], (enemies.NorfairPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NorfairPipeBugStates[0].")), samus);
             for (int member = 0; member < 5; member++)
             {
                 var state = enemies.NorfairPipeBugStates[member];

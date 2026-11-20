@@ -10,7 +10,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The Hibashi's flame, or the collision part its placement names (#2342).</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<HibashiSpawnSettings>().Part == HibashiPart.CollisionPart
+        occupant.SpawnSettings<HibashiSpawnSettings>().Part == HibashiPart.CollisionPart
             ? new HibashiCollisionPartEntity(occupant, place, common)
             : new HibashiEntity(this, occupant, place, common);
 
@@ -73,7 +73,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Hibashi's main AI.</summary>
-    private void RunHibashiMain(RoomEnemyPlace place, HibashiEnemyState state)
+    private void RunHibashiMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, HibashiEnemyState state)
     {
         switch (state.Action)
         {
@@ -85,7 +85,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case HibashiAction.Finished:
-                RestHibashi(place, state);
+                RestHibashi(occupant, place, state);
                 return;
 
             default:
@@ -115,9 +115,9 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Rests the flame whose eruption has finished, which hid it: its wait restarts at its placement's inactive time and the
     /// update it runs out on (#2340).
     /// </summary>
-    internal static void RestHibashi(RoomEnemyPlace flame, HibashiEnemyState state)
+    internal static void RestHibashi(RoomEnemyOccupant occupant, RoomEnemyPlace flame, HibashiEnemyState state)
     {
-        state.InactiveTimer = UpdateCountdown.For(flame.SpawnSettings<HibashiSpawnSettings>().InactiveTime + EnemyWaitDefinitions.RunOutUpdate);
+        state.InactiveTimer = UpdateCountdown.For(occupant.SpawnSettings<HibashiSpawnSettings>().InactiveTime + EnemyWaitDefinitions.RunOutUpdate);
         state.Action = HibashiAction.Inactive;
     }
 
@@ -165,8 +165,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     private RoomEnemyPlace GetFollowingHibashiPart(RoomEnemyPlace flame) => _hitboxes.Of(flame);
 
     /// <summary>Runs the flame's main AI.</summary>
-    internal void RunHibashiMainAi(RoomEnemyPlace place, IEnemyAiFrame _) =>
-        RunHibashiMain(place, place.RequireSpeciesState<HibashiEnemyState>());
+    internal void RunHibashiMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame _) =>
+        RunHibashiMain(occupant, place, place.RequireSpeciesState<HibashiEnemyState>());
 
     /// <summary>Advances the collision part's hitbox hold.</summary>
     internal static void AdvanceHibashiCollisionPartTypedAnimation(RoomEnemyPlace place) =>

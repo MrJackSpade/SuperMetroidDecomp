@@ -89,7 +89,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Ki-Hunter body.</summary>
-    internal void InitializeKiHunter(RoomEnemyPlace body)
+    internal void InitializeKiHunter(RoomEnemyOccupant occupant, RoomEnemyPlace body)
     {
         _wingsOfBody.Place(body, _places.ListedAfter(body, 1));
         var state = new KiHunterBodyState(KiHunterAction.FlyingPatrol);
@@ -107,7 +107,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // A wingless Ki-Hunter is the permanently ground-bound form. The wing listed after it
         // starts deleted and the body skips every later detachment side effect.
-        if (body.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
+        if (occupant.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
         {
             state.Action = KiHunterAction.FallingAfterWingLoss;
             state.VerticalVelocity = KiHunterMotionDefinitions.WinglessFallStartVelocity;
@@ -115,18 +115,20 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Ki-Hunter's wings, which find their body listed right before them.</summary>
-    internal void InitializeKiHunterWings(RoomEnemyPlace wings)
+    internal void InitializeKiHunterWings(RoomEnemyOccupant occupant, RoomEnemyPlace wings)
     {
         _bodyOfWings.Place(wings, _places.ListedBefore(wings, 1));
         RoomEnemyPlace body = GetKiHunterBody(wings);
-        _wingSettingsOfBody.Place(body, wings.SpawnSettings<KiHunterWingsSpawnSettings>());
+        _wingSettingsOfBody.Place(body, occupant.SpawnSettings<KiHunterWingsSpawnSettings>());
         var state = new KiHunterWingState(KiHunterWingAction.FollowBody);
         wings.SetSpeciesState(state);
 
         wings.Processing = wings.Processing.With(EnemyProcessing.Animates);
         StartKiHunterAnimation(wings, state, KiHunterSegment.WingsLeft);
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
-        if (body.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
+        RoomEnemyOccupant bodyOccupant = body.Occupant ?? throw new InvalidDataException(
+            $"Ki-Hunter wings in place {wings.Ordinal} follow a body place {body.Ordinal} that holds no enemy.");
+        if (bodyOccupant.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
             wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
     }
 

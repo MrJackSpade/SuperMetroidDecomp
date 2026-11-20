@@ -9,10 +9,10 @@ internal sealed class SkulteraEntity(SkulteraBehavior species, RoomEnemyOccupant
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => SkulteraBehavior.InitializeSkultera(Place);
+    public void Initialize() => SkulteraBehavior.InitializeSkultera(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunSkulteraMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSkulteraMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SkulteraBehavior.AdvanceSkulteraTypedAnimation(Place, context);

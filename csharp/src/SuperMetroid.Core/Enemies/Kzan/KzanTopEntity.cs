@@ -9,10 +9,10 @@ internal sealed class KzanTopEntity(KzanBehavior species, RoomEnemyOccupant occu
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => KzanBehavior.InitializeKzanTop(Place);
+    public void Initialize() => KzanBehavior.InitializeKzanTop(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunKzanTopMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunKzanTopMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KzanBehavior.AdvanceKzanTypedAnimation(Place, context);

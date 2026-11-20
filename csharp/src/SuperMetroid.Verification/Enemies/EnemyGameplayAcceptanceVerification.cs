@@ -80,7 +80,7 @@ internal static class EnemyGameplayAcceptanceVerification
         {
             RoomEnemyPlace place = baseline.Places.InUpdateOrder[index];
             AssertEqual(index, place.Ordinal, "linked population slot order");
-            AssertEqual(population.Placements.Span[index], place.Spawn.Population, "linked population preserves every spawn word");
+            AssertEqual(population.Placements.Span[index], place.HeldOccupant().Spawn, "linked population preserves every spawn word");
             AssertEqual(RoomEnemyDefinitionLookup.Get(place.DefinitionId), place.Definition, "linked slot uses compiled header");
             AssertEqual(place.Definition.Health, place.Health, "linked slot starts at compiled health");
             if ((index & 1) != 0)

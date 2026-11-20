@@ -34,7 +34,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Nuclear Waffle.</summary>
     internal void InitializeNuclearWaffle(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        NuclearWaffleSpawnSettings settings = place.SpawnSettings<NuclearWaffleSpawnSettings>();
+        NuclearWaffleSpawnSettings settings = occupant.SpawnSettings<NuclearWaffleSpawnSettings>();
         NuclearWaffleSweepDefinition sweep = settings.Sweep;
 
         // The head starts on the orbit at the sweep's start angle around the placement, and every link spawns there.
@@ -57,16 +57,16 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Nuclear Waffle's main AI.</summary>
-    private void RunNuclearWaffleMain(RoomEnemyPlace place, NuclearWaffleEnemyState state)
+    private void RunNuclearWaffleMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, NuclearWaffleEnemyState state)
     {
         switch (state.Action)
         {
             case NuclearWaffleAction.Waiting:
-                RunNuclearWaffleWaiting(place, state);
+                RunNuclearWaffleWaiting(occupant, place, state);
                 return;
 
             case NuclearWaffleAction.Sweeping:
-                RunNuclearWaffleSweep(place, state);
+                RunNuclearWaffleSweep(occupant, place, state);
                 return;
 
             default:
@@ -77,13 +77,13 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Waits before a sweep.</summary>
     private static void RunNuclearWaffleWaiting(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         NuclearWaffleEnemyState state)
     {
         if (!state.WaitingTimer.Step())
             return;
 
-        NuclearWaffleSpawnSettings settings = place.SpawnSettings<NuclearWaffleSpawnSettings>();
+        NuclearWaffleSpawnSettings settings = occupant.SpawnSettings<NuclearWaffleSpawnSettings>();
         state.WaitingTimer = UpdateCountdown.For(settings.WaitTime + EnemyWaitDefinitions.RunOutUpdate);
         state.SweepAngle = settings.Sweep.StartAngle;
         state.Action = NuclearWaffleAction.Sweeping;
@@ -92,9 +92,9 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs a sweep: the head and every link stand on the orbit of the spawn settings' radius.</summary>
-    private void RunNuclearWaffleSweep(RoomEnemyPlace place, NuclearWaffleEnemyState state)
+    private void RunNuclearWaffleSweep(RoomEnemyOccupant occupant, RoomEnemyPlace place, NuclearWaffleEnemyState state)
     {
-        NuclearWaffleSpawnSettings settings = place.SpawnSettings<NuclearWaffleSpawnSettings>();
+        NuclearWaffleSpawnSettings settings = occupant.SpawnSettings<NuclearWaffleSpawnSettings>();
         NuclearWaffleOrientation headOrientation = GetNuclearWaffleOrientation(
             settings,
             state.CurrentAngle);
@@ -301,8 +301,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Nuclear Waffle's main AI.</summary>
-    internal void RunNuclearWaffleMainAi(RoomEnemyPlace place, IEnemyAiFrame _)
+    internal void RunNuclearWaffleMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame _)
     {
-        RunNuclearWaffleMain(place, place.RequireSpeciesState<NuclearWaffleEnemyState>());
+        RunNuclearWaffleMain(occupant, place, place.RequireSpeciesState<NuclearWaffleEnemyState>());
     }
 }

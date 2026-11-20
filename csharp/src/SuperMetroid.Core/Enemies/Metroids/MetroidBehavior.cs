@@ -80,7 +80,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Drain = FractionalEnergyDrain.Start,
             Movement = MetroidMovement.Homing,
-            IceDamageToFreeze = place.SpawnSettings<MetroidSpawnSettings>().IceDamageToFreeze,
+            IceDamageToFreeze = occupant.SpawnSettings<MetroidSpawnSettings>().IceDamageToFreeze,
         };
         place.SetSpeciesState(state);
         state.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation);

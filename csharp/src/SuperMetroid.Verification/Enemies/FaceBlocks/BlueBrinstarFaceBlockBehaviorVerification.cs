@@ -41,7 +41,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
                 CollectedItems = SamusEquipmentWordCodec.FromEquipmentWord(BlueBrinstarFaceBlockNativeValues.MorphBallItem),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(place.Position.X.Whole + samusX)), place.Position.Y.Whole)),
             };
-            enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place, state, samus);
+            enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place.HeldOccupant(), place, state, samus);
             AssertTrue(state.Activated, $"face block {program} activates");
             AssertEqual(new AnimationPlayback<BlueBrinstarFaceBlockSegment>(BlueBrinstarFaceBlockAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback, $"face block {program} selection");
             int[] holds = [48, 16, 16];
@@ -62,7 +62,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.FaceBlock, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         place.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
         place.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, parameter2);
         place.Position = place.Position.WithWhole(new(256, 256));

@@ -12,10 +12,10 @@ internal sealed class EvirBodyEntity(EvirBehavior species, RoomEnemyOccupant occ
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) => species.InitializeEvirBody(Place, surroundings.Samus);
+    public void Initialize(EnemyPopulationSurroundings surroundings) => species.InitializeEvirBody(Occupant, Place, surroundings.Samus);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirBodyMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirBodyMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => EvirBehavior.AdvanceEvirPartTypedAnimation<EvirBodyState>(Place);

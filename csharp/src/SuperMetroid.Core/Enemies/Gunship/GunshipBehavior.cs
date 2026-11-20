@@ -140,15 +140,15 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// Initializes bottom hull or pad from the enemies its room lists before it; after Ceres the bottom hull is placed
     /// against the loading <paramref name="samus"/>.
     /// </summary>
-    internal void InitializeGunshipBottom(RoomEnemyPlace place, SamusState samus)
+    internal void InitializeGunshipBottom(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus)
     {
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-        place.SetSpeciesState(new GunshipPieceState(EnemyAnimationPlayback.Start(place, GunshipAnimations.StartingWith(place.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad
+        place.SetSpeciesState(new GunshipPieceState(EnemyAnimationPlayback.Start(place, GunshipAnimations.StartingWith(occupant.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad
             ? GunshipSegment.BottomEntrancePad
             : GunshipSegment.BottomHull))));
 
-        if (place.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad)
+        if (occupant.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad)
         {
             // The hull the pad takes its height from can stand above the room's top, after Ceres.
             place.Position = OffRoomPlaces.WithWholeY(place.Position, GunshipPadBorrowedHeight.Start(

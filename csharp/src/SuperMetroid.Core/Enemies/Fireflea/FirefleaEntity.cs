@@ -9,10 +9,10 @@ internal sealed class FirefleaEntity(FirefleaBehavior species, RoomEnemyOccupant
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => FirefleaBehavior.InitializeFireflea(Place);
+    public void Initialize() => FirefleaBehavior.InitializeFireflea(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => FirefleaBehavior.RunFirefleaMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => FirefleaBehavior.RunFirefleaMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => FirefleaBehavior.AdvanceFirefleaTypedAnimation(Place, context);

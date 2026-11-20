@@ -25,9 +25,9 @@ internal static class WaverBehaviorVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.Waver, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
             place.SetSpawnWords(EnemyDefinitionId.Waver, words => words);
-            WaverBehavior.InitializeWaver(place);
+            WaverBehavior.InitializeWaver(place.HeldOccupant(), place);
             WaverEnemyState state = enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].");
             state.Playback = new(WaverAnimations.StartingWith(selector == WaverSegment.SteadyFacingLeft ? WaverSegment.SteadyFacingRight : WaverSegment.SteadyFacingLeft),
                 AnimationPlace.StartOfAnimation);

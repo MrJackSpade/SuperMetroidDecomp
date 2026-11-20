@@ -92,9 +92,9 @@ internal static class EnemySpritemapArtworkVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         RoomEnemyPlace bull = enemies.Places.InUpdateOrder[0];
         bull.Bind(EnemyDefinitionId.Bull, bull.Definition);
-        bull.Bind(bull.DefinitionId, default(RoomEnemyDefinition));
+        bull.Bind(bull.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         bull.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        new Action<RoomEnemyPlace>(enemies.BullBehavior.InitializeBull)(bull);
+        new Action<RoomEnemyPlace>(fixturePlace => enemies.BullBehavior.InitializeBull(fixturePlace.HeldOccupant(), fixturePlace))(bull);
         object?[] arguments =
             [bull, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         for (int frame = 0; frame < 41; frame++)
@@ -519,7 +519,7 @@ internal static class EnemySpritemapArtworkVerification
                     .FirstOrDefault(placement => placement.DefinitionId == definition) is { } placed)
                 place.PopulateFor(definition, placed.SpawnSettings);
             place.Bind(definition, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
             place.Shading = PictureShading.Standard;
             // The catalog-wide composition check includes families newer than the
             // fixture's actor-name mapping. Its frame identity owns the actual bank.

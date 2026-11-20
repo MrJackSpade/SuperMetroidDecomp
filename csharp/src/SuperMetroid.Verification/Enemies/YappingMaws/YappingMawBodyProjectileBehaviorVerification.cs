@@ -23,7 +23,7 @@ internal static class YappingMawBodyProjectileBehaviorVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace owner = enemies.Places.InUpdateOrder[0];
             owner.Bind(EnemyDefinitionId.YappingMaw, owner.Definition);
-            owner.Bind(owner.DefinitionId, default(RoomEnemyDefinition));
+            owner.Bind(owner.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
             owner.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 128);
             owner.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, facing);
             // A room places a Maw inside it, where its root, a few pixels away, lies inside the room too (#2449).

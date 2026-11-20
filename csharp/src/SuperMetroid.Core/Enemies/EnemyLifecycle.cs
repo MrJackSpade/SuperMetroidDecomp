@@ -35,10 +35,9 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         RoomEnemyPlacement population,
         RoomEnemyDefinition definition)
     {
-        // The placement is recorded before the entity is bound, so a species that places several actors creates the one
-        // the placement names (#1953).
-        place.Spawn = new RoomEnemySpawnSnapshot(population);
-        place.Bind(population.DefinitionId, definition);
+        // The occupant carries its placement into the entity its species creates, so a species that places several actors
+        // creates the one the placement names (#1953).
+        place.Bind(population, definition);
         place.Radius = new(definition.Radius.X, definition.Radius.Y);
         place.Health = definition.Health;
         place.Position = place.Position.WithWhole(new(population.Position.X, population.Position.Y));

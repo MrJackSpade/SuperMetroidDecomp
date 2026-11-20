@@ -21,7 +21,7 @@ internal static class KagoBehaviorVerification
         enemies.VerificationServices().ReadRandom = () => 0;
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Kago, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         place.SetSpawnParameter1(EnemyDefinitionId.Kago, 10);
         KagoBehavior.InitializeKago(place);
         KagoEnemyState state = enemies.KagoStates[0] ?? throw new InvalidDataException("Kago initializer did not publish typed state.");

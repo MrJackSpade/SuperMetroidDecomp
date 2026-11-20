@@ -14,7 +14,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
+        occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
             ? new HoltzFollowerEntity(this, occupant, place, common)
             : new HoltzEntity(this, occupant, place, common);
 

@@ -8,10 +8,10 @@ internal sealed class SbugEntity(RoomEnemyOccupant occupant, RoomEnemyPlace plac
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => SbugBehavior.InitializeSbug(Place);
+    public void Initialize() => SbugBehavior.InitializeSbug(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => SbugBehavior.RunSbugMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => SbugBehavior.RunSbugMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SbugBehavior.AdvanceSbugTypedAnimation(Place, context);

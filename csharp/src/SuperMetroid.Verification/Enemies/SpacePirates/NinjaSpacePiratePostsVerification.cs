@@ -29,7 +29,7 @@ internal static class NinjaSpacePiratePostsVerification
         {
             slot.Position = slot.Position.WithWhole(new(x, 128));
             slot.SetSpawnSettings(new NinjaSpacePirateSpawnSettings(start, distance));
-            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot);
+            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot.HeldOccupant(), slot);
             NinjaSpacePirateEnemyState state = slot.RequireSpeciesState<NinjaSpacePirateEnemyState>();
 
             bool startsAtLeft = start == NinjaSpacePirateStartPost.Left;

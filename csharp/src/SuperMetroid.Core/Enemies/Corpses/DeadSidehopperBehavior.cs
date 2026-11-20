@@ -59,9 +59,9 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Initializes the dead Sidehopper.</summary>
-    internal void InitializeDeadSidehopper(RoomEnemyPlace place)
+    internal void InitializeDeadSidehopper(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        DeadSidehopperLayout layout = place.SpawnSettings<DeadSidehopperSpawnSettings>().Layout;
+        DeadSidehopperLayout layout = occupant.SpawnSettings<DeadSidehopperSpawnSettings>().Layout;
         switch (layout)
         {
             case DeadSidehopperLayout.BabyMetroidVictim:

@@ -9,7 +9,7 @@ internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant oc
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => YardEnemyBehavior.InitializeYard(Place);
+    public void Initialize() => YardEnemyBehavior.InitializeYard(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunYardMainAi(Place, frame);
@@ -25,7 +25,7 @@ internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant oc
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            species.ReactToYardTouch(context);
+            species.ReactToYardTouch(Occupant, context);
         else
             base.ReactToTouch(context);
     }

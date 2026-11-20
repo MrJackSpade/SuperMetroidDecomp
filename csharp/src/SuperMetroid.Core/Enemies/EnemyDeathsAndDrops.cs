@@ -538,15 +538,17 @@ internal sealed class EnemyDeathsAndDrops
     /// Runs the respawn cue for the respawning enemy a death actor retains: the enemy is set up again from the population
     /// it spawned from.
     /// </summary>
+    /// <exception cref="InvalidOperationException">No enemy has been spawned in the place, so none was killed there.</exception>
     internal void RespawnEnemyFromSnapshot(RoomEnemyPlace place)
     {
-        RoomEnemySpawnSnapshot spawn = place.Spawn;
-        RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(spawn.Population.DefinitionId);
+        RoomEnemyPlacement spawn = place.LastSpawn ?? throw new InvalidOperationException(
+            $"A respawn cue reached enemy place {place.Ordinal}, where no enemy has been spawned.");
+        RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(spawn.DefinitionId);
         // Unlike the room's enemy setup and an ordinary enemy spawn, a respawn
         // never sets the frame: the actor keeps the empty frame its death left,
         // or what its init AI set, until its first cue. An empty frame is also
         // the contact gate, so the respawned actor cannot touch Samus before then.
-        _lifecycle.InitializePlaceFromDefinition(place, spawn.Population, definition);
+        _lifecycle.InitializePlaceFromDefinition(place, spawn, definition);
         _lifecycle.SetUpSpawnedEnemy(place);
     }
 

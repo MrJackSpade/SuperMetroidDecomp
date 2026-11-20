@@ -23,7 +23,7 @@ internal static class RidleyCollisionDefinitionsVerification
         var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var nativePlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
         RoomEnemyPlace compiledPlace = compiled.Places.InUpdateOrder[0];
-        compiledPlace.Bind(compiledPlace.DefinitionId, default(RoomEnemyDefinition));
+        compiledPlace.Bind(compiledPlace.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         // The reference slot is read by the independent test-side cartridge
         // walker. The installed definition selects the new compiled Ridley branch.
         compiledPlace.Bind(EnemyDefinitionId.Ridley, compiledPlace.Definition);

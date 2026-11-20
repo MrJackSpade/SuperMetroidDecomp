@@ -124,12 +124,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Initializes the Baby Turtle, one of the four its Mama found when she was placed; the last of them completes the
     /// family, which is checked once then.
     /// </summary>
-    internal void InitializeBabyTurtle(RoomEnemyPlace place)
+    internal void InitializeBabyTurtle(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         var state = new BabyTurtleEnemyState(BabyTurtleAction.CrawlingNotCarryingSamus)
         {
             SpawnTopCenter = new Position16<RoomPixels>(place.Position.X.Whole, place.Position.Y.Whole - place.Radius.Y),
-            Heading = place.SpawnSettings<BabyTurtleSpawnSettings>().Heading,
+            Heading = occupant.SpawnSettings<BabyTurtleSpawnSettings>().Heading,
             HorizontalSpeed = MamaTurtleMotionDefinitions.BabyCrawlSpeed,
         };
         place.SetSpeciesState(state);

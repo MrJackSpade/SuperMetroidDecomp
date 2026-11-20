@@ -13,6 +13,12 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 internal sealed class DestroyableShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : VerticalShutterEntity(species, occupant, place, common)
 {
+    /// <summary>The shutter's own shot reaction, built for this occupant.</summary>
+    private readonly EnemyShotReaction ownShot = species.DestroyableShutterShotReaction(occupant);
+
+    /// <summary>The shutter's own stages around common bomb damage, built for this occupant.</summary>
+    private readonly EnemyBombReaction ownBomb = species.DestroyableShutterBombReaction(occupant);
+
     /// <summary>A destroyable shutter shows the fully grown shutter.</summary>
     protected override ShutterSegment Pose => ShutterSegment.FullyGrown;
 
@@ -34,10 +40,10 @@ internal sealed class DestroyableShutterEntity(ShuttersBehavior species, RoomEne
     }
 
     /// <summary>The destroyable shutter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.DestroyableShutterShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? ownShot : base.ShotReaction;
 
     /// <summary>The destroyable shutter's own stages around common bomb damage, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? Species.DestroyableShutterBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot is null ? ownBomb : base.CommonBombDamageReaction(context);
 }

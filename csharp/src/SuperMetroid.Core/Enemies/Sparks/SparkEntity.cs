@@ -9,7 +9,7 @@ internal sealed class SparkEntity(SparkBehavior species, RoomEnemyOccupant occup
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => SparkBehavior.InitializeSpark(Place);
+    public void Initialize() => SparkBehavior.InitializeSpark(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunSparkMainAi(Occupant, Place, frame);

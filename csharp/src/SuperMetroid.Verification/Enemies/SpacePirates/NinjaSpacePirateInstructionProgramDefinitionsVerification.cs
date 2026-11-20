@@ -235,11 +235,11 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => 1;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.PirateSilverNinja, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
             place.Radius = new(8, 16);
             place.SetSpawnParameter2(EnemyDefinitionId.PirateSilverNinja, 0x0080);
-            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place);
+            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place.HeldOccupant(), place);
             return new NinjaSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, place, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) });
         }
 

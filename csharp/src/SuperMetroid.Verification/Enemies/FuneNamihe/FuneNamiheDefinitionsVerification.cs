@@ -21,11 +21,11 @@ internal static class FuneNamiheDefinitionsVerification
             bool namihe = (variant & 2) != 0;
             bool right = (variant & 1) != 0;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace> initialize = namihe ? FuneNamiheBehavior.InitializeNamihe : FuneNamiheBehavior.InitializeFune;
+            Action<RoomEnemyPlace> initialize = namihe ? fixturePlace => FuneNamiheBehavior.InitializeNamihe(fixturePlace.HeldOccupant(), fixturePlace) : fixturePlace => FuneNamiheBehavior.InitializeFune(fixturePlace.HeldOccupant(), fixturePlace);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, place.Definition);
-            place.SetSpawnParameter1(place.DefinitionId, (ushort)((namihe ? 1 : 0) | (right ? 0x10 : 0)));
-            place.SetSpawnParameter2(place.DefinitionId, 0x1000);
+            place.SetSpawnParameter1(place.HeldOccupant().DefinitionId, (ushort)((namihe ? 1 : 0) | (right ? 0x10 : 0)));
+            place.SetSpawnParameter2(place.HeldOccupant().DefinitionId, 0x1000);
             place.Position = place.Position.WithWholeY(0x0200);
             initialize(place);
             FuneNamiheEnemyState state = namihe
@@ -54,10 +54,10 @@ internal static class FuneNamiheDefinitionsVerification
         switch (state)
         {
             case FuneEnemyState fune:
-                FuneNamiheBehavior.RunFuneMain(place, fune);
+                FuneNamiheBehavior.RunFuneMain(place.HeldOccupant(), place, fune);
                 return;
             case NamiheEnemyState namihe:
-                FuneNamiheBehavior.RunNamiheMain(place, namihe, samus);
+                FuneNamiheBehavior.RunNamiheMain(place.HeldOccupant(), place, namihe, samus);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined Fune/Namihe state {state}.");

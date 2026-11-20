@@ -16,14 +16,14 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Initializes the Atomic.</summary>
-    internal static void InitializeAtomic(RoomEnemyPlace place)
+    internal static void InitializeAtomic(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         var state = new AtomicEnemyState();
         place.SetSpeciesState(state);
 
         place.AnimationClock.Restart();
 
-        AtomicSpawnSettings settings = place.SpawnSettings<AtomicSpawnSettings>();
+        AtomicSpawnSettings settings = occupant.SpawnSettings<AtomicSpawnSettings>();
         state.Playback = new(AtomicAnimations.StartingWith(settings.Spin), AnimationPlace.StartOfAnimation);
     }
 
@@ -32,12 +32,12 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     /// directions again every update.
     /// </summary>
     private static void RunAtomicMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         SamusState samus)
     {
         // The Atomic moves towards Samus on each axis; being level with her counts as her being below or to the right, so
         // it moves down or right.
-        SignedSixteenSixteen speed = place.SpawnSettings<AtomicSpawnSettings>().Speed;
+        SignedSixteenSixteen speed = occupant.SpawnSettings<AtomicSpawnSettings>().Speed;
         SignedSixteenSixteen vertical = speed.Toward(samus.Position.Y.Whole < place.Position.Y.Whole ? VerticalDirection.Up : VerticalDirection.Down);
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(vertical));
 
@@ -52,8 +52,8 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"A cue-free Atomic animation raised {cue}."));
 
     /// <summary>Runs Atomic's main AI.</summary>
-    internal static void RunAtomicMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal static void RunAtomicMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunAtomicMain(place, frame.Samus);
+        RunAtomicMain(occupant, place, frame.Samus);
     }
 }

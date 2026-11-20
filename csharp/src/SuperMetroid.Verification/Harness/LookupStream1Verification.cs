@@ -191,7 +191,7 @@ internal static class LookupStream1Verification
         enemies.VerificationServices().HasEvent = _ => false;
         RoomEnemyPlace dachora = enemies.Places.InUpdateOrder[0];
         dachora.Bind(EnemyDefinitionId.DachoraEscape, dachora.Definition);
-        dachora.Bind(dachora.DefinitionId, default(RoomEnemyDefinition));
+        dachora.Bind(dachora.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         dachora.Position = dachora.Position.WithWhole(new(256, 200));
         enemies.EscapeAnimalsBehavior.InitializeEscapeDachora(dachora);
         return enemies;
@@ -211,12 +211,12 @@ internal static class LookupStream1Verification
             var balloon = enemies.Places.InUpdateOrder[0];
             balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
             balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
-            balloon.Bind(balloon.DefinitionId, default(RoomEnemyDefinition));
+            balloon.Bind(balloon.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
             PowampBehavior.InitializePowampBalloon(balloon);
             var body = enemies.Places.InUpdateOrder[1];
             body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0, PowampContact.Accepts));
             body.Bind(EnemyDefinitionId.Powamp, body.Definition);
-            body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
+            body.Bind(body.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
             enemies.PowampBehavior.InitializePowampBody(body);
             body.Position = body.Position.WithWholeY(100);
             var place = isBody ? body : balloon;
@@ -231,7 +231,7 @@ internal static class LookupStream1Verification
                 body.RequireSpeciesState<PowampBodyState>().Playback = new(PowampAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             else
                 PowampBehavior.StartPowampBalloonAnimation(balloon, balloon.RequireSpeciesState<PowampBalloonState>(), program);
-            var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampBalloonState>());
+            var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampBalloonState>(), balloon.HeldOccupant());
             place.AnimationClock.StepOnNextUpdate();
             object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
             int calls = 0;
@@ -288,7 +288,7 @@ internal static class LookupStream1Verification
             enemies.VerificationServices().NextRandom = () => { randomCalls++; return 5; };
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.Metroid, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
             place.AnimationClock.StepOnNextUpdate();
             enemies.Places.InUpdateOrder[0].SetSpeciesState(new MetroidEnemyState(new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
             {

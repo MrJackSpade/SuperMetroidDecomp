@@ -13,11 +13,11 @@ internal sealed class BoyonEntity(BoyonBehavior species, RoomEnemyOccupant occup
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => BoyonBehavior.InitializeBoyon(Place);
+    public void Initialize() => BoyonBehavior.InitializeBoyon(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        BoyonBehavior.RunBoyonMain(Place, Place.RequireSpeciesState<BoyonEnemyState>(), frame.Samus);
+        BoyonBehavior.RunBoyonMain(Occupant, Place, Place.RequireSpeciesState<BoyonEnemyState>(), frame.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBoyonAnimation(Place, context);

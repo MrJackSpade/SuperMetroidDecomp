@@ -9,10 +9,10 @@ internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemyOccupant occup
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => OwtchBehavior.InitializeOwtch(Place);
+    public void Initialize() => OwtchBehavior.InitializeOwtch(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => OwtchBehavior.AdvanceOwtchTypedAnimation(Place, context);

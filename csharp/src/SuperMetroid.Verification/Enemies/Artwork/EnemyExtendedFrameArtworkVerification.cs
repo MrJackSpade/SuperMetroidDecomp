@@ -275,7 +275,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         EnemyFrameId? frame = RoomEnemyPlaceFrameAccess.TryFrameAt(bank, pointer);
         place.Bind(ExtendedFrameShower(frame), place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         if (art is not null)
         {
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.

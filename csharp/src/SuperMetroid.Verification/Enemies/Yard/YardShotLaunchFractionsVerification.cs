@@ -25,7 +25,7 @@ internal static class YardShotLaunchFractionsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.SetSpawnWords(EnemyDefinitionId.Yard, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(0, 0, 0, 0, 0));
         place.Bind(EnemyDefinitionId.Yard, place.Definition);
-        YardEnemyBehavior.InitializeYard(place);
+        YardEnemyBehavior.InitializeYard(place.HeldOccupant(), place);
         YardEnemyState state = enemies.YardStates[0] ?? throw new InvalidOperationException("Verification requires enemies.YardStates[0].");
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusArtwork());
 

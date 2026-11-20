@@ -13,7 +13,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing
+        occupant.SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing
             ? new DragonWingEntity(this, occupant, place, common)
             : new DragonEntity(this, occupant, place, common);
 

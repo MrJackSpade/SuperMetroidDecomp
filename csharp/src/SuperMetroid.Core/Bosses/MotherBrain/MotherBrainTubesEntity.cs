@@ -14,7 +14,7 @@ internal sealed class MotherBrainTubesEntity(MotherBrainBehavior species, RoomEn
     : MotherBrainEntity(species, occupant, place, common)
 {
     /// <inheritdoc/>
-    public override void Initialize() => MotherBrainFakeDeath.InitializeMotherBrainFallingTube(Place);
+    public override void Initialize() => MotherBrainFakeDeath.InitializeMotherBrainFallingTube(Occupant, Place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.FakeDeath.RunMotherBrainFallingTubeMain(Place);

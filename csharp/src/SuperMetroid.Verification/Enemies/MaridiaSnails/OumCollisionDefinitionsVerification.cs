@@ -38,8 +38,8 @@ internal static class OumCollisionDefinitionsVerification
         RoomEnemyPlace nativePlace = compiled.Places.InUpdateOrder[1];
         RoomEnemyPlace compiledPlace = compiled.Places.InUpdateOrder[0];
         var boundDefinition = default(RoomEnemyDefinition);
-        nativePlace.Bind(nativePlace.DefinitionId, boundDefinition);
-        compiledPlace.Bind(compiledPlace.DefinitionId, boundDefinition);
+        nativePlace.Bind(nativePlace.HeldOccupant().DefinitionId, boundDefinition);
+        compiledPlace.Bind(compiledPlace.HeldOccupant().DefinitionId, boundDefinition);
         // The native place is an Oum too: its frame's word is read in its header's bank (#2327).
         nativePlace.Bind(EnemyDefinitionId.Oum, nativePlace.Definition);
         compiledPlace.Bind(EnemyDefinitionId.Oum, compiledPlace.Definition);

@@ -69,10 +69,10 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.PirateSilverNinja, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
             place.SetSpawnParameter2(EnemyDefinitionId.PirateSilverNinja, 0x0080);
-            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place);
+            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place.HeldOccupant(), place);
             return new InitializeResult(place, (enemies.NinjaSpacePirateStates[0]
                 ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Playback);
         }

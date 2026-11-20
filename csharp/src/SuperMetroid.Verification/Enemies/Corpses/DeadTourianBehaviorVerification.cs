@@ -22,9 +22,9 @@ internal static class DeadTourianBehaviorVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
         RoomEnemyPlace corpse = enemies.Places.InUpdateOrder[0];
         corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);
-        corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));
+        corpse.Bind(corpse.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         corpse.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, 0);
-        enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse);
+        enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse.HeldOccupant(), corpse);
         AssertEqual(new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(DeadTourianSegment.SidehopperIdle), AnimationPlace.StartOfAnimation),
             corpse.RequireSpeciesState<DeadSidehopperEnemyState>().Playback, "real dead Sidehopper initializer starts the alive-idle pose");
 
@@ -65,9 +65,9 @@ internal static class DeadTourianBehaviorVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
             RoomEnemyPlace corpse = enemies.Places.InUpdateOrder[0];
             corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);
-            corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));
+            corpse.Bind(corpse.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
             corpse.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, 0);
-            enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse);
+            enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse.HeldOccupant(), corpse);
             DeadSidehopperEnemyState state = corpse.RequireSpeciesState<DeadSidehopperEnemyState>();
             AssertEqual(DeadSidehopperAction.AliveWaitForCamera, state.Action, "the Shitroid victim starts waiting for the camera");
 

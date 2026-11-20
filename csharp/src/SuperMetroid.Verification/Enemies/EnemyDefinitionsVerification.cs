@@ -170,7 +170,7 @@ internal static class EnemyDefinitionsVerification
 
             enemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainFallingTube(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), piece);
             RoomEnemyPlace tube = enemies.Places.InUpdateOrder[index];
-            AssertEqual(native, tube.Spawn.Population,
+            AssertEqual(native, tube.HeldOccupant().Spawn,
                 $"production tube spawn {index} retains its authored placement and parameters");
             AssertEqual(native.Position.X, tube.Position.X.Whole,
                 $"production tube spawn {index} uses its compiled X coordinate");

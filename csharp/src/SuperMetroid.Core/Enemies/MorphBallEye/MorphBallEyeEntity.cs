@@ -12,10 +12,10 @@ internal sealed class MorphBallEyeEntity(MorphBallEyeBehavior species, RoomEnemy
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => MorphBallEyeBehavior.InitializeMorphBallEyeBody(Place);
+    public void Initialize() => MorphBallEyeBehavior.InitializeMorphBallEyeBody(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMorphBallEyeMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMorphBallEyeMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MorphBallEyeBehavior.AdvanceMorphBallEyeTypedAnimation(Place, context);

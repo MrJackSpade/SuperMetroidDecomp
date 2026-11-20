@@ -98,7 +98,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
                 RoomEnemyCompatibilityFixtures.ForNewRoom(fadeStepCount, new UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             RoomEnemyPlace primaryPlace = enemies.Places.InUpdateOrder[0];
             primaryPlace.SetSpawnSettings(new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
-            var primary = new ZebetiteEnemyState(primaryPlace.Spawn.Population);
+            var primary = new ZebetiteEnemyState(primaryPlace.HeldOccupant().Spawn);
             primaryPlace.SetSpeciesState(primary);
             return enemies;
         }

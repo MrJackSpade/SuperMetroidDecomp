@@ -13,7 +13,7 @@ internal sealed class MorphBallEyeMountEntity(MorphBallEyeBehavior species, Room
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeMorphBallEyeMount(Place);
+    public void Initialize() => species.InitializeMorphBallEyeMount(Occupant, Place);
 
     /// <summary>A mount only shows its pose: its main AI does nothing.</summary>
     /// <param name="frame">The update's frame, which the mount does not read.</param>

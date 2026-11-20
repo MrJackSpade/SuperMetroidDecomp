@@ -13,7 +13,7 @@ internal sealed class KiHunterWingsEntity(KiHunterBehavior species, RoomEnemyOcc
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeKiHunterWings(Place);
+    public void Initialize() => species.InitializeKiHunterWings(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterWingsMainAi(Place, frame);

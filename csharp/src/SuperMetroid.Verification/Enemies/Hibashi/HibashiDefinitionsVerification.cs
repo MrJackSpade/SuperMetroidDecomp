@@ -63,14 +63,14 @@ internal static class HibashiDefinitionsVerification
         RoomEnemyPlace programGraphics = programSystem.Places.InUpdateOrder[0];
         programGraphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
         programGraphics.Bind(EnemyDefinitionId.Hibashi, programGraphics.Definition);
-        programGraphics.Bind(programGraphics.DefinitionId, default(RoomEnemyDefinition));
+        programGraphics.Bind(programGraphics.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         programGraphics.Position = programGraphics.Position.WithWhole(new(0x0180, 0x0200));
         initializeProgram(programGraphics);
 
         RoomEnemyPlace programHitbox = programSystem.Places.InUpdateOrder[1];
         programHitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
         programHitbox.Bind(EnemyDefinitionId.Hibashi, programHitbox.Definition);
-        programHitbox.Bind(programHitbox.DefinitionId, default(RoomEnemyDefinition));
+        programHitbox.Bind(programHitbox.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         programHitbox.Position = programHitbox.Position.WithWhole(programGraphics.Position.Whole);
         initializeProgram(programHitbox);
 
@@ -78,13 +78,13 @@ internal static class HibashiDefinitionsVerification
         RoomEnemyPlace twinGraphics = programSystem.Places.InUpdateOrder[2];
         twinGraphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
         twinGraphics.Bind(EnemyDefinitionId.Hibashi, twinGraphics.Definition);
-        twinGraphics.Bind(twinGraphics.DefinitionId, programGraphics.Definition);
+        twinGraphics.Bind(twinGraphics.HeldOccupant().DefinitionId, programGraphics.Definition);
         twinGraphics.Position = twinGraphics.Position.WithWhole(new(448, 512));
         initializeProgram(twinGraphics);
         RoomEnemyPlace twinHitbox = programSystem.Places.InUpdateOrder[3];
         twinHitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
         twinHitbox.Bind(EnemyDefinitionId.Hibashi, twinHitbox.Definition);
-        twinHitbox.Bind(twinHitbox.DefinitionId, programGraphics.Definition);
+        twinHitbox.Bind(twinHitbox.HeldOccupant().DefinitionId, programGraphics.Definition);
         twinHitbox.Position = twinHitbox.Position.WithWhole(twinGraphics.Position.Whole);
         initializeProgram(twinHitbox);
 

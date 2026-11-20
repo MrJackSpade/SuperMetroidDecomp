@@ -50,9 +50,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes either shipped statue.</summary>
-    internal void InitializeChozoStatue(RoomEnemyPlace statue)
+    internal void InitializeChozoStatue(RoomEnemyOccupant occupant, RoomEnemyPlace statue)
     {
-        ChozoStatueSite site = statue.SpawnSettings<ChozoStatueSpawnSettings>().Site;
+        ChozoStatueSite site = occupant.SpawnSettings<ChozoStatueSpawnSettings>().Site;
         if (!Enum.IsDefined(site))
             throw new InvalidOperationException($"Undefined {nameof(ChozoStatueSite)} {site}.");
 
@@ -65,7 +65,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         // The statue shows its own colours, the shade of its site's statue, which no other enemy shows (#1512).
         statue.Shading = PictureShading.Shaded(site == ChozoStatueSite.WreckedShip ? ChozoAndTubeShades.WreckedShipStatue : ChozoAndTubeShades.LowerNorfairStatue);
 
-        var state = new ChozoStatueState { Phase = ChozoStatuePhase.Placed };
+        var state = new ChozoStatueState { Phase = ChozoStatuePhase.Placed, Site = site };
         statue.SetSpeciesState(state);
         _statue = statue;
 
@@ -92,9 +92,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ActivateChozoStatueHandTrigger()
     {
         RoomEnemyPlace statue = _statue ?? throw new InvalidOperationException("A Chozo hand triggered in a room whose statue was never placed.");
-        statue.RequireSpeciesState<ChozoStatueState>().TriggerHand();
+        ChozoStatueState statueState = statue.RequireSpeciesState<ChozoStatueState>();
+        statueState.TriggerHand();
         DisableChozoStatueSamusControls();
-        if (statue.SpawnSettings<ChozoStatueSpawnSettings>().Site == ChozoStatueSite.LowerNorfair)
+        if (statueState.Site == ChozoStatueSite.LowerNorfair)
         {
             // Lower Norfair's hand trigger records the acid-lowered event before waking the actor.
             _room.Services.Events.Set(StoryEvent.LowerNorfairChozoLoweredAcid);
@@ -117,12 +118,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// admits her only once Phantoon is defeated, which the game's wait tests again and always finds so. The animation does
     /// the rest.
     /// </summary>
-    private static void RunChozoStatueMain(RoomEnemyPlace statue, ChozoStatueState state)
+    private static void RunChozoStatueMain(RoomEnemyOccupant occupant, RoomEnemyPlace statue, ChozoStatueState state)
     {
         if (state.Phase != ChozoStatuePhase.HandTriggered)
             return;
 
-        state.Playback = new(ChozoStatueAnimations.StartingWith(statue.SpawnSettings<ChozoStatueSpawnSettings>().Site == ChozoStatueSite.WreckedShip
+        state.Playback = new(ChozoStatueAnimations.StartingWith(occupant.SpawnSettings<ChozoStatueSpawnSettings>().Site == ChozoStatueSite.WreckedShip
             ? ChozoStatueSegment.WreckedShipActivated
             : ChozoStatueSegment.LowerNorfairActivated), AnimationPlace.StartOfAnimation);
         statue.AnimationClock.StepOnNextUpdate();
@@ -275,9 +276,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         _passEvents.Publish(new ChozoStatueObjectAsked(new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, roomObject)));
 
     /// <summary>Runs ChozoStatue's main AI.</summary>
-    internal static void RunChozoStatueMainAi(RoomEnemyPlace place, IEnemyAiFrame _)
+    internal static void RunChozoStatueMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame _)
     {
-        RunChozoStatueMain(place, place.RequireSpeciesState<ChozoStatueState>());
+        RunChozoStatueMain(occupant, place, place.RequireSpeciesState<ChozoStatueState>());
     }
 
     /// <summary>Advances ChozoStatue's typed animation.</summary>

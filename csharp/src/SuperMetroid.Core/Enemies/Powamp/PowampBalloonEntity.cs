@@ -12,6 +12,9 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The balloon's own shot reaction, built for this occupant.</summary>
+    private readonly EnemyShotReaction ownShot = species.PowampBalloonShotReaction(occupant);
+
     /// <inheritdoc/>
     public void Initialize() => PowampBehavior.InitializePowampBalloon(Place);
 
@@ -38,7 +41,7 @@ internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccup
     }
 
     /// <summary>The balloon's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.PowampBalloonShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? ownShot : base.ShotReaction;
 
     /// <summary>The Powamp's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

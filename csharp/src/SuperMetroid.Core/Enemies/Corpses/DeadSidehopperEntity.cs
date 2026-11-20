@@ -13,7 +13,7 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
     public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(Place);
 
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeDeadSidehopper(Place);
+    public void Initialize() => species.InitializeDeadSidehopper(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadSidehopperMainAi(Place, frame);

@@ -73,9 +73,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         : PictureShading.Standard;
 
     /// <summary>Sets a Zebetite up when the room spawns it.</summary>
-    internal void InitializeZebetite(RoomEnemyPlace place)
+    internal void InitializeZebetite(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        var state = new ZebetiteEnemyState(place.Spawn.Population);
+        var state = new ZebetiteEnemyState(occupant.Spawn);
         place.SetSpeciesState(state);
 
         // A Zebetite animates and is solid to Samus.

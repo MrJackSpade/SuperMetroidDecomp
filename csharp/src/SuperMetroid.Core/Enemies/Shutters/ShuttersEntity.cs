@@ -13,6 +13,9 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 internal abstract class ShuttersEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The shutter's own Power Bomb reaction, built for this occupant.</summary>
+    private readonly EnemyPowerBombReaction ownPowerBomb = species.VerticalShutterPowerBombReaction(occupant);
+
     /// <summary>The Shutters species owner.</summary>
     protected ShuttersBehavior Species => species;
 
@@ -33,14 +36,14 @@ internal abstract class ShuttersEntity(ShuttersBehavior species, RoomEnemyOccupa
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            species.ReactToVerticalShutterTouch(context);
+            species.ReactToVerticalShutterTouch(Occupant, context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The vertical shutters' own Power Bomb reaction where the definition leaves the blast to them, or the shared one.</summary>
     public override EnemyPowerBombReaction? PowerBombReaction =>
-        LeavesPowerBombToSpecies ? species.VerticalShutterPowerBombReaction : base.PowerBombReaction;
+        LeavesPowerBombToSpecies ? ownPowerBomb : base.PowerBombReaction;
 
     /// <summary>
     /// The shootable and destroyable vertical shutters' shot reactions, which a normal bomb triggers as it does the common one.

@@ -9,10 +9,10 @@ internal sealed class FuneEntity(FuneNamiheBehavior species, RoomEnemyOccupant o
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => FuneNamiheBehavior.InitializeFune(Place);
+    public void Initialize() => FuneNamiheBehavior.InitializeFune(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => FuneNamiheBehavior.RunFuneMain(Place, Place.RequireSpeciesState<FuneEnemyState>());
+    public void RunMainAi(IEnemyAiFrame frame) => FuneNamiheBehavior.RunFuneMain(Occupant, Place, Place.RequireSpeciesState<FuneEnemyState>());
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation<FuneEnemyState>(Place);

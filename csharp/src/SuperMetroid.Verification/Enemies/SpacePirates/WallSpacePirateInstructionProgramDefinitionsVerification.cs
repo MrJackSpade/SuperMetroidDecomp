@@ -159,7 +159,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 new FrameCounters(0));
             for (int update = 1; update <= 32; update++)
             {
-                WallSpacePirateBehavior.RunWallSpacePirateMainAi(place, frame);
+                WallSpacePirateBehavior.RunWallSpacePirateMainAi(place.HeldOccupant(), place, frame);
                 RotationAngle expected = start.TurnedBySteps(jumpingRight ? -4 * update : 4 * update);
                 AssertEqual(expected, state.WallJumpArcAngle,
                     $"wall Pirate {(jumpingRight ? "right" : "left")} jump angle after update {update} wraps around the turn");
@@ -176,14 +176,14 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => 0;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.PirateGreyWall, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition) with
+            place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition) with
             {
                 Damage = 20,
             });
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
             place.Radius = new(8, 16);
             place.SetSpawnParameter2(EnemyDefinitionId.PirateGreyWall, 0x0080);
-            WallSpacePirateBehavior.InitializeWallSpacePirate(place);
+            WallSpacePirateBehavior.InitializeWallSpacePirate(place.HeldOccupant(), place);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),

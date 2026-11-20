@@ -64,7 +64,7 @@ internal static class MagdolliteApexThresholdVerification
                 member.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
             }
             AssertEqual(SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2),
-                enemies.Places.InUpdateOrder[0].SpawnSettings<MagdolliteHeadSpawnSettings>().Speed, "Magdollite speed record 24 is one and a half pixels");
+                enemies.Places.InUpdateOrder[0].HeldOccupant().SpawnSettings<MagdolliteHeadSpawnSettings>().Speed, "Magdollite speed record 24 is one and a half pixels");
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
             var state = enemies.MagdolliteStates[1] as MagdolliteBodyState ?? throw new InvalidOperationException("Magdollite arm has no state.");
             state.Action = MagdolliteBodyAction.Rising;
@@ -96,7 +96,7 @@ internal static class MagdolliteApexThresholdVerification
                 initialize(member, RoomEnemyFrameFixtures.StandaloneSamus());
             }
             // Speed record zero holds the arm where it stands (#2474).
-            AssertEqual(SignedSixteenSixteen.Zero, enemies.Places.InUpdateOrder[headSlot].SpawnSettings<MagdolliteHeadSpawnSettings>().Speed,
+            AssertEqual(SignedSixteenSixteen.Zero, enemies.Places.InUpdateOrder[headSlot].HeldOccupant().SpawnSettings<MagdolliteHeadSpawnSettings>().Speed,
                 "Magdollite speed record zero stands still");
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[headSlot + 1];
             var state = enemies.MagdolliteStates[headSlot + 1] as MagdolliteBodyState ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[headSlot + 1].");

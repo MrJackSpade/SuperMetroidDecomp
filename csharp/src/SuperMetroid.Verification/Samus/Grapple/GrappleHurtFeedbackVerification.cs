@@ -46,7 +46,7 @@ internal static class GrappleHurtFeedbackVerification
         AssertEqual(GrapplePhase.ConnectedSwinging, samus.Grapple.Phase, "fixture is hanging from an attached grapple");
         var target = runtime.Enemies.Places.InUpdateOrder[0];
         target.Bind(EnemyDefinitionId.Ripper, target.Definition);
-        target.Bind(target.DefinitionId, RoomEnemyDefinitionLookup.Get(target.DefinitionId));
+        target.Bind(target.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(target.DefinitionId));
         target.Position = target.Position.WithWhole(samus.Position.Whole);
         target.Radius = new(8, 8);
         target.Frame = EnemyFrameId.RipperFlyingLeftEyeLit; // Contact admits only an enemy showing a frame.

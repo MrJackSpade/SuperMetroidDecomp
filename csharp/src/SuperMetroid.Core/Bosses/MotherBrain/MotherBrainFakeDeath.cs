@@ -166,9 +166,9 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Initializes a falling tube.</summary>
-    internal static void InitializeMotherBrainFallingTube(RoomEnemyPlace tube)
+    internal static void InitializeMotherBrainFallingTube(RoomEnemyOccupant occupant, RoomEnemyPlace tube)
     {
-        MotherBrainTubeSpawnSettings settings = tube.Spawn.Population.SpawnSettingsOf<MotherBrainTubeSpawnSettings>();
+        MotherBrainTubeSpawnSettings settings = occupant.SpawnSettings<MotherBrainTubeSpawnSettings>();
         MotherBrainTubePiece piece = settings.Piece;
         MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(piece);
         tube.Radius = tubeBody.Radius;

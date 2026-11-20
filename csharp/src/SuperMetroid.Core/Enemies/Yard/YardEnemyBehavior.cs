@@ -103,9 +103,9 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         new(playing.Animation, AnimationPlace.StartOf(playing.Place.Phase));
 
     /// <summary>Initializes the Yard.</summary>
-    internal static void InitializeYard(RoomEnemyPlace place)
+    internal static void InitializeYard(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        YardSpawnSettings settings = place.SpawnSettings<YardSpawnSettings>();
+        YardSpawnSettings settings = occupant.SpawnSettings<YardSpawnSettings>();
         YardDirection direction = settings.Direction;
 
         var state = new YardEnemyState(YardMovement.HoldingStill)
@@ -528,7 +528,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Yard's custom touch entry.</summary>
     private void ResolveYardTouch(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         YardEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
@@ -558,7 +558,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         _collision.ResolveOrdinaryTouch(place, samus, pseudoScrew);
-        state.CrawlSpeed = place.SpawnSettings<YardSpawnSettings>().CrawlSpeed;
+        state.CrawlSpeed = occupant.SpawnSettings<YardSpawnSettings>().CrawlSpeed;
         if (state.Behavior != YardBehavior.NormalCrawling)
             TurnYardAround(state);
         state.Behavior = YardBehavior.NormalCrawling;
@@ -624,8 +624,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs Yard's touch reaction, including its facing-dependent shell response.</summary>
-    internal void ReactToYardTouch(EnemyTouchContext context) =>
-        ResolveYardTouch(context.Place, context.Place.RequireSpeciesState<YardEnemyState>(), context.Samus, context.PseudoScrew, context.ControllerInput);
+    internal void ReactToYardTouch(RoomEnemyOccupant occupant, EnemyTouchContext context) =>
+        ResolveYardTouch(occupant, context.Place, context.Place.RequireSpeciesState<YardEnemyState>(), context.Samus, context.PseudoScrew, context.ControllerInput);
 
     /// <summary>The enemy-library sound queued by a Yard shell kick, launch or wall bounce.</summary>
     private static readonly SoundEffectId YardBounceSound =

@@ -27,7 +27,7 @@ internal static class EnemyUpdateCountVerification
         enemy.Bind(EnemyDefinitionId.Sbug, enemy.Definition);
         enemy.SetSpawnParameter1(EnemyDefinitionId.Sbug, 1);
         enemy.SetSpawnParameter2(EnemyDefinitionId.Sbug, 1);
-        SuperMetroid.Core.Enemies.Sbug.SbugBehavior.InitializeSbug(enemy);
+        SuperMetroid.Core.Enemies.Sbug.SbugBehavior.InitializeSbug(enemy.HeldOccupant(), enemy);
         enemy.Position = enemy.Position.WithWhole(new(samus.Position.Whole.X + 60, samus.Position.Whole.Y));
         enemy.Radius = new(8, 8);
         enemy.Health = 1;

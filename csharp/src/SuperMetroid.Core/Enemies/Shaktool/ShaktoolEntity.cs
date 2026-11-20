@@ -9,7 +9,7 @@ internal sealed class ShaktoolEntity(ShaktoolBehavior species, RoomEnemyOccupant
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeShaktool(Place);
+    public void Initialize() => species.InitializeShaktool(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunShaktoolMainAi(Place, frame);

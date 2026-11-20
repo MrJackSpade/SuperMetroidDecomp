@@ -9,11 +9,11 @@ internal sealed class NamiheEntity(FuneNamiheBehavior species, RoomEnemyOccupant
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => FuneNamiheBehavior.InitializeNamihe(Place);
+    public void Initialize() => FuneNamiheBehavior.InitializeNamihe(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        FuneNamiheBehavior.RunNamiheMain(Place, Place.RequireSpeciesState<NamiheEnemyState>(), Ensure.NotNull(frame).Samus);
+        FuneNamiheBehavior.RunNamiheMain(Occupant, Place, Place.RequireSpeciesState<NamiheEnemyState>(), Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation<NamiheEnemyState>(Place);

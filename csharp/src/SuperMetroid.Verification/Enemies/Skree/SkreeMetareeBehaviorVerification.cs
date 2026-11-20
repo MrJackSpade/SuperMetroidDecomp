@@ -59,7 +59,7 @@ internal static class SkreeMetareeBehaviorVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(metaree ? EnemyDefinitionId.Metaree : EnemyDefinitionId.Skree, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         // The room spawn primes the instruction timer before the species initializer runs.
         place.AnimationClock.StepOnNextUpdate();
         if (metaree)

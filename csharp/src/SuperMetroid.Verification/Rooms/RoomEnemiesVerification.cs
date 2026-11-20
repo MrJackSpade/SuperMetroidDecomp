@@ -513,7 +513,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ?? throw new InvalidOperationException("The initialized Ripper has no state.");
     AssertEqual(new AnimationPlayback<RipperSegment>(RipperAnimations.StartingWith(RipperSegment.RipperMovingRight), AnimationPlace.StartOfAnimation),
         ripperState.Playback, "Ripper init right animation");
-    SignedSixteenSixteen ripperSpeed = ripper.SpawnSettings<RipperSpawnSettings>().Speed;
+    SignedSixteenSixteen ripperSpeed = ripper.HeldOccupant().SpawnSettings<RipperSpawnSettings>().Speed;
     AssertEqual(1, RipperBehavior.FlyingVelocity(ripperSpeed, ripperState.Heading).UnsignedWholePixels, "Ripper init signed whole X velocity");
     AssertEqual(0, RipperBehavior.FlyingVelocity(ripperSpeed, ripperState.Heading).Fraction, "Ripper init X subvelocity");
 

@@ -9,10 +9,10 @@ internal sealed class NorfairPipeBugEntity(PipeBugsBehavior species, RoomEnemyOc
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeNorfairPipeBug(Place);
+    public void Initialize() => species.InitializeNorfairPipeBug(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunNorfairPipeBugMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunNorfairPipeBugMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PipeBugsBehavior.AdvanceNorfairPipeBugTypedAnimation(Place);

@@ -57,7 +57,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
 
         robot = enemies.Places.InUpdateOrder[0];
         robot.Bind(EnemyDefinitionId.WorkRobot, robot.Definition);
-        robot.Bind(robot.DefinitionId, default(RoomEnemyDefinition));
+        robot.Bind(robot.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         robot.Radius = new(8, 16);
         var state = new WorkRobotEnemyState() { Playback = new(WorkRobotAnimations.StartingWith(WorkRobotSegment.StandingFacingLeft), AnimationPlace.StartOfAnimation) };
         robot.SetSpeciesState(state);

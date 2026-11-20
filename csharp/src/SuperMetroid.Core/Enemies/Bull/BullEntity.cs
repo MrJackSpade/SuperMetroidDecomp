@@ -12,11 +12,11 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemyOccupant occupan
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeBull(Place);
+    public void Initialize() => species.InitializeBull(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        BullBehavior.RunBullMain(Place, Place.RequireSpeciesState<BullEnemyState>(), frame.Samus);
+        BullBehavior.RunBullMain(Occupant, Place, Place.RequireSpeciesState<BullEnemyState>(), frame.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BullBehavior.AdvanceBullAnimation(Place, context);

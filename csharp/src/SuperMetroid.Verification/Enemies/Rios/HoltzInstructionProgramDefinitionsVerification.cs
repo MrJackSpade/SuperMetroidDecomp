@@ -63,7 +63,7 @@ internal static class HoltzInstructionProgramDefinitionsVerification
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
-        parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
+        parent.Bind(parent.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         HoltzBehavior.InitializeHoltz(parent);
         AssertEqual(new AnimationPlayback<HoltzSegment>(HoltzAnimations.StartingWith(HoltzSegment.Idle), AnimationPlace.StartOfAnimation), enemies.Places.InUpdateOrder[0].EntityState<HoltzEntity, HoltzEnemyState>()?.Playback,
             "Lower Norfair Rio parent initializer selects idle");
@@ -71,7 +71,7 @@ internal static class HoltzInstructionProgramDefinitionsVerification
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.SetSpawnParameter1(EnemyDefinitionId.Holtz, 0x8000);
         follower.Bind(EnemyDefinitionId.Holtz, follower.Definition);
-        follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
+        follower.Bind(follower.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         enemies.HoltzBehavior.InitializeHoltzFollower(follower);
         AssertEqual(new AnimationPlayback<HoltzSegment>(HoltzAnimations.StartingWith(HoltzSegment.Flames), AnimationPlace.StartOfAnimation), enemies.Places.InUpdateOrder[1].EntityState<HoltzFollowerEntity, HoltzFollowerState>()?.Playback,
             "Lower Norfair Rio follower initializer selects flames");
@@ -85,7 +85,7 @@ internal static class HoltzInstructionProgramDefinitionsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         place.Bind(EnemyDefinitionId.Holtz, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         place.AnimationClock.StepOnNextUpdate();
         var state = new HoltzEnemyState(HoltzAction.WaitForAttackOpportunity) { Playback = new(HoltzAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
         place.SetSpeciesState(state);

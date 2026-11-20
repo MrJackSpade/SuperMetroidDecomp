@@ -12,7 +12,7 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemyOccu
     public void Initialize() => species.InitializeYappingMaw(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunYappingMawMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunYappingMawMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYappingMawTypedAnimation(Place, context);

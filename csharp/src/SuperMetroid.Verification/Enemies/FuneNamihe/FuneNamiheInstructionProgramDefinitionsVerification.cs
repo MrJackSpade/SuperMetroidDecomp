@@ -83,9 +83,9 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(program.Namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.SetSpawnParameter1(place.DefinitionId, unchecked((ushort)((program.Namihe ? 1 : 0) | (program.Right ? 0x10 : 0))));
-        place.SetSpawnParameter2(place.DefinitionId, 0);
+        place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        place.SetSpawnParameter1(place.HeldOccupant().DefinitionId, unchecked((ushort)((program.Namihe ? 1 : 0) | (program.Right ? 0x10 : 0))));
+        place.SetSpawnParameter2(place.HeldOccupant().DefinitionId, 0);
         place.Position = place.Position.WithWhole(new(128, 128));
         place.AnimationClock.StepOnNextUpdate();
 

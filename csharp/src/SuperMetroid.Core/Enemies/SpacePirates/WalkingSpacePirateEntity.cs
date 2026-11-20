@@ -9,13 +9,13 @@ internal sealed class WalkingSpacePirateEntity(WalkingSpacePirateBehavior specie
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(Place);
+    public void Initialize() => WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunWalkingSpacePirateMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunWalkingSpacePirateMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWalkingSpacePirateTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWalkingSpacePirateTypedAnimation(Occupant, Place, context);
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => SpacePirateHitboxes.Find(Place, probe, out reaction);

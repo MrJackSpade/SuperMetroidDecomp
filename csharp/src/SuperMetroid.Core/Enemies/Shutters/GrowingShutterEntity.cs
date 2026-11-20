@@ -11,15 +11,18 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 internal sealed class GrowingShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : ShuttersEntity(species, occupant, place, common)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => ShuttersBehavior.InitializeGrowingShutter(Place);
+    /// <summary>The shutter's own shot reaction, built for this occupant.</summary>
+    private readonly EnemyShotReaction ownShot = species.DestroyableShutterShotReaction(occupant);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunShutterGrowingMainAi(Place, frame);
+    public override void Initialize() => ShuttersBehavior.InitializeGrowingShutter(Occupant, Place);
+
+    /// <inheritdoc/>
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunShutterGrowingMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceShutterGrowingTypedAnimation(Place, context);
 
     /// <summary>The destroyable shutter's shot reaction where the definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.DestroyableShutterShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? ownShot : base.ShotReaction;
 }

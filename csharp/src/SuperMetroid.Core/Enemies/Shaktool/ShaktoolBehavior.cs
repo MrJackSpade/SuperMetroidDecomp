@@ -36,9 +36,9 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         (angle + RotationAngle.HalfTurn).WholeStep;
 
     /// <summary>Initializes the Shaktool, establishing the segment's orbit and its place in its chain.</summary>
-    internal void InitializeShaktool(RoomEnemyPlace place)
+    internal void InitializeShaktool(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        ShaktoolSpawnSettings settings = place.SpawnSettings<ShaktoolSpawnSettings>();
+        ShaktoolSpawnSettings settings = occupant.SpawnSettings<ShaktoolSpawnSettings>();
         ShaktoolSegmentDefinition definition = settings.Segment;
         var state = new ShaktoolSegmentState();
         place.SetSpeciesState(state);

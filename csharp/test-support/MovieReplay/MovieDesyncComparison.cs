@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Poses;
@@ -233,7 +234,7 @@ internal static class MovieDesyncComparison
             // Identical cartridge definitions that differ only in their way or look name one kind (#2278).
             Check($"Enemy projectile {slot} ID", latest is { IsActive: true }
                     ? EnemyProjectileNativeWords.IdentityWord(latest.Kind, Word(memory, MovieDesyncMemory.EnemyProjectileIds + offset))
-                    : (ushort)0,
+                    : projectiles.HoldsForPrePhantoonRoom(slot) ? EnemyProjectileNativeWords.PrePhantoonRoomHeldPlace : (ushort)0,
                 MovieDesyncMemory.EnemyProjectileIds + offset);
             if (latest is not { IsActive: true } projectile) continue;
             // $86:8097 leaves the whole X word unwritten and the n00b-tube bubble's init only

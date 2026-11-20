@@ -10,6 +10,12 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyProjectileNativeWords
 {
     /// <summary>
+    /// The bank-$86 word the cartridge writes into the place the pre-Phantoon room's setup holds (#2556): a definition no
+    /// projectile kind stands for, as the port holds the place without a projectile.
+    /// </summary>
+    internal const ushort PrePhantoonRoomHeldPlace = 0xa3b0;
+
+    /// <summary>
     /// The enemy-projectile kind each bank-$86 definition word names. Several identical definitions that differ only in the
     /// way their projectile flies or the look its animation shows name one kind (#2278), its state or velocity holding that
     /// way.

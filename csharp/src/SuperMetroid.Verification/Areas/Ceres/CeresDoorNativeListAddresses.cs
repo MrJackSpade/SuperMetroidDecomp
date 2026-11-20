@@ -13,32 +13,42 @@ internal static class CeresDoorNativeListAddresses
     /// <summary>The lists' bank.</summary>
     internal const byte Bank = 0xa6;
 
-    /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<CeresDoorSegment>[] Entries =
-    [
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.RidleyRoomDoor, 0xf53a),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.RidleyRoomDoorWait, 0xf55e),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.DoorFacingRight, 0xf56c),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.OpenFacingRight, 0xf578),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.CloseFacingRight, 0xf584),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.ClosedFacingRight, 0xf598),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.ClosedFacingRightWait, 0xf59c),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.DoorFacingLeft, 0xf5be),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.OpenFacingLeft, 0xf5ca),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.CloseFacingLeft, 0xf5d6),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.ClosedFacingLeft, 0xf5ea),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.ClosedFacingLeftWait, 0xf5ee),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.ElevatorDoor, 0xf610),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.ElevatorRoomWall, 0xf61a),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.GetawayChamberLeftWall, 0xf62a),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.GetawayChamberRightWall, 0xf634),
-    ];
+    /// <summary>
+    /// Each typed program's native entry point, in authored order, for a door facing right and one facing left (#2557): the
+    /// door of Ridley's room, the elevator room's blocked door and the getaway chamber's walls run with the right-facing
+    /// lists, and the elevator room's wall with the left-facing door it stands as.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<HorizontalDirection, NativeProgramEntry<CeresDoorSegment>[]> EntriesBySide =
+        new Dictionary<HorizontalDirection, NativeProgramEntry<CeresDoorSegment>[]>
+        {
+            [HorizontalDirection.Right] =
+            [
+                new(CeresDoorSegment.RidleyRoomDoor, 0xf53a),
+                new(CeresDoorSegment.RidleyRoomDoorWait, 0xf55e),
+                new(CeresDoorSegment.Door, 0xf56c),
+                new(CeresDoorSegment.Open, 0xf578),
+                new(CeresDoorSegment.Close, 0xf584),
+                new(CeresDoorSegment.Closed, 0xf598),
+                new(CeresDoorSegment.ClosedWait, 0xf59c),
+                new(CeresDoorSegment.ElevatorDoor, 0xf610),
+                new(CeresDoorSegment.GetawayChamberLeftWall, 0xf62a),
+                new(CeresDoorSegment.GetawayChamberRightWall, 0xf634),
+            ],
+            [HorizontalDirection.Left] =
+            [
+                new(CeresDoorSegment.Door, 0xf5be),
+                new(CeresDoorSegment.Open, 0xf5ca),
+                new(CeresDoorSegment.Close, 0xf5d6),
+                new(CeresDoorSegment.Closed, 0xf5ea),
+                new(CeresDoorSegment.ClosedWait, 0xf5ee),
+                new(CeresDoorSegment.ElevatorRoomWall, 0xf61a),
+            ],
+        };
 
     /// <summary>The segments no owner starts and no cue branches to, which animations only run on into (#2096).</summary>
     internal static readonly IReadOnlySet<CeresDoorSegment> OnlyRunOnInto = new HashSet<CeresDoorSegment>
     {
-        CeresDoorSegment.OpenFacingRight,
-        CeresDoorSegment.OpenFacingLeft,
+        CeresDoorSegment.Open,
     };
 
     /// <summary>
@@ -57,8 +67,7 @@ internal static class CeresDoorNativeListAddresses
     {
         [0xf63e] = new CeresDoorNativeListAddressesInstruction(
         [
-            CeresDoorCueKind.RightDoorAppears, CeresDoorCueKind.LeftDoorAppears, CeresDoorCueKind.RightDoorStandsOpen,
-            CeresDoorCueKind.LeftDoorStandsOpen, CeresDoorCueKind.RightDoorStandsClosed, CeresDoorCueKind.LeftDoorStandsClosed,
+            CeresDoorCueKind.DoorAppears, CeresDoorCueKind.DoorStandsOpen, CeresDoorCueKind.DoorStandsClosed,
         ], "T"),
         [0xf66a] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.RidleyRoomDoorWaits], "T"),
         [0xf678] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.ElevatorRoomWallAppears], "T"),

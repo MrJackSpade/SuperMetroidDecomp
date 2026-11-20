@@ -43,8 +43,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// The room's glow (#2477): the level every face block shows, kept when a block wakes, and the updates it has left. A
     /// room starts it on its last step, so the glow's first step shows its first.
     /// </summary>
-    private readonly AnimationPlayer<FaceBlockGlowSegment, FaceBlockGlowLevel, NoAnimationCue> _glow =
-        AnimationPlayer<FaceBlockGlowSegment, FaceBlockGlowLevel, NoAnimationCue>.StartShowing(FaceBlockGlowAnimations.Segments, FaceBlockGlowAnimations.Restarted);
+    private readonly ShowingAnimationPlayer<FaceBlockGlowSegment, FaceBlockGlowLevel, NoAnimationCue> _glow =
+        ShowingAnimationPlayer<FaceBlockGlowSegment, FaceBlockGlowLevel, NoAnimationCue>.StartShowing(FaceBlockGlowAnimations.Segments, FaceBlockGlowAnimations.Restarted);
 
     /// <summary>The glow every face block in the room shows once it has started (#1512).</summary>
     private PictureShading Glow => PictureShading.Shaded(FaceBlockShades.Glow(_glow.Showing));

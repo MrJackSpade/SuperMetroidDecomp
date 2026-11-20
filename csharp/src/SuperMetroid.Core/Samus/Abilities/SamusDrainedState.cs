@@ -58,6 +58,9 @@ public sealed class SamusDrainedState
     internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Rainbow { get; } =
         SamusGlowPlay.Starting(SamusGlowSegment.HyperBeamRainbow);
 
+    /// <summary>The rainbow's shade shown, from the update the rainbow colouring starts on its first shade.</summary>
+    private PictureShade rainbowShade;
+
     /// <summary>
     /// How Samus answers Up after each movement, which either drain setup chooses: able or unable to stand. It
     /// deliberately survives the later drained pose changes, just as it does in the game.
@@ -149,7 +152,7 @@ public sealed class SamusDrainedState
         Ensure.NotNull(samus);
         RainbowGlowing = true;
         RainbowGlowHold = RainbowGlowHold.Starting;
-        SamusGlowPlay.RestartShowing(Rainbow, SamusGlowSegment.HyperBeamRainbow, RainbowGlowHold.Updates);
+        rainbowShade = SamusGlowPlay.RestartShowing(Rainbow, SamusGlowSegment.HyperBeamRainbow, RainbowGlowHold.Updates);
         _colouringStage = SpecialColouringStage.Showing;
     }
 
@@ -202,11 +205,14 @@ public sealed class SamusDrainedState
             return false;
 
         // The colouring shows the rainbow's shade before counting down its hold.
-        colours.ShowSuit(Rainbow.Showing);
+        colours.ShowSuit(rainbowShade);
 
         // Each shade shows for the rainbow's hold as it stands when the rainbow moves on to it, not for its own beat.
-        if (Rainbow.StepToNewFrame() is not null)
+        if (Rainbow.StepToNewFrame() is { } next)
+        {
+            rainbowShade = next;
             Rainbow.HoldShownFrameFor(RainbowGlowHold.Updates);
+        }
         return true;
     }
 

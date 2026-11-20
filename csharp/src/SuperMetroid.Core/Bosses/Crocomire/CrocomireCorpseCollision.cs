@@ -11,7 +11,7 @@ internal static class CrocomireCorpseCollision
 
     /// <summary>Returns where a corpse frame places its collision components.</summary>
     internal static ReadOnlySpan<EnemyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
-        frame is not { } shown ? []
-            : CrocomireCorpseCollisionDefinitions.Frames.TryGetValue(shown, out var parts) ? parts
+        frame is { } shown && CrocomireCorpseCollisionDefinitions.Frames.TryGetValue(shown, out var parts)
+            ? parts
             : throw new InvalidDataException($"Unknown Crocomire corpse frame {frame}.");
 }

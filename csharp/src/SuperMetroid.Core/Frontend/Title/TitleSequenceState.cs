@@ -90,7 +90,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Current screen brightness applied after composing title layers.</summary>
     internal int Brightness => fade.Level;
     /// <summary>The Baby Metroid's pulse on the floor (#2359).</summary>
-    private readonly AnimationPlayer<TitleBabySegment, TitleBabyPose, NoAnimationCue> baby = TitleBabyAnimation.Start();
+    private readonly ShowingAnimationPlayer<TitleBabySegment, TitleBabyPose, NoAnimationCue> baby = TitleBabyAnimation.Start();
     /// <summary>The pose of the Baby Metroid's pulse the floor shows.</summary>
     internal TitleBabyPose BabyPose => baby.Showing;
     /// <summary>

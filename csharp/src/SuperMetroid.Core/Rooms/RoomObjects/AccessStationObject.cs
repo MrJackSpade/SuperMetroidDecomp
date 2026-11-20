@@ -94,8 +94,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
                 OperationPhase = new StationOperationPhase.InUse(pending);
                 operationStartedThisUpdate = true;
                 context.QueueSound(EnemySound.StationEngaged, SoundRequestPriority.Normal);
-                _arm.Show(StationAccessTimingDefinitions.Use);
-                DrawAccess(context, pending, _arm.Showing);
+                DrawAccess(context, pending, _arm.Show(StationAccessTimingDefinitions.Use));
             }
         }
 

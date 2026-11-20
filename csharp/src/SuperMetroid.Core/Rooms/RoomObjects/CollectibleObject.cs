@@ -237,8 +237,7 @@ internal sealed class CollectibleObject(
     /// <summary>Starts <paramref name="animation"/> and draws its first image, which shows on this update.</summary>
     private void Show(Animation<CollectibleSequence> animation, IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
     {
-        _shown.Show(animation);
-        Draw(_shown.Showing, drawing, level, place);
+        Draw(_shown.Show(animation), drawing, level, place);
     }
 
     /// <summary>

@@ -26,4 +26,11 @@ internal static class WaveOutAudioDevicePrivateAccess
         /// <summary>The private field <c>enqueuedFrames</c>, reached by name.</summary>
         internal long enqueuedFrames => PrivateState.Field<global::SuperMetroid.Desktop.Audio.WaveOutAudioDevice, long>(self, "enqueuedFrames");
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Desktop.Audio.WaveOutAudioDevice self)
+    {
+        /// <summary>The private field <c>slots</c>, reached by name.</summary>
+        internal global::SuperMetroid.Desktop.Audio.WaveOutAudioDevice.BufferSlot[] slots => PrivateState.Field<global::SuperMetroid.Desktop.Audio.WaveOutAudioDevice, global::SuperMetroid.Desktop.Audio.WaveOutAudioDevice.BufferSlot[]>(self, "slots");
+    }
 }

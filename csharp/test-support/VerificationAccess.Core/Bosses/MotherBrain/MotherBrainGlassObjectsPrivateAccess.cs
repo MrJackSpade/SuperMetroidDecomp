@@ -22,4 +22,14 @@ internal static class MotherBrainGlassObjectsPrivateAccess
             return invocationResult;
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassObjects self)
+    {
+        /// <summary>The private property <c>MotherBrainGlassWasLoaded</c>, reached by name.</summary>
+        internal bool MotherBrainGlassWasLoaded
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassObjects, bool>(self, "MotherBrainGlassWasLoaded");
+        }
+    }
 }

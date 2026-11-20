@@ -16,4 +16,11 @@ internal static class EndingSpriteSheetsPrivateAccess
         /// <summary>The private field <c>Clouds</c>, reached by name.</summary>
         internal static global::SuperMetroid.Core.Assets.SpriteSheetId Clouds => PrivateState.StaticField<global::SuperMetroid.Core.Assets.SpriteSheetId>(typeof(global::SuperMetroid.Core.Frontend.Ending.EndingSpriteSheets), "Clouds");
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Frontend.Ending.EndingSpriteSheets)
+    {
+        /// <summary>The private field <c>Explosion</c>, reached by name.</summary>
+        internal static global::SuperMetroid.Core.Assets.SpriteSheetId Explosion => PrivateState.StaticField<global::SuperMetroid.Core.Assets.SpriteSheetId>(typeof(global::SuperMetroid.Core.Frontend.Ending.EndingSpriteSheets), "Explosion");
+    }
 }

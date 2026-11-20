@@ -46,4 +46,11 @@ internal static class GameOverMenuStatePrivateAccess
         /// <summary>The private field <c>missile</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Frontend.Menus.MenuMissileAnimation missile => PrivateState.Field<global::SuperMetroid.Core.Frontend.GameOver.GameOverMenuState, global::SuperMetroid.Core.Frontend.Menus.MenuMissileAnimation>(self, "missile");
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Frontend.GameOver.GameOverMenuState self)
+    {
+        /// <summary>The private field <c>screen</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Frontend.Menus.MenuScreen screen => PrivateState.Field<global::SuperMetroid.Core.Frontend.GameOver.GameOverMenuState, global::SuperMetroid.Core.Frontend.Menus.MenuScreen>(self, "screen");
+    }
 }

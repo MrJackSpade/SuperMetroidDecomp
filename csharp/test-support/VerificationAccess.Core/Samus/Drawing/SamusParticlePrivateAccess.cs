@@ -19,4 +19,14 @@ internal static class SamusParticlePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Samus.Drawing.SamusParticle, global::SuperMetroid.Core.UpdateCountdown>(self, "Hidden");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Samus.Drawing.SamusParticle self)
+    {
+        /// <summary>The private property <c>Animation</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Samus.Drawing.SamusParticleKind, global::SuperMetroid.Core.Samus.Artwork.SamusAtmosphereFrame, global::SuperMetroid.Core.Animation.NoAnimationCue> Animation
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Drawing.SamusParticle, global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Samus.Drawing.SamusParticleKind, global::SuperMetroid.Core.Samus.Artwork.SamusAtmosphereFrame, global::SuperMetroid.Core.Animation.NoAnimationCue>>(self, "Animation");
+        }
+    }
 }

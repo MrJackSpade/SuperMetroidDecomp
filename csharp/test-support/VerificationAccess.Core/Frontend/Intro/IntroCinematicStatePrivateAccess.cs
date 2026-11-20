@@ -125,4 +125,14 @@ internal static class IntroCinematicStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Assets.PictureShading>(self, "FightRoomShading");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState self)
+    {
+        /// <summary>The private property <c>ColourEffects</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Fx.ColourEffectSystem ColourEffects
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Fx.ColourEffectSystem>(self, "ColourEffects");
+        }
+    }
 }

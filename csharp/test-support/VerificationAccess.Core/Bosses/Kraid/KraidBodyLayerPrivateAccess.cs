@@ -17,4 +17,14 @@ internal static class KraidBodyLayerPrivateAccess
         internal global::SuperMetroid.Core.Enemies.BossBodies.BossBodyLayer? CaptureBodyLayer() =>
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Kraid.KraidBodyLayer, global::SuperMetroid.Core.Enemies.BossBodies.BossBodyLayer?>(self, "CaptureBodyLayer", [], new object?[] {  });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Kraid.KraidBodyLayer self)
+    {
+        /// <summary>The private property <c>Kraid</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Kraid.KraidEnemyState? Kraid
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Kraid.KraidBodyLayer, global::SuperMetroid.Core.Bosses.Kraid.KraidEnemyState?>(self, "Kraid");
+        }
+    }
 }

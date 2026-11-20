@@ -36,4 +36,14 @@ internal static class RotationAnglePrivateAccess
         internal static global::SuperMetroid.Core.Spatial.RotationAngle FromSteps(int steps, int fraction) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Spatial.RotationAngle>(typeof(global::SuperMetroid.Core.Spatial.RotationAngle), "FromSteps", [typeof(int), typeof(int)], new object?[] { steps, fraction });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Spatial.RotationAngle self)
+    {
+        /// <summary>The private property <c>RawValue</c>, reached by name.</summary>
+        internal ushort RawValue
+        {
+            get => PrivateState.ValueGet<global::SuperMetroid.Core.Spatial.RotationAngle, ushort>(self, "RawValue");
+        }
+    }
 }

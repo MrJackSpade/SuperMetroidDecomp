@@ -43,4 +43,14 @@ internal static class SamusProjectileSystemPrivateAccess
         internal static void ShowBeamShade(global::SuperMetroid.Core.Samus.Colours.SamusColours colours, global::SuperMetroid.Core.Progression.SamusBeamCombination selection) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem), "ShowBeamShade", [typeof(global::SuperMetroid.Core.Samus.Colours.SamusColours), typeof(global::SuperMetroid.Core.Progression.SamusBeamCombination)], new object?[] { colours, selection });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem self)
+    {
+        /// <summary>The private property <c>Animation</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Samus.Projectiles.ProjectileAnimation Animation
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem, global::SuperMetroid.Core.Samus.Projectiles.ProjectileAnimation>(self, "Animation");
+        }
+    }
 }

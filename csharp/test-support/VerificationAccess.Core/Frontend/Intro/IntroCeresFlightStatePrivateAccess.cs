@@ -50,4 +50,14 @@ internal static class IntroCeresFlightStatePrivateAccess
         /// <summary>The private field <c>audio</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Audio.AudioQueues audio => PrivateState.Field<global::SuperMetroid.Core.Frontend.Intro.IntroCeresFlightState, global::SuperMetroid.Core.Audio.AudioQueues>(self, "audio");
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Frontend.Intro.IntroCeresFlightState self)
+    {
+        /// <summary>The private property <c>ColourEffects</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Fx.ColourEffectSystem ColourEffects
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCeresFlightState, global::SuperMetroid.Core.Fx.ColourEffectSystem>(self, "ColourEffects");
+        }
+    }
 }

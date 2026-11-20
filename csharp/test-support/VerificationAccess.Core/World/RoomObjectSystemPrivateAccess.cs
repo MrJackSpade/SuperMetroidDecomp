@@ -83,4 +83,14 @@ internal static class RoomObjectSystemPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.World.RoomObjectSystem, global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectSoundQueue>(self, "Sounds");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.World.RoomObjectSystem self)
+    {
+        /// <summary>The private property <c>Places</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlaceList Places
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomObjectSystem, global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlaceList>(self, "Places");
+        }
+    }
 }

@@ -16,4 +16,11 @@ internal static class RoomBackgroundImageGeometryPrivateAccess
         /// <summary>The private field <c>PageWords</c>, reached by name.</summary>
         internal static int PageWords => PrivateState.StaticField<int>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundImageGeometry), "PageWords");
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundImageGeometry)
+    {
+        /// <summary>The private field <c>Pages</c>, reached by name.</summary>
+        internal static int Pages => PrivateState.StaticField<int>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundImageGeometry), "Pages");
+    }
 }

@@ -19,4 +19,11 @@ internal static class XrayClosingPrivateAccess
             get => PrivateState.ValueGet<global::SuperMetroid.Core.Compatibility.XrayClosing, int>(self, "UpdatesLeft");
         }
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Compatibility.XrayClosing)
+    {
+        /// <summary>The private field <c>Updates</c>, reached by name.</summary>
+        internal static int Updates => PrivateState.StaticField<int>(typeof(global::SuperMetroid.Core.Compatibility.XrayClosing), "Updates");
+    }
 }

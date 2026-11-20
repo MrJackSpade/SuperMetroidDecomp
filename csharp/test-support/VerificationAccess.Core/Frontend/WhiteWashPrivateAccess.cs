@@ -17,4 +17,11 @@ internal static class WhiteWashPrivateAccess
         internal static global::SuperMetroid.Core.Assets.RgbColor Colour(int stepsLeft) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Assets.RgbColor>(typeof(global::SuperMetroid.Core.Frontend.WhiteWash), "Colour", [typeof(int)], new object?[] { stepsLeft });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Frontend.WhiteWash)
+    {
+        /// <summary>The private field <c>Steps</c>, reached by name.</summary>
+        internal static int Steps => PrivateState.StaticField<int>(typeof(global::SuperMetroid.Core.Frontend.WhiteWash), "Steps");
+    }
 }

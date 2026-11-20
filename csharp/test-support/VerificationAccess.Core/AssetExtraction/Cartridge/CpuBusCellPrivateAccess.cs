@@ -19,4 +19,14 @@ internal static class CpuBusCellPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.AssetExtraction.Cartridge.CpuBusCell, int>(self, "ByteCount");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Cartridge.CpuBusCell self)
+    {
+        /// <summary>The private property <c>Name</c>, reached by name.</summary>
+        internal string Name
+        {
+            get => PrivateState.Get<global::SuperMetroid.AssetExtraction.Cartridge.CpuBusCell, string>(self, "Name");
+        }
+    }
 }

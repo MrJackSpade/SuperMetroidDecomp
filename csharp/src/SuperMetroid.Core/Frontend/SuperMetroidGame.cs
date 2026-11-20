@@ -253,7 +253,6 @@ public sealed class SuperMetroidGame
                 Pose = samus.Pose,
                 AnimationFrame = samus.AnimationFrameName,
                 AnimationFramesRemaining = samus.AnimationFrameTimer.RemainingFrames,
-                AnimatedPose = samus.AnimatedPose,
                 Position = samus.Position.Whole,
                 HeldActions = runtime.PlayerActions.Current,
                 NewlyPressedActions = runtime.PlayerActions.NewlyPressed,

@@ -46,7 +46,7 @@ public abstract record AttractDemoSamusSetup
         {
             if (Energy is { } energy)
                 samus.Health = energy;
-            samus.Pose = Pose;
+            samus.PlaceInPose(Pose);
         }
     }
 

@@ -539,7 +539,6 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentFlashbackSamus = new SamusState(flashbackAudioRequests, samusOverreads.FramesBeyondAnimation, UnauthoredBoostCadence,
             SamusCompatibility.ForNewSamus(), flashbackProjectiles.Charge, flashbackSamusArtwork)
         {
-            Pose = SamusPoseId.FacingLeftNormalPose,
             // No room loads for the flashback; her footsteps and landings go by its own ground.
             Ground = IntroCinematicDefinitions.Flashback.Ground,
             Position = FixedPosition<RoomPixels>.FromWhole(IntroCinematicDefinitions.Flashback.SamusPosition),
@@ -550,8 +549,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Samus's shared frame phases read the active cinematic phase to select
         // intro colour restoration and suppress gameplay-only sounds.
         CurrentFlashbackSamus.Presentation.PresentInCinematic();
+        CurrentFlashbackSamus.ChangePose(SamusPoseId.FacingLeftNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);
-        SamusPresentation.InitializeAnimation(CurrentFlashbackSamus);
         CurrentFlashbackSamus.CommitPoseHistory();
         CurrentFlashbackMotherBrain = new IntroMotherBrainSpriteState();
         FlashbackMotherBrainExplosions = null;
@@ -902,10 +901,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         // The flashback's end stops the demo on this update, with Samus standing facing left and her pose and its
         // animation started afresh; she shows standing through the rest of Mother Brain's explosions.
-        FlashbackSamus.Pose = SamusPoseId.FacingLeftNormalPose;
-        SamusPoseMetadata.RefreshCollisionRadii(FlashbackSamus);
         // A Samus already standing facing left keeps her running animation.
-        SamusPresentation.SetAnimationFrameIfPoseChanged(FlashbackSamus);
+        FlashbackSamus.ChangePoseRestartingIfChanged(SamusPoseId.FacingLeftNormalPose);
+        SamusPoseMetadata.RefreshCollisionRadii(FlashbackSamus);
         FlashbackSamus.CommitPoseHistory();
         FlashbackDemoInput.Disable();
     }

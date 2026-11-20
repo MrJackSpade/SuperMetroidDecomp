@@ -264,8 +264,7 @@ internal sealed class RoomLoader
     {
         Ensure.NotNull(slot);
         SamusState samus = InitializeSamus();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Start;
+        samus.PlaceInPose(SamusPoseId.FacingRightNormalPose);
         _player.Samus = samus;
         slot.ApplyTo(_player.Samus, _system);
         // Loading the save sets the stored explored maps from it; the live map is loaded only at file select.
@@ -297,8 +296,7 @@ internal sealed class RoomLoader
         // the same one, so a loadout already granted to her is not granted again.
         // Initialization faces Samus forward in the Power Suit.
         SamusState samus = InitializeSamus();
-        samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Start;
+        samus.PlaceInPose(SamusPoseId.ForwardFacingPowerSuitPose);
         samus.CopyInventoryFrom(carried);
         _player.Samus = samus;
         _assists.CarryLoadoutGrant(carried, samus);
@@ -1084,8 +1082,7 @@ internal sealed class RoomLoader
             ?? throw new InvalidOperationException("The starting Ceres room must be loaded from its load station before Samus setup.");
 
         SamusState samus = InitializeSamus();
-        samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Start;
+        samus.PlaceInPose(SamusPoseId.ForwardFacingPowerSuitPose);
         samus.Position = FixedPosition<RoomPixels>.FromWhole(station.Placement.SamusPosition.WithY(0));
         _player.Samus = samus;
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.ShowPower(_player.Colours);

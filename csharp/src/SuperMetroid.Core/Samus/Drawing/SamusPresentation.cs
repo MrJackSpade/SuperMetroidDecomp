@@ -51,28 +51,20 @@ internal sealed class SamusPresentation
     /// Starts the pose's animation on its first frame and seeds the animation frame timer as a pose change does, including
     /// its bottom-minus-one liquid boundary test.
     /// </summary>
-    public static void InitializeAnimation(SamusState samus) => InitializeAnimation(samus, SamusAnimationDelays.AnimationForPose(samus.Pose).Start);
+    public static void InitializeAnimation(SamusState samus) => StartAnimation(samus, SamusAnimationDelays.AnimationForPose(samus.Pose).Start);
 
     /// <summary>
-    /// Starts the pose's animation on <paramref name="initialFrame"/>, a place named for another animation landing on the
-    /// frame the import decoded for it in the pose's (<see cref="SamusAnimationDelays.Land"/>), and seeds the timer as
-    /// <see cref="InitializeAnimation(SamusState)"/> does.
+    /// Starts her pose's animation on <paramref name="initialFrame"/>, a frame of the pose's own animation, and seeds the
+    /// timer as <see cref="InitializeAnimation(SamusState)"/> does: the animation start of a pose change
+    /// (<see cref="SamusState.ChangePose(SamusPoseId, SamusAnimationFrame)"/>).
     /// </summary>
-    internal static void InitializeAnimation(SamusState samus, SamusAnimationPlace initialFrame) =>
-        InitializeAnimation(samus, SamusAnimationDelays.Land(samus.Pose, initialFrame, samus.FramesBeyondAnimation));
-
-    /// <summary>
-    /// Starts the pose's animation on <paramref name="initialFrame"/>, a frame of the pose's own animation, and seeds the
-    /// timer as <see cref="InitializeAnimation(SamusState)"/> does.
-    /// </summary>
-    internal static void InitializeAnimation(SamusState samus, SamusAnimationFrame initialFrame)
+    internal static void StartAnimation(SamusState samus, SamusAnimationFrame initialFrame)
     {
         samus.AnimationFrame = initialFrame;
         // Pose initialization does not simply reuse the previous animation pass's extra animation delay. It
         // recomputes the water or lava delay from the NEW pose radius at Y + radius - 1, while
         // the Gravity Suit takes the slowdown level.
         samus.ExtraAnimationDelay = samus.LiquidPhysics.DeterminePoseChangeExtraAnimationDelay(samus);
-        samus.AnimatedPose = samus.Pose;
         if (samus.AnimationStep is not SamusAnimationDelay initialDelay)
         {
             throw new InvalidOperationException(
@@ -84,23 +76,8 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// The pose-change animation reset as a scene setup
-    /// calls it before committing pose history: the animation restarts only when Pose
-    /// differs from PreviousPose, and otherwise keeps its frame and timer running.
-    /// </summary>
-    /// <remarks>
-    /// The animation does not restart while <see cref="SamusState.ExtraAnimationDelay"/> is negative; it is nonnegative
-    /// at the intro's discovery setup and its demo's end, the only places this runs.
-    /// </remarks>
-    internal static void SetAnimationFrameIfPoseChanged(SamusState samus)
-    {
-        if (samus.Pose == samus.PoseHistory.PreviousPose)
-            return;
-        InitializeAnimation(samus);
-    }
-
-    /// <summary>
-    /// Restarts the pose's animation after a scripted sequence sets Samus's pose and animation directly.
+    /// Restarts the pose's animation after a scripted sequence sets Samus's pose and animation directly
+    /// (<see cref="SamusState.ChangePoseWithoutSetup"/>).
     /// </summary>
     /// <remarks>
     /// Standing drained Samus up and putting her back into the drained crouch do exactly that; her liquid's
@@ -119,29 +96,23 @@ internal sealed class SamusPresentation
     internal static void SetPoseAndAnimationForScriptedSequence(SamusState samus,
         SamusPoseId pose,
         SamusAnimationFrame frame,
-        int timer)
-    {
+        int timer) =>
         // Both drained sequences store only the pose; the prior movement and collision radii stay.
-        samus.WritePoseWithoutInitialization(pose);
-        samus.AnimatedPose = pose;
-        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(pose).Require(frame);
-        samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
-        samus.CuePose.Forget();
-    }
+        samus.ChangePoseWithoutSetup(pose, frame, timer);
 
     /// <summary>
     /// Shows the grapple art the swing's angle selects, as the grapple swing does before her animation runs; her
     /// animation counts its hold (<see cref="SamusAnimationDelayDefinitions.GrappleSwingPictureHold"/>) down later in the
     /// same update.
     /// </summary>
+    /// <remarks>
+    /// The swing puts her animation on the picture's frame whatever her pose, as the cartridge's swing writes its frame:
+    /// a connection's pose that an animation or hurt transition suppressed leaves the swing running in another pose
+    /// (<see cref="World.SamusPoseTransitionPhase"/>), whose animation then reads the frame.
+    /// </remarks>
     public static void ShowGrappleSwingPicture(SamusState samus, GrappleSwingPicture picture)
     {
-        if (samus.Pose is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose))
-            throw new InvalidOperationException($"Grapple swing art cannot be assigned to pose {samus.Pose}.");
-        SamusPoseAnimation swing = SamusAnimationDelayDefinitions.GrappleSwingAnimation;
-        if (!ReferenceEquals(SamusAnimationDelays.AnimationForPose(samus.AnimationPose), swing))
-            throw new InvalidOperationException($"Grapple swing art cannot be assigned while Samus animates by pose {samus.AnimationPose}'s animation.");
-        samus.AnimationFrame = swing.Require(picture.AnimationFrame);
+        samus.AnimationFrame = picture.AnimationFrame;
         samus.AnimationFrameTimer = WrappingCountdown.Start(SamusAnimationDelayDefinitions.GrappleSwingPictureHold);
     }
 
@@ -154,8 +125,6 @@ internal sealed class SamusPresentation
     /// </remarks>
     public static void Animate(SamusState samus, SamusAnimationStep step)
     {
-        EnsureAnimationInitialized(samus);
-
         // The animation pass runs the active room effect's liquid step before touching the
         // frame timer. This also updates the remembered medium, which the next Space Jump gate
         // consumes independently of its current top-boundary submersion check.
@@ -192,7 +161,6 @@ internal sealed class SamusPresentation
     /// </summary>
     internal static void AnimateDeathFrame(SamusState samus)
     {
-        EnsureAnimationInitialized(samus);
         samus.AnimationFrameTimer = samus.AnimationFrameTimer.Decrement().Remaining;
         if (!samus.AnimationFrameTimer.IsZero && !samus.AnimationFrameTimer.IsNegative)
             return;
@@ -222,7 +190,7 @@ internal sealed class SamusPresentation
     /// </summary>
     internal static void SetAnimationFrameFromMovementOwner(SamusState samus, SamusAnimationFrame frame, int timer)
     {
-        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.AnimationPose).Require(frame);
+        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Require(frame);
         samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
     }
 
@@ -396,17 +364,6 @@ internal sealed class SamusPresentation
     /// <param name="ProspectiveInputPose">The pose her input selected this update, if any.</param>
     /// <param name="DemoPoseInput">Whether a demo drives her pose input.</param>
     private readonly record struct SamusCueRun(SamusState Samus, SamusPoseId? ProspectiveInputPose, bool DemoPoseInput);
-
-    /// <summary>Rejects animation updates after a pose change that did not restart the animation for the new pose's animation.</summary>
-    private static void EnsureAnimationInitialized(SamusState samus)
-    {
-        if (samus.AnimatedPose is not { } animated ||
-            !ReferenceEquals(SamusAnimationDelays.AnimationForPose(animated), SamusAnimationDelays.AnimationForPose(samus.Pose)))
-        {
-            throw new InvalidOperationException(
-                "Samus animation was not initialized for the current pose. Call InitializeAnimation after changing Pose.");
-        }
-    }
 
     /// <summary>
     /// Draws Samus's body in her current pose, unless invincibility's flicker hides it on this frame.

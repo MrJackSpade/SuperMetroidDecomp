@@ -123,11 +123,10 @@ public sealed class SamusSuitPickupState
         bool otherSuitAlreadyEquipped = kind == SamusSuitPickupKind.Varia
             ? samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit);
-        samus.Pose = otherSuitAlreadyEquipped
+        samus.ChangePose(otherSuitAlreadyEquipped
             ? SamusPoseId.ForwardFacingSuitedPose
-            : SamusPoseId.ForwardFacingPowerSuitPose;
+            : SamusPoseId.ForwardFacingPowerSuitPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
         // Entry's suit-pickup lock publishes history before locking gameplay.
         samus.CommitPoseHistory();
         samus.Control.LockForSuitPickup();
@@ -276,9 +275,8 @@ public sealed class SamusSuitPickupState
             : SamusEquipmentFlags.GravitySuit;
         samus.EquippedItems |= mask;
         samus.CollectedItems |= mask;
-        samus.Pose = SamusPoseId.ForwardFacingSuitedPose;
+        samus.ChangePose(SamusPoseId.ForwardFacingSuitedPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
         // The reveal phase publishes another transition, even if the other suit
         // already selected this same front-facing pose at entry.
         samus.CommitPoseHistory();

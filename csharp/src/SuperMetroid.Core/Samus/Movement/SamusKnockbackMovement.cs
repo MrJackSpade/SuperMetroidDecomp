@@ -93,7 +93,7 @@ public static class SamusKnockbackMovement
             if (poseCollision is { } collision && !SamusGroundedPoseTransitions.TryResolveKnockbackPoseCollision(samus,
                     collision.Terrain, targetPose, collision.FrameCounter))
                 return false;
-            samus.Pose = targetPose;
+            samus.ChangePose(targetPose);
             // The interrupted pose commits after movement. The input phase publishes its radius
             // next frame; keep the collision resolver's old live radius through this one.
         }
@@ -101,11 +101,10 @@ public static class SamusKnockbackMovement
         {
             // A hit on the glitch ball, unlike the ball path, installs the glitch ball's knockback pose, then continues
             // through the same knockback-start hurt setup as a humanoid pose.
-            samus.Pose = facingLeft
+            samus.ChangePose(facingLeft
                 ? SamusPoseId.GlitchBallKnockbackLeftPose
-                : SamusPoseId.GlitchBallKnockbackRightPose;
+                : SamusPoseId.GlitchBallKnockbackRightPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            humanoid = true;
         }
 
         // A ball's knockback ignores both the damage's side and the controller: a ball facing right always goes
@@ -153,8 +152,6 @@ public static class SamusKnockbackMovement
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(
             SamusVerticalMotion.Knockback(samus.LiquidPhysics.DetermineMovementMedium(samus)));
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-        if (humanoid)
-            SamusPresentation.InitializeAnimation(samus);
         return true;
     }
 
@@ -222,10 +219,9 @@ public static class SamusKnockbackMovement
         // The damage boost returns only her movement to her pose. The conditional jump
         // reset in the pose handling does not run for a merely prospective type change.
         // Preserve velocity and hurt values until the common expiry handoff consumes them.
-        samus.Pose = targetPose;
+        samus.ChangePose(targetPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.Knockback = samus.Knockback.HandBack();
-        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>Installs the normal jump of the same facing that a damage boost's input selects.</summary>
@@ -243,10 +239,10 @@ public static class SamusKnockbackMovement
         // their ordinary setup: it preserves the live jump velocity,
         // reselects the acceleration mode from extra run speed, and can start a spark from
         // stored shine. The selected target's frame delays start at frame zero.
-        samus.Pose = targetPose;
+        samus.ChangePose(targetPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        if (!SamusAerialPoseTransitions.InitializeInstalledNormalJumpPose(samus, SamusMovementType.DamageBoost, controllerNewInput))
-            SamusPresentation.InitializeAnimation(samus);
+        // A windup the setup begins changes her to its own pose, starting its own animation.
+        SamusAerialPoseTransitions.InitializeInstalledNormalJumpPose(samus, SamusMovementType.DamageBoost, controllerNewInput);
     }
 
     /// <summary>

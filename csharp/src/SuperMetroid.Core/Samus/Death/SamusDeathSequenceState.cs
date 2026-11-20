@@ -95,9 +95,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         // The death pose is set up as any pose is, then shows the frame the movement type it starts from begins it
         // on. Every frame of the death pose lasts as long as the others, so the timer its setup starts holds for whichever frame
         // it shows.
-        samus.Pose = deathPose;
+        samus.ChangePose(deathPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
         // Death entry publishes history itself, before overriding the starting
         // animation frame; the ordinary gameplay pose step is not running.
         samus.CommitPoseHistory();

@@ -46,7 +46,6 @@ internal static class SamusPoseTransitions
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
         }
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-        samus.Pose = targetPose;
         // The input phase publishes the falling radius next frame; pose commit retains the
         // radius used by this frame's grounded movement and collision probes.
         // The pose refresh runs the new falling movement type through the falling setup
@@ -54,7 +53,7 @@ internal static class SamusPoseTransitions
         // the mode from extra dash speed; it must not retain the grounded release mode.
         // Base speed itself survives until the next aerial movement behaviour consumes it.
         SamusAerialPoseTransitions.InitializeOrdinaryAerialAcceleration(samus);
-        SamusPresentation.InitializeAnimation(samus);
+        samus.ChangePose(targetPose);
     }
 
     /// <summary>
@@ -92,15 +91,15 @@ internal static class SamusPoseTransitions
         SamusPoseId targetPose = SelectAerialLandingPose(samus, sourceAim, wasSpinning, controllerInput);
 
         int oldRadius = samus.Kinematics.Radius.Y;
-        samus.Pose = targetPose;
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        if (samus.Kinematics.Radius.Y > oldRadius)
+        int targetRadius = SamusPoseMetadata.ReadPoseYRadius(targetPose);
+        if (targetRadius > oldRadius)
         {
-            samus.Kinematics.Position -= new Offset16<RoomPixels>(0, samus.Kinematics.Radius.Y - oldRadius);
+            samus.Kinematics.Position -= new Offset16<RoomPixels>(0, targetRadius - oldRadius);
         }
 
         SettleAcceptedLanding(samus, leavingScrewAttack);
-        SamusPresentation.InitializeAnimation(samus, StandingPoseInitialFrame(sourcePose, targetPose));
+        samus.ChangePose(targetPose, StandingPoseInitialFrame(sourcePose, targetPose));
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
     }
 
     /// <summary>
@@ -133,11 +132,10 @@ internal static class SamusPoseTransitions
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.Allowed)
         {
-            samus.Pose = targetPose;
             // Correct the center now, but retain the movement frame's live radius
             // until the input phase, including when landing on a frozen enemy.
             samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
-            SamusPresentation.InitializeAnimation(samus, StandingPoseInitialFrame(sourcePose, targetPose));
+            samus.ChangePose(targetPose, StandingPoseInitialFrame(sourcePose, targetPose));
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
@@ -236,12 +234,11 @@ internal static class SamusPoseTransitions
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.Allowed)
         {
-            samus.Pose = targetPose;
             // The collision radius stays the compact body's: this frame's enemy and
             // projectile collision still use it, and the input phase's radius update takes the
             // landing body only next frame, as for an ordinary landing.
             samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
-            SamusPresentation.InitializeAnimation(samus);
+            samus.ChangePose(targetPose);
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {

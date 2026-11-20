@@ -129,11 +129,10 @@ public sealed class SamusCrystalFlashState
         // Crystal Flash takes a left-facing pose as left and every other facing as right.
         // Read the facing from the source pose before replacing it with Crystal Flash art.
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        samus.Pose = facingLeft
+        samus.ChangePose(facingLeft
             ? SamusPoseId.CrystalFlashLeftPose
-            : SamusPoseId.CrystalFlashRightPose;
+            : SamusPoseId.CrystalFlashRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
         // Successful activation publishes history directly, before
         // taking Samus's movement. Rejected activation must not shift it.
         samus.CommitPoseHistory();

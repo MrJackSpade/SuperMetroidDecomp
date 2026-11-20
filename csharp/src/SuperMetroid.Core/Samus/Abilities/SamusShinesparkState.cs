@@ -200,25 +200,19 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Starts the shinespark windup from a live stored shine, in <see cref="SamusPoseId.ShinesparkWindupRightPose"/> facing
-    /// right and <see cref="SamusPoseId.ShinesparkWindupLeftPose"/> otherwise; without one nothing changes.
+    /// Starts the shinespark windup from a live stored shine (<see cref="SamusInputSnapshot.HoldsShine"/>), whose pose
+    /// handling then changes her to the windup's pose (<see cref="WindupPose"/>).
     /// </summary>
     /// <param name="samus">Samus, whose pose handling chose a normal jump that begins a shinespark from a stored shine.</param>
-    /// <param name="facing">The way the chosen jump faces.</param>
-    /// <returns>Whether a stored shine started the windup.</returns>
-    public bool TryBeginWindup(SamusState samus, SamusFacingDirection facing)
-    {
-        Ensure.NotNull(samus);
-        if (!SamusInputSnapshot.HoldsShine(samus))
-            return false;
+    internal void BeginWindup(SamusState samus) => InitializeWindup(Ensure.NotNull(samus));
 
-        samus.Pose = facing == SamusFacingDirection.Right
-            ? SamusPoseId.ShinesparkWindupRightPose
-            : SamusPoseId.ShinesparkWindupLeftPose;
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        InitializeWindup(samus);
-        return true;
-    }
+    /// <summary>
+    /// The windup's pose for a jump facing <paramref name="facing"/>: <see cref="SamusPoseId.ShinesparkWindupRightPose"/>
+    /// facing right and <see cref="SamusPoseId.ShinesparkWindupLeftPose"/> otherwise.
+    /// </summary>
+    /// <param name="facing">The way the chosen jump faces.</param>
+    internal static SamusPoseId WindupPose(SamusFacingDirection facing) =>
+        facing == SamusFacingDirection.Right ? SamusPoseId.ShinesparkWindupRightPose : SamusPoseId.ShinesparkWindupLeftPose;
 
     /// <summary>The two shinespark demos start the windup without a stored shine.</summary>
     internal void BeginDemoLaunch(SamusState samus, ShinesparkLaunch launch)
@@ -296,9 +290,8 @@ public sealed class SamusShinesparkState
     /// <summary>Commits the interrupted launch pose after the current frame's animation.</summary>
     internal static void ApplyDirectionalLaunchPose(SamusState samus, SamusPoseId pose)
     {
-        samus.Pose = pose;
+        samus.ChangePose(pose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>Runs one frame of the spark's windup, flight or crash.</summary>
@@ -534,12 +527,11 @@ public sealed class SamusShinesparkState
             ? SamusPoseId.FacingLeftNormalPose
             : SamusPoseId.FacingRightNormalPose;
         int previousRadius = samus.Kinematics.Radius.Y;
-        samus.Pose = standingPose;
         // The transitional pose returns Samus to her pose's movement and
-        // aligns the standing body's bottom with the old crash body. The input phase alone
-        // publishes the new live radius on the following frame.
+        // aligns the standing body's bottom with the old crash body; the animation starts where she then stands. The input
+        // phase alone publishes the new live radius on the following frame.
         samus.AlignBottomAfterPoseChange(previousRadius, SamusPoseMetadata.ReadPoseYRadius(standingPose));
-        SamusPresentation.InitializeAnimation(samus);
+        samus.ChangePose(standingPose);
     }
 
     /// <summary>

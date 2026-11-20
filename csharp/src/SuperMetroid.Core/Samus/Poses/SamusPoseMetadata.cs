@@ -39,9 +39,17 @@ internal static class SamusPoseMetadata
     /// <summary>
     /// Sets Samus's collision radius: every pose is five pixels wide each way and has its own vertical radius.
     /// </summary>
-    public static void RefreshCollisionRadii(SamusState samus)
+    public static void RefreshCollisionRadii(SamusState samus) => RefreshCollisionRadii(samus, samus.Pose);
+
+    /// <summary>
+    /// Publishes <paramref name="pose"/>'s collision radii as hers: the pose a posture change changes her to, whose radius
+    /// its alignment probe takes before the change starts the pose's animation where the alignment leaves her (#2553).
+    /// </summary>
+    /// <param name="samus">Samus, whose live radii change.</param>
+    /// <param name="pose">The pose whose radii she takes.</param>
+    internal static void RefreshCollisionRadii(SamusState samus, SamusPoseId pose)
     {
-        samus.Kinematics.Radius = new(SamusPoseCollisionDefinitions.HorizontalRadius, ReadPoseYRadius(samus.Pose));
+        samus.Kinematics.Radius = new(SamusPoseCollisionDefinitions.HorizontalRadius, ReadPoseYRadius(pose));
     }
 
     /// <summary>Reads a prospective pose's radius without publishing it to live collision state.</summary>
@@ -135,16 +143,13 @@ internal static class SamusPoseMetadata
         SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose;
 
     /// <summary>
-    /// Selects the suit's front-view pose at its first frame, as facing forward and the Zebes start setup both do. The
-    /// Gravity and Varia suits have equal precedence: either selects the shared suited pose <see cref="SamusPoseId.ForwardFacingSuitedPose"/>.
+    /// The suit's front-view pose, as facing forward and the Zebes start setup both select it. The Gravity and Varia suits
+    /// have equal precedence: either selects the shared suited pose <see cref="SamusPoseId.ForwardFacingSuitedPose"/>.
     /// </summary>
-    private static void SelectForwardFacingPose(SamusState samus)
-    {
-        samus.Pose = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit)
+    private static SamusPoseId ForwardFacingPose(SamusState samus) =>
+        samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit)
             ? SamusPoseId.ForwardFacingSuitedPose
             : SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Start;
-    }
 
     /// <summary>
     /// Applies the pose part of the setup for the Zebes start:
@@ -154,8 +159,7 @@ internal static class SamusPoseMetadata
     /// </summary>
     public static void ApplyZebesStartPoseSetup(SamusState samus)
     {
-        SelectForwardFacingPose(samus);
-        SamusPresentation.InitializeAnimation(samus);
+        samus.ChangePose(ForwardFacingPose(samus));
     }
 
     /// <summary>
@@ -188,8 +192,7 @@ internal static class SamusPoseMetadata
     /// </remarks>
     public static void ApplyForwardFacingPoseSetup(SamusState samus)
     {
-        SelectForwardFacingPose(samus);
-        SamusPresentation.InitializeAnimation(samus);
+        samus.ChangePose(ForwardFacingPose(samus));
 
         // This forced owner shifts history even when already facing forward.
         // It does not finish as an ordinary input transition does.
@@ -266,9 +269,8 @@ internal static class SamusPoseMetadata
     /// </remarks>
     public static void ApplyDraygonGrabbedPoseChange(SamusState samus, SamusPoseId targetPose)
     {
-        samus.Pose = targetPose;
+        samus.ChangePose(targetPose);
         RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>
@@ -616,11 +618,12 @@ internal static class SamusPoseMetadata
             return false;
         }
 
-        samus.Pose = targetPose;
-        RefreshCollisionRadii(samus);
-        // The collision check keeps the corrected centre in the room (ResolveLargerPoseCollision).
+        // The collision check keeps the corrected centre in the room (ResolveLargerPoseCollision). The pose's animation
+        // starts where she then stands, before the normal-jump setup reads the new pose.
         samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(
             samus.Kinematics.Position.Y.Whole + centerAdjustment);
+        samus.ChangePose(targetPose);
+        RefreshCollisionRadii(samus);
 
         // The special target installs through the pose setup, which runs the new
         // normal-jumping type to the normal-jump setup (the forward jump cannot start a spark there). It
@@ -633,7 +636,6 @@ internal static class SamusPoseMetadata
         // The selected forward-jump poses are NOT the transition poses that
         // initialize ordinary jump speed (or apply the crouch jump offset).
         // This frame's velocity stays; bomb start replaces it next frame.
-        SamusPresentation.InitializeAnimation(samus);
         ArmPublishedBombJump(samus);
         return true;
     }

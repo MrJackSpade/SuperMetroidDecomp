@@ -42,12 +42,11 @@ internal static class SamusPosturePoseTransitions
             return;
         }
 
-        samus.Pose = targetPose;
         // Explicitly publishes the previous pose's radius while probing the
         // enlargement, and this direct transition does not set the radius afterward.
         // The ordinary input phase publishes the standing radius at the start of the next frame.
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
-        SamusPresentation.InitializeAnimation(samus);
+        samus.ChangePose(targetPose);
     }
 
     /// <summary>
@@ -83,7 +82,6 @@ internal static class SamusPosturePoseTransitions
             return;
         }
 
-        samus.Pose = targetPose;
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
 
         // The input phase owns the new radius next frame; collision correction and jump setup
@@ -93,7 +91,7 @@ internal static class SamusPosturePoseTransitions
         if (sourcePose is SamusPoseId.CrouchingRightPose or SamusPoseId.CrouchingLeftPose)
             samus.Kinematics.Position -= new Offset16<RoomPixels>(0, SamusPoseCollisionDefinitions.CrouchJumpLift);
 
-        SamusPresentation.InitializeAnimation(samus);
+        samus.ChangePose(targetPose);
         SamusAerialMovement.InitializeJump(samus);
     }
 
@@ -130,8 +128,7 @@ internal static class SamusPosturePoseTransitions
                 samus.Xray.RelinquishSuitColouring();
             }
 
-            samus.Pose = targetPose;
-            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPoseMetadata.RefreshCollisionRadii(samus, targetPose);
 
             // The posture change installs the target's crouching radius, then probes the crouch's downward entry
             // distance down through the downward block collision. On level
@@ -145,9 +142,9 @@ internal static class SamusPosturePoseTransitions
             samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(
                 samus.Kinematics.Position.Y.Whole + alignment.AcceptedDisplacement.WholePixels);
             // The posture change publishes the aligned whole Y before scrolling; the
-            // posture change itself must not become camera movement.
+            // posture change itself must not become camera movement. Her pose's animation starts where she then stands.
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
-            SamusPresentation.InitializeAnimation(samus);
+            samus.ChangePose(targetPose);
             return;
         }
 
@@ -167,14 +164,13 @@ internal static class SamusPosturePoseTransitions
             return;
         }
 
-        samus.Pose = targetPose;
         // The collision radius stays the source pose's. The prospective
         // standing-transition geometry was used only by the collision probes above;
         // the ordinary input phase publishes the target radius at the start of the next frame.
         // Keeping that one-frame handoff is observable when the crouched body is resting
         // on a frozen enemy inside a ceiling, as in the Botwoon-pipe Mochtroid clip.
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
-        SamusPresentation.InitializeAnimation(samus);
+        samus.ChangePose(targetPose);
     }
 
     /// <summary>
@@ -211,8 +207,7 @@ internal static class SamusPosturePoseTransitions
                 return;
 
             SamusMovementType previousMovementType = SamusPoseMetadata.ReadMovementType(samus);
-            samus.Pose = targetPose;
-            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPoseMetadata.RefreshCollisionRadii(samus, targetPose);
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
                 terrain, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDownwardPixels),
                 SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), targetPose);
@@ -236,7 +231,7 @@ internal static class SamusPosturePoseTransitions
             // The posture change also cancels any bounce before starting the transition; an ordinary crouch has none
             // to cancel.
             CancelBounceForPostureTransition(samus);
-            SamusPresentation.InitializeAnimation(samus);
+            samus.ChangePose(targetPose);
             return;
         }
 
@@ -254,7 +249,6 @@ internal static class SamusPosturePoseTransitions
             return;
         }
 
-        samus.Pose = targetPose;
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
         samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
         // Unmorph uses the same posture change as morph. Its zero
@@ -263,7 +257,7 @@ internal static class SamusPosturePoseTransitions
         // radius remains unchanged until the input phase sets the radius next frame. This
         // matters to the later enemy-projectile pickup overlap tests.
         CancelBounceForPostureTransition(samus);
-        SamusPresentation.InitializeAnimation(samus);
+        samus.ChangePose(targetPose);
     }
 
     /// <summary>
@@ -303,9 +297,8 @@ internal static class SamusPosturePoseTransitions
             return;
         }
 
-        samus.Pose = targetPose;
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
-        SamusPresentation.InitializeAnimation(samus);
+        samus.ChangePose(targetPose);
     }
 
     /// <summary>Shared bounce cancellation of the posture change.</summary>
@@ -356,14 +349,13 @@ internal static class SamusPosturePoseTransitions
             return;
         }
 
-        samus.Pose = targetPose;
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
 
         // Only the target's animation restarts: the transition neither starts a jump nor clears Samus's vertical
         // direction and speed, because it can occur halfway through a fall, as it does when leaving Parlor's Morph Ball
         // tunnel.
-        SamusPresentation.InitializeAnimation(samus);
+        samus.ChangePose(targetPose);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
     }
 
     /// <summary>
@@ -377,7 +369,7 @@ internal static class SamusPosturePoseTransitions
     public static void ApplyMorphBallPoseChange(SamusState samus, SamusPoseId targetPose)
     {
         SamusFacingDirection previousDirection = SamusPoseMetadata.ReadFacingDirection(samus);
-        samus.Pose = targetPose;
+        samus.ChangePoseKeepingAnimation(targetPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
         SamusFacingDirection currentDirection = SamusPoseMetadata.ReadFacingDirection(samus);
@@ -540,10 +532,9 @@ internal static class SamusPosturePoseTransitions
 
         samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(
             samus.Kinematics.Position.Y.Whole + centerAdjustment);
-        samus.Pose = fall;
+        samus.ChangePose(fall);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusAerialPoseTransitions.InitializeOrdinaryAerialAcceleration(samus);
-        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>

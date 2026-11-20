@@ -69,10 +69,9 @@ public sealed class SamusCeresRidleyEjectionState
             // radius, so the alignment from the source pose's live radius to the hurt pose's uses that live radius; the
             // ordinary pose change publishes the hurt pose's radius on the following frame.
             bool facingLeft = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left;
-            samus.Pose = facingLeft
+            samus.ChangePose(facingLeft
                 ? SamusPoseId.KnockbackLeftPose
-                : SamusPoseId.KnockbackRightPose;
-            SamusPresentation.InitializeAnimation(samus);
+                : SamusPoseId.KnockbackRightPose);
             // The shove's first update shifts her pose history, once. Moving her centre by the hurt pose's radius less
             // her live one keeps her in Ceres Ridley's room, whose top row is solid: her top lies at least a block below
             // the room's, and the move is at most 14 pixels either way.

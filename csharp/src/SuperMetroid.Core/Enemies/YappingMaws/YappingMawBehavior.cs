@@ -323,11 +323,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             if (movement is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
             {
                 // She stands facing the way she faced, with the standing pose's collision radii and animation.
-                samus.Pose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
+                samus.ChangePose(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
                     ? SamusPoseId.FacingLeftNormalPose
-                    : SamusPoseId.FacingRightNormalPose;
+                    : SamusPoseId.FacingRightNormalPose);
                 SamusPoseMetadata.RefreshCollisionRadii(samus);
-                SamusPresentation.InitializeAnimation(samus);
                 samus.CommitPoseHistory();
             }
         }

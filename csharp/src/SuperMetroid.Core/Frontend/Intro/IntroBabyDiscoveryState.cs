@@ -58,13 +58,12 @@ internal sealed class IntroBabyDiscoveryState
 
         // Scene setup reuses Samus's state, including transition history: the intro carries the flashback's Samus forward.
         Samus = Ensure.NotNull(existingSamus);
-        Samus.Pose = SamusPoseId.FacingLeftNormalPose;
         Samus.Position = Samus.Position.WithWhole(IntroBabyDiscoveryDefinitions.SamusStart);
         Samus.SelectedHudItem = HudItem.Beam;
-        SamusPoseMetadata.RefreshCollisionRadii(Samus);
         // The flashback leaves Samus standing facing left already, so her animation
         // keeps running rather than restarting.
-        SamusPresentation.SetAnimationFrameIfPoseChanged(Samus);
+        Samus.ChangePoseRestartingIfChanged(SamusPoseId.FacingLeftNormalPose);
+        SamusPoseMetadata.RefreshCollisionRadii(Samus);
         Samus.CommitPoseHistory();
 
         // The discovery room's authored terrain fills its upper rows (IntroBabyDiscoveryCollisionDefinitions).

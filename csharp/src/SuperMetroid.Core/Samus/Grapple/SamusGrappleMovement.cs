@@ -583,10 +583,9 @@ public static class SamusGrappleMovement
                 _ => throw new InvalidOperationException($"The grapple has no connection {kind}."),
             };
 
-            samus.Pose = special.Pose;
             samus.Position = samus.Position.WithWhole(grapple.Anchor + special.SamusOffset);
+            samus.ChangePose(special.Pose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusPresentation.InitializeAnimation(samus);
             grapple.Phase = phase;
             grapple.WallJumpTimer = UpdateCountdown.Ended();
             grapple.ScrollCameraOrdinarily(); // Connecting returns the camera to its ordinary scroll.
@@ -899,9 +898,8 @@ public static class SamusGrappleMovement
         Ensure.NotNull(samus);
         SamusGrappleState grapple = samus.Grapple;
 
-        samus.Pose = pending.Pose;
+        samus.ChangePose(pending.Pose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
 
         if (pending.Swinging)
         {
@@ -1060,9 +1058,8 @@ public static class SamusGrappleMovement
                     $"Connected grapple pose {samus.Pose} has no cancellation fallback.");
             }
 
-            samus.Pose = fallback;
+            samus.ChangePose(fallback);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusPresentation.InitializeAnimation(samus);
             samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
             samus.HorizontalSpeed.BaseSpeed = default;
             samus.HorizontalSpeed.ExtraRunSpeed = default;
@@ -1162,9 +1159,8 @@ public static class SamusGrappleMovement
     /// <summary>Commits the release pose and its radius and animation.</summary>
     internal static void ApplyReleasePose(SamusState samus, SamusPoseId releasePose)
     {
-        samus.Pose = releasePose;
+        samus.ChangePose(releasePose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>Resets grapple-owned movement and rendering state so a later shot cannot inherit connection state.</summary>

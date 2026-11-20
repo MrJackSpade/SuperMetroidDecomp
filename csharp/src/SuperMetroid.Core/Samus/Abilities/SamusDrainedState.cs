@@ -229,13 +229,11 @@ public sealed class SamusDrainedState
         int sourceRadius = samus.Kinematics.Radius.Y;
         samus.Position = samus.Position.WithWholeY(
             samus.Position.Y.Whole - (SamusPoseMetadata.ReadPoseYRadius(drainedPose) - sourceRadius));
-        samus.Pose = drainedPose;
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-
         // The new pose starts on the collapse's third frame. The animation is initialized here,
         // but the special movement type keeps her still until the drained-fall
         // animation step appears.
-        SamusPresentation.InitializeAnimation(samus, SamusDrainedAnimationDefinitions.FallInitialFrame);
+        samus.ChangePose(drainedPose, SamusDrainedAnimationDefinitions.FallInitialFrame);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.TurnedDownward();
         _colouringStage = SpecialColouringStage.Ending;
@@ -380,9 +378,8 @@ public sealed class SamusDrainedState
 
         // The rainbow setup unconditionally chooses left-facing knockback KnockbackLeftPose, even when
         // Samus had faced right. This is why letting her fall later selects DrainedCrouchingLeftPose.
-        samus.Pose = SamusPoseId.KnockbackLeftPose;
+        samus.ChangePose(SamusPoseId.KnockbackLeftPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
         // The shared rainbow setup records the pose history before the lock.
         samus.CommitPoseHistory();
         // The shared rainbow setup locks Samus's input and movement after changing art.

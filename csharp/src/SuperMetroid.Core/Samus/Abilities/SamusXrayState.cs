@@ -242,9 +242,8 @@ public sealed class SamusXrayState
     /// </summary>
     private void InstallSamusControl(SamusState samus, SamusPoseId targetPose)
     {
-        samus.Pose = targetPose;
+        samus.ChangePose(targetPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
 
         // X-ray's activation pose immediately overrides the freshly selected
         // delay with its level aim and the activation's hold, takes her pose input and movement, starts the
@@ -603,9 +602,8 @@ public sealed class SamusXrayState
             ? facingLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose
             : facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose;
 
-        samus.Pose = targetPose;
+        samus.ChangePose(targetPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
         int radiusDifference = samus.Kinematics.Radius.Y - oldRadius;
         // Teardown owns a direct history shift, including the crouched-
         // turn stand-up glitch. It does not consume an ordinary input transition.
@@ -638,9 +636,8 @@ public sealed class SamusXrayState
         SamusState samus,
         SamusPoseId targetPose)
     {
-        samus.Pose = targetPose;
+        samus.ChangePose(targetPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
         // X-ray's frozen-time pose input, turning or aiming, shifts her pose history after setting up her pose; the
         // ordinary pose transitions do not run.
         samus.CommitPoseHistory();

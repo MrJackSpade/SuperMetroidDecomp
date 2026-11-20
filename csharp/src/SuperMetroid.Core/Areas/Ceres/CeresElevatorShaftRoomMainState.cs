@@ -88,11 +88,10 @@ public sealed class CeresElevatorShaftRoomMainState
             // animation, and locks out the player; the wait before Samus leaves Ceres is the game state's, which reads
             // the departure this requests.
             bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-            samus.Pose = facingLeft
+            samus.ChangePose(facingLeft
                 ? SamusPoseId.FacingLeftNormalPose
-                : SamusPoseId.FacingRightNormalPose;
+                : SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusPresentation.InitializeAnimation(samus);
             samus.Control.LockOutPlayer();
         }
 

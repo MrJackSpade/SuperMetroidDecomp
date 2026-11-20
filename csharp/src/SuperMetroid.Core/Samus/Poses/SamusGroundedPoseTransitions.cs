@@ -72,7 +72,7 @@ internal static class SamusGroundedPoseTransitions
 
         // From a running pose to a running pose the animation keeps its frame, timer and delays: every live running arm
         // pose plays the same animation, so the current one is already exact and must not be rebound or reset here.
-        samus.Pose = targetPose;
+        samus.ChangePoseKeepingAnimation(targetPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
     }
 
@@ -341,15 +341,16 @@ internal static class SamusGroundedPoseTransitions
         bool refreshRadius = true)
     {
         SamusPoseId sourcePose = samus.Pose;
-        samus.Pose = targetPose;
+        // The animation keeps its frame and timer when the ordinary pose is
+        // unchanged. A prospective run rejected by the wall probe can resolve
+        // back to the current wall-stop pose on every held-input frame.
+        if (sourcePose == targetPose)
+            samus.ChangePoseKeepingAnimation(targetPose);
+        else
+            samus.ChangePose(targetPose, SamusPoseTransitions.StandingPoseInitialFrame(sourcePose, targetPose));
         // Aerial turn completion runs the pose change without the radius update; its source body
         // remains active until the next input phase, including compact down-aim targets.
         if (refreshRadius)
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-        // The animation keeps its frame and timer when the ordinary pose is
-        // unchanged. A prospective run rejected by the wall probe can resolve
-        // back to the current wall-stop pose on every held-input frame.
-        if (sourcePose != targetPose)
-            SamusPresentation.InitializeAnimation(samus, SamusPoseTransitions.StandingPoseInitialFrame(sourcePose, targetPose));
     }
 }

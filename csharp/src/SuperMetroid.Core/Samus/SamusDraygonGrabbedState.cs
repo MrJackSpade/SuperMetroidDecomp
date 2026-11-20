@@ -61,11 +61,10 @@ public sealed class SamusDraygonGrabbedState
     {
         Ensure.NotNull(samus);
 
-        samus.Pose = draygonFacing == HorizontalDirection.Right
+        samus.ChangePose(draygonFacing == HorizontalDirection.Right
             ? SamusPoseId.DraygonGrabbedNeutralRightPose
-            : SamusPoseId.DraygonGrabbedNeutralLeftPose;
+            : SamusPoseId.DraygonGrabbedNeutralLeftPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
 
         Phase = SamusDraygonHoldPhase.Held;
         escapePresses.ClearEscapePresses();
@@ -183,12 +182,10 @@ public sealed class SamusDraygonGrabbedState
         Ensure.NotNull(samus);
 
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        samus.Pose = facingLeft
+        samus.ChangePoseRestartingIfChanged(facingLeft
             ? SamusPoseId.FacingLeftNormalPose
-            : SamusPoseId.FacingRightNormalPose;
+            : SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        if (samus.Pose != samus.PoseHistory.PreviousPose)
-            SamusPresentation.InitializeAnimation(samus);
         // Death calls this even when Samus was never grabbed. Returning her movement to her
         // pose interrupts a spark without resetting its independent boost/shade.
         SamusMovementHandOver.FromDraygonHold(samus);

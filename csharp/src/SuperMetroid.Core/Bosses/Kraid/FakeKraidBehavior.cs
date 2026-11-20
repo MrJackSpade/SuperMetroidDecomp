@@ -231,7 +231,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.FakeKraidSpit,
-            SpitAndSpikes,
+            Spit,
             SpriteGraphics.SpawnedBy(source));
         projectile.StartAnimation(new FakeKraidProjectileAnimation(FakeKraidProjectilePose.Spit));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
@@ -253,7 +253,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.FakeKraidSpike,
-            SpitAndSpikes,
+            Spikes,
             SpriteGraphics.SpawnedBy(source));
         bool left = state.Facing == HorizontalDirection.Left;
         projectile.StartAnimation(new FakeKraidProjectileAnimation(left
@@ -338,35 +338,13 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         },
     };
 
-    /// <summary>Fake Kraid's spit and spikes (#1760): their spawners start their animations.</summary>
-    internal static readonly EnemyProjectileBehavior SpitAndSpikes = new SpitAndSpikeBehavior();
+    /// <summary>Fake Kraid's spit (#1760): it flies from its spawn with room collision, then capped gravity; its spawner starts its animation.</summary>
+    internal static readonly EnemyProjectileBehavior Spit = new SingleMotionProjectileBehavior(
+        context => FlyFakeKraidSpit(context.Projectile, context.Level));
 
-    /// <summary>Fake Kraid's spit, with room collision then capped gravity, or a spike flying until it strikes a wall.</summary>
-    private sealed class SpitAndSpikeBehavior() : EnemyProjectileMotionBehavior<FakeKraidProjectileMotion>(StartingMotions)
-    {
-        /// <summary>The spit and the spikes fly from their spawn.</summary>
-        private static readonly Dictionary<RoomEnemyProjectileKind, FakeKraidProjectileMotion?> StartingMotions = new()
-        {
-            [RoomEnemyProjectileKind.FakeKraidSpit] = FakeKraidProjectileMotion.SpitFlying,
-            [RoomEnemyProjectileKind.FakeKraidSpike] = FakeKraidProjectileMotion.SpikeFlying,
-        };
-
-        /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, FakeKraidProjectileMotion motion)
-        {
-            switch (motion)
-            {
-                case FakeKraidProjectileMotion.SpitFlying:
-                    FlyFakeKraidSpit(context.Projectile, context.Level);
-                    break;
-                case FakeKraidProjectileMotion.SpikeFlying:
-                    FlyFakeKraidSpike(context.Projectile, context.Level);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(FakeKraidProjectileMotion)} {motion}.");
-            }
-        }
-    }
+    /// <summary>Fake Kraid's spikes (#1760): each flies from its spawn until it strikes a wall; its spawner starts its animation.</summary>
+    internal static readonly EnemyProjectileBehavior Spikes = new SingleMotionProjectileBehavior(
+        context => FlyFakeKraidSpike(context.Projectile, context.Level));
 
     /// <summary>Runs Fake Kraid's initialization AI.</summary>
     internal FakeKraidEnemyState SetUpFakeKraid(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>

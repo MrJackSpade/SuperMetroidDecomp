@@ -74,12 +74,13 @@ internal sealed class RidleyProjectiles
         if (projectile is null)
             return;
 
+        var fireball = new FireballBehavior(this, new RidleyAfterburnChainState(afterburns), RidleyFireballMotion.FireballFlying);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.RidleyFireball,
-            new FireballBehavior(this, new RidleyAfterburnChainState(afterburns)),
+            fireball,
             FireballGraphics);
-        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));
+        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball, fireball));
         ApplyRidleyProjectileAreaDamage(projectile);
         projectile.Position = projectile.Position.WithWhole(Muzzle(ridley, state));
         projectile.Velocity = state.FireballVelocity;
@@ -123,12 +124,12 @@ internal sealed class RidleyProjectiles
         EnemyProjectile? center = _projectiles.AllocateEnemyProjectile();
         if (center is null)
             return;
-        var chain = new RidleyAfterburnChainState(remaining);
+        var centre = new FireballBehavior(this, new RidleyAfterburnChainState(remaining), flight: null);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(center, RoomEnemyProjectileKind.RidleyAfterburnCenter,
-            new FireballBehavior(this, chain), FireballGraphics);
+            centre, FireballGraphics);
         // The centre's animation raises the spawn of the pair along its axis.
         center.StartAnimation(new RidleyFireballAnimation(
-            pairAxis == Axis.Horizontal ? RidleyFireballSegment.HorizontalCenter : RidleyFireballSegment.VerticalCenter));
+            pairAxis == Axis.Horizontal ? RidleyFireballSegment.HorizontalCenter : RidleyFireballSegment.VerticalCenter, centre));
         center.Position = center.Position.WithWhole(position);
         // The afterburn's centre starts at rest; a new projectile otherwise keeps the velocity its place last held.
         center.Velocity = PixelVelocity<RoomPixels>.Zero;
@@ -139,32 +140,38 @@ internal sealed class RidleyProjectiles
     {
         if (axis == Axis.Horizontal)
         {
-            SpawnDirectionalAfterburn(center, chain.Remaining, RoomEnemyProjectileKind.RidleyHorizontalAfterburn, RidleyAfterburnDefinitions.Right);
-            SpawnDirectionalAfterburn(center, chain.Remaining, RoomEnemyProjectileKind.RidleyHorizontalAfterburn, RidleyAfterburnDefinitions.Left);
+            SpawnDirectionalAfterburn(center, chain.Remaining, RoomEnemyProjectileKind.RidleyHorizontalAfterburn, RidleyAfterburnDefinitions.Right,
+                RidleyFireballMotion.HorizontalAfterburnFlying);
+            SpawnDirectionalAfterburn(center, chain.Remaining, RoomEnemyProjectileKind.RidleyHorizontalAfterburn, RidleyAfterburnDefinitions.Left,
+                RidleyFireballMotion.HorizontalAfterburnFlying);
         }
         else
         {
-            SpawnDirectionalAfterburn(center, chain.Remaining, RoomEnemyProjectileKind.RidleyVerticalAfterburn, RidleyAfterburnDefinitions.Up);
-            SpawnDirectionalAfterburn(center, chain.Remaining, RoomEnemyProjectileKind.RidleyVerticalAfterburn, RidleyAfterburnDefinitions.Down);
+            SpawnDirectionalAfterburn(center, chain.Remaining, RoomEnemyProjectileKind.RidleyVerticalAfterburn, RidleyAfterburnDefinitions.Up,
+                RidleyFireballMotion.VerticalAfterburnFlying);
+            SpawnDirectionalAfterburn(center, chain.Remaining, RoomEnemyProjectileKind.RidleyVerticalAfterburn, RidleyAfterburnDefinitions.Down,
+                RidleyFireballMotion.VerticalAfterburnFlying);
         }
     }
 
     /// <summary>
     /// Spawns a directional afterburn of <paramref name="kind"/>, horizontal or vertical, at <paramref name="source"/>,
-    /// flying at <paramref name="velocity"/>, which holds the way it flies, with the afterburns its source's chain has left.
+    /// flying at <paramref name="velocity"/>, which holds the way it flies, by <paramref name="flight"/>, with the afterburns
+    /// its source's chain has left.
     /// </summary>
     internal void SpawnDirectionalAfterburn(
         EnemyProjectile source,
         int remaining,
         RoomEnemyProjectileKind kind,
-        PixelVelocity<RoomPixels> velocity)
+        PixelVelocity<RoomPixels> velocity,
+        RidleyFireballMotion? flight)
     {
         EnemyProjectile? afterburn = _projectiles.AllocateEnemyProjectile();
         if (afterburn is null)
             return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(afterburn, kind,
-            new FireballBehavior(this, new RidleyAfterburnChainState(remaining)), FireballGraphics);
-        afterburn.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.DirectionalAfterburn));
+        var behavior = new FireballBehavior(this, new RidleyAfterburnChainState(remaining), flight);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(afterburn, kind, behavior, FireballGraphics);
+        afterburn.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.DirectionalAfterburn, behavior));
         ApplyRidleyProjectileAreaDamage(afterburn);
         afterburn.Position = afterburn.Position.WithWhole(source.Position.Whole);
         afterburn.Velocity = velocity;
@@ -175,7 +182,10 @@ internal sealed class RidleyProjectiles
     /// speed, which carries on with the rest; one with none left ends the chain. A chain of <c>n</c> therefore spawns
     /// <c>n</c> more after each of the centre's pair.
     /// </summary>
-    internal void SpawnNextAfterburn(EnemyProjectile source, RidleyAfterburnChainState chain)
+    /// <param name="source">The afterburn whose animation spawns the next.</param>
+    /// <param name="chain">The afterburns its chain has left.</param>
+    /// <param name="flight">How the source flies from its spawn, which the next afterburn flies by too.</param>
+    internal void SpawnNextAfterburn(EnemyProjectile source, RidleyAfterburnChainState chain, RidleyFireballMotion? flight)
     {
         if (chain.Remaining == 0)
             return;
@@ -184,13 +194,16 @@ internal sealed class RidleyProjectiles
             source,
             chain.Remaining,
             source.Kind,
-            source.Velocity);
+            source.Velocity,
+            flight);
     }
 
     /// <summary>Switches an afterburn branch that struck something to its final five-frame animation; it keeps moving and still hurts Samus.</summary>
-    internal static void BeginAfterburnFinalAnimation(EnemyProjectile projectile)
+    /// <param name="projectile">The afterburn that struck something.</param>
+    /// <param name="cues">The afterburn's behaviour, which owns its animations' cues.</param>
+    internal static void BeginAfterburnFinalAnimation(EnemyProjectile projectile, IEnemyProjectileCues<RidleyFireballCue> cues)
     {
-        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.AfterburnFinal));
+        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.AfterburnFinal, cues));
         // The final animation's first cue stops the afterburn, which keeps its velocity and still hurts Samus: it
         // shows five frames, then the afterburn is gone.
     }
@@ -201,34 +214,33 @@ internal sealed class RidleyProjectiles
     /// </summary>
     /// <param name="ridley">Ridley's projectiles, which move the projectile and run its cues.</param>
     /// <param name="chain">What the projectile keeps: the afterburns its chain has left.</param>
-    private sealed class FireballBehavior(RidleyProjectiles ridley, RidleyAfterburnChainState chain)
-        : EnemyProjectileMotionBehavior<RidleyFireballMotion>(StartingMotions), IEnemyProjectileCues<RidleyFireballCue>
+    /// <param name="flight">How the projectile flies from its spawn, or null for an afterburn centre, which holds still.</param>
+    internal sealed class FireballBehavior(RidleyProjectiles ridley, RidleyAfterburnChainState chain, RidleyFireballMotion? flight)
+        : EnemyProjectileMotionBehavior<RidleyFireballMotion>(flight), IEnemyProjectileCues<RidleyFireballCue>
     {
+        /// <summary>The afterburns the projectile's chain has left.</summary>
+        internal RidleyAfterburnChainState Chain => chain;
+
+        /// <summary>How the projectile flies from its spawn, or null for an afterburn centre.</summary>
+        internal RidleyFireballMotion? Flight => flight;
+
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileMotionContext context, RidleyFireballMotion motion) =>
-            ridley.MoveFireball(context, motion, chain);
+            ridley.MoveFireball(context, motion, this);
 
         /// <inheritdoc/>
-        public void RunCue(EnemyProjectileCueContext context, RidleyFireballCue cue) => ridley.RunFireballCue(context, cue, chain);
+        public void RunCue(EnemyProjectileCueContext context, RidleyFireballCue cue) => ridley.RunFireballCue(context, cue, this);
     }
-
-    /// <summary>A fireball and the directional afterburns fly from their spawn; the afterburn centres hold still.</summary>
-    private static readonly Dictionary<RoomEnemyProjectileKind, RidleyFireballMotion?> StartingMotions = new()
-    {
-        [RoomEnemyProjectileKind.RidleyFireball] = RidleyFireballMotion.FireballFlying,
-        [RoomEnemyProjectileKind.RidleyHorizontalAfterburn] = RidleyFireballMotion.HorizontalAfterburnFlying,
-        [RoomEnemyProjectileKind.RidleyVerticalAfterburn] = RidleyFireballMotion.VerticalAfterburnFlying,
-        [RoomEnemyProjectileKind.RidleyAfterburnCenter] = null,
-    };
 
     /// <summary>
     /// Moves a fireball, afterburn centre or directional afterburn: the fireball's flight and both afterburn flights.
     /// </summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>
     /// <param name="motion">The motion the projectile holds.</param>
-    /// <param name="chain">The afterburns the projectile's chain has left.</param>
-    private void MoveFireball(EnemyProjectileMotionContext context, RidleyFireballMotion motion, RidleyAfterburnChainState chain)
+    /// <param name="fireball">The projectile's behaviour, which keeps its chain and owns its animations' cues.</param>
+    private void MoveFireball(EnemyProjectileMotionContext context, RidleyFireballMotion motion, FireballBehavior fireball)
     {
+        RidleyAfterburnChainState chain = fireball.Chain;
         EnemyProjectile projectile = context.Projectile;
         switch (motion)
         {
@@ -240,14 +252,14 @@ internal sealed class RidleyProjectiles
                 // the room and end it.
                 projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
                 if (EnemyProjectileEngine.MoveProjectileAxis(projectile, context.Level, axis: Axis.Vertical))
-                    BeginAfterburnFinalAnimation(projectile);
+                    BeginAfterburnFinalAnimation(projectile, fireball);
                 break;
             case RidleyFireballMotion.VerticalAfterburnFlying:
                 // The vertical afterburn moves up or down through the room's blocks; only its sideways move may meet
                 // the room and end it.
                 projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
                 if (EnemyProjectileEngine.MoveProjectileAxis(projectile, context.Level, axis: Axis.Horizontal))
-                    BeginAfterburnFinalAnimation(projectile);
+                    BeginAfterburnFinalAnimation(projectile, fireball);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(RidleyFireballMotion)} {motion}.");
@@ -259,9 +271,10 @@ internal sealed class RidleyProjectiles
     /// </summary>
     /// <param name="context">The projectile, Samus and the camera of the pass running the animation.</param>
     /// <param name="cue">The cue the animation published.</param>
-    /// <param name="chain">The afterburns the projectile's chain has left.</param>
-    private void RunFireballCue(EnemyProjectileCueContext context, RidleyFireballCue cue, RidleyAfterburnChainState chain)
+    /// <param name="fireball">The projectile's behaviour, which keeps its chain and owns its motions.</param>
+    private void RunFireballCue(EnemyProjectileCueContext context, RidleyFireballCue cue, FireballBehavior fireball)
     {
+        RidleyAfterburnChainState chain = fireball.Chain;
         EnemyProjectile projectile = context.Projectile;
         switch (cue)
         {
@@ -269,7 +282,7 @@ internal sealed class RidleyProjectiles
                 projectile.HoldStill();
                 return;
             case RidleyFireballCue.BeginFlight:
-                projectile.StartMotion(RidleyFireballMotion.FireballFlying);
+                fireball.StartMotion(projectile, RidleyFireballMotion.FireballFlying);
                 return;
             case RidleyFireballCue.SpawnHorizontalAfterburns:
                 SpawnAfterburnPair(projectile, chain, axis: Axis.Horizontal);
@@ -278,7 +291,7 @@ internal sealed class RidleyProjectiles
                 SpawnAfterburnPair(projectile, chain, axis: Axis.Vertical);
                 return;
             case RidleyFireballCue.SpawnNextAfterburn:
-                SpawnNextAfterburn(projectile, chain);
+                SpawnNextAfterburn(projectile, chain, fireball.Flight);
                 return;
             case RidleyFireballCue.Delete:
                 projectile.Delete();

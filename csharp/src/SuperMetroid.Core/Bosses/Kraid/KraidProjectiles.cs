@@ -81,29 +81,30 @@ internal sealed class KraidProjectiles
         return state;
     }
 
-    /// <summary>The rocks Kraid's rise throws up and the ceiling rocks his roar shakes down (#1760): their spawners start their animations.</summary>
-    internal static EnemyProjectileBehavior Rocks { get; } = new RockBehavior();
+    /// <summary>The rocks Kraid's rise throws up (#1760): they fly from their spawn, and their spawner starts their animations.</summary>
+    internal static RockBehavior RisingRocks { get; } = new(KraidRockMotion.Flying);
+
+    /// <summary>The ceiling rocks Kraid's roar shakes down (#1760): they fall from their spawn, and their spawner starts their animations.</summary>
+    internal static RockBehavior CeilingRocks { get; } = new(KraidRockMotion.CeilingRockFalling);
 
     /// <summary>
-    /// A rock Kraid spits (#1760): its spawner starts its animation, and a shot one runs its typed burst, the animation its
-    /// definition names.
+    /// A rock Kraid spits (#1760): it flies from its spawn, its spawner starts its animation, and a shot one runs its typed
+    /// burst, the animation its definition names.
     /// </summary>
-    internal static EnemyProjectileBehavior SpitRock { get; } = new RockBehavior(() => new KraidRockAnimation(KraidRockSegment.SpitRockShot));
+    internal static RockBehavior SpitRock { get; } = new(KraidRockMotion.Flying, KraidRockSegment.SpitRockShot);
 
     /// <summary>
     /// One of Kraid's rocks: a rock's flight with room collision, drag and gravity, a ceiling rock's fall, and the rock
     /// animations' cues.
     /// </summary>
-    private sealed class RockBehavior(Func<EnemyProjectileAnimation>? shot = null)
-        : EnemyProjectileMotionBehavior<KraidRockMotion>(StartingMotions, shot), IEnemyProjectileCues<KraidRockCue>
+    /// <param name="initial">How the rock moves from its spawn.</param>
+    /// <param name="shotBurst">The burst a shot rock runs, or null for the shared delete animation.</param>
+    internal sealed class RockBehavior(KraidRockMotion initial, KraidRockSegment? shotBurst = null)
+        : EnemyProjectileMotionBehavior<KraidRockMotion>(initial), IEnemyProjectileCues<KraidRockCue>
     {
-        /// <summary>A spat or rising rock flies, and a ceiling rock falls, from its spawn.</summary>
-        private static readonly Dictionary<RoomEnemyProjectileKind, KraidRockMotion?> StartingMotions = new()
-        {
-            [RoomEnemyProjectileKind.KraidSpitRock] = KraidRockMotion.Flying,
-            [RoomEnemyProjectileKind.KraidRisingRock] = KraidRockMotion.Flying,
-            [RoomEnemyProjectileKind.KraidCeilingRock] = KraidRockMotion.CeilingRockFalling,
-        };
+        /// <inheritdoc/>
+        internal override EnemyProjectileAnimation ShotAnimation() =>
+            shotBurst is { } burst ? new KraidRockAnimation(burst, this) : base.ShotAnimation();
 
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileMotionContext context, KraidRockMotion motion)

@@ -102,13 +102,14 @@ internal sealed class EnemyDeathsAndDrops
         EnemyProjectile? explosion = _projectiles.AllocateEnemyProjectile();
         if (explosion is not null)
         {
+            var behavior = new ExplosionBehavior(this, new EnemyDeathExplosionState(KilledEnemy.Of(enemy, respawns), enemy.DefinitionId));
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 explosion,
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
-                new ExplosionBehavior(this, new EnemyDeathExplosionState(KilledEnemy.Of(enemy, respawns), enemy.DefinitionId)),
+                behavior,
                 graphics: default);
             explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
-            explosion.StartAnimation(new EnemyDeathAndDropAnimation(EnemyDeathExplosions.Animation(deathAnimation)));
+            explosion.StartAnimation(new EnemyDeathAndDropAnimation(EnemyDeathExplosions.Animation(deathAnimation), behavior));
         }
 
         enemy.Clear();
@@ -244,17 +245,23 @@ internal sealed class EnemyDeathsAndDrops
         // becomes a pickup in any place for an enemy projectile, the first included. The roll reads the drop's definition
         // straight back from the pickup that holds it.
         EnemyPickupKind kind = SelectRandomEnemyDrop(dropChances, samus);
+        (EnemyProjectileBehavior behavior, IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> cues) = kind == EnemyPickupKind.NoDrop
+            ? Drop(new DormantDropBehavior(this, KilledEnemy.None))
+            : Drop(new PickupBehavior(this, new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, KilledEnemy.None)));
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             pickup,
             RoomEnemyProjectileKind.EnemyDeathPickup,
-            kind == EnemyPickupKind.NoDrop
-                ? new DormantDropBehavior(this, KilledEnemy.None)
-                : new PickupBehavior(this, new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, KilledEnemy.None)),
+            behavior,
             graphics: default);
         pickup.Position = pickup.Position.WithWhole(position);
         pickup.StartAnimation(new EnemyDeathAndDropAnimation(kind == EnemyPickupKind.NoDrop
             ? ConfigureDormantPickup(pickup)
-            : ConfigurePickup(pickup, kind)));
+            : ConfigurePickup(pickup, kind), cues));
+    }
+
+    /// <summary>A drop's behaviour, both as the behaviour bound to it and as the owner of its animations' cues.</summary>
+    private static (EnemyProjectileBehavior, IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>) Drop<TDrop>(TDrop drop)
+        where TDrop : EnemyProjectileBehavior, IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> => (drop, drop);
     }
 
     /// <summary>
@@ -278,13 +285,12 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Gives the projectile, whose behaviour already holds the pickup, the selected pickup's motion and collision reaction,
-    /// and returns its animation.
+    /// Gives the projectile, whose behaviour already holds the pickup and moves it as a pickup, the selected pickup's
+    /// collision reaction, and returns its animation.
     /// </summary>
     internal static EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind)
     {
         EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
-        projectile.StartMotion(SingleMotion.Moving);
 
         // A pickup is gone when Samus touches it; it keeps the explosion's other behaviours.
         projectile.PersistsOnSamusContact = false;
@@ -292,8 +298,8 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Leaves a collected or expired drop blank and harmless until it is removed.</summary>
-    private static void MakeEnemyPickupDormant(EnemyProjectile projectile) =>
-        projectile.StartAnimation(new EnemyDeathAndDropAnimation(ConfigureDormantPickup(projectile)));
+    private static void MakeEnemyPickupDormant(EnemyProjectile projectile, IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> cues) =>
+        projectile.StartAnimation(new EnemyDeathAndDropAnimation(ConfigureDormantPickup(projectile), cues));
 
     /// <summary>Makes the projectile a blank, harmless drop and returns the respawn pause it shows until it is removed.</summary>
     private static EnemyDeathAndDropSegment ConfigureDormantPickup(EnemyProjectile projectile)
@@ -421,12 +427,13 @@ internal sealed class EnemyDeathsAndDrops
     internal void TendEnemyPickup(
         EnemyProjectile projectile,
         EnemyPickupState pickup,
-        SamusState samus)
+        SamusState samus,
+        IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> cues)
     {
         // The lifetime is counted first; the pickup expires on the update it ends.
         if (pickup.Lifetime.Count())
         {
-            MakeEnemyPickupDormant(projectile);
+            MakeEnemyPickupDormant(projectile, cues);
             return;
         }
 
@@ -441,7 +448,7 @@ internal sealed class EnemyDeathsAndDrops
             DistanceAcrossRoomEdge.Between(projectile.Position.X.Whole, samus.Grapple.Anchor.X) < EnemyPickupDefinitions.GrappleReach &&
             DistanceAcrossRoomEdge.Between(projectile.Position.Y.Whole, samus.Grapple.Anchor.Y) < EnemyPickupDefinitions.GrappleReach)
         {
-            CollectEnemyPickup(projectile, pickup.Kind, samus);
+            CollectEnemyPickup(projectile, pickup.Kind, samus, cues);
             return;
         }
 
@@ -455,14 +462,15 @@ internal sealed class EnemyDeathsAndDrops
             return;
         }
 
-        CollectEnemyPickup(projectile, pickup.Kind, samus);
+        CollectEnemyPickup(projectile, pickup.Kind, samus, cues);
     }
 
     /// <summary>Applies health or ammo from a touched pickup, publishes its sound, and makes it dormant.</summary>
     private void CollectEnemyPickup(
         EnemyProjectile projectile,
         EnemyPickupKind kind,
-        SamusState samus)
+        SamusState samus,
+        IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> cues)
     {
         switch (kind)
         {
@@ -492,7 +500,7 @@ internal sealed class EnemyDeathsAndDrops
                     $"The enemy pickup in place {projectile.Place} holds no restorable pickup ({kind}).");
         }
 
-        MakeEnemyPickupDormant(projectile);
+        MakeEnemyPickupDormant(projectile, cues);
     }
 
     /// <summary>Fills health first, spilling excess into capped reserves and enabling reserve auto mode.</summary>
@@ -615,7 +623,7 @@ internal sealed class EnemyDeathsAndDrops
 
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
-            drops.TendEnemyPickup(context.Projectile, pickup, context.Samus);
+            drops.TendEnemyPickup(context.Projectile, pickup, context.Samus, this);
 
         /// <inheritdoc/>
         public AnimationContinuation<EnemyDeathAndDropSegment>? RunCue(EnemyProjectileCueContext context, EnemyDeathAndDropCue cue,

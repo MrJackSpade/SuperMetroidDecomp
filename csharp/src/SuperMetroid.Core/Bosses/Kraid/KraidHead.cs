@@ -238,7 +238,7 @@ internal sealed class KraidHead
             RoomEnemyProjectileKind.KraidSpitRock,
             KraidProjectiles.SpitRock,
             graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
-        rock.StartAnimation(new KraidRockAnimation(KraidRockSegment.SharedPose));
+        rock.StartAnimation(new KraidRockAnimation(KraidRockSegment.SharedPose, KraidProjectiles.SpitRock));
         int random = _access.ReadKraidRandomNumber();
         rock.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole + KraidArenaDefinitions.SpitRockOffset);
         rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.SpitLaunch.Choose(random));

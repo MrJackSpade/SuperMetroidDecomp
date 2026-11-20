@@ -472,12 +472,13 @@ internal sealed class CrocomireFight
         if (projectile is null)
             return;
 
+        CrocomireCombat.MouthShotBehavior shot = _combat.MouthShot(new CrocomireProjectileState(gradient));
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.CrocomireProjectile,
-            _combat.MouthShot(new CrocomireProjectileState(gradient)),
+            shot,
             graphics: SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading));
-        projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.Mouth));
+        projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.Mouth, shot));
         projectile.Velocity = CrocomireFightDefinitions.SpitVelocity;
         projectile.Position = projectile.Position.WithWhole(body.Position.Whole + CrocomireFightDefinitions.SpitOffset);
         projectile.Position = projectile.Position.WithoutFractions();

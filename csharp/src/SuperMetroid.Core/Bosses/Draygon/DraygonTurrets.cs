@@ -66,12 +66,13 @@ internal sealed class DraygonTurrets
         Position16<RoomPixels> origin = DraygonCannonData.FiringOrigins[cannon];
         TrigonometryAngle flightAngle = EnemyMath.CalculateAimAngle(
             new(samus.Position.X.Whole - origin.X, samus.Position.Y.Whole - origin.Y));
+        DraygonShots.FlyingShotBehavior shot = _shots.WallTurretShot(AngledFlightState.Launch(flightAngle, DraygonProjectileSpeeds.WallTurret));
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             turret,
             RoomEnemyProjectileKind.DraygonWallTurret,
-            _shots.WallTurretShot(AngledFlightState.Launch(flightAngle, DraygonProjectileSpeeds.WallTurret)),
+            shot,
             graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
-        turret.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.WallTurretBloom));
+        turret.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.WallTurretBloom, shot));
         turret.Position = FixedPosition<RoomPixels>.FromWhole(origin);
 
         // The shot holds still until its muzzle bloom reaches the step that sets it flying.

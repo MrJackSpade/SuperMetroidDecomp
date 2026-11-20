@@ -276,12 +276,13 @@ internal sealed class CrocomireSkeleton
             if (projectile is null)
                 return;
 
+            CrocomireCombat.SpikeWallPieceBehavior wallPiece = _combat.SpikeWallPiece(new CrocomireSpikeWallPieceState(piece));
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 projectile,
                 RoomEnemyProjectileKind.CrocomireSpikeWallPieces,
-                _combat.SpikeWallPiece(new CrocomireSpikeWallPieceState(piece)),
+                wallPiece,
                 graphics);
-            projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.SpikeWallPiece));
+            projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.SpikeWallPiece, wallPiece));
             projectile.Position = projectile.Position.WithWhole(CrocomireSkeletonDefinitions.SpikeWallTop
                 + new Offset16<RoomPixels>(0, piece.Depth));
             projectile.Velocity = PixelVelocity<RoomPixels>.Zero;

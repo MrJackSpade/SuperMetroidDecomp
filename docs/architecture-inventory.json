@@ -75593,6 +75593,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.LevelDataPastGrid\u003CTTerrain\u003E",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/LevelDataPastGrid.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.LiquidMotionStart",
       "kind": "record struct",
       "scope": "product",
@@ -77144,6 +77157,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.ShortFrameCount",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/ShortFrameCount.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.ShotAndProjectileSquares",
       "kind": "static class",
       "scope": "product",
@@ -78332,6 +78358,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.WreckedShipGhostFadeDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/WreckedShipGhostFadeDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.WreckedShipGhostFadePrivateAccess",
@@ -134873,6 +134912,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Rendering.EffectBehindRoomBlend",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/EffectBehindRoomBlend.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Rendering.EyeWindowRenderDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -134884,6 +134936,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.FirefleaDarknessBlend",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/FirefleaDarknessBlend.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Rendering.FloorColorBlend",
@@ -134974,7 +135039,7 @@
     },
     {
       "type": "SuperMetroid.Core.Rendering.GameplayBlend",
-      "kind": "record struct",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -134983,7 +135048,7 @@
         "csharp/src/SuperMetroid.Core/Rendering/GameplayBlend.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Rendering.GameplayBlendLayer",
@@ -135472,6 +135537,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rendering/OverlayPicture.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.PhantoonTranslucenceBlend",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/PhantoonTranslucenceBlend.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -136073,6 +136151,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rendering/WindowShape.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.XrayDimmingBlend",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/XrayDimmingBlend.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -166322,14 +166413,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.UnmodeledBehaviorException",
+      "type": "SuperMetroid.Core.UnsupportedGameStateException",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/UnmodeledBehaviorException.cs"
+        "csharp/src/SuperMetroid.Core/UnsupportedGameStateException.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -173860,6 +173951,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.CoreDocumentationStorageAndHistoryAnalyzer",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/CoreDocumentationStorageAndHistoryAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.EnsureAnalyzer.Contracts.CoreDocumentationVocabularyAnalyzer",
       "kind": "class",
       "scope": "tool",
@@ -175393,6 +175497,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.EnsureVerification/Contracts/CoordinateWrapAnalyzerTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.EnsureVerification.Contracts.CoreDocumentationStorageAndHistoryAnalyzerTests",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.EnsureVerification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureVerification/Contracts/CoreDocumentationStorageAndHistoryAnalyzerTests.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -178467,6 +178584,19 @@
     },
     {
       "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11FrameRenderer.PacketDrawing",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Rendering.Direct3D11"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11FrameRenderer.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11FrameRenderer.ShaderBlend",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [

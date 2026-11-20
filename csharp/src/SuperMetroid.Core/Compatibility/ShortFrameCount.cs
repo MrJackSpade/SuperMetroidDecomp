@@ -30,9 +30,6 @@ public readonly record struct ShortFrameCount
     /// <param name="frames">How many frames pass; never negative.</param>
     internal ShortFrameCount After(int frames) => new((Frames + Ensure.AtLeastZero(frames) % Period) % Period);
 
-    /// <summary>How far into its period the count stands, for the cadences that read it.</summary>
-    internal int ToInt32() => Frames;
-
     /// <summary>How far into its period <paramref name="count"/> stands, for the cadences that read it.</summary>
     public static implicit operator int(ShortFrameCount count) => count.Frames;
 }

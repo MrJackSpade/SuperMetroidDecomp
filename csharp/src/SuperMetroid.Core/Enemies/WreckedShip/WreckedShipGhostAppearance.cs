@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using static SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostAppearanceDefinitions;
 
 namespace SuperMetroid.Core.Enemies.WreckedShip;

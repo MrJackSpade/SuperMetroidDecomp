@@ -19,76 +19,54 @@ internal static class CeresSteamAnimations
     /// <summary>How long each picture of a puff shows.</summary>
     private const int PuffPictureUpdates = 3;
 
-    /// <summary>Every segment's beats.</summary>
+    /// <summary>
+    /// The four ways a vent blows, each with its dormant wait, rest and puff segments and its puff's seven pictures in
+    /// order; every way's segments are built from these by the one vent animation below (#2557).
+    /// </summary>
+    private static readonly CeresSteamWay[] Ways =
+    [
+        new(P.UpDormant, P.UpResting, P.UpPuffing,
+        [
+            EnemyFrameId.CeresSteamUp, EnemyFrameId.CeresSteamUpJetBursting, EnemyFrameId.CeresSteamUpJetLengthening, EnemyFrameId.CeresSteamUpJetFull,
+            EnemyFrameId.CeresSteamUpPlumeDrifting, EnemyFrameId.CeresSteamUpPlumeScattering, EnemyFrameId.CeresSteamUpPlumeFading,
+        ]),
+        new(P.LeftDormant, P.LeftResting, P.LeftPuffing,
+        [
+            EnemyFrameId.CeresSteamLeft, EnemyFrameId.CeresSteamLeftJetBursting, EnemyFrameId.CeresSteamLeftJetLengthening, EnemyFrameId.CeresSteamLeftJetFull,
+            EnemyFrameId.CeresSteamLeftPlumeDrifting, EnemyFrameId.CeresSteamLeftPlumeScattering, EnemyFrameId.CeresSteamLeftPlumeFading,
+        ]),
+        new(P.DownDormant, P.DownResting, P.DownPuffing,
+        [
+            EnemyFrameId.CeresSteamDown, EnemyFrameId.CeresSteamDownJetBursting, EnemyFrameId.CeresSteamDownJetLengthening, EnemyFrameId.CeresSteamDownJetFull,
+            EnemyFrameId.CeresSteamDownPlumeDrifting, EnemyFrameId.CeresSteamDownPlumeScattering, EnemyFrameId.CeresSteamDownPlumeFading,
+        ]),
+        new(P.RightDormant, P.RightResting, P.RightPuffing,
+        [
+            EnemyFrameId.CeresSteamRight, EnemyFrameId.CeresSteamRightJetBursting, EnemyFrameId.CeresSteamRightJetLengthening, EnemyFrameId.CeresSteamRightJetFull,
+            EnemyFrameId.CeresSteamRightPlumeDrifting, EnemyFrameId.CeresSteamRightPlumeScattering, EnemyFrameId.CeresSteamRightPlumeFading,
+        ]),
+    ];
+
+    /// <summary>Every segment's beats: each way's dormant wait hides the vent, its rest hides it for <see cref="RestUpdates"/> and shows it again, and its puff shows its pictures.</summary>
     internal static AnimationSegments<CeresSteamSegment, EnemyFrameId, CeresSteamCueKind> Segments { get; } = new(
-        new Dictionary<CeresSteamSegment, AnimationBeat<EnemyFrameId, CeresSteamCueKind>[]>
-    {
-        [P.UpDormant] = [Cue(K.Vanish)],
-        [P.UpResting] = [Cue(K.Vanish), Wait(RestUpdates), Cue(K.Appear)],
-        [P.UpPuffing] =
-        [
-            Show(EnemyFrameId.CeresSteamUp),
-            Show(EnemyFrameId.CeresSteamUpJetBursting),
-            Show(EnemyFrameId.CeresSteamUpJetLengthening),
-            Show(EnemyFrameId.CeresSteamUpJetFull),
-            Show(EnemyFrameId.CeresSteamUpPlumeDrifting),
-            Show(EnemyFrameId.CeresSteamUpPlumeScattering),
-            Show(EnemyFrameId.CeresSteamUpPlumeFading),
-        ],
-        [P.LeftDormant] = [Cue(K.Vanish)],
-        [P.LeftResting] = [Cue(K.Vanish), Wait(RestUpdates), Cue(K.Appear)],
-        [P.LeftPuffing] =
-        [
-            Show(EnemyFrameId.CeresSteamLeft),
-            Show(EnemyFrameId.CeresSteamLeftJetBursting),
-            Show(EnemyFrameId.CeresSteamLeftJetLengthening),
-            Show(EnemyFrameId.CeresSteamLeftJetFull),
-            Show(EnemyFrameId.CeresSteamLeftPlumeDrifting),
-            Show(EnemyFrameId.CeresSteamLeftPlumeScattering),
-            Show(EnemyFrameId.CeresSteamLeftPlumeFading),
-        ],
-        [P.DownDormant] = [Cue(K.Vanish)],
-        [P.DownResting] = [Cue(K.Vanish), Wait(RestUpdates), Cue(K.Appear)],
-        [P.DownPuffing] =
-        [
-            Show(EnemyFrameId.CeresSteamDown),
-            Show(EnemyFrameId.CeresSteamDownJetBursting),
-            Show(EnemyFrameId.CeresSteamDownJetLengthening),
-            Show(EnemyFrameId.CeresSteamDownJetFull),
-            Show(EnemyFrameId.CeresSteamDownPlumeDrifting),
-            Show(EnemyFrameId.CeresSteamDownPlumeScattering),
-            Show(EnemyFrameId.CeresSteamDownPlumeFading),
-        ],
-        [P.RightDormant] = [Cue(K.Vanish)],
-        [P.RightResting] = [Cue(K.Vanish), Wait(RestUpdates), Cue(K.Appear)],
-        [P.RightPuffing] =
-        [
-            Show(EnemyFrameId.CeresSteamRight),
-            Show(EnemyFrameId.CeresSteamRightJetBursting),
-            Show(EnemyFrameId.CeresSteamRightJetLengthening),
-            Show(EnemyFrameId.CeresSteamRightJetFull),
-            Show(EnemyFrameId.CeresSteamRightPlumeDrifting),
-            Show(EnemyFrameId.CeresSteamRightPlumeScattering),
-            Show(EnemyFrameId.CeresSteamRightPlumeFading),
-        ],
-    });
+        Ways.SelectMany(way => new KeyValuePair<CeresSteamSegment, AnimationBeat<EnemyFrameId, CeresSteamCueKind>[]>[]
+        {
+            new(way.Dormant, [Cue(K.Vanish)]),
+            new(way.Resting, [Cue(K.Vanish), Wait(RestUpdates), Cue(K.Appear)]),
+            new(way.Puffing, [.. way.Puff.Select(Show)]),
+        }).ToDictionary());
 
     /// <summary>
     /// The animation each segment a vent starts at starts: a dormant vent hides and holds until its owner's wait runs out;
     /// a puffing vent goes on puffing and resting in turn for good. A vent only rests on the way from a puff, so no
     /// animation starts at a rest.
     /// </summary>
-    private static Dictionary<CeresSteamSegment, Animation<CeresSteamSegment>> StartingAt { get; } = new Dictionary<CeresSteamSegment, Animation<CeresSteamSegment>>
-    {
-        [P.UpDormant] = new([Segments.Whole(P.UpDormant)], AnimationEnd.Holds),
-        [P.UpPuffing] = Animation<CeresSteamSegment>.Looping([Segments.Whole(P.UpPuffing), Segments.Whole(P.UpResting)]),
-        [P.LeftDormant] = new([Segments.Whole(P.LeftDormant)], AnimationEnd.Holds),
-        [P.LeftPuffing] = Animation<CeresSteamSegment>.Looping([Segments.Whole(P.LeftPuffing), Segments.Whole(P.LeftResting)]),
-        [P.DownDormant] = new([Segments.Whole(P.DownDormant)], AnimationEnd.Holds),
-        [P.DownPuffing] = Animation<CeresSteamSegment>.Looping([Segments.Whole(P.DownPuffing), Segments.Whole(P.DownResting)]),
-        [P.RightDormant] = new([Segments.Whole(P.RightDormant)], AnimationEnd.Holds),
-        [P.RightPuffing] = Animation<CeresSteamSegment>.Looping([Segments.Whole(P.RightPuffing), Segments.Whole(P.RightResting)]),
-    };
+    private static Dictionary<CeresSteamSegment, Animation<CeresSteamSegment>> StartingAt { get; } =
+        Ways.SelectMany(way => new KeyValuePair<CeresSteamSegment, Animation<CeresSteamSegment>>[]
+        {
+            new(way.Dormant, new([Segments.Whole(way.Dormant)], AnimationEnd.Holds)),
+            new(way.Puffing, Animation<CeresSteamSegment>.Looping([Segments.Whole(way.Puffing), Segments.Whole(way.Resting)])),
+        }).ToDictionary();
 
     /// <summary>
     /// Where each dormant vent's puffs go on from once its wait runs out (#2480): its way's puffs, at the last beat of their
@@ -96,13 +74,7 @@ internal static class CeresSteamAnimations
     /// game's vent appears and puffs on the update its wait runs out.
     /// </summary>
     internal static IReadOnlyDictionary<CeresSteamSegment, AnimationPlayback<CeresSteamSegment>> ActivationAfter { get; } =
-        new Dictionary<CeresSteamSegment, AnimationPlayback<CeresSteamSegment>>
-    {
-        [P.UpDormant] = WhereRestEnds(P.UpPuffing, P.UpResting),
-        [P.LeftDormant] = WhereRestEnds(P.LeftPuffing, P.LeftResting),
-        [P.DownDormant] = WhereRestEnds(P.DownPuffing, P.DownResting),
-        [P.RightDormant] = WhereRestEnds(P.RightPuffing, P.RightResting),
-    };
+        Ways.ToDictionary(way => way.Dormant, way => WhereRestEnds(way.Puffing, way.Resting));
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<CeresSteamSegment> StartingWith(CeresSteamSegment segment) => StartingAt[segment];

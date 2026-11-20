@@ -60,7 +60,7 @@ internal static class PaletteFxNativeProgramOracle
             ? [.. Enum.GetValues<ColourEffectHeatSuit>().Select(suit => new PaletteFxTypedAnimation(ColourEffectHeatAnimations.Pulse(suit),
                 ColourEffectHeatAnimations.Shimmer(suit),
                 PaletteFxNativeListAddresses.Entry(ColourEffectHeatAnimations.Pulse(suit))))]
-            : [new PaletteFxTypedAnimation(effect, ColourEffectAnimations.Definition(effect).OwnAnimation, PaletteFxNativeListAddresses.Entry(effect))];
+            : [new PaletteFxTypedAnimation(effect, ColourEffectAnimations.Definition(effect).Frames.Played, PaletteFxNativeListAddresses.Entry(effect))];
     }
 
     /// <summary>

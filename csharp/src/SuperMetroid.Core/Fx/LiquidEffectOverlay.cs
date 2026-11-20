@@ -61,8 +61,7 @@ public sealed record LiquidEffectOverlay : ShownRoomEffectOverlay
     public static LiquidEffectOverlay Of(RoomFxOverlayRenderSnapshot fx, LiquidArtwork artwork) =>
         new(artwork, fx.Blend, fx.Scroll.X,
             RoomFxTypes.UsesWater(fx.Type) ? fx.WaterOverlayWavePhase : null,
-            // A tide can carry the surface above the room's top, to a negative room line, where the game's below-zero
-            // check finds no surface to show.
+            // A tide can carry the surface above the room's top, to a negative room line, which shows no surface.
             fx.Surface is >= 0 ? fx.WaterSurfaceScreenY : null,
             fx.LiquidSurfaceLine);
 

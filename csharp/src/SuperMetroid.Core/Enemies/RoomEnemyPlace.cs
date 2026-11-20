@@ -48,7 +48,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// </summary>
     public RoomEnemyOccupant? Occupant => History is PopulatedEnemyPlace { Occupancy: OccupiedEnemyPlace occupied } ? occupied.Occupant : null;
 
-    /// <summary>The enemy holding the place, which a caller acting on a live enemy reads it through.</summary>
+    /// <summary>The enemy holding the place, through which a behaviour acting on a live enemy reads it.</summary>
     /// <exception cref="InvalidOperationException">The place holds no enemy.</exception>
     internal RoomEnemyOccupant RequireOccupant() =>
         Occupant ?? throw new InvalidOperationException($"Enemy place {Ordinal} holds no enemy.");

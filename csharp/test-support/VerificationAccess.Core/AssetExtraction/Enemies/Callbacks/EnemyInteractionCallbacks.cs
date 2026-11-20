@@ -109,7 +109,7 @@ internal static class EnemyInteractionCallbacks
     /// species; a compiled definition that names a shared reaction there disagrees with the cartridge.
     /// </summary>
     private static EnemyReaction SpeciesOwn(EnemyReaction speciesOwn, string contact, int bank, int pointer) =>
-        EnemyReactionConstants.Shared.Contains(Ensure.NotNull(speciesOwn))
+        EnemyReactionConstants.Shared.Contains(speciesOwn)
             ? throw new InvalidDataException($"The {contact} word ${bank:X2}:{pointer:X4} names the species' own reaction, not {speciesOwn}.")
             : speciesOwn;
 

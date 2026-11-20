@@ -34,7 +34,7 @@ public static class BlockReactionFamilies
 
     /// <summary>
     /// The reactions <paramref name="kind"/> distinguishes: every reaction of its family, or none for a kind that reads no
-    /// reaction (#2558), whose callers state that case themselves.
+    /// reaction (#2558), a case those reading it state themselves.
     /// </summary>
     public static IReadOnlyList<BlockReaction> ReadingsOf(RoomCollisionType kind) =>
         Of(kind) is { } family ? [.. Reactions(family)] : [];

@@ -21,11 +21,4 @@ internal sealed record ColourEffectDefinition(
     ColourEffectStart Start,
     ColourEffectColours Colours,
     ColourEffectCondition Condition,
-    ColourEffectFrames Frames)
-{
-    /// <summary>The animation the effect plays in its own frames.</summary>
-    /// <exception cref="InvalidOperationException">The effect plays its suit's heat pulse, with no animation of its own.</exception>
-    internal Animation<ColourEffectSegment> OwnAnimation => Frames is ColourEffectFrames.OwnAnimation own
-        ? own.Animation
-        : throw new InvalidOperationException("The heat shimmer plays its suit's heat pulse, with no animation of its own.");
-}
+    ColourEffectFrames Frames);

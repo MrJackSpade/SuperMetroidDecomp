@@ -1,7 +1,9 @@
+using SuperMetroid.Core.Rooms.Artwork;
+
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The terrain an item lying in the room writes its looks into (#2558): a tank's own blocks, which its kind pictures, or the
+/// The terrain an item lying in the room shows its looks in (#2558): a tank's own blocks, which its kind pictures, or the
 /// block pair an item that shows its own picture took (<see cref="CollectibleBlockPairs"/>), over which its picture shows.
 /// </summary>
 internal abstract record CollectibleTerrain

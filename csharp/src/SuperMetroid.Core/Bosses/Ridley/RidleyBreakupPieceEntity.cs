@@ -24,7 +24,6 @@ internal sealed class RidleyBreakupPieceEntity(NorfairRidleyBehavior ridley, Roo
 
     /// <summary>None: the game defines no hitboxes for a breakup piece's frames (#2335).</summary>
     /// <param name="probe">The colliding edges and walker.</param>
-    /// <param name="reaction">No reaction.</param>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe)
     {
         throw EnemyCollision.UncoveredFrame(Place);

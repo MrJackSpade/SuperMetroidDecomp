@@ -20,6 +20,10 @@ internal abstract record ColourEffectFrames
     /// <summary>The segments the effect's own animation plays, in the order its phases play them; none for a suit's pulse.</summary>
     internal abstract IEnumerable<ColourEffectSegment> OwnSegments { get; }
 
+    /// <summary>The animation the effect plays in its own frames.</summary>
+    /// <exception cref="InvalidOperationException">The effect plays its suit's heat pulse, with no animation of its own.</exception>
+    internal abstract Animation<ColourEffectSegment> Played { get; }
+
     /// <summary>An effect's own animation, as its definition names it.</summary>
     /// <param name="animation">The animation the effect plays in its own frames.</param>
     public static implicit operator ColourEffectFrames(Animation<ColourEffectSegment> animation) => new OwnAnimation(animation);
@@ -30,6 +34,9 @@ internal abstract record ColourEffectFrames
     {
         /// <inheritdoc/>
         internal override IEnumerable<ColourEffectSegment> OwnSegments => Animation.Phases.Select(phase => phase.Segment);
+
+        /// <inheritdoc/>
+        internal override Animation<ColourEffectSegment> Played => Animation;
     }
 
     /// <summary>The effect plays the pulse of the suit Samus wears, which its start chooses.</summary>
@@ -37,5 +44,9 @@ internal abstract record ColourEffectFrames
     {
         /// <inheritdoc/>
         internal override IEnumerable<ColourEffectSegment> OwnSegments => [];
+
+        /// <inheritdoc/>
+        internal override Animation<ColourEffectSegment> Played =>
+            throw new InvalidOperationException("The heat shimmer plays its suit's heat pulse, with no animation of its own.");
     }
 }

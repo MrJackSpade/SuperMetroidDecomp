@@ -15,50 +15,45 @@ internal sealed class KraidLimbs
     private readonly EnemyRoomBinding _room;
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
-    private readonly KraidParts _parts;
     /// <summary>Kraid's part animations and states, random numbers and his sound and music requests.</summary>
     private readonly KraidEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidLimbs(EnemyRoomBinding room, RoomEarthquake earthquake, KraidParts parts, KraidEncounterAccess access)
+    internal KraidLimbs(EnemyRoomBinding room, RoomEarthquake earthquake, KraidEncounterAccess access)
     {
         _room = room;
         _earthquake = earthquake;
-        _parts = parts;
         _access = access;
     }
 
     /// <summary>Installs the arm part in its place with the rising-or-sinking animation.</summary>
-    internal KraidEnemyState InitializeKraidArm(RoomEnemyPlace arm, KraidPartReference reference)
+    /// <param name="arm">The part's place.</param>
+    /// <param name="state">The encounter his body began, which the part joins.</param>
+    internal KraidEnemyState InitializeKraidArm(RoomEnemyPlace arm, KraidEnemyState state)
     {
-        // The part joins Kraid through his reference to it before it sets up (#2554).
-        Ensure.NotNull(reference).Join(arm);
-        KraidEnemyState state = _parts.Encounter;
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             KraidEncounterAccess.MarkKraidPartDead(arm);
             return state;
         }
         // The arm joins the encounter its body began, which it holds from here (#2218).
-        arm.Shading = _parts.Body.Shading;
+        arm.Shading = state.Parts.Body.Shading;
         state.ArmState.StartAnimation(KraidPartSegment.ArmRisingOrSinking);
         return state;
     }
 
     /// <summary>Installs a foot part with its initial animation and shared body state.</summary>
-    internal KraidEnemyState InitializeKraidFoot(RoomEnemyPlace foot, KraidPartReference reference)
+    /// <param name="foot">The part's place.</param>
+    /// <param name="state">The encounter his body began, which the part joins.</param>
+    internal KraidEnemyState InitializeKraidFoot(RoomEnemyPlace foot, KraidEnemyState state)
     {
-        // The part joins Kraid through his reference to it before it sets up (#2554).
-        Ensure.NotNull(reference).Join(foot);
-        KraidEnemyState state = _parts.Encounter;
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             KraidEncounterAccess.MarkKraidPartDead(foot);
             return state;
         }
         // The foot joins the encounter its body began, which it holds from here (#2218).
-        foot.Shading = _parts.Body.Shading;
+        foot.Shading = state.Parts.Body.Shading;
         state.FootState.StartAnimation(KraidPartSegment.FootInitial);
         state.FootState.Phase = KraidFootPhase.Resting;
         return state;
@@ -83,7 +78,7 @@ internal sealed class KraidLimbs
     /// <returns>The slow arm animation when the speed cue switches the arm; otherwise null.</returns>
     private KraidPartSegment? ApplyKraidPartCue(KraidEnemyState state, KraidPartCue cue)
     {
-        RoomEnemyPlace body = _parts.Body;
+        RoomEnemyPlace body = state.Parts.Body;
         switch (cue)
         {
             case KraidPartCue.RaiseBody:
@@ -144,9 +139,9 @@ internal sealed class KraidLimbs
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), KraidArenaDefinitions.GrowthShakeUpdates);
         state.FootState.StartAnimation(KraidPartSegment.FootInitial);
         state.FootState.Phase = KraidFootPhase.Resting;
-        RoomEnemyPlace arm = _parts.Arm;
+        RoomEnemyPlace arm = state.Parts.Arm;
         state.ArmState.StartAnimation(KraidPartSegment.ArmNormal);
-        foreach (RoomEnemyPlace lint in _parts.Lints)
+        foreach (RoomEnemyPlace lint in state.Parts.Lints)
             lint.Presence = lint.Presence.With(EnemyPresence.Hidden);
         arm.Contact = arm.Contact.With(EnemyContact.IgnoresSamus);
         return true;
@@ -157,14 +152,14 @@ internal sealed class KraidLimbs
     /// already the slow one or a later animation.
     /// </summary>
     private KraidPartSegment? SelectKraidArmSpeedAnimation(KraidEnemyState state) =>
-        _parts.Body.Health < state.HalfHealth && state.ArmState.SwingsNormally
+        state.Parts.Body.Health < state.HalfHealth && state.ArmState.SwingsNormally
             ? KraidPartSegment.ArmSlow
             : null;
 
     /// <summary>Keeps the arm aligned to the body and advances its animation.</summary>
     internal void RunKraidArmMain(RoomEnemyPlace arm, KraidEnemyState state, int cameraY)
     {
-        RoomEnemyPlace body = _parts.Body;
+        RoomEnemyPlace body = state.Parts.Body;
         arm.Position = arm.Position.WithWhole(body.Position.Whole + KraidArenaDefinitions.ArmOffset);
 
         // The arm hides only when its anchor leaves the screen's gameplay
@@ -187,7 +182,7 @@ internal sealed class KraidLimbs
     internal void RunKraidFootMain(RoomEnemyPlace foot, KraidFootState part, int cameraY)
     {
         KraidEnemyState state = part.Kraid;
-        RoomEnemyPlace body = _parts.Body;
+        RoomEnemyPlace body = part.Kraid.Parts.Body;
         foot.Position = foot.Position.WithWhole(body.Position.Whole + KraidArenaDefinitions.FootOffset);
         bool onScreen = foot.Position.Y.Whole >= cameraY &&
             foot.Position.Y.Whole - ScreenGeometry.ScreenHeightPixels < cameraY;

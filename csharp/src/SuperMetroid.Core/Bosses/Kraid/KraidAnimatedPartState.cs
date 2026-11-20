@@ -10,10 +10,10 @@ public abstract class KraidAnimatedPartState : KraidPartState
 {
     /// <summary>Makes an animated part of <paramref name="kraid"/>'s encounter playing the animation from <paramref name="starting"/>.</summary>
     /// <param name="kraid">The encounter the part is part of.</param>
-    /// <param name="reference">Kraid's reference to the part, which it joins as it sets up.</param>
+    /// <param name="place">The place the part occupies, which his body heads.</param>
     /// <param name="starting">The segment the animation its setup starts begins with.</param>
-    private protected KraidAnimatedPartState(KraidEnemyState kraid, KraidPartReference reference, KraidPartSegment starting)
-        : base(kraid, reference) => Playback = Starting(starting);
+    private protected KraidAnimatedPartState(KraidEnemyState kraid, RoomEnemyPlace place, KraidPartSegment starting)
+        : base(kraid, place) => Playback = Starting(starting);
 
     /// <summary>The part's playing animation and where it stands.</summary>
     internal AnimationPlayback<KraidPartSegment> Playback { get; set; }

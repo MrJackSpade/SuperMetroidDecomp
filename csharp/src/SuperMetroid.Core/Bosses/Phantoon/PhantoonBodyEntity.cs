@@ -11,7 +11,9 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+/// <param name="parts">The places of his eye, tentacles and mouth, which his room lists right after his body.</param>
+internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork,
+    IReadOnlyList<RoomEnemyPlace> parts)
     : PhantoonEntity(species, place, common, bossArtwork), IEnemyContactHooks, IEnemyPrivateShotReaction
 {
     /// <summary>His body's own bomb reaction, built over the encounter (#2554).</summary>
@@ -19,7 +21,7 @@ internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyPlac
 
     /// <inheritdoc/>
     /// <remarks>The part sets up as it is built, joining the encounter (#2554).</remarks>
-    internal override PhantoonPart Part { get; } = species.InitializePhantoonBody(place);
+    internal override PhantoonPart Part { get; } = species.InitializePhantoonBody(place, parts);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunPhantoonBodyMainAi(Encounter, frame);

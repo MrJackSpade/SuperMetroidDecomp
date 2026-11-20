@@ -19,8 +19,6 @@ internal sealed class KraidDeath
     private readonly EnemyRoomBinding _room;
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
-    private readonly KraidParts _parts;
     /// <summary>Applies Kraid's colours, background pictures, and sprite presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Applies contact damage, death state, and resulting drops.</summary>
@@ -41,7 +39,6 @@ internal sealed class KraidDeath
         _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _earthquake = dependencies.Earthquake;
-        _parts = dependencies.Parts;
         _presentation = dependencies.Presentation;
         _deathsAndDrops = dependencies.DeathsAndDrops;
         _cameraDistance = dependencies.CameraDistance;
@@ -147,11 +144,11 @@ internal sealed class KraidDeath
         // The death stops the fingernails coming back once killed, then kills the
         // nails, then the three lints. The death runs without choosing an explosion, so each
         // part leaves the first death explosion.
-        foreach (RoomEnemyPlace nail in _parts.Nails)
+        foreach (RoomEnemyPlace nail in state.Parts.Nails)
             nail.Presence = nail.Presence.Without(EnemyPresence.RespawnsIfKilled);
-        foreach (RoomEnemyPlace nail in _parts.Nails)
+        foreach (RoomEnemyPlace nail in state.Parts.Nails)
             _deathsAndDrops.StartGenericEnemyDeath(nail, EnemyDeathExplosion.Small, samus);
-        foreach (RoomEnemyPlace lint in _parts.Lints)
+        foreach (RoomEnemyPlace lint in state.Parts.Lints)
             _deathsAndDrops.StartGenericEnemyDeath(lint, EnemyDeathExplosion.Small, samus);
         // The live sequence crumbles successive blocks while Kraid fades/sinks.
         // It must not substitute the instantaneous already-defeated-room clear.
@@ -173,13 +170,13 @@ internal sealed class KraidDeath
             return;
 
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
-        RoomEnemyPlace arm = _parts.Arm;
+        RoomEnemyPlace arm = state.Parts.Arm;
         arm.Contact = arm.Contact.With(EnemyContact.IgnoresSamus);
         arm.Presence = arm.Presence.With(EnemyPresence.Deleted);
         // The lints and the foot are deleted with the arm (#2298).
-        foreach (RoomEnemyPlace lint in _parts.Lints)
+        foreach (RoomEnemyPlace lint in state.Parts.Lints)
             KraidEncounterAccess.DeleteKraidPart(lint);
-        KraidEncounterAccess.DeleteKraidPart(_parts.Foot);
+        KraidEncounterAccess.DeleteKraidPart(state.Parts.Foot);
         state.BodyState.DeathPhase = KraidDeathPhase.HideBody;
         // The death returns the camera to its normal tracking before the death drop.
         _cameraDistance.Request(CameraDistanceMode.NormalTracking);

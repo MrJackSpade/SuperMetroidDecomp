@@ -150,8 +150,9 @@ public abstract class RoomMainBehavior
     }
 
     /// <summary>
-    /// The Crocomire room's rumble while his death uncovers the hidden wall, composed with the room's Crocomire once the
-    /// room's enemies have set him up (#2486): both of the room's states place him, his corpse in the room after his defeat.
+    /// The Crocomire room's rumble while his death uncovers the hidden wall, composed with the room's Crocomire as the room's
+    /// enemies set him up (#2486, #2554): both of the room's states place him, his corpse in the room after his defeat, and
+    /// his population hands him to the rumble as his body sets up.
     /// </summary>
     private sealed class CrocomireRoomShakingRoomMain() : RoomMainBehavior(nameof(CrocomireRoomShaking)), IRoomMainOverRoomEnemies
     {
@@ -160,10 +161,8 @@ public abstract class RoomMainBehavior
         internal override void Compose(RoomScopeConstruction scope) => Ensure.NotNull(scope);
 
         /// <inheritdoc/>
-        /// <exception cref="InvalidDataException">The room's enemies set up no Crocomire.</exception>
         public void ComposeOverRoomEnemies(RoomScopeConstruction scope, RoomEnemySystem enemies) =>
-            Ensure.NotNull(scope).ComposeCrocomireRumbleMain(Ensure.NotNull(enemies).RoomMainHooks.Crocomire ??
-                throw new InvalidDataException("The Crocomire room's enemies set up no Crocomire."));
+            Ensure.NotNull(enemies).RoomMainHooks.WhenCrocomireJoins(Ensure.NotNull(scope).ComposeCrocomireRumbleMain);
     }
 
     /// <summary>The Dachora room's camera, moved toward its shaft while the shaft stands open.</summary>

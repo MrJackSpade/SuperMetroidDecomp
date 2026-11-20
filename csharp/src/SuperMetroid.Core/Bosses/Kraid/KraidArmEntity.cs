@@ -6,11 +6,12 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="species">The Kraid species owner.</param>
 /// <param name="place">The place the arm occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class KraidArmEntity(KraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="kraid">The encounter his body began, which the part joins.</param>
+internal sealed class KraidArmEntity(KraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, KraidEnemyState kraid)
     : KraidLimbEntity(species, place, common), IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    internal override KraidEnemyState Encounter { get; } = species.Limbs.InitializeKraidArm(place, species.Parts.ArmReference);
+    internal override KraidEnemyState Encounter { get; } = species.Limbs.InitializeKraidArm(place, kraid);
 
     /// <inheritdoc/>
     internal override KraidPartState PartState => Encounter.ArmState;

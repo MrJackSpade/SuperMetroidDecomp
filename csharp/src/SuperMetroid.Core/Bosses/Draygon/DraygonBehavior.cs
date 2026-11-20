@@ -8,27 +8,32 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>The Draygon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class DraygonBehavior : IEnemySpecies, IEnemyGroupFactory
 {
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
         [EnemyDefinitionId.DraygonArms, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail];
 
-    /// <summary>Draygon's body, eye, tail or arms (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Draygon definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    /// <inheritdoc/>
+    public EnemyDefinitionId Head => EnemyDefinitionId.DraygonBody;
+
+    /// <inheritdoc/>
+    public int PartCount => DraygonPartListingDefinitions.PartsAfterBody;
+
+    /// <summary>
+    /// Draygon's body, which heads his eye, tail and arms, listed right after it in that order (#2146, #2298, #2554): his
+    /// body begins the encounter over their places, and each part joins it from its setup.
+    /// </summary>
+    public EnemyPlaced CreateGroup(RoomEnemyPlace head, IReadOnlyList<RoomEnemyPlace> parts, EnemyCommonParticipation common, EnemySetup setup)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.DraygonBody)
-            return new DraygonBodyEntity(this, place, common, _bossArtwork);
-        if (definition == EnemyDefinitionId.DraygonEye)
-            return new DraygonEyeEntity(this, place, common, _bossArtwork);
-        if (definition == EnemyDefinitionId.DraygonTail)
-            return new DraygonTailEntity(this, place, common, _bossArtwork);
-        if (definition == EnemyDefinitionId.DraygonArms)
-            return new DraygonArmsEntity(this, place, common, _bossArtwork);
-        throw new InvalidOperationException($"The Draygon species creates no {place.DefinitionId}.");
+        var body = new DraygonBodyEntity(this, head, common, _bossArtwork, parts);
+        return new EnemyPlaced(body,
+        [
+            (eye, partCommon, _) => new DraygonEyeEntity(this, eye, partCommon, _bossArtwork, body.State),
+            (tail, partCommon, _) => new DraygonTailEntity(this, tail, partCommon, _bossArtwork, body.State),
+            (arms, partCommon, _) => new DraygonArmsEntity(this, arms, partCommon, _bossArtwork, body.State),
+        ]);
     }
 
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>

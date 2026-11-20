@@ -44,4 +44,6 @@ internal sealed record KraidBehaviorDependencies
     /// <summary>The room camera's distance mode, which the fight requests.</summary>
     public required RoomCameraDistance CameraDistance { get; init; }
 
+    /// <summary>The room's bosses' encounters, among which his body attaches the one it begins (#2554).</summary>
+    public required RoomBossEncounters Encounters { get; init; }
 }

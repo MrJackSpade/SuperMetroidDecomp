@@ -11,7 +11,9 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+/// <param name="parts">The places of his eye, tail and arms, which his room lists right after his body.</param>
+internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork,
+    IReadOnlyList<RoomEnemyPlace> parts)
     : DraygonEntity(species, place, common, bossArtwork), IEnemyPrivateShotReaction
 {
     /// <summary>His body's own shot reaction, built over the encounter (#2554).</summary>
@@ -24,7 +26,7 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyPlace 
     private EnemyPowerBombReaction OwnPowerBombReaction => field ??= Species.Combat.DraygonPowerBombReactionOf(Encounter);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal DraygonEnemyState State { get; } = species.Parts.InitializeDraygonBody(place);
+    internal DraygonEnemyState State { get; } = species.Parts.InitializeDraygonBody(place, parts);
 
     /// <summary>The body's part of the encounter it set up.</summary>
     internal override DraygonPart Part => State.BodyPart;

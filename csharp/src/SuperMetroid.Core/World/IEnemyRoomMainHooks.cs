@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.World;
 /// <summary>The enemy state and hooks the room main behaviours and scrolling read or run.</summary>
 internal interface IEnemyRoomMainHooks
 {
-    /// <summary>The room's Crocomire once his body has set up; none in a room without him.</summary>
-    CrocomireEnemyState? Crocomire { get; }
+    /// <summary>Has <paramref name="joins"/> run with the room's Crocomire as his body sets up (#2554).</summary>
+    void WhenCrocomireJoins(Action<CrocomireEnemyState> joins);
 
     /// <summary>The lowest Y the room's camera may take, as the room's bosses hold it.</summary>
     RoomCameraFloor CameraFloor { get; }

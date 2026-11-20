@@ -530,7 +530,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal IEnemyLoaderHooks LoaderHooks => field ??= new EnemyLoaderHooks(RinkaBehavior, PrePhantoonRoomBehavior);
 
     /// <summary>The enemy setup the attract demo's room setups perform.</summary>
-    internal IEnemyAttractDemoHooks AttractDemoHooks => field ??= new EnemyAttractDemoHooks(KraidBehavior);
+    internal IEnemyAttractDemoHooks AttractDemoHooks => field ??= new EnemyAttractDemoHooks(BossEncounters);
 
     /// <summary>The enemy-side effects room objects and room effects trigger.</summary>
     internal IEnemyObjectSpawns RoomObjectSpawns => field ??= new EnemyObjectSpawns(NoobTubeBehavior, EyeDoorBehavior, OldTourianEscapeShaftWallBehavior,
@@ -699,7 +699,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         MagdolliteBehavior = new MagdolliteBehavior(Room, Projectiles, Places, Collision, DeathsAndDrops, Audio);
         HoltzBehavior = new HoltzBehavior(Room, Terrain, Places, Audio);
         KzanBehavior = new KzanBehavior(Places, Audio);
-        KraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { PassEvents = PassEvents, Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, EffectActors = EffectActors, Presentation = BossPresentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, CameraDistance = CameraDistance  });
+        KraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { PassEvents = PassEvents, Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, EffectActors = EffectActors, Presentation = BossPresentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, CameraDistance = CameraDistance, Encounters = BossEncounters });
         KiHunterBehavior = new KiHunterBehavior(Room, Terrain, Projectiles, Audio, Places);
         KagoBehavior = new KagoBehavior(Room, Projectiles, Earthquake, DeathsAndDrops, RoomStatus, Audio);
         HoppersBehavior = new HoppersBehavior(Room, Terrain, Audio);
@@ -831,7 +831,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         ];
         Species = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(GetCollision), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, OumBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, GerutaBehavior, HoltzBehavior, SqueeptBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, BabyMetroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, new CeresDoorFactory(CeresDoorBehavior), steamVents, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, TorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior, NoobTubeBehavior,
             new RidleyEntityFactory(NorfairRidleyBehavior, CeresRidleyBehavior, RidleyEncounter),
-            .. Present<IEnemyEntityFactory>(TourianEntranceStatueBehavior), .. Present<IEnemyEntityFactory>(elevatorDoors)],
+            .. Present<IEnemySpeciesFactory>(TourianEntranceStatueBehavior), .. Present<IEnemySpeciesFactory>(elevatorDoors)],
             // What the owners the room's scenery did not let it build would have placed; the registry refuses a room that
             // builds an owner of one, or lacks an owner of any other.
             [

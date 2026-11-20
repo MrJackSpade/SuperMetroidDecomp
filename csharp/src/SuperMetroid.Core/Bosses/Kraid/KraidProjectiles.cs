@@ -16,8 +16,6 @@ internal sealed class KraidProjectiles
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves nail and foot movement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
-    private readonly KraidParts _parts;
     /// <summary>Checks mouth, body, and part collisions against Samus and shots.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Applies contact damage, death state, and resulting drops.</summary>
@@ -26,22 +24,21 @@ internal sealed class KraidProjectiles
     private readonly KraidEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidProjectiles(EnemyRoomBinding room, EnemyTerrain terrain, KraidParts parts, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, KraidEncounterAccess access)
+    internal KraidProjectiles(EnemyRoomBinding room, EnemyTerrain terrain, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, KraidEncounterAccess access)
     {
         _room = room;
         _terrain = terrain;
-        _parts = parts;
         _collision = collision;
         _deathsAndDrops = deathsAndDrops;
         _access = access;
     }
 
     /// <summary>Initializes one lint part.</summary>
-    internal KraidEnemyState InitializeKraidLint(RoomEnemyPlace lint, KraidPartReference reference, KraidLintPart expected)
+    /// <param name="lint">The part's place.</param>
+    /// <param name="state">The encounter his body began, which the part joins.</param>
+    /// <param name="expected">Which of his lints it is.</param>
+    internal KraidEnemyState InitializeKraidLint(RoomEnemyPlace lint, KraidEnemyState state, KraidLintPart expected)
     {
-        // The part joins Kraid through his reference to it before it sets up (#2554).
-        Ensure.NotNull(reference).Join(lint);
-        KraidEnemyState state = _parts.Encounter;
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             KraidEncounterAccess.MarkKraidPartDead(lint);
@@ -49,7 +46,7 @@ internal sealed class KraidProjectiles
         }
         // The lint joins the encounter its body began, which it holds from here (#2218).
         KraidLintState part = state.Lint(expected);
-        lint.Shading = _parts.Body.Shading;
+        lint.Shading = state.Parts.Body.Shading;
         part.ShowPose(KraidPartSegment.LintInitial);
         part.Phase = KraidLintPhase.Inactive;
         part.LintXOffset = KraidArenaDefinitions.LintXOffsets[expected];
@@ -61,14 +58,14 @@ internal sealed class KraidProjectiles
     /// dead-room branch: in a defeated Kraid's room the fingernails initialize and run,
     /// deleting themselves only once his body's health reads below one.
     /// </summary>
-    internal KraidEnemyState InitializeKraidNail(RoomEnemyPlace nail, KraidPartReference reference, KraidNailPart expected)
+    /// <param name="nail">The part's place.</param>
+    /// <param name="state">The encounter his body began, which the part joins.</param>
+    /// <param name="expected">Which of his nails it is.</param>
+    internal KraidEnemyState InitializeKraidNail(RoomEnemyPlace nail, KraidEnemyState state, KraidNailPart expected)
     {
-        // The part joins Kraid through his reference to it before it sets up (#2554).
-        Ensure.NotNull(reference).Join(nail);
-        KraidEnemyState state = _parts.Encounter;
         // The fingernail joins the encounter its body began, which it holds from here (#2218).
         KraidNailState nailPart = state.Nail(expected);
-        nail.Shading = _parts.Body.Shading;
+        nail.Shading = state.Parts.Body.Shading;
         // A fingernail is set up at rest, so its sibling's launch reads it as stopped, as it reads a killed one.
         nailPart.NailVelocity = FixedVector<RoomPixels>.Zero;
         // A fingernail set up, at the room's first setup or a respawn, has taken no alternate spawn, as a killed one has not.
@@ -165,7 +162,7 @@ internal sealed class KraidProjectiles
     /// <summary>Runs a nail's active flight or rebound phase.</summary>
     internal void RunKraidNailMain(RoomEnemyPlace nail, KraidNailState part, RoomLevelData level)
     {
-        if (_parts.Body.Health == 0)
+        if (part.Kraid.Parts.Body.Health == 0)
         {
             nail.Presence = nail.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
             return;
@@ -183,7 +180,7 @@ internal sealed class KraidProjectiles
                 return;
 
             case KraidNailPhase.WaitForLint:
-                if (_parts.TopLint.Position.X.Whole >= KraidArenaDefinitions.SecondScreenX)
+                if (part.Kraid.Parts.TopLint.Position.X.Whole >= KraidArenaDefinitions.SecondScreenX)
                 {
                     part.Phase = KraidNailPhase.Fire;
                     nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
@@ -219,9 +216,9 @@ internal sealed class KraidProjectiles
         if (!KraidRandomDefinitions.NailWaitsForLint.IsTakenBy(random) || siblingPart is { AlternateSpawn: true })
         {
             part.AlternateSpawn = false;
-            RoomEnemyPlace body = _parts.Body;
+            RoomEnemyPlace body = part.Kraid.Parts.Body;
             nail.Position = nail.Position.WithWhole(new(RoomGridConversions.BlockStart(
-                body.Position.X.Whole - body.Radius.X - nail.Radius.X), _parts.Arm.Position.Y.Whole + KraidArenaDefinitions.NailLaunchBelowArm));
+                body.Position.X.Whole - body.Radius.X - nail.Radius.X), part.Kraid.Parts.Arm.Position.Y.Whole + KraidArenaDefinitions.NailLaunchBelowArm));
             return;
         }
 
@@ -248,7 +245,7 @@ internal sealed class KraidProjectiles
     /// <summary>Checks whether a nail crosses the body contour that reverses its flight.</summary>
     internal bool KraidBodyContourReflectsNail(RoomEnemyPlace nail, KraidNailState part)
     {
-        RoomEnemyPlace body = _parts.Body;
+        RoomEnemyPlace body = part.Kraid.Parts.Body;
         int relativeY = nail.Position.Y.Whole - body.Position.Y.Whole;
         // A nail above every ledge is pushed back at the contour entry the walk reads after them.
         int leftOffset = KraidNailContour.LedgeLeftOffset(relativeY) ??
@@ -293,7 +290,7 @@ internal sealed class KraidProjectiles
     /// <summary>Places a lint at its body-relative offset while its phase wait runs, and produces it on the wait's last update.</summary>
     internal void AlignKraidLint(RoomEnemyPlace lint, KraidLintState part)
     {
-        lint.Position = lint.Position.WithWholeX(_parts.Body.Position.X.Whole - lint.Radius.X);
+        lint.Position = lint.Position.WithWholeX(part.Kraid.Parts.Body.Position.X.Whole - lint.Radius.X);
         if (part.PhaseWait.StepRunsOut())
             part.Phase = KraidLintPhase.Produce;
     }
@@ -304,7 +301,7 @@ internal sealed class KraidProjectiles
         lint.Contact = lint.Contact.Without(EnemyContact.IgnoresSamus);
         lint.Presence = lint.Presence.Without(EnemyPresence.Hidden);
         lint.Position = lint.Position.WithWholeX(
-            part.LintXOffset + _parts.Body.Position.X.Whole - part.LintTravel);
+            part.LintXOffset + part.Kraid.Parts.Body.Position.X.Whole - part.LintTravel);
         part.LintTravel++;
         if (part.LintTravel >= KraidArenaDefinitions.LintEmergePixels)
         {
@@ -320,7 +317,7 @@ internal sealed class KraidProjectiles
             ? part.Kraid.Colours.Parts
             : EnemyShades.HurtFlashLook;
         lint.Position = lint.Position.WithWholeX(
-            part.LintXOffset + _parts.Body.Position.X.Whole - part.LintTravel);
+            part.LintXOffset + part.Kraid.Parts.Body.Position.X.Whole - part.LintTravel);
         if (part.PhaseWait.StepRunsOut())
         {
             part.Phase = KraidLintPhase.Fire;

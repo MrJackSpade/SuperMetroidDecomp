@@ -11,19 +11,19 @@ public sealed class KraidNailState : KraidAnimatedPartState
 {
     /// <summary>Makes a fingernail of <paramref name="kraid"/>'s encounter.</summary>
     /// <param name="kraid">The encounter the fingernail is part of.</param>
-    /// <param name="reference">Kraid's reference to the fingernail, which it joins as it sets up.</param>
-    /// <param name="sibling">Kraid's reference to his other fingernail.</param>
-    internal KraidNailState(KraidEnemyState kraid, KraidPartReference reference, KraidPartReference sibling)
-        : base(kraid, reference, KraidPartSegment.NailLoop) => this.sibling = Ensure.NotNull(sibling);
+    /// <param name="place">The place the part occupies, which his body heads.</param>
+    /// <param name="sibling">The place of his other fingernail.</param>
+    internal KraidNailState(KraidEnemyState kraid, RoomEnemyPlace place, RoomEnemyPlace sibling)
+        : base(kraid, place, KraidPartSegment.NailLoop) => this.sibling = Ensure.NotNull(sibling);
 
-    /// <summary>Kraid's reference to his other fingernail.</summary>
-    private readonly KraidPartReference sibling;
+    /// <summary>The place of his other fingernail.</summary>
+    private readonly RoomEnemyPlace sibling;
 
     /// <summary>
     /// The place his other fingernail occupies (#2298), whose last launch this one's reads in that place, whatever the
     /// place holds.
     /// </summary>
-    internal RoomEnemyPlace SiblingPlace => sibling.Place;
+    internal RoomEnemyPlace SiblingPlace => sibling;
 
     /// <summary>The phase the fingernail runs; its setup has it wait before its first launch.</summary>
     public KraidNailPhase Phase { get; internal set; }

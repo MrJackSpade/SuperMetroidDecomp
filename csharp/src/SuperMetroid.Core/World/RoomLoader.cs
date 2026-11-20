@@ -933,6 +933,9 @@ internal sealed class RoomLoader
         // A wall jump's waiting shake and Samus's solid-enemy contacts name enemies of the room being replaced, which
         // leave with it.
         loadingSamus.Kinematics.ForgetUnloadedRoomEnemies();
+        // A main that acts on one of the room's enemies waits on it; the enemy's setup composes it (#2486, #2554).
+        if (room.State.MainBehavior is IRoomMainOverRoomEnemies overEnemies)
+            overEnemies.ComposeOverRoomEnemies(scope, enemies);
         enemies.Load(new RoomEnemyLoadRequest(
             room.State.EnemyPopulation,
             scope.Appearance)
@@ -944,9 +947,6 @@ internal sealed class RoomLoader
             GunshipScenario = entry.GunshipScenario,
             DeferLoaderTimeCameraReads = viewportLoadMode == RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn,
         });
-        // A main that acts on one of the room's enemies is composed with it now that the enemies have set up (#2486).
-        if (room.State.MainBehavior is IRoomMainOverRoomEnemies overEnemies)
-            overEnemies.ComposeOverRoomEnemies(scope, enemies);
         // A live Ridley's encounter hides the HUD map and marks the map rows of his arena his encounter names explored:
         // Norfair's Ridley his arena's, Ceres Ridley none (#2485).
         if (enemies.Ceres.RidleyPresent)

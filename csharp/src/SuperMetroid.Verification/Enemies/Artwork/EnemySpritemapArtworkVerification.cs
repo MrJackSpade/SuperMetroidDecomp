@@ -516,8 +516,8 @@ internal static class EnemySpritemapArtworkVerification
             // The enemy is placed as a retail room places it, so an actor its placement's settings choose, as an ordinary
             // Ceres door its facing (#1989), binds as it does there.
             if (SuperMetroid.AssetExtraction.World.RoomStates.RoomStateDefinitions.All.SelectMany(state => state.EnemyPopulation.Placements.ToArray())
-                    .Where(placement => placement.DefinitionId == definition).Take(1).ToArray() is [var placed])
-                place.SetSpawnSettings(placed.SpawnSettings);
+                    .FirstOrDefault(placement => placement.DefinitionId == definition) is { } placed)
+                place.PopulateFor(definition, placed.SpawnSettings);
             place.Bind(definition, place.Definition);
             place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
             place.Shading = PictureShading.Standard;

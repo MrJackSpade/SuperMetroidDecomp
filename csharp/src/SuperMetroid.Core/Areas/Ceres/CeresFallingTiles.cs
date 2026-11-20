@@ -32,10 +32,10 @@ internal sealed class CeresFallingTiles
         context => Drop(context.Projectile, context.Level));
 
     /// <summary>
-    /// Spawns the falling tile the falling-debris room main requests at <paramref name="xPosition"/>. The X coordinate and
-    /// the tile's look, light or dark, come directly from the room's current random number; this setup owns only
-    /// projectile fields. The room main supplies the tile's animation, which shows its look, and the graphics it draws in.
-    /// A spawn that finds every place held spawns nothing.
+    /// Spawns the falling tile the falling-debris room main requests: the tile starts falling at
+    /// <paramref name="xPosition"/>, light or dark as the room's current random number chooses. The room main supplies
+    /// the tile's animation, which shows its look, and the graphics it draws in. A spawn that finds every place held
+    /// spawns nothing.
     /// </summary>
     internal void Spawn(int xPosition, EnemyProjectileAnimation animation, SpriteGraphics graphics)
     {

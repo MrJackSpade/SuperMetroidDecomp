@@ -203,9 +203,9 @@ internal static class MotherBrainAnimations
         BodyCue(new MotherBrainBodyCue.SetPose(pose));
 
     /// <summary>
-    /// Every brain segment, as its list shows it (#2318). Nothing waits on her brain showing a new frame, so a picture its
-    /// list shows twice running with nothing between is one frame of both: the Hyper Beam recoil opens her mouth as the
-    /// stretch does without drooling, so its wide and its widest mouth each show as one frame. Her still pictures hold.
+    /// Every brain segment, as it shows her brain (#2318). A picture shown twice in a row with nothing between is one
+    /// frame of both: the Hyper Beam recoil opens her mouth as the stretch does without drooling, so its wide and its
+    /// widest mouth each show as one frame. Her still pictures hold.
     /// </summary>
     internal static AnimationSegments<H, EnemyFrameId, MotherBrainHeadCue> HeadSegments { get; } = new(
         new Dictionary<H, AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[]>

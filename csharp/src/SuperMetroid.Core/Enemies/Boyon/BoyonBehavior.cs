@@ -161,8 +161,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The Boyon's speed at its place: the curve sample there scaled by its spawn settings' <paramref name="multiplier"/>.
-    /// Entries after the stored curve use the explicit saturated sample rather than reading past it.
+    /// The Boyon's speed at its place: the curve sample there scaled by its spawn settings'
+    /// <paramref name="multiplier"/>; past the curve's end it keeps the curve's last speed.
     /// </summary>
     private static UnsignedSixteenSixteen MultiplyBoyonCurveEntry(BoyonEnemyState state, int multiplier) =>
         BoyonBounceCurve.Multiply(state.CurvePlace, multiplier);

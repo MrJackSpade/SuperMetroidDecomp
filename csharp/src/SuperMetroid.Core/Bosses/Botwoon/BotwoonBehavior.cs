@@ -432,7 +432,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         if (state.HoleLatch)
             return;
 
-        // The game tests the holes from the last to the first and latches the first it finds.
+        // When the head lies in more than one hole, the last of BotwoonNavigationDefinitions.Holes is the one taken.
         foreach (BotwoonHoleDefinition hole in Enumerable.Reverse(BotwoonNavigationDefinitions.Holes))
         {
             Offset16<RoomPixels> fromTopLeft = head.Position.Whole - hole.TopLeft;

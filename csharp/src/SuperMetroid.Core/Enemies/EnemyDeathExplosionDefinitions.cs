@@ -21,7 +21,7 @@ internal static class EnemyDeathExplosionDefinitions
     internal static readonly EnemyDeathSpriteSpread NarrowSpriteSpread = new(HorizontalScatter: new(0, 5), VerticalScatter: new(8, 5), Radius: 16);
 
     /// <summary>
-    /// The explosion a death that takes it from a leftover number dies in (<see cref="LeftoverNumberDeathExplosion{TExplosion}"/>),
+    /// The explosions of the deaths whose explosion <see cref="LeftoverNumberDeathExplosion{TExplosion}"/> chooses,
     /// given the enemies' five explosions by name.
     /// </summary>
     internal static readonly LeftoverNumberDeathExplosion<EnemyDeathExplosion> LeftoverNumbered = new(

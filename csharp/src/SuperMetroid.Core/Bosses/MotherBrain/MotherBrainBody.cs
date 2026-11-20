@@ -193,8 +193,7 @@ internal sealed class MotherBrainBody
                 return;
             }
             case MotherBrainBodyCue.Signal { Kind: MotherBrainBodyCueKind.AdvanceHandBeamPhase }:
-                // The hand beam's hold has elapsed: firing finishes. The game steps the hand beam's phase on by one here,
-                // and only the firing phase plays this animation, which starts as the phase becomes firing (#2471).
+                // The hand beam's hold has elapsed: the hand beam finishes (#2471).
                 state.HandBeamPhase = MotherBrainHandBeamPhase.Finish;
                 return;
             default:
@@ -329,8 +328,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Body movement: moves her, and her body's pictures with her (#1949, #2031), keeping the large body art rigidly
-    /// attached to its small hitbox record.
+    /// Body movement: moves her, and her body's pictures with her (#1949, #2031).
     /// </summary>
     private static void MoveMotherBrainBody(MotherBrainEnemyState state, Offset16<RoomPixels> displacement) =>
         state.Body.Position += displacement;

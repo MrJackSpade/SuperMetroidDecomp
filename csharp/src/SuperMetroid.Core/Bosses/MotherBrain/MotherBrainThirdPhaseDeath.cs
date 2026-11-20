@@ -399,9 +399,8 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (!Encounter.PhaseTimer.StepRunsOut())
             return false;
 
-        // The wait's last update starts the escape: the escape music, the quake held indefinitely, four colour
-        // effects and the escape text. The door's
-        // fragments are pre-coloured in the exploded door's colours, so its colour load is not kept (#1544).
+        // The wait's last update starts the escape: the escape music, the quake held indefinitely, four colour effects
+        // and the escape text. The door's fragments show the exploded door's colours (#1544).
         requests.Start(MotherBrainStepEffect.EscapeMusicTrack);
         requests.StartIndefiniteEarthquake(MotherBrainDeathDefinitions.EscapeEarthquake);
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianShutterRedFlashing);

@@ -89,8 +89,10 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
 
     /// <summary>
     /// The downward acceleration a swoop path is built with, in pixels per update per update (#2221). It starts at
-    /// 24/256, each eye hit adds 8/256 while the result stays below 160/256, and a tail-whip hit on grabbed Samus restores
-    /// 24/256.
+    /// <see cref="DraygonSwoopDefinitions.InitialAcceleration"/>, each eye hit adds
+    /// <see cref="DraygonSwoopDefinitions.ShotAccelerationStep"/> while the result stays below
+    /// <see cref="DraygonSwoopDefinitions.AccelerationLimit"/>, and a tail-whip hit on grabbed Samus restores the
+    /// initial acceleration.
     /// </summary>
     public SignedEightEight SwoopAcceleration { get; internal set; }
 

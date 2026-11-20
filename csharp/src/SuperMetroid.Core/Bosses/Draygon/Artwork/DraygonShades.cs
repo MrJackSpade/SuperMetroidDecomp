@@ -3,13 +3,12 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>
-/// The shades the import pre-colours Draygon's sheets in (#1512): the colours his opening loads,
-/// his material colours and their white hurt flash on his body and his sprites, and his
-/// eight health bands.
+/// The shades the import pre-colours Draygon's sheets in (#1512): his opening's look, his body's colours and their
+/// white hurt flash on his body and his sprites, and his health bands.
 /// </summary>
 public static class DraygonShades
 {
-    /// <summary>The colours his opening loads for his goop and the sprites of his room.</summary>
+    /// <summary>The look his goop and his room's sprites show during his opening.</summary>
     public static PictureShade Intro { get; } = new("draygon-intro", 0);
 
     /// <summary>His body's material colours (#2221).</summary>

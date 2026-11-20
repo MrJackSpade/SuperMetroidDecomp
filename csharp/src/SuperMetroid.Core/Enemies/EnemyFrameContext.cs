@@ -39,10 +39,11 @@ internal sealed class EnemyFrameContext
     /// <summary>Freeze flag captured during the enemy pass and retained for the draw hooks that follow it.</summary>
     internal bool TimeIsFrozen { get; private set; }
 
-    /// <summary>Defers init-AI camera reads until the door loader installs its final camera after the door-transition scroll.</summary>
+    /// <summary>Whether an enemy set up while the door scrolls reads the destination's final camera.</summary>
     internal bool DeferLoaderTimeCameraReads { get; private set; }
 
-    /// <summary>Room load: records whether init AI defers its camera reads.</summary>
+    /// <summary>Room load: records whether the room's enemy setup reads the destination's final camera rather than the
+    /// camera the door leaves.</summary>
     internal void BeginRoomLoad(bool deferLoaderTimeCameraReads) => DeferLoaderTimeCameraReads = deferLoaderTimeCameraReads;
 
 

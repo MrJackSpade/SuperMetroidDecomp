@@ -33,7 +33,7 @@ internal sealed class PhantoonPresentation
             state.Colours.CompleteFade();
     }
 
-    /// <summary>Changes the background wave's amplitude toward its current phase target.</summary>
+    /// <summary>Changes his body's wave toward its current phase's target.</summary>
     internal static bool AdvancePhantoonWaveAmplitude(
         PhantoonWaveState wave,
         SignedSixteenSixteen change,

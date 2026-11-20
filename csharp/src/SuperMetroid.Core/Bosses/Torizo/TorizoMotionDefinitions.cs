@@ -50,9 +50,8 @@ internal static class TorizoMotionDefinitions
     internal static readonly SignedEightEight BombOrbGravity = SignedEightEight.FromPixelFraction(9, 128);
 
     /// <summary>
-    /// The gravity on Golden Torizo's Chozo orb. Each floor bounce halves and reverses its fall, and the orb falls at
-    /// most the height of its room, at most fifty screens (<see cref="Rooms.Scrolling.RoomScrollGrid.KeptCellCount"/>),
-    /// before its terrain probe leaves the room and finds it solid, so its speed stays below 64 pixels an update.
+    /// The gravity on Golden Torizo's Chozo orb, each update. Each floor bounce halves and reverses its fall; the orb
+    /// is removed when its terrain probe leaves the room.
     /// </summary>
     internal static readonly SignedEightEight GoldenOrbGravity = SignedEightEight.FromPixelFraction(3, 32);
 
@@ -60,24 +59,20 @@ internal static class TorizoMotionDefinitions
     internal static readonly SignedEightEight DroolAndMissileGravity = SignedEightEight.FromPixelFraction(1, 16);
 
     /// <summary>
-    /// The sonic boom's acceleration along its flight. Flying right, it is removed at <see cref="RunawaySpeed"/>;
-    /// flying left, it crosses at most the width of its room, at most fifty screens, before its terrain probe leaves the
-    /// room and finds it solid, so its speed stays below 64 pixels an update.
+    /// The sonic boom's acceleration along its flight, each update. Flying right, it is removed at
+    /// <see cref="RunawaySpeed"/>; flying left, it is removed when its terrain probe leaves the room.
     /// </summary>
     internal static readonly SignedEightEight SonicBoomAcceleration = SignedEightEight.FromPixelFraction(1, 16);
 
     /// <summary>
     /// Golden Torizo's egg's gravity while it bounces and falls, and its acceleration once it hatches and charges: a
-    /// bouncing egg is removed at <see cref="RunawaySpeed"/>, and a charging or falling egg crosses at most the width or
-    /// height of its room, at most fifty screens, before its terrain probe leaves the room and finds it solid, so its
-    /// speed stays below 128 pixels an update.
+    /// bouncing egg is removed at <see cref="RunawaySpeed"/>, and a charging or falling egg when its terrain probe
+    /// leaves the room.
     /// </summary>
     internal static readonly SignedEightEight EggAcceleration = SignedEightEight.FromPixelFraction(3, 16);
 
     /// <summary>
-    /// The gravity on a falling Bomb Torizo. It falls at most the height of its room, at most fifty screens, before its
-    /// terrain probe leaves the room and finds it solid, and landing resets its speed, so its speed stays below 64 pixels
-    /// an update.
+    /// The gravity on a falling Bomb Torizo, each update; landing stops its fall.
     /// </summary>
     internal static readonly SignedEightEight StatueGravity = SignedEightEight.FromPixelFraction(5, 32);
 
@@ -99,9 +94,7 @@ internal static class TorizoMotionDefinitions
     internal const int InitialDroolLift = 5;
 
     /// <summary>
-    /// The initial drool's slowest fall, to which its random fall jitter adds: three sixteenths of a pixel an update, and
-    /// the finest step a speed takes more, which the game adds whenever the lifted height lies at or below the room's
-    /// top, as a Torizo's height always keeps it (#1620).
+    /// The initial drool's slowest fall, to which its random fall jitter adds (#1620).
     /// </summary>
     internal static readonly SignedEightEight InitialDroolSlowestFall = SignedEightEight.FromPixelFraction(49, 256);
 

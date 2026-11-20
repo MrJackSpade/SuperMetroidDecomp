@@ -33,7 +33,7 @@ internal sealed class MotherBrainGlassObjects
     internal void SetupMotherBrainGlass(RoomLevelData level, RoomObjectPlace place)
     {
         place.Become(new MotherBrainGlassObject(this));
-        // The setup rewrites only the block's type and parameter, so it keeps its picture and what it shows (#2502).
+        // The setup makes the glass's block solid and shootable and leaves its picture as it is (#2502).
         level.SetCollision(place.Block, RoomCollisionType.SolidBlock);
         level.SetBehavior(place.Block, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
 

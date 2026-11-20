@@ -184,9 +184,8 @@ internal sealed class KraidDeath
         // The death returns the camera to its normal tracking before the death drop.
         _cameraDistance.Request(CameraDistanceMode.NormalTracking);
 
-        // The death drops fill the same sixteen-projectile pool used by ordinary deaths. Each
-        // pickup gets a random position in Kraid's 256x64 floor strip and independently
-        // rolls Kraid's drop chances.
+        // The death drops share the room's enemy projectiles with other deaths. Each pickup gets a random position in
+        // Kraid's 256x64 floor strip and independently rolls Kraid's drop chances.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.Kraid,
             count: KraidArenaDefinitions.DeathDropCount,

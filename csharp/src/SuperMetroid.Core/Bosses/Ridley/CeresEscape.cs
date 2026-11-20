@@ -180,7 +180,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
         ? FloorView.Turned(Floor.Angle, Floor.Zoom, Floor.Center, Floor.Offset)
         : null;
 
-    /// <summary>Shows the zoom-dependent shade of the floor's fifteen colours, which leaves its transparent colour as it is.</summary>
+    /// <summary>Shows the floor in the shade its zoom selects.</summary>
     /// <param name="zoom">The floor's zoom.</param>
     /// <exception cref="ArgumentOutOfRangeException">The floor has no shade for the zoom's whole floor pixels per screen pixel.</exception>
     private void ShowFloorZoom(FloorZoom zoom)
@@ -342,7 +342,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Writes one warning picture over the room's foreground with its top-left corner at its pixel of the foreground
+    /// Shows one warning picture as a placed image of the warning, its top-left corner at its pixel of the screen
     /// (#1466, #1555, #1601).
     /// </summary>
     private void ShowWarningPicture(CeresEscapeWarningPicture page) =>
@@ -354,7 +354,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
         var installed = Warning.Typewriter ?? throw new InvalidDataException(
             "Ceres warning text requires installed typewriter artwork.");
         EscapeTypewriterStep typing = installed.Step();
-        // The Ceres message types over the room's foreground (#1348), as part of the warning (#1555).
+        // The Ceres message types as part of the warning (#1348, #1555).
         if (typing is EscapeTypewriterStep.Typed typed)
             Warning.Show(new WrittenPicture(typed.Glyph.Picture, typed.Glyph.Corner));
         if (typing is EscapeTypewriterStep.TypedWithClick)

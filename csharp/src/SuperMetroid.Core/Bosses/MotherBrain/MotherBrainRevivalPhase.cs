@@ -9,7 +9,10 @@ public enum MotherBrainRevivalPhase
     /// <summary>When the wait runs out, starts her breath and drool again, starts her colours' return from its first step, and starts the wait before that step.</summary>
     ShowSignsOfLife,
 
-    /// <summary>Reverses the eight drained-grey colour steps, one each time its wait runs out, then re-enables brain colour handling and falls into wake-up.</summary>
+    /// <summary>
+    /// Returns her brain from grey step by step, one each time its wait runs out; then her brain's colours follow it
+    /// again and her waking runs on the same update.
+    /// </summary>
     TransitionFromGrey,
 
     /// <summary>Waits until she stands, then extends the neck and immediately begins the wake-up stretch.</summary>
@@ -36,7 +39,7 @@ public enum MotherBrainRevivalPhase
     /// <summary>Repeatedly requests standing and backward walking to X 64; the baby owns replacement of this body phase.</summary>
     PrepareForFinalBabyAttack,
 
-    /// <summary>Installs the final targeted head volley and selects the following inert step.</summary>
+    /// <summary>Her head fires its last volley at the Baby, and her body then holds.</summary>
     ExecuteFinalBabyAttack,
 
     /// <summary>Holds while the head volley and baby actor independently own the final damage, death, and recovery sequence.</summary>

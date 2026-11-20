@@ -288,7 +288,7 @@ internal sealed class MotherBrainRainbowAndDeath
             state.Colours.ShowRainbow(MotherBrainRainbowImage.Drained);
             return;
         }
-        // The rainbow colours' handler steps them only on its phase of the body's update count.
+        // The rainbow's colours step only on their update of the body's cadence.
         if (!step.Starts(MotherBrainStepEffect.RainbowColours) || !MotherBrainCadenceDefinitions.RainbowColoursStep.IsSetIn(state.Body.FrameCounter))
             return;
 

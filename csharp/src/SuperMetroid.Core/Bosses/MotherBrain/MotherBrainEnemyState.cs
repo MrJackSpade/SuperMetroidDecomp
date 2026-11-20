@@ -422,7 +422,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     internal int PendingBabyCryCount { get; set; }
 
-    /// <summary>The rainbow beam's colour and cone, advanced by the simulation rather than by painting a frame.</summary>
+    /// <summary>The rainbow beam's colour and cone as she fires it.</summary>
     public MotherBrainRainbowBeamEffect RainbowBeam { get; } = new();
 
     /// <summary>

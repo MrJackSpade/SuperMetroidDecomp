@@ -13,8 +13,8 @@ internal static class KagoDefinitions
     internal const int JumpHeightStepPixels = 1;
 
     /// <summary>
-    /// Whether a bug near its shell jumps leftward (#2479): an odd count of <see cref="JumpHeightSteps"/> sends it left, one
-    /// jump in two, so the jump's height and its way come from one random number rather than two.
+    /// Whether a bug near its shell jumps leftward (#2479): one jump in two goes left, decided by the same random
+    /// number as its height (<see cref="JumpHeightSteps"/>).
     /// </summary>
     internal static readonly RandomChance BugJumpsLeft = RandomChance.Highest(1, new RandomSampleField(8, 1));
 

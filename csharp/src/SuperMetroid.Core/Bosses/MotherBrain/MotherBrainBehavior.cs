@@ -90,7 +90,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
 
-    /// <summary>Runs the common body main/hurt entry.</summary>
+    /// <summary>Runs her room flash, her body's stage and her contact with Samus.</summary>
     internal void RunMotherBrainBodyMain(
         RoomEnemyPlace body,
         MotherBrainEnemyState state,
@@ -178,7 +178,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainDescentPhase.PauseBeforeUnlock:
                 if (!state.PhaseTimer.StepRunsOut())
                     return;
-                // Restoring Samus's control reinstalls the normal input and movement modes.
+                // Samus's control returns to normal.
                 samus.Control.Unlock();
                 state.DescentPhase = MotherBrainDescentPhase.PauseBeforeFlash;
                 state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BeforeFlashUpdates);

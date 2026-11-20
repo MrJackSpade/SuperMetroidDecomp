@@ -82,8 +82,8 @@ public enum EnemyDefinitionId
     /// <summary>A Tripper, the flying platform that carries Samus.</summary>
     Tripper,
     /// <summary>
-    /// The suspensor platform: the Tripper's carrying platform with its suspensor art, which sinks under Samus and floats
-    /// back up. The original calls it Kamer too; the shutter-family Kamer is <see cref="Kamer"/>.
+    /// The suspensor platform: the Tripper's carrying platform with its suspensor art, which sinks under Samus and
+    /// floats back up.
     /// </summary>
     SuspensorPlatform,
     /// <summary>An Sbug, one of the tiny bugs that dart about.</summary>
@@ -275,7 +275,6 @@ public enum EnemyDefinitionId
     /// <remarks>The dead Skree, with its three corpse variants sharing the corpse-rotting engine.</remarks>
     CorpseSkree,
     /// <summary>The Baby Metroid in Tourian, which drains Samus and then leaves her.</summary>
-    /// <remarks>The Baby Metroid actor.</remarks>
     BabyMetroid,
     /// <summary>Bomb Torizo, the Chozo statue that wakes in Crateria.</summary>
     BombTorizo,

@@ -6,13 +6,15 @@ public enum MotherBrainRainbowPhase
     /// <summary>Sets the initial extended neck geometry and starts the neck's extension before the charge.</summary>
     ExtendNeck,
 
-    /// <summary>Waits out the extension, installs the charging head animation, and falls into backward-walk/neck retraction.</summary>
+    /// <summary>Waits out the extension, then her head shows the charge and her backward walk and neck retraction start
+    /// on the same update.</summary>
     StartCharging,
 
     /// <summary>Requests really-slow backward walking toward X 40, then retracts the head and starts the charge wait.</summary>
     RetractNeck,
 
-    /// <summary>Waits out the charge, queues the charge sound, and falls into downward neck extension.</summary>
+    /// <summary>Waits out the charge, queues the charge sound, and starts lowering her neck on the same
+    /// update.</summary>
     WaitForCharge,
 
     /// <summary>Sets downward neck targets and projectile cooldown, starts the neck's lowering before firing, and immediately runs its first update.</summary>

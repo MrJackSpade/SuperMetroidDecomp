@@ -37,9 +37,8 @@ public sealed class EnemyProjectile
     /// <summary>Gets whether the projectile holds its place and takes part in the projectile passes.</summary>
     public bool IsActive => Kind != RoomEnemyProjectileKind.None;
     /// <summary>
-    /// Where the projectile is, in whole room pixels and fractions of a pixel, to which its motion adds in 256ths of a
-    /// pixel. Every projectile is placed in the room and drawn where its place lies on screen, the Mother Brain death
-    /// subtitle's fixed place included (#1851).
+    /// Where the projectile is in the room, which its motion moves by its velocity. Every projectile is placed in the
+    /// room and drawn where its place lies on screen, the Mother Brain death subtitle's fixed place included (#1851).
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>How far the projectile moves each update, for the shared movements and the families that move by it.</summary>

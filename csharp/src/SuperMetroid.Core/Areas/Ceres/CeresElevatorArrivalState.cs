@@ -87,7 +87,7 @@ public sealed class CeresElevatorArrivalState : SuperMetroid.Core.Enemies.IActor
     }
 
     /// <summary>
-    /// Emits the low-priority frames selected by the live animations.
+    /// Draws the pad and platform pictures the live animations select, at their actor depth.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="presentation">Publishes the platforms from the room's enemy artwork.</param>

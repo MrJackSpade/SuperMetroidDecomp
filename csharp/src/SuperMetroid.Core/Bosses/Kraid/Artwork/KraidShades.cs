@@ -20,7 +20,7 @@ public static class KraidShades
     /// <summary>His body's colours as he dies, with his arm drawn into them.</summary>
     public static PictureShade DeathArm { get; } = new("kraid-death-arm", 0);
 
-    /// <summary>The colours his ceiling rocks and spat rocks draw in, which his initialization loads.</summary>
+    /// <summary>The shade his ceiling rocks and spat rocks are drawn in.</summary>
     public static PictureShade Rocks { get; } = new("kraid-rocks", 0);
 
     /// <summary>Kraid's backdrop colours, as his defeated room shows them.</summary>

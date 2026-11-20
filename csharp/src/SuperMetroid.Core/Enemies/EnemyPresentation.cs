@@ -8,8 +8,9 @@ using SuperMetroid.Core.Enemies.Corpses;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Enemy presentation state: the room's appearance, the boss body layer, the shared gradual-change
-/// counter, and drawing from the installed pre-coloured sheets under each draw's shading (#1512).
+/// Enemy presentation state: the room's appearance, the boss body layer, the shared fade step count
+/// (<see cref="SharedFadeStepCount"/>), and drawing from the installed pre-coloured sheets under each draw's shading
+/// (#1512).
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyPresentation

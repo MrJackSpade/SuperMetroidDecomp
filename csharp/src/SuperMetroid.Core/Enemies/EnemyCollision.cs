@@ -13,8 +13,8 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Samus-to-enemy interaction: touch, shot, bomb and power-bomb collision walks over the interactive
-/// enemies, frame hitboxes, vulnerability and freezing, and the registered reactions they run.
+/// Samus-to-enemy interaction: Samus's touch, shots, bombs and Power Bombs tested against each interactive enemy, its
+/// frame hitboxes, vulnerability and freezing, and the reactions they run.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyCollision
@@ -279,8 +279,8 @@ internal sealed class EnemyCollision
 
             if (usesFrameHitboxes && family == SamusProjectileFamily.SuperMissile)
             {
-                // The frame-hitbox prelude requests this earthquake before running the
-                // hitbox reaction, even when that reaction is the ignoring shell region.
+                // A Super Missile meeting a frame hitbox shakes the room before the hitbox's reaction runs, even when
+                // that reaction is the ignoring shell region.
                 _earthquake.Start(SuperMissileDefinitions.EnemyHitEarthquake, SuperMissileDefinitions.EarthquakeDuration);
             }
 
@@ -437,13 +437,11 @@ internal sealed class EnemyCollision
     /// Runs the ordinary-radius half of the enemies' bomb collision.
     /// </summary>
     /// <remarks>
-    /// Normal bombs are not among the five beams and missiles tested above: the bomb pass waits for the shared bomb
-    /// countdown to reach zero, marks the overlapping bomb as having hit, and runs the enemy's shot reaction with
-    /// that bomb selected.
+    /// Normal bombs are tested apart from Samus's shots: the bomb pass waits for the shared bomb countdown to reach
+    /// zero, marks the overlapping bomb as having hit, and runs the enemy's shot reaction with that bomb selected.
     ///
-    /// This pass runs both the common reaction and the Metroids' own reaction. Private per-species reactions remain deliberately
-    /// outside the common branch; each joins it only with its own bomb-specific post-processing, rather than
-    /// silently treating every reaction as the ordinary shot reaction.
+    /// The common reaction and the Metroids' own reaction both meet bombs here; every other species' own reaction meets
+    /// them only with its own bomb handling.
     /// </remarks>
     /// <param name="bombs">Samus's bombs, whose exploding bombs may hit.</param>
     /// <param name="ordinaryProjectiles">Samus's beams and missiles, which reactions read.</param>
@@ -518,9 +516,7 @@ internal sealed class EnemyCollision
                 continue;
             }
 
-            // Frame-hitbox actors run the reaction stored in the selected hitbox,
-            // not necessarily the definition's. Do not turn a protected/private
-            // component into common damage merely because the definition names the ordinary shot.
+            // A frame-hitbox enemy runs the reaction its selected hitbox names, which may differ from its definition's.
             bool selectedIgnore = selectedShot == EnemyReaction.Ignore;
             bool selectedPrivateReaction = HasPrivateNormalBombShot(enemy, selectedShot);
             if (selectedShot != EnemyReaction.OrdinaryShot &&
@@ -897,9 +893,8 @@ internal sealed class EnemyCollision
     /// <summary>
     /// Identifies actors whose contact with Samus's shots is tested against their frames' hitboxes.
     /// <see cref="RoomEnemyPlace.CollidesByFrameHitboxes"/> alone is not sufficient: Mother Brain and several
-    /// encounter-owned actors collide by frame hitboxes elsewhere while their shots meet a definition's radius or
-    /// encounter-specific geometry. Keeping this predicate beside the step gives data-backed probes the same
-    /// boundary as gameplay.
+    /// encounter-owned actors collide by frame hitboxes elsewhere while their shots meet a definition's radius or the
+    /// encounter's own shapes.
     /// </summary>
     internal static bool UsesFrameHitboxesForProjectiles(RoomEnemyPlace enemy) =>
         enemy.CollidesByFrameHitboxes &&
@@ -1022,8 +1017,7 @@ internal sealed class EnemyCollision
         // expires even if the old movement owner remains active (e.g. a boss grab).
         samus.RequestKnockback(EnemyCollisionDefinitions.SamusTouchInvincibilityUpdates,
             EnemyCollisionDefinitions.SamusTouchKnockbackUpdates, direction);
-        // The enemy pass only publishes the request. The common post-animation
-        // interruption owns pose/handler initialization later in this frame.
+        // The enemy pass only publishes the request; Samus's knockback pose starts later in the update.
     }
 
     /// <summary>

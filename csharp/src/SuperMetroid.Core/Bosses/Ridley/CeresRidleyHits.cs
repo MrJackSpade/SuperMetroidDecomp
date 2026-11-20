@@ -94,9 +94,8 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// The shared rectangle walk used by projectile contact. Every component offset and every rectangle comes from the
-    /// frame Ridley shows; the tiny 8x8 radius in Ridley's species definition is not his body and must never be
-    /// substituted for this data.
+    /// Whether a shot's rectangle overlaps any hitbox of the frame Ridley shows: his body is that frame's hitboxes, not
+    /// the small radius of his species definition.
     /// </summary>
     private static bool FrameHitboxesOverlapRectangle(
         RoomEnemyPlace place,

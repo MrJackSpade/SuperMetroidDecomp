@@ -107,9 +107,8 @@ internal sealed class MotherBrainCombat
         _room.Services.MotherBrain.CountHeadShotOnGlass();
         _audio.QueueEnemySound(EnemySound.ShotMotherBrain, priority: SoundRequestPriority.Normal);
 
-        // The flash step deliberately alternates odd/even flash parity when a second hit
-        // arrives during the existing flash. Common no-death normal-shot damage (#2255) then owns
-        // health, hurt-AI, and the final authored hurt duration.
+        // A second hit during a flash keeps the flash white or plain as it was. The common damage of a shot that does
+        // not kill (#2255) then takes her health and starts her hurt reaction for its authored duration.
         head.HurtFlash.Restart(head.HurtFlash.IsRunning && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(head.HurtFlash.UpdatesLeft)
             ? MotherBrainFightDefinitions.HurtFlashKeepingPhase
             : MotherBrainFightDefinitions.HurtFlash);
@@ -149,9 +148,8 @@ internal sealed class MotherBrainCombat
         };
         if (state.RainbowBeamSequence is { } sequence)
         {
-            // The attached sequence shares the walk counter with the encounter. The recoil
-            // clears the body phase timer when a shot takes the walk credit below zero and stores the counter
-            // immediately, before common projectile damage runs.
+            // The attached sequence shares the walk counter with the encounter. A shot that takes the walk credit below
+            // zero recoils her at once, ending the body's wait, before the common damage takes effect.
             sequence.ApplyPhase2Or3ShotReaction(reactionProjectile);
         }
         else

@@ -15,8 +15,7 @@ public static class BullMovementDefinitions
     internal static readonly SignedEightEight ShotKickSpeed = SignedEightEight.FromPixels(6);
 
     /// <summary>
-    /// The halvings that take a Bull's step along an axis from its speed's share along that axis (#2532): one. The Bull's
-    /// flight scales its speed by the fine sine's coarse reading, 128ths of the whole, counted as 256ths, so a Bull covers
+    /// The halvings that take a Bull's step along an axis from its speed's share along that axis (#2532): a Bull covers
     /// half its speed along its heading in each update.
     /// </summary>
     internal const int StepHalvings = 1;
@@ -32,7 +31,7 @@ public static class BullMovementDefinitions
 
     /// <summary>
     /// The compass angle a shot in each direction moves the Bull at: up and down whichever way Samus faces, and each
-    /// distinct direction an eighth of a turn (32 of the angle's 256ths) from its neighbours.
+    /// distinct direction an eighth of a turn from its neighbours.
     /// </summary>
     internal static readonly SamusProjectileDirectionMap<TrigonometryAngle> ShotAngles = new(
         new(192), new(224), new(0), new(32), new(64), new(64), new(96), new(128), new(160), new(192));

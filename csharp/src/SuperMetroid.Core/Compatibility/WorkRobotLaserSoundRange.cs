@@ -12,9 +12,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Consulted once each time a robot fires a laser, after the laser is placed at the muzzle, during the robot's main
 /// update in the enemy pass; a static rule with no state. Evidence: the lasers' common setup (<c>$86:D35B</c>) tests the
-/// robot's left and right edges against the camera's left edge and a screen's width past it, its bottom edge against the
-/// camera's top, and its top edge less a screen's height (<c>SBC #$00E0</c> at <c>$86:D3B1</c>) by its sign alone, with
-/// no comparison against the camera's top before the branch (<c>BPL</c> at <c>$86:D3B4</c>), and queues the sound
+/// robot's left and right edges against the camera's left edge and a screen's width past it, its bottom edge against
+/// the camera's top, and whether its top edge lies a screen's height below the room's top by the sign of the difference
+/// alone, with no comparison against the camera's top (<c>$86:D3B1</c>), and queues the sound
 /// through the six-request limit (<c>$86:D3B9</c>); the sound queues' admission (<see cref="SoundQueueAdmission"/>) is what
 /// carries the request into gameplay. The Work Robot laser sound range check compares every edge class with the
 /// original's word arithmetic and fires the production laser from a robot on screen above and below the room's top

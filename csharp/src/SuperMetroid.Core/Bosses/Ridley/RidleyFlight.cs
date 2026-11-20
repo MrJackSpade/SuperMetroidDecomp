@@ -56,14 +56,13 @@ internal sealed class RidleyFlight
         place.Position = place.Position.WithY(y);
     }
 
-    /// <summary>Integrates one axis of his velocity into a position, in 256ths of a pixel, and clips to an arena bound.</summary>
+    /// <summary>Moves a position by one axis of his velocity and clips it to an arena bound.</summary>
     private static RidleyAxisMotion IntegrateAxis(
         FixedCoordinate position,
         SignedEightEight velocity,
         int minimum,
         int maximum)
     {
-        // Ridley's velocity moves him in 256ths of a pixel.
         // A bound above the room's top lies at a negative height, as SignedPlace reads his place.
         FixedCoordinate moved = position.MovedBy(velocity);
 

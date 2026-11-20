@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class EnemyCommonParticipation(Func<EnemyCollision> collision)
 {
     /// <summary>
-    /// The shot reaction of the ordinary and the ignoring shot: the common shot reaction with no species stage. The shot pass ends an
-    /// ignoring hitbox's or definition's shot after the collision prelude.
+    /// The shot reaction of the ordinary and the ignoring shot: the common shot reaction. An ignoring hitbox or
+    /// definition stops the shot, and nothing else happens.
     /// </summary>
     internal static EnemyShotReaction CommonShot { get; } = new();
 

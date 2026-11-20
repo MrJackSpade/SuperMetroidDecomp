@@ -82,7 +82,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         _places.CoverSpawn(babyPlace);
     }
 
-    /// <summary>Sets the Baby up and starts its first animation and fifteen nontransparent colors.</summary>
+    /// <summary>Sets the Baby up and starts its first animation, showing its own colours as it arrives.</summary>
     internal static void InitializeMotherBrainBabyMetroid(RoomEnemyPlace place)
     {
         BabyMetroidCutsceneState baby = place.RequireSpeciesState<BabyMetroidCutsceneState>();
@@ -102,7 +102,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         ShowBabyMetroidArrival(state.Colours);
     }
 
-    /// <summary>Lays the Baby's start colours, which leave the transparent colour untouched.</summary>
+    /// <summary>Shows the Baby's arrival colours.</summary>
     private static void ShowBabyMetroidArrival(MotherBrainColours colours) =>
         Ensure.NotNull(colours).ShowBabyArrived();
 

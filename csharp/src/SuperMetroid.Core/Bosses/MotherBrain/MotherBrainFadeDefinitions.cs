@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public static class MotherBrainFadeDefinitions
 {
-    /// <summary>Her brain's three fading colours greying as she fakes her death.</summary>
+    /// <summary>Her brain greying as she fakes her death.</summary>
     public static MotherBrainFade FakeDeathToGrey { get; } = new("mother-brain-fake-death-to-grey", MotherBrainFakeDeathFadeDefinitions.FrameCount,
         MotherBrainWaitDefinitions.FakeDeathGreyStepUpdates);
 
-    /// <summary>Her brain's three fading colours returning from the fake death's grey.</summary>
+    /// <summary>Her brain's colours returning from the fake death's grey.</summary>
     public static MotherBrainFade FakeDeathFromGrey { get; } = new("mother-brain-fake-death-from-grey", MotherBrainFakeDeathFadeDefinitions.FrameCount,
         MotherBrainWaitDefinitions.FromGreyStepUpdates);
 

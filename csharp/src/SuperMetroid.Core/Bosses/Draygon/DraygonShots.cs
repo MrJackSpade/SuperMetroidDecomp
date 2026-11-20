@@ -73,11 +73,11 @@ internal sealed class DraygonShots
             context => RunFlyingDraygonGoop(context.Projectile, context.Samus, context.SamusBombs.PowerBombExplosion));
 
         /// <summary>A goop stuck to Samus, slowing her until it wears off or her body attack shakes it off.</summary>
-        internal EnemyProjectileOwnedMotion GoopStuckToSamus => field ??= new(nameof(GoopStuckToSamus),
+        private EnemyProjectileOwnedMotion GoopStuckToSamus => field ??= new(nameof(GoopStuckToSamus),
             context => RunAttachedDraygonGoop(context.Projectile, context.Samus, context.SamusBombs.PowerBombExplosion));
 
         /// <summary>A wall turret's shot flying along its heading until it leaves the room.</summary>
-        internal EnemyProjectileOwnedMotion TurretShotFlying => field ??= new(nameof(TurretShotFlying), context =>
+        private EnemyProjectileOwnedMotion TurretShotFlying => field ??= new(nameof(TurretShotFlying), context =>
         {
             // The goop's power-bomb step frees a power-bombed shot's place, then still moves the shot.
             FreePlaceIfPowerBombed(context.Projectile, context.Samus, context.SamusBombs.PowerBombExplosion);

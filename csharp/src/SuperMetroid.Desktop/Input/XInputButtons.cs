@@ -18,10 +18,6 @@ internal enum XInputButtons
     Start = 1 << 4,
     /// <summary>The Back (View) button.</summary>
     Back = 1 << 5,
-    /// <summary>Left thumbstick pressed in.</summary>
-    LeftThumb = 1 << 6,
-    /// <summary>Right thumbstick pressed in.</summary>
-    RightThumb = 1 << 7,
     /// <summary>Left bumper.</summary>
     LeftShoulder = 1 << 8,
     /// <summary>Right bumper.</summary>

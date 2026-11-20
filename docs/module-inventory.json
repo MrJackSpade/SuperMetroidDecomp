@@ -460,7 +460,7 @@
     {
       "module": "csharp/src/SuperMetroid.Desktop",
       "role": "production",
-      "files": 46,
+      "files": 50,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -90731,6 +90731,53 @@
       "namespace": "SuperMetroid.Desktop.Input",
       "assemblies": [
         "SuperMetroid.Desktop"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Desktop/Input/XInputButtons.cs",
+      "module": "csharp/src/SuperMetroid.Desktop",
+      "role": "production",
+      "namespace": "SuperMetroid.Desktop.Input",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Desktop/Input/XInputGamepadInput.cs",
+      "module": "csharp/src/SuperMetroid.Desktop",
+      "role": "production",
+      "namespace": "SuperMetroid.Desktop.Input",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Input",
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Desktop/Input/XInputGamepadState.cs",
+      "module": "csharp/src/SuperMetroid.Desktop",
+      "role": "production",
+      "namespace": "SuperMetroid.Desktop.Input",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Desktop/Input/XInputStick.cs",
+      "module": "csharp/src/SuperMetroid.Desktop",
+      "role": "production",
+      "namespace": "SuperMetroid.Desktop.Input",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {

@@ -35,7 +35,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(state);
         state.Playback = new(FlyAnimations.StartingWith(FlySegment.Flight), AnimationPlace.StartOfAnimation);
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.StepOnNextUpdate();
     }
 

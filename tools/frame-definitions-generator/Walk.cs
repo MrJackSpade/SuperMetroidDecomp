@@ -140,7 +140,7 @@ internal sealed class Walk
     /// EnemyFrameId members that draw nothing and are on no sheet: the empty frame, which the Norfair lava jumper's
     /// follower shows since #1823.
     /// </summary>
-    public static readonly string[] ExcludedEnemyFrames = ["Empty"];
+    public static readonly string[] ExcludedEnemyFrames = ["PointAtOrigin"];
 
     /// <summary>
     /// EnemyProjectileFrameId members that draw nothing and are on no sheet: the blank frame, which every beat that shows no

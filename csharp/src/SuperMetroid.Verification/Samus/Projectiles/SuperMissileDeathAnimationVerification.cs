@@ -48,7 +48,7 @@ internal static class SuperMissileDeathAnimationVerification
         enemy.Invincibility.End();
         // The room loads both on the empty map, which the shot pass skips. The Dragon shows its surfaced frame ($E80C,
         // as at native update 40203) and the Sova a shared crawler surface frame.
-        if (enemy.Frame == EnemyFrameId.Empty)
+        if (enemy.Frame == EnemyFrameId.PointAtOrigin)
             enemy.Frame = enemyDefinition == EnemyDefinitionId.Dragon ? EnemyFrameId.DragonBodyFacingLeft : EnemyFrameId.SpinyCrawlerOnFloorSpinesTurned0;
         enemy.AnimationClock.HoldFor(0x7fff);
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(enemy.Position.Whole);

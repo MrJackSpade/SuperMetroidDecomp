@@ -38,7 +38,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializePuyo(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         // The setup shows the common empty frame before starting the fast grounded animation.
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
 
         var state = new PuyoEnemyState(PuyoAction.Grounded)
         {

@@ -15,7 +15,7 @@ internal static class EnemyExtendedFrames
     /// </summary>
     internal static bool TryResolve(EnemyExtendedFrameCatalog catalog, EnemyFrameId frame, out EnemyFrameId? stored)
     {
-        if (frame == EnemyFrameId.Empty)
+        if (frame == EnemyFrameId.PointAtOrigin)
         {
             stored = null;
             return true;

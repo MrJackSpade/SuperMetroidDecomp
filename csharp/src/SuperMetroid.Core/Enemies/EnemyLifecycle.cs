@@ -125,7 +125,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         SetUpSpawnedEnemy(place);
         // Spawning writes the empty frame after initialization, before the first animation tick.
         place.Frame = place.Processing.HasAny(EnemyProcessing.Animates)
-            ? EnemyFrameId.Empty
+            ? EnemyFrameId.PointAtOrigin
             : null;
         _places.CoverSpawn(place);
         return place;

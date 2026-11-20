@@ -56,7 +56,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         CacatacSpawnSettings settings = occupant.SpawnSettings<CacatacSpawnSettings>();
         bool onFloor = settings.Mounting == CacatacMounting.Floor;
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
 
         int spawnX = place.Position.X.Whole;
         if (!Enum.IsDefined(settings.Direction))

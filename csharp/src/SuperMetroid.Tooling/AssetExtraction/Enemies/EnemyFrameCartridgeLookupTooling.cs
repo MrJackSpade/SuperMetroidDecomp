@@ -47,7 +47,7 @@ internal static class EnemyFrameCartridgeLookupTooling
 
     /// <summary>The bank-local word <paramref name="frame"/> is stored at for an enemy colliding by its radius.</summary>
     internal static ushort Word(EnemyFrameId frame) =>
-        frame == EnemyFrameId.Empty ? EmptySpritemapWord : EnemyFrameCartridgeLookup.Of(frame).Offset;
+        frame == EnemyFrameId.PointAtOrigin ? EmptySpritemapWord : EnemyFrameCartridgeLookup.Of(frame).Offset;
 
     /// <summary>
     /// The bank-local word bank <paramref name="bank"/> stores <paramref name="frame"/> at: the frame's own record when the
@@ -59,7 +59,7 @@ internal static class EnemyFrameCartridgeLookupTooling
     {
         SnesAddress[] copies = [.. EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt
             .Where(pair => pair.Key.Bank == bank && pair.Value == frame).Select(pair => pair.Key)];
-        if (frame == EnemyFrameId.Empty)
+        if (frame == EnemyFrameId.PointAtOrigin)
             return copies.Length == 1 ? copies[0].Offset : EmptySpritemapWord;
         SnesAddress own = EnemyFrameCartridgeLookup.Of(frame);
         if (own.Bank == bank)
@@ -85,6 +85,6 @@ internal static class EnemyFrameCartridgeLookupTooling
     {
         if (FramesByLocation.Value.TryGetValue(new SnesAddress(bank, word), out EnemyFrameId frame))
             return frame;
-        return word is EmptySpritemapWord or EmptyFrameHitboxWord ? EnemyFrameId.Empty : null;
+        return word is EmptySpritemapWord or EmptyFrameHitboxWord ? EnemyFrameId.PointAtOrigin : null;
     }
 }

@@ -33,14 +33,14 @@ internal static class NorfairLavaJumperAnimations
         [P.Follower] =
         [
             Show(EnemyFrameId.NorfairLavaJumperFlameFlare, 1),
-            Show(EnemyFrameId.Empty, 1),
+            Show(EnemyFrameId.PointAtOrigin, 1),
         ],
         [P.FollowerFlickering] =
         [
             Show(EnemyFrameId.NorfairLavaJumperFlameSmall, 1),
-            Show(EnemyFrameId.Empty, 1),
+            Show(EnemyFrameId.PointAtOrigin, 1),
             Show(EnemyFrameId.NorfairLavaJumperFlameTall, 1),
-            Show(EnemyFrameId.Empty, 1),
+            Show(EnemyFrameId.PointAtOrigin, 1),
         ],
     });
 

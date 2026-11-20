@@ -89,7 +89,7 @@ internal static class EnemyBombShotReactionVerification
             enemy.Position = FixedPosition<RoomPixels>.FromWhole(place);
             enemy.CollidesByFrameHitboxes = frameHitboxes;
             if (frameHitboxes)
-                enemy.Frame = EnemyFrameId.Empty;
+                enemy.Frame = EnemyFrameId.PointAtOrigin;
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;

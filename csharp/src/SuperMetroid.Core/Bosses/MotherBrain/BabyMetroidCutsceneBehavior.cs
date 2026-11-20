@@ -77,7 +77,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         // Its animation is still live and shows its first visible frame on its first
         // scheduled turn; this update's list of running enemies was fixed before the Baby was placed.
         babyPlace.Frame = babyPlace.Processing.HasAny(EnemyProcessing.Animates)
-            ? EnemyFrameId.Empty
+            ? EnemyFrameId.PointAtOrigin
             : null;
         _places.CoverSpawn(babyPlace);
     }

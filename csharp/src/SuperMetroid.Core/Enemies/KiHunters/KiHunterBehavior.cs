@@ -595,7 +595,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             wings,
             state,
             KiHunterSegment.DetachedWings);
-        wings.Frame = EnemyFrameId.Empty;
+        wings.Frame = EnemyFrameId.PointAtOrigin;
         wings.Processing = wings.Processing.With(EnemyProcessing.OffScreen);
     }
 

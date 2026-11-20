@@ -151,7 +151,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartPhantoonPart(PhantoonPart part)
     {
         RoomEnemyPlace place = part.Place;
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.Restart();
         place.Shading = part.Phantoon.Body.Shading;
     }

@@ -14,7 +14,7 @@ internal static class RoomEnemyPlaceFrameAccess
 {
     /// <summary>Whether an installed composition shows native word <paramref name="word"/> in bank <paramref name="bank"/>.</summary>
     internal static bool Shows(byte bank, ushort word) =>
-        word != 0 && EnemyFrameCartridgeLookupTooling.TryFrameAt(bank, word) is not (null or EnemyFrameId.Empty);
+        word != 0 && EnemyFrameCartridgeLookupTooling.TryFrameAt(bank, word) is not (null or EnemyFrameId.PointAtOrigin);
 
     /// <summary>The frame shown by native word <paramref name="word"/> in bank <paramref name="bank"/>; zero shows none.</summary>
     internal static EnemyFrameId? FrameAt(byte bank, ushort word) => word == 0

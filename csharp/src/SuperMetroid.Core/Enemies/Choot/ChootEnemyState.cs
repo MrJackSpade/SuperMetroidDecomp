@@ -27,10 +27,10 @@ public sealed class ChootEnemyState
     public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
 
     /// <summary>
-    /// The falling pattern's current loop, counted once each falling update: its age is the update of the loop the next
-    /// falling update takes, and the update after it is over ends the loop and starts the next.
+    /// The falling pattern's current loop, counted once each falling update: the sample it is at says where the next
+    /// falling update places the Choot, and the update after it is over ends the loop and starts the next.
     /// </summary>
-    public UpdateCountdown FallingLoop { get; internal set; } = UpdateCountdown.Ended();
+    internal ChootFallLoop FallingLoop { get; set; } = ChootFallLoop.Over.Instance;
 
     /// <summary>
     /// The falling pattern's loops left, the current one included: its population's loop count, at least one, and the

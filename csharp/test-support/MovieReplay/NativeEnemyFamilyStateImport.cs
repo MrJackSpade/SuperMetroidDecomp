@@ -814,7 +814,7 @@ internal static class NativeEnemyFamilyStateImport
             // The ascent cursor is 8.8 and moves by whole records, so its signed high byte is the record index.
             choot.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(unchecked((short)words.B) >> 8);
             choot.FallingLoop = (words.C & 0xff) == 0
-                ? UpdateCountdownAccess.AtAge(ChootFalls.LoopUpdates(enemy.SpawnSettings<ChootSpawnSettings>().FallingPath), words.C >> 8)
+                ? ChootFallLoopAccess.AtAge(enemy.SpawnSettings<ChootSpawnSettings>().FallingPath, words.C >> 8)
                 : throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} is not a whole frame.");
             choot.FallingPatternLoopCounter = TrueDuration(words.D);
             // The Choot falls along its placement's path (#2476), which the recording's must be.

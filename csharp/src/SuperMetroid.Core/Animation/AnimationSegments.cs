@@ -83,6 +83,36 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
         Starts(new Dictionary<TSegment, Animation<TSegment>>(), looping);
 
     /// <summary>
+    /// The animations an owner starts at each of <paramref name="segments"/>, each playing its segment whole once and then
+    /// ending as <paramref name="end"/> says (#2557), with <paramref name="others"/>' animations for the segments that start
+    /// any other way.
+    /// </summary>
+    /// <param name="others">The animations of the segments that do not simply play themselves once.</param>
+    /// <param name="end">How each of <paramref name="segments"/>' animations ends: it holds its last frame or stops.</param>
+    /// <param name="segments">The segments whose animation plays the segment whole once.</param>
+    /// <exception cref="ArgumentException">One of <paramref name="segments"/> also has an animation among <paramref name="others"/>.</exception>
+    internal Dictionary<TSegment, Animation<TSegment>> StartsEnding(IReadOnlyDictionary<TSegment, Animation<TSegment>> others, AnimationEnd end,
+        params ReadOnlySpan<TSegment> segments)
+    {
+        var starts = new Dictionary<TSegment, Animation<TSegment>>(Ensure.NotNull(others));
+        foreach (TSegment segment in segments)
+            starts.Add(segment, new Animation<TSegment>([Whole(segment)], end));
+        return starts;
+    }
+
+    /// <summary>
+    /// The animations an owner starts at each of <paramref name="segments"/>, each playing its segment whole once and then
+    /// ending as <paramref name="end"/> says (#2557).
+    /// </summary>
+    /// <param name="end">How each animation ends: it holds its last frame or stops.</param>
+    /// <param name="segments">The segments, each starting an animation that plays it once.</param>
+    internal Dictionary<TSegment, Animation<TSegment>> EachEnding(AnimationEnd end, params ReadOnlySpan<TSegment> segments) =>
+        StartsEnding(new Dictionary<TSegment, Animation<TSegment>>(), end, segments);
+
+    /// <summary>Every segment's identity, in no stated order (#2557).</summary>
+    internal IEnumerable<TSegment> SegmentIdentities => beats.Keys;
+
+    /// <summary>
     /// The beats one play of <paramref name="animation"/> passes from its start to the end of its last phase, each phase's
     /// run laid out as many times as it plays (#2458); a loop back is not followed.
     /// </summary>

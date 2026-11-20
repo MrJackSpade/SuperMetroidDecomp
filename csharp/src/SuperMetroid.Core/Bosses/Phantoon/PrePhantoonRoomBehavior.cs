@@ -42,12 +42,14 @@ internal sealed class PrePhantoonRoomBehavior
 
     /// <summary>The held place, which counts its hold on each of its updates and frees the place on the update after it.</summary>
     /// <param name="heldPlace">The hold the room's setup takes.</param>
-    private sealed class HoldingProjectileBehavior(PrePhantoonRoomHeldProjectilePlace heldPlace) : EnemyProjectileBehavior
+    private sealed class HoldingProjectileBehavior(PrePhantoonRoomHeldProjectilePlace heldPlace)
+        : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving)
     {
-        /// <inheritdoc/>
-        internal override void RunMotion(EnemyProjectileMotionContext context)
+        /// <summary>Counts the hold on each of the place's updates, from its spawn, and frees the place on the update after it.</summary>
+        /// <param name="context">The held place and what its pass hands every motion.</param>
+        /// <param name="motion">The place's one motion, its hold.</param>
+        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion)
         {
-            base.RunMotion(context);
             if (heldPlace.FreesOnThisUpdate())
                 context.Projectile.Delete();
         }

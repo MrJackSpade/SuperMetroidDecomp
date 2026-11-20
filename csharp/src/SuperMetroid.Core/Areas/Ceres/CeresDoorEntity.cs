@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
 /// <param name="place">The place the door occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="opening">The animation the door starts in, for the way it faces.</param>
+/// <param name="facing">The way the door faces, choosing its pictures.</param>
 internal sealed class CeresDoorEntity(CeresDoorBehavior doors, RoomEnemyPlace place, EnemyCommonParticipation common, HorizontalDirection facing)
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {

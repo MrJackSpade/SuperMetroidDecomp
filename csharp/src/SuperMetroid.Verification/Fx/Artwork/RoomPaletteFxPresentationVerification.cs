@@ -561,10 +561,7 @@ internal static class RoomPaletteFxPresentationVerification
         document.Programs["planetZebesTextFadeOut"][0] = fadeOutFrame;
 
         PaletteRgb5[][] motherBrainLights = document.Programs["oldMotherBrainBackgroundLights"];
-        document = document with
-        {
-            OldMotherBrainBackgroundLights = motherBrainLights[..^1],
-        };
+        document.Programs["oldMotherBrainBackgroundLights"] = motherBrainLights[..^1];
         Reject("room palette-FX rejects incomplete old Mother Brain glow");
         document.Programs["oldMotherBrainBackgroundLights"] = motherBrainLights;
 

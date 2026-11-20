@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 public static class PauseSelectorExtractor
 {
     /// <summary>The visual animation role of each equipment category; suit/miscellaneous items and boots share Equipment.</summary>
-    private static readonly IReadOnlyDictionary<PauseEquipmentCategory, string> Groups = new Dictionary<PauseEquipmentCategory, string>
+    private static readonly Dictionary<PauseEquipmentCategory, string> Groups = new()
     {
         [PauseEquipmentCategory.Reserves] = "Reserve",
         [PauseEquipmentCategory.Beams] = "Beam",

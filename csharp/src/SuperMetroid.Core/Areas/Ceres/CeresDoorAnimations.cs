@@ -24,7 +24,7 @@ internal static class CeresDoorAnimations
     private const int SlideUpdates = 5;
 
     /// <summary>Every segment's beats for a door facing right and for one facing left (#2557).</summary>
-    private static IReadOnlyDictionary<HorizontalDirection, AnimationSegments<CeresDoorSegment, EnemyFrameId, CeresDoorCue>> SegmentsBySide { get; } =
+    private static Dictionary<HorizontalDirection, AnimationSegments<CeresDoorSegment, EnemyFrameId, CeresDoorCue>> SegmentsBySide { get; } =
         new Dictionary<HorizontalDirection, AnimationSegments<CeresDoorSegment, EnemyFrameId, CeresDoorCue>>
         {
             [HorizontalDirection.Right] = new(SegmentBeats(RightFacing)),
@@ -32,7 +32,7 @@ internal static class CeresDoorAnimations
         };
 
     /// <summary>The animation that starts at each segment of a door facing right and of one facing left.</summary>
-    private static IReadOnlyDictionary<HorizontalDirection, Dictionary<CeresDoorSegment, Animation<CeresDoorSegment>>> StartingAtBySide { get; } =
+    private static Dictionary<HorizontalDirection, Dictionary<CeresDoorSegment, Animation<CeresDoorSegment>>> StartingAtBySide { get; } =
         new Dictionary<HorizontalDirection, Dictionary<CeresDoorSegment, Animation<CeresDoorSegment>>>
         {
             [HorizontalDirection.Right] = Starts(SegmentsBySide[HorizontalDirection.Right]),

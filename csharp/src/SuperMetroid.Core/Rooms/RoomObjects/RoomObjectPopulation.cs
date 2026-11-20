@@ -25,7 +25,7 @@ public sealed class RoomObjectPopulation
     {
         Ensure.NotNull(placements);
         Name = Ensure.NotNull(name);
-        this.placements = placements.Select(Ensure.NotNull).ToArray();
+        this.placements = placements.Select(placement => Ensure.NotNull(placement)).ToArray();
     }
 
     /// <summary>Builds a room's population from its placements, each with its family's typed setup.</summary>

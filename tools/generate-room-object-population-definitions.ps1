@@ -223,7 +223,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $draygonCannonSetups = @{}
     $cannonStart = $variantSource.IndexOf(' DraygonCannons ')
     if ($cannonStart -lt 0) { throw 'RoomObjectKindDefinitions declares no DraygonCannons table.' }
-    foreach ($match in [regex]::Matches($variantSource.Substring($cannonStart, $variantSource.IndexOf('}.ToFrozenDictionary();', $cannonStart) - $cannonStart), '(?m)^\s*\[\((.+)\)\] = RoomObjectKind\.(\w+),\r?$')) {
+    foreach ($match in [regex]::Matches($variantSource.Substring($cannonStart, $variantSource.IndexOf('}.ToFrozenDictionary();', $cannonStart) - $cannonStart), '(?m)^\s*\[new DraygonCannonVariant\((.+)\)\] = RoomObjectKind\.(\w+),\r?$')) {
         $draygonCannonSetups[$match.Groups[2].Value] = $match.Groups[1].Value
     }
     if ($draygonCannonSetups.Count -ne 3) { throw "Expected three Draygon cannon kinds, found $($draygonCannonSetups.Count)." }
@@ -430,7 +430,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                 $lines.Add($placed.Line)
                 continue
             }
-            [string[]] $reach = @($runs | ForEach-Object { 'new({0}, {1})' -f $familyVariants[$_.Kind], $_.Blocks })
+            [string[]] $reach = @($runs | ForEach-Object { 'new ScrollReachRun({0}, {1})' -f $familyVariants[$_.Kind], $_.Blocks })
             $lines.Add(('        .. ScrollTriggerPlacements.Reaching(new({0}, {1}), {2}, {3}),' -f $placed.X, $placed.Y, $placed.Program, ($reach -join ', ')))
         }
         if ($reached -ne $extensionsByBlock.Count) { throw "Population $name places scroll extensions that no trigger's reach covers." }

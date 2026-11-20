@@ -11,7 +11,7 @@ internal static class DraygonCannonObjectsConstants
     /// No other kind is a cannon.
     /// </summary>
     internal static IReadOnlyDictionary<RoomObjectKind, (DraygonCannonOrientation Orientation, DraygonCannonStart Start)> CannonKinds { get; } =
-        RoomObjectKindDefinitions.DraygonCannons.ToDictionary(pair => pair.Value, pair => pair.Key);
+        RoomObjectKindDefinitions.DraygonCannons.ToDictionary(pair => pair.Value, pair => (pair.Key.Orientation, pair.Key.Start));
 
     /// <summary>Whether <paramref name="kind"/> is one of the room's wall cannons: the live right, destroyed right or live left cannon.</summary>
     internal static bool IsDraygonCannonKind(RoomObjectKind kind) => CannonKinds.ContainsKey(kind);

@@ -101,11 +101,11 @@ internal static class RoomObjectKindDefinitions
     }.ToFrozenDictionary();
 
     /// <summary>The Draygon-cannon kind each facing and start places (#2400).</summary>
-    internal static FrozenDictionary<(DraygonCannonOrientation Orientation, DraygonCannonStart Start), RoomObjectKind> DraygonCannons { get; } =
-        new Dictionary<(DraygonCannonOrientation Orientation, DraygonCannonStart Start), RoomObjectKind>
+    internal static FrozenDictionary<DraygonCannonVariant, RoomObjectKind> DraygonCannons { get; } =
+        new Dictionary<DraygonCannonVariant, RoomObjectKind>
         {
-            [(DraygonCannonOrientation.Right, DraygonCannonStart.Whole)] = RoomObjectKind.DraygonCannonFacingRight,
-            [(DraygonCannonOrientation.Right, DraygonCannonStart.Destroyed)] = RoomObjectKind.DraygonCannonFacingRightDestroyed,
-            [(DraygonCannonOrientation.Left, DraygonCannonStart.Whole)] = RoomObjectKind.DraygonCannonFacingLeft,
+            [new DraygonCannonVariant(DraygonCannonOrientation.Right, DraygonCannonStart.Whole)] = RoomObjectKind.DraygonCannonFacingRight,
+            [new DraygonCannonVariant(DraygonCannonOrientation.Right, DraygonCannonStart.Destroyed)] = RoomObjectKind.DraygonCannonFacingRightDestroyed,
+            [new DraygonCannonVariant(DraygonCannonOrientation.Left, DraygonCannonStart.Whole)] = RoomObjectKind.DraygonCannonFacingLeft,
         }.ToFrozenDictionary();
 }

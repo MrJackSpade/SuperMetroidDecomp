@@ -73,21 +73,19 @@ public static class EndingObjectArtworkFiles
         // Each sprite family's frames are its definitions' spritemaps; the completion text's typed steps come first, then the
         // digits and the colon, as the editable file lists them.
         WriteSprites(EndingCloudSpriteFormat.FileName, stream => EndingCloudSpritePresentation.Write(stream,
-            new EndingCloudSpriteDocument { Version = EndingCloudSpriteFormat.Version, Frames = Frames(Spritemaps(EndingCloudSpriteDefinitions.Frames)) }));
+            new EndingCloudSpriteDocument { Version = EndingCloudSpriteFormat.Version, Frames = Frames(EndingCloudSpriteDefinitions.Frames) }));
         WriteSprites(EndingExplosionSpriteFormat.FileName, stream => EndingExplosionSpritePresentation.Write(stream,
-            new EndingExplosionSpriteDocument { Version = EndingExplosionSpriteFormat.Version, Frames = Frames(Spritemaps(EndingExplosionSpriteDefinitions.Frames)) }));
+            new EndingExplosionSpriteDocument { Version = EndingExplosionSpriteFormat.Version, Frames = Frames(EndingExplosionSpriteDefinitions.Frames) }));
         WriteSprites(EndingCompletionTextSpriteFormat.FileName, stream => EndingCompletionTextSpritePresentation.Write(stream,
             new EndingCompletionTextSpriteDocument
             {
                 Version = EndingCompletionTextSpriteFormat.Version,
-                Frames = Frames(EndingCompletionTextSpriteDefinitions.Typings
-                    .Select(step => (step.Name, CinematicSpritemapSources.Of(step.Typed), step.StockPartCount))
-                    .Concat(Spritemaps(EndingCompletionTextSpriteDefinitions.Frames))),
+                Frames = TypedFrames(EndingCompletionTextSpriteDefinitions.Typings, EndingCompletionTextSpriteDefinitions.Frames),
             }));
         WriteSprites(EndingRewardSpriteFormat.FileName, stream => EndingRewardSpritePresentation.Write(stream,
-            new EndingRewardSpriteDocument { Version = EndingRewardSpriteFormat.Version, Frames = Frames(Spritemaps(EndingRewardSpriteDefinitions.Frames)) }));
+            new EndingRewardSpriteDocument { Version = EndingRewardSpriteFormat.Version, Frames = Frames(EndingRewardSpriteDefinitions.Frames) }));
         WriteSprites(EndingLogoSpriteFormat.FileName, stream => EndingLogoSpritePresentation.Write(stream,
-            new EndingLogoSpriteDocument { Version = EndingLogoSpriteFormat.Version, Frames = Frames(Spritemaps(EndingLogoSpriteDefinitions.Frames)) }));
+            new EndingLogoSpriteDocument { Version = EndingLogoSpriteFormat.Version, Frames = Frames(EndingLogoSpriteDefinitions.Frames) }));
 
         using var manifest = new FileStream(Path.Combine(importData,
             EndingObjectArtworkFormat.ManifestFileName), FileMode.CreateNew,
@@ -120,18 +118,23 @@ public static class EndingObjectArtworkFiles
             WriteFile(name, RoomBackgroundTilemapExtractor.Encode(native));
         }
 
-        // Each frame of a sprite family, in order, from the spritemap its source names.
-        Dictionary<string, SpriteVisualPart[]> Frames(IEnumerable<(string Name, ushort Spritemap, int StockParts)> sources)
+        // Each frame of a sprite family, in order, from the spritemap its definition's pose names.
+        Dictionary<string, SpriteVisualPart[]> Frames(IEnumerable<CinematicSpriteFrameDefinition> definitions) =>
+            TypedFrames([], definitions);
+
+        // Each typed step's frame, then each other frame of the family, in order, from the spritemaps they name.
+        Dictionary<string, SpriteVisualPart[]> TypedFrames(IEnumerable<EndingTypedStepDefinition> typings,
+            IEnumerable<CinematicSpriteFrameDefinition> definitions)
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach ((string name, ushort spritemap, int stockParts) in sources)
-                frames.Add(name, IntroCinematicSpriteFrameExtractor.Extract(bus, spritemap, stockParts, name));
+            foreach (EndingTypedStepDefinition step in typings)
+                frames.Add(step.Name, IntroCinematicSpriteFrameExtractor.Extract(
+                    bus, CinematicSpritemapSources.Of(step.Typed), step.StockPartCount, step.Name));
+            foreach (CinematicSpriteFrameDefinition definition in definitions)
+                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
+                    bus, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
             return frames;
         }
-
-        // The spritemap each of a sprite family's definitions' poses names.
-        static IEnumerable<(string Name, ushort Spritemap, int StockParts)> Spritemaps(IEnumerable<CinematicSpriteFrameDefinition> definitions) =>
-            definitions.Select(definition => (definition.Name, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount));
 
         // A sprite family's document as <paramref name="write"/> serializes it.
         void WriteSprites(string name, Action<Stream> write)

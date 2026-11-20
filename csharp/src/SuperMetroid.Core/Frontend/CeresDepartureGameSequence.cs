@@ -34,20 +34,12 @@ internal sealed class CeresDepartureGameSequence(FrontendSession session) : IGam
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        switch (session.ceresDeparture.Phase)
-        {
-            case CeresDeparturePhase.HoldingOnElevator:
-                HoldOnElevator(controllerInput);
-                break;
-            case CeresDeparturePhase.FadingToBlack:
-                FadeToBlack(controllerInput);
-                break;
-            case CeresDeparturePhase.Inactive:
-            case CeresDeparturePhase.Complete:
-            default:
-                // Entering the departure begins its hold, and its completed fade leaves it for Ceres's destruction.
-                throw new InvalidOperationException($"The Ceres departure runs only while it holds on the elevator or fades, not while {session.ceresDeparture.Phase}.");
-        }
+        // Entering the departure begins its hold, and its completed fade leaves it for Ceres's destruction; the fade's own
+        // step accepts only the fading phase.
+        if (session.ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator)
+            HoldOnElevator(controllerInput);
+        else
+            FadeToBlack(controllerInput);
     }
 
     /// <summary>One update of gameplay during the elevator hold.</summary>

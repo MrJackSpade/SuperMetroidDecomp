@@ -67,9 +67,9 @@ internal static class MenuScreenPublicationVerification
         saves.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame);
         saves.SelectSlot(SaveSlot.A);
         var fileSelect = new FileSelectMenuState(saves, AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps));
-        for (int frame = 0; frame < 60 && fileSelect.Phase != FileSelectPhase.Main; frame++)
+        for (int frame = 0; frame < 60 && fileSelect.Phase is not FileSelectPhase.Main; frame++)
             fileSelect.Step(0);
-        AssertEqual(FileSelectPhase.Main, fileSelect.Phase, "file select reaches its main menu");
+        AssertEqual(new FileSelectPhase.Main(), fileSelect.Phase, "file select reaches its main menu");
         // File select shows its backdrop's picture, then its page's picture with its slots' fields over it (#1467).
         SpriteSheet fileSelectPictures = MenuSheetFixtures.For(maps).Get(SpriteSheetId.MenuPictures);
         LayeredScene fileSelectScene = fileSelect.ComposeScene();

@@ -153,7 +153,7 @@ public sealed class SamusCrystalFlashState
         // crouching art, or while Draygon holds Samus. Crystal Flash takes her movement from both; if the
         // drained state kept its Drained phase alive, it would re-lock Samus after Flash completed
         // instead of reproducing the documented adjacent timing that frees the stun.
-        SamusMovementHandOver.To(samus, SamusMovementOwner.CrystalFlash);
+        SamusMovementHandOver.ToCrystalFlash(samus);
         samus.InputSnapshot.CrystalFlashPoseInputLocked = true;
         RaiseUpdatesLeft = UpdateCountdown.For(CrystalFlashDefinitions.RaiseUpdates);
         DrainingAmmo = CrystalFlashAmmoKind.Missiles;

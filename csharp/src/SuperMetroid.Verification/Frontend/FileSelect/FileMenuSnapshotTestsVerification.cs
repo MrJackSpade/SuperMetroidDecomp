@@ -35,16 +35,16 @@ internal static class FileMenuSnapshotTestsVerification
                 for (int i = 0; i < 90 && menu.Phase != phase; i++) Tick();
                 AssertEqual(phase, menu.Phase, "file snapshot fixture phase");
             }
-            Until(FileSelectPhase.Main);
+            Until(new FileSelectPhase.Main());
             for (int i = 0; i < (clear ? 4 : 3); i++) Press(ControllerButton.Down);
             Press(ControllerButton.A);
-            Until(clear ? FileSelectPhase.ClearSelectSlot : FileSelectPhase.CopySelectSource);
+            Until(clear ? new FileSelectPhase.DataManagement.ClearSelectSlot() : new FileSelectPhase.DataManagement.CopySelectSource());
             Press(ControllerButton.A);
             if (!clear) Press(ControllerButton.A);
-            AssertEqual(clear ? FileSelectPhase.ClearConfirm : FileSelectPhase.CopyConfirm,
+            AssertEqual(clear ? new FileSelectPhase.DataManagement.ClearConfirm() : new FileSelectPhase.DataManagement.CopyConfirm(),
                 menu.Phase, "file snapshot confirmation");
             Press(ControllerButton.A);
-            AssertEqual(clear ? FileSelectPhase.ClearCompleted : FileSelectPhase.CopyCompleted,
+            AssertEqual(clear ? new FileSelectPhase.DataManagement.ClearCompleted() : new FileSelectPhase.DataManagement.CopyCompleted(),
                 menu.Phase, "file snapshot completed operation");
             Tick();
         }

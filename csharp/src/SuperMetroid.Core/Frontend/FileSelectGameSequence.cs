@@ -26,7 +26,9 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
     {
         [FileSelectStep.SaveSlots] = static running => running.ActiveFileSelect.Phase.ToString(),
         [FileSelectStep.Options] = static running => running.ActiveOptions.Phase.ToString(),
-        [FileSelectStep.AreaMap] = static running => running.ScreenAs<FileSelectMapMenuState>()?.Phase.ToString() ?? "Preparing saved-game map",
+        [FileSelectStep.AreaMap] = static running => running.ScreenAs<FileSelectMapMenuState>() is { } map
+            ? (map.IsEnteringArea ? "Entering the area map" : map.Phase.ToString())
+            : "Preparing saved-game map",
     });
 
     /// <inheritdoc/>

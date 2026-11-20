@@ -214,16 +214,16 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     PulseFileSelect(copyMenu, ControllerButton.Down);
     AssertEqual(FileSelectItem.Copy, copyMenu.SelectedItem, "file-select reaches DATA COPY");
     PulseFileSelect(copyMenu, ControllerButton.A);
-    AdvanceFileSelectFade(copyMenu, FileSelectPhase.CopySelectSource);
+    AdvanceFileSelectFade(copyMenu, new FileSelectPhase.DataManagement.CopySelectSource());
     PulseFileSelect(copyMenu, ControllerButton.A);
-    AssertEqual(FileSelectPhase.CopySelectDestination, copyMenu.Phase,
+    AssertEqual(new FileSelectPhase.DataManagement.CopySelectDestination(), copyMenu.Phase,
         "copy chooses nonempty source slot");
     PulseFileSelect(copyMenu, ControllerButton.A);
-    AssertEqual(FileSelectPhase.CopyConfirm, copyMenu.Phase,
+    AssertEqual(new FileSelectPhase.DataManagement.CopyConfirm(), copyMenu.Phase,
         "copy chooses distinct destination slot");
     copyMenu.Step(0);
     AssertEqual(FileSelectSaveChange.Copied, copyMenu.Step(ControllerButton.A), "copy reports the update it changed the saves");
-    AssertEqual(FileSelectPhase.CopyCompleted, copyMenu.Phase, "copy reaches completion screen");
+    AssertEqual(new FileSelectPhase.DataManagement.CopyCompleted(), copyMenu.Phase, "copy reaches completion screen");
     SuperMetroidSaveSlot copied = saveRam.ReadSlot(SaveSlot.B)
         ?? throw new InvalidOperationException("File-select COPY did not create slot B.");
     AssertEqual(saved.Health, copied.Health, "file-select COPY preserves health");
@@ -238,26 +238,26 @@ internal static void VerifyFileSelectFreshSaveTilemap()
         PulseFileSelect(clearMenu, ControllerButton.Down);
     AssertEqual(FileSelectItem.Clear, clearMenu.SelectedItem, "file-select reaches DATA CLEAR");
     PulseFileSelect(clearMenu, ControllerButton.A);
-    AdvanceFileSelectFade(clearMenu, FileSelectPhase.ClearSelectSlot);
+    AdvanceFileSelectFade(clearMenu, new FileSelectPhase.DataManagement.ClearSelectSlot());
     PulseFileSelect(clearMenu, ControllerButton.A);
-    AssertEqual(FileSelectPhase.ClearConfirm, clearMenu.Phase,
+    AssertEqual(new FileSelectPhase.DataManagement.ClearConfirm(), clearMenu.Phase,
         "clear chooses first nonempty slot");
     clearMenu.Step(0);
     AssertEqual(FileSelectSaveChange.Cleared, clearMenu.Step(ControllerButton.A), "clear reports the update it cleared a save");
-    AssertEqual(FileSelectPhase.ClearCompleted, clearMenu.Phase,
+    AssertEqual(new FileSelectPhase.DataManagement.ClearCompleted(), clearMenu.Phase,
         "clear reaches DATA CLEARED screen");
     AssertTrue(saveRam.ReadSlot(SaveSlot.A) is null, "file-select CLEAR invalidates slot A checksums");
     AssertTrue(saveRam.ReadSlot(SaveSlot.B) is not null, "file-select CLEAR preserves other slots");
 
-    AdvanceFileSelectFade(savedMenu, FileSelectPhase.Main);
+    AdvanceFileSelectFade(savedMenu, new FileSelectPhase.Main());
     savedMenu.Step(ControllerButton.A);
     for (int guard = 0;
-         savedMenu.Phase != FileSelectPhase.FadeOutToOptions && guard < 80;
+         savedMenu.Phase is not FileSelectPhase.FadeOutToOptions && guard < 80;
          guard++)
     {
         savedMenu.Step(0);
     }
-    AssertEqual(FileSelectPhase.FadeOutToOptions, savedMenu.Phase,
+    AssertEqual(new FileSelectPhase.FadeOutToOptions(), savedMenu.Phase,
         "selected save completes helmet turn before load fade");
     FileSelectHelmetFrame selectedHelmetFrame = savedMenu.SelectedHelmetFrame;
     AssertEqual(FileSelectHelmetFrame.SparkleWide, selectedHelmetFrame,
@@ -283,9 +283,9 @@ static void AdvanceFileSelectToMain(FileSelectMenuState menu)
     // three's delay-one fade takes thirty dispatches (100% movie frames 399-437).
     for (int frame = 0; frame < 34; frame++)
         menu.Step(0);
-    AssertTrue(menu.Phase != FileSelectPhase.Main, "file-select fade is still running on its 34th update");
+    AssertTrue(menu.Phase is not FileSelectPhase.Main, "file-select fade is still running on its 34th update");
     menu.Step(0);
-    AssertEqual(FileSelectPhase.Main, menu.Phase, "file-select fade reaches main menu on its 35th update");
+    AssertEqual(new FileSelectPhase.Main(), menu.Phase, "file-select fade reaches main menu on its 35th update");
 }
 
 /// <summary>Steps a data-management fade until the expected file-select phase becomes active.</summary>

@@ -71,7 +71,7 @@ public sealed class SamusDraygonGrabbedState
         escapePresses.ClearEscapePresses();
         // The grab takes Samus's movement and keeps her still, but leaves the Flash shade and its shared
         // shine timer alive. A later release must not resume Flash draining.
-        SamusMovementHandOver.To(samus, SamusMovementOwner.DraygonHold);
+        SamusMovementHandOver.ToDraygonHold(samus);
         PreviousDirectionsPressed = GameplayAction.None;
         // Forced grab owns its history shift; no ordinary input transition is consumed.
         samus.CommitPoseHistory();
@@ -190,7 +190,7 @@ public sealed class SamusDraygonGrabbedState
             SamusPresentation.InitializeAnimation(samus);
         // Death calls this even when Samus was never grabbed. Returning her movement to her
         // pose interrupts a spark without resetting its independent boost/shade.
-        SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.DraygonHold);
+        SamusMovementHandOver.FromDraygonHold(samus);
 
         // Release clears pending input transitions, so commit here rather than
         // relying on the normal pose step to observe the standing pose.

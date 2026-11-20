@@ -337,7 +337,7 @@ public static class SamusKnockbackMovement
         // The expiry returns her movement to her pose. A Shinespark windup can
         // have been initialized after the knockback check latched this expiry, so end that
         // spark's hold while retaining its independently owned shade and timer.
-        SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Knockback);
+        SamusMovementHandOver.FromKnockback(samus);
         // The exact knockback-end cleanup shared by humanoid and morphed completion. The falling
         // flag has no field of its own; moving down is its movement-visible
         // publication and is consumed by every normal/ball step.

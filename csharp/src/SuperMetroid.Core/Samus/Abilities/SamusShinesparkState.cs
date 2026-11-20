@@ -228,7 +228,7 @@ public sealed class SamusShinesparkState
 
         // The windup takes over Samus's movement and suit colouring. Flash's live
         // colouring timer can admit this launch even after its movement was interrupted.
-        SamusMovementHandOver.To(samus, SamusMovementOwner.Shinespark);
+        SamusMovementHandOver.ToShinespark(samus);
         samus.CrystalFlash.RelinquishSuitColouring();
         // A Reserve-Mode X-Ray cone effect survives, but directional spark setup replaces
         // X-ray's suit colouring with the shinespark's.
@@ -529,7 +529,7 @@ public sealed class SamusShinesparkState
         // Finishing the crash returns Samus's input and movement to her pose, and so frees a
         // Samus drained mid-crash too.
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
-        SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Shinespark);
+        SamusMovementHandOver.FromShinespark(samus);
         SamusPoseId standingPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
             ? SamusPoseId.FacingLeftNormalPose
             : SamusPoseId.FacingRightNormalPose;

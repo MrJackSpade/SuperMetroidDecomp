@@ -170,7 +170,7 @@ internal static class SamusPoseMetadata
         // spark keeps its boost counter as the out-of-bounds elevator Blue Suit, while an
         // admitted Flash keeps only its independent colouring timer. Neither movement owner
         // may resume after elevator travel; the setup restores ordinary pose input.
-        SamusMovementHandOver.To(samus, SamusMovementOwner.Elevator);
+        SamusMovementHandOver.ToElevator(samus);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         samus.Control.LockOutPlayer();
@@ -686,7 +686,7 @@ internal static class SamusPoseMetadata
         // when the bomb arc returns her movement and input to her pose. The same
         // applies when suit pickup suspended Flash: its shade keeps running, but its
         // raising/drain must never resume after the bomb arc.
-        SamusMovementHandOver.To(samus, SamusMovementOwner.BombJump);
+        SamusMovementHandOver.ToBombJump(samus);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         samus.BombJumpRequest = samus.BombJumpRequest.Accept();

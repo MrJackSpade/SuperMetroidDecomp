@@ -49,7 +49,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// and its marker, so the frame shows them; the room map's first update, which began as the room was set up, shows
     /// neither, and the update that leaves the room map for a load or a return still shows both.
     /// </summary>
-    private FileSelectMapNavigationPhase lastUpdateBeganIn = FileSelectMapNavigationPhase.EnteringArea;
+    private FileSelectMapNavigationPhase lastUpdateBeganIn = FileSelectMapNavigationPhase.Area;
     /// <summary>Reads latched input and owns area/room navigation phases.</summary>
     private readonly FileSelectMapNavigation navigation;
     /// <summary>Owns the initial reveal and fade before navigation can consume input.</summary>
@@ -98,8 +98,14 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         entry = new FileSelectMapEntry();
     }
 
-    /// <summary>Current public navigation phase, reporting EnteringArea until the separately owned initial reveal/fade completes, then exposing the navigation owner's phase.</summary>
-    public FileSelectMapNavigationPhase Phase => entry.IsComplete ? navigation.Phase : FileSelectMapNavigationPhase.EnteringArea;
+    /// <summary>
+    /// The navigation owner's phase (#2553); the area map's own entry, its reveal and fade, runs before navigation does
+    /// (<see cref="IsEnteringArea"/>), the navigation then resting in <see cref="FileSelectMapNavigationPhase.Area"/>.
+    /// </summary>
+    public FileSelectMapNavigationPhase Phase => navigation.Phase;
+
+    /// <summary>Whether the area map's own entry, its reveal and fade, is still running before navigation begins.</summary>
+    public bool IsEnteringArea => !entry.IsComplete;
     /// <summary>How the map hands off to its host (#2562): its load or its options, kept once it reaches one.</summary>
     public FileSelectMapOutcome Outcome { get; private set; }
 
@@ -167,10 +173,9 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         [FileSelectMapNavigationPhase.ExpandingWindow] = () => StepForFileSelectMapNavigationPhaseArea(),
         [FileSelectMapNavigationPhase.InitializingRoom] = () => StepForFileSelectMapNavigationPhaseArea(),
         [FileSelectMapNavigationPhase.Room] = () => StepForFileSelectMapNavigationPhaseArea(),
-        [FileSelectMapNavigationPhase.EnteringArea] = () => StepForFileSelectMapNavigationPhaseArea(),
     });
 
-    /// <summary>What <see cref="StepForFileSelectMapNavigationPhase"/> does for <see cref="FileSelectMapNavigationPhase.Area"/>, <see cref="FileSelectMapNavigationPhase.PreparingWindow"/>, <see cref="FileSelectMapNavigationPhase.ExpandingWindow"/>, <see cref="FileSelectMapNavigationPhase.InitializingRoom"/>, <see cref="FileSelectMapNavigationPhase.Room"/>, <see cref="FileSelectMapNavigationPhase.EnteringArea"/>.</summary>
+    /// <summary>What <see cref="StepForFileSelectMapNavigationPhase"/> does for <see cref="FileSelectMapNavigationPhase.Area"/>, <see cref="FileSelectMapNavigationPhase.PreparingWindow"/>, <see cref="FileSelectMapNavigationPhase.ExpandingWindow"/>, <see cref="FileSelectMapNavigationPhase.InitializingRoom"/>, <see cref="FileSelectMapNavigationPhase.Room"/>.</summary>
     private void StepForFileSelectMapNavigationPhaseArea()
     {
     }
@@ -252,9 +257,8 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                     FileSelectMapDefinitions.EntryWindowRight + 1, ScreenGeometry.ScreenHeightPixels - FileSelectMapDefinitions.EntryWindowTop),
             FileSelectMapNavigationPhase.AreaReturnRequested when returnWindow is not null => Window(Area(), Frame(), returnWindow),
             FileSelectMapNavigationPhase.AreaReturnRequested => Frame(),
-            FileSelectMapNavigationPhase.Area or FileSelectMapNavigationPhase.PreparingWindow or
-                FileSelectMapNavigationPhase.OptionsRequested or FileSelectMapNavigationPhase.EnteringArea => Area(),
-            _ => throw new InvalidOperationException($"Undefined file-select map phase {Phase}."),
+            // The remaining phases, the area map, the window's preparation and the request for the options, show the area.
+            _ => Area(),
         };
         return new(scene.Paint, scene.Layers, fade.Level);
     }

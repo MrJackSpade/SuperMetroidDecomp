@@ -42,7 +42,7 @@ public sealed class SamusCeresRidleyEjectionState
         // Crystal Flash's raise/drain/finish held her, its
         // independent suit colouring and its lock on her pose input survive instead. Neither
         // displaced movement owner can resume after Ridley's shove ends.
-        SamusMovementHandOver.To(samus, SamusMovementOwner.CeresRidleyEjection);
+        SamusMovementHandOver.ToCeresRidleyEjection(samus);
 
         // The shove takes only her movement; her control stays unlocked. Her held chords still choose poses and her
         // weapons and HUD still answer, and while the shove lasts the runtime discards any damage boost she would take.

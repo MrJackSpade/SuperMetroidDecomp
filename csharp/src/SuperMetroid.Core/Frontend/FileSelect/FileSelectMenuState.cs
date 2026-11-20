@@ -81,14 +81,14 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
         // The slots are read at once, but the menu opens over updates: the blanking and unblanking steps each wait out one
         // more update.
-        Phase = FileSelectPhase.EnterBlankScreen;
+        Phase = new FileSelectPhase.EnterBlankScreen();
     }
 
     /// <summary>Main-menu selection: slots A-C, Copy, Clear, or Exit.</summary>
     private FileSelectItem SelectedItem { get; set; }
 
     /// <summary>Current menu phase.</summary>
-    public FileSelectPhase Phase { get; private set; }
+    public FileSelectPhase Phase { get; private set; } = new FileSelectPhase.FadeIn();
 
     /// <summary>How the menu hands off to its host (#2562): the game options or the title, kept once it reaches one.</summary>
     public FileSelectMenuOutcome Outcome { get; private set; }
@@ -122,57 +122,57 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
         void StepPhase()
         {
-            if (Phase == FileSelectPhase.EnterBlankScreen)
+            if (Phase is FileSelectPhase.EnterBlankScreen)
             {
                 // Finish any fade-out, then blank the display and wait out one update.
                 if (!screenFade.Darken())
                     return;
-                Phase = FileSelectPhase.EnterBlankScreenAfterFrameWait;
+                Phase = new FileSelectPhase.EnterBlankScreenAfterFrameWait();
             }
-            else if (Phase == FileSelectPhase.EnterBlankScreenAfterFrameWait)
+            else if (Phase is FileSelectPhase.EnterBlankScreenAfterFrameWait)
             {
-                Phase = FileSelectPhase.BlackHold;
+                Phase = new FileSelectPhase.BlackHold();
             }
-            else if (Phase == FileSelectPhase.BlackHold)
+            else if (Phase is FileSelectPhase.BlackHold)
             {
                 if (blackHold.StepEnds())
-                    Phase = FileSelectPhase.InitializeMain;
+                    Phase = new FileSelectPhase.InitializeMain();
             }
-            else if (Phase == FileSelectPhase.InitializeMain)
+            else if (Phase is FileSelectPhase.InitializeMain)
             {
                 // The fades step at the menu's fade pace from here; the display then waits out one update.
                 screenFade.StepEvery(FileSelectLayout.FadeUpdatesPerStep);
-                Phase = FileSelectPhase.InitializeMainAfterFrameWait;
+                Phase = new FileSelectPhase.InitializeMainAfterFrameWait();
             }
-            else if (Phase == FileSelectPhase.InitializeMainAfterFrameWait)
+            else if (Phase is FileSelectPhase.InitializeMainAfterFrameWait)
             {
-                Phase = FileSelectPhase.FadeIn;
+                Phase = new FileSelectPhase.FadeIn();
             }
-            else if (Phase == FileSelectPhase.FadeIn)
+            else if (Phase is FileSelectPhase.FadeIn)
             {
                 if (screenFade.Brighten())
-                    Phase = FileSelectPhase.Main;
+                    Phase = new FileSelectPhase.Main();
             }
-            else if (Phase == FileSelectPhase.Main)
+            else if (Phase is FileSelectPhase.Main)
             {
                 StepMainMenu(pressed);
             }
-            else if (Phase == FileSelectPhase.FadeOutToCopy || Phase == FileSelectPhase.FadeOutToClear || Phase == FileSelectPhase.FadeOutToMain || Phase == FileSelectPhase.FadeInFromDataManagement)
+            else if (Phase is FileSelectPhase.FadeOutToCopy || Phase is FileSelectPhase.FadeOutToClear || Phase is FileSelectPhase.FadeOutToMain || Phase is FileSelectPhase.FadeInFromDataManagement)
             {
                 StepDataManagementFade();
             }
-            else if (Phase == FileSelectPhase.CopySelectSource || Phase == FileSelectPhase.CopySelectDestination || Phase == FileSelectPhase.CopyConfirm || Phase == FileSelectPhase.CopyCompleted || Phase == FileSelectPhase.ClearSelectSlot || Phase == FileSelectPhase.ClearConfirm || Phase == FileSelectPhase.ClearCompleted)
+            else if (Phase is FileSelectPhase.DataManagement managing)
             {
-                saveChange = StepDataManagement(pressed);
+                saveChange = StepDataManagement(managing, pressed);
             }
-            else if (Phase == FileSelectPhase.TurnSelectedHelmet)
+            else if (Phase is FileSelectPhase.TurnSelectedHelmet)
             {
                 selectedHelmet.Step();
                 // Start/A ends the turn early; otherwise it ends once its last picture has shown for its whole hold.
                 if ((pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None || selectedHelmet.HasFinished)
-                    Phase = FileSelectPhase.FadeOutToOptions;
+                    Phase = new FileSelectPhase.FadeOutToOptions();
             }
-            else if (Phase == FileSelectPhase.FadeOutToOptions)
+            else if (Phase is FileSelectPhase.FadeOutToOptions)
             {
                 if (screenFade.Darken())
                     Outcome = FileSelectMenuOutcome.NewGame;
@@ -221,7 +221,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 : FileSelectHelmetFrame.TurnedAway;
             presentation.DrawHelmet(sprites, sheet, frame, slot);
         }
-        if (Phase == FileSelectPhase.CopyConfirm)
+        if (Phase is FileSelectPhase.DataManagement.CopyConfirm)
         {
             (FileCopyArrowShape shape, int y) = FileCopyRoutes.ArrowOf(copyRoute);
             sprites.AddImage(sheet.Frame(FileCopyArrowDefinitions.FrameName(shape)),
@@ -245,7 +245,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Submenu phase entered once the newly built page reaches full brightness.</summary>
-    private FileSelectPhase phaseAfterFadeIn;
+    private FileSelectPhase phaseAfterFadeIn = new FileSelectPhase.FadeIn();
     /// <summary>Selected slot or Exit row in source, destination, and clear menus.</summary>
     private FileSelectItem submenuSelection;
     /// <summary>Source slot retained while choosing a copy destination or confirming a clear.</summary>
@@ -297,7 +297,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
     /// <summary>Hides the selection missile during entry and on completed data-operation pages.</summary>
     private bool ShouldDrawSelectionMissile => !IsEntryPhase && Phase is not
-        FileSelectPhase.CopyCompleted and not FileSelectPhase.ClearCompleted;
+        FileSelectPhase.DataManagement.CopyCompleted and not FileSelectPhase.DataManagement.ClearCompleted;
 
     /// <summary>Handles slot selection, hidden data-management rows, and options or title handoffs.</summary>
     private void StepMainMenu(ControllerButton pressed)
@@ -317,7 +317,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             QueueCursorSound();
             QueueCursorSound();
-            Phase = FileSelectPhase.FadeOutToTitle;
+            Phase = new FileSelectPhase.FadeOutToTitle();
             return;
         }
         if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
@@ -328,7 +328,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             audio.QueueSound(SamusSound.FileSelected, priority: SoundRequestPriority.Normal);
             // The menu moves on to the helmet turn, which turns only the selected helmet.
             selectedHelmet.Restart();
-            Phase = FileSelectPhase.TurnSelectedHelmet;
+            Phase = new FileSelectPhase.TurnSelectedHelmet();
             return;
         }
         if (SelectedItem is FileSelectItem.Copy or FileSelectItem.Clear)
@@ -336,13 +336,13 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             if (!HasAnySave)
                 throw new InvalidOperationException("Hidden data-management item became selectable.");
             QueueCursorSound();
-            Phase = SelectedItem == FileSelectItem.Copy ? FileSelectPhase.FadeOutToCopy : FileSelectPhase.FadeOutToClear;
+            Phase = SelectedItem == FileSelectItem.Copy ? new FileSelectPhase.FadeOutToCopy() : new FileSelectPhase.FadeOutToClear();
             return;
         }
         if (SelectedItem == FileSelectItem.Exit)
         {
             QueueCursorSound();
-            Phase = FileSelectPhase.FadeOutToTitle;
+            Phase = new FileSelectPhase.FadeOutToTitle();
             return;
         }
         throw new InvalidDataException($"Invalid file-select main item {SelectedItem}.");
@@ -360,16 +360,16 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             if (!screenFade.Darken())
                 return;
 
-            if (Phase == FileSelectPhase.FadeOutToMain)
+            if (Phase is FileSelectPhase.FadeOutToMain)
             {
                 ShowMainPage();
-                phaseAfterFadeIn = FileSelectPhase.Main;
+                phaseAfterFadeIn = new FileSelectPhase.Main();
             }
             else
             {
-                InitializeDataManagementScreen(Phase == FileSelectPhase.FadeOutToCopy ? FileSelectDataMode.Copy : FileSelectDataMode.Clear);
+                InitializeDataManagementScreen((Phase is FileSelectPhase.FadeOutToCopy) ? FileSelectDataMode.Copy : FileSelectDataMode.Clear);
             }
-            Phase = FileSelectPhase.FadeInFromDataManagement;
+            Phase = new FileSelectPhase.FadeInFromDataManagement();
             return;
         }
 
@@ -387,60 +387,53 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         if (mode == FileSelectDataMode.Copy)
         {
             ShowPage(FileSelectPage.CopySource);
-            phaseAfterFadeIn = FileSelectPhase.CopySelectSource;
+            phaseAfterFadeIn = new FileSelectPhase.DataManagement.CopySelectSource();
         }
         else
         {
             ShowPage(FileSelectPage.ClearSelection);
-            phaseAfterFadeIn = FileSelectPhase.ClearSelectSlot;
+            phaseAfterFadeIn = new FileSelectPhase.DataManagement.ClearSelectSlot();
         }
     }
 
     /// <summary>Runs Copy and Clear selection, confirmation, and completed-page input.</summary>
     /// <returns>What the update did to the saves.</returns>
-    private FileSelectSaveChange StepDataManagement(ControllerButton pressed)
+    private FileSelectSaveChange StepDataManagement(FileSelectPhase.DataManagement managing, ControllerButton pressed)
     {
-        switch (Phase)
+        if (managing is FileSelectPhase.DataManagement.CopySelectSource)
         {
-            case FileSelectPhase.CopySelectSource:
-                StepSlotSelection(pressed, FileSelectDataMode.Copy);
-                return FileSelectSaveChange.None;
-            case FileSelectPhase.CopySelectDestination:
-                StepCopyDestination(pressed);
-                return FileSelectSaveChange.None;
-            case FileSelectPhase.CopyConfirm:
-                StepCopyArrowGlow();
-                return StepConfirmation(pressed, FileSelectDataMode.Copy);
-            case FileSelectPhase.ClearSelectSlot:
-                StepSlotSelection(pressed, FileSelectDataMode.Clear);
-                return FileSelectSaveChange.None;
-            case FileSelectPhase.ClearConfirm:
-                return StepConfirmation(pressed, FileSelectDataMode.Clear);
-            case FileSelectPhase.CopyCompleted:
-            case FileSelectPhase.ClearCompleted:
-                if (pressed != ControllerButton.None)
-                {
-                    QueueCursorSound();
-                    SelectedItem = FileSelectItemRows.ForSaveSlot(saves.ReadSelectedSlot());
-                    Phase = FileSelectPhase.FadeOutToMain;
-                }
-                return FileSelectSaveChange.None;
-            case FileSelectPhase.FadeIn:
-            case FileSelectPhase.Main:
-            case FileSelectPhase.FadeOutToCopy:
-            case FileSelectPhase.FadeOutToClear:
-            case FileSelectPhase.FadeInFromDataManagement:
-            case FileSelectPhase.FadeOutToMain:
-            case FileSelectPhase.TurnSelectedHelmet:
-            case FileSelectPhase.FadeOutToOptions:
-            case FileSelectPhase.FadeOutToTitle:
-            case FileSelectPhase.EnterBlankScreen:
-            case FileSelectPhase.EnterBlankScreenAfterFrameWait:
-            case FileSelectPhase.BlackHold:
-            case FileSelectPhase.InitializeMain:
-            case FileSelectPhase.InitializeMainAfterFrameWait:
-            default:
-                throw new InvalidDataException($"Invalid data-management phase {Phase}.");
+            StepSlotSelection(pressed, FileSelectDataMode.Copy);
+            return FileSelectSaveChange.None;
+        }
+        else if (managing is FileSelectPhase.DataManagement.CopySelectDestination)
+        {
+            StepCopyDestination(pressed);
+            return FileSelectSaveChange.None;
+        }
+        else if (managing is FileSelectPhase.DataManagement.CopyConfirm)
+        {
+            StepCopyArrowGlow();
+            return StepConfirmation(pressed, FileSelectDataMode.Copy);
+        }
+        else if (managing is FileSelectPhase.DataManagement.ClearSelectSlot)
+        {
+            StepSlotSelection(pressed, FileSelectDataMode.Clear);
+            return FileSelectSaveChange.None;
+        }
+        else if (managing is FileSelectPhase.DataManagement.ClearConfirm)
+        {
+            return StepConfirmation(pressed, FileSelectDataMode.Clear);
+        }
+        else
+        {
+            // The remaining member, FileSelectPhase.DataManagement.CopyCompleted / FileSelectPhase.DataManagement.ClearCompleted.
+            if (pressed != ControllerButton.None)
+            {
+                QueueCursorSound();
+                SelectedItem = FileSelectItemRows.ForSaveSlot(saves.ReadSelectedSlot());
+                Phase = new FileSelectPhase.FadeOutToMain();
+            }
+            return FileSelectSaveChange.None;
         }
     }
 
@@ -454,7 +447,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             ((pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None && submenuSelection == FileSelectItem.Exit))
         {
             QueueCursorSound();
-            Phase = FileSelectPhase.FadeOutToMain;
+            Phase = new FileSelectPhase.FadeOutToMain();
             return;
         }
         if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
@@ -467,13 +460,13 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             copyDestination = FileCopyDestinationRow.FirstFrom(operationSourceSlot);
             submenuSelection = copyDestination.Item;
             ShowPage(FileSelectPage.CopyDestination);
-            Phase = FileSelectPhase.CopySelectDestination;
+            Phase = new FileSelectPhase.DataManagement.CopySelectDestination();
         }
         else
         {
             confirmationSelection = YesNoChoice.Yes;
             ShowPage(FileSelectPage.ClearConfirm);
-            Phase = FileSelectPhase.ClearConfirm;
+            Phase = new FileSelectPhase.DataManagement.ClearConfirm();
         }
     }
 
@@ -487,7 +480,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             QueueCursorSound();
             submenuSelection = FileSelectItemRows.ForSaveSlot(operationSourceSlot);
             ShowPage(FileSelectPage.CopySource);
-            Phase = FileSelectPhase.CopySelectSource;
+            Phase = new FileSelectPhase.DataManagement.CopySelectSource();
             return;
         }
         if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
@@ -495,14 +488,14 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         QueueCursorSound();
         if (copyDestination is not FileCopyDestinationRow.Destination chosen)
         {
-            Phase = FileSelectPhase.FadeOutToMain;
+            Phase = new FileSelectPhase.FadeOutToMain();
             return;
         }
         copyRoute = chosen.Route;
         confirmationSelection = YesNoChoice.Yes;
         copyArrowGlow.Restart(FileCopyArrowDefinitions.InitialGlowDelay);
         ShowPage(FileSelectPage.CopyConfirm);
-        Phase = FileSelectPhase.CopyConfirm;
+        Phase = new FileSelectPhase.DataManagement.CopyConfirm();
     }
 
     /// <summary>Moves the copy arrows' glow on one colour when its timer expires.</summary>
@@ -547,13 +540,13 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             saveSlots[copyTargetSlot] = saves.ReadSlot(copyTargetSlot)
                 ?? throw new InvalidDataException("The copied save slot did not read back as a valid save.");
             ShowPage(FileSelectPage.CopyCompleted);
-            Phase = FileSelectPhase.CopyCompleted;
+            Phase = new FileSelectPhase.DataManagement.CopyCompleted();
             return FileSelectSaveChange.Copied;
         }
         saves.ClearSlot(operationSourceSlot);
         saveSlots[operationSourceSlot] = null;
         ShowPage(FileSelectPage.ClearCompleted);
-        Phase = FileSelectPhase.ClearCompleted;
+        Phase = new FileSelectPhase.DataManagement.ClearCompleted();
         return FileSelectSaveChange.Cleared;
     }
 
@@ -565,12 +558,12 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             copyDestination = FileCopyDestinationRow.Choosing(copyRoute);
             ShowPage(FileSelectPage.CopyDestination);
-            Phase = FileSelectPhase.CopySelectDestination;
+            Phase = new FileSelectPhase.DataManagement.CopySelectDestination();
         }
         else
         {
             ShowPage(FileSelectPage.ClearSelection);
-            Phase = FileSelectPhase.ClearSelectSlot;
+            Phase = new FileSelectPhase.DataManagement.ClearSelectSlot();
         }
     }
 
@@ -599,7 +592,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     {
         if (IsMainPagePhase)
             return presentation.CursorPosition(FileSelectCursorPage.Main, SelectedItem);
-        return Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm
+        return Phase is FileSelectPhase.DataManagement.CopyConfirm or FileSelectPhase.DataManagement.ClearConfirm
             ? presentation.CursorPosition(confirmationSelection)
             : presentation.CursorPosition(FileSelectCursorPage.DataManagement, submenuSelection);
     }

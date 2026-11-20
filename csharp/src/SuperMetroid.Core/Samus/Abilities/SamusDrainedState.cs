@@ -262,7 +262,7 @@ public sealed class SamusDrainedState
         // either special owner: an ordinary uncrashed spark retains its boost state as Blue Suit,
         // while Crystal Flash retains its independent colour/input state as Shinespark Suit.
         // Neither old movement behaviour may resume.
-        SamusMovementHandOver.To(samus, SamusMovementOwner.Drained);
+        SamusMovementHandOver.ToDrained(samus);
         Phase = DrainedSamusPhase.Falling;
     }
 

@@ -19,6 +19,4 @@ public enum FileSelectMapNavigationPhase
     OptionsRequested,
     /// <summary>Requests loading the selected save file.</summary>
     LoadRequested,
-    /// <summary>Represents the frontend-owned transition into an area map.</summary>
-    EnteringArea,
 }

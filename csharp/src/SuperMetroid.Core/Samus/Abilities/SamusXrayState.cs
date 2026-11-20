@@ -240,7 +240,7 @@ public sealed class SamusXrayState
         // X-ray's activation takes both Samus's pose input and her movement, so an interrupted Flash's
         // lock on her pose input is gone as well as its hold on her movement. Keeping the Crystal Flash input lock
         // would make Samus immobile again when X-Ray teardown restores ordinary input.
-        SamusMovementHandOver.To(samus, SamusMovementOwner.Xray);
+        SamusMovementHandOver.ToXray(samus);
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // The same step takes over Samus's suit colouring and clears
         // the special colouring timer even when an interrupted Flash, not a normal charge, owns it.
@@ -609,7 +609,7 @@ public sealed class SamusXrayState
         // The teardown returns both Samus's pose input and her movement to her pose. X-Mode can arrange for
         // an active spark to hold her movement while the old visor effect reaches this
         // teardown; ending that spark while retaining the spark's colouring timer is the Blue Suit result.
-        SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Xray);
+        SamusMovementHandOver.FromXray(samus);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         TimeIsFrozen = false;
         SuspendedSubsystems = XraySuspendedSubsystems.None;

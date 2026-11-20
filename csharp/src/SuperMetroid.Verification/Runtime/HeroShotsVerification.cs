@@ -76,7 +76,7 @@ internal static class HeroShotsVerification
                     // The recorded type word is compared as the projectile it decodes to: the column agrees when the
                     // shot is that projectile.
                     const int TypeColumn = 8;
-                    ushort type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(expected[TypeColumn]) == shot.Type
+                    ushort type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(expected[TypeColumn]) == shot.RecordedType
                         ? expected[TypeColumn] : unchecked((ushort)~expected[TypeColumn]);
                     ushort[] actual = [cameraX, cameraY, shot.Position.X.Whole, shot.Position.X.Fraction,
                         shot.Position.Y.Whole, shot.Position.Y.Fraction, unchecked((ushort)shot.Velocity.X.InTwoHundredFiftySixthsOfPixel),
@@ -86,7 +86,7 @@ internal static class HeroShotsVerification
                     comparedFrames++;
                 }
                 if (frame == 0) AssertEqual(0, beforeStep.FiredSlot(projectiles), "Hero fixture fires through normal input dispatch");
-                if (shot.Type.Family == SamusProjectileFamily.BeamExplosion)
+                if (shot.RecordedType.Family == SamusProjectileFamily.BeamExplosion)
                 {
                     impactFrame = frame;
                     AssertTrue(vertical ? shot.Position.Y.Whole is >= 248 and <= 288 : shot.Position.X.Whole is >= 496 and <= 520,

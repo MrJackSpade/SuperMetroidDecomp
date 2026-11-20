@@ -763,10 +763,13 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 string owner = $"Projectile {projectile.Place}";
                 // The recorded type, direction and missile variable words are compared as the projectile state they decode to.
                 int recordedWord = W(NativeSnapshotMemory.ProjectileType + index);
-                bool recorded = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.RecordsProjectile(recordedWord);
-                if (recorded != projectile.IsOccupied)
-                    mismatches.Add($"{owner} occupancy: native={(recorded ? "held" : "empty")} port={(projectile.IsOccupied ? "held" : "empty")}");
-                if (!recorded || !projectile.IsOccupied) continue;
+                // An empty port place matches only the cleared word, which an uncharged Power beam also holds (#2558).
+                if (!projectile.IsOccupied)
+                {
+                    if (!SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.IsClearedWord(recordedWord))
+                        mismatches.Add($"{owner} type: native={recordedWord:X4} port=empty");
+                    continue;
+                }
                 SamusProjectileType recordedType = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(recordedWord);
                 if (projectile.Type != recordedType)
                     mismatches.Add($"{owner} type: native={recordedType} port={projectile.Type}");

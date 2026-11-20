@@ -107,7 +107,7 @@ internal static class ChainsawFiringVerification
             doorLevel.GetCollisionBlockByIndex(doorOrigin).CollisionType,
             "Chainsaw blue-door setup mutates cap synchronously");
         AssertTrue(doorProjectiles.Shots.All(slot =>
-                !slot.Type.IsFamily(SamusProjectileFamily.BeamExplosion)),
+                !slot.IsOccupied || !slot.Type.IsFamily(SamusProjectileFamily.BeamExplosion)),
             "Wave scan opens door without synthesizing a visible beam impact");
         AssertEqual(0, doorProjectiles.Pool.ShotCount.Count,
             "door-opening no-Power-Bomb Chainsaw still deletes in B0AC callback");

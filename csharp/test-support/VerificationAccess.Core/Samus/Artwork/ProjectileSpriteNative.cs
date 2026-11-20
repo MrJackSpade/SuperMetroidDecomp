@@ -136,7 +136,7 @@ internal static class ProjectileSpriteNative
         /// <summary>The bank-$93 address of the composition the slot shows, or zero for none.</summary>
         internal int SpritemapPointer
         {
-            get => slot.Sprite is { } sprite ? Address(sprite) : slot.IsActive ? EmptyRecordAddress : 0;
+            get => slot.Sprite is { } sprite ? Address(sprite) : slot.Animation?.Shown is not null ? EmptyRecordAddress : 0;
             set => slot.Sprite = value is 0 or EmptyRecordAddress ? null : Projectile(value);
         }
     }
@@ -147,7 +147,7 @@ internal static class ProjectileSpriteNative
         /// <summary>The bank-$93 address of the composition the bomb shows, or zero for none.</summary>
         internal int SpritemapPointer
         {
-            get => slot.Sprite is { } sprite ? Address(sprite) : slot.IsActive ? EmptyRecordAddress : 0;
+            get => slot.Sprite is { } sprite ? Address(sprite) : slot.Animation?.Shown is not null ? EmptyRecordAddress : 0;
             set => slot.Sprite = value is 0 or EmptyRecordAddress ? null : Projectile(value);
         }
     }

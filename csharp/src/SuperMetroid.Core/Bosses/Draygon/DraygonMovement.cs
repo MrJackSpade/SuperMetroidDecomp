@@ -24,7 +24,7 @@ internal sealed class DraygonMovement
         body.Position = body.Position.WithX(body.Position.X.MovedBy(state.SwoopVelocity));
     }
 
-    /// <summary>Emits a breath bubble every 128 body frames.</summary>
+    /// <summary>Emits a breath bubble at its body-frame cadence.</summary>
     internal void SpawnPeriodicDraygonBreathBubble(DraygonEnemyState state)
     {
         if (!DraygonCadenceDefinitions.BreathBubbleEvery128thUpdate.IsDue(state.Body.FrameCounter))

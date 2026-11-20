@@ -28,13 +28,13 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
     /// <summary>Active room services and RNG used by path and drop decisions.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Allocates Botwoon's thirteen body actors and spit projectiles.</summary>
+    /// <summary>Allocates Botwoon's body actors (<see cref="BotwoonFightDefinitions.BodySegments"/>) and spit projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Spawns the wall-phase explosion sprites.</summary>
     private readonly RoomEffectActors _effectActors;
     /// <summary>Runs common touch behavior before Botwoon's own death begins.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Spawns the sixteen special drops from the chance table.</summary>
+    /// <summary>Spawns the special drops (<see cref="BotwoonDeathDefinitions.WallDropCount"/>) from the chance table.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Receives Botwoon's sound and music requests.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -369,7 +369,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         state.History[state.RingIndex] = head.Position.Whole;
     }
 
-    /// <summary>Spaces thirteen body projectiles along older head-history samples.</summary>
+    /// <summary>Spaces the body projectiles along older head-history samples.</summary>
     private static void PositionBotwoonBody(BotwoonEnemyState state)
     {
         int spacing = state.SpeedStage.SegmentSpacingEntries;
@@ -635,13 +635,13 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         head.Presence = head.Presence.With(EnemyPresence.Hidden);
     }
 
-    /// <summary>Requests the crumble room object and sixteen RNG-positioned drops before wall explosions.</summary>
+    /// <summary>Requests the crumble room object and the RNG-positioned drops before wall explosions.</summary>
     private void BeginBotwoonWallExplosions(RoomEnemyPlace head, BotwoonEnemyState state, SamusState samus)
     {
         state.Phase = BotwoonPhase.WallExplosions;
         _passEvents.Publish(new BotwoonWallChange(BotwoonWallMutation.Crumble));
 
-        // His death leaves sixteen drops. One random number places each, across the drop strip and down the drop band
+        // His death leaves his wall drops. One random number places each, across the drop strip and down the drop band
         // (DropX, DropY), and each becomes a pickup at once, chosen by his drop chances.
         for (int dropIndex = 0; dropIndex < BotwoonDeathDefinitions.WallDropCount; dropIndex++)
         {
@@ -715,7 +715,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// Finishes Botwoon's contact, shot and
     /// power-bomb reactions. All three take their damage without the ordinary death animation: zero health is only a
     /// request to finish the
-    /// current traversal. The head and thirteen body actors remain alive until the tail has
+    /// current traversal. The head and the body actors remain alive until the tail has
     /// crossed the next hole, as his death requires.
     /// </summary>
     private static void ResolveBotwoonCombatAfterCommon(RoomEnemyPlace head)
@@ -822,7 +822,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
     /// <summary>Spawns one of Botwoon's body segments.</summary>
     /// <param name="head">Botwoon's head, whose position and graphics the segment starts with.</param>
-    /// <param name="segmentIndex">The segment's place in the body, zero (the tail) through twelve (behind the head).</param>
+    /// <param name="segmentIndex">The segment's place in the body, from zero (the tail) to the last, behind the head.</param>
     /// <returns>The segment, alive and inside the wall.</returns>
     private BotwoonSegmentState SpawnBotwoonBodySegment(RoomEnemyPlace head, int segmentIndex)
     {
@@ -917,7 +917,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             : Encounter(segment).BodyShading);
     }
 
-    /// <summary>Accelerates a dying segment to Y=200 and marks the tail cap's final landing.</summary>
+    /// <summary>Accelerates a dying segment to the floor (<see cref="BotwoonFightDefinitions.FloorY"/>) and marks the tail cap's final landing.</summary>
     private void RunBotwoonBodyFall(
         BotwoonSegmentState segment,
         int hurtFlashCadence)

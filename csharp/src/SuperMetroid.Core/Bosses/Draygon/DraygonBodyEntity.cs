@@ -31,7 +31,7 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyPlace 
 
     /// <summary>
     /// The body's hurt behaviour: it flashes body, eye and tail together, while a connected grapple's electrocution may
-    /// drain another 256 health every eighth frame.
+    /// drain another <see cref="DraygonArenaDefinitions.GrappleShockDamage"/> at its shock cadence.
     /// </summary>
     /// <param name="frame">The enemy frame.</param>
     public override bool RunHurt(RoomEnemyFrame frame)

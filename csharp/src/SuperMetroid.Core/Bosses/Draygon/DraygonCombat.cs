@@ -74,9 +74,9 @@ internal sealed class DraygonCombat
             state.Colours.ShowBand(state.HealthBand);
         state.ShadeSprites();
 
-        // A grapple connected to the turrets is the game's electrocution channel. It is
-        // sampled only while he is hurt and subtracts its grapple-shock damage on every
-        // eighth body frame before running the same fatal/nonfatal reaction as a shot.
+        // A grapple connected to the turrets electrocutes him. It is sampled only while he
+        // is hurt and subtracts its grapple-shock damage at its shock cadence before
+        // running the same fatal/nonfatal reaction as a shot.
         if (!DraygonGrab.IsDraygonGrappleConnected(samus) ||
             !DraygonCadenceDefinitions.GrappleShockEveryEighthUpdate.IsDue(body.FrameCounter))
             return;
@@ -89,7 +89,7 @@ internal sealed class DraygonCombat
 
     /// <summary>
     /// The vulnerable eye's shot reaction increases future swoop curvature before the shot's common damage; the
-    /// curvature never grows past 152.
+    /// curvature never grows past <see cref="DraygonSwoopDefinitions.AccelerationLimit"/>.
     /// </summary>
     private static void AdvanceDraygonShotAcceleration(DraygonEnemyState state)
     {

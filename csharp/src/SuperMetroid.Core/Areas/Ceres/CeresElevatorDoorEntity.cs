@@ -113,7 +113,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
         // arrival's touchdown ends. The import pictures both strips (#1467).
         floor.Show(CeresFloorAnimation.ElevatorPlatformFrameForPhase(CeresDoorCadenceDefinitions.PlatformPicture.Of(frame)));
 
-        // The glow takes its next step every eight updates.
+        // The glow takes its next step at its cadence's place.
         doors.ElevatorRoomGlowStep = CeresDoorCadenceDefinitions.GlowStep.Of(frame);
     }
 }

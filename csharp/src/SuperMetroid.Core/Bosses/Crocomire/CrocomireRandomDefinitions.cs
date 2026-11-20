@@ -14,13 +14,13 @@ internal static class CrocomireRandomDefinitions
     internal static readonly RandomChance AcidSmokeRisesOnRight = RandomChance.Highest(1, new RandomSampleField(1, 1));
 
     /// <summary>
-    /// How much further from the body acid smoke on the left rises than smoke on the right with the same offset: one
-    /// pixel, so the smoke on the left rises 1 through 64 pixels from the body's X.
+    /// How much further from the body acid smoke on the left rises than smoke on the right with the same offset, so the
+    /// smoke on the left never rises at the body's X itself.
     /// </summary>
     internal const int AcidSmokeLeftExtraPixels = 1;
 
     /// <summary>
-    /// How far above the acid surface's line sixteen pixels down the smoke starts, 0 through 31 pixels.
+    /// How far above the acid surface's line (<see cref="CrocomireBridgeCollapseDefinitions.AcidSmokeDepth"/> down) the smoke starts.
     /// </summary>
     internal static readonly RandomSampleField AcidSmokeRise = new(8, 5);
 

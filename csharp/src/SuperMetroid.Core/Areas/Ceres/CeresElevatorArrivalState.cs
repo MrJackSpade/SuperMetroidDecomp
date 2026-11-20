@@ -35,7 +35,7 @@ public sealed class CeresElevatorArrivalState : SuperMetroid.Core.Enemies.IActor
             samus.Position.Whole.WithY(CeresElevatorArrivalDefinitions.StationaryPlatformY));
     }
 
-    /// <summary>True after both actors leave, once Samus has landed at Y=72.</summary>
+    /// <summary>True after both actors leave, once Samus has landed at <see cref="CeresElevatorArrivalDefinitions.LandingSamusY"/>.</summary>
     public bool IsComplete => !pad.Actor.Active && !platform.Active;
 
     /// <summary>Runs the pad, then the platform.</summary>
@@ -44,7 +44,7 @@ public sealed class CeresElevatorArrivalState : SuperMetroid.Core.Enemies.IActor
     {
         Ensure.NotNull(samus);
 
-        // The pad moves Samus before the platform tests whether she has landed at Y=72, so both leave on the update
+        // The pad moves Samus before the platform tests whether she has landed at her landing height, so both leave on the update
         // she lands, without showing another pose (#2424).
         if (pad.Actor.Active)
         {

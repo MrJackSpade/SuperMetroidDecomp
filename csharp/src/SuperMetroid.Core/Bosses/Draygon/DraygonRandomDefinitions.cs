@@ -17,10 +17,10 @@ internal static class DraygonRandomDefinitions
     /// <summary>The part of the sample that chooses the cannon a turret cadence fires from (<see cref="DraygonCannonData.FiringCannon"/>).</summary>
     internal static readonly RandomSampleField TurretChoice = new(0, 2);
 
-    /// <summary>A sinking Draygon's smoke X across its 128-pixel strip from X 192.</summary>
+    /// <summary>A sinking Draygon's smoke X across its strip from <see cref="DraygonArenaDefinitions.DeathSmokeOrigin"/>.</summary>
     internal static readonly RandomSampleField DeathSmokeX = new(0, 7);
 
-    /// <summary>A sinking Draygon's smoke Y down its 64-pixel band from Y 400.</summary>
+    /// <summary>A sinking Draygon's smoke Y down its band from <see cref="DraygonArenaDefinitions.DeathSmokeOrigin"/>.</summary>
     internal static readonly RandomSampleField DeathSmokeY = new(8, 6);
 
     /// <summary>A dying Draygon's sprite scatter across 128 pixels centred on its body's X.</summary>

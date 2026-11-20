@@ -292,7 +292,7 @@ internal sealed class DraygonParts
         state.SwoopAcceleration = DraygonSwoopDefinitions.InitialAcceleration;
         SamusSuitDamage.Hurt(samus, state.Body.Definition.Damage);
 
-        // The tail hit also shakes the foreground strongly for 32 updates, so the camera shows the hit as well as the
+        // The tail hit also shakes the foreground strongly for its shake's updates, so the camera shows the hit as well as the
         // energy it costs.
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), DraygonArenaDefinitions.TailHitShakeUpdates);
 

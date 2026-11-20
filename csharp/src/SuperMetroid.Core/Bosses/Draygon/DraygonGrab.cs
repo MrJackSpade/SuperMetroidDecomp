@@ -147,7 +147,7 @@ internal sealed class DraygonGrab
         }
 
         RoomEnemyPlace body = state.Body;
-        // The radius starts at none and grows until it reaches its maximum of 160 pixels, so its whole pixels are never
+        // The radius starts at none and grows until it reaches its maximum, so its whole pixels are never
         // negative.
         body.Position = body.Position.WithWhole(state.SpiralCenter.Center.Whole + new Offset16<RoomPixels>(
             EnemyMath.CircleCosinePixels(state.SpiralAngle.ToTrigonometryAngle(), state.SpiralXRadius.WholePixels),

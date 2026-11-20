@@ -221,7 +221,7 @@ internal sealed class DraygonShots
     }
 
     /// <summary>
-    /// Tests the projectile against the 512-by-512-pixel Draygon arena bounds: a place before the room, counted back from
+    /// Tests the projectile against the Draygon arena bounds (<see cref="DraygonArenaDefinitions.ArenaSize"/>): a place before the room, counted back from
     /// the far end of the room's coordinates (<see cref="OffRoomPlaces"/>), lies past the arena's far edges too.
     /// </summary>
     private static bool IsOutsideDraygonRoom(EnemyProjectile projectile) =>

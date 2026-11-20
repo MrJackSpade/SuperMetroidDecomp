@@ -13,10 +13,10 @@ internal static class TourianAccessObjectDrawDefinitions
     /// <summary>One opened row of the floor: four air blocks from the object's block.</summary>
     private static readonly RoomBlockShape OpenRow = RoomBlockShapes.Rectangle(new(4, 1), RoomCollisionType.Air);
 
-    /// <summary>The cleared floor: six opened rows down from the object's block.</summary>
+    /// <summary>The cleared floor: the access's rows opened down from the object's block.</summary>
     private static readonly RoomBlockShape ClearedFloor = RoomBlockShapes.Rectangle(new(4, 6), RoomCollisionType.Air);
 
-    /// <summary>The block shape each Tourian access draw draws: clear opens six rows; the empty row one.</summary>
+    /// <summary>The block shape each Tourian access draw draws: clear opens the access's rows; the empty row one.</summary>
     internal static readonly IReadOnlyDictionary<TourianAccessDraw, RoomBlockShape> Shapes =
         new Dictionary<TourianAccessDraw, RoomBlockShape>
         {

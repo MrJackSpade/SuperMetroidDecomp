@@ -11,9 +11,8 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal static class DraygonProjectileAnimations
 {
     /// <summary>
-    /// Every goop and wall-turret segment's beats: the goop loops six ten-update frames and bursts in two eight-update
-    /// frames; the wall turret's shot forms over two ramps, the second a tick faster, charges over four ten-update frames,
-    /// fires, and flies in three eight-update frames.
+    /// Every goop and wall-turret segment's beats: the goop loops its frames and bursts; the wall turret's shot forms over
+    /// two ramps, the second a tick faster, charges, fires, and flies in its looping flight frames.
     /// </summary>
     internal static AnimationSegments<DraygonProjectileSegment, EnemyProjectileFrameId, DraygonProjectileCue> Segments { get; } = new(
         new Dictionary<DraygonProjectileSegment, AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue>[]>

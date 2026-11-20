@@ -418,7 +418,7 @@ internal static class WrittenPictureSheetComposer
         }
     }
 
-    /// <summary><paramref name="words"/> laid out from the top-left, 32 to a row, each tile at its pixel.</summary>
+    /// <summary><paramref name="words"/> laid out from the top-left, <see cref="SheetTiles"/> to a row, each tile at its pixel.</summary>
     private static SubjectWord[] Rows(ushort[] words) => Rows(words, SheetTiles);
 
     /// <summary>The words of rows <paramref name="width"/> tiles wide, each at its tile's pixel.</summary>

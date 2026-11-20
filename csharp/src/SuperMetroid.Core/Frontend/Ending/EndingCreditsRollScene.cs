@@ -11,6 +11,9 @@ internal sealed class EndingCreditsRollScene(CreditsScroll scroll) : EndingScene
     private CreditsScroll Scroll { get; } = Ensure.NotNull(scroll);
 
     /// <inheritdoc/>
+    internal override EndingCreditsPhase Phase => EndingCreditsPhase.Credits;
+
+    /// <inheritdoc/>
     internal override bool Step(EndingCreditsState ending)
     {
         ending.StepCredits(Scroll);

@@ -11,6 +11,9 @@ internal sealed class EndingRewardJumpScene(EndingRewardJump jump) : EndingScene
     internal EndingRewardJump Jump { get; } = Ensure.NotNull(jump);
 
     /// <inheritdoc/>
+    internal override EndingCreditsPhase Phase => EndingCreditsPhase.PostCreditsJump;
+
+    /// <inheritdoc/>
     internal override bool Step(EndingCreditsState ending)
     {
         ending.StepJump(this);

@@ -47,14 +47,24 @@ internal sealed class FrontendSession
         DemoPlaylist = StockAttractDemoScenes.Playlist(saves.DetermineCompletionDemoSetUnlocked());
         // The game starts at the title.
         Phases = new GamePhases(this);
-        RunningPhase = Phases.Title;
+        running = new SequenceStep.Of<TitleStep>(Phases.Title, default);
     }
 
     /// <summary>One phase for every sequence of the game, each of which names the phase it hands over to.</summary>
     internal GamePhases Phases { get; }
 
     /// <summary>The phase of the sequence the game is running.</summary>
-    internal IGamePhase RunningPhase { get; private set; }
+    internal IGamePhase RunningPhase => running.Phase;
+
+    /// <summary>The sequence the game runs with the step it is at (#2560).</summary>
+    private SequenceStep running;
+
+    /// <summary>The step of the running sequence, whose steps are <typeparamref name="TStep"/>.</summary>
+    /// <exception cref="InvalidOperationException">The running sequence has no steps of that kind.</exception>
+    private TStep StepOf<TStep>()
+        where TStep : struct, Enum =>
+        running is SequenceStep.Of<TStep> sequence ? sequence.Step
+            : throw new InvalidOperationException($"The game runs {RunningPhase.State}, which has no {typeof(TStep).Name}.");
 
     /// <summary>
     /// The gameplay screen's fade, shared by the pause and unpause fades and the transitions between rendered phases: its
@@ -176,13 +186,15 @@ internal sealed class FrontendSession
     internal readonly DoorTransitionState doorTransition = new();
     /// <summary>The save slot the frontend has selected.</summary>
     internal SaveSlot SelectedSaveSlot { get; private set; }
-    /// <summary>Distinguishes a saved-game load from fresh Ceres setup.</summary>
-    internal bool LoadingExistingSave { get; private set; }
+    /// <summary>What the selected game's setup loads (#2560): a new file, the slot's save, or the Spacetime restart.</summary>
+    private SelectedGameStart selectedStart = new SelectedGameStart.NewFile();
+    /// <summary>Whether the selected game loads from a save, as a saved game or the Spacetime restart, rather than a new file.</summary>
+    internal bool LoadingExistingSave => selectedStart is not SelectedGameStart.NewFile;
     /// <summary>Selects <paramref name="slot"/>, which holds a save to load when <paramref name="existing"/>.</summary>
     internal void SelectSaveSlot(SaveSlot slot, bool existing)
     {
         SelectedSaveSlot = slot;
-        LoadingExistingSave = existing;
+        selectedStart = existing ? new SelectedGameStart.SavedGame() : new SelectedGameStart.NewFile();
         saves.SelectSlot(slot);
         if (existing)
         {
@@ -199,13 +211,15 @@ internal sealed class FrontendSession
         }
     }
     /// <summary>The next load continues the selected slot's save.</summary>
-    internal void ContinueSavedGame() => LoadingExistingSave = true;
-    /// <summary>Save state retained for restart after the Space-Time intro sequence.</summary>
-    private SuperMetroidSaveSlot? spacetimeIntroRestartSlot;
+    internal void ContinueSavedGame() => selectedStart = new SelectedGameStart.SavedGame();
     /// <summary>Retains <paramref name="slot"/>'s live inventory for the Ceres setup after a Spacetime-triggered intro.</summary>
-    internal void RetainSpacetimeRestart(SuperMetroidSaveSlot slot) => spacetimeIntroRestartSlot = Ensure.NotNull(slot);
-    /// <summary>A soft reset forgets any Spacetime Beam restart.</summary>
-    internal void ForgetSpacetimeRestart() => spacetimeIntroRestartSlot = null;
+    internal void RetainSpacetimeRestart(SuperMetroidSaveSlot slot) => selectedStart = new SelectedGameStart.SpacetimeRestart(Ensure.NotNull(slot));
+    /// <summary>A soft reset forgets any Spacetime Beam restart; the selected slot's save stays selected.</summary>
+    internal void ForgetSpacetimeRestart()
+    {
+        if (selectedStart is SelectedGameStart.SpacetimeRestart)
+            selectedStart = new SelectedGameStart.SavedGame();
+    }
     /// <summary>
     /// The fade into Landing Site or Ceres arrival, from black, waiting <see cref="GameplayFadeDefinitions.FadeInWaitBeforeEachStep"/>
     /// updates before each step.
@@ -257,13 +271,13 @@ internal sealed class FrontendSession
     /// <summary>The sequence the game is running.</summary>
     public SuperMetroidGameState GameState => RunningPhase.State;
     /// <summary>The title sequence's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.Title"/>.</summary>
-    internal TitleStep TitleStep { get; private set; }
+    internal TitleStep TitleStep => StepOf<TitleStep>();
     /// <summary>The screen of choosing a game; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.FileSelect"/>.</summary>
-    internal FileSelectStep FileSelectStep { get; private set; }
+    internal FileSelectStep FileSelectStep => StepOf<FileSelectStep>();
     /// <summary>What the game load loads; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.LoadingGame"/>.</summary>
-    internal GameDataLoadRoute LoadingRoute { get; private set; }
+    internal GameDataLoadRoute LoadingRoute => StepOf<GameDataLoadRoute>();
     /// <summary>The door transition's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.DoorTransition"/>.</summary>
-    internal DoorTransitionStep DoorTransitionStep { get; private set; }
+    internal DoorTransitionStep DoorTransitionStep => StepOf<DoorTransitionStep>();
     /// <summary>
     /// Whether a door's transition is loading, scrolling into and fading in the next room: the step the door enters once its
     /// entry's stop requests are queued, during which it loads only the room's music data and sound effects are disabled.
@@ -271,17 +285,17 @@ internal sealed class FrontendSession
     internal bool TransitioningThroughDoor =>
         RunningPhase == Phases.DoorTransition && DoorTransitionStep == DoorTransitionStep.Transitioning;
     /// <summary>The pause's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.Pause"/>.</summary>
-    internal PauseStep PauseStep { get; private set; }
+    internal PauseStep PauseStep => StepOf<PauseStep>();
     /// <summary>The death sequence's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.DeathSequence"/>.</summary>
-    internal DeathSequenceStep DeathStep { get; private set; }
+    internal DeathSequenceStep DeathStep => StepOf<DeathSequenceStep>();
     /// <summary>How Ceres's destruction ends; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.CeresDestruction"/>.</summary>
-    internal CeresDestructionOutcome CeresDestructionOutcome { get; private set; }
+    internal CeresDestructionOutcome CeresDestructionOutcome => StepOf<CeresDestructionOutcome>();
     /// <summary>The time-up's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.TimeUp"/>.</summary>
-    internal TimeUpStep TimeUpStep { get; private set; }
+    internal TimeUpStep TimeUpStep => StepOf<TimeUpStep>();
     /// <summary>The ending's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.Ending"/>.</summary>
-    internal EndingStep EndingStep { get; private set; }
+    internal EndingStep EndingStep => StepOf<EndingStep>();
     /// <summary>The attract demo's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.AttractDemo"/>.</summary>
-    internal AttractDemoStep AttractDemoStep { get; private set; }
+    internal AttractDemoStep AttractDemoStep => StepOf<AttractDemoStep>();
 
     /// <summary>
     /// Enters <paramref name="sequence"/> at its first step: the title starts, choosing a game shows the save slots, the
@@ -292,66 +306,60 @@ internal sealed class FrontendSession
     /// <param name="phase">The sequence's phase.</param>
     internal void Enter(IGamePhase phase)
     {
-        RunningPhase = Ensure.NotNull(phase);
-        TitleStep = TitleStep.Starting;
-        FileSelectStep = FileSelectStep.SaveSlots;
-        LoadingRoute = GameDataLoadRoute.SelectedGame;
-        DoorTransitionStep = DoorTransitionStep.EnteringDoor;
-        PauseStep = PauseStep.DarkeningGameplay;
-        DeathStep = DeathSequenceStep.FinalGameplayPass;
-        CeresDestructionOutcome = CeresDestructionOutcome.SamusEscaped;
-        TimeUpStep = TimeUpStep.WhiteningOut;
-        EndingStep = EndingStep.LeavingZebes;
-        AttractDemoStep = AttractDemoStep.Loading;
+        Ensure.NotNull(phase);
+        running = phase == Phases.Title ? new SequenceStep.Of<TitleStep>(phase, TitleStep.Starting)
+            : phase == Phases.FileSelect ? new SequenceStep.Of<FileSelectStep>(phase, FileSelectStep.SaveSlots)
+            : phase == Phases.LoadingGame ? new SequenceStep.Of<GameDataLoadRoute>(phase, GameDataLoadRoute.SelectedGame)
+            : phase == Phases.DoorTransition ? new SequenceStep.Of<DoorTransitionStep>(phase, DoorTransitionStep.EnteringDoor)
+            : phase == Phases.Pause ? new SequenceStep.Of<PauseStep>(phase, PauseStep.DarkeningGameplay)
+            : phase == Phases.DeathSequence ? new SequenceStep.Of<DeathSequenceStep>(phase, DeathSequenceStep.FinalGameplayPass)
+            : phase == Phases.CeresDestruction ? new SequenceStep.Of<CeresDestructionOutcome>(phase, CeresDestructionOutcome.SamusEscaped)
+            : phase == Phases.TimeUp ? new SequenceStep.Of<TimeUpStep>(phase, TimeUpStep.WhiteningOut)
+            : phase == Phases.Ending ? new SequenceStep.Of<EndingStep>(phase, EndingStep.LeavingZebes)
+            : phase == Phases.AttractDemo ? new SequenceStep.Of<AttractDemoStep>(phase, AttractDemoStep.Loading)
+            : new SequenceStep.Stepless(phase);
     }
 
     /// <summary>Enters the title sequence at <paramref name="step"/>.</summary>
     internal void Enter(TitleStep step)
     {
-        Enter(Phases.Title);
-        TitleStep = step;
+        running = new SequenceStep.Of<TitleStep>(Phases.Title, step);
     }
 
     /// <summary>Enters choosing a game at <paramref name="step"/>.</summary>
     internal void Enter(FileSelectStep step)
     {
-        Enter(Phases.FileSelect);
-        FileSelectStep = step;
+        running = new SequenceStep.Of<FileSelectStep>(Phases.FileSelect, step);
     }
 
     /// <summary>Enters the game load of <paramref name="route"/>.</summary>
     internal void Enter(GameDataLoadRoute route)
     {
-        Enter(Phases.LoadingGame);
-        LoadingRoute = route;
+        running = new SequenceStep.Of<GameDataLoadRoute>(Phases.LoadingGame, route);
     }
 
     /// <summary>Enters the door transition at <paramref name="step"/>.</summary>
     internal void Enter(DoorTransitionStep step)
     {
-        Enter(Phases.DoorTransition);
-        DoorTransitionStep = step;
+        running = new SequenceStep.Of<DoorTransitionStep>(Phases.DoorTransition, step);
     }
 
     /// <summary>Enters the pause at <paramref name="step"/>.</summary>
     internal void Enter(PauseStep step)
     {
-        Enter(Phases.Pause);
-        PauseStep = step;
+        running = new SequenceStep.Of<PauseStep>(Phases.Pause, step);
     }
 
     /// <summary>Enters the death sequence at <paramref name="step"/>.</summary>
     internal void Enter(DeathSequenceStep step)
     {
-        Enter(Phases.DeathSequence);
-        DeathStep = step;
+        running = new SequenceStep.Of<DeathSequenceStep>(Phases.DeathSequence, step);
     }
 
     /// <summary>Enters Ceres's destruction with <paramref name="outcome"/>.</summary>
     private void Enter(CeresDestructionOutcome outcome)
     {
-        Enter(Phases.CeresDestruction);
-        CeresDestructionOutcome = outcome;
+        running = new SequenceStep.Of<CeresDestructionOutcome>(Phases.CeresDestruction, outcome);
     }
 
     /// <summary>
@@ -370,22 +378,19 @@ internal sealed class FrontendSession
     /// <summary>Enters the time-up at <paramref name="step"/>.</summary>
     internal void Enter(TimeUpStep step)
     {
-        Enter(Phases.TimeUp);
-        TimeUpStep = step;
+        running = new SequenceStep.Of<TimeUpStep>(Phases.TimeUp, step);
     }
 
     /// <summary>Enters the ending at <paramref name="step"/>.</summary>
     internal void Enter(EndingStep step)
     {
-        Enter(Phases.Ending);
-        EndingStep = step;
+        running = new SequenceStep.Of<EndingStep>(Phases.Ending, step);
     }
 
     /// <summary>Enters the attract demo at <paramref name="step"/>.</summary>
     internal void Enter(AttractDemoStep step)
     {
-        Enter(Phases.AttractDemo);
-        AttractDemoStep = step;
+        running = new SequenceStep.Of<AttractDemoStep>(Phases.AttractDemo, step);
     }
     /// <summary>The compatibility services fixed at construction; production uses the game's own timing.</summary>
     internal SuperMetroidGameHostServices HostServices { get; }
@@ -552,7 +557,7 @@ internal sealed class FrontendSession
     {
         CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
 
-        if (spacetimeIntroRestartSlot is { } restartSlot)
+        if (selectedStart is SelectedGameStart.SpacetimeRestart { Slot: var restartSlot })
         {
             // The game loaded the old inventory before the intro was selected. Ceres
             // setup then starts from fresh progression while retaining equipment and other
@@ -579,12 +584,11 @@ internal sealed class FrontendSession
             restartedSamus.SelectBeam();
             AutomaticCheckpointSaver.SaveCeresArrival(saves, runtime, SelectedSaveSlot);
             RaiseSavesChanged();
-            spacetimeIntroRestartSlot = null;
-            LoadingExistingSave = false;
+            selectedStart = new SelectedGameStart.NewFile();
             return true;
         }
 
-        if (LoadingExistingSave)
+        if (selectedStart is SelectedGameStart.SavedGame)
         {
             SuperMetroidSaveSlot slot = saves.ReadSlot(SelectedSaveSlot)
                 ?? throw new InvalidDataException(

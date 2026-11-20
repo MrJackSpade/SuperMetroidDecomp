@@ -10,7 +10,6 @@ internal static class EndingCreditsStateCastAccess
         /// <param name="phase">The cast's phase.</param>
         internal void ShowCastPhase(EndingCastPhase phase)
         {
-            PrivateState.Set(self, nameof(EndingCreditsState.Phase), phase);
             PrivateState.Set(self, nameof(EndingCreditsState.Scene), new EndingCastScene(phase));
         }
     }

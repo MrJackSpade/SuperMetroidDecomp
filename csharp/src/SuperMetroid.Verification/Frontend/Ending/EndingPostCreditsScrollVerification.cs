@@ -39,7 +39,6 @@ internal static class EndingPostCreditsScrollVerification
         text.Drop = leftover;
         PrivateState.Set(ending, nameof(EndingCreditsState.Scene),
             new EndingPostShotScene(new EndingRewardJump(ending.Stage.EndingReward), new EndingPostShot()));
-        PrivateState.Set(ending, nameof(EndingCreditsState.Phase), EndingCreditsPhase.PostCreditsShot);
         for (int call = 0; ending.Phase == EndingCreditsPhase.PostCreditsShot; call++)
         {
             if (call == MaximumShotCalls)
@@ -53,8 +52,7 @@ internal static class EndingPostCreditsScrollVerification
 
         // The move down runs below the final logo, once the item percentage has typed.
         _ = ending.CreditsRoll.StartItemPercentage();
-        PrivateState.Set(ending, nameof(EndingCreditsState.Scene), new EndingLogoScene(new EndingLogo(ending.Stage, () => { })));
-        PrivateState.Set(ending, nameof(EndingCreditsState.Phase), EndingCreditsPhase.ItemPercentageScrollDown);
+        PrivateState.Set(ending, nameof(EndingCreditsState.Scene), new EndingLogoScene(new EndingLogo(ending.Stage, () => { }), EndingCreditsPhase.ItemPercentageScrollDown));
         PrivateState.Set(ending, nameof(EndingCreditsState.PhaseHold), UpdateCountdown.Lasting(ScrollDownCalls));
         for (int call = 1; call <= ScrollDownCalls; call++)
         {

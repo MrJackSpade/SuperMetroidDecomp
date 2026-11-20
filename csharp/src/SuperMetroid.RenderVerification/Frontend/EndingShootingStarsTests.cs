@@ -122,8 +122,7 @@ internal static class EndingShootingStarsTests
         // A later logo owner must append stars after its own actors, including after
         // the icon's actor program completes and the final text remains on screen.
         var logo = new EndingLogo(scene.Stage, () => { });
-        PrivateState.Set(scene, nameof(EndingCreditsState.Scene), new EndingLogoScene(logo));
-        PrivateState.Set(scene, nameof(EndingCreditsState.Phase), EndingCreditsPhase.PostCreditsLogo);
+        PrivateState.Set(scene, nameof(EndingCreditsState.Scene), new EndingLogoScene(logo, EndingCreditsPhase.PostCreditsLogo));
         // The logo runs its own program to its handoff, as the ending steps it (#2560); it hands off after 187 updates, well inside this bound.
         const int LogoHandoffUpdates = 300;
         for (int update = 0; update < LogoHandoffUpdates && !logo.Completed; update++)

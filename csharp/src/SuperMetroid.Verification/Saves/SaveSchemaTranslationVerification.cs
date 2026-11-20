@@ -536,8 +536,7 @@ internal static class SaveSchemaTranslationVerification
             text, InstalledFixtures.EndingBackdrops, InstalledFixtures.SpriteSheets);
         // The ending stands on the item percentage's last move-down update, below the final logo.
         _ = ending.CreditsRoll.StartItemPercentage();
-        PrivateState.Set(ending, nameof(EndingCreditsState.Scene), new EndingLogoScene(new EndingLogo(ending.Stage, () => { })));
-        PrivateState.Set(ending, nameof(EndingCreditsState.Phase), EndingCreditsPhase.ItemPercentageScrollDown);
+        PrivateState.Set(ending, nameof(EndingCreditsState.Scene), new EndingLogoScene(new EndingLogo(ending.Stage, () => { }), EndingCreditsPhase.ItemPercentageScrollDown));
         PrivateState.Set(ending, nameof(EndingCreditsState.PhaseHold), UpdateCountdown.Lasting(1));
         frontend.Session.Show(ending);
         frontend.Session.Enter(EndingStep.Credits);

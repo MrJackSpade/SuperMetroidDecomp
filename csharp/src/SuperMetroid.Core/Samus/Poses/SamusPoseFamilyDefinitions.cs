@@ -421,6 +421,52 @@ internal static class SamusPoseFamilyDefinitions
             SamusPoseId.ForwardFacingPowerSuitPose,
             SamusPoseId.ForwardFacingSuitedPose,
         ],
+        [SamusPoseFamily.TorizoSitDownBall] =
+        [
+            SamusPoseId.MorphBallGroundRightPose,
+            SamusPoseId.MorphBallMovingRightPose,
+            SamusPoseId.MorphBallMovingLeftPose,
+            SamusPoseId.SpringBallGroundRightPose,
+            SamusPoseId.SpringBallGroundLeftPose,
+            SamusPoseId.SpringBallMovingRightPose,
+            SamusPoseId.SpringBallMovingLeftPose,
+        ],
+        [SamusPoseFamily.JumpLaunch] =
+        [
+            SamusPoseId.NeutralJumpTransitionRightPose,
+            SamusPoseId.NeutralJumpTransitionLeftPose,
+            SamusPoseId.SpinJumpRightPose,
+            SamusPoseId.SpinJumpLeftPose,
+        ],
+        [SamusPoseFamily.NeutralJumpTransition] =
+        [
+            SamusPoseId.NeutralJumpTransitionRightPose,
+            SamusPoseId.NeutralJumpTransitionLeftPose,
+        ],
+        [SamusPoseFamily.NormalRun] =
+        [
+            SamusPoseId.MovingRightNormalPose,
+            SamusPoseId.MovingLeftNormalPose,
+        ],
+        [SamusPoseFamily.AimUpWallStop] =
+        [
+            SamusPoseId.StandingAimUpRightPose,
+            SamusPoseId.StandingAimUpLeftPose,
+        ],
+        [SamusPoseFamily.PlainGroundTurn] =
+        [
+            SamusPoseId.TurningRightToLeftPose,
+            SamusPoseId.TurningLeftToRightPose,
+        ],
+        [SamusPoseFamily.PlainCrouchingTurn] =
+        [
+            SamusPoseId.TurningRightToLeftCrouchingPose,
+            SamusPoseId.TurningLeftToRightCrouchingPose,
+        ],
+        [SamusPoseFamily.HeldInPlaceStandUp] =
+        [
+            SamusPoseId.DraygonHeldStandingUpLeftPose,
+        ],
         [SamusPoseFamily.GenericSpinJump] =
         [
             SamusPoseId.SpinJumpRightPose,

@@ -113,7 +113,7 @@ public static class SamusGroundedMovement
     /// <summary>Restarts neutral standing's shot pose on held Shoot even when no projectile was admitted; angled poses keep their own animation.</summary>
     private static void ResetStandingShotAnimation(SamusState samus, GameplayAction controllerInput)
     {
-        if (samus.Pose is SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose &&
+        if (SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.NeutralStanding) &&
             (controllerInput & GameplayAction.Shoot) != GameplayAction.None)
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationDelays.AnimationForPose(samus.AnimationPose).Start, SamusMovementDefinitions.StandingShotAnimationTimer);
     }

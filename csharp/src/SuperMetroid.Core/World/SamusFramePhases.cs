@@ -823,7 +823,7 @@ internal sealed class SamusFramePhases
     {
         if (SamusPoseMetadata.IsMorphTransitionPose(move.Samus.Pose))
             move.Frame.Record(SamusMorphBallMovement.StepTransition(move.Level, move.Samus, _clock.Counter, move.RoomObjects));
-        else if (move.Samus.Pose == SamusPoseId.DraygonHeldStandingUpLeftPose)
+        else if (SamusPoseTraits.IsIn(move.Samus.Pose, SamusPoseFamily.HeldInPlaceStandUp))
             HoldWhereInstalled(move);
         else
             move.Frame.Record(SamusPostureMovement.StepCrouchStandTransition(move.Level, move.Samus, _clock.Counter, move.RoomObjects));

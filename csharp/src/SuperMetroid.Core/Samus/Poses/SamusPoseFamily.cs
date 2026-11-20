@@ -198,4 +198,34 @@ internal enum SamusPoseFamily
     /// animation: the X-ray poses, the Grapple swings, the Crystal Flash and the front views.
     /// </summary>
     FramesSelectedDirectly,
+
+    /// <summary>
+    /// The grounded balls a Torizo behind Samus sits down for: the grounded morph and spring balls, but the left-facing
+    /// still morph ball, which the cartridge's list leaves out, so a Torizo never sits for it.
+    /// </summary>
+    TorizoSitDownBall,
+
+    /// <summary>
+    /// The jumps a turn's pose input can launch, which survive the turn's final frame: the neutral jump's transitions and the
+    /// generic spin jumps.
+    /// </summary>
+    JumpLaunch,
+
+    /// <summary>The neutral jump's transitions, facing right and left.</summary>
+    NeutralJumpTransition,
+
+    /// <summary>The normal runs, facing right and left.</summary>
+    NormalRun,
+
+    /// <summary>The standing aims up a ran-into-wall route admits as its wall stop, facing right and left.</summary>
+    AimUpWallStop,
+
+    /// <summary>The standing ground turns with the arm cannon forward, either way.</summary>
+    PlainGroundTurn,
+
+    /// <summary>The crouching ground turns with the arm cannon forward, either way.</summary>
+    PlainCrouchingTurn,
+
+    /// <summary>The posture transitions that hold Samus where her installation put her rather than moving her: Draygon's stand-up.</summary>
+    HeldInPlaceStandUp,
 }

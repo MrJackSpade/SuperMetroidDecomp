@@ -156,7 +156,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Golden Torizo's main behaviour counts consecutive space-jump poses for its anti-stall leap
         // decision, then runs the same main phases as Bomb Torizo.
-        if (samus.Pose is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose)
+        if (SamusPoseMetadata.IsSpaceJumpPose(samus.Pose))
             state.CountSamusSpaceJumpFrame();
         else
             state.SamusSpaceJumpFrames = 0;

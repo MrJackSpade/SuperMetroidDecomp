@@ -131,22 +131,22 @@ internal static class IntroSamusDemoMovement
         if (sourcePose == targetPose)
             return;
 
-        if ((SamusPoseMetadata.IsLeftFacingRunningPose(sourcePose) && targetPose == SamusPoseId.SpinJumpLeftPose) ||
-            (SamusPoseMetadata.IsLeftFacingStandingPose(sourcePose) && targetPose == SamusPoseId.NeutralJumpTransitionLeftPose))
+        if ((SamusPoseMetadata.IsLeftFacingRunningPose(sourcePose) && SamusPoseTraits.IsIn(targetPose, SamusPoseFamily.GenericSpinJump)) ||
+            (SamusPoseMetadata.IsLeftFacingStandingPose(sourcePose) && SamusPoseTraits.IsIn(targetPose, SamusPoseFamily.NeutralJumpTransition)))
         {
             SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(samus, targetPose);
             return;
         }
 
-        if (sourcePose == SamusPoseId.FacingLeftNormalPose &&
-            targetPose == SamusPoseId.MovingLeftNormalPose)
+        if (SamusPoseTraits.IsIn(sourcePose, SamusPoseFamily.NeutralStanding) &&
+            SamusPoseTraits.IsIn(targetPose, SamusPoseFamily.NormalRun))
         {
             SamusGroundedPoseTransitions.ApplyStandingToRunning(samus);
             return;
         }
 
-        if (sourcePose == SamusPoseId.MovingLeftNormalPose &&
-            targetPose == SamusPoseId.FacingLeftNormalPose)
+        if (SamusPoseTraits.IsIn(sourcePose, SamusPoseFamily.NormalRun) &&
+            SamusPoseTraits.IsIn(targetPose, SamusPoseFamily.NeutralStanding))
         {
             SamusGroundedPoseTransitions.ApplyRunningToStanding(samus);
             return;

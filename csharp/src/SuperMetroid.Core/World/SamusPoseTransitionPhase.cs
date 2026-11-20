@@ -84,7 +84,7 @@ internal sealed class SamusPoseTransitionPhase
         // Samus's momentum on this update, as crouching does, unless a launch or the timeout comes first.
         if (!transitionApplied && frame.InputChoseNoPose &&
             _player.ProspectiveSamusPose is null &&
-            frame.PoseAtFrameStart is SamusPoseId.ShinesparkWindupRightPose or SamusPoseId.ShinesparkWindupLeftPose &&
+            SamusPoseTraits.IsIn(frame.PoseAtFrameStart, SamusPoseFamily.ShinesparkWindup) &&
             samus.Shinespark.Phase == ShinesparkPhase.Windup)
             samus.HorizontalSpeed.StopForNoTransition(SamusPoseMetadata.ReadFacingDirection(samus));
 

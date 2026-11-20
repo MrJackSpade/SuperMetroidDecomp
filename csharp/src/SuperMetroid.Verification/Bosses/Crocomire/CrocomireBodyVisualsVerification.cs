@@ -97,10 +97,12 @@ internal static class CrocomireBodyVisualsVerification
                 $"Crocomire body OAM frame $A4:{pointer:X4} is installed");
             var guard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> guardBlockFrame);
             guardBlockFrame(CrocomireBodyVisualToolingDefinitions.Bank, pointer);
+            // His body shows his part's current frame on every update it is drawn (#2573), also one whose cue selected no
+            // new frame: a body that does not yet show the frame shows what the cartridge writes on the update that
+            // selects it, never the nothing the cartridge writes on a later one.
+            (OamBuffer nativeOam, byte[] nativeVram) = DrawNative(pointer);
             foreach (bool newFrame in new[] { false, true })
             {
-                (OamBuffer nativeOam, byte[] nativeVram) = DrawNative(pointer,
-                    newFrame);
                 (OamBuffer installedOam, byte[] installedVram) = Draw(stock, guard,
                     pointer, newFrame);
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&
@@ -166,11 +168,12 @@ internal static class CrocomireBodyVisualsVerification
         Console.WriteLine(
             "  Crocomire body: 236 selectors, 50 mixed/pure OAM roots and 42 BG2 roots match native OAM and VRAM with visual ROM reads denied.");
 
-        // Build cartridge-based OAM and BG2 VRAM references for one selected body frame, at the indexes his room draws him at.
-        DrawNativeResult DrawNative(ushort pointer, bool newFrame) =>
+        // Build cartridge-based OAM and BG2 VRAM references for one selected body frame, at the indexes his room draws him
+        // at: the BG2 words are those the cartridge writes on the update that selects the frame.
+        DrawNativeResult DrawNative(ushort pointer) =>
             new DrawNativeResult(DrawReferenceExtendedFrame(rom, 0xa4, pointer, new(0x0080, 0x0080),
                     NativeSpriteGraphicsWords.PaletteBits(indexesRow), checked((ushort)tileBase)),
-                ReadReferenceExtendedBg2Vram(rom, 0xa4, pointer, newFrame));
+                ReadReferenceExtendedBg2Vram(rom, 0xa4, pointer, newInstructionFrame: true));
         // Draw one compiled Crocomire frame through production enemy presentation into fresh OAM and VRAM buffers.
         static DrawNativeResult Draw(ImportEnemyArtwork art,
             ISnesAddressSpace bus, ushort pointer, bool newFrame)

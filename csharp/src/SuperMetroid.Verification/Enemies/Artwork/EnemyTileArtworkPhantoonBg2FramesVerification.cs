@@ -106,8 +106,9 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
             $"${(differ.Length == 0 ? 0 : differ[0]):X5} to ${(differ.Length == 0 ? 0 : differ[^1]):X5}; first: " +
             string.Join(" ", differ.Take(24).Select(index => $"${index:X5} native {nativeVram[index]:X2} installed {stockVram[index]:X2}")) +
             $"; native nonzero bytes {nativeVram.Count(value => value != 0)}, installed nonzero bytes {stockVram.Count(value => value != 0)}");
-        AssertTrue(DrawPhantoonBg2(stock, firstPointer, newInstructionFrame: false).All(value => value == 0),
-            "Phantoon BG2 drawing keeps the native new-frame producer gate");
+        // His body shows his current frame on every update it is drawn (#2573), also one whose cue selected no new frame.
+        AssertTrue(DrawPhantoonBg2(stock, firstPointer, newInstructionFrame: false).SequenceEqual(stockVram),
+            "Phantoon's body shows his current frame on an update that selects no new frame");
         Suite(nameof(VerifyPhantoonCollisionDefinitions), () => VerifyPhantoonCollisionDefinitions(rom, stock));
 
         document.Frames[frameName][0] = first with { X = 32 };

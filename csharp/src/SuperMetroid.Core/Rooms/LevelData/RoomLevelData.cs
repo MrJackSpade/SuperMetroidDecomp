@@ -28,7 +28,7 @@ public sealed class RoomLevelData
     /// Where each foreground block leads as a door block, row by row, or null where it leads nowhere (#2090). A block's exit
     /// is what its behaviour leads through, so a behaviour write takes it away.
     /// </summary>
-    private readonly DoorBlockExit?[] exits;
+    private readonly Dictionary<int, DoorBlockExit> exits = [];
 
     /// <summary>What each foreground block shows, row by row: its terrain's appearance unless a layout or draw shows another.</summary>
     private readonly RoomBlockAppearance[] shownForeground;
@@ -81,15 +81,13 @@ public sealed class RoomLevelData
             throw new ArgumentException("The background must hold exactly one appearance per room block.", nameof(planes));
 
         Size = size;
-        exits = new DoorBlockExit?[expectedBlocks];
         foreach (RoomDoorBlock door in Ensure.NotNull(doorBlocks))
         {
             if (!size.Contains(door.Block))
                 throw new ArgumentException($"Door block {door.Block} lies outside the {size.X}x{size.Y}-block grid.", nameof(doorBlocks));
             int place = size.RowMajorIndex(door.Block);
-            if (exits[place] is not null)
+            if (!exits.TryAdd(place, door.Exit))
                 throw new ArgumentException($"Door block {door.Block} is listed twice.", nameof(doorBlocks));
-            exits[place] = door.Exit;
         }
         terrain = planes.Foreground.ToArray();
         behaviors = planes.Behavior.ToArray();
@@ -194,9 +192,12 @@ public sealed class RoomLevelData
     /// that reach; a purely vertical step never crosses a row's end and is the position plus its offset.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">The step reaches before the room's first block.</exception>
-    internal Position16<RoomBlocks> ObjectBlockStep(Position16<RoomBlocks> block, Offset16<RoomBlocks> step) =>
-        RoomReadingOrder.Step(block, step, Size.X) ??
-        throw new ArgumentOutOfRangeException(nameof(step), $"A step of {step} from room-object block {block} reaches before the room's first block.");
+    internal Position16<RoomBlocks> ObjectBlockStep(Position16<RoomBlocks> block, Offset16<RoomBlocks> step)
+    {
+        int reached = RoomReadingOrder.PlaceStepped(block, step, Size.X);
+        return reached >= 0 ? RoomReadingOrder.BlockAt(reached, Size.X) : throw new ArgumentOutOfRangeException(nameof(step),
+            $"A step of {step} from room-object block {block} reaches before the room's first block.");
+    }
 
     /// <summary>
     /// The block of the room's grid <paramref name="step"/> blocks from <paramref name="block"/> in the room's reading
@@ -207,7 +208,21 @@ public sealed class RoomLevelData
     /// <param name="step">The columns and rows stepped.</param>
     /// <returns>The block reached, or null when the step leads before the room's first block or past its grid.</returns>
     internal Position16<RoomBlocks>? GridBlockStepped(Position16<RoomBlocks> block, Offset16<RoomBlocks> step) =>
-        RoomReadingOrder.Step(block, step, Size.X) is { } reached && Size.Contains(reached) ? reached : null;
+        TryGridBlockStepped(block, step, out Position16<RoomBlocks> reached) ? reached : null;
+
+    /// <summary>
+    /// Finds the grid block <paramref name="step"/> leads to from <paramref name="block"/> in the room's reading order, as
+    /// <see cref="GridBlockStepped"/> does; false when it leads before the room's first block or past its grid.
+    /// </summary>
+    /// <param name="block">The block stepped from.</param>
+    /// <param name="step">The columns and rows stepped.</param>
+    /// <param name="reached">The block reached.</param>
+    internal bool TryGridBlockStepped(Position16<RoomBlocks> block, Offset16<RoomBlocks> step, out Position16<RoomBlocks> reached)
+    {
+        int place = RoomReadingOrder.PlaceStepped(block, step, Size.X);
+        reached = place >= 0 ? RoomReadingOrder.BlockAt(place, Size.X) : default;
+        return place >= 0 && Size.Contains(reached);
+    }
 
     /// <summary>
     /// The block <paramref name="extension"/>'s link leads to (<see cref="RoomCollisionBlock.ExtensionLink"/>), or the
@@ -227,8 +242,9 @@ public sealed class RoomLevelData
     /// <exception cref="InvalidDataException">A link leads outside the room's grid, or the chain is cyclic.</exception>
     internal RoomCollisionBlock? BlockStoodFor(RoomCollisionBlock block) =>
         ContinuedBlocks.StoodFor(block, Size.Area, Continues, cell => cell.Behavior.EndsExtension,
-            cell => GetCollisionBlock(GridBlockStepped(cell.At, cell.ExtensionLink) ?? throw new InvalidDataException(
-                $"Continuing block {cell.Position} type {cell.CollisionType}/behaviour ({cell.Behavior}) leads outside the room's grid.")));
+            cell => GetCollisionBlock(TryGridBlockStepped(cell.At, cell.ExtensionLink, out Position16<RoomBlocks> reached) ? reached
+                : throw new InvalidDataException(
+                    $"Continuing block {cell.Position} type {cell.CollisionType}/behaviour ({cell.Behavior}) leads outside the room's grid.")));
 
     /// <summary>
     /// Replaces <paramref name="block"/> with the block it stands for (<see cref="BlockStoodFor"/>), returning false when it
@@ -402,7 +418,7 @@ public sealed class RoomLevelData
     public DoorBlockExit DoorExitAt(RoomCollisionBlock doorBlock)
     {
         Position16<RoomBlocks> block = doorBlock.At;
-        return exits[GridPlace(block)] ?? throw new InvalidDataException($"Door block {block} leads nowhere.");
+        return exits.TryGetValue(GridPlace(block), out DoorBlockExit exit) ? exit : throw new InvalidDataException($"Door block {block} leads nowhere.");
     }
 
     /// <summary>
@@ -423,7 +439,7 @@ public sealed class RoomLevelData
     internal void WriteBehavior(int place, RoomBlockBehavior behavior)
     {
         behaviors[place] = behavior;
-        exits[place] = null;
+        exits.Remove(place);
     }
 
     /// <summary>The block of the grid at <paramref name="place"/> in its planes, as collision reads it.</summary>

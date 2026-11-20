@@ -527,7 +527,7 @@ internal sealed class ProjectileTerrainCollision
             if (read.StraddlesNext)
             {
                 // The straddled block is the next one in the room's reading order, on the next row past a row's end.
-                Position16<RoomBlocks> nextBlock = level.GridBlockStepped(readBlock, Offset16<RoomBlocks>.OneRight) ??
+                if (!level.TryGridBlockStepped(readBlock, Offset16<RoomBlocks>.OneRight, out Position16<RoomBlocks> nextBlock))
                     throw new NotSupportedException("A straddled Wave collision read crosses the room's grid.");
                 RoomTerrainBlock next = level.GetCollisionBlock(nextBlock).Terrain;
                 // The reaction consumes the straddled block; the behaviour and room-object setup

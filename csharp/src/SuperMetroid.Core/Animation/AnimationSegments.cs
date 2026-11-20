@@ -56,12 +56,16 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     /// <summary>The frames <paramref name="segment"/>'s beats show, in order, for a segment every beat of which shows one.</summary>
     /// <exception cref="InvalidDataException">A beat of the segment pauses, showing no frame.</exception>
     internal IReadOnlyList<TFrame> FramesShownBy(TSegment segment) =>
-        [.. beats[segment].Select(beat => beat switch
-        {
-            AnimationBeat<TFrame, TEvent>.Frame frame => frame.Shown,
-            AnimationBeat<TFrame, TEvent>.HeldFrame held => held.Shown,
-            _ => throw new InvalidDataException($"Animation segment {segment} has a beat that shows no frame: {beat}."),
-        })];
+        [.. Enumerable.Range(0, beats[segment].Count).Select(beat => FrameShownAt(segment, beat))];
+
+    /// <summary>The frame beat <paramref name="beat"/> of <paramref name="segment"/> shows, a beat that shows one.</summary>
+    /// <exception cref="InvalidDataException">The beat pauses, showing no frame.</exception>
+    internal TFrame FrameShownAt(TSegment segment, int beat) => beats[segment][beat] switch
+    {
+        AnimationBeat<TFrame, TEvent>.Frame frame => frame.Shown,
+        AnimationBeat<TFrame, TEvent>.HeldFrame held => held.Shown,
+        var other => throw new InvalidDataException($"Beat {beat} of animation segment {segment} shows no frame: {other}."),
+    };
 
     /// <summary>The phase that plays every beat of <paramref name="segment"/> once (#2358), its length read from the segment.</summary>
     internal AnimationPhase<TSegment> Whole(TSegment segment) => Repeated(segment, 1);

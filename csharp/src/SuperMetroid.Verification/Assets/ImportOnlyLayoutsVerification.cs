@@ -47,7 +47,7 @@ internal static class ImportOnlyLayoutsVerification
         yield return (GameInstallationLayout.IntroCinematicDirectoryName, IntroCinematicArtworkFormat.ManifestFileName);
         yield return (GameInstallationLayout.EndingObjectDirectoryName, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.ManifestFileName);
         string intro = GameInstallationLayout.IntroCinematicDirectoryName;
-        for (int page = 0; page < IntroCinematicArtworkFormat.BackgroundPageCount; page++)
+        foreach (SuperMetroid.Core.Frontend.Intro.IntroScenePage page in IntroCinematicArtworkFormat.ScenePagesInTransferOrder)
             yield return (intro, IntroCinematicArtworkFormat.BackgroundPageFileName(page));
         yield return (intro, IntroCinematicArtworkFormat.PortraitTilemapFileName);
         yield return (intro, IntroCinematicArtworkFormat.InitialNarrationTilemapFileName);

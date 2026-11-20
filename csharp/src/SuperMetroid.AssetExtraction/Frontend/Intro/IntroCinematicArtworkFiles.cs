@@ -73,7 +73,7 @@ public static class IntroCinematicArtworkFiles
     private static readonly string[] LayoutFiles =
     [
         IntroCinematicArtworkFormat.PortraitTilemapFileName, IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
-        .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount).Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
+        .. IntroCinematicArtworkFormat.ScenePagesInTransferOrder.Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
         IntroFinalLineTilemapFormat.FileName, IntroEyeTilemapFormat.FileName, ZebesRevealArtworkFormat.MapFileName,
         CeresFlightArtworkFileFormat.MapFileName, CeresDestructionMapFormat.FileName,
     ];
@@ -128,8 +128,8 @@ public static class IntroCinematicArtworkFiles
         if (backgroundPages.Length != IntroCinematicArtworkFormat.BackgroundPageCount *
             IntroCinematicArtworkFormat.BackgroundPageByteCount)
             throw new InvalidDataException("Opening cinematic BG tilemap has the wrong number of pages.");
-        for (int page = 0; page < IntroCinematicArtworkFormat.BackgroundPageCount; page++)
-            WritePage(IntroCinematicArtworkFormat.BackgroundPageFileName(page),
+        foreach ((IntroScenePage scene, int page) in IntroCinematicArtworkFormat.BackgroundPageOf)
+            WritePage(IntroCinematicArtworkFormat.BackgroundPageFileName(scene),
                 backgroundPages.AsSpan(page * IntroCinematicArtworkFormat.BackgroundPageByteCount,
                     IntroCinematicArtworkFormat.BackgroundPageByteCount));
         WriteFinalLine();
@@ -519,7 +519,7 @@ public static class IntroCinematicArtworkFiles
     private static IntroCinematicLayouts ReadLayouts(string importData)
     {
         return new IntroCinematicLayouts(
-            [.. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
+            [.. IntroCinematicArtworkFormat.ScenePagesInTransferOrder
                 .Select(page => Page(IntroCinematicArtworkFormat.BackgroundPageFileName(page), IntroCinematicArtworkFormat.BackgroundPageByteCount))],
             Page(IntroCinematicArtworkFormat.PortraitTilemapFileName, IntroCinematicArtworkFormat.BackgroundPageByteCount),
             Page(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName, IntroCinematicArtworkFormat.BackgroundPageByteCount),
@@ -736,7 +736,7 @@ public static class IntroCinematicArtworkFiles
         IntroEggEffectSpriteFormat.FileName,
         IntroDiscoveryActorSpriteFormat.FileName,
         IntroScientistSpriteFormat.FileName,
-        .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
+        .. IntroCinematicArtworkFormat.ScenePagesInTransferOrder
             .Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
         IntroCinematicPaletteFile.FileName,
         IntroBackdropFiles.FileName,

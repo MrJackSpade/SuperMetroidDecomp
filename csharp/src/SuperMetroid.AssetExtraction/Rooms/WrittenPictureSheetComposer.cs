@@ -190,8 +190,13 @@ internal static class WrittenPictureSheetComposer
         ];
     }
 
-    /// <summary>The name of the part holding shelf <paramref name="shelf"/> of the HUD's images.</summary>
-    private static string HudShelfName(int shelf) => $"HudShelf{shelf}";
+    /// <summary>
+    /// The name of the part holding shelf <paramref name="shelf"/> of <paramref name="hud"/>'s images, named for the first
+    /// image it holds (#2556), which no other shelf holds.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The shelf holds no image.</exception>
+    private static string HudShelfName(HudSheetLayout hud, int shelf) =>
+        $"HudImagesFrom.{(hud.Placements.FirstOrDefault(placed => placed.Shelf == shelf) ?? throw new InvalidOperationException($"HUD shelf {shelf} holds no image.")).Image.Image.FrameName}";
 
     /// <summary>Each shelf of <paramref name="hud"/>'s images as a fixed part: each image's tiles at its place on the shelf.</summary>
     private static IEnumerable<WrittenSubject> HudShelves(HudSheetLayout hud)
@@ -211,13 +216,13 @@ internal static class WrittenPictureSheetComposer
                         new SnesBgTilemapWord(BackgroundTileWords.ToWord(image.Tiles[row * image.Size.X + column]))));
                 }
             }
-            yield return new WrittenSubject(HudShelfName(shelf), [.. words]);
+            yield return new WrittenSubject(HudShelfName(hud, shelf), [.. words]);
         }
     }
 
     /// <summary>The frame of each of <paramref name="hud"/>'s images, within its shelf's part.</summary>
     private static IEnumerable<PartFrame> HudFrames(HudSheetLayout hud) =>
-        hud.Placements.Select(placed => new PartFrame(placed.Image.Image.FrameName, HudShelfName(placed.Shelf),
+        hud.Placements.Select(placed => new PartFrame(placed.Image.Image.FrameName, HudShelfName(hud, placed.Shelf),
             HudImageSheet.Pixels(placed.Cell), HudImageSheet.Pixels(placed.Image.Size)));
 
     /// <summary>

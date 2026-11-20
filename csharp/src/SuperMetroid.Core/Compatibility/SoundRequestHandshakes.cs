@@ -26,7 +26,7 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("each sound library's request is repeated until accepted, held and withdrawn, and the withdrawal repeated until accepted, before the library's next queued sound is requested")]
 public sealed class SoundRequestHandshakes<TLibrary, TSound>
     where TLibrary : struct, Enum
-    where TSound : struct, IEquatable<TSound>
+    where TSound : notnull, IEquatable<TSound>
 {
     /// <summary>Where one library's queue is in its handshake.</summary>
     public enum Phase
@@ -56,7 +56,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
 
     /// <summary>One library's handshake: where its queue is, with what that place holds (#2554).</summary>
     /// <param name="Awaited">The sound the queue last requested and has not withdrawn, or none.</param>
-    internal abstract record Handshake(TSound? Awaited)
+    internal abstract record Handshake(RequestedSound<TSound>? Awaited)
     {
         /// <summary>Where the queue is.</summary>
         internal abstract Phase Phase { get; }
@@ -71,7 +71,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
 
     /// <summary>Repeating the requested sound until the library reports it accepted.</summary>
     /// <param name="Awaited">The sound requested, or none once a music change's downtime dropped it.</param>
-    internal sealed record AwaitingHandshake(TSound? Awaited) : Handshake(Awaited)
+    internal sealed record AwaitingHandshake(RequestedSound<TSound>? Awaited) : Handshake(Awaited)
     {
         /// <inheritdoc/>
         internal override Phase Phase => Phase.AwaitingAcceptance;
@@ -83,7 +83,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     /// The sound-queue passes before the accepted request is withdrawn, counted once a pass and over on the pass that
     /// withdraws it.
     /// </param>
-    internal sealed record HoldingHandshake(TSound? Awaited, UpdateCountdown Hold) : Handshake(Awaited)
+    internal sealed record HoldingHandshake(RequestedSound<TSound>? Awaited, UpdateCountdown Hold) : Handshake(Awaited)
     {
         /// <inheritdoc/>
         internal override Phase Phase => Phase.HoldingBeforeWithdrawal;
@@ -131,7 +131,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
 
     /// <summary>The sound <paramref name="library"/>'s queue last requested and has not withdrawn, or none.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The handshakes were not given <paramref name="library"/>.</exception>
-    public TSound? Awaited(TLibrary library) => HandshakeOf(library).Awaited;
+    public RequestedSound<TSound>? Awaited(TLibrary library) => HandshakeOf(library).Awaited;
 
     /// <summary>
     /// Runs one pass of <paramref name="library"/>'s handshake against what the library reports as accepted, and
@@ -174,12 +174,12 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     /// <param name="sound">The sound dequeued for it.</param>
     /// <exception cref="ArgumentOutOfRangeException">The handshakes were not given <paramref name="library"/>.</exception>
     /// <exception cref="InvalidOperationException">The library's queue is not ready to request.</exception>
-    public void Requested(TLibrary library, TSound? sound)
+    public void Requested(TLibrary library, TSound sound)
     {
         Handshake handshake = HandshakeOf(library);
         if (handshake is not ReadyHandshake)
             throw new InvalidOperationException($"Sound library {library} requested a sound while {handshake.Phase}.");
-        handshakes[library] = new AwaitingHandshake(sound);
+        handshakes[library] = new AwaitingHandshake(new RequestedSound<TSound>(sound));
     }
 
     /// <summary>

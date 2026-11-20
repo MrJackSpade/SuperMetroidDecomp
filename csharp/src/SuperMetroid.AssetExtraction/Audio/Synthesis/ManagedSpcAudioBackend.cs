@@ -103,7 +103,7 @@ public sealed class ManagedSpcAudioBackend
     private static SoundClockStep<SoundEffectLibrary, byte> StartAt(SoundClockStep<SoundEffectLibrary, byte> tick, SoundEffectId soundEffect)
     {
         // The emulated driver reads the request number the sound has in its library.
-        SoundRequestCheck<byte> start = new SoundRequestCheck<byte>(checked((byte)SoundEffectCommands.Command(soundEffect)), Changed: true);
+        SoundRequestCheck<byte> start = new SoundRequestCheck<byte>(new RequestedSound<byte>(checked((byte)SoundEffectCommands.Command(soundEffect))), Changed: true);
         SoundEffectLibrary started = soundEffect.Library;
         if (!SoundEffectLibraries.InQueueOrder.Contains(started))
             throw new ArgumentOutOfRangeException(nameof(soundEffect), started, "The tick's checks hold no check for this library.");

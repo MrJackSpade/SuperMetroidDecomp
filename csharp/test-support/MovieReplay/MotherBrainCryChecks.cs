@@ -37,9 +37,9 @@ internal sealed class MotherBrainCryChecks : IConvertedMovieChecks
         if (!ReferenceEquals(audio, game.Session.audio))
         {
             audio = game.Session.audio;
-            lastRequested = audio.SoundHandshakes.Awaited(SoundEffectLibrary.Enemies);
+            lastRequested = audio.SoundHandshakes.Awaited(SoundEffectLibrary.Enemies)?.Sound;
         }
-        SoundEffectId? requested = audio.SoundHandshakes.Awaited(SoundEffectLibrary.Enemies);
+        SoundEffectId? requested = audio.SoundHandshakes.Awaited(SoundEffectLibrary.Enemies)?.Sound;
         if (requested != lastRequested && requested is SoundEffectId cry &&
             (cry == EnemySound.MotherBrainLowCry || cry == EnemySound.LongWail))
             cries++;

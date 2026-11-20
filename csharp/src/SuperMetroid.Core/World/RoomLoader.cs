@@ -813,9 +813,8 @@ internal sealed class RoomLoader
             _audioRequests);
         scope.ColourEffects = roomColourEffects;
 
-The destination's shots and bombs start fresh, before its pictures load, and its room objects are built with the
-population below. The held beam charge survives on the session; Samus's own echoes are cleared.
-        // The held beam charge survives on the session; Samus's own echoes are cleared.
+        // The destination's shots and bombs start fresh, before its pictures load, and its room objects are built with the
+        // population below. The held beam charge survives on the session; Samus's own echoes are cleared.
         loadingSamus.HorizontalSpeed.ClearSpeedEchoes();
         loadingSamus.Shinespark.ForgetCrashEchoes();
         var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.SamusArtwork);

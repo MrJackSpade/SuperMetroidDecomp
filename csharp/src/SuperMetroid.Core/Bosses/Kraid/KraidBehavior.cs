@@ -120,7 +120,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Kraid's main AI for his body in <paramref name="place"/>.</summary>
     internal void RunKraidMainAi(RoomEnemyOccupant kraid, KraidEnemyState state, IEnemyAiFrame frame)
     {
-        RoomEnemyPlace place = kraid.Place;
+        _ = kraid.Place;
         RunKraidBodyMain(kraid, state, frame.Samus, frame.PseudoScrew, frame.Camera, frame.SamusProjectiles, frame.SamusBombs);
     }
 

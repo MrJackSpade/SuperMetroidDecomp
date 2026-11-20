@@ -73,7 +73,7 @@ internal static class LibraryBackgroundProgramImporter
                     if (LibraryBackgroundOperandDecoding.DecompressionDestination(Word((ushort)(cursor + 3))) != LibraryBackgroundDestination.TilemapStaging)
                         throw new InvalidDataException($"Import background decompression at $8F:{commandPointer:X4} stages outside the tilemap staging.");
                     instructions.Add(new LibraryBackgroundInstruction.Decompress(
-                        (LibraryBackgroundSource.CompressedTilemap)LibraryBackgroundOperandDecoding.DecompressedSource(Long(cursor))));
+                        LibraryBackgroundOperandDecoding.DecompressedSource(Long(cursor))));
                     cursor = (ushort)(cursor + 5);
                     break;
                 case LibraryBackgroundCommand.ClearFxTilemap:

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Compatibility;
-
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Reaches an enemy-projectile place for checks that set up a projectile there themselves (#2572).</summary>

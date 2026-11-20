@@ -19,10 +19,3 @@ public abstract record SamusScrollCheckpoint
     /// <param name="point">Samus's point as the pass ends.</param>
     public static SamusScrollCheckpoint At(FixedPosition<RoomPixels> point) => new SamusScrolledCheckpoint(point);
 }
-
-/// <summary>A scrolling pass has run since the camera was placed, ending with Samus at <paramref name="Point"/>.</summary>
-/// <param name="Point">Samus's point as the last scrolling pass ended.</param>
-public sealed record SamusScrolledCheckpoint(FixedPosition<RoomPixels> Point) : SamusScrollCheckpoint;
-
-/// <summary>The camera has been placed and no scrolling pass has run since.</summary>
-public sealed record SamusCameraPlacedCheckpoint : SamusScrollCheckpoint;

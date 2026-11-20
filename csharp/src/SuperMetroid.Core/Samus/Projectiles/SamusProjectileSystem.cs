@@ -483,7 +483,7 @@ public sealed class SamusProjectileSystem
                     SamusProjectileFamily.BeamExplosion or
                     SamusProjectileFamily.MissileExplosion))
                 continue;
-            SamusProjectileFamily family = held.Type.Family;
+            _ = held.Type.Family;
 
             ProjectileAnimation.DrawShot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile),
                 shot, cameraPosition, artwork);

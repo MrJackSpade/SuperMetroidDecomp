@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Fixed generation and respawn definitions for Tourian's Zebetites.</summary>

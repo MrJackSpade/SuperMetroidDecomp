@@ -22,20 +22,3 @@ public abstract record EnemyPlacing
     /// <param name="current">Where the place stands before the spawn, fraction of a pixel included.</param>
     internal abstract FixedPosition<RoomPixels> Place(FixedPosition<RoomPixels> current);
 }
-
-/// <summary>An entry that places its enemy at a room position.</summary>
-/// <param name="Position">The enemy's initial room position in whole pixels, each coordinate wrapping around the room.</param>
-public sealed record EnemyPlacedAt(Position16<RoomPixels> Position) : EnemyPlacing
-{
-    /// <summary>The place's whole position becomes the entry's; its fraction of a pixel stays.</summary>
-    /// <param name="current">Where the place stands before the spawn.</param>
-    internal override FixedPosition<RoomPixels> Place(FixedPosition<RoomPixels> current) => current.WithWhole(Position);
-}
-
-/// <summary>An entry whose enemy its species' setup places: the spawn leaves the place where it stands for the setup.</summary>
-public sealed record EnemyPlacedBySetup : EnemyPlacing
-{
-    /// <summary>The place stays where it stands; the species' setup places the enemy.</summary>
-    /// <param name="current">Where the place stands before the spawn.</param>
-    internal override FixedPosition<RoomPixels> Place(FixedPosition<RoomPixels> current) => current;
-}

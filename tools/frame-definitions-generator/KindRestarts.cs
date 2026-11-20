@@ -82,8 +82,8 @@ internal sealed class KindRestarts
                     continue;
                 }
                 IReadOnlySet<string>? programs = model.ProgramsOf(semantic, creation, family)
-                    ?? (creation.ArgumentList is { Arguments: [var program, ..] } && model.ProgramTypeOf(family) is { } programType
-                        ? new ProgramTracer(model, reaches: null).Programs(programType, program.Expression, semantic)
+                    ?? (model.ProgramArgumentOf(semantic, creation, family) is { } program && model.ProgramTypeOf(family) is { } programType
+                        ? new ProgramTracer(model, reaches: null).Programs(programType, program, semantic)
                         : null);
                 if (_restarts.TryGetValue(creation, out KindRestart? known))
                 {

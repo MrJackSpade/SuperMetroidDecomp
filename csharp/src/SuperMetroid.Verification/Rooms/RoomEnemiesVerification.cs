@@ -395,8 +395,6 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     SeedEnemyDefinitionWord(bus, definitionPointer, 14, 0x003e);
     SeedEnemyDefinitionWord(bus, definitionPointer, 18, 0xe49f);
     SeedEnemyDefinitionWord(bus, definitionPointer, 24, 0xe4da);
-    SeedEnemyDefinitionWord(bus, definitionPointer, 48, 0x8023);
-    SeedEnemyDefinitionWord(bus, definitionPointer, 50, 0x802d);
     SeedEnemyDefinitionWord(bus, definitionPointer, 60, vulnerabilityPointer);
 
     // Native speed parameter 16 gives +/-1.0000 pixels per frame. Keep that
@@ -1374,12 +1372,24 @@ static ReadCeresRidleyFixtureArtworkResult ReadCeresRidleyFixtureArtwork(TestAdd
     return new ReadCeresRidleyFixtureArtworkResult(paletteWords, planar);
 }
 
-/// <summary>Writes one complete fixture header while keeping pointer-bearing fields valid.</summary>
+/// <summary>
+/// Writes one complete fixture header while keeping pointer-bearing fields valid. A retail enemy's touch and shot words
+/// (bytes 48 and 50) are its retail header's, so the verification header decode yields the reactions its compiled
+/// definition names: a seed-pattern word names a routine of the species' own, which contradicts a definition naming one
+/// of the engine's shared reactions (#2591). A fixture-only identity keeps the seed pattern there, a routine of its own
+/// that decodes to the blank definition's own reactions.
+/// </summary>
 internal static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionId definitionPointer, EnemyDefinitionFields fields)
 {
     int address = 0xa00000 | TestAddressSpace.FixtureHeaderPointer(definitionPointer);
     for (int offset = 0; offset < 64; offset += 2)
         WriteTestWord(bus, address + offset, unchecked((ushort)(fields.FieldSeed + offset)));
+    if (Enum.IsDefined(definitionPointer))
+    {
+        RoomEnemyNativeWords retail = RoomEnemyDefinitionNative.Of(definitionPointer);
+        WriteTestWord(bus, address + 48, retail.TouchAiPointer);
+        WriteTestWord(bus, address + 50, retail.ShotAiPointer);
+    }
     WriteTestWord(bus, address + 14, fields.HurtSound);
 
     WriteTestWord(bus, address, fields.TileDataSize);

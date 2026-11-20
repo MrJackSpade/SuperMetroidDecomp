@@ -42,7 +42,7 @@ internal static class FixturePopulationSets
         {
             if (!drawing.TryGetValue(set, out RoomEnemyPopulationDefinition? population))
             {
-                drawing.Add(set, population = new RoomEnemyPopulationDefinition($"fixture population drawing under {set.Name}", [], 0));
+                drawing.Add(set, population = new EmptyRoomEnemyPopulationDefinition($"fixture population drawing under {set.Name}"));
                 Record(population, set);
             }
             return population;

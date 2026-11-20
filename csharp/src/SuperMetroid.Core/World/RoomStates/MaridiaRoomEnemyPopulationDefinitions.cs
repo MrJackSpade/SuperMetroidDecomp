@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 internal static class MaridiaRoomEnemyPopulationDefinitions
 {
     /// <summary>The enemy population of the Mt. Everest room.</summary>
-    internal static RoomEnemyPopulationDefinition MtEverest { get; } = new("MtEverest",
+    internal static PlacedRoomEnemyPopulationDefinition MtEverest { get; } = new("MtEverest",
     [
         new(EnemyDefinitionId.Powamp, EnemyPlacing.At(new(512, 384)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampBalloonSpawnSettings(GrappleTravelDistance: 112, Contact: PowampContact.Refuses)),
         new(EnemyDefinitionId.Powamp, EnemyPlacing.At(new(512, 384)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampBodySpawnSettings(Contact: PowampContact.Accepts)),
@@ -42,7 +42,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 9);
 
     /// <summary>The enemy population of the Halfie Climb room.</summary>
-    internal static RoomEnemyPopulationDefinition HalfieClimb { get; } = new("HalfieClimb",
+    internal static PlacedRoomEnemyPopulationDefinition HalfieClimb { get; } = new("HalfieClimb",
     [
         new(EnemyDefinitionId.Oum, EnemyPlacing.At(new(592, 608)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Oum, EnemyPlacing.At(new(720, 608)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
@@ -53,7 +53,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Watering Hole room.</summary>
-    internal static RoomEnemyPopulationDefinition WateringHole { get; } = new("WateringHole",
+    internal static PlacedRoomEnemyPopulationDefinition WateringHole { get; } = new("WateringHole",
     [
         new(EnemyDefinitionId.Choot, EnemyPlacing.At(new(120, 480)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ChootSpawnSettings(FallingPath: ChootFallingPath.Normal, PatternLoops: 5, JumpDelay: 8)),
         new(EnemyDefinitionId.Zeb, EnemyPlacing.At(new(272, 204)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
@@ -61,7 +61,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Crab Shaft room.</summary>
-    internal static RoomEnemyPopulationDefinition CrabShaft { get; } = new("CrabShaft",
+    internal static PlacedRoomEnemyPopulationDefinition CrabShaft { get; } = new("CrabShaft",
     [
         new(EnemyDefinitionId.Sciser, EnemyPlacing.At(new(368, 871)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnCeiling, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixels(1))),
         new(EnemyDefinitionId.Sciser, EnemyPlacing.At(new(48, 952)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
@@ -70,7 +70,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Maridia Elevator room.</summary>
-    internal static RoomEnemyPopulationDefinition MaridiaElevator { get; } = new("MaridiaElevator",
+    internal static PlacedRoomEnemyPopulationDefinition MaridiaElevator { get; } = new("MaridiaElevator",
     [
         new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 704)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
         new(EnemyDefinitionId.Ripper, EnemyPlacing.At(new(208, 788)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Left)),
@@ -83,7 +83,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 7);
 
     /// <summary>The enemy population of the Colosseum room.</summary>
-    internal static RoomEnemyPopulationDefinition Colosseum { get; } = new("Colosseum",
+    internal static PlacedRoomEnemyPopulationDefinition Colosseum { get; } = new("Colosseum",
     [
         new(EnemyDefinitionId.Mochtroid, EnemyPlacing.At(new(128, 120)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Mochtroid, EnemyPlacing.At(new(656, 104)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -96,17 +96,13 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 8);
 
     /// <summary>The enemy population of the Aqueduct Save room.</summary>
-    internal static RoomEnemyPopulationDefinition AqueductSave { get; } = new("AqueductSave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition AqueductSave { get; } = new("AqueductSave");
 
     /// <summary>The enemy population of the Precious room.</summary>
-    internal static RoomEnemyPopulationDefinition ThePrecious { get; } = new("ThePrecious",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition ThePrecious { get; } = new("ThePrecious");
 
     /// <summary>The enemy population of the Botwoon Energy Tank room.</summary>
-    internal static RoomEnemyPopulationDefinition BotwoonEnergyTank { get; } = new("BotwoonEnergyTank",
+    internal static PlacedRoomEnemyPopulationDefinition BotwoonEnergyTank { get; } = new("BotwoonEnergyTank",
     [
         new(EnemyDefinitionId.Puyo, EnemyPlacing.At(new(288, 128)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 0, HopDistance: 22)),
         new(EnemyDefinitionId.Puyo, EnemyPlacing.At(new(400, 112)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 0, HopDistance: 22)),
@@ -121,17 +117,13 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 10);
 
     /// <summary>The enemy population of the Draygon Save room.</summary>
-    internal static RoomEnemyPopulationDefinition DraygonSave { get; } = new("DraygonSave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition DraygonSave { get; } = new("DraygonSave");
 
     /// <summary>The enemy population of the Maridia Missile Refill room.</summary>
-    internal static RoomEnemyPopulationDefinition MaridiaMissileRefill { get; } = new("MaridiaMissileRefill",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition MaridiaMissileRefill { get; } = new("MaridiaMissileRefill");
 
     /// <summary>The enemy population of the Plasma Beach Quicksand room.</summary>
-    internal static RoomEnemyPopulationDefinition PlasmaBeachQuicksand { get; } = new("PlasmaBeachQuicksand",
+    internal static PlacedRoomEnemyPopulationDefinition PlasmaBeachQuicksand { get; } = new("PlasmaBeachQuicksand",
     [
         new(EnemyDefinitionId.Bull, EnemyPlacing.At(new(32, 56)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(4, 1), MaximumSpeed: SignedEightEight.FromPixelFraction(1023, 256))),
         new(EnemyDefinitionId.Bull, EnemyPlacing.At(new(224, 120)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(4, 1), MaximumSpeed: SignedEightEight.FromPixelFraction(1279, 256))),
@@ -139,7 +131,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Botwoon Quicksand room.</summary>
-    internal static RoomEnemyPopulationDefinition BotwoonQuicksand { get; } = new("BotwoonQuicksand",
+    internal static PlacedRoomEnemyPopulationDefinition BotwoonQuicksand { get; } = new("BotwoonQuicksand",
     [
         new(EnemyDefinitionId.Bull, EnemyPlacing.At(new(72, 32)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(4, 1), MaximumSpeed: SignedEightEight.FromPixelFraction(1279, 256))),
         new(EnemyDefinitionId.Bull, EnemyPlacing.At(new(72, 104)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: SignedEightEight.FromPixelFraction(1535, 256))),
@@ -153,7 +145,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 9);
 
     /// <summary>The enemy population of the Shaktool room.</summary>
-    internal static RoomEnemyPopulationDefinition Shaktool { get; } = new("Shaktool",
+    internal static PlacedRoomEnemyPopulationDefinition Shaktool { get; } = new("Shaktool",
     [
         new(EnemyDefinitionId.Shaktool, EnemyPlacing.At(new(168, 184)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ShaktoolSpawnSettings(Motion: ShaktoolChainMotion.CurlingClockwise, Segment: ShaktoolSegmentDefinitions.LeadingSaw)),
         new(EnemyDefinitionId.Shaktool, EnemyPlacing.At(new(168, 184)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ShaktoolSpawnSettings(Motion: ShaktoolChainMotion.CurlingClockwise, Segment: ShaktoolSegmentDefinitions.LeadingOuterArm)),
@@ -167,7 +159,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Draygon room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition DraygonDefault { get; } = new("DraygonDefault",
+    internal static PlacedRoomEnemyPopulationDefinition DraygonDefault { get; } = new("DraygonDefault",
     [
         new(EnemyDefinitionId.DraygonBody, EnemyPlacing.At(OffRoomPlaces.Placed(new Offset16<RoomPixels>(-80, -80))), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
         new(EnemyDefinitionId.DraygonEye, EnemyPlacing.At(OffRoomPlaces.Placed(new Offset16<RoomPixels>(-80, -80))), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
@@ -176,7 +168,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Aqueduct room.</summary>
-    internal static RoomEnemyPopulationDefinition Aqueduct { get; } = new("Aqueduct",
+    internal static PlacedRoomEnemyPopulationDefinition Aqueduct { get; } = new("Aqueduct",
     [
         new(EnemyDefinitionId.Yard, EnemyPlacing.At(new(1348, 472)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new YardSpawnSettings(Direction: YardDirection.OnFloorMovingRight, CrawlSpeed: SignedEightEight.FromPixelFraction(5, 4))),
         new(EnemyDefinitionId.Yard, EnemyPlacing.At(new(544, 660)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new YardSpawnSettings(Direction: YardDirection.OnFloorMovingLeft, CrawlSpeed: SignedEightEight.FromPixels(1))),
@@ -186,7 +178,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 5);
 
     /// <summary>The enemy population of the Red Fish room.</summary>
-    internal static RoomEnemyPopulationDefinition RedFish { get; } = new("RedFish",
+    internal static PlacedRoomEnemyPopulationDefinition RedFish { get; } = new("RedFish",
     [
         new(EnemyDefinitionId.Skultera, EnemyPlacing.At(new(704, 432)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), StartDirection: HorizontalDirection.Right, Radius: 1, AngleStep: RotationAngle.FromSteps(16))),
         new(EnemyDefinitionId.Zebbo, EnemyPlacing.At(new(136, 204)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
@@ -195,7 +187,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Plasma room.</summary>
-    internal static RoomEnemyPopulationDefinition Plasma { get; } = new("Plasma",
+    internal static PlacedRoomEnemyPopulationDefinition Plasma { get; } = new("Plasma",
     [
         new(EnemyDefinitionId.PirateMagentaWalking, EnemyPlacing.At(new(256, 128)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Right, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 32)),
         new(EnemyDefinitionId.PirateMagentaWalking, EnemyPlacing.At(new(128, 464)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 48)),
@@ -206,12 +198,10 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Space Jump room.</summary>
-    internal static RoomEnemyPopulationDefinition SpaceJump { get; } = new("SpaceJump",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition SpaceJump { get; } = new("SpaceJump");
 
     /// <summary>The enemy population of the Pants room.</summary>
-    internal static RoomEnemyPopulationDefinition Pants { get; } = new("Pants",
+    internal static PlacedRoomEnemyPopulationDefinition Pants { get; } = new("Pants",
     [
         new(EnemyDefinitionId.MaridiaFly, EnemyPlacing.At(new(80, 80)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.MaridiaFly, EnemyPlacing.At(new(48, 120)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -229,23 +219,19 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 7);
 
     /// <summary>The enemy population of the Glass Tunnel Save room.</summary>
-    internal static RoomEnemyPopulationDefinition GlassTunnelSave { get; } = new("GlassTunnelSave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition GlassTunnelSave { get; } = new("GlassTunnelSave");
 
     /// <summary>The enemy population of the Glass Tunnel room.</summary>
-    internal static RoomEnemyPopulationDefinition GlassTunnel { get; } = new("GlassTunnel",
+    internal static PlacedRoomEnemyPopulationDefinition GlassTunnel { get; } = new("GlassTunnel",
     [
         new(EnemyDefinitionId.NoobTubeCrack, EnemyPlacing.At(new(128, 256)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Deleted, false, EnemySpawnSettings.None),
     ], 0);
 
     /// <summary>The enemy population of the West Tunnel room.</summary>
-    internal static RoomEnemyPopulationDefinition WestTunnel { get; } = new("WestTunnel",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition WestTunnel { get; } = new("WestTunnel");
 
     /// <summary>The enemy population of the East Tunnel room.</summary>
-    internal static RoomEnemyPopulationDefinition EastTunnel { get; } = new("EastTunnel",
+    internal static PlacedRoomEnemyPopulationDefinition EastTunnel { get; } = new("EastTunnel",
     [
         new(EnemyDefinitionId.Boyon, EnemyPlacing.At(new(136, 192)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 10, JumpHeight: 64, TriggerDistance: 8)),
         new(EnemyDefinitionId.Boyon, EnemyPlacing.At(new(488, 208)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 10, JumpHeight: 48, TriggerDistance: 8)),
@@ -260,7 +246,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Mama Turtle room.</summary>
-    internal static RoomEnemyPopulationDefinition MamaTurtle { get; } = new("MamaTurtle",
+    internal static PlacedRoomEnemyPopulationDefinition MamaTurtle { get; } = new("MamaTurtle",
     [
         new(EnemyDefinitionId.MamaTurtle, EnemyPlacing.At(new(472, 973)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.BabyTurtle, EnemyPlacing.At(new(432, 973)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BabyTurtleSpawnSettings(Heading: HorizontalDirection.Left)),
@@ -270,7 +256,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 1);
 
     /// <summary>The enemy population of the Crab Tunnel room.</summary>
-    internal static RoomEnemyPopulationDefinition CrabTunnel { get; } = new("CrabTunnel",
+    internal static PlacedRoomEnemyPopulationDefinition CrabTunnel { get; } = new("CrabTunnel",
     [
         new(EnemyDefinitionId.Sciser, EnemyPlacing.At(new(128, 71)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnCeiling, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
         new(EnemyDefinitionId.Sciser, EnemyPlacing.At(new(304, 135)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnCeiling, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
@@ -281,7 +267,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Northwest Maridia Bug room.</summary>
-    internal static RoomEnemyPopulationDefinition NorthwestMaridiaBug { get; } = new("NorthwestMaridiaBug",
+    internal static PlacedRoomEnemyPopulationDefinition NorthwestMaridiaBug { get; } = new("NorthwestMaridiaBug",
     [
         new(EnemyDefinitionId.Owtch, EnemyPlacing.At(new(64, 456)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new OwtchSpawnSettings(InitialBehavior: OwtchBehaviorState.MovingRight, UndergroundWait: 64, Speed: SignedSixteenSixteen.FromPixelFraction(1, 4), TravelDistance: 16)),
         new(EnemyDefinitionId.Owtch, EnemyPlacing.At(new(184, 456)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new OwtchSpawnSettings(InitialBehavior: OwtchBehaviorState.MovingLeft, UndergroundWait: 64, Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), TravelDistance: 32)),
@@ -298,7 +284,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 7);
 
     /// <summary>The enemy population of the Pseudo Plasma Spark room.</summary>
-    internal static RoomEnemyPopulationDefinition PseudoPlasmaSpark { get; } = new("PseudoPlasmaSpark",
+    internal static PlacedRoomEnemyPopulationDefinition PseudoPlasmaSpark { get; } = new("PseudoPlasmaSpark",
     [
         new(EnemyDefinitionId.Owtch, EnemyPlacing.At(new(384, 696)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new OwtchSpawnSettings(InitialBehavior: OwtchBehaviorState.MovingRight, UndergroundWait: 64, Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), TravelDistance: 48)),
         new(EnemyDefinitionId.Choot, EnemyPlacing.At(new(240, 420)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ChootSpawnSettings(FallingPath: ChootFallingPath.VeryWide, PatternLoops: 3, JumpDelay: 2)),
@@ -312,13 +298,13 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 9);
 
     /// <summary>The enemy population of the West Sand Hall Tunnel room.</summary>
-    internal static RoomEnemyPopulationDefinition WestSandHallTunnel { get; } = new("WestSandHallTunnel",
+    internal static PlacedRoomEnemyPopulationDefinition WestSandHallTunnel { get; } = new("WestSandHallTunnel",
     [
         new(EnemyDefinitionId.Sciser, EnemyPlacing.At(new(136, 103)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnCeiling, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(5, 4))),
     ], 1);
 
     /// <summary>The enemy population of the Plasma Tutorial room.</summary>
-    internal static RoomEnemyPopulationDefinition PlasmaTutorial { get; } = new("PlasmaTutorial",
+    internal static PlacedRoomEnemyPopulationDefinition PlasmaTutorial { get; } = new("PlasmaTutorial",
     [
         new(EnemyDefinitionId.Puyo, EnemyPlacing.At(new(87, 156)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 3840, HopDistance: 0)),
         new(EnemyDefinitionId.Puyo, EnemyPlacing.At(new(98, 156)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 3840, HopDistance: 0)),
@@ -329,7 +315,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Thread the Needle room.</summary>
-    internal static RoomEnemyPopulationDefinition ThreadTheNeedle { get; } = new("ThreadTheNeedle",
+    internal static PlacedRoomEnemyPopulationDefinition ThreadTheNeedle { get; } = new("ThreadTheNeedle",
     [
         new(EnemyDefinitionId.Puyo, EnemyPlacing.At(new(280, 140)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 32, HopDistance: 22)),
         new(EnemyDefinitionId.Puyo, EnemyPlacing.At(new(324, 172)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 32, HopDistance: 22)),
@@ -349,7 +335,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 15);
 
     /// <summary>The enemy population of the Plasma Spark room.</summary>
-    internal static RoomEnemyPopulationDefinition PlasmaSpark { get; } = new("PlasmaSpark",
+    internal static PlacedRoomEnemyPopulationDefinition PlasmaSpark { get; } = new("PlasmaSpark",
     [
         new(EnemyDefinitionId.Owtch, EnemyPlacing.At(new(848, 1272)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new OwtchSpawnSettings(InitialBehavior: OwtchBehaviorState.MovingLeft, UndergroundWait: 64, Speed: SignedSixteenSixteen.FromPixelFraction(1, 4), TravelDistance: 64)),
         new(EnemyDefinitionId.Owtch, EnemyPlacing.At(new(824, 1272)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new OwtchSpawnSettings(InitialBehavior: OwtchBehaviorState.MovingRight, UndergroundWait: 64, Speed: SignedSixteenSixteen.FromPixelFraction(1, 4), TravelDistance: 48)),
@@ -365,7 +351,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 11);
 
     /// <summary>The enemy population of the Toilet room.</summary>
-    internal static RoomEnemyPopulationDefinition Toilet { get; } = new("Toilet",
+    internal static PlacedRoomEnemyPopulationDefinition Toilet { get; } = new("Toilet",
     [
         new(EnemyDefinitionId.Mochtroid, EnemyPlacing.At(new(160, 904)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Puyo, EnemyPlacing.At(new(100, 856)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 16, HopDistance: 4)),
@@ -373,7 +359,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the West Sand Hall room.</summary>
-    internal static RoomEnemyPopulationDefinition WestSandHall { get; } = new("WestSandHall",
+    internal static PlacedRoomEnemyPopulationDefinition WestSandHall { get; } = new("WestSandHall",
     [
         new(EnemyDefinitionId.Evir, EnemyPlacing.At(new(504, 160)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new EvirSpawnSettings(Part: EvirBodyPart.Body, Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), DirectionChangePeriod: 248)),
         new(EnemyDefinitionId.Evir, EnemyPlacing.At(new(504, 160)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new EvirSpawnSettings(Part: EvirBodyPart.Arms, Speed: SignedSixteenSixteen.Zero, DirectionChangePeriod: 0)),
@@ -387,12 +373,10 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Oasis room.</summary>
-    internal static RoomEnemyPopulationDefinition Oasis { get; } = new("Oasis",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition Oasis { get; } = new("Oasis");
 
     /// <summary>The enemy population of the East Sand Hall room.</summary>
-    internal static RoomEnemyPopulationDefinition EastSandHall { get; } = new("EastSandHall",
+    internal static PlacedRoomEnemyPopulationDefinition EastSandHall { get; } = new("EastSandHall",
     [
         new(EnemyDefinitionId.Evir, EnemyPlacing.At(new(168, 160)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new EvirSpawnSettings(Part: EvirBodyPart.Body, Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), DirectionChangePeriod: 248)),
         new(EnemyDefinitionId.Evir, EnemyPlacing.At(new(168, 160)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new EvirSpawnSettings(Part: EvirBodyPart.Arms, Speed: SignedSixteenSixteen.Zero, DirectionChangePeriod: 0)),
@@ -406,7 +390,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the West Aqueduct Quicksand room.</summary>
-    internal static RoomEnemyPopulationDefinition WestAqueductQuicksand { get; } = new("WestAqueductQuicksand",
+    internal static PlacedRoomEnemyPopulationDefinition WestAqueductQuicksand { get; } = new("WestAqueductQuicksand",
     [
         new(EnemyDefinitionId.Bull, EnemyPlacing.At(new(40, 184)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(11, 4), MaximumSpeed: SignedEightEight.FromPixelFraction(1279, 256))),
         new(EnemyDefinitionId.Bull, EnemyPlacing.At(new(72, 312)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(11, 4), MaximumSpeed: SignedEightEight.FromPixelFraction(1279, 256))),
@@ -418,7 +402,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 7);
 
     /// <summary>The enemy population of the East Aqueduct Quicksand room.</summary>
-    internal static RoomEnemyPopulationDefinition EastAqueductQuicksand { get; } = new("EastAqueductQuicksand",
+    internal static PlacedRoomEnemyPopulationDefinition EastAqueductQuicksand { get; } = new("EastAqueductQuicksand",
     [
         new(EnemyDefinitionId.Bull, EnemyPlacing.At(new(56, 216)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(12, 5), MaximumSpeed: SignedEightEight.FromPixelFraction(1279, 256))),
         new(EnemyDefinitionId.Bull, EnemyPlacing.At(new(216, 152)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(13, 5), MaximumSpeed: SignedEightEight.FromPixelFraction(1279, 256))),
@@ -429,7 +413,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Butterfly room.</summary>
-    internal static RoomEnemyPopulationDefinition Butterfly { get; } = new("Butterfly",
+    internal static PlacedRoomEnemyPopulationDefinition Butterfly { get; } = new("Butterfly",
     [
         new(EnemyDefinitionId.Zoa, EnemyPlacing.At(new(152, 216)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Zoa, EnemyPlacing.At(new(104, 216)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),
@@ -437,7 +421,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Botwoon Hallway room.</summary>
-    internal static RoomEnemyPopulationDefinition BotwoonHallway { get; } = new("BotwoonHallway",
+    internal static PlacedRoomEnemyPopulationDefinition BotwoonHallway { get; } = new("BotwoonHallway",
     [
         new(EnemyDefinitionId.Mochtroid, EnemyPlacing.At(new(48, 72)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Mochtroid, EnemyPlacing.At(new(192, 144)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -449,7 +433,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 7);
 
     /// <summary>The enemy population of the East Pants room.</summary>
-    internal static RoomEnemyPopulationDefinition EastPants { get; } = new("EastPants",
+    internal static PlacedRoomEnemyPopulationDefinition EastPants { get; } = new("EastPants",
     [
         new(EnemyDefinitionId.Puyo, EnemyPlacing.At(new(128, 556)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 48, HopDistance: 22)),
         new(EnemyDefinitionId.Puyo, EnemyPlacing.At(new(192, 476)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 32, HopDistance: 22)),
@@ -459,12 +443,10 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 5);
 
     /// <summary>The enemy population of the Springball room.</summary>
-    internal static RoomEnemyPopulationDefinition Springball { get; } = new("Springball",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition Springball { get; } = new("Springball");
 
     /// <summary>The enemy population of the Below Botwoon Energy Tank room.</summary>
-    internal static RoomEnemyPopulationDefinition BelowBotwoonEnergyTank { get; } = new("BelowBotwoonEnergyTank",
+    internal static PlacedRoomEnemyPopulationDefinition BelowBotwoonEnergyTank { get; } = new("BelowBotwoonEnergyTank",
     [
         new(EnemyDefinitionId.Zoa, EnemyPlacing.At(new(696, 200)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Zoa, EnemyPlacing.At(new(456, 208)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),
@@ -475,7 +457,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Kassiuz room.</summary>
-    internal static RoomEnemyPopulationDefinition Kassiuz { get; } = new("Kassiuz",
+    internal static PlacedRoomEnemyPopulationDefinition Kassiuz { get; } = new("Kassiuz",
     [
         new(EnemyDefinitionId.Choot, EnemyPlacing.At(new(112, 188)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ChootSpawnSettings(FallingPath: ChootFallingPath.VeryWide, PatternLoops: 3, JumpDelay: 16)),
         new(EnemyDefinitionId.Choot, EnemyPlacing.At(new(144, 476)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ChootSpawnSettings(FallingPath: ChootFallingPath.VeryWide, PatternLoops: 2, JumpDelay: 16)),
@@ -487,22 +469,16 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 7);
 
     /// <summary>The enemy population of the Forgotten Highway Save room.</summary>
-    internal static RoomEnemyPopulationDefinition ForgottenHighwaySave { get; } = new("ForgottenHighwaySave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition ForgottenHighwaySave { get; } = new("ForgottenHighwaySave");
 
     /// <summary>The enemy population of the Maridia Energy Refill room.</summary>
-    internal static RoomEnemyPopulationDefinition MaridiaEnergyRefill { get; } = new("MaridiaEnergyRefill",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition MaridiaEnergyRefill { get; } = new("MaridiaEnergyRefill");
 
     /// <summary>The enemy population of the Maridia Map room.</summary>
-    internal static RoomEnemyPopulationDefinition MaridiaMap { get; } = new("MaridiaMap",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition MaridiaMap { get; } = new("MaridiaMap");
 
     /// <summary>The enemy population of the Crab Hole room.</summary>
-    internal static RoomEnemyPopulationDefinition CrabHole { get; } = new("CrabHole",
+    internal static PlacedRoomEnemyPopulationDefinition CrabHole { get; } = new("CrabHole",
     [
         new(EnemyDefinitionId.Sciser, EnemyPlacing.At(new(96, 55)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnCeiling, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
         new(EnemyDefinitionId.Sciser, EnemyPlacing.At(new(118, 232)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnLeftWall, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(5, 4))),
@@ -511,13 +487,13 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Botwoon room.</summary>
-    internal static RoomEnemyPopulationDefinition Botwoon { get; } = new("Botwoon",
+    internal static PlacedRoomEnemyPopulationDefinition Botwoon { get; } = new("Botwoon",
     [
         new(EnemyDefinitionId.Botwoon, EnemyPlacing.At(new(128, 128)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
     ], 1);
 
     /// <summary>The enemy population of the Main Street room.</summary>
-    internal static RoomEnemyPopulationDefinition MainStreet { get; } = new("MainStreet",
+    internal static PlacedRoomEnemyPopulationDefinition MainStreet { get; } = new("MainStreet",
     [
         new(EnemyDefinitionId.Skultera, EnemyPlacing.At(new(256, 416)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 16, AngleStep: RotationAngle.FromSteps(2))),
         new(EnemyDefinitionId.Skultera, EnemyPlacing.At(new(240, 984)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 16, AngleStep: RotationAngle.FromSteps(2))),
@@ -534,7 +510,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 12);
 
     /// <summary>The enemy population of the Bug Sand Hole room.</summary>
-    internal static RoomEnemyPopulationDefinition BugSandHole { get; } = new("BugSandHole",
+    internal static PlacedRoomEnemyPopulationDefinition BugSandHole { get; } = new("BugSandHole",
     [
         new(EnemyDefinitionId.YappingMaw, EnemyPlacing.At(new(176, 240)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 64, Attack: VerticalDirection.Up)),
         new(EnemyDefinitionId.Zoa, EnemyPlacing.At(new(128, 220)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),
@@ -542,7 +518,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 1);
 
     /// <summary>The enemy population of the East Sand Hole room.</summary>
-    internal static RoomEnemyPopulationDefinition EastSandHole { get; } = new("EastSandHole",
+    internal static PlacedRoomEnemyPopulationDefinition EastSandHole { get; } = new("EastSandHole",
     [
         new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(400, 160)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 114, TriggerReach: 4, Start: new BoulderStart.FallsFrom(114), Roll: BoulderRoll.LeftBreakingOnImpact)),
         new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(336, 192)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 152, TriggerReach: 4, Start: new BoulderStart.FallsFrom(162), Roll: BoulderRoll.LeftBreakingOnImpact)),
@@ -550,7 +526,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the West Sand Hole room.</summary>
-    internal static RoomEnemyPopulationDefinition WestSandHole { get; } = new("WestSandHole",
+    internal static PlacedRoomEnemyPopulationDefinition WestSandHole { get; } = new("WestSandHole",
     [
         new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(464, 144)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 80, TriggerReach: 4, Start: new BoulderStart.FallsFrom(98), Roll: BoulderRoll.LeftBreakingOnImpact)),
         new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(176, 320)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 4, Start: new BoulderStart.FallsFrom(160), Roll: BoulderRoll.LeftBreakingOnImpact)),
@@ -559,7 +535,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the West Cactus Alley room.</summary>
-    internal static RoomEnemyPopulationDefinition WestCactusAlley { get; } = new("WestCactusAlley",
+    internal static PlacedRoomEnemyPopulationDefinition WestCactusAlley { get; } = new("WestCactusAlley",
     [
         new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(72, 180)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
         new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(176, 308)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
@@ -568,7 +544,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the East Cactus Alley room.</summary>
-    internal static RoomEnemyPopulationDefinition EastCactusAlley { get; } = new("EastCactusAlley",
+    internal static PlacedRoomEnemyPopulationDefinition EastCactusAlley { get; } = new("EastCactusAlley",
     [
         new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(384, 148)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
         new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(656, 164)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
@@ -579,7 +555,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Fish Tank room.</summary>
-    internal static RoomEnemyPopulationDefinition FishTank { get; } = new("FishTank",
+    internal static PlacedRoomEnemyPopulationDefinition FishTank { get; } = new("FishTank",
     [
         new(EnemyDefinitionId.Skultera, EnemyPlacing.At(new(112, 152)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Left, Radius: 16, AngleStep: RotationAngle.FromSteps(2))),
         new(EnemyDefinitionId.Skultera, EnemyPlacing.At(new(184, 680)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 16, AngleStep: RotationAngle.FromSteps(2))),
@@ -592,9 +568,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     ], 8);
 
     /// <summary>The enemy population shared by the Draygon room and the Mother Brain room once each area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition DraygonOrMotherBrainWhenAreaBossDead { get; } = new("DraygonOrMotherBrainWhenAreaBossDead",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition DraygonOrMotherBrainWhenAreaBossDead { get; } = new("DraygonOrMotherBrainWhenAreaBossDead");
 
     /// <summary>The Maridia rooms' lists, in their authored order.</summary>
     internal static RoomEnemyPopulationDefinition[] Lists { get; } =

@@ -24,6 +24,14 @@ public static class Ensure
         return value;
     }
 
+    /// <summary>Requires a non-null array that holds at least one element.</summary>
+    public static T[] NotEmpty<T>(
+        [NotNull] T[]? value,
+        [CallerArgumentExpression(nameof(value))] string? parameterName = null) =>
+        NotNull(value, parameterName).Length > 0
+            ? value
+            : throw new ArgumentException("Value must hold at least one element.", parameterName);
+
     /// <summary>Requires a value of at least zero.</summary>
     public static int AtLeastZero(int value,
         [CallerArgumentExpression(nameof(value))] string? parameterName = null) =>

@@ -70,7 +70,7 @@ internal static class EnemyGameplayAcceptanceVerification
             .Where(candidate => IsKiHunterPairList(RoomEnemyPopulationDefinitions.PointerOf(candidate.EnemyPopulation)))
             .OrderBy(candidate => candidate.EnemyPopulation.Placements.Length)
             .ThenBy(candidate => RoomEnemyPopulationDefinitions.PointerOf(candidate.EnemyPopulation)).First();
-        RoomEnemyPopulationDefinition population = state.EnemyPopulation;
+        var population = (PlacedRoomEnemyPopulationDefinition)state.EnemyPopulation;
         (RoomEnemySystem baseline, _) = Load(stock);
         AssertEqual(population.Placements.Length, baseline.Places.EnemyCount, "compiled population publishes its exact count");
         AssertEqual(population.Placements.Length < EnemyPlaceOrder.Capacity ? baseline.Places.InUpdateOrder[population.Placements.Length] : null,

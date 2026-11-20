@@ -333,7 +333,10 @@ internal sealed class SpriteSheetLayout
 
     /// <summary>
     /// The depth a frame whose shown pixels hold <paramref name="shownDepths"/> (null for a pixel no part shows) is drawn
-    /// at (#1514): the depth most of its pixels show, the front one of a tie.
+    /// at (#1514): the place among the room's layers most of its pixels show, the front one of a tie. The two depths behind
+    /// the room are one place among the room's tiles, which only a turning floor splits (#2583): a frame lies behind the room
+    /// where most of its pixels lie at either, and then at whichever of the two more of them show, the one in front of the
+    /// floor on a tie.
     /// </summary>
     private static ActorDepth? DepthOf(ReadOnlySpan<int?> shownDepths)
     {
@@ -343,13 +346,16 @@ internal sealed class SpriteSheetLayout
             if (shown is int shownDepth)
                 counts[shownDepth]++;
         }
-        int? main = null;
-        for (int candidate = 0; candidate < Depths; candidate++)
-        {
-            if (counts[candidate] > 0 && (main is not int leading || counts[candidate] >= counts[leading]))
-                main = candidate;
-        }
-        return main is int leadingDepth ? (ActorDepth)leadingDepth : null;
+        int behindFloor = counts[(int)ActorDepth.BehindRoom], inFrontOfFloor = counts[(int)ActorDepth.BehindRoomInFrontOfFloor];
+        int behindRoom = behindFloor + inFrontOfFloor;
+        int behindFrontParts = counts[(int)ActorDepth.BehindFrontParts], inFront = counts[(int)ActorDepth.InFront];
+        if (inFront > 0 && inFront >= behindFrontParts && inFront >= behindRoom)
+            return ActorDepth.InFront;
+        if (behindFrontParts > 0 && behindFrontParts >= behindRoom)
+            return ActorDepth.BehindFrontParts;
+        if (behindRoom > 0)
+            return inFrontOfFloor >= behindFloor ? ActorDepth.BehindRoomInFrontOfFloor : ActorDepth.BehindRoom;
+        return null;
     }
 
     /// <summary>

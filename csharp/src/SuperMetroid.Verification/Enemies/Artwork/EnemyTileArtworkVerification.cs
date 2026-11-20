@@ -62,15 +62,17 @@ internal static class EnemyTileArtworkVerification
         RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterConstants.TileDataSource(bus, definition), byteCount);
 
     /// <summary>
-    /// The melt image the cartridge assembles for <paramref name="pass"/> from its retail graphics: each band's $0402-byte
-    /// copy, $0200 bytes after the last, from its $0200-byte chunk of bank $A4, sized as the installed image.
+    /// The melt image the cartridge assembles for <paramref name="pass"/> from its retail graphics in the bands the image
+    /// shows: each band's $0402-byte copy, $0200 bytes after the last, from its $0200-byte chunk of bank $A4, sized as the
+    /// installed image. The bare skull's seventh copy, which shows what follows the image's six bands, is a read past the
+    /// image the port does not keep (#2573).
     /// </summary>
     private static byte[] ReadNativeCrocomireMeltingPassImage(ISnesAddressSpace rom, CrocomireMeltingIllustration pass)
     {
         bool first = pass == CrocomireMeltingIllustration.Flesh;
         var expected = new byte[first ? CrocomireMeltingArtworkFormat.FirstByteCount : CrocomireMeltingArtworkFormat.SecondByteCount];
         int firstChunk = first ? 0xa4a07d : 0xa4ac7d;
-        for (int band = 0; band < (first ? 6 : 7); band++)
+        for (int band = 0; band < CrocomireMeltingDefinitions.MeltImageBandCount; band++)
         {
             for (int index = 0; index < 0x402; index++)
                 expected[band * 0x200 + index] = rom.ReadCartridgeByte(firstChunk + band * 0x200 + index);

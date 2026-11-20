@@ -26,7 +26,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 internal static class CrateriaRoomEnemyPopulationDefinitions
 {
     /// <summary>The enemy population of the East Ocean room.</summary>
-    internal static RoomEnemyPopulationDefinition EastOcean { get; } = new("EastOcean",
+    internal static PlacedRoomEnemyPopulationDefinition EastOcean { get; } = new("EastOcean",
     [
         new(EnemyDefinitionId.Choot, EnemyPlacing.At(new(336, 1356)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ChootSpawnSettings(FallingPath: ChootFallingPath.VeryWide, PatternLoops: 3, JumpDelay: 16)),
         new(EnemyDefinitionId.Choot, EnemyPlacing.At(new(400, 1292)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ChootSpawnSettings(FallingPath: ChootFallingPath.VeryWide, PatternLoops: 3, JumpDelay: 16)),
@@ -44,7 +44,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 10);
 
     /// <summary>The enemy population of the Crateria Power Bombs room.</summary>
-    internal static RoomEnemyPopulationDefinition CrateriaPowerBombs { get; } = new("CrateriaPowerBombs",
+    internal static PlacedRoomEnemyPopulationDefinition CrateriaPowerBombs { get; } = new("CrateriaPowerBombs",
     [
         new(EnemyDefinitionId.Alcoon, EnemyPlacing.At(new(136, 216)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Alcoon, EnemyPlacing.At(new(264, 216)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -52,7 +52,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Terminator room.</summary>
-    internal static RoomEnemyPopulationDefinition Terminator { get; } = new("Terminator",
+    internal static PlacedRoomEnemyPopulationDefinition Terminator { get; } = new("Terminator",
     [
         new(EnemyDefinitionId.Waver, EnemyPlacing.At(new(790, 348)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Right)),
         new(EnemyDefinitionId.Waver, EnemyPlacing.At(new(531, 480)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Left)),
@@ -66,7 +66,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 9);
 
     /// <summary>The enemy population of the Final Missile Bombway room once Zebes is awake.</summary>
-    internal static RoomEnemyPopulationDefinition FinalMissileBombwayWhenZebesAwake { get; } = new("FinalMissileBombwayWhenZebesAwake",
+    internal static PlacedRoomEnemyPopulationDefinition FinalMissileBombwayWhenZebesAwake { get; } = new("FinalMissileBombwayWhenZebesAwake",
     [
         new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(256, 72)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
         new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(128, 72)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
@@ -77,7 +77,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Final Missile Bombway room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition FinalMissileBombwayDefault { get; } = new("FinalMissileBombwayDefault",
+    internal static PlacedRoomEnemyPopulationDefinition FinalMissileBombwayDefault { get; } = new("FinalMissileBombwayDefault",
     [
         new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(256, 72)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
         new(EnemyDefinitionId.FaceBlock, EnemyPlacing.At(new(128, 72)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
@@ -88,7 +88,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Parlor room once Zebes is awake.</summary>
-    internal static RoomEnemyPopulationDefinition ParlorWhenZebesAwake { get; } = new("ParlorWhenZebesAwake",
+    internal static PlacedRoomEnemyPopulationDefinition ParlorWhenZebesAwake { get; } = new("ParlorWhenZebesAwake",
     [
         new(EnemyDefinitionId.Zoomer, EnemyPlacing.At(new(1176, 64)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnCeiling, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
         new(EnemyDefinitionId.Zoomer, EnemyPlacing.At(new(1055, 136)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
@@ -109,7 +109,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 16);
 
     /// <summary>The enemy population of the Flyway room while the Zebes timebomb is not set.</summary>
-    internal static RoomEnemyPopulationDefinition FlywayBeforeTimebomb { get; } = new("FlywayBeforeTimebomb",
+    internal static PlacedRoomEnemyPopulationDefinition FlywayBeforeTimebomb { get; } = new("FlywayBeforeTimebomb",
     [
         new(EnemyDefinitionId.Mellow, EnemyPlacing.At(new(237, 97)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Mellow, EnemyPlacing.At(new(350, 92)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -126,7 +126,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Pit room once Samus has the Morph Ball and Missiles.</summary>
-    internal static RoomEnemyPopulationDefinition PitWithMorphBallAndMissiles { get; } = new("PitWithMorphBallAndMissiles",
+    internal static PlacedRoomEnemyPopulationDefinition PitWithMorphBallAndMissiles { get; } = new("PitWithMorphBallAndMissiles",
     [
         new(EnemyDefinitionId.PirateGreyWalking, EnemyPlacing.At(new(616, 112)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Right, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 16)),
         new(EnemyDefinitionId.PirateGreyWall, EnemyPlacing.At(new(717, 63)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WallSpacePirateSpawnSettings(Wall: HorizontalDirection.Right, LaserSpeed: PirateLaserSpeed.Fast, JumpSpeed: WallSpacePirateJumpSpeed.Fast, JumpSpan: 32)),
@@ -136,7 +136,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 5);
 
     /// <summary>The enemy population of the Gauntlet Entrance room.</summary>
-    internal static RoomEnemyPopulationDefinition GauntletEntrance { get; } = new("GauntletEntrance",
+    internal static PlacedRoomEnemyPopulationDefinition GauntletEntrance { get; } = new("GauntletEntrance",
     [
         new(EnemyDefinitionId.YappingMaw, EnemyPlacing.At(new(1032, 56)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 112, Attack: VerticalDirection.Down)),
         new(EnemyDefinitionId.YappingMaw, EnemyPlacing.At(new(760, 200)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 112, Attack: VerticalDirection.Up)),
@@ -148,13 +148,13 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Bomb Torizo room while the Zebes timebomb is not set.</summary>
-    internal static RoomEnemyPopulationDefinition BombTorizoBeforeTimebomb { get; } = new("BombTorizoBeforeTimebomb",
+    internal static PlacedRoomEnemyPopulationDefinition BombTorizoBeforeTimebomb { get; } = new("BombTorizoBeforeTimebomb",
     [
         new(EnemyDefinitionId.BombTorizo, EnemyPlacing.At(new(219, 179)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
     ], 0);
 
     /// <summary>The enemy population of the Green Pirates Shaft room.</summary>
-    internal static RoomEnemyPopulationDefinition GreenPiratesShaft { get; } = new("GreenPiratesShaft",
+    internal static PlacedRoomEnemyPopulationDefinition GreenPiratesShaft { get; } = new("GreenPiratesShaft",
     [
         new(EnemyDefinitionId.PirateGreenWalking, EnemyPlacing.At(new(128, 1232)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 24)),
         new(EnemyDefinitionId.PirateGreenWalking, EnemyPlacing.At(new(141, 1312)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Right, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 24)),
@@ -166,52 +166,42 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 7);
 
     /// <summary>The enemy population of the Green Brinstar Elevator room.</summary>
-    internal static RoomEnemyPopulationDefinition GreenBrinstarElevator { get; } = new("GreenBrinstarElevator",
+    internal static PlacedRoomEnemyPopulationDefinition GreenBrinstarElevator { get; } = new("GreenBrinstarElevator",
     [
         new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 162)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
     ], 0);
 
     /// <summary>The enemy population of the Final Missile room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition FinalMissileDefault { get; } = new("FinalMissileDefault",
+    internal static PlacedRoomEnemyPopulationDefinition FinalMissileDefault { get; } = new("FinalMissileDefault",
     [
         new(EnemyDefinitionId.MorphBallEye, EnemyPlacing.At(new(50, 120)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeMountSpawnSettings(Side: MorphBallEyeMountSide.Left)),
         new(EnemyDefinitionId.MorphBallEye, EnemyPlacing.At(new(50, 120)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeBodySpawnSettings(Facing: HorizontalDirection.Right)),
     ], 0);
 
     /// <summary>The enemy population of the Crateria Map room.</summary>
-    internal static RoomEnemyPopulationDefinition CrateriaMap { get; } = new("CrateriaMap",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition CrateriaMap { get; } = new("CrateriaMap");
 
     /// <summary>The enemy population of the Final Missile room once Zebes is awake.</summary>
-    internal static RoomEnemyPopulationDefinition FinalMissileWhenZebesAwake { get; } = new("FinalMissileWhenZebesAwake",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition FinalMissileWhenZebesAwake { get; } = new("FinalMissileWhenZebesAwake");
 
     /// <summary>The enemy population of the Climb room once the Zebes timebomb is set.</summary>
-    internal static RoomEnemyPopulationDefinition ClimbWhenZebesTimebombSet { get; } = new("ClimbWhenZebesTimebombSet",
+    internal static PlacedRoomEnemyPopulationDefinition ClimbWhenZebesTimebombSet { get; } = new("ClimbWhenZebesTimebombSet",
     [
         new(EnemyDefinitionId.PirateSilverNinja, EnemyPlacing.At(new(128, 2176)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, new NinjaSpacePirateSpawnSettings(StartPost: NinjaSpacePirateStartPost.Right, PostDistance: 0)),
         new(EnemyDefinitionId.PirateSilverNinja, EnemyPlacing.At(new(192, 2176)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, new NinjaSpacePirateSpawnSettings(StartPost: NinjaSpacePirateStartPost.Right, PostDistance: 0)),
     ], 2);
 
     /// <summary>The enemy population of the Crateria Save room.</summary>
-    internal static RoomEnemyPopulationDefinition CrateriaSave { get; } = new("CrateriaSave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition CrateriaSave { get; } = new("CrateriaSave");
 
     /// <summary>The enemy population of the Forgotten Highway Elbow room.</summary>
-    internal static RoomEnemyPopulationDefinition ForgottenHighwayElbow { get; } = new("ForgottenHighwayElbow",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition ForgottenHighwayElbow { get; } = new("ForgottenHighwayElbow");
 
     /// <summary>The enemy population of the Moat room.</summary>
-    internal static RoomEnemyPopulationDefinition Moat { get; } = new("Moat",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition Moat { get; } = new("Moat");
 
     /// <summary>The enemy population of the Climb room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition ClimbDefault { get; } = new("ClimbDefault",
+    internal static PlacedRoomEnemyPopulationDefinition ClimbDefault { get; } = new("ClimbDefault",
     [
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(276, 76)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(80), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(272, 88)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(144), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
@@ -226,7 +216,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the West Ocean room.</summary>
-    internal static RoomEnemyPopulationDefinition WestOcean { get; } = new("WestOcean",
+    internal static PlacedRoomEnemyPopulationDefinition WestOcean { get; } = new("WestOcean",
     [
         new(EnemyDefinitionId.Skultera, EnemyPlacing.At(new(1188, 1392)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 16, AngleStep: RotationAngle.FromSteps(2))),
         new(EnemyDefinitionId.Skultera, EnemyPlacing.At(new(971, 1402)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Left, Radius: 16, AngleStep: RotationAngle.FromSteps(2))),
@@ -238,7 +228,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 7);
 
     /// <summary>The enemy population of the Parlor room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition ParlorDefault { get; } = new("ParlorDefault",
+    internal static PlacedRoomEnemyPopulationDefinition ParlorDefault { get; } = new("ParlorDefault",
     [
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(1214, 192)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(170), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(1188, 201)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(181), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
@@ -263,7 +253,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Landing Site room while the Zebes timebomb is not set.</summary>
-    internal static RoomEnemyPopulationDefinition LandingSiteBeforeTimebomb { get; } = new("LandingSiteBeforeTimebomb",
+    internal static PlacedRoomEnemyPopulationDefinition LandingSiteBeforeTimebomb { get; } = new("LandingSiteBeforeTimebomb",
     [
         new(EnemyDefinitionId.ShipTop, EnemyPlacing.At(new(1152, 1144)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.ShipBottomEntrance, EnemyPlacing.At(new(1152, 1144)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new GunshipSpawnSettings(Part: GunshipBottomPiece.Hull)),
@@ -271,7 +261,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Crateria Super room.</summary>
-    internal static RoomEnemyPopulationDefinition CrateriaSuper { get; } = new("CrateriaSuper",
+    internal static PlacedRoomEnemyPopulationDefinition CrateriaSuper { get; } = new("CrateriaSuper",
     [
         new(EnemyDefinitionId.Boyon, EnemyPlacing.At(new(600, 1960)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 64, TriggerDistance: 32)),
         new(EnemyDefinitionId.Boyon, EnemyPlacing.At(new(632, 1960)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 64, TriggerDistance: 32)),
@@ -280,13 +270,13 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Pre Bowling room.</summary>
-    internal static RoomEnemyPopulationDefinition PreBowling { get; } = new("PreBowling",
+    internal static PlacedRoomEnemyPopulationDefinition PreBowling { get; } = new("PreBowling",
     [
         new(EnemyDefinitionId.OrangeZoomer, EnemyPlacing.At(new(128, 72)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
     ], 1);
 
     /// <summary>The enemy population of the Climb room once Zebes is awake.</summary>
-    internal static RoomEnemyPopulationDefinition ClimbWhenZebesAwake { get; } = new("ClimbWhenZebesAwake",
+    internal static PlacedRoomEnemyPopulationDefinition ClimbWhenZebesAwake { get; } = new("ClimbWhenZebesAwake",
     [
         new(EnemyDefinitionId.PirateGreyWall, EnemyPlacing.At(new(304, 216)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WallSpacePirateSpawnSettings(Wall: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, JumpSpeed: WallSpacePirateJumpSpeed.Slow, JumpSpan: 160)),
         new(EnemyDefinitionId.PirateGreyWall, EnemyPlacing.At(new(464, 296)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WallSpacePirateSpawnSettings(Wall: HorizontalDirection.Right, LaserSpeed: PirateLaserSpeed.Slow, JumpSpeed: WallSpacePirateJumpSpeed.Slow, JumpSpan: 160)),
@@ -302,7 +292,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 11);
 
     /// <summary>The enemy population of the Bowling Alley Path room.</summary>
-    internal static RoomEnemyPopulationDefinition BowlingAlleyPath { get; } = new("BowlingAlleyPath",
+    internal static PlacedRoomEnemyPopulationDefinition BowlingAlleyPath { get; } = new("BowlingAlleyPath",
     [
         new(EnemyDefinitionId.Choot, EnemyPlacing.At(new(112, 204)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ChootSpawnSettings(FallingPath: ChootFallingPath.VeryWide, PatternLoops: 4, JumpDelay: 0)),
         new(EnemyDefinitionId.Choot, EnemyPlacing.At(new(224, 204)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ChootSpawnSettings(FallingPath: ChootFallingPath.VeryWide, PatternLoops: 4, JumpDelay: 0)),
@@ -313,20 +303,20 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Red Brinstar Elevator room.</summary>
-    internal static RoomEnemyPopulationDefinition RedBrinstarElevator { get; } = new("RedBrinstarElevator",
+    internal static PlacedRoomEnemyPopulationDefinition RedBrinstarElevator { get; } = new("RedBrinstarElevator",
     [
         new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 194)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
     ], 0);
 
     /// <summary>The enemy population of the Gauntlet Energy Tank room.</summary>
-    internal static RoomEnemyPopulationDefinition GauntletEnergyTank { get; } = new("GauntletEnergyTank",
+    internal static PlacedRoomEnemyPopulationDefinition GauntletEnergyTank { get; } = new("GauntletEnergyTank",
     [
         new(EnemyDefinitionId.YappingMaw, EnemyPlacing.At(new(136, 56)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 112, Attack: VerticalDirection.Down)),
         new(EnemyDefinitionId.Zebbo, EnemyPlacing.At(new(136, 184)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
     ], 1);
 
     /// <summary>The enemy population of the Pit room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition PitDefault { get; } = new("PitDefault",
+    internal static PlacedRoomEnemyPopulationDefinition PitDefault { get; } = new("PitDefault",
     [
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(107, 56)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(40), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(112, 52)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(120), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
@@ -341,7 +331,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Crab Maze room.</summary>
-    internal static RoomEnemyPopulationDefinition CrabMaze { get; } = new("CrabMaze",
+    internal static PlacedRoomEnemyPopulationDefinition CrabMaze { get; } = new("CrabMaze",
     [
         new(EnemyDefinitionId.Sciser, EnemyPlacing.At(new(632, 172)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
         new(EnemyDefinitionId.Sciser, EnemyPlacing.At(new(21, 152)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
@@ -354,31 +344,29 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 8);
 
     /// <summary>The enemy population of the Crateria Tube room.</summary>
-    internal static RoomEnemyPopulationDefinition CrateriaTube { get; } = new("CrateriaTube",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition CrateriaTube { get; } = new("CrateriaTube");
 
     /// <summary>The enemy population of the Forgotten Highway Kagos room.</summary>
-    internal static RoomEnemyPopulationDefinition ForgottenHighwayKagos { get; } = new("ForgottenHighwayKagos",
+    internal static PlacedRoomEnemyPopulationDefinition ForgottenHighwayKagos { get; } = new("ForgottenHighwayKagos",
     [
         new(EnemyDefinitionId.Kago, EnemyPlacing.At(new(80, 832)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KagoSpawnSettings(HitCount: 10)),
         new(EnemyDefinitionId.Kago, EnemyPlacing.At(new(168, 512)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KagoSpawnSettings(HitCount: 10)),
     ], 2);
 
     /// <summary>The enemy population of the Elevator to Blue Brinstar room.</summary>
-    internal static RoomEnemyPopulationDefinition ElevatorToBlueBrinstar { get; } = new("ElevatorToBlueBrinstar",
+    internal static PlacedRoomEnemyPopulationDefinition ElevatorToBlueBrinstar { get; } = new("ElevatorToBlueBrinstar",
     [
         new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 162)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
     ], 0);
 
     /// <summary>The enemy population of the Forgotten Highway Elevator room.</summary>
-    internal static RoomEnemyPopulationDefinition ForgottenHighwayElevator { get; } = new("ForgottenHighwayElevator",
+    internal static PlacedRoomEnemyPopulationDefinition ForgottenHighwayElevator { get; } = new("ForgottenHighwayElevator",
     [
         new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 192)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
     ], 0);
 
     /// <summary>The enemy population of the Pre Map Flyway room.</summary>
-    internal static RoomEnemyPopulationDefinition PreMapFlyway { get; } = new("PreMapFlyway",
+    internal static PlacedRoomEnemyPopulationDefinition PreMapFlyway { get; } = new("PreMapFlyway",
     [
         new(EnemyDefinitionId.Mellow, EnemyPlacing.At(new(332, 110)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Mellow, EnemyPlacing.At(new(251, 89)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -387,7 +375,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 1);
 
     /// <summary>The enemy population of the Lower Mushrooms room.</summary>
-    internal static RoomEnemyPopulationDefinition LowerMushrooms { get; } = new("LowerMushrooms",
+    internal static PlacedRoomEnemyPopulationDefinition LowerMushrooms { get; } = new("LowerMushrooms",
     [
         new(EnemyDefinitionId.Kago, EnemyPlacing.At(new(256, 160)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KagoSpawnSettings(HitCount: 10)),
         new(EnemyDefinitionId.Kago, EnemyPlacing.At(new(528, 176)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KagoSpawnSettings(HitCount: 10)),
@@ -396,7 +384,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Landing Site room once the Zebes timebomb is set.</summary>
-    internal static RoomEnemyPopulationDefinition LandingSiteWhenZebesTimebombSet { get; } = new("LandingSiteWhenZebesTimebombSet",
+    internal static PlacedRoomEnemyPopulationDefinition LandingSiteWhenZebesTimebombSet { get; } = new("LandingSiteWhenZebesTimebombSet",
     [
         new(EnemyDefinitionId.ShipTop, EnemyPlacing.At(new(1152, 1144)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.ShipBottomEntrance, EnemyPlacing.At(new(1152, 1144)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new GunshipSpawnSettings(Part: GunshipBottomPiece.Hull)),
@@ -426,7 +414,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Parlor room once the Zebes timebomb is set.</summary>
-    internal static RoomEnemyPopulationDefinition ParlorWhenZebesTimebombSet { get; } = new("ParlorWhenZebesTimebombSet",
+    internal static PlacedRoomEnemyPopulationDefinition ParlorWhenZebesTimebombSet { get; } = new("ParlorWhenZebesTimebombSet",
     [
         new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(325, 181)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
         new(EnemyDefinitionId.CeresSteam, EnemyPlacing.At(new(441, 186)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
@@ -450,7 +438,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Bomb Torizo room once the Zebes timebomb is set.</summary>
-    internal static RoomEnemyPopulationDefinition BombTorizoWhenZebesTimebombSet { get; } = new("BombTorizoWhenZebesTimebombSet",
+    internal static PlacedRoomEnemyPopulationDefinition BombTorizoWhenZebesTimebombSet { get; } = new("BombTorizoWhenZebesTimebombSet",
     [
         new(EnemyDefinitionId.DachoraEscape, EnemyPlacing.At(new(224, 184)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.EtecoonEscape, EnemyPlacing.At(new(224, 184)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new EscapeEtecoonSpawnSettings(Role: EscapeEtecoonRole.LeftWalker)),
@@ -459,12 +447,10 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Flyway room once the Zebes timebomb is set.</summary>
-    internal static RoomEnemyPopulationDefinition FlywayWhenZebesTimebombSet { get; } = new("FlywayWhenZebesTimebombSet",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition FlywayWhenZebesTimebombSet { get; } = new("FlywayWhenZebesTimebombSet");
 
     /// <summary>The enemy population of the Crateria Kihunter room.</summary>
-    internal static RoomEnemyPopulationDefinition CrateriaKihunter { get; } = new("CrateriaKihunter",
+    internal static PlacedRoomEnemyPopulationDefinition CrateriaKihunter { get; } = new("CrateriaKihunter",
     [
         new(EnemyDefinitionId.KihunterGreen, EnemyPlacing.At(new(612, 115)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
         new(EnemyDefinitionId.KihunterGreenWings, EnemyPlacing.At(new(612, 115)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
@@ -475,7 +461,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Statues room.</summary>
-    internal static RoomEnemyPopulationDefinition Statues { get; } = new("Statues",
+    internal static PlacedRoomEnemyPopulationDefinition Statues { get; } = new("Statues",
     [
         new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 432)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 576)),
         new(EnemyDefinitionId.TourianStatue, EnemyPlacing.At(new(120, 184)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Role: TourianEntranceStatueRole.SpawnsDecorations)),
@@ -484,9 +470,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Statues Hallway room.</summary>
-    internal static RoomEnemyPopulationDefinition StatuesHallway { get; } = new("StatuesHallway",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition StatuesHallway { get; } = new("StatuesHallway");
 
     /// <summary>The Crateria rooms' lists, in their authored order.</summary>
     internal static RoomEnemyPopulationDefinition[] Lists { get; } =

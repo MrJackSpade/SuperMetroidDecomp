@@ -1,10 +1,10 @@
-using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.TestSupport.VerificationImporters;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
 
@@ -48,13 +48,26 @@ internal static class LookupRetailDoorHeadersVerification
         AssertEqual(SignedEightEight.Zero, DoorSamusSpeed.None.Step(DoorDirection.Left), "no push");
     }
 
-    /// <summary>Accepts exactly the 596 physical door headers of the game and rejects pseudo-doors and interior bytes.</summary>
+    /// <summary>
+    /// Accepts exactly the 594 door headers the game holds, each a physical record of one of the two bank-$83 door blocks,
+    /// and rejects pseudo-doors and interior bytes.
+    /// </summary>
     private static void VerifyDoorHeaderIdentities()
     {
-        // Original physical record regions are independently documented in bank83. The
-        // 88FC and A18A elevator pseudo-doors are door-list entries, not headers.
-        var original = EnumerateRetailDoorPointers().ToHashSet();
-        AssertEqual(596, original.Count, "Original physical header domain");
+        // The 88FC and A18A elevator pseudo-doors are door-list entries, not headers.
+        var original = RetailDoorHeaderCatalog.EnumeratePointers().ToHashSet();
+        AssertEqual(594, original.Count, "Held door header domain");
+        foreach (ushort pointer in original)
+        {
+            int start = pointer >= DoorHeaderRomDataConstants.PostFxBlockStart
+                ? DoorHeaderRomDataConstants.PostFxBlockStart
+                : DoorHeaderRomDataConstants.PreFxBlockStart;
+            int end = pointer >= DoorHeaderRomDataConstants.PostFxBlockStart
+                ? DoorHeaderRomDataConstants.PostFxBlockEnd
+                : DoorHeaderRomDataConstants.PreFxBlockEnd;
+            AssertTrue(pointer >= start && pointer <= end && (pointer - start) % DoorHeaderRomDataConstants.RecordByteCount == 0,
+                $"Held door {pointer:X4} is a physical record of a bank-$83 door block");
+        }
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;
@@ -92,7 +105,7 @@ internal static class LookupRetailDoorHeadersVerification
     {
         VerifyDoorHeaderField(rom, 10, 2,
             raw => DoorIdentityWords.SetupRoutines.Decode(checked((ushort)raw), "door setup routine"), header => header.Setup);
-        foreach (ushort pointer in EnumerateRetailDoorPointers())
+        foreach (ushort pointer in RetailDoorHeaderCatalog.EnumeratePointers())
         {
             DoorDefinition door = DoorDefinitions.Get(pointer);
             AssertEqual(door.Setup == DoorSetupDefinitions.CeresElevatorShowsTurningFloor,
@@ -105,7 +118,7 @@ internal static class LookupRetailDoorHeadersVerification
     private static void VerifyDoorHeaderField<T>(CartridgeImportAddressSpace rom, int offset, int width,
         Func<int, T> decode, Func<DoorDefinition, T> field)
     {
-        foreach (ushort pointer in EnumerateRetailDoorPointers())
+        foreach (ushort pointer in RetailDoorHeaderCatalog.EnumeratePointers())
         {
             int address = (0x830000 | pointer) + offset;
             int raw = DoorHeaderFieldRomByte(rom, address);

@@ -16,13 +16,13 @@ namespace SuperMetroid.Core.World.RoomStates;
 internal static class WreckedShipRoomEnemyPopulationDefinitions
 {
     /// <summary>The enemy population of the Sponge Bath room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition SpongeBathWhenAreaBossDead { get; } = new("SpongeBathWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition SpongeBathWhenAreaBossDead { get; } = new("SpongeBathWhenAreaBossDead",
     [
         new(EnemyDefinitionId.Bull, EnemyPlacing.At(new(240, 136)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: SignedEightEight.FromPixelFraction(1791, 256))),
     ], 1);
 
     /// <summary>The enemy population of the Wrecked Ship Energy Tank room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition WreckedShipEnergyTankWhenAreaBossDead { get; } = new("WreckedShipEnergyTankWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition WreckedShipEnergyTankWhenAreaBossDead { get; } = new("WreckedShipEnergyTankWhenAreaBossDead",
     [
         new(EnemyDefinitionId.Skultera, EnemyPlacing.At(new(173, 374)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 16, AngleStep: RotationAngle.FromSteps(2))),
         new(EnemyDefinitionId.Skultera, EnemyPlacing.At(new(576, 300)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Left, Radius: 16, AngleStep: RotationAngle.FromSteps(2))),
@@ -32,7 +32,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 2);
 
     /// <summary>The enemy population of the Wrecked Ship Main Shaft room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition WreckedShipMainShaftDefault { get; } = new("WreckedShipMainShaftDefault",
+    internal static PlacedRoomEnemyPopulationDefinition WreckedShipMainShaftDefault { get; } = new("WreckedShipMainShaftDefault",
     [
         new(EnemyDefinitionId.Coven, EnemyPlacing.At(new(56, 984)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(1090, 842)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(112), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
@@ -68,7 +68,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Bowling Alley room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition BowlingAlleyDefault { get; } = new("BowlingAlleyDefault",
+    internal static PlacedRoomEnemyPopulationDefinition BowlingAlleyDefault { get; } = new("BowlingAlleyDefault",
     [
         new(EnemyDefinitionId.Chozo, EnemyPlacing.At(new(1224, 394)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ChozoStatueSpawnSettings(Site: ChozoStatueSite.WreckedShip)),
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(1227, 393)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(194), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
@@ -94,7 +94,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Attic room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition AtticWhenAreaBossDead { get; } = new("AtticWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition AtticWhenAreaBossDead { get; } = new("AtticWhenAreaBossDead",
     [
         new(EnemyDefinitionId.KihunterYellow, EnemyPlacing.At(new(1049, 200)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Wingless)),
         new(EnemyDefinitionId.KihunterYellowWings, EnemyPlacing.At(new(1049, 200)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
@@ -120,7 +120,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 8);
 
     /// <summary>The enemy population of the Basement room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition BasementWhenAreaBossDead { get; } = new("BasementWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition BasementWhenAreaBossDead { get; } = new("BasementWhenAreaBossDead",
     [
         new(EnemyDefinitionId.WorkRobot, EnemyPlacing.At(new(77, 176)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WorkRobotSpawnSettings(Pose: WorkRobotSegment.NoPowerNeutral)),
         new(EnemyDefinitionId.WorkRobot, EnemyPlacing.At(new(880, 176)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WorkRobotSpawnSettings(Pose: WorkRobotSegment.NoPowerNeutral)),
@@ -131,37 +131,25 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 5);
 
     /// <summary>The enemy population of the Wrecked Ship Map room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition WreckedShipMapWhenAreaBossDead { get; } = new("WreckedShipMapWhenAreaBossDead",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition WreckedShipMapWhenAreaBossDead { get; } = new("WreckedShipMapWhenAreaBossDead");
 
     /// <summary>The enemy population of the Wrecked Ship West Super room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition WreckedShipWestSuperDefault { get; } = new("WreckedShipWestSuperDefault",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition WreckedShipWestSuperDefault { get; } = new("WreckedShipWestSuperDefault");
 
     /// <summary>The enemy population of the Spiky Death room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition SpikyDeathDefault { get; } = new("SpikyDeathDefault",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition SpikyDeathDefault { get; } = new("SpikyDeathDefault");
 
     /// <summary>The enemy population of the Sponge Bath room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition SpongeBathDefault { get; } = new("SpongeBathDefault",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition SpongeBathDefault { get; } = new("SpongeBathDefault");
 
     /// <summary>The enemy population of the Wrecked Ship Entrance room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition WreckedShipEntranceWhenAreaBossDead { get; } = new("WreckedShipEntranceWhenAreaBossDead",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition WreckedShipEntranceWhenAreaBossDead { get; } = new("WreckedShipEntranceWhenAreaBossDead");
 
     /// <summary>The enemy population of the Electric Death room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition ElectricDeathDefault { get; } = new("ElectricDeathDefault",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition ElectricDeathDefault { get; } = new("ElectricDeathDefault");
 
     /// <summary>The enemy population of the Bowling Alley room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition BowlingAlleyWhenAreaBossDead { get; } = new("BowlingAlleyWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition BowlingAlleyWhenAreaBossDead { get; } = new("BowlingAlleyWhenAreaBossDead",
     [
         new(EnemyDefinitionId.Chozo, EnemyPlacing.At(new(1224, 394)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ChozoStatueSpawnSettings(Site: ChozoStatueSite.WreckedShip)),
         new(EnemyDefinitionId.WorkRobot, EnemyPlacing.At(new(752, 624)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WorkRobotSpawnSettings(Pose: WorkRobotSegment.NoPowerNeutral)),
@@ -169,27 +157,19 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 2);
 
     /// <summary>The enemy population of Wrecked Ship's Assembly Line room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition AssemblyLineDefault { get; } = new("AssemblyLineDefault",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition AssemblyLineDefault { get; } = new("AssemblyLineDefault");
 
     /// <summary>The enemy population of the Phantoon room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition PhantoonWhenAreaBossDead { get; } = new("PhantoonWhenAreaBossDead",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition PhantoonWhenAreaBossDead { get; } = new("PhantoonWhenAreaBossDead");
 
     /// <summary>The enemy population of the Wrecked Ship Energy Tank room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition WreckedShipEnergyTankDefault { get; } = new("WreckedShipEnergyTankDefault",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition WreckedShipEnergyTankDefault { get; } = new("WreckedShipEnergyTankDefault");
 
     /// <summary>The enemy population of the Gravity Suit room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition GravitySuitDefault { get; } = new("GravitySuitDefault",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition GravitySuitDefault { get; } = new("GravitySuitDefault");
 
     /// <summary>The enemy population of the Wrecked Ship Map room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition WreckedShipMapDefault { get; } = new("WreckedShipMapDefault",
+    internal static PlacedRoomEnemyPopulationDefinition WreckedShipMapDefault { get; } = new("WreckedShipMapDefault",
     [
         new(EnemyDefinitionId.Coven, EnemyPlacing.At(new(136, 136)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(88, 184)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(184), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
@@ -203,12 +183,10 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 1);
 
     /// <summary>The enemy population of the Gravity Suit room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition GravitySuitWhenAreaBossDead { get; } = new("GravitySuitWhenAreaBossDead",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition GravitySuitWhenAreaBossDead { get; } = new("GravitySuitWhenAreaBossDead");
 
     /// <summary>The enemy population of the Basement room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition BasementDefault { get; } = new("BasementDefault",
+    internal static PlacedRoomEnemyPopulationDefinition BasementDefault { get; } = new("BasementDefault",
     [
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(875, 187)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(194), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(880, 184)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 4, InitialAngle: RotationAngle.FromSteps(220), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
@@ -235,7 +213,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 2);
 
     /// <summary>The enemy population of the Wrecked Ship Entrance room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition WreckedShipEntranceDefault { get; } = new("WreckedShipEntranceDefault",
+    internal static PlacedRoomEnemyPopulationDefinition WreckedShipEntranceDefault { get; } = new("WreckedShipEntranceDefault",
     [
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(116, 64)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(24), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(124, 189)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(224), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
@@ -272,7 +250,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of Wrecked Ship's Assembly Line room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition AssemblyLineWhenAreaBossDead { get; } = new("AssemblyLineWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition AssemblyLineWhenAreaBossDead { get; } = new("AssemblyLineWhenAreaBossDead",
     [
         new(EnemyDefinitionId.Spark, EnemyPlacing.At(new(464, 93)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Emitter, BaseActionTime: 152)),
         new(EnemyDefinitionId.Spark, EnemyPlacing.At(new(624, 91)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseActionTime: 64)),
@@ -288,12 +266,10 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Wrecked Ship Save room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition WreckedShipSaveWhenAreaBossDead { get; } = new("WreckedShipSaveWhenAreaBossDead",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition WreckedShipSaveWhenAreaBossDead { get; } = new("WreckedShipSaveWhenAreaBossDead");
 
     /// <summary>The enemy population of the Wrecked Ship West Super room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition WreckedShipWestSuperWhenAreaBossDead { get; } = new("WreckedShipWestSuperWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition WreckedShipWestSuperWhenAreaBossDead { get; } = new("WreckedShipWestSuperWhenAreaBossDead",
     [
         new(EnemyDefinitionId.Spark, EnemyPlacing.At(new(154, 58)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseActionTime: 48)),
         new(EnemyDefinitionId.Spark, EnemyPlacing.At(new(52, 59)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseActionTime: 32)),
@@ -303,7 +279,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Attic room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition AtticDefault { get; } = new("AtticDefault",
+    internal static PlacedRoomEnemyPopulationDefinition AtticDefault { get; } = new("AtticDefault",
     [
         new(EnemyDefinitionId.Coven, EnemyPlacing.At(new(727, 152)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(1705, 186)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(170), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
@@ -337,7 +313,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 10);
 
     /// <summary>The enemy population of the Wrecked Ship East Super room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition WreckedShipEastSuperDefault { get; } = new("WreckedShipEastSuperDefault",
+    internal static PlacedRoomEnemyPopulationDefinition WreckedShipEastSuperDefault { get; } = new("WreckedShipEastSuperDefault",
     [
         new(EnemyDefinitionId.Coven, EnemyPlacing.At(new(136, 136)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(847, 154)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(194), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
@@ -369,7 +345,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 7);
 
     /// <summary>The enemy population of the Wrecked Ship Save room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition WreckedShipSaveDefault { get; } = new("WreckedShipSaveDefault",
+    internal static PlacedRoomEnemyPopulationDefinition WreckedShipSaveDefault { get; } = new("WreckedShipSaveDefault",
     [
         new(EnemyDefinitionId.Coven, EnemyPlacing.At(new(136, 136)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(131, 186)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(176), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
@@ -386,7 +362,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 1);
 
     /// <summary>The enemy population of the Electric Death room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition ElectricDeathWhenAreaBossDead { get; } = new("ElectricDeathWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition ElectricDeathWhenAreaBossDead { get; } = new("ElectricDeathWhenAreaBossDead",
     [
         new(EnemyDefinitionId.Spark, EnemyPlacing.At(new(104, 600)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Emitter, BaseActionTime: 128)),
         new(EnemyDefinitionId.Spark, EnemyPlacing.At(new(42, 551)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseActionTime: 128)),
@@ -398,7 +374,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Spiky Death room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition SpikyDeathWhenAreaBossDead { get; } = new("SpikyDeathWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition SpikyDeathWhenAreaBossDead { get; } = new("SpikyDeathWhenAreaBossDead",
     [
         new(EnemyDefinitionId.KzanTop, EnemyPlacing.At(new(80, 96)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromWholePixels(4), FallWait: 16, FallDistance: 104)),
         new(EnemyDefinitionId.KzanBottom, EnemyPlacing.At(new(80, 104)), EnemyContact.None, EnemyProcessing.None, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
@@ -413,7 +389,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Wrecked Ship East Super room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition WreckedShipEastSuperWhenAreaBossDead { get; } = new("WreckedShipEastSuperWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition WreckedShipEastSuperWhenAreaBossDead { get; } = new("WreckedShipEastSuperWhenAreaBossDead",
     [
         new(EnemyDefinitionId.WorkRobot, EnemyPlacing.At(new(376, 128)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WorkRobotSpawnSettings(Pose: WorkRobotSegment.NoPowerNeutral)),
         new(EnemyDefinitionId.WorkRobot, EnemyPlacing.At(new(704, 128)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WorkRobotSpawnSettings(Pose: WorkRobotSegment.NoPowerNeutral)),
@@ -426,7 +402,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Phantoon room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition PhantoonDefault { get; } = new("PhantoonDefault",
+    internal static PlacedRoomEnemyPopulationDefinition PhantoonDefault { get; } = new("PhantoonDefault",
     [
         new(EnemyDefinitionId.PhantoonBody, EnemyPlacing.At(new(128, 96)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
         new(EnemyDefinitionId.PhantoonEye, EnemyPlacing.At(new(128, 96)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
@@ -435,7 +411,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Wrecked Ship Main Shaft room once the area's boss is dead.</summary>
-    internal static RoomEnemyPopulationDefinition WreckedShipMainShaftWhenAreaBossDead { get; } = new("WreckedShipMainShaftWhenAreaBossDead",
+    internal static PlacedRoomEnemyPopulationDefinition WreckedShipMainShaftWhenAreaBossDead { get; } = new("WreckedShipMainShaftWhenAreaBossDead",
     [
         new(EnemyDefinitionId.Spark, EnemyPlacing.At(new(1176, 680)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseActionTime: 48)),
         new(EnemyDefinitionId.Spark, EnemyPlacing.At(new(1136, 857)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseActionTime: 40)),

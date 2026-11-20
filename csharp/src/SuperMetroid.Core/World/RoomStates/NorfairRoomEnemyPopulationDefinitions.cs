@@ -31,7 +31,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 internal static class NorfairRoomEnemyPopulationDefinitions
 {
     /// <summary>The enemy population of the Grapple Tutorial 3 room.</summary>
-    internal static RoomEnemyPopulationDefinition GrappleTutorial3 { get; } = new("GrappleTutorial3",
+    internal static PlacedRoomEnemyPopulationDefinition GrappleTutorial3 { get; } = new("GrappleTutorial3",
     [
         new(EnemyDefinitionId.Gamet, EnemyPlacing.At(new(208, 360)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugLeaderSpawnSettings(TriggerWidth: 48, Speed: SignedSixteenSixteen.FromWholePixels(3))),
         new(EnemyDefinitionId.Gamet, EnemyPlacing.At(new(208, 360)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
@@ -46,7 +46,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Post-Crocomire Shaft room.</summary>
-    internal static RoomEnemyPopulationDefinition PostCrocomireShaft { get; } = new("PostCrocomireShaft",
+    internal static PlacedRoomEnemyPopulationDefinition PostCrocomireShaft { get; } = new("PostCrocomireShaft",
     [
         new(EnemyDefinitionId.Viola, EnemyPlacing.At(new(119, 840)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ViolaSpawnSettings(BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
         new(EnemyDefinitionId.Viola, EnemyPlacing.At(new(96, 936)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ViolaSpawnSettings(BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
@@ -55,14 +55,14 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Metal Pirates room.</summary>
-    internal static RoomEnemyPopulationDefinition MetalPirates { get; } = new("MetalPirates",
+    internal static PlacedRoomEnemyPopulationDefinition MetalPirates { get; } = new("MetalPirates",
     [
         new(EnemyDefinitionId.PirateGoldNinja, EnemyPlacing.At(new(232, 176)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, new NinjaSpacePirateSpawnSettings(StartPost: NinjaSpacePirateStartPost.Left, PostDistance: 192)),
         new(EnemyDefinitionId.PirateGoldNinja, EnemyPlacing.At(new(536, 176)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, new NinjaSpacePirateSpawnSettings(StartPost: NinjaSpacePirateStartPost.Right, PostDistance: 192)),
     ], 2);
 
     /// <summary>The enemy population of the Acid Statue room.</summary>
-    internal static RoomEnemyPopulationDefinition AcidStatue { get; } = new("AcidStatue",
+    internal static PlacedRoomEnemyPopulationDefinition AcidStatue { get; } = new("AcidStatue",
     [
         new(EnemyDefinitionId.Chozo, EnemyPlacing.At(new(44, 154)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ChozoStatueSpawnSettings(Site: ChozoStatueSite.LowerNorfair)),
         new(EnemyDefinitionId.Magdollite, EnemyPlacing.At(new(472, 728)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MagdolliteHeadSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(2), Range: 240)),
@@ -77,7 +77,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Purple Farming room.</summary>
-    internal static RoomEnemyPopulationDefinition PurpleFarming { get; } = new("PurpleFarming",
+    internal static PlacedRoomEnemyPopulationDefinition PurpleFarming { get; } = new("PurpleFarming",
     [
         new(EnemyDefinitionId.Gamet, EnemyPlacing.At(new(128, 184)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugLeaderSpawnSettings(TriggerWidth: 48, Speed: SignedSixteenSixteen.FromWholePixels(3))),
         new(EnemyDefinitionId.Gamet, EnemyPlacing.At(new(128, 184)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
@@ -87,7 +87,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 1);
 
     /// <summary>The enemy population of the Ice Beam Gate room.</summary>
-    internal static RoomEnemyPopulationDefinition IceBeamGate { get; } = new("IceBeamGate",
+    internal static PlacedRoomEnemyPopulationDefinition IceBeamGate { get; } = new("IceBeamGate",
     [
         new(EnemyDefinitionId.ShutterGrowing, EnemyPlacing.At(new(1032, 600)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrowingShutterSpawnSettings(Wait: GrowingShutterWait.SamusNear, Growth: VerticalDirection.Down, ActivationDistance: 240, ActivationWait: 0, GrowthSpeed: SignedSixteenSixteen.FromPixelFraction(7, 8))),
         new(EnemyDefinitionId.ShutterGrowing, EnemyPlacing.At(new(1544, 600)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrowingShutterSpawnSettings(Wait: GrowingShutterWait.SamusNear, Growth: VerticalDirection.Down, ActivationDistance: 104, ActivationWait: 0, GrowthSpeed: SignedSixteenSixteen.FromPixelFraction(17, 16))),
@@ -104,7 +104,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Spiky Acid Snakes Tunnel room.</summary>
-    internal static RoomEnemyPopulationDefinition SpikyAcidSnakesTunnel { get; } = new("SpikyAcidSnakesTunnel",
+    internal static PlacedRoomEnemyPopulationDefinition SpikyAcidSnakesTunnel { get; } = new("SpikyAcidSnakesTunnel",
     [
         new(EnemyDefinitionId.YappingMaw, EnemyPlacing.At(new(392, 216)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 128, Attack: VerticalDirection.Up)),
         new(EnemyDefinitionId.YappingMaw, EnemyPlacing.At(new(537, 215)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 128, Attack: VerticalDirection.Up)),
@@ -112,7 +112,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Red Kihunter Shaft room.</summary>
-    internal static RoomEnemyPopulationDefinition RedKihunterShaft { get; } = new("RedKihunterShaft",
+    internal static PlacedRoomEnemyPopulationDefinition RedKihunterShaft { get; } = new("RedKihunterShaft",
     [
         new(EnemyDefinitionId.KihunterRed, EnemyPlacing.At(new(185, 470)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
         new(EnemyDefinitionId.KihunterRedWings, EnemyPlacing.At(new(185, 470)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
@@ -123,7 +123,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Fast Ripper room.</summary>
-    internal static RoomEnemyPopulationDefinition FastRipper { get; } = new("FastRipper",
+    internal static PlacedRoomEnemyPopulationDefinition FastRipper { get; } = new("FastRipper",
     [
         new(EnemyDefinitionId.JetRipper, EnemyPlacing.At(new(472, 120)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(4), Direction: HorizontalDirection.Left)),
         new(EnemyDefinitionId.JetRipper, EnemyPlacing.At(new(472, 88)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(4), Direction: HorizontalDirection.Left)),
@@ -134,12 +134,10 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Wave Beam room.</summary>
-    internal static RoomEnemyPopulationDefinition WaveBeam { get; } = new("WaveBeam",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition WaveBeam { get; } = new("WaveBeam");
 
     /// <summary>The enemy population of the Fast Pillars Setup room.</summary>
-    internal static RoomEnemyPopulationDefinition FastPillarsSetup { get; } = new("FastPillarsSetup",
+    internal static PlacedRoomEnemyPopulationDefinition FastPillarsSetup { get; } = new("FastPillarsSetup",
     [
         new(EnemyDefinitionId.PirateGoldWall, EnemyPlacing.At(new(209, 312)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WallSpacePirateSpawnSettings(Wall: HorizontalDirection.Right, LaserSpeed: PirateLaserSpeed.Fast, JumpSpeed: WallSpacePirateJumpSpeed.Fast, JumpSpan: 160)),
         new(EnemyDefinitionId.PirateGoldWall, EnemyPlacing.At(new(45, 184)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WallSpacePirateSpawnSettings(Wall: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Fast, JumpSpeed: WallSpacePirateJumpSpeed.Fast, JumpSpan: 160)),
@@ -149,28 +147,22 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 5);
 
     /// <summary>The enemy population of the Lower Norfair Elevator room.</summary>
-    internal static RoomEnemyPopulationDefinition LowerNorfairElevator { get; } = new("LowerNorfairElevator",
+    internal static PlacedRoomEnemyPopulationDefinition LowerNorfairElevator { get; } = new("LowerNorfairElevator",
     [
         new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 160)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
     ], 0);
 
     /// <summary>The enemy population of the Lower Norfair Save room.</summary>
-    internal static RoomEnemyPopulationDefinition LowerNorfairSave { get; } = new("LowerNorfairSave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition LowerNorfairSave { get; } = new("LowerNorfairSave");
 
     /// <summary>The enemy population of the Upper Norfair Refill room.</summary>
-    internal static RoomEnemyPopulationDefinition UpperNorfairRefill { get; } = new("UpperNorfairRefill",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition UpperNorfairRefill { get; } = new("UpperNorfairRefill");
 
     /// <summary>The enemy population of the Norfair Map room.</summary>
-    internal static RoomEnemyPopulationDefinition NorfairMap { get; } = new("NorfairMap",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition NorfairMap { get; } = new("NorfairMap");
 
     /// <summary>The enemy population of the Mickey Mouse room.</summary>
-    internal static RoomEnemyPopulationDefinition MickeyMouse { get; } = new("MickeyMouse",
+    internal static PlacedRoomEnemyPopulationDefinition MickeyMouse { get; } = new("MickeyMouse",
     [
         new(EnemyDefinitionId.DessgeegaLarge, EnemyPlacing.At(new(960, 907)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
         new(EnemyDefinitionId.DessgeegaLarge, EnemyPlacing.At(new(855, 906)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
@@ -187,38 +179,28 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 5);
 
     /// <summary>The enemy population of the Golden Torizo Energy Refill room.</summary>
-    internal static RoomEnemyPopulationDefinition GoldenTorizoEnergyRefill { get; } = new("GoldenTorizoEnergyRefill",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition GoldenTorizoEnergyRefill { get; } = new("GoldenTorizoEnergyRefill");
 
     /// <summary>The enemy population of the Ridley room.</summary>
-    internal static RoomEnemyPopulationDefinition Ridley { get; } = new("Ridley",
+    internal static PlacedRoomEnemyPopulationDefinition Ridley { get; } = new("Ridley",
     [
         new(EnemyDefinitionId.Ridley, EnemyPlacing.At(OffRoomPlaces.Placed(new Offset16<RoomPixels>(48, -16))), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
     ], 0);
 
     /// <summary>The enemy population of the Post-Crocomire Power Bombs room.</summary>
-    internal static RoomEnemyPopulationDefinition PostCrocomirePowerBombs { get; } = new("PostCrocomirePowerBombs",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition PostCrocomirePowerBombs { get; } = new("PostCrocomirePowerBombs");
 
     /// <summary>The enemy population of the Ice Beam room.</summary>
-    internal static RoomEnemyPopulationDefinition IceBeam { get; } = new("IceBeam",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition IceBeam { get; } = new("IceBeam");
 
     /// <summary>The enemy population of the Hi-Jump Boots room.</summary>
-    internal static RoomEnemyPopulationDefinition HiJumpBoots { get; } = new("HiJumpBoots",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition HiJumpBoots { get; } = new("HiJumpBoots");
 
     /// <summary>The enemy population of the Post-Crocomire Save room.</summary>
-    internal static RoomEnemyPopulationDefinition PostCrocomireSave { get; } = new("PostCrocomireSave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition PostCrocomireSave { get; } = new("PostCrocomireSave");
 
     /// <summary>The enemy population of the Frog Speedway room.</summary>
-    internal static RoomEnemyPopulationDefinition FrogSpeedway { get; } = new("FrogSpeedway",
+    internal static PlacedRoomEnemyPopulationDefinition FrogSpeedway { get; } = new("FrogSpeedway",
     [
         new(EnemyDefinitionId.Beetom, EnemyPlacing.At(new(696, 152)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Beetom, EnemyPlacing.At(new(744, 152)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -229,7 +211,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Rising Tide room.</summary>
-    internal static RoomEnemyPopulationDefinition RisingTide { get; } = new("RisingTide",
+    internal static PlacedRoomEnemyPopulationDefinition RisingTide { get; } = new("RisingTide",
     [
         new(EnemyDefinitionId.Squeept, EnemyPlacing.At(new(232, 240)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new EnemyFollowerSpawnSettings(Role: EnemyFollowerRole.Leader)),
         new(EnemyDefinitionId.Squeept, EnemyPlacing.At(new(232, 240)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new EnemyFollowerSpawnSettings(Role: EnemyFollowerRole.Follower)),
@@ -251,7 +233,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 11);
 
     /// <summary>The enemy population of the Post-Crocomire Farming room.</summary>
-    internal static RoomEnemyPopulationDefinition PostCrocomireFarming { get; } = new("PostCrocomireFarming",
+    internal static PlacedRoomEnemyPopulationDefinition PostCrocomireFarming { get; } = new("PostCrocomireFarming",
     [
         new(EnemyDefinitionId.Gamet, EnemyPlacing.At(new(304, 456)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugLeaderSpawnSettings(TriggerWidth: 48, Speed: SignedSixteenSixteen.FromWholePixels(3))),
         new(EnemyDefinitionId.Gamet, EnemyPlacing.At(new(304, 456)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
@@ -263,7 +245,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 2);
 
     /// <summary>The enemy population of the Worst Room in the Game.</summary>
-    internal static RoomEnemyPopulationDefinition WorstRoomInTheGame { get; } = new("WorstRoomInTheGame",
+    internal static PlacedRoomEnemyPopulationDefinition WorstRoomInTheGame { get; } = new("WorstRoomInTheGame",
     [
         new(EnemyDefinitionId.Namihe, EnemyPlacing.At(new(218, 1399)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new NamiheSpawnSettings(Facing: HorizontalDirection.Left, LaunchSpeed: SignedEightEight.FromPixels(2), YProximity: 64)),
         new(EnemyDefinitionId.PirateGoldWall, EnemyPlacing.At(new(208, 1272)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WallSpacePirateSpawnSettings(Wall: HorizontalDirection.Right, LaserSpeed: PirateLaserSpeed.Fast, JumpSpeed: WallSpacePirateJumpSpeed.Fast, JumpSpan: 160)),
@@ -279,7 +261,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 11);
 
     /// <summary>The enemy population of the Double Chamber room.</summary>
-    internal static RoomEnemyPopulationDefinition DoubleChamber { get; } = new("DoubleChamber",
+    internal static PlacedRoomEnemyPopulationDefinition DoubleChamber { get; } = new("DoubleChamber",
     [
         new(EnemyDefinitionId.Fune, EnemyPlacing.At(new(48, 208)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FuneSpawnSettings(Facing: HorizontalDirection.Right, CooldownTime: 80, LaunchSpeed: SignedEightEight.FromPixels(2))),
         new(EnemyDefinitionId.Fune, EnemyPlacing.At(new(448, 216)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FuneSpawnSettings(Facing: HorizontalDirection.Left, CooldownTime: 80, LaunchSpeed: SignedEightEight.FromPixels(2))),
@@ -292,12 +274,10 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Grapple Beam room.</summary>
-    internal static RoomEnemyPopulationDefinition GrappleBeam { get; } = new("GrappleBeam",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition GrappleBeam { get; } = new("GrappleBeam");
 
     /// <summary>The enemy population of the Red Pirate Shaft room.</summary>
-    internal static RoomEnemyPopulationDefinition RedPirateShaft { get; } = new("RedPirateShaft",
+    internal static PlacedRoomEnemyPopulationDefinition RedPirateShaft { get; } = new("RedPirateShaft",
     [
         new(EnemyDefinitionId.PirateRedWalking, EnemyPlacing.At(new(80, 512)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Right, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 8)),
         new(EnemyDefinitionId.PirateRedWalking, EnemyPlacing.At(new(176, 384)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 8)),
@@ -309,7 +289,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 7);
 
     /// <summary>The enemy population of the Crocomire Speedway room.</summary>
-    internal static RoomEnemyPopulationDefinition CrocomireSpeedway { get; } = new("CrocomireSpeedway",
+    internal static PlacedRoomEnemyPopulationDefinition CrocomireSpeedway { get; } = new("CrocomireSpeedway",
     [
         new(EnemyDefinitionId.PirateRedWalking, EnemyPlacing.At(new(2232, 624)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 0)),
         new(EnemyDefinitionId.Multiviola, EnemyPlacing.At(new(1043, 204)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MultiviolaSpawnSettings(Heading: new TrigonometryAngle(240), Speed: 3)),
@@ -325,7 +305,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 7);
 
     /// <summary>The enemy population of the Plowerhouse room.</summary>
-    internal static RoomEnemyPopulationDefinition Plowerhouse { get; } = new("Plowerhouse",
+    internal static PlacedRoomEnemyPopulationDefinition Plowerhouse { get; } = new("Plowerhouse",
     [
         new(EnemyDefinitionId.Holtz, EnemyPlacing.At(new(600, 88)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new EnemyFollowerSpawnSettings(Role: EnemyFollowerRole.Leader)),
         new(EnemyDefinitionId.Holtz, EnemyPlacing.At(new(600, 88)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new EnemyFollowerSpawnSettings(Role: EnemyFollowerRole.Follower)),
@@ -345,7 +325,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 9);
 
     /// <summary>The enemy population of the Lower Norfair Fireflea room.</summary>
-    internal static RoomEnemyPopulationDefinition LowerNorfairFireflea { get; } = new("LowerNorfairFireflea",
+    internal static PlacedRoomEnemyPopulationDefinition LowerNorfairFireflea { get; } = new("LowerNorfairFireflea",
     [
         new(EnemyDefinitionId.Fune, EnemyPlacing.At(new(496, 720)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FuneSpawnSettings(Facing: HorizontalDirection.Left, CooldownTime: 1, LaunchSpeed: SignedEightEight.FromPixels(2))),
         new(EnemyDefinitionId.Fune, EnemyPlacing.At(new(272, 488)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FuneSpawnSettings(Facing: HorizontalDirection.Right, CooldownTime: 1, LaunchSpeed: SignedEightEight.FromPixels(2))),
@@ -363,7 +343,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 10);
 
     /// <summary>The enemy population of the Magdollite Tunnel room.</summary>
-    internal static RoomEnemyPopulationDefinition MagdolliteTunnel { get; } = new("MagdolliteTunnel",
+    internal static PlacedRoomEnemyPopulationDefinition MagdolliteTunnel { get; } = new("MagdolliteTunnel",
     [
         new(EnemyDefinitionId.Magdollite, EnemyPlacing.At(new(248, 184)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MagdolliteHeadSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(29, 8), Range: 96)),
         new(EnemyDefinitionId.Magdollite, EnemyPlacing.At(new(248, 184)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MagdolliteBodySpawnSettings()),
@@ -379,7 +359,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Lava Dive room.</summary>
-    internal static RoomEnemyPopulationDefinition LavaDive { get; } = new("LavaDive",
+    internal static PlacedRoomEnemyPopulationDefinition LavaDive { get; } = new("LavaDive",
     [
         new(EnemyDefinitionId.Namihe, EnemyPlacing.At(new(496, 264)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new NamiheSpawnSettings(Facing: HorizontalDirection.Left, LaunchSpeed: SignedEightEight.FromPixelFraction(3, 2), YProximity: 128)),
         new(EnemyDefinitionId.Namihe, EnemyPlacing.At(new(288, 464)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new NamiheSpawnSettings(Facing: HorizontalDirection.Right, LaunchSpeed: SignedEightEight.FromPixelFraction(3, 2), YProximity: 128)),
@@ -390,14 +370,14 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Pillar room.</summary>
-    internal static RoomEnemyPopulationDefinition Pillar { get; } = new("Pillar",
+    internal static PlacedRoomEnemyPopulationDefinition Pillar { get; } = new("Pillar",
     [
         new(EnemyDefinitionId.NuclearWaffle, EnemyPlacing.At(new(400, 208)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new NuclearWaffleSpawnSettings(AngularSpeed: AngularSpeed.FromSteps(1), OrbitRadius: 64, Direction: NuclearWaffleSweepDirection.Forward, WaitTime: 32)),
         new(EnemyDefinitionId.NuclearWaffle, EnemyPlacing.At(new(720, 208)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new NuclearWaffleSpawnSettings(AngularSpeed: AngularSpeed.FromSteps(1), OrbitRadius: 64, Direction: NuclearWaffleSweepDirection.Forward, WaitTime: 32)),
     ], 0);
 
     /// <summary>The enemy population of the Crocomire Escape room.</summary>
-    internal static RoomEnemyPopulationDefinition CrocomireEscape { get; } = new("CrocomireEscape",
+    internal static PlacedRoomEnemyPopulationDefinition CrocomireEscape { get; } = new("CrocomireEscape",
     [
         new(EnemyDefinitionId.Dragon, EnemyPlacing.At(new(896, 488)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new DragonSpawnSettings(Part: DragonPart.Body)),
         new(EnemyDefinitionId.Dragon, EnemyPlacing.At(new(896, 488)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new DragonSpawnSettings(Part: DragonPart.Wing)),
@@ -414,7 +394,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Lower Norfair Spring Ball Maze room.</summary>
-    internal static RoomEnemyPopulationDefinition LowerNorfairSpringBallMaze { get; } = new("LowerNorfairSpringBallMaze",
+    internal static PlacedRoomEnemyPopulationDefinition LowerNorfairSpringBallMaze { get; } = new("LowerNorfairSpringBallMaze",
     [
         new(EnemyDefinitionId.Alcoon, EnemyPlacing.At(new(256, 512)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Alcoon, EnemyPlacing.At(new(337, 512)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -424,27 +404,19 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 5);
 
     /// <summary>The enemy population of the Lower Norfair Escape Power Bombs room.</summary>
-    internal static RoomEnemyPopulationDefinition LowerNorfairEscapePowerBombs { get; } = new("LowerNorfairEscapePowerBombs",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition LowerNorfairEscapePowerBombs { get; } = new("LowerNorfairEscapePowerBombs");
 
     /// <summary>The enemy population of the Purple Shaft room.</summary>
-    internal static RoomEnemyPopulationDefinition PurpleShaft { get; } = new("PurpleShaft",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition PurpleShaft { get; } = new("PurpleShaft");
 
     /// <summary>The enemy population of the Ridley Energy Tank room.</summary>
-    internal static RoomEnemyPopulationDefinition RidleyEnergyTank { get; } = new("RidleyEnergyTank",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition RidleyEnergyTank { get; } = new("RidleyEnergyTank");
 
     /// <summary>The enemy population of the Screw Attack room.</summary>
-    internal static RoomEnemyPopulationDefinition ScrewAttack { get; } = new("ScrewAttack",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition ScrewAttack { get; } = new("ScrewAttack");
 
     /// <summary>The enemy population of the Green Bubbles Missiles room.</summary>
-    internal static RoomEnemyPopulationDefinition GreenBubblesMissiles { get; } = new("GreenBubblesMissiles",
+    internal static PlacedRoomEnemyPopulationDefinition GreenBubblesMissiles { get; } = new("GreenBubblesMissiles",
     [
         new(EnemyDefinitionId.ShutterShootable, EnemyPlacing.At(new(296, 256)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.OneShotReaction, TravelDistance: 64, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.Permanent)),
         new(EnemyDefinitionId.ShutterShootable, EnemyPlacing.At(new(296, 256)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.OneShotReaction, TravelDistance: 128, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.Permanent)),
@@ -453,7 +425,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 1);
 
     /// <summary>The enemy population of the Amphitheatre room.</summary>
-    internal static RoomEnemyPopulationDefinition Amphitheatre { get; } = new("Amphitheatre",
+    internal static PlacedRoomEnemyPopulationDefinition Amphitheatre { get; } = new("Amphitheatre",
     [
         new(EnemyDefinitionId.PirateGoldWalking, EnemyPlacing.At(new(448, 208)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 16)),
         new(EnemyDefinitionId.PirateGoldWalking, EnemyPlacing.At(new(704, 176)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 8)),
@@ -467,7 +439,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 9);
 
     /// <summary>The enemy population of the Cathedral Entrance room.</summary>
-    internal static RoomEnemyPopulationDefinition CathedralEntrance { get; } = new("CathedralEntrance",
+    internal static PlacedRoomEnemyPopulationDefinition CathedralEntrance { get; } = new("CathedralEntrance",
     [
         new(EnemyDefinitionId.Sova, EnemyPlacing.At(new(40, 256)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnLeftWall, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixels(1))),
         new(EnemyDefinitionId.Sova, EnemyPlacing.At(new(24, 312)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnLeftWall, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixels(1))),
@@ -478,7 +450,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Main Hall room.</summary>
-    internal static RoomEnemyPopulationDefinition MainHall { get; } = new("MainHall",
+    internal static PlacedRoomEnemyPopulationDefinition MainHall { get; } = new("MainHall",
     [
         new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(1152, 674)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
         new(EnemyDefinitionId.Dragon, EnemyPlacing.At(new(720, 760)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new DragonSpawnSettings(Part: DragonPart.Body)),
@@ -502,7 +474,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 5);
 
     /// <summary>The enemy population of the Post-Crocomire Jump room.</summary>
-    internal static RoomEnemyPopulationDefinition PostCrocomireJump { get; } = new("PostCrocomireJump",
+    internal static PlacedRoomEnemyPopulationDefinition PostCrocomireJump { get; } = new("PostCrocomireJump",
     [
         new(EnemyDefinitionId.Mella, EnemyPlacing.At(new(1475, 595)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Mella, EnemyPlacing.At(new(1433, 616)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -520,17 +492,13 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Frog Save room.</summary>
-    internal static RoomEnemyPopulationDefinition FrogSave { get; } = new("FrogSave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition FrogSave { get; } = new("FrogSave");
 
     /// <summary>The enemy population of the Crocomire Save room.</summary>
-    internal static RoomEnemyPopulationDefinition CrocomireSave { get; } = new("CrocomireSave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition CrocomireSave { get; } = new("CrocomireSave");
 
     /// <summary>The enemy population of the Crumble Shaft room.</summary>
-    internal static RoomEnemyPopulationDefinition CrumbleShaft { get; } = new("CrumbleShaft",
+    internal static PlacedRoomEnemyPopulationDefinition CrumbleShaft { get; } = new("CrumbleShaft",
     [
         new(EnemyDefinitionId.Sova, EnemyPlacing.At(new(120, 262)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnCeiling, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
         new(EnemyDefinitionId.Sova, EnemyPlacing.At(new(56, 312)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
@@ -541,7 +509,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Wasteland room.</summary>
-    internal static RoomEnemyPopulationDefinition Wasteland { get; } = new("Wasteland",
+    internal static PlacedRoomEnemyPopulationDefinition Wasteland { get; } = new("Wasteland",
     [
         new(EnemyDefinitionId.Hibashi, EnemyPlacing.At(new(1472, 224)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.Hidden, false, new HibashiFlameSpawnSettings(InactiveTime: 8)),
         new(EnemyDefinitionId.Hibashi, EnemyPlacing.At(new(1472, 224)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden, false, new HibashiCollisionPartSpawnSettings()),
@@ -559,7 +527,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Acid Snakes Tunnel room.</summary>
-    internal static RoomEnemyPopulationDefinition AcidSnakesTunnel { get; } = new("AcidSnakesTunnel",
+    internal static PlacedRoomEnemyPopulationDefinition AcidSnakesTunnel { get; } = new("AcidSnakesTunnel",
     [
         new(EnemyDefinitionId.Gamet, EnemyPlacing.At(new(272, 232)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugLeaderSpawnSettings(TriggerWidth: 48, Speed: SignedSixteenSixteen.FromWholePixels(3))),
         new(EnemyDefinitionId.Gamet, EnemyPlacing.At(new(272, 232)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
@@ -573,23 +541,19 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Grapple Tutorial 1 room.</summary>
-    internal static RoomEnemyPopulationDefinition GrappleTutorial1 { get; } = new("GrappleTutorial1",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition GrappleTutorial1 { get; } = new("GrappleTutorial1");
 
     /// <summary>The enemy population of the Bubble Mountain Save room.</summary>
-    internal static RoomEnemyPopulationDefinition BubbleMountainSave { get; } = new("BubbleMountainSave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition BubbleMountainSave { get; } = new("BubbleMountainSave");
 
     /// <summary>The enemy population of the Hi-Jump Energy Tank room.</summary>
-    internal static RoomEnemyPopulationDefinition HiJumpEnergyTank { get; } = new("HiJumpEnergyTank",
+    internal static PlacedRoomEnemyPopulationDefinition HiJumpEnergyTank { get; } = new("HiJumpEnergyTank",
     [
         new(EnemyDefinitionId.Sova, EnemyPlacing.At(new(375, 181)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnCeiling, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(5, 4))),
     ], 1);
 
     /// <summary>The enemy population of the Bubble Mountain room.</summary>
-    internal static RoomEnemyPopulationDefinition BubbleMountain { get; } = new("BubbleMountain",
+    internal static PlacedRoomEnemyPopulationDefinition BubbleMountain { get; } = new("BubbleMountain",
     [
         new(EnemyDefinitionId.JetRipper, EnemyPlacing.At(new(376, 880)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(2), Direction: HorizontalDirection.Left)),
         new(EnemyDefinitionId.Sova, EnemyPlacing.At(new(280, 896)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnRightWall, BlockSide: CrawlerSurfaceOrientation.OnCeiling, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
@@ -602,7 +566,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 8);
 
     /// <summary>The enemy population of the Ice Beam Acid room.</summary>
-    internal static RoomEnemyPopulationDefinition IceBeamAcid { get; } = new("IceBeamAcid",
+    internal static PlacedRoomEnemyPopulationDefinition IceBeamAcid { get; } = new("IceBeamAcid",
     [
         new(EnemyDefinitionId.Tripper, EnemyPlacing.At(new(400, 168)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromWholePixels(1), VerticalAccelerationUpdates: 16)),
         new(EnemyDefinitionId.Tripper, EnemyPlacing.At(new(256, 168)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromWholePixels(1), VerticalAccelerationUpdates: 16)),
@@ -610,7 +574,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Ice Beam Tutorial room.</summary>
-    internal static RoomEnemyPopulationDefinition IceBeamTutorial { get; } = new("IceBeamTutorial",
+    internal static PlacedRoomEnemyPopulationDefinition IceBeamTutorial { get; } = new("IceBeamTutorial",
     [
         new(EnemyDefinitionId.Boyon, EnemyPlacing.At(new(120, 217)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 64, TriggerDistance: 64)),
         new(EnemyDefinitionId.Boyon, EnemyPlacing.At(new(168, 217)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 64, TriggerDistance: 64)),
@@ -619,7 +583,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 1);
 
     /// <summary>The enemy population of the Post-Crocomire Missile room.</summary>
-    internal static RoomEnemyPopulationDefinition PostCrocomireMissile { get; } = new("PostCrocomireMissile",
+    internal static PlacedRoomEnemyPopulationDefinition PostCrocomireMissile { get; } = new("PostCrocomireMissile",
     [
         new(EnemyDefinitionId.Metaree, EnemyPlacing.At(new(280, 56)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Metaree, EnemyPlacing.At(new(248, 64)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -631,7 +595,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Cathedral room.</summary>
-    internal static RoomEnemyPopulationDefinition Cathedral { get; } = new("Cathedral",
+    internal static PlacedRoomEnemyPopulationDefinition Cathedral { get; } = new("Cathedral",
     [
         new(EnemyDefinitionId.Geruta, EnemyPlacing.At(new(161, 83)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new EnemyFollowerSpawnSettings(Role: EnemyFollowerRole.Leader)),
         new(EnemyDefinitionId.Geruta, EnemyPlacing.At(new(161, 83)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new EnemyFollowerSpawnSettings(Role: EnemyFollowerRole.Follower)),
@@ -646,7 +610,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 7);
 
     /// <summary>The enemy population of the Norfair Reserve Tank room.</summary>
-    internal static RoomEnemyPopulationDefinition NorfairReserveTank { get; } = new("NorfairReserveTank",
+    internal static PlacedRoomEnemyPopulationDefinition NorfairReserveTank { get; } = new("NorfairReserveTank",
     [
         new(EnemyDefinitionId.Dragon, EnemyPlacing.At(new(344, 248)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new DragonSpawnSettings(Part: DragonPart.Body)),
         new(EnemyDefinitionId.Dragon, EnemyPlacing.At(new(344, 248)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new DragonSpawnSettings(Part: DragonPart.Wing)),
@@ -660,7 +624,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Grapple Tutorial 2 room.</summary>
-    internal static RoomEnemyPopulationDefinition GrappleTutorial2 { get; } = new("GrappleTutorial2",
+    internal static PlacedRoomEnemyPopulationDefinition GrappleTutorial2 { get; } = new("GrappleTutorial2",
     [
         new(EnemyDefinitionId.Fune, EnemyPlacing.At(new(240, 656)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FuneSpawnSettings(Facing: HorizontalDirection.Left, CooldownTime: 32, LaunchSpeed: SignedEightEight.FromPixels(2))),
         new(EnemyDefinitionId.Fune, EnemyPlacing.At(new(16, 432)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FuneSpawnSettings(Facing: HorizontalDirection.Right, CooldownTime: 32, LaunchSpeed: SignedEightEight.FromPixels(2))),
@@ -668,7 +632,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Ice Beam Snake room.</summary>
-    internal static RoomEnemyPopulationDefinition IceBeamSnake { get; } = new("IceBeamSnake",
+    internal static PlacedRoomEnemyPopulationDefinition IceBeamSnake { get; } = new("IceBeamSnake",
     [
         new(EnemyDefinitionId.Sova, EnemyPlacing.At(new(344, 440)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
         new(EnemyDefinitionId.Sova, EnemyPlacing.At(new(408, 440)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
@@ -680,13 +644,13 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 7);
 
     /// <summary>The enemy population of the Golden Torizo room.</summary>
-    internal static RoomEnemyPopulationDefinition GoldenTorizo { get; } = new("GoldenTorizo",
+    internal static PlacedRoomEnemyPopulationDefinition GoldenTorizo { get; } = new("GoldenTorizo",
     [
         new(EnemyDefinitionId.GoldenTorizo, EnemyPlacing.At(new(128, 384)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
     ], 0);
 
     /// <summary>The enemy population of the Spiky Platforms Tunnel room.</summary>
-    internal static RoomEnemyPopulationDefinition SpikyPlatformsTunnel { get; } = new("SpikyPlatformsTunnel",
+    internal static PlacedRoomEnemyPopulationDefinition SpikyPlatformsTunnel { get; } = new("SpikyPlatformsTunnel",
     [
         new(EnemyDefinitionId.Tripper, EnemyPlacing.At(new(640, 168)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Right, Speed: SignedSixteenSixteen.FromPixelFraction(3, 2), VerticalAccelerationUpdates: 0)),
         new(EnemyDefinitionId.Tripper, EnemyPlacing.At(new(384, 168)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromPixelFraction(3, 2), VerticalAccelerationUpdates: 7)),
@@ -694,12 +658,10 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 2);
 
     /// <summary>The enemy population of the Speed Booster room.</summary>
-    internal static RoomEnemyPopulationDefinition SpeedBooster { get; } = new("SpeedBooster",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition SpeedBooster { get; } = new("SpeedBooster");
 
     /// <summary>The enemy population of the Lower Norfair Farming room.</summary>
-    internal static RoomEnemyPopulationDefinition LowerNorfairFarming { get; } = new("LowerNorfairFarming",
+    internal static PlacedRoomEnemyPopulationDefinition LowerNorfairFarming { get; } = new("LowerNorfairFarming",
     [
         new(EnemyDefinitionId.Viola, EnemyPlacing.At(new(552, 136)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ViolaSpawnSettings(BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
         new(EnemyDefinitionId.Viola, EnemyPlacing.At(new(568, 216)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ViolaSpawnSettings(BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
@@ -715,7 +677,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 11);
 
     /// <summary>The enemy population of the Single Chamber room.</summary>
-    internal static RoomEnemyPopulationDefinition SingleChamber { get; } = new("SingleChamber",
+    internal static PlacedRoomEnemyPopulationDefinition SingleChamber { get; } = new("SingleChamber",
     [
         new(EnemyDefinitionId.Multiviola, EnemyPlacing.At(new(60, 854)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MultiviolaSpawnSettings(Heading: new TrigonometryAngle(208), Speed: 2)),
         new(EnemyDefinitionId.Multiviola, EnemyPlacing.At(new(153, 483)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MultiviolaSpawnSettings(Heading: new TrigonometryAngle(88), Speed: 2)),
@@ -727,7 +689,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Speed Booster Hall room.</summary>
-    internal static RoomEnemyPopulationDefinition SpeedBoosterHall { get; } = new("SpeedBoosterHall",
+    internal static PlacedRoomEnemyPopulationDefinition SpeedBoosterHall { get; } = new("SpeedBoosterHall",
     [
         new(EnemyDefinitionId.Geruta, EnemyPlacing.At(new(904, 296)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new EnemyFollowerSpawnSettings(Role: EnemyFollowerRole.Leader)),
         new(EnemyDefinitionId.Geruta, EnemyPlacing.At(new(904, 296)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new EnemyFollowerSpawnSettings(Role: EnemyFollowerRole.Follower)),
@@ -740,7 +702,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 5);
 
     /// <summary>The enemy population of the Bat Cave room.</summary>
-    internal static RoomEnemyPopulationDefinition BatCave { get; } = new("BatCave",
+    internal static PlacedRoomEnemyPopulationDefinition BatCave { get; } = new("BatCave",
     [
         new(EnemyDefinitionId.Gamet, EnemyPlacing.At(new(96, 176)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugLeaderSpawnSettings(TriggerWidth: 32, Speed: SignedSixteenSixteen.FromWholePixels(2))),
         new(EnemyDefinitionId.Gamet, EnemyPlacing.At(new(96, 176)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(2))),
@@ -753,7 +715,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Kronic Boost room.</summary>
-    internal static RoomEnemyPopulationDefinition KronicBoost { get; } = new("KronicBoost",
+    internal static PlacedRoomEnemyPopulationDefinition KronicBoost { get; } = new("KronicBoost",
     [
         new(EnemyDefinitionId.Viola, EnemyPlacing.At(new(392, 168)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ViolaSpawnSettings(BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
         new(EnemyDefinitionId.Viola, EnemyPlacing.At(new(352, 456)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ViolaSpawnSettings(BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
@@ -762,7 +724,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Business Center room.</summary>
-    internal static RoomEnemyPopulationDefinition BusinessCenter { get; } = new("BusinessCenter",
+    internal static PlacedRoomEnemyPopulationDefinition BusinessCenter { get; } = new("BusinessCenter",
     [
         new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
         new(EnemyDefinitionId.Sova, EnemyPlacing.At(new(123, 856)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
@@ -774,7 +736,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 6);
 
     /// <summary>The enemy population of the Three Musketeers room.</summary>
-    internal static RoomEnemyPopulationDefinition ThreeMusketeers { get; } = new("ThreeMusketeers",
+    internal static PlacedRoomEnemyPopulationDefinition ThreeMusketeers { get; } = new("ThreeMusketeers",
     [
         new(EnemyDefinitionId.Hibashi, EnemyPlacing.At(new(663, 640)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.Hidden, false, new HibashiFlameSpawnSettings(InactiveTime: 48)),
         new(EnemyDefinitionId.Hibashi, EnemyPlacing.At(new(663, 640)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden, false, new HibashiCollisionPartSpawnSettings()),
@@ -791,19 +753,17 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Crocomire room.</summary>
-    internal static RoomEnemyPopulationDefinition Crocomire { get; } = new("Crocomire",
+    internal static PlacedRoomEnemyPopulationDefinition Crocomire { get; } = new("Crocomire",
     [
         new(EnemyDefinitionId.Crocomire, EnemyPlacing.At(new(1152, 120)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
         new(EnemyDefinitionId.CrocomireTongue, EnemyPlacing.At(new(1152, 120)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
     ], 0);
 
     /// <summary>The enemy population of the Lower Norfair Elevator Save room.</summary>
-    internal static RoomEnemyPopulationDefinition LowerNorfairElevatorSave { get; } = new("LowerNorfairElevatorSave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition LowerNorfairElevatorSave { get; } = new("LowerNorfairElevatorSave");
 
     /// <summary>The enemy population of the Volcano room.</summary>
-    internal static RoomEnemyPopulationDefinition Volcano { get; } = new("Volcano",
+    internal static PlacedRoomEnemyPopulationDefinition Volcano { get; } = new("Volcano",
     [
         new(EnemyDefinitionId.Fune, EnemyPlacing.At(new(464, 640)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FuneSpawnSettings(Facing: HorizontalDirection.Left, CooldownTime: 128, LaunchSpeed: SignedEightEight.FromPixelFraction(3, 2))),
         new(EnemyDefinitionId.Fune, EnemyPlacing.At(new(736, 528)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FuneSpawnSettings(Facing: HorizontalDirection.Left, CooldownTime: 128, LaunchSpeed: SignedEightEight.FromPixels(2))),
@@ -818,7 +778,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     ], 10);
 
     /// <summary>The enemy population of the Upper Norfair Farming room.</summary>
-    internal static RoomEnemyPopulationDefinition UpperNorfairFarming { get; } = new("UpperNorfairFarming",
+    internal static PlacedRoomEnemyPopulationDefinition UpperNorfairFarming { get; } = new("UpperNorfairFarming",
     [
         new(EnemyDefinitionId.Fune, EnemyPlacing.At(new(496, 400)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FuneSpawnSettings(Facing: HorizontalDirection.Left, CooldownTime: 32, LaunchSpeed: SignedEightEight.FromPixels(2))),
         new(EnemyDefinitionId.Gamet, EnemyPlacing.At(new(304, 448)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugLeaderSpawnSettings(TriggerWidth: 80, Speed: SignedSixteenSixteen.FromWholePixels(4))),

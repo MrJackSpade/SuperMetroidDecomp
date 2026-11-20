@@ -32,7 +32,7 @@ internal static class InventoriedRoomStateFixtures
     {
         var room = new RoomDefinition("InventoriedFixtureRoom", area, new(0, 0), new(1, 1), 0, 0, RoomDoorTransitionStyle.Standard);
         var state = new RoomStateSettings("InventoriedFixtureState", Level, graphicsSet, RoomMusic.Inherited, null,
-            new RoomEnemyPopulationDefinition("InventoriedFixtureEnemies", [], 0),
+            new EmptyRoomEnemyPopulationDefinition("InventoriedFixtureEnemies"),
             new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Placed),
             RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, main, objects, null, RoomSetupBehavior.None)
         {

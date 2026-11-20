@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>The game's 597 physical doors.</summary>
+/// <summary>The game's 594 doors.</summary>
 /// <remarks>Each door names its destination room, direction and closing behavior, closing-cap block, destination
 /// screen, Samus push speed and setup.
 /// An elevator's door blocks lead to the elevator ride (<see cref="DoorBlockExit.ElevatorRide"/>), not a door.</remarks>

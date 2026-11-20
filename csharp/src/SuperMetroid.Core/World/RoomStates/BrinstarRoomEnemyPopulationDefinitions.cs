@@ -26,7 +26,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 internal static class BrinstarRoomEnemyPopulationDefinitions
 {
     /// <summary>The enemy population of the Brinstar Pre Map room.</summary>
-    internal static RoomEnemyPopulationDefinition BrinstarPreMap { get; } = new("BrinstarPreMap",
+    internal static PlacedRoomEnemyPopulationDefinition BrinstarPreMap { get; } = new("BrinstarPreMap",
     [
         new(EnemyDefinitionId.Sidehopper, EnemyPlacing.At(new(580, 59)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
         new(EnemyDefinitionId.Zeela, EnemyPlacing.At(new(376, 88)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
@@ -35,17 +35,13 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Green Brinstar Map room.</summary>
-    internal static RoomEnemyPopulationDefinition GreenBrinstarMap { get; } = new("GreenBrinstarMap",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition GreenBrinstarMap { get; } = new("GreenBrinstarMap");
 
     /// <summary>The enemy population of the Green Brinstar Missile Refill room.</summary>
-    internal static RoomEnemyPopulationDefinition GreenBrinstarMissileRefill { get; } = new("GreenBrinstarMissileRefill",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition GreenBrinstarMissileRefill { get; } = new("GreenBrinstarMissileRefill");
 
     /// <summary>The enemy population of the Spore Spawn Kihunters room.</summary>
-    internal static RoomEnemyPopulationDefinition SporeSpawnKihunters { get; } = new("SporeSpawnKihunters",
+    internal static PlacedRoomEnemyPopulationDefinition SporeSpawnKihunters { get; } = new("SporeSpawnKihunters",
     [
         new(EnemyDefinitionId.KihunterGreen, EnemyPlacing.At(new(217, 104)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
         new(EnemyDefinitionId.KihunterGreenWings, EnemyPlacing.At(new(217, 104)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
@@ -56,17 +52,13 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Etecoon Super room.</summary>
-    internal static RoomEnemyPopulationDefinition EtecoonSuper { get; } = new("EtecoonSuper",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition EtecoonSuper { get; } = new("EtecoonSuper");
 
     /// <summary>The enemy population of the Dachora Energy Refill room.</summary>
-    internal static RoomEnemyPopulationDefinition DachoraEnergyRefill { get; } = new("DachoraEnergyRefill",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition DachoraEnergyRefill { get; } = new("DachoraEnergyRefill");
 
     /// <summary>The enemy population of the Spore Spawn Farming room.</summary>
-    internal static RoomEnemyPopulationDefinition SporeSpawnFarming { get; } = new("SporeSpawnFarming",
+    internal static PlacedRoomEnemyPopulationDefinition SporeSpawnFarming { get; } = new("SporeSpawnFarming",
     [
         new(EnemyDefinitionId.Zeb, EnemyPlacing.At(new(384, 184)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
         new(EnemyDefinitionId.Zeb, EnemyPlacing.At(new(272, 184)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
@@ -76,12 +68,10 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 5);
 
     /// <summary>The enemy population of the Hopper Energy Tank room.</summary>
-    internal static RoomEnemyPopulationDefinition HopperEnergyTank { get; } = new("HopperEnergyTank",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition HopperEnergyTank { get; } = new("HopperEnergyTank");
 
     /// <summary>The enemy population of the Beta Power Bomb room.</summary>
-    internal static RoomEnemyPopulationDefinition BetaPowerBomb { get; } = new("BetaPowerBomb",
+    internal static PlacedRoomEnemyPopulationDefinition BetaPowerBomb { get; } = new("BetaPowerBomb",
     [
         new(EnemyDefinitionId.YappingMaw, EnemyPlacing.At(new(368, 208)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 54, Attack: VerticalDirection.Up)),
         new(EnemyDefinitionId.YappingMaw, EnemyPlacing.At(new(240, 208)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 54, Attack: VerticalDirection.Up)),
@@ -91,7 +81,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Waterway Energy Tank room.</summary>
-    internal static RoomEnemyPopulationDefinition WaterwayEnergyTank { get; } = new("WaterwayEnergyTank",
+    internal static PlacedRoomEnemyPopulationDefinition WaterwayEnergyTank { get; } = new("WaterwayEnergyTank",
     [
         new(EnemyDefinitionId.Skultera, EnemyPlacing.At(new(320, 174)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 1, AngleStep: RotationAngle.FromSteps(16))),
         new(EnemyDefinitionId.Puyo, EnemyPlacing.At(new(361, 179)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 2, HopDistance: 1)),
@@ -103,7 +93,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 7);
 
     /// <summary>The enemy population of the Construction Zone room once Zebes is awake.</summary>
-    internal static RoomEnemyPopulationDefinition ConstructionZoneWhenZebesAwake { get; } = new("ConstructionZoneWhenZebesAwake",
+    internal static PlacedRoomEnemyPopulationDefinition ConstructionZoneWhenZebesAwake { get; } = new("ConstructionZoneWhenZebesAwake",
     [
         new(EnemyDefinitionId.Zoomer, EnemyPlacing.At(new(88, 120)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
         new(EnemyDefinitionId.Zoomer, EnemyPlacing.At(new(168, 148)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnCeiling, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
@@ -115,7 +105,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 2);
 
     /// <summary>The enemy population of the Blue Brinstar Energy Tank room once Zebes is awake.</summary>
-    internal static RoomEnemyPopulationDefinition BlueBrinstarEnergyTankWhenZebesAwake { get; } = new("BlueBrinstarEnergyTankWhenZebesAwake",
+    internal static PlacedRoomEnemyPopulationDefinition BlueBrinstarEnergyTankWhenZebesAwake { get; } = new("BlueBrinstarEnergyTankWhenZebesAwake",
     [
         new(EnemyDefinitionId.Zoomer, EnemyPlacing.At(new(168, 712)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
         new(EnemyDefinitionId.Zoomer, EnemyPlacing.At(new(216, 712)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
@@ -130,7 +120,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 5);
 
     /// <summary>The enemy population of the Noob Bridge room.</summary>
-    internal static RoomEnemyPopulationDefinition NoobBridge { get; } = new("NoobBridge",
+    internal static PlacedRoomEnemyPopulationDefinition NoobBridge { get; } = new("NoobBridge",
     [
         new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(192, 179)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
         new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(432, 179)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
@@ -143,7 +133,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 8);
 
     /// <summary>The enemy population of the Morph Ball room once Zebes is awake.</summary>
-    internal static RoomEnemyPopulationDefinition MorphBallWhenZebesAwake { get; } = new("MorphBallWhenZebesAwake",
+    internal static PlacedRoomEnemyPopulationDefinition MorphBallWhenZebesAwake { get; } = new("MorphBallWhenZebesAwake",
     [
         new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(1408, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
         new(EnemyDefinitionId.SidehopperLarge, EnemyPlacing.At(new(152, 678)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
@@ -156,12 +146,10 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Warehouse Save room.</summary>
-    internal static RoomEnemyPopulationDefinition WarehouseSave { get; } = new("WarehouseSave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition WarehouseSave { get; } = new("WarehouseSave");
 
     /// <summary>The enemy population of the Morph Ball room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition MorphBallDefault { get; } = new("MorphBallDefault",
+    internal static PlacedRoomEnemyPopulationDefinition MorphBallDefault { get; } = new("MorphBallDefault",
     [
         new(EnemyDefinitionId.MorphBallEye, EnemyPlacing.At(new(1032, 584)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeMountSpawnSettings(Side: MorphBallEyeMountSide.Left)),
         new(EnemyDefinitionId.MorphBallEye, EnemyPlacing.At(new(1032, 584)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeBodySpawnSettings(Facing: HorizontalDirection.Left)),
@@ -173,7 +161,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Warehouse Zeela room.</summary>
-    internal static RoomEnemyPopulationDefinition WarehouseZeela { get; } = new("WarehouseZeela",
+    internal static PlacedRoomEnemyPopulationDefinition WarehouseZeela { get; } = new("WarehouseZeela",
     [
         new(EnemyDefinitionId.Zeela, EnemyPlacing.At(new(106, 64)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnRightWall, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
         new(EnemyDefinitionId.Zeela, EnemyPlacing.At(new(106, 104)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnRightWall, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
@@ -181,7 +169,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Red Tower room.</summary>
-    internal static RoomEnemyPopulationDefinition RedTower { get; } = new("RedTower",
+    internal static PlacedRoomEnemyPopulationDefinition RedTower { get; } = new("RedTower",
     [
         new(EnemyDefinitionId.Ripper, EnemyPlacing.At(new(152, 520)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Left)),
         new(EnemyDefinitionId.Ripper, EnemyPlacing.At(new(96, 232)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Right)),
@@ -197,7 +185,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 11);
 
     /// <summary>The enemy population of the Blue Brinstar Boulders room.</summary>
-    internal static RoomEnemyPopulationDefinition BlueBrinstarBoulders { get; } = new("BlueBrinstarBoulders",
+    internal static PlacedRoomEnemyPopulationDefinition BlueBrinstarBoulders { get; } = new("BlueBrinstarBoulders",
     [
         new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(344, 192)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Start: new BoulderStart.FallsFrom(160), Roll: BoulderRoll.LeftBreakingOnImpact)),
         new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(240, 192)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Start: new BoulderStart.FallsFrom(160), Roll: BoulderRoll.LeftBreakingOnImpact)),
@@ -205,17 +193,13 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Billy Mays room.</summary>
-    internal static RoomEnemyPopulationDefinition BillyMays { get; } = new("BillyMays",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition BillyMays { get; } = new("BillyMays");
 
     /// <summary>The enemy population of the Big Pink Save Room.</summary>
-    internal static RoomEnemyPopulationDefinition BigPinkSaveRoom { get; } = new("BigPinkSaveRoom",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition BigPinkSaveRoom { get; } = new("BigPinkSaveRoom");
 
     /// <summary>The enemy population of the Big Pink room.</summary>
-    internal static RoomEnemyPopulationDefinition BigPink { get; } = new("BigPink",
+    internal static PlacedRoomEnemyPopulationDefinition BigPink { get; } = new("BigPink",
     [
         new(EnemyDefinitionId.Rio, EnemyPlacing.At(new(744, 1144)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Rio, EnemyPlacing.At(new(808, 1144)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -230,12 +214,10 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 10);
 
     /// <summary>The enemy population of the Etecoon Save room.</summary>
-    internal static RoomEnemyPopulationDefinition EtecoonSave { get; } = new("EtecoonSave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition EtecoonSave { get; } = new("EtecoonSave");
 
     /// <summary>The enemy population of the Below Spazer room.</summary>
-    internal static RoomEnemyPopulationDefinition BelowSpazer { get; } = new("BelowSpazer",
+    internal static PlacedRoomEnemyPopulationDefinition BelowSpazer { get; } = new("BelowSpazer",
     [
         new(EnemyDefinitionId.YappingMaw, EnemyPlacing.At(new(400, 456)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 48, Attack: VerticalDirection.Up)),
         new(EnemyDefinitionId.YappingMaw, EnemyPlacing.At(new(128, 456)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 48, Attack: VerticalDirection.Up)),
@@ -243,17 +225,13 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 1);
 
     /// <summary>The enemy population of the Green Brinstar Save room.</summary>
-    internal static RoomEnemyPopulationDefinition GreenBrinstarSave { get; } = new("GreenBrinstarSave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition GreenBrinstarSave { get; } = new("GreenBrinstarSave");
 
     /// <summary>The enemy population of the Spazer room.</summary>
-    internal static RoomEnemyPopulationDefinition Spazer { get; } = new("Spazer",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition Spazer { get; } = new("Spazer");
 
     /// <summary>The enemy population of the Pink Brinstar Power Bombs room.</summary>
-    internal static RoomEnemyPopulationDefinition PinkBrinstarPowerBombs { get; } = new("PinkBrinstarPowerBombs",
+    internal static PlacedRoomEnemyPopulationDefinition PinkBrinstarPowerBombs { get; } = new("PinkBrinstarPowerBombs",
     [
         new(EnemyDefinitionId.ShutterShootable, EnemyPlacing.At(new(56, 400)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.RepeatableReaction, TravelDistance: 96, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.Permanent)),
         new(EnemyDefinitionId.ShutterShootable, EnemyPlacing.At(new(408, 496)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.RepeatableReaction, TravelDistance: 64, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.Permanent)),
@@ -262,27 +240,19 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 2);
 
     /// <summary>The enemy population of the Red Tower Refill room.</summary>
-    internal static RoomEnemyPopulationDefinition RedTowerRefill { get; } = new("RedTowerRefill",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition RedTowerRefill { get; } = new("RedTowerRefill");
 
     /// <summary>The enemy population of the Kraid Refill room.</summary>
-    internal static RoomEnemyPopulationDefinition KraidRefill { get; } = new("KraidRefill",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition KraidRefill { get; } = new("KraidRefill");
 
     /// <summary>The enemy population of the Varia Suit room.</summary>
-    internal static RoomEnemyPopulationDefinition VariaSuit { get; } = new("VariaSuit",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition VariaSuit { get; } = new("VariaSuit");
 
     /// <summary>The enemy population of the Red Brinstar Save room.</summary>
-    internal static RoomEnemyPopulationDefinition RedBrinstarSave { get; } = new("RedBrinstarSave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition RedBrinstarSave { get; } = new("RedBrinstarSave");
 
     /// <summary>The enemy population of the Blue Brinstar Energy Tank room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition BlueBrinstarEnergyTankDefault { get; } = new("BlueBrinstarEnergyTankDefault",
+    internal static PlacedRoomEnemyPopulationDefinition BlueBrinstarEnergyTankDefault { get; } = new("BlueBrinstarEnergyTankDefault",
     [
         new(EnemyDefinitionId.MorphBallEye, EnemyPlacing.At(new(552, 616)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeMountSpawnSettings(Side: MorphBallEyeMountSide.Right)),
         new(EnemyDefinitionId.MorphBallEye, EnemyPlacing.At(new(552, 616)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeBodySpawnSettings(Facing: HorizontalDirection.Right)),
@@ -294,7 +264,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Green Brinstar Firefleas room.</summary>
-    internal static RoomEnemyPopulationDefinition GreenBrinstarFirefleas { get; } = new("GreenBrinstarFirefleas",
+    internal static PlacedRoomEnemyPopulationDefinition GreenBrinstarFirefleas { get; } = new("GreenBrinstarFirefleas",
     [
         new(EnemyDefinitionId.Fireflea, EnemyPlacing.At(new(384, 95)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromSteps(-1)), Radius: 24)),
         new(EnemyDefinitionId.Fireflea, EnemyPlacing.At(new(225, 106)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromSteps(1)), Radius: 24)),
@@ -304,7 +274,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 5);
 
     /// <summary>The enemy population of the Green Brinstar Beetoms room.</summary>
-    internal static RoomEnemyPopulationDefinition GreenBrinstarBeetoms { get; } = new("GreenBrinstarBeetoms",
+    internal static PlacedRoomEnemyPopulationDefinition GreenBrinstarBeetoms { get; } = new("GreenBrinstarBeetoms",
     [
         new(EnemyDefinitionId.Beetom, EnemyPlacing.At(new(80, 184)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Beetom, EnemyPlacing.At(new(112, 184)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -313,7 +283,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Etecoon Energy Tank room.</summary>
-    internal static RoomEnemyPopulationDefinition EtecoonEnergyTank { get; } = new("EtecoonEnergyTank",
+    internal static PlacedRoomEnemyPopulationDefinition EtecoonEnergyTank { get; } = new("EtecoonEnergyTank",
     [
         new(EnemyDefinitionId.Zebbo, EnemyPlacing.At(new(592, 472)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
         new(EnemyDefinitionId.Zebbo, EnemyPlacing.At(new(752, 472)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
@@ -326,7 +296,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 8);
 
     /// <summary>The enemy population of the Pink Brinstar Hoppers room.</summary>
-    internal static RoomEnemyPopulationDefinition PinkBrinstarHoppers { get; } = new("PinkBrinstarHoppers",
+    internal static PlacedRoomEnemyPopulationDefinition PinkBrinstarHoppers { get; } = new("PinkBrinstarHoppers",
     [
         new(EnemyDefinitionId.SidehopperLarge, EnemyPlacing.At(new(181, 437)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
         new(EnemyDefinitionId.Sidehopper, EnemyPlacing.At(new(248, 416)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
@@ -340,7 +310,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Warehouse Energy Tank room.</summary>
-    internal static RoomEnemyPopulationDefinition WarehouseEnergyTank { get; } = new("WarehouseEnergyTank",
+    internal static PlacedRoomEnemyPopulationDefinition WarehouseEnergyTank { get; } = new("WarehouseEnergyTank",
     [
         new(EnemyDefinitionId.Beetom, EnemyPlacing.At(new(45, 152)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Beetom, EnemyPlacing.At(new(71, 152)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -349,13 +319,13 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Warehouse Entrance room.</summary>
-    internal static RoomEnemyPopulationDefinition WarehouseEntrance { get; } = new("WarehouseEntrance",
+    internal static PlacedRoomEnemyPopulationDefinition WarehouseEntrance { get; } = new("WarehouseEntrance",
     [
         new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 160)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
     ], 0);
 
     /// <summary>The enemy population of the Warehouse Kihunter room.</summary>
-    internal static RoomEnemyPopulationDefinition WarehouseKihunter { get; } = new("WarehouseKihunter",
+    internal static PlacedRoomEnemyPopulationDefinition WarehouseKihunter { get; } = new("WarehouseKihunter",
     [
         new(EnemyDefinitionId.KihunterGreen, EnemyPlacing.At(new(361, 112)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
         new(EnemyDefinitionId.KihunterGreenWings, EnemyPlacing.At(new(361, 112)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
@@ -368,7 +338,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Green Brinstar Main Shaft room.</summary>
-    internal static RoomEnemyPopulationDefinition GreenBrinstarMainShaft { get; } = new("GreenBrinstarMainShaft",
+    internal static PlacedRoomEnemyPopulationDefinition GreenBrinstarMainShaft { get; } = new("GreenBrinstarMainShaft",
     [
         new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
         new(EnemyDefinitionId.Zeela, EnemyPlacing.At(new(218, 715)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnRightWall, BlockSide: CrawlerSurfaceOrientation.OnFloor, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
@@ -384,13 +354,13 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 7);
 
     /// <summary>The enemy population of the Spore Spawn Super room.</summary>
-    internal static RoomEnemyPopulationDefinition SporeSpawnSuper { get; } = new("SporeSpawnSuper",
+    internal static PlacedRoomEnemyPopulationDefinition SporeSpawnSuper { get; } = new("SporeSpawnSuper",
     [
         new(EnemyDefinitionId.Zeb, EnemyPlacing.At(new(192, 184)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
     ], 1);
 
     /// <summary>The enemy population of the Early Supers room.</summary>
-    internal static RoomEnemyPopulationDefinition EarlySupers { get; } = new("EarlySupers",
+    internal static PlacedRoomEnemyPopulationDefinition EarlySupers { get; } = new("EarlySupers",
     [
         new(EnemyDefinitionId.Sidehopper, EnemyPlacing.At(new(442, 424)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
         new(EnemyDefinitionId.Sidehopper, EnemyPlacing.At(new(512, 424)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
@@ -408,7 +378,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 10);
 
     /// <summary>The enemy population of the Red Brinstar Firefleas room.</summary>
-    internal static RoomEnemyPopulationDefinition RedBrinstarFirefleas { get; } = new("RedBrinstarFirefleas",
+    internal static PlacedRoomEnemyPopulationDefinition RedBrinstarFirefleas { get; } = new("RedBrinstarFirefleas",
     [
         new(EnemyDefinitionId.Fireflea, EnemyPlacing.At(new(1744, 144)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Bobbing(SignedSixteenSixteen.FromPixelFraction(3, 8), VerticalDirection.Up), Radius: 32)),
         new(EnemyDefinitionId.Fireflea, EnemyPlacing.At(new(1808, 112)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromStepFraction(-3, 2)), Radius: 48)),
@@ -424,7 +394,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 8);
 
     /// <summary>The enemy population of the Construction Zone room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition ConstructionZoneDefault { get; } = new("ConstructionZoneDefault",
+    internal static PlacedRoomEnemyPopulationDefinition ConstructionZoneDefault { get; } = new("ConstructionZoneDefault",
     [
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(46, 192)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(138), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(222, 179)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(200), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
@@ -444,7 +414,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Green Hill Zone room.</summary>
-    internal static RoomEnemyPopulationDefinition GreenHillZone { get; } = new("GreenHillZone",
+    internal static PlacedRoomEnemyPopulationDefinition GreenHillZone { get; } = new("GreenHillZone",
     [
         new(EnemyDefinitionId.Sidehopper, EnemyPlacing.At(new(1024, 672)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
         new(EnemyDefinitionId.Sidehopper, EnemyPlacing.At(new(1280, 768)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
@@ -459,7 +429,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 10);
 
     /// <summary>The enemy population of the Dachora room.</summary>
-    internal static RoomEnemyPopulationDefinition Dachora { get; } = new("Dachora",
+    internal static PlacedRoomEnemyPopulationDefinition Dachora { get; } = new("Dachora",
     [
         new(EnemyDefinitionId.Zeela, EnemyPlacing.At(new(224, 184)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnLeftWall, BlockSide: CrawlerSurfaceOrientation.OnFloor, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
         new(EnemyDefinitionId.Zeela, EnemyPlacing.At(new(264, 184)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnLeftWall, BlockSide: CrawlerSurfaceOrientation.OnFloor, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
@@ -477,7 +447,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 8);
 
     /// <summary>The enemy population of the Hellway room.</summary>
-    internal static RoomEnemyPopulationDefinition Hellway { get; } = new("Hellway",
+    internal static PlacedRoomEnemyPopulationDefinition Hellway { get; } = new("Hellway",
     [
         new(EnemyDefinitionId.Zeela, EnemyPlacing.At(new(160, 152)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
         new(EnemyDefinitionId.Zeela, EnemyPlacing.At(new(295, 136)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
@@ -490,12 +460,10 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 8);
 
     /// <summary>The enemy population of the First Missile room.</summary>
-    internal static RoomEnemyPopulationDefinition FirstMissile { get; } = new("FirstMissile",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition FirstMissile { get; } = new("FirstMissile");
 
     /// <summary>The enemy population of the Kraid room.</summary>
-    internal static RoomEnemyPopulationDefinition Kraid { get; } = new("Kraid",
+    internal static PlacedRoomEnemyPopulationDefinition Kraid { get; } = new("Kraid",
     [
         new(EnemyDefinitionId.Kraid, EnemyPlacing.At(new(256, 536)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.Hidden, true, EnemySpawnSettings.None),
         new(EnemyDefinitionId.KraidArm, EnemyPlacing.At(new(232, 488)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
@@ -508,19 +476,17 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Brinstar Reserve Tank room.</summary>
-    internal static RoomEnemyPopulationDefinition BrinstarReserveTank { get; } = new("BrinstarReserveTank",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition BrinstarReserveTank { get; } = new("BrinstarReserveTank");
 
     /// <summary>The enemy population of the X-Ray Scope room.</summary>
-    internal static RoomEnemyPopulationDefinition XrayScope { get; } = new("XrayScope",
+    internal static PlacedRoomEnemyPopulationDefinition XrayScope { get; } = new("XrayScope",
     [
         new(EnemyDefinitionId.ShutterShootable, EnemyPlacing.At(new(360, 160)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.RepeatableReaction, TravelDistance: 64, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.Permanent)),
         new(EnemyDefinitionId.ShutterShootable, EnemyPlacing.At(new(184, 224)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.RepeatableReaction, TravelDistance: 64, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.Permanent)),
     ], 0);
 
     /// <summary>The enemy population of the Alpha Power Bomb room.</summary>
-    internal static RoomEnemyPopulationDefinition AlphaPowerBomb { get; } = new("AlphaPowerBomb",
+    internal static PlacedRoomEnemyPopulationDefinition AlphaPowerBomb { get; } = new("AlphaPowerBomb",
     [
         new(EnemyDefinitionId.Boyon, EnemyPlacing.At(new(600, 168)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 48, TriggerDistance: 32)),
         new(EnemyDefinitionId.Boyon, EnemyPlacing.At(new(616, 168)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 48, TriggerDistance: 32)),
@@ -529,7 +495,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Kraid Eye Door room.</summary>
-    internal static RoomEnemyPopulationDefinition KraidEyeDoor { get; } = new("KraidEyeDoor",
+    internal static PlacedRoomEnemyPopulationDefinition KraidEyeDoor { get; } = new("KraidEyeDoor",
     [
         new(EnemyDefinitionId.Zeb, EnemyPlacing.At(new(144, 456)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
         new(EnemyDefinitionId.Sbug, EnemyPlacing.At(new(310, 413)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(200), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
@@ -545,7 +511,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 1);
 
     /// <summary>The enemy population of the Caterpillar room.</summary>
-    internal static RoomEnemyPopulationDefinition Caterpillar { get; } = new("Caterpillar",
+    internal static PlacedRoomEnemyPopulationDefinition Caterpillar { get; } = new("Caterpillar",
     [
         new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
         new(EnemyDefinitionId.Zero, EnemyPlacing.At(new(95, 1928)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
@@ -556,7 +522,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 5);
 
     /// <summary>The enemy population of the Mini Kraid room.</summary>
-    internal static RoomEnemyPopulationDefinition MiniKraid { get; } = new("MiniKraid",
+    internal static PlacedRoomEnemyPopulationDefinition MiniKraid { get; } = new("MiniKraid",
     [
         new(EnemyDefinitionId.PirateGreenWalking, EnemyPlacing.At(new(217, 160)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 80)),
         new(EnemyDefinitionId.PirateGreenWalking, EnemyPlacing.At(new(288, 160)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 80)),
@@ -565,13 +531,13 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Spore Spawn room.</summary>
-    internal static RoomEnemyPopulationDefinition SporeSpawn { get; } = new("SporeSpawn",
+    internal static PlacedRoomEnemyPopulationDefinition SporeSpawn { get; } = new("SporeSpawn",
     [
         new(EnemyDefinitionId.SporeSpawn, EnemyPlacing.At(new(128, 624)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
     ], 0);
 
     /// <summary>The enemy population of the Skree Boost room.</summary>
-    internal static RoomEnemyPopulationDefinition SkreeBoost { get; } = new("SkreeBoost",
+    internal static PlacedRoomEnemyPopulationDefinition SkreeBoost { get; } = new("SkreeBoost",
     [
         new(EnemyDefinitionId.Skree, EnemyPlacing.At(new(328, 60)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Skree, EnemyPlacing.At(new(368, 60)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),

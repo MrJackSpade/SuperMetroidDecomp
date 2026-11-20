@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 internal static class TourianRoomEnemyPopulationDefinitions
 {
     /// <summary>The enemy population of the Tourian Escape 4 room.</summary>
-    internal static RoomEnemyPopulationDefinition TourianEscape4 { get; } = new("TourianEscape4",
+    internal static PlacedRoomEnemyPopulationDefinition TourianEscape4 { get; } = new("TourianEscape4",
     [
         new(EnemyDefinitionId.PirateSilverWall, EnemyPlacing.At(new(43, 1232)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WallSpacePirateSpawnSettings(Wall: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Fast, JumpSpeed: WallSpacePirateJumpSpeed.Fast, JumpSpan: 132)),
         new(EnemyDefinitionId.PirateSilverWall, EnemyPlacing.At(new(178, 1064)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WallSpacePirateSpawnSettings(Wall: HorizontalDirection.Right, LaserSpeed: PirateLaserSpeed.Fast, JumpSpeed: WallSpacePirateJumpSpeed.Fast, JumpSpan: 132)),
@@ -32,12 +32,10 @@ internal static class TourianRoomEnemyPopulationDefinitions
     ], 13);
 
     /// <summary>The enemy population of the Mother Brain Save room.</summary>
-    internal static RoomEnemyPopulationDefinition MotherBrainSave { get; } = new("MotherBrainSave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition MotherBrainSave { get; } = new("MotherBrainSave");
 
     /// <summary>The enemy population of the Metroids 1 room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition Metroids1Default { get; } = new("Metroids1Default",
+    internal static PlacedRoomEnemyPopulationDefinition Metroids1Default { get; } = new("Metroids1Default",
     [
         new(EnemyDefinitionId.Metroid, EnemyPlacing.At(new(268, 106)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
         new(EnemyDefinitionId.Metroid, EnemyPlacing.At(new(637, 116)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
@@ -50,13 +48,13 @@ internal static class TourianRoomEnemyPopulationDefinitions
     ], 4);
 
     /// <summary>The enemy population of the Dust Torizo room.</summary>
-    internal static RoomEnemyPopulationDefinition DustTorizo { get; } = new("DustTorizo",
+    internal static PlacedRoomEnemyPopulationDefinition DustTorizo { get; } = new("DustTorizo",
     [
         new(EnemyDefinitionId.CorpseTorizo, EnemyPlacing.At(new(288, 148)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
     ], 0);
 
     /// <summary>The enemy population of the Big Boy room.</summary>
-    internal static RoomEnemyPopulationDefinition BigBoy { get; } = new("BigBoy",
+    internal static PlacedRoomEnemyPopulationDefinition BigBoy { get; } = new("BigBoy",
     [
         new(EnemyDefinitionId.BabyMetroid, EnemyPlacing.At(new(384, 64)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.CorpseSidehopper, EnemyPlacing.At(new(552, 160)), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new DeadSidehopperSpawnSettings(Layout: DeadSidehopperLayout.BabyMetroidVictim)),
@@ -72,7 +70,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Mother Brain room until she is defeated.</summary>
-    internal static RoomEnemyPopulationDefinition MotherBrainBeforeDefeat { get; } = new("MotherBrainBeforeDefeat",
+    internal static PlacedRoomEnemyPopulationDefinition MotherBrainBeforeDefeat { get; } = new("MotherBrainBeforeDefeat",
     [
         new(EnemyDefinitionId.MotherBrainBody, EnemyPlacing.At(new(129, 111)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
         new(EnemyDefinitionId.MotherBrainHead, EnemyPlacing.At(new(129, 111)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
@@ -83,19 +81,17 @@ internal static class TourianRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Tourian Eye Door room.</summary>
-    internal static RoomEnemyPopulationDefinition TourianEyeDoor { get; } = new("TourianEyeDoor",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition TourianEyeDoor { get; } = new("TourianEyeDoor");
 
     /// <summary>The enemy population of the Blue Hopper room.</summary>
-    internal static RoomEnemyPopulationDefinition BlueHopper { get; } = new("BlueHopper",
+    internal static PlacedRoomEnemyPopulationDefinition BlueHopper { get; } = new("BlueHopper",
     [
         new(EnemyDefinitionId.SidehopperTourian, EnemyPlacing.At(new(248, 97)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
         new(EnemyDefinitionId.SidehopperTourian, EnemyPlacing.At(new(134, 169)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
     ], 2);
 
     /// <summary>The enemy population of the Tourian Escape 1 room.</summary>
-    internal static RoomEnemyPopulationDefinition TourianEscape1 { get; } = new("TourianEscape1",
+    internal static PlacedRoomEnemyPopulationDefinition TourianEscape1 { get; } = new("TourianEscape1",
     [
         new(EnemyDefinitionId.ShutterDestroyable, EnemyPlacing.At(new(440, 64)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Down, TriggerMode: ShutterTriggerMode.Timer, TravelDistance: 32, ProximityDistance: 0, WaitTime: 16, RestAfterMovingUp: ShutterRest.For(0), RestAfterMovingDown: ShutterRest.Permanent)),
         new(EnemyDefinitionId.ShutterDestroyable, EnemyPlacing.At(new(440, 192)), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.Timer, TravelDistance: 32, ProximityDistance: 0, WaitTime: 16, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.For(0))),
@@ -108,13 +104,13 @@ internal static class TourianRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Tourian First room.</summary>
-    internal static RoomEnemyPopulationDefinition TourianFirst { get; } = new("TourianFirst",
+    internal static PlacedRoomEnemyPopulationDefinition TourianFirst { get; } = new("TourianFirst",
     [
         new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
     ], 0);
 
     /// <summary>The enemy population of the Metroids 2 room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition Metroids2Default { get; } = new("Metroids2Default",
+    internal static PlacedRoomEnemyPopulationDefinition Metroids2Default { get; } = new("Metroids2Default",
     [
         new(EnemyDefinitionId.Metroid, EnemyPlacing.At(new(152, 277)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
         new(EnemyDefinitionId.Rinka, EnemyPlacing.At(new(152, 72)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
@@ -125,7 +121,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
     ], 2);
 
     /// <summary>The enemy population of the Metroids 4 room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition Metroids4Default { get; } = new("Metroids4Default",
+    internal static PlacedRoomEnemyPopulationDefinition Metroids4Default { get; } = new("Metroids4Default",
     [
         new(EnemyDefinitionId.Metroid, EnemyPlacing.At(new(196, 338)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
         new(EnemyDefinitionId.Metroid, EnemyPlacing.At(new(62, 251)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
@@ -137,7 +133,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Metroids 1 room once the first Metroid hall is cleared.</summary>
-    internal static RoomEnemyPopulationDefinition Metroids1WhenFirstMetroidHallCleared { get; } = new("Metroids1WhenFirstMetroidHallCleared",
+    internal static PlacedRoomEnemyPopulationDefinition Metroids1WhenFirstMetroidHallCleared { get; } = new("Metroids1WhenFirstMetroidHallCleared",
     [
         new(EnemyDefinitionId.Rinka, EnemyPlacing.At(new(40, 72)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
         new(EnemyDefinitionId.Rinka, EnemyPlacing.At(new(536, 216)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
@@ -146,7 +142,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Metroids 2 room once the first Metroid shaft is cleared.</summary>
-    internal static RoomEnemyPopulationDefinition Metroids2WhenFirstMetroidShaftCleared { get; } = new("Metroids2WhenFirstMetroidShaftCleared",
+    internal static PlacedRoomEnemyPopulationDefinition Metroids2WhenFirstMetroidShaftCleared { get; } = new("Metroids2WhenFirstMetroidShaftCleared",
     [
         new(EnemyDefinitionId.Rinka, EnemyPlacing.At(new(152, 72)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
         new(EnemyDefinitionId.Rinka, EnemyPlacing.At(new(216, 184)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
@@ -155,14 +151,14 @@ internal static class TourianRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Tourian Escape 2 room.</summary>
-    internal static RoomEnemyPopulationDefinition TourianEscape2 { get; } = new("TourianEscape2",
+    internal static PlacedRoomEnemyPopulationDefinition TourianEscape2 { get; } = new("TourianEscape2",
     [
         new(EnemyDefinitionId.PirateSilverWall, EnemyPlacing.At(new(43, 216)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WallSpacePirateSpawnSettings(Wall: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Fast, JumpSpeed: WallSpacePirateJumpSpeed.Fast, JumpSpan: 160)),
         new(EnemyDefinitionId.PirateSilverWall, EnemyPlacing.At(new(208, 296)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WallSpacePirateSpawnSettings(Wall: HorizontalDirection.Right, LaserSpeed: PirateLaserSpeed.Fast, JumpSpeed: WallSpacePirateJumpSpeed.Fast, JumpSpan: 160)),
     ], 2);
 
     /// <summary>The enemy population of the Metroids 3 room once the second Metroid hall is cleared.</summary>
-    internal static RoomEnemyPopulationDefinition Metroids3WhenSecondMetroidHallCleared { get; } = new("Metroids3WhenSecondMetroidHallCleared",
+    internal static PlacedRoomEnemyPopulationDefinition Metroids3WhenSecondMetroidHallCleared { get; } = new("Metroids3WhenSecondMetroidHallCleared",
     [
         new(EnemyDefinitionId.Rinka, EnemyPlacing.At(new(264, 72)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
         new(EnemyDefinitionId.Rinka, EnemyPlacing.At(new(24, 72)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
@@ -176,7 +172,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Metroids 4 room once the second Metroid shaft is cleared.</summary>
-    internal static RoomEnemyPopulationDefinition Metroids4WhenSecondMetroidShaftCleared { get; } = new("Metroids4WhenSecondMetroidShaftCleared",
+    internal static PlacedRoomEnemyPopulationDefinition Metroids4WhenSecondMetroidShaftCleared { get; } = new("Metroids4WhenSecondMetroidShaftCleared",
     [
         new(EnemyDefinitionId.Rinka, EnemyPlacing.At(new(152, 184)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
         new(EnemyDefinitionId.Rinka, EnemyPlacing.At(new(152, 392)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
@@ -185,7 +181,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
     ], 0);
 
     /// <summary>The enemy population of the Tourian Escape 3 room.</summary>
-    internal static RoomEnemyPopulationDefinition TourianEscape3 { get; } = new("TourianEscape3",
+    internal static PlacedRoomEnemyPopulationDefinition TourianEscape3 { get; } = new("TourianEscape3",
     [
         new(EnemyDefinitionId.PirateSilverWalking, EnemyPlacing.At(new(192, 352)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Fast, ShotWatch: WalkingSpacePirateShotWatch.IgnoresShots, PatrolReach: 16)),
         new(EnemyDefinitionId.PirateSilverWalking, EnemyPlacing.At(new(1336, 352)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Fast, ShotWatch: WalkingSpacePirateShotWatch.IgnoresShots, PatrolReach: 16)),
@@ -197,22 +193,16 @@ internal static class TourianRoomEnemyPopulationDefinitions
     ], 7);
 
     /// <summary>The enemy population of the Seaweed room.</summary>
-    internal static RoomEnemyPopulationDefinition Seaweed { get; } = new("Seaweed",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition Seaweed { get; } = new("Seaweed");
 
     /// <summary>The enemy population of the Tourian Recharge room.</summary>
-    internal static RoomEnemyPopulationDefinition TourianRecharge { get; } = new("TourianRecharge",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition TourianRecharge { get; } = new("TourianRecharge");
 
     /// <summary>The enemy population of the Upper Tourian Save room.</summary>
-    internal static RoomEnemyPopulationDefinition UpperTourianSave { get; } = new("UpperTourianSave",
-    [
-    ], 0);
+    internal static EmptyRoomEnemyPopulationDefinition UpperTourianSave { get; } = new("UpperTourianSave");
 
     /// <summary>The enemy population of the Metroids 3 room in its default state.</summary>
-    internal static RoomEnemyPopulationDefinition Metroids3Default { get; } = new("Metroids3Default",
+    internal static PlacedRoomEnemyPopulationDefinition Metroids3Default { get; } = new("Metroids3Default",
     [
         new(EnemyDefinitionId.Metroid, EnemyPlacing.At(new(394, 129)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
         new(EnemyDefinitionId.Metroid, EnemyPlacing.At(new(871, 119)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
@@ -229,7 +219,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
     ], 3);
 
     /// <summary>The enemy population of the Rinka Shaft room.</summary>
-    internal static RoomEnemyPopulationDefinition RinkaShaft { get; } = new("RinkaShaft",
+    internal static PlacedRoomEnemyPopulationDefinition RinkaShaft { get; } = new("RinkaShaft",
     [
         new(EnemyDefinitionId.Rinka, EnemyPlacing.At(new(232, 440)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),
         new(EnemyDefinitionId.Rinka, EnemyPlacing.At(new(232, 520)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, RinkaSpawnSettings.AtOwnPlacement),

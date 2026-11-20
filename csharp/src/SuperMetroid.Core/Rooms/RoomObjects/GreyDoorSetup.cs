@@ -8,5 +8,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record GreyDoorSetup(GreyDoorVariant Door, GreyDoorOpening Opening) : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
+    internal override RoomObjectKind Kind => RoomObjectKindDefinitions.GreyDoors[Door];
+
+    /// <inheritdoc/>
     internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpGreyDoor(Door, Opening);
 }

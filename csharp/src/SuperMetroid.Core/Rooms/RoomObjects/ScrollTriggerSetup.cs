@@ -5,5 +5,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record ScrollTriggerSetup(RoomScrollChange Change) : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
+    internal override RoomObjectKind Kind => RoomObjectKind.ScrollTrigger;
+
+    /// <inheritdoc/>
     internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpScrollTrigger(Change);
 }

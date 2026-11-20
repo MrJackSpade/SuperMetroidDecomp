@@ -9,5 +9,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record CollectibleSetup(PermanentCollectibleObject Item, CollectibleIdentity Collected) : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
+    internal override RoomObjectKind Kind => RoomObjectKindDefinitions.Items[Item];
+
+    /// <inheritdoc/>
     internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpCollectible(Item, Collected);
 }

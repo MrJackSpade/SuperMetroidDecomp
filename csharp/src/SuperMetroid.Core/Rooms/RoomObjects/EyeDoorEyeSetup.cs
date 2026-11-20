@@ -8,5 +8,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record EyeDoorEyeSetup(EyeDoorOrientation Orientation, DoorLock LockedBy) : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
+    internal override RoomObjectKind Kind => RoomObjectKindDefinitions.EyeDoorEyes[Orientation];
+
+    /// <inheritdoc/>
     internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpEyeDoorEye(Orientation, LockedBy);
 }

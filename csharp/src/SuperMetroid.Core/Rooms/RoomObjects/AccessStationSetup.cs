@@ -8,5 +8,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record AccessStationSetup(StationAccessRule Station) : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
+    internal override RoomObjectKind Kind => RoomObjectKindDefinitions.AccessStations[Station];
+
+    /// <inheritdoc/>
     internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpAccessStation(Station);
 }

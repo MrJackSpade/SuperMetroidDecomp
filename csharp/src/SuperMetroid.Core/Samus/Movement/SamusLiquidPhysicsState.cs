@@ -121,10 +121,10 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>
-    /// The water surface as the air-bubble test and the diving splash read it, which do not test whether the room has
-    /// one: an absent surface reads as <see cref="AbsentWaterSurfaceLine.PlaceOf"/> places it.
+    /// The room place the diving splash stands on: the water surface, or, in a room with no water surface, the place
+    /// <see cref="AbsentWaterSurfaceLine.SplashPlace"/> gives.
     /// </summary>
-    internal int UntestedWaterSurfaceLine => AbsentWaterSurfaceLine.PlaceOf(WaterSurfaceY);
+    internal int UntestedWaterSurfaceLine => WaterSurfaceY is int surface ? OffRoomPlaces.Place(surface) : AbsentWaterSurfaceLine.SplashPlace;
 
     /// <summary>
     /// Whether Samus's movement ignores the room's water surface until a room object enables it (the n00b tube's glass),
@@ -521,11 +521,12 @@ public sealed class SamusLiquidPhysicsState
         int frameCounter,
         SharedRandom random)
     {
-        // Leaving water for a room configured without a water surface still runs this test, on the surface as it is
-        // read untested. A mouth near the room's top lies above it, on a line less than zero, and above any surface.
+        // Leaving water for a room configured without a water surface still runs this test, which then finds the mouth
+        // under water unless it lies above the room (AbsentWaterSurfaceLine).
         int top = TopLine(samus);
         int mouthY = top - SamusLiquidParticleDefinitions.BreathTestAboveTop;
-        if (mouthY < AbsentWaterSurfaceLine.Read(WaterSurfaceY) ||
+        bool mouthUnderWater = WaterSurfaceY is int surface ? mouthY >= surface : AbsentWaterSurfaceLine.MouthIsUnder(mouthY);
+        if (!mouthUnderWater ||
             !SamusCadenceDefinitions.BreathBubbleEvery128thUpdate.IsDue(frameCounter) ||
             !EffectWaits.BubbleCanForm)
         {

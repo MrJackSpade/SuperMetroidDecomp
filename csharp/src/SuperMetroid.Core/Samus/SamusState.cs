@@ -402,13 +402,11 @@ public sealed class SamusState
     public SamusBallBounceState MorphBallBounceState { get; set; }
 
     /// <summary>
-    /// The bomb jump a bomb's blast asked of Samus: its launch direction, and whether her pose handling has accepted it,
-    /// which keeps the same request from arming the jump again. It is her state from the blast's overlap until her pose
-    /// handling rejects it, an input transition to another pose cancels it, or the jump it armed ends: the rising arc reads
-    /// its direction throughout, and a later blast replaces it whole. She holds none when no bomb jump is asked of her.
+    /// Samus's bomb jump, from the blast that starts it until her pose handling rejects it, an input transition to another
+    /// pose cancels it, or the jump ends: its launch direction, which the rising arc reads throughout, and whether her pose
+    /// handling has armed it. A later blast starts a new one. None while she is not bomb jumping.
     /// </summary>
-    [SuppressMessage("Design", "SME6470", Justification = "Her own state for the bomb jump's whole course, which the rising arc reads throughout and a later blast replaces; no step consumes and clears it.")]
-    public SamusBombJumpRequest? BombJumpRequest { get; set; }
+    public SamusBombJump? BombJump { get; set; }
 
     /// <summary>True for the bomb jump's one-frame start, which sets her velocity (<see cref="SamusMovementOwner.BombJump"/>).</summary>
     public bool BombJumpStarting { get; set; }

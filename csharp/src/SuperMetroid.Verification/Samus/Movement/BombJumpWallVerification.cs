@@ -37,7 +37,7 @@ internal static class BombJumpWallVerification
         // must not end the special handler; the native branch tests the later Y result.
         AssertTrue(samus.BombJumpActive, "wall-only collision retains native bomb-jump handler");
         AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "bomb-jump wall hit clears horizontal momentum without cancelling ascent");
-        AssertEqual(SamusBombJumpRequest.Published(SamusBombJumpDirection.Right).Accept(), samus.BombJumpRequest, "the bomb-wall request remains accepted");
+        AssertEqual(SamusBombJump.FromBlast(SamusBombJumpDirection.Right).Arm(), samus.BombJump, "the bomb-wall request remains accepted");
         AssertEqual(59, samus.Position.X.Whole, "native bomb-wall X endpoint");
         AssertEqual(77, samus.Position.Y.Whole, "native bomb-wall Y endpoint");
         AssertEqual(0x4000, samus.Kinematics.Position.Y.Fraction, "native bomb-wall Y fraction");

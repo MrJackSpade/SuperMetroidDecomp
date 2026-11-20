@@ -33,7 +33,7 @@ internal static class SamusImpulseDefinitionsVerification
             int? surface = raw <= short.MaxValue ? raw : null;
             bomb.LiquidPhysics.WaterSurfaceY = liquid == 1 ? surface : null;
             bomb.LiquidPhysics.LavaAcidSurfaceY = liquid == 2 ? surface : null;
-            bomb.BombJumpRequest = SamusBombJumpRequest.Published(direction).Accept();
+            bomb.BombJump = SamusBombJump.FromBlast(direction).Arm();
             bomb.BombJumpStarting = true;
             bomb.BombJumpActive = false;
             bomb.Kinematics.YAcceleration = new UnsignedSixteenSixteen(7, 123);
@@ -64,7 +64,7 @@ internal static class SamusImpulseDefinitionsVerification
             hurt.LiquidPhysics.WaterSurfaceY = environment is 1 or 3 ? 0 : null;
             hurt.LiquidPhysics.LavaAcidSurfaceY = environment == 2 ? 0 : null;
             PrivateState.Set(hurt.LiquidPhysics, nameof(SamusLiquidPhysicsState.IgnoresWaterSurface), environment == 3);
-            hurt.BombJumpRequest = SamusBombJumpRequest.Published(SamusBombJumpDirection.Left).Accept();
+            hurt.BombJump = SamusBombJump.FromBlast(SamusBombJumpDirection.Left).Arm();
             hurt.BombJumpStarting = true;
             hurt.BombJumpActive = true;
             hurt.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(ushort.MaxValue, ushort.MaxValue);
@@ -76,7 +76,7 @@ internal static class SamusImpulseDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea1 + medium * 2)), hurt.Kinematics.YAcceleration.Fraction, "Hurt refreshes native gravity");
             AssertEqual(11, hurt.KnockbackHold.UpdatesLeft, "Hurt retains producer timer");
             AssertTrue(hurt.KnockbackActive && !hurt.BombJumpActive && !hurt.BombJumpStarting, "Hurt replaces bomb mover");
-            AssertEqual(null, hurt.BombJumpRequest, "Hurt drops the bomb-jump request");
+            AssertEqual(null, hurt.BombJump, "Hurt drops the bomb-jump request");
             AssertEqual(1, hurt.HurtFlash.Count, "Hurt starts flash");
             AssertEqual(SamusBodyAttack.None, hurt.HorizontalSpeed.BodyAttack, "Hurt cancels contact attack");
             hurtCases++;

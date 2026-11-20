@@ -151,7 +151,7 @@ public static class SamusKnockbackMovement
         // The remainder of the knockback setup runs for both the humanoid and the ball. A pending bomb
         // jump cannot coexist with hurt movement, and shinespark/Screw contact damage is
         // cancelled before the knockback moves her.
-        samus.BombJumpRequest = null;
+        samus.BombJump = null;
         // Taking her movement ends the bomb jump's movement immediately, but
         // does not yet release its independent lock on her pose input.
         samus.BombJumpStarting = false;

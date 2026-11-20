@@ -20,8 +20,8 @@ public static class SamusBombJumpMovement
     public static BombJumpMovementResult Start(SamusState samus)
     {
         Ensure.NotNull(samus);
-        if (samus.BombJumpRequest is not { Accepted: true })
-            throw new InvalidOperationException($"Bomb-jump start requires an accepted request, got {samus.BombJumpRequest}.");
+        if (samus.BombJump is not { IsArmed: true })
+            throw new InvalidOperationException($"Bomb-jump start requires an accepted request, got {samus.BombJump}.");
 
         // The launch uses the same bottom-edge air/water/lava classification as ordinary
         // launch, with a launch speed for each medium. Gravity is refreshed by
@@ -46,7 +46,7 @@ public static class SamusBombJumpMovement
         if (!samus.BombJumpActive)
             throw new InvalidOperationException("Bomb-jump movement requires an active jump.");
 
-        if (samus.BombJumpRequest is not { } request)
+        if (samus.BombJump is not { } request)
             return End(samus, null);
         SamusBombJumpDirection direction = request.Direction;
 
@@ -131,7 +131,7 @@ public static class SamusBombJumpMovement
         SamusState samus,
         BlockMoveResult? vertical)
     {
-        samus.BombJumpRequest = null;
+        samus.BombJump = null;
         samus.BombJumpStarting = false;
         samus.BombJumpActive = false;
         samus.BombJumpPoseInputLocked = false;

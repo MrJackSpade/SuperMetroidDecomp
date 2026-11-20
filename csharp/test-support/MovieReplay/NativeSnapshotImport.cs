@@ -282,7 +282,7 @@ internal static class NativeSnapshotImport
         samus.HorizontalSpeed.BodyAttack = SamusMovementNativeWords.ContactDamage.Decode(
             W(NativeSnapshotMemory.ContactDamageIndex), "Samus body attack");
         samus.MorphBallBounceState = SamusSnapshotWords.DecodeBallBounce(W(NativeSnapshotMemory.MorphBallBounceState));
-        samus.BombJumpRequest = SuperMetroid.TestSupport.VerificationImporters.SamusBombJumpRequestImport.FromNative(W(NativeSnapshotMemory.BombJumpDirection));
+        samus.BombJump = SuperMetroid.TestSupport.VerificationImporters.SamusBombJumpImport.FromNative(W(NativeSnapshotMemory.BombJumpDirection));
 
         // The checkpoint's live native trail places become trails, which show the pictures of the beams equipped there, as
         // its projectile graphics hold them (#1586); a place whose sparkles have both ended holds no trail.

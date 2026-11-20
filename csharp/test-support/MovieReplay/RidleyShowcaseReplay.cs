@@ -391,7 +391,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus SlowdownLevel", checked((ushort)samus.HorizontalSpeed.SlowdownLevel), NativeSnapshotMemory.SpeedDivisor);
             Check("Samus BodyAttack", SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.ContactDamage.Word(samus.HorizontalSpeed.BodyAttack), NativeSnapshotMemory.ContactDamageIndex);
             Check("Samus MorphBallBounceState", SamusSnapshotWords.EncodeBallBounce(samus.MorphBallBounceState), NativeSnapshotMemory.MorphBallBounceState);
-            Check("Samus bomb jump", SamusBombJumpRequestCodec.ToNative(samus.BombJumpRequest), NativeSnapshotMemory.BombJumpDirection);
+            Check("Samus bomb jump", SamusBombJumpCodec.ToNative(samus.BombJump), NativeSnapshotMemory.BombJumpDirection);
             Check("Samus running momentum", samus.HorizontalSpeed.HasRunningMomentum ? (ushort)1 : (ushort)0, NativeSnapshotMemory.Momentum);
             Check("Samus speed boost counter", SamusSnapshotWords.EncodeSpeedBoostCounter(samus.HorizontalSpeed.SpeedBoostCounter), NativeSnapshotMemory.BoostCounter);
             Check("Samus horizontal speed table", samus.HorizontalSpeed.ActiveSpeedTableBaseAddress, NativeSnapshotMemory.HorizontalSpeedTable);

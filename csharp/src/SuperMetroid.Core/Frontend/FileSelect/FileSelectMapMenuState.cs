@@ -97,8 +97,11 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
 
     /// <summary>Current public navigation phase, reporting EnteringArea until the separately owned initial reveal/fade completes, then exposing the navigation owner's phase.</summary>
     public FileSelectMapNavigationPhase Phase => entry.IsComplete ? navigation.Phase : FileSelectMapNavigationPhase.EnteringArea;
-    /// <summary>How the map hands off to its host (#2562): its load or its options, kept once it reaches one.</summary>
-    public FileSelectMapOutcome Outcome { get; private set; }
+    /// <summary>
+    /// How the map hands off to its host (#2562): its load or its options, kept once it reaches one; absent while the map
+    /// runs, before it has reached either (#2587).
+    /// </summary>
+    public FileSelectMapOutcome? Outcome { get; private set; }
 
     /// <summary>Binds the installed map artwork when the game is bound to its installed content, without restarting navigation.</summary>
     public void BindScreenContent(InstalledScreenContent catalog)

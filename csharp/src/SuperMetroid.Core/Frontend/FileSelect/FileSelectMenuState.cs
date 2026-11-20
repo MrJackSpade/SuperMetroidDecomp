@@ -90,8 +90,11 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Current menu phase.</summary>
     public FileSelectPhase Phase { get; private set; }
 
-    /// <summary>How the menu hands off to its host (#2562): the game options or the title, kept once it reaches one.</summary>
-    public FileSelectMenuOutcome Outcome { get; private set; }
+    /// <summary>
+    /// How the menu hands off to its host (#2562): the game options or the title, kept once it reaches one; absent while
+    /// the menu runs, before it has reached either (#2587).
+    /// </summary>
+    public FileSelectMenuOutcome? Outcome { get; private set; }
 
     /// <summary>The selected save slot, which a requested game always names (#1976).</summary>
     /// <exception cref="InvalidDataException">A command row is selected, which names no save slot.</exception>

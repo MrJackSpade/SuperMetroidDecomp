@@ -123,8 +123,11 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Gets the options menu's current phase.</summary>
     public GameOptionsPhase Phase { get; private set; }
 
-    /// <summary>How the menu hands off to the frontend (#2562): the opening sequence or file select, kept once it reaches one.</summary>
-    public GameOptionsMenuOutcome Outcome { get; private set; }
+    /// <summary>
+    /// How the menu hands off to the frontend (#2562): the opening sequence or file select, kept once it reaches one;
+    /// absent while the menu runs, before it has reached either (#2587).
+    /// </summary>
+    public GameOptionsMenuOutcome? Outcome { get; private set; }
 
     /// <summary>Advances one options-menu update using the held controller buttons.</summary>
     public void Step(ControllerButton controllerInput)

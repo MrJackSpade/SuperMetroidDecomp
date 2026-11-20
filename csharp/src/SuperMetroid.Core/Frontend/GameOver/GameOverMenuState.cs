@@ -83,8 +83,11 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// </summary>
     public bool IsWaitingOutDisplayFrame { get; private set; }
 
-    /// <summary>How the menu hands off to the outer game-state loop (#2562), kept once it reaches one.</summary>
-    public GameOverMenuOutcome Outcome { get; private set; }
+    /// <summary>
+    /// How the menu hands off to the outer game-state loop (#2562), kept once it reaches one; absent while the menu runs,
+    /// before it has reached one (#2587).
+    /// </summary>
+    public GameOverMenuOutcome? Outcome { get; private set; }
 
     /// <summary>
     /// Binds the installed map artwork when the game is bound to its installed content and refreshes only

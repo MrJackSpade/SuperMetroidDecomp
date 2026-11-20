@@ -189,8 +189,11 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>How far the skip to the title screen has run alongside the running step (#1719).</summary>
     private TitleSkipStage SkipStage { get; set; }
 
-    /// <summary>How the title hands off to the frontend (#2562): file select or the demo, kept once it reaches one.</summary>
-    public TitleSequenceOutcome Outcome { get; private set; }
+    /// <summary>
+    /// How the title hands off to the frontend (#2562): file select or the demo, kept once it reaches one; absent while
+    /// the title runs, before it has reached either (#2587).
+    /// </summary>
+    public TitleSequenceOutcome? Outcome { get; private set; }
 
     /// <summary>The player-cancelled return from the demo skips the introductory title cards.</summary>
     internal static TitleSequenceState ReturnFromDemo(

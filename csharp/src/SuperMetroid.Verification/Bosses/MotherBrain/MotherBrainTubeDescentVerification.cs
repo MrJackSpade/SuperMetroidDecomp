@@ -12,16 +12,16 @@ internal static class MotherBrainTubeDescentVerification
     internal static int VerifyMotherBrainTubeDescent()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
+        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
         enemies.MotherBrainEncounter.BeginAsSetUp(state, state.Head);
         var tube = enemies.Places.InUpdateOrder[2];
-        tube.SetSpawnSettings(new MotherBrainTubeSpawnSettings(MotherBrainTubePiece.Main));
+        // The main tube is placed with its piece's spawn settings, as its population entry places it.
+        tube.BindPlaced(EnemyDefinitionId.MotherBrainTubes, new MotherBrainTubeSpawnSettings(MotherBrainTubePiece.Main));
         tube.Position = tube.Position.WithWhole(new(128, 128));
         state.Head.Position = state.Head.Position.WithWholeY(72);
-        tube.Bind(EnemyDefinitionId.MotherBrainTubes, tube.Definition);
         // The tube holds the encounter that spawned it, as its spawn gives it (#2218).
         tube.SetSpeciesState(state);
-        MotherBrainFakeDeath.InitializeMotherBrainFallingTube(tube);
+        MotherBrainFakeDeath.InitializeMotherBrainFallingTube(tube.HeldOccupant(), tube);
         // The descent is traced from the update the main tube starts to fall: its wait runs out on its first update.
         tube.RequireSpeciesState<MotherBrainFallingTubeState>().FallDelay.LastFor(1);
         Action<RoomEnemyPlace> step = enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain;

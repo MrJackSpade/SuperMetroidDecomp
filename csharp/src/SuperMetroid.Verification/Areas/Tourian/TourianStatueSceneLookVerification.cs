@@ -29,14 +29,12 @@ internal static class TourianStatueSceneLookVerification
             statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
         RoomEnemyPlace placement = enemies.Places.InUpdateOrder[0];
         placement.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, 0);
-        placement.Bind(EnemyDefinitionId.TourianStatue, placement.Definition);
+        placement.Bind(EnemyDefinitionId.TourianStatue, placement.KeptDefinition);
         RoomEnemyPlace unplaced = enemies.Places.InUpdateOrder[1];
-        unplaced.Bind(EnemyDefinitionId.TourianStatue, unplaced.Definition);
+        unplaced.Bind(EnemyDefinitionId.TourianStatue, unplaced.KeptDefinition);
 
-        EnemyProjectile stranger = enemies.Projectiles.AllocateEnemyProjectile()
+        EnemyProjectile stranger = enemies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DustOrExplosion, DustExplosionProjectileBehavior.Instance, SpriteGraphics.SharedStandard)
             ?? throw new InvalidOperationException("A new room has a free enemy-projectile place.");
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(stranger, RoomEnemyProjectileKind.DustOrExplosion,
-            DustExplosionProjectileBehavior.Instance, SpriteGraphics.SharedStandard);
 
         TourianEntranceStatueBehavior scene = EnemySystemFixtures.StatueScene(enemies);
         EnemySystemFixtures.InitializeStatuePlacement(placement);
@@ -58,7 +56,7 @@ internal static class TourianStatueSceneLookVerification
         AssertTrue(stranger.Graphics.Shading.IsStandard, "a projectile that is not the scene's keeps its standard colours");
 
         // The placement leaves, and an enemy of another kind takes its place: the scene's next look is not shown there.
-        placement.Bind(EnemyDefinitionId.Zoa, placement.Definition);
+        placement.Bind(EnemyDefinitionId.Zoa, placement.KeptDefinition);
         PictureShading newcomer = placement.Shading;
         EnemySystemFixtures.UnlockEffects(enemies).SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(2));
         AssertTrue(scene.SceneShading != look, "a second lit eye gives the scene a further look");

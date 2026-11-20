@@ -68,9 +68,11 @@ internal static class EnemyTileArtworkPresentationContractChecks
         Reject(() => AreaSourceArtwork.FromInstalledArtwork(new AreaSourceArtwork { CeresEscapeTiles = ceres }), "required Ceres DMA extensions");
         Reject(() => BossSourceArtwork.FromInstalledArtwork(new BossSourceArtwork()), "required Torizo DMA extension");
         RoomCharacterAtlas original = sheets[first.DefinitionId];
-        sheets.Remove(first.DefinitionId); sheets.Add(0, original);
+        // The substitute is an enemy whose installation holds no sheet of its own (#2558): no identity stands for none.
+        EnemyDefinitionId substitute = Enum.GetValues<EnemyDefinitionId>().First(id => !sheets.ContainsKey(id));
+        sheets.Remove(first.DefinitionId); sheets.Add(substitute, original);
         Reject(() => Install(), "same-count substituted identity");
-        sheets.Remove(0);
+        sheets.Remove(substitute);
         sheets[first.DefinitionId] = Sheet(first.ByteCount == 32 ? 64 : 32);
         Reject(() => Install(), "incorrect native sheet length");
         sheets[first.DefinitionId] = original;

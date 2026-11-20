@@ -15,7 +15,6 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -182,8 +181,8 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         // denied. This checks the actual dispatch, not just a matching table.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.DraygonBody, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.DraygonBody, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.Position = place.Position.WithWhole(new(0x100, 0x100));
         foreach (ushort pointer in new ushort[] { 0xa31b, 0xa643, 0xa36b })
         {
@@ -226,8 +225,8 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Draygon);
         enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.DraygonBody, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.DraygonBody, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.CollidesByFrameHitboxes = true;
         if (newInstructionFrame)
             SuperMetroid.Core.PrivateState.Set(place.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), true);

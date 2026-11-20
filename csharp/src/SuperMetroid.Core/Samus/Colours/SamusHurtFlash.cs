@@ -36,11 +36,11 @@ public static class SamusHurtFlash
         Ensure.NotNull(colours);
         Ensure.NotNull(samus);
 
-        int counterBefore = samus.HurtFlash.Count;
-        if (counterBefore == 0)
+        if (samus.HurtFlash.IsIdle)
         {
             return;
         }
+        int counterBefore = samus.HurtFlash.Count;
 
 // The hurt flash plays the impact sound on its impact update. Cinematics and the
         // Mother-Brain drained knockback are the two exceptions; the latter is

@@ -28,6 +28,11 @@ internal abstract record AnimationShown<TSegment, TFrame>
     /// <param name="Duration">The updates the pause lasts.</param>
     internal sealed record Paused(int Duration) : AnimationShown<TSegment, TFrame>;
 
+    /// <summary>The play reached a beat of <paramref name="Segment"/> that shows nothing for <paramref name="Duration"/> updates (#2558).</summary>
+    /// <param name="Segment">The segment whose beat hides the owner.</param>
+    /// <param name="Duration">The updates the owner stays hidden.</param>
+    internal sealed record Hidden(TSegment Segment, int Duration) : AnimationShown<TSegment, TFrame>;
+
     /// <summary>The animation rests on its last frame until its owner plays another.</summary>
     internal sealed record Held : AnimationShown<TSegment, TFrame>
     {

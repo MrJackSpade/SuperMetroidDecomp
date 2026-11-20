@@ -44,7 +44,7 @@ internal static class IntroMotherBrainAnimations
                 Show(S.BigExplosionBursting, 6),
                 Show(S.BigExplosionSpikedRing, 6),
                 Show(S.BigExplosionScatteredSmoke, 6),
-                Show(S.Blank, 16),
+                Hide(16),
             ],
             [IntroMotherBrainExplosionAnimation.Small] =
             [
@@ -54,7 +54,7 @@ internal static class IntroMotherBrainAnimations
                 Show(S.SmallExplosionHollowing, 3),
                 Show(S.SmallExplosionRing, 3),
                 Show(S.SmallExplosionFadingRing, 3),
-                Show(S.Blank, 16),
+                Hide(16),
             ],
         },
         plays => new Dictionary<IntroMotherBrainExplosionAnimation, Animation<IntroMotherBrainExplosionAnimation>>
@@ -66,4 +66,8 @@ internal static class IntroMotherBrainAnimations
     /// <summary>Shows <paramref name="pose"/> for <paramref name="duration"/> updates in an animation that publishes no cue.</summary>
     private static AnimationBeat<CinematicSpritePose, NoAnimationCue> Show(CinematicSpritePose pose, int duration) =>
         CinematicBeats<CinematicSpritePose, NoAnimationCue>.Show(pose, duration);
+
+    /// <summary>Hides the actor for <paramref name="duration"/> updates in an animation that publishes no cue.</summary>
+    private static AnimationBeat<CinematicSpritePose, NoAnimationCue> Hide(int duration) =>
+        CinematicBeats<CinematicSpritePose, NoAnimationCue>.Hide(duration);
 }

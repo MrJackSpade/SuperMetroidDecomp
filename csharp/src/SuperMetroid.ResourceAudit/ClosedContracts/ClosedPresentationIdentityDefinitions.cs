@@ -80,7 +80,7 @@ internal static class ClosedPresentationIdentityDefinitions
         ("EnemyTileSourceArtwork", "PaletteOf" or "TryGetPalette", "enemy") => EnemyTileSourceDefinitions.All
             .Select(definition => (int)definition.DefinitionId).ToArray(),
         ("EnemyProjectileSpritemapCatalog", "Get", "frame") => EnemyProjectileSpritemapDefinitions.FrameNames
-            .Select(name => (int)EnemyProjectileFrames.Identity(name)).Append((int)EnemyProjectileFrameId.Blank).ToArray(),
+            .Select(name => (int)EnemyProjectileFrames.Identity(name)).ToArray(),
         ("EnemyProjectileSpritemapCatalog", "GetProgramFrame", "frame") => EnemyProjectilePresentationFrameSets.All
             .SelectToArray(frame => (int)frame.Frame),
         // The Ceres elevator arrival's every pose has its installed picture (#2425).

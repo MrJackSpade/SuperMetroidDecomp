@@ -12,8 +12,8 @@ internal static class PolypBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.Polyp.PolypBehavior self)
     {
         /// <summary>The private method <c>SpawnPolypRock</c>, invoked by name.</summary>
-        internal void SpawnPolypRock(global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, global::SuperMetroid.Core.Enemies.QuadraticSpeedCurvePlace launchPlace, global::SuperMetroid.Core.Spatial.SignedEightEight xVelocity) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Polyp.PolypBehavior>(self, "SpawnPolypRock", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.QuadraticSpeedCurvePlace), typeof(global::SuperMetroid.Core.Spatial.SignedEightEight)], new object?[] { source, launchPlace, xVelocity });
+        internal void SpawnPolypRock(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, global::SuperMetroid.Core.Enemies.QuadraticSpeedCurvePlace launchPlace, global::SuperMetroid.Core.Spatial.SignedEightEight xVelocity) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Polyp.PolypBehavior>(self, "SpawnPolypRock", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.QuadraticSpeedCurvePlace), typeof(global::SuperMetroid.Core.Spatial.SignedEightEight)], new object?[] { occupant, source, launchPlace, xVelocity });
     }
 
     /// <summary>The private static members checks name.</summary>

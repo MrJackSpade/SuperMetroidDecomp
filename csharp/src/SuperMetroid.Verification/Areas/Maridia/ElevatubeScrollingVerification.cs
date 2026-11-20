@@ -44,7 +44,7 @@ internal static class ElevatubeScrollingVerification
                 runtime.StepFrame(0);
                 AssertEqual(SixteenSixteenWords.ToCoordinate(expectedY), samus.Kinematics.Position.Y,
                     "tube displacement contains only room-main velocity, not ordinary falling");
-                var checkpoint = (camera.PreviousSamusPoint ?? throw new InvalidOperationException("Verification requires camera.PreviousSamusPoint."));
+                var checkpoint = camera.PreviousSamusPoint is SuperMetroid.Core.Samus.Movement.SamusScrolledCheckpoint { Point: var scrolled } ? scrolled : throw new InvalidOperationException("Verification requires a scrolled camera.PreviousSamusPoint.");
                 uint savedY = SixteenSixteenWords.Compose(checkpoint.Y);
                 AssertEqual(beforeY, savedY, "scroll checkpoint precedes elevatube room-main movement");
                 AssertTrue(samus.Kinematics.Position.Y != checkpoint.Y,

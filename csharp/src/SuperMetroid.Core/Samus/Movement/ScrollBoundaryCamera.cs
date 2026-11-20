@@ -42,14 +42,21 @@ public sealed class ScrollBoundaryCamera
     public FixedVector<RoomPixels> Speed { get; private set; }
 
     /// <summary>
-    /// Samus's previous position written at the end of scrolling.
-    /// Room-main movement occurs later and must remain visible to the next scroll update.
-    /// Null represents a newly constructed camera without an accepted scrolling pass.
+    /// Samus's previous position written at the end of scrolling, or that the camera has been placed since its last
+    /// scrolling pass (<see cref="SamusScrollCheckpoint.SincePlacement"/>). Room-main movement occurs later and must
+    /// remain visible to the next scroll update.
     /// </summary>
-    public FixedPosition<RoomPixels>? PreviousSamusPoint { get; private set; }
+    public SamusScrollCheckpoint PreviousSamusPoint { get; private set; } = SamusScrollCheckpoint.SincePlacement;
 
     /// <summary>Publishes the previous-position checkpoint after both axes and the room's camera floor.</summary>
-    public void FinishSamusScrolling(FixedPosition<RoomPixels> current) => PreviousSamusPoint = current;
+    public void FinishSamusScrolling(FixedPosition<RoomPixels> current) => PreviousSamusPoint = SamusScrollCheckpoint.At(current);
+
+    /// <summary>
+    /// The point a door's write starts from: the checkpoint's, or, for a camera placed since its last scroll, the room
+    /// origin with no fraction of a pixel.
+    /// </summary>
+    private FixedPosition<RoomPixels> PointBeforeDoorWrite =>
+        PreviousSamusPoint is SamusScrolledCheckpoint { Point: var point } ? point : FixedPosition<RoomPixels>.Zero;
 
     /// <summary>Door room replacement retains the global scrolling history and targets.</summary>
     internal void InheritTrackingState(ScrollBoundaryCamera previous)
@@ -61,7 +68,7 @@ public sealed class ScrollBoundaryCamera
 
     /// <summary>Door placement writes both whole previous-position coordinates, retaining fractions.</summary>
     internal void PublishDoorSamusPosition(Position16<RoomPixels> samus) =>
-        PreviousSamusPoint = (PreviousSamusPoint ?? default).WithWhole(samus);
+        PreviousSamusPoint = SamusScrollCheckpoint.At(PointBeforeDoorWrite.WithWhole(samus));
 
     /// <summary>
     /// The door-transition scroll writes only the travel axis's whole previous position, retaining the
@@ -69,10 +76,10 @@ public sealed class ScrollBoundaryCamera
     /// </summary>
     internal void PublishDoorSamusTravelAxis(bool vertical, Position16<RoomPixels> samus)
     {
-        FixedPosition<RoomPixels> previous = PreviousSamusPoint ?? default;
-        PreviousSamusPoint = vertical
+        FixedPosition<RoomPixels> previous = PointBeforeDoorWrite;
+        PreviousSamusPoint = SamusScrollCheckpoint.At(vertical
             ? previous.WithY(previous.Y.WithWhole(samus.Y))
-            : previous.WithX(previous.X.WithWhole(samus.X));
+            : previous.WithX(previous.X.WithWhole(samus.X)));
     }
 
     /// <summary>The room's scroll grid this camera consults.</summary>
@@ -84,7 +91,7 @@ public sealed class ScrollBoundaryCamera
     /// </summary>
     public void SetPosition(Position16<RoomPixels> requested)
     {
-        PreviousSamusPoint = null;
+        PreviousSamusPoint = SamusScrollCheckpoint.SincePlacement;
         int maxX = RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1);
 
         // The vertical maximum depends on whether the screen aligns the camera to its top. Starting with the

@@ -44,6 +44,21 @@ internal static class FamilyProjectileStarts
         enemies.TourianUnlockEffects
             ?? throw new InvalidOperationException($"A {kind} projectile spawns only in the Tourian statue room, which these enemies are not.");
 
+    /// <summary>
+    /// Spawns a projectile of <paramref name="kind"/> into <paramref name="place"/> and initializes it as its kind's
+    /// production spawner does, for a check that places it itself.
+    /// </summary>
+    /// <param name="enemies">The enemy system whose species own the room-lifetime behaviours.</param>
+    /// <param name="place">The enemy-projectile place the projectile takes.</param>
+    /// <param name="kind">What the projectile is.</param>
+    /// <param name="graphics">The sheet and shading the projectile draws with.</param>
+    internal static EnemyProjectile Spawn(RoomEnemySystem enemies, int place, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
+    {
+        EnemyProjectile projectile = Ensure.NotNull(enemies).Projectiles.Occupy(place, kind);
+        Initialize(enemies, projectile, kind, graphics);
+        return projectile;
+    }
+
     /// <summary>Initializes <paramref name="projectile"/> as its kind's production spawner does.</summary>
     /// <param name="enemies">The enemy system whose species own the room-lifetime behaviours.</param>
     /// <param name="projectile">The freshly spawned projectile.</param>
@@ -136,7 +151,6 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.EyeDoorSmoke or RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep or
             RoomEnemyProjectileKind.SaveStationElectricity =>
             EnemyProjectileBehavior.Still,
-        RoomEnemyProjectileKind.None => throw new ArgumentOutOfRangeException(nameof(kind), kind, "A gone projectile has no behaviour."),
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined enemy projectile kind."),
     };
 
@@ -227,7 +241,6 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.GoldenTorizoEgg or RoomEnemyProjectileKind.GoldenTorizoSuperMissile or
             RoomEnemyProjectileKind.GoldenTorizoEyeBeam or RoomEnemyProjectileKind.SporeSpawnStalk or
             RoomEnemyProjectileKind.SporeSpawnSpore or RoomEnemyProjectileKind.SporeSpawnSpawner => null,
-        RoomEnemyProjectileKind.None => throw new ArgumentOutOfRangeException(nameof(kind), kind, "A gone projectile starts nothing."),
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined enemy projectile kind."),
     };
 }

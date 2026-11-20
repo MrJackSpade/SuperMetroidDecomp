@@ -90,7 +90,7 @@ internal static class NativeSnapshotMotherBrainImport
             ? null
             : BodyPlaybackAt(state.Body);
         Dictionary<MotherBrainTubePiece, NativeEnemyList<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
-        foreach (RoomEnemyPlace tube in runtime.Enemies.Places.InUpdateOrder.Where(place => place.DefinitionId == EnemyDefinitionId.MotherBrainTubes))
+        foreach (RoomEnemyPlace tube in runtime.Enemies.Places.InUpdateOrder.Where(place => place.Holds(EnemyDefinitionId.MotherBrainTubes)))
         {
             tube.RequireSpeciesState<MotherBrainFallingTubeState>().Playback = NativeEnemyAnimationOracle.PlaybackAt(
                 tubes, MotherBrainNativeListAddresses.TubeEntries, MotherBrainTubeAnimations.StartingAt, AnimationScript(tube));
@@ -213,7 +213,7 @@ internal static class NativeSnapshotMotherBrainImport
         switch (MotherBrainAnimations.HeadSegments.Beats(phase.Segment)[phase.FirstBeat + playback.Place.Beat])
         {
             case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame frame:
-                brain.Playback = playback with { Place = playback.Place with { Beat = playback.Place.Beat + 1 } };
+                brain.Playback = playback with { Place = new AnimationPlace(playback.Place.Phase, playback.Place.Beat + 1).WithPlaysLeft(playback.Place.PlaysLeft) };
                 brain.ShownFrame = frame.Shown;
                 // The frame moves on at the draw its count passes its list's duration: its updates less the draws shown.
                 brain.Clock.HoldFor(frame.Duration - drawsShown + 1);
@@ -239,7 +239,7 @@ internal static class NativeSnapshotMotherBrainImport
     {
         AnimationPlayback<MotherBrainHeadSegment> playback = NativeEnemyAnimationOracle.PlaybackAt(head,
             MotherBrainNativeListAddresses.HeadEntries, MotherBrainAnimations.HeadStartingAt, pointer);
-        return playback.Place.Beat == AnimationPlace.NotEntered ? playback with { Place = AnimationPlace.StartOf(playback.Place.Phase) } : playback;
+        return playback.Place.HasNotEntered ? playback with { Place = AnimationPlace.StartOf(playback.Place.Phase) } : playback;
     }
 
     /// <summary>The stages the late fight's sequence runs, which a recorded body function in one of them resumes (#2208).</summary>
@@ -380,7 +380,7 @@ internal static class NativeSnapshotMotherBrainImport
         BossBodyFrameSource? staged = BossBodySheetComposer.Frames(bosses, BossBodyOwner.MotherBrain).FirstOrDefault(frame =>
             frame.Cells.All(entry => entry.Key < screen.Length && screen[entry.Key] == entry.Value.PackedWord));
         if (staged is not null)
-            image.Show(state.Body.DefinitionId, sheet.Frame(staged.Name));
+            image.Show(state.Body.HeldOccupant().DefinitionId, sheet.Frame(staged.Name));
         if (!BossBodyWords.Of(image.Publish(), BossBodyOwner.MotherBrain, bosses).AsSpan(0, screen.Length).SequenceEqual(screen))
             throw new InvalidDataException("The snapshot's staged Mother Brain body is not one installed body frame over her blank.");
         runtime.Enemies.Presentation.AttachBossBody(image);

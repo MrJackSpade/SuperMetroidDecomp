@@ -25,7 +25,7 @@ internal static class EnemyArtworkStaticContractChecks
                 void Inspect(EnemyTileSourceArtwork art, SuperMetroid.Core.Enemies.EnemyDefinitionId pointer,
                     VramRegion vram) {
                     art.PaletteOf(SuperMetroid.Core.Enemies.EnemyDefinitionId.{{first.DefinitionId}});
-                    art.PaletteOf(0);
+                    art.PaletteOf((SuperMetroid.Core.Enemies.EnemyDefinitionId)int.MaxValue);
                     art.PaletteOf(pointer);
                 }
             }

@@ -60,7 +60,7 @@ internal static class ChainsawFiringVerification
             "native Chainsaw admits and allocates the shot");
         AssertEqual(0, projectiles.Pool.ShotCount.Count, "inactive Power Bomb deletes Chainsaw on first update");
         AssertEqual(0, projectiles.Shots[0].InstructionPointer, "deleted Chainsaw has no animation list");
-        AssertEqual(0, projectiles.Shots[0].Damage, "deleted Chainsaw releases its damage sentinel");
+        AssertTrue(!projectiles.Shots[0].IsOccupied, "a deleted Chainsaw shot no longer holds its place, so it deals no damage");
 
         // PowerBomb_Func3 clears the inactive shot, but the native callback still falls
         // through to the bank-$94 boundary dispatcher. A bombable origin with no PLM owner
@@ -107,7 +107,7 @@ internal static class ChainsawFiringVerification
             doorLevel.GetCollisionBlockByIndex(doorOrigin).CollisionType,
             "Chainsaw blue-door setup mutates cap synchronously");
         AssertTrue(doorProjectiles.Shots.All(slot =>
-                !slot.Type.IsFamily(SamusProjectileFamily.BeamExplosion)),
+                !slot.IsOccupied || !slot.HeldShot().Type.IsFamily(SamusProjectileFamily.BeamExplosion)),
             "Wave scan opens door without synthesizing a visible beam impact");
         AssertEqual(0, doorProjectiles.Pool.ShotCount.Count,
             "door-opening no-Power-Bomb Chainsaw still deletes in B0AC callback");
@@ -142,8 +142,8 @@ internal static class ChainsawFiringVerification
         combatProjectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combatShared, new SharedGameState(new SharedRandom()));
         var combat = CreateEnemyDropFixture(samus, [1]);
         RoomEnemyPlace target = combat.System.Places.InUpdateOrder[0];
-        target.Bind(EnemyPlaceFixtures.StandIn, target.Definition);
-        target.Bind(target.DefinitionId, default(RoomEnemyDefinition) with
+        target.Bind(EnemyPlaceFixtures.StandIn, target.KeptDefinition);
+        target.Bind(target.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
         {
             Shot = EnemyReaction.OrdinaryShot,
         });
@@ -156,7 +156,7 @@ internal static class ChainsawFiringVerification
             combatProjectiles, combatShared, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
         AssertEqual(850, target.Health,
             "Chainsaw uses Super-Missile vulnerability byte for a 150-point hit");
-        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false), combatProjectiles.Shots[0].Type,
+        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false), combatProjectiles.Shots[0].HeldShot().Type,
             "Plasma keeps the uncharged Chainsaw shot alive after enemy damage");
 
         // The documented Orange Door interference is an ordering effect, not a special
@@ -253,7 +253,7 @@ internal static class ChainsawFiringVerification
         AssertEqual(SamusShotBehaviors.ChargedChainsaw,
             chargedProjectiles.Shots[0].Behavior,
             "charged Chainsaw retains its native unstable callback identity");
-        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: true), chargedProjectiles.Shots[0].Type,
+        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: true), chargedProjectiles.Shots[0].HeldShot().Type,
             "charged Chainsaw is fully allocated before unstable callback execution");
 
         Console.WriteLine("Chainsaw firing: native admission, door/enemy reactions, Orange-Door interference, callback stores, Power-Bomb-gated lifetime and charged WRAM execution agree.");

@@ -604,7 +604,7 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x9819),
         projectileType.AsFamily(SamusProjectileFamily.MissileExplosion),
         "a projectile becoming another family keeps its beams and charge");
-    AssertTrue(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0).IsNone, "the zero type word is no projectile");
+    AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0), "the cleared type word reads as an uncharged Power beam");
 
     ProjectileDispatchCase[] projectileDispatchCases =
     [

@@ -8,8 +8,7 @@ internal static class CeresDoorOrWallPlaces
     /// <summary>Binds <paramref name="place"/> to the Ceres door or wall <paramref name="actor"/> placed with <paramref name="settings"/>, without starting it.</summary>
     internal static void BindCeresDoorOrWall(this RoomEnemyPlace place, EnemyDefinitionId actor, EnemySpawnSettings settings)
     {
-        place.SetSpawnSettings(settings);
-        place.Bind(actor, place.Definition);
+        place.BindPlaced(actor, settings);
     }
 
     /// <summary>Binds <paramref name="place"/> to the Ceres door or wall <paramref name="actor"/> placed with <paramref name="settings"/> and runs its initialization.</summary>

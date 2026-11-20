@@ -4,22 +4,35 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// What one rainbow-beam attack step asks of the room's earthquake: start <paramref name="Shake"/> for
-/// <paramref name="Frames"/> frames, or, with no shake, run the room's own shake for that long (zero stops it); with no
-/// length, shake until a producer gives the earthquake one (#2013).
+/// What one rainbow-beam attack step asks of the room's earthquake (#2013): to shake with <paramref name="Shake"/>, or with
+/// the room's own shake when it names none, for a number of frames, until a producer gives the earthquake a length, or to
+/// stop, the shake staying for a later run.
 /// </summary>
 /// <param name="Shake">The shake to start, or null to keep the room's current shake.</param>
-/// <param name="Frames">The frames to shake, or null to shake until a producer gives the earthquake a length.</param>
-public readonly record struct MotherBrainEarthquakeRequest(EarthquakeShake? Shake, int? Frames)
+/// <param name="Length">How long the room shakes.</param>
+public readonly record struct MotherBrainEarthquakeRequest(EarthquakeShake? Shake, MotherBrainEarthquakeLength Length)
 {
     /// <summary>Applies the request to the room's earthquake.</summary>
     internal void ApplyTo(RoomEarthquake earthquake)
     {
-        if (Frames is not int frames)
-            earthquake.ShakeIndefinitely(Shake ?? earthquake.Shake);
-        else if (Shake is { } shake)
-            earthquake.Start(shake, frames);
-        else
-            earthquake.RunFor(frames);
+        switch (Length)
+        {
+            case MotherBrainEarthquakeLength.Lasting lasting when Shake is { } shake:
+                earthquake.Start(shake, lasting.Frames);
+                break;
+            case MotherBrainEarthquakeLength.Lasting lasting:
+                earthquake.RunFor(lasting.Frames);
+                break;
+            case var indefinite when indefinite == MotherBrainEarthquakeLength.Indefinite:
+                earthquake.ShakeIndefinitely(Shake ?? earthquake.Shake);
+                break;
+            case var stopped when stopped == MotherBrainEarthquakeLength.Stopped:
+                if (Shake is { } kept)
+                    earthquake.ChangeShake(kept);
+                earthquake.Stop();
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined earthquake length {Length}.");
+        }
     }
 }

@@ -28,9 +28,9 @@ internal static class BabyMetroidPresenceVerification
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         MotherBrainRainbowBeamAttackSequence lateFight = state.BeginLateFight();
         runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
-        BabyMetroidCutsceneState baby = lateFight.Baby;
-        RoomEnemyPlace place = baby.Place
-            ?? throw new InvalidOperationException("Verification requires the Baby's place.");
+        BabyMetroidCutsceneState baby = lateFight.Baby
+            ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.");
+        RoomEnemyPlace place = baby.Place;
 
         // The population's animation and off-screen processing, plus initialization's Plasma Beam block.
         const EnemyContact contact = EnemyContact.BlocksPlasmaBeam;

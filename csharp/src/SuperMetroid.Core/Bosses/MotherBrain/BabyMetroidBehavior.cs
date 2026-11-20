@@ -26,7 +26,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroid];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new BabyMetroidEntity(this, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new BabyMetroidEntity(this, occupant, place, common));
 
     /// <summary>Provides the room's enemy session, room scroll values, RNG, and installed encounter colors.</summary>
     private readonly EnemyRoomBinding _room;
@@ -702,7 +702,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // The Baby's shot response reads damage from the projectile that hit it, but recoils from Samus's first shot
         // (MetroidRecoilOrigin). For a bomb collision that means the bomb's damage controls recoil strength while
         // whatever live or left-over shot is first controls direction. It never enters vulnerability damage.
-        ResolveBabyMetroidShot(c.Enemy, c.Bomb.Damage, MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots));
+        ResolveBabyMetroidShot(c.Enemy, c.PlacedBomb.Damage, MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots));
 
     /// <summary>Runs Baby Metroid's initialization AI.</summary>
     internal static void SetUpBabyMetroid(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
@@ -754,8 +754,8 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // aim decide the recoil.
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
-            ResolveBabyMetroidShot(c.Enemy, c.Projectile.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Shots));
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+            ResolveBabyMetroidShot(c.Enemy, c.Shot.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Shots));
             return true;
         },
     };

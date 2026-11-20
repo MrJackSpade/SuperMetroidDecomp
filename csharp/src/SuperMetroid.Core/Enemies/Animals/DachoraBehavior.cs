@@ -16,10 +16,10 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dachora];
 
     /// <summary>A Dachora's body, or one of the speed-boost echoes its placement names (#2283).</summary>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<DachoraSpawnSettings>().Role == DachoraRole.SpeedBoostEcho
-            ? EnemyOccupant.Of(new DachoraEchoEntity(place, common))
-            : EnemyOccupant.Of(new DachoraEntity(this, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        occupant.SpawnSettings<DachoraSpawnSettings>().Role == DachoraRole.SpeedBoostEcho
+            ? EnemyOccupant.Of(new DachoraEchoEntity(occupant, place, common))
+            : EnemyOccupant.Of(new DachoraEntity(this, occupant, place, common));
 
     /// <summary>Probes floors, walls, and ceiling during the run and shinespark arc.</summary>
     private readonly EnemyTerrain _terrain;
@@ -43,9 +43,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes a speed-boost echo: it faces the way the body does; each trail placement later gives it its life (<see cref="DachoraTimingDefinitions.EchoLifetime"/>).</summary>
-    internal static void InitializeDachoraEcho(RoomEnemyPlace place)
+    internal static void InitializeDachoraEcho(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        DachoraSpawnSettings settings = place.SpawnSettings<DachoraSpawnSettings>();
+        DachoraSpawnSettings settings = occupant.SpawnSettings<DachoraSpawnSettings>();
         var echo = new DachoraEchoState();
         place.SetSpeciesState(echo);
         PrepareDachoraPlace(place);
@@ -55,9 +55,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Dachora's body, which finds the echoes its room lists with it.</summary>
-    internal void InitializeDachora(RoomEnemyPlace place)
+    internal void InitializeDachora(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        DachoraSpawnSettings settings = place.SpawnSettings<DachoraSpawnSettings>();
+        DachoraSpawnSettings settings = occupant.SpawnSettings<DachoraSpawnSettings>();
         var state = new DachoraEnemyState(DachoraAction.WaitingForSamus)
         {
             Facing = settings.Facing,
@@ -77,7 +77,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void PrepareDachoraPlace(RoomEnemyPlace place)
     {
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.Restart();
     }
 

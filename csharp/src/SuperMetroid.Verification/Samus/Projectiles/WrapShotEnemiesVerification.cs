@@ -32,7 +32,7 @@ internal static class WrapShotEnemiesVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RedTower);
-            var enemy = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.Ripper);
+            var enemy = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Ripper));
             foreach (var other in runtime.Enemies.Places.InUpdateOrder) if (!ReferenceEquals(other, enemy)) other.Clear();
             enemy.Processing = enemy.Processing.With(EnemyProcessing.OffScreen);
             // Run the first real animation entry before freezing; a never-drawn
@@ -47,7 +47,7 @@ internal static class WrapShotEnemiesVerification
             // Populate the real interactive list while freezing AI movement. The
             // remote enemy must be eligible, not silently excluded as offscreen.
             runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 0), TimeIsFrozen = true });
-            AssertTrue(runtime.Enemies.InteractiveEnemies.Contains(enemy), "Remote control enemy is collision-eligible");
+            AssertTrue(runtime.Enemies.InteractiveEnemies.Any(occupant => occupant.Place == enemy), "Remote control enemy is collision-eligible");
 
             var words = new RoomTerrainBlock[64 * 128];
             for (int row = 0; row < 128; row++)

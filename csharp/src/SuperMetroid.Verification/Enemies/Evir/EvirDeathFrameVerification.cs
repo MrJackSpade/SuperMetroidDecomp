@@ -24,8 +24,8 @@ internal static class EvirDeathFrameVerification
             place.SetSpawnParameter1(EnemyDefinitionId.Evir, index == 7 ? (ushort)1 : (ushort)0);
             // The body bobs at half a pixel per update, one of the two speeds retail Evirs use.
             if (index == 6) place.SetSpawnParameter2(EnemyDefinitionId.Evir, 8);
-            place.Bind(index == 8 ? EnemyDefinitionId.EvirProjectile : EnemyDefinitionId.Evir, place.Definition);
-            place.Bind(place.DefinitionId, RoomEnemyDefinitionLookup.Get(place.DefinitionId));
+            place.Bind(index == 8 ? EnemyDefinitionId.EvirProjectile : EnemyDefinitionId.Evir, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(place.HeldOccupant().DefinitionId));
             place.Position = place.Position.WithWhole(new(128, 128));
             place.Radius = new(place.Definition.Radius.X, place.Definition.Radius.Y);
             place.Health = place.Definition.Health;
@@ -38,7 +38,7 @@ internal static class EvirDeathFrameVerification
             else if (index == 7)
                 enemies.EvirBehavior.InitializeEvirArms(place);
             else
-                enemies.EvirBehavior.InitializeEvirBody(place, samus);
+                enemies.EvirBehavior.InitializeEvirBody(place.HeldOccupant(), place, samus);
         }
         var body = enemies.Places.InUpdateOrder[6];
         var arms = enemies.Places.InUpdateOrder[7];
@@ -48,7 +48,7 @@ internal static class EvirDeathFrameVerification
         // Arms and spit are marked deleted by the native contact tail but still receive
         // their already-scheduled calls before next frame's population pass removes them.
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
-        AssertEqual(EnemyDefinitionId.None, body.DefinitionId, "Screw Attack clears Evir body during contact");
+        AssertTrue(body.Occupant is null, "Screw Attack clears Evir body during contact");
         AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "only body counts as a killed enemy");
         AssertTrue(arms.Presence.HasAny(EnemyPresence.Deleted) && projectile.Presence.HasAny(EnemyPresence.Deleted),
             "Evir contact tail marks both following physical slots deleted");
@@ -60,8 +60,8 @@ internal static class EvirDeathFrameVerification
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion),
             "normal death explosion remains alive");
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
-        AssertEqual(EnemyDefinitionId.None, arms.DefinitionId, "next frame removes deleted arms");
-        AssertEqual(EnemyDefinitionId.None, projectile.DefinitionId, "next frame removes deleted spit");
+        AssertTrue(arms.Occupant is null, "next frame removes deleted arms");
+        AssertTrue(projectile.Occupant is null, "next frame removes deleted spit");
         AssertEqual(0, enemies.ActiveEnemies.Count, "no orphan Evir remains active");
         AssertThrows<InvalidDataException>(() => enemies.EvirBehavior.InitializeEvirArms(arms),
             "initialization still rejects a missing body");

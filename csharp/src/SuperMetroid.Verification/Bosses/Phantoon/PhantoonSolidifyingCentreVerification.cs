@@ -34,20 +34,19 @@ internal static class PhantoonSolidifyingCentreVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
-        body.Bind(body.DefinitionId, RoomEnemyDefinitionLookup.Get(body.DefinitionId));
+        body.Bind(EnemyDefinitionId.PhantoonBody, body.KeptDefinition);
+        body.Bind(body.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(body.HeldOccupant().DefinitionId));
         body.Position = body.Position.WithWhole(new(128, 96));
         body.Frame = EnemyFrameId.PhantoonInvulnerableBody;
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         body.Health = 2500;
-        var state = new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = PhantoonPhase.EyeTracksSamus };
+        var state = new PhantoonEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = PhantoonPhase.EyeTracksSamus };
         state.PhaseWait.LastFor(60);
         enemies.BeginPhantoonAsSetUp(state);
 
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         SamusProjectile shot = shots.Shots[0];
-        shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false);
-        shot.Damage = 20;
+        shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), 20);
         shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(at);
         shot.Radius = new(4, 4);

@@ -25,8 +25,8 @@ internal static class ShaktoolSamusContactVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Shaktool);
         RoomEnemyPlace segment = runtime.Enemies.Places.InUpdateOrder[0];
-        AssertEqual(EnemyDefinitionId.Shaktool, segment.DefinitionId, "slot zero is a Shaktool segment");
-        AssertEqual<EnemyReaction?>(null, segment.Definition.Touch, "Shaktool's definition leaves its touch to the species");
+        AssertEqual(EnemyDefinitionId.Shaktool, segment.Occupant?.DefinitionId, "slot zero is a Shaktool segment");
+        AssertEqual(SuperMetroid.Core.Enemies.Shaktool.ShaktoolReactions.Touch, segment.Definition.Touch, "Shaktool's definition names the species' own touch");
         AssertTrue(segment.Entity is IEnemyTouchReaction { ReactsToTouch: true }, "the Shaktool entity reacts to Samus's touch");
         AssertTrue(segment.SpritemapPointer != 0, "the loaded segment publishes a sprite map");
 
@@ -39,7 +39,7 @@ internal static class ShaktoolSamusContactVerification
         runtime.Enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(
             new Position16<RoomPixels>(0, 0));
         runtime.Enemies.Collision.ResolveOrdinarySamusContact(
-            samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, runtime.Room.LoadedLevelData, segment, Position16<RoomPixels>.Zero);
+            samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, runtime.Room.LoadedLevelData, segment.HeldOccupant(), Position16<RoomPixels>.Zero);
 
         AssertTrue(samus.Health < healthBefore, "$AA:DF2F deals common contact damage");
         AssertTrue(!samus.InvincibilityTimer.IsZero, "Shaktool contact damage starts invincibility");

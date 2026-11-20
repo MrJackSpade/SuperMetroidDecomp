@@ -16,8 +16,8 @@ internal static class PhantoonPatternsPrivateAccess
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPatterns>(self, "SpawnPhantoonRageFlame", [typeof(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState), typeof(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonRageFlameStart)], new object?[] { phantoon, start });
 
         /// <summary>The private method <c>SpawnPhantoonRainFlame</c>, invoked by name.</summary>
-        internal void SpawnPhantoonRainFlame(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, int columnX, int hangUpdates) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPatterns>(self, "SpawnPhantoonRainFlame", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(int), typeof(int)], new object?[] { body, columnX, hangUpdates });
+        internal void SpawnPhantoonRainFlame(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, int columnX, int hangUpdates) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPatterns>(self, "SpawnPhantoonRainFlame", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(int), typeof(int)], new object?[] { occupant, body, columnX, hangUpdates });
 
         /// <summary>The private method <c>SpawnPhantoonSpiralFlame</c>, invoked by name.</summary>
         internal void SpawnPhantoonSpiralFlame(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState phantoon, global::SuperMetroid.Core.Spatial.TrigonometryAngle start) =>

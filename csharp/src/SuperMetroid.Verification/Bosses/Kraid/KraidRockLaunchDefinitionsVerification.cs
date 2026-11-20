@@ -43,7 +43,8 @@ internal static class KraidRockLaunchDefinitionsVerification
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Kraid rock must not advance RNG.");
         Action<RoomEnemyPlace> spawn = enemies.KraidBehavior.Head.SpawnKraidSpitRock;
         var body = enemies.Places.InUpdateOrder[0];
-        var rock = enemies.Projectiles.ProjectileInPlace(17);
+        // The place's projectile before each spawn is a stale rock the check leaves there.
+        var rock = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.KraidSpitRock);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             random = (ushort)raw;
@@ -54,7 +55,7 @@ internal static class KraidRockLaunchDefinitionsVerification
             reads = 0;
             spawn(body);
             // A spawn creates a new projectile in the place, which the place now holds (#1590).
-            rock = enemies.Projectiles.ProjectileInPlace(17);
+            rock = enemies.Projectiles.SpawnedInPlace(17);
             AssertTrue(rock.IsActive, "Kraid rock allocation succeeds: the pool's last place holds a live rock");
             AssertEqual(1, reads, "Kraid rock reads current RNG once");
             AssertEqual(RoomEnemyProjectileKind.KraidSpitRock, rock.Kind, "Native reverse allocation slot");
@@ -67,7 +68,7 @@ internal static class KraidRockLaunchDefinitionsVerification
             AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(SuperMetroid.Core.Bosses.Kraid.KraidColours.RocksShading), rock.Graphics,
                 "Native rock: the rocks' colours Kraid loads, at tile base zero");
         }
-        foreach (var occupied in enemies.Projectiles.EveryPlace()) global::SuperMetroid.Core.PrivateState.Set(occupied, "Kind", RoomEnemyProjectileKind.KraidSpitRock);
+        foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity)) enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.KraidSpitRock);
         ushort previousX = rock.Position.X.Whole;
         reads = 0;
         spawn(body);

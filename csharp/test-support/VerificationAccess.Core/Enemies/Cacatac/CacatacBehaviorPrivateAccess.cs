@@ -12,8 +12,8 @@ internal static class CacatacBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.Cacatac.CacatacBehavior self)
     {
         /// <summary>The private method <c>SpawnCacatacSpike</c>, invoked by name.</summary>
-        internal void SpawnCacatacSpike(global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, global::SuperMetroid.Core.Enemies.Cacatac.CacatacSpikeDirection direction) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Cacatac.CacatacBehavior>(self, "SpawnCacatacSpike", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Cacatac.CacatacSpikeDirection)], new object?[] { source, direction });
+        internal void SpawnCacatacSpike(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, global::SuperMetroid.Core.Enemies.Cacatac.CacatacSpikeDirection direction) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Cacatac.CacatacBehavior>(self, "SpawnCacatacSpike", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Cacatac.CacatacSpikeDirection)], new object?[] { occupant, source, direction });
     }
 
     /// <summary>The private static members checks name.</summary>

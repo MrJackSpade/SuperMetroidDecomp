@@ -13,8 +13,8 @@ internal static class CrocomireSkeletonArtworkPrivateAccess
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.AssetExtraction.Bosses.Crocomire.CrocomireSkeletonArtwork)
     {
-        /// <summary>The private method <c>IsChunk</c>, invoked by name.</summary>
-        internal static bool IsChunk(int index) =>
-            PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.AssetExtraction.Bosses.Crocomire.CrocomireSkeletonArtwork), "IsChunk", [typeof(int)], new object?[] { index });
+        /// <summary>The private method <c>RequireChunk</c>, invoked by name.</summary>
+        internal static int RequireChunk(int index) =>
+            PrivateState.InvokeStatic<int>(typeof(global::SuperMetroid.AssetExtraction.Bosses.Crocomire.CrocomireSkeletonArtwork), "RequireChunk", [typeof(int)], new object?[] { index });
     }
 }

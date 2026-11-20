@@ -143,7 +143,7 @@ internal static class RoomBlockReadingGenerator
         .Append(Reaction(readings.Spike)).Append(", ")
         .Append(Reaction(readings.Grapple)).Append(",\n").Append(ContinuationIndent)
         .Append(Slope(readings.Slope)).Append(", ")
-        .Append(readings.ExtensionOffset.ToString(System.Globalization.CultureInfo.InvariantCulture)).Append(')')
+        .Append(readings.ExtensionOffset.ToString(System.Globalization.CultureInfo.InvariantCulture)).Append(readings.ResolvedByArea ? ", ResolvedByArea: true" : "").Append(')')
         .ToString();
 
     /// <summary>A slope's source.</summary>

@@ -13,7 +13,7 @@ internal static class ProjectileTrailSources
     /// <summary>The trail segments in the order their sources are read (#2567).</summary>
     private static readonly IReadOnlyList<ProjectileTrailSegment> TrailSegmentOrder = Ensure.EveryMemberOnce<ProjectileTrailSegment>(
     [
-        ProjectileTrailSegment.Empty,
+        ProjectileTrailSegment.EndsWithoutSparkle,
         ProjectileTrailSegment.LeftIce,
         ProjectileTrailSegment.RightIce,
         ProjectileTrailSegment.Wave,

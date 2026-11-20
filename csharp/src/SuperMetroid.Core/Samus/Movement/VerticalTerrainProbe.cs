@@ -18,6 +18,10 @@ internal readonly record struct VerticalTerrainProbe
     /// <summary>What the door blocks the probe meets do to Samus beyond stopping her or letting her pass (#2545).</summary>
     public required DoorBlockMeeting DoorBlocks { get; init; }
 
-    /// <summary>The direction reported to block reactions, or none.</summary>
-    public required SamusCollisionDirection? BlockReactionDirection { get; init; }
+    /// <summary>
+    /// Whether the move only observes the blocks, as the pose and wall probes do: it activates no station and records no
+    /// inherited movement, its non-square slopes react as a floor, and its quicksand and contact crumbles react to no
+    /// direction of travel.
+    /// </summary>
+    public required bool Observes { get; init; }
 }

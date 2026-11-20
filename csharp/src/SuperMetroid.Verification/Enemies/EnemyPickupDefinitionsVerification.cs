@@ -35,9 +35,10 @@ internal static class EnemyPickupDefinitionsVerification
         for (int index = 1; index <= 5; index++)
         {
             EnemyPickupKind kind = EnemyPickupNativeWords.Selectors.Decode(index, "enemy pickup selector");
-            var projectile = new EnemyProjectile(index, default)
+            var projectile = new EnemyProjectile(index, default, RoomEnemyProjectileKind.EnemyDeathPickup)
             {
-                FrameHold = WrappingCountdown.Start(0xffff),
+                FrameHold = WrappingCountdown.Start(0xffff),
+
                 PersistsOnSamusContact = true,
             };
             EnemyDeathsAndDropsConstants.BeginEnemyPickup(enemies.DeathsAndDrops, projectile, kind);
@@ -56,9 +57,6 @@ internal static class EnemyPickupDefinitionsVerification
                 $"production pickup contact persistence {kind}");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => EnemyPickups.Animation(EnemyPickupKind.NoDrop),
-            "no-drop pickup has no animation entry");
         Console.WriteLine(
             "Enemy pickup definitions: six native selectors and all five live pickup initialization paths pass without the pointer table.");
     }

@@ -38,7 +38,7 @@ internal sealed class CeresRidleyHits
 
         foreach (SamusProjectile projectile in projectiles.Shots)
         {
-            if (!projectile.HasEnemyCollisionPayload ||
+            if (projectile.Occupant is not { HasEnemyCollisionPayload: true } held ||
                 !FrameHitboxesOverlapRectangle(
                     place,
                     projectile.Position.Whole,
@@ -46,7 +46,7 @@ internal sealed class CeresRidleyHits
             {
                 continue;
             }
-            if (!projectiles.EnemyImpacts.TryStartEnemyImpact(samusBombs, projectile))
+            if (!projectiles.EnemyImpacts.TryStartEnemyImpact(samusBombs, held))
                 continue;
 
             ResolveCeresRidleyShotAfterCollision(place, ceres.Ridley);

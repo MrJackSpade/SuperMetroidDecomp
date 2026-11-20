@@ -46,10 +46,11 @@ public static class SamusBodyArtworkFiles
     /// installs the body without the cartridge's digest and the arm cannon and death documents without manifests (#1693).
     /// Revision fifteen keys each pose's frames by their names in the pose's animation, the segment and the frame within it,
     /// and installs the frames each pose shows with the picture frame each draws (#2048). Revision sixteen names each
-    /// pose's art origin <c>artOrigin</c> (#2113). Revision seventeen stores the import data decoded: each pose frame's named
+    /// pose's art origin <c>artOrigin</c> (#2113). Revision seventeen records a frame that names no lower half with no
+    /// lower group, as null (#2558). Revision eighteen stores the import data decoded: each pose frame's named
     /// half pictures, placement and compositions, one image per half picture, and no cartridge table (#2556).
     /// </summary>
-    private const int FormatVersion = 17;
+    private const int FormatVersion = 18;
     /// <summary>Each half picture occupies eight 8x8 tiles across its PNG row.</summary>
     private const int TileWidth = 64;
     /// <summary>Two tile rows reserve sixteen graphics tiles for one half picture.</summary>

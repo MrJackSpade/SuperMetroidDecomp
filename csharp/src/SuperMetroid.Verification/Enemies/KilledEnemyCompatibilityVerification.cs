@@ -21,14 +21,14 @@ internal static class KilledEnemyCompatibilityVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[2];
         AssertEqual<Remains?>(null, place.FoundState<Remains>(), "a place no enemy has held holds nothing");
         var first = new Remains();
-        place.Bind(EnemyPlaceFixtures.StandIn, place.Definition);
+        place.Bind(EnemyPlaceFixtures.StandIn, place.KeptDefinition);
         place.SetSpeciesState(first);
         AssertTrue(ReferenceEquals(first, place.FoundState<Remains>()), "a living enemy is found as it is");
         place.Unbind();
         AssertEqual<Remains?>(null, place.SpeciesState<Remains>(), "a deleted enemy's place holds no occupant");
         AssertTrue(ReferenceEquals(first, place.FoundState<Remains>()), "a deleted enemy is found as it left itself");
         var second = new Remains();
-        place.Bind(EnemyPlaceFixtures.StandIn, place.Definition);
+        place.Bind(EnemyPlaceFixtures.StandIn, place.KeptDefinition);
         place.SetSpeciesState(second);
         AssertTrue(ReferenceEquals(second, place.FoundState<Remains>()), "an enemy placed after a deletion is found as itself");
         place.Clear();
@@ -39,7 +39,7 @@ internal static class KilledEnemyCompatibilityVerification
         AssertEqual<ShaktoolSegmentState?>(null, killedPlace.FoundOrClearedState<ShaktoolSegmentState>(),
             "a place no enemy has held holds no segment");
         var living = new ShaktoolSegmentState();
-        killedPlace.Bind(EnemyPlaceFixtures.StandIn, killedPlace.Definition);
+        killedPlace.Bind(EnemyPlaceFixtures.StandIn, killedPlace.KeptDefinition);
         AssertEqual<ShaktoolSegmentState?>(null, killedPlace.FoundOrClearedState<ShaktoolSegmentState>(),
             "a living enemy that holds no segment is found holding none");
         killedPlace.SetSpeciesState(living);
@@ -58,13 +58,13 @@ internal static class KilledEnemyCompatibilityVerification
             "what the chain wrote to the cleared record is found there");
         AssertEqual<Remains?>(null, killedPlace.FoundState<Remains>(), "the cleared record holds nothing no neighbour wrote");
         var successor = new ShaktoolSegmentState();
-        killedPlace.Bind(EnemyPlaceFixtures.StandIn, killedPlace.Definition);
+        killedPlace.Bind(EnemyPlaceFixtures.StandIn, killedPlace.KeptDefinition);
         killedPlace.SetSpeciesState(successor);
         AssertTrue(ReferenceEquals(successor, killedPlace.FoundOrClearedState<ShaktoolSegmentState>()),
             "an enemy placed after a kill is found as itself");
 
         var deleted = new Remains();
-        deletedPlace.Bind(EnemyPlaceFixtures.StandIn, deletedPlace.Definition);
+        deletedPlace.Bind(EnemyPlaceFixtures.StandIn, deletedPlace.KeptDefinition);
         deletedPlace.SetSpeciesState(deleted);
         deletedPlace.Unbind();
         AssertEqual<ShaktoolSegmentState?>(null, deletedPlace.FoundOrClearedState<ShaktoolSegmentState>(),

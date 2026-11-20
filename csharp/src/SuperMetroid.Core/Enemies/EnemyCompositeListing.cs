@@ -78,16 +78,15 @@ internal static class EnemyCompositeListing
     /// </summary>
     /// <exception cref="InvalidDataException">An asked place lies past the room's last.</exception>
     internal static Func<int, RoomEnemyPlace> PlacesAfter(this EnemyPlaces enemies, RoomEnemyPlace enemy) =>
-        distance => RequireListed(enemies, enemy, Ensure.BetweenInclusive(1, EnemyPlaceOrder.Capacity - 1, distance), enemy.DefinitionId);
+        distance => RequireListed(enemies, enemy, Ensure.BetweenInclusive(1, EnemyPlaceOrder.Capacity - 1, distance), enemy.Occupant?.DefinitionId);
 
     /// <summary>
-    /// The enemies the room lists after <paramref name="enemy"/>, by how many places after it, one or more, and null for a
-    /// place past the room's last, for a rule that reproduces a reach by placement which skips those.
+    /// Every enemy place the room lists after <paramref name="enemy"/>, nearest first, and none for the last place, for a
+    /// rule that reproduces a reach by placement as far as the room's places go
+    /// (<see cref="FollowUpAfterStruckPart.RecipientsWithin"/>).
     /// </summary>
-    internal static Func<int, RoomEnemyPlace?> PlacesAfterOrNone(this EnemyPlaces enemies, RoomEnemyPlace enemy) =>
-        distance => IsListed(enemy, Ensure.BetweenInclusive(1, EnemyPlaceOrder.Capacity - 1, distance))
-            ? RequireListed(enemies, enemy, distance, enemy.DefinitionId)
-            : null;
+    internal static IEnumerable<RoomEnemyPlace> AllPlacesAfter(this EnemyPlaces enemies, RoomEnemyPlace enemy) =>
+        Ensure.NotNull(enemies).InUpdateOrder.Skip(PlacesThrough(enemy));
 
     /// <summary>
     /// The enemies the room lists before <paramref name="enemy"/>, by how many places before it, one or more, for a rule
@@ -95,7 +94,7 @@ internal static class EnemyCompositeListing
     /// </summary>
     /// <exception cref="InvalidDataException">An asked place lies before the room's first.</exception>
     internal static Func<int, RoomEnemyPlace> PlacesBefore(this EnemyPlaces enemies, RoomEnemyPlace enemy) =>
-        distance => RequireListed(enemies, enemy, -Ensure.BetweenInclusive(1, EnemyPlaceOrder.Capacity - 1, distance), enemy.DefinitionId);
+        distance => RequireListed(enemies, enemy, -Ensure.BetweenInclusive(1, EnemyPlaceOrder.Capacity - 1, distance), enemy.Occupant?.DefinitionId);
 
     /// <summary>
     /// Whether room loading has initialized <paramref name="enemy"/> (<see cref="IRoomLoadProgress"/>). Loading
@@ -135,7 +134,7 @@ internal static class EnemyCompositeListing
     {
         Ensure.NotNull(enemies);
         if (!IsListed(self, offset))
-            throw new InvalidDataException($"Enemy {self.Ordinal} ({self.DefinitionId}), the {selfRole}, has no enemy listed {offset} places from it.");
+            throw new InvalidDataException($"Enemy {self.Ordinal} ({self.Occupant?.DefinitionId}), the {selfRole}, has no enemy listed {offset} places from it.");
         return enemies.InUpdateOrder[self.Ordinal + offset];
     }
 
@@ -151,15 +150,15 @@ internal static class EnemyCompositeListing
     private static int OnlyPlaceOf<TRole>(EnemyComposite<TRole> composite, TRole role) where TRole : notnull
     {
         Ensure.NotNull(composite);
-        int found = -1;
+        int? found = null;
         for (int listed = 0; listed < composite.ListedRoles.Count; listed++)
         {
             if (!EqualityComparer<TRole>.Default.Equals(composite.ListedRoles[listed], role))
                 continue;
-            if (found >= 0)
+            if (found is not null)
                 throw new InvalidOperationException($"The composite lists {role} more than once; its members find it by role.");
             found = listed;
         }
-        return found >= 0 ? found : throw new InvalidOperationException($"The composite lists no {role}.");
+        return found ?? throw new InvalidOperationException($"The composite lists no {role}.");
     }
 }

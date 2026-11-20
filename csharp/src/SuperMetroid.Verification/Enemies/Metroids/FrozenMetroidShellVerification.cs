@@ -24,10 +24,10 @@ internal static class FrozenMetroidShellVerification
         int tileBase = enemies.GraphicsSet.TileBaseOf(EnemyDefinitionId.Metroid);
         var enemy = enemies.Places.InUpdateOrder[0];
         enemy.Position = enemy.Position.WithWhole(new(120, 100));
-        enemy.Bind(EnemyDefinitionId.Metroid, enemy.Definition);
+        enemy.Bind(EnemyDefinitionId.Metroid, enemy.KeptDefinition);
         enemy.Shading = PictureShading.Standard;
         enemy.SetSpawnWords(EnemyDefinitionId.Metroid, words => words);
-        enemies.MetroidBehavior.InitializeMetroid(enemy);
+        enemies.MetroidBehavior.InitializeMetroid(enemy.HeldOccupant(), enemy);
         var state = enemies.MetroidStates[0];
         // The shell is read by its own draws, apart from the electrical overlay.
         var shell = (state ?? throw new InvalidOperationException("Verification requires state.")).Shell;

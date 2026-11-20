@@ -145,7 +145,7 @@ internal static class SporeSpawnAnimationsVerification
             {
                 owner = enemies.SporeSpawnBehavior.Spawner;
                 projectile.Delete();
-                enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(enemies.Places.InUpdateOrder[0], sporeSpawn, new(new(128, 256), HorizontalDirection.Right));
+                enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.SporeSpawn), enemies.Places.InUpdateOrder[0], sporeSpawn, new(new(128, 256), HorizontalDirection.Right));
                 projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.SporeSpawnSpawner);
             }
             projectile.StartAnimation(new SporeSpawnProjectileAnimation(owner, program));
@@ -193,8 +193,8 @@ internal static class SporeSpawnAnimationsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(bound.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.BossArtwork = bound.Bosses;
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
-        body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
+        body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
+        body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         body.AnimationClock.StepOnNextUpdate();

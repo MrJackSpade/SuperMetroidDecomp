@@ -26,7 +26,7 @@ internal static class AnimatedTileInstructionCodesVerification
         AssertAnimatedTileCatalog(nameof(AnimatedTileInstruction),
             Enum.GetValues<AnimatedTileInstruction>().Select(code => (ushort)code).ToArray(), 14);
         AssertAnimatedTileCatalog(nameof(BlockAnimation),
-            Enum.GetValues<BlockAnimation>().Where(header => header != BlockAnimation.None)
+            Enum.GetValues<BlockAnimation>()
                 .Select(FxNativeWords.AnimatedTileObjects.Word).ToArray(), 13);
         AssertAnimatedTileCatalog(typeof(AnimatedTileAnimationScriptPointers), 4);
 

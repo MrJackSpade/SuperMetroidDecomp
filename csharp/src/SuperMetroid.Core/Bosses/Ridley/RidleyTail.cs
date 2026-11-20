@@ -155,7 +155,8 @@ internal sealed class RidleyTail
         SamusProjectile? missile = RidleyTailMissileTarget.Target(
             samusProjectiles.Pool.ShotCount.Count,
             samusProjectiles.Shots,
-            projectile => projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile &&
+            projectile => projectile.Occupant is { } held &&
+                held.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile &&
                 Math.Abs((projectile.Position.Whole - tip.Position).X) - projectile.Radius.X < RidleyTailDefinitions.MissileWhipReach &&
                 Math.Abs((projectile.Position.Whole - tip.Position).Y) - projectile.Radius.Y < RidleyTailDefinitions.MissileWhipReach);
         if (missile is not null)
@@ -412,7 +413,7 @@ internal sealed class RidleyTail
         // and shots already exploding do not.
         foreach (SamusProjectile projectile in projectiles.Shots)
         {
-            if (!projectile.HasEnemyCollisionPayload)
+            if (projectile.Occupant is not { HasEnemyCollisionPayload: true } held)
             {
                 continue;
             }
@@ -431,7 +432,7 @@ internal sealed class RidleyTail
 
             // A missile gets the tiny dud and the dud-shot sound. Beams and supers
             // use the larger smoke variant, exactly as the tail's shot reaction selects it.
-            bool missile = projectile.Type.Family == SamusProjectileFamily.Missile;
+            bool missile = held.Type.Family == SamusProjectileFamily.Missile;
             DustExplosionAnimation dustVariant = missile ? DustExplosionAnimation.DudShotTinyExplosion : DustExplosionAnimation.Smoke;
             _projectiles.SpawnDustOrExplosion(joint.Position, dustVariant);
             if (missile)

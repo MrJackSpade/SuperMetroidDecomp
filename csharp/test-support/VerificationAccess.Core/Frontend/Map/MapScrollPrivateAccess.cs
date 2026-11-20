@@ -11,10 +11,10 @@ internal static class MapScrollPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Frontend.Map.MapScroll self)
     {
-        /// <summary>The private property <c>Direction</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Frontend.Map.MapScrollDirection Direction
+        /// <summary>The private property <c>StepUnderWay</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Frontend.Map.MapScrollStep? StepUnderWay
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Map.MapScroll, global::SuperMetroid.Core.Frontend.Map.MapScrollDirection>(self, "Direction");
+            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Map.MapScroll, global::SuperMetroid.Core.Frontend.Map.MapScrollStep?>(self, "StepUnderWay");
         }
 
         /// <summary>The private property <c>Limits</c>, reached by name.</summary>

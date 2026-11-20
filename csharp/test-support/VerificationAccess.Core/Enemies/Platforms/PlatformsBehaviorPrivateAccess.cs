@@ -12,8 +12,8 @@ internal static class PlatformsBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.Platforms.PlatformsBehavior)
     {
         /// <summary>The private method <c>IncrementAndClampPlatformYSpeed</c>, invoked by name.</summary>
-        internal static void IncrementAndClampPlatformYSpeed(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Platforms.PlatformEnemyState state) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Platforms.PlatformsBehavior), "IncrementAndClampPlatformYSpeed", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Platforms.PlatformEnemyState)], new object?[] { place, state });
+        internal static void IncrementAndClampPlatformYSpeed(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.Platforms.PlatformEnemyState state) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Platforms.PlatformsBehavior), "IncrementAndClampPlatformYSpeed", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.Platforms.PlatformEnemyState)], new object?[] { occupant, state });
 
         /// <summary>The private method <c>StartPlatformMovingAnimationForHeading</c>, invoked by name.</summary>
         internal static void StartPlatformMovingAnimationForHeading(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Platforms.PlatformEnemyState state) =>

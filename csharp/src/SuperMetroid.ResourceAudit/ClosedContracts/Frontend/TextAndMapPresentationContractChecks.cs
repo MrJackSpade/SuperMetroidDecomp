@@ -53,7 +53,7 @@ internal static class TextAndMapPresentationContractChecks
                     MapSpriteSheet.Draw(mapSheet, (MapSpriteId)(-1), objects, default, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteScreen.FileSelect, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteColouring.Labels);
                     arrows.Get(MapScrollDirection.Left);
                     arrows.Get(MapScrollDirection.Down);
-                    arrows.Get(MapScrollDirection.None);
+                    arrows.Get(MapScrollDirection.Up);
                     arrows.Get((MapScrollDirection)99);
                 }
             }

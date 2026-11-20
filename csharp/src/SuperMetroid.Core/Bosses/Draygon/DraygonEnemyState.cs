@@ -20,17 +20,18 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// Begins the encounter of the body at <paramref name="body"/> and the parts his room lists with it, each playing the
     /// animation its setup starts, in the health band his health starts in (#2304).
     /// </summary>
-    /// <param name="body">The place his body occupies.</param>
+    /// <param name="body">The enemy holding his body's place, which begins the encounter as it sets up.</param>
     /// <param name="eye">The place his eye occupies.</param>
     /// <param name="tail">The place his tail occupies.</param>
     /// <param name="arms">The place his arms occupy.</param>
-    internal DraygonEnemyState(RoomEnemyPlace body, RoomEnemyPlace eye, RoomEnemyPlace tail, RoomEnemyPlace arms)
+    internal DraygonEnemyState(RoomEnemyOccupant body, RoomEnemyPlace eye, RoomEnemyPlace tail, RoomEnemyPlace arms)
     {
-        BodyPart = new DraygonPart(this, body, DraygonSegment.BodyFacingLeftIdle);
+        BodyOccupant = Ensure.NotNull(body);
+        BodyPart = new DraygonPart(this, body.Place, DraygonSegment.BodyFacingLeftIdle);
         EyePart = new DraygonPart(this, eye, DraygonSegment.EyeFacingLeftIdle);
         TailPart = new DraygonPart(this, tail, DraygonSegment.TailFacingLeftInitialFakeWhip);
         ArmsPart = new DraygonPart(this, arms, DraygonSegment.ArmsFacingLeftIdle);
-        HealthBand = DraygonHealthBand.Of(body.Health);
+        HealthBand = DraygonHealthBand.Of(body.Place.Health);
     }
 
     /// <summary>Draygon's body layer's and sprites' colours (#1512).</summary>
@@ -44,6 +45,9 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
         Tail.Shading = sprites;
         Arms.Shading = sprites;
     }
+
+    /// <summary>The enemy holding his body's place, whose definition's damage his tail's whip deals (#2558).</summary>
+    public RoomEnemyOccupant BodyOccupant { get; }
 
     /// <summary>His body, which owns encounter movement, health, and the body's phases, and runs first.</summary>
     public DraygonPart BodyPart { get; }

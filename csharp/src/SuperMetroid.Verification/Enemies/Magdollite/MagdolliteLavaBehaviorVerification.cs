@@ -26,8 +26,10 @@ internal static class MagdolliteLavaBehaviorVerification
         RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
         source.Position = source.Position.WithWhole(new(288, 128));
         source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
-        enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, HorizontalDirection.Left);
-        enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, HorizontalDirection.Right);
+        // The lava rises from the head, which its entry places with a head's settings.
+        source.BindPlaced(EnemyDefinitionId.Magdollite, new MagdolliteHeadSpawnSettings(SuperMetroid.Core.Spatial.SignedSixteenSixteen.Zero, Range: 0));
+        enemies.MagdolliteBehavior.SpawnMagdolliteLava(source.HeldOccupant(), source, HorizontalDirection.Left);
+        enemies.MagdolliteBehavior.SpawnMagdolliteLava(source.HeldOccupant(), source, HorizontalDirection.Right);
         foreach ((ushort direction, MagdolliteLavaSegment program) in new VerifyMagdolliteLavaBehaviorCase[] { new VerifyMagdolliteLavaBehaviorCase(0, MagdolliteLavaSegment.Left), new VerifyMagdolliteLavaBehaviorCase(1, MagdolliteLavaSegment.Right) })
         {
             EnemyProjectile lava = Find(direction);

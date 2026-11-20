@@ -23,7 +23,7 @@ internal static class DraygonHealthPaletteDefinitionsVerification
         for (int index = 0; index < thresholds.Length; index++)
         {
             thresholds[index] = CartridgeImportSource.Require(rom).ReadCartridgeWord((DraygonHealthBandDefinitions.NativeThresholdAddress + index * 2));
-            AssertEqual(thresholds[index], DraygonHealthBandDefinitions.HighestFirst[index].MinimumHealth ?? 0, $"Draygon band {DraygonHealthBandDefinitions.HighestFirst[index]} minimum health");
+            AssertEqual(thresholds[index], DraygonHealthBandDefinitions.HighestFirst[index].MinimumHealth, $"Draygon band {DraygonHealthBandDefinitions.HighestFirst[index]} minimum health");
         }
         AssertEqual((ushort)0xffff,
             CartridgeImportSource.Require(rom).ReadCartridgeWord((DraygonHealthBandDefinitions.NativeThresholdAddress + 16)),
@@ -50,7 +50,7 @@ internal static class DraygonHealthPaletteDefinitionsVerification
         using var colors = new MemoryStream(DraygonColorExtractor.Extract(rom), writable: false);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: new BossSourceArtwork { DraygonColors = DraygonColorFile.Read(colors) });
         Action<DraygonEnemyState> update = DraygonCombat.UpdateDraygonHealthBand;
-        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.DraygonBody), enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
 
         ushort[] productionHealth =
             [6000, 5250, 5249, 4500, 4499, 3750, 3749, 3000, 2999,

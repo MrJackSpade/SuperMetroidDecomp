@@ -129,7 +129,7 @@ internal static class RoomObjectSystemAccess
                     continue;
                 if (!reached)
                     return false;
-                return self.ProjectileTriggers.TryNotifyResidentProjectileHit(block, projectileType);
+                return self.ProjectileTriggers.TryNotifyResidentProjectileHit(block, BlockStrike.By(projectileType));
             }
             return false;
         }
@@ -418,13 +418,13 @@ internal static class RoomObjectSystemAccess
             RoomLevelData level,
             Position16<RoomBlocks> position,
             byte behavior,
-            SamusProjectileType projectileType,
+            BlockStrike strike,
             bool solidBlock)
             => self.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
                 position,
                 RoomBlockBehaviorCodec.Decode(behavior),
-                projectileType,
+                strike,
                 solidBlock);
 
         /// <summary>

@@ -36,7 +36,7 @@ internal static class FallingSparkFloorProbeVerification
             foreach (EnemyProjectile old in enemies.Projectiles.EnemyProjectiles)
                 old.Delete();
             source.Position = source.Position.WithWhole(new(256, 96));
-            enemies.FallingSparksBehavior.SpawnFallingSpark(source);
+            enemies.FallingSparksBehavior.SpawnFallingSpark(source.HeldOccupant(), source);
             EnemyProjectile spark = enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.Kind == RoomEnemyProjectileKind.FallingSpark);
             FallingSparkState state = enemies.FallingSparksBehavior.Spark.States.Of(spark);
             state.VerticalSpeed = speed;

@@ -28,7 +28,7 @@ internal static class CrocomireMouthShotHoldVerification
         {
             foreach ((string place, int cameraX) in new[] { ("off screen", 0), ("on screen", 400) })
             {
-                var state = new CrocomireEnemyState(body) { Phase = phase };
+                var state = new CrocomireEnemyState(body.HeldOccupant(), body) { Phase = phase };
                 body.SetSpeciesState(state);
                 body.AnimationClock.HoldFor(StartingHold);
                 body.HurtFlash.End();
@@ -55,15 +55,13 @@ internal static class CrocomireMouthShotHoldVerification
     internal static void VerifyCrocomireMouthShotReadsPassCamera()
     {
         (RoomEnemySystem enemies, RoomEnemyPlace body) = NewCrocomireBody();
-        var state = new CrocomireEnemyState(body) { Phase = CrocomirePhase.SteppingForward };
+        var state = new CrocomireEnemyState(body.HeldOccupant(), body) { Phase = CrocomirePhase.SteppingForward };
         body.SetSpeciesState(state);
         var ordinaryProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
             new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-        var bomb = new SamusBomb(0)
-        {
-            Type = SamusProjectileType.Of(SamusProjectileFamily.Bomb),
-            Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole),
-        };
+        var bomb = new SamusBomb(0);
+        bomb.OccupyAsPlaced(SamusProjectileType.Of(SamusProjectileFamily.Bomb));
+        bomb.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
 
         int expected = WrappingCountdown.Start(StartingHold).AddFrames(CrocomireFightDefinitions.MouthShotReactionHoldFrames).RemainingFrames;
         foreach ((string place, int cameraX, bool reacts) in new[] { ("off screen", 0, true), ("on screen", 400, false) })
@@ -71,7 +69,7 @@ internal static class CrocomireMouthShotHoldVerification
             state.StepBack.Forget();
             body.AnimationClock.HoldFor(StartingHold);
             body.HurtFlash.End();
-            enemies.CrocomireBehavior.Combat.ReactToCrocomireBomb(new EnemyBombContext(body, bomb, ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
+            enemies.CrocomireBehavior.Combat.ReactToCrocomireBomb(new EnemyBombContext(body.HeldOccupant(), bomb.HeldBomb(), ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
                 CrocomireReactions.MouthShot, UsesFrameHitboxes: true, new Position16<RoomPixels>(cameraX, 0))
             {
                 StruckOccupant = body.OccupantStates,
@@ -89,7 +87,7 @@ internal static class CrocomireMouthShotHoldVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
+        body.Bind(EnemyDefinitionId.Crocomire, body.KeptDefinition);
         body.Position = body.Position.WithWhole(new(576, 144));
         return (enemies, body);
     }

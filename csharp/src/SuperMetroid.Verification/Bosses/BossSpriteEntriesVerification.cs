@@ -100,7 +100,7 @@ internal static class BossSpriteEntriesVerification
         ImportEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.RidleyCeres, place.Definition);
+        place.Bind(EnemyDefinitionId.RidleyCeres, place.KeptDefinition);
         place.Position = place.Position.WithWhole(new(200, 100));
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);

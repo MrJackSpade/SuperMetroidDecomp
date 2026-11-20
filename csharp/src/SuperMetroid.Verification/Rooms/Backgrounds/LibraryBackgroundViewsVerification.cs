@@ -45,7 +45,7 @@ internal static class LibraryBackgroundViewsVerification
         RoomStateSettings pictured = CrateriaRoomStateDefinitions.ParlorDefault;
         TilesetDefinition tileset = RoomTilesets.Get(pictured.GraphicsSet);
         LibraryBackground rocks = pictured.Background ?? throw new InvalidOperationException("The Parlor loads a library background.");
-        AssertTrue(RoomBlockUploads.BackgroundNamesOf([pictured]).Contains(RoomBackgroundImage.NameOf(rocks, null, tileset)),
+        AssertTrue(RoomBlockUploads.BackgroundNamesOf([pictured]).Contains(RoomBackgroundImage.NameOf(rocks, LibraryBackgroundPicture.Ordinary, tileset)),
             "a background seen as its own picture is installed");
         AssertThrows<InvalidOperationException>(() => RoomLibraryBackgroundPicture.Of(rocks, _ => throw new InvalidOperationException("looked up")),
             "a room loading a background seen as its own picture looks up its installed picture");

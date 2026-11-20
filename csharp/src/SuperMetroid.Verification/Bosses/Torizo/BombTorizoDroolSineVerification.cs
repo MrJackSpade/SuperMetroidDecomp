@@ -17,7 +17,7 @@ internal static class BombTorizoDroolSineVerification
     internal static void VerifyBombTorizoDroolSine(CartridgeImportAddressSpace rom)
     {
         Action<RoomEnemySystem, RoomEnemyPlace> spawn =
-            (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoLowHealthDrool(torizo);
+            (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoLowHealthDrool(torizo.HeldOccupant(), torizo);
 
         for (int random = byte.MinValue; random <= byte.MaxValue; random++)
         {
@@ -77,7 +77,7 @@ internal static class BombTorizoDroolSineVerification
 
         spawn(enemies, torizo);
 
-        EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17);
+        EnemyProjectile projectile = enemies.Projectiles.SpawnedInPlace(17);
         AssertTrue(projectile.IsActive,
             $"Bomb Torizo {scenario} random {random:X2} allocation");
         // $86:A621/$A628 index the sign-extended sine and negative-cosine tables with the

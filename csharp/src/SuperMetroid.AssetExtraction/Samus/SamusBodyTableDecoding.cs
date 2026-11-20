@@ -173,7 +173,12 @@ internal static class SamusBodyTableDecoding
     /// </summary>
     private static bool TryRecord(int[] starts, int firstRecord, int set, int position, out int record)
     {
-        record = set < starts.Length ? starts[set] + position : -1;
+        if ((uint)set >= (uint)starts.Length)
+        {
+            record = default;
+            return false;
+        }
+        record = starts[set] + position;
         return record >= firstRecord && record < RecordCount;
     }
 

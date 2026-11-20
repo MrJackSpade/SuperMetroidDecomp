@@ -6,13 +6,14 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// that opens, so its main AI does nothing.
 /// </summary>
 /// <param name="species">The MorphBallEye species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the mount occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MorphBallEyeMountEntity(MorphBallEyeBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyTypedAnimation
+internal sealed class MorphBallEyeMountEntity(MorphBallEyeBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeMorphBallEyeMount(Place);
+    public void Initialize() => species.InitializeMorphBallEyeMount(Occupant, Place);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MorphBallEyeBehavior.AdvanceMorphBallEyeMountTypedAnimation(Place);

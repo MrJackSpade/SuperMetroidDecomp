@@ -59,7 +59,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
             RoomEnemyPlace member = parts[part];
             member.SetSpawnParameter1(EnemyDefinitionId.Magdollite, part);
             member.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
-            member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
+            member.Bind(EnemyDefinitionId.Magdollite, member.KeptDefinition);
             member.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
         }
         AssertEqual(PictureShading.Shaded(MagdolliteShades.Glow(MagdolliteGlowAnimations.Cycle[0])), enemies.MagdolliteBehavior.Glow,

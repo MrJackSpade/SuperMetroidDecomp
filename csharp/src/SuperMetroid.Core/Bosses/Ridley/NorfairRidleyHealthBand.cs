@@ -2,30 +2,26 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// One of Norfair Ridley's health bands (#1934): how hard his flight and his lunge seek their targets, how fast and high
-/// his pogo bounces launch him, and the health shade his belly shows. He is in the lowest band whose
-/// <see cref="HealthBelow"/> his health is under, and in <see cref="NorfairRidleyHealthBandDefinitions.Unhurt"/> above
-/// them all.
+/// his pogo bounces launch him, and the health shade his belly shows. He is in the lowest wounded band whose threshold his
+/// health is under (<see cref="NorfairRidleyHealthBandDefinitions.WoundedLowestFirst"/>), and in
+/// <see cref="NorfairRidleyHealthBandDefinitions.Unhurt"/> above them all.
 /// </summary>
 public sealed class NorfairRidleyHealthBand
 {
     /// <summary>Defines a band.</summary>
-    /// <param name="healthBelow">The health below which Ridley is in the band, or null for the band he starts in.</param>
     /// <param name="hoverDivisor">The acceleration divisor of his hover, wall sweep and power-bomb dodge.</param>
     /// <param name="grabDivisor">The acceleration divisor of his lunge at Samus.</param>
     /// <param name="pogoLaunches">The launch of each of the four pogo speed patterns a bounce draws among, slowest first.</param>
     /// <param name="healthShade">The health colouring his belly shows, or null for his own colours.</param>
-    internal NorfairRidleyHealthBand(int? healthBelow, int hoverDivisor, int grabDivisor,
+    internal NorfairRidleyHealthBand(int hoverDivisor, int grabDivisor,
         IReadOnlyList<RidleyPogoDefinition> pogoLaunches, RidleyHealthShade? healthShade)
     {
-        HealthBelow = healthBelow;
         HoverDivisor = hoverDivisor;
         GrabDivisor = grabDivisor;
         PogoLaunch = WeightedRandomChoice<RidleyPogoDefinition>.InTurn(RidleyRandomDefinitions.PogoChoice, [.. pogoLaunches]);
         HealthShade = healthShade;
     }
 
-    /// <summary>The health below which Ridley is in this band, or null for the band he starts in.</summary>
-    public int? HealthBelow { get; }
 
     /// <summary>
     /// The acceleration divisor of his hover, wall sweep and power-bomb dodge: the smaller it is, the faster he seeks his
@@ -49,9 +45,9 @@ public sealed class NorfairRidleyHealthBand
     /// <summary>The band Ridley is in at <paramref name="health"/>.</summary>
     internal static NorfairRidleyHealthBand Of(int health)
     {
-        foreach (NorfairRidleyHealthBand band in NorfairRidleyHealthBandDefinitions.LowestFirst)
+        foreach ((int healthBelow, NorfairRidleyHealthBand band) in NorfairRidleyHealthBandDefinitions.WoundedLowestFirst)
         {
-            if (health < band.HealthBelow)
+            if (health < healthBelow)
                 return band;
         }
         return NorfairRidleyHealthBandDefinitions.Unhurt;

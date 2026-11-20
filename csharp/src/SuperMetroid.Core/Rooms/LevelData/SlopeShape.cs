@@ -63,7 +63,8 @@ public sealed class SlopeShape
 
     /// <summary>
     /// The surface's height under <paramref name="column"/>: the pixels from the block's top down to the surface, the
-    /// block's full height for a column with no surface in the block and <see cref="BelowBlockHeight"/> for a surface below it.
+    /// block's full height for a column whose surface is the block's bottom edge and <see cref="BelowBlockHeight"/> for a
+    /// surface below it. Each is a distance every reader computes with, so no height stands for a missing surface (#2558).
     /// </summary>
     /// <param name="column">The column, below <see cref="Columns"/>, already mirrored for the slope's facing.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="column"/> is not a column of the block.</exception>

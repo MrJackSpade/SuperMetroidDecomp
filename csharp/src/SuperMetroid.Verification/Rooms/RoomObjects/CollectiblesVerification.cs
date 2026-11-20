@@ -59,7 +59,7 @@ internal static class CollectiblesVerification
             if (bts is > 0x3f and not 0x4e) continue;
             var emptyLevel = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
             var unusedObjects = RoomObjectFixtures.Unbound();
-            AssertTrue(unusedObjects.TrySpawnProjectileShotBlock(emptyLevel, Position16<RoomBlocks>.Zero, (byte)bts, SamusProjectileType.None, true),
+            AssertTrue(unusedObjects.TrySpawnProjectileShotBlock(emptyLevel, Position16<RoomBlocks>.Zero, (byte)bts, BlockStrike.GrappleTouch.Instance, true),
                 "unused shootable entry allocates native nothing PLM");
             AssertEqual(1, unusedObjects.Places.ActiveCount, "nothing PLM retains its provisional slot");
             AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), emptyLevel.GetCollisionBlockByIndex(0).Terrain, "nothing PLM leaves terrain unchanged");

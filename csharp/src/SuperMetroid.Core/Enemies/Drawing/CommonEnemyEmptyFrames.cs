@@ -9,14 +9,14 @@ namespace SuperMetroid.Core.Enemies.Drawing;
 internal static class CommonEnemyEmptyFrames
 {
     /// <summary>Whether an actor showing <paramref name="frame"/> draws nothing: no frame yet, or the empty frame.</summary>
-    internal static bool DrawsNothing(EnemyFrameId? frame) => frame is not { } shown || shown == EnemyFrameId.Empty;
+    internal static bool DrawsNothing(EnemyFrameId? frame) => frame is not { } shown || shown == EnemyFrameId.PointAtOrigin;
 
     /// <summary>
     /// Whether <paramref name="enemy"/> collides at the single point at its origin: it collides by its frames' hitboxes and
     /// shows the empty frame, whose one hitbox is that point. Samus and her bombs meet the point; her other shots pass it.
     /// </summary>
     internal static bool CollidesAtOrigin(RoomEnemyPlace enemy) =>
-        enemy.CollidesByFrameHitboxes && enemy.Frame == EnemyFrameId.Empty;
+        enemy.CollidesByFrameHitboxes && enemy.Frame == EnemyFrameId.PointAtOrigin;
 
     /// <summary>
     /// Whether Samus's shots pass <paramref name="enemy"/> before any hitbox is tested: it shows no frame, or the empty

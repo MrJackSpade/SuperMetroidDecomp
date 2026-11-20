@@ -127,7 +127,8 @@ public static class XrayRevealVisualFiles
                 RevealBlocksDocument.Of(pair.Key.Definition.Shape, pair.Key.Definition.Blocks ?? throw new InvalidOperationException(
                     $"Drawable X-ray reveal {pair.Key.Type} shows no blocks."))))
             .OrderBy(entry => CollisionOrder.PlaceOf(entry.CollisionType))
-            .ThenBy(entry => entry.Reactions.Length == 0 ? -1 : ReactionsOf(entry.CollisionType).Select(reaction => reaction.Key).ToList().IndexOf(entry.Reactions[0]))
+            .ThenBy(entry => entry.Reactions.Length != 0)
+            .ThenBy(entry => entry.Reactions.Take(1).Select(first => ReactionsOf(entry.CollisionType).Select(reaction => reaction.Key).ToList().IndexOf(first)).Sum())
             .ToArray();
         // The first draws reveal the item set up in each block pair as that pair's first frame, which shows the item's own
         // picture; the port reveals such an item as its kind's first frame (#1538). The tanks' draws follow, in the order of

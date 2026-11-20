@@ -558,7 +558,7 @@ internal static class SamusPoseMetadata
     /// </summary>
     public static void PublishBombJumpDirection(SamusState samus, SamusBombJumpDirection direction) =>
         // Publishing replaces the whole request, so a blast during an accepted jump publishes a fresh, unaccepted one.
-        samus.BombJumpRequest = SamusBombJumpRequest.Published(direction);
+        samus.BombJump = SamusBombJump.FromBlast(direction);
 
     /// <summary>
     /// Sets up a published bomb jump as Samus's movement does (<see cref="SamusMovementTypeDefinitions"/>) before pose
@@ -574,12 +574,12 @@ internal static class SamusPoseMetadata
     /// <returns>True when the pending request was rejected and dropped.</returns>
     public static bool RejectUnsupportedPublishedBombJump(SamusState samus, bool timeIsFrozen)
     {
-        if (!samus.BombJumpRequest.AwaitsPoseHandling)
+        if (samus.BombJump is not { AwaitsPoseHandling: true })
             return false;
         SamusBombJumpSetup setup = BombJumpSetupOf(samus);
         bool reject = setup == SamusBombJumpSetup.TurnedDown ||
             timeIsFrozen && setup == SamusBombJumpSetup.ForwardJumpUnlessTimeFrozen;
-        if (reject) samus.BombJumpRequest = SamusBombJumpRequest.None;
+        if (reject) samus.BombJump = null;
         return reject;
     }
 
@@ -594,7 +594,7 @@ internal static class SamusPoseMetadata
         ISamusRoomObjects roomObjects)
     {
         Ensure.NotNull(level);
-        if (RejectUnsupportedPublishedBombJump(samus, timeIsFrozen) || !samus.BombJumpRequest.AwaitsPoseHandling)
+        if (RejectUnsupportedPublishedBombJump(samus, timeIsFrozen) || samus.BombJump is not { AwaitsPoseHandling: true })
             return false;
 
         // The rejection above has dropped every turned-down request, and a frozen-time one where frozen time turns it down.
@@ -685,7 +685,7 @@ internal static class SamusPoseMetadata
         SamusMovementHandOver.To(samus, SamusMovementOwner.BombJump);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
-        samus.BombJumpRequest = samus.BombJumpRequest.Accept();
+        samus.BombJump = (samus.BombJump ?? throw new InvalidOperationException("Only a published bomb jump can be armed.")).Arm();
         samus.BombJumpStarting = true;
         samus.BombJumpActive = false;
         samus.BombJumpPoseInputLocked = true;

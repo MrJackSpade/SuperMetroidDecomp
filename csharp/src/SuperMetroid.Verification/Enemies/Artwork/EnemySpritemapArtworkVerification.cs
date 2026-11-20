@@ -92,10 +92,10 @@ internal static class EnemySpritemapArtworkVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         RoomEnemyPlace bull = enemies.Places.InUpdateOrder[0];
-        bull.Bind(EnemyDefinitionId.Bull, bull.Definition);
-        bull.Bind(bull.DefinitionId, default(RoomEnemyDefinition));
+        bull.Bind(EnemyDefinitionId.Bull, bull.KeptDefinition);
+        bull.Bind(bull.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         bull.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        new Action<RoomEnemyPlace>(enemies.BullBehavior.InitializeBull)(bull);
+        new Action<RoomEnemyPlace>(fixturePlace => enemies.BullBehavior.InitializeBull(fixturePlace.HeldOccupant(), fixturePlace))(bull);
         object?[] arguments =
             [bull, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         for (int frame = 0; frame < 41; frame++)
@@ -349,10 +349,10 @@ internal static class EnemySpritemapArtworkVerification
             // The enemy is placed as a retail room places it, so an actor its placement's settings choose, as an ordinary
             // Ceres door its facing (#1989), binds as it does there.
             if (SuperMetroid.AssetExtraction.World.RoomStates.RoomStateDefinitions.All.SelectMany(state => state.EnemyPopulation.Placements.ToArray())
-                    .FirstOrDefault(placement => placement.DefinitionId == definition) is { DefinitionId: not EnemyDefinitionId.None } placed)
-                place.SetSpawnSettings(placed.SpawnSettings);
-            place.Bind(definition, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+                    .FirstOrDefault(placement => placement.DefinitionId == definition) is { } placed)
+                place.PopulateFor(definition, placed.SpawnSettings);
+            place.Bind(definition, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             // A boss's part draws in a room whose boss has attached the body its body frames show on (#2573).
             BossBodyCanvasFixtures.AttachBodyOfPart(enemies, place);
             place.Shading = PictureShading.Standard;

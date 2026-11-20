@@ -186,13 +186,13 @@ internal static class DownwardGateObjectsVerification
             "compiled initial gate draw installs the second solid column word");
         AssertTrue(roomObjects.PopulationPlaces.Single(place => place.Behaviour is DownwardGateObject).Behaviour is
                 DownwardGateObject { Phase: DownwardGatePhase.RestingClosed, Resting: true } restingGate &&
-                restingGate.Animation.Shown == DownwardGateMovementDefinitions.Closed,
+                restingGate.RestingImage == DownwardGateMovementDefinitions.Closed,
             "a gate that has not moved rests on its closed image, not on an image of a movement (#1627)");
         roomObjects.Gates.SpawnDownwardGateTrigger(
                 level,
                 level.BlockAt(gateBlockIndex - 1),
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
-                SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false));
+                BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false)));
         StepDownwardGateObject(roomObjects, level);
         AssertTrue(roomObjects.PopulationPlaces.Single(place => place.Behaviour is DownwardGateObject).Behaviour is
                 DownwardGateObject { Phase: DownwardGatePhase.Reopening, Resting: false } wakingGate &&
@@ -226,7 +226,7 @@ internal static class DownwardGateObjectsVerification
                 level,
                 level.BlockAt(gateBlockIndex - 1),
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
-                SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false));
+                BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false)));
         // The open-state collision image remains for sixteen frames before $BBE1 spawns
         // the downward-moving actor, exactly as list $BC13 specifies.
         for (int frame = 0; frame < 17; frame++)
@@ -256,7 +256,7 @@ internal static class DownwardGateObjectsVerification
             ? gateBlockIndex - 1
             : gateBlockIndex + 1;
         RoomBlockBehavior bts = level.GetCollisionBlockByIndex(triggerBlockIndex).Behavior;
-        roomObjects.Gates.SpawnDownwardGateTrigger(level, level.BlockAt(triggerBlockIndex), bts, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectile));
+        roomObjects.Gates.SpawnDownwardGateTrigger(level, level.BlockAt(triggerBlockIndex), bts, BlockStrike.By(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectile)));
         RoomObjectPlaceSnapshot gate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
         AssertEqual(accepted, gate.Behaviour is DownwardGateObject { Triggered: true },

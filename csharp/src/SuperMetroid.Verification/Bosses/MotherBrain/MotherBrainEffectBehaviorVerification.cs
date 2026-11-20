@@ -33,20 +33,18 @@ internal static class MotherBrainEffectBehaviorVerification
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(16384, 16384)) };
 
         RoomEnemySystem bombEnemies = CreateRoomEnemySystem();
-        EnemyProjectile bomb = bombEnemies.Projectiles.ProjectileInPlace(17);
-        FamilyProjectileStarts.Initialize(bombEnemies, bomb, RoomEnemyProjectileKind.MotherBrainBomb, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(PictureShading.Shaded(MotherBrainShades.PhaseTwo)));
+        EnemyProjectile bomb = FamilyProjectileStarts.Spawn(bombEnemies, 17, RoomEnemyProjectileKind.MotherBrainBomb, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(PictureShading.Shaded(MotherBrainShades.PhaseTwo)));
         RunForcedTicks(rom, bombEnemies, bomb, samus, 10);
         AssertTrue(bomb.IsActive && bomb.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectSegment.Bomb },
             "room-system Mother Brain bomb keeps looping its program");
 
         RoomEnemySystem breathEnemies = CreateRoomEnemySystem();
-        EnemyProjectile breath = breathEnemies.Projectiles.ProjectileInPlace(17);
-        FamilyProjectileStarts.Initialize(breathEnemies, breath, RoomEnemyProjectileKind.MotherBrainPurpleBreathBig, default);
+        EnemyProjectile breath = FamilyProjectileStarts.Spawn(breathEnemies, 17, RoomEnemyProjectileKind.MotherBrainPurpleBreathBig, default);
         RunForcedTicks(rom, breathEnemies, breath, samus, 9);
         AssertTrue(!breath.IsActive, "room-system Mother Brain purple breath reaches its deletion");
 
         RoomEnemySystem rainbowEnemies = CreateRoomEnemySystem();
-        var rainbowState = new MotherBrainEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(311, 139)) }, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
+        var rainbowState = new MotherBrainEnemyState((new RoomEnemyPlace(0, StandaloneFixtureSpecies.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())).BoundFor(EnemyDefinitionId.MotherBrainBody), new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(311, 139)) }, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
         rainbowEnemies.MotherBrainEncounter.BeginAsSetUp(rainbowState);
         rainbowEnemies.MotherBrainBehavior.Head.SpawnMotherBrainRainbowChargingProjectile(rainbowState);
         EnemyProjectile rainbow = rainbowEnemies.Projectiles.EnemyProjectiles.Single(
@@ -73,7 +71,7 @@ internal static class MotherBrainEffectBehaviorVerification
         {
             RoomEnemySystem deathEnemies = CreateRoomEnemySystem();
             MotherBrainEnemyState deathState = deathEnemies.MotherBrainEncounter.BeginAsSetUp(new MotherBrainEnemyState(
-                new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)) }, new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()));
+                (new RoomEnemyPlace(0, StandaloneFixtureSpecies.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)) }).BoundFor(EnemyDefinitionId.MotherBrainBody), new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()));
             deathEnemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDeathExplosion(deathState,
                 new MotherBrainDeathExplosionRequest(Offset: new(-5, 9), Animation: MotherBrainDeathExplosionNativeSelectors.Animations[parameter], SoundEffect: MotherBrainSoundDefinitions.Explosion));
             EnemyProjectile deathExplosion = deathEnemies.Projectiles.EnemyProjectiles.Single(
@@ -89,15 +87,13 @@ internal static class MotherBrainEffectBehaviorVerification
         VerifyDrool(RoomEnemyProjectileKind.MotherBrainDyingDrool, 128);
 
         RoomEnemySystem fragmentEnemies = CreateRoomEnemySystem();
-        EnemyProjectile fragment = fragmentEnemies.Projectiles.ProjectileInPlace(17);
-        FamilyProjectileStarts.Initialize(fragmentEnemies, fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, default);
+        EnemyProjectile fragment = FamilyProjectileStarts.Spawn(fragmentEnemies, 17, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, default);
         RunForcedTicks(rom, fragmentEnemies, fragment, samus, 9);
         AssertTrue(fragment.IsActive && fragment.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectSegment.EscapeDoorParticle },
             "room-system Mother Brain escape fragment keeps looping its program");
 
         RoomEnemySystem subtitleEnemies = CreateRoomEnemySystem();
-        EnemyProjectile subtitle = subtitleEnemies.Projectiles.ProjectileInPlace(17);
-        FamilyProjectileStarts.Initialize(subtitleEnemies, subtitle, RoomEnemyProjectileKind.MotherBrainEscapeSubtitle, default);
+        EnemyProjectile subtitle = FamilyProjectileStarts.Spawn(subtitleEnemies, 17, RoomEnemyProjectileKind.MotherBrainEscapeSubtitle, default);
         RunForcedTicks(rom, subtitleEnemies, subtitle, samus, 2);
         AssertTrue(subtitle.IsActive && subtitle.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectSegment.EscapeSubtitle },
             "room-system Mother Brain escape subtitle holds at its sleep");
@@ -118,7 +114,7 @@ internal static class MotherBrainEffectBehaviorVerification
         void VerifyHandBeam()
         {
             RoomEnemySystem handBeamEnemies = CreateRoomEnemySystem();
-            var handBeamState = new MotherBrainEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(112, 144)) }, new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
+            var handBeamState = new MotherBrainEnemyState((new RoomEnemyPlace(0, StandaloneFixtureSpecies.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(112, 144)) }).BoundFor(EnemyDefinitionId.MotherBrainBody), new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
             handBeamEnemies.MotherBrainEncounter.BeginAsSetUp(handBeamState);
             var handBeamTarget = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(192, 96)) };
             handBeamEnemies.MotherBrainBehavior.Body.SpawnMotherBrainHandBeamCharging(handBeamState, handBeamTarget);
@@ -167,7 +163,7 @@ internal static class MotherBrainEffectBehaviorVerification
         void VerifyOnionRing()
         {
             RoomEnemySystem ringEnemies = CreateRoomEnemySystem();
-            var ringState = new MotherBrainEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) }, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
+            var ringState = new MotherBrainEnemyState((new RoomEnemyPlace(0, StandaloneFixtureSpecies.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())).BoundFor(EnemyDefinitionId.MotherBrainBody), new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) }, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
             ringEnemies.MotherBrainEncounter.BeginAsSetUp(ringState);
             ringEnemies.MotherBrainBehavior.Head.SpawnMotherBrainOnionRing(ringState, new TrigonometryAngle(0));
             EnemyProjectile ring = ringEnemies.Projectiles.EnemyProjectiles.Single(
@@ -202,7 +198,7 @@ internal static class MotherBrainEffectBehaviorVerification
         void VerifyDrool(RoomEnemyProjectileKind expectedKind, ushort neckAngleDelta)
         {
             RoomEnemySystem droolEnemies = CreateRoomEnemySystem();
-            var state = new MotherBrainEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(256, 128)) }, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { DroolGenerationEnabled = true, NeckTurnPerUpdate = RotationAngleConstants.FromRaw(neckAngleDelta) };
+            var state = new MotherBrainEnemyState((new RoomEnemyPlace(0, StandaloneFixtureSpecies.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())).BoundFor(EnemyDefinitionId.MotherBrainBody), new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(256, 128)) }, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { DroolGenerationEnabled = true, NeckTurnPerUpdate = RotationAngleConstants.FromRaw(neckAngleDelta) };
             droolEnemies.MotherBrainEncounter.BeginAsSetUp(state);
             droolEnemies.MotherBrainBehavior.Head.SpawnMotherBrainDrool(state);
             EnemyProjectile drool = droolEnemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == expectedKind);
@@ -233,7 +229,7 @@ internal static class MotherBrainEffectBehaviorVerification
     /// </summary>
     internal static void VerifyMotherBrainBombCount()
     {
-        var state = new MotherBrainEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
+        var state = new MotherBrainEnemyState((new RoomEnemyPlace(0, StandaloneFixtureSpecies.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())).BoundFor(EnemyDefinitionId.MotherBrainBody), new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
         state.RecordBombSpawned();
         state.RecordBombSpawned();
         AssertEqual(2, state.BombCounter, "two spawned bombs are counted");

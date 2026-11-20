@@ -2,16 +2,17 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>One Chozo statue: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Chozo statue species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the statue occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class ChozoStatueEntity(ChozoStatueBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+internal sealed class ChozoStatueEntity(ChozoStatueBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeChozoStatue(Place);
+    public void Initialize() => species.InitializeChozoStatue(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => ChozoStatueBehavior.RunChozoStatueMainAi(Place);
+    public void RunMainAi(IEnemyAiFrame frame) => ChozoStatueBehavior.RunChozoStatueMainAi(Occupant, Place);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceChozoStatueTypedAnimation(Place, context);

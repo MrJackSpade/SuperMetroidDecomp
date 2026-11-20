@@ -107,7 +107,7 @@ internal static class ProjectileRadiiVerification
             int activeRecord = 0x930000 | pointer;
             // A record storing a composition again, byte for byte, shows that composition (#2295).
             ushort expectedSprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(CartridgeImportSource.Require(rom).ReadCartridgeWord((activeRecord + 2)));
-            var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer), Damage = 30 };
+            var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
             projectiles.Animation.AdvanceProjectileAnimation(slot);
             AssertEqual(false, !slot.IsActive, "Timed projectile record survives");
             // A list repeating one still picture is held: the shot keeps the picture, standing at the list's end (#2347).
@@ -122,7 +122,9 @@ internal static class ProjectileRadiiVerification
             // The bomb owner deliberately rejects zero-duration records, and no bomb shows a still picture. Keep that
             // existing contract instead of treating arbitrary beam records as bombs.
             if (duration == 0 || still) continue;
-            var bomb = new SamusBomb(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
+            var bomb = new SamusBomb(0);
+            bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
+            bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             bombs.AdvanceProjectileAnimation(bomb);
             AssertEqual(false, !bomb.IsActive, "Bomb timed record survives");
             AssertEqual(duration, bomb.NativeFrameHold, "Bomb duration unchanged");

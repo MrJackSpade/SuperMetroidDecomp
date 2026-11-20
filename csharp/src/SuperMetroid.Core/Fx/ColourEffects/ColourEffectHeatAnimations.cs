@@ -16,7 +16,7 @@ public static class ColourEffectHeatAnimations
             : throw new ArgumentOutOfRangeException(nameof(suit), suit, "Unknown heat suit.");
 
     /// <summary>How the heat shimmer for <paramref name="suit"/> plays: its pulse's animation, which loops.</summary>
-    private static Animation<ColourEffectSegment> Shimmer(ColourEffectHeatSuit suit) => ColourEffectAnimations.Definition(Pulse(suit)).Animation;
+    private static Animation<ColourEffectSegment> Shimmer(ColourEffectHeatSuit suit) => ColourEffectAnimations.Definition(Pulse(suit)).Frames.Played;
 
     /// <summary>
     /// Where the heat shimmer for <paramref name="suit"/> stands at heat phase <paramref name="phase"/>: its pulse's look of

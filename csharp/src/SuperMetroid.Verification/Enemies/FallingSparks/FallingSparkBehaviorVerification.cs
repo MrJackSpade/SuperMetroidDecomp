@@ -26,7 +26,7 @@ internal static class FallingSparkBehaviorVerification
 
         RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
         source.Position = source.Position.WithWhole(new(288, 96));
-        enemies.FallingSparksBehavior.SpawnFallingSpark(source);
+        enemies.FallingSparksBehavior.SpawnFallingSpark(source.BoundFor(EnemyDefinitionId.Spark), source);
         EnemyProjectile spark = enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.Kind == RoomEnemyProjectileKind.FallingSpark);
         AssertEqual(FallingSparkSegment.Falling, ProgramOf(spark), "a spawned spark starts its falling program");
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spark, Entry(FallingSparkSegment.Falling), 30, "falling spark flight");

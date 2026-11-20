@@ -36,11 +36,11 @@ internal static class PhantoonAnimationsVerification
         RoomEnemyPlace eye = enemies.Places.InUpdateOrder[1];
         RoomEnemyPlace tentacles = enemies.Places.InUpdateOrder[2];
         RoomEnemyPlace mouth = enemies.Places.InUpdateOrder[3];
-        body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
-        eye.Bind(EnemyDefinitionId.PhantoonEye, eye.Definition);
-        tentacles.Bind(EnemyDefinitionId.PhantoonTentacles, tentacles.Definition);
-        mouth.Bind(EnemyDefinitionId.PhantoonMouth, mouth.Definition);
-        enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body, eye, tentacles, mouth));
+        body.Bind(EnemyDefinitionId.PhantoonBody, body.KeptDefinition);
+        eye.Bind(EnemyDefinitionId.PhantoonEye, eye.KeptDefinition);
+        tentacles.Bind(EnemyDefinitionId.PhantoonTentacles, tentacles.KeptDefinition);
+        mouth.Bind(EnemyDefinitionId.PhantoonMouth, mouth.KeptDefinition);
+        enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body.HeldOccupant(), body, eye, tentacles, mouth));
         return enemies;
     }
 
@@ -172,7 +172,7 @@ internal static class PhantoonAnimationsVerification
                     break;
                 SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, flame, at);
                 // A list that shows a pose again from an operand of its own shows the pose's one installed frame (#2249).
-                AssertEqual<EnemyProjectileFrameId?>(EnemyProjectileProgramFrameOperands.Frame(native.Operand, flame.Graphics.Owner), flame.Frame, $"{at}: frame");
+                AssertEqual(EnemyProjectileProgramFrameOperands.ShownAt(native.Operand, flame.Graphics.Owner), flame.Frame, $"{at}: frame");
                 if (NativeEnemyAnimationOracle.NativePlaysLeft(AssertIs<PhantoonFlameAnimation>(flame.Animation, $"{at}: flame animation").Playback) is { } playsLeft)
                     AssertEqual<int>(native.Counter, playsLeft, $"{at}: plays left");
             }
@@ -212,7 +212,7 @@ internal static class PhantoonAnimationsVerification
         AssertStarted(starting.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PhantoonStartingFlame),
             PhantoonFlameSegment.StartingFlame, "starting flame");
         RoomEnemySystem casual = NewFlameSystem();
-        AssertStarted(SpawnDestroyable(casual, (patterns, phantoon) => patterns.SpawnPhantoonCasualFlame(phantoon.Body), "casual"), PhantoonFlameSegment.CasualFallingKindling, "casual flame");
+        AssertStarted(SpawnDestroyable(casual, (patterns, phantoon) => patterns.SpawnPhantoonCasualFlame(phantoon.Body.HeldOccupant(), phantoon.Body), "casual"), PhantoonFlameSegment.CasualFallingKindling, "casual flame");
         RoomEnemySystem rage = NewFlameSystem();
         AssertStarted(SpawnDestroyable(rage, SpawnRageFlame, "rage"), PhantoonFlameSegment.Burning, "rage flame");
     }

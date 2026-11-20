@@ -5,8 +5,6 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public enum RoomEnemyProjectileKind
 {
-    /// <summary>No projectile: the projectile is gone or has freed its place, and the place is free for a spawn.</summary>
-    None,
     /// <summary>A Yapping Maw's body.</summary>
     YappingMawBody,
     /// <summary>

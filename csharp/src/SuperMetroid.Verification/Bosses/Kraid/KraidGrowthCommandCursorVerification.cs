@@ -31,12 +31,13 @@ internal static class KraidGrowthCommandCursorVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: new BossSourceArtwork { KraidBackground = new KraidBackgroundArtwork((referenceArt ?? throw new InvalidOperationException("Verification requires referenceArt.")).Upper, referenceArt.Lower,
                     new Dictionary<KraidHeadFrame, KraidHeadTilemapAtlas> { [KraidHeadTilemapFormat.HeadsByMouthStage[2]] = head }, referenceArt.RoomBackgroundTiles) });
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
+        enemies.Places.BindKraidPartsInRoomOrder();
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         Func<KraidEnemyState, KraidHeadAnimationResult> execute = enemies.KraidBehavior.Head.RunKraidHeadAnimationStep;
         Action<RoomEnemyPlace, ushort> footMain = (foot, cameraY) => enemies.KraidBehavior.Limbs.RunKraidFootMain(foot, state.FootState, cameraY);
         var body = enemies.Places.InUpdateOrder[0];
         var foot = enemies.Places.InUpdateOrder[5];
-        body.Bind(EnemyDefinitionId.Kraid, body.Definition);
+        body.Bind(EnemyDefinitionId.Kraid, body.KeptDefinition);
         state.InitialHealth = 1000;
         body.Health = 874;
         state.HeadPlayback = native.PlaybackAt(0x96e2);

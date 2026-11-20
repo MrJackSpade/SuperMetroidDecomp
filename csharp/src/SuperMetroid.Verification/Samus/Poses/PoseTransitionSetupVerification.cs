@@ -65,7 +65,7 @@ internal static class PoseTransitionSetupVerification
                 $"{drained} stored over a ground turn keeps the turn's stop");
             AssertEqual(SamusNoTransitionSetup.ContinueNormalJump, SamusNoTransitionSetups.For(drained, SamusMovementType.NormalJumping),
                 $"{drained} stored over a normal jump keeps the jump's fallback");
-            AssertEqual(SamusNoTransitionSetup.None, SamusNoTransitionSetups.For(drained, SamusMovementType.TurningWhileFalling),
+            AssertEqual(SamusNoTransitionSetup.KeepsMomentum, SamusNoTransitionSetups.For(drained, SamusMovementType.TurningWhileFalling),
                 $"{drained} stored over a turn in a fall sets nothing up, the aerial turns naming theirs on the pose");
         }
         Console.WriteLine($"Pose transition setups: {transitions} chosen transitions each name a setup that installs their pose.");

@@ -78,7 +78,7 @@ internal static class RoomBlockReadingDefinitions
         [ShootableReaction.AnimalEscape] = new(ShootableReaction.AnimalEscape, null, SpecialBlockReaction.Solid, SpecialAirReaction.PassesThrough, null, null,
             new(SlopeShapeDefinitions.TwoPixelStairs, BlockMirroring.Horizontal), 79),
         [ShootableReaction.NothingWhenSolid] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, null, null, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical), -128),
+            new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical), -128, ResolvedByArea: true),
     };
 
     /// <summary>The behaviour a write of each bombable reaction keeps.</summary>
@@ -103,7 +103,7 @@ internal static class RoomBlockReadingDefinitions
         [BombableReaction.Nothing] = new(ShootableReaction.RespawningPowerBombBlock, BombableReaction.Nothing, SpecialBlockReaction.XrayRevealedSolid, SpecialAirReaction.RightwardConveyorOnFoot, SpikeReaction.Harmless, null,
             new(SlopeShapeDefinitions.UnusedSolid, BlockMirroring.None), 8),
         [BombableReaction.Inert] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, null, null, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical), -128),
+            new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical), -128, ResolvedByArea: true),
     };
 
     /// <summary>The behaviour a write of each special-block reaction keeps.</summary>
@@ -224,7 +224,7 @@ internal static class RoomBlockReadingDefinitions
         [SpikeReaction.EnemyBreakable] = new(ShootableReaction.Nothing, BombableReaction.Nothing, SpecialBlockReaction.PermanentSpeedBlock, SpecialAirReaction.PassesThrough, SpikeReaction.EnemyBreakable, null,
             new(SlopeShapeDefinitions.TwoPixelStairs, BlockMirroring.None), 15),
         [SpikeReaction.HarmlessLetsGrappleThrough] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, null, null, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical), -128),
+            new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical), -128, ResolvedByArea: true),
         [SpikeReaction.EnemyBreakableLetsGrappleThrough] = new(null, BombableReaction.Inert, null, SpecialAirReaction.PassesThrough, SpikeReaction.EnemyBreakableLetsGrappleThrough, GrappleReaction.Rejected,
             new(SlopeShapeDefinitions.TwoPixelStairs, BlockMirroring.Vertical), -113),
     };
@@ -241,7 +241,7 @@ internal static class RoomBlockReadingDefinitions
         [GrappleReaction.UnrevealedAnchor] = new(ShootableReaction.RespawningBreak2x2, BombableReaction.RespawningBreak2x2, SpecialBlockReaction.RespawningCrumble2x2, SpecialAirReaction.PassesThrough, SpikeReaction.TurretSpike, GrappleReaction.UnrevealedAnchor,
             new(SlopeShapeDefinitions.SquareAllButTopLeft, BlockMirroring.None), 3),
         [GrappleReaction.Rejected] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, null, null, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical), -128),
+            new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical), -128, ResolvedByArea: true),
     };
 
     /// <summary>The behaviour a write of each slope shape and mirroring keeps.</summary>
@@ -356,17 +356,17 @@ internal static class RoomBlockReadingDefinitions
         [new(SlopeShapeDefinitions.TripleRiseUpper, BlockMirroring.Horizontal)] = new(null, null, null, SpecialAirReaction.PassesThrough, null, null,
             new(SlopeShapeDefinitions.TripleRiseUpper, BlockMirroring.Horizontal), 95),
         [new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical)] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, null, null, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical), -128),
+            new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical), -128, ResolvedByArea: true),
         [new(SlopeShapeDefinitions.SquareRightHalf, BlockMirroring.Vertical)] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, null, null, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.SquareRightHalf, BlockMirroring.Vertical), -127),
+            new(SlopeShapeDefinitions.SquareRightHalf, BlockMirroring.Vertical), -127, ResolvedByArea: true),
         [new(SlopeShapeDefinitions.SquareBottomRightQuarter, BlockMirroring.Vertical)] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, null, null, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.SquareBottomRightQuarter, BlockMirroring.Vertical), -126),
+            new(SlopeShapeDefinitions.SquareBottomRightQuarter, BlockMirroring.Vertical), -126, ResolvedByArea: true),
         [new(SlopeShapeDefinitions.SquareAllButTopLeft, BlockMirroring.Vertical)] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, null, null, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.SquareAllButTopLeft, BlockMirroring.Vertical), -125),
+            new(SlopeShapeDefinitions.SquareAllButTopLeft, BlockMirroring.Vertical), -125, ResolvedByArea: true),
         [new(SlopeShapeDefinitions.SquareFull, BlockMirroring.Vertical)] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, null, null, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.SquareFull, BlockMirroring.Vertical), -124),
+            new(SlopeShapeDefinitions.SquareFull, BlockMirroring.Vertical), -124, ResolvedByArea: true),
         [new(SlopeShapeDefinitions.LowPeak, BlockMirroring.Vertical)] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, null, null, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.LowPeak, BlockMirroring.Vertical), -123),
+            new(SlopeShapeDefinitions.LowPeak, BlockMirroring.Vertical), -123, ResolvedByArea: true),
         [new(SlopeShapeDefinitions.HighPeak, BlockMirroring.Vertical)] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, SpecialBlockReaction.Solid, SpecialAirReaction.PassesThrough, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
             new(SlopeShapeDefinitions.HighPeak, BlockMirroring.Vertical), -122),
         [new(SlopeShapeDefinitions.HalfHeight, BlockMirroring.Vertical)] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, SpecialBlockReaction.Solid, SpecialAirReaction.PassesThrough, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
@@ -469,17 +469,17 @@ internal static class RoomBlockReadingDefinitions
     internal static readonly IReadOnlyDictionary<int, RoomBlockReadings> Extension = new Dictionary<int, RoomBlockReadings>
     {
         [-128] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, null, null, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical), -128),
+            new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical), -128, ResolvedByArea: true),
         [-127] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, null, null, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.SquareRightHalf, BlockMirroring.Vertical), -127),
+            new(SlopeShapeDefinitions.SquareRightHalf, BlockMirroring.Vertical), -127, ResolvedByArea: true),
         [-126] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, null, null, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.SquareBottomRightQuarter, BlockMirroring.Vertical), -126),
+            new(SlopeShapeDefinitions.SquareBottomRightQuarter, BlockMirroring.Vertical), -126, ResolvedByArea: true),
         [-125] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, null, null, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.SquareAllButTopLeft, BlockMirroring.Vertical), -125),
+            new(SlopeShapeDefinitions.SquareAllButTopLeft, BlockMirroring.Vertical), -125, ResolvedByArea: true),
         [-124] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, null, null, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.SquareFull, BlockMirroring.Vertical), -124),
+            new(SlopeShapeDefinitions.SquareFull, BlockMirroring.Vertical), -124, ResolvedByArea: true),
         [-123] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, null, null, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.LowPeak, BlockMirroring.Vertical), -123),
+            new(SlopeShapeDefinitions.LowPeak, BlockMirroring.Vertical), -123, ResolvedByArea: true),
         [-122] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, SpecialBlockReaction.Solid, SpecialAirReaction.PassesThrough, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
             new(SlopeShapeDefinitions.HighPeak, BlockMirroring.Vertical), -122),
         [-121] = new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, SpecialBlockReaction.Solid, SpecialAirReaction.PassesThrough, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,

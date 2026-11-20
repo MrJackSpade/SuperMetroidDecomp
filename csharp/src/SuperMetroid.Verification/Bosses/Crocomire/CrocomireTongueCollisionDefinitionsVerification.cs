@@ -20,8 +20,8 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         var denied = NewCrocomireTongueNoReadBus();
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.CrocomireTongue, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.CrocomireTongue, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         var seen = new HashSet<ushort>();
         foreach (EnemyFrameId frame in CrocomireNativeWords.TongueFrames.WordsByIdentity.Keys)
         {
@@ -83,7 +83,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         // The cartridge walker reads the bound tongue's frame word in its own bank (#2327), so both walkers read the one
         // tongue place; the walkers stay independent, each filling its own argument row.
         RoomEnemyPlace place = compiled.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.CrocomireTongue, place.Definition);
+        place.Bind(EnemyDefinitionId.CrocomireTongue, place.KeptDefinition);
         AssertEqual(9, CrocomireTongueCollisionDefinitionsConstants.FrameCount,
             "all selected Crocomire tongue frames have compiled collision");
 

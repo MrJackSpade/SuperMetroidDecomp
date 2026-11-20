@@ -59,8 +59,6 @@ public enum CinematicSpritePose
     ExaminedBabyNarrow,
     /// <summary>The narration's green typing caret, shown.</summary>
     CaretVisible,
-    /// <summary>The pose that draws nothing.</summary>
-    Blank,
     /// <summary>The next-page arrow at its brightest.</summary>
     NextPageArrowBright,
     /// <summary>The next-page arrow between bright and faint.</summary>

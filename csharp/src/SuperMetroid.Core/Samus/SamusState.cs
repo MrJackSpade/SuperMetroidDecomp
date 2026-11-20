@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -316,15 +317,15 @@ public sealed class SamusState
 
     /// <summary>
     /// The item chosen for auto-cancel, by pressing Select while Item Cancel is held: the HUD returns to the beam when its
-    /// use ends. <see cref="HudItem.Beam"/> when no item was chosen that way.
+    /// use ends. Null when no item was chosen that way.
     /// </summary>
-    public HudItem AutoCancelledItem { get; set; }
+    public HudItem? AutoCancelledItem { get; set; }
 
     /// <summary>Returns the HUD to the beam, with no item chosen for auto-cancel.</summary>
     public void SelectBeam()
     {
         SelectedHudItem = HudItem.Beam;
-        AutoCancelledItem = HudItem.Beam;
+        AutoCancelledItem = null;
     }
 
     /// <summary>
@@ -394,12 +395,11 @@ public sealed class SamusState
     public SamusBallBounceState MorphBallBounceState { get; set; }
 
     /// <summary>
-    /// The bomb jump a bomb's blast asked of Samus: its launch direction, and whether her pose handling has accepted it,
-    /// which keeps the same request from arming the jump again. It is her state from the blast's overlap until her pose
-    /// handling rejects it, an input transition to another pose cancels it, or the jump it armed ends: the rising arc reads
-    /// its direction throughout, and a later blast replaces it whole.
+    /// Samus's bomb jump, from the blast that starts it until her pose handling rejects it, an input transition to another
+    /// pose cancels it, or the jump ends: its launch direction, which the rising arc reads throughout, and whether her pose
+    /// handling has armed it. A later blast starts a new one. None while she is not bomb jumping.
     /// </summary>
-    public SamusBombJumpRequest BombJumpRequest { get; set; }
+    public SamusBombJump? BombJump { get; set; }
 
     /// <summary>True for the bomb jump's one-frame start, which sets her velocity (<see cref="SamusMovementOwner.BombJump"/>).</summary>
     public bool BombJumpStarting { get; set; }

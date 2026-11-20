@@ -27,7 +27,7 @@ internal static class ProjectileTrailNative
     extension(ProjectileTrailDefinitions)
     {
         /// <summary>$90:B4C9, the empty program.</summary>
-        internal static ushort Empty => ProjectileTrailSources.Start(ProjectileTrailSegment.Empty);
+        internal static ushort Empty => ProjectileTrailSources.Start(ProjectileTrailSegment.EndsWithoutSparkle);
         /// <summary>$90:B4CB, the left ice program.</summary>
         internal static ushort LeftIce => ProjectileTrailSources.Start(ProjectileTrailSegment.LeftIce);
         /// <summary>$90:B52D, the right ice program.</summary>

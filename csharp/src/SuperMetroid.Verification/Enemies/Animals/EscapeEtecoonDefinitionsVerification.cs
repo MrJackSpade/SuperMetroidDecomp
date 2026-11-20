@@ -57,8 +57,8 @@ internal static class EscapeEtecoonDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.EtecoonEscape, parameter);
             place.Position = place.Position.WithWhole(new(0xaaaa, 0xbbbb));
-            place.Bind(EnemyDefinitionId.EtecoonEscape, place.Definition);
-            enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(place);
+            place.Bind(EnemyDefinitionId.EtecoonEscape, place.KeptDefinition);
+            enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(place.HeldOccupant(), place);
 
             int role = parameter >> 1;
             EscapeEtecoonInitialization expected =
@@ -148,10 +148,10 @@ internal static class EscapeEtecoonDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().HasEvent = _ => false;
         RoomEnemyPlace etecoon = enemies.Places.InUpdateOrder[0];
-        etecoon.Bind(EnemyDefinitionId.EtecoonEscape, etecoon.Definition);
-        etecoon.Bind(etecoon.DefinitionId, default(RoomEnemyDefinition));
+        etecoon.Bind(EnemyDefinitionId.EtecoonEscape, etecoon.KeptDefinition);
+        etecoon.Bind(etecoon.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         etecoon.SetSpawnParameter1(EnemyDefinitionId.EtecoonEscape, 0);
-        enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(etecoon);
+        enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(etecoon.HeldOccupant(), etecoon);
         return enemies;
     }
 

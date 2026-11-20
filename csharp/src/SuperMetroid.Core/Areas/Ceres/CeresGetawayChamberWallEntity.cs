@@ -7,11 +7,12 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// shows the chamber's walls (#1545), and its animation makes it ignore Samus.
 /// </summary>
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the wall occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="side">The animation the wall starts in, for the side of the chamber it stands on.</param>
-internal sealed class CeresGetawayChamberWallEntity(CeresDoorBehavior doors, RoomEnemyPlace place, EnemyCommonParticipation common, CeresDoorSegment side)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+internal sealed class CeresGetawayChamberWallEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CeresDoorSegment side)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
     public void Initialize() => doors.Start(Place, side);

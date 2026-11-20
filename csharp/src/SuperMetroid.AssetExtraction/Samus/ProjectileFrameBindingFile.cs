@@ -25,20 +25,29 @@ public static class ProjectileFrameBindingFile
     {
         ProjectileFrameBindingDocument document;
         document = JsonAssetDocument.Read<ProjectileFrameBindingDocument>(json, Options, "projectile frame-binding");
-        if (document.Version != ProjectileFrameBindingFormat.Version || document.Frames is null ||
-            document.Frames.Count != ProjectileFrameBindingFormat.FrameCount)
+        if (document.Version != ProjectileFrameBindingFormat.Version || document.Frames is null || document.Unpictured is null ||
+            document.Frames.Count + document.Unpictured.Count != ProjectileFrameBindingFormat.FrameCount)
             throw new InvalidDataException($"Projectile frame bindings require version {ProjectileFrameBindingFormat.Version} and all {ProjectileFrameBindingFormat.FrameCount} timed records.");
         Dictionary<string, ProjectileSpriteId> named = ProjectileSpriteDefinitions.All.ToDictionary(sprite => sprite.Name, StringComparer.Ordinal);
+        var unpicturedNames = new HashSet<string>(document.Unpictured, StringComparer.Ordinal);
         var compiled = new Dictionary<SamusProjectileFrameId, ProjectileSpriteId>();
+        var unpictured = new HashSet<SamusProjectileFrameId>();
         foreach (SamusProjectileFrameId record in SamusProjectileFrameOrder.Frames)
         {
             string key = ProjectileFrameBindingFormat.FrameName(record);
+            if (unpicturedNames.Contains(key))
+            {
+                if (document.Frames.ContainsKey(key))
+                    throw new InvalidDataException($"Projectile frame {key} is both pictured and unpictured.");
+                unpictured.Add(record);
+                continue;
+            }
             if (!document.Frames.TryGetValue(key, out string? spriteName) || spriteName is null ||
                 !named.TryGetValue(spriteName, out ProjectileSpriteId sprite))
                 throw new InvalidDataException($"Projectile frame {key} has no legal sprite identity.");
             compiled.Add(record, sprite);
         }
-        return new(compiled);
+        return new(compiled, unpictured);
     }
 
     /// <summary>Serializes the editable record-to-sprite bindings to indented camel-case UTF-8 JSON.</summary>

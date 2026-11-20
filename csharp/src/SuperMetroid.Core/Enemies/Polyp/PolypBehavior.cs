@@ -13,7 +13,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Polyp];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new PolypEntity(this, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new PolypEntity(this, occupant, place, common));
 
     /// <summary>Provides the shared room RNG and enemy state used by all Polyp actors.</summary>
     private readonly EnemyRoomBinding _room;
@@ -42,7 +42,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the Polyp's main AI and its three actions.</summary>
     private void RunPolypMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         PolypEnemyState state,
         SamusState samus)
     {
@@ -59,7 +59,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case PolypAction.ShootingRock:
-                ShootPolypRock(place, state);
+                ShootPolypRock(occupant, place, state);
                 return;
 
             case PolypAction.Cooldown:
@@ -74,12 +74,12 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Launches a rock with three independent random choices: its horizontal speed, its rise and the cooldown after it.</summary>
-    private void ShootPolypRock(RoomEnemyPlace place, PolypEnemyState state)
+    private void ShootPolypRock(RoomEnemyOccupant occupant, RoomEnemyPlace place, PolypEnemyState state)
     {
         SignedEightEight xVelocity = PolypLaunchDefinitions.XVelocity.Choose(_room.Random.Generate());
 
         QuadraticSpeedCurvePlace launchPlace = PolypLaunches.LaunchPlace(_room.Random.Generate());
-        SpawnPolypRock(place, launchPlace, xVelocity);
+        SpawnPolypRock(occupant, place, launchPlace, xVelocity);
 
         state.Action = PolypAction.Cooldown;
         state.CooldownTimer = UpdateCountdown.For(PolypLaunchDefinitions.Cooldown.Choose(_room.Random.Generate()));
@@ -105,9 +105,9 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"The Polyp's cue-free animation raised {cue}."));
 
     /// <summary>Runs Polyp's main AI.</summary>
-    internal void RunPolypMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunPolypMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunPolypMain(place, place.RequireSpeciesState<PolypEnemyState>(), frame.Samus);
+        RunPolypMain(occupant, place, place.RequireSpeciesState<PolypEnemyState>(), frame.Samus);
     }
 
     /// <summary>
@@ -115,19 +115,14 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The rock draws from the Polyp's spawned-object sheet in its colours and starts at the Polyp's position, fractions included.
     /// </summary>
     private void SpawnPolypRock(
-        RoomEnemyPlace source,
+        RoomEnemyOccupant occupant, RoomEnemyPlace source,
         QuadraticSpeedCurvePlace launchPlace,
         SignedEightEight xVelocity)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PolypRock, Rock, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.PolypRock,
-            Rock,
-            SpriteGraphics.SpawnedBy(source));
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockSegment.LavaRock));
         Rock.States.Start(projectile, new PolypRockState(launchPlace));
         projectile.Velocity = new(xVelocity, SignedEightEight.Zero);

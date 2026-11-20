@@ -12,11 +12,11 @@ internal static class HoppersBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.Hoppers.HoppersBehavior)
     {
         /// <summary>The private method <c>LandHopper</c>, invoked by name.</summary>
-        internal static void LandHopper(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Hoppers.HopperEnemyState state) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Hoppers.HoppersBehavior), "LandHopper", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Hoppers.HopperEnemyState)], new object?[] { place, state });
+        internal static void LandHopper(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Hoppers.HopperEnemyState state) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Hoppers.HoppersBehavior), "LandHopper", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Hoppers.HopperEnemyState)], new object?[] { occupant, place, state });
 
         /// <summary>The private method <c>StartHopperJump</c>, invoked by name.</summary>
-        internal static void StartHopperJump(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Hoppers.HopperEnemyState state) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Hoppers.HoppersBehavior), "StartHopperJump", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Hoppers.HopperEnemyState)], new object?[] { place, state });
+        internal static void StartHopperJump(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Hoppers.HopperEnemyState state) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Hoppers.HoppersBehavior), "StartHopperJump", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Hoppers.HopperEnemyState)], new object?[] { occupant, place, state });
     }
 }

@@ -32,13 +32,13 @@ internal static class RoomPicturePresentationContractChecks
             using SuperMetroid.Core.Rooms.Scrolling;
             class RoomPictureConsumer {
                 void Inspect(InstalledRoomArtwork artwork, RoomFloorSheet floor, MessageBoxSheet messages, WrittenPictureSheet overlay,
-                    RoomAppearanceView appearance, TilesetDefinition tileset, LibraryBackground background, DoorDefinition? door,
+                    RoomAppearanceView appearance, TilesetDefinition tileset, LibraryBackground background, LibraryBackgroundPicture picture,
                     CeresFloorActorPicture frame, ShownMessage shown, RoomFxType effect) {
                     artwork.Get(tileset);
                     artwork.FloorOf(tileset);
                     artwork.MessageBox(tileset);
                     artwork.FxOverlay(tileset);
-                    artwork.Background(background, door, tileset);
+                    artwork.Background(background, picture, tileset);
                     artwork.Sky(ScrollingSky.Land, tileset);
                     artwork.Sky((ScrollingSky)99, tileset);
                     floor.Picture(frame);

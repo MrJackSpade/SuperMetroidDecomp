@@ -111,7 +111,7 @@ internal static class CompiledProjectileMathVerification
         // Native $86:D843/$D89F OR bit seven into an even byte offset; this is not
         // equivalent to adding a quarter-turn. Check every sway phase, both step
         // sizes, carry/borrow, low subpixel preservation and the swing's wrap.
-        var projectile = new EnemyProjectile(0, default);
+        var projectile = new EnemyProjectile(0, default, RoomEnemyProjectileKind.DustOrExplosion);
         foreach (int swaySteps in new[] { 1, 2 })
         foreach (uint initial in new uint[] { 0, 0x0080ff37, 0xfffffff1 })
         for (int phase = 0; phase < 512; phase++)

@@ -27,7 +27,7 @@ internal static class CrocomireTonguePlacementVerification
         body.Bind(EnemyDefinitionId.Crocomire, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.Crocomire));
         body.Position = body.Position.WithWhole(new(576, 144));
         body.Radius = new(body.Definition.Radius.X, body.Definition.Radius.Y);
-        var state = new CrocomireEnemyState(body)
+        var state = new CrocomireEnemyState(body.HeldOccupant(), body)
         {
             Phase = CrocomirePhase.SteppingForward,
             BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(

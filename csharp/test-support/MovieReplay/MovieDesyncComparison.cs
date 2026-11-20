@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Frontend.Intro;
@@ -74,8 +75,8 @@ internal static class MovieDesyncComparison
         if (game.RuntimeForVerification is { } projectileRuntime)
         {
             Console.WriteLine("  sproj port   " + string.Join(" ", projectileRuntime.Projectiles.Shots
-                .Where(slot => !slot.Type.IsNone)
-                .Select(slot => $"{slot.Place}:{slot.Type}@{slot.Position.X.Whole:X4}.{slot.Position.X.Fraction:X4}/{slot.Position.Y.Whole:X4} r{slot.Radius.X:X}/{slot.Radius.Y:X} v{slot.Velocity.X.InTwoHundredFiftySixthsOfPixel:X4} d{slot.Direction}{(slot.IsSpent ? " spent" : "")}")));
+                .Where(slot => slot.IsOccupied)
+                .Select(slot => $"{slot.Place}:{slot.HeldShot().Type}@{slot.Position.X.Whole:X4}.{slot.Position.X.Fraction:X4}/{slot.Position.Y.Whole:X4} r{slot.Radius.X:X}/{slot.Radius.Y:X} v{slot.Velocity.X.InTwoHundredFiftySixthsOfPixel:X4} d{slot.Direction}{(slot.IsSpent ? " spent" : "")}")));
             Console.WriteLine("  sproj native " + string.Join(" ", Enumerable.Range(0, 5)
                 .Where(slot => Native(0x0c18 + 2 * slot) != "0000")
                 .Select(slot => $"{slot}:{Native(0x0c18 + 2 * slot)}@{Native(0x0b64 + 2 * slot)}.{Native(0x0b8c + 2 * slot)}/{Native(0x0b78 + 2 * slot)} r{Native(0x0bb4 + 2 * slot)}/{Native(0x0bc8 + 2 * slot)} v{Native(0x0bf0 + 2 * slot)} d{Native(0x0c04 + 2 * slot)}")));
@@ -106,18 +107,18 @@ internal static class MovieDesyncComparison
             Console.WriteLine("  eproj native " + string.Join(" ", nativeProjectiles));
             Console.WriteLine($"  ceres port={traceEnemies.RidleyEncounter.CeresStatus} native={Native(0x093f)} " +
                 $"nmi port={game.GameplayRuntimeForVerification.Clock.Counter:X4} native-raw={Native(0x05b6)}");
-            foreach (var actor in traceEnemies.Places.InUpdateOrder.Where(place => place.DefinitionId != EnemyDefinitionId.None))
+            foreach (var actor in traceEnemies.Places.InUpdateOrder.Where(place => place.Occupant is not null))
             {
                 // $0F86 properties, $0F92 instruction list pointer, $0F94 instruction timer.
                 int slotBase = MovieDesyncMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(actor.Ordinal);
-                Console.WriteLine($"  enemy {actor.Ordinal} {actor.DefinitionId} " +
+                Console.WriteLine($"  enemy {actor.Ordinal} {actor.Occupant?.DefinitionId} " +
                     $"port timer={actor.AnimationClock.Hold:X4} prop={SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(actor):X}" +
                     $"pos={actor.Position.X.Whole:X4}.{actor.Position.X.Fraction:X4}/{actor.Position.Y.Whole:X4}.{actor.Position.Y.Fraction:X4} " +
                     $"native inst={Native(slotBase + 0x1a)}/{Native(slotBase + 0x1c)} prop={Native(slotBase + 0x0e)} " +
                     $"pos={Native(slotBase + 2)}.{Native(slotBase + 4)}/{Native(slotBase + 6)}.{Native(slotBase + 8)}");
             }
         }
-        if (game.RuntimeForVerification?.Enemies.BossEncounters.MotherBrain?.RainbowBeamSequence?.Baby is { Place: not null } baby)
+        if (game.RuntimeForVerification?.Enemies.BossEncounters.MotherBrain?.RainbowBeamSequence?.Baby is { } baby)
         {
             // Baby Metroid cutscene actor: $0FA8+$40n function words; velocities at +2/+4.
             Console.WriteLine($"  baby port   pos={baby.Position.X.Whole:X4}.{baby.Position.X.Fraction:X4}/{baby.Position.Y.Whole:X4}.{baby.Position.Y.Fraction:X4} v={baby.Velocity.X.RawValue:X4}/{baby.Velocity.Y.RawValue:X4}");
@@ -258,8 +259,10 @@ internal static class MovieDesyncComparison
             string owner = $"Enemy {actor.Ordinal}";
             Check(owner + " identity", actor.AwaitsRespawn
                 ? SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWordsConstants.AwaitingRespawnHeader
-                : SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), address + MovieDesyncMemory.EnemyIdentityOffset);
-            if (actor.DefinitionId == EnemyDefinitionId.None) continue;
+                : actor.Occupant is { } held
+                    ? SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(held.DefinitionId)
+                    : SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWordsConstants.FreeSlotHeader, address + MovieDesyncMemory.EnemyIdentityOffset);
+            if (actor.Occupant is null) continue;
             Position16<RoomPixels> whole = NativeWholePosition(actor);
             Check(owner + " X", whole.X, address + MovieDesyncMemory.EnemyXOffset);
             Check(owner + " X fraction", actor.Position.X.Fraction, address + MovieDesyncMemory.EnemyXFractionOffset);
@@ -286,5 +289,5 @@ internal static class MovieDesyncComparison
     /// main AI holds the refilled health.
     /// </summary>
     private static int NativeHealth(RoomEnemyPlace actor) =>
-        actor.DefinitionId == EnemyDefinitionId.BabyMetroid && actor.FrameCounter != 0 ? RefilledBabyMetroidNativeHealth : actor.Health;
+        actor.Holds(EnemyDefinitionId.BabyMetroid) && actor.FrameCounter != 0 ? RefilledBabyMetroidNativeHealth : actor.Health;
 }

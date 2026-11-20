@@ -19,25 +19,25 @@ internal static class PlatformOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Tripper, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.Tripper, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         const int speedRecord = 5;
         const int accelerationCap = 3;
         place.SetSpawnParameter2(EnemyDefinitionId.Tripper, LittleEndianBytes.Word(speedRecord, accelerationCap));
-        place.SetSpawnSettings(place.SpawnSettings<PlatformSpawnSettings>() with { Movement = HorizontalDirection.Left });
+        place.SetSpawnSettings(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>() with { Movement = HorizontalDirection.Left });
         place.Position = place.Position.WithWholeY(256);
-        PlatformsBehavior.InitializePlatform(place);
+        PlatformsBehavior.InitializePlatform(place.HeldOccupant(), place);
         PlatformEnemyState state = enemies.PlatformStates[0]
             ?? throw new InvalidOperationException("The initialized Tripper has no platform state.");
 
-        AssertEqual(EnemyLinearSpeedTable.Speed(speedRecord), place.SpawnSettings<PlatformSpawnSettings>().Speed, "the patrol speed is the row's speed");
+        AssertEqual(EnemyLinearSpeedTable.Speed(speedRecord), place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>().Speed, "the patrol speed is the row's speed");
         AssertEqual(257, state.RestingY, "the platform rests one pixel below its placement");
 
         // The acceleration cap is parameter two's high byte.
         int[] expectedIndexes = [1, 2, accelerationCap, accelerationCap, accelerationCap];
         foreach (int expected in expectedIndexes)
         {
-            PlatformsBehavior.IncrementAndClampPlatformYSpeed(place, state);
+            PlatformsBehavior.IncrementAndClampPlatformYSpeed(place.HeldOccupant(), state);
             AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected), state.YSpeedCurvePlace, "acceleration climbs by one row and holds at the cap");
         }
         Console.WriteLine("Platform owned state: speeds, resting height and clamped acceleration match.");

@@ -61,17 +61,16 @@ internal static class HoltzInstructionProgramDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
-        parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
-        parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
+        parent.BindPlaced(EnemyDefinitionId.Holtz, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
+        parent.Bind(parent.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         HoltzBehavior.InitializeHoltz(parent);
         AssertEqual(new AnimationPlayback<HoltzSegment>(HoltzAnimations.StartingWith(HoltzSegment.Idle), AnimationPlace.StartOfAnimation), enemies.Places.InUpdateOrder[0].EntityState<HoltzEntity, HoltzEnemyState>()?.Playback,
             "Lower Norfair Rio parent initializer selects idle");
 
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.SetSpawnParameter1(EnemyDefinitionId.Holtz, 0x8000);
-        follower.Bind(EnemyDefinitionId.Holtz, follower.Definition);
-        follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
+        follower.Bind(EnemyDefinitionId.Holtz, follower.KeptDefinition);
+        follower.Bind(follower.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         enemies.HoltzBehavior.InitializeHoltzFollower(follower);
         AssertEqual(new AnimationPlayback<HoltzSegment>(HoltzAnimations.StartingWith(HoltzSegment.Flames), AnimationPlace.StartOfAnimation), enemies.Places.InUpdateOrder[1].EntityState<HoltzFollowerEntity, HoltzFollowerState>()?.Playback,
             "Lower Norfair Rio follower initializer selects flames");
@@ -83,9 +82,9 @@ internal static class HoltzInstructionProgramDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        place.Bind(EnemyDefinitionId.Holtz, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.BindPlaced(EnemyDefinitionId.Holtz, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
+        place.Bind(EnemyDefinitionId.Holtz, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.AnimationClock.StepOnNextUpdate();
         var state = new HoltzEnemyState(HoltzAction.WaitForAttackOpportunity) { Playback = new(HoltzAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
         place.SetSpeciesState(state);
@@ -100,12 +99,11 @@ internal static class HoltzInstructionProgramDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
-        parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
+        parent.BindPlaced(EnemyDefinitionId.Holtz, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         HoltzBehavior.InitializeHoltz(parent);
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.SetSpawnParameter1(EnemyDefinitionId.Holtz, EnemyParameterMasks.FollowerBit);
-        follower.Bind(EnemyDefinitionId.Holtz, follower.Definition);
+        follower.Bind(EnemyDefinitionId.Holtz, follower.KeptDefinition);
         enemies.HoltzBehavior.InitializeHoltzFollower(follower);
         // The placement builds the part's own entity (#2164): the parent a Rio, the follower its flames.
         AssertTrue(parent.EntityState<HoltzEntity, HoltzEnemyState>() is not null &&

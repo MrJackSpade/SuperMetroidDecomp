@@ -48,10 +48,9 @@ internal static class FxNativeWords
             _ => 0x824b,
         };
 
-    /// <summary>The bank-$87 object header naming each <see cref="BlockAnimation"/>; zero names no object.</summary>
+    /// <summary>The bank-$87 object header naming each <see cref="BlockAnimation"/>.</summary>
     internal static readonly NativeWordIdentities<BlockAnimation> AnimatedTileObjects = new(new Dictionary<BlockAnimation, ushort>
     {
-        [BlockAnimation.None] = 0x0000,
         [BlockAnimation.TourianStatuePhantoon] = 0x854c,
         [BlockAnimation.TourianStatueRidley] = 0x8552,
         [BlockAnimation.TourianStatueKraid] = 0x8558,

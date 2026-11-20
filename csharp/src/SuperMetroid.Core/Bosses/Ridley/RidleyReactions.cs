@@ -12,5 +12,5 @@ internal static class RidleyReactions
     internal static EnemyReaction FrameHitboxTouch { get; } = EnemyReaction.OfSpecies("Ridley.FrameHitboxTouch");
 
     /// <summary>Ridley's shot reaction.</summary>
-    internal static EnemyReaction Shot { get; } = EnemyReaction.OfSpecies("Ridley.Shot");
+    internal static EnemyReaction Shot => SpeciesOwnReactions.RidleyShot;
 }

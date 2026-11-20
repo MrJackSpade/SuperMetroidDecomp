@@ -30,7 +30,7 @@ internal static class EmptyExtendedFrameShotsVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MiniKraid);
-        RoomEnemyPlace pirate = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.PirateGreenWalking);
+        RoomEnemyPlace pirate = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.PirateGreenWalking));
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.LockOutPlayer();
 
@@ -42,12 +42,12 @@ internal static class EmptyExtendedFrameShotsVerification
         runtime.Enemies.PrepareEnemyProcessingList(pirate.Position.Whole);
 
         SamusProjectile shot = runtime.Projectiles.Shots[0];
-        shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true); shot.Damage = 60; shot.Direction = SamusProjectileDirection.Left;
+        shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true), 60); shot.Direction = SamusProjectileDirection.Left;
         shot.Position = shot.Position.WithWhole(new(0x01f2, 0x00a3));
         shot.Radius = new(8, 8);
         shot.Animation = ProjectileFixturePlaybacks.Active();
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHit(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus,
-            pirate, Position16<RoomPixels>.Zero);
+            pirate.HeldOccupant(), Position16<RoomPixels>.Zero);
 
         AssertTrue(!shot.IsSpent, "the empty extended frame takes no projectile hit: the beam flies on");
         AssertEqual(health, pirate.Health, "the beam over the empty frame deals no damage");

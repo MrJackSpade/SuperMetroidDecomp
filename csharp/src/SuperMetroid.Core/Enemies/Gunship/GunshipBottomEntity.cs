@@ -5,13 +5,14 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// ship, with the shared reactions.
 /// </summary>
 /// <param name="species">The Gunship species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the bottom hull occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class GunshipBottomEntity(GunshipBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyTypedAnimation
+internal sealed class GunshipBottomEntity(GunshipBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemySurroundingsInitialization, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) => species.InitializeGunshipBottom(Place, surroundings.Samus);
+    public void Initialize(EnemyPopulationSurroundings surroundings) => species.InitializeGunshipBottom(Occupant, Place, surroundings.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GunshipBehavior.AdvanceGunshipAnimation(Place);

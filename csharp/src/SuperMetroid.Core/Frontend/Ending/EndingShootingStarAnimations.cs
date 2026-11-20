@@ -20,14 +20,14 @@ internal static class EndingShootingStarAnimations
     /// <summary>Writes each pace's flight.</summary>
     private static AnimationSegments<EndingShootingStarPace, EndingShootingStarLook, NoAnimationCue> Create()
     {
-        EndingShootingStarPace[] paces = [.. EndingShootingStarDefinitions.Stars.ToArray().Select(star => new EndingShootingStarPace(star.Period)).Distinct()];
+        EndingShootingStarPace[] paces = [.. EndingShootingStarDefinitions.Stars.ToArray().Select(star => star.Pace).Distinct()];
         return new(paces.ToDictionary(pace => pace, Pictures), paces);
     }
 
     /// <summary>The pictures of a flight at <paramref name="pace"/>.</summary>
-    private static AnimationBeat<EndingShootingStarLook, NoAnimationCue>[] Pictures(EndingShootingStarPace pace) => pace.Period is { } period
-        ? [Show(L.LeadIn, EndingShootingStarDefinitions.LeadInDuration), Show(L.FaintSpeck, period), Show(L.BrightSpeck, period),
-            Show(L.DimStar, period), Hold(L.FullStar)]
+    private static AnimationBeat<EndingShootingStarLook, NoAnimationCue>[] Pictures(EndingShootingStarPace pace) => pace.Animates
+        ? [Show(L.LeadIn, EndingShootingStarDefinitions.LeadInDuration), Show(L.FaintSpeck, pace.Period), Show(L.BrightSpeck, pace.Period),
+            Show(L.DimStar, pace.Period), Hold(L.FullStar)]
         : [Show(L.LeadIn, EndingShootingStarDefinitions.LeadInDuration), Hold(L.FaintSpeck)];
 
     /// <summary>Shows <paramref name="look"/> for <paramref name="duration"/> updates.</summary>

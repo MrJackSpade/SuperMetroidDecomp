@@ -19,8 +19,9 @@ public sealed record VerticalBlockMove
     public DoorBlockMeeting DoorBlocks { get; init; } = DoorBlockMeeting.Contacts;
 
     /// <summary>
-    /// The direction the touched blocks react to, or null to take the move's own; the nondirectional probe suppresses
-    /// directional station activation.
+    /// Whether the move only observes the blocks, as the pose and wall probes do: it activates no station and records no
+    /// inherited movement, its non-square slopes react as a floor, and its quicksand and contact crumbles react to no
+    /// direction of travel.
     /// </summary>
-    public SamusCollisionDirection? BlockReactionDirection { get; init; } = null;
+    public bool Observes { get; init; } = false;
 }

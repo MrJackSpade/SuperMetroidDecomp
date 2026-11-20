@@ -73,9 +73,10 @@ internal sealed class GateObjects
         RoomLevelData level,
         Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
-        SamusProjectileType projectileType)
+        BlockStrike strike)
     {
         Ensure.NotNull(level);
+        Ensure.NotNull(strike);
         if (!behavior.TryGetDownwardGateTrigger(out DownwardGateTrigger trigger))
             return;
         DownwardGateTriggerDefinition definition = DownwardGateTriggerDefinitions.Triggers[trigger];
@@ -87,7 +88,7 @@ internal sealed class GateObjects
             return;
         temporary.Block = position;
 
-        if (!definition.SetOffBy.Accepts(projectileType.Family))
+        if (!definition.SetOffBy.Accepts(strike.Family))
         {
             // The trigger's setup queues the rejection at once, inside the shot's collision (#1620).
             if (definition.RejectionSound is { } rejection)

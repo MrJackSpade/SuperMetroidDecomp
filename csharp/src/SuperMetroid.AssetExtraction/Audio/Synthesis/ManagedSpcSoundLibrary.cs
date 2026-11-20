@@ -9,8 +9,14 @@ internal sealed class ManagedSpcSoundLibrary
     internal int ChannelIndexTimesTwo;
     /// <summary>SPC work-RAM address of the current channel's allocated hardware-voice bit.</summary>
     internal int ChannelVoiceBitsetPointer;
-    /// <summary>Sound effect currently playing in this library.</summary>
+    /// <summary>Sound effect currently playing in this library, by its command; the driver's silent command while none plays.</summary>
     internal int CurrentSound;
+
+    /// <summary>The driver's command that asks for no sound, which the library also holds while it plays none.</summary>
+    internal const int SilentCommand = 0;
+
+    /// <summary>Whether a sound effect plays in this library.</summary>
+    internal bool IsPlaying => CurrentSound != SilentCommand;
     /// <summary>SPC work-RAM address of the current channel's inverse voice mask.</summary>
     internal int ChannelVoiceMaskPointer;
     /// <summary>SPC work-RAM address of the current channel's hardware voice index.</summary>

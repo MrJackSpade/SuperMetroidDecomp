@@ -64,7 +64,7 @@ internal sealed class EnemyPopulationLoader
             // its first animation tick replaces it, and one that collides by its frames' hitboxes collides at the point
             // at its origin meanwhile. An enemy without an animation shows no frame.
             place.Frame = place.Processing.HasAny(EnemyProcessing.Animates)
-                ? EnemyFrameId.Empty
+                ? EnemyFrameId.PointAtOrigin
                 : null;
 
         }

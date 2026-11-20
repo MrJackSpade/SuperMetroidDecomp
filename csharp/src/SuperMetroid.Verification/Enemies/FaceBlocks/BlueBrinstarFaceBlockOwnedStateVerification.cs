@@ -18,8 +18,8 @@ internal static class BlueBrinstarFaceBlockOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.FaceBlock, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.FaceBlock, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
         place.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, 0);
         place.Position = place.Position.WithWhole(new(256, 256));
@@ -31,8 +31,8 @@ internal static class BlueBrinstarFaceBlockOwnedStateVerification
             CollectedItems = SamusEquipmentFlags.MorphBall,
             Position = FixedPosition<RoomPixels>.FromWhole(new(224, 256)),
         };
-        enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place, state, samus);
-        AssertEqual(place.SpawnSettings<FaceBlockSpawnSettings>().Facing == HorizontalDirection.Left, state.Activated, "the face block wakes for Samus 32 pixels left only when it faces left");
+        enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place.HeldOccupant(), place, state, samus);
+        AssertEqual(place.HeldOccupant().SpawnSettings<FaceBlockSpawnSettings>().Facing == HorizontalDirection.Left, state.Activated, "the face block wakes for Samus 32 pixels left only when it faces left");
         Console.WriteLine("Face block owned state: the block wakes for the side it faces.");
     }
 

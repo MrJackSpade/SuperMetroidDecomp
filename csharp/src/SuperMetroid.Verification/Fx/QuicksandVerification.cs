@@ -126,7 +126,7 @@ internal static class QuicksandVerification
             };
             SignedSixteenSixteen displacement = SignedSixteenSixteen.FromParts(2, 32768);
             SpecialAirCollisionOutcome outcome = SamusInsideBlockReactions.ReactCollision(
-                new(body, body.CollisionBodyAttack(null)),
+                new(body, SamusBodyAttack.None),
                 new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() },
                 new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80 + index)),
                 axis: Axis.Vertical,
@@ -251,7 +251,7 @@ internal static class QuicksandVerification
             };
             SignedSixteenSixteen displacement = SixteenSixteenWords.ToDisplacement(probe);
             SamusInsideBlockReactions.ReactCollision(
-                new(body, body.CollisionBodyAttack(null)),
+                new(body, SamusBodyAttack.None),
                 new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() },
                 new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80)),
                 axis: Axis.Vertical,

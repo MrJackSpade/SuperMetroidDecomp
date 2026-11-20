@@ -253,7 +253,9 @@ internal static class NativeSnapshotImport
         PrivateState.Set(samus, "EnergyFraction", SuperMetroid.Core.Compatibility.PeriodicDamageEnergyFraction.Holding(W(NativeSnapshotMemory.SubunitHealth)));
         samus.SelectedHudItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.SelectedHudItem));
         PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.PreviousSelectedHudItem), samus.SelectedHudItem);
-        samus.AutoCancelledItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.AutoCancelHudItemIndex));
+        // The cartridge records no auto-cancel as the beams' index.
+        samus.AutoCancelledItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.AutoCancelHudItemIndex)) is var autoCancelled &&
+            autoCancelled != HudItem.Beam ? autoCancelled : null;
         samus.ReserveTankMode = SaveSlotNumbering.SavedReserveMode(W(NativeSnapshotMemory.ReserveMode));
         samus.MaxReserveEnergy = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxReserve));
         samus.ReserveEnergy = SamusCountWords.Decode(W(NativeSnapshotMemory.Reserve));
@@ -280,7 +282,7 @@ internal static class NativeSnapshotImport
         samus.HorizontalSpeed.BodyAttack = SamusMovementNativeWords.ContactDamage.Decode(
             W(NativeSnapshotMemory.ContactDamageIndex), "Samus body attack");
         samus.MorphBallBounceState = SamusSnapshotWords.DecodeBallBounce(W(NativeSnapshotMemory.MorphBallBounceState));
-        samus.BombJumpRequest = SuperMetroid.TestSupport.VerificationImporters.SamusBombJumpRequestImport.FromNative(W(NativeSnapshotMemory.BombJumpDirection));
+        samus.BombJump = SuperMetroid.TestSupport.VerificationImporters.SamusBombJumpImport.FromNative(W(NativeSnapshotMemory.BombJumpDirection));
 
         // The checkpoint's live native trail places become trails, which show the pictures of the beams equipped there, as
         // its projectile graphics hold them (#1586); a place whose sparkles have both ended holds no trail.
@@ -329,8 +331,8 @@ internal static class NativeSnapshotImport
             initialObjects[index].Delete();
         }
         // Every place takes the snapshot's projectile, or, for a free one, what it holds for the room's next spawn there.
-        foreach (var projectile in runtime.Enemies.Projectiles.EveryPlace())
-            ImportNativeEnemyProjectile(runtime.Enemies, projectile, runtime.Enemies.GraphicsSet, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
+        for (int place = 0; place < SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity; place++)
+            ImportNativeEnemyProjectile(runtime.Enemies, place, runtime.Enemies.GraphicsSet, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
         // This is a one-time initial snapshot import. No native state is fed back during replay.
         runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
         runtime.Enemies.FrameContext.SeedEnemyPassCount(W(NativeSnapshotMemory.MainEnemyRoutineCount));
@@ -360,12 +362,20 @@ internal static class NativeSnapshotImport
             var enemy = runtime.Enemies.Places.InUpdateOrder[index];
             int address = NativeSnapshotMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(index);
             if (W(address) != 0)
-                VerificationAssertions.AssertTrue(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(enemy.DefinitionId) == W(address), "initial enemy species agrees with room population");
+                VerificationAssertions.AssertTrue(enemy.Occupant is { } loaded && SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(loaded.DefinitionId) == W(address), "initial enemy species agrees with room population");
             // A recorded occupant is the one the room load placed, which keeps its species state; a slot the recording
             // holds free loses its loaded occupant with that occupant's state (#1543).
-            EnemyDefinitionId recordedOccupant = SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionSlotWords.FromSlotWord(W(address));
-            if (recordedOccupant != enemy.DefinitionId)
-                enemy.Bind(recordedOccupant, enemy.Definition);
+            if (W(address) == 0)
+            {
+                if (enemy.Occupant is not null)
+                    enemy.Vacate();
+            }
+            else
+            {
+                EnemyDefinitionId recordedOccupant = SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIdsConstants.FromHeaderPointer(W(address));
+                if (!enemy.Holds(recordedOccupant))
+                    enemy.Bind(recordedOccupant, enemy.KeptDefinition);
+            }
             enemy.Position = FixedPosition<RoomPixels>.FromStoredParts(W(address + 2), W(address + 4), W(address + 6), W(address + 8));
             enemy.Radius = new(W(address + 10), W(address + 12));
             // The species bits of the property words are the entry's spawn settings, which the population already holds.
@@ -413,7 +423,7 @@ internal static class NativeSnapshotImport
                 pipe.SpawnPosition = new(words.B, words.C);
                 pipe.RespawnDelay = UpdateCountdownAccess.Recorded(unchecked((short)words.D));
                 SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugKind kind =
-                    runtime.Enemies.Places.InUpdateOrder[index].SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind;
+                    runtime.Enemies.Places.InUpdateOrder[index].HeldOccupant().SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind;
                 pipe.EmergenceTopY = W(NativeSnapshotMemory.EnemyExtra + index * NativeSnapshotMemory.EnemyExtraBytes);
                 // The game keeps the requested animation beside the installed one and installs a request in the same AI
                 // update, so a record whose two differ fails (#1810). Core keeps only the playing animation (#2145): the
@@ -517,20 +527,26 @@ internal static class NativeSnapshotImport
     /// hold; the definition-derived radii and properties must already agree with them. A free slot's place holds a gone
     /// projectile at the slot's position and velocity words, which the next spawn there starts from.
     /// </summary>
-    private static void ImportNativeEnemyProjectile(SuperMetroid.Core.World.RoomEnemySystem enemies, EnemyProjectile projectile, SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition graphicsSet, IImportCartridgeSource cartridge,
+    private static void ImportNativeEnemyProjectile(SuperMetroid.Core.World.RoomEnemySystem enemies, int place, SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition graphicsSet, IImportCartridgeSource cartridge,
         Func<int, ushort> W)
     {
-        int index = projectile.Place * 2;
+        int index = place * 2;
         ushort id = W(NativeSnapshotMemory.EnemyProjectileId + index);
+        var leftPosition = new Position16<RoomPixels>(W(NativeSnapshotMemory.EnemyProjectileX + index), W(NativeSnapshotMemory.EnemyProjectileY + index));
+        var leftVelocity = new PixelVelocity<RoomPixels>(
+            new SignedEightEight(W(NativeSnapshotMemory.EnemyProjectileXVelocity + index)),
+            new SignedEightEight(W(NativeSnapshotMemory.EnemyProjectileYVelocity + index)));
         if (id == 0)
         {
-            // Room loading spawns the room's projectiles afresh; a slot the snapshot holds
-            // empty (for example Mother Brain's destroyed turrets) must be empty here too.
-            projectile.Delete();
+            // Room loading spawns the room's projectiles afresh; a slot the snapshot holds empty (for example Mother
+            // Brain's destroyed turrets) holds no projectile here either, only what its last one left for the next spawn.
+            enemies.Projectiles.ImportLeftover(place, new SuperMetroid.Core.Compatibility.EnemyProjectileHandOver(leftPosition, leftVelocity));
         }
         else
         {
             RoomEnemyProjectileKind kind = EnemyProjectileNativeWords.Kinds.Decode(id, "enemy projectile definition");
+            // The room's load spawned the place's projectile, which carries its spawner's state; a place it left free is occupied afresh.
+            EnemyProjectile projectile = enemies.Projectiles.LatestInPlace(place) ?? enemies.Projectiles.Occupy(place, kind);
             VerificationAssertions.AssertTrue(NativeSlotOnlyEnemyProjectileKinds.Contains(kind),
                 $"initial native enemy projectile {projectile.Place} kind ${id:X4} has a verified slot-only import");
             // The snapshot's graphics word packs the projectile's tile base and palette row as an attribute word does: the
@@ -575,11 +591,8 @@ internal static class NativeSnapshotImport
             if (projectile.BlocksSamusProjectiles) properties |= NativeSnapshotMemory.EnemyProjectileShotCollision;
             VerificationAssertions.AssertEqual(W(NativeSnapshotMemory.EnemyProjectileProperties + index), properties,
                 $"initial enemy projectile {projectile.Place} properties");
+            projectile.Position = projectile.Position.WithWhole(leftPosition);
+            projectile.Velocity = leftVelocity;
         }
-        projectile.Position = projectile.Position.WithWhole(new(
-            W(NativeSnapshotMemory.EnemyProjectileX + index), W(NativeSnapshotMemory.EnemyProjectileY + index)));
-        projectile.Velocity = new(
-            new SignedEightEight(W(NativeSnapshotMemory.EnemyProjectileXVelocity + index)),
-            new SignedEightEight(W(NativeSnapshotMemory.EnemyProjectileYVelocity + index)));
     }
 }

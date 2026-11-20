@@ -3,8 +3,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>
 /// The kind of a room object, what it is: the thing a room population places, a door, item or block reaction leaves, or a scripted
 /// scene spawns. The values are arbitrary and nothing reads them (#1414): a family recognises its objects by member.
-/// <see cref="None"/> marks a place in
-/// the room's update order that holds no identified object.
+/// A place in the room's update order that holds no object holds no kind (#2558).
 /// </summary>
 /// <remarks>
 /// The exposed, Chozo-orb and concealed shot-block items name one object for each <see cref="InWorldCollectibleKind"/>
@@ -20,9 +19,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </remarks>
 public enum RoomObjectKind
 {
-    /// <summary>No identified object: a free place, or a block reaction's short-lived object.</summary>
-    None,
-
     /// <summary>A block extending the scroll trigger to its left along a horizontal chain.</summary>
     RightwardsScrollExtension,
 

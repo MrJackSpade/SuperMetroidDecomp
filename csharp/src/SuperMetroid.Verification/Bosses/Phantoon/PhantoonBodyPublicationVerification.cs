@@ -40,7 +40,7 @@ internal static class PhantoonBodyPublicationVerification
         // The body frame draws on his body layer from his installed body sheet (#1466).
         EnemyFrameId frame = PhantoonBg2FrameDefinitions.Frames[1].Frame;
         SuperMetroid.Core.PrivateState.Set(body.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), true);
-        runtime.Enemies.AnimationPlayer.DrawBossBodyFrame(body, frame);
+        runtime.Enemies.AnimationPlayer.DrawBossBodyFrame(body, body.HeldOccupant(), frame);
         // The retail runtime draws Phantoon's body from the installation's body sheet, composed from these frames.
         BossSourceArtwork bosses = InstalledFixtures.BossArtwork;
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];
@@ -78,7 +78,7 @@ internal static class PhantoonBodyPublicationVerification
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws the body image on BG2");
 
         // Swooping fade-out: the wave channel is deleted, the body stays.
-        state.Wave.Length = null;
+        state.Wave.End();
         state.BodyWave.Step(state);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         PhantoonDisplaySnapshot fadingOut = runtime.Display.LatchedOrdinaryRoom.Phantoon

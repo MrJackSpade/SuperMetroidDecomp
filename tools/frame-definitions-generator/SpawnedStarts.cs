@@ -7,8 +7,8 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// <summary>The object one start (a family's construction or a typed-start kind's name) starts, as its enclosing member treats it.</summary>
 /// <param name="Receiver">The local or parameter holding the object, when the start is handed to its <c>StartAnimation</c>.</param>
 /// <param name="Spawn">
-/// When the member spawns the object (hands it, or the started kind, to a spawn call), every sheet that call's graphics can
-/// make it draw from; null when the member does not spawn it.
+/// When the member spawns the object (hands it, or the started kind, to a spawn call, or holds what a spawn call returns),
+/// every sheet that call's graphics can make it draw from; null when the member does not spawn it.
 /// </param>
 /// <param name="Kind">The kind the spawn call is handed, when it spawns the object and names one.</param>
 /// <param name="KindSemantic">The semantic model <paramref name="Kind"/> binds in.</param>
@@ -45,12 +45,25 @@ internal sealed class SpawnedStarts(CoreModel model)
         bool switched = member.DescendantNodes().OfType<AssignmentExpressionSyntax>().Any(assignment => SwitchesGraphics(semantic, assignment, started));
         foreach (InvocationExpressionSyntax spawn in member.DescendantNodes().OfType<InvocationExpressionSyntax>())
         {
-            if (spawn.ArgumentList.Arguments.Any(handed => SymbolEqualityComparer.Default.Equals(semantic.GetSymbolInfo(handed.Expression).Symbol, started))
-                && SpawnGraphics(semantic, spawn) is { } graphics)
+            // The object is spawned by a call it is handed to, or by the call whose result it holds: an allocation that is
+            // handed the spawn's kind and graphics returns the object it spawns (#2558).
+            bool spawnsStarted = spawn.ArgumentList.Arguments.Any(handed => SymbolEqualityComparer.Default.Equals(semantic.GetSymbolInfo(handed.Expression).Symbol, started))
+                || Holds(semantic, spawn, started);
+            if (spawnsStarted && SpawnGraphics(semantic, spawn) is { } graphics)
                 return new StartedObject(started, graphics, KindArgument(semantic, spawn), semantic, switched);
         }
         return new StartedObject(started, null, null, null, switched);
     }
+
+    /// <summary>Whether <paramref name="target"/> is declared with, or assigned, the result of <paramref name="invocation"/>.</summary>
+    private static bool Holds(SemanticModel semantic, InvocationExpressionSyntax invocation, ISymbol target) => invocation.Parent switch
+    {
+        EqualsValueClauseSyntax { Parent: VariableDeclaratorSyntax declarator } =>
+            SymbolEqualityComparer.Default.Equals(semantic.GetDeclaredSymbol(declarator), target),
+        AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.SimpleAssignmentExpression } assignment when assignment.Right == invocation =>
+            SymbolEqualityComparer.Default.Equals(semantic.GetSymbolInfo(assignment.Left).Symbol, target),
+        _ => false,
+    };
 
     /// <summary>The argument <paramref name="expression"/> is, through a member access naming it; null when it is none.</summary>
     private static ArgumentSyntax? ArgumentOf(ExpressionSyntax expression)

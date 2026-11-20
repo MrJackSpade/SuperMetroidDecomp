@@ -22,10 +22,11 @@ internal static class FallingSparkLaunchDefinitionsVerification
         ushort random = 0;
         int advances = 0;
         enemies.VerificationServices().NextRandom = () => { advances++; return random; };
-        Action<RoomEnemyPlace> spawn = enemies.FallingSparksBehavior.SpawnFallingSpark;
+        Action<RoomEnemyPlace> spawn = spark => enemies.FallingSparksBehavior.SpawnFallingSpark(spark.BoundFor(EnemyDefinitionId.Spark), spark);
         Action<EnemyProjectile> move = enemies.FallingSparksBehavior.AddFallingSparkHorizontalVelocity;
         var source = enemies.Places.InUpdateOrder[0];
-        var projectile = enemies.Projectiles.ProjectileInPlace(17);
+        // The place's projectile before each spawn is a stale spark the check leaves there.
+        var projectile = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.FallingSpark);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             random = (ushort)raw;
@@ -41,7 +42,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             advances = 0;
             spawn(source);
             // A spawn creates a new projectile in the place, which the place now holds (#1590).
-            projectile = enemies.Projectiles.ProjectileInPlace(17);
+            projectile = enemies.Projectiles.SpawnedInPlace(17);
             AssertEqual(1, advances, "Successful spark spawn advances RNG once");
             AssertEqual(RoomEnemyProjectileKind.FallingSpark, projectile.Kind, "Reverse allocator owns last free slot");
             AssertEqual(source.Position.X.Whole, projectile.Position.X.Whole, "Spark copies source X");
@@ -58,7 +59,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), projectile.Position.X.Whole, "Native signed launch reaches actual wrapped movement");
             AssertEqual((ushort)expected, projectile.Position.X.Fraction, "Native fractional launch reaches actual movement");
         }
-        foreach (var occupied in enemies.Projectiles.EveryPlace()) global::SuperMetroid.Core.PrivateState.Set(occupied, "Kind", RoomEnemyProjectileKind.FallingSpark);
+        foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity)) enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.FallingSpark);
         advances = 0;
         ushort previousX = projectile.Position.X.Whole;
         spawn(source);

@@ -305,9 +305,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// </summary>
     private static void StartBotwoonWalk(BotwoonEnemyState state, BotwoonPathWalk walk)
     {
-        state.Path = walk.Path;
+        state.PathPosition = BotwoonPathPosition.StartOf(walk);
         state.PathTraversal = walk.Traversal;
-        state.PathStep = walk.FirstStep;
         state.TargetHole = walk.Destination;
         state.Movement = BotwoonMovement.FollowAuthoredPath;
     }
@@ -318,17 +317,17 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// </summary>
     private static void FollowBotwoonPath(RoomEnemyPlace head, BotwoonEnemyState state)
     {
-        BotwoonPathDefinition path = state.Path ?? throw new InvalidOperationException("Botwoon follows a path before choosing one.");
+        BotwoonPathPosition position = state.PathPosition ?? throw new InvalidOperationException("Botwoon follows a path before choosing one.");
         Offset16<RoomPixels> total = Offset16<RoomPixels>.Zero;
         for (int taken = 0; taken < state.SpeedStage.MovementSpeed; taken++)
         {
-            if (!BotwoonNavigation.HasStep(path, state.PathStep))
+            if (!position.TryTake(state.PathTraversal, out Offset16<RoomPixels> movement, out position))
             {
                 state.Movement = BotwoonMovement.Finished;
                 return;
             }
-            total += BotwoonNavigation.Step(path, state.PathStep);
-            state.PathStep += AlongTraversal(state.PathTraversal, 1);
+            total += movement;
+            state.PathPosition = position;
         }
 
         head.Position += AlongTraversal(state.PathTraversal, total);

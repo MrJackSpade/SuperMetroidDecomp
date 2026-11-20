@@ -106,8 +106,8 @@ internal static class BotwoonNavigationDefinitionsVerification
             ushort pointer = ReadRomWord(rom, 0xb3e150 + offset);
             short direction = (short)ReadRomWord(rom, 0xb3e152 + offset);
             BotwoonPathPosition start = BotwoonPathCodec.Locate(cartridge, direction < 0 ? pointer - BackwardRewindBytes : pointer);
-            AssertEqual(start.Path, TablePosition(state.Path ?? throw new InvalidOperationException("The walk sets a path.")), "Botwoon production path");
-            AssertEqual(start.Step, state.PathStep, "Botwoon production first step and backward rewind");
+            AssertEqual(start.Path, TablePosition(state.PathPosition?.Path ?? throw new InvalidOperationException("The walk sets a path.")), "Botwoon production path");
+            AssertEqual(start.Step, state.PathPosition?.Step, "Botwoon production first step and backward rewind");
             AssertEqual(direction < 0 ? BotwoonPathTraversal.Backward : BotwoonPathTraversal.Forward, state.PathTraversal,
                 "Botwoon production path direction");
             AssertEqual(ReadRomWord(rom, 0xb3e154 + offset), RecordBytes * Array.FindIndex(BotwoonNavigationDefinitions.Holes, hole => hole.Hole == state.TargetHole),
@@ -254,8 +254,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                     var state = new BotwoonEnemyState(body: [])
                     {
                         Movement = BotwoonMovement.FollowAuthoredPath,
-                        Path = definition,
-                        PathStep = step,
+                        PathPosition = BotwoonPathPosition.At(definition, step),
                         PathTraversal = traversal,
                     };
                     AssertEqual(2, state.SpeedStage.MovementSpeed, "Botwoon walks two path steps an update at full speed");
@@ -268,7 +267,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                     AssertEqual(terminates || nextTerminates, state.Movement == BotwoonMovement.Finished, $"{context} completion");
                     if (terminates || nextTerminates)
                     {
-                        AssertEqual(terminates ? step : step + sign, state.PathStep, $"{context} terminating step");
+                        AssertEqual(terminates ? step : step + sign, state.PathPosition?.Step, $"{context} terminating step");
                         AssertEqual((ushort)0x8000, movementHead.Position.X.Whole, $"{context} terminating X");
                         AssertEqual((ushort)0x8000, movementHead.Position.Y.Whole, $"{context} terminating Y");
                         continue;
@@ -277,7 +276,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                     Offset16<RoomPixels> next = BotwoonPathCodec.Sample(cartridge, nextAddress);
                     AssertEqual(unchecked((ushort)(0x8000 + sign * (expected.X + next.X))), movementHead.Position.X.Whole, $"{context} X");
                     AssertEqual(unchecked((ushort)(0x8000 + sign * (expected.Y + next.Y))), movementHead.Position.Y.Whole, $"{context} Y");
-                    AssertEqual(step + 2 * sign, state.PathStep, $"{context} next step");
+                    AssertEqual(step + 2 * sign, state.PathPosition?.Step, $"{context} next step");
                 }
                 movementStepCount++;
             }

@@ -12,8 +12,8 @@ internal static class DraygonCombatPrivateAccess
     extension(global::SuperMetroid.Core.Bosses.Draygon.DraygonCombat self)
     {
         /// <summary>The private method <c>ResolveDraygonReaction</c>, invoked by name.</summary>
-        internal void ResolveDraygonReaction(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Samus.SamusState samus) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Draygon.DraygonCombat>(self, "ResolveDraygonReaction", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { body, samus });
+        internal void ResolveDraygonReaction(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Bosses.Draygon.DraygonEnemyState state, global::SuperMetroid.Core.Samus.SamusState samus) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Draygon.DraygonCombat>(self, "ResolveDraygonReaction", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Draygon.DraygonEnemyState), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { body, state, samus });
     }
 
     /// <summary>The private static members checks name.</summary>

@@ -126,7 +126,7 @@ internal sealed class NorfairRidleyCombat
 
         state.Phase = NorfairRidleyPhase.SwoopAimDown;
         state.SwoopPhaseTimer.LastFor(NorfairRidleyMotionDefinitions.SwoopDiveUpdates);
-        state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
+        state.Flight.SwoopHeading = RotationAngle.Zero;
     }
 
     /// <summary>Advances the swoop velocity arc and changes phase, for <paramref name="nextUpdates"/>, as its countdown runs out.</summary>

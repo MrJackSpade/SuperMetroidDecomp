@@ -112,7 +112,7 @@ internal static class RoomVisualLayoutsVerification
         int spikeBlocks = 0;
         foreach (RoomDefinition header in RetailRooms.All)
         {
-            SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(header, RoomStateSelectionContexts.NoProgress);
+            SelectedRoom room = SelectedRoom.ForProgress(header, RoomStateSelectionContexts.NoProgress);
             ushort headerPointer = header.Pointer;
             foreach (ushort statePointer in RoomStateSelection.GetStatePointers(header))
             {

@@ -45,7 +45,7 @@ internal static class EndingPictureSheetComposer
                 EndingPictureNames.JapaneseSubtitle, .. Glyphs().Select(glyph => glyph.Name)],
             [EndingScenery.WaitingBackdrop, EndingScenery.LogoPicture, EndingScenery.PostCreditsText]),
         [SpriteSheetId.EndingWavySamusPicture] = new(ComposeWavySamus, () => [EndingPictureNames.WavySamus], [EndingScenery.WavySamus]),
-        [SpriteSheetId.EndingExplosionPictures] = new(ComposeExplosion, () => EndingObjectArtworkFormat.ExplosionPictures.Select(EndingPictureNames.ExplosionMap),
+        [SpriteSheetId.EndingExplosionPictures] = new(ComposeExplosion, () => EndingObjectArtworkFormat.ExplosionPictures.Select(EndingPictureNames.ExplosionPicture),
             [EndingScenery.ExplosionPictures]),
     };
 
@@ -243,7 +243,7 @@ internal static class EndingPictureSheetComposer
         {
             PaintMap(canvas, index * ScreenSize.Y, objects.Fragment(maps[index]).Tiles.Span, characters, colours);
             // Each picture starts at the map's row the screen's top shows, so Core places it whole at the top-left (#1626).
-            frames.Add(EndingPictureNames.ExplosionMap(maps[index]), WrittenPictureSheetComposer.Frame(canvas,
+            frames.Add(EndingPictureNames.ExplosionPicture(maps[index]), WrittenPictureSheetComposer.Frame(canvas,
                 new Position16<ImagePixels>(0, index * ScreenSize.Y + ExplosionRowsAboveScreen),
                 new Extent16<ImagePixels>(ScreenSize.X, ScreenSize.Y - ExplosionRowsAboveScreen), SpriteImageColours.Background));
         }

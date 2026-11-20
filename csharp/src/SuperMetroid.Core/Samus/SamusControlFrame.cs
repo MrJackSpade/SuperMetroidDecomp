@@ -49,7 +49,7 @@ internal sealed class SamusControlFrame
     internal bool BombJumpLocksPoseInput { get; private set; }
 
     /// <summary>Whether her input chose no new pose, so her pose's no-input fallback applies.</summary>
-    internal bool UsePoseDefinitionFallback { get; private set; }
+    internal bool InputChoseNoPose { get; private set; }
 
     /// <summary>
     /// The input mode installed at the frame's start and the movement mode the frame runs, read from the installed modes when
@@ -174,7 +174,7 @@ internal sealed class SamusControlFrame
     /// kept horizontal momentum.</summary>
     internal void SamplePoseLookup(SamusPoseTransitionLookup lookup, SamusState samus)
     {
-        UsePoseDefinitionFallback = lookup.UsesPoseDefinitionFallback;
+        InputChoseNoPose = lookup.UsesPoseDefinitionFallback;
         DeceleratingFallbackHasMomentum = samus.HorizontalSpeed.HasBaseSpeed;
     }
 

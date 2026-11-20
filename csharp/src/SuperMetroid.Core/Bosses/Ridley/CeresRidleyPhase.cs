@@ -142,7 +142,7 @@ public sealed class CeresRidleyPhase
     {
     state.Phase = CeresRidleyPhase.SwoopMoveToPosition;
     state.PhaseTimer.LastFor(CeresRidleyFlightDefinitions.SwoopDiveUpdates);
-    state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
+    state.Flight.SwoopHeading = RotationAngle.Zero;
     state.Tail.IdleWhipEnabled = false;
     CeresRidleyFlight.TickCeresRidleySwoopMoveToPosition(place, state);
     }

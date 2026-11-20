@@ -104,13 +104,13 @@ internal sealed class RidleyFlight
             speed = SignedEightEight.Max(targetSpeed, speed - RidleyFlightDefinitions.SwoopSpeedStep);
         flight.SwoopSpeed = speed;
 
-        RotationAngle angle = turn.Turn(flight.SwoopAngleAccumulator);
+        RotationAngle angle = turn.Turn(flight.SwoopHeading);
         // The heading stops at the target once it has turned past it, measured the short way round the turn, as it
         // does onto the half-turn recovery target after a rightward swoop.
         bool negativeDifference = angle.TurnFrom(targetAngle) < 0;
         if (turn.Direction == RotationDirection.Clockwise ? negativeDifference : !negativeDifference)
             angle = targetAngle;
-        flight.SwoopAngleAccumulator = angle;
+        flight.SwoopHeading = angle;
         TrigonometryAngle phase = angle.ToTrigonometryAngle();
         flight.Velocity = flight.Velocity.WithX(SpeedAlongAngle.Along(speed, phase));
         flight.Velocity = flight.Velocity.WithY(SpeedAlongAngle.Along(speed, phase.TurnedBy(TrigonometryAngle.QuarterTurn)));

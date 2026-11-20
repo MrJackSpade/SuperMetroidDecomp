@@ -1038,7 +1038,7 @@ population below. The held beam charge survives on the session; Samus's own echo
                 samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall) &&
                 samus.MaxMissiles != 0,
             HasPowerBombs: samus.MaxPowerBombs != 0);
-        return SelectedRoom.LoadUsingCompiledSelection(room, selection);
+        return SelectedRoom.ForProgress(room, selection);
     }
 
     /// <summary>

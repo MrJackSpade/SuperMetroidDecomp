@@ -206,7 +206,7 @@ internal sealed class CeresRidleyFlight
         {
             state.Phase = CeresRidleyPhase.SwoopDescendingAimingDown;
             state.PhaseTimer.LastFor(CeresRidleyFlightDefinitions.SwoopDiveUpdates);
-            state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
+            state.Flight.SwoopHeading = RotationAngle.Zero;
         }
     }
 

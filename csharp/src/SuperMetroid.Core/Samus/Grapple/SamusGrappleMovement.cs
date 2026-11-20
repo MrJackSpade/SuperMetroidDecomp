@@ -779,7 +779,7 @@ public static class SamusGrappleMovement
                     }
                     catch (UnsupportedShotBlockReactionException error)
                     {
-                        throw new UnmodeledBehaviorException(
+                        throw new UnsupportedGameStateException(
                             $"grapple-shootable/type-{block.CollisionType}/behaviour-{block.Behavior.Shootable}",
                             $"Grapple shootable reaction type {block.CollisionType}/behaviour ({block.Behavior}) " +
                             $"at block {block.Position} has no grapple reaction.",

@@ -984,7 +984,7 @@ internal sealed class SamusFramePhases
         // pose is chosen; a match that keeps the pose is not. The pose her input chooses takes effect after movement
         // and animation, so the choice is captured here, and a kept pose still chooses a pose transition whose change
         // runs later.
-        if (_player.GroundedSamusMovementEnabled && frame.UsePoseDefinitionFallback)
+        if (_player.GroundedSamusMovementEnabled && frame.InputChoseNoPose)
         {
             _player.ProspectiveSamusFallbackPose = SamusNoTransitionPose.Resolve(
                 SamusPoseMetadata.ReadMovementType(samus),

@@ -74,7 +74,7 @@ internal sealed class SamusPoseTransitionPhase
 
         // Crouching stops Samus's momentum only when her input chooses no new pose. A matched
         // angle-held pose must retain boost even though movement zeroed X speed.
-        if (!transitionApplied && frame.UsePoseDefinitionFallback &&
+        if (!transitionApplied && frame.InputChoseNoPose &&
             _player.ProspectiveSamusPose is null &&
             frame.MovementTypeAtFrameStart == SamusMovementType.Crouching &&
             SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Crouching)
@@ -82,7 +82,7 @@ internal sealed class SamusPoseTransitionPhase
 
         // The windup still looks its input up as any special movement does: input none of its transitions matches stops
         // Samus's momentum on this update, as crouching does, unless a launch or the timeout comes first.
-        if (!transitionApplied && frame.UsePoseDefinitionFallback &&
+        if (!transitionApplied && frame.InputChoseNoPose &&
             _player.ProspectiveSamusPose is null &&
             frame.PoseAtFrameStart is SamusPoseId.ShinesparkWindupRightPose or SamusPoseId.ShinesparkWindupLeftPose &&
             samus.Shinespark.Phase == ShinesparkPhase.Windup)
@@ -91,7 +91,7 @@ internal sealed class SamusPoseTransitionPhase
         // Falling's no-transition momentum response still runs when its definition
         // retains the current pose. It follows pose initialization, and must
         // not run when a higher-priority collision or interruption won.
-        if (!transitionApplied && frame.UsePoseDefinitionFallback &&
+        if (!transitionApplied && frame.InputChoseNoPose &&
             _player.ProspectiveSamusPose is null &&
             frame.MovementTypeAtFrameStart == SamusMovementType.Falling &&
             SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Falling)

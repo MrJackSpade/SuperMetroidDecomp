@@ -144,10 +144,8 @@ internal sealed class SamusPoseSetupSteps
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.FallFromUnmorph"/> setup.</summary>
     internal void SetUpFallFromUnmorph(SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
     {
-        // Route an animation/collision-selected falling body through
-        // ordinary expansion collision while preserving the fall.
-        // Posture transitions read no input transitions:
-        // the posture-transition movement type's input lookup returns at once.
+        // An animation- or collision-selected falling body unmorphs through ordinary expansion collision and keeps
+        // falling; posture transitions have no input transitions.
         SamusPosturePoseTransitions.ApplyUnmorphToFallingTransition(samus, terrain.Level, targetPose,
             _clock.Counter, terrain.RoomObjects);
     }
@@ -336,9 +334,9 @@ internal sealed class SamusPoseSetupSteps
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.LowerGroundedAim"/> setup.</summary>
     internal static void RespondLowerGroundedAim(SamusState samus, SamusPoseId? fallback)
     {
-        // Only the input fallback path above populates this value; the aimed wall stops name the plain wall stops,
-        // which share their radius, animation and cleanup. Validate and apply it through the same
-        // radius/animation seam as held-input aim changes; never assign the authored value directly to Pose.
+        // The input fallback alone sets the lowered aim; the aimed wall stops name the plain wall stops, which share
+        // their radius, animation and cleanup, and the lowered aim is applied through the grounded aim transition, as
+        // held-input aim changes are.
         if (fallback is { } aimFallback)
             SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, aimFallback);
     }
@@ -346,7 +344,7 @@ internal sealed class SamusPoseSetupSteps
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.AbandonAimedCrouchingTurn"/> setup.</summary>
     internal static void RespondAbandonAimedCrouchingTurn(SamusControlFrame frame, SamusState samus, SamusPoseId source, SamusPoseId? fallback)
     {
-        if (frame.UsePoseDefinitionFallback && samus.Pose == source && fallback is { } crouchingTurnFallback)
+        if (frame.InputChoseNoPose && samus.Pose == source && fallback is { } crouchingTurnFallback)
             SamusGroundedPoseTransitions.TurnAimedCrouchingForNoTransition(samus, crouchingTurnFallback);
     }
 
@@ -356,7 +354,7 @@ internal sealed class SamusPoseSetupSteps
         // A definition without a fallback pose retains the animation, not the momentum
         // response. The stop still cancels reverse acceleration,
         // for ground turns exactly as for aerial ones.
-        if (frame.UsePoseDefinitionFallback && samus.Pose == source)
+        if (frame.InputChoseNoPose && samus.Pose == source)
             SamusGroundedPoseTransitions.TurnForNoTransition(samus, frame.MovementTypeAtFrameStart);
     }
 

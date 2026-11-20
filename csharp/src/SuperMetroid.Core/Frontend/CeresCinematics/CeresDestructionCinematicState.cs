@@ -586,7 +586,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// explosion, seen from the front; with Samus still aboard no gunship leaves and the scene shows nothing (#1513).
     /// The station is gone.
     /// </summary>
-    private void LoadFinalExplosionMaps() =>
+    private void ShowFinalExplosion() =>
         View = WithSamus ? CeresDestructionView.StationCleared : CeresDestructionView.GunshipLeavingExplosion;
 
     /// <summary>Starts the station blast, queues its sound, adds its sprite, and shows the explosion's view in place of
@@ -606,7 +606,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             CeresAnimations.Scenes,
             CeresExplosionDefinitions.StationBlastActor.Animation)));
 
-        LoadFinalExplosionMaps();
+        ShowFinalExplosion();
     }
 
     /// <summary>Creates a small blast at a camera-relative authored offset with its initial animation delay.</summary>

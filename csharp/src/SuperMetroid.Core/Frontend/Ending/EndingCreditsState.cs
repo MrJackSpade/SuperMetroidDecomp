@@ -718,7 +718,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// the import pictures it as the screen shows it (#1626).
     /// </summary>
     private PicturedPlane ExplosionPlane(EndingExplosionPicture picture) =>
-        new([new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(picture)),
+        new([new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionPicture(picture)),
             Offset16<PlanePixels>.Zero, screen.Colours.SceneryShading(EndingScenery.ExplosionPictures))]);
 
     /// <summary>

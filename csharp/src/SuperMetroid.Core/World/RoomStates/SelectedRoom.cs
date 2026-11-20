@@ -37,7 +37,7 @@ public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings S
     /// <summary>Selects <paramref name="room"/>'s state for <paramref name="selection"/> from the room definitions.</summary>
     /// <param name="room">The room.</param>
     /// <param name="selection">The progress and equipment the room's state conditions read (#2290).</param>
-    public static SelectedRoom LoadUsingCompiledSelection(
+    public static SelectedRoom ForProgress(
         RoomDefinition room,
         RoomStateSelectionContext selection) =>
         new(Ensure.NotNull(room), RoomStateSelection.Select(room, selection));

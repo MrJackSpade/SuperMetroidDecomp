@@ -44,7 +44,7 @@ public sealed class RidleyFlightState
     /// <summary>His wing beat: the pose his wings show and the countdown to the next, paced by his flight speed (#2329).</summary>
     public RidleyWingBeat Wings { get; }
     /// <summary>Gets the swoop's heading, which sets the swoop's direction.</summary>
-    public RotationAngle SwoopAngleAccumulator { get; internal set; }
+    public RotationAngle SwoopHeading { get; internal set; }
     /// <summary>
     /// Gets the swoop's speed along its heading, at most five pixels an update, moved an eighth of a pixel each update
     /// toward each phase's target speed before it resolves into axis velocities.

@@ -63,6 +63,26 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     internal AnimationPhase<TSegment> Repeated(TSegment segment, int plays) => new(segment, 0, beats[segment].Length, plays);
 
     /// <summary>
+    /// The animations an owner starts at each of <paramref name="looping"/>, each looping its segment whole (#2557), with
+    /// <paramref name="others"/>' animations for the segments that start any other way.
+    /// </summary>
+    /// <param name="others">The animations of the segments that do not simply loop themselves.</param>
+    /// <param name="looping">The segments whose animation loops the segment whole.</param>
+    /// <exception cref="ArgumentException">A looping segment also has an animation among <paramref name="others"/>.</exception>
+    internal Dictionary<TSegment, Animation<TSegment>> Starts(IReadOnlyDictionary<TSegment, Animation<TSegment>> others, params ReadOnlySpan<TSegment> looping)
+    {
+        var starts = new Dictionary<TSegment, Animation<TSegment>>(Ensure.NotNull(others));
+        foreach (TSegment segment in looping)
+            starts.Add(segment, Animation<TSegment>.Looping([Whole(segment)]));
+        return starts;
+    }
+
+    /// <summary>The animations an owner starts at each of <paramref name="looping"/>, each looping its segment whole (#2557).</summary>
+    /// <param name="looping">The segments, each starting an animation that loops it.</param>
+    internal Dictionary<TSegment, Animation<TSegment>> EachLooping(params ReadOnlySpan<TSegment> looping) =>
+        Starts(new Dictionary<TSegment, Animation<TSegment>>(), looping);
+
+    /// <summary>
     /// The beats one play of <paramref name="animation"/> passes from its start to the end of its last phase, each phase's
     /// run laid out as many times as it plays (#2458); a loop back is not followed.
     /// </summary>

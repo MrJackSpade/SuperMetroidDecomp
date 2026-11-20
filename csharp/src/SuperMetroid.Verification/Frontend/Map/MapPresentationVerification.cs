@@ -643,8 +643,8 @@ internal static class MapPresentationVerification
         var system = new SharedGameState(new SharedRandom());
         system.Progress.ExploreEveryCell();
         var stock = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system,
-            AreaId.Crateria, screenContent: original, sheets: MenuSheetFixtures.For(original));
-        var installed = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system, AreaId.Crateria,
+            ZebesArea.Crateria, screenContent: original, sheets: MenuSheetFixtures.For(original));
+        var installed = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system, ZebesArea.Crateria,
             screenContent: original, sheets: MenuSheetFixtures.For(original));
         AssertTrue(SuperMetroid.TestSupport.FrameRendering.ScenePixels.Same(stock.BackgroundsScene(new(0, 0)), installed.BackgroundsScene(new(0, 0))),
             "file-select installed stock renders identical pixels without map ROM reads");

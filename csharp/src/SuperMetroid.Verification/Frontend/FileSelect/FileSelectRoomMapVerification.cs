@@ -54,7 +54,7 @@ internal static class FileSelectRoomMapVerification
             for (int x = 0; x < 64; x++)
                 if ((x + y) % 7 == 0) system.MarkExploredMapTile(area, new(checked((ushort)x), checked((ushort)y)));
             if (downloaded) system.SetAreaMapAcquired(area);
-            var graphics = new FileSelectRoomMapGraphics(system, area, screenContent: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
+            var graphics = new FileSelectRoomMapGraphics(system, SuperMetroid.Verification.Harness.VerificationZebesAreas.Of(area), screenContent: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
             ShownAreaMap pause = AreaMapProjection.Project(map, system);
             // The room map's image is built once and every frame word read from it.
             var shownRoomMap = MenuScreenFixtures.Vram(graphics, RetailPresentationFixture());
@@ -131,7 +131,7 @@ internal static class FileSelectRoomMapVerification
         var system = new SharedGameState(new SharedRandom());
         system.SetAreaMapAcquired(AreaId.Maridia);
         AssertTrue(slot.Progression.HasAreaMap(AreaId.Maridia), "the saved slot holds the Maridia map");
-        RgbaPixel[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, screenContent: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture())).RenderFrameOnly();
+        RgbaPixel[] roomFrame = new FileSelectRoomMapGraphics(system, ZebesArea.Maridia, screenContent: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture())).RenderFrameOnly();
         var maps = RetailPresentationFixture();
         var areaGraphics = new FileSelectAreaMapGraphics(AreaId.Maridia, maps, MenuSheetFixtures.For(maps));
         RgbaPixel[] area = areaGraphics.Render(new ushort[] { 0, 0, 0, 0, 1, 0 });

@@ -56,13 +56,23 @@ internal static class SamusProjectilePlayback
     /// The hitbox a freshly selected animation declares through its first step, as the setups' reads of the animation's
     /// radii see it; a projectile with no animation (the safe left-facing Murder Beam) reads zero.
     /// </summary>
-    internal static Extent16<RoomPixels> InitialRadius(SamusProjectileSegment? segment)
+    internal static Extent16<RoomPixels> InitialRadius(SamusProjectileSegment? segment) =>
+        segment is { } selected ? OpeningRadii[selected] : Extent16<RoomPixels>.Zero;
+
+    /// <summary>
+    /// The hitbox each animation declares through its first step, read once from every animation as they are built, so an
+    /// animation that does not open with a frame fails there and no selection checks again (#2553).
+    /// </summary>
+    private static IReadOnlyDictionary<SamusProjectileSegment, Extent16<RoomPixels>> OpeningRadii { get; } =
+        SamusProjectileAnimations.StartingAt.ToDictionary(entry => entry.Key, entry => OpeningRadius(entry.Key, entry.Value));
+
+    /// <summary>The hitbox <paramref name="animation"/>, the one starting at <paramref name="segment"/>, declares through its first step.</summary>
+    /// <exception cref="InvalidDataException">The animation does not open with a frame.</exception>
+    private static Extent16<RoomPixels> OpeningRadius(SamusProjectileSegment segment, Animation<SamusProjectileSegment> animation)
     {
-        if (segment is not { } selected)
-            return Extent16<RoomPixels>.Zero;
-        AnimationPhase<SamusProjectileSegment> first = SamusProjectileAnimations.StartingWith(selected).Phases[0];
+        AnimationPhase<SamusProjectileSegment> first = animation.Phases[0];
         if (SamusProjectileAnimations.Segments.Beats(first.Segment)[first.FirstBeat].ShownFrame is not { } frame)
-            throw new InvalidDataException($"Samus projectile animation {selected} does not open with a frame.");
+            throw new InvalidDataException($"Samus projectile animation {segment} does not open with a frame.");
         return SamusProjectileFrameDefinitions.Radius(frame);
     }
 }

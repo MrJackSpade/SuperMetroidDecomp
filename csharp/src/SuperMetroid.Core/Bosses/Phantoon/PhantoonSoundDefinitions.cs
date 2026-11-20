@@ -24,6 +24,16 @@ internal static class PhantoonSoundDefinitions
     /// <summary>The rolling rumble, queued after any other death explosion.</summary>
     internal static readonly SoundEffectId DeathExplosionSound = EnemySound.RollingRumble;
 
+    /// <summary>
+    /// The death explosions whose sound is their own rather than <see cref="DeathExplosionSound"/>, with it: the big
+    /// explosion's.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<DustExplosionAnimation, SoundEffectId> DeathExplosionSounds =
+        new Dictionary<DustExplosionAnimation, SoundEffectId>
+        {
+            [DustExplosionAnimation.BigExplosion] = BigDeathExplosionSound,
+        };
+
     /// <summary>The casual-flame sound's request priority.</summary>
     internal static readonly SoundRequestPriority CasualFlamePriority = SoundRequestPriority.Normal;
 

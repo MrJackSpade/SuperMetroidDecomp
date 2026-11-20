@@ -17,16 +17,20 @@ public sealed class PhantoonPhase
     /// <summary>A phase named <paramref name="name"/> that runs <paramref name="run"/>.</summary>
     /// <param name="name">The phase's name, for diagnostics.</param>
     /// <param name="run">Runs the phase for one update of his encounter.</param>
-    private PhantoonPhase(string name, Action<PhantoonPhaseTurn> run)
+    private PhantoonPhase(string name, Action<PhantoonPhaseTurn> run, PhantoonHitResponse hit = PhantoonHitResponse.Hurts)
     {
         _name = name;
         _run = run;
+        Hit = hit;
     }
+
+    /// <summary>What a shot meeting his hitboxes in the phase does to him and to the round.</summary>
+    internal PhantoonHitResponse Hit { get; }
 
     /// <summary>
     /// His body does nothing on its turn while his eye's opening or closing animation decides what comes next (#1870).
     /// </summary>
-    public static PhantoonPhase WaitingOnEye { get; } = new(nameof(WaitingOnEye), static _ => { });
+    public static PhantoonPhase WaitingOnEye { get; } = new(nameof(WaitingOnEye), static _ => { }, PhantoonHitResponse.Passes);
 
     /// <summary>Spawns the introductory circle of eight flames.</summary>
     public static PhantoonPhase SpawnStartingFlames { get; } = new(nameof(SpawnStartingFlames), turn => turn.Phantoon.Opening.RunPhantoonStartingFlameSpawner(turn.State));
@@ -47,13 +51,13 @@ public sealed class PhantoonPhase
     public static PhantoonPhase MoveInFigureEightThenOpenEye { get; } = new(nameof(MoveInFigureEightThenOpenEye), turn => turn.Phantoon.Patterns.RunPhantoonFirstRoundFigureEight(turn.State.Body, turn.State));
 
     /// <summary>Tracks Samus with the eye during the figure-eight vulnerability window.</summary>
-    public static PhantoonPhase EyeTracksSamus { get; } = new(nameof(EyeTracksSamus), turn => PhantoonPatterns.RunPhantoonEyeTracking(turn.State.Body, turn.State, turn.Samus));
+    public static PhantoonPhase EyeTracksSamus { get; } = new(nameof(EyeTracksSamus), turn => PhantoonPatterns.RunPhantoonEyeTracking(turn.State.Body, turn.State, turn.Samus), PhantoonHitResponse.OpensVulnerableWindow);
 
     /// <summary>Makes Phantoon opaque and initializes its triggered swoop.</summary>
     public static PhantoonPhase BecomeSolidAndSwoop { get; } = new(nameof(BecomeSolidAndSwoop), turn => PhantoonPatterns.BeginPhantoonVulnerableSwoop(turn.State.Body, turn.State, turn.Samus));
 
     /// <summary>Advances the opaque swoop toward Samus.</summary>
-    public static PhantoonPhase Swooping { get; } = new(nameof(Swooping), turn => PhantoonPatterns.RunPhantoonSwoop(turn.State.Body, turn.State, turn.Samus));
+    public static PhantoonPhase Swooping { get; } = new(nameof(Swooping), turn => PhantoonPatterns.RunPhantoonSwoop(turn.State.Body, turn.State, turn.Samus), PhantoonHitResponse.Swooping);
 
     /// <summary>Continues the swoop while fading the body out.</summary>
     public static PhantoonPhase FadeOutWhileSwooping { get; } = new(nameof(FadeOutWhileSwooping), turn => turn.Phantoon.Patterns.RunPhantoonFadeOutWhileSwooping(turn.State.Body, turn.State, turn.Samus));
@@ -74,7 +78,7 @@ public sealed class PhantoonPhase
     public static PhantoonPhase FadeInDuringFlameRain { get; } = new(nameof(FadeInDuringFlameRain), turn => turn.Phantoon.Patterns.RunPhantoonFlameRainFadeIn(turn.State.Body, turn.State));
 
     /// <summary>Advances the flame-rain vulnerability window before Phantoon hides again.</summary>
-    public static PhantoonPhase TrackSamusDuringFlameRain { get; } = new(nameof(TrackSamusDuringFlameRain), turn => PhantoonPatterns.RunPhantoonFlameRainVulnerableWindow(turn.State.Body, turn.State));
+    public static PhantoonPhase TrackSamusDuringFlameRain { get; } = new(nameof(TrackSamusDuringFlameRain), turn => PhantoonPatterns.RunPhantoonFlameRainVulnerableWindow(turn.State.Body, turn.State), PhantoonHitResponse.OpensVulnerableWindow);
 
     /// <summary>Fades out between successive flame-rain attacks.</summary>
     public static PhantoonPhase FadeOutDuringFlameRain { get; } = new(nameof(FadeOutDuringFlameRain), turn => turn.Phantoon.Patterns.RunPhantoonFlameRainFadeOut(turn.State));
@@ -104,22 +108,22 @@ public sealed class PhantoonPhase
     public static PhantoonPhase FinishFatalSwoop { get; } = new(nameof(FinishFatalSwoop), turn => PhantoonDeath.RunPhantoonFatalSwoop(turn.State.Body, turn.State, turn.Samus));
 
     /// <summary>Alternates death fade-in/fade-out cycles before the explosion phase.</summary>
-    public static PhantoonPhase DyingFadeInOut { get; } = new(nameof(DyingFadeInOut), turn => turn.Phantoon.Death.RunPhantoonDyingFadeCycles(turn.State.Body, turn.State));
+    public static PhantoonPhase DyingFadeInOut { get; } = new(nameof(DyingFadeInOut), turn => turn.Phantoon.Death.RunPhantoonDyingFadeCycles(turn.State.Body, turn.State), PhantoonHitResponse.Passes);
 
     /// <summary>Schedules the death's explosions and prepares the final distortion.</summary>
-    public static PhantoonPhase DyingExplosions { get; } = new(nameof(DyingExplosions), turn => turn.Phantoon.Death.RunPhantoonDyingExplosions(turn.State.Body, turn.State));
+    public static PhantoonPhase DyingExplosions { get; } = new(nameof(DyingExplosions), turn => turn.Phantoon.Death.RunPhantoonDyingExplosions(turn.State.Body, turn.State), PhantoonHitResponse.Passes);
 
     /// <summary>Initializes the final wave and pixelation death presentation.</summary>
-    public static PhantoonPhase BeginFinalWavyDeath { get; } = new(nameof(BeginFinalWavyDeath), turn => turn.Phantoon.Death.BeginPhantoonWavyPixelatedDeath(turn.State));
+    public static PhantoonPhase BeginFinalWavyDeath { get; } = new(nameof(BeginFinalWavyDeath), turn => turn.Phantoon.Death.BeginPhantoonWavyPixelatedDeath(turn.State), PhantoonHitResponse.Passes);
 
     /// <summary>Advances the final wavy, pixelated fade-out.</summary>
-    public static PhantoonPhase DyingFadeOut { get; } = new(nameof(DyingFadeOut), turn => turn.Phantoon.Death.RunPhantoonWavyPixelatedDeath(turn.State));
+    public static PhantoonPhase DyingFadeOut { get; } = new(nameof(DyingFadeOut), turn => turn.Phantoon.Death.RunPhantoonWavyPixelatedDeath(turn.State), PhantoonHitResponse.Passes);
 
     /// <summary>Clears Phantoon graphics and releases distortion before Wrecked Ship activation.</summary>
-    public static PhantoonPhase AlmostDead { get; } = new(nameof(AlmostDead), turn => turn.Phantoon.Death.ClearPhantoonDeathGraphics(turn.State));
+    public static PhantoonPhase AlmostDead { get; } = new(nameof(AlmostDead), turn => turn.Phantoon.Death.ClearPhantoonDeathGraphics(turn.State), PhantoonHitResponse.Passes);
 
     /// <summary>Restores the powered Wrecked Ship colours, publishes drops and boss persistence, restores the door, and deletes all four parts.</summary>
-    public static PhantoonPhase Dead { get; } = new(nameof(Dead), turn => turn.Phantoon.Death.ActivateWreckedShipAfterPhantoon(turn.State.Body, turn.State, turn.Samus));
+    public static PhantoonPhase Dead { get; } = new(nameof(Dead), turn => turn.Phantoon.Death.ActivateWreckedShipAfterPhantoon(turn.State.Body, turn.State, turn.Samus), PhantoonHitResponse.Passes);
 
     /// <summary>Runs the phase for one update of Phantoon's encounter.</summary>
     /// <param name="phantoon">His species, whose opening, patterns and death the phases run.</param>

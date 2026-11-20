@@ -8,10 +8,6 @@ namespace SuperMetroid.Core.Enemies.SaveStation;
 internal sealed class SaveStationElectricityAnimation()
     : EnemyProjectileFrameAnimation<SaveStationElectricitySegment, EnemyProjectileCommonCue>(SaveStationElectricityAnimations.Discharge, EnemyProjectileCueRunners.Common<SaveStationElectricitySegment>())
 {
-    /// <summary>The segment the discharge starts at: its cycle.</summary>
-    private protected override SaveStationElectricitySegment SegmentStartedAt(Animation<SaveStationElectricitySegment> started) =>
-        Ensure.NotNull(started).Phases[0].Segment;
-
     /// <inheritdoc/>
     private protected override AnimationSegments<SaveStationElectricitySegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => SaveStationElectricityAnimations.Segments;
 

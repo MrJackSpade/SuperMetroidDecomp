@@ -19,11 +19,28 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         occupant.SpawnSettings<MagdolliteSpawnSettings>() switch
         {
-            MagdolliteHeadSpawnSettings => EnemyOccupant.FromSurroundings(new MagdolliteHeadEntity(this, occupant, place, common)),
-            MagdolliteBodySpawnSettings => EnemyOccupant.Of(new MagdolliteBodyEntity(this, occupant, place, common)),
-            MagdolliteOverlaySpawnSettings => EnemyOccupant.Of(new MagdolliteOverlayEntity(this, occupant, place, common)),
+            MagdolliteHeadSpawnSettings => throw new InvalidOperationException($"A Magdollite head {occupant.DefinitionId} is only placed by its room's population load."),
+            MagdolliteBodySpawnSettings => EnemyOccupant.Running(new MagdolliteBodyEntity(this, occupant, place, common)),
+            MagdolliteOverlaySpawnSettings => EnemyOccupant.Running(new MagdolliteOverlayEntity(this, occupant, place, common)),
             var part => throw new InvalidOperationException($"Undefined Magdollite part {part}."),
         };
+
+    /// <summary>The Magdollite part the population load places: its head, which faces the loading Samus, or as a spawn's.</summary>
+    /// <exception cref="InvalidOperationException">The placement names no Magdollite part.</exception>
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings) =>
+        occupant.SpawnSettings<MagdolliteSpawnSettings>() is MagdolliteHeadSpawnSettings
+            ? EnemyOccupant.Running(new MagdolliteHeadEntity(this, occupant, place, common, surroundings))
+            : Create(occupant, place, common);
+
+    /// <summary>The state each Magdollite head holds from its setup, under its place, for its body and overlay (#2554).</summary>
+    private readonly EnemyPartLinks<MagdolliteHeadState> _headStates = new();
+
+    /// <summary>The state each Magdollite body holds from its setup, under its place, for its head and overlay (#2554).</summary>
+    private readonly EnemyPartLinks<MagdolliteBodyState> _bodyStates = new();
+
+    /// <summary>The state each Magdollite overlay holds from its setup, under its place, for its head and body (#2554).</summary>
+    private readonly EnemyPartLinks<MagdolliteOverlayState> _overlayStates = new();
 
     /// <summary>Supplies the room's apex overreads.</summary>
     private readonly EnemyRoomBinding _room;
@@ -99,7 +116,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
     /// Restarts the room's lava glow once a part is placed: the room has one lava glow, not one per part, and each part's
     /// placement restarts it, so the last part placed sets its phase.
     /// </summary>
-    private void FinishPlacingMagdollitePart() => RestartGlow();
+    private void FinishPlacingMagdollitePart(RoomEnemyPlace placing) => RestartGlow(placing);
 
     /// <summary>How the Magdollite head in <paramref name="head"/> and its arm rise, from the head's spawn settings (#2474).</summary>
     private static MagdolliteHeadSpawnSettings HeadRise(RoomEnemyOccupant head, MagdolliteHeadSpawnSettings magdolliteHeadSpawnSettings) => magdolliteHeadSpawnSettings;
@@ -111,48 +128,54 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
     /// Restarts the room's lava glow at its first frame, which every Magdollite and its lava show at once, holding it
     /// for <see cref="MagdolliteMotionDefinitions.GlowFrameDuration"/> updates.
     /// </summary>
-    private void RestartGlow()
+    private void RestartGlow(RoomEnemyPlace placing)
     {
         _glow.Show(MagdolliteGlowAnimations.Glowing);
         GlowRuns = true;
-        ShowGlow();
+        // The part being placed holds its place once its entity is built, so it shows the glow with the parts already there.
+        ShowGlow(part => part == placing || part.Entity is MagdollitePartEntity);
     }
 
     /// <summary>Places the head and starts it in its idle animation, facing Samus.</summary>
-    internal void InitializeMagdolliteHead(
+    /// <returns>The state the head holds from its setup.</returns>
+    internal MagdolliteHeadState InitializeMagdolliteHead(
         RoomEnemyOccupant occupant,
         RoomEnemyPlace place,
         SamusState samus)
     {
         PlaceMagdollitePart(place, MagdolliteMember.Head, occupant);
         var state = new MagdolliteHeadState(MagdolliteHeadAction.Waiting);
-        place.SetSpeciesState(state);
+        _headStates.Place(place, state);
         state.OriginY = place.Position.Y.Whole;
 
         HorizontalDirection samusSide = (samus.Position.Whole - place.Position.Whole).X < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
         StartMagdolliteAnimation(place, state, samusSide == HorizontalDirection.Left ? MagdolliteSegment.LeftIdle : MagdolliteSegment.RightIdle);
-        FinishPlacingMagdollitePart();
+        FinishPlacingMagdollitePart(place);
+        return state;
     }
 
     /// <summary>Places the rising body, hidden below its origin (<see cref="MagdolliteMotionDefinitions.HiddenDepth"/>) until the head triggers an attack.</summary>
-    internal void InitializeMagdolliteBody(RoomEnemyPlace place)
+    /// <returns>The state the body holds from its setup.</returns>
+    internal MagdolliteBodyState InitializeMagdolliteBody(RoomEnemyPlace place)
     {
         PlaceMagdollitePart(place, MagdolliteMember.Body);
         var state = new MagdolliteBodyState(MagdolliteBodyAction.Dormant);
-        place.SetSpeciesState(state);
+        _bodyStates.Place(place, state);
         state.OriginY = place.Position.Y.Whole;
         StartMagdolliteAnimation(place, state, MagdolliteRiseStage.Setup.Phase.BodyAnimation);
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + MagdolliteMotionDefinitions.HiddenDepth);
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
-        FinishPlacingMagdollitePart();
+        FinishPlacingMagdollitePart(place);
+        return state;
     }
 
     /// <summary>Places the projectile-throwing overlay, hidden below its origin, and starts its pillar-cap animation.</summary>
-    internal void InitializeMagdolliteOverlay(RoomEnemyPlace place)
+    /// <returns>The state the overlay holds from its setup.</returns>
+    internal MagdolliteOverlayState InitializeMagdolliteOverlay(RoomEnemyPlace place)
     {
         PlaceMagdollitePart(place, MagdolliteMember.Overlay);
         var state = new MagdolliteOverlayState(MagdolliteOverlayAction.WaitingForAttack);
-        place.SetSpeciesState(state);
+        _overlayStates.Place(place, state);
         state.OriginY = place.Position.Y.Whole;
         state.AttackCooldown = UpdateCountdown.For(MagdolliteMotionDefinitions.AttackPollWait);
         StartMagdolliteAnimation(place, state, MagdolliteSegment.PillarCap);
@@ -249,7 +272,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         StartMagdolliteAnimation(head, state, samusSide == HorizontalDirection.Right ? MagdolliteSegment.RightIdle : MagdolliteSegment.LeftIdle);
 
         (_, _, RoomEnemyPlace overlay) = RequireMagdolliteComposite(head);
-        MagdolliteOverlayState overlayState = overlay.RequireSpeciesState<MagdolliteOverlayState>();
+        MagdolliteOverlayState overlayState = _overlayStates.Of(overlay);
         if (overlayState.AttackCooldown.IsRunning)
             return;
 
@@ -268,7 +291,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         MagdolliteHeadState state)
     {
         (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(head);
-        body.RequireSpeciesState<MagdolliteBodyState>().Release();
+        _bodyStates.Of(body).Release();
         state.Action = MagdolliteHeadAction.WaitingForBodyLanding;
     }
 
@@ -344,7 +367,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         MagdolliteBodyState state)
     {
         (RoomEnemyPlace head, _, _) = RequireMagdolliteComposite(body);
-        MagdolliteHeadState headState = head.RequireSpeciesState<MagdolliteHeadState>();
+        MagdolliteHeadState headState = _headStates.Of(head);
         state.RiseDisplacementY += AddMagdolliteY(body, PartnerHeadRise(body).Speed);
 
         if (state.RiseDisplacementY >= 0)
@@ -370,7 +393,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         MagdolliteOverlayState state)
     {
         (RoomEnemyPlace head, _, _) = RequireMagdolliteComposite(overlay);
-        if (head.RequireSpeciesState<MagdolliteHeadState>().IsSubmerging)
+        if (_headStates.Of(head).IsSubmerging)
             state.Action = MagdolliteOverlayAction.TrackingRisingBody;
     }
 
@@ -380,7 +403,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         MagdolliteOverlayState state)
     {
         (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(overlay);
-        MagdolliteBodyState bodyState = body.RequireSpeciesState<MagdolliteBodyState>();
+        MagdolliteBodyState bodyState = _bodyStates.Of(body);
         StartMagdolliteAnimation(overlay, state, MagdolliteSegment.PillarCap);
         bodyState.Action = MagdolliteBodyAction.Falling;
         state.Action = MagdolliteOverlayAction.TrackingFallingBody;
@@ -395,7 +418,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         SamusState samus)
     {
         (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(overlay);
-        MagdolliteBodyState bodyState = body.RequireSpeciesState<MagdolliteBodyState>();
+        MagdolliteBodyState bodyState = _bodyStates.Of(body);
         if (bodyState.Action == MagdolliteBodyAction.HoldingAtApex)
         {
             state.ThrowDirection = SamusSide(samus, overlay);
@@ -418,8 +441,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         MagdolliteOverlayState state)
     {
         (RoomEnemyPlace head, RoomEnemyPlace body, _) = RequireMagdolliteComposite(overlay);
-        MagdolliteHeadState headState = head.RequireSpeciesState<MagdolliteHeadState>();
-        MagdolliteBodyState bodyState = body.RequireSpeciesState<MagdolliteBodyState>();
+        MagdolliteHeadState headState = _headStates.Of(head);
+        MagdolliteBodyState bodyState = _bodyStates.Of(body);
         if (headState.Action == MagdolliteHeadAction.Waiting)
         {
             state.Action = MagdolliteOverlayAction.WaitingForAttack;
@@ -485,13 +508,16 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
     /// Shows the glow's current frame on every Magdollite part still in the place the species set it up in, and on the
     /// lava they have thrown (#2306).
     /// </summary>
-    private void ShowGlow()
+    private void ShowGlow() => ShowGlow(static part => part.Entity is MagdollitePartEntity);
+
+    /// <summary>Shows the glow's current frame on each part <paramref name="showsGlow"/> picks and on the lava thrown.</summary>
+    private void ShowGlow(Func<RoomEnemyPlace, bool> showsGlow)
     {
         PictureShading glow = Glow;
         foreach (RoomEnemyPlace part in _partners.Placed)
         {
             // A place whose part has left it, and any enemy that took the place since, shows no glow.
-            if (part.Entity is MagdollitePartEntity { State: not null })
+            if (showsGlow(part))
                 part.Shading = glow;
         }
         foreach (EnemyProjectile lava in _projectiles.EnemyProjectiles)
@@ -507,7 +533,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
     /// Every cue runs on to the next step, so none redirects.
     /// </summary>
     private void ApplyMagdolliteCue(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place, MagdolliteHeadState magdolliteHeadState, MagdolliteOverlayState magdolliteOverlayState,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         MagdollitePartState state,
         MagdolliteCue cue,
         Position16<RoomPixels> camera)
@@ -524,13 +550,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
                 place.Position += move.Offset;
                 break;
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.FinishSubmerge }:
-                magdolliteHeadState.FinishSubmerge();
+                HeadOf(state).FinishSubmerge();
                 break;
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.FinishEmerge }:
-                magdolliteHeadState.FinishEmerge();
+                HeadOf(state).FinishEmerge();
                 break;
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.FinishThrow }:
-                magdolliteOverlayState.FinishThrow();
+                OverlayOf(state).FinishThrow();
                 break;
             case MagdolliteCue.MoveWithPillar moveWithPillar:
             {
@@ -568,13 +594,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
                 break;
             }
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SpawnLava }:
-                SpawnMagdolliteLava(occupant, place, magdolliteOverlayState.ThrowDirection);
+                SpawnMagdolliteLava(occupant, place, OverlayOf(state).ThrowDirection);
                 break;
             case MagdolliteCue.ShiftFromThrowOrigin shift:
-                place.Position = place.Position.WithWhole(magdolliteOverlayState.ThrowOrigin + shift.Offset);
+                place.Position = place.Position.WithWhole(OverlayOf(state).ThrowOrigin + shift.Offset);
                 break;
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.StartCooldown }:
-                magdolliteOverlayState.AttackCooldown = UpdateCountdown.Lasting(MagdolliteMotionDefinitions.AttackCooldown);
+                OverlayOf(state).AttackCooldown = UpdateCountdown.Lasting(MagdolliteMotionDefinitions.AttackCooldown);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MagdolliteCue)} {cue}.");
@@ -650,15 +676,25 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
     }
 
     /// <summary>Advances the typed animation of the Magdollite part whose state is a <typeparamref name="TState"/>.</summary>
-    internal void AdvanceMagdolliteTypedAnimation<TState>(RoomEnemyOccupant occupant, RoomEnemyPlace place, TState tState, MagdolliteHeadState magdolliteHeadState, MagdolliteOverlayState magdolliteOverlayState, EnemyAnimationCueContext context)
+    internal void AdvanceMagdolliteTypedAnimation<TState>(RoomEnemyOccupant occupant, RoomEnemyPlace place, TState tState, EnemyAnimationCueContext context)
         where TState : MagdollitePartState =>
         EnemyAnimationPlayback.Advance(place, tState, MagdolliteAnimations.Segments,
             static (TState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
-                ApplyMagdolliteCue(occupant, place, magdolliteHeadState, magdolliteOverlayState, state, cue, context.Camera);
+                ApplyMagdolliteCue(occupant, place, state, cue, context.Camera);
                 return null;
             });
+
+    /// <summary>The head whose animation raised a head's cue: only the head's animations raise them.</summary>
+    private static MagdolliteHeadState HeadOf(MagdollitePartState state) => state is MagdolliteHeadState head
+        ? head
+        : throw new InvalidOperationException($"A Magdollite {state.GetType().Name} raised a head's cue.");
+
+    /// <summary>The overlay whose animation raised an overlay's cue: only the overlay's animations raise them.</summary>
+    private static MagdolliteOverlayState OverlayOf(MagdollitePartState state) => state is MagdolliteOverlayState overlay
+        ? overlay
+        : throw new InvalidOperationException($"A Magdollite {state.GetType().Name} raised an overlay's cue.");
 
     /// <summary>Propagates common power-bomb death and freezing effects to the composite's following parts.</summary>
     internal EnemyPowerBombReaction MagdollitePowerBombReaction => field ??= new()

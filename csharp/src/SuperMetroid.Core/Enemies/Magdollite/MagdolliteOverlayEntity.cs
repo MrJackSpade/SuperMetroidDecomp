@@ -9,16 +9,16 @@ internal sealed class MagdolliteOverlayEntity(MagdolliteBehavior species, RoomEn
     : MagdollitePartEntity(species, occupant, place, common), IEnemyInitialization
 {
     /// <inheritdoc/>
-    internal override MagdollitePartState? State => Place.SpeciesState<MagdolliteOverlayState>();
+    internal override MagdollitePartState State => Overlay;
 
-    /// <inheritdoc/>
-    public void Initialize() => Species.InitializeMagdolliteOverlay(Place);
+    /// <summary>The overlay's state, which its setup builds as the enemy is built (#2554).</summary>
+    private MagdolliteOverlayState Overlay { get; } = species.InitializeMagdolliteOverlay(place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) =>
-        Species.RunMagdolliteOverlay(Place, Place.RequireSpeciesState<MagdolliteOverlayState>(), Ensure.NotNull(frame).Samus);
+        Species.RunMagdolliteOverlay(Place, Overlay, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) =>
-        Species.AdvanceMagdolliteTypedAnimation<MagdolliteOverlayState>(Occupant, Place, Place.RequireSpeciesState<MagdolliteOverlayState>(), Place.RequireSpeciesState<MagdolliteHeadState>(), Place.RequireSpeciesState<MagdolliteOverlayState>(), context);
+        Species.AdvanceMagdolliteTypedAnimation<MagdolliteOverlayState>(Occupant, Place, Overlay, context);
 }

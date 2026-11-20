@@ -109,7 +109,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     {
         switch (transition)
         {
-            case GameplayUpdateTransition.None:
+            case GameplayUpdateTransition.Stays:
                 break;
             case GameplayUpdateTransition.TimeUp:
                 // The escape countdown started the time-up during Samus's update, after her movement's door hits and
@@ -139,10 +139,10 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                 session.ceresDeparture.Begin();
                 session.Enter(SuperMetroidGameState.CeresDeparture);
                 break;
-            case GameplayUpdateTransition.Door:
+            case GameplayUpdateTransition.Door door:
                 // A door hit enters the door transition during the gameplay update. The already-produced gameplay image
                 // remains this frame's image; the following update reaches the door from that publication.
-                session.Enter(DoorTransitionStep.EnteringDoor);
+                session.EnterDoor(door.Entered);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(GameplayUpdateTransition)} {transition}.");

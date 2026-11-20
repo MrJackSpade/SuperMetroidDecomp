@@ -314,6 +314,13 @@ internal sealed class FrontendSession
         LoadingRoute = route;
     }
 
+    /// <summary>Enters the door transition through <paramref name="door"/>, the door Samus entered, as she reaches it.</summary>
+    internal void EnterDoor(DoorDefinition door)
+    {
+        Enter(DoorTransitionStep.EnteringDoor);
+        doorTransition.Enter(door);
+    }
+
     /// <summary>Enters the door transition at <paramref name="step"/>.</summary>
     internal void Enter(DoorTransitionStep step)
     {

@@ -722,7 +722,7 @@ internal sealed class SuperMetroidRuntime
         // gameplay at room main only when main gameplay owns the update and none of them did, and only then can the Ceres
         // elevator take Samus (#2534).
         bool gameInMainGameplay = owner.IsMainGameplay &&
-            DecideTransition(start, owner, startsTimeUp, ceresDepartureRequested: false, room, samus) == GameplayUpdateTransition.None;
+            DecideTransition(start, owner, startsTimeUp, ceresDepartureRequested: false, room, samus) is GameplayUpdateTransition.Stays;
         RoomMainOutcome roomMain = RunRoomMains(gameInMainGameplay, room, samus);
         // The out-of-health check follows room main, and the game-time step follows it: a death another game state
         // withholds returns before the step (#2509, #2517). Every step that moves the game to another state has run by
@@ -813,7 +813,7 @@ internal sealed class SuperMetroidRuntime
             return SamusOutOfHealthRoute.HasHealth;
         if (samus.ReserveTankMode == ReserveTankMode.Auto && samus.ReserveEnergy != 0)
             return SamusOutOfHealthRoute.ReserveRefill;
-        return owner.IsMainGameplay && transition == GameplayUpdateTransition.None
+        return owner.IsMainGameplay && transition is GameplayUpdateTransition.Stays
             ? SamusOutOfHealthRoute.Death
             : SamusOutOfHealthRoute.DeathWithheld;
     }
@@ -843,22 +843,22 @@ internal sealed class SuperMetroidRuntime
         SamusState samus)
     {
         if (startsTimeUp)
-            return GameplayUpdateTransition.TimeUp;
+            return new GameplayUpdateTransition.TimeUp();
         if (room.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.EscapeTakeoffCompleted))
-            return GameplayUpdateTransition.LeavesZebes;
+            return new GameplayUpdateTransition.LeavesZebes();
         // The map station's completion message pauses on the map as it closes, independently of Start or the station's
         // lock on Samus's input.
         if (start.MessageBox == GameplayMessageId.MapDataAccessCompleted && !MessageBox.IsActive)
-            return GameplayUpdateTransition.MapStationPause;
+            return new GameplayUpdateTransition.MapStationPause();
         if (PauseCheckAdmits(start, owner, room, samus))
-            return GameplayUpdateTransition.Pause;
+            return new GameplayUpdateTransition.Pause();
         if (ceresDepartureRequested)
-            return GameplayUpdateTransition.CeresDeparture;
+            return new GameplayUpdateTransition.CeresDeparture();
         // A message box opened later in the same update (a station's completion notice in the room objects' step)
         // suspends that update until it closes, so the door waits for the box's final update.
-        if (DoorEntered(room) && !MessageBox.IsActive)
-            return GameplayUpdateTransition.Door;
-        return GameplayUpdateTransition.None;
+        if (room.RoomObjects.DoorContacts.EnteredDoor is { } door && !MessageBox.IsActive)
+            return new GameplayUpdateTransition.Door(door);
+        return new GameplayUpdateTransition.Stays();
     }
 
     /// <summary>Whether Samus's collision has entered a door the door transition has yet to go through (#2545).</summary>

@@ -51,8 +51,14 @@ internal static class LoadedRoomAccess
 
     extension(DoorTransitionState transition)
     {
-        /// <summary>Begins a door transition from the runtime's loaded room.</summary>
-        internal void Begin(SuperMetroidRuntime runtime) => transition.Begin(runtime, LoadedOf(runtime.Room));
+        /// <summary>Begins a door transition from the runtime's loaded room through the door Samus entered there.</summary>
+        internal void Begin(SuperMetroidRuntime runtime)
+        {
+            RoomOccupancy.Loaded loaded = LoadedOf(runtime.Room);
+            transition.Enter(loaded.Scope.RoomObjects.DoorContacts.EnteredDoor
+                ?? throw new InvalidOperationException("The fixture's door transition begins after Samus entered a door."));
+            transition.Begin(runtime, loaded);
+        }
 
         /// <summary>Runs one update of the door transition in the runtime's loaded room.</summary>
         internal void Step(SuperMetroidRuntime runtime, AudioQueues audio, ControllerButton controllerInput, IRoomLoadProgress loaderProgress) =>

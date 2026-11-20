@@ -83,8 +83,8 @@ internal static class ClosedPresentationContractChecks
                     death.CorpseColor(8, 0);
                     chozo.ResolveTubeCracks(31);
                     chozo.ResolveTubeCracks(0);
-                    samusDeath.SuitedColor(2, 9, 15);
-                    samusDeath.SuitedColor(3, 9, 15);
+                    samusDeath.SuitedColor(SuperMetroid.Core.Samus.SamusSuit.Gravity, 9, 15);
+                    samusDeath.SuitedColor((SuperMetroid.Core.Samus.SamusSuit)99, 9, 15);
                     samusDeath.WhiteoutColor(21);
                     samusDeath.WhiteoutColor(22);
                     _ = levels.DoorBlocks(room, level);

@@ -264,7 +264,7 @@ internal static class SamusBodyArtworkVerification
                 int suitedAt = SamusSourceDefinitions.PaletteBank.Value | suitPointer + color * 2;
                 int suitlessColorAt = SamusSourceDefinitions.PaletteBank.Value | suitlessPointer + color * 2;
                 AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(suitedAt),
-                    stockDeathPalettes.SuitedColor(suit, palette, color),
+                    stockDeathPalettes.SuitedColor(SuperMetroid.AssetExtraction.Samus.SamusSuitListLayout.Order[suit], palette, color),
                     $"death suit {suit} palette {palette} color {color}");
                 AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(suitlessColorAt),
                     stockDeathPalettes.SuitlessColor(palette, color),

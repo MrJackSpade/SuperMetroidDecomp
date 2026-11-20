@@ -5,13 +5,13 @@ namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>The Bull species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class BullBehavior : IEnemySpecies, IEnemySettingsFactory<BullSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Bull];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BullEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, BullSpawnSettings settings) => new BullEntity(this, place, common, settings);
 
     /// <summary>Hands each new Bull the previous Bull in its place, whose shot-reaction guard it inherits.</summary>
     private readonly PlaceInheritance<BullEnemyState> _inheritance;
@@ -21,13 +21,12 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     internal BullBehavior(PlaceInheritance<BullEnemyState> inheritance) => _inheritance = inheritance;
 
     /// <summary>Initializes the Bull.</summary>
-    internal BullEnemyState InitializeBull(RoomEnemyPlace place)
+    internal BullEnemyState InitializeBull(RoomEnemyPlace place, BullSpawnSettings settings)
     {
-        BullEnemyState state = _inheritance.Inherit(place.Ordinal, static previous => new BullEnemyState(previous, BullAction.MovementDelay));
+        BullEnemyState state = _inheritance.Inherit(place.Ordinal, previous => new BullEnemyState(previous, BullAction.MovementDelay, settings));
 
         state.Playback = EnemyAnimationPlayback.Start(place, BullAnimations.StartingWith(BullSegment.Idle));
 
-        BullSpawnSettings settings = place.SpawnSettings<BullSpawnSettings>();
         state.AccelerationIntervalTimer = UpdateCountdown.For(settings.Intervals.Acceleration);
         state.ActivationTimer = UpdateCountdown.For(BullMovementDefinitions.MovementDelay);
         return state;
@@ -57,7 +56,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BullAction.Accelerating:
-                if (state.IsBelow(place.SpawnSettings<BullSpawnSettings>().MaximumSpeed))
+                if (state.IsBelow(state.Settings.MaximumSpeed))
                     AccelerateBull(place, state);
                 MoveBull(place, state);
                 TriggerBullDecelerationIfOffTarget(place, state, samus);
@@ -99,7 +98,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.AccelerationIntervalTimer.StepEnds())
             return;
 
-        state.AccelerationIntervalTimer = UpdateCountdown.For(place.SpawnSettings<BullSpawnSettings>().Intervals.Acceleration);
+        state.AccelerationIntervalTimer = UpdateCountdown.For(state.Settings.Intervals.Acceleration);
         state.Accelerate();
     }
 
@@ -109,7 +108,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.AccelerationIntervalTimer.StepEnds())
             return;
 
-        state.AccelerationIntervalTimer = UpdateCountdown.For(place.SpawnSettings<BullSpawnSettings>().Intervals.Deceleration);
+        state.AccelerationIntervalTimer = UpdateCountdown.For(state.Settings.Intervals.Deceleration);
         state.Decelerate();
     }
 

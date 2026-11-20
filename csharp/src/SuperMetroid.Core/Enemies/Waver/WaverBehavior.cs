@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>The Waver species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class WaverBehavior : IEnemySpecies, IEnemySettingsFactory<WaverSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Waver];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new WaverEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WaverSpawnSettings settings) => new WaverEntity(this, place, common, settings);
 
     /// <summary>Room collision service used to reflect horizontal motion and the sine wave on impact.</summary>
     private readonly EnemyTerrain _terrain;
@@ -41,10 +41,10 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Waver.</summary>
-    internal static WaverEnemyState InitializeWaver(RoomEnemyPlace place)
+    internal static WaverEnemyState InitializeWaver(RoomEnemyPlace place, WaverSpawnSettings settings)
     {
-        HorizontalDirection facing = place.SpawnSettings<WaverSpawnSettings>().Facing;
-        var state = new WaverEnemyState
+        HorizontalDirection facing = settings.Facing;
+        var state = new WaverEnemyState(settings)
         {
             Facing = facing,
             Angle = RotationAngle.Zero,

@@ -7,9 +7,14 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 /// </summary>
 public sealed class SkulteraEnemyState
 {
+    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
+    internal SkulteraSpawnSettings Settings { get; }
+
     /// <summary>Starts the state in <paramref name="action"/> toward <paramref name="heading"/>.</summary>
-    internal SkulteraEnemyState(SkulteraAction action, HorizontalDirection heading)
+    /// <param name="settings">What the enemy's population entry told its species.</param>
+    internal SkulteraEnemyState(SkulteraAction action, HorizontalDirection heading, SkulteraSpawnSettings settings)
     {
+        Settings = Ensure.NotNull(settings);
         Action = action;
         Heading = heading;
     }

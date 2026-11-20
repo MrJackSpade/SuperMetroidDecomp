@@ -7,14 +7,15 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="species">The ninja Space Pirate species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, NinjaSpacePirateSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <summary>The ninja Space Pirate species owner.</summary>
     protected NinjaSpacePirateBehavior Species => species;
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal NinjaSpacePirateEnemyState State { get; } = NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place);
+    internal NinjaSpacePirateEnemyState State { get; } = NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunNinjaSpacePirateMainAi(Place, State, frame);

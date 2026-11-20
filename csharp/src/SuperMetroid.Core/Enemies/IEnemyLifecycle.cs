@@ -9,8 +9,18 @@ internal interface IEnemyLifecycle
     /// <summary>Installs a population entry and definition into a free place, as spawning an enemy does.</summary>
     void InitializePlaceFromDefinition(RoomEnemyPlace place, RoomEnemyPlacement population, RoomEnemyDefinition definition);
 
-    /// <summary>Runs the initialization AI of a place the room's population load has placed, in its surroundings.</summary>
-    void SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings);
+    /// <summary>
+    /// Runs the initialization AI of a place the room's population load has placed, in its surroundings; an enemy heading a
+    /// group takes its parts' places from <paramref name="listedAfter"/>, the places the population lists right after it.
+    /// </summary>
+    /// <returns>How each part of the group the enemy heads is built, in listing order; empty when it heads none.</returns>
+    IReadOnlyList<EnemyPartBuild> SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings, IReadOnlyList<RoomEnemyPlace> listedAfter);
+
+    /// <summary>Builds the part of a group the population load has placed in <paramref name="place"/>, as its head handed it over.</summary>
+    void SetUpPart(RoomEnemyPlace place, EnemyPartBuild build, EnemyPopulationSurroundings surroundings);
+
+    /// <summary>Builds a respawned enemy again the way its place last built it, with no population load's surroundings.</summary>
+    void RespawnEnemy(RoomEnemyPlace place);
 
     /// <summary>
     /// Runs the initialization AI of a place a species spawned on another enemy's behalf, or a respawn rebuilt: it has no

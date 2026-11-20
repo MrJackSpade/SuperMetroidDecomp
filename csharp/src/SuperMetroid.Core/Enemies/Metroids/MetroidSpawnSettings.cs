@@ -2,4 +2,8 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>How much ice damage freezes a Metroid (#1472, #1519).</summary>
 /// <param name="IceDamageToFreeze">The ice damage that freezes it.</param>
-internal sealed record MetroidSpawnSettings(int IceDamageToFreeze) : EnemySpawnSettings;
+internal sealed record MetroidSpawnSettings(int IceDamageToFreeze) : EnemySpawnSettings
+{
+    /// <inheritdoc/>
+    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).Place(this, placing);
+}

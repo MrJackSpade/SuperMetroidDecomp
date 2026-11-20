@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>The Shaktool species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySettingsFactory<ShaktoolSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Shaktool];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new ShaktoolEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ShaktoolSpawnSettings settings) => new ShaktoolEntity(this, place, common, settings);
 
     /// <summary>Checks terrain collisions along each segment's orbit and attack path.</summary>
     private readonly EnemyTerrain _terrain;
@@ -36,9 +36,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         (angle + RotationAngle.HalfTurn).WholeStep;
 
     /// <summary>Initializes the Shaktool, establishing the segment's orbit and its place in its chain.</summary>
-    internal ShaktoolSegmentState InitializeShaktool(RoomEnemyPlace place)
+    internal ShaktoolSegmentState InitializeShaktool(RoomEnemyPlace place, ShaktoolSpawnSettings settings)
     {
-        ShaktoolSpawnSettings settings = place.SpawnSettings<ShaktoolSpawnSettings>();
         ShaktoolSegmentDefinition definition = settings.Segment;
         var state = new ShaktoolSegmentState();
 

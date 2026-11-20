@@ -4,11 +4,12 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 /// <param name="species">The Skultera species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class SkulteraEntity(SkulteraBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class SkulteraEntity(SkulteraBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, SkulteraSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal SkulteraEnemyState State { get; } = SkulteraBehavior.InitializeSkultera(place);
+    internal SkulteraEnemyState State { get; } = SkulteraBehavior.InitializeSkultera(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunSkulteraMainAi(Place, State, frame);

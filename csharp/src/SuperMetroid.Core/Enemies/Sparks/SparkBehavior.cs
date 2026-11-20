@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>The Spark species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class SparkBehavior : IEnemySpecies, IEnemySettingsFactory<SparkSpawnSettings>
 {
     /// <summary>The pass-through shot reaction for this species' private shot reaction.</summary>
     internal static EnemyShotReaction PassThroughShot { get; } =
@@ -19,7 +19,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Spark];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new SparkEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, SparkSpawnSettings settings) => new SparkEntity(this, place, common, settings);
 
     /// <summary>Owner of the falling-spark projectile emitted by one spark action.</summary>
     private readonly FallingSparksBehavior _fallingSparksBehavior;
@@ -47,11 +47,11 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Spark.</summary>
-    internal static SparkEnemyState InitializeSpark(RoomEnemyPlace place)
+    internal static SparkEnemyState InitializeSpark(RoomEnemyPlace place, SparkSpawnSettings settings)
     {
-        SparkMovementDefinition definition = place.SpawnSettings<SparkSpawnSettings>().Start;
+        SparkMovementDefinition definition = settings.Start;
         var state = new SparkEnemyState(definition.Action,
-            new(SparkAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation));
+            new(SparkAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation), settings);
 
         SetSparkActionTimer(place, state, additionalTime: 0);
 
@@ -110,7 +110,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static void SetSparkActionTimer(RoomEnemyPlace place, SparkEnemyState state, int additionalTime)
     {
-        state.ActionTimer = UpdateCountdown.For(place.SpawnSettings<SparkSpawnSettings>().BaseActionTime + additionalTime);
+        state.ActionTimer = UpdateCountdown.For(state.Settings.BaseActionTime + additionalTime);
     }
 
     /// <summary>Selects an animation and makes its first step due on the next pass.</summary>

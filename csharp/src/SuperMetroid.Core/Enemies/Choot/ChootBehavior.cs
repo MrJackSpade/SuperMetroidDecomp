@@ -6,26 +6,26 @@ namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>The Choot species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class ChootBehavior : IEnemySpecies, IEnemySettingsFactory<ChootSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Choot];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new ChootEntity(place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ChootSpawnSettings settings) => new ChootEntity(place, common, settings);
 
     /// <summary>Initializes the Choot, selecting a falling pattern and calculating ascent speed from parameters.</summary>
-    internal static ChootEnemyState InitializeChoot(RoomEnemyPlace place)
+    internal static ChootEnemyState InitializeChoot(RoomEnemyPlace place, ChootSpawnSettings settings)
     {
-        ChootFallingPath fallingPath = place.SpawnSettings<ChootSpawnSettings>().FallingPath;
-        var state = new ChootEnemyState(ChootAction.WaitingForSamus);
+        ChootFallingPath fallingPath = settings.FallingPath;
+        var state = new ChootEnemyState(ChootAction.WaitingForSamus, settings);
 
         SetChootAnimation(place, state, ChootSegment.Idle);
         state.SpawnPosition = place.Position.Whole;
 
         // The jump rises as far as its loops of the falling path fall: one to seven loops of under 256 pixels in every
         // room, so the height stays well within the room (#1620).
-        int jumpHeight = place.SpawnSettings<ChootSpawnSettings>().PatternLoops * ChootFalls.LoopYDistance(fallingPath);
+        int jumpHeight = settings.PatternLoops * ChootFalls.LoopYDistance(fallingPath);
         state.InitialYSpeedCurvePlace = CalculateInitialChootYSpeedCurvePlace(jumpHeight);
         state.InitialFallingPosition = state.SpawnPosition.WithY(state.SpawnPosition.Y - jumpHeight);
         state.YSpeedCurvePlace = state.InitialYSpeedCurvePlace;
@@ -67,7 +67,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         if (Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= ChootMotionDefinitions.ActivationDistance)
             return;
 
-        state.JumpDelayTimer = UpdateCountdown.For(place.SpawnSettings<ChootSpawnSettings>().JumpDelay + EnemyWaitDefinitions.RunOutUpdate);
+        state.JumpDelayTimer = UpdateCountdown.For(state.Settings.JumpDelay + EnemyWaitDefinitions.RunOutUpdate);
         state.Action = ChootAction.PreparingJump;
     }
 
@@ -96,9 +96,9 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // where it lies within a pixel stays until the final spawn reset, just as in the game.
         place.Position = place.Position.WithWhole(state.InitialFallingPosition);
         state.FallingOrigin = state.InitialFallingPosition;
-        state.FallingLoop = ChootFallLoop.Starting(place.SpawnSettings<ChootSpawnSettings>().FallingPath);
+        state.FallingLoop = ChootFallLoop.Starting(state.Settings.FallingPath);
         // A population loop count of zero falls one loop, as a count of one does.
-        state.FallingPatternLoopCounter = Math.Max(1, place.SpawnSettings<ChootSpawnSettings>().PatternLoops);
+        state.FallingPatternLoopCounter = Math.Max(1, state.Settings.PatternLoops);
         SetChootAnimation(place, state, ChootSegment.Falling);
         state.Action = ChootAction.Falling;
     }
@@ -113,7 +113,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        ChootFallingPath fallingPath = place.SpawnSettings<ChootSpawnSettings>().FallingPath;
+        ChootFallingPath fallingPath = state.Settings.FallingPath;
         state.FallingOrigin = state.FallingOrigin.WithY(state.FallingOrigin.Y + ChootFalls.LoopYDistance(fallingPath));
         state.FallingLoop = ChootFallLoop.Starting(fallingPath);
         if (--state.FallingPatternLoopCounter > 0)

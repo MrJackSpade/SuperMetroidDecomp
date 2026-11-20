@@ -8,14 +8,14 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>The Platforms species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<PlatformSpawnSettings>
 {
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SuspensorPlatform, EnemyDefinitionId.Tripper];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new PlatformsEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, PlatformSpawnSettings settings) => new PlatformsEntity(this, place, common, settings);
 
     /// <summary>Clips the Tripper's and the suspensor platform's horizontal and vertical displacement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;
@@ -34,15 +34,14 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Sets up a Tripper or a suspensor platform: its direction and speed from its spawn settings, its first rise and the
     /// height it rests at below where it was placed.
     /// </summary>
-    internal static PlatformEnemyState InitializePlatform(RoomEnemyPlace place)
+    internal static PlatformEnemyState InitializePlatform(RoomEnemyPlace place, PlatformSpawnSettings settings)
     {
-        var state = new PlatformEnemyState
+        var state = new PlatformEnemyState(settings)
         {
             Kind = place.DefinitionId == EnemyDefinitionId.SuspensorPlatform ? PlatformKind.SuspensorPlatform : PlatformKind.Tripper,
         };
 
         // The platform moves left or right as its spawn settings say.
-        PlatformSpawnSettings settings = place.SpawnSettings<PlatformSpawnSettings>();
         state.XMovement = settings.Movement;
 
         state.Playback = new(PlatformAnimations.StartingWith(PlatformAnimationChoices.SelectAnimation(
@@ -87,7 +86,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         // The spawn settings name the speed the platform moves at.
-        SignedSixteenSixteen speed = place.SpawnSettings<PlatformSpawnSettings>().Speed;
+        SignedSixteenSixteen speed = state.Settings.Speed;
         SignedSixteenSixteen displacement = speed.Toward(state.XMovement);
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             return;
@@ -196,7 +195,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void IncrementAndClampPlatformYSpeed(RoomEnemyPlace place, PlatformEnemyState state)
     {
-        QuadraticSpeedCurvePlace cap = QuadraticSpeedCurvePlace.FromMarks(place.SpawnSettings<PlatformSpawnSettings>().VerticalAccelerationUpdates);
+        QuadraticSpeedCurvePlace cap = QuadraticSpeedCurvePlace.FromMarks(state.Settings.VerticalAccelerationUpdates);
         state.YSpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
         if (state.YSpeedCurvePlace >= cap)
             state.YSpeedCurvePlace = cap;

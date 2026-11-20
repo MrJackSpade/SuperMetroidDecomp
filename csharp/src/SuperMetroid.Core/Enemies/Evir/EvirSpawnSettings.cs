@@ -4,4 +4,8 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// <param name="Part">Which part of the Evir it is.</param>
 /// <param name="Speed">The speed the body bobs at, as a downward displacement per update; it rises at the same speed.</param>
 /// <param name="DirectionChangePeriod">Updates between the body's direction changes.</param>
-internal sealed record EvirSpawnSettings(EvirBodyPart Part, SignedSixteenSixteen Speed, int DirectionChangePeriod) : EnemySpawnSettings;
+internal sealed record EvirSpawnSettings(EvirBodyPart Part, SignedSixteenSixteen Speed, int DirectionChangePeriod) : EnemySpawnSettings
+{
+    /// <inheritdoc/>
+    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).Place(this, placing);
+}

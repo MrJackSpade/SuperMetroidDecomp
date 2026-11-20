@@ -5,11 +5,11 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="setup">How the enemy comes to be set up, whose surroundings its initialization reads.</param>
-internal sealed class ElevatorEntity(ElevatorBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+internal sealed class ElevatorEntity(ElevatorBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ElevatorSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal ElevatorEnemyState State { get; } = species.SetUpElevator(place, setup.SurroundingsOf(place));
+    internal ElevatorEnemyState State { get; } = species.SetUpElevator(place, setup.SurroundingsOf(place), settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunElevatorMainAi(Place, State, frame);

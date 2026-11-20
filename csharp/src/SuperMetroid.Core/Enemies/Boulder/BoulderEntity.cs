@@ -4,11 +4,12 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 /// <param name="species">The Boulder species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class BoulderEntity(BoulderBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class BoulderEntity(BoulderBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BoulderSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal BoulderEnemyState State { get; } = BoulderBehavior.InitializeBoulder(place);
+    internal BoulderEnemyState State { get; } = BoulderBehavior.InitializeBoulder(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunBoulderMainAi(Place, State, frame);

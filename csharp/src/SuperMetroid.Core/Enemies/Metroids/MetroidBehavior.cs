@@ -13,13 +13,13 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>The Metroid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class MetroidBehavior : IEnemySpecies, IEnemySettingsFactory<MetroidSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Metroid];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new MetroidEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MetroidSpawnSettings settings) => new MetroidEntity(this, place, common, settings);
 
     /// <summary>Supplies room RNG for the five scattered death drops and idle cries.</summary>
     private readonly EnemyRoomBinding _room;
@@ -64,7 +64,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Metroid.</summary>
-    internal MetroidEnemyState InitializeMetroid(RoomEnemyPlace place)
+    internal MetroidEnemyState InitializeMetroid(RoomEnemyPlace place, MetroidSpawnSettings settings)
     {
         SpriteGraphics graphics = SpriteGraphics.SpawnedBy(place);
         RoomEffectActor electricity = _effectActors.SpawnRoomEffectActor(
@@ -76,11 +76,11 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEffectActorKind.MetroidShell,
             graphics);
 
-        var state = new MetroidEnemyState(electricity, shell)
+        var state = new MetroidEnemyState(electricity, shell, settings)
         {
             Drain = FractionalEnergyDrain.Start,
             Movement = MetroidMovement.Homing,
-            IceDamageToFreeze = place.SpawnSettings<MetroidSpawnSettings>().IceDamageToFreeze,
+            IceDamageToFreeze = settings.IceDamageToFreeze,
         };
         state.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation);
         return state;

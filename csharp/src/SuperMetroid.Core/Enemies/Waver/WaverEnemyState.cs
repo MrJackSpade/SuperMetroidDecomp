@@ -4,6 +4,13 @@ namespace SuperMetroid.Core.Enemies.Waver;
 /// <summary>The state of one Waver: its horizontal velocity, wave phase and animation selection.</summary>
 public sealed class WaverEnemyState
 {
+    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
+    internal WaverSpawnSettings Settings { get; }
+
+    /// <summary>Creates the state of an enemy whose entry told its species <paramref name="settings"/>.</summary>
+    /// <param name="settings">What the enemy's population entry told its species.</param>
+    internal WaverEnemyState(WaverSpawnSettings settings) => Settings = Ensure.NotNull(settings);
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<WaverSegment> Playback { get; set; }
 

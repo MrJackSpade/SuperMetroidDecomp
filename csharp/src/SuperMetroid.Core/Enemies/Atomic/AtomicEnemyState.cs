@@ -7,6 +7,13 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 /// </summary>
 public sealed class AtomicEnemyState
 {
+    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
+    internal AtomicSpawnSettings Settings { get; }
+
+    /// <summary>Creates the state of an enemy whose entry told its species <paramref name="settings"/>.</summary>
+    /// <param name="settings">What the enemy's population entry told its species.</param>
+    internal AtomicEnemyState(AtomicSpawnSettings settings) => Settings = Ensure.NotNull(settings);
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<AtomicSegment> Playback { get; set; }
 }

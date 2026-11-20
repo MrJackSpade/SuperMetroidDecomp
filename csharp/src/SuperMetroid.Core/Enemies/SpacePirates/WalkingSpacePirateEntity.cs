@@ -4,11 +4,12 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="species">The walking Space Pirate species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class WalkingSpacePirateEntity(WalkingSpacePirateBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class WalkingSpacePirateEntity(WalkingSpacePirateBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, WalkingSpacePirateSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal WalkingSpacePirateEnemyState State { get; } = WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(place);
+    internal WalkingSpacePirateEnemyState State { get; } = WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunWalkingSpacePirateMainAi(Place, State, frame);

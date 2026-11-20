@@ -5,11 +5,11 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="setup">How the enemy comes to be set up, whose surroundings its initialization reads.</param>
-internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, FaceBlockSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal BlueBrinstarFaceBlockEnemyState State { get; } = species.SetUpBlueBrinstarFaceBlock(place, setup.SurroundingsOf(place));
+    internal BlueBrinstarFaceBlockEnemyState State { get; } = species.SetUpBlueBrinstarFaceBlock(place, setup.SurroundingsOf(place), settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunBlueBrinstarFaceBlockMainAi(Place, State, frame);

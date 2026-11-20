@@ -8,11 +8,12 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 /// <param name="species">The Boyon species owner, which publishes the bounce sound.</param>
 /// <param name="place">The place the Boyon occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class BoyonEntity(BoyonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class BoyonEntity(BoyonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BoyonSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal BoyonEnemyState State { get; } = BoyonBehavior.InitializeBoyon(place);
+    internal BoyonEnemyState State { get; } = BoyonBehavior.InitializeBoyon(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>

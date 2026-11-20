@@ -4,11 +4,12 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// <param name="species">The Cacatac species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class CacatacEntity(CacatacBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class CacatacEntity(CacatacBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, CacatacSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal CacatacEnemyState State { get; } = CacatacBehavior.InitializeCacatac(place);
+    internal CacatacEnemyState State { get; } = CacatacBehavior.InitializeCacatac(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunCacatacMain(Place, State);

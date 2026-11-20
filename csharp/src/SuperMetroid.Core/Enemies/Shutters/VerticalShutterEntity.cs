@@ -10,14 +10,15 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <param name="place">The place the shutter occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="pose">The pose the shutter shows from its setup.</param>
-internal abstract class VerticalShutterEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, ShutterSegment pose)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal abstract class VerticalShutterEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, ShutterSegment pose, ShutterSpawnSettings settings)
     : ShuttersEntity(species, place, common), IEnemyPrivateShotReaction
 {
     /// <summary>The vertical shutter's own Power Bomb reaction, built over its state (#2554).</summary>
     private EnemyPowerBombReaction OwnPowerBombReaction => field ??= species.VerticalShutterPowerBombReactionOf(State);
 
     /// <summary>The shutter's state, which its setup builds as it is built (#2554).</summary>
-    internal VerticalShutterEnemyState State { get; } = ShuttersBehavior.InitializeVerticalShutter(place, pose);
+    internal VerticalShutterEnemyState State { get; } = ShuttersBehavior.InitializeVerticalShutter(place, pose, settings);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunVerticalShutterMainAi(Place, State, frame);

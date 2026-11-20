@@ -5,8 +5,16 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// <summary>The state of a Yard. Names follow what each value does.</summary>
 public sealed class YardEnemyState
 {
+    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
+    internal YardSpawnSettings Settings { get; }
+
     /// <summary>Starts the Yard in <paramref name="movement"/>.</summary>
-    internal YardEnemyState(YardMovement movement) => Movement = movement;
+    /// <param name="settings">What the enemy's population entry told its species.</param>
+    internal YardEnemyState(YardMovement movement, YardSpawnSettings settings)
+    {
+        Settings = Ensure.NotNull(settings);
+        Movement = movement;
+    }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<YardSegment> Playback { get; set; }

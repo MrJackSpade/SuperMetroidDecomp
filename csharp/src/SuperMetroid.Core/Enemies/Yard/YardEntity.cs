@@ -4,14 +4,15 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// <param name="species">The Yard species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, YardSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's own shot reaction, built over its state (#2554).</summary>
     private EnemyShotReaction OwnYardShotReaction => field ??= species.YardShotReactionOf(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal YardEnemyState State { get; } = YardEnemyBehavior.InitializeYard(place);
+    internal YardEnemyState State { get; } = YardEnemyBehavior.InitializeYard(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunYardMainAi(Place, State, frame);

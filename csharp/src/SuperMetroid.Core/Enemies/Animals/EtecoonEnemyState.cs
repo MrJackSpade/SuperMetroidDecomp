@@ -7,9 +7,14 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// </summary>
 public sealed class EtecoonEnemyState
 {
+    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
+    internal EtecoonSpawnSettings Settings { get; }
+
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal EtecoonEnemyState(EtecoonAction action)
+    /// <param name="settings">What the enemy's population entry told its species.</param>
+    internal EtecoonEnemyState(EtecoonAction action, EtecoonSpawnSettings settings)
     {
+        Settings = Ensure.NotNull(settings);
         Action = action;
         Heading = HorizontalDirection.Left;
     }

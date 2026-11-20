@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>The nuclear waffle species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySettingsFactory<NuclearWaffleSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.NuclearWaffle];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new NuclearWaffleEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, NuclearWaffleSpawnSettings settings) => new NuclearWaffleEntity(this, place, common, settings);
 
     /// <summary>Allocates the four collidable links in the articulated body.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -32,9 +32,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Nuclear Waffle.</summary>
-    internal NuclearWaffleEnemyState InitializeNuclearWaffle(RoomEnemyPlace place)
+    internal NuclearWaffleEnemyState InitializeNuclearWaffle(RoomEnemyPlace place, NuclearWaffleSpawnSettings settings)
     {
-        NuclearWaffleSpawnSettings settings = place.SpawnSettings<NuclearWaffleSpawnSettings>();
         NuclearWaffleSweepDefinition sweep = settings.Sweep;
 
         // The head starts on the orbit at the sweep's start angle around the placement, and every link spawns there.
@@ -43,7 +42,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> initialHead = place.Position.Whole;
         SpriteGraphics graphics = SpriteGraphics.SpawnedBy(place);
 
-        var state = new NuclearWaffleEnemyState(NuclearWaffleAction.Waiting)
+        var state = new NuclearWaffleEnemyState(NuclearWaffleAction.Waiting, settings)
         {
             ProjectileLinks = SpawnNuclearWaffleProjectileLinks(place, initialHead, graphics),
             SpriteLinks = SpawnNuclearWaffleSpriteLinks(place, graphics),
@@ -83,7 +82,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.WaitingTimer.Step())
             return;
 
-        NuclearWaffleSpawnSettings settings = place.SpawnSettings<NuclearWaffleSpawnSettings>();
+        NuclearWaffleSpawnSettings settings = state.Settings;
         state.WaitingTimer = UpdateCountdown.For(settings.WaitTime + EnemyWaitDefinitions.RunOutUpdate);
         state.SweepAngle = settings.Sweep.StartAngle;
         state.Action = NuclearWaffleAction.Sweeping;
@@ -94,7 +93,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs a sweep: the head and every link stand on the orbit of the spawn settings' radius.</summary>
     private void RunNuclearWaffleSweep(RoomEnemyPlace place, NuclearWaffleEnemyState state)
     {
-        NuclearWaffleSpawnSettings settings = place.SpawnSettings<NuclearWaffleSpawnSettings>();
+        NuclearWaffleSpawnSettings settings = state.Settings;
         NuclearWaffleOrientation headOrientation = GetNuclearWaffleOrientation(
             settings,
             state.CurrentAngle);

@@ -6,9 +6,14 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 public sealed class WallSpacePirateEnemyState
 {
+    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
+    internal WallSpacePirateSpawnSettings Settings { get; }
+
     /// <summary>Starts the state in <paramref name="action"/> on <paramref name="wall"/>, jumping as <paramref name="jump"/> does.</summary>
-    internal WallSpacePirateEnemyState(WallSpacePirateAction action, HorizontalDirection wall, WallSpacePirateJump jump)
+    /// <param name="settings">What the enemy's population entry told its species.</param>
+    internal WallSpacePirateEnemyState(WallSpacePirateAction action, HorizontalDirection wall, WallSpacePirateJump jump, WallSpacePirateSpawnSettings settings)
     {
+        Settings = Ensure.NotNull(settings);
         Action = action;
         Wall = wall;
         Jump = Ensure.NotNull(jump);

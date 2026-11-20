@@ -14,4 +14,8 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <param name="RestAfterMovingDown">How long it rests at its lower end, or that it stops there for good.</param>
 internal sealed record ShutterSpawnSettings(
     SignedSixteenSixteen Speed, VerticalDirection PrimaryDirection, ShutterTriggerMode TriggerMode, int TravelDistance,
-    int ProximityDistance, int WaitTime, ShutterRest RestAfterMovingUp, ShutterRest RestAfterMovingDown) : EnemySpawnSettings;
+    int ProximityDistance, int WaitTime, ShutterRest RestAfterMovingUp, ShutterRest RestAfterMovingDown) : EnemySpawnSettings
+{
+    /// <inheritdoc/>
+    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).Place(this, placing);
+}

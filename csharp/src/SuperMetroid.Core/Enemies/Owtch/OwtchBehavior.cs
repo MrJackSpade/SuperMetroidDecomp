@@ -4,13 +4,13 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>The Owtch species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class OwtchBehavior : IEnemySpecies, IEnemySettingsFactory<OwtchSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Owtch];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new OwtchEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, OwtchSpawnSettings settings) => new OwtchEntity(this, place, common, settings);
 
     /// <summary>Supplies the shared room random sequence used for burial and emergence.</summary>
     private readonly EnemyRoomBinding _room;
@@ -26,10 +26,9 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         SetOwtchMoving(state, cue.Direction == HorizontalDirection.Left ? OwtchBehaviorState.MovingLeft : OwtchBehaviorState.MovingRight);
 
     /// <summary>Initializes the Owtch.</summary>
-    internal static OwtchEnemyState InitializeOwtch(RoomEnemyPlace place)
+    internal static OwtchEnemyState InitializeOwtch(RoomEnemyPlace place, OwtchSpawnSettings settings)
     {
-        OwtchSpawnSettings settings = place.SpawnSettings<OwtchSpawnSettings>();
-        var state = new OwtchEnemyState
+        var state = new OwtchEnemyState(settings)
         {
             Behavior = settings.InitialBehavior,
             UndergroundTimer = UpdateCountdown.For(settings.UndergroundWait),
@@ -73,7 +72,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.Sink.Count())
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
-                    state.UndergroundTimer = UpdateCountdown.For(place.SpawnSettings<OwtchSpawnSettings>().UndergroundWait);
+                    state.UndergroundTimer = UpdateCountdown.For(state.Settings.UndergroundWait);
                 }
                 return;
 
@@ -126,7 +125,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection direction)
     {
         // A fraction past a whole pixel carries into the whole pixels.
-        SignedSixteenSixteen speed = place.SpawnSettings<OwtchSpawnSettings>().Speed;
+        SignedSixteenSixteen speed = state.Settings.Speed;
         place.Position = place.Position.AdvanceX(speed.Toward(direction));
 
         if (direction != HorizontalDirection.Right)

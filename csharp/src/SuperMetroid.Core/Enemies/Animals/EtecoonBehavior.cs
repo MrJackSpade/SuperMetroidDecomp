@@ -10,13 +10,13 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The Etecoon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class EtecoonBehavior : IEnemySpecies, IEnemySettingsFactory<EtecoonSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Etecoon];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new EtecoonEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EtecoonSpawnSettings settings) => new EtecoonEntity(this, place, common, settings);
 
     /// <summary>Probes the floor, walls, and ceiling throughout the teaching route.</summary>
     private readonly EnemyTerrain _terrain;
@@ -43,11 +43,10 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Position.X.Whole >= EtecoonRouteDefinitions.AudibleFromSamusX;
 
     /// <summary>Initializes the Etecoon.</summary>
-    internal static EtecoonEnemyState InitializeEtecoon(RoomEnemyPlace place)
+    internal static EtecoonEnemyState InitializeEtecoon(RoomEnemyPlace place, EtecoonSpawnSettings settings)
     {
         // The placement must name the route, which the Etecoon reads where it takes it (#2531).
-        _ = place.SpawnSettings<EtecoonSpawnSettings>();
-        var state = new EtecoonEnemyState(EtecoonAction.Dormant);
+        var state = new EtecoonEnemyState(EtecoonAction.Dormant, settings);
 
         // The setup makes the Etecoon animate, whether or not its placement does.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
@@ -154,7 +153,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EtecoonIsWithinY(place, samus, EtecoonRouteDefinitions.ActivationYDistance))
             return;
 
-        if (place.SpawnSettings<EtecoonSpawnSettings>().Route == EtecoonRoute.RunLeftToTeachingStart)
+        if (state.Settings.Route == EtecoonRoute.RunLeftToTeachingStart)
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.EtecoonWakeSound, priority: SoundRequestPriority.Essential);
         state.Playback = new(EtecoonAnimations.Flexing, AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
@@ -362,7 +361,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         SetEtecoonVerticalVelocity(state, EtecoonMotionDefinitions.HopSpeed);
-        EtecoonRoute route = place.SpawnSettings<EtecoonSpawnSettings>().Route;
+        EtecoonRoute route = state.Settings.Route;
         switch (route)
         {
             case EtecoonRoute.RunLeftToTeachingStart:
@@ -496,7 +495,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.ActionTimer = UpdateCountdown.For(EtecoonTimingDefinitions.HopCrouch);
             StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
-            state.Action = place.SpawnSettings<EtecoonSpawnSettings>().Route == EtecoonRoute.TeachAtOnce &&
+            state.Action = state.Settings.Route == EtecoonRoute.TeachAtOnce &&
                 place.Position.X.Whole < EtecoonRouteDefinitions.LongRunMaximumX
                     ? EtecoonAction.WaitForSamusBeforeLongRun
                     : EtecoonAction.IdleBetweenTeachingJumps;
@@ -527,7 +526,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             // The count empties before the teach-at-once route is tested, so that route hops lesson after lesson.
             state.TeachingHops = 0;
         }
-        if (lessonContinues || place.SpawnSettings<EtecoonSpawnSettings>().Route == EtecoonRoute.TeachAtOnce)
+        if (lessonContinues || state.Settings.Route == EtecoonRoute.TeachAtOnce)
         {
             state.Action = EtecoonAction.TeachingJump;
             state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.ContinueHoppingFacingLeft), AnimationPlace.StartOfAnimation);

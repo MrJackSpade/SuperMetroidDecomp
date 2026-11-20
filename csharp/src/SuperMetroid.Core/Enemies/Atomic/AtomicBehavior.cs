@@ -6,23 +6,22 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 
 /// <summary>The Atomic species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class AtomicBehavior : IEnemySpecies, IEnemySettingsFactory<AtomicSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Atomic];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new AtomicEntity(place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, AtomicSpawnSettings settings) => new AtomicEntity(place, common, settings);
 
 
     /// <summary>Initializes the Atomic.</summary>
-    internal static AtomicEnemyState InitializeAtomic(RoomEnemyPlace place)
+    internal static AtomicEnemyState InitializeAtomic(RoomEnemyPlace place, AtomicSpawnSettings settings)
     {
-        var state = new AtomicEnemyState();
+        var state = new AtomicEnemyState(settings);
 
         place.AnimationClock.Restart();
 
-        AtomicSpawnSettings settings = place.SpawnSettings<AtomicSpawnSettings>();
         state.Playback = new(AtomicAnimations.StartingWith(settings.Spin), AnimationPlace.StartOfAnimation);
         return state;
     }
@@ -33,11 +32,12 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static void RunAtomicMain(
         RoomEnemyPlace place,
+        AtomicEnemyState state,
         SamusState samus)
     {
         // The Atomic moves towards Samus on each axis; being level with her counts as her being below or to the right, so
         // it moves down or right.
-        SignedSixteenSixteen speed = place.SpawnSettings<AtomicSpawnSettings>().Speed;
+        SignedSixteenSixteen speed = state.Settings.Speed;
         SignedSixteenSixteen vertical = speed.Toward(samus.Position.Y.Whole < place.Position.Y.Whole ? VerticalDirection.Up : VerticalDirection.Down);
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(vertical));
 
@@ -52,8 +52,8 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"A cue-free Atomic animation raised {cue}."));
 
     /// <summary>Runs Atomic's main AI.</summary>
-    internal static void RunAtomicMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal static void RunAtomicMainAi(RoomEnemyPlace place, AtomicEnemyState state, IEnemyAiFrame frame)
     {
-        RunAtomicMain(place, frame.Samus);
+        RunAtomicMain(place, state, frame.Samus);
     }
 }

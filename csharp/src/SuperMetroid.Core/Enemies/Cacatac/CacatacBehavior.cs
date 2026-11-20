@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>The Cacatac species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class CacatacBehavior : IEnemySpecies, IEnemySettingsFactory<CacatacSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Cacatac];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new CacatacEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CacatacSpawnSettings settings) => new CacatacEntity(this, place, common, settings);
 
     /// <summary>Supplies shared room RNG for the three-in-256 spike attack gate.</summary>
     private readonly EnemyRoomBinding _room;
@@ -52,9 +52,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Cacatac.</summary>
-    internal static CacatacEnemyState InitializeCacatac(RoomEnemyPlace place)
+    internal static CacatacEnemyState InitializeCacatac(RoomEnemyPlace place, CacatacSpawnSettings settings)
     {
-        CacatacSpawnSettings settings = place.SpawnSettings<CacatacSpawnSettings>();
         bool onFloor = settings.Mounting == CacatacMounting.Floor;
         place.Frame = EnemyFrameId.Empty;
 
@@ -67,7 +66,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             CacatacStart.Patrolling => CacatacAction.Patrolling,
             CacatacStart.Stopped => CacatacAction.Stopped,
             _ => throw new InvalidOperationException($"Undefined {nameof(CacatacStart)} {settings.Start}."),
-        })
+        }, settings)
         {
             PatrolDirection = settings.Direction,
             RightPatrolX = spawnX + settings.TravelDistance,
@@ -101,7 +100,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void MoveCacatac(RoomEnemyPlace place, CacatacEnemyState state)
     {
         bool right = state.PatrolDirection == HorizontalDirection.Right;
-        SignedSixteenSixteen speed = place.SpawnSettings<CacatacSpawnSettings>().Speed;
+        SignedSixteenSixteen speed = state.Settings.Speed;
         place.Position = place.Position.AdvanceX(speed.Toward(state.PatrolDirection));
 
         if (!right)
@@ -122,7 +121,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Action = CacatacAction.Stopped;
-        SetCacatacAnimation(place, state, place.SpawnSettings<CacatacSpawnSettings>().Mounting == CacatacMounting.Floor ? CacatacSegment.OnFloorAttack : CacatacSegment.OnCeilingAttack);
+        SetCacatacAnimation(place, state, state.Settings.Mounting == CacatacMounting.Floor ? CacatacSegment.OnFloorAttack : CacatacSegment.OnCeilingAttack);
     }
 
     /// <summary>Animation cue: restore patrol the way it last patrolled.</summary>

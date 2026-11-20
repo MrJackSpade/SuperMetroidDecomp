@@ -21,6 +21,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
         _registry = Ensure.NotNull(registry);
         _leftovers = Ensure.NotNull(leftovers);
         Ordinal = Ensure.BetweenInclusive(0, EnemyPlaceOrder.Capacity - 1, ordinal);
+        _build = BuildThroughSpecies;
     }
 
     /// <summary>
@@ -80,11 +81,49 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     internal IEnemyEntity? FoundEnemy => Found is EnemyPlaceFinding.Enemy found ? found.Entity : null;
 
     /// <summary>
+    /// How the place's occupant is built: through its species' factory, or as the part of the group whose head the room
+    /// lists before it (#2554). A respawn builds the occupant again the same way (<see cref="SetUpAgain"/>).
+    /// </summary>
+    private EnemyPartBuild _build;
+
+    /// <summary>
     /// Builds the occupant's enemy with its state through its species' factory, at the point its initialization runs: after
     /// its identity, population entry and live values are installed (#2554).
     /// </summary>
     /// <param name="setup">How the occupant comes to be set up.</param>
-    internal void SetUp(EnemySetup setup) => Entity = _registry.Create(this, Ensure.NotNull(setup));
+    internal void SetUp(EnemySetup setup) => SetUpListed(setup, []);
+
+    /// <summary>
+    /// Builds the occupant the room's population placed, through its species' factory; an occupant heading a group takes its
+    /// parts' places from <paramref name="listedAfter"/>.
+    /// </summary>
+    /// <param name="setup">How the occupant comes to be set up.</param>
+    /// <param name="listedAfter">The places the population lists right after this one.</param>
+    /// <returns>How each part of the group the occupant heads is built, in listing order; empty when it heads none.</returns>
+    internal IReadOnlyList<EnemyPartBuild> SetUpListed(EnemySetup setup, IReadOnlyList<RoomEnemyPlace> listedAfter)
+    {
+        _build = BuildThroughSpecies;
+        EnemyPlaced placed = _registry.Place(this, Ensure.NotNull(setup), Ensure.NotNull(listedAfter));
+        Entity = placed.Enemy;
+        return placed.Parts;
+    }
+
+    /// <summary>Builds the occupant as the part <paramref name="build"/> builds, as its group's head handed it over.</summary>
+    /// <param name="build">How the part is built.</param>
+    /// <param name="setup">How the occupant comes to be set up.</param>
+    internal void SetUpAsPart(EnemyPartBuild build, EnemySetup setup)
+    {
+        _build = Ensure.NotNull(build);
+        Entity = build(this, _registry.Common, Ensure.NotNull(setup));
+    }
+
+    /// <summary>Builds a respawned occupant again the way its place last built it: through its species, or as its group's part.</summary>
+    /// <param name="setup">How the occupant comes to be set up again.</param>
+    internal void SetUpAgain(EnemySetup setup) => Entity = _build(this, _registry.Common, Ensure.NotNull(setup));
+
+    /// <summary>Builds the occupant through its species' factory, as an occupant that heads no group.</summary>
+    private IEnemyEntity BuildThroughSpecies(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
+        _registry.Place(place, setup, []).Enemy;
 
     /// <summary>
     /// Installs a new occupant's identity, releasing the enemy that held the place; its species builds the new occupant's
@@ -149,9 +188,6 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// </summary>
     public RoomEnemySpawnSnapshot Spawn { get; internal set; }
 
-    /// <summary>The settings the occupant's population entry gives its species, as the <typeparamref name="T"/> it reads.</summary>
-    /// <exception cref="InvalidDataException">The entry carries other settings.</exception>
-    internal T SpawnSettings<T>() where T : EnemySpawnSettings => Spawn.Population.SpawnSettingsOf<T>();
     /// <summary>The enemy's room position with its fraction of a pixel, each whole coordinate wrapping around the room.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Collision half-extents in pixels, initially the definition's.</summary>

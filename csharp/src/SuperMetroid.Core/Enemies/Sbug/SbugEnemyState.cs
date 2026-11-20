@@ -9,8 +9,16 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// </summary>
 public sealed class SbugEnemyState
 {
+    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
+    internal SbugSpawnSettings Settings { get; }
+
     /// <summary>Creates the state of an Sbug starting in <paramref name="action"/>.</summary>
-    internal SbugEnemyState(SbugAction action) => Action = action;
+    /// <param name="settings">What the enemy's population entry told its species.</param>
+    internal SbugEnemyState(SbugAction action, SbugSpawnSettings settings)
+    {
+        Settings = Ensure.NotNull(settings);
+        Action = action;
+    }
 
     /// <summary>The current AI behaviour.</summary>
     public SbugAction Action { get; internal set; }

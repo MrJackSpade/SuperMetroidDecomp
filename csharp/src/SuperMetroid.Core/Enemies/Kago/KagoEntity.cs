@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// <param name="species">The Kago species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class KagoEntity(KagoBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class KagoEntity(KagoBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, KagoSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
@@ -14,7 +15,7 @@ internal sealed class KagoEntity(KagoBehavior species, RoomEnemyPlace place, Ene
     private EnemyShotReaction OwnKagoShotReaction => field ??= species.KagoShotReactionOf(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal KagoEnemyState State { get; } = KagoBehavior.InitializeKago(place);
+    internal KagoEnemyState State { get; } = KagoBehavior.InitializeKago(place, settings);
 
     /// <inheritdoc/>
     /// <remarks>The Kago has no main behaviour (#1814): its animation plays the shell and its shot reaction does the rest.</remarks>

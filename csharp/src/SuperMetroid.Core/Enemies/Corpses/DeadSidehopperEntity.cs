@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="species">The dead Sidehopper species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, DeadSidehopperSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
         IShowsCorpseRotRows
 {
@@ -18,7 +19,7 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
     public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal DeadSidehopperEnemyState State { get; } = species.InitializeDeadSidehopper(place);
+    internal DeadSidehopperEnemyState State { get; } = species.InitializeDeadSidehopper(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadSidehopperMainAi(Place, State, frame);

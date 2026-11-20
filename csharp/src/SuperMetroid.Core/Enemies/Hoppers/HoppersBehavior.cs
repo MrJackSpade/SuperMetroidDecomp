@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>The Hoppers species owner: its per-room state, AI behaviours and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class HoppersBehavior : IEnemySpecies, IEnemySettingsFactory<HopperSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dessgeega, EnemyDefinitionId.DessgeegaLarge, EnemyDefinitionId.Sidehopper, EnemyDefinitionId.SidehopperLarge, EnemyDefinitionId.SidehopperTourian];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new HoppersEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, HopperSpawnSettings settings) => new HoppersEntity(this, place, common, settings);
 
     /// <summary>Supplies the shared RNG seed consumed during Hopper initialization.</summary>
     private readonly EnemyRoomBinding _room;
@@ -54,14 +54,14 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Hopper.</summary>
-    internal HopperEnemyState InitializeHopper(RoomEnemyPlace place)
+    internal HopperEnemyState InitializeHopper(RoomEnemyPlace place, HopperSpawnSettings settings)
     {
         HopperKind kind = HopperAnimationChoices.KindOf(place.DefinitionId);
         // The placement's reseed is followed by a draw it never reads, which later consumers observe.
         _room.Random.Reseed(SpeciesRandomReseed.HopperPlacement);
         _room.Random.Generate();
 
-        var state = new HopperEnemyState(HopperAction.ChooseHopSize)
+        var state = new HopperEnemyState(HopperAction.ChooseHopSize, settings)
         {
             Kind = kind,
         };
@@ -162,7 +162,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         // A floor hopper rises away from the floor; a ceiling hopper drops away from the ceiling.
-        VerticalDirection away = HopperSurfaces.AwayFrom(SurfaceOf(place));
+        VerticalDirection away = HopperSurfaces.AwayFrom(SurfaceOf(state));
         // A collision with the room beyond reverses X and turns the hop back without horizontal motion that update.
         if (_terrain.MoveEnemyVertically(level, place, state.YSpeedCurvePlace.Speed.Toward(away)))
         {
@@ -201,7 +201,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         // A floor hopper drops back to the floor; a ceiling hopper rises back to the ceiling.
-        VerticalDirection back = HopperSurfaces.AwayFrom(SurfaceOf(place)).Reversed();
+        VerticalDirection back = HopperSurfaces.AwayFrom(SurfaceOf(state)).Reversed();
         if (_terrain.MoveEnemyVertically(level, place, state.YSpeedCurvePlace.Speed.Toward(back)))
         {
             state.Action = HopperAction.Landed;
@@ -228,11 +228,11 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The surface the hopper's placement mounts it on (#2474), which decides which way is up for its hops.</summary>
-    private static HopperSurface SurfaceOf(RoomEnemyPlace place) => place.SpawnSettings<HopperSpawnSettings>().Surface;
+    private static HopperSurface SurfaceOf(HopperEnemyState state) => state.Settings.Surface;
 
     /// <summary>Selects the animation for this kind on its surface in its jumping or landing half.</summary>
     private static HopperSegment ReadHopperAnimation(RoomEnemyPlace place, HopperEnemyState state, HopperPhase phase) =>
-        HopperAnimationChoices.Animation(state.Kind, SurfaceOf(place), phase);
+        HopperAnimationChoices.Animation(state.Kind, SurfaceOf(state), phase);
 
     /// <summary>Starts a new animation, its first step playing on the next update.</summary>
     private static void SetHopperAnimation(

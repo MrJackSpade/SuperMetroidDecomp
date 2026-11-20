@@ -10,20 +10,20 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The ninja space pirate species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFactory<NinjaSpacePirateSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldNinja, EnemyDefinitionId.PirateSilverNinja];
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">The place holds no ninja definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, NinjaSpacePirateSpawnSettings settings)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.PirateGoldNinja)
-            return new GoldNinjaSpacePirateEntity(this, place, common);
+            return new GoldNinjaSpacePirateEntity(this, place, common, settings);
         if (definition == EnemyDefinitionId.PirateSilverNinja)
-            return new NinjaSpacePirateEntity(this, place, common);
+            return new NinjaSpacePirateEntity(this, place, common, settings);
         throw new InvalidOperationException($"The ninja Space Pirate species creates no {place.DefinitionId}.");
     }
 
@@ -50,11 +50,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Initializes the Ninja Space Pirate.</summary>
-    internal static NinjaSpacePirateEnemyState InitializeNinjaSpacePirate(RoomEnemyPlace place)
+    internal static NinjaSpacePirateEnemyState InitializeNinjaSpacePirate(RoomEnemyPlace place, NinjaSpacePirateSpawnSettings settings)
     {
         var state = new NinjaSpacePirateEnemyState(NinjaSpacePirateAction.StandingStill);
 
-        NinjaSpacePirateSpawnSettings settings = place.SpawnSettings<NinjaSpacePirateSpawnSettings>();
         bool startsAtLeft = settings.StartPost switch
         {
             NinjaSpacePirateStartPost.Left => true,

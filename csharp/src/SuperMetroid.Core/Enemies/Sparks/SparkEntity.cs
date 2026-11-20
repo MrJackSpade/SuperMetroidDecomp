@@ -4,11 +4,12 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 /// <param name="species">The Spark species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class SparkEntity(SparkBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class SparkEntity(SparkBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, SparkSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal SparkEnemyState State { get; } = SparkBehavior.InitializeSpark(place);
+    internal SparkEnemyState State { get; } = SparkBehavior.InitializeSpark(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunSparkMain(Place, State);

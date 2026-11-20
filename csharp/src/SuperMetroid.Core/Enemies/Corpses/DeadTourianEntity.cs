@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="species">The Tourian corpses' species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, CorpseSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
         IShowsCorpseRotRows
 {
@@ -18,7 +19,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyPl
     public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal DeadTourianCorpseEnemyState State { get; } = DeadTourianBehavior.InitializeDeadTourianCorpse(place);
+    internal DeadTourianCorpseEnemyState State { get; } = DeadTourianBehavior.InitializeDeadTourianCorpse(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTourianMainAi(Place, State, frame);

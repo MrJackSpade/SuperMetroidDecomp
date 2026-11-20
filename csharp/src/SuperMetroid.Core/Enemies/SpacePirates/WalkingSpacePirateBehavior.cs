@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The walking space pirate species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettingsFactory<WalkingSpacePirateSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWalking, EnemyDefinitionId.PirateGreenWalking, EnemyDefinitionId.PirateGreyWalking, EnemyDefinitionId.PirateMagentaWalking, EnemyDefinitionId.PirateRedWalking, EnemyDefinitionId.PirateSilverWalking];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new WalkingSpacePirateEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WalkingSpacePirateSpawnSettings settings) => new WalkingSpacePirateEntity(this, place, common, settings);
 
     /// <summary>Supplies solid-ground and ledge probes for the patrol AI.</summary>
     private readonly EnemyTerrain _terrain;
@@ -51,7 +51,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         {
             case WalkingSpacePirateCue.FireLaser fireLaser:
                 _ = SpawnSpacePirateLaser(place, fireLaser.Direction, fireLaser.LaserHeight,
-                    place.SpawnSettings<WalkingSpacePirateSpawnSettings>().LaserSpeed);
+                    state.Settings.LaserSpeed);
                 return null;
             case WalkingSpacePirateCue.Signal { Kind: WalkingSpacePirateCueKind.ChooseMovement }:
                 return SelectWalkingSpacePirateMovement(place, samus);
@@ -79,12 +79,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         _audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Initializes the walking Space Pirate.</summary>
-    internal static WalkingSpacePirateEnemyState InitializeWalkingSpacePirate(RoomEnemyPlace place)
+    internal static WalkingSpacePirateEnemyState InitializeWalkingSpacePirate(RoomEnemyPlace place, WalkingSpacePirateSpawnSettings settings)
     {
-        var state = new WalkingSpacePirateEnemyState(WalkingSpacePirateAction.StandingStill);
+        var state = new WalkingSpacePirateEnemyState(WalkingSpacePirateAction.StandingStill, settings);
 
         // The placement's facing alone selects the first walk.
-        WalkingSpacePirateSpawnSettings settings = place.SpawnSettings<WalkingSpacePirateSpawnSettings>();
         state.Playback = new(WalkingSpacePirateAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
             ? WalkingSpacePirateSegment.WalkingRight
             : WalkingSpacePirateSegment.WalkingLeft), AnimationPlace.StartOfAnimation);
@@ -125,7 +124,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         // A pirate placed to flinch looks for Samus's shots after its normal AI, and a flinch may replace an animation
         // selected just above.
-        if (place.SpawnSettings<WalkingSpacePirateSpawnSettings>().ShotWatch == WalkingSpacePirateShotWatch.FlinchesFromShots)
+        if (state.Settings.ShotWatch == WalkingSpacePirateShotWatch.FlinchesFromShots)
             TryTriggerWalkingSpacePirateFlinch(place, state, samus, samusProjectiles);
     }
 

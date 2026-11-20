@@ -4,11 +4,12 @@ namespace SuperMetroid.Core.Enemies.Waver;
 /// <param name="species">The Waver species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class WaverEntity(WaverBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class WaverEntity(WaverBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, WaverSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal WaverEnemyState State { get; } = WaverBehavior.InitializeWaver(place);
+    internal WaverEnemyState State { get; } = WaverBehavior.InitializeWaver(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunWaverMainAi(Place, State, frame);

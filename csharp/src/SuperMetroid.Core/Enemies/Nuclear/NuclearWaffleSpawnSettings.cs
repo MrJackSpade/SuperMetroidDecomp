@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// <param name="WaitTime">The updates it waits between sweeps.</param>
 internal sealed record NuclearWaffleSpawnSettings(AngularSpeed AngularSpeed, int OrbitRadius, NuclearWaffleSweepDirection Direction, int WaitTime) : EnemySpawnSettings
 {
+    /// <inheritdoc/>
+    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).Place(this, placing);
+
     /// <summary>
     /// The sweep its <see cref="Direction"/> runs (#2474): its start and end angles, the spacing of its links and the
     /// angles at which they turn.

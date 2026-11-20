@@ -7,14 +7,14 @@ namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The Norfair rio species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class GerutaBehavior : IEnemySpecies, IEnemySettingsFactory<EnemyFollowerSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Geruta];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
-        Ensure.NotNull(place).SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EnemyFollowerSpawnSettings settings) =>
+        settings.Role == EnemyFollowerRole.Follower
             ? new GerutaFollowerEntity(this, place, common)
             : new GerutaEntity(this, place, common);
 

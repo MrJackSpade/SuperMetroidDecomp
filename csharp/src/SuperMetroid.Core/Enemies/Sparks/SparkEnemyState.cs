@@ -4,9 +4,14 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 /// <summary>The state of one Spark.</summary>
 public sealed class SparkEnemyState
 {
+    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
+    internal SparkSpawnSettings Settings { get; }
+
     /// <summary>Starts the state in <paramref name="action"/>, playing <paramref name="playback"/>.</summary>
-    internal SparkEnemyState(SparkAction action, AnimationPlayback<SparkSegment> playback)
+    /// <param name="settings">What the enemy's population entry told its species.</param>
+    internal SparkEnemyState(SparkAction action, AnimationPlayback<SparkSegment> playback, SparkSpawnSettings settings)
     {
+        Settings = Ensure.NotNull(settings);
         Action = action;
         Playback = playback;
     }

@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 
 /// <summary>The Skultera species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class SkulteraBehavior : IEnemySpecies, IEnemySettingsFactory<SkulteraSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skultera];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new SkulteraEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, SkulteraSpawnSettings settings) => new SkulteraEntity(this, place, common, settings);
 
     /// <summary>The room's blocks Skultera's horizontal and vertical swim steps meet.</summary>
     private readonly EnemyTerrain _terrain;
@@ -42,12 +42,11 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Initializes the Skultera.</summary>
-    internal static SkulteraEnemyState InitializeSkultera(RoomEnemyPlace place)
+    internal static SkulteraEnemyState InitializeSkultera(RoomEnemyPlace place, SkulteraSpawnSettings settings)
     {
         // The placement names the way it starts swimming and the speed it swims at either way.
-        SkulteraSpawnSettings settings = place.SpawnSettings<SkulteraSpawnSettings>();
         bool startsLeft = settings.StartDirection == HorizontalDirection.Left;
-        var state = new SkulteraEnemyState(SkulteraAction.Swimming, settings.StartDirection);
+        var state = new SkulteraEnemyState(SkulteraAction.Swimming, settings.StartDirection, settings);
 
         state.Playback = new(SkulteraAnimations.StartingWith(startsLeft
             ? SkulteraSegment.SwimmingLeft
@@ -87,8 +86,8 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         HorizontalDirection direction)
     {
-        SkulteraSpawnSettings settings = place.SpawnSettings<SkulteraSpawnSettings>();
-        SignedSixteenSixteen horizontalDisplacement = SwimVelocity(place, direction);
+        SkulteraSpawnSettings settings = state.Settings;
+        SignedSixteenSixteen horizontalDisplacement = SwimVelocity(settings, direction);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
@@ -134,9 +133,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The swimming displacement of the Skultera in <paramref name="place"/> toward <paramref name="direction"/>: its
     /// spawn speed, reversed leftward (#2278).
     /// </summary>
-    internal static SignedSixteenSixteen SwimVelocity(RoomEnemyPlace place, HorizontalDirection direction)
+    internal static SignedSixteenSixteen SwimVelocity(SkulteraSpawnSettings settings, HorizontalDirection direction)
     {
-        SignedSixteenSixteen speed = Ensure.NotNull(place).SpawnSettings<SkulteraSpawnSettings>().Speed;
+        SignedSixteenSixteen speed = Ensure.NotNull(settings).Speed;
         return speed.Toward(direction);
     }
 

@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 
 /// <summary>The Fireflea species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class FirefleaBehavior : IEnemySpecies, IEnemySettingsFactory<FirefleaSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fireflea];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new FirefleaEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, FirefleaSpawnSettings settings) => new FirefleaEntity(this, place, common, settings);
 
     /// <summary>Runs common touch handling before Fireflea's unconditional death call.</summary>
     private readonly EnemyCollision _collision;
@@ -30,16 +30,15 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Fireflea from its flight and radius.</summary>
-    internal static FirefleaEnemyState InitializeFireflea(RoomEnemyPlace place)
+    internal static FirefleaEnemyState InitializeFireflea(RoomEnemyPlace place, FirefleaSpawnSettings settings)
     {
-        FirefleaSpawnSettings settings = place.SpawnSettings<FirefleaSpawnSettings>();
         FirefleaFlightState flight = settings.Flight switch
         {
             FirefleaFlight.Circling circling => StartCircling(place, circling, settings.Radius),
             FirefleaFlight.Bobbing bobbing => StartBobbing(place, bobbing, settings.Radius),
             _ => throw new InvalidOperationException($"Undefined {nameof(FirefleaFlight)} {settings.Flight}."),
         };
-        var state = new FirefleaEnemyState(flight)
+        var state = new FirefleaEnemyState(flight, settings)
         {
             Playback = new(FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), AnimationPlace.StartOfAnimation),
         };
@@ -77,7 +76,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case CirclingFirefleaState circling:
                 place.Position = place.Position.WithWhole(circling.Center
-                    + EnemyMath.CircleOffset(circling.Angle.ToTrigonometryAngle(), place.SpawnSettings<FirefleaSpawnSettings>().Radius));
+                    + EnemyMath.CircleOffset(circling.Angle.ToTrigonometryAngle(), state.Settings.Radius));
                 circling.Angle = circling.Angle.TurnedBy(circling.Definition.TurnPerUpdate);
                 return;
 

@@ -14,13 +14,13 @@ namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>The Yard species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySettingsFactory<YardSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Yard];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new YardEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, YardSpawnSettings settings) => new YardEntity(this, place, common, settings);
 
     /// <summary>Provides active room context for Yard initialization and main AI.</summary>
     private readonly EnemyRoomBinding _room;
@@ -103,12 +103,11 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         new(playing.Animation, AnimationPlace.StartOf(playing.Place.Phase));
 
     /// <summary>Initializes the Yard.</summary>
-    internal static YardEnemyState InitializeYard(RoomEnemyPlace place)
+    internal static YardEnemyState InitializeYard(RoomEnemyPlace place, YardSpawnSettings settings)
     {
-        YardSpawnSettings settings = place.SpawnSettings<YardSpawnSettings>();
         YardDirection direction = settings.Direction;
 
-        var state = new YardEnemyState(YardMovement.HoldingStill)
+        var state = new YardEnemyState(YardMovement.HoldingStill, settings)
         {
             // The population entry selects the initial animations and velocity signs, but
             // does not set the live direction. Only the direction cue does. A
@@ -558,7 +557,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         _collision.ResolveOrdinaryTouch(place, samus, pseudoScrew);
-        state.CrawlSpeed = place.SpawnSettings<YardSpawnSettings>().CrawlSpeed;
+        state.CrawlSpeed = state.Settings.CrawlSpeed;
         if (state.Behavior != YardBehavior.NormalCrawling)
             TurnYardAround(state);
         state.Behavior = YardBehavior.NormalCrawling;

@@ -8,10 +8,14 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// </summary>
 public sealed class MetroidEnemyState
 {
+    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
+    internal MetroidSpawnSettings Settings { get; }
+
     /// <summary>Connects the Metroid to its two live outer-body effect actors.</summary>
     internal MetroidEnemyState(RoomEffectActor electricity,
-        RoomEffectActor shell)
+        RoomEffectActor shell, MetroidSpawnSettings settings)
     {
+        Settings = Ensure.NotNull(settings);
         Electricity = electricity;
         Shell = shell;
     }

@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The dead sidehopper species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySettingsFactory<DeadSidehopperSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CorpseSidehopper];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new DeadSidehopperEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, DeadSidehopperSpawnSettings settings) => new DeadSidehopperEntity(this, place, common, settings);
 
     /// <summary>Provides installed artwork and the room random source for corpse decomposition.</summary>
     private readonly EnemyRoomBinding _room;
@@ -59,9 +59,9 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Initializes the dead Sidehopper.</summary>
-    internal DeadSidehopperEnemyState InitializeDeadSidehopper(RoomEnemyPlace place)
+    internal DeadSidehopperEnemyState InitializeDeadSidehopper(RoomEnemyPlace place, DeadSidehopperSpawnSettings settings)
     {
-        DeadSidehopperLayout layout = place.SpawnSettings<DeadSidehopperSpawnSettings>().Layout;
+        DeadSidehopperLayout layout = settings.Layout;
         return layout switch
         {
             DeadSidehopperLayout.BabyMetroidVictim => InitializeBabyMetroidVictimSidehopper(place),

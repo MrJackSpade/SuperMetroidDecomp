@@ -10,13 +10,13 @@ namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>The Kago species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class KagoBehavior : IEnemySpecies, IEnemySettingsFactory<KagoSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kago];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new KagoEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, KagoSpawnSettings settings) => new KagoEntity(this, place, common, settings);
 
     /// <summary>Provides the room's random number sampled by bug spawns and jumps without advancing the generator.</summary>
     private readonly EnemyRoomBinding _room;
@@ -44,9 +44,9 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Kago.</summary>
-    internal static KagoEnemyState InitializeKago(RoomEnemyPlace place)
+    internal static KagoEnemyState InitializeKago(RoomEnemyPlace place, KagoSpawnSettings settings)
     {
-        var state = new KagoEnemyState();
+        var state = new KagoEnemyState(settings);
 
         // The setup makes Kago's shell animate; its placement says the rest.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
@@ -69,7 +69,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The shell withstands as many shots as its placement names and dies of the next (#2340).
-        if (++state.HitsTaken > place.SpawnSettings<KagoSpawnSettings>().HitCount)
+        if (++state.HitsTaken > state.Settings.HitCount)
         {
             // The shot's damage may already have killed the 1600-health shell, which counts its death once.
             if (!place.Presence.HasAny(EnemyPresence.Deleted))

@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>The Multiviola species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySettingsFactory<MultiviolaSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Multiviola];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new MultiviolaEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MultiviolaSpawnSettings settings) => new MultiviolaEntity(this, place, common, settings);
 
     /// <summary>Room collision mover used after each attempted Multiviola velocity component.</summary>
     private readonly EnemyTerrain _terrain;
@@ -24,11 +24,11 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Multiviola.</summary>
-    internal static MultiviolaEnemyState InitializeMultiviola(RoomEnemyPlace place)
+    internal static MultiviolaEnemyState InitializeMultiviola(RoomEnemyPlace place, MultiviolaSpawnSettings settings)
     {
-        var state = new MultiviolaEnemyState
+        var state = new MultiviolaEnemyState(settings)
         {
-            Heading = place.SpawnSettings<MultiviolaSpawnSettings>().Heading,
+            Heading = settings.Heading,
         };
         state.Playback = new(MultiviolaAnimations.StartingWith(MultiviolaSegment.Flying), AnimationPlace.StartOfAnimation);
         return state;
@@ -43,7 +43,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         // Each update takes the velocity afresh from the heading the bounces turn (#2531). It is not
         // EnemyMath.VelocityAlong: an axis the Multiviola heads left or up along moves at MultiviolaLeftOrUpSpeed, which is
         // not the speed's exact reverse and moves it a pixel an update even where the axis has no speed.
-        FixedVector<RoomPixels> velocity = MultiviolaLeftOrUpSpeed.VelocityAlong(state.Heading, place.SpawnSettings<MultiviolaSpawnSettings>().Speed);
+        FixedVector<RoomPixels> velocity = MultiviolaLeftOrUpSpeed.VelocityAlong(state.Heading, state.Settings.Speed);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,

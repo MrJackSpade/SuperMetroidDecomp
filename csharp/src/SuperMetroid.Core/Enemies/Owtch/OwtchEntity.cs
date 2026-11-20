@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 /// <param name="species">The Owtch species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, OwtchSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
@@ -14,7 +15,7 @@ internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemyPlace place, E
     private EnemyShotReaction OwnOwtchShotReaction => field ??= OwtchBehavior.OwtchShotReactionOf(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal OwtchEnemyState State { get; } = OwtchBehavior.InitializeOwtch(place);
+    internal OwtchEnemyState State { get; } = OwtchBehavior.InitializeOwtch(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMain(Place, State);

@@ -3,11 +3,12 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// <summary>A Geega (#2146), the yellow Pipe Bug: it waits, then flies straight and arcs away.</summary>
 /// <param name="place">The place the Pipe Bug occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class YellowPipeBugEntity(RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class YellowPipeBugEntity(RoomEnemyPlace place, EnemyCommonParticipation common, YellowPipeBugSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal YellowPipeBugState State { get; } = PipeBugsBehavior.InitializeYellowPipeBug(place);
+    internal YellowPipeBugState State { get; } = PipeBugsBehavior.InitializeYellowPipeBug(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunYellowPipeBugMainAi(Place, State, frame);

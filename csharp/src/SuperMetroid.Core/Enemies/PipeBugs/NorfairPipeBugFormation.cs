@@ -6,7 +6,8 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// below it.
 /// </summary>
 /// <param name="Members">The members, the leader first, each with its role.</param>
-internal sealed record NorfairPipeBugFormation(IReadOnlyList<NorfairPipeBugMember> Members)
+/// <param name="TriggerWidth">How near Samus comes across before the leader launches the formation, as its placement names.</param>
+internal sealed record NorfairPipeBugFormation(IReadOnlyList<NorfairPipeBugMember> Members, int TriggerWidth)
 {
     /// <summary>
     /// The formation <paramref name="leader"/> leads: itself and the four places its room lists right after it, which take
@@ -14,7 +15,8 @@ internal sealed record NorfairPipeBugFormation(IReadOnlyList<NorfairPipeBugMembe
     /// </summary>
     /// <param name="places">The room's enemy places.</param>
     /// <param name="leader">The formation's leader.</param>
-    internal static NorfairPipeBugFormation LedBy(EnemyPlaces places, RoomEnemyPlace leader)
+    /// <param name="triggerWidth">How near Samus comes across before the leader launches the formation.</param>
+    internal static NorfairPipeBugFormation LedBy(EnemyPlaces places, RoomEnemyPlace leader, int triggerWidth)
     {
         RoomEnemyPlace[] followers = places.ListedRunAfter(leader, 4);
         return new NorfairPipeBugFormation(
@@ -24,6 +26,6 @@ internal sealed record NorfairPipeBugFormation(IReadOnlyList<NorfairPipeBugMembe
             new(followers[1], PipeBugDefinitions.UpperFarRole),
             new(followers[2], PipeBugDefinitions.LowerNearRole),
             new(followers[3], PipeBugDefinitions.LowerFarRole),
-        ]);
+        ], triggerWidth);
     }
 }

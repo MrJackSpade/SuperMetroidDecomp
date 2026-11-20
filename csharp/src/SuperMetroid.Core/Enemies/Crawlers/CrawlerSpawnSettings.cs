@@ -7,4 +7,8 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// Its crawl speed per update on both axes; none keeps the velocity it has and takes the default speed after its first
 /// landing.
 /// </param>
-internal sealed record CrawlerSpawnSettings(CrawlerSurfaceOrientation Orientation, CrawlerSurfaceOrientation BlockSide, SignedEightEight? CrawlSpeed) : EnemySpawnSettings;
+internal sealed record CrawlerSpawnSettings(CrawlerSurfaceOrientation Orientation, CrawlerSurfaceOrientation BlockSide, SignedEightEight? CrawlSpeed) : EnemySpawnSettings
+{
+    /// <inheritdoc/>
+    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).Place(this, placing);
+}

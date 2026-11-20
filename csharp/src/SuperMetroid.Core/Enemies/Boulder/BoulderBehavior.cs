@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>The Boulder species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class BoulderBehavior : IEnemySpecies, IEnemySettingsFactory<BoulderSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Boulder];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BoulderEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, BoulderSpawnSettings settings) => new BoulderEntity(this, place, common, settings);
 
     /// <summary>Moves the actor through room collision during fall and roll phases.</summary>
     private readonly EnemyTerrain _terrain;
@@ -33,9 +33,9 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Reads the spawn settings as direction, trigger windows and how it starts.</summary>
-    internal static BoulderEnemyState InitializeBoulder(RoomEnemyPlace place)
+    internal static BoulderEnemyState InitializeBoulder(RoomEnemyPlace place, BoulderSpawnSettings settings)
     {
-        var state = new BoulderEnemyState(BoulderAction.WaitingForSamus);
+        var state = new BoulderEnemyState(BoulderAction.WaitingForSamus, settings);
 
         state.BounceCurvePlace = QuadraticSpeedCurvePlace.Start;
         state.TravelCurvePlace = QuadraticSpeedCurvePlace.Start;
@@ -43,7 +43,6 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RestingY = place.Position.Whole.Y;
         state.PreviousY = place.Position.Y;
 
-        BoulderSpawnSettings settings = place.SpawnSettings<BoulderSpawnSettings>();
         int initialYOffset;
         switch (settings.Start)
         {
@@ -112,7 +111,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static void RunBoulderWaiting(RoomEnemyPlace place, BoulderEnemyState state, SamusState samus)
     {
-        BoulderSpawnSettings settings = place.SpawnSettings<BoulderSpawnSettings>();
+        BoulderSpawnSettings settings = state.Settings;
         int deltaY = samus.Position.Y.Whole - place.Position.Y.Whole;
         if (deltaY < 0 || deltaY >= settings.TriggerHeight)
             return;
@@ -176,7 +175,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(level, place, verticalDisplacement))
         {
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.BoulderImpactSound, priority: SoundRequestPriority.Normal);
-            if (place.SpawnSettings<BoulderSpawnSettings>().Roll == BoulderRoll.LeftBreakingOnImpact)
+            if (state.Settings.Roll == BoulderRoll.LeftBreakingOnImpact)
             {
                 place.Presence = place.Presence.With(EnemyPresence.Deleted);
                 _projectiles.SpawnDustOrExplosion(
@@ -248,7 +247,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Reads the quadratic speed sample and signs it toward the roll its spawn settings name.</summary>
     private static SignedSixteenSixteen ReadBoulderHorizontalDisplacement(RoomEnemyPlace place, BoulderEnemyState state) =>
-        state.TravelCurvePlace.Speed.Toward(place.SpawnSettings<BoulderSpawnSettings>().Roll != BoulderRoll.Right ? HorizontalDirection.Left : HorizontalDirection.Right);
+        state.TravelCurvePlace.Speed.Toward(state.Settings.Roll != BoulderRoll.Right ? HorizontalDirection.Left : HorizontalDirection.Right);
 
     /// <summary>Moves the boulder vertically by its place's speed on the quadratic speed curve, toward <paramref name="direction"/>.</summary>
     private static void AddBoulderVerticalVelocity(RoomEnemyPlace place, QuadraticSpeedCurvePlace accumulator, VerticalDirection direction)

@@ -4,14 +4,14 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>The Squeept species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySettingsFactory<EnemyFollowerSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Squeept];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
-        Ensure.NotNull(place).SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EnemyFollowerSpawnSettings settings) =>
+        settings.Role == EnemyFollowerRole.Follower
             ? new NorfairLavaJumperFollowerEntity(this, place, common)
             : new SqueeptEntity(this, place, common);
 

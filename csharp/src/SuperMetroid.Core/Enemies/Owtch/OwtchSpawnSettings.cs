@@ -5,4 +5,8 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 /// <param name="UndergroundWait">The updates it stays buried each time it sinks.</param>
 /// <param name="Speed">The speed, in pixels per update, at which it walks.</param>
 /// <param name="TravelDistance">The pixels it walks to either side of its spawn position before turning.</param>
-internal sealed record OwtchSpawnSettings(OwtchBehaviorState InitialBehavior, int UndergroundWait, SignedSixteenSixteen Speed, int TravelDistance) : EnemySpawnSettings;
+internal sealed record OwtchSpawnSettings(OwtchBehaviorState InitialBehavior, int UndergroundWait, SignedSixteenSixteen Speed, int TravelDistance) : EnemySpawnSettings
+{
+    /// <inheritdoc/>
+    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).Place(this, placing);
+}

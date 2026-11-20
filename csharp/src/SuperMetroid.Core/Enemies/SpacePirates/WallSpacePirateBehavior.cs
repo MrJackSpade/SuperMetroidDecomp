@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The wall space pirate species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemySettingsFactory<WallSpacePirateSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWall, EnemyDefinitionId.PirateGreyWall, EnemyDefinitionId.PirateMagentaWall, EnemyDefinitionId.PirateSilverWall];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new WallSpacePirateEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WallSpacePirateSpawnSettings settings) => new WallSpacePirateEntity(this, place, common, settings);
 
     /// <summary>Advances the shared random source when a climbing cue chooses a new direction.</summary>
     private readonly EnemyRoomBinding _room;
@@ -32,9 +32,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Initializes the wall Space Pirate.</summary>
-    internal static WallSpacePirateEnemyState InitializeWallSpacePirate(RoomEnemyPlace place)
+    internal static WallSpacePirateEnemyState InitializeWallSpacePirate(RoomEnemyPlace place, WallSpacePirateSpawnSettings settings)
     {
-        WallSpacePirateSpawnSettings settings = place.SpawnSettings<WallSpacePirateSpawnSettings>();
         // Angles are 256ths of a turn. A slow jump turns two steps a frame for 63 frames; a fast one turns four steps a
         // frame for 32 frames, to endpoints two steps further round.
         WallSpacePirateJump jump = settings.JumpSpeed switch
@@ -43,7 +42,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             WallSpacePirateJumpSpeed.Fast => SpacePirateMotionDefinitions.FastWallJump,
             _ => throw new InvalidDataException($"Undefined {nameof(WallSpacePirateJumpSpeed)} {settings.JumpSpeed}."),
         };
-        var state = new WallSpacePirateEnemyState(WallSpacePirateAction.Climbing, settings.Wall, jump);
+        var state = new WallSpacePirateEnemyState(WallSpacePirateAction.Climbing, settings.Wall, jump, settings);
 
         state.Playback = new(WallSpacePirateAnimations.StartingWith(settings.Wall == HorizontalDirection.Right
             ? WallSpacePirateSegment.MovingDownRightWall
@@ -118,7 +117,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         // Math rewrites both whole positions every frame and leaves
         // the fractions untouched. The jump ellipse is the jump span wide and
         // a quarter of it tall.
-        int span = place.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan;
+        int span = state.Settings.JumpSpan;
         place.Position = place.Position.WithWholeX(
             state.WallJumpArcCenter.X +
             EnemyMath.CircleNegativeSinePixels(state.WallJumpArcAngle.ToTrigonometryAngle(), span / 2));
@@ -205,7 +204,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WallSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
-        int span = place.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan;
+        int span = state.Settings.JumpSpan;
         int signedHalfSpan = (span / 2).Toward(direction);
         state.WallJumpArcCenter = new Position16<RoomPixels>(
             place.Position.X.Whole + signedHalfSpan,
@@ -216,12 +215,13 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Emits a wall laser through the shared Pirate owner and queues sound only if allocation succeeds.</summary>
     private void FireWallSpacePirateLaser(
         RoomEnemyPlace place,
+        WallSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
         // The laser setup queues the laser sound for every successful allocation. The later wall-jump cue
         // independently queues the wall-jump sound; both are observable, distinct requests.
         if (Walking.SpawnSpacePirateLaser(place, direction, SpacePirateMotionDefinitions.WallLaserMuzzleAbove,
-            place.SpawnSettings<WallSpacePirateSpawnSettings>().LaserSpeed))
+            state.Settings.LaserSpeed))
             Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateLaserSound);
     }
 
@@ -242,7 +242,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 PrepareWallSpacePirateJump(place, state, direction: jump.Direction);
                 return null;
             case WallSpacePirateCue.FireLaser laser:
-                FireWallSpacePirateLaser(place, direction: laser.Direction);
+                FireWallSpacePirateLaser(place, state, direction: laser.Direction);
                 return null;
             case WallSpacePirateCue.Begin begin:
                 state.Action = begin.Action;

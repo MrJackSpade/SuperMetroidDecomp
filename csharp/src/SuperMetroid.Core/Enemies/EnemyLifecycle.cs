@@ -56,10 +56,12 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
 
     /// <summary>
     /// Builds the enemy for a place the room's population load has just placed, with its state: its species'
-    /// initialization runs as it is built.
+    /// initialization runs as it is built. A group's head takes its parts' places from <paramref name="listedAfter"/>.
     /// </summary>
-    internal static void SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
-        Ensure.NotNull(place).SetUp(new EnemySetup.Loaded(Ensure.NotNull(surroundings)));
+    /// <returns>How each part of the group the enemy heads is built, in listing order; empty when it heads none.</returns>
+    internal static IReadOnlyList<EnemyPartBuild> SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings,
+        IReadOnlyList<RoomEnemyPlace> listedAfter) =>
+        Ensure.NotNull(place).SetUpListed(new EnemySetup.Loaded(Ensure.NotNull(surroundings)), listedAfter);
 
     /// <summary>
     /// Builds the enemy for a place spawned on another enemy's behalf, or rebuilt by a respawn, which has no population
@@ -73,8 +75,16 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         InitializePlaceFromDefinition(place, population, definition);
 
     /// <summary>Lets the population loader run the place's species initialization.</summary>
-    void IEnemyLifecycle.SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
-        SetUpEnemy(place, surroundings);
+    IReadOnlyList<EnemyPartBuild> IEnemyLifecycle.SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings,
+        IReadOnlyList<RoomEnemyPlace> listedAfter) =>
+        SetUpEnemy(place, surroundings, listedAfter);
+
+    /// <inheritdoc/>
+    void IEnemyLifecycle.SetUpPart(RoomEnemyPlace place, EnemyPartBuild build, EnemyPopulationSurroundings surroundings) =>
+        Ensure.NotNull(place).SetUpAsPart(build, new EnemySetup.Loaded(Ensure.NotNull(surroundings)));
+
+    /// <inheritdoc/>
+    void IEnemyLifecycle.RespawnEnemy(RoomEnemyPlace place) => Ensure.NotNull(place).SetUpAgain(new EnemySetup.Spawned());
 
     /// <summary>Lets a species run the initialization of an enemy it spawned on another enemy's behalf.</summary>
     void IEnemyLifecycle.SetUpSpawnedEnemy(RoomEnemyPlace place) => SetUpSpawnedEnemy(place);

@@ -7,8 +7,16 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// </summary>
 public sealed class NorfairPipeBugState
 {
+    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
+    internal NorfairPipeBugSpawnSettings Settings { get; }
+
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal NorfairPipeBugState(NorfairPipeBugAction action) => Action = action;
+    /// <param name="settings">What the enemy's population entry told its species.</param>
+    internal NorfairPipeBugState(NorfairPipeBugAction action, NorfairPipeBugSpawnSettings settings)
+    {
+        Settings = Ensure.NotNull(settings);
+        Action = action;
+    }
 
     /// <summary>The animation the bug plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<PipeBugSegment> Playback { get; set; }

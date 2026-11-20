@@ -5,20 +5,20 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>The Sbug species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class SbugBehavior : IEnemySpecies, IEnemySettingsFactory<SbugSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Sbug];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new SbugEntity(place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, SbugSpawnSettings settings) => new SbugEntity(place, common, settings);
 
     /// <summary>Initializes the Sbug.</summary>
-    internal static SbugEnemyState InitializeSbug(RoomEnemyPlace place)
+    internal static SbugEnemyState InitializeSbug(RoomEnemyPlace place, SbugSpawnSettings settings)
     {
         // A new Sbug plays no animation until it selects its first direction.
-        var state = new SbugEnemyState(SbugAction.WaitForSamus);
-        SetSbugFacing(place, state, ForwardLeg(place).Facing);
+        var state = new SbugEnemyState(SbugAction.WaitForSamus, settings);
+        SetSbugFacing(place, state, ForwardLeg(settings).Facing);
         return state;
     }
 
@@ -26,9 +26,9 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The leg along the Sbug's spawn heading, which its forward movement takes: the placement's speed along the heading
     /// (<see cref="EnemyMath.VelocityAlong"/>).
     /// </summary>
-    internal static SbugLeg ForwardLeg(RoomEnemyPlace place)
+    internal static SbugLeg ForwardLeg(SbugSpawnSettings settings)
     {
-        SbugSpawnSettings settings = Ensure.NotNull(place).SpawnSettings<SbugSpawnSettings>();
+        Ensure.NotNull(settings);
         FixedVector<RoomPixels> velocity = EnemyMath.VelocityAlong(settings.InitialAngle.ToTrigonometryAngle(), settings.Speed);
         return new(velocity.X, velocity.Y, SbugMovement.FacingOf(settings.InitialAngle));
     }
@@ -37,9 +37,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The zigzag leg an eighth of a turn from the Sbug's spawn heading, less it for the first leg and more for the
     /// second: its displacement is the signed short circle product of that heading at the placement's speed.
     /// </summary>
-    private static SbugLeg ZigZagLeg(RoomEnemyPlace place, bool secondLeg)
+    private static SbugLeg ZigZagLeg(SbugSpawnSettings settings, bool secondLeg)
     {
-        SbugSpawnSettings settings = place.SpawnSettings<SbugSpawnSettings>();
         RotationAngle heading = secondLeg ? settings.InitialAngle + RotationAngle.EighthTurn : settings.InitialAngle - RotationAngle.EighthTurn;
         CalculateSignedSbugVelocities(heading.ToTrigonometryAngle(), settings.Speed, out SignedSixteenSixteen x, out SignedSixteenSixteen y);
         return new(x, y, SbugMovement.FacingOf(heading));
@@ -67,7 +66,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case SbugAction.MoveForward:
-                AddSbugVelocity(place, ForwardLeg(place));
+                AddSbugVelocity(place, ForwardLeg(state.Settings));
                 return;
             case SbugAction.ZigZag:
                 RunSbugZigZag(place, state);
@@ -84,7 +83,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Arms the population-selected behavior only when Samus enters its square trigger region.</summary>
     private static void RunSbugWait(RoomEnemyPlace place, SbugEnemyState state, SamusState samus)
     {
-        SbugSpawnSettings settings = place.SpawnSettings<SbugSpawnSettings>();
+        SbugSpawnSettings settings = state.Settings;
         int threshold = settings.ActivationRadius;
         int xDistance = Math.Abs(place.Position.X.Whole - samus.Position.X.Whole);
         int yDistance = Math.Abs(place.Position.Y.Whole - samus.Position.Y.Whole);
@@ -99,7 +98,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The enemy's update count alternates the diagonal legs every sixteen updates, read before this update is
         // counted.
-        SbugLeg leg = ZigZagLeg(place, secondLeg: SbugDefinitions.ZigZagSecondLeg.IsSetIn(place.FrameCounter));
+        SbugLeg leg = ZigZagLeg(state.Settings, secondLeg: SbugDefinitions.ZigZagSecondLeg.IsSetIn(place.FrameCounter));
         SetSbugFacing(place, state, leg.Facing);
         AddSbugVelocity(place, leg);
     }
@@ -113,7 +112,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        AddSbugVelocity(place, ForwardLeg(place));
+        AddSbugVelocity(place, ForwardLeg(state.Settings));
     }
 
     /// <summary>Moves the Sbug along <paramref name="leg"/>.</summary>

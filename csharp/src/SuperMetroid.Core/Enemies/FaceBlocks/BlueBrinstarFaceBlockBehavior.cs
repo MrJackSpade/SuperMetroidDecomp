@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
 /// <summary>The blue Brinstar face block species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemySettingsFactory<FaceBlockSpawnSettings>
 {
     /// <summary>The pass-through shot reaction for this species' private shot reaction.</summary>
     internal static EnemyShotReaction PassThroughShot { get; } =
@@ -22,7 +22,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FaceBlock];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BlueBrinstarFaceBlockEntity(this, place, common, setup);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, FaceBlockSpawnSettings settings) => new BlueBrinstarFaceBlockEntity(this, place, common, setup, settings);
 
     /// <summary>The face blocks the room has set up, in the order they were placed; all show the room-wide glow (#2283).</summary>
     private readonly List<RoomEnemyPlace> _blocks = [];
@@ -50,9 +50,9 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     private PictureShading Glow => PictureShading.Shaded(FaceBlockShades.Glow(_glow.Showing));
 
     /// <summary>Initializes the Blue Brinstar face block.</summary>
-    internal BlueBrinstarFaceBlockEnemyState InitializeBlueBrinstarFaceBlock(RoomEnemyPlace place, SamusState samus)
+    internal BlueBrinstarFaceBlockEnemyState InitializeBlueBrinstarFaceBlock(RoomEnemyPlace place, SamusState samus, FaceBlockSpawnSettings settings)
     {
-        var state = new BlueBrinstarFaceBlockEnemyState();
+        var state = new BlueBrinstarFaceBlockEnemyState(settings);
         _blocks.Add(place);
 
         // The neutral animation shows the neutral picture and holds it. Every directional animation shows the same
@@ -83,17 +83,17 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             return;
 
         if (Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) >=
-            place.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
+            state.Settings.TriggerDistance)
             return;
 
         // How far Samus lies to the block's left or right.
         int horizontalDelta = samus.Position.X.Whole - place.Position.X.Whole;
-        if (Math.Abs(horizontalDelta) >= place.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
+        if (Math.Abs(horizontalDelta) >= state.Settings.TriggerDistance)
             return;
 
         // The block wakes only for Samus on the side its spawn settings face it toward (#2277).
         HorizontalDirection samusSide = horizontalDelta < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
-        if (samusSide != place.SpawnSettings<FaceBlockSpawnSettings>().Facing)
+        if (samusSide != state.Settings.Facing)
             return;
 
         state.Playback = EnemyAnimationPlayback.Start(place, BlueBrinstarFaceBlockAnimations.StartingWith(Wake(samusSide)));
@@ -149,8 +149,9 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>Runs the blue Brinstar face block's initialization AI.</summary>
-    internal BlueBrinstarFaceBlockEnemyState SetUpBlueBrinstarFaceBlock(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
-        InitializeBlueBrinstarFaceBlock(place, surroundings.Samus);
+    internal BlueBrinstarFaceBlockEnemyState SetUpBlueBrinstarFaceBlock(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings,
+        FaceBlockSpawnSettings settings) =>
+        InitializeBlueBrinstarFaceBlock(place, surroundings.Samus, settings);
 
     /// <summary>Runs the blue Brinstar face block's main AI.</summary>
     internal void RunBlueBrinstarFaceBlockMainAi(RoomEnemyPlace place, BlueBrinstarFaceBlockEnemyState state, IEnemyAiFrame frame)

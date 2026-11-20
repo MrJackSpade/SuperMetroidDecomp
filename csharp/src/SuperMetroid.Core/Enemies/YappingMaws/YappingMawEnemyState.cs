@@ -9,6 +9,13 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// </summary>
 public sealed class YappingMawEnemyState
 {
+    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
+    internal YappingMawSpawnSettings Settings { get; }
+
+    /// <summary>Creates the state of an enemy whose entry told its species <paramref name="settings"/>.</summary>
+    /// <param name="settings">What the enemy's population entry told its species.</param>
+    internal YappingMawEnemyState(YappingMawSpawnSettings settings) => Settings = Ensure.NotNull(settings);
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<YappingMawSegment> Playback { get; set; }
 

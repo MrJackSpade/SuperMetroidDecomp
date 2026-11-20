@@ -5,4 +5,8 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// <param name="BlockSide">The side of its block it holds, which signs its crawl velocity.</param>
 /// <param name="CrawlSpeed">Its crawl speed per update on both axes.</param>
 internal sealed record OrangeZoomerSpawnSettings(CrawlerSurfaceOrientation Orientation, CrawlerSurfaceOrientation BlockSide,
-    SignedEightEight CrawlSpeed) : EnemySpawnSettings;
+    SignedEightEight CrawlSpeed) : EnemySpawnSettings
+{
+    /// <inheritdoc/>
+    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).Place(this, placing);
+}

@@ -8,8 +8,16 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// </summary>
 public sealed class VerticalShutterEnemyState
 {
+    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
+    internal ShutterSpawnSettings Settings { get; }
+
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal VerticalShutterEnemyState(VerticalShutterAction action) => Action = action;
+    /// <param name="settings">What the enemy's population entry told its species.</param>
+    internal VerticalShutterEnemyState(VerticalShutterAction action, ShutterSpawnSettings settings)
+    {
+        Settings = Ensure.NotNull(settings);
+        Action = action;
+    }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<ShutterSegment> Playback { get; set; }

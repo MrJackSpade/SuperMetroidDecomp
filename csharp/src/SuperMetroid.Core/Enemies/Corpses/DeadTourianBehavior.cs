@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The dead Tourian corpse species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySettingsFactory<CorpseSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DeadTourianCorpseSpeciesDefinitions.Species.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new DeadTourianEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CorpseSpawnSettings settings) => new DeadTourianEntity(this, place, common, settings);
 
     /// <summary>Supplies the room RNG used during decomposition.</summary>
     private readonly EnemyRoomBinding _room;
@@ -47,10 +47,10 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             : throw new ArgumentOutOfRangeException(nameof(definitionId));
 
     /// <summary>Initializes a Tourian corpse, checking its corpse is one of its species' before registering state and starting its rot.</summary>
-    internal static DeadTourianCorpseEnemyState InitializeDeadTourianCorpse(RoomEnemyPlace place)
+    internal static DeadTourianCorpseEnemyState InitializeDeadTourianCorpse(RoomEnemyPlace place, CorpseSpawnSettings settings)
     {
         DeadTourianCorpseSpecies species = SpeciesOf(place.DefinitionId);
-        DeadTourianCorpseDefinition definition = place.SpawnSettings<CorpseSpawnSettings>().Corpse;
+        DeadTourianCorpseDefinition definition = settings.Corpse;
         if (definition.Species != species)
         {
             throw new InvalidDataException(

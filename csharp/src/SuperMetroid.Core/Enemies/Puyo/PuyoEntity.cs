@@ -4,11 +4,12 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// <param name="species">The Puyo species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class PuyoEntity(PuyoBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class PuyoEntity(PuyoBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, PuyoSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal PuyoEnemyState State { get; } = PuyoBehavior.InitializePuyo(place);
+    internal PuyoEnemyState State { get; } = PuyoBehavior.InitializePuyo(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunPuyoMainAi(Place, State, frame);

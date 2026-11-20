@@ -578,7 +578,7 @@ internal sealed class EnemyDeathsAndDrops
         // or what its init AI set, until its first cue. An empty frame is also
         // the contact gate, so the respawned actor cannot touch Samus before then.
         _lifecycle.InitializePlaceFromDefinition(place, spawn.Population, definition);
-        _lifecycle.SetUpSpawnedEnemy(place);
+        _lifecycle.RespawnEnemy(place);
     }
 
 

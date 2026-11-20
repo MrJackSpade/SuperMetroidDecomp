@@ -7,7 +7,8 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// <param name="species">The Bull species owner.</param>
 /// <param name="place">The place the Bull occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class BullEntity(BullBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class BullEntity(BullBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BullSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
@@ -17,7 +18,7 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemyPlace place, Ene
     private EnemyShotReaction OwnBullShotReaction => field ??= BullBehavior.BullShotReactionOf(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal BullEnemyState State { get; } = species.InitializeBull(place);
+    internal BullEnemyState State { get; } = species.InitializeBull(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>

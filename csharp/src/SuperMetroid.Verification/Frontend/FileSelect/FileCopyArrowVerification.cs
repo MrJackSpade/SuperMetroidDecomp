@@ -51,7 +51,7 @@ internal static class FileCopyArrowVerification
             if (pair.Slots.Second != firstDestination) Press(ControllerButton.Down);
             int noArrowCount = Capture().LastFinalizedSpriteCount;
             Press(ControllerButton.A);
-            AssertEqual(new FileSelectPhase.DataManagement.CopyConfirm(), menu.Phase, "arrow appears at confirmation");
+            AssertEqual(true, menu.Phase is FileSelectPhase.DataManagement.CopyConfirm, "arrow appears at confirmation");
             int record = 0x82bb0c + pair.Row * 6;
             ushort id = ReadVerificationWord(rom, record);
             ushort originX = ReadVerificationWord(rom, record + 2);

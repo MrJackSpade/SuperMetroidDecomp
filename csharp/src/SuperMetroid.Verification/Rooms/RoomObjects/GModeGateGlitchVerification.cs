@@ -84,7 +84,7 @@ internal static class GModeGateGlitchVerification
             roomObjects.Step(level);
         gate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
-        AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.ShowingClosed or DownwardGatePhase.RestingClosed },
+        AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.Closed },
             "the gate is closed before the shot");
         while (roomObjects.Places.ActiveCount < 40)
         {
@@ -135,7 +135,7 @@ internal static class GModeGateGlitchVerification
 
             RoomObjectPlaceSnapshot currentGate = roomObjects.PopulationPlaces.Single(place =>
                 place.Behaviour is DownwardGateObject);
-            if (currentGate.Behaviour is not DownwardGateObject { Phase: DownwardGatePhase.ShowingClosed or DownwardGatePhase.RestingClosed } && openedFrame < 0)
+            if (currentGate.Behaviour is not DownwardGateObject { Phase: DownwardGatePhase.Closed } && openedFrame < 0)
                 openedFrame = frame;
         }
 

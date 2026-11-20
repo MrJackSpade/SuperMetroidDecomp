@@ -65,7 +65,14 @@ public abstract record FileSelectPhase
         public sealed record CopySelectDestination : DataManagement;
 
         /// <summary>Animate the copy arrow and accept Yes/No; accepting Yes also performs the copy in this phase.</summary>
-        public sealed record CopyConfirm : DataManagement;
+        public sealed record CopyConfirm : DataManagement
+        {
+            /// <summary>Confirms the copy <paramref name="route"/>.</summary>
+            internal CopyConfirm(FileCopyRoute route) => Route = route;
+
+            /// <summary>The copy being confirmed, from its source onto another slot.</summary>
+            internal FileCopyRoute Route { get; }
+        }
 
         /// <summary>Display the completed copy without a selection missile and wait for a newly pressed button before returning to main.</summary>
         public sealed record CopyCompleted : DataManagement;

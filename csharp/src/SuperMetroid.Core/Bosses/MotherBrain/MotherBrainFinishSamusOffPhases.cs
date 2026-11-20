@@ -44,7 +44,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         // low-energy floor. Equality counts as low and changes the body phase; she stands up on the next update.
         if (StandUpToFinishOffEnergy(samus.EquippedItems) >= samus.Health)
         {
-            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.StandUp;
+            _state.FinishOffPhase = MotherBrainFinishOffPhase.StandUp;
             return false;
         }
 
@@ -84,7 +84,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         bool stoodUp = _state.MakeBodyStandUp();
         if (stoodUp)
         {
-            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.Admire;
+            _state.FinishOffPhase = MotherBrainFinishOffPhase.Admire;
             Encounter.PhaseTimer.LastFor(MotherBrainWaitDefinitions.AdmireUpdates);
             return true;
         }
@@ -101,7 +101,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase2);
-            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.ChargeFinalBeam;
+            _state.FinishOffPhase = MotherBrainFinishOffPhase.ChargeFinalBeam;
             Encounter.PhaseTimer.LastFor(MotherBrainWaitDefinitions.FinalBeamChargeUpdates);
         }
         return false;
@@ -116,7 +116,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.ChargingRainbowBeam);
-            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.BringInBaby;
+            _state.FinishOffPhase = MotherBrainFinishOffPhase.BringInBaby;
             Encounter.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BabyArrivalUpdates);
             return true;
         }
@@ -135,7 +135,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
             _state.RetractHead();
             _state.BabyMetroidSpawned = true;
             requests.Start(MotherBrainStepEffect.BabySpawn);
-            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.FireFinalBeam;
+            _state.FinishOffPhase = MotherBrainFinishOffPhase.FireFinalBeam;
             Encounter.PhaseTimer.LastFor(MotherBrainWaitDefinitions.FinalBeamFireDelayUpdates);
         }
         return false;
@@ -153,7 +153,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
             Encounter.UpperNeckMovement = MotherBrainNeckMovement.Lower;
             Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
             requests.Start(MotherBrainStepEffect.FinalBeamFired); // The final beam's sound, and her rainbow colours start again from the first.
-            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.FinalBeamHolding;
+            _state.FinishOffPhase = MotherBrainFinishOffPhase.FinalBeamHolding;
         }
         return false;
     }
@@ -185,5 +185,5 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// Runs the body's current <see cref="MotherBrainFinishOffPhase"/> phase. True when it moves to the next body phase and the game runs on
     /// into it in the same update.
     /// </summary>
-    internal bool Run(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests) => PhaseSteps[Encounter.FinishOffPhase](this, samus, frame, requests);
+    internal bool Run(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests) => PhaseSteps[_state.FinishOffPhase](this, samus, frame, requests);
 }

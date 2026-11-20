@@ -232,15 +232,15 @@ internal static class MotherBrainEncodingDomainsVerification
         AssertEqual(MotherBrainBodyPlacement.FollowsBody, NativeSnapshotMotherBrainImport.BodyPlacementOf(rising),
             "her rise places her body's area with her");
         MotherBrainEnemyState phaseTwo = At(MotherBrainForm.SecondPhase);
-        phaseTwo.RainbowPhase = MotherBrainRainbowPhase.ExtendNeck;
+        phaseTwo.BeginLateFight().State.RainbowPhase = MotherBrainRainbowPhase.ExtendNeck;
         AssertEqual(MotherBrainBodyPlacement.FollowsBody, NativeSnapshotMotherBrainImport.BodyPlacementOf(phaseTwo),
             "a mid-phase-two snapshot places her body's area with her");
         MotherBrainEnemyState escaping = At(MotherBrainForm.ThirdPhase);
-        escaping.DeathPhase = MotherBrainDeathPhase.StartEscape;
+        escaping.BeginLateFight().State.DeathPhase = MotherBrainDeathPhase.StartEscape;
         AssertEqual(MotherBrainBodyPlacement.FollowsBody, NativeSnapshotMotherBrainImport.BodyPlacementOf(escaping),
             "her body's area stays with her until her escape's start shows the warning");
         MotherBrainEnemyState typing = At(MotherBrainForm.ThirdPhase);
-        typing.DeathPhase = MotherBrainDeathPhase.TypeOutZebesEscapeText;
+        typing.BeginLateFight().State.DeathPhase = MotherBrainDeathPhase.TypeOutZebesEscapeText;
         AssertEqual(MotherBrainBodyPlacement.AtRoomCorner, NativeSnapshotMotherBrainImport.BodyPlacementOf(typing),
             "the escape warning's typing lies at the room's corner");
     }

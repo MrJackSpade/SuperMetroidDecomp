@@ -42,7 +42,7 @@ internal static class FileSelectPresentationVerification
         AssertEqual(new FileSelectPhase.DataManagement.CopySelectDestination(), native.Phase,
             "copy source advances to destination");
         Press(ControllerButton.A);
-        AssertEqual(new FileSelectPhase.DataManagement.CopyConfirm(), native.Phase,
+        AssertEqual(true, native.Phase is FileSelectPhase.DataManagement.CopyConfirm,
             "copy destination advances to confirmation");
         Press(ControllerButton.A);
         AssertEqual(new FileSelectPhase.DataManagement.CopyCompleted(), native.Phase,

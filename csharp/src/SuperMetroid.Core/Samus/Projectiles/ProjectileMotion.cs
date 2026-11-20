@@ -436,43 +436,25 @@ internal sealed class ProjectileMotion
         if (blockX >= level.Size.X || blockY >= level.Size.Y)
             return false;
 
-        RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
-
         // An extension block reacts as the block it leads to, as it does for Samus's body; one that leads nowhere is air.
-        if (!level.TryReachBlockStoodFor(ref block))
+        if (level.StandingBlockFor(level.GetCollisionBlock(new(blockX, blockY))) is not { } standing)
             return false;
-        return block.CollisionType switch
-        {
-            // The point reaction treats these categories as transparent air.
-            RoomCollisionType.Air or
-            RoomCollisionType.SpikeAir or
-            RoomCollisionType.SpecialAir or
-            RoomCollisionType.UnrevealedAir => false,
-
-            // These categories stop the missile immediately and therefore kill it.
-            RoomCollisionType.SolidBlock or
-            RoomCollisionType.DoorBlock or
-            RoomCollisionType.SpikeBlock or
-            RoomCollisionType.SpecialBlock or
-            RoomCollisionType.GrappleBlock => true,
-
-            // A slope stops a missile by where its centre lies: in a square slope's solid quarter, or below another
-            // slope's surface.
-            RoomCollisionType.Slope =>
-                MissileSlopePointReaction(block, shot),
-
-            RoomCollisionType.ShootableAir or
-            RoomCollisionType.ShootableBlock => MissileShootableReaction(level, shot, block, roomObjects),
-
-            // A bombable block answers only bombs and Power Bombs, so a missile leaves it as it was: bombable air lets the
-            // missile pass and a bombable block stops it.
-            RoomCollisionType.BombableAir => false,
-            RoomCollisionType.BombableBlock => true,
-
-            // Following the extensions leaves no extension block, so one reaching here is invalid room data.
-            RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension or _ =>
-                throw new InvalidDataException($"Invalid missile collision type {block.CollisionType} at block {block.Position}."),
-        };
+        StandingCollisionType type = standing.CollisionType;
+        RoomCollisionBlock block = standing.Block;
+        // The point reaction treats air, spike air, special air and unrevealed air as transparent, and a bombable block
+        // answers only bombs and Power Bombs, so a missile leaves it as it was: bombable air lets the missile pass.
+        if (type is StandingCollisionType.Air or StandingCollisionType.SpikeAir or StandingCollisionType.SpecialAir or
+            StandingCollisionType.UnrevealedAir or StandingCollisionType.BombableAir)
+            return false;
+        // A slope stops a missile by where its centre lies: in a square slope's solid quarter, or below another slope's
+        // surface.
+        if (type == StandingCollisionType.Slope)
+            return MissileSlopePointReaction(block, shot);
+        if (type is StandingCollisionType.ShootableAir or StandingCollisionType.ShootableBlock)
+            return MissileShootableReaction(level, shot, block, roomObjects);
+        // The remaining members, the solid, door, spike, special, grapple and bombable blocks, stop the missile at once and
+        // therefore kill it.
+        return true;
     }
 
     /// <summary>

@@ -218,7 +218,7 @@ internal sealed class MotherBrainThirdPhaseFight
         // The recovery changes her form before the wait to fight, and she walks back her retreat's distance quickly; at
         // the arena's left limit she stays where she is.
         Encounter.Form = MotherBrainForm.ThirdPhase;
-        Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.RecoverSetupForFighting;
+        _state.Phase3FightPhase = MotherBrainPhase3FightPhase.RecoverSetupForFighting;
         Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.RecoverSetupUpdates);
         _state.RequestWalkBackward(
             _state.BodyPosition.X - MotherBrainLateFightDefinitions.Phase3RetreatPixels,
@@ -235,7 +235,7 @@ internal sealed class MotherBrainThirdPhaseFight
         // The wait to fight starts on the update after the one-update recovery.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingMain;
+            _state.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingMain;
             Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
             Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.TryToInchForward;
 
@@ -255,7 +255,7 @@ internal sealed class MotherBrainThirdPhaseFight
         // nothing of the fight runs in between.
         if (Encounter.Head.Health == 0)
         {
-            Encounter.DeathPhase = MotherBrainDeathPhase.MoveToBackOfRoom;
+            _state.DeathPhase = MotherBrainDeathPhase.MoveToBackOfRoom;
             return false;
         }
 
@@ -277,7 +277,7 @@ internal sealed class MotherBrainThirdPhaseFight
             _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
         }
 
-        Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingAttackCooldown;
+        _state.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingAttackCooldown;
         Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.Phase3AttackCooldownUpdates);
         return false;
     }
@@ -290,7 +290,7 @@ internal sealed class MotherBrainThirdPhaseFight
         // The attack's cooldown ends on its last update and the fight resumes on the next, so the neck and the walking
         // pause for every update of the cooldown.
         if (Encounter.PhaseTimer.StepRunsOut())
-            Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingMain;
+            _state.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingMain;
         return false;
     }
 
@@ -298,12 +298,12 @@ internal sealed class MotherBrainThirdPhaseFight
     /// Runs the body's current <see cref="MotherBrainPhase3FightPhase"/> phase. True when it moves to the next body phase and the game runs on
     /// into it in the same update.
     /// </summary>
-    internal bool Run(RainbowBeamAttackFrame frame) => Encounter.Phase3FightPhase switch
+    internal bool Run(RainbowBeamAttackFrame frame) => _state.Phase3FightPhase switch
     {
         MotherBrainPhase3FightPhase.RecoverMakeSomeDistance => RecoverAndBackAway(),
         MotherBrainPhase3FightPhase.RecoverSetupForFighting => WaitToFight(),
         MotherBrainPhase3FightPhase.FightingMain => Fight(frame),
         MotherBrainPhase3FightPhase.FightingAttackCooldown => CoolDownFromAttack(),
-        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainPhase3FightPhase)} {Encounter.Phase3FightPhase}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainPhase3FightPhase)} {_state.Phase3FightPhase}."),
     };
 }

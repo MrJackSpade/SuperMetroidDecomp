@@ -126,7 +126,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         latch = baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
         calls++;
 
-        sawMotherBrainInterrupt |= (motherBrain.Encounter.Stage == MotherBrainBodyStage.DrainedByBaby && motherBrain.Encounter.DrainedPhase == MotherBrainDrainedPhase.TakenAback);
+        sawMotherBrainInterrupt |= (motherBrain.State.Stage == MotherBrainLateFightStage.DrainedByBaby && motherBrain.State.DrainedPhase == MotherBrainDrainedPhase.TakenAback);
         sawLatchSound |= latch.LatchSoundQueued;
         startedAnimation = latch.StartedAnimation ?? startedAnimation;
 
@@ -166,13 +166,13 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         "Baby pin changes whole coordinates but retains native subpositions");
     AssertEqual<MotherBrainBodySegment?>(MotherBrainBodySegment.WalkBackwardReallyFast, motherBrain.Encounter.BodyPlayback?.PlayingSegment,
         "Baby stumble uses animation-delay index two");
-    AssertEqual(MotherBrainDrainedPhase.TakenAback, motherBrain.Encounter.DrainedPhase,
+    AssertEqual(MotherBrainDrainedPhase.TakenAback, motherBrain.State.DrainedPhase,
         "Baby installs Mother Brain $BE38 for the following actor turn");
 
     MotherBrainRainbowBeamAttackStepResult takenAback = motherBrain.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
     AssertTrue(takenAback.Starts(MotherBrainStepEffect.RainbowColours), "the taken-aback setup falls through into regain balance, which runs her rainbow colours");
     AssertEqual(MotherBrainDrainedPhase.RegainBalance,
-        motherBrain.Encounter.DrainedPhase,
+        motherBrain.State.DrainedPhase,
         "Mother Brain taken-aback setup falls through into regain balance");
     AssertEqual(0x002f, motherBrain.Encounter.PhaseTimer.CartridgeCount,
         "Mother Brain first regain call decrements $30 to $2F");
@@ -185,13 +185,13 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         "Mother Brain taken-aback neck delta");
 
     int regainCalls = 1;
-    while ((motherBrain.Encounter.Stage == MotherBrainBodyStage.DrainedByBaby && motherBrain.Encounter.DrainedPhase == MotherBrainDrainedPhase.RegainBalance))
+    while ((motherBrain.State.Stage == MotherBrainLateFightStage.DrainedByBaby && motherBrain.State.DrainedPhase == MotherBrainDrainedPhase.RegainBalance))
     {
         motherBrain.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
         regainCalls++;
     }
     AssertEqual(49, regainCalls, "Mother Brain regain balance includes setup fallthrough call");
-    AssertEqual(MotherBrainDrainedPhase.FiringRainbowBeam, motherBrain.Encounter.DrainedPhase,
+    AssertEqual(MotherBrainDrainedPhase.FiringRainbowBeam, motherBrain.State.DrainedPhase,
         "Mother Brain advances to painful firing function");
     AssertEqual(MotherBrainNeckMovement.BobDown, motherBrain.Encounter.LowerNeckMovement,
         "Mother Brain drained firing lower neck index");

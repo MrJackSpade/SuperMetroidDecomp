@@ -41,8 +41,8 @@ internal static class FileMenuSnapshotTestsVerification
             Until(clear ? new FileSelectPhase.DataManagement.ClearSelectSlot() : new FileSelectPhase.DataManagement.CopySelectSource());
             Press(ControllerButton.A);
             if (!clear) Press(ControllerButton.A);
-            AssertEqual(clear ? new FileSelectPhase.DataManagement.ClearConfirm() : new FileSelectPhase.DataManagement.CopyConfirm(),
-                menu.Phase, "file snapshot confirmation");
+            AssertEqual(true, clear ? menu.Phase is FileSelectPhase.DataManagement.ClearConfirm : menu.Phase is FileSelectPhase.DataManagement.CopyConfirm,
+                "file snapshot confirmation");
             Press(ControllerButton.A);
             AssertEqual(clear ? new FileSelectPhase.DataManagement.ClearCompleted() : new FileSelectPhase.DataManagement.CopyCompleted(),
                 menu.Phase, "file snapshot completed operation");

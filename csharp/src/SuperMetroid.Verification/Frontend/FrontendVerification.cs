@@ -219,7 +219,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     AssertEqual(new FileSelectPhase.DataManagement.CopySelectDestination(), copyMenu.Phase,
         "copy chooses nonempty source slot");
     PulseFileSelect(copyMenu, ControllerButton.A);
-    AssertEqual(new FileSelectPhase.DataManagement.CopyConfirm(), copyMenu.Phase,
+    AssertEqual(true, copyMenu.Phase is FileSelectPhase.DataManagement.CopyConfirm,
         "copy chooses distinct destination slot");
     copyMenu.Step(0);
     AssertEqual(FileSelectSaveChange.Copied, copyMenu.Step(ControllerButton.A), "copy reports the update it changed the saves");

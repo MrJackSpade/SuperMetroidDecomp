@@ -56,10 +56,10 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>The opening's black hold (<see cref="FileSelectPhase.BlackHold"/>), counted once each update.</summary>
     private readonly UpdateCountdown blackHold = UpdateCountdown.Lasting(FileSelectLayout.BlackHoldUpdates);
     /// <summary>The page file select has selected, which it shows with its slots as they are now.</summary>
-    private FileSelectPage selectedPage = FileSelectPage.MainEmpty;
+    private SelectedFileSelectPage selectedPage = SelectedFileSelectPage.MainEmpty;
     /// <summary>The page shown, with its slots' fields and the slots its prompt names (#1467).</summary>
-    private ShownFileSelectPage ShownPage { get; set; } = new(FileSelectPage.MainEmpty,
-        SaveSlots.All.ToImmutableDictionary(slot => slot, _ => (ShownFileSelectSave?)null), SaveSlot.A, SaveSlot.A);
+    private ShownFileSelectPage ShownPage { get; set; } = new(SelectedFileSelectPage.MainEmpty,
+        SaveSlots.All.ToImmutableDictionary(slot => slot, _ => (ShownFileSelectSave?)null));
 
     /// <summary>Reads the saves and readies the menu to open from black.</summary>
     public FileSelectMenuState(SaveSlotStore saves, AudioQueues audio,
@@ -221,9 +221,9 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 : FileSelectHelmetFrame.TurnedAway;
             presentation.DrawHelmet(sprites, sheet, frame, slot);
         }
-        if (Phase is FileSelectPhase.DataManagement.CopyConfirm)
+        if (Phase is FileSelectPhase.DataManagement.CopyConfirm confirming)
         {
-            (FileCopyArrowShape shape, int y) = FileCopyRoutes.ArrowOf(copyRoute);
+            (FileCopyArrowShape shape, int y) = FileCopyRoutes.ArrowOf(confirming.Route);
             sprites.AddImage(sheet.Frame(FileCopyArrowDefinitions.FrameName(shape)),
                 new Offset16<ScreenPixels>(FileCopyArrowDefinitions.OriginX, y),
                 shading: PictureShading.Shaded(FileCopyArrowShades.Rotation(CopyArrowRotation)));
@@ -232,13 +232,13 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Shows the main page, without its Copy and Clear entries when every slot is empty.</summary>
-    private void ShowMainPage() => ShowPage(HasAnySave ? FileSelectPage.MainWithData : FileSelectPage.MainEmpty);
+    private void ShowMainPage() => ShowPage(HasAnySave ? SelectedFileSelectPage.MainWithData : SelectedFileSelectPage.MainEmpty);
 
     /// <summary>
     /// Shows <paramref name="page"/>: the main menu, a copy page naming its source and destination slots, or a clear page
     /// naming its slot, with each slot's field as it is now.
     /// </summary>
-    private void ShowPage(FileSelectPage page)
+    private void ShowPage(SelectedFileSelectPage page)
     {
         selectedPage = page;
         RefreshShownPage();
@@ -252,8 +252,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private SaveSlot operationSourceSlot;
     /// <summary>The row chosen on the copy-destination menu.</summary>
     private FileCopyDestinationRow copyDestination = FileCopyDestinationRow.FirstFrom(SaveSlot.A);
-    /// <summary>The copy retained through confirmation and completion pages, from its source onto another slot.</summary>
-    private FileCopyRoute copyRoute;
     /// <summary>Yes or No row selected on the copy or clear confirmation page.</summary>
     private YesNoChoice confirmationSelection;
     /// <summary>The wait before the copy arrow rotates its colors; over while the glow is stopped.</summary>
@@ -285,7 +283,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// The border the shown page draws in: the main page's, or the Copy or Clear border of a data-management page, which the
     /// pages keep through their fades, the swap between them coming at black.
     /// </summary>
-    private FileSelectBorder ShownBorder => Borders[selectedPage];
+    private FileSelectBorder ShownBorder => Borders[selectedPage.Page];
 
     /// <summary>Chooses main-page border, helmets, and missile coordinates, including fades.</summary>
     private bool IsMainPagePhase => ShownBorder == FileSelectBorder.Main;
@@ -382,16 +380,15 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     {
         submenuSelection = FileSelectItemRows.ForSaveSlot(FindFirstNonemptySlot());
         operationSourceSlot = SaveSlot.A;
-        copyRoute = FileCopyRoute.AToB;
         confirmationSelection = YesNoChoice.Yes;
         if (mode == FileSelectDataMode.Copy)
         {
-            ShowPage(FileSelectPage.CopySource);
+            ShowPage(SelectedFileSelectPage.CopySource);
             phaseAfterFadeIn = new FileSelectPhase.DataManagement.CopySelectSource();
         }
         else
         {
-            ShowPage(FileSelectPage.ClearSelection);
+            ShowPage(SelectedFileSelectPage.ClearSelection);
             phaseAfterFadeIn = new FileSelectPhase.DataManagement.ClearSelectSlot();
         }
     }
@@ -410,10 +407,10 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             StepCopyDestination(pressed);
             return FileSelectSaveChange.None;
         }
-        else if (managing is FileSelectPhase.DataManagement.CopyConfirm)
+        else if (managing is FileSelectPhase.DataManagement.CopyConfirm confirming)
         {
             StepCopyArrowGlow();
-            return StepConfirmation(pressed, FileSelectDataMode.Copy);
+            return StepCopyConfirmation(pressed, confirming.Route);
         }
         else if (managing is FileSelectPhase.DataManagement.ClearSelectSlot)
         {
@@ -422,7 +419,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         }
         else if (managing is FileSelectPhase.DataManagement.ClearConfirm)
         {
-            return StepConfirmation(pressed, FileSelectDataMode.Clear);
+            return StepClearConfirmation(pressed);
         }
         else
         {
@@ -459,13 +456,13 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             copyDestination = FileCopyDestinationRow.FirstFrom(operationSourceSlot);
             submenuSelection = copyDestination.Item;
-            ShowPage(FileSelectPage.CopyDestination);
+            ShowPage(SelectedFileSelectPage.CopyDestination(operationSourceSlot));
             Phase = new FileSelectPhase.DataManagement.CopySelectDestination();
         }
         else
         {
             confirmationSelection = YesNoChoice.Yes;
-            ShowPage(FileSelectPage.ClearConfirm);
+            ShowPage(SelectedFileSelectPage.ClearConfirm(operationSourceSlot));
             Phase = new FileSelectPhase.DataManagement.ClearConfirm();
         }
     }
@@ -479,7 +476,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             QueueCursorSound();
             submenuSelection = FileSelectItemRows.ForSaveSlot(operationSourceSlot);
-            ShowPage(FileSelectPage.CopySource);
+            ShowPage(SelectedFileSelectPage.CopySource);
             Phase = new FileSelectPhase.DataManagement.CopySelectSource();
             return;
         }
@@ -491,11 +488,10 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             Phase = new FileSelectPhase.FadeOutToMain();
             return;
         }
-        copyRoute = chosen.Route;
         confirmationSelection = YesNoChoice.Yes;
         copyArrowGlow.Restart(FileCopyArrowDefinitions.InitialGlowDelay);
-        ShowPage(FileSelectPage.CopyConfirm);
-        Phase = new FileSelectPhase.DataManagement.CopyConfirm();
+        ShowPage(SelectedFileSelectPage.CopyConfirm(chosen.Route));
+        Phase = new FileSelectPhase.DataManagement.CopyConfirm(chosen.Route);
     }
 
     /// <summary>Moves the copy arrows' glow on one colour when its timer expires.</summary>
@@ -507,64 +503,78 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         CopyArrowRotation = CopyArrowRotation.Next;
     }
 
-    /// <summary>Accepts Yes or No and changes the saves only after explicit Yes confirmation.</summary>
+    /// <summary>
+    /// Accepts Yes or No on the copy <paramref name="route"/>'s confirmation: Yes copies it, B or No goes back to choosing
+    /// its destination.
+    /// </summary>
     /// <returns>What the confirmation did to the saves.</returns>
-    private FileSelectSaveChange StepConfirmation(ControllerButton pressed, FileSelectDataMode mode)
+    private FileSelectSaveChange StepCopyConfirmation(ControllerButton pressed, FileCopyRoute route)
+    {
+        FileSelectConfirmationAnswer answer = StepConfirmation(pressed);
+        if (answer == FileSelectConfirmationAnswer.Declined)
+        {
+            submenuSelection = FileSelectItemRows.ForSaveSlot(FileCopyRoutes.DestinationOf(route));
+            copyDestination = FileCopyDestinationRow.Choosing(route);
+            ShowPage(SelectedFileSelectPage.CopyDestination(FileCopyRoutes.SourceOf(route)));
+            Phase = new FileSelectPhase.DataManagement.CopySelectDestination();
+            return FileSelectSaveChange.None;
+        }
+        if (answer == FileSelectConfirmationAnswer.Undecided)
+            return FileSelectSaveChange.None;
+        SaveSlot copyTargetSlot = FileCopyRoutes.DestinationOf(route);
+        saves.CopySlot(FileCopyRoutes.SourceOf(route), copyTargetSlot);
+        saveSlots[copyTargetSlot] = saves.ReadSlot(copyTargetSlot)
+            ?? throw new InvalidDataException("The copied save slot did not read back as a valid save.");
+        ShowPage(SelectedFileSelectPage.CopyCompleted(route));
+        Phase = new FileSelectPhase.DataManagement.CopyCompleted();
+        return FileSelectSaveChange.Copied;
+    }
+
+    /// <summary>
+    /// Accepts Yes or No on the chosen slot's clear: Yes clears it, B or No goes back to choosing the slot to clear.
+    /// </summary>
+    /// <returns>What the confirmation did to the saves.</returns>
+    private FileSelectSaveChange StepClearConfirmation(ControllerButton pressed)
+    {
+        FileSelectConfirmationAnswer answer = StepConfirmation(pressed);
+        if (answer == FileSelectConfirmationAnswer.Declined)
+        {
+            submenuSelection = FileSelectItemRows.ForSaveSlot(operationSourceSlot);
+            ShowPage(SelectedFileSelectPage.ClearSelection);
+            Phase = new FileSelectPhase.DataManagement.ClearSelectSlot();
+            return FileSelectSaveChange.None;
+        }
+        if (answer == FileSelectConfirmationAnswer.Undecided)
+            return FileSelectSaveChange.None;
+        saves.ClearSlot(operationSourceSlot);
+        saveSlots[operationSourceSlot] = null;
+        ShowPage(SelectedFileSelectPage.ClearCompleted(operationSourceSlot));
+        Phase = new FileSelectPhase.DataManagement.ClearCompleted();
+        return FileSelectSaveChange.Cleared;
+    }
+
+    /// <summary>
+    /// Moves the Yes or No selection on Up or Down, and answers the confirmation on B (declined) or on A or Start with the
+    /// row selected: the saves change only after an explicit Yes.
+    /// </summary>
+    private FileSelectConfirmationAnswer StepConfirmation(ControllerButton pressed)
     {
         if ((pressed & (ControllerButton.Up | ControllerButton.Down)) != ControllerButton.None)
         {
             confirmationSelection = confirmationSelection == YesNoChoice.Yes ? YesNoChoice.No : YesNoChoice.Yes;
             QueueCursorSound();
-            return FileSelectSaveChange.None;
+            return FileSelectConfirmationAnswer.Undecided;
         }
         if ((pressed & ControllerButton.B) != ControllerButton.None)
         {
             QueueCursorSound();
-            ReturnFromConfirmation(mode);
-            return FileSelectSaveChange.None;
+            return FileSelectConfirmationAnswer.Declined;
         }
         if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
-            return FileSelectSaveChange.None;
+            return FileSelectConfirmationAnswer.Undecided;
 
         audio.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
-        if (confirmationSelection != YesNoChoice.Yes)
-        {
-            ReturnFromConfirmation(mode);
-            return FileSelectSaveChange.None;
-        }
-
-        if (mode == FileSelectDataMode.Copy)
-        {
-            SaveSlot copyTargetSlot = FileCopyRoutes.DestinationOf(copyRoute);
-            saves.CopySlot(FileCopyRoutes.SourceOf(copyRoute), copyTargetSlot);
-            saveSlots[copyTargetSlot] = saves.ReadSlot(copyTargetSlot)
-                ?? throw new InvalidDataException("The copied save slot did not read back as a valid save.");
-            ShowPage(FileSelectPage.CopyCompleted);
-            Phase = new FileSelectPhase.DataManagement.CopyCompleted();
-            return FileSelectSaveChange.Copied;
-        }
-        saves.ClearSlot(operationSourceSlot);
-        saveSlots[operationSourceSlot] = null;
-        ShowPage(FileSelectPage.ClearCompleted);
-        Phase = new FileSelectPhase.DataManagement.ClearCompleted();
-        return FileSelectSaveChange.Cleared;
-    }
-
-    /// <summary>Restores the prior source or destination selection page after B or No.</summary>
-    private void ReturnFromConfirmation(FileSelectDataMode mode)
-    {
-        submenuSelection = FileSelectItemRows.ForSaveSlot(mode == FileSelectDataMode.Copy ? FileCopyRoutes.DestinationOf(copyRoute) : operationSourceSlot);
-        if (mode == FileSelectDataMode.Copy)
-        {
-            copyDestination = FileCopyDestinationRow.Choosing(copyRoute);
-            ShowPage(FileSelectPage.CopyDestination);
-            Phase = new FileSelectPhase.DataManagement.CopySelectDestination();
-        }
-        else
-        {
-            ShowPage(FileSelectPage.ClearSelection);
-            Phase = new FileSelectPhase.DataManagement.ClearSelectSlot();
-        }
+        return confirmationSelection == YesNoChoice.Yes ? FileSelectConfirmationAnswer.Accepted : FileSelectConfirmationAnswer.Declined;
     }
 
     /// <summary>Updates a changed submenu row and queues one cursor sound.</summary>
@@ -617,6 +627,5 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// </summary>
     private void RefreshShownPage() =>
         ShownPage = new ShownFileSelectPage(selectedPage,
-            SaveSlots.All.ToImmutableDictionary(slot => slot, slot => saveSlots[slot] is { } save ? ShownFileSelectSave.Of(save) : null),
-            operationSourceSlot, FileCopyRoutes.DestinationOf(copyRoute));
+            SaveSlots.All.ToImmutableDictionary(slot => slot, slot => saveSlots[slot] is { } save ? ShownFileSelectSave.Of(save) : null));
 }

@@ -185,7 +185,7 @@ internal static class DownwardGateObjectsVerification
             level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).Terrain,
             "compiled initial gate draw installs the second solid column word");
         AssertTrue(roomObjects.PopulationPlaces.Single(place => place.Behaviour is DownwardGateObject).Behaviour is
-                DownwardGateObject { Phase: DownwardGatePhase.RestingClosed, Resting: true } restingGate &&
+                DownwardGateObject { Phase: DownwardGatePhase.Closed, Resting: true } restingGate &&
                 restingGate.Animation.Shown == DownwardGateMovementDefinitions.Closed,
             "a gate that has not moved rests on its closed image, not on an image of a movement (#1627)");
         roomObjects.Gates.SpawnDownwardGateTrigger(
@@ -219,7 +219,7 @@ internal static class DownwardGateObjectsVerification
             "compiled final open draw clears the second column collision word");
         RoomObjectPlaceSnapshot openedGate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
-        AssertTrue(openedGate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingOpen },
+        AssertTrue(openedGate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.Open, Resting: true },
             "open gate rests, waiting only for a trigger");
 
         roomObjects.Gates.SpawnDownwardGateTrigger(

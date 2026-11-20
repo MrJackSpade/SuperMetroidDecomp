@@ -147,8 +147,8 @@ internal static class NativeSnapshotMotherBrainImport
         // The game reads only the low byte of each aim angle, the byte angle it stored.
         state.HandBeamNextAngle = new TrigonometryAngle(W(MotherBrainMemory.DeathBeamNext + 12) & byte.MaxValue);
         state.OnionRingsTargetAngle = new TrigonometryAngle(W(MotherBrainMemory.OnionRingsTargetAngle) & byte.MaxValue);
-        if (LateFightStages.Contains(state.Stage))
-            ImportNativeMotherBrainRainbowSequence(state, W);
+        if (state.RainbowBeamSequence is { } lateFight)
+            ImportNativeMotherBrainRainbowSequence(lateFight, W);
     }
 
     /// <summary>The fade her recorded phase runs, which the cartridge's fade count and phase timer describe; null in any other phase.</summary>
@@ -156,13 +156,13 @@ internal static class NativeSnapshotMotherBrainImport
     {
         if (state.Stage == MotherBrainBodyStage.FakeDeathAscent && state.AscentPhase == MotherBrainAscentPhase.TransitionFromGray)
             return state.FromFakeDeathGrey;
-        if (state.Stage == MotherBrainBodyStage.DrainedByBaby && state.DrainedPhase == MotherBrainDrainedPhase.TransitionToGrey)
+        if (state.RainbowBeamSequence is { State: { Stage: MotherBrainLateFightStage.DrainedByBaby, DrainedPhase: MotherBrainDrainedPhase.TransitionToGrey } })
             return state.DrainedGreying;
-        if (state.Stage == MotherBrainBodyStage.Reviving && state.RevivalPhase == MotherBrainRevivalPhase.TransitionFromGrey)
+        if (state.RainbowBeamSequence is { State: { Stage: MotherBrainLateFightStage.Reviving, RevivalPhase: MotherBrainRevivalPhase.TransitionFromGrey } })
             return state.RevivalFromGrey;
-        if (state.Stage == MotherBrainBodyStage.Dying && state.DeathPhase == MotherBrainDeathPhase.FadeOutBody)
+        if (state.RainbowBeamSequence is { State: { Stage: MotherBrainLateFightStage.Dying, DeathPhase: MotherBrainDeathPhase.FadeOutBody } })
             return state.DeathBodyFade;
-        if (state.Stage == MotherBrainBodyStage.Dying && state.DeathPhase == MotherBrainDeathPhase.FadeToGrey)
+        if (state.RainbowBeamSequence is { State: { Stage: MotherBrainLateFightStage.Dying, DeathPhase: MotherBrainDeathPhase.FadeToGrey } })
             return state.CorpseGreying;
         return null;
     }
@@ -242,24 +242,13 @@ internal static class NativeSnapshotMotherBrainImport
         return playback.Place.Beat == AnimationPlace.NotEntered ? playback with { Place = AnimationPlace.StartOf(playback.Place.Phase) } : playback;
     }
 
-    /// <summary>The stages the late fight's sequence runs, which a recorded body function in one of them resumes (#2208).</summary>
-    private static readonly HashSet<MotherBrainBodyStage> LateFightStages =
-    [
-        MotherBrainBodyStage.RainbowBeam,
-        MotherBrainBodyStage.FinishingSamusOff,
-        MotherBrainBodyStage.DrainedByBaby,
-        MotherBrainBodyStage.Reviving,
-        MotherBrainBodyStage.Phase3Fight,
-        MotherBrainBodyStage.Dying,
-    ];
-
     /// <summary>
-    /// Rebuilds the rainbow-beam sequence that runs phase two from the beam onward. It runs over the imported encounter,
-    /// whose phase, neck and flags were imported above (#2209), so only what the late fight alone keeps is imported here.
+    /// Rebuilds the rest of the rainbow-beam sequence that runs phase two from the beam onward, which the recorded body
+    /// phase began in its stage. It runs over the imported encounter, whose neck and flags were imported above (#2209), so
+    /// only what the late fight alone keeps is imported here.
     /// </summary>
-    private static void ImportNativeMotherBrainRainbowSequence(MotherBrainEnemyState state, Func<int, ushort> W)
+    private static void ImportNativeMotherBrainRainbowSequence(MotherBrainRainbowBeamAttackSequence sequence, Func<int, ushort> W)
     {
-        MotherBrainRainbowBeamAttackSequence sequence = state.BeginLateFight();
         // The cartridge keeps the brain's fall speed in the body's phase timer.
         sequence.State.BrainFallSpeed = new SignedEightEight(W(MotherBrainMemory.BodyFunctionTimer));
         global::SuperMetroid.Core.PrivateState.Set(sequence.RainbowAttack, "AngularWidth", RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth)));
@@ -272,7 +261,7 @@ internal static class NativeSnapshotMotherBrainImport
         // Once the sequence runs, the sub-function word holds the bursts' interval; their place was imported with the
         // encounter, whose cycle the sequence shares.
         // The cartridge's interval runs below zero on the update a burst is due: a count at zero or below is due next.
-        PrivateState.SetField(state.Bursts, "burstWait",
+        PrivateState.SetField(sequence.Encounter.Bursts, "burstWait",
             UpdateCountdown.For(Math.Max(0, CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction))) + 1));
     }
 
@@ -301,7 +290,8 @@ internal static class NativeSnapshotMotherBrainImport
     /// warning there, as the port's rise and escape start place it.
     /// </summary>
     internal static MotherBrainBodyPlacement BodyPlacementOf(MotherBrainEnemyState state) =>
-        state.Stage == MotherBrainBodyStage.Dying && EscapeWarningPhases.Contains(state.DeathPhase) ? MotherBrainBodyPlacement.AtRoomCorner
+        state.RainbowBeamSequence is { State: { Stage: MotherBrainLateFightStage.Dying, DeathPhase: var dying } } && EscapeWarningPhases.Contains(dying)
+            ? MotherBrainBodyPlacement.AtRoomCorner
         : state.Form >= MotherBrainForm.SecondPhase || (state.Form == MotherBrainForm.FakeDeath &&
             state.Stage == MotherBrainBodyStage.FakeDeathAscent && RisingWithBodyAreaPhases.Contains(state.AscentPhase))
             ? MotherBrainBodyPlacement.FollowsBody

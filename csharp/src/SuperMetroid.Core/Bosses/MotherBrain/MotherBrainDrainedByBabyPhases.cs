@@ -72,7 +72,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.Raise;
         Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.TakenAback;
-        Encounter.DrainedPhase = MotherBrainDrainedPhase.RegainBalance;
+        _state.DrainedPhase = MotherBrainDrainedPhase.RegainBalance;
         Encounter.PhaseTimer.LastFor(MotherBrainFightDefinitions.RegainBalanceUpdates);
         return true;
     }
@@ -91,7 +91,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
             PainfulWalkingPause = null;
             Encounter.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
             Encounter.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
-            Encounter.DrainedPhase = MotherBrainDrainedPhase.FiringRainbowBeam;
+            _state.DrainedPhase = MotherBrainDrainedPhase.FiringRainbowBeam;
         }
         return false;
     }
@@ -117,7 +117,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         if (ReferenceEquals(stage, MotherBrainPainfulWalkingDefinitions.BeamRunsOut))
         {
             _state.RainbowBeamSoundPlaying = false;
-            Encounter.DrainedPhase = MotherBrainDrainedPhase.RainbowBeamRunOut;
+            _state.DrainedPhase = MotherBrainDrainedPhase.RainbowBeamRunOut;
             requests.Start(MotherBrainStepEffect.DrainedBeamRanOut);
             requests.Start(MotherBrainStepEffect.RainbowBeamSound); // The rainbow-drain sound stops as the beam runs out.
         }
@@ -136,7 +136,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
             Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;
             Encounter.UpperNeckMovement = MotherBrainNeckMovement.Raise;
             _state.SetHeadAnimation(MotherBrainHeadSegment.DyingDrool);
-            Encounter.DrainedPhase = MotherBrainDrainedPhase.MoveToBackOfRoom;
+            _state.DrainedPhase = MotherBrainDrainedPhase.MoveToBackOfRoom;
             return true;
         }
         return false;
@@ -150,7 +150,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         // The walk back is the really-slow backward walk, the painful walk's last animation.
         if (_state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, MotherBrainWalkSpeed.ReallySlow))
         {
-            Encounter.DrainedPhase = MotherBrainDrainedPhase.SlumpOnceNeckIsRaised;
+            _state.DrainedPhase = MotherBrainDrainedPhase.SlumpOnceNeckIsRaised;
             Encounter.UpperNeckMovement = MotherBrainNeckMovement.None;
             return true;
         }
@@ -172,7 +172,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
             if (Encounter.Pose != MotherBrainBodyPose.Standing)
                 return false;
             _state.SetBodyAnimation(MotherBrainBodySegment.CrouchFast);
-            Encounter.DrainedPhase = MotherBrainDrainedPhase.WaitBeforeGreying;
+            _state.DrainedPhase = MotherBrainDrainedPhase.WaitBeforeGreying;
             Encounter.PhaseTimer.LastFor(MotherBrainFightDefinitions.BeforeGreyUpdates);
         }
         return false;
@@ -186,7 +186,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             Encounter.DrainedGreying.StartAfter(MotherBrainFightDefinitions.GreyStepUpdates);
-            Encounter.DrainedPhase = MotherBrainDrainedPhase.TransitionToGrey;
+            _state.DrainedPhase = MotherBrainDrainedPhase.TransitionToGrey;
             return true;
         }
         return false;
@@ -206,7 +206,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
             _state.Phase2CorpseState = MotherBrainPhase2CorpseState.Corpse;
             Encounter.SmallPurpleBreathGenerationEnabled = false;
             Encounter.Form = MotherBrainForm.SecondPhase;
-            Encounter.RevivalPhase = MotherBrainRevivalPhase.InanimateGrey;
+            _state.RevivalPhase = MotherBrainRevivalPhase.InanimateGrey;
         }
         return false;
     }
@@ -228,5 +228,5 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// Runs the body's current <see cref="MotherBrainDrainedPhase"/> phase. True when it moves to the next body phase and the game runs on
     /// into it in the same update.
     /// </summary>
-    internal bool Run(MotherBrainRainbowBeamStepRequests requests) => PhaseSteps[Encounter.DrainedPhase](this, requests);
+    internal bool Run(MotherBrainRainbowBeamStepRequests requests) => PhaseSteps[_state.DrainedPhase](this, requests);
 }

@@ -16,7 +16,10 @@ internal sealed class DownwardGateObject(GateObjects owner) : SequencedRoomObjec
     /// <summary>The room's gates.</summary>
     private readonly GateObjects _owner = Ensure.NotNull(owner);
 
-    /// <summary>Where the gate is in its course.</summary>
+    /// <summary>
+    /// Where the gate is in its course; a gate that rests (<see cref="SequencedRoomObject{TSegment, TFrame, TEvent}.Resting"/>)
+    /// stands closed or open as the gate it last showed.
+    /// </summary>
     private DownwardGatePhase Phase { get; set; } = DownwardGatePhase.Starting;
 
     /// <summary>
@@ -33,10 +36,9 @@ internal sealed class DownwardGateObject(GateObjects owner) : SequencedRoomObjec
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
-        if (Phase is DownwardGatePhase.RestingClosed or DownwardGatePhase.RestingOpen &&
-            (Triggered || (Phase == DownwardGatePhase.RestingClosed && _owner.IsSamusInsideDownwardGateColumn(place))))
+        if (Resting && (Triggered || (Phase == DownwardGatePhase.Closed && _owner.IsSamusInsideDownwardGateColumn(place))))
         {
-            bool open = Phase == DownwardGatePhase.RestingOpen;
+            bool open = Phase == DownwardGatePhase.Open;
             Phase = open ? DownwardGatePhase.Closing : DownwardGatePhase.Reopening;
             // The movement's first image shows as the sequence runs below, on this update.
             PlayFromNextUpdate(open ? DownwardGateAnimations.Closing : DownwardGateAnimations.Reopening);
@@ -45,29 +47,26 @@ internal sealed class DownwardGateObject(GateObjects owner) : SequencedRoomObjec
     }
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// A movement shows the closed or open gate it ends at; the closed or open gate, once shown, clears the trigger and lets
+    /// the gate rest as it stands, waking from the next update on.
+    /// </remarks>
     private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        switch (Phase)
+        if (Phase is DownwardGatePhase.Starting or DownwardGatePhase.Closing)
         {
-            case DownwardGatePhase.Starting:
-            case DownwardGatePhase.Closing:
-                Phase = DownwardGatePhase.ShowingClosed;
-                Play(DownwardGateAnimations.Closed, place, context);
-                return;
-            case DownwardGatePhase.Reopening:
-                Phase = DownwardGatePhase.ShowingOpen;
-                Play(DownwardGateAnimations.Open, place, context);
-                return;
-            case DownwardGatePhase.ShowingClosed:
-                RestIn(DownwardGatePhase.RestingClosed);
-                return;
-            case DownwardGatePhase.ShowingOpen:
-                RestIn(DownwardGatePhase.RestingOpen);
-                return;
-            case DownwardGatePhase.RestingClosed:
-            case DownwardGatePhase.RestingOpen:
-            default:
-                throw new InvalidOperationException($"The downward gate's sequence ended in {nameof(DownwardGatePhase)} {Phase}.");
+            Phase = DownwardGatePhase.Closed;
+            Play(DownwardGateAnimations.Closed, place, context);
+        }
+        else if (Phase == DownwardGatePhase.Reopening)
+        {
+            Phase = DownwardGatePhase.Open;
+            Play(DownwardGateAnimations.Open, place, context);
+        }
+        else
+        {
+            // The remaining members, DownwardGatePhase.Closed and DownwardGatePhase.Open: nothing follows, so the gate rests.
+            Triggered = false;
         }
     }
 
@@ -95,15 +94,5 @@ internal sealed class DownwardGateObject(GateObjects owner) : SequencedRoomObjec
     {
         ShowForDownwardGateMovement[frame.Starts](place, context);
         context.Draw(place, frame.Draw);
-    }
-
-    /// <summary>
-    /// Clears the gate's trigger and lets it rest in <paramref name="phase"/> on the image it shows, waking from the
-    /// next update on.
-    /// </summary>
-    private void RestIn(DownwardGatePhase phase)
-    {
-        Triggered = false;
-        Phase = phase;
     }
 }

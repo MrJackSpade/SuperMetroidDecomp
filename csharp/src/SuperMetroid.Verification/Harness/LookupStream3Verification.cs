@@ -1015,7 +1015,7 @@ internal static class LookupStream3Verification
         }
         var sequence = MotherBrainLateFightFixtures.NewSequence();
         // The escape's start begins with its wait, as the hold before the escape starts it (#2469).
-        sequence.Encounter.DeathPhase = MotherBrainDeathPhase.StartEscape;
+        sequence.State.DeathPhase = MotherBrainDeathPhase.StartEscape;
         sequence.Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.EscapeStartUpdates);
         var bus = new TestAddressSpace();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99 };

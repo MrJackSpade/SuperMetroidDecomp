@@ -109,30 +109,17 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             RainbowAndDeath.RunLiveMotherBrainRainbowBeam(lateFight, samus, state.Body.FrameCounter, samusBombs);
             return;
         }
-        switch (state.Stage)
+        // Before her late fight her body runs one of its own stages.
+        if (state.Stage == MotherBrainBodyStage.Glass)
+            Body.RunMotherBrainFirstPhase(state, samus);
+        else if (state.Stage == MotherBrainBodyStage.FakeDeathDescent)
+            RunMotherBrainFakeDeath(state, samus);
+        else if (state.Stage == MotherBrainBodyStage.FakeDeathAscent)
+            RunMotherBrainAscent(state);
+        else
         {
-            case MotherBrainBodyStage.Glass:
-                Body.RunMotherBrainFirstPhase(state, samus);
-                return;
-            case MotherBrainBodyStage.FakeDeathDescent:
-                RunMotherBrainFakeDeath(state, samus);
-                return;
-            case MotherBrainBodyStage.FakeDeathAscent:
-                RunMotherBrainAscent(state);
-                return;
-            case MotherBrainBodyStage.Phase2Fight:
-                RunMotherBrainPhase2Fight(state, samus);
-                return;
-            // The stages from the rainbow beam on belong to her late fight, which runs them once it has begun.
-            case MotherBrainBodyStage.RainbowBeam:
-            case MotherBrainBodyStage.FinishingSamusOff:
-            case MotherBrainBodyStage.DrainedByBaby:
-            case MotherBrainBodyStage.Reviving:
-            case MotherBrainBodyStage.Phase3Fight:
-            case MotherBrainBodyStage.Dying:
-            default:
-                throw new InvalidDataException(
-                    $"Mother Brain's body has no behaviour for its {state.Stage} stage outside her late fight.");
+            // The remaining member, MotherBrainBodyStage.Phase2Fight.
+            RunMotherBrainPhase2Fight(state, samus);
         }
     }
 

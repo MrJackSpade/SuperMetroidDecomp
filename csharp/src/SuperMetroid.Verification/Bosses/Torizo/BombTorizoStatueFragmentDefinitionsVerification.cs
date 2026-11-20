@@ -32,7 +32,8 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
             enemies.TorizoBehavior.Attacks.SpawnBombTorizoStatueBreakingProjectile(
                 new BombTorizoStatueProjectileRequest(
                     index,
-                    RoomObjectBlock: new(10, 20)));
+                    RoomObjectBlock: new(10, 20),
+                    Spawner: enemies.TorizoBehavior.Attacks));
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.SingleOrDefault(item => item.IsActive) ??
                 throw new InvalidDataException(
                     $"Bomb Torizo statue fragment {index} failed to allocate.");

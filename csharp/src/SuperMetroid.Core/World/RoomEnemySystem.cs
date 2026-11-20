@@ -119,11 +119,11 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     {
         Ensure.NotNull(value);
         EscapeTypewriterState? active = BossEncounters.MotherBrain?.EscapeTypewriter;
-        if (active?.MessageId == EscapeTypewriterMessageId.Zebes)
-            active.BindMessage(value.Get(EscapeTypewriterMessageId.Zebes));
+        if (active is not null)
+            active.BindMessage(value.Get(active.MessageId));
         EscapeTypewriterState? foreground = SpeciesComposition.Displays.ForegroundTypewriter;
-        if (foreground?.MessageId == EscapeTypewriterMessageId.Ceres)
-            foreground.BindMessage(value.Get(EscapeTypewriterMessageId.Ceres));
+        if (foreground is not null)
+            foreground.BindMessage(value.Get(foreground.MessageId));
     }
 
     /// <summary>The room's effect actors.</summary>

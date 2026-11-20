@@ -851,7 +851,7 @@ internal sealed class RoomLoader
         var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _roomObjectVisuals, new CollectibleBlockPairs(),
             new RoomObjectPlaces(),
             new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteGreenDoorFacingLeft),
-            _audioRequests);
+            _audioRequests, new RoomObjectThrownProjectileSpawners(roomObjectServices, roomObjectServices));
         scope.RoomObjects = roomObjects;
         var areaServices = new RoomEnemyRuntimeServices(_system, destinationCamera.Scrolls, _player, roomObjects, _display, progress);
         roomObjects.PopulationLoader.LoadRoomPopulation(roomObjectRoom, room.State.ObjectPopulation, roomObjectBindings);
@@ -1127,7 +1127,7 @@ internal sealed class RoomLoader
     {
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("A door began with no room loaded.");
         // The elevator shaft's screen is its turning floor, which the door's scroll keeps showing: none of its blocks (#1647).
-        if (scope.Room.State.TurningFloor == RoomTurningFloor.ElevatorShaft)
+        if (scope.Room.State.TurningFloor.HidesLevelBlocks)
             return RoomBlockPictureTable.NoneDrawn(scope.BlockPictures.Sheet);
         return scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null,
             new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, scope.Looks), []);

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Bomb and Golden Torizo's projectiles: drool, swipes, sonic booms, Chozo orbs, eggs, super missiles, eye beams and explosions.</summary>
 [RoomLifetime]
-internal sealed class TorizoAttacks
+internal sealed class TorizoAttacks : IBombTorizoStatueFragmentSpawner
 {
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;

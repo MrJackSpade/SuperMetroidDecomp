@@ -21,7 +21,7 @@ internal static class EndingScreenMemory
     {
         ArgumentNullException.ThrowIfNull(loads);
         var vram = new SnesVram();
-        var artwork = new EndingTransferArtwork(objects, font, reward);
+        var artwork = new EndingTransferArtwork(objects, font);
         if (loads.FloorScene is { } loaded)
         {
             EndingFloorSceneArtwork scene = Required(floor)[loaded];
@@ -34,7 +34,10 @@ internal static class EndingScreenMemory
             for (int chunk = 0; chunk < FlyawayChunks; chunk++)
                 Flyaway(vram, chunk, flight);
         if (loads.PostCreditsArt)
-            EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.CreditsCharacterArt), artwork);
+        {
+            EndingScreenImage.Execute(vram, new EndingSheetTransfer(EndingTransferKind.CreditsCharacterArt), artwork);
+            EndingScreenImage.Execute(vram, new EndingRewardCharactersTransfer(reward), artwork);
+        }
         if (loads.RewardIcon)
             for (int chunk = 0; chunk < EndingRewardGraphicsUploadDefinitions.ChunkCount; chunk++)
                 vram.LoadBytes(EndingVramDestinationsConstants.RewardChunkWordOf(chunk) * sizeof(ushort),
@@ -42,13 +45,13 @@ internal static class EndingScreenMemory
                         EndingRewardGraphicsUploads.ChunkOffset(chunk), EndingRewardGraphicsUploadDefinitions.ChunkBytes));
         if (loads.ExplosionMaps)
         {
-            EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.ExplosionObjects), artwork);
+            EndingScreenImage.Execute(vram, new EndingSheetTransfer(EndingTransferKind.ExplosionObjects), artwork);
             foreach (EndingExplosionPicture map in Enum.GetValues<EndingExplosionPicture>())
-                EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.ExplosionMap, Fragment: map), artwork);
-            EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.EndingFont), artwork);
+                EndingScreenImage.Execute(vram, new EndingExplosionMapTransfer(map), artwork);
+            EndingScreenImage.Execute(vram, new EndingSheetTransfer(EndingTransferKind.EndingFont), artwork);
         }
         for (int part = 0; part < loads.PostShotParts; part++)
-            EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.PostShotPart, part), artwork);
+            EndingScreenImage.Execute(vram, new EndingPostShotPartTransfer(EndingPostShotUploads.Get(part)), artwork);
         return vram.CaptureImage();
     }
 

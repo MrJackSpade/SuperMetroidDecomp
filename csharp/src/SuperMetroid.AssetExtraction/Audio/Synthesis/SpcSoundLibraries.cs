@@ -47,21 +47,22 @@ internal sealed class SpcSoundLibraries
     /// when that value changed. $1621 then echoes the acted-on value and latches the CPU's
     /// current write, so a request is echoed one service after the service that reads it.
     /// </remarks>
-    internal void HandleSoundLibraryCommand(int libraryIndex, SoundRequestCheck<byte> poll) =>
-        ApplySoundLibraryCommand(libraryIndex, poll.Changed, poll.Request);
+    internal void HandleSoundLibraryCommand(int libraryIndex, SoundRequestCheck<byte> poll)
+    {
+        // The native library priority/cancellation gates pass a changed request that names a sound, which selects its
+        // stream; otherwise the library advances the sound it plays, if any.
+        ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
+        if (poll is { Changed: true, Request: byte command } && command != ManagedSpcSoundLibrary.SilentCommand &&
+            !RejectsRequest(libraryIndex, command, library.Priority, library.Mode))
+            StartSound(libraryIndex, command);
+        else if (library.IsPlaying)
+            ProcessSoundLibrary(libraryIndex);
+    }
 
-    /// <summary>Applies native library priority/cancellation gates, then selects a new sound stream or advances the active one.</summary>
-    private void ApplySoundLibraryCommand(int libraryIndex, bool changed, int? request)
+    /// <summary>Selects the stream of sound <paramref name="command"/> in library <paramref name="libraryIndex"/>, silencing the sound it played.</summary>
+    private void StartSound(int libraryIndex, int command)
     {
         ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
-        if (!changed || request is not int command || command == ManagedSpcSoundLibrary.SilentCommand ||
-            RejectsRequest(libraryIndex, command, library.Priority, library.Mode))
-        {
-            if (library.IsPlaying)
-                ProcessSoundLibrary(libraryIndex);
-            return;
-        }
-
         ManagedSpcSoundChannel[] libraryChannels = soundChannels[libraryIndex];
         if (library.IsPlaying)
         {

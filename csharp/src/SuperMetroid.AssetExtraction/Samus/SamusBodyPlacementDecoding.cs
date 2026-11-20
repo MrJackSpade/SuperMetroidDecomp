@@ -68,8 +68,7 @@ public static class SamusBodyPlacementDecoding
         IReadOnlyList<int> postureOffsets, IReadOnlyList<int> drainedOffsets)
     {
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(pose);
-        if (movementType == SamusMovementType.Standing &&
-            pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose)
+        if (movementType == SamusMovementType.Standing && SamusPoseTraits.IsIn(pose, SamusPoseFamily.ForwardFacing))
             return Pinned(origin, ForwardFacingFirstLaterFrame, ForwardFacingLaterRise);
         int landingRow = number - SamusPoseNumbers.Number(SamusPoseId.NormalLandingRightPose);
         if (movementType == SamusMovementType.Standing && landingRow is >= 0 and < LandingByteCount / LandingPoseByteCount)
@@ -77,9 +76,9 @@ public static class SamusBodyPlacementDecoding
         int postureRow = number - SamusPoseNumbers.Number(SamusPoseId.CrouchingTransitionRightPose);
         if (movementType == SamusMovementType.PostureTransition && postureRow is >= 0 and < PostureByteCount / PosturePoseByteCount)
             return [.. postureOffsets.Skip(postureRow * PosturePoseByteCount).Select(offset => -offset)];
-        if (pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
+        if (SamusPoseTraits.IsIn(pose, SamusPoseFamily.DrainedCrouch))
             return [.. drainedOffsets.Select(offset => -offset)];
-        if (pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
+        if (SamusPoseTraits.IsIn(pose, SamusPoseFamily.DrainedStanding))
             return Pinned(origin, DrainedStandingFirstLaterFrame, DrainedStandingLaterRise);
         return null;
     }

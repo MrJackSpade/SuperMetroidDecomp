@@ -404,6 +404,23 @@ internal static class SamusPoseFamilyDefinitions
             SamusPoseId.ShinesparkWindupRightPose,
             SamusPoseId.ShinesparkWindupLeftPose,
         ],
+        [SamusPoseFamily.ChestCovered] =
+        [
+            SamusPoseId.ForwardFacingPowerSuitPose,
+        ],
+        [SamusPoseFamily.FramesSelectedDirectly] =
+        [
+            SamusPoseId.XrayingStandingRightPose,
+            SamusPoseId.XrayingStandingLeftPose,
+            SamusPoseId.XrayingCrouchingRightPose,
+            SamusPoseId.XrayingCrouchingLeftPose,
+            SamusPoseId.GrappleSwingRightPose,
+            SamusPoseId.GrappleSwingLeftPose,
+            SamusPoseId.CrystalFlashRightPose,
+            SamusPoseId.CrystalFlashLeftPose,
+            SamusPoseId.ForwardFacingPowerSuitPose,
+            SamusPoseId.ForwardFacingSuitedPose,
+        ],
         [SamusPoseFamily.GenericSpinJump] =
         [
             SamusPoseId.SpinJumpRightPose,
@@ -425,11 +442,6 @@ internal static class SamusPoseFamilyDefinitions
             SamusPoseId.FallingLeftPose,
             SamusPoseId.FallingGunExtendedRightPose,
             SamusPoseId.FallingGunExtendedLeftPose,
-        ],
-        [SamusPoseFamily.ForwardFacingBody] =
-        [
-            SamusPoseId.ForwardFacingPowerSuitPose,
-            SamusPoseId.ForwardFacingSuitedPose,
         ],
         [SamusPoseFamily.GrappleSwing] =
         [

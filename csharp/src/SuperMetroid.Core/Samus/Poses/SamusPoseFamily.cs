@@ -181,12 +181,21 @@ internal enum SamusPoseFamily
     /// </summary>
     PlainFalling,
 
-    /// <summary>The front views, which face neither way.</summary>
-    ForwardFacingBody,
-
     /// <summary>The Grapple swings, facing right and left, which drop Samus standing.</summary>
     GrappleSwing,
 
     /// <summary>The poses Draygon's hold moves Samus in, which aim and fire Grapple by the hold's own rules.</summary>
     DraygonGrabbedMoving,
+
+    /// <summary>
+    /// The poses that show the chest cover between the body's halves: the unsuited Samus's front view, whose Power Suit's
+    /// chest the cover hides.
+    /// </summary>
+    ChestCovered,
+
+    /// <summary>
+    /// The poses whose frames the angle, the Crystal Flash's stages and the Zebes start select directly, from outside their
+    /// animation: the X-ray poses, the Grapple swings, the Crystal Flash and the front views.
+    /// </summary>
+    FramesSelectedDirectly,
 }

@@ -1,21 +1,21 @@
 namespace SuperMetroid.Core.Earthquakes;
 
 /// <summary>
-/// What an earthquake shakes: the room's foreground layer, its background layer, and the enemies with their projectiles
-/// (<see cref="EarthquakeShakeDefinitions"/>). Every earthquake shakes at least one of the two layers; the enemies shake
-/// only with the background.
+/// What an earthquake shakes: the room's blocks, the scenery behind them, and the enemies with their projectiles
+/// (<see cref="EarthquakeShakeDefinitions"/>). Every earthquake shakes the blocks, the scenery or both; the enemies shake
+/// only with the scenery.
 /// </summary>
 public enum EarthquakeReach
 {
-    /// <summary>The foreground layer alone.</summary>
-    Foreground,
+    /// <summary>The room's blocks alone.</summary>
+    RoomBlocks,
 
-    /// <summary>Both layers; the enemies stay still.</summary>
-    ForegroundAndBackground,
+    /// <summary>The room's blocks and the scenery behind them; the enemies stay still.</summary>
+    RoomBlocksAndScenery,
 
-    /// <summary>Both layers, the enemies and their projectiles.</summary>
-    ForegroundBackgroundAndEnemies,
+    /// <summary>The room's blocks, the scenery, the enemies and their projectiles.</summary>
+    RoomBlocksSceneryAndEnemies,
 
-    /// <summary>The background layer, the enemies and their projectiles; the foreground stays still.</summary>
-    BackgroundAndEnemies,
+    /// <summary>The scenery, the enemies and their projectiles; the room's blocks stay still.</summary>
+    SceneryAndEnemies,
 }

@@ -26,7 +26,7 @@ internal static class SamusPoseTransitions
         // sources it also accepts the moonwalk turn jumps, the grounded turn between a moonwalk and its jump.
         bool supportedSource =
             SamusPoseMetadata.WalksOffFloor(samus.Pose) ||
-            SamusPoseMetadata.IsMoonwalkTurnJumpPose(samus.Pose);
+            SamusPoseMetadata.IsMoonwalkTurnToSpinJumpPose(samus.Pose);
         SamusPoseId expectedTarget = SelectFallingPoseForCurrentAim(samus);
         if (!supportedSource || targetPose != expectedTarget)
         {
@@ -295,7 +295,7 @@ internal static class SamusPoseTransitions
                 $"Animation transition {samus.Pose} -> {targetPose} is no pose-transition cue of the pose's animation.");
         }
 
-        bool startsMoonwalkJump = SamusPoseMetadata.IsMoonwalkTurnJumpPose(samus.Pose) &&
+        bool startsMoonwalkJump = SamusPoseMetadata.IsMoonwalkTurnToSpinJumpPose(samus.Pose) &&
             targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose;
         SamusPoseId sourcePose = samus.Pose;
         SamusMovementType previousMovementType = SamusPoseMetadata.ReadMovementType(sourcePose);

@@ -50,7 +50,7 @@ internal abstract class PhantoonEntity(PhantoonBehavior species, RoomEnemyPlace 
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
-        PhantoonBodyLayerFrameDefinitions.Frames.Contains(selected) ? bossArtwork.Body(BossBodyOwner.Phantoon).Frame(selected) : null;
+        bossArtwork.Body(BossBodyOwner.Phantoon).Find(selected);
 
     /// <summary>None: the drawing parts name shared touch reactions.</summary>
     public virtual EnemyReaction? SpeciesTouch => null;

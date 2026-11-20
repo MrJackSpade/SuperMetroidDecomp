@@ -283,28 +283,28 @@ internal sealed class SamusPoseInputList
         (held, _) => SamusPoseInputRules.MatchFallingGunExtendedRight(MirrorButtons(held)).Mirrored());
 
     /// <summary>The input-transition list of the moonwalk turn jump left poses.</summary>
-    internal static SamusPoseInputList MoonwalkTurnJumpLeft { get; } = new(nameof(MoonwalkTurnJumpLeft),
-        (held, newlyPressed) => SamusPoseInputRules.MatchMoonwalkTurnJumpRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
+    internal static SamusPoseInputList MoonwalkTurnToSpinJumpLeft { get; } = new(nameof(MoonwalkTurnToSpinJumpLeft),
+        (held, newlyPressed) => SamusPoseInputRules.MatchMoonwalkTurnToSpinJumpRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
 
     /// <summary>The input-transition list of the moonwalk turn jump right poses.</summary>
-    internal static SamusPoseInputList MoonwalkTurnJumpRight { get; } = new(nameof(MoonwalkTurnJumpRight),
-        (held, newlyPressed) => SamusPoseInputRules.MatchMoonwalkTurnJumpRight(held, newlyPressed));
+    internal static SamusPoseInputList MoonwalkTurnToSpinJumpRight { get; } = new(nameof(MoonwalkTurnToSpinJumpRight),
+        (held, newlyPressed) => SamusPoseInputRules.MatchMoonwalkTurnToSpinJumpRight(held, newlyPressed));
 
     /// <summary>The input-transition list of the moonwalk turn jump aim up left poses.</summary>
-    internal static SamusPoseInputList MoonwalkTurnJumpAimUpLeft { get; } = new(nameof(MoonwalkTurnJumpAimUpLeft),
-        (held, newlyPressed) => SamusPoseInputRules.MatchMoonwalkTurnJumpAimedRight(SamusPoseId.MoonwalkTurnJumpAimUpRightPose, MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
+    internal static SamusPoseInputList MoonwalkTurnToSpinJumpAimUpLeft { get; } = new(nameof(MoonwalkTurnToSpinJumpAimUpLeft),
+        (held, newlyPressed) => SamusPoseInputRules.MatchMoonwalkTurnToSpinJumpAimedRight(SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose, MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
 
     /// <summary>The input-transition list of the moonwalk turn jump aim up right poses.</summary>
-    internal static SamusPoseInputList MoonwalkTurnJumpAimUpRight { get; } = new(nameof(MoonwalkTurnJumpAimUpRight),
-        (held, newlyPressed) => SamusPoseInputRules.MatchMoonwalkTurnJumpAimedRight(SamusPoseId.MoonwalkTurnJumpAimUpRightPose, held, newlyPressed));
+    internal static SamusPoseInputList MoonwalkTurnToSpinJumpAimUpRight { get; } = new(nameof(MoonwalkTurnToSpinJumpAimUpRight),
+        (held, newlyPressed) => SamusPoseInputRules.MatchMoonwalkTurnToSpinJumpAimedRight(SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose, held, newlyPressed));
 
     /// <summary>The input-transition list of the moonwalk turn jump aim down left poses.</summary>
-    internal static SamusPoseInputList MoonwalkTurnJumpAimDownLeft { get; } = new(nameof(MoonwalkTurnJumpAimDownLeft),
-        (held, newlyPressed) => SamusPoseInputRules.MatchMoonwalkTurnJumpAimedRight(SamusPoseId.MoonwalkTurnJumpAimDownRightPose, MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
+    internal static SamusPoseInputList MoonwalkTurnToSpinJumpAimDownLeft { get; } = new(nameof(MoonwalkTurnToSpinJumpAimDownLeft),
+        (held, newlyPressed) => SamusPoseInputRules.MatchMoonwalkTurnToSpinJumpAimedRight(SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose, MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
 
     /// <summary>The input-transition list of the moonwalk turn jump aim down right poses.</summary>
-    internal static SamusPoseInputList MoonwalkTurnJumpAimDownRight { get; } = new(nameof(MoonwalkTurnJumpAimDownRight),
-        (held, newlyPressed) => SamusPoseInputRules.MatchMoonwalkTurnJumpAimedRight(SamusPoseId.MoonwalkTurnJumpAimDownRightPose, held, newlyPressed));
+    internal static SamusPoseInputList MoonwalkTurnToSpinJumpAimDownRight { get; } = new(nameof(MoonwalkTurnToSpinJumpAimDownRight),
+        (held, newlyPressed) => SamusPoseInputRules.MatchMoonwalkTurnToSpinJumpAimedRight(SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose, held, newlyPressed));
 
     /// <summary>Selects the first satisfied input chord of the list, in the order the list authors them.</summary>
     /// <param name="held">The held actions the chords read.</param>

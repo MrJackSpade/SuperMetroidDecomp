@@ -14,19 +14,19 @@ public static class ZebesEscapeDefinitions
 
     /// <summary>Light horizontal shaking of both layers, enemies included.</summary>
     public static readonly EarthquakeShake LightHorizontal =
-        new(EarthquakeStrength.Light, EarthquakeDirection.Horizontal, EarthquakeReach.ForegroundBackgroundAndEnemies);
+        new(EarthquakeStrength.Light, EarthquakeDirection.Horizontal, EarthquakeReach.RoomBlocksSceneryAndEnemies);
 
     /// <summary>Medium horizontal shaking of both layers, enemies included.</summary>
     public static readonly EarthquakeShake MediumHorizontal =
-        new(EarthquakeStrength.Medium, EarthquakeDirection.Horizontal, EarthquakeReach.ForegroundBackgroundAndEnemies);
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Horizontal, EarthquakeReach.RoomBlocksSceneryAndEnemies);
 
     /// <summary>The medium diagonal shake, enemies included, a lightly shaking room turns to.</summary>
     private static readonly EarthquakeShake MediumDiagonal =
-        new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.ForegroundBackgroundAndEnemies);
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.RoomBlocksSceneryAndEnemies);
 
     /// <summary>The strong diagonal shake, enemies included, a medium shaking room turns to.</summary>
     private static readonly EarthquakeShake StrongDiagonal =
-        new(EarthquakeStrength.Strong, EarthquakeDirection.Diagonal, EarthquakeReach.ForegroundBackgroundAndEnemies);
+        new(EarthquakeStrength.Strong, EarthquakeDirection.Diagonal, EarthquakeReach.RoomBlocksSceneryAndEnemies);
 
     /// <summary>
     /// The chance a lightly shaking room turns diagonal on an update (#1619): one update in 128.
@@ -71,11 +71,11 @@ public static class ZebesEscapeDefinitions
 
     /// <summary>The strong horizontal shake of both layers, enemies included, Mainstreet's escape room shakes with.</summary>
     public static readonly EarthquakeShake MainstreetQuake =
-        new(EarthquakeStrength.Strong, EarthquakeDirection.Horizontal, EarthquakeReach.ForegroundBackgroundAndEnemies);
+        new(EarthquakeStrength.Strong, EarthquakeDirection.Horizontal, EarthquakeReach.RoomBlocksSceneryAndEnemies);
 
     /// <summary>The strong horizontal foreground shake the Landing Site shakes with during the escape.</summary>
     public static readonly EarthquakeShake LandingQuake =
-        new(EarthquakeStrength.Strong, EarthquakeDirection.Horizontal, EarthquakeReach.Foreground);
+        new(EarthquakeStrength.Strong, EarthquakeDirection.Horizontal, EarthquakeReach.RoomBlocks);
 
     /// <summary>A lightly shaking escape room's shaking, which turns medium diagonal one update in 128.</summary>
     public static readonly EscapeDiagonalShaking LightShakingTurnsMediumDiagonal =

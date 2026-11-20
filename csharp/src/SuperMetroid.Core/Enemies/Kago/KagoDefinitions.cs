@@ -25,7 +25,7 @@ internal static class KagoDefinitions
     internal static readonly SuperMetroid.Core.Earthquakes.EarthquakeShake ShotQuake = new(
         SuperMetroid.Core.Earthquakes.EarthquakeStrength.Light,
         SuperMetroid.Core.Earthquakes.EarthquakeDirection.Diagonal,
-        SuperMetroid.Core.Earthquakes.EarthquakeReach.Foreground);
+        SuperMetroid.Core.Earthquakes.EarthquakeReach.RoomBlocks);
 
     /// <summary>How many updates after its first hop a new Kago bug first sounds.</summary>
     internal const int FirstSoundPastFirstHop = 3;

@@ -35,6 +35,9 @@ public readonly struct WreckedShipGhostFade
     /// <summary>The colours the ghost's fades move: the fifteen its pictures draw and colour zero, which none draws.</summary>
     private const int ColourCount = 16;
 
+    /// <summary>The ghost's own colours, colour zero first, which its materializing fade moves toward (#1544).</summary>
+    public static ImmutableArray<RgbColor> GhostColours => WreckedShipGhostFadeDefinitions.GhostColours;
+
     /// <summary>The channels a fade step moves, in the order the game steps them.</summary>
     private static readonly ColorChannel[] Channels = [ColorChannel.Red, ColorChannel.Green, ColorChannel.Blue];
 

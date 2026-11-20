@@ -93,7 +93,7 @@ internal sealed class KraidDeath
                 state.BodyState.DeathPhase = KraidDeathPhase.Sink;
                 state.SinkRumbleWait.LastFor(KraidArenaDefinitions.SinkFirstSoundUpdates);
                 body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
-                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), KraidArenaDefinitions.SinkShakeUpdates);
+                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), KraidArenaDefinitions.SinkShakeUpdates);
                 state.ArmState.StartAnimation(KraidPartSegment.ArmRisingOrSinking);
                 state.FootState.StartAnimation(KraidPartSegment.FootInitial);
                 state.FootState.Phase = KraidFootPhase.Resting;

@@ -593,7 +593,7 @@ internal sealed class EnemySheetShades
         }
         for (int cycle = 0; cycle < 2; cycle++)
         {
-            fade = fade.Materializing(WreckedShipGhostAppearance.Colours);
+            fade = fade.Materializing(WreckedShipGhostFade.GhostColours);
             fade = RecordFade(steps, fade);
             fade = fade.Vanishing();
             fade = RecordFade(steps, fade);

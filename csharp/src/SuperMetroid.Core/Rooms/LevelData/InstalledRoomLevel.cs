@@ -13,27 +13,22 @@ public sealed class InstalledRoomLevel
     /// <param name="foreground">Each foreground block's terrain, row by row.</param>
     /// <param name="behaviors">Each foreground block's behaviour, row by row.</param>
     /// <param name="background">What each background block shows, row by row.</param>
-    /// <param name="following">The terrain a probe past the grid finds.</param>
-    /// <param name="beyondCount">How many blocks the room's level space holds past its grid; the rest past <paramref name="following"/> are solid.</param>
-    /// <exception cref="InvalidDataException">A plane does not cover the grid, or the data past the grid exceeds its space.</exception>
+    /// <param name="pastGrid">What the level holds past its grid, which a probe past the grid finds.</param>
+    /// <exception cref="InvalidDataException">A plane does not cover the grid.</exception>
     public InstalledRoomLevel(Extent16<RoomBlocks> size, ImmutableArray<RoomTerrainBlock> foreground,
         ImmutableArray<RoomBlockBehavior> behaviors, ImmutableArray<RoomBlockAppearance> background,
-        ImmutableArray<RoomTerrainBlock> following, int beyondCount)
+        LevelDataPastGrid<RoomTerrainBlock> pastGrid)
     {
         if (size.X <= 0 || size.Y <= 0)
             throw new InvalidDataException($"An installed room level needs a positive size; got {size.X}x{size.Y}.");
         int blocks = size.Area;
         if (foreground.Length != blocks || behaviors.Length != blocks || background.Length != blocks)
             throw new InvalidDataException($"An installed {size.X}x{size.Y} room level needs {blocks} blocks in each plane.");
-        if (beyondCount < following.Length)
-            throw new InvalidDataException(
-                $"An installed room level holds {following.Length} blocks of data past its grid in a space of {beyondCount}.");
         Size = size;
         Foreground = foreground;
         Behaviors = behaviors;
         Background = background;
-        Following = following;
-        BeyondCount = beyondCount;
+        PastGrid = Ensure.NotNull(pastGrid);
     }
 
     /// <summary>The grid's size in blocks.</summary>
@@ -48,9 +43,6 @@ public sealed class InstalledRoomLevel
     /// <summary>What each background block shows, row by row.</summary>
     public ImmutableArray<RoomBlockAppearance> Background { get; }
 
-    /// <summary>The terrain a probe past the room's grid finds.</summary>
-    public ImmutableArray<RoomTerrainBlock> Following { get; }
-
-    /// <summary>How many blocks the room's level space holds past its grid.</summary>
-    public int BeyondCount { get; }
+    /// <summary>What the level holds past its grid, which a probe past the room's grid finds.</summary>
+    public LevelDataPastGrid<RoomTerrainBlock> PastGrid { get; }
 }

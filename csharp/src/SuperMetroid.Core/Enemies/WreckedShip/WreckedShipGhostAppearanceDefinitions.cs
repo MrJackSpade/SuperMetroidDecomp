@@ -5,19 +5,6 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 public static class WreckedShipGhostAppearanceDefinitions
 {
     /// <summary>
-    /// The colours the ghost's materializing fade moves toward (#1544), which decide when the fade ends
-    /// (WreckedShipGhostFade); the ghost's pictures show its installed shades.
-    /// </summary>
-    internal static readonly RgbColor[] OwnColours =
-    [
-        new(0, 0, 115),
-        new(255, 255, 173), new(189, 189, 132), new(74, 74, 16), new(41, 41, 0),
-        new(214, 214, 156), new(173, 173, 107), new(132, 132, 74), new(115, 115, 57),
-        new(255, 115, 0), new(255, 0, 0), new(198, 0, 0), new(82, 0, 0),
-        new(206, 173, 8), new(82, 57, 0), new(41, 16, 0),
-    ];
-
-    /// <summary>
     /// Where the ghost appears around Samus for each way she has been moving: 64 pixels the way she moved on each
     /// axis, and level with her on an axis she held still. A Samus moving up and right is the exception: the ghost
     /// appears level with her, to her right.

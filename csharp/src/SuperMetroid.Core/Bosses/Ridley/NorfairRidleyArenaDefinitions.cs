@@ -59,7 +59,7 @@ internal static class NorfairRidleyArenaDefinitions
 
     /// <summary>The medium vertical earthquake a pogo bounce shakes the whole view with.</summary>
     internal static readonly EarthquakeShake PogoBounceQuake =
-        new(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.ForegroundAndBackground);
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocksAndScenery);
 
     /// <summary>The updates a pogo bounce's earthquake lasts.</summary>
     internal const int PogoBounceQuakeUpdates = 4;

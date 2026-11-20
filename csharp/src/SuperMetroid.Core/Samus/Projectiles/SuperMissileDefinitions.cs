@@ -21,7 +21,7 @@ public static class SuperMissileDefinitions
     public const int FastLinkShortfall = 10;
     /// <summary>The Super Missile's light diagonal impact quake on a block, shaking both layers and the enemies.</summary>
     public static readonly EarthquakeShake WallImpactEarthquake =
-        new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.ForegroundBackgroundAndEnemies);
+        new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.RoomBlocksSceneryAndEnemies);
     /// <summary>Thirty room-shaking updates after Super Missile impact.</summary>
     public const int EarthquakeDuration = 30;
     /// <summary>
@@ -30,5 +30,5 @@ public static class SuperMissileDefinitions
     /// leaves them crawling.
     /// </summary>
     public static readonly EarthquakeShake EnemyHitEarthquake =
-        new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Horizontal, EarthquakeReach.ForegroundBackgroundAndEnemies);
+        new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Horizontal, EarthquakeReach.RoomBlocksSceneryAndEnemies);
 }

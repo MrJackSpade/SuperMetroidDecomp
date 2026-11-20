@@ -20,7 +20,7 @@ internal sealed class TorizoMovement
     private readonly RoomEarthquake _earthquake;
     /// <summary>The medium up-and-down foreground shake a landing statue starts.</summary>
     private static readonly EarthquakeShake LandingShake =
-        new(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground);
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks);
     /// <summary>Bomb and Golden Torizo's body: its behaviour flags, colours, animation start and the low-health drool it triggers.</summary>
     private readonly TorizoBody _body;
 

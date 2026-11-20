@@ -183,7 +183,7 @@ internal static class LookupStream2Verification
         for (int color = 0; color < native.Length; color++)
         {
             native[color] = ReadVerificationWord(rom, 0xa899ac + color * 2);
-            AssertEqual(native[color], WreckedShipGhostAppearance.Colours[color], "Calculated ghost channels preserve native target words");
+            AssertEqual(native[color], SuperMetroid.Core.Compatibility.WreckedShipGhostFade.GhostColours[color], "Calculated ghost channels preserve native target words");
             AssertEqual(native[color], ReadVerificationWord(rom, 0xa8aafe + color * 2), "Kago shares exactly the same native palette inputs");
             if (color < 9) AssertEqual(native[color], ReadVerificationWord(rom, 0xa89f4f + color * 2), "Yapping Maw shares olive target inputs");
         }

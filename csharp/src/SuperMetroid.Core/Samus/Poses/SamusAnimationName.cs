@@ -528,40 +528,40 @@ internal enum SamusAnimationName
     TurningLeftToRightCrouchingAimDiagonalUp,
 
     /// <summary>
-    /// The animation <see cref="SamusPoseId.MoonwalkTurnJumpLeftPose"/> plays: its three frames (<see
-    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpLeftAnimation"/>).
+    /// The animation <see cref="SamusPoseId.MoonwalkTurnToSpinJumpLeftPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnToSpinJumpLeftAnimation"/>).
     /// </summary>
-    MoonwalkTurnJumpLeft,
+    MoonwalkTurnToSpinJumpLeft,
 
     /// <summary>
-    /// The animation <see cref="SamusPoseId.MoonwalkTurnJumpRightPose"/> plays: its three frames (<see
-    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpRightAnimation"/>).
+    /// The animation <see cref="SamusPoseId.MoonwalkTurnToSpinJumpRightPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnToSpinJumpRightAnimation"/>).
     /// </summary>
-    MoonwalkTurnJumpRight,
+    MoonwalkTurnToSpinJumpRight,
 
     /// <summary>
-    /// The animation <see cref="SamusPoseId.MoonwalkTurnJumpAimUpLeftPose"/> plays: its three frames (<see
-    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpAimUpLeftAnimation"/>).
+    /// The animation <see cref="SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnToSpinJumpAimUpLeftAnimation"/>).
     /// </summary>
-    MoonwalkTurnJumpAimUpLeft,
+    MoonwalkTurnToSpinJumpAimUpLeft,
 
     /// <summary>
-    /// The animation <see cref="SamusPoseId.MoonwalkTurnJumpAimUpRightPose"/> plays: its three frames (<see
-    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpAimUpRightAnimation"/>).
+    /// The animation <see cref="SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnToSpinJumpAimUpRightAnimation"/>).
     /// </summary>
-    MoonwalkTurnJumpAimUpRight,
+    MoonwalkTurnToSpinJumpAimUpRight,
 
     /// <summary>
-    /// The animation <see cref="SamusPoseId.MoonwalkTurnJumpAimDownLeftPose"/> plays: its three frames (<see
-    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpAimDownLeftAnimation"/>).
+    /// The animation <see cref="SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnToSpinJumpAimDownLeftAnimation"/>).
     /// </summary>
-    MoonwalkTurnJumpAimDownLeft,
+    MoonwalkTurnToSpinJumpAimDownLeft,
 
     /// <summary>
-    /// The animation <see cref="SamusPoseId.MoonwalkTurnJumpAimDownRightPose"/> plays: its three frames (<see
-    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpAimDownRightAnimation"/>).
+    /// The animation <see cref="SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnToSpinJumpAimDownRightAnimation"/>).
     /// </summary>
-    MoonwalkTurnJumpAimDownRight,
+    MoonwalkTurnToSpinJumpAimDownRight,
 
     /// <summary>
     /// The animation no pose plays, which only a frame read past an earlier animation reaches: its three frames (<see

@@ -195,7 +195,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             return;
 
         state.Action = WreckedShipGhostAction.FadingToGhostColours;
-        state.Fade = state.Fade.Materializing(WreckedShipGhostAppearance.Colours);
+        state.Fade = state.Fade.Materializing(WreckedShipGhostFade.GhostColours);
     }
 
     /// <summary>Fades to the ghost's own colours, with the simultaneous flicker and per-channel fade.</summary>

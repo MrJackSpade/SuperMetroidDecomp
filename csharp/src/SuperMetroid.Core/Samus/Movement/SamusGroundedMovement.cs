@@ -195,9 +195,9 @@ public static class SamusGroundedMovement
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         bool turnsLeft = SamusPoseMetadata.IsRightToLeftGroundTurnPose(samus.Pose) ||
-            SamusPoseMetadata.IsMoonwalkTurnJumpLeftPose(samus.Pose);
+            SamusPoseMetadata.IsMoonwalkTurnToSpinJumpLeftPose(samus.Pose);
         bool turnsRight = SamusPoseMetadata.IsLeftToRightGroundTurnPose(samus.Pose) ||
-            SamusPoseMetadata.IsMoonwalkTurnJumpRightPose(samus.Pose);
+            SamusPoseMetadata.IsMoonwalkTurnToSpinJumpRightPose(samus.Pose);
         if (!turnsLeft && !turnsRight)
         {
             throw new InvalidOperationException(

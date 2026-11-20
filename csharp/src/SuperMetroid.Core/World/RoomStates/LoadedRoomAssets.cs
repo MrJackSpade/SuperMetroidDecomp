@@ -98,7 +98,7 @@ public sealed class LoadedRoomAssets
         RoomBlockBehavior[] behaviors = [.. level.Behaviors.Select(behavior => behavior.In(room.Area))];
         return new RoomLevelData(level.Size,
             new RoomLevelPlanes(level.Foreground.AsSpan(), behaviors, level.Background.AsSpan()),
-            new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>(level.Following, level.BeyondCount,
+            new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>(level.PastGrid.Blocks, level.PastGrid.SpaceBlocks,
                 RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None),
             doorBlocks, visualLayout);
     }

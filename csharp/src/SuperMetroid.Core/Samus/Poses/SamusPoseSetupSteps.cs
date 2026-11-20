@@ -65,14 +65,14 @@ internal sealed class SamusPoseSetupSteps
         SamusKnockbackMovement.ApplyDamageBoostPoseTransition(samus, targetPose, _playerActions.NewlyPressed);
     }
 
-    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StartMoonwalkTurnJump"/> setup.</summary>
-    internal static void SetUpStartMoonwalkTurnJump(SamusState samus, SamusPoseId targetPose)
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StartMoonwalkTurnToSpinJump"/> setup.</summary>
+    internal static void SetUpStartMoonwalkTurnToSpinJump(SamusState samus, SamusPoseId targetPose)
     {
         // The stable moonwalk poses' input transitions select a generic
         // reversal target. The reversal check validates it against the old
         // shot direction, folds momentum, and leaves the moonwalk turn-jump poses
         // grounded until either its input transitions or the turn transition starts the jump.
-        SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(samus, targetPose);
+        SamusGroundedPoseTransitions.ApplyMoonwalkTurnToSpinJump(samus, targetPose);
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeMoonwalkPose"/> setup.</summary>

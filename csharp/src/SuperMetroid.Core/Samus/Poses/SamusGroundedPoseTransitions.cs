@@ -278,16 +278,16 @@ internal static class SamusGroundedPoseTransitions
     /// The six requested moonwalk turn-jump poses are not airborne yet: they retain the grounded
     /// turn movement while their three visible frames play.
     /// </summary>
-    public static void ApplyMoonwalkTurnJump(SamusState samus, SamusPoseId targetPose)
+    public static void ApplyMoonwalkTurnToSpinJump(SamusState samus, SamusPoseId targetPose)
     {
         // A moonwalk aims only level or diagonally; any other aim means the pose state is inconsistent.
         SamusPoseId expectedTarget = SamusPoseMetadata.ReadAimDirection(samus) is { } direction &&
-            SamusAimedPoseChoiceDefinitions.MoonwalkTurnJumps.TryGetValue(direction, out SamusPoseId turnJump)
+            SamusAimedPoseChoiceDefinitions.MoonwalkTurnToSpinJumps.TryGetValue(direction, out SamusPoseId turnJump)
             ? turnJump
             : throw new InvalidDataException(
                 $"Moonwalk aim {SamusPoseMetadata.ReadAim(samus)} is invalid for a stable moonwalk pose.");
         SamusPoseId inputTransitionTarget = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
-            ? SamusPoseId.MoonwalkTurnJumpLeftPose : SamusPoseId.MoonwalkTurnJumpRightPose;
+            ? SamusPoseId.MoonwalkTurnToSpinJumpLeftPose : SamusPoseId.MoonwalkTurnToSpinJumpRightPose;
         if (!SamusPoseMetadata.IsMoonwalkingPose(samus.Pose) || targetPose != expectedTarget && targetPose != inputTransitionTarget)
         {
             // Input requests the un-aimed turn; the pose setup then substitutes
@@ -412,8 +412,8 @@ internal static class SamusGroundedPoseTransitions
         // turn/jump setup without a new Jump edge.
         if (wasMoonwalking && (controllerInput & GameplayAction.Jump) != GameplayAction.None)
         {
-            ApplyMoonwalkTurnJump(samus, turnsLeft
-                ? SamusPoseId.MoonwalkTurnJumpLeftPose : SamusPoseId.MoonwalkTurnJumpRightPose);
+            ApplyMoonwalkTurnToSpinJump(samus, turnsLeft
+                ? SamusPoseId.MoonwalkTurnToSpinJumpLeftPose : SamusPoseId.MoonwalkTurnToSpinJumpRightPose);
             return;
         }
 

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
@@ -16,10 +15,10 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fune, EnemyDefinitionId.Namihe];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(place).DefinitionId == EnemyDefinitionId.Namihe
-            ? new NamiheEntity(this, place, common)
-            : new FuneEntity(this, place, common);
+            ? EnemyOccupant.Of(new NamiheEntity(this, place, common))
+            : EnemyOccupant.Of(new FuneEntity(this, place, common));
 
     /// <summary>Allocates the shared directional fireball fired by either species' animation.</summary>
     private readonly EnemyProjectileEngine _projectiles;

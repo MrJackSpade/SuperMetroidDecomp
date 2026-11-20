@@ -30,10 +30,13 @@ internal static class FakeKraidBehaviorPrivateAccess
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Kraid.FakeKraidBehavior>(self, "SpawnFakeKraidSpitPair", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection)], new object?[] { place, direction });
     }
 
-    /// <summary>The private static members checks name.</summary>
-    extension(global::SuperMetroid.Core.Bosses.Kraid.FakeKraidBehavior)
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Kraid.FakeKraidBehavior self)
     {
-        /// <summary>The private field <c>SpitAndSpikes</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior SpitAndSpikes => PrivateState.StaticField<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(typeof(global::SuperMetroid.Core.Bosses.Kraid.FakeKraidBehavior), "SpitAndSpikes");
+        /// <summary>The private property <c>SpitAndSpikes</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Kraid.FakeKraidBehavior.SpitAndSpikeBehavior SpitAndSpikes
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Kraid.FakeKraidBehavior, global::SuperMetroid.Core.Bosses.Kraid.FakeKraidBehavior.SpitAndSpikeBehavior>(self, "SpitAndSpikes");
+        }
     }
 }

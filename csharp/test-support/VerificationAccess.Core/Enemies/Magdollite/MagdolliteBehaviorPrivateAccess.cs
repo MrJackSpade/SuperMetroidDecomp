@@ -19,12 +19,6 @@ internal static class MagdolliteBehaviorPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior, global::SuperMetroid.Core.Assets.PictureShading>(self, "Glow");
         }
 
-        /// <summary>The private property <c>Lava</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior Lava
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(self, "Lava");
-        }
-
         /// <summary>The private method <c>RunMagdolliteBodyFalling</c>, invoked by name.</summary>
         internal void RunMagdolliteBodyFalling(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBodyState state) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior>(self, "RunMagdolliteBodyFalling", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBodyState)], new object?[] { body, state });
@@ -40,5 +34,15 @@ internal static class MagdolliteBehaviorPrivateAccess
         /// <summary>The private method <c>SpawnMagdolliteLava</c>, invoked by name.</summary>
         internal void SpawnMagdolliteLava(global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, global::SuperMetroid.Core.Spatial.HorizontalDirection thrown) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior>(self, "SpawnMagdolliteLava", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection)], new object?[] { source, thrown });
+    }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior self)
+    {
+        /// <summary>The private property <c>Lava</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior.LavaBehavior Lava
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior, global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior.LavaBehavior>(self, "Lava");
+        }
     }
 }

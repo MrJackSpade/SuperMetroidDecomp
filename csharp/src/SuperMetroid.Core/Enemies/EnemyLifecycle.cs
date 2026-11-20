@@ -54,48 +54,32 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         place.Shading = PictureShading.Standard;
     }
 
-    /// <summary>Runs the definition's initialization for a place the room's population load has just placed.</summary>
+    /// <summary>
+    /// Runs the setup of the enemy the room's population load has just placed: its own, or the one it runs from the load's
+    /// <paramref name="surroundings"/>, which the load has; nothing for an enemy that has none.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The place holds no entity.</exception>
     private static void SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
         Ensure.NotNull(surroundings);
-        switch (Ensure.NotNull(place).Entity)
-        {
-            case IEnemySurroundingsInitialization entity:
-                entity.Initialize(surroundings);
-                break;
-            case IEnemyInitialization entity:
-                entity.Initialize();
-                break;
-            default:
-                throw NoInitialization(place);
-        }
+        EnemyOccupant occupant = OccupantOf(place);
+        occupant.Initialization?.Initialize();
+        occupant.SurroundingsInitialization?.Initialize(surroundings);
     }
 
     /// <summary>
-    /// Runs the definition's initialization for a place spawned on another enemy's behalf, or rebuilt by a respawn, which
-    /// has no population load's surroundings (#2455).
+    /// Runs the setup of an enemy spawned on another enemy's behalf, or rebuilt by a respawn (#2455): its own, and nothing
+    /// for an enemy that has none. Such a spawn has no population load's surroundings, so a setup that reads them is the
+    /// population load's alone.
     /// </summary>
-    /// <exception cref="InvalidDataException">
-    /// The place's enemy initializes from a population load's surroundings, which no such spawn has, or has no initialization.
-    /// </exception>
-    private static void SetUpSpawnedEnemy(RoomEnemyPlace place)
-    {
-        switch (Ensure.NotNull(place).Entity)
-        {
-            case IEnemyInitialization entity:
-                entity.Initialize();
-                break;
-            case IEnemySurroundingsInitialization:
-                throw new InvalidDataException(
-                    $"Enemy {place.DefinitionId} initializes from a population load's surroundings, but was spawned on another enemy's behalf.");
-            default:
-                throw NoInitialization(place);
-        }
-    }
+    /// <exception cref="InvalidDataException">The place holds no entity.</exception>
+    private static void SetUpSpawnedEnemy(RoomEnemyPlace place) =>
+        OccupantOf(place).Initialization?.Initialize();
 
-    /// <summary>The failure for a place whose species has no initialization behaviour.</summary>
-    private static InvalidDataException NoInitialization(RoomEnemyPlace place) =>
-        new($"Enemy {place.DefinitionId} has no initialization behaviour.");
+    /// <summary>The occupant <paramref name="place"/> holds.</summary>
+    /// <exception cref="InvalidDataException">The place holds no entity.</exception>
+    private static EnemyOccupant OccupantOf(RoomEnemyPlace place) =>
+        Ensure.NotNull(place).Occupant ?? throw new InvalidDataException($"Enemy {place.DefinitionId} has no entity to set up.");
 
     /// <summary>Exposes setting up a listed enemy from its population entry to the enemy loader.</summary>
     void IEnemyLifecycle.InitializePlaceFromDefinition(
@@ -140,15 +124,9 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     IReadOnlyList<RoomEnemyPlace> IEnemyLifecycle.InteractiveEnemies => _processingWindow.InteractiveEnemies;
 
     /// <summary>
-    /// Runs a loaded place's main AI through its species' main behaviour; an enemy with no main behaviour of its own, a
-    /// part another part moves or one that only animates, runs none.
+    /// Runs the main AI the occupant of a loaded place carries, and nothing for one that has none, as a place awaiting its
+    /// enemy's respawn has none: the enemy pass still counts its update.
     /// </summary>
-    internal static void RunMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        // A place awaiting its enemy's respawn has no behaviour; the enemy pass still counts its update.
-        if (place.AwaitsRespawn)
-            return;
-        if (place.Entity is IEnemyAi entity)
-            entity.RunMainAi(frame);
-    }
+    internal static void RunMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
+        Ensure.NotNull(place).Occupant?.MainAi?.RunMainAi(frame);
 }

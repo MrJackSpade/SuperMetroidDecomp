@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>The Shutters species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEscapeShutterFlash
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -40,7 +40,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// each frame of the flash replaces the one before it. A destroyed shutter, and any enemy that took its place since,
     /// shows no flash.
     /// </summary>
-    internal void ShowEscapeShutterFlash(ColourEffectFrame frame)
+    public void ShowEscapeShutterFlash(ColourEffectFrame frame)
     {
         PictureShade flash = ColourEffectShades.Of(ColourEffectColours.TourianShutters, frame);
         foreach (DestroyableShutterEntity shutter in _destroyableShutters)
@@ -70,17 +70,17 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The growing shutter, a shootable vertical shutter, the Kamer that reuses it, or a destroyable vertical shutter (#2146, #2179).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Shutters definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.ShutterGrowing)
-            return new GrowingShutterEntity(this, place, common);
+            return EnemyOccupant.Of(new GrowingShutterEntity(this, place, common));
         if (definition == EnemyDefinitionId.ShutterShootable)
-            return new ShootableShutterEntity(this, place, common);
+            return EnemyOccupant.Of(new ShootableShutterEntity(this, place, common));
         if (definition == EnemyDefinitionId.Kamer)
-            return new KamerEntity(this, place, common);
+            return EnemyOccupant.Of(new KamerEntity(this, place, common));
         if (definition == EnemyDefinitionId.ShutterDestroyable)
-            return new DestroyableShutterEntity(this, place, common);
+            return EnemyOccupant.Of(new DestroyableShutterEntity(this, place, common));
         throw new InvalidOperationException($"The Shutters species creates no {place.DefinitionId}.");
     }
 

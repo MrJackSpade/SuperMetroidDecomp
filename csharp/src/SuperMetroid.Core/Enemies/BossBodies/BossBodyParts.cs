@@ -136,4 +136,7 @@ internal sealed class BossBodyParts : IBossBodyDisplay
 
     /// <inheritdoc />
     bool IBossBodyDisplay.Hidden => showing?.BodyHidden == true;
+
+    /// <inheritdoc/>
+    bool IBossBodyDisplay.HidesBackgroundLayer => showing?.HidesBackgroundLayer == true;
 }

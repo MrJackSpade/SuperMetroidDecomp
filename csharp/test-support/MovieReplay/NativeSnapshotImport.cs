@@ -501,8 +501,8 @@ internal static class NativeSnapshotImport
     }
 
     /// <summary>
-    /// Enemy-projectile kinds whose complete state is the native slot arrays: no family keeps
-    /// port-only words (afterburn chains, death-drop sources) that the arrays cannot supply.
+    /// Enemy-projectile kinds whose complete state is the native slot arrays and the Mother Brain they belong to: no
+    /// family keeps port-only words (afterburn chains, death-drop sources) that the arrays cannot supply.
     /// </summary>
     private static readonly HashSet<RoomEnemyProjectileKind> NativeSlotOnlyEnemyProjectileKinds =
     [
@@ -541,7 +541,14 @@ internal static class NativeSnapshotImport
             int standardRow = graphics.TileNumber == 0 ? SuperMetroid.AssetExtraction.Enemies.EnemySheetRowDefinitions.Common : graphics.PaletteIndex;
             FamilyProjectileStarts.Initialize(enemies, projectile, kind, new SpriteGraphics(graphicsSet.OwnerDrawingAt(graphics.TileNumber),
                 SpriteColouringAccess.ShadingInRow(graphics.PaletteIndex, standardRow)));
-            global::SuperMetroid.Core.PrivateState.Set(projectile, "Motion", (global::System.Enum?)(EnemyProjectileMotionAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index))));
+            // Each slot-only kind belongs to the room's Mother Brain, which her spawn gives it in her behaviour's table
+            // (#2571): her head pins the charge and the small breath's end clears her flag. The place's previous projectile
+            // leaves no entry the import may borrow, so the projectile is given its own as her spawn gives it.
+            SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEnemyState motherBrain = enemies.BossEncounters.MotherBrain ?? throw new InvalidDataException(
+                $"Initial native enemy projectile {projectile.Place} kind {kind} is Mother Brain's, but the room has no Mother Brain encounter.");
+            enemies.MotherBrainBehavior.Projectiles.Projectile.MotherBrains.Start(
+                projectile, new SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectileState(motherBrain));
+            projectile.StartMotionFromWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index));
             ushort instruction = W(NativeSnapshotMemory.NativeEnemyProjectileInstruction + index);
             // The typed family resumes at the step the recorded native pointer stands for.
             EnemyProjectileAnimation typed = projectile.Animation ?? throw new InvalidOperationException(

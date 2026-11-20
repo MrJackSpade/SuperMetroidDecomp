@@ -51,14 +51,13 @@ public static class SamusGroundedMovement
                 $"Forward-facing movement requires a forward-facing pose, not {samus.Pose}.");
         }
 
-        BlockMoveResult? vertical = null;
         if (elevatorIsMoving)
         {
             // A moving elevator carries Samus down one whole pixel through the downward mover; the collision direction
             // the game sets first is read by nothing before the next move sets its own. That move deliberately skips
             // solid-enemy collision but retains ordinary room-block and behaviour scanning and the
             // alternating left/right order selected from the frame counter's parity.
-            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SamusMovementDefinitions.ElevatorCarry, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false, DoorBlocks = doorBlocks });
+            _ = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SamusMovementDefinitions.ElevatorCarry, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false, DoorBlocks = doorBlocks });
         }
 
         // Clearing the vertical collision result is all front-view movement does without a moving elevator. In

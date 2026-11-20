@@ -37,7 +37,7 @@ internal static class EyeDoorProjectileBehaviorVerification
         AssertTrue(!deleted, "the flight loops");
         AssertTrue(shot.Velocity.X.RawValue != 0 || shot.Velocity.Y.RawValue != 0, "the aim cue launches the shot toward Samus");
 
-        shot.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Impact));
+        shot.StartAnimation(new EyeDoorProjectileAnimation(enemies.EyeDoorBehavior.Shot, EyeDoorProjectileSegment.Impact));
         (deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, shot,
             EyeDoorProjectileNativeListAddresses.Entry(EyeDoorProjectileSegment.Impact), 30, "eye-door impact");
         AssertTrue(deleted, "the impact deletes the shot");

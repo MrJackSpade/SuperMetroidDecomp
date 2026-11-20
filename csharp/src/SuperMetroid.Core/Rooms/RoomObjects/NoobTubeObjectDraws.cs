@@ -32,8 +32,8 @@ internal static class NoobTubeObjectDraws
 
     /// <summary>The tube's five frames (#2034), pictured by the installed n00b tube frames.</summary>
     internal static RoomObjectDrawFamily<NoobTubeDraw> Family { get; } =
-        RoomObjectDrawFamily<NoobTubeDraw>.Pictured<InstalledRoomObjectNoobTubeVisuals>("n00b tube",
-            frame => RoomObjectDrawFamily<NoobTubeDraw>.Defined(Shapes, frame), (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<NoobTubeDraw>("n00b tube",
+            frame => RoomObjectDrawFamily<NoobTubeDraw>.Defined(Shapes, frame));
 
     /// <summary>The tube's <paramref name="rows"/>, each twelve blocks wide from the object's column.</summary>
     private static RoomBlockShape Rows(params int[] rows) => new([.. RowCells(rows)]);

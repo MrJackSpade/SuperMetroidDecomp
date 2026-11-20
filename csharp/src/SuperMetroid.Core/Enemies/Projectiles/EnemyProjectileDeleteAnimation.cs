@@ -16,7 +16,7 @@ internal sealed class EnemyProjectileDeleteAnimation : EnemyProjectileAnimation
     }
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles)
+    private protected override EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context)
     {
         context.Projectile.Delete();
         return EnemyProjectileFrameStep.Rests;

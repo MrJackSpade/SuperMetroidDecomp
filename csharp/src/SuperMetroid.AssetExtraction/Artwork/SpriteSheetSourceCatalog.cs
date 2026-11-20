@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -56,26 +57,50 @@ internal sealed class SpriteSheetSourceCatalog
         intro = new(() => IntroCinematicArtworkFiles.LoadForImport(introDirectory, ImportDataDirectory.Of(introDirectory)));
         ending = new(() => EndingObjectArtworkFiles.LoadForImport(endingImportData));
         endingMode7 = new(() => EndingMode7ArtworkFiles.LoadForImport(endingMode7ImportData));
+        _painted = PaintedSheets();
     }
+
+    /// <summary>Each painted sheet's composer (<see cref="PaintedSheets"/>).</summary>
+    private readonly Dictionary<SpriteSheetId, Func<ComposedSpriteSheet>> _painted;
 
     /// <summary>The OBJ palette row and priority of parts that choose neither, as the families' draws leave them.</summary>
     private const int DefaultPalette = 0, DefaultPriority = 0;
 
-    /// <summary>Composes sheet <paramref name="sheet"/>.</summary>
-    internal ComposedSpriteSheet Compose(SpriteSheetId sheet) => sheet == SpriteSheetId.PauseHud ? HudImageSheet.ComposePause(maps.Value)
-        : sheet == SpriteSheetId.MenuPictures ? MenuPictureSheet.Compose(maps.Value)
-        : sheet == SpriteSheetId.RoomMapPictures ? MapPictureSheets.ComposeRoomMap(maps.Value)
-        : sheet == SpriteSheetId.PausePictures ? PausePictureSheet.Compose(maps.Value)
-        : ScreenPictureSheetDefinitions.AreaMapForegrounds.Values.Contains(sheet)
-            ? MapPictureSheets.ComposeWorldForeground(maps.Value, ScreenPictureSheetDefinitions.AreaMapForegrounds.Single(entry => entry.Value == sheet).Key)
-        : ScreenPictureSheetDefinitions.AreaMapBackgrounds.Values.Contains(sheet)
-            ? MapPictureSheets.ComposeWorldBackground(maps.Value, ScreenPictureSheetDefinitions.AreaMapBackgrounds.Single(entry => entry.Value == sheet).Key)
-        : FrontendFloorSheetComposer.Sheets.Contains(sheet) ? FrontendFloorSheetComposer.Compose(sheet, ScreenTiles())
-        : EndingPictureSheetComposer.Sheets.Contains(sheet) ? EndingPictureSheetComposer.Compose(sheet, ScreenTiles())
-        : sheet == SpriteSheetId.CeresCinematicPictures ? CeresCinematicPictureSheetComposer.Compose(intro.Value)
-        : sheet == SpriteSheetId.IntroScenePictures ? IntroScenePictureSheetComposer.Compose(intro.Value, maps.Value.RoomPaletteFx)
-        : sheet == SpriteSheetId.IntroNarrationPictures ? IntroNarrationPictureSheetComposer.Compose(intro.Value, maps.Value.IntroFont)
+    /// <summary>
+    /// Composes sheet <paramref name="sheet"/> with the composer bound to it: a painted sheet's own composer, or the sprite
+    /// parts <see cref="For"/> names.
+    /// </summary>
+    internal ComposedSpriteSheet Compose(SpriteSheetId sheet) => _painted.TryGetValue(sheet, out Func<ComposedSpriteSheet>? paint)
+        ? paint()
         : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
+
+    /// <summary>
+    /// Each sheet painted from the menus' pages, the HUD's images, the screen floors and pictures, bound to its own
+    /// composer (#2571); every other sheet composes from the sprite parts <see cref="For"/> names.
+    /// </summary>
+    /// <exception cref="ArgumentException">Two composers paint one sheet.</exception>
+    private Dictionary<SpriteSheetId, Func<ComposedSpriteSheet>> PaintedSheets()
+    {
+        var painted = new Dictionary<SpriteSheetId, Func<ComposedSpriteSheet>>
+        {
+            [SpriteSheetId.PauseHud] = () => HudImageSheet.ComposePause(maps.Value),
+            [SpriteSheetId.MenuPictures] = () => MenuPictureSheet.Compose(maps.Value),
+            [SpriteSheetId.RoomMapPictures] = () => MapPictureSheets.ComposeRoomMap(maps.Value),
+            [SpriteSheetId.PausePictures] = () => PausePictureSheet.Compose(maps.Value),
+            [SpriteSheetId.CeresCinematicPictures] = () => CeresCinematicPictureSheetComposer.Compose(intro.Value),
+            [SpriteSheetId.IntroScenePictures] = () => IntroScenePictureSheetComposer.Compose(intro.Value, maps.Value.RoomPaletteFx),
+            [SpriteSheetId.IntroNarrationPictures] = () => IntroNarrationPictureSheetComposer.Compose(intro.Value, maps.Value.IntroFont),
+        };
+        foreach ((AreaId area, SpriteSheetId foreground) in ScreenPictureSheetDefinitions.AreaMapForegrounds)
+            painted.Add(foreground, () => MapPictureSheets.ComposeWorldForeground(maps.Value, area));
+        foreach ((AreaId area, SpriteSheetId background) in ScreenPictureSheetDefinitions.AreaMapBackgrounds)
+            painted.Add(background, () => MapPictureSheets.ComposeWorldBackground(maps.Value, area));
+        foreach (SpriteSheetId floor in FrontendFloorSheetComposer.Sheets)
+            painted.Add(floor, () => FrontendFloorSheetComposer.Compose(floor, ScreenTiles()));
+        foreach (SpriteSheetId pictures in EndingPictureSheetComposer.Sheets)
+            painted.Add(pictures, () => EndingPictureSheetComposer.Compose(pictures, ScreenTiles()));
+        return painted;
+    }
 
     /// <summary>The stock artwork the screen tile sheets compose from.</summary>
     private ScreenTileSources ScreenTiles() =>

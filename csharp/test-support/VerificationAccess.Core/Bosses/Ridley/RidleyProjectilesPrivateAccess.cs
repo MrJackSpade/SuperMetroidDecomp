@@ -13,14 +13,24 @@ internal static class RidleyProjectilesPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Bosses.Ridley.RidleyProjectiles self)
     {
-        /// <summary>The private property <c>Fireballs</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior Fireballs
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyProjectiles, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(self, "Fireballs");
-        }
-
         /// <summary>The private method <c>SpawnDirectionalAfterburn</c>, invoked by name.</summary>
         internal void SpawnDirectionalAfterburn(global::SuperMetroid.Core.Enemies.EnemyProjectile source, global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind kind, global::SuperMetroid.Core.Spatial.PixelVelocity<global::SuperMetroid.Core.Spatial.RoomPixels> velocity) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Ridley.RidleyProjectiles>(self, "SpawnDirectionalAfterburn", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind), typeof(global::SuperMetroid.Core.Spatial.PixelVelocity<global::SuperMetroid.Core.Spatial.RoomPixels>)], new object?[] { source, kind, velocity });
+    }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Ridley.RidleyProjectiles self)
+    {
+        /// <summary>The private property <c>Afterburns</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileStates<global::SuperMetroid.Core.Bosses.Ridley.RidleyAfterburnChainState> Afterburns
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyProjectiles, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileStates<global::SuperMetroid.Core.Bosses.Ridley.RidleyAfterburnChainState>>(self, "Afterburns");
+        }
+
+        /// <summary>The private property <c>Fireballs</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Ridley.RidleyProjectiles Fireballs
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyProjectiles, global::SuperMetroid.Core.Bosses.Ridley.RidleyProjectiles>(self, "Fireballs");
+        }
     }
 }

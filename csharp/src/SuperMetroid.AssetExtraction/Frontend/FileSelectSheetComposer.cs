@@ -53,8 +53,8 @@ internal static class FileSelectSheetComposer
         {
             string name = FileCopyArrowDefinitions.FrameName(shape);
             // The arrows' parts are placed with their own attribute words, palette and all.
-            frames.Add(new(name, new SpriteFrame(name, [.. FileCopyArrowPartDefinitions.Parts(shape)
-                .SelectToArray(part => SpritePartFrames.Part(part.Part, firstCharacter: 0))]), page));
+            frames.Add(new(name, new SpriteFrame(name, [.. FileCopyArrowPartDefinitions.Parts[shape]
+                .Select(part => SpritePartFrames.Part(part.Part, firstCharacter: 0))]), page));
         }
         RgbColor[] sprites = maps.Palettes.FileSelect[SpriteColours..].ToArray();
         return new SpriteSheetSources(frames, sprites, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true)

@@ -22,25 +22,25 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>One of Kraid's eight parts, each joining its own reference as it initializes (#1877, #2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Kraid definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.Kraid)
-            return new KraidBodyEntity(this, place, common);
+            return EnemyOccupant.Of(new KraidBodyEntity(this, place, common));
         if (definition == EnemyDefinitionId.KraidArm)
-            return new KraidArmEntity(this, place, common);
+            return EnemyOccupant.Of(new KraidArmEntity(this, place, common));
         if (definition == EnemyDefinitionId.KraidFoot)
-            return new KraidFootEntity(this, place, common);
+            return EnemyOccupant.Of(new KraidFootEntity(this, place, common));
         if (definition == EnemyDefinitionId.KraidLintTop)
-            return new KraidLintEntity(this, place, common, Parts.TopLintReference, KraidLintPart.Top);
+            return EnemyOccupant.Of(new KraidLintEntity(this, place, common, Parts.TopLintReference, KraidLintPart.Top));
         if (definition == EnemyDefinitionId.KraidLintMiddle)
-            return new KraidLintEntity(this, place, common, Parts.MiddleLintReference, KraidLintPart.Middle);
+            return EnemyOccupant.Of(new KraidLintEntity(this, place, common, Parts.MiddleLintReference, KraidLintPart.Middle));
         if (definition == EnemyDefinitionId.KraidLintBottom)
-            return new KraidLintEntity(this, place, common, Parts.BottomLintReference, KraidLintPart.Bottom);
+            return EnemyOccupant.Of(new KraidLintEntity(this, place, common, Parts.BottomLintReference, KraidLintPart.Bottom));
         if (definition == EnemyDefinitionId.KraidFirstNail)
-            return new KraidNailEntity(this, place, common, Parts.FirstNailReference, KraidNailPart.First);
+            return EnemyOccupant.Of(new KraidNailEntity(this, place, common, Parts.FirstNailReference, KraidNailPart.First));
         if (definition == EnemyDefinitionId.KraidSecondNail)
-            return new KraidNailEntity(this, place, common, Parts.SecondNailReference, KraidNailPart.Second);
+            return EnemyOccupant.Of(new KraidNailEntity(this, place, common, Parts.SecondNailReference, KraidNailPart.Second));
         throw new InvalidOperationException($"The Kraid species creates no {place.DefinitionId}.");
     }
     /// <summary>Kraid's body layer: the body frame he shows, drawn from his installed body sheet.</summary>
@@ -84,12 +84,12 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         Parts = new KraidParts();
         Access = new KraidEncounterAccess(dependencies.Room, dependencies.Audio);
         BodyLayer = new KraidBodyLayer(_bossArtwork, Parts);
-        Background = new KraidBackground(dependencies.Projectiles, dependencies.Presentation.Surfaces, Access, _bossArtwork);
-        Head = new KraidHead(dependencies.Room, dependencies.Projectiles, Parts, Access, Background);
+        Projectiles = new KraidProjectiles(dependencies.Room, dependencies.Terrain, Parts, dependencies.Collision, dependencies.DeathsAndDrops, Access);
+        Background = new KraidBackground(dependencies.Projectiles, dependencies.Presentation.Surfaces, Access, _bossArtwork, Projectiles.Rocks);
+        Head = new KraidHead(dependencies.Room, dependencies.Projectiles, Parts, Access, Background, Projectiles.SpitRock);
         Rise = new KraidRise(new KraidRiseDependencies { PassEvents = dependencies.PassEvents, Room = dependencies.Room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Parts = Parts, Presentation = dependencies.Presentation.Surfaces, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head, BodyLayer = BodyLayer });
         Death = new KraidDeath(new KraidDeathDependencies { PassEvents = dependencies.PassEvents, Room = dependencies.Room, Earthquake = dependencies.Earthquake, Parts = Parts, Presentation = dependencies.Presentation.Surfaces, DeathsAndDrops = dependencies.DeathsAndDrops, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head });
         Limbs = new KraidLimbs(dependencies.Room, dependencies.Earthquake, Parts, Access);
-        Projectiles = new KraidProjectiles(dependencies.Room, dependencies.Terrain, Parts, dependencies.Collision, dependencies.DeathsAndDrops, Access);
         Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.EffectActors, Parts, dependencies.Collision);
     }
 

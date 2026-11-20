@@ -13,16 +13,20 @@ internal static class TourianEntranceStatueBehaviorPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueBehavior self)
     {
-        /// <summary>The private property <c>Decorations</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior Decorations
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueBehavior, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(self, "Decorations");
-        }
-
         /// <summary>The private property <c>SceneShading</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Assets.PictureShading SceneShading
         {
             get => PrivateState.Get<global::SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueBehavior, global::SuperMetroid.Core.Assets.PictureShading>(self, "SceneShading");
+        }
+    }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueBehavior self)
+    {
+        /// <summary>The private property <c>Decorations</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueBehavior.DecorationBehavior Decorations
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueBehavior, global::SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueBehavior.DecorationBehavior>(self, "Decorations");
         }
     }
 }

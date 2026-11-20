@@ -38,7 +38,7 @@ internal sealed class EnemyProjectileEngine
                 Scatter(projectile, scatter.Spread);
                 break;
             case EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.ReturnToOrigin }:
-                projectile.Position = projectile.Position.WithWhole(projectile.StateOf<AnchoredProjectileState>().Anchor);
+                projectile.Position = projectile.Position.WithWhole(projectile.Anchor);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EnemyProjectileCommonCueKind)} {cue}.");
@@ -298,7 +298,7 @@ internal sealed class EnemyProjectileEngine
         for (int place = _places.Length - 1; place >= 0; place--)
         {
             if (_places[place] is not { IsActive: true } projectile ||
-                projectile.State is IFlickeringProjectileState { IsHidden: true } ||
+                BehaviorOf(projectile).IsHidden(projectile) ||
                 projectile.Depth != depth ||
                 projectile.Frame is not { } frame)
                 continue;
@@ -550,7 +550,7 @@ internal sealed class EnemyProjectileEngine
     {
         if (projectile.Animation is { } animation)
         {
-            animation.Advance(new(projectile, samus, camera, shortCounter, Ensure.NotNull(samusBombs)), this);
+            animation.Advance(new(projectile, samus, camera, shortCounter, Ensure.NotNull(samusBombs), this));
             return;
         }
 

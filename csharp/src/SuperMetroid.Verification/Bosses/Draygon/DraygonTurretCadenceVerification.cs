@@ -56,7 +56,7 @@ internal static class DraygonTurretCadenceVerification
             runtime.Enemies.DraygonBehavior.Parts.SpawnDraygonGoop(boss, HorizontalDirection.Left);
             EnemyProjectile goop = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
                 p.Kind == RoomEnemyProjectileKind.DraygonGoop);
-            AngledFlightState flight = goop.StateOf<AngledFlightState>();
+            AngledFlightState flight = runtime.Enemies.DraygonBehavior.Shots.Goop.Flights.Of(goop);
             var velocity = new SpawnGoopResult(flight.Heading, flight.Velocity);
             goop.Delete();
             return velocity;

@@ -38,7 +38,7 @@ internal static class MotherBrainRingBabyHealthVerification
         ring.Position = ring.Position.WithWhole(new(0x00ae, 0x008c));
         ring.Radius = new(1, 1);
         ring.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
-        ring.State = new MotherBrainOnionRingState(state, mouthWaitUpdates: 1);
+        runtime.Enemies.MotherBrainBehavior.Projectiles.OnionRing.OnionRings.Start(ring, new MotherBrainOnionRingState(state, mouthWaitUpdates: 1));
         global::SuperMetroid.Core.PrivateState.Set(babyMetroid, "Position", (global::SuperMetroid.Core.Spatial.FixedPosition<global::SuperMetroid.Core.Spatial.RoomPixels>)(babyMetroid.Position.WithWhole(new(0x00ce, 0x00b0))));
 
         runtime.Enemies.MotherBrainBehavior.Projectiles.OnionRing.FlyMotherBrainOnionRing(ring, runtime.Player.IntroducedSamus, 0);

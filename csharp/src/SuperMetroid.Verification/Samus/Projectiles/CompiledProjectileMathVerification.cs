@@ -36,7 +36,10 @@ internal static class CompiledProjectileMathVerification
         // The native view's index runs a quarter turn ahead of the angle it holds: its first 64 words are the negative cosine.
         var shaktool = new Func<int, int>(index => ShaktoolBehavior.SineVelocity(TrigonometryAngle.Wrapped(index - 64)).RawValue);
         var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new TrigonometryAngle(unchecked((byte)angle)), radius));
-        var arc = new Action<EnemyProjectile, int>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
+        NoobTubeBehavior.NoobTubeProjectileBehavior pieces = SuperMetroid.Verification.Harness.EnemySystemFixtures.New(
+            SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySessionFixtures.WithInstalledServices(),
+            SuperMetroid.Core.World.RoomEnemyCompatibilityFixtures.ForNewRoom()).NoobTubeBehavior.TubePieces;
+        var arc = new Action<EnemyProjectile, int>((projectile, swaySteps) => NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc(pieces, projectile, swaySteps));
         var crocomire = new Func<byte, PixelVelocity<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(AimAngleConstants.FromClockwiseSteps(bearing)));
         var echo = new Func<RotationAngle, int, Offset16<RoomPixels>>(SamusShinesparkState.OffsetAlong);
 
@@ -118,7 +121,7 @@ internal static class CompiledProjectileMathVerification
             uint expected = unchecked(initial + (uint)(velocity * 256));
             var debris = new NoobTubeDebrisState(column: 0) { X = SixteenSixteenWords.ToCoordinate(initial) };
             debris.StartSway(RotationAngleConstants2.FromHalfSteps(phase));
-            projectile.State = debris;
+            pieces.Pieces.Start(projectile, debris);
             arc(projectile, swaySteps);
             var after = new NoobTubeDebrisState(column: 0);
             after.StartSway(RotationAngleConstants2.FromHalfSteps((phase + 2 * swaySteps) % 512));

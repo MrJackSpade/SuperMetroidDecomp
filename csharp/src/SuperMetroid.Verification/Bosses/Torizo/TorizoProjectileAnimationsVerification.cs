@@ -209,7 +209,7 @@ internal static class TorizoProjectileAnimationsVerification
         {
             case TorizoProjectileCue.Signal signal when StartedMotion.TryGetValue(signal.Kind, out TorizoProjectileMotion started):
                 // Setting a movement routine is the cue that starts the motion that routine stands for.
-                AssertEqual<Enum?>(started, EnemyProjectileMotionAccess.FromWord(Word(0)), $"{at}: movement routine");
+                AssertTrue(EnemyProjectileMotionAccess.StandsFor(Word(0), started), $"{at}: movement routine");
                 return;
             case TorizoProjectileCue.Signal signal when PropertiesSet.TryGetValue(signal.Kind, out var set):
                 // The behaviours the cue turns on, encoded by the import's property-word bits, are the OR operand the

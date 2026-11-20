@@ -69,16 +69,30 @@ namespace SuperMetroid.Verification.Harness;
 /// <summary>Cartridge-oracle checks for the second set of gameplay, artwork, and pause-screen catalogs.</summary>
 internal static class LookupStream2Verification
 {
-    /// <summary>Checks all 104 Yard visual frames retain their semantic group order and unique identities.</summary>
+    /// <summary>
+    /// Checks the Yard's 96 visual frames are distinct records with distinct names, and that with the eight shell-closed
+    /// records that store one of their pictures again (#2272) they account for all 104 records its programs show.
+    /// </summary>
     internal static void VerifyLookupStream2YardGroups()
     {
         var frames = YardVisualDefinitions.Frames();
-        AssertEqual(104, frames.Length, "Yard semantic groups preserve complete registry");
-        string identity = string.Join("\n", frames.Select(frame => $"{frame.Bank:X2}:{frame.Pointer:X4}:{frame.Name}"));
-        string hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(identity)));
-        AssertEqual("2E09CB87CB8C4106F823834D08281C250FB4294981A52F4FE9F83BD983732954", hash,
-            "Yard exact pre-change native bank/pointer/name/order identity");
-        Console.WriteLine("Yard groups: 38 semantic program roles preserve all104 native frame identities/names/order.");
+        AssertEqual(96, frames.Length, "Yard semantic groups preserve complete registry");
+        HashSet<ushort> records = [.. frames.Select(frame => frame.Pointer)];
+        AssertEqual(frames.Length, records.Count, "every Yard frame is its own record");
+        AssertEqual(frames.Length, frames.Select(frame => frame.Name).Distinct(StringComparer.Ordinal).Count(),
+            "every Yard frame has its own name");
+        // The shell-closed twins are byte-identical copies of their bases' records (#2272): each shows its base's
+        // picture, which the frames already hold, so none is a frame of its own.
+        SnesAddress[] storedAgain = [.. EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt
+            .Where(pair => EnemyFrameCartridgeLocationDefinitions.Locations.TryGetValue(pair.Value, out SnesAddress shown) &&
+                shown.Bank == YardVisualDefinitions.Bank && records.Contains(shown.Offset))
+            .Select(pair => pair.Key)];
+        AssertEqual(8, storedAgain.Length, "eight Yard records store one of its pictures again");
+        AssertTrue(storedAgain.All(record => record.Bank == YardVisualDefinitions.Bank && !records.Contains(record.Offset)),
+            "a Yard record that stores a picture again is in the Yard's bank and is no frame of its own");
+        AssertEqual(104, records.Count + storedAgain.Length,
+            "the Yard's pictures and the records storing one again are the 104 records its programs show");
+        Console.WriteLine("Yard groups: 38 semantic program roles show 96 distinct pictures; with the 8 records storing one again they cover all 104 native records.");
     }
 
     /// <summary>Checks Chozo statue foot spritemap geometry and the compiled stock views.</summary>

@@ -10,14 +10,21 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </summary>
 internal static class DownwardGateBehaviorPrivateAccess
 {
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Enemies.Projectiles.DownwardGateBehavior self)
+    {
+        /// <summary>The private property <c>Gate</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.Projectiles.DownwardGateBehavior.GateBehavior Gate
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.Projectiles.DownwardGateBehavior, global::SuperMetroid.Core.Enemies.Projectiles.DownwardGateBehavior.GateBehavior>(self, "Gate");
+        }
+    }
+
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Enemies.Projectiles.DownwardGateBehavior)
     {
-        /// <summary>The private field <c>Gate</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior Gate => PrivateState.StaticField<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(typeof(global::SuperMetroid.Core.Enemies.Projectiles.DownwardGateBehavior), "Gate");
-
         /// <summary>The private method <c>RunDownwardGateProjectileMovement</c>, invoked by name.</summary>
-        internal static void RunDownwardGateProjectileMovement(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Projectiles.DownwardGateBehavior), "RunDownwardGateProjectileMovement", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile)], new object?[] { projectile });
+        internal static void RunDownwardGateProjectileMovement(global::SuperMetroid.Core.Enemies.Projectiles.DownwardGateBehavior.GateBehavior owner, global::SuperMetroid.Core.Enemies.EnemyProjectile projectile) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Projectiles.DownwardGateBehavior), "RunDownwardGateProjectileMovement", [typeof(global::SuperMetroid.Core.Enemies.Projectiles.DownwardGateBehavior.GateBehavior), typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile)], new object?[] { owner, projectile });
     }
 }

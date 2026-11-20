@@ -36,12 +36,6 @@ internal static class SporeSpawnBehaviorPrivateAccess
         {
             get => PrivateState.Get<global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBehavior, global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnSporeBehavior>(self, "Spore");
         }
-
-        /// <summary>The private property <c>Stalk</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior Stalk
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBehavior, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(self, "Stalk");
-        }
     }
 
     /// <summary>The private static members checks name.</summary>
@@ -54,5 +48,15 @@ internal static class SporeSpawnBehaviorPrivateAccess
         /// <summary>The private method <c>ShowSporeSpawnHealthShade</c>, invoked by name.</summary>
         internal static void ShowSporeSpawnHealthShade(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnEnemyState state, global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBand band) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBehavior), "ShowSporeSpawnHealthShade", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnEnemyState), typeof(global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBand)], new object?[] { body, state, band });
+    }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBehavior self)
+    {
+        /// <summary>The private property <c>Stalk</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior Stalk
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBehavior, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(self, "Stalk");
+        }
     }
 }

@@ -667,8 +667,8 @@ internal sealed class PhantoonPatterns
             return;
         flame.Velocity = flame.Velocity.WithX(SignedEightEight.Zero);
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.MouthOffset);
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualFallingKindling));
-        flame.StartMotion(PhantoonFlameMotion.CasualFalling);
+        flame.StartAnimation(new PhantoonFlameAnimation(_combat.DestroyableFlame, PhantoonFlameSegment.CasualFallingKindling));
+        flame.StartMotion(_combat.DestroyableFlame.CasualFalling);
 
         // The falling flame's step changes the spawn definition's harmful, shootable properties to harmless ones.
         // The falling flame therefore cannot hurt Samus and cannot be shot until
@@ -686,12 +686,12 @@ internal sealed class PhantoonPatterns
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
             return;
-        flame.State = new PhantoonOrbitingFlameState(phantoon, start.Angle)
+        _combat.DestroyableFlame.Orbits.Start(flame, new PhantoonOrbitingFlameState(phantoon, start.Angle)
         {
             TurnPerUpdate = PhantoonFlameSpawns.RageTurnPerUpdate(start),
-        };
+        });
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.MouthOffset);
-        flame.StartMotion(PhantoonFlameMotion.RageOrbiting);
+        flame.StartMotion(_combat.DestroyableFlame.RageOrbiting);
     }
 
     /// <summary>Initializes a spiral flame, which circles the body clockwise from its start as its circle widens.</summary>
@@ -703,9 +703,9 @@ internal sealed class PhantoonPatterns
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
             return;
-        flame.State = new PhantoonOrbitingFlameState(phantoon, start);
+        _combat.DestroyableFlame.Orbits.Start(flame, new PhantoonOrbitingFlameState(phantoon, start));
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.FlameCircleCentre);
-        flame.StartMotion(PhantoonFlameMotion.SpiralOrbiting);
+        flame.StartMotion(_combat.DestroyableFlame.SpiralOrbiting);
     }
 
     /// <summary>Initializes a rain flame over a room column, falling after it hangs.</summary>
@@ -717,10 +717,10 @@ internal sealed class PhantoonPatterns
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
             return;
-        flame.State = new PhantoonRainFlameState(hangUpdates);
+        _combat.DestroyableFlame.Rains.Start(flame, new PhantoonRainFlameState(hangUpdates));
         flame.Position = flame.Position.WithWholeX(columnX);
         flame.Position = flame.Position.WithWholeY(PhantoonArenaDefinitions.RainStartY);
-        flame.StartMotion(PhantoonFlameMotion.RainFalling);
+        flame.StartMotion(_combat.DestroyableFlame.RainFalling);
     }
 
     /// <summary>Allocates a destroyable flame and gives it the idle animation and a still, whole-pixel start.</summary>
@@ -736,7 +736,7 @@ internal sealed class PhantoonPatterns
             RoomEnemyProjectileKind.PhantoonDestroyableFlame,
             _combat.DestroyableFlame,
             SpriteGraphics.SpawnedBy(body));
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.Burning));
+        flame.StartAnimation(new PhantoonFlameAnimation(_combat.DestroyableFlame, PhantoonFlameSegment.Burning));
         flame.Position = flame.Position.WithoutFractions();
         flame.Velocity = flame.Velocity.WithY(SignedEightEight.Zero);
         return flame;

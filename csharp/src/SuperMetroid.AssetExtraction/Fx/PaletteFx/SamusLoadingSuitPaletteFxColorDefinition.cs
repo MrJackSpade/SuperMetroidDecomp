@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Fx.ColourEffects;
-
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>One complete Samus-loading palette control program.</summary>

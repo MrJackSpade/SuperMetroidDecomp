@@ -14,9 +14,9 @@ internal static class MotherBrainProjectilesPrivateAccess
     extension(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectiles self)
     {
         /// <summary>The private property <c>TurretBullet</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior TurretBullet
+        internal global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectiles.TurretBulletBehavior TurretBullet
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectiles, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(self, "TurretBullet");
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectiles, global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectiles.TurretBulletBehavior>(self, "TurretBullet");
         }
     }
 
@@ -24,11 +24,11 @@ internal static class MotherBrainProjectilesPrivateAccess
     extension(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectiles)
     {
         /// <summary>The private method <c>DropMotherBrainDrool</c>, invoked by name.</summary>
-        internal static void DropMotherBrainDrool(global::SuperMetroid.Core.Enemies.EnemyProjectile drool) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectiles), "DropMotherBrainDrool", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile)], new object?[] { drool });
+        internal static void DropMotherBrainDrool(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectiles.MotherBrainProjectileBehavior owner, global::SuperMetroid.Core.Enemies.EnemyProjectile drool) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectiles), "DropMotherBrainDrool", [typeof(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectiles.MotherBrainProjectileBehavior), typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile)], new object?[] { owner, drool });
 
         /// <summary>The private method <c>SelectNextMotherBrainTurretDirection</c>, invoked by name.</summary>
-        internal static void SelectNextMotherBrainTurretDirection(global::SuperMetroid.Core.Enemies.EnemyProjectile turret) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectiles), "SelectNextMotherBrainTurretDirection", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile)], new object?[] { turret });
+        internal static void SelectNextMotherBrainTurretDirection(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectiles.MotherBrainProjectileBehavior owner, global::SuperMetroid.Core.Enemies.EnemyProjectile turret) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectiles), "SelectNextMotherBrainTurretDirection", [typeof(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectiles.MotherBrainProjectileBehavior), typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile)], new object?[] { owner, turret });
     }
 }

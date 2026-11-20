@@ -74,6 +74,7 @@ internal sealed class CrocomireMelting
     /// </summary>
     /// <exception cref="InvalidOperationException">No boss body sheets are installed.</exception>
     /// <exception cref="InvalidDataException">His body sheet has no such melt image.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="illustration"/> is not one of his two melt images.</exception>
     private BossBodyFrame RequireCrocomireMeltingImage(CrocomireMeltingIllustration illustration) =>
         _bossArtwork.Body(BossBodyOwner.Crocomire).Frame(CrocomireMeltingFrameNames.Of(illustration));
 

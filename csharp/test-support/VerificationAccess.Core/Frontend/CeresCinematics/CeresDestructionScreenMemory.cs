@@ -61,6 +61,6 @@ internal static class CeresDestructionScreenMemory
     [WholeImageFixture("the Ceres destruction's memory image")]
     internal static byte[] Compose(CeresDestructionCinematicState scene) =>
         Compose((scene.Artwork ?? throw new InvalidOperationException("Ceres destruction rendering requires installed cinematic artwork.")).ImportSource,
-            scene.FloorShot, scene.ZebesRevealed, scene.FloorShot is null && scene.WithSamus && scene.Phase is CeresDestructionPhase.FlyingAwayFromExplosion
-                or CeresDestructionPhase.HoldAfterExplosion or CeresDestructionPhase.FadeOutCeres or CeresDestructionPhase.Finished);
+            scene.FloorShot, scene.ZebesRevealed, scene.FloorShot is null && scene.WithSamus && (scene.Phase == CeresDestructionPhase.FlyingAwayFromExplosion
+                || scene.Phase == CeresDestructionPhase.HoldAfterExplosion || scene.Phase == CeresDestructionPhase.FadeOutCeres || scene.Phase == CeresDestructionPhase.Finished));
 }

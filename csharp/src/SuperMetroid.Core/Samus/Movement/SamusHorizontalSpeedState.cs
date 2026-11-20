@@ -317,8 +317,7 @@ public sealed class SamusHorizontalSpeedState
     internal void UpdateSpeedBoosterGlow(SamusColours colours, SpeedBoosterGlowFrame frame)
     {
         Ensure.NotNull(colours);
-
-        bool shadeCopied = ShowDueSuitShade(colours, frame.EquippedItems);
+        _ = ShowDueSuitShade(colours, frame.EquippedItems);
         SamusSuit suit = frame.EquippedItems.ShownSuit();
 
         // The stored shine's and the shinespark's suit colourings take priority. Cancellation's

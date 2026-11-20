@@ -140,13 +140,15 @@ internal static class SporeSpawnAnimationsVerification
                 started.Playback == new AnimationPlayback<SporeSpawnProjectileSegment>(SporeSpawnProjectileAnimations.StartingWith(SporeSpawnProjectileSegment.Spore), AnimationPlace.StartOfAnimation),
                 "the real spore producer starts the falling-spore program");
             // A spawner's programs run on a real ceiling spawner, whose release spawns its fight's spores (#2231).
+            IEnemyProjectileCues<SporeSpawnProjectileCue> owner = enemies.SporeSpawnBehavior.Spore;
             if (program is SporeSpawnProjectileSegment.SpawnerClosed or SporeSpawnProjectileSegment.SpawnerRelease)
             {
+                owner = enemies.SporeSpawnBehavior.Spawner;
                 projectile.Delete();
                 enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(enemies.Places.InUpdateOrder[0], sporeSpawn, new(new(128, 256), HorizontalDirection.Right));
                 projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.SporeSpawnSpawner);
             }
-            projectile.StartAnimation(new SporeSpawnProjectileAnimation(program));
+            projectile.StartAnimation(new SporeSpawnProjectileAnimation(owner, program));
             var native = new NativeEnemyProjectileListReader(entry, projectile.FrameHold.RawValue);
             int drops = 0;
             for (int update = 0; update < 48 && !native.Deleted; update++, updates++)

@@ -28,8 +28,8 @@ internal static class EndingFloorOverflowVerification
         var wrong = new List<string>();
         int repeating = 0;
         // The phases run in their declared order: every one before the planet escape keeps settings 0.
-        HashSet<EndingCreditsPhase> beforeEscape = [.. Enum.GetValues<EndingCreditsPhase>().TakeWhile(phase => phase != EndingCreditsPhase.PlanetEscapeFast)];
-        foreach (EndingCreditsPhase phase in Enum.GetValues<EndingCreditsPhase>())
+        HashSet<EndingCreditsPhase> beforeEscape = [.. EndingCreditsPhaseOrder.All.TakeWhile(phase => phase != EndingCreditsPhase.PlanetEscapeFast)];
+        foreach (EndingCreditsPhase phase in EndingCreditsPhaseOrder.All)
         {
             PrivateState.Set(ending, nameof(EndingCreditsState.Phase), phase);
             bool repeats = EndingCreditsPresentation.FloorRepeatsBeyondEdges(ending);

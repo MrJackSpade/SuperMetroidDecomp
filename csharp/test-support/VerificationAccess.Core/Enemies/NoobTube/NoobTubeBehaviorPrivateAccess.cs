@@ -14,9 +14,9 @@ internal static class NoobTubeBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior self)
     {
         /// <summary>The private property <c>TubePieces</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior TubePieces
+        internal global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior.NoobTubeProjectileBehavior TubePieces
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(self, "TubePieces");
+            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior, global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior.NoobTubeProjectileBehavior>(self, "TubePieces");
         }
     }
 
@@ -24,7 +24,7 @@ internal static class NoobTubeBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior)
     {
         /// <summary>The private method <c>MoveNoobTubeProjectileHorizontallyAlongArc</c>, invoked by name.</summary>
-        internal static void MoveNoobTubeProjectileHorizontallyAlongArc(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, int swaySteps) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior), "MoveNoobTubeProjectileHorizontallyAlongArc", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(int)], new object?[] { projectile, swaySteps });
+        internal static void MoveNoobTubeProjectileHorizontallyAlongArc(global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior.NoobTubeProjectileBehavior owner, global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, int swaySteps) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior), "MoveNoobTubeProjectileHorizontallyAlongArc", [typeof(global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior.NoobTubeProjectileBehavior), typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(int)], new object?[] { owner, projectile, swaySteps });
     }
 }

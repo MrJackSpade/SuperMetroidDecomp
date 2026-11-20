@@ -2,6 +2,7 @@ using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
@@ -75,7 +76,8 @@ internal sealed class GameplayActorDrawing
         {
             // The Ceres elevator is drawn in front of Samus, as both its definitions are. Projectiles in front of
             // Samus are drawn here, before Samus.
-            room.CeresElevatorArrival?.Draw(_sprites, room.Enemies.Presentation, room.Camera.PixelPosition);
+            foreach (IActorInFrontOfSamus actor in room.ActorsInFrontOfSamus)
+                actor.DrawInFrontOfSamus(_sprites, room.Enemies.Presentation, room.Camera.PixelPosition);
             // A hit burst among the effect actors is one of Samus's weapon effects: it shows the sheet of the beams she
             // has equipped as it is drawn, as her charge flare does (#1713).
             room.Enemies.Projectiles.DrawEnemyProjectilesInFrontOfSamus(
@@ -358,11 +360,13 @@ internal sealed class GameplayActorDrawing
 
         if (!deathOwnsSamus)
         {
-            // Once Ceres Ridley's animation starts, his Baby's animation runs after the actors' drawing steps.
-            room.Enemies.Ceres.StepCeresBabyAfterActors();
-            // The Baby and the door of Ridley's room, while it shows its overlay, each show once, at their own place.
-            room.Enemies.Ceres.PublishCeresBaby(_sprites, room.Camera.PixelPosition);
-            room.Enemies.Ceres.PublishRidleyRoomDoorOverlay(_sprites, room.Camera.PixelPosition);
+            // An encounter's scene whose animation runs after the actors' drawing steps (Ceres Ridley's Baby, once his
+            // animation starts) steps now, then shows its pictures once, each at its own place (#2573).
+            foreach (IEnemyPassScene scene in room.Enemies.PassScenes)
+            {
+                scene.StepAfterActors();
+                scene.Publish(_sprites, room.Camera.PixelPosition);
+            }
         }
     }
 }

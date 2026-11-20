@@ -135,7 +135,7 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
             session.RecordFullBrightness();
             // Returning to gameplay restores sound admission (#2499). The game resumes spin audio only after it is
             // restored at the final fade boundary, not on each fade frame.
-            session.Enter(SuperMetroidGameState.MainGameplay);
+            session.Enter(session.Phases.MainGameplay);
             if (SamusSpinSound.Select(session.GameplayRuntime.Player.IntroducedSamus) is { } spinSound)
                 session.audio.QueueSound(spinSound, priority: SoundRequestPriority.High);
         }

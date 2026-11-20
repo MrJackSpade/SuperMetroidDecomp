@@ -29,8 +29,7 @@ internal static class BlueDoorCaps
 
     /// <summary>The blue caps (#2034), pictured by the installed blue-door frames; the closed cap drawn solid shows the closed cap's.</summary>
     internal static RoomObjectDrawFamily<Draw> Family { get; } =
-        RoomObjectDrawFamily<Draw>.Pictured<InstalledRoomObjectBlueDoorVisuals>("blue-door", cap => cap.Blocks,
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<Draw>("blue-door", cap => cap.Blocks);
 
     /// <summary>The closed cap drawn solid facing <paramref name="orientation"/>, which shows the closed cap's picture.</summary>
     internal static RoomObjectDraw ClosedSolid(ColoredDoorOrientation orientation) =>

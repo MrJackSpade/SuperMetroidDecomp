@@ -10,45 +10,9 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal static class TorizoAttacksPrivateAccess
 {
-    /// <summary>The private instance members checks read or call.</summary>
-    extension(global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks self)
-    {
-        /// <summary>The private property <c>ChozoOrb</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior ChozoOrb
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(self, "ChozoOrb");
-        }
-
-        /// <summary>The private property <c>Egg</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior Egg
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(self, "Egg");
-        }
-
-        /// <summary>The private method <c>InitializeTorizoRandomizedProjectile</c>, invoked by name.</summary>
-        internal void InitializeTorizoRandomizedProjectile(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Enemies.RoomEnemyPlace torizo, global::SuperMetroid.Core.Bosses.Torizo.TorizoRandomizedProjectileDefinition definition) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks>(self, "InitializeTorizoRandomizedProjectile", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Torizo.TorizoRandomizedProjectileDefinition)], new object?[] { projectile, torizo, definition });
-
-        /// <summary>The private property <c>SuperMissile</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior SuperMissile
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(self, "SuperMissile");
-        }
-
-        /// <summary>The private property <c>TorizoProjectiles</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior TorizoProjectiles
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(self, "TorizoProjectiles");
-        }
-    }
-
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks)
     {
-        /// <summary>The private method <c>BounceEgg</c>, invoked by name.</summary>
-        internal static void BounceEgg(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks), "BounceEgg", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData)], new object?[] { projectile, level });
-
         /// <summary>The private method <c>DroolHeading</c>, invoked by name.</summary>
         internal static global::SuperMetroid.Core.Spatial.TrigonometryAngle DroolHeading(global::SuperMetroid.Core.Spatial.HorizontalDirection facing, int spread) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Spatial.TrigonometryAngle>(typeof(global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks), "DroolHeading", [typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection), typeof(int)], new object?[] { facing, spread });
@@ -60,5 +24,45 @@ internal static class TorizoAttacksPrivateAccess
         /// <summary>The private method <c>VelocityAlong</c>, invoked by name.</summary>
         internal static global::SuperMetroid.Core.Spatial.PixelVelocity<global::SuperMetroid.Core.Spatial.RoomPixels> VelocityAlong(global::SuperMetroid.Core.Spatial.SignedEightEight speed, global::SuperMetroid.Core.Spatial.TrigonometryAngle heading) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Spatial.PixelVelocity<global::SuperMetroid.Core.Spatial.RoomPixels>>(typeof(global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks), "VelocityAlong", [typeof(global::SuperMetroid.Core.Spatial.SignedEightEight), typeof(global::SuperMetroid.Core.Spatial.TrigonometryAngle)], new object?[] { speed, heading });
+    }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks self)
+    {
+        /// <summary>The private property <c>ChozoOrb</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks.TorizoProjectileBehavior ChozoOrb
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks, global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks.TorizoProjectileBehavior>(self, "ChozoOrb");
+        }
+
+        /// <summary>The private property <c>Egg</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks.TorizoProjectileBehavior Egg
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks, global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks.TorizoProjectileBehavior>(self, "Egg");
+        }
+
+        /// <summary>The private method <c>InitializeTorizoRandomizedProjectile</c>, invoked by name.</summary>
+        internal void InitializeTorizoRandomizedProjectile(global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks.TorizoProjectileBehavior owner, global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Enemies.RoomEnemyPlace torizo, global::SuperMetroid.Core.Bosses.Torizo.TorizoRandomizedProjectileDefinition definition) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks>(self, "InitializeTorizoRandomizedProjectile", [typeof(global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks.TorizoProjectileBehavior), typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Torizo.TorizoRandomizedProjectileDefinition)], new object?[] { owner, projectile, torizo, definition });
+
+        /// <summary>The private property <c>SuperMissile</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks.TorizoProjectileBehavior SuperMissile
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks, global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks.TorizoProjectileBehavior>(self, "SuperMissile");
+        }
+
+        /// <summary>The private property <c>TorizoProjectiles</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks.TorizoProjectileBehavior TorizoProjectiles
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks, global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks.TorizoProjectileBehavior>(self, "TorizoProjectiles");
+        }
+    }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks)
+    {
+        /// <summary>The private method <c>BounceEgg</c>, invoked by name.</summary>
+        internal static void BounceEgg(global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks.TorizoProjectileBehavior owner, global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks), "BounceEgg", [typeof(global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks.TorizoProjectileBehavior), typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData)], new object?[] { owner, projectile, level });
     }
 }

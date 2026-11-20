@@ -43,10 +43,6 @@ internal static class BotwoonBehaviorPrivateAccess
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior)
     {
-        /// <summary>The private method <c>AnimateBotwoonBodySegment</c>, invoked by name.</summary>
-        internal static void AnimateBotwoonBodySegment(global::SuperMetroid.Core.Enemies.EnemyProjectile segment, int hurtFlashCadence) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior), "AnimateBotwoonBodySegment", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(int)], new object?[] { segment, hurtFlashCadence });
-
         /// <summary>The private method <c>AnimateBotwoonHeadFromMovement</c>, invoked by name.</summary>
         internal static void AnimateBotwoonHeadFromMovement(global::SuperMetroid.Core.Enemies.RoomEnemyPlace head, global::SuperMetroid.Core.Bosses.Botwoon.BotwoonEnemyState state) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior), "AnimateBotwoonHeadFromMovement", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Botwoon.BotwoonEnemyState)], new object?[] { head, state });
@@ -74,5 +70,25 @@ internal static class BotwoonBehaviorPrivateAccess
         /// <summary>The private method <c>UpdateBotwoonSpeedStage</c>, invoked by name.</summary>
         internal static void UpdateBotwoonSpeedStage(global::SuperMetroid.Core.Enemies.RoomEnemyPlace head, global::SuperMetroid.Core.Bosses.Botwoon.BotwoonEnemyState state) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior), "UpdateBotwoonSpeedStage", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Botwoon.BotwoonEnemyState)], new object?[] { head, state });
+    }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior self)
+    {
+        /// <summary>The private method <c>AnimateBotwoonBodySegment</c>, invoked by name.</summary>
+        internal void AnimateBotwoonBodySegment(global::SuperMetroid.Core.Enemies.EnemyProjectile segment, int hurtFlashCadence) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior>(self, "AnimateBotwoonBodySegment", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(int)], new object?[] { segment, hurtFlashCadence });
+
+        /// <summary>The private property <c>Segments</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileStates<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonSegmentState> Segments
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileStates<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonSegmentState>>(self, "Segments");
+        }
+
+        /// <summary>The private property <c>Spits</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileStates<global::SuperMetroid.Core.Enemies.Projectiles.AngledFlightState> Spits
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileStates<global::SuperMetroid.Core.Enemies.Projectiles.AngledFlightState>>(self, "Spits");
+        }
     }
 }

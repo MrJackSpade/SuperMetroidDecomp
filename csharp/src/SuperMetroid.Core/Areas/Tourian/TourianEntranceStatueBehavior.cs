@@ -19,7 +19,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.TourianStatue];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new TourianEntranceStatueEntity(this, place, common);
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.WithoutMainAi(new TourianEntranceStatueEntity(this, place, common));
 
     /// <summary>Spawns the scene's decorations and its unlock effects.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -150,7 +150,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     {
         Ensure.NotNull(occupant);
         RoomEnemyPlace statue = occupant.OccupiedPlace;
-        EnemyProjectileBehavior decorations = Decorations;
+        DecorationBehavior decorations = Decorations;
         if (!_occupants.Contains(occupant))
             _occupants.Add(occupant);
         // The base decoration, Ridley and Phantoon spawn in this order, which gives them their authored draw order.
@@ -185,7 +185,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         RoomEnemyProjectileKind kind,
         TourianStatueProjectileSegment start,
         Position16<RoomPixels> position,
-        EnemyProjectileBehavior decorations)
+        DecorationBehavior decorations)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -193,10 +193,10 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, decorations, graphics: SceneGraphics);
         HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
+        projectile.StartAnimation(new TourianStatueProjectileAnimation(decorations, start));
         projectile.Position = projectile.Position.WithWhole(position);
         // The decoration stays tied to its authored spawn point as the statue descends.
-        projectile.State = new AnchoredProjectileState(position);
+        projectile.Anchor = position;
     }
 
     /// <summary>Drops <paramref name="occupant"/>, which has left its place: the scene shows no later look on its place.</summary>
@@ -206,21 +206,21 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// The behaviour of the statue's base decoration, Ridley and Phantoon (#1760, #2382): their spawner starts their
     /// animations, and they follow the statue room's statue down.
     /// </summary>
-    private EnemyProjectileBehavior Decorations { get; }
+    private DecorationBehavior Decorations { get; }
 
     /// <summary>A decoration: it follows the statue's reveal and descent, and settles at its place.</summary>
     /// <param name="statue">The statues' shared animation state, whose rest finishes the statue's sinking.</param>
     /// <param name="statueRoom">The statue room, which says how far the statue has sunk.</param>
-    private sealed class DecorationBehavior(TourianStatueAnimation statue, ITourianStatueRoom statueRoom)
+    internal sealed class DecorationBehavior(TourianStatueAnimation statue, ITourianStatueRoom statueRoom)
         : TourianStatueProjectileBehavior<TourianStatueDecorationMotion>(TourianStatueDecorationMotion.Settled)
     {
         /// <summary>The base decoration's animation starts it following the statue's reveal.</summary>
         /// <param name="projectile">The base decoration.</param>
         private protected override void FollowReveal(EnemyProjectile projectile) =>
-            projectile.StartMotion(TourianStatueDecorationMotion.FollowingReveal);
+            projectile.StartMotion(this, TourianStatueDecorationMotion.FollowingReveal);
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, TourianStatueDecorationMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, TourianStatueDecorationMotion motion)
         {
             switch (motion)
             {
@@ -236,13 +236,13 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         /// <summary>Follows the statue down as it sinks and, for the base decoration, marks the sinking finished once the statues rest.</summary>
         private void PositionTourianEntranceStatueProjectile(EnemyProjectile projectile)
         {
-            if (projectile.Motion is TourianStatueDecorationMotion.FollowingReveal &&
+            if (projectile.MovesBy(TourianStatueDecorationMotion.FollowingReveal) &&
                 statue.AtRest)
             {
                 statue.FinishSinking();
             }
 
-            Position16<RoomPixels> anchor = projectile.StateOf<AnchoredProjectileState>().Anchor;
+            Position16<RoomPixels> anchor = projectile.Anchor;
             projectile.Position = projectile.Position.WithWholeX(anchor.X);
 
             // A decoration stands at its place less how far the statue has sunk, which keeps its pictures on the sinking

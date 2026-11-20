@@ -10,11 +10,17 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// </summary>
 internal static class DraygonShotsDraygonShotBehaviorPrivateAccess
 {
-    /// <summary>The private static members checks name.</summary>
-    extension(global::SuperMetroid.Core.Bosses.Draygon.DraygonShots.DraygonShotBehavior)
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Draygon.DraygonShots.DraygonShotBehavior self)
     {
+        /// <summary>The private property <c>Attached</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileStates<global::SuperMetroid.Core.Bosses.Draygon.DraygonGoopAttachedState> Attached
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Draygon.DraygonShots.DraygonShotBehavior, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileStates<global::SuperMetroid.Core.Bosses.Draygon.DraygonGoopAttachedState>>(self, "Attached");
+        }
+
         /// <summary>The private method <c>RunAttachedDraygonGoop</c>, invoked by name.</summary>
-        internal static void RunAttachedDraygonGoop(global::SuperMetroid.Core.Enemies.EnemyProjectile goop, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Samus.Projectiles.SamusPowerBombExplosionState powerBomb) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Draygon.DraygonShots.DraygonShotBehavior), "RunAttachedDraygonGoop", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusPowerBombExplosionState)], new object?[] { goop, samus, powerBomb });
+        internal void RunAttachedDraygonGoop(global::SuperMetroid.Core.Enemies.EnemyProjectile goop, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Samus.Projectiles.SamusPowerBombExplosionState powerBomb) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Draygon.DraygonShots.DraygonShotBehavior>(self, "RunAttachedDraygonGoop", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusPowerBombExplosionState)], new object?[] { goop, samus, powerBomb });
     }
 }

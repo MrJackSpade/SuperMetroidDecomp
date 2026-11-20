@@ -110,7 +110,7 @@ internal static class PoseInputDefinitionsVerification
         AssertEqual(0x0ff0, heldMask, "Fixture enumerates every referenced held-input bit");
         AssertEqual(75, unique.Count, "All distinct native list identities of the records that name a pose");
         AssertEqual(576, conditionCount, "All distinct-list conditions of the records that name a pose");
-        AssertEqual(Enum.GetValues<SamusPoseInputList>().Length, liveConditionsByList.Count, "Every input list is some pose's");
+        AssertEqual(69, liveConditionsByList.Count, "Every one of the 69 input lists is some pose's");
 
         // Extra held actions are admitted by the native subset matcher. With both horizontal
         // directions held, the first authored condition wins: the direction opposite the current

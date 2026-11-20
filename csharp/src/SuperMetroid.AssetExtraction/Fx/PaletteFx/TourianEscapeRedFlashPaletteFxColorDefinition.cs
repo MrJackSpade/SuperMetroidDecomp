@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Fx.ColourEffects;
-
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>One complete early Tourian escape red-flash control program.</summary>

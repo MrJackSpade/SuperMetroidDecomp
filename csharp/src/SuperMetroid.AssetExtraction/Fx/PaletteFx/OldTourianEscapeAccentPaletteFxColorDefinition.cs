@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Fx.ColourEffects;
-
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>One complete old-Tourian escape accent control program.</summary>

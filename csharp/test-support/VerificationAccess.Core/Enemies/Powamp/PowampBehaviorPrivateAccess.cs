@@ -33,11 +33,18 @@ internal static class PowampBehaviorPrivateAccess
         internal static global::SuperMetroid.Core.Enemies.EnemyDeathExplosion ExplosionAfterBurst(int? lastSpikePlace) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Enemies.EnemyDeathExplosion>(typeof(global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior), "ExplosionAfterBurst", [typeof(int?)], new object?[] { lastSpikePlace });
 
-        /// <summary>The private field <c>Spike</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior Spike => PrivateState.StaticField<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(typeof(global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior), "Spike");
-
         /// <summary>The private method <c>StartPowampBalloonAnimation</c>, invoked by name.</summary>
         internal static void StartPowampBalloonAnimation(global::SuperMetroid.Core.Enemies.RoomEnemyPlace balloon, global::SuperMetroid.Core.Enemies.Powamp.PowampBalloonState state, global::SuperMetroid.Core.Enemies.Powamp.PowampSegment segment) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior), "StartPowampBalloonAnimation", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Powamp.PowampBalloonState), typeof(global::SuperMetroid.Core.Enemies.Powamp.PowampSegment)], new object?[] { balloon, state, segment });
+    }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior self)
+    {
+        /// <summary>The private property <c>Spike</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.Projectiles.StatefulSingleMotionProjectileBehavior<global::SuperMetroid.Core.Enemies.Powamp.PowampSpikeState> Spike
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior, global::SuperMetroid.Core.Enemies.Projectiles.StatefulSingleMotionProjectileBehavior<global::SuperMetroid.Core.Enemies.Powamp.PowampSpikeState>>(self, "Spike");
+        }
     }
 }

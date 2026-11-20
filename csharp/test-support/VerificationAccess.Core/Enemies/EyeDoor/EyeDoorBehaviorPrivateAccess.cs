@@ -16,17 +16,29 @@ internal static class EyeDoorBehaviorPrivateAccess
         /// <summary>The private method <c>InitializeEyeDoorSmoke</c>, invoked by name.</summary>
         internal void InitializeEyeDoorSmoke(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Enemies.Projectiles.DustExplosionAnimation animation, global::SuperMetroid.Core.Enemies.Projectiles.DustExplosionPlacement placement, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks> block) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior>(self, "InitializeEyeDoorSmoke", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Enemies.Projectiles.DustExplosionAnimation), typeof(global::SuperMetroid.Core.Enemies.Projectiles.DustExplosionPlacement), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>)], new object?[] { projectile, animation, placement, block });
+    }
 
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior)
+    {
+        /// <summary>The private method <c>ReadEyeDoorAcceleration</c>, invoked by name.</summary>
+        internal static global::SuperMetroid.Core.Spatial.SignedEightEight ReadEyeDoorAcceleration(global::SuperMetroid.Core.Spatial.TrigonometryAngle angle) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.Core.Spatial.SignedEightEight>(typeof(global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior), "ReadEyeDoorAcceleration", [typeof(global::SuperMetroid.Core.Spatial.TrigonometryAngle)], new object?[] { angle });
+    }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior self)
+    {
         /// <summary>The private property <c>Shot</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior Shot
+        internal global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior.EyeDoorProjectileBehavior Shot
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(self, "Shot");
+            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior, global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior.EyeDoorProjectileBehavior>(self, "Shot");
         }
 
         /// <summary>The private property <c>Sweat</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior Sweat
+        internal global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior.EyeDoorProjectileBehavior Sweat
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(self, "Sweat");
+            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior, global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior.EyeDoorProjectileBehavior>(self, "Sweat");
         }
     }
 
@@ -34,11 +46,7 @@ internal static class EyeDoorBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior)
     {
         /// <summary>The private method <c>DripEyeDoorSweat</c>, invoked by name.</summary>
-        internal static void DripEyeDoorSweat(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior), "DripEyeDoorSweat", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData)], new object?[] { projectile, level });
-
-        /// <summary>The private method <c>ReadEyeDoorAcceleration</c>, invoked by name.</summary>
-        internal static global::SuperMetroid.Core.Spatial.SignedEightEight ReadEyeDoorAcceleration(global::SuperMetroid.Core.Spatial.TrigonometryAngle angle) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.Core.Spatial.SignedEightEight>(typeof(global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior), "ReadEyeDoorAcceleration", [typeof(global::SuperMetroid.Core.Spatial.TrigonometryAngle)], new object?[] { angle });
+        internal static void DripEyeDoorSweat(global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior.EyeDoorProjectileBehavior owner, global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior), "DripEyeDoorSweat", [typeof(global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior.EyeDoorProjectileBehavior), typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData)], new object?[] { owner, projectile, level });
     }
 }

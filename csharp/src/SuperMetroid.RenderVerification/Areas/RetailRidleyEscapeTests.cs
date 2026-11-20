@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;

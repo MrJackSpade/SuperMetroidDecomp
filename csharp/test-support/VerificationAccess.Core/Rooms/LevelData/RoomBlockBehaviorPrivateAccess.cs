@@ -36,11 +36,4 @@ internal static class RoomBlockBehaviorPrivateAccess
         }
     }
 
-    /// <summary>The private static members checks name.</summary>
-    extension(global::SuperMetroid.Core.Rooms.LevelData.RoomBlockBehavior)
-    {
-        /// <summary>The private method <c>Reacting</c>, invoked by name.</summary>
-        internal static global::SuperMetroid.Core.Rooms.LevelData.RoomBlockBehavior Reacting(global::SuperMetroid.Core.Rooms.LevelData.BombableReaction reaction) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.Core.Rooms.LevelData.RoomBlockBehavior>(typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomBlockBehavior), "Reacting", [typeof(global::SuperMetroid.Core.Rooms.LevelData.BombableReaction)], new object?[] { reaction });
-    }
 }

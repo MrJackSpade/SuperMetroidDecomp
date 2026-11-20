@@ -21,9 +21,6 @@ internal static class KiHunterBehaviorPrivateAccess
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior)
     {
-        /// <summary>The private field <c>Acid</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior Acid => PrivateState.StaticField<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(typeof(global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior), "Acid");
-
         /// <summary>The private method <c>DetachedWingTurn</c>, invoked by name.</summary>
         internal static global::SuperMetroid.Core.Spatial.AngularSpeed DetachedWingTurn(global::SuperMetroid.Core.Enemies.QuadraticSpeedCurvePlace place, global::SuperMetroid.Core.Spatial.RotationDirection direction) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Spatial.AngularSpeed>(typeof(global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior), "DetachedWingTurn", [typeof(global::SuperMetroid.Core.Enemies.QuadraticSpeedCurvePlace), typeof(global::SuperMetroid.Core.Spatial.RotationDirection)], new object?[] { place, direction });
@@ -31,9 +28,23 @@ internal static class KiHunterBehaviorPrivateAccess
         /// <summary>The private method <c>RunDetachedKiHunterWingOrbit</c>, invoked by name.</summary>
         internal static void RunDetachedKiHunterWingOrbit(global::SuperMetroid.Core.Enemies.RoomEnemyPlace wings, global::SuperMetroid.Core.Enemies.KiHunters.KiHunterWingState state) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior), "RunDetachedKiHunterWingOrbit", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.KiHunters.KiHunterWingState)], new object?[] { wings, state });
+    }
 
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior self)
+    {
+        /// <summary>The private property <c>Acid</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior.AcidBehavior Acid
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior, global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior.AcidBehavior>(self, "Acid");
+        }
+    }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior)
+    {
         /// <summary>The private method <c>RunKiHunterAcidMovement</c>, invoked by name.</summary>
-        internal static void RunKiHunterAcidMovement(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior), "RunKiHunterAcidMovement", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData)], new object?[] { projectile, level });
+        internal static void RunKiHunterAcidMovement(global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior.AcidBehavior owner, global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior), "RunKiHunterAcidMovement", [typeof(global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior.AcidBehavior), typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData)], new object?[] { owner, projectile, level });
     }
 }

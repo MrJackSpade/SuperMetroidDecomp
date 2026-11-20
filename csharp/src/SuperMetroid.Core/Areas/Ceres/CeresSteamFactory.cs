@@ -14,14 +14,17 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal sealed class CeresSteamFactory(CeresSteamBehavior vents, CeresSteamVentMotions motions) : IEnemyEntityFactory
 {
     /// <summary>The room's owner of the steam vents.</summary>
+    internal CeresSteamBehavior Vents { get; } = Ensure.NotNull(vents);
+
+    /// <summary>The room's owner of the steam vents.</summary>
     private readonly CeresSteamBehavior _vents = Ensure.NotNull(vents);
 
-    /// <summary>The motions the room gives the vents it places.</summary>
+    /// <summary>The motions the room gives the Vents it places.</summary>
     private readonly CeresSteamVentMotions _motions = Ensure.NotNull(motions);
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CeresSteam];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new CeresSteamEntity(_vents, place, common, _motions);
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new CeresSteamEntity(_vents, place, common, _motions));
 }

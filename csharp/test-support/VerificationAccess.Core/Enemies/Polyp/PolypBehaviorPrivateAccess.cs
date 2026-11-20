@@ -24,8 +24,15 @@ internal static class PolypBehaviorPrivateAccess
         /// <summary>The private method <c>AddPolypRockQuadraticStep</c>, invoked by name.</summary>
         internal static void AddPolypRockQuadraticStep(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Enemies.QuadraticSpeedCurvePlace place, global::SuperMetroid.Core.Spatial.VerticalDirection direction) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Polyp.PolypBehavior), "AddPolypRockQuadraticStep", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Enemies.QuadraticSpeedCurvePlace), typeof(global::SuperMetroid.Core.Spatial.VerticalDirection)], new object?[] { projectile, place, direction });
+    }
 
-        /// <summary>The private field <c>Rock</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior Rock => PrivateState.StaticField<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(typeof(global::SuperMetroid.Core.Enemies.Polyp.PolypBehavior), "Rock");
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Enemies.Polyp.PolypBehavior self)
+    {
+        /// <summary>The private property <c>Rock</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.Projectiles.StatefulSingleMotionProjectileBehavior<global::SuperMetroid.Core.Enemies.Polyp.PolypRockState> Rock
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.Polyp.PolypBehavior, global::SuperMetroid.Core.Enemies.Projectiles.StatefulSingleMotionProjectileBehavior<global::SuperMetroid.Core.Enemies.Polyp.PolypRockState>>(self, "Rock");
+        }
     }
 }

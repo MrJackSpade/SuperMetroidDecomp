@@ -29,4 +29,14 @@ internal static class GunshipBehaviorPrivateAccess
         internal static void StepGunshipBob(global::SuperMetroid.Core.Enemies.RoomEnemyPlace top) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Gunship.GunshipBehavior), "StepGunshipBob", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)], new object?[] { top });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Enemies.Gunship.GunshipBehavior self)
+    {
+        /// <summary>The private property <c>Dust</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.Gunship.GunshipLiftoffDust.GunshipDustBehavior Dust
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.Gunship.GunshipBehavior, global::SuperMetroid.Core.Enemies.Gunship.GunshipLiftoffDust.GunshipDustBehavior>(self, "Dust");
+        }
+    }
 }

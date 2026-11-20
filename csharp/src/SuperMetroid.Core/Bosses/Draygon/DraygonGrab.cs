@@ -80,7 +80,7 @@ internal sealed class DraygonGrab
         }
 
         samus.DraygonGrabbed.Begin(samus, state.Facing);
-        _passEvents.Publish(new DraygonHoldChanged());
+        _passEvents.Publish(new PoseRequestsDiscarded());
         state.SpiralCenter = state.SpiralCenter.StartSpiral(DraygonGrabDefinitions.SpiralTarget);
         state.SpiralXRadius = SignedSixteenSixteen.Zero;
         state.SpiralAngle = DraygonGrabDefinitions.InitialSpiralAngle;
@@ -291,6 +291,6 @@ internal sealed class DraygonGrab
     internal void ReleaseSamusDuringEnemyUpdate(SamusState samus)
     {
         samus.DraygonGrabbed.ReleaseByDraygon(samus);
-        _passEvents.Publish(new DraygonHoldChanged());
+        _passEvents.Publish(new PoseRequestsDiscarded());
     }
 }

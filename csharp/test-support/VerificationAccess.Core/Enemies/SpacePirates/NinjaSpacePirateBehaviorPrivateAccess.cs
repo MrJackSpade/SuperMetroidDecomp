@@ -22,10 +22,13 @@ internal static class NinjaSpacePirateBehaviorPrivateAccess
             PrivateState.Invoke<global::SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateBehavior>(self, "StepNinjaPirateDive", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateEnemyState), typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection)], new object?[] { place, state, level, direction });
     }
 
-    /// <summary>The private static members checks name.</summary>
-    extension(global::SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateBehavior)
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateBehavior self)
     {
-        /// <summary>The private field <c>Claw</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior Claw => PrivateState.StaticField<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(typeof(global::SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateBehavior), "Claw");
+        /// <summary>The private property <c>Claw</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateBehavior.ClawBehavior Claw
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateBehavior, global::SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateBehavior.ClawBehavior>(self, "Claw");
+        }
     }
 }

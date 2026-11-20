@@ -72,7 +72,7 @@ internal sealed class EnemyFramePhase
     {
         bool hyperBeamBefore = samus.HyperBeamEnabled;
         if (processingList == EnemyProcessingList.Unprepared)
-            room.Enemies.ProcessingWindow.PrepareEnemyProcessingList(room.Camera.PixelPosition);
+            room.Enemies.PrepareEnemyProcessingList(room.Camera.PixelPosition);
         EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = samus, SamusColours = _player.Colours, NewlyPressedControllerInput = _playerActions.NewlyPressed, Level = room.LevelData, ControllerInput = _playerActions.Current, SamusProjectiles = room.Projectiles, ShortCounter = _clock.ShortCounter, SamusBombs = room.BombProjectiles, FrameCounter = _clock.Counter, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
         var effectSite = EnemyRoomEffectSite.Of(room, samus);
         _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result, effectSite);
@@ -81,7 +81,7 @@ internal sealed class EnemyFramePhase
         // pickup does (#1561); its shots show the equipped Plasma-Wave combination's pictures (#1586).
         if (!hyperBeamBefore && samus.HyperBeamEnabled)
             SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.ShowBeamShade(_player.Colours, samus.EquippedBeams);
-        bool elevatorDeparted = result.Reports(ElevatorFrameEvent.DepartureStarted);
+        bool elevatorDeparted = result.Reports(new ElevatorEvent(ElevatorFrameEvent.DepartureStarted));
         if (elevatorDeparted)
         {
             // Making Samus face forward clears all pending pose requests after the input phase
@@ -92,15 +92,17 @@ internal sealed class EnemyFramePhase
             // flashing colours behind.
             SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
         }
-        if (result.Has<DraygonHoldChanged>())
+        if (result.Has<PoseRequestsDiscarded>())
         {
             // The grab and release discard the transitions the input phase chose for the old pose, including the
             // no-input fallback kept beside the prospective pose.
             _player.ClearProspectivePoses();
         }
-        if (!_freeze.TimeIsFrozen && room.Enemies.DisplaySources.MotherBrain is { Head: { } rainbowHead } rainbowBrain)
+        // An encounter's work after the pass (Mother Brain's rainbow beam) steps here on an unfrozen update.
+        if (!_freeze.TimeIsFrozen)
         {
-            rainbowBrain.StepRainbowBeam(rainbowHead.Position.Whole, room.Enemies.BossArtworkBinding.MotherBrainRainbowColors);
+            foreach (IStepAfterEnemyPass step in room.Enemies.AfterPass)
+                step.StepAfterEnemyPass();
         }
         if (result.Has<CeresEscapeStarted>())
         {
@@ -108,7 +110,7 @@ internal sealed class EnemyFramePhase
             // Ceres from the fight to the escape; the actor records the boss's defeat itself.
             _enemyRoomEffects.StartCeresEscape();
         }
-        foreach (BabyMetroidCameraMove cameraMove in result.All<BabyMetroidCameraMove>())
+        foreach (EnemyCameraXWrite cameraMove in result.All<EnemyCameraXWrite>())
         {
             int babyMetroidCameraX = cameraMove.CameraX;
             // The camera's and the foreground's positions hold the written X to the room's coordinates (#1627).
@@ -119,7 +121,7 @@ internal sealed class EnemyFramePhase
             _backgroundScroll.ForegroundPosition = _backgroundScroll.ForegroundPosition.WithX(babyMetroidCameraX);
         }
         // The landing tube stops the liquid surface's motion; the next frame shows it still.
-        if (result.Has<MotherBrainTubeLanded>())
+        if (result.Has<LiquidSurfaceStilled>())
             room.FxOverlay.StopLiquidMotion();
         if (elevatorDeparted)
         {
@@ -127,10 +129,12 @@ internal sealed class EnemyFramePhase
             // cleared as the elevator updated; clearing her bombs and the shared cooldown here completes it.
             room.BombProjectiles.Reset();
         }
-        // Until Ceres Ridley's animation starts, his Baby's animation runs as the enemy pass ends.
-        room.Enemies.Ceres.StepCeresBabyWithEnemyPass();
+        // An encounter's scene whose animation runs as the enemy pass ends (Ceres Ridley's Baby, until his animation starts)
+        // steps now.
+        foreach (IEnemyPassScene scene in room.Enemies.PassScenes)
+            scene.StepWithEnemyPass();
         samus.Kinematics.InteractiveEnemies = room.Enemies.InteractiveCollisionBodies;
-        if (result.Reports(GunshipFrameEvent.EntryStarted))
+        if (result.Reports(new GunshipEvent(GunshipFrameEvent.EntryStarted)))
         {
             // Making Samus face forward performs a direct suit-colour reload and the
             // ship explicitly clears elevator status after locking Samus's
@@ -139,7 +143,7 @@ internal sealed class EnemyFramePhase
             SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
             room.Enemies.Elevator.ResetStatus();
         }
-        else if (result.Reports(GunshipFrameEvent.LandingCompleted))
+        else if (result.Reports(new GunshipEvent(GunshipFrameEvent.LandingCompleted)))
         {
             // The gunship restores Samus's normal input and movement modes only after the
             // closing-pad hold. Enemy AI has already restored Samus's normal modes;

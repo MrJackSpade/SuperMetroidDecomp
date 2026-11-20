@@ -16,23 +16,23 @@ internal static class FallingSparksBehaviorPrivateAccess
         /// <summary>The private method <c>FallFallingSpark</c>, invoked by name.</summary>
         internal void FallFallingSpark(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level, int frameCycle) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Enemies.FallingSparks.FallingSparksBehavior>(self, "FallFallingSpark", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData), typeof(int)], new object?[] { projectile, level, frameCycle });
-
-        /// <summary>The private property <c>Spark</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Projectiles.SingleMotionProjectileBehavior Spark
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.FallingSparks.FallingSparksBehavior, global::SuperMetroid.Core.Enemies.Projectiles.SingleMotionProjectileBehavior>(self, "Spark");
-        }
     }
 
-    /// <summary>The private static members checks name.</summary>
-    extension(global::SuperMetroid.Core.Enemies.FallingSparks.FallingSparksBehavior)
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Enemies.FallingSparks.FallingSparksBehavior self)
     {
         /// <summary>The private method <c>AddFallingSparkHorizontalVelocity</c>, invoked by name.</summary>
-        internal static void AddFallingSparkHorizontalVelocity(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.FallingSparks.FallingSparksBehavior), "AddFallingSparkHorizontalVelocity", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile)], new object?[] { projectile });
+        internal void AddFallingSparkHorizontalVelocity(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.FallingSparks.FallingSparksBehavior>(self, "AddFallingSparkHorizontalVelocity", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile)], new object?[] { projectile });
 
         /// <summary>The private method <c>BeginFallingSparkFloorImpact</c>, invoked by name.</summary>
-        internal static void BeginFallingSparkFloorImpact(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.FallingSparks.FallingSparksBehavior), "BeginFallingSparkFloorImpact", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile)], new object?[] { projectile });
+        internal void BeginFallingSparkFloorImpact(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.FallingSparks.FallingSparksBehavior>(self, "BeginFallingSparkFloorImpact", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile)], new object?[] { projectile });
+
+        /// <summary>The private property <c>Spark</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.Projectiles.StatefulSingleMotionProjectileBehavior<global::SuperMetroid.Core.Enemies.FallingSparks.FallingSparkState> Spark
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.FallingSparks.FallingSparksBehavior, global::SuperMetroid.Core.Enemies.Projectiles.StatefulSingleMotionProjectileBehavior<global::SuperMetroid.Core.Enemies.FallingSparks.FallingSparkState>>(self, "Spark");
+        }
     }
 }

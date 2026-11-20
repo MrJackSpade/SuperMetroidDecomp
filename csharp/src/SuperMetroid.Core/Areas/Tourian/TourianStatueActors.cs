@@ -10,17 +10,20 @@ namespace SuperMetroid.Core.Areas.Tourian;
 [RoomLifetime]
 internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, TourianUnlockBehavior unlock) : ITourianStatueActors
 {
+    /// <summary>The unlock effects.</summary>
+    private TourianUnlockBehavior Unlock { get; } = unlock;
+
     /// <inheritdoc/>
     public TourianStatueAnimation Animation => statue.StatueRoom.Animation;
 
     /// <inheritdoc/>
-    public void SpawnEyeGlow(TourianStatueEye eye) => unlock.SpawnTourianEyeGlow(eye);
+    public void SpawnEyeGlow(TourianStatueEye eye) => Unlock.SpawnTourianEyeGlow(eye);
 
     /// <inheritdoc/>
-    public void SpawnSoul(TourianStatueEye eye) => unlock.SpawnTourianSoul(eye);
+    public void SpawnSoul(TourianStatueEye eye) => Unlock.SpawnTourianSoul(eye);
 
     /// <inheritdoc/>
-    public void SpawnDescentDust() => unlock.SpawnTourianDescentDust();
+    public void SpawnDescentDust() => Unlock.SpawnTourianDescentDust();
 
     /// <inheritdoc/>
     public void ShowStatueLook(PictureShade look) => statue.ShowStatueLook(look);

@@ -102,7 +102,7 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IGamePhase
                 session.display.PublishBlack();
                 break;
             case GameLoadingCompletion.MainGameplay:
-                session.Enter(SuperMetroidGameState.MainGameplay);
+                session.Enter(session.Phases.MainGameplay);
                 session.display.PublishGameplay(session.GameplayRuntime);
                 break;
             default:

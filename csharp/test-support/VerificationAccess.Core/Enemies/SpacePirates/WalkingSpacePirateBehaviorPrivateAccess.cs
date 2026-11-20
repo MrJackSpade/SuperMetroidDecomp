@@ -10,10 +10,13 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 internal static class WalkingSpacePirateBehaviorPrivateAccess
 {
-    /// <summary>The private static members checks name.</summary>
-    extension(global::SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateBehavior)
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateBehavior self)
     {
-        /// <summary>The private field <c>Laser</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior Laser => PrivateState.StaticField<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(typeof(global::SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateBehavior), "Laser");
+        /// <summary>The private property <c>Laser</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateBehavior.LaserBehavior Laser
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateBehavior, global::SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateBehavior.LaserBehavior>(self, "Laser");
+        }
     }
 }

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// The eye beam's room-global state: its lifetime, the eye that casts it, its angular half-width and the colour it
 /// adds. It describes a colour-addition reveal, not an enemy projectile or damage source.
 /// </summary>
-public sealed class MorphBallEyeBeamState
+public sealed class MorphBallEyeBeamState : IDisplayLatch
 {
     /// <summary>The beam's lifetime, advanced before enemy AI and separate from the eye's own AI action.</summary>
     public MorphBallEyeBeamPhase Phase { get; internal set; }
@@ -38,10 +38,18 @@ public sealed class MorphBallEyeBeamState
     internal RgbColor Color { private get; set; }
 
     /// <summary>
-    /// The cone the frame ending now shows: the beam's phase, width and colour with its eye's position and aim as they
-    /// stand at the frame-end latch; none while no beam exists.
+    /// The cone the frame boundary last latched: the beam's phase, width and colour with its eye's position and aim as they
+    /// stood at the latch; none while no beam existed then.
     /// </summary>
-    internal MorphBallEyeBeamCone? LatchDisplay()
+    internal MorphBallEyeBeamCone? Latched { get; private set; }
+
+    /// <summary>Latches the cone the frame ending now shows (<see cref="Latched"/>).</summary>
+    void IDisplayLatch.LatchDisplay() => Latched = Cone();
+
+    /// <summary>
+    /// The cone the beam shows now: its phase, width and colour with its eye's position and aim; none while no beam exists.
+    /// </summary>
+    private MorphBallEyeBeamCone? Cone()
     {
         if (Phase == MorphBallEyeBeamPhase.Inactive)
             return null;

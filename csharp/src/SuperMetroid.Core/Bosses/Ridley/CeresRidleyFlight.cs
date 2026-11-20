@@ -258,7 +258,7 @@ internal sealed class CeresRidleyFlight
         AccelerateRidleyToward(place, state.Flight, CeresRidleyArenaDefinitions.RetreatPoint, CeresRidleyFlightDefinitions.SweepDivisor);
         if (RidleyFlight.SignedPlace(place).Y < CeresRidleyArenaDefinitions.BabyDropLineY)
         {
-            state.Baby.Action = CeresBabyAction.Drop;
+            state.Baby.Drop();
             state.Phase = CeresRidleyPhase.WaitBeforeRetrievingBaby;
             state.PhaseTimer.LastFor(CeresRidleyFlightDefinitions.BabyRetrievalDelayUpdates);
         }

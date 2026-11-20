@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// it, which hides the landing recess until she lands and both leave.
 /// </summary>
 [RoomLifetime]
-public sealed class CeresElevatorArrivalState
+public sealed class CeresElevatorArrivalState : SuperMetroid.Core.Enemies.IActorInFrontOfSamus
 {
     /// <summary>The moving pad, which lowers Samus before the platform checks for her landing, and its wait before it moves.</summary>
     private readonly CeresElevatorPad pad;
@@ -92,7 +92,7 @@ public sealed class CeresElevatorArrivalState
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="presentation">Publishes the platforms from the room's enemy artwork.</param>
     /// <param name="camera">Camera position in whole room pixels.</param>
-    internal void Draw(SpriteFrameBuffer sprites, EnemyPresentation presentation, Position16<RoomPixels> camera)
+    void SuperMetroid.Core.Enemies.IActorInFrontOfSamus.DrawInFrontOfSamus(SpriteFrameBuffer sprites, EnemyPresentation presentation, Position16<RoomPixels> camera)
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(presentation);

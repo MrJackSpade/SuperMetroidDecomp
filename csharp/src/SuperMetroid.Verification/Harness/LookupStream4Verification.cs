@@ -534,7 +534,7 @@ internal static class LookupStream4Verification
             EndingTurningFloor floor = state.Stage.Floor;
             PrivateState.Set(floor, nameof(EndingTurningFloor.Position), floor.Position.WithX(SignedSixteenSixteen.FromParts(100, 0xC000)));
             PrivateState.Set(floor, nameof(EndingTurningFloor.Zoom), FloorZoom.FromFloorPixelsPerScreenPixel(12));
-            PrivateState.Set(state, nameof(EndingCreditsState.Phase), fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow);
+            state.ShowCastPhase(fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow);
             PrivateState.Set(state.Flyaway, "ShipShake", EndingShipShakeCursor.StartOf(sequence));
             // The ending's own update runs the leg and makes its handoff.
             Action step = state.Step;

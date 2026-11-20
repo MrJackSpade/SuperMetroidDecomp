@@ -15,4 +15,7 @@ internal interface IBossBodyDisplay
 
     /// <summary>Whether the body shows nothing this frame.</summary>
     bool Hidden { get; }
+
+    /// <summary>Whether the boss hides the room's background layer this frame (#2571).</summary>
+    bool HidesBackgroundLayer { get; }
 }

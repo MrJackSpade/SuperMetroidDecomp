@@ -17,14 +17,18 @@ internal static class SuperMetroidGamePrivateAccess
         internal void AdvanceMenuRandom() =>
             PrivateState.Invoke<global::SuperMetroid.Core.Frontend.SuperMetroidGame>(self, "AdvanceMenuRandom", [], new object?[] {  });
 
+        /// <summary>The private method <c>Step</c>, invoked by name.</summary>
+        internal global::SuperMetroid.Core.Frontend.FrontendFrame Step(global::SuperMetroid.Core.Input.ControllerButton controllerInput) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Frontend.SuperMetroidGame, global::SuperMetroid.Core.Frontend.FrontendFrame>(self, "Step", [typeof(global::SuperMetroid.Core.Input.ControllerButton)], new object?[] { controllerInput });
+    }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Frontend.SuperMetroidGame self)
+    {
         /// <summary>The private property <c>PhaseIsWaitingOutDisplayFrame</c>, reached by name.</summary>
         internal bool PhaseIsWaitingOutDisplayFrame
         {
             get => PrivateState.Get<global::SuperMetroid.Core.Frontend.SuperMetroidGame, bool>(self, "PhaseIsWaitingOutDisplayFrame");
         }
-
-        /// <summary>The private method <c>Step</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Frontend.FrontendFrame Step(global::SuperMetroid.Core.Input.ControllerButton controllerInput) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Frontend.SuperMetroidGame, global::SuperMetroid.Core.Frontend.FrontendFrame>(self, "Step", [typeof(global::SuperMetroid.Core.Input.ControllerButton)], new object?[] { controllerInput });
     }
 }

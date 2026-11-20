@@ -20,12 +20,6 @@ internal static class PhantoonBehaviorPrivateAccess
         /// <summary>The private method <c>BeginPhantoonEyeTracking</c>, invoked by name.</summary>
         internal void BeginPhantoonEyeTracking(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState state) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonBehavior>(self, "BeginPhantoonEyeTracking", [typeof(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState)], new object?[] { state });
-
-        /// <summary>The private property <c>Patterns</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPatterns Patterns
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonBehavior, global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPatterns>(self, "Patterns");
-        }
     }
 
     /// <summary>The private static members checks name.</summary>
@@ -39,18 +33,6 @@ internal static class PhantoonBehaviorPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonBehavior self)
     {
-        /// <summary>The private property <c>Death</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Phantoon.PhantoonDeath Death
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonBehavior, global::SuperMetroid.Core.Bosses.Phantoon.PhantoonDeath>(self, "Death");
-        }
-
-        /// <summary>The private property <c>Opening</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Phantoon.PhantoonOpening Opening
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonBehavior, global::SuperMetroid.Core.Bosses.Phantoon.PhantoonOpening>(self, "Opening");
-        }
-
         /// <summary>The private property <c>Presentation</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPresentation Presentation
         {

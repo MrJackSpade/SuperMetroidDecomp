@@ -7,6 +7,6 @@ internal static class CrateriaMainstreetEscapePassageDraws
 {
     /// <summary>The passage's draw: its two open blocks, pictured by the installed reveals and walls.</summary>
     internal static RoomObjectDrawFamily<Draw> Family { get; } =
-        RoomObjectDrawFamily<Draw>.Pictured<InstalledRoomObjectRevealAndWallVisuals>("reveal and wall",
-            _ => OpenPassage, (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<Draw>("reveal and wall",
+            _ => OpenPassage);
 }

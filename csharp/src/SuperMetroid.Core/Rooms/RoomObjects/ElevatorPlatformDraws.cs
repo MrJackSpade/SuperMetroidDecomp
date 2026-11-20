@@ -8,7 +8,6 @@ internal static class ElevatorPlatformDraws
 {
     /// <summary>The platform's three frames, pictured by the installed elevator platform frames.</summary>
     internal static RoomObjectDrawFamily<ElevatorPlatformDraw> Family { get; } =
-        RoomObjectDrawFamily<ElevatorPlatformDraw>.Pictured<InstalledRoomObjectElevatorPlatformVisuals>("elevator-platform",
-            frame => RoomObjectDrawFamily<ElevatorPlatformDraw>.Defined(ElevatorPlatformObjectDefinitions.Shapes, frame),
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<ElevatorPlatformDraw>("elevator-platform",
+            frame => RoomObjectDrawFamily<ElevatorPlatformDraw>.Defined(ElevatorPlatformObjectDefinitions.Shapes, frame));
 }

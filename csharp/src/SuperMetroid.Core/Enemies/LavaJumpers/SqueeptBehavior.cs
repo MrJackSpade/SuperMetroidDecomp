@@ -10,10 +10,10 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Squeept];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(place).SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
-            ? new NorfairLavaJumperFollowerEntity(this, place, common)
-            : new SqueeptEntity(this, place, common);
+            ? EnemyOccupant.Of(new NorfairLavaJumperFollowerEntity(this, place, common))
+            : EnemyOccupant.Of(new SqueeptEntity(this, place, common));
 
     /// <summary>Supplies one random number per parent and follower AI frame.</summary>
     private readonly EnemyRoomBinding _room;

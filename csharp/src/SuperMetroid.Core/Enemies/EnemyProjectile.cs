@@ -85,10 +85,10 @@ public sealed class EnemyProjectile
     public EnemyProjectileFrameId? Frame { get; internal set; }
     /// <summary>
     /// How the projectile moves itself on each pass, before its animation advances (#1843): one of the motions its
-    /// behaviour owns (<see cref="EnemyProjectileMotionBehavior{TMotion}"/>), or null while it holds still. Its behaviour starts
-    /// it at spawn and changes it; a shot that destroys the projectile stops it.
+    /// behaviour owns (<see cref="EnemyProjectileMotionBehavior{TMotion}"/>), held through that behaviour (#2571), or null
+    /// while it holds still. Its behaviour starts it at spawn and changes it; a shot that destroys the projectile stops it.
     /// </summary>
-    internal Enum? Motion { get; private set; }
+    internal EnemyProjectileMotion? Motion { get; private set; }
     /// <summary>
     /// What the projectile's kind does (#1760): it moves the projectile each update, carries out its animations'
     /// cues and names its shot and touch animations. The spawner binds it with the kind; none until then. A projectile
@@ -118,15 +118,13 @@ public sealed class EnemyProjectile
     /// animations move it in front. This is independent of the projectile's depth against the room's tiles.
     /// </summary>
     public EnemyProjectileDepth Depth { get; internal set; }
-    /// <summary>What the projectile's family keeps on it (#1470), given by its spawner; none until then.</summary>
-    internal EnemyProjectileState? State { get; set; }
-
-    /// <summary>The state the projectile's family gave it, read as that family's own type.</summary>
-    /// <typeparam name="TState">The family's state type.</typeparam>
-    /// <exception cref="InvalidOperationException">The projectile holds no state, or another family's.</exception>
-    internal TState StateOf<TState>() where TState : EnemyProjectileState =>
-        State as TState ?? throw new InvalidOperationException(
-            $"Enemy projectile {Kind} in place {Place} holds {State?.GetType().Name ?? "no state"}, not {typeof(TState).Name}.");
+    /// <summary>
+    /// The point the projectile is tied to, which its spawner sets where the projectile returns to it (#2571): a Tourian
+    /// statue's decorations follow the statue from it, the descending statue's dust and Torizo's explosions return to it
+    /// whenever their animations restart a puff. Everything else its family keeps on it lives in that family's behaviour
+    /// (<see cref="EnemyProjectileStates{TState}"/>).
+    /// </summary>
+    internal Position16<RoomPixels> Anchor { get; set; }
 
     /// <summary>Gets whether this actor damages Samus when it touches her, whether or not it survives contact or stops shots.</summary>
     public bool CanDamageSamus { get; internal set; }
@@ -152,9 +150,27 @@ public sealed class EnemyProjectile
         Motion = behavior.InitialMotion(kind);
     }
 
-    /// <summary>Moves the projectile by <paramref name="motion"/>, one of its behaviour's motions, from its next pass.</summary>
+    /// <summary>
+    /// Moves the projectile by <paramref name="motion"/>, one of <paramref name="owner"/>'s motions, from its next pass (#2571):
+    /// <paramref name="owner"/> is the behaviour bound to the projectile, which its own code and its spawner hold typed, so
+    /// the motion is held through it with no test of the behaviour's type.
+    /// </summary>
     /// <typeparam name="TMotion">The behaviour's motions.</typeparam>
-    internal void StartMotion<TMotion>(TMotion motion) where TMotion : struct, Enum => Motion = motion;
+    /// <param name="owner">The projectile's behaviour, which owns <paramref name="motion"/>.</param>
+    /// <param name="motion">The motion the projectile moves by.</param>
+    internal void StartMotion<TMotion>(EnemyProjectileMotionBehavior<TMotion> owner, TMotion motion) where TMotion : struct, Enum =>
+        Motion = Ensure.NotNull(owner).Moving(motion);
+
+    /// <summary>
+    /// Moves the projectile by <paramref name="motion"/>, one of its behaviour's own motion objects, from its next pass (#2571).
+    /// </summary>
+    /// <param name="motion">The motion the projectile moves by.</param>
+    internal void StartMotion(EnemyProjectileMotion motion) => Motion = Ensure.NotNull(motion);
+
+    /// <summary>Whether the projectile moves by <paramref name="motion"/>, one of its behaviour's motions.</summary>
+    /// <typeparam name="TMotion">The behaviour's motions.</typeparam>
+    internal bool MovesBy<TMotion>(TMotion motion) where TMotion : struct, Enum =>
+        Motion is EnemyProjectileFamilyMotion<TMotion> moving && EqualityComparer<TMotion>.Default.Equals(moving.Motion, motion);
 
     /// <summary>Stops the projectile moving itself: it holds still while its animation plays, or its owner positions it.</summary>
     internal void HoldStill() => Motion = null;
@@ -206,7 +222,7 @@ public sealed class EnemyProjectile
         Graphics = SpriteGraphics.SharedStandard;
         Damage = 0;
         Depth = EnemyProjectileDepth.BehindSamus;
-        State = null;
+        Anchor = Position16<RoomPixels>.Zero;
         CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
         CanDamageSamus = PersistsOnSamusContact = BlocksSamusProjectiles = false;
     }

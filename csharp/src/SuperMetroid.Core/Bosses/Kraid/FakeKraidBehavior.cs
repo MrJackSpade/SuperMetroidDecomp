@@ -15,7 +15,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FakeKraid];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new FakeKraidEntity(this, place, common);
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new FakeKraidEntity(this, place, common));
 
     /// <summary>Provides the existing random number sampled for Fake Kraid's action decisions.</summary>
     private readonly EnemyRoomBinding _room;
@@ -52,32 +52,20 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case FakeKraidCue.Spit spit:
                 SpawnFakeKraidSpitPair(place, spit.Direction);
                 return null;
-            case FakeKraidCue.Signal signal:
-                return ApplyFakeKraidSignal(place, signal.Kind, samus, level, camera);
-            default:
-                throw new InvalidOperationException($"Fake Kraid's animations have no {cue} cue.");
-        }
-    }
-
-    /// <summary>Carries out one signalling cue: the action choice continues at the step or spit animation it selects.</summary>
-    private FakeKraidSegment? ApplyFakeKraidSignal(RoomEnemyPlace place, FakeKraidCueKind kind, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera)
-    {
-        switch (kind)
-        {
-            case FakeKraidCueKind.Move:
+            case FakeKraidCue.Move:
                 // Walk cue: advance one four-pixel step unless its random reversal
                 // clock expires, then turn to face Samus.
                 ProcessFakeKraidWalkAnimation(place, place.RequireSpeciesState<FakeKraidEnemyState>(), samus, level);
                 return null;
-            case FakeKraidCueKind.ChooseAction:
+            case FakeKraidCue.ChooseAction:
                 return SelectFakeKraidAction(place.RequireSpeciesState<FakeKraidEnemyState>());
-            case FakeKraidCueKind.PlayCrySound:
+            case FakeKraidCue.PlayCrySound:
                 // The spit step queues its sound only while Fake Kraid is in the view, its edges included.
                 if (EnemyView.Contains(place.Position.Whole, camera))
                     RequestFakeKraidSound(KraidSoundDefinitions.FakeKraidCry);
                 return null;
             default:
-                throw new InvalidOperationException($"Fake Kraid's animations have no {kind} cue.");
+                throw new InvalidOperationException($"Fake Kraid's animations have no {cue} cue.");
         }
     }
 
@@ -339,33 +327,35 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Fake Kraid's spit and spikes (#1760): their spawners start their animations.</summary>
-    private static readonly EnemyProjectileBehavior SpitAndSpikes = new SpitAndSpikeBehavior();
+    private SpitAndSpikeBehavior SpitAndSpikes { get; } = new();
 
     /// <summary>Fake Kraid's spit, with room collision then capped gravity, or a spike flying until it strikes a wall.</summary>
-    private sealed class SpitAndSpikeBehavior() : EnemyProjectileMotionBehavior<FakeKraidProjectileMotion>(StartingMotions)
+    internal sealed class SpitAndSpikeBehavior : EnemyProjectileBehavior
     {
+        /// <summary>The flight each kind this behaviour is bound to starts in: the spit's and the spikes'.</summary>
+        private readonly Dictionary<RoomEnemyProjectileKind, EnemyProjectileOwnedMotion> _startingMotions;
+
         /// <summary>The spit and the spikes fly from their spawn.</summary>
-        private static readonly Dictionary<RoomEnemyProjectileKind, FakeKraidProjectileMotion?> StartingMotions = new()
+        internal SpitAndSpikeBehavior() => _startingMotions = new()
         {
-            [RoomEnemyProjectileKind.FakeKraidSpit] = FakeKraidProjectileMotion.SpitFlying,
-            [RoomEnemyProjectileKind.FakeKraidSpike] = FakeKraidProjectileMotion.SpikeFlying,
+            [RoomEnemyProjectileKind.FakeKraidSpit] = SpitFlying,
+            [RoomEnemyProjectileKind.FakeKraidSpike] = SpikeFlying,
         };
 
+        /// <summary>The spit flying through the room's blocks, then falling under capped gravity.</summary>
+        internal EnemyProjectileOwnedMotion SpitFlying { get; } = new(nameof(SpitFlying),
+            context => FlyFakeKraidSpit(context.Projectile, context.Level));
+
+        /// <summary>A spike flying along its heading until it strikes a wall.</summary>
+        internal EnemyProjectileOwnedMotion SpikeFlying { get; } = new(nameof(SpikeFlying),
+            context => FlyFakeKraidSpike(context.Projectile, context.Level));
+
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, FakeKraidProjectileMotion motion)
-        {
-            switch (motion)
-            {
-                case FakeKraidProjectileMotion.SpitFlying:
-                    FlyFakeKraidSpit(context.Projectile, context.Level);
-                    break;
-                case FakeKraidProjectileMotion.SpikeFlying:
-                    FlyFakeKraidSpike(context.Projectile, context.Level);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(FakeKraidProjectileMotion)} {motion}.");
-            }
-        }
+        /// <exception cref="InvalidOperationException">This behaviour is not bound to <paramref name="kind"/>.</exception>
+        internal override EnemyProjectileMotion? InitialMotion(RoomEnemyProjectileKind kind) =>
+            _startingMotions.TryGetValue(kind, out EnemyProjectileOwnedMotion? starting)
+                ? starting
+                : throw new InvalidOperationException($"{nameof(SpitAndSpikeBehavior)} is not bound to enemy projectile {kind}.");
     }
 
     /// <summary>Runs Fake Kraid's initialization AI.</summary>

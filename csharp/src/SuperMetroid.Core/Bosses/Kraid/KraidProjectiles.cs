@@ -78,21 +78,26 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>The rocks Kraid's rise throws up and the ceiling rocks his roar shakes down (#1760): their spawners start their animations.</summary>
-    internal static EnemyProjectileBehavior Rocks { get; } = new RockBehavior();
+    internal RockBehavior Rocks { get; } = new();
 
     /// <summary>
     /// A rock Kraid spits (#1760): its spawner starts its animation, and a shot one runs its typed burst, the animation its
     /// definition names.
     /// </summary>
-    internal static EnemyProjectileBehavior SpitRock { get; } = new RockBehavior(() => new KraidRockAnimation(KraidRockSegment.SpitRockShot));
+    internal RockBehavior SpitRock { get; } = new(KraidRockSegment.SpitRockShot);
 
     /// <summary>
     /// One of Kraid's rocks: a rock's flight with room collision, drag and gravity, a ceiling rock's fall, and the rock
     /// animations' cues.
     /// </summary>
-    private sealed class RockBehavior(Func<EnemyProjectileAnimation>? shot = null)
-        : EnemyProjectileMotionBehavior<KraidRockMotion>(StartingMotions, shot), IEnemyProjectileCues<KraidRockCue>
+    /// <param name="shot">Where the animation a destroying shot starts begins, or null for the shared delete animation.</param>
+    internal sealed class RockBehavior(KraidRockSegment? shot = null)
+        : EnemyProjectileMotionBehavior<KraidRockMotion>(StartingMotions), IEnemyProjectileCues<KraidRockCue>
     {
+        /// <inheritdoc/>
+        internal override EnemyProjectileAnimation ShotAnimation() =>
+            shot is { } segment ? new KraidRockAnimation(this, segment) : base.ShotAnimation();
+
         /// <summary>A spat or rising rock flies, and a ceiling rock falls, from its spawn.</summary>
         private static readonly Dictionary<RoomEnemyProjectileKind, KraidRockMotion?> StartingMotions = new()
         {
@@ -102,7 +107,7 @@ internal sealed class KraidProjectiles
         };
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, KraidRockMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, KraidRockMotion motion)
         {
             switch (motion)
             {

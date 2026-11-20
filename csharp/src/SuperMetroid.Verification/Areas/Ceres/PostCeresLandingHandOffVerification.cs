@@ -52,16 +52,16 @@ internal static class PostCeresLandingHandOffVerification
         // Hold Left+B throughout: locked handlers ignore it until the ship unlocks Samus.
         const ControllerButton input = (ControllerButton.Left | ControllerButton.B);
         int frames = 0;
-        while (!runtime.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.LandingCompleted) &&
+        while (!runtime.Enemies.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.LandingCompleted)) &&
                frames++ < PostCeresLandingMaximumFrames)
         {
             ushort cameraX = runtime.Room.LoadedCamera.PixelPosition.X;
             runtime.StepFrame(input);
-            if (runtime.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.LandingPadOpened))
+            if (runtime.Enemies.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.LandingPadOpened)))
                 AssertEqual(cameraX, runtime.Room.LoadedCamera.PixelPosition.X,
                     "hatch placement writes SamusPreviousXPosition, so the camera does not scroll");
         }
-        AssertTrue(runtime.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.LandingCompleted),
+        AssertTrue(runtime.Enemies.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.LandingCompleted)),
             "post-Ceres landing completes");
         // $A2:A987 runs in EnemyMain, after this frame's locked current-state handler.
         AssertEqual((byte)0, SamusPoseNumbers.Number(runtime.Player.IntroducedSamus.Pose), "unlock frame keeps the locked alpha's forward pose");

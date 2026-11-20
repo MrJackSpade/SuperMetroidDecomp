@@ -10,11 +10,11 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// </summary>
 internal static class SporeSpawnSporeBehaviorPrivateAccess
 {
-    /// <summary>The private static members checks name.</summary>
-    extension(global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnSporeBehavior)
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnSporeBehavior self)
     {
         /// <summary>The private method <c>DriftSpore</c>, invoked by name.</summary>
-        internal static void DriftSpore(global::SuperMetroid.Core.Enemies.EnemyProjectile spore) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnSporeBehavior), "DriftSpore", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile)], new object?[] { spore });
+        internal void DriftSpore(global::SuperMetroid.Core.Enemies.EnemyProjectile spore) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnSporeBehavior>(self, "DriftSpore", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile)], new object?[] { spore });
     }
 }

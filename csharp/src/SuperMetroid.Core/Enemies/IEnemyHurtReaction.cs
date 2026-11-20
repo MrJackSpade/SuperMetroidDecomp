@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>An enemy that may replace its main AI with its hurt behaviour while hurt.</summary>
-internal interface IEnemyHurtReaction : IEnemyEntity
+internal interface IEnemyHurtReaction
 {
     /// <summary>
     /// Runs the enemy's hurt behaviour for this enemy frame and returns true, or returns false without running anything

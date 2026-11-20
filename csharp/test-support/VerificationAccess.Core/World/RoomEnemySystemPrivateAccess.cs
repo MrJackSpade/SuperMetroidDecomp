@@ -13,40 +13,10 @@ internal static class RoomEnemySystemPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.World.RoomEnemySystem self)
     {
-        /// <summary>The private property <c>AlcoonBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Alcoon.AlcoonBehavior AlcoonBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Alcoon.AlcoonBehavior>(self, "AlcoonBehavior");
-        }
-
         /// <summary>The private property <c>AnimationPlayer</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Enemies.EnemyAnimationPlayer AnimationPlayer
         {
             get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.EnemyAnimationPlayer>(self, "AnimationPlayer");
-        }
-
-        /// <summary>The private property <c>BabyMetroidBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidBehavior BabyMetroidBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidBehavior>(self, "BabyMetroidBehavior");
-        }
-
-        /// <summary>The private property <c>BabyMetroidCutsceneBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutsceneBehavior BabyMetroidCutsceneBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutsceneBehavior>(self, "BabyMetroidCutsceneBehavior");
-        }
-
-        /// <summary>The private property <c>BeetomBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Beetom.BeetomBehavior BeetomBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Beetom.BeetomBehavior>(self, "BeetomBehavior");
-        }
-
-        /// <summary>The private property <c>BlueBrinstarFaceBlockBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockBehavior BlueBrinstarFaceBlockBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockBehavior>(self, "BlueBrinstarFaceBlockBehavior");
         }
 
         /// <summary>The private property <c>BossEncounters</c>, reached by name.</summary>
@@ -55,112 +25,10 @@ internal static class RoomEnemySystemPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.RoomBossEncounters>(self, "BossEncounters");
         }
 
-        /// <summary>The private property <c>BotwoonBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior BotwoonBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior>(self, "BotwoonBehavior");
-        }
-
-        /// <summary>The private property <c>BoulderBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Boulder.BoulderBehavior BoulderBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Boulder.BoulderBehavior>(self, "BoulderBehavior");
-        }
-
-        /// <summary>The private property <c>BullBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Bull.BullBehavior BullBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Bull.BullBehavior>(self, "BullBehavior");
-        }
-
-        /// <summary>The private property <c>CacatacBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Cacatac.CacatacBehavior CacatacBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Cacatac.CacatacBehavior>(self, "CacatacBehavior");
-        }
-
-        /// <summary>The private property <c>CameraFloor</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Rooms.Scrolling.RoomCameraFloor CameraFloor
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Rooms.Scrolling.RoomCameraFloor>(self, "CameraFloor");
-        }
-
-        /// <summary>The private property <c>CeresDoorBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior CeresDoorBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior>(self, "CeresDoorBehavior");
-        }
-
-        /// <summary>The private property <c>CeresEscape</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Ridley.CeresEscape CeresEscape
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.Ridley.CeresEscape>(self, "CeresEscape");
-        }
-
-        /// <summary>The private property <c>CeresRidleyBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Ridley.CeresRidleyBehavior CeresRidleyBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.Ridley.CeresRidleyBehavior>(self, "CeresRidleyBehavior");
-        }
-
-        /// <summary>The private property <c>CeresSteamBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Areas.Ceres.CeresSteamBehavior CeresSteamBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Areas.Ceres.CeresSteamBehavior>(self, "CeresSteamBehavior");
-        }
-
-        /// <summary>The private property <c>ChozoStatueBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Chozo.ChozoStatueBehavior ChozoStatueBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Chozo.ChozoStatueBehavior>(self, "ChozoStatueBehavior");
-        }
-
-        /// <summary>The private property <c>CrocomireBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBehavior CrocomireBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBehavior>(self, "CrocomireBehavior");
-        }
-
-        /// <summary>The private property <c>DachoraBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Animals.DachoraBehavior DachoraBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Animals.DachoraBehavior>(self, "DachoraBehavior");
-        }
-
-        /// <summary>The private property <c>DeadSidehopperBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Corpses.DeadSidehopperBehavior DeadSidehopperBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Corpses.DeadSidehopperBehavior>(self, "DeadSidehopperBehavior");
-        }
-
-        /// <summary>The private property <c>DeadTorizoBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Corpses.DeadTorizoBehavior DeadTorizoBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Corpses.DeadTorizoBehavior>(self, "DeadTorizoBehavior");
-        }
-
         /// <summary>The private property <c>DeathsAndDrops</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Enemies.EnemyDeathsAndDrops DeathsAndDrops
         {
             get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.EnemyDeathsAndDrops>(self, "DeathsAndDrops");
-        }
-
-        /// <summary>The private property <c>DownwardGateBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Projectiles.DownwardGateBehavior DownwardGateBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Projectiles.DownwardGateBehavior>(self, "DownwardGateBehavior");
-        }
-
-        /// <summary>The private property <c>DragonBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Dragon.DragonBehavior DragonBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Dragon.DragonBehavior>(self, "DragonBehavior");
-        }
-
-        /// <summary>The private property <c>DraygonBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Draygon.DraygonBehavior DraygonBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.Draygon.DraygonBehavior>(self, "DraygonBehavior");
         }
 
         /// <summary>The private property <c>EffectActors</c>, reached by name.</summary>
@@ -169,70 +37,10 @@ internal static class RoomEnemySystemPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.EffectActors.RoomEffectActors>(self, "EffectActors");
         }
 
-        /// <summary>The private property <c>ElevatorBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Elevator.ElevatorBehavior ElevatorBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Elevator.ElevatorBehavior>(self, "ElevatorBehavior");
-        }
-
-        /// <summary>The private property <c>EscapeAnimalsBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Animals.EscapeAnimalsBehavior EscapeAnimalsBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Animals.EscapeAnimalsBehavior>(self, "EscapeAnimalsBehavior");
-        }
-
-        /// <summary>The private property <c>EscapeExplosionsBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Areas.Escape.EscapeExplosionsBehavior EscapeExplosionsBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Areas.Escape.EscapeExplosionsBehavior>(self, "EscapeExplosionsBehavior");
-        }
-
-        /// <summary>The private property <c>EvirBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Evir.EvirBehavior EvirBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Evir.EvirBehavior>(self, "EvirBehavior");
-        }
-
-        /// <summary>The private property <c>EyeDoorBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior EyeDoorBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior>(self, "EyeDoorBehavior");
-        }
-
-        /// <summary>The private property <c>FakeKraidBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Kraid.FakeKraidBehavior FakeKraidBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.Kraid.FakeKraidBehavior>(self, "FakeKraidBehavior");
-        }
-
-        /// <summary>The private property <c>FallingSparksBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.FallingSparks.FallingSparksBehavior FallingSparksBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.FallingSparks.FallingSparksBehavior>(self, "FallingSparksBehavior");
-        }
-
-        /// <summary>The private property <c>FirefleaBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Fireflea.FirefleaBehavior FirefleaBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Fireflea.FirefleaBehavior>(self, "FirefleaBehavior");
-        }
-
         /// <summary>The private property <c>FrameContext</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Enemies.EnemyFrameContext FrameContext
         {
             get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.EnemyFrameContext>(self, "FrameContext");
-        }
-
-        /// <summary>The private property <c>FuneNamiheBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehavior FuneNamiheBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehavior>(self, "FuneNamiheBehavior");
-        }
-
-        /// <summary>The private property <c>GerutaBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Rios.GerutaBehavior GerutaBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Rios.GerutaBehavior>(self, "GerutaBehavior");
         }
 
         /// <summary>The private property <c>GrappleBehavior</c>, reached by name.</summary>
@@ -241,214 +49,42 @@ internal static class RoomEnemySystemPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Grapple.GrappleBehavior>(self, "GrappleBehavior");
         }
 
-        /// <summary>The private property <c>GunshipBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Gunship.GunshipBehavior GunshipBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Gunship.GunshipBehavior>(self, "GunshipBehavior");
-        }
-
-        /// <summary>The private property <c>HibashiBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Hibashi.HibashiBehavior HibashiBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Hibashi.HibashiBehavior>(self, "HibashiBehavior");
-        }
-
-        /// <summary>The private property <c>HoltzBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Rios.HoltzBehavior HoltzBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Rios.HoltzBehavior>(self, "HoltzBehavior");
-        }
-
-        /// <summary>The private property <c>HoppersBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Hoppers.HoppersBehavior HoppersBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Hoppers.HoppersBehavior>(self, "HoppersBehavior");
-        }
-
-        /// <summary>The private property <c>KagoBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Kago.KagoBehavior KagoBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Kago.KagoBehavior>(self, "KagoBehavior");
-        }
-
-        /// <summary>The private property <c>KiHunterBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior KiHunterBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBehavior>(self, "KiHunterBehavior");
-        }
-
-        /// <summary>The private property <c>KraidBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Kraid.KraidBehavior KraidBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.Kraid.KraidBehavior>(self, "KraidBehavior");
-        }
-
-        /// <summary>The private property <c>KzanBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Kzan.KzanBehavior KzanBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Kzan.KzanBehavior>(self, "KzanBehavior");
-        }
-
-        /// <summary>The private property <c>MagdolliteBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior MagdolliteBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior>(self, "MagdolliteBehavior");
-        }
-
-        /// <summary>The private property <c>MamaTurtleBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleBehavior MamaTurtleBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleBehavior>(self, "MamaTurtleBehavior");
-        }
-
-        /// <summary>The private property <c>MetareeBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Metaree.MetareeBehavior MetareeBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Metaree.MetareeBehavior>(self, "MetareeBehavior");
-        }
-
-        /// <summary>The private property <c>MetroidBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Metroids.MetroidBehavior MetroidBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Metroids.MetroidBehavior>(self, "MetroidBehavior");
-        }
-
-        /// <summary>The private property <c>MorphBallEyeBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeBehavior MorphBallEyeBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeBehavior>(self, "MorphBallEyeBehavior");
-        }
-
-        /// <summary>The private property <c>MotherBrainBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBehavior MotherBrainBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBehavior>(self, "MotherBrainBehavior");
-        }
-
-        /// <summary>The private property <c>MotherBrainEncounter</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEncounter MotherBrainEncounter
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEncounter>(self, "MotherBrainEncounter");
-        }
-
-        /// <summary>The private property <c>MultiviolaBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Crawlers.MultiviolaBehavior MultiviolaBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Crawlers.MultiviolaBehavior>(self, "MultiviolaBehavior");
-        }
-
-        /// <summary>The private property <c>NinjaSpacePirateBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateBehavior NinjaSpacePirateBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateBehavior>(self, "NinjaSpacePirateBehavior");
-        }
-
-        /// <summary>The private property <c>NoobTubeBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior NoobTubeBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior>(self, "NoobTubeBehavior");
-        }
-
-        /// <summary>The private property <c>NorfairRidleyBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Ridley.NorfairRidleyBehavior NorfairRidleyBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.Ridley.NorfairRidleyBehavior>(self, "NorfairRidleyBehavior");
-        }
-
-        /// <summary>The private property <c>NuclearWaffleBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleBehavior NuclearWaffleBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleBehavior>(self, "NuclearWaffleBehavior");
-        }
-
-        /// <summary>The private property <c>OldTourianEscapeShaftWallBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.OldTourianWall.OldTourianEscapeShaftWallBehavior OldTourianEscapeShaftWallBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.OldTourianWall.OldTourianEscapeShaftWallBehavior>(self, "OldTourianEscapeShaftWallBehavior");
-        }
-
-        /// <summary>The private property <c>OumBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.MaridiaSnails.OumBehavior OumBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.MaridiaSnails.OumBehavior>(self, "OumBehavior");
-        }
-
-        /// <summary>The private property <c>OwtchBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Owtch.OwtchBehavior OwtchBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Owtch.OwtchBehavior>(self, "OwtchBehavior");
-        }
-
         /// <summary>The private property <c>PassEvents</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Enemies.EnemyPassEvents PassEvents
         {
             get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.EnemyPassEvents>(self, "PassEvents");
         }
 
-        /// <summary>The private property <c>PhantoonBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Phantoon.PhantoonBehavior PhantoonBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.Phantoon.PhantoonBehavior>(self, "PhantoonBehavior");
-        }
-
-        /// <summary>The private property <c>PipeBugsBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.PipeBugs.PipeBugsBehavior PipeBugsBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.PipeBugs.PipeBugsBehavior>(self, "PipeBugsBehavior");
-        }
-
-        /// <summary>The private property <c>PolypBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Polyp.PolypBehavior PolypBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Polyp.PolypBehavior>(self, "PolypBehavior");
-        }
-
-        /// <summary>The private property <c>PowampBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior PowampBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Powamp.PowampBehavior>(self, "PowampBehavior");
-        }
-
-        /// <summary>The private property <c>PrePhantoonRoomBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Phantoon.PrePhantoonRoomBehavior PrePhantoonRoomBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.Phantoon.PrePhantoonRoomBehavior>(self, "PrePhantoonRoomBehavior");
-        }
-
-        /// <summary>The private property <c>PuyoBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Puyo.PuyoBehavior PuyoBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Puyo.PuyoBehavior>(self, "PuyoBehavior");
-        }
-
-        /// <summary>The private property <c>RidleyBody</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Ridley.RidleyBody RidleyBody
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.Ridley.RidleyBody>(self, "RidleyBody");
-        }
-
-        /// <summary>The private property <c>RidleyEncounter</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounter RidleyEncounter
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounter>(self, "RidleyEncounter");
-        }
-
-        /// <summary>The private property <c>RidleyProjectiles</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Ridley.RidleyProjectiles RidleyProjectiles
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.Ridley.RidleyProjectiles>(self, "RidleyProjectiles");
-        }
-
-        /// <summary>The private property <c>RidleyTail</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Ridley.RidleyTail RidleyTail
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.Ridley.RidleyTail>(self, "RidleyTail");
-        }
-
         /// <summary>The private property <c>Room</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Enemies.EnemyRoomBinding Room
         {
             get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.EnemyRoomBinding>(self, "Room");
+        }
+
+        /// <summary>The private method <c>ShakeWallJumpLaunchEnemy</c>, invoked by name.</summary>
+        internal void ShakeWallJumpLaunchEnemy(global::SuperMetroid.Core.Samus.SamusState samus) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.World.RoomEnemySystem>(self, "ShakeWallJumpLaunchEnemy", [typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { samus });
+    }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.World.RoomEnemySystem self)
+    {
+        /// <summary>The private property <c>BossArtworkBinding</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Artwork.BossArtworkBinding BossArtworkBinding
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.Artwork.BossArtworkBinding>(self, "BossArtworkBinding");
+        }
+
+        /// <summary>The private property <c>CameraFloor</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Rooms.Scrolling.RoomCameraFloor CameraFloor
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Rooms.Scrolling.RoomCameraFloor>(self, "CameraFloor");
+        }
+
+        /// <summary>The private property <c>ProcessingWindow</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.EnemyProcessingWindow ProcessingWindow
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.EnemyProcessingWindow>(self, "ProcessingWindow");
         }
 
         /// <summary>The private property <c>RoomFx</c>, reached by name.</summary>
@@ -463,80 +99,10 @@ internal static class RoomEnemySystemPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Samus.Movement.SamusScrollCap>(self, "ScrollCap");
         }
 
-        /// <summary>The private method <c>ShakeWallJumpLaunchEnemy</c>, invoked by name.</summary>
-        internal void ShakeWallJumpLaunchEnemy(global::SuperMetroid.Core.Samus.SamusState samus) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.World.RoomEnemySystem>(self, "ShakeWallJumpLaunchEnemy", [typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { samus });
-
-        /// <summary>The private property <c>ShaktoolBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolBehavior ShaktoolBehavior
+        /// <summary>The private property <c>SpeciesComposition</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.World.RoomEnemySpecies SpeciesComposition
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolBehavior>(self, "ShaktoolBehavior");
-        }
-
-        /// <summary>The private property <c>ShuttersBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Shutters.ShuttersBehavior ShuttersBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Shutters.ShuttersBehavior>(self, "ShuttersBehavior");
-        }
-
-        /// <summary>The private property <c>SkreeBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Skree.SkreeBehavior SkreeBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Skree.SkreeBehavior>(self, "SkreeBehavior");
-        }
-
-        /// <summary>The private property <c>SporeSpawnBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBehavior SporeSpawnBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBehavior>(self, "SporeSpawnBehavior");
-        }
-
-        /// <summary>The private property <c>SqueeptBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.LavaJumpers.SqueeptBehavior SqueeptBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.LavaJumpers.SqueeptBehavior>(self, "SqueeptBehavior");
-        }
-
-        /// <summary>The private property <c>TorizoBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Torizo.TorizoBehavior TorizoBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.Torizo.TorizoBehavior>(self, "TorizoBehavior");
-        }
-
-        /// <summary>The private property <c>TourianEntranceStatueBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueBehavior? TourianEntranceStatueBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueBehavior?>(self, "TourianEntranceStatueBehavior");
-        }
-
-        /// <summary>The private property <c>WalkingSpacePirateBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateBehavior WalkingSpacePirateBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateBehavior>(self, "WalkingSpacePirateBehavior");
-        }
-
-        /// <summary>The private property <c>WorkRobotBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.WorkRobots.WorkRobotBehavior WorkRobotBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.WorkRobots.WorkRobotBehavior>(self, "WorkRobotBehavior");
-        }
-
-        /// <summary>The private property <c>YappingMawBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.YappingMaws.YappingMawBehavior YappingMawBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.YappingMaws.YappingMawBehavior>(self, "YappingMawBehavior");
-        }
-
-        /// <summary>The private property <c>YardBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Yard.YardEnemyBehavior YardBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Enemies.Yard.YardEnemyBehavior>(self, "YardBehavior");
-        }
-
-        /// <summary>The private property <c>ZebetiteBehavior</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.MotherBrain.ZebetiteBehavior ZebetiteBehavior
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.Bosses.MotherBrain.ZebetiteBehavior>(self, "ZebetiteBehavior");
+            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySystem, global::SuperMetroid.Core.World.RoomEnemySpecies>(self, "SpeciesComposition");
         }
     }
 }

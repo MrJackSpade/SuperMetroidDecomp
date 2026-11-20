@@ -21,7 +21,7 @@ internal static class GunshipDustDefinitionsVerification
     {
         ushort Word(int address) => LittleEndianBytes.Word(CompiledGunshipDustRomByte(rom, address), CompiledGunshipDustRomByte(rom, address + 1));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var spawn = new Action<GunshipDustPlacement, SamusState>((placement, spawnSamus) => GunshipLiftoffDust.SpawnCloud(enemies.Projectiles, placement, spawnSamus));
+        var spawn = new Action<GunshipDustPlacement, SamusState>((placement, spawnSamus) => GunshipLiftoffDust.SpawnCloud(enemies.Projectiles, enemies.GunshipBehavior.Dust, placement, spawnSamus));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var slot = enemies.Projectiles.ProjectileInPlace(17);
         AssertEqual(6, GunshipDustDefinitions.LiftoffClouds.Count, "Six liftoff dust clouds");

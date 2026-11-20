@@ -20,6 +20,9 @@ internal sealed class KraidBodyLayer : IBossBodyDisplay
     /// <inheritdoc />
     bool IBossBodyDisplay.Hidden => false;
 
+    /// <inheritdoc/>
+    bool IBossBodyDisplay.HidesBackgroundLayer => false;
+
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
 

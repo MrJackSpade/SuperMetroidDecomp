@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Video;
 using System.Text.Json;
 using SuperMetroid.Core.Bosses.MotherBrain;

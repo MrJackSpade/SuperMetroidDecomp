@@ -17,4 +17,14 @@ internal static class SparkBehaviorPrivateAccess
         internal static bool DecrementSparkTimerAndTestExpired(global::SuperMetroid.Core.Enemies.Sparks.SparkEnemyState state) =>
             PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Core.Enemies.Sparks.SparkBehavior), "DecrementSparkTimerAndTestExpired", [typeof(global::SuperMetroid.Core.Enemies.Sparks.SparkEnemyState)], new object?[] { state });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Enemies.Sparks.SparkBehavior self)
+    {
+        /// <summary>The private property <c>FallingSparks</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.FallingSparks.FallingSparksBehavior FallingSparks
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.Sparks.SparkBehavior, global::SuperMetroid.Core.Enemies.FallingSparks.FallingSparksBehavior>(self, "FallingSparks");
+        }
+    }
 }

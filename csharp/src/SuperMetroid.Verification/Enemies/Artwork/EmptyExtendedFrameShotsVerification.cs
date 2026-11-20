@@ -39,7 +39,7 @@ internal static class EmptyExtendedFrameShotsVerification
         pirate.SpritemapPointer = CommonEnemyEmptyFrameToolingDefinitionsConstants.Frame;
         pirate.AnimationClock.HoldFor(0x7fff);
         int health = pirate.Health;
-        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(pirate.Position.Whole);
+        runtime.Enemies.PrepareEnemyProcessingList(pirate.Position.Whole);
 
         SamusProjectile shot = runtime.Projectiles.Shots[0];
         shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true); shot.Damage = 60; shot.Direction = SamusProjectileDirection.Left;

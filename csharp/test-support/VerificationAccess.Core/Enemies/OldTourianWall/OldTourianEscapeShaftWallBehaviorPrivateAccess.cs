@@ -14,9 +14,9 @@ internal static class OldTourianEscapeShaftWallBehaviorPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.OldTourianWall.OldTourianEscapeShaftWallBehavior self)
     {
         /// <summary>The private property <c>WallExplosion</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior WallExplosion
+        internal global::SuperMetroid.Core.Enemies.OldTourianWall.OldTourianEscapeShaftWallBehavior.WallExplosionBehavior WallExplosion
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.OldTourianWall.OldTourianEscapeShaftWallBehavior, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(self, "WallExplosion");
+            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.OldTourianWall.OldTourianEscapeShaftWallBehavior, global::SuperMetroid.Core.Enemies.OldTourianWall.OldTourianEscapeShaftWallBehavior.WallExplosionBehavior>(self, "WallExplosion");
         }
     }
 }

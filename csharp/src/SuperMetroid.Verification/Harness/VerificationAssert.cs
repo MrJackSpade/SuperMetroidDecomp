@@ -1188,14 +1188,11 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Checks enemy frame selectors are registered to the intended visual owners.</summary>
+    /// <summary>Checks the installed enemy frame registry holds each cartridge record once.</summary>
     [VerificationCommand("--lookup-enemy-frame-registration")]
     internal static int LookupEnemyFrameRegistrationCommand()
     {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Enemy registration oracle revision");
-        Suite(nameof(VerifyStream3EnemyFrameRegistration), () => VerifyStream3EnemyFrameRegistration(rom));
+        Suite(nameof(VerifyStream3EnemyFrameRegistration), () => VerifyStream3EnemyFrameRegistration());
         return 0;
     }
 

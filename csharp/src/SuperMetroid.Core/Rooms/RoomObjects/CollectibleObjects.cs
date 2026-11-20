@@ -205,6 +205,6 @@ internal sealed class CollectibleObjects
         // finishes its pickup once the message closes.
         item.AwaitMessage();
         _awaitingMessage.Add(new AwaitingPickup(place, item,
-            RaisesLava: item.Kind == InWorldCollectibleKind.SpeedBooster && item.Presentation == CollectiblePresentation.ChozoOrb));
+            RaisesLava: definition.LavaRisingPlacements.Contains(item.Presentation)));
     }
 }

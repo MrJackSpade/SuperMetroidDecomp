@@ -337,6 +337,7 @@ global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassObjects
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainMuralRowPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainNeckKinematicsPrivateAccess;
+global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainPainfulWalkingDefinitionsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectilesMotherBrainProjectileBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectilesPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRainbowAndDeathPrivateAccess;
@@ -463,6 +464,7 @@ global using static SuperMetroid.Core.Enemies.Corpses.DeadSidehopperBehaviorPriv
 global using static SuperMetroid.Core.Enemies.Corpses.DeadTorizoAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Corpses.DeadTorizoBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Corpses.DeadTourianAnimationsPrivateAccess;
+global using static SuperMetroid.Core.Enemies.Corpses.DeadTourianBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Crawlers.CrawlerAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Crawlers.CrawlersBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Crawlers.MultiviolaAnimationsPrivateAccess;
@@ -688,6 +690,7 @@ global using static SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefin
 global using static SuperMetroid.Core.Rooms.RoomObjects.BlockReactionObjectPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.CollectibleObjectPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.DownwardGateObjectPrivateAccess;
+global using static SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectEyeDoorVisualsPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.NoobTubeDebrisDefinitionsPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.NoobTubeObjectPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectSoundQueuePrivateAccess;
@@ -754,6 +757,7 @@ global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTerrainCollisi
 global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTrailSparkleAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTrailsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystemPrivateAccess;
+global using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystemPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileTrailPrivateAccess;
 global using static SuperMetroid.Core.Samus.SamusCeresRidleyEjectionStatePrivateAccess;

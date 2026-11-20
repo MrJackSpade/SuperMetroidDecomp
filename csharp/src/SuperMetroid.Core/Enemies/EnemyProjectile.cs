@@ -118,8 +118,7 @@ public sealed class EnemyProjectile
     /// projectile shows, draws from the room's shared sheet in its standard colours; any other frame with
     /// <see cref="Graphics"/>.
     /// </summary>
-    public SpriteGraphics ShownGraphics => Frame is { } frame && EnemyProjectileRoomPictureDefinitions.RoomPictures.Contains(frame)
-        ? SpriteGraphics.SharedStandard : Graphics;
+    public SpriteGraphics ShownGraphics => Frame is { } frame && frame.IsRoomPicture ? SpriteGraphics.SharedStandard : Graphics;
     /// <summary>Gets the collision half-extents in pixels, from the projectile's definition.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
 

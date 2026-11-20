@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
@@ -168,7 +168,7 @@ internal sealed class ProjectileEnemyImpacts
         if (!held.HasEnemyCollisionPayload)
             return false;
 
-        if (shot.Behavior is SpecialAttackParticleBehavior)
+        if (shot.Behavior is { EndsItselfAfterEnemyHit: true })
         {
             // Enemy collision only marks the direction. These particles own
             // hit deletion (and Spazer's paired deletion) in their next update;

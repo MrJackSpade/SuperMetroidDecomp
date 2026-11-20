@@ -13,24 +13,25 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-        [EnemyDefinitionId.PhantoonBody, EnemyDefinitionId.PhantoonEye, EnemyDefinitionId.PhantoonMouth, EnemyDefinitionId.PhantoonTentacles];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
 
     /// <summary>Phantoon's body, eye, tentacles or mouth (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Phantoon definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.PhantoonBody)
-            return EnemyOccupant.Of(new PhantoonBodyEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.PhantoonEye)
-            return EnemyOccupant.Of(new PhantoonEyeEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.PhantoonTentacles)
-            return EnemyOccupant.Of(new PhantoonTentaclesEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.PhantoonMouth)
-            return EnemyOccupant.Of(new PhantoonMouthEntity(this, occupant, place, common, _bossArtwork));
-        throw new InvalidOperationException($"The Phantoon species creates no {occupant.DefinitionId}.");
-    }
+    /// <exception cref="KeyNotFoundException">The place holds no Phantoon definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
+
+    /// <summary>
+    /// The factory of each part the species creates, by the definition that places it: the species serves these
+    /// definitions, and each builds its own part from the species it is given.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<PhantoonBehavior>> PartFactories =
+        new()
+        {
+            [EnemyDefinitionId.PhantoonBody] = static (species, occupant, place, common) => EnemyOccupant.Of(new PhantoonBodyEntity(species, occupant, place, common, species._bossArtwork)),
+            [EnemyDefinitionId.PhantoonEye] = static (species, occupant, place, common) => EnemyOccupant.Of(new PhantoonEyeEntity(species, occupant, place, common, species._bossArtwork)),
+            [EnemyDefinitionId.PhantoonMouth] = static (species, occupant, place, common) => EnemyOccupant.Of(new PhantoonMouthEntity(species, occupant, place, common, species._bossArtwork)),
+            [EnemyDefinitionId.PhantoonTentacles] = static (species, occupant, place, common) => EnemyOccupant.Of(new PhantoonTentaclesEntity(species, occupant, place, common, species._bossArtwork)),
+        };
 
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;

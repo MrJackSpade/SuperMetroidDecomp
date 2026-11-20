@@ -9,6 +9,7 @@ global using static SuperMetroid.Desktop.Diagnostics.UnhandledExceptionConsolePr
 global using static SuperMetroid.Desktop.Input.GenericGamepadInputPrivateAccess;
 global using static SuperMetroid.Desktop.Input.WindowsGamepadCodesPrivateAccess;
 global using static SuperMetroid.Desktop.Input.WindowsGamepadInputPrivateAccess;
+global using static SuperMetroid.Desktop.Input.XInputGamepadStatePrivateAccess;
 global using static SuperMetroid.Desktop.Window.GameFormPrivateAccess;
 global using static SuperMetroid.Desktop.Window.PlayableGameControlPrivateAccess;
 global using static SuperMetroid.Desktop.Window.RuntimeCanvasPrivateAccess;

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
@@ -35,9 +36,10 @@ internal static class SharedSlopeHeightsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var enemy = enemies.Places.InUpdateOrder[0];
         var align = new Func<RoomLevelData, RoomEnemyPlace, Position16<RoomPixels>, SlopeSurface, bool>(EnemyTerrain.AlignAgainstSlopeAtPixel);
-        var missile = new Func<RoomCollisionBlock, SamusProjectile, bool>(ProjectileMotion.MissileSlopePointReaction);
+        var missile = new Func<RoomCollisionBlock, SamusProjectileOccupant, bool>(ProjectileMotion.MissileSlopePointReaction);
         var bomb = new Func<RoomLevelData, SamusBomb, bool>(SamusBombProjectileSystem.BombSpreadCollides);
         var projectile = new SamusProjectile(0);
+        SamusProjectileOccupant held = projectile.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), SamusProjectileDamage.Read(SamusProjectileKind.Missile));
         var spread = new SamusBomb(0);
         int collisionCases = 0;
         for (int raw = 0; raw < 256; raw++)
@@ -58,7 +60,7 @@ internal static class SharedSlopeHeightsVerification
                     bool solid = height <= edge;
                     spread.Position = spread.Position.WithWhole(new(x, y));
                     projectile.Position = projectile.Position.WithWhole(new(x, y));
-                    AssertEqual(solid, missile(block, projectile), "Missile slope point collision");
+                    AssertEqual(solid, missile(block, held), "Missile slope point collision");
                     AssertEqual(solid, bomb(level, spread), "Bomb spread real slope collision");
                     enemy.Position = enemy.Position.WithY(new(128, 0x1234));
                     int adjustment = height - edge - 1;

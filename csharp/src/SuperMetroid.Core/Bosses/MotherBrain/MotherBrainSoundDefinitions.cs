@@ -29,4 +29,14 @@ internal static class MotherBrainSoundDefinitions
 
     /// <summary>The rainbow beam starts charging.</summary>
     internal static SoundEffectId RainbowBeamCharge { get; } = EnemySound.MotherBrainRainbowCharge;
+
+    /// <summary>
+    /// The cue sounds that request a priority other than the normal one, with that priority: the explosion competes at low
+    /// priority.
+    /// </summary>
+    internal static IReadOnlyDictionary<SoundEffectId, SoundRequestPriority> CueSoundPriorities { get; } =
+        new Dictionary<SoundEffectId, SoundRequestPriority>
+        {
+            [Explosion] = SoundRequestPriority.Low,
+        };
 }

@@ -32,6 +32,13 @@ public sealed class SamusDrainedState
     public DrainedSamusPhase Phase { get; private set; }
 
     /// <summary>
+    /// Whether Samus in <paramref name="pose"/> is the knockback Mother Brain's rainbow beam locks her in, which silences the
+    /// hurt flash's impact.
+    /// </summary>
+    internal bool HoldsRainbowBeamKnockback(SamusPoseId pose) =>
+        Phase == DrainedSamusPhase.RainbowBeamLocked && pose == SamusDrainedAnimationDefinitions.RainbowBeamKnockbackPose;
+
+    /// <summary>
     /// The drained Samus's Hyper Beam glow colouring, or null until she receives the Hyper Beam (<see cref="EnableHyperBeam"/>).
     /// It animates the glow's colours independently of the earlier full-body rainbow colouring.
     /// </summary>
@@ -110,7 +117,7 @@ public sealed class SamusDrainedState
             return false;
 
         if (GetUpCheck == DrainedGetUpCheck.AbleToStand &&
-            samus.Pose == SamusPoseId.DrainedCrouchingLeftPose &&
+            samus.Pose == SamusDrainedAnimationDefinitions.GetUpPose &&
             samus.AnimationHasReached(SamusDrainedAnimationDefinitions.AbleToStandFirstFrame))
         {
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.AbleToStandFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
@@ -338,9 +345,9 @@ public sealed class SamusDrainedState
         // These are named places in the left-facing drained animations; where each lands in the animation Samus plays is an
         // installed outcome (#2048). The crouch's release place is the one its held crouch's repeat carries rather than a
         // frame of its own, and it is drawn until the next animation step advances it.
-        if (samus.Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
+        if (SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.DrainedCrouch))
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
-        else if (samus.Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
+        else if (SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.DrainedStanding))
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.ReleaseStandingFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
 
         // The shared step runs for any pose, an unexpected one included: the game accepts

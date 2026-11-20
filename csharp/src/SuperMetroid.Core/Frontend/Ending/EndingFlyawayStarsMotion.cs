@@ -41,7 +41,7 @@ internal sealed class EndingFlyawayStarsMotion(EndingStarsMotion motion) : Endin
             case EndingStarsMotion.NotYetWaiting:
                 break;
             case EndingStarsMotion.WaitingForFlyaway:
-                if (scene.Phase == EndingCreditsPhase.PlanetEscapeFast)
+                if (EndingCreditsPhaseGroups.StartingFlyaway.Contains(scene.Phase))
                 {
                     Motion = EndingStarsMotion.Moving;
                     velocity = EndingMotionDefinitions.StarsFlyawayInitialVelocity;
@@ -54,7 +54,7 @@ internal sealed class EndingFlyawayStarsMotion(EndingStarsMotion motion) : Endin
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EndingStarsMotion)} {Motion}.");
         }
-        if (scene.Phase == EndingCreditsPhase.OperationSuccessfulText)
+        if (EndingCreditsPhaseGroups.CompletionText.Contains(scene.Phase))
             actor.Delete();
     }
 }

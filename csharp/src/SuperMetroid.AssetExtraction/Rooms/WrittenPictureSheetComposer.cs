@@ -343,7 +343,7 @@ internal static class WrittenPictureSheetComposer
         {
             ReadOnlySpan<byte> character = bytes[word.Shown.Artwork].Span.Slice(word.Shown.WordOffset * sizeof(ushort), characterWords * sizeof(ushort));
             int left = corner.X, top = corner.Y;
-            if (kind == SpriteImageColours.TwoBppBackground)
+            if (Ensure.Listed(SpriteImageColourDefinitions.Colourings, kind).TwoBitCharacters)
                 canvas.PaintTwoBppTile(left, top, word.Word, character, colours);
             else
                 canvas.PaintTile(left, top, word.Word, character, colours);
@@ -366,7 +366,7 @@ internal static class WrittenPictureSheetComposer
     internal static SpriteSheetFrameDocument Frame(RoomTileCanvas canvas, Position16<ImagePixels> corner, Extent16<ImagePixels> size, SpriteImageColours kind)
     {
         Ensure.NotNull(canvas);
-        int rowColours = kind == SpriteImageColours.TwoBppBackground ? RoomTileCanvas.TwoBppRowColours : RoomTileCanvas.RowColours;
+        int rowColours = Ensure.Listed(SpriteImageColourDefinitions.Colourings, kind).SetColours;
         ImageColourGroups coloured = ImageColourGroups.None;
         for (int y = 0; y < size.Y; y++)
         for (int x = 0; x < size.X; x++)

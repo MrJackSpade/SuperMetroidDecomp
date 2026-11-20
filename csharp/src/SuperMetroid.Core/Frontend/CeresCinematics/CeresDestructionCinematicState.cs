@@ -49,7 +49,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen, ICompose
     /// <summary>What the scene shows behind and among its actors (#2541), which the scene moves on from one stage to the next.</summary>
     private CeresDestructionView View { get; set; }
     /// <summary>Whether the Zebes reveal's pictures and planet show in place of the station's (#1467).</summary>
-    private bool ZebesRevealed => View is CeresDestructionView.ZebesReveal or CeresDestructionView.ZebesApproach or CeresDestructionView.ZebesClose;
+    private bool ZebesRevealed => CeresDestructionViewDefinitions.ShowingZebes.Contains(View);
     /// <summary>
     /// The colour the scene shows behind every layer (#1512): black until the scene loads the flight's colours, then the
     /// installed flight's backdrop, which the engine flicker never recolours.

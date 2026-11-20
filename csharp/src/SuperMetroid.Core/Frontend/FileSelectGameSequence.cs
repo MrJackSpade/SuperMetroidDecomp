@@ -194,7 +194,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
             StartSavedCeresDestruction(mapSlot);
             return;
         }
-        if (mapSlot.Checkpoint.Area != AreaId.Ceres)
+        if (AreaIds.IsZebes(mapSlot.Checkpoint.Area))
         {
             if (session.ScreenAs<FileSelectMapMenuState>() is { Outcome: FileSelectMapOutcome.Load })
             {

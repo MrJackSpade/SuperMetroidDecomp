@@ -34,6 +34,11 @@ internal sealed class IntroBabyDiscoveryState
     private readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroDiscoveryCue> egg;
     /// <summary>What the egg waits for: Samus's approach, then nothing while it hatches, then the cross-fade back to the narration.</summary>
     private MetroidEggBehavior eggBehavior = MetroidEggBehavior.WaitsForSamus;
+    /// <summary>
+    /// Whether the egg's shell has burst: set by the hatching's cue that spawns the shell pieces, on the update the egg
+    /// first shows its sagging dome, from which the confused Baby rises.
+    /// </summary>
+    private bool eggShellBurst;
     /// <summary>How the confused baby moves: waiting for the hatch, rising out of the egg, idling, then dancing.</summary>
     private ConfusedBabyMotion babyMotion = ConfusedBabyMotion.WaitingForHatch;
     /// <summary>The baby actor that waits for the egg's completed frame before moving.</summary>
@@ -233,6 +238,7 @@ internal sealed class IntroBabyDiscoveryState
         switch (cue)
         {
             case IntroDiscoveryCue.SpawnShellPieces:
+                eggShellBurst = true;
                 // The six pieces of the shell spawn in their spawn order, which is the order they update and draw in.
                 foreach (IntroEggShellFragment fragment in IntroEggEffectDefinitions.ShellFragments)
                     eggParticles.Add(new IntroEggParticle(fragment, shellFallPastCurve));
@@ -263,9 +269,8 @@ internal sealed class IntroBabyDiscoveryState
         switch (babyMotion)
         {
             case ConfusedBabyMotion.WaitingForHatch:
-                // The confused baby starts rising on the update the egg first shows its burst shell, after this
-                // update's egg step.
-                if (egg.Shown is { } eggPose && IntroEggPoses.BurstShell.Contains(eggPose))
+                // The confused baby starts rising on the update the egg's shell bursts, after this update's egg step.
+                if (eggShellBurst)
                 {
                     babyMotion = ConfusedBabyMotion.Rising;
                     BabyVelocity = BabyVelocity.WithY(default);

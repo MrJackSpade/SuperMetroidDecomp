@@ -10,6 +10,35 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>The installed pictures of Draygon's wall cannons' twelve frames (#1557).</summary>
 public static class RoomObjectDraygonCannonVisualFiles
 {
+    /// <summary>The way each cannon frame reaches from the cannon's core: the right cannon's frames right, the left's left.</summary>
+    private static readonly IReadOnlyDictionary<DraygonCannonDraw, HorizontalDirection> Facings = new Dictionary<DraygonCannonDraw, HorizontalDirection>
+    {
+        [DraygonCannonDraw.RightShield] = HorizontalDirection.Right,
+        [DraygonCannonDraw.RightShieldFlash] = HorizontalDirection.Right,
+        [DraygonCannonDraw.RightSparksFlaring] = HorizontalDirection.Right,
+        [DraygonCannonDraw.RightSparksSpreading] = HorizontalDirection.Right,
+        [DraygonCannonDraw.RightSparksReceding] = HorizontalDirection.Right,
+        [DraygonCannonDraw.RightSparksFlat] = HorizontalDirection.Right,
+        [DraygonCannonDraw.LeftShield] = HorizontalDirection.Left,
+        [DraygonCannonDraw.LeftShieldFlash] = HorizontalDirection.Left,
+        [DraygonCannonDraw.LeftSparksFlaring] = HorizontalDirection.Left,
+        [DraygonCannonDraw.LeftSparksSpreading] = HorizontalDirection.Left,
+        [DraygonCannonDraw.LeftSparksReceding] = HorizontalDirection.Left,
+        [DraygonCannonDraw.LeftSparksFlat] = HorizontalDirection.Left,
+    };
+
+    /// <summary>
+    /// The rows a frame reaching each way is written as, where each starts and how many blocks long: a frame reaching right
+    /// of the cannon's core is written as its two rows, core row first; a frame reaching left splits its top row into the
+    /// core and the cell to its left, then writes the lower row from its left end.
+    /// </summary>
+    private static readonly Dictionary<HorizontalDirection, RoomObjectStripRuns> RowsByFacing =
+        new Dictionary<HorizontalDirection, RoomObjectStripRuns>
+        {
+            [HorizontalDirection.Right] = new([new(0, 0), new(0, 1)], [2, 2]),
+            [HorizontalDirection.Left] = new([new(0, 0), new(-1, 0), new(-1, 1)], [1, 1, 2]),
+        };
+
     /// <summary>The installed file holding the right- and left-facing cannon frames' pictures.</summary>
     private const string VisualFileName = "draygon-cannons.json";
 
@@ -53,14 +82,6 @@ public static class RoomObjectDraygonCannonVisualFiles
     /// </summary>
     private static List<RoomObjectFamilyFrame<DraygonCannonDraw>> Layouts()
     {
-        // A frame reaching right of the cannon's core is written as its two rows, core row first. A frame reaching left
-        // splits its top row into the core and the cell to its left, then writes the lower row from its left end.
-        Offset16<RoomBlocks> rightOfCore = new(1, 0);
-        Offset16<RoomBlocks>[] rightStarts = [new(0, 0), new(0, 1)];
-        int[] rightCounts = [2, 2];
-        Offset16<RoomBlocks>[] leftStarts = [new(0, 0), new(-1, 0), new(-1, 1)];
-        int[] leftCounts = [1, 1, 2];
-
         var layouts = new List<RoomObjectFamilyFrame<DraygonCannonDraw>>();
         foreach (DraygonCannonDraw frame in FrameOrder)
         {
@@ -68,13 +89,12 @@ public static class RoomObjectDraygonCannonVisualFiles
             if (!RoomObjectDrawIdentity.TryShape(DraygonCannonDraws.Family, draw, out RoomBlockShape? described))
                 throw new InvalidOperationException($"Draygon cannon frame {frame} has no shape.");
             RoomBlockShape shape = described;
-            bool right = shape.Covers(rightOfCore);
-            Offset16<RoomBlocks>[] starts = right ? rightStarts : leftStarts;
-            int[] counts = right ? rightCounts : leftCounts;
+            (Offset16<RoomBlocks>[] starts, int[] counts) = Ensure.Listed(RowsByFacing, Ensure.Listed(Facings, frame));
             layouts.Add(new(frame, RoomObjectFrameLayout.Of(draw, starts.Length, run => counts[run],
                 (run, cell) => shape.CollisionAt(starts[run] + new Offset16<RoomBlocks>(cell, 0)),
                 RoomObjectDrawListExport.Horizontal, run => starts[run])));
         }
         return layouts;
     }
+
 }

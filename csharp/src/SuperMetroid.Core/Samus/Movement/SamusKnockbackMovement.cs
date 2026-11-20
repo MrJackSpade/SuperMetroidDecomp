@@ -256,11 +256,8 @@ public static class SamusKnockbackMovement
         GameplayAction controllerNewInput)
     {
         Ensure.NotNull(samus);
-        bool valid = new SamusPoseChange(samus.Pose, targetPose) is
-            (SamusPoseId.DamageBoostLeftPose,
-                SamusPoseId.NeutralJumpLeftPose or SamusPoseId.NormalJumpForwardLeftPose) or
-            (SamusPoseId.DamageBoostRightPose,
-                SamusPoseId.NeutralJumpRightPose or SamusPoseId.NormalJumpForwardRightPose);
+        bool valid = SamusPoseFamilyDefinitions.DamageBoostJumps.TryGetValue(samus.Pose, out SamusPoseFamily jumps) &&
+            SamusPoseTraits.IsIn(targetPose, jumps);
         if (!valid)
         {
             throw new InvalidOperationException(

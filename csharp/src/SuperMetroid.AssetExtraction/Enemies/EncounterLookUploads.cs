@@ -197,7 +197,7 @@ internal static class EncounterLookUploads
 
     /// <summary>What each of <paramref name="encounter"/>'s looks copies, resolved against <paramref name="installed"/>.</summary>
     /// <exception cref="InvalidDataException">The installed artwork lacks a look's characters.</exception>
-    internal static EncounterLookSteps Steps(ComposedEncounter encounter, IInstalledArtworkContent installed) =>
+    internal static EncounterLookSteps Steps(ComposedEncounter encounter, IInstalledEncounterArtwork installed) =>
         new(encounter, [.. Looks(encounter).Select(look => new EncounterLookStep(look, Uploads(encounter, look, installed)))]);
 
     /// <summary>
@@ -206,7 +206,7 @@ internal static class EncounterLookUploads
     /// encounter's authored sequence of looks.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed artwork lacks the look's characters, or the encounter has no such look.</exception>
-    private static IReadOnlyList<EncounterArtworkUpload> Uploads(ComposedEncounter encounter, ComposedLook look, IInstalledArtworkContent installed)
+    private static IReadOnlyList<EncounterArtworkUpload> Uploads(ComposedEncounter encounter, ComposedLook look, IInstalledEncounterArtwork installed)
     {
         Ensure.NotNull(installed);
         int turn = IndexOf(encounter, look);
@@ -215,7 +215,7 @@ internal static class EncounterLookUploads
         return encounter switch
         {
             ComposedEncounter.DraygonEvirs => [new(EncounterCharacterPlacementDefinitions.EvirFirstCharacter,
-                Whole(Sprites(installed).EnemyTiles.TilesOf(EnemyDefinitionId.Evir), EncounterCharacterPlacementDefinitions.EvirByteCount, "the Evir tiles"))],
+                Whole(installed.EnemyTiles.TilesOf(EnemyDefinitionId.Evir), EncounterCharacterPlacementDefinitions.EvirByteCount, "the Evir tiles"))],
             ComposedEncounter.Gunship => [.. Enumerable.Range(0, GunshipLiftoffTransferDefinitions.Frames.Length).Select(page =>
                 new EncounterArtworkUpload(EncounterCharacterPlacementDefinitions.GunshipFirstCharacter
                         + page * (GunshipLiftoffCharacterDefinitions.ByteCount / SpriteCharacterTableLayout.CharacterByteCount),
@@ -223,7 +223,7 @@ internal static class EncounterLookUploads
                         $"{GunshipLiftoffTransferDefinitions.Frames[page].Asset}")))],
             ComposedEncounter.Crocomire => [.. Enumerable.Range(0, CrocomireSkeletonCharacterDefinitions.ChunkCount).Select(chunk =>
                 new EncounterArtworkUpload(SkeletonFirstCharacter(chunk),
-                    Whole((Bosses(installed).CrocomireSkeleton ?? throw new InvalidDataException(
+                    Whole((installed.BossTiles.CrocomireSkeleton ?? throw new InvalidDataException(
                         "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(chunk), CrocomireSkeletonCharacterDefinitions.ChunkByteCount,
                         $"Crocomire skeleton chunk {chunk}")))],
             ComposedEncounter.BombTorizo => Torizo(TorizoLookUploadDefinitions.BombSequence[turn - 1], installed),
@@ -231,7 +231,7 @@ internal static class EncounterLookUploads
             ComposedEncounter.CeresEscape => [.. TimerPages.Select(page => Timer(page, installed)),
                 .. Enumerable.Range(0, CeresWarningTextPageDefinitions.PageCount).Select(page => Warning(page, installed))],
             ComposedEncounter.CeresElevatorDoor => [new(EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter,
-                Whole((Areas(installed).CeresDoor ?? throw new InvalidDataException("Installed area artwork has no Ceres door visuals.")).Characters,
+                Whole((installed.AreaTiles.CeresDoor ?? throw new InvalidDataException("Installed area artwork has no Ceres door visuals.")).Characters,
                     CeresDoorVisualFormat.CharacterBytes, "the Ceres door characters"))],
             ComposedEncounter.MotherBrain => MotherBrainPages(MotherBrainLooks[turn - 1].Sheet, installed),
             _ => throw new InvalidDataException($"Undefined {nameof(ComposedEncounter)} {encounter}."),
@@ -239,9 +239,9 @@ internal static class EncounterLookUploads
     }
 
     /// <summary>What Torizo artwork look <paramref name="look"/> copies, in the order its copies land, each where the cartridge copies it.</summary>
-    private static EncounterArtworkUpload[] Torizo(TorizoArtworkLook look, IInstalledArtworkContent installed)
+    private static EncounterArtworkUpload[] Torizo(TorizoArtworkLook look, IInstalledBossSpriteCharacterArtwork installed)
     {
-        TorizoSwapArtwork artwork = Bosses(installed).TorizoSwaps ?? throw new InvalidDataException("Torizo artwork looks require installed artwork.");
+        TorizoSwapArtwork artwork = installed.BossTiles.TorizoSwaps ?? throw new InvalidDataException("Torizo artwork looks require installed artwork.");
         return [.. TorizoLookUploadDefinitions.Uploads[look].Select(upload => new EncounterArtworkUpload(upload.FirstCharacter,
             Whole(artwork.Characters(upload.Page, upload.PageByte, upload.ByteCount), upload.ByteCount, $"Torizo artwork look {look}")))];
     }
@@ -252,9 +252,9 @@ internal static class EncounterLookUploads
             Whole(installed.Resolve(EscapeTimerTilePages.AssetOf(page)), EscapeTimerTilePageTransfers.ByteCountOf(page), $"escape timer page {page}"));
 
     /// <summary>Ceres warning page <paramref name="page"/>, where the cartridge copies it.</summary>
-    private static EncounterArtworkUpload Warning(int page, IInstalledArtworkContent installed) =>
+    private static EncounterArtworkUpload Warning(int page, IInstalledAreaSpriteCharacterArtwork installed) =>
         new(CeresWarningGlyphDefinitions.WarningFirstCharacter + CeresWarningTextPages.ByteOffset(page) / SpriteCharacterTableLayout.CharacterByteCount,
-            (Areas(installed).CeresEscapeTiles ?? throw new InvalidDataException("Installed Ceres escape has no editable character pages."))
+            (installed.AreaTiles.CeresEscapeTiles ?? throw new InvalidDataException("Installed Ceres escape has no editable character pages."))
                 .TryResolve(CeresEscapeTileArtworkDefinitions.WarningText, CeresWarningTextPages.ByteOffset(page), CeresWarningTextPages.ByteCount(page),
                     out ReadOnlyMemory<byte> characters)
                 ? characters
@@ -262,19 +262,19 @@ internal static class EncounterLookUploads
 
     /// <summary>Every page of Mother Brain's <paramref name="sheet"/>, in order, each where the cartridge copies it.</summary>
     /// <exception cref="InvalidDataException">The installed artwork lacks the sheet.</exception>
-    private static IReadOnlyList<EncounterArtworkUpload> MotherBrainPages(MotherBrainSpriteSheet sheet, IInstalledArtworkContent installed)
+    private static IReadOnlyList<EncounterArtworkUpload> MotherBrainPages(MotherBrainSpriteSheet sheet, IInstalledEncounterArtwork installed)
     {
         switch (sheet)
         {
             case MotherBrainSpriteSheet.Corpse:
-                RoomCharacterAtlas corpse = Bosses(installed).MotherBrainCorpse ?? throw new InvalidDataException(
+                RoomCharacterAtlas corpse = installed.BossTiles.MotherBrainCorpse ?? throw new InvalidDataException(
                     "Installed enemy artwork is missing mother-brain-corpse-tiles.png.");
                 return [.. Enumerable.Range(0, MotherBrainCorpseSheet.RowCount).Select(page => new EncounterArtworkUpload(
                     MotherBrainCorpseSheet.PageFirstCharacter(page), corpse.Characters.Slice(MotherBrainCorpseSheet.PageOffset(page), MotherBrainCorpseSheet.PageByteCount)))];
             case MotherBrainSpriteSheet.EscapeTimer:
                 return [.. TimerPages.Select(page => Timer(page, installed))];
             case MotherBrainSpriteSheet.EscapeText:
-                RoomCharacterAtlas text = Bosses(installed).MotherBrainEscapeText ?? throw new InvalidDataException(
+                RoomCharacterAtlas text = installed.BossTiles.MotherBrainEscapeText ?? throw new InvalidDataException(
                     "Installed enemy artwork is missing mother-brain-escape-text-tiles.png.");
                 return [.. Enumerable.Range(0, EscapeTextSheetFormat.PageCount).Select(page => new EncounterArtworkUpload(
                     EscapeTextPages.PageFirstCharacter(page), text.Characters.Slice(EscapeTextPages.PageOffset(page), EscapeTextPages.PageByteCount(page))))];
@@ -283,7 +283,7 @@ internal static class EncounterLookUploads
             case MotherBrainSpriteSheet.Attack:
             case MotherBrainSpriteSheet.ExplodedDoor:
                 MotherBrainSpecialSpriteSheetDefinition definition = MotherBrainSpecialSpriteSheetDefinitions.All.Single(special => special.Sheet == sheet);
-                MotherBrainSpecialSpriteArtworkCatalog artwork = Bosses(installed).MotherBrainSpecialSprites ??
+                MotherBrainSpecialSpriteArtworkCatalog artwork = installed.BossTiles.MotherBrainSpecialSprites ??
                     throw new InvalidDataException($"Installed enemy artwork is missing {definition.FileName}.");
                 return [.. Enumerable.Range(0, definition.PageCount).Select(page => new EncounterArtworkUpload(
                     MotherBrainSpecialSprites.PageFirstCharacter(definition, page), artwork.Get(definition.Sheet).Characters.Slice(
@@ -304,26 +304,8 @@ internal static class EncounterLookUploads
         ? EncounterCharacterPlacementDefinitions.SkeletonFirstRegionCharacter + chunk * EncounterCharacterPlacementDefinitions.SkeletonCharactersPerRow
         : EncounterCharacterPlacementDefinitions.SkeletonSecondRegionCharacter + (chunk - EncounterCharacterPlacementDefinitions.SkeletonFirstRegionRows) * EncounterCharacterPlacementDefinitions.SkeletonCharactersPerRow;
 
-    /// <summary>The installed enemy tiles <paramref name="installed"/> holds.</summary>
-    /// <exception cref="InvalidOperationException">It holds no installed gameplay artwork.</exception>
-    private static IInstalledSpriteCharacterArtwork Sprites(IInstalledArtworkContent installed) =>
-        installed as IInstalledSpriteCharacterArtwork ?? throw new InvalidOperationException(
-            $"{installed.GetType().Name} holds no installed gameplay artwork to compose an encounter's artwork from.");
-
-    /// <summary>The installed boss artwork <paramref name="installed"/> holds.</summary>
-    /// <exception cref="InvalidOperationException">It holds no installed boss artwork.</exception>
-    private static BossSourceArtwork Bosses(IInstalledArtworkContent installed) =>
-        (installed as IInstalledBossSpriteCharacterArtwork ?? throw new InvalidOperationException(
-            $"{installed.GetType().Name} holds no installed boss artwork to compose an encounter's artwork from.")).BossTiles;
-
     /// <summary>One of Mother Brain's looks after her room's load.</summary>
     /// <param name="Look">The look.</param>
     /// <param name="Sheet">The sheet whose pages the look copies.</param>
     private readonly record struct MotherBrainLook(ComposedLook Look, MotherBrainSpriteSheet Sheet);
-
-    /// <summary>The installed area artwork <paramref name="installed"/> holds.</summary>
-    /// <exception cref="InvalidOperationException">It holds no installed area artwork.</exception>
-    private static AreaSourceArtwork Areas(IInstalledArtworkContent installed) =>
-        (installed as IInstalledAreaSpriteCharacterArtwork ?? throw new InvalidOperationException(
-            $"{installed.GetType().Name} holds no installed area artwork to compose an encounter's artwork from.")).AreaTiles;
 }

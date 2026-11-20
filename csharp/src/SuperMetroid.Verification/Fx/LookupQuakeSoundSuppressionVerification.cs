@@ -26,7 +26,7 @@ internal static class LookupQuakeSoundSuppressionVerification
         AssertEqual(6, nativeRooms.Count, "Six distinct native suppressed rooms");
         foreach (RoomDefinition room in RetailRooms.All)
             AssertEqual(nativeRooms.Contains(RoomDefinitions.PointerOf(room)),
-                RoomEarthquakeDefinitions.SoundSuppressedRooms.Contains(room),
+                room.QuakesAreSilent,
                 "Quake suppression complete room domain");
 
         var state = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.RoomFxOverlayState>([typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });

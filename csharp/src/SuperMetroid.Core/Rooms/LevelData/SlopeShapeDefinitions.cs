@@ -14,27 +14,42 @@ public static class SlopeShapeDefinitions
     /// <summary>A square shape whose bottom half is solid.</summary>
     public static SlopeShape SquareBottomHalf { get; } = new("SquareBottomHalf", SlopeShapeKind.Square,
         [.. Repeated(8, 16)],
-        SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled);
+        SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled)
+    {
+        SquareQuarters = SquareSlopeShape.BottomHalf,
+    };
 
     /// <summary>A square shape whose right half is solid.</summary>
     public static SlopeShape SquareRightHalf { get; } = new("SquareRightHalf", SlopeShapeKind.Square,
         [.. Repeated(16, 8), .. Repeated(0, 8)],
-        SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled);
+        SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled)
+    {
+        SquareQuarters = SquareSlopeShape.RightHalf,
+    };
 
     /// <summary>A square shape whose bottom right quarter alone is solid.</summary>
     public static SlopeShape SquareBottomRightQuarter { get; } = new("SquareBottomRightQuarter", SlopeShapeKind.Square,
         [.. Repeated(16, 8), .. Repeated(8, 8)],
-        SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled);
+        SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled)
+    {
+        SquareQuarters = SquareSlopeShape.BottomRightQuarter,
+    };
 
     /// <summary>A square shape solid in every quarter but the top left.</summary>
     public static SlopeShape SquareAllButTopLeft { get; } = new("SquareAllButTopLeft", SlopeShapeKind.Square,
         [.. Repeated(8, 8), .. Repeated(0, 8)],
-        SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled);
+        SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled)
+    {
+        SquareQuarters = SquareSlopeShape.AllButTopLeft,
+    };
 
     /// <summary>A square shape solid in every quarter.</summary>
     public static SlopeShape SquareFull { get; } = new("SquareFull", SlopeShapeKind.Square,
         [.. Repeated(0, 16)],
-        SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled);
+        SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled)
+    {
+        SquareQuarters = SquareSlopeShape.Full,
+    };
 
     /// <summary>A low peak: the surface rises from the block's bottom edges to seven pixels up in its middle.</summary>
     public static SlopeShape LowPeak { get; } = new("LowPeak", SlopeShapeKind.Profile,

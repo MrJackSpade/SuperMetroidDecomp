@@ -39,9 +39,7 @@ public static class SamusMorphBallMovement
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectSpeedsFor(samus.LiquidPhysics.DetermineMovementMedium(samus));
 
-        bool stationaryPose = samus.Pose is
-            SamusPoseId.MorphBallGroundRightPose or SamusPoseId.MorphBallGroundLeftPose or
-            SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose;
+        bool stationaryPose = SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.StationaryBall);
         if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && stationaryPose)
         {
             // A resting ball moves only by outside displacement and stops on a wall; it still publishes its total X
@@ -104,8 +102,8 @@ public static class SamusMorphBallMovement
     {
         Validate(level, samus);
         bool ordinary = SamusPoseMetadata.IsAirborneMorphBallPose(samus.Pose);
-        bool spring = samus.Pose is SamusPoseId.SpringBallFallingRightPose or
-            SamusPoseId.SpringBallFallingLeftPose;
+        // A Spring Ball falling pose is one whose declared movement is the Spring Ball's fall.
+        bool spring = SamusPoseMetadata.ReadMovementType(samus.Pose) == SamusMovementType.SpringBallFalling;
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         if ((!ordinary || movementType != SamusMovementType.MorphBallFalling) &&
             (!spring || movementType != SamusMovementType.SpringBallFalling))
@@ -202,7 +200,7 @@ public static class SamusMorphBallMovement
     {
         Validate(level, samus);
         SamusTerrain terrain = new() { Level = level, RoomObjects = roomObjects };
-        if (samus.Pose is not (SamusPoseId.SpringBallJumpRightPose or SamusPoseId.SpringBallJumpLeftPose) ||
+        if (!SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.SpringBallJump) ||
             SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpringBallInAir)
         {
             throw new InvalidOperationException(

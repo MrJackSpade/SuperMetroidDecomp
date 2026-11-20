@@ -76,7 +76,7 @@ internal sealed class RoomObjectFramePhase
             throw new InvalidDataException(
                 "A door-transition room-object step unexpectedly published a player interaction.");
         }
-        SpawnThrownProjectiles(step, room);
+        SpawnThrownProjectiles(step);
     }
 
     /// <summary>
@@ -93,26 +93,14 @@ internal sealed class RoomObjectFramePhase
     }
 
     /// <summary>
-    /// Spawns the enemy projectiles the step's room objects threw, in the order they threw them: Mother Brain's glass's
-    /// shards and the Bomb Torizo statue hand's fragments. The glass and the hand never share a room, so one step throws
-    /// only one of the two kinds.
+    /// Spawns the enemy projectiles the step's room objects threw, in the order they threw them, each through the spawner
+    /// its thrower gave it: Mother Brain's glass's shards and the Bomb Torizo statue hand's fragments. The glass and the
+    /// hand never share a room, so one step throws only one of the two kinds.
     /// </summary>
-    private static void SpawnThrownProjectiles(RoomObjectStepOutcome step, RoomScope room)
+    private static void SpawnThrownProjectiles(RoomObjectStepOutcome step)
     {
         foreach (RoomObjectProjectileRequest thrown in step.ThrownProjectiles)
-        {
-            switch (thrown)
-            {
-                case MotherBrainGlassProjectileRequest shard:
-                    room.Enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(shard);
-                    break;
-                case BombTorizoStatueProjectileRequest fragment:
-                    room.Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(fragment);
-                    break;
-                default:
-                    throw new InvalidDataException($"A room object threw the undefined projectile {thrown}.");
-            }
-        }
+            thrown.Spawn();
     }
 
     /// <summary>Runs the ordinary room-object phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>
@@ -146,7 +134,7 @@ internal sealed class RoomObjectFramePhase
             }
             foreach (StationActivationEvent station in step.StationActivations)
                 station.Open(opening);
-            SpawnThrownProjectiles(step, room);
+            SpawnThrownProjectiles(step);
         }
     }
 

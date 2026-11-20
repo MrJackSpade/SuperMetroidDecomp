@@ -39,8 +39,7 @@ public static class SamusGrappleMovement
         if (grapple.Phase != GrapplePhase.Inactive)
             throw new InvalidOperationException("A grapple state is already active.");
 
-        bool movingHeld = samus.Pose is SamusPoseId.DraygonGrabbedMovingLeftPose or
-            SamusPoseId.DraygonGrabbedMovingRightPose;
+        bool movingHeld = SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.DraygonGrabbedMoving);
         SamusProjectileDirection? aim = movingHeld ? ReadDraygonHeldDirection(samus.Pose, controllerInput) : SamusPoseMetadata.ReadAimDirection(samus);
         if (aim is not { } direction)
         {
@@ -522,10 +521,8 @@ public static class SamusGrappleMovement
     {
         // The swinging poses ignore the shot direction and always fall to ordinary
         // standing, even though their live collision radius is compact.
-        if (samus.Pose == SamusPoseId.GrappleSwingRightPose)
-            return SamusPoseId.FacingRightNormalPose;
-        if (samus.Pose == SamusPoseId.GrappleSwingLeftPose)
-            return SamusPoseId.FacingLeftNormalPose;
+        if (SamusGrappleDropDefinitions.StandingDrops.TryGetValue(samus.Pose, out SamusPoseId standing))
+            return standing;
 
         if (SamusPoseMetadata.ReadAimDirection(samus) is not { } shotDirection)
         {
@@ -677,9 +674,9 @@ public static class SamusGrappleMovement
                     throw new InvalidDataException($"Grapple reached spike block {block.Position} with no spike reaction ({block.Behavior}).");
                 if (spike.LetsGrappleBeamThrough)
                     return GrappleBlockReaction.Passes;
-                if (spike == SpikeReaction.TurretSpike)
+                if (SamusGrappleSpikeDefinitions.LatchingDamage.TryGetValue(spike, out EnergyAmount latchDamage))
                 {
-                    samus.PeriodicDamage.Accumulate(SpikeHazardDefinitions.GrappledTurretSpikeDamage);
+                    samus.PeriodicDamage.Accumulate(latchDamage);
                     return GrappleBlockReaction.Connects;
                 }
 
@@ -1062,7 +1059,7 @@ public static class SamusGrappleMovement
     /// <summary>Held moving poses aim away from Draygon; Down wins over Up.</summary>
     private static SamusProjectileDirection ReadDraygonHeldDirection(SamusPoseId pose, GameplayAction input)
     {
-        bool left = pose == SamusPoseId.DraygonGrabbedMovingLeftPose;
+        bool left = SamusPoseMetadata.IsFacingLeft(pose);
         bool outward = (input & (left ? GameplayAction.Left : GameplayAction.Right)) != GameplayAction.None;
         SamusProjectileDirection direction = left ? SamusProjectileDirection.Left : SamusProjectileDirection.Right;
         if (outward && (input & GameplayAction.Down) != GameplayAction.None)

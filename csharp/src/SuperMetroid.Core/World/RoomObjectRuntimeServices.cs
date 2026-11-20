@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
@@ -17,7 +19,7 @@ internal sealed class RoomObjectRuntimeServices(
     RoomScopeConstruction destination,
     SamusFrameState player,
     SharedGameState system) :
-    IRoomSamusAccess, IRoomEarthquakeWriter, IRoomObjectEnemyEffects
+    IRoomSamusAccess, IRoomEarthquakeWriter, IRoomObjectEnemyEffects, IMotherBrainGlassShardSpawner, IBombTorizoStatueFragmentSpawner
 {
     /// <summary>
     /// The destination room's enemies. The room-object population runs before the enemy step builds them; a room object that reached them
@@ -37,6 +39,14 @@ internal sealed class RoomObjectRuntimeServices(
 
     /// <summary>Stops the room's earthquake for a room object.</summary>
     public void Stop() => Enemies.Earthquake.Stop();
+
+    /// <summary>Spawns a shard Mother Brain's glass threw.</summary>
+    public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request) =>
+        Enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(request);
+
+    /// <summary>Spawns a fragment the Bomb Torizo statue's hand threw.</summary>
+    public void SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request) =>
+        Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(request);
 
     /// <summary>Spawns a Noob Tube projectile at its room object's block.</summary>
     public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>

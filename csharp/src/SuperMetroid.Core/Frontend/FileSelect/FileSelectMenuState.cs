@@ -229,13 +229,13 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen, IComposedFrontend
         {
             // The selected helmet keeps its last turned picture, the completed (or Start-shortened) turn, through the
             // fade out.
-            FileSelectHelmetFrame frame = FileSelectItemRows.ForSaveSlot(slot) == SelectedItem && Phase is
-                    FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
+            FileSelectHelmetFrame frame = FileSelectItemRows.ForSaveSlot(slot) == SelectedItem &&
+                    FileSelectPhaseDefinitions.SelectedHelmetTurnPhases.Contains(Phase)
                 ? HelmetAnimationFrame
                 : FileSelectHelmetFrame.TurnedAway;
             presentation.DrawHelmet(sprites, sheet, frame, slot);
         }
-        if (Phase == FileSelectPhase.CopyConfirm)
+        if (FileSelectPhaseDefinitions.CopyArrowPhases.Contains(Phase))
         {
             (FileCopyArrowShape shape, int y) = FileCopyArrows.Select(ChosenSource, ChosenTarget);
             sprites.AddImage(sheet.Frame(FileCopyArrowDefinitions.FrameName(shape)),
@@ -303,13 +303,10 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen, IComposedFrontend
     private bool IsMainPagePhase => ShownBorder == FileSelectBorder.Main;
 
     /// <summary>Suppresses cursor animation before the initialized main page begins fading in.</summary>
-    private bool IsEntryPhase => Phase is FileSelectPhase.EnterBlankScreen or
-        FileSelectPhase.EnterBlankScreenAfterFrameWait or FileSelectPhase.BlackHold or
-        FileSelectPhase.InitializeMain or FileSelectPhase.InitializeMainAfterFrameWait;
+    private bool IsEntryPhase => FileSelectPhaseDefinitions.EntryPhases.Contains(Phase);
 
     /// <summary>Hides the selection missile during entry and on completed data-operation pages.</summary>
-    private bool ShouldDrawSelectionMissile => !IsEntryPhase && Phase is not
-        FileSelectPhase.CopyCompleted and not FileSelectPhase.ClearCompleted;
+    private bool ShouldDrawSelectionMissile => !IsEntryPhase && !FileSelectPhaseDefinitions.CompletedOperationPhases.Contains(Phase);
 
     /// <summary>Handles slot selection, hidden data-management rows, and options or title handoffs.</summary>
     private void StepMainMenu(ControllerButton pressed)
@@ -367,19 +364,20 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen, IComposedFrontend
     /// <summary>Swaps main and data pages only once the screen is black, then enters the saved phase after fade-in.</summary>
     private void StepDataManagementFade()
     {
-        if (Phase is FileSelectPhase.FadeOutToCopy or FileSelectPhase.FadeOutToClear or FileSelectPhase.FadeOutToMain)
+        bool toDataManagement = FileSelectPhaseDefinitions.DataManagementFadeOuts.TryGetValue(Phase, out FileSelectDataMode mode);
+        if (toDataManagement || FileSelectPhaseDefinitions.MainPageFadeOuts.Contains(Phase))
         {
             if (!screenFade.Darken())
                 return;
 
-            if (Phase == FileSelectPhase.FadeOutToMain)
+            if (toDataManagement)
             {
-                ShowMainPage();
-                phaseAfterFadeIn = FileSelectPhase.Main;
+                InitializeDataManagementScreen(mode);
             }
             else
             {
-                InitializeDataManagementScreen(Phase == FileSelectPhase.FadeOutToCopy ? FileSelectDataMode.Copy : FileSelectDataMode.Clear);
+                ShowMainPage();
+                phaseAfterFadeIn = FileSelectPhase.Main;
             }
             Phase = FileSelectPhase.FadeInFromDataManagement;
             return;
@@ -607,7 +605,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen, IComposedFrontend
     {
         if (IsMainPagePhase)
             return presentation.CursorPosition(FileSelectCursorPage.Main, SelectedItem);
-        return Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm
+        return FileSelectPhaseDefinitions.ConfirmationPhases.Contains(Phase)
             ? presentation.CursorPosition(confirmationSelection)
             : presentation.CursorPosition(FileSelectCursorPage.DataManagement, submenuSelection);
     }

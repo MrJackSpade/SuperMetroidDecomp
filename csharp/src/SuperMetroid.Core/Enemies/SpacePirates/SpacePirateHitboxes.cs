@@ -28,6 +28,5 @@ internal static class SpacePirateHitboxes
     /// triggers as it does the common one.
     /// </summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names.</param>
-    internal static bool OwnsShotReaction(EnemyReaction reaction) =>
-        (reaction == SpacePirateReactions.Shot || reaction == SpacePirateReactions.GoldNinjaVulnerableHitboxShot || reaction == SpacePirateReactions.GoldNinjaInvincibleHitboxShot);
+    internal static bool OwnsShotReaction(EnemyReaction reaction) => SpacePirateReactions.Own.Contains(reaction);
 }

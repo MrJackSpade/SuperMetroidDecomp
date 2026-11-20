@@ -40,9 +40,10 @@ public static class MapLandmarkExtractor
             }
             if (shown != markers.Length)
                 throw new InvalidDataException($"Missing map boss {markers[shown].Id}.");
-            if (area == AreaId.Ceres) continue;
-            int elevator = Pointer(SnesAddress.FromBusAddress(MapSourceDefinitions.Landmarks.ElevatorLists), area);
+            // An area with no elevator labels has no list of them in the cartridge.
             var elevators = MapLandmarks.Elevators(area);
+            if (elevators.IsEmpty) continue;
+            int elevator = Pointer(SnesAddress.FromBusAddress(MapSourceDefinitions.Landmarks.ElevatorLists), area);
             // The cartridge lists each area's labels in the named labels' drawing order.
             for (int i = 0; i < elevators.Length; i++)
             {

@@ -38,7 +38,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new PlatformEnemyState
         {
-            Kind = place.Holds(EnemyDefinitionId.SuspensorPlatform) ? PlatformKind.SuspensorPlatform : PlatformKind.Tripper,
+            Kind = Ensure.Listed(PlatformKindDefinitions.Kinds, occupant.DefinitionId),
         };
         place.SetSpeciesState(state);
 

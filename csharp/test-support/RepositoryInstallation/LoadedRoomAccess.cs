@@ -1,4 +1,7 @@
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;

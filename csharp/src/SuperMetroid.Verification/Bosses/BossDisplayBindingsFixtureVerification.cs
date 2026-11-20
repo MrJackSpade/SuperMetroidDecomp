@@ -36,10 +36,10 @@ internal static class BossDisplayBindingsFixtureVerification
         private BossBodyOwner BodyOwner => bodyOwner ?? throw new InvalidOperationException($"{Actor.DefinitionId} draws no body layer.");
 
         /// <summary>The tilemap entry each cell of the boss's body layer shows now, from the frames its artwork installs (#1466).</summary>
-        internal ushort[] Bg2Words => BossBodyWords.Of(((BossBodyParts).Presentation.BossBodyDisplay!).Publish(), BodyOwner, bodies.Frames);
+        internal ushort[] Bg2Words => BossBodyWords.Of(((BossBodyParts)Enemies.Presentation.BossBodyDisplay!).Publish(), BodyOwner, bodies.Frames);
 
         /// <summary>The frames the boss's body layer shows now, in draw order, for a failure message.</summary>
-        internal string ShownFrames => string.Join(", ", ((BossBodyParts).Presentation.BossBodyDisplay!).Publish().Frames.Select(frame => frame.Name));
+        internal string ShownFrames => string.Join(", ", ((BossBodyParts)Enemies.Presentation.BossBodyDisplay!).Publish().Frames.Select(frame => frame.Name));
 
         /// <summary>The fixture's boss frames and the body sheets composed from them, which its bosses draw from.</summary>
         private readonly BossBodyArtworkFixture bodies;

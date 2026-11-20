@@ -136,7 +136,7 @@ public static class MapPresentationFiles
                 Page(MapTileAtlasFormat.FileName, "map tile atlas", s => MapTileCharacters.Read(s)),
                 Page(HudTileAtlasFormat.FileName, "HUD tile atlas", s => HudTileAtlasPng.Read(s)),
                 Page(PauseTileAtlasFormat.FileName, "pause artwork", s => MapTileCharacters.Read(s))),
-            Pages<MapSpriteCompositions>([MapSpriteFormat.JsonFile, MapSpriteFormat.PngFile], "map sprites", s => MapSpriteArtwork.Read(s[0], s[1])),
+            Pages<MapSpriteArtwork>([MapSpriteFormat.JsonFile, MapSpriteFormat.PngFile], "map sprites", s => MapSpriteArtwork.Read(s[0], s[1])),
             Page(EscapeTimerTileAtlasFormat.FileName, "escape timer artwork", s => EscapeTimerCharacters.Read(s)),
             Page(RoomFxBlockAnimationAtlasFile.FileName, "room-FX presentation", s => RoomFxBlockAnimationAtlasPng.Read(s)),
             Pages<WorldMapCharacters>([WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.BackgroundFile],

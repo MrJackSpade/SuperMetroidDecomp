@@ -116,7 +116,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
             system.RecordBossesDefeated(AreaId.WreckedShip, DefeatedBosses.AreaBoss);
             int activations = 0;
             RoomObjectSystem roomObjects = RoomObjectFixtures.Bound(new RoomObjectRoom(level, system, AreaId.WreckedShip),
-                RoomObjectServiceFixtures.Uninstalled with { Enemies = new FixtureObjectEnemyEffects { ChozoStatueHandActivated = _ => activations++ } },
+                RoomObjectServiceFixtures.Uninstalled with { Enemies = new FixtureObjectEnemyEffects { ChozoStatueHandActivated = () => { activations++; return []; } } },
                 RoomObjectFixtures.Unbound());
             roomObjects.ChozoStatue.NotifyChozoStatueHandCollision(level, hand, samus, SamusPoseId.MorphBallGroundRightPose, movingDown: true);
             AssertEqual(1, activations, "the morphed Samus landing on the hand wakes the statue");

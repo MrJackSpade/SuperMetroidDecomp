@@ -102,6 +102,9 @@ internal static class WorkRamCellVerification
 
         /// <summary>Reads back a recorded write at its exact address.</summary>
         public byte ReadWorkRamByte(int cpuAddress) => inner.ReadWorkRamByte(cpuAddress);
+
+        /// <summary>Reads the backing address space's cartridge byte.</summary>
+        public byte ReadCartridgeByte(int cpuAddress) => inner.ReadCartridgeByte(cpuAddress);
     }
 
     /// <summary>Runs the WRAM cell primitive suite from the verification command.</summary>

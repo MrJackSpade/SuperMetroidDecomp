@@ -57,14 +57,16 @@ internal static class AudioAssetJson
                     reader.Read();
                     hasTiming = reader.TokenType != JsonTokenType.Null;
                     if (hasTiming)
-                        timing = bytes.Read(ref reader, typeof(IReadOnlyList<byte>), options);
+                        timing = bytes.Read(ref reader, typeof(IReadOnlyList<byte>), options)
+                            ?? throw new JsonException("Music instruction timing bytes read as null.");
                 }
                 else if (reader.ValueTextEquals("arguments"u8))
                 {
                     reader.Read();
                     hasArguments = reader.TokenType != JsonTokenType.Null;
                     if (hasArguments)
-                        arguments = bytes.Read(ref reader, typeof(IReadOnlyList<byte>), options);
+                        arguments = bytes.Read(ref reader, typeof(IReadOnlyList<byte>), options)
+                            ?? throw new JsonException("Music instruction argument bytes read as null.");
                 }
                 else
                 {

@@ -58,7 +58,7 @@ internal static class BossBodyLayeredPartsVerification
         int compared = 0;
         void Compare(string when)
         {
-            AssertLayered(((BossBodyParts).Presentation.BossBodyDisplay!).Publish(), BossBodyOwner.Crocomire, sources, area, $"Crocomire {when}");
+            AssertLayered(((BossBodyParts)enemies.Presentation.BossBodyDisplay!).Publish(), BossBodyOwner.Crocomire, sources, area, $"Crocomire {when}");
             compared++;
         }
 
@@ -68,7 +68,7 @@ internal static class BossBodyLayeredPartsVerification
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             melting.ShowCrocomireMeltImage(state, pass);
-            AssertEqual(1, ((BossBodyParts).Presentation.BossBodyDisplay!).Publish().Frames.Length, $"Crocomire's {pass} melt image replaces what his body showed");
+            AssertEqual(1, ((BossBodyParts)enemies.Presentation.BossBodyDisplay!).Publish().Frames.Length, $"Crocomire's {pass} melt image replaces what his body showed");
             Compare($"showing his {pass} melt image");
             melting.BeginCrocomireMeltPass(state, pass);
             for (int erased = 1; erased <= CrocomireMeltingDefinitions.ColumnCount; erased++)
@@ -82,7 +82,7 @@ internal static class BossBodyLayeredPartsVerification
         foreach (int row in new[] { 64, 40, 8 })
         {
             CrocomireBodyLayer.HideCrocomireBodyBelow(state, state.Body.Position.Y.Whole + areaTop + row);
-            AssertEqual<int?>(areaTop + row, ((BossBodyParts).Presentation.BossBodyDisplay!).Publish().ShownAbove, $"the acid hides Crocomire's body from row {row}");
+            AssertEqual<int?>(areaTop + row, ((BossBodyParts)enemies.Presentation.BossBodyDisplay!).Publish().ShownAbove, $"the acid hides Crocomire's body from row {row}");
             Compare($"hidden from row {row}");
         }
         return compared;

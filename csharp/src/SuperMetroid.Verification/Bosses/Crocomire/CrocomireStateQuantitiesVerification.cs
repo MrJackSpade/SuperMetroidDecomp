@@ -138,7 +138,7 @@ internal static class CrocomireStateQuantitiesVerification
                 return;
             }
             AssertMotionWords(state, SinkAccelerationHeld(acceleration), speed, subposition, y, $"{name} frame {frame}");
-            AssertEqual<int?>(288 - body.Position.Y.Whole, ((BossBodyParts).Presentation.BossBodyDisplay!).Publish().ShownAbove,
+            AssertEqual<int?>(288 - body.Position.Y.Whole, ((BossBodyParts)enemies.Presentation.BossBodyDisplay!).Publish().ShownAbove,
                 $"{name} frame {frame}: the acid hides his body from room row 288 where he now lies");
         }
         throw new InvalidOperationException($"Verification failed: {name} did not reach the acid floor.");

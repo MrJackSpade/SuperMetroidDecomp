@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -23,11 +24,11 @@ internal sealed class FixtureObjectEnemyEffects : IRoomObjectEnemyEffects
     public Action<DraygonWallCannon>? DraygonCannonDisabled { get; init; }
 
     /// <summary>Observes Chozo statue hand activations.</summary>
-    public Action<RoomLevelData>? ChozoStatueHandActivated { get; init; }
+    public Func<IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>>>? ChozoStatueHandActivated { get; init; }
 
     /// <summary>Invokes the installed Chozo hand observer or fails at the missing dependency.</summary>
-    public void ActivateChozoStatueHand(RoomLevelData level) =>
-        (ChozoStatueHandActivated ?? throw Missing("Chozo statue hand"))(level);
+    public IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ActivateChozoStatueHand() =>
+        (ChozoStatueHandActivated ?? throw Missing("Chozo statue hand"))();
 
     /// <summary>Invokes the installed N00b tube projectile observer or fails at the missing dependency.</summary>
     public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>

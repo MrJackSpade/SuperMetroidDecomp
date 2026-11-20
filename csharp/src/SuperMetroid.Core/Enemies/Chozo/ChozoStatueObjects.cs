@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -48,19 +48,19 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     {
         Ensure.NotNull(level);
         RoomBlockBehavior behavior = level.GetCollisionBlock(block).Behavior;
-        bool wreckedShip = _area == AreaId.WreckedShip &&
-            behavior == ChozoStatueRoomDefinitions.WreckedShipHandBehavior;
-        bool lowerNorfair = _area == AreaId.Norfair &&
-            behavior == ChozoStatueRoomDefinitions.LowerNorfairHandBehavior;
-        if (!wreckedShip && !lowerNorfair) return;
+        if (ChozoStatueSiteDefinitions.Sites.Values.FirstOrDefault(site => site.Area == _area && site.HandBehavior == behavior) is not { } site)
+            return;
         // The hand block is solid whether or not the touch is admitted. Samus morphed facing left is not admitted; only
         // these three poses are.
         bool eligible = movingDown && collisionPose is
             (SamusPoseId.MorphBallGroundRightPose or
              SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose);
-        eligible &= wreckedShip
-            ? _system.HasDefeatedAnyOf(_area, DefeatedBosses.AreaBoss)
-            : samus.CollectedItems.HasAny(SamusEquipmentFlags.SpaceJump);
+        eligible &= site.Admission switch
+        {
+            ChozoHandAdmission.AreaBossDefeated => _system.HasDefeatedAnyOf(_area, DefeatedBosses.AreaBoss),
+            ChozoHandAdmission.SpaceJumpCollected => samus.CollectedItems.HasAny(SamusEquipmentFlags.SpaceJump),
+            _ => throw new InvalidOperationException($"Undefined {nameof(ChozoHandAdmission)} {site.Admission}."),
+        };
         // The check holds a place of its own while it runs, so the statue's objects it spawns take the places after it.
         if (_places.Spawn() is not { } check)
             return;

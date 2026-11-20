@@ -509,7 +509,7 @@ internal sealed class MotherBrainHead
             RoomEnemyProjectileKind.MotherBrainPurpleBreathBig,
             behavior,
             graphics: default);
-        breath.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathBig, behavior));
+        breath.StartAnimation(new MotherBrainBreathAnimation(MotherBrainBreathSegment.PurpleBreathBig, behavior));
         RoomEnemyPlace head = state.Head;
         breath.Position = breath.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BreathOffset);
     }
@@ -527,7 +527,7 @@ internal sealed class MotherBrainHead
             RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall,
             behavior,
             graphics: default);
-        breath.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathSmall, behavior));
+        breath.StartAnimation(new MotherBrainBreathAnimation(MotherBrainBreathSegment.PurpleBreathSmall, behavior));
         RoomEnemyPlace head = state.Head;
         breath.Position = breath.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BreathOffset);
         state.SmallPurpleBreathActive = true;
@@ -541,7 +541,7 @@ internal sealed class MotherBrainHead
             return;
 
         var encounter = new MotherBrainProjectileState(state);
-        var behavior = _projectileAttacks.WithEncounter(encounter, MotherBrainProjectileMotion.RainbowBeamCharging);
+        var behavior = _projectileAttacks.RainbowCharge(encounter);
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging,

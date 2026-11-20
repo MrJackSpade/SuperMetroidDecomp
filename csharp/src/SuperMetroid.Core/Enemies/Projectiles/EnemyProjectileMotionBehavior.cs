@@ -24,7 +24,7 @@ internal abstract class EnemyProjectileMotionBehavior<TMotion> : EnemyProjectile
         : base(shot, touch) => _initial = initial;
 
     /// <inheritdoc/>
-    internal sealed override EnemyProjectileMotion? StartingMotion => _initial is { } motion ? new Moving(this, motion) : null;
+    internal override EnemyProjectileMotion? StartingMotion => _initial is { } motion ? new Moving(this, motion) : null;
 
     /// <summary>Moves <paramref name="projectile"/>, bound to this behaviour, by <paramref name="motion"/> from its next pass.</summary>
     /// <param name="projectile">A projectile this behaviour is bound to.</param>

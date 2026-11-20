@@ -238,7 +238,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing MotherBrainEffects =
         new(ComposedEncounter.MotherBrain, [ComposedLook.Loaded(ComposedEncounter.MotherBrain)])
         {
-            Projectiles = [.. MotherBrainEffectAnimations.Segments.Frames
+            Projectiles = [.. MotherBrainEffectAnimations.Segments.Frames.Union(MotherBrainBreathAnimations.Segments.Frames)
                 .Except(MotherBrainRings).Except(MotherBrainAttackEffects).Except(MotherBrainDoorFragments).Except(MotherBrainSubtitle)],
         };
 

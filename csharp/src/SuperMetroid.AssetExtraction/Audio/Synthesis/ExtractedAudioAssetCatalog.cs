@@ -437,7 +437,8 @@ public sealed class ExtractedAudioAssetCatalog
                 throw new InvalidDataException($"Audio SFX library {library.Library} has no effect list.");
             if (library.Library != libraryIndex + 1)
                 throw new InvalidDataException($"Audio SFX library index {libraryIndex} is identified as {library.Library}.");
-            int commandCount = SpcSoundEffectTables.CommandCount(libraryIndex);
+            SoundEffectLibrary soundLibrary = SoundLibraryNumbers.FromDriverIndex(libraryIndex);
+            int commandCount = SpcSoundEffectTables.CommandCount(soundLibrary);
             if (library.Effects.Count != commandCount)
             {
                 throw new InvalidDataException(
@@ -452,16 +453,14 @@ public sealed class ExtractedAudioAssetCatalog
                 int command = effectIndex + 1;
                 string id = $"sfx-{library.Library}-{command:x2}";
                 if (effect.Command != command || effect.Id != id ||
-                    effect.StreamPointer != SpcSoundEffectTables.StreamPointer(libraryIndex, command) ||
-                    effect.Configuration != SpcSoundEffectTables.Configuration(libraryIndex, command))
+                    effect.StreamPointer != SpcSoundEffectTables.StreamPointer(soundLibrary, command) ||
+                    effect.Policy != SpcSoundEffectTables.PolicyKey(soundLibrary, command))
                 {
                     throw new InvalidDataException(
                         $"Audio effect {library.Library}:${command:X2} changes compiled identity, " +
                         "routing pointer, or voice-allocation configuration.");
                 }
-                int channelCount = SpcSoundEffectTables.GetVoiceCount(
-                    libraryIndex,
-                    effect.Configuration);
+                int channelCount = SpcSoundEffectTables.VoiceCount(soundLibrary, effect.Policy);
                 if (effect.ChannelPrograms.Count != channelCount)
                 {
                     throw new InvalidDataException(

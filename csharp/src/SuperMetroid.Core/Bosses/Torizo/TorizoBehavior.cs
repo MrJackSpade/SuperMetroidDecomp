@@ -81,6 +81,47 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetTorizoFadeTarget(TorizoEnemyState state, TorizoLookKind look) =>
         state.Colours.FadeToward(new TorizoLook(look));
 
+    /// <summary>What <c>RunTorizoMain</c> does for each <see cref="TorizoPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<TorizoPhase, Action<RoomEnemyPlace, TorizoEnemyState, SamusState, RoomLevelData>> RunTorizoMainForTorizoPhase => field ??= new(new Dictionary<TorizoPhase, Action<RoomEnemyPlace, TorizoEnemyState, SamusState, RoomLevelData>>
+    {
+        [TorizoPhase.Idle] = (torizo, state, samus, level) => { },
+        [TorizoPhase.Falling] = (torizo, state, samus, level) =>
+        {
+            Body.MaybeSpawnLowHealthDrool(torizo);
+            Movement.ApplyTorizoGravity(torizo, state, level);
+        },
+        [TorizoPhase.WaitForHandTrigger] = (torizo, state, samus, level) =>
+        {
+            // Bomb Torizo stays dormant, solid, while its statue's hand still stands in the room.
+            torizo.Contact = torizo.Contact.With(EnemyContact.SolidToSamus);
+            if (_room.Services.RoomObjects.BombTorizoHandRemains)
+                return;
+
+            RequestTorizoMusic(MusicRequest.SelectTrack(MusicTrack.TorizoAwakening));
+            torizo.Contact = torizo.Contact.Without(EnemyContact.SolidToSamus);
+            // The dormant statue holds until its hand is gone, then awakens. Bomb Torizo always sits facing left; no
+            // room has him facing right (#1941).
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.BombTorizoAwakening));
+        },
+        [TorizoPhase.Active] = (torizo, state, samus, level) => Movement.RunBombTorizoActiveState(torizo, state, level),
+        [TorizoPhase.GoldenWaitForSamus] = (torizo, state, samus, level) =>
+        {
+            // The wake-up step advances the animation only after Samus has entered the
+            // lower-right trigger rectangle. This is the authored statue wake-up gate.
+            if (samus.Position.Y.Whole > TorizoDecisionDefinitions.GoldenWakeCorner.Y &&
+                samus.Position.X.Whole > TorizoDecisionDefinitions.GoldenWakeCorner.X)
+            {
+                // The dormant statue holds until Samus steps in, then awakens.
+                TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.GoldenTorizoAwakening));
+            }
+        },
+        [TorizoPhase.GoldenActive] = (torizo, state, samus, level) =>
+        {
+            Body.MaybeSpawnLowHealthDrool(torizo);
+            Movement.MoveBody(torizo, state, level);
+        },
+    });
+
     /// <summary>Runs the main phase of Bomb or Golden Torizo for one update.</summary>
     private void RunTorizoMain(
         RoomEnemyPlace torizo,
@@ -88,53 +129,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        switch (state.Phase)
-        {
-            case TorizoPhase.Idle:
-                return;
-
-            case TorizoPhase.Falling:
-                Body.MaybeSpawnLowHealthDrool(torizo);
-                Movement.ApplyTorizoGravity(torizo, state, level);
-                return;
-
-            case TorizoPhase.WaitForHandTrigger:
-                // Bomb Torizo stays dormant, solid, while its statue's hand still stands in the room.
-                torizo.Contact = torizo.Contact.With(EnemyContact.SolidToSamus);
-                if (_room.Services.RoomObjects.BombTorizoHandRemains)
-                    return;
-
-                RequestTorizoMusic(MusicRequest.SelectTrack(MusicTrack.TorizoAwakening));
-                torizo.Contact = torizo.Contact.Without(EnemyContact.SolidToSamus);
-                // The dormant statue holds until its hand is gone, then awakens. Bomb Torizo always sits facing left; no
-                // room has him facing right (#1941).
-                TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.BombTorizoAwakening));
-                return;
-
-            case TorizoPhase.Active:
-                Movement.RunBombTorizoActiveState(torizo, state, level);
-                return;
-
-            case TorizoPhase.GoldenWaitForSamus:
-                // The wake-up step advances the animation only after Samus has entered the
-                // lower-right trigger rectangle. This is the authored statue wake-up gate.
-                if (samus.Position.Y.Whole > TorizoDecisionDefinitions.GoldenWakeCorner.Y &&
-                    samus.Position.X.Whole > TorizoDecisionDefinitions.GoldenWakeCorner.X)
-                {
-                    // The dormant statue holds until Samus steps in, then awakens.
-                    TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.GoldenTorizoAwakening));
-                }
-                return;
-
-            case TorizoPhase.GoldenActive:
-                Body.MaybeSpawnLowHealthDrool(torizo);
-                Movement.MoveBody(torizo, state, level);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Torizo has no behaviour for phase {state.Phase}.");
-        }
+        RunTorizoMainForTorizoPhase[state.Phase](torizo, state, samus, level);
     }
 
     /// <summary>Counts consecutive Samus space-jump poses before running the shared statue step.</summary>

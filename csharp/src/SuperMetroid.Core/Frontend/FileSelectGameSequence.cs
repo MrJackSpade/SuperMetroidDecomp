@@ -47,23 +47,18 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
     /// </remarks>
     public bool IsWaitingOutDisplayFrame => WaitsOutDisplayFrame[session.FileSelectStep](session);
 
+    /// <summary>What <c>Step</c> does for each <see cref="FileSelectStep"/> member, each member's own arm.</summary>
+    private IdentityTable<FileSelectStep, Action<ControllerButton>> StepForFileSelectStep => field ??= new(new Dictionary<FileSelectStep, Action<ControllerButton>>
+    {
+        [FileSelectStep.SaveSlots] = controllerInput => RunSaveSlots(controllerInput),
+        [FileSelectStep.Options] = controllerInput => RunOptions(controllerInput),
+        [FileSelectStep.AreaMap] = controllerInput => RunAreaMap(controllerInput),
+    });
+
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        switch (session.FileSelectStep)
-        {
-            case FileSelectStep.SaveSlots:
-                RunSaveSlots(controllerInput);
-                break;
-            case FileSelectStep.Options:
-                RunOptions(controllerInput);
-                break;
-            case FileSelectStep.AreaMap:
-                RunAreaMap(controllerInput);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(FileSelectStep)} {session.FileSelectStep}.");
-        }
+        StepForFileSelectStep[session.FileSelectStep](controllerInput);
     }
 
     /// <summary>One update of the save slots.</summary>

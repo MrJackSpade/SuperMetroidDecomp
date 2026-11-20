@@ -622,6 +622,38 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         ? LavaAcidWaveDefinitions.VerticalWavePhaseDuration
         : LavaAcidWaveDefinitions.HorizontalWavePhaseDuration;
 
+    /// <summary>What <c>StepLiquidRise</c> does for each <see cref="LiquidRisePhase"/> member, each member's own arm.</summary>
+    private IdentityTable<LiquidRisePhase, Action<int, PowerOnEarthquakeSoundDelay>> StepLiquidRiseForLiquidRisePhase => field ??= new(new Dictionary<LiquidRisePhase, Action<int, PowerOnEarthquakeSoundDelay>>
+    {
+        [LiquidRisePhase.Dormant] = (randomNumber, earthquakeSoundDelay) =>
+        {
+            // A missing surface or target lies below every line (AbsentLiquidSurfaceDepth).
+            int surface = AbsentLiquidSurfaceDepth.Of(BaseLine);
+            int target = AbsentLiquidSurfaceDepth.Of(TargetSurface);
+            bool movesTowardTarget = LiquidLevelSpeed > SignedEightEight.Zero
+                ? target > surface
+                : LiquidLevelSpeed.IsNegative && target < surface;
+            if (movesTowardTarget)
+                liquidRisePhase = LiquidRisePhase.Waiting;
+        },
+        [LiquidRisePhase.Waiting] = (randomNumber, earthquakeSoundDelay) =>
+        {
+            PublishRisingLiquidFeedback(randomNumber, earthquakeSoundDelay);
+            LiquidMoveDelay = LiquidMoveDelay.Decrement().Remaining;
+            if (LiquidMoveDelay.IsZero)
+                liquidRisePhase = LiquidRisePhase.Moving;
+        },
+        [LiquidRisePhase.Moving] = (randomNumber, earthquakeSoundDelay) =>
+        {
+            PublishRisingLiquidFeedback(randomNumber, earthquakeSoundDelay);
+            if (AdvanceBaseYToTarget())
+            {
+                LiquidLevelSpeed = default;
+                liquidRisePhase = LiquidRisePhase.Dormant;
+            }
+        },
+    });
+
     /// <summary>
     /// Runs the parallel three-phase motions for lava/acid
     /// and for water. A nonzero velocity first arms the wait phase,
@@ -631,41 +663,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     private void StepLiquidRise(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
     {
-        switch (liquidRisePhase)
-        {
-            case LiquidRisePhase.Dormant:
-            {
-                // A missing surface or target lies below every line (AbsentLiquidSurfaceDepth).
-                int surface = AbsentLiquidSurfaceDepth.Of(BaseLine);
-                int target = AbsentLiquidSurfaceDepth.Of(TargetSurface);
-                bool movesTowardTarget = LiquidLevelSpeed > SignedEightEight.Zero
-                    ? target > surface
-                    : LiquidLevelSpeed.IsNegative && target < surface;
-                if (movesTowardTarget)
-                    liquidRisePhase = LiquidRisePhase.Waiting;
-                return;
-            }
-
-            case LiquidRisePhase.Waiting:
-                PublishRisingLiquidFeedback(randomNumber, earthquakeSoundDelay);
-                LiquidMoveDelay = LiquidMoveDelay.Decrement().Remaining;
-                if (LiquidMoveDelay.IsZero)
-                    liquidRisePhase = LiquidRisePhase.Moving;
-                return;
-
-            case LiquidRisePhase.Moving:
-                PublishRisingLiquidFeedback(randomNumber, earthquakeSoundDelay);
-                if (AdvanceBaseYToTarget())
-                {
-                    LiquidLevelSpeed = default;
-                    liquidRisePhase = LiquidRisePhase.Dormant;
-                }
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Unknown room-liquid rise phase {liquidRisePhase}.");
-        }
+        StepLiquidRiseForLiquidRisePhase[liquidRisePhase](randomNumber, earthquakeSoundDelay);
     }
 
     /// <summary>

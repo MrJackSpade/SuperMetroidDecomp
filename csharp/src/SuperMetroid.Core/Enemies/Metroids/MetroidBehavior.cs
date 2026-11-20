@@ -47,22 +47,25 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _deathsAndDrops = deathsAndDrops;
     }
 
+    /// <summary>What <c>ApplyMetroidCue</c> does for each <see cref="MetroidCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<MetroidCueKind, Action> ApplyMetroidCueForMetroidCueKind => field ??= new(new Dictionary<MetroidCueKind, Action>
+    {
+        [MetroidCueKind.PlayDrainingSound] = () =>
+        {
+            // The attached loop emits the Metroid's animation sound.
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.MetroidAnimationSoundEffect, priority: SoundRequestPriority.Normal);
+        },
+        [MetroidCueKind.PlayRandomCry] = () =>
+        {
+            // One random number, drawn from the shared random sequence, chooses one of the eight idle cries.
+            _audio.QueueEnemySound(MetroidBehaviorDefinitions.Cry.Choose(_room.Random.Generate()), priority: SoundRequestPriority.Normal);
+        },
+    });
+
     /// <summary>Carries out one cue of the Metroid's animations: each pulse loop ends with a sound.</summary>
     private void ApplyMetroidCue(MetroidCue cue)
     {
-        switch (cue.Kind)
-        {
-            case MetroidCueKind.PlayDrainingSound:
-                // The attached loop emits the Metroid's animation sound.
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.MetroidAnimationSoundEffect, priority: SoundRequestPriority.Normal);
-                break;
-            case MetroidCueKind.PlayRandomCry:
-                // One random number, drawn from the shared random sequence, chooses one of the eight idle cries.
-                _audio.QueueEnemySound(MetroidBehaviorDefinitions.Cry.Choose(_room.Random.Generate()), priority: SoundRequestPriority.Normal);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(MetroidCueKind)} {cue.Kind}.");
-        }
+        ApplyMetroidCueForMetroidCueKind[cue.Kind]();
     }
 
     /// <summary>Initializes the Metroid.</summary>
@@ -88,29 +91,21 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation);
     }
 
+    /// <summary>What <c>RunMetroidMain</c> does for each <see cref="MetroidMovement"/> member, each member's own arm.</summary>
+    private IdentityTable<MetroidMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, MetroidEnemyState, int>> RunMetroidMainForMetroidMovement => field ??= new(new Dictionary<MetroidMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, MetroidEnemyState, int>>
+    {
+        [MetroidMovement.Homing] = (place, samus, level, state, targetY) => RunMetroidHoming(place, state, samus, targetY, level),
+        [MetroidMovement.ClosingOnSamus] = (place, samus, level, state, targetY) => RunMetroidClosing(place, state, samus, targetY, level),
+        [MetroidMovement.AttachedToSamus] = (place, samus, level, state, targetY) => RunMetroidAttached(place, state, samus, targetY),
+        [MetroidMovement.PowerBombEscape] = (place, samus, level, state, targetY) => RunMetroidPowerBombEscape(place, state),
+    });
+
     /// <summary>Runs a Metroid for one update and whichever of its four movements it is in.</summary>
     private void RunMetroidMain(RoomEnemyPlace place, SamusState samus, RoomLevelData level)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
         int targetY = samus.Position.Y.Whole - MetroidBehaviorDefinitions.AimAboveSamus;
-        switch (state.Movement)
-        {
-            case MetroidMovement.Homing:
-                RunMetroidHoming(place, state, samus, targetY, level);
-                break;
-            case MetroidMovement.ClosingOnSamus:
-                RunMetroidClosing(place, state, samus, targetY, level);
-                break;
-            case MetroidMovement.AttachedToSamus:
-                RunMetroidAttached(place, state, samus, targetY);
-                break;
-            case MetroidMovement.PowerBombEscape:
-                RunMetroidPowerBombEscape(place, state);
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Metroid movement {state.Movement} is not one of its four movements.");
-        }
+        RunMetroidMainForMetroidMovement[state.Movement](place, samus, level, state, targetY);
 
         // The ordinary body shows the central picture. Both outer objects are
         // repositioned and re-enabled every update the Metroid is not frozen, right after it moves.

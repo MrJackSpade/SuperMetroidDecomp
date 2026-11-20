@@ -40,6 +40,23 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.StepOnNextUpdate();
     }
 
+    /// <summary>What <c>RunFlyMain</c> does for each <see cref="FlyAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<FlyAction, Action<RoomEnemyPlace, SamusState, FlyEnemyState>> RunFlyMainForFlyAction => field ??= new(new Dictionary<FlyAction, Action<RoomEnemyPlace, SamusState, FlyEnemyState>>
+    {
+        [FlyAction.Circling] = static (place, samus, state) => RunFlyCircle(place, state, samus),
+        [FlyAction.AttackSamus] = static (place, samus, state) => RunFlyAttack(place, state),
+        [FlyAction.Retreat] = static (place, samus, state) =>
+        {
+            MoveFlyAccordingToVelocities(place, state);
+            if (state.RetreatUpdatesLeft.Count())
+            {
+                state.CooldownUpdatesLeft = UpdateCountdown.For(FlyMotionDefinitions.AttackCooldown);
+                state.Action = FlyAction.Circling;
+                state.Rotation = RotationDirection.Clockwise;
+            }
+        },
+    });
+
     /// <summary>Advances room RNG and runs a fly's circle, attack or retreat phase.</summary>
     private void RunFlyMain(RoomEnemyPlace place, SamusState samus)
     {
@@ -47,27 +64,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         // returned number. The side effect matters when several random enemies share a room.
         _room.Random.Generate();
         FlyEnemyState state = place.RequireSpeciesState<FlyEnemyState>();
-        switch (state.Action)
-        {
-            case FlyAction.Circling:
-                RunFlyCircle(place, state, samus);
-                return;
-            case FlyAction.AttackSamus:
-                RunFlyAttack(place, state);
-                return;
-            case FlyAction.Retreat:
-                MoveFlyAccordingToVelocities(place, state);
-                if (state.RetreatUpdatesLeft.Count())
-                {
-                    state.CooldownUpdatesLeft = UpdateCountdown.For(FlyMotionDefinitions.AttackCooldown);
-                    state.Action = FlyAction.Circling;
-                    state.Rotation = RotationDirection.Clockwise;
-                }
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Fly has no behaviour for action {state.Action}.");
-        }
+        RunFlyMainForFlyAction[state.Action](place, samus, state);
     }
 
     /// <summary>Rotates a fly around its flight path, reversing direction each revolution or diving when Samus enters range.</summary>

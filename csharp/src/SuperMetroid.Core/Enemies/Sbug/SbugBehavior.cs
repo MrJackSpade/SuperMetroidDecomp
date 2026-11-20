@@ -47,41 +47,28 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         return new(x, y, SbugMovement.FacingOf(heading));
     }
 
+    /// <summary>What <c>RunSbugMain</c> does for each <see cref="SbugAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<SbugAction, Action<RoomEnemyPlace, SamusState, SbugEnemyState>> RunSbugMainForSbugAction => field ??= new(new Dictionary<SbugAction, Action<RoomEnemyPlace, SamusState, SbugEnemyState>>
+    {
+        [SbugAction.WaitForSamus] = static (place, samus, state) => RunSbugWait(place, state, samus),
+        // An activation only changes the bug's action, which takes its update; it moves from the next update.
+        [SbugAction.ActivateMoveForward] = static (place, samus, state) => state.Action = SbugAction.MoveForward,
+        [SbugAction.ActivateZigZag] = static (place, samus, state) => state.Action = SbugAction.ZigZag,
+        [SbugAction.ActivateMoveForwardThenWait] = static (place, samus, state) =>
+        {
+            state.MovementTimer = UpdateCountdown.For(SbugMovementDefinitions.LegDuration);
+            state.Action = SbugAction.MoveForwardThenWait;
+        },
+        [SbugAction.MoveForward] = static (place, samus, state) => AddSbugVelocity(place, ForwardLeg(place)),
+        [SbugAction.ZigZag] = static (place, samus, state) => RunSbugZigZag(place, state),
+        [SbugAction.MoveForwardThenWait] = static (place, samus, state) => RunSbugForwardThenWait(place, state),
+    });
+
     /// <summary>Runs an Sbug for one update through all of its actions.</summary>
     private static void RunSbugMain(RoomEnemyPlace place, SamusState samus)
     {
         SbugEnemyState state = place.RequireSpeciesState<SbugEnemyState>();
-        switch (state.Action)
-        {
-            case SbugAction.WaitForSamus:
-                RunSbugWait(place, state, samus);
-                return;
-
-            // An activation only changes the bug's action, which takes its update; it moves from the next update.
-            case SbugAction.ActivateMoveForward:
-                state.Action = SbugAction.MoveForward;
-                return;
-            case SbugAction.ActivateZigZag:
-                state.Action = SbugAction.ZigZag;
-                return;
-            case SbugAction.ActivateMoveForwardThenWait:
-                state.MovementTimer = UpdateCountdown.For(SbugMovementDefinitions.LegDuration);
-                state.Action = SbugAction.MoveForwardThenWait;
-                return;
-
-            case SbugAction.MoveForward:
-                AddSbugVelocity(place, ForwardLeg(place));
-                return;
-            case SbugAction.ZigZag:
-                RunSbugZigZag(place, state);
-                return;
-            case SbugAction.MoveForwardThenWait:
-                RunSbugForwardThenWait(place, state);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Sbug has no behaviour for action {state.Action}.");
-        }
+        RunSbugMainForSbugAction[state.Action](place, samus, state);
     }
 
     /// <summary>Arms the population-selected behavior only when Samus enters its square trigger region.</summary>

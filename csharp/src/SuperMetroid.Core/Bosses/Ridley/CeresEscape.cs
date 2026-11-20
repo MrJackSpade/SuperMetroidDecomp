@@ -197,6 +197,18 @@ internal sealed class CeresEscape : IGameplayShadingSource
         Warning.Phase = CeresSelfDestructPhase.Start;
     }
 
+    /// <summary>What <c>RunRidleysStep</c> does for each <see cref="CeresEscapeStage"/> member, each member's own arm.</summary>
+    private IdentityTable<CeresEscapeStage, Action<int>> RunRidleysStepForCeresEscapeStage => field ??= new(new Dictionary<CeresEscapeStage, Action<int>>
+    {
+        [CeresEscapeStage.Getaway] = ridleyFrameCounter => { },
+        [CeresEscapeStage.SelfDestruct] = ridleyFrameCounter => TickSelfDestruct(ridleyFrameCounter),
+        [CeresEscapeStage.AlarmOnly] = ridleyFrameCounter => StepAlarm(ridleyFrameCounter),
+        [CeresEscapeStage.AwaitingGetaway] = ridleyFrameCounter =>
+        {
+            throw new InvalidOperationException("Ceres Ridley handed his step to an escape that has not begun.");
+        },
+    });
+
     /// <summary>
     /// Runs the escape's step in Ridley's place in the enemy update, which his AI hands it once he has got away (#2228):
     /// nothing while the room main flies the getaway, then the self-destruct warning's step, then only its alarm.
@@ -204,22 +216,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// <param name="ridleyFrameCounter">Ridley's body's update count, which paces the alarm.</param>
     internal void RunRidleysStep(int ridleyFrameCounter)
     {
-        switch (Stage)
-        {
-            case CeresEscapeStage.Getaway:
-                // The room main owns the getaway; his step is empty.
-                return;
-            case CeresEscapeStage.SelfDestruct:
-                TickSelfDestruct(ridleyFrameCounter);
-                return;
-            case CeresEscapeStage.AlarmOnly:
-                StepAlarm(ridleyFrameCounter);
-                return;
-            case CeresEscapeStage.AwaitingGetaway:
-                throw new InvalidOperationException("Ceres Ridley handed his step to an escape that has not begun.");
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresEscapeStage)} {Stage}.");
-        }
+        RunRidleysStepForCeresEscapeStage[Stage](ridleyFrameCounter);
     }
 
     /// <summary>

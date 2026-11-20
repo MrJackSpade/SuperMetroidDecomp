@@ -75,6 +75,30 @@ internal sealed class IntroJapaneseSubtitles
         return true;
     }
 
+    /// <summary>What <c>Step</c> does for each <see cref="SubtitleStage"/> member, each member's own arm.</summary>
+    private IdentityTable<SubtitleStage, Action<Action<IntroNarrationPageId>>> StepForSubtitleStage => field ??= new(new Dictionary<SubtitleStage, Action<Action<IntroNarrationPageId>>>
+    {
+        [SubtitleStage.ShowFirstSubtitle] = startInputWait => stage = SubtitleStage.FinishFirstSubtitle,
+        [SubtitleStage.AwaitSecondSubtitleInput] = startInputWait => { },
+        [SubtitleStage.FinishFirstSubtitle] = startInputWait =>
+        {
+            stage = SubtitleStage.None;
+            page = null;
+        },
+        [SubtitleStage.StartInputWait] = startInputWait =>
+        {
+            IntroNarrationPageId waitingPage = page
+                ?? throw new InvalidOperationException("A subtitle starting an input wait has no page.");
+            stage = SubtitleStage.None;
+            page = null;
+            startInputWait(waitingPage);
+        },
+        [SubtitleStage.None] = startInputWait =>
+        {
+            throw new InvalidOperationException("The intro advanced a subtitle that is not showing.");
+        },
+    });
+
     /// <summary>Takes the showing subtitle's step for this update.</summary>
     /// <param name="newlyPressed">This frame's newly pressed buttons, which show a waiting page's second subtitle.</param>
     /// <param name="startInputWait">Receives the page whose second subtitle has started its input wait.</param>
@@ -89,29 +113,7 @@ internal sealed class IntroJapaneseSubtitles
             stage = SubtitleStage.StartInputWait;
             inputWaitHold = UpdateCountdown.Lasting(SecondSubtitleHoldFrames);
         }
-        switch (stage)
-        {
-            case SubtitleStage.ShowFirstSubtitle:
-                stage = SubtitleStage.FinishFirstSubtitle;
-                return;
-            case SubtitleStage.AwaitSecondSubtitleInput:
-                return;
-            case SubtitleStage.FinishFirstSubtitle:
-                stage = SubtitleStage.None;
-                page = null;
-                return;
-            case SubtitleStage.StartInputWait:
-                IntroNarrationPageId waitingPage = page
-                    ?? throw new InvalidOperationException("A subtitle starting an input wait has no page.");
-                stage = SubtitleStage.None;
-                page = null;
-                startInputWait(waitingPage);
-                return;
-            case SubtitleStage.None:
-                throw new InvalidOperationException("The intro advanced a subtitle that is not showing.");
-            default:
-                throw new InvalidOperationException($"Unknown intro subtitle stage {stage}.");
-        }
+        StepForSubtitleStage[stage](startInputWait);
     }
 
     /// <summary>Starts showing <paramref name="shownPage"/>'s subtitle at <paramref name="firstStage"/>, which its next update takes.</summary>

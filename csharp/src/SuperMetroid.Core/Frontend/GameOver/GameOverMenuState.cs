@@ -100,6 +100,83 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         screen.Backdrop = catalog.Backdrops.Menus;
     }
 
+    /// <summary>What <c>Step</c> does for each <see cref="GameOverMenuPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<GameOverMenuPhase, Action<ControllerButton>> StepForGameOverMenuPhase => field ??= new(new Dictionary<GameOverMenuPhase, Action<ControllerButton>>
+    {
+        [GameOverMenuPhase.BlackHold] = pressed =>
+        {
+            // The death black-out hands over at brightness zero, so the screen is black; the menu
+            // silences the room's sounds and holds the black screen while it waits out one update.
+            if (!fade.IsBlack)
+                throw new InvalidOperationException("Game-over menu must begin from a black screen.");
+            audio.QueueSound(RoomSound.Silence, priority: GameOverMenuDefinitions.SoundPriority);
+            IsWaitingOutDisplayFrame = true;
+        },
+        [GameOverMenuPhase.Initialize] = pressed =>
+        {
+            audio.QueueMusic(MusicRequest.Stop);
+            audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
+            // The set-up starts the Baby on its first look, and this update counts as the first of that look's updates.
+            baby.Show(GameOverBabyAnimation.Playing);
+            StepBabyMetroid();
+            SelectedItem = YesNoChoice.Yes;
+            fade.Show(0);
+            // Unblank, then wait out one update before advancing the step.
+            IsWaitingOutDisplayFrame = true;
+        },
+        [GameOverMenuPhase.WaitForInitialMusic] = pressed =>
+        {
+            // The music gate only polls the music queue; it neither animates the Baby nor draws the missile.
+            if (!audio.HasQueuedMusic)
+            {
+                audio.QueueMusic(
+                    MusicRequest.SelectTrack(GameOverMenuDefinitions.MenuSong));
+                Phase = GameOverMenuPhase.FadeIn;
+            }
+        },
+        [GameOverMenuPhase.FadeIn] = pressed =>
+        {
+            StepBabyMetroid();
+            if (fade.Brighten())
+                Phase = GameOverMenuPhase.Main;
+        },
+        [GameOverMenuPhase.Main] = pressed =>
+        {
+            StepBabyMetroid();
+            if ((pressed & (ControllerButton.Select | ControllerButton.Up | ControllerButton.Down)) != ControllerButton.None)
+            {
+                audio.QueueSound(
+                    SamusSound.MenuCursor,
+                    priority: GameOverMenuDefinitions.SoundPriority);
+                SelectedItem = SelectedItem == YesNoChoice.Yes ? YesNoChoice.No : YesNoChoice.Yes;
+            }
+            else if ((pressed & ControllerButton.A) != ControllerButton.None)
+            {
+                // The game holds the current Baby look once either answer is accepted, while the selected
+                // fade owner continues drawing.
+                baby.HoldShownFrameFor(GameOverMenuDefinitions.AcceptedAnswerHoldDuration);
+                if (SelectedItem == YesNoChoice.Yes && continueLoadsCeresArrival)
+                    Outcome = GameOverMenuOutcome.CeresArrival;
+                else
+                    Phase = SelectedItem == YesNoChoice.Yes
+                        ? GameOverMenuPhase.FadeOutToContinue
+                        : GameOverMenuPhase.FadeOutToTitle;
+            }
+        },
+        [GameOverMenuPhase.FadeOutToContinue] = pressed =>
+        {
+            StepBabyMetroid();
+            if (fade.Darken())
+                Outcome = GameOverMenuOutcome.Continue;
+        },
+        [GameOverMenuPhase.FadeOutToTitle] = pressed =>
+        {
+            StepBabyMetroid();
+            if (fade.Darken())
+                Outcome = GameOverMenuOutcome.Title;
+        },
+    });
+
     /// <summary>Advances one menu update, latching input edges, animating the cursor and Baby, and progressing the music wait and one-level-per-update brightness fades.</summary>
     /// <param name="controllerInput">Currently held buttons; only newly pressed buttons affect the interactive menu.</param>
     /// <remarks>Select, Up, or Down toggles the answer and takes priority over A confirmation in the same update. Accepting either answer holds the current Baby frame (<see cref="GameOverMenuDefinitions.AcceptedAnswerHoldDuration"/>) while fading out.</remarks>
@@ -131,83 +208,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
             GameOverMenuPhase.FadeOutToContinue or GameOverMenuPhase.FadeOutToTitle)
             missile.Step();
 
-        switch (Phase)
-        {
-            case GameOverMenuPhase.BlackHold:
-                // The death black-out hands over at brightness zero, so the screen is black; the menu
-                // silences the room's sounds and holds the black screen while it waits out one update.
-                if (!fade.IsBlack)
-                    throw new InvalidOperationException("Game-over menu must begin from a black screen.");
-                audio.QueueSound(RoomSound.Silence, priority: GameOverMenuDefinitions.SoundPriority);
-                IsWaitingOutDisplayFrame = true;
-                break;
-
-            case GameOverMenuPhase.Initialize:
-                audio.QueueMusic(MusicRequest.Stop);
-                audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
-                // The set-up starts the Baby on its first look, and this update counts as the first of that look's updates.
-                baby.Show(GameOverBabyAnimation.Playing);
-                StepBabyMetroid();
-                SelectedItem = YesNoChoice.Yes;
-                fade.Show(0);
-                // Unblank, then wait out one update before advancing the step.
-                IsWaitingOutDisplayFrame = true;
-                break;
-
-            case GameOverMenuPhase.WaitForInitialMusic:
-                // The music gate only polls the music queue; it neither animates the Baby nor draws the missile.
-                if (!audio.HasQueuedMusic)
-                {
-                    audio.QueueMusic(
-                        MusicRequest.SelectTrack(GameOverMenuDefinitions.MenuSong));
-                    Phase = GameOverMenuPhase.FadeIn;
-                }
-                break;
-
-            case GameOverMenuPhase.FadeIn:
-                StepBabyMetroid();
-                if (fade.Brighten())
-                    Phase = GameOverMenuPhase.Main;
-                break;
-
-            case GameOverMenuPhase.Main:
-                StepBabyMetroid();
-                if ((pressed & (ControllerButton.Select | ControllerButton.Up | ControllerButton.Down)) != ControllerButton.None)
-                {
-                    audio.QueueSound(
-                        SamusSound.MenuCursor,
-                        priority: GameOverMenuDefinitions.SoundPriority);
-                    SelectedItem = SelectedItem == YesNoChoice.Yes ? YesNoChoice.No : YesNoChoice.Yes;
-                }
-                else if ((pressed & ControllerButton.A) != ControllerButton.None)
-                {
-                    // The game holds the current Baby look once either answer is accepted, while the selected
-                    // fade owner continues drawing.
-                    baby.HoldShownFrameFor(GameOverMenuDefinitions.AcceptedAnswerHoldDuration);
-                    if (SelectedItem == YesNoChoice.Yes && continueLoadsCeresArrival)
-                        Outcome = GameOverMenuOutcome.CeresArrival;
-                    else
-                        Phase = SelectedItem == YesNoChoice.Yes
-                            ? GameOverMenuPhase.FadeOutToContinue
-                            : GameOverMenuPhase.FadeOutToTitle;
-                }
-                break;
-
-            case GameOverMenuPhase.FadeOutToContinue:
-                StepBabyMetroid();
-                if (fade.Darken())
-                    Outcome = GameOverMenuOutcome.Continue;
-                break;
-
-            case GameOverMenuPhase.FadeOutToTitle:
-                StepBabyMetroid();
-                if (fade.Darken())
-                    Outcome = GameOverMenuOutcome.Title;
-                break;
-
-            default:
-                throw new InvalidOperationException($"Unknown game-over phase {Phase}.");
-        }
+        StepForGameOverMenuPhase[Phase](pressed);
     }
 
     /// <summary>Captures the page and the sprites over it; the game-over screen shows no backdrop page.</summary>

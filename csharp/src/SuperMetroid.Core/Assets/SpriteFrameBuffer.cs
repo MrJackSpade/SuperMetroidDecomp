@@ -24,21 +24,18 @@ public sealed class SpriteFrameBuffer
     /// <summary>Appends a whole-frame draw after every draw emitted so far this frame.</summary>
     public void Add(SpriteDraw draw) => pending.Add(Ensure.NotNull(draw));
 
+    /// <summary>What <c>Add</c> does for each <see cref="ActorLayering"/> member, each member's own arm.</summary>
+    private IdentityTable<ActorLayering, Action<SpriteDraw>> AddForActorLayering => field ??= new(new Dictionary<ActorLayering, Action<SpriteDraw>>
+    {
+        [ActorLayering.InDrawOrder] = draw => Add(draw),
+        [ActorLayering.InFrontOfActors] = draw => pending.Insert(0, Ensure.NotNull(draw)),
+    });
+
     /// <summary>Adds a whole-frame draw as <paramref name="layering"/> places it among the draws emitted so far this frame (#2573).</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="layering"/> is undefined.</exception>
     public void Add(SpriteDraw draw, ActorLayering layering)
     {
-        switch (layering)
-        {
-            case ActorLayering.InDrawOrder:
-                Add(draw);
-                return;
-            case ActorLayering.InFrontOfActors:
-                pending.Insert(0, Ensure.NotNull(draw));
-                return;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(layering), layering, "Undefined actor layering.");
-        }
+        AddForActorLayering[layering](draw);
     }
 
     /// <summary>Finishes the frame: publishes the pending draws as <see cref="Draws"/>.</summary>

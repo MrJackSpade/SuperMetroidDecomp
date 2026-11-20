@@ -623,6 +623,46 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Queues the enemy-killed sound, as the death explosion's cue does.</summary>
     internal void QueueEnemyKilledSound() => RequestDeathSound(EnemyKilledSound);
 
+    /// <summary>What <c>ApplyEnemyDeathAndDropCue</c> comes to for each <see cref="EnemyDeathAndDropCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<EnemyDeathAndDropCueKind, Func<EnemyProjectile, SamusState, EnemyDeathAndDropSegment?>> ApplyEnemyDeathAndDropCueForEnemyDeathAndDropCueKind => field ??= new(new Dictionary<EnemyDeathAndDropCueKind, Func<EnemyProjectile, SamusState, EnemyDeathAndDropSegment?>>
+    {
+        [EnemyDeathAndDropCueKind.Delete] = (projectile, samus) =>
+        {
+            projectile.Delete();
+            return null;
+        },
+        [EnemyDeathAndDropCueKind.PlayEnemyKilledSound] = (projectile, samus) =>
+        {
+            // The sound-queueing cue continues to the next cue, so the following duration starts the next frame.
+            QueueEnemyKilledSound();
+            return null;
+        },
+        [EnemyDeathAndDropCueKind.PlaySmallExplosionSound] = (projectile, samus) =>
+        {
+            RequestDeathSound(EnemySoundEffectDefinitions.DeathSmallExplosionSound);
+            return null;
+        },
+        [EnemyDeathAndDropCueKind.PlayContactKilledSound] = (projectile, samus) =>
+        {
+            RequestDeathSound(EnemySoundEffectDefinitions.DeathContactKilledSound);
+            return null;
+        },
+        [EnemyDeathAndDropCueKind.BecomePickup] = (projectile, samus) =>
+        {
+            if (projectile.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
+                throw new InvalidDataException($"Enemy projectile {projectile.Kind} reached the become-pickup cue, which only a death explosion runs.");
+            return ConvertEnemyDeathExplosionToPickup(projectile, samus);
+        },
+        [EnemyDeathAndDropCueKind.RespawnEnemy] = (projectile, samus) =>
+        {
+            // A death explosion, or the pickup it became, rebuilds the enemy it came from when that enemy respawns; a
+            // drop spawned directly came from no enemy.
+            if (KilledEnemyOf(projectile) is { Respawns: true } killed)
+                RespawnEnemyFromSnapshot(killed.Enemy ?? throw new InvalidDataException("A respawning death explosion names no enemy."));
+            return null;
+        },
+    });
+
     /// <summary>
     /// Carries out one cue of the death and drop animations, returning the segment a converted explosion continues at, or
     /// null to run on.
@@ -636,33 +676,6 @@ internal sealed class EnemyDeathsAndDrops
             return null;
         }
         EnemyDeathAndDropCueKind kind = ((EnemyDeathAndDropCue.Signal)cue).Kind;
-        switch (kind)
-        {
-            case EnemyDeathAndDropCueKind.Delete:
-                projectile.Delete();
-                return null;
-            case EnemyDeathAndDropCueKind.PlayEnemyKilledSound:
-                // The sound-queueing cue continues to the next cue, so the following duration starts the next frame.
-                QueueEnemyKilledSound();
-                return null;
-            case EnemyDeathAndDropCueKind.PlaySmallExplosionSound:
-                RequestDeathSound(EnemySoundEffectDefinitions.DeathSmallExplosionSound);
-                return null;
-            case EnemyDeathAndDropCueKind.PlayContactKilledSound:
-                RequestDeathSound(EnemySoundEffectDefinitions.DeathContactKilledSound);
-                return null;
-            case EnemyDeathAndDropCueKind.BecomePickup:
-                if (projectile.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
-                    throw new InvalidDataException($"Enemy projectile {projectile.Kind} reached the become-pickup cue, which only a death explosion runs.");
-                return ConvertEnemyDeathExplosionToPickup(projectile, samus);
-            case EnemyDeathAndDropCueKind.RespawnEnemy:
-                // A death explosion, or the pickup it became, rebuilds the enemy it came from when that enemy respawns; a
-                // drop spawned directly came from no enemy.
-                if (KilledEnemyOf(projectile) is { Respawns: true } killed)
-                    RespawnEnemyFromSnapshot(killed.Enemy ?? throw new InvalidDataException("A respawning death explosion names no enemy."));
-                return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EnemyDeathAndDropCueKind)} {kind}.");
-        }
+        return ApplyEnemyDeathAndDropCueForEnemyDeathAndDropCueKind[kind](projectile, samus);
     }
 }

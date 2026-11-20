@@ -83,6 +83,27 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         state.SpawnPosition = place.Position.Whole;
     }
 
+    /// <summary>What <c>RunNinjaSpacePirateMain</c> does for each <see cref="NinjaSpacePirateAction"/> member, each member's own arm.</summary>
+    private IdentityTable<NinjaSpacePirateAction, Action<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, RoomLevelData, SamusProjectileSystem>> RunNinjaSpacePirateMainForNinjaSpacePirateAction => field ??= new(new Dictionary<NinjaSpacePirateAction, Action<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, RoomLevelData, SamusProjectileSystem>>
+    {
+        [NinjaSpacePirateAction.StandingStill] = (place, state, samus, level, samusProjectiles) => { },
+        [NinjaSpacePirateAction.AwaitingSamus] = (place, state, samus, level, samusProjectiles) => RunNinjaPirateAwaitingSamus(place, state, samus, samusProjectiles),
+        [NinjaSpacePirateAction.Active] = (place, state, samus, level, samusProjectiles) => RunNinjaPirateActive(place, state, samus, samusProjectiles),
+        [NinjaSpacePirateAction.SpinJumpRising] = (place, state, samus, level, samusProjectiles) => StepNinjaPirateSpinJump(place, state, state.Heading, vertical: VerticalDirection.Up),
+        [NinjaSpacePirateAction.SpinJumpFalling] = (place, state, samus, level, samusProjectiles) => StepNinjaPirateSpinJump(place, state, state.Heading, vertical: VerticalDirection.Down),
+        [NinjaSpacePirateAction.ReadyToDivekick] = (place, state, samus, level, samusProjectiles) =>
+        {
+            RunNinjaPirateReadyToDivekick(
+                place,
+                state,
+                samus,
+                samusProjectiles);
+        },
+        [NinjaSpacePirateAction.DivekickJump] = (place, state, samus, level, samusProjectiles) => StepNinjaPirateDiveJump(place, state, state.Heading),
+        [NinjaSpacePirateAction.DivekickDive] = (place, state, samus, level, samusProjectiles) => StepNinjaPirateDive(place, state, level, state.Heading),
+        [NinjaSpacePirateAction.DivekickWalkToPost] = (place, state, samus, level, samusProjectiles) => StepNinjaPirateWalkToPost(place, state, state.Heading),
+    });
+
     /// <summary>Runs the Ninja Space Pirate's current behaviour.</summary>
     private void RunNinjaSpacePirateMain(
         RoomEnemyPlace place,
@@ -91,42 +112,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         RoomLevelData level,
         SamusProjectileSystem samusProjectiles)
     {
-        switch (state.Action)
-        {
-            case NinjaSpacePirateAction.StandingStill:
-                return;
-            case NinjaSpacePirateAction.AwaitingSamus:
-                RunNinjaPirateAwaitingSamus(place, state, samus, samusProjectiles);
-                return;
-            case NinjaSpacePirateAction.Active:
-                RunNinjaPirateActive(place, state, samus, samusProjectiles);
-                return;
-            case NinjaSpacePirateAction.SpinJumpRising:
-                StepNinjaPirateSpinJump(place, state, state.Heading, vertical: VerticalDirection.Up);
-                return;
-            case NinjaSpacePirateAction.SpinJumpFalling:
-                StepNinjaPirateSpinJump(place, state, state.Heading, vertical: VerticalDirection.Down);
-                return;
-            case NinjaSpacePirateAction.ReadyToDivekick:
-                RunNinjaPirateReadyToDivekick(
-                    place,
-                    state,
-                    samus,
-                    samusProjectiles);
-                return;
-            case NinjaSpacePirateAction.DivekickJump:
-                StepNinjaPirateDiveJump(place, state, state.Heading);
-                return;
-            case NinjaSpacePirateAction.DivekickDive:
-                StepNinjaPirateDive(place, state, level, state.Heading);
-                return;
-            case NinjaSpacePirateAction.DivekickWalkToPost:
-                StepNinjaPirateWalkToPost(place, state, state.Heading);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Ninja Space Pirate has no behaviour for action {state.Action}.");
-        }
+        RunNinjaSpacePirateMainForNinjaSpacePirateAction[state.Action](place, state, samus, level, samusProjectiles);
     }
 
     /// <summary>Waits for Samus to approach, then selects the active animation facing her.</summary>

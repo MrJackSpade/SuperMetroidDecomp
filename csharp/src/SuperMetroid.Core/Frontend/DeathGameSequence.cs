@@ -45,29 +45,20 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;
 
+    /// <summary>What <c>Step</c> does for each <see cref="DeathSequenceStep"/> member, each member's own arm.</summary>
+    private IdentityTable<DeathSequenceStep, Action<ControllerButton>> StepForDeathSequenceStep => field ??= new(new Dictionary<DeathSequenceStep, Action<ControllerButton>>
+    {
+        [DeathSequenceStep.FinalGameplayPass] = controllerInput => RunFinalGameplayPass(controllerInput),
+        [DeathSequenceStep.BlackingOutSurroundings] = controllerInput => BlackOutSurroundings(controllerInput),
+        [DeathSequenceStep.WaitingForMusic] = controllerInput => WaitForMusic(controllerInput),
+        [DeathSequenceStep.SamusDying] = controllerInput => StepSamusDying(controllerInput),
+        [DeathSequenceStep.FinalBlackOut] = controllerInput => FinalBlackOut(controllerInput),
+    });
+
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        switch (session.DeathStep)
-        {
-            case DeathSequenceStep.FinalGameplayPass:
-                RunFinalGameplayPass(controllerInput);
-                break;
-            case DeathSequenceStep.BlackingOutSurroundings:
-                BlackOutSurroundings(controllerInput);
-                break;
-            case DeathSequenceStep.WaitingForMusic:
-                WaitForMusic(controllerInput);
-                break;
-            case DeathSequenceStep.SamusDying:
-                StepSamusDying(controllerInput);
-                break;
-            case DeathSequenceStep.FinalBlackOut:
-                FinalBlackOut(controllerInput);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DeathSequenceStep)} {session.DeathStep}.");
-        }
+        StepForDeathSequenceStep[session.DeathStep](controllerInput);
     }
 
     /// <summary>The final frozen gameplay pass, which prepares Samus and begins the surroundings' fade.</summary>

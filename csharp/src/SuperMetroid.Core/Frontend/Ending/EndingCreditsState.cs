@@ -513,44 +513,42 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// <summary>Runs the cast's actors in running order, their cues answered by <see cref="HandleSceneCue"/>.</summary>
     private void StepActors() => EscapeScenes.StepSprites(this, HandleSceneCue);
 
+    /// <summary>What <c>HandleSceneCue</c> does for each <see cref="EndingSceneCue"/> member, each member's own arm.</summary>
+    private IdentityTable<EndingSceneCue, Action<EndingSprite, EndingSceneCue>> HandleSceneCueForEndingSceneCue => field ??= new(new Dictionary<EndingSceneCue, Action<EndingSprite, EndingSceneCue>>
+    {
+        [EndingSceneCue.EndZebesExplosion] = (actor, cue) =>
+        {
+            // The scene hides the sprite layer without deleting the actors: the stars must still
+            // advance and become visible again when the flyaway starts.
+            Stage.Colours.Flash(EndingFlash.ExplosionWhiteout, RgbColor.White);
+            Enter(EndingCreditsPhase.WaitForPlanetEscapeMusic, EndingSequenceDefinitions.Timing.PlanetEscapeMusicWaitFrames);
+        },
+        [EndingSceneCue.TransitionToCredits] = (actor, cue) =>
+        {
+            Stage.StartFastFade();
+            Enter(EndingCreditsPhase.FadeOutToCredits);
+        },
+        [EndingSceneCue.WaitForFlyaway] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.FadeExplosionColours] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnExplosionSilhouette] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.StartZebesExplosion] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.ExplosionFinale] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnCompletedText] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnClearTime] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnHoursTens] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnHoursUnits] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnColon] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnMinutesTens] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnMinutesUnits] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+    });
+
     /// <summary>
     /// Answers a cast actor's cue: the explosion's end and the completion text's end change the ending's phase, and
     /// every other cue goes to the escape scenes.
     /// </summary>
     private void HandleSceneCue(EndingSprite actor, EndingSceneCue cue)
     {
-        switch (cue)
-        {
-            case EndingSceneCue.EndZebesExplosion:
-                // The scene hides the sprite layer without deleting the actors: the stars must still
-                // advance and become visible again when the flyaway starts.
-                Stage.Colours.Flash(EndingFlash.ExplosionWhiteout, RgbColor.White);
-                Enter(EndingCreditsPhase.WaitForPlanetEscapeMusic, EndingSequenceDefinitions.Timing.PlanetEscapeMusicWaitFrames);
-                return;
-
-            case EndingSceneCue.TransitionToCredits:
-                Stage.StartFastFade();
-                Enter(EndingCreditsPhase.FadeOutToCredits);
-                return;
-
-            case EndingSceneCue.WaitForFlyaway:
-            case EndingSceneCue.FadeExplosionColours:
-            case EndingSceneCue.SpawnExplosionSilhouette:
-            case EndingSceneCue.StartZebesExplosion:
-            case EndingSceneCue.ExplosionFinale:
-            case EndingSceneCue.SpawnCompletedText:
-            case EndingSceneCue.SpawnClearTime:
-            case EndingSceneCue.SpawnHoursTens:
-            case EndingSceneCue.SpawnHoursUnits:
-            case EndingSceneCue.SpawnColon:
-            case EndingSceneCue.SpawnMinutesTens:
-            case EndingSceneCue.SpawnMinutesUnits:
-                EscapeScenes.HandleSpriteCue(actor, cue);
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingSceneCue)} {cue}.");
-        }
+        HandleSceneCueForEndingSceneCue[cue](actor, cue);
     }
 
     /// <summary>One update of the staff credits, whose end blanks the screen for the post-credits scenes' first hold.</summary>

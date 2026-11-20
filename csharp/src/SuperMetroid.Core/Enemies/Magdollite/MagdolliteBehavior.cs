@@ -144,82 +144,55 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         FinishPlacingMagdollitePart();
     }
 
+    /// <summary>What <c>RunMagdolliteHead</c> does for each <see cref="MagdolliteHeadAction"/> member, each member's own arm.</summary>
+    private IdentityTable<MagdolliteHeadAction, Action<RoomEnemyPlace, MagdolliteHeadState, SamusState>> RunMagdolliteHeadForMagdolliteHeadAction => field ??= new(new Dictionary<MagdolliteHeadAction, Action<RoomEnemyPlace, MagdolliteHeadState, SamusState>>
+    {
+        [MagdolliteHeadAction.Waiting] = (place, state, samus) => RunMagdolliteHeadWaiting(place, state, samus),
+        [MagdolliteHeadAction.WaitingForAttackAnimation] = (place, state, samus) => { },
+        [MagdolliteHeadAction.WaitingForBodyLanding] = (place, state, samus) => { },
+        [MagdolliteHeadAction.WaitingForReturnAnimation] = (place, state, samus) => { },
+        [MagdolliteHeadAction.Submerged] = (place, state, samus) => ReleaseMagdolliteArm(place, state),
+        [MagdolliteHeadAction.ArmLanded] = (place, state, samus) => EmergeMagdolliteHead(place, state, samus),
+        [MagdolliteHeadAction.Surfaced] = (place, state, samus) => IdleMagdolliteHead(place, state, samus),
+    });
+
     /// <summary>Runs the head's current action.</summary>
     internal void RunMagdolliteHead(RoomEnemyPlace place, MagdolliteHeadState state, SamusState samus)
     {
-        switch (state.Action)
-        {
-            case MagdolliteHeadAction.Waiting:
-                RunMagdolliteHeadWaiting(place, state, samus);
-                return;
-            case MagdolliteHeadAction.WaitingForAttackAnimation:
-            case MagdolliteHeadAction.WaitingForBodyLanding:
-            case MagdolliteHeadAction.WaitingForReturnAnimation:
-                return;
-            case MagdolliteHeadAction.Submerged:
-                ReleaseMagdolliteArm(place, state);
-                return;
-            case MagdolliteHeadAction.ArmLanded:
-                EmergeMagdolliteHead(place, state, samus);
-                return;
-            case MagdolliteHeadAction.Surfaced:
-                IdleMagdolliteHead(place, state, samus);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Magdollite head has no behaviour for action {state.Action}.");
-        }
+        RunMagdolliteHeadForMagdolliteHeadAction[state.Action](place, state, samus);
     }
+
+    /// <summary>What <c>RunMagdolliteBody</c> does for each <see cref="MagdolliteBodyAction"/> member, each member's own arm.</summary>
+    private IdentityTable<MagdolliteBodyAction, Action<RoomEnemyPlace, MagdolliteBodyState, SamusState>> RunMagdolliteBodyForMagdolliteBodyAction => field ??= new(new Dictionary<MagdolliteBodyAction, Action<RoomEnemyPlace, MagdolliteBodyState, SamusState>>
+    {
+        [MagdolliteBodyAction.Dormant] = (place, state, samus) => { },
+        [MagdolliteBodyAction.Released] = (place, state, samus) => StartMagdolliteBodyRise(place, state),
+        [MagdolliteBodyAction.Rising] = (place, state, samus) => RunMagdolliteBodyRising(place, state, samus),
+        [MagdolliteBodyAction.HoldingAtApex] = (place, state, samus) => { },
+        [MagdolliteBodyAction.Falling] = (place, state, samus) => RunMagdolliteBodyFalling(place, state),
+    });
 
     /// <summary>Runs the rising body's current action.</summary>
     internal void RunMagdolliteBody(RoomEnemyPlace place, MagdolliteBodyState state, SamusState samus)
     {
-        switch (state.Action)
-        {
-            case MagdolliteBodyAction.Dormant:
-                return;
-            case MagdolliteBodyAction.Released:
-                StartMagdolliteBodyRise(place, state);
-                return;
-            case MagdolliteBodyAction.Rising:
-                RunMagdolliteBodyRising(place, state, samus);
-                return;
-            case MagdolliteBodyAction.HoldingAtApex:
-                return;
-            case MagdolliteBodyAction.Falling:
-                RunMagdolliteBodyFalling(place, state);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Magdollite body has no behaviour for action {state.Action}.");
-        }
+        RunMagdolliteBodyForMagdolliteBodyAction[state.Action](place, state, samus);
     }
+
+    /// <summary>What <c>RunMagdolliteOverlay</c> does for each <see cref="MagdolliteOverlayAction"/> member, each member's own arm.</summary>
+    private IdentityTable<MagdolliteOverlayAction, Action<RoomEnemyPlace, MagdolliteOverlayState, SamusState>> RunMagdolliteOverlayForMagdolliteOverlayAction => field ??= new(new Dictionary<MagdolliteOverlayAction, Action<RoomEnemyPlace, MagdolliteOverlayState, SamusState>>
+    {
+        [MagdolliteOverlayAction.WaitingForAttack] = (place, state, samus) => RunMagdolliteOverlayWaiting(place, state),
+        [MagdolliteOverlayAction.WaitingForThrowAnimation] = (place, state, samus) => UpdateMagdolliteHeadRadius(place),
+        [MagdolliteOverlayAction.Thrown] = (place, state, samus) => FinishMagdolliteOverlayThrow(place, state),
+        [MagdolliteOverlayAction.TrackingRisingBody] = (place, state, samus) => RunMagdolliteOverlayTrackingRise(place, state, samus),
+        [MagdolliteOverlayAction.TrackingFallingBody] = (place, state, samus) => RunMagdolliteOverlayTrackingFall(place, state),
+    });
 
     /// <summary>Counts down the attack cooldown and runs the tracking overlay's current action.</summary>
     internal void RunMagdolliteOverlay(RoomEnemyPlace place, MagdolliteOverlayState state, SamusState samus)
     {
         state.AttackCooldown.Step();
-        switch (state.Action)
-        {
-            case MagdolliteOverlayAction.WaitingForAttack:
-                RunMagdolliteOverlayWaiting(place, state);
-                return;
-            case MagdolliteOverlayAction.WaitingForThrowAnimation:
-                UpdateMagdolliteHeadRadius(place);
-                return;
-            case MagdolliteOverlayAction.Thrown:
-                FinishMagdolliteOverlayThrow(place, state);
-                return;
-            case MagdolliteOverlayAction.TrackingRisingBody:
-                RunMagdolliteOverlayTrackingRise(place, state, samus);
-                return;
-            case MagdolliteOverlayAction.TrackingFallingBody:
-                RunMagdolliteOverlayTrackingFall(place, state);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Magdollite overlay has no behaviour for action {state.Action}.");
-        }
+        RunMagdolliteOverlayForMagdolliteOverlayAction[state.Action](place, state, samus);
     }
 
     /// <summary>Tracks Samus while idle and begins submerging when the overlay cooldown expires within the head's horizontal range.</summary>
@@ -620,25 +593,25 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         /// <inheritdoc/>
         internal override EnemyProjectileAnimation ShotAnimation() => new MagdolliteLavaAnimation(this, MagdolliteLavaSegment.Shot);
 
+        /// <summary>What <c>RunCue</c> does for each <see cref="MagdolliteLavaCueKind"/> member, each member's own arm.</summary>
+        private IdentityTable<MagdolliteLavaCueKind, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForMagdolliteLavaCueKind => field ??= new(new Dictionary<MagdolliteLavaCueKind, Action<EnemyProjectileCueContext, EnemyProjectile>>
+        {
+            [MagdolliteLavaCueKind.Delete] = (context, projectile) => projectile.Delete(),
+            [MagdolliteLavaCueKind.SpawnDrops] = (context, projectile) =>
+            {
+                // The shot animation's drop step: the ball leaves Magdollite's drop.
+                deathsAndDrops.SpawnEnemyDropFromDefinition(
+                    projectile.Position.Whole,
+                    EnemyDefinitionId.Magdollite,
+                    context.Samus);
+            },
+        });
+
         /// <summary>Carries out one cue of the thrown lava's animations.</summary>
         public void RunCue(EnemyProjectileCueContext context, MagdolliteLavaCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
-            switch (cue.Kind)
-            {
-                case MagdolliteLavaCueKind.Delete:
-                    projectile.Delete();
-                    break;
-                case MagdolliteLavaCueKind.SpawnDrops:
-                    // The shot animation's drop step: the ball leaves Magdollite's drop.
-                    deathsAndDrops.SpawnEnemyDropFromDefinition(
-                        projectile.Position.Whole,
-                        EnemyDefinitionId.Magdollite,
-                        context.Samus);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(MagdolliteLavaCueKind)} {cue.Kind}.");
-            }
+            RunCueForMagdolliteLavaCueKind[cue.Kind](context, projectile);
         }
     }
 

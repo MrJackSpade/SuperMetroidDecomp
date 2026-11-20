@@ -569,6 +569,67 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         return true;
     }
 
+    /// <summary>What <c>MoveEquipmentSelector</c> does for each <see cref="PauseEquipmentCategory"/> member, each member's own arm.</summary>
+    private IdentityTable<PauseEquipmentCategory, Action<bool, bool, bool, bool, ImmutableArray<PauseUpgradeControl>, ImmutableArray<PauseUpgradeControl>, ImmutableArray<PauseUpgradeControl>>> MoveEquipmentSelectorForPauseEquipmentCategory => field ??= new(new Dictionary<PauseEquipmentCategory, Action<bool, bool, bool, bool, ImmutableArray<PauseUpgradeControl>, ImmutableArray<PauseUpgradeControl>, ImmutableArray<PauseUpgradeControl>>>
+    {
+        [PauseEquipmentCategory.Beams] = (left, right, up, down, beams, suits, boots) =>
+        {
+            if (right)
+            {
+                if (!TrySelectEquipment(suits, up ? suits[0] : PauseEquipmentControls.BeamsRightSuitEntry, ColumnSearch.Down) && !up)
+                    TrySelectEquipment(boots, boots[0], ColumnSearch.Down);
+            }
+            else if (down) TrySelectNeighbour(beams, ColumnSearch.Down);
+            else if (up && !TrySelectNeighbour(beams, ColumnSearch.Up)) TrySelectReserves();
+        },
+        [PauseEquipmentCategory.Suits] = (left, right, up, down, beams, suits, boots) =>
+        {
+            if (left)
+            {
+                if (down || !TrySelectReserves()) TrySelectEquipment(beams, beams[0], ColumnSearch.Down);
+            }
+            else if (up) TrySelectNeighbour(suits, ColumnSearch.Up);
+            else if (down && !TrySelectNeighbour(suits, ColumnSearch.Down)) TrySelectEquipment(boots, boots[0], ColumnSearch.Down);
+        },
+        [PauseEquipmentCategory.Boots] = (left, right, up, down, beams, suits, boots) =>
+        {
+            if (left)
+            {
+                if (up || !TrySelectEquipment(beams, beams[^1], ColumnSearch.Up)) TrySelectReserves();
+            }
+            else if (down) TrySelectNeighbour(boots, ColumnSearch.Down);
+            else if (up && !TrySelectNeighbour(boots, ColumnSearch.Up))
+                TrySelectEquipment(suits, suits[^1], ColumnSearch.Up);
+        },
+        [PauseEquipmentCategory.Reserves] = (left, right, up, down, beams, suits, boots) =>
+        {
+            if (right)
+            {
+                if (down || !TrySelectEquipment(suits, suits[0], ColumnSearch.Down)) TrySelectEquipment(boots, boots[0], ColumnSearch.Down);
+            }
+            else if (up)
+            {
+                if (SelectedControl != PauseEquipmentControls.ReserveMode)
+                {
+                    SelectedControl = ReserveNeighbour(ColumnSearch.Up);
+                    audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
+                }
+            }
+            else if (down)
+            {
+                if (SelectedControl == PauseEquipmentControls.ReserveTransfer ||
+                    samus.ReserveTankMode == ReserveTankMode.Auto)
+                    TrySelectEquipment(beams, beams[0], ColumnSearch.Down);
+                else
+                {
+                    SelectedControl = ReserveNeighbour(ColumnSearch.Down);
+                    if (samus.ReserveEnergy == 0) TrySelectEquipment(beams, beams[0], ColumnSearch.Down);
+                    else audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
+                }
+            }
+        },
+    });
+
     /// <summary>Applies the directional links among beam, suit, boot, and reserve rows.</summary>
     private void MoveEquipmentSelector(ControllerButton pressed)
     {
@@ -576,63 +637,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         bool up = (pressed & ControllerButton.Up) != ControllerButton.None, down = (pressed & ControllerButton.Down) != ControllerButton.None;
         ImmutableArray<PauseUpgradeControl> beams = PauseEquipmentControls.Beams, suits = PauseEquipmentControls.Suits,
             boots = PauseEquipmentControls.Boots;
-        switch (SelectedControl.Category)
-        {
-            case PauseEquipmentCategory.Beams:
-                if (right)
-                {
-                    if (!TrySelectEquipment(suits, up ? suits[0] : PauseEquipmentControls.BeamsRightSuitEntry, ColumnSearch.Down) && !up)
-                        TrySelectEquipment(boots, boots[0], ColumnSearch.Down);
-                }
-                else if (down) TrySelectNeighbour(beams, ColumnSearch.Down);
-                else if (up && !TrySelectNeighbour(beams, ColumnSearch.Up)) TrySelectReserves();
-                break;
-            case PauseEquipmentCategory.Suits:
-                if (left)
-                {
-                    if (down || !TrySelectReserves()) TrySelectEquipment(beams, beams[0], ColumnSearch.Down);
-                }
-                else if (up) TrySelectNeighbour(suits, ColumnSearch.Up);
-                else if (down && !TrySelectNeighbour(suits, ColumnSearch.Down)) TrySelectEquipment(boots, boots[0], ColumnSearch.Down);
-                break;
-            case PauseEquipmentCategory.Boots:
-                if (left)
-                {
-                    if (up || !TrySelectEquipment(beams, beams[^1], ColumnSearch.Up)) TrySelectReserves();
-                }
-                else if (down) TrySelectNeighbour(boots, ColumnSearch.Down);
-                else if (up && !TrySelectNeighbour(boots, ColumnSearch.Up))
-                    TrySelectEquipment(suits, suits[^1], ColumnSearch.Up);
-                break;
-            case PauseEquipmentCategory.Reserves:
-                if (right)
-                {
-                    if (down || !TrySelectEquipment(suits, suits[0], ColumnSearch.Down)) TrySelectEquipment(boots, boots[0], ColumnSearch.Down);
-                }
-                else if (up)
-                {
-                    if (SelectedControl != PauseEquipmentControls.ReserveMode)
-                    {
-                        SelectedControl = ReserveNeighbour(ColumnSearch.Up);
-                        audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
-                    }
-                }
-                else if (down)
-                {
-                    if (SelectedControl == PauseEquipmentControls.ReserveTransfer ||
-                        samus.ReserveTankMode == ReserveTankMode.Auto)
-                        TrySelectEquipment(beams, beams[0], ColumnSearch.Down);
-                    else
-                    {
-                        SelectedControl = ReserveNeighbour(ColumnSearch.Down);
-                        if (samus.ReserveEnergy == 0) TrySelectEquipment(beams, beams[0], ColumnSearch.Down);
-                        else audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
-                    }
-                }
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(PauseEquipmentCategory)} {SelectedControl.Category}.");
-        }
+        MoveEquipmentSelectorForPauseEquipmentCategory[SelectedControl.Category](left, right, up, down, beams, suits, boots);
     }
 
     /// <summary>The selected reserve control's neighbour in <paramref name="direction"/>.</summary>

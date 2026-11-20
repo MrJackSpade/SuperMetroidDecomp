@@ -79,20 +79,17 @@ internal sealed class MotherBrainProjectiles
         public void RunCue(EnemyProjectileCueContext context, MotherBrainTurretCue cue) => RunTurretCue(context.Projectile, cue);
     }
 
+    /// <summary>What <c>RunTurretCue</c> does for each <see cref="MotherBrainTurretCue"/> member, each member's own arm.</summary>
+    private static IdentityTable<MotherBrainTurretCue, Action<EnemyProjectile>> RunTurretCueForMotherBrainTurretCue => field ??= new(new Dictionary<MotherBrainTurretCue, Action<EnemyProjectile>>
+    {
+        [MotherBrainTurretCue.StopMoving] = static projectile => projectile.HoldStill(),
+        [MotherBrainTurretCue.Delete] = static projectile => projectile.Delete(),
+    });
+
     /// <summary>Carries out a turret cue, a turret's or its bullet's: stopping, or deletion.</summary>
     private static void RunTurretCue(EnemyProjectile projectile, MotherBrainTurretCue cue)
     {
-        switch (cue)
-        {
-            case MotherBrainTurretCue.StopMoving:
-                projectile.HoldStill();
-                return;
-            case MotherBrainTurretCue.Delete:
-                projectile.Delete();
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(MotherBrainTurretCue)} {cue}.");
-        }
+        RunTurretCueForMotherBrainTurretCue[cue](projectile);
     }
 
     /// <summary>
@@ -173,87 +170,60 @@ internal sealed class MotherBrainProjectiles
             [RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall] = null,
         };
 
+        /// <summary>What <c>Move</c> does for each <see cref="MotherBrainProjectileMotion"/> member, each member's own arm.</summary>
+        private IdentityTable<MotherBrainProjectileMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>> MoveForMotherBrainProjectileMotion => field ??= new(new Dictionary<MotherBrainProjectileMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>>
+        {
+            [MotherBrainProjectileMotion.TurretAiming] = (context, projectile) => OperateMotherBrainTurret(projectile, context.Camera),
+            [MotherBrainProjectileMotion.GlassShardFlying] = (context, projectile) => MoveMotherBrainGlassShard(projectile),
+            [MotherBrainProjectileMotion.TubeFalling] = (context, projectile) => DropMotherBrainTopTube(projectile),
+            [MotherBrainProjectileMotion.DroolHanging] = (context, projectile) => HoldMotherBrainDroolAtMouth(projectile),
+            [MotherBrainProjectileMotion.DroolFalling] = (context, projectile) => DropMotherBrainDrool(this, projectile),
+            [MotherBrainProjectileMotion.OnionRingFlying] = (context, projectile) => FlyMotherBrainOnionRing(projectile, context.Samus, context.Camera.X),
+            [MotherBrainProjectileMotion.BombBouncing] = (context, projectile) => BounceMotherBrainBomb(projectile, context.SamusBombs, context.Samus),
+            [MotherBrainProjectileMotion.RainbowBeamCharging] = (context, projectile) => PinMotherBrainRainbowCharge(projectile),
+            [MotherBrainProjectileMotion.RainbowImpactTracking] = (context, projectile) => AdvanceMotherBrainRainbowExplosion(this, projectile, context.Samus),
+            [MotherBrainProjectileMotion.DeathExplosionTracking] = (context, projectile) => RunMotherBrainDeathExplosion(projectile),
+            [MotherBrainProjectileMotion.DoorFragmentFalling] = (context, projectile) => RunMotherBrainDoorFragment(projectile),
+            [MotherBrainProjectileMotion.SubtitleHeld] = (context, projectile) => PinMotherBrainEscapeSubtitle(projectile),
+        });
+
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, MotherBrainProjectileMotion motion)
         {
             EnemyProjectile projectile = context.Projectile;
-            switch (motion)
-            {
-                case MotherBrainProjectileMotion.TurretAiming:
-                    OperateMotherBrainTurret(projectile, context.Camera);
-                    break;
-                case MotherBrainProjectileMotion.GlassShardFlying:
-                    MoveMotherBrainGlassShard(projectile);
-                    break;
-                case MotherBrainProjectileMotion.TubeFalling:
-                    DropMotherBrainTopTube(projectile);
-                    break;
-                case MotherBrainProjectileMotion.DroolHanging:
-                    HoldMotherBrainDroolAtMouth(projectile);
-                    break;
-                case MotherBrainProjectileMotion.DroolFalling:
-                    DropMotherBrainDrool(this, projectile);
-                    break;
-                case MotherBrainProjectileMotion.OnionRingFlying:
-                    FlyMotherBrainOnionRing(projectile, context.Samus, context.Camera.X);
-                    break;
-                case MotherBrainProjectileMotion.BombBouncing:
-                    BounceMotherBrainBomb(projectile, context.SamusBombs, context.Samus);
-                    break;
-                case MotherBrainProjectileMotion.RainbowBeamCharging:
-                    PinMotherBrainRainbowCharge(projectile);
-                    break;
-                case MotherBrainProjectileMotion.RainbowImpactTracking:
-                    AdvanceMotherBrainRainbowExplosion(this, projectile, context.Samus);
-                    break;
-                case MotherBrainProjectileMotion.DeathExplosionTracking:
-                    RunMotherBrainDeathExplosion(projectile);
-                    break;
-                case MotherBrainProjectileMotion.DoorFragmentFalling:
-                    RunMotherBrainDoorFragment(projectile);
-                    break;
-                case MotherBrainProjectileMotion.SubtitleHeld:
-                    PinMotherBrainEscapeSubtitle(projectile);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(MotherBrainProjectileMotion)} {motion}.");
-            }
+            MoveForMotherBrainProjectileMotion[motion](context, projectile);
         }
 
         /// <summary>Carries out a turret cue: stopping, or deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, MotherBrainTurretCue cue) => RunTurretCue(context.Projectile, cue);
 
+        /// <summary>What <c>RunCue</c> does for each <see cref="MotherBrainGlassCue"/> member, each member's own arm.</summary>
+        private static IdentityTable<MotherBrainGlassCue, Action<EnemyProjectileCueContext>> RunCueForMotherBrainGlassCue => field ??= new(new Dictionary<MotherBrainGlassCue, Action<EnemyProjectileCueContext>>
+        {
+            [MotherBrainGlassCue.Delete] = static context => context.Projectile.Delete(),
+        });
+
         /// <summary>Carries out a glass cue: deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, MotherBrainGlassCue cue)
         {
-            switch (cue)
-            {
-                case MotherBrainGlassCue.Delete:
-                    context.Projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(MotherBrainGlassCue)} {cue}.");
-            }
+            RunCueForMotherBrainGlassCue[cue](context);
         }
 
         /// <summary>Carries out an effect cue.</summary>
         public void RunCue(EnemyProjectileCueContext context, MotherBrainEffectCue cue) =>
             ApplyMotherBrainEffectCue(context.Projectile, cue);
 
+        /// <summary>What <c>RunCue</c> does for each <see cref="MotherBrainHandBeamCue"/> member, each member's own arm.</summary>
+        private IdentityTable<MotherBrainHandBeamCue, Action<EnemyProjectileCueContext>> RunCueForMotherBrainHandBeamCue => field ??= new(new Dictionary<MotherBrainHandBeamCue, Action<EnemyProjectileCueContext>>
+        {
+            [MotherBrainHandBeamCue.SpawnNextBeam] = context => SpawnMotherBrainHandBeamFired(MotherBrains.Of(context.Projectile).MotherBrain),
+            [MotherBrainHandBeamCue.Delete] = context => context.Projectile.Delete(),
+        });
+
         /// <summary>Carries out a hand-beam cue: the next beam's spawn, or deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, MotherBrainHandBeamCue cue)
         {
-            switch (cue)
-            {
-                case MotherBrainHandBeamCue.SpawnNextBeam:
-                    SpawnMotherBrainHandBeamFired(MotherBrains.Of(context.Projectile).MotherBrain);
-                    return;
-                case MotherBrainHandBeamCue.Delete:
-                    context.Projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(MotherBrainHandBeamCue)} {cue}.");
-            }
+            RunCueForMotherBrainHandBeamCue[cue](context);
         }
 
         /// <summary>Carries out one cue of Mother Brain's effect animations.</summary>

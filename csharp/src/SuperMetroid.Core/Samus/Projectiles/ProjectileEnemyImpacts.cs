@@ -153,6 +153,36 @@ internal sealed class ProjectileEnemyImpacts
         return false;
     }
 
+    /// <summary>What <c>TryStartEnemyImpact</c> comes to for each <see cref="SamusProjectileFamily"/> member, each member's own arm.</summary>
+    private IdentityTable<SamusProjectileFamily, Func<SamusBombProjectileSystem, bool, SamusProjectile, bool>> TryStartEnemyImpactForSamusProjectileFamily => field ??= new(new Dictionary<SamusProjectileFamily, Func<SamusBombProjectileSystem, bool, SamusProjectile, bool>>
+    {
+        [SamusProjectileFamily.Beam] = (samusBombs, blocksPlasmaBeam, shot) =>
+        {
+            // Enemy collision marks the shot as having hit only when the
+            // target blocks Plasma or the shot lacks Plasma. Ordinary penetrating
+            // beams, not just special beam-combo particles, retain their lifecycle.
+            if (!blocksPlasmaBeam &&
+                shot.Type.BeamCombination.HasPlasma)
+                return true;
+            // Enemy collision only marks the shot; enemy hits never reach the projectile kill's sound.
+            ProjectileTerrainCollision.KillBeam(shot);
+            return true;
+        },
+        [SamusProjectileFamily.Missile] = (samusBombs, blocksPlasmaBeam, shot) => TryStartEnemyImpactForSamusProjectileFamilyMissile(samusBombs, blocksPlasmaBeam, shot),
+        [SamusProjectileFamily.SuperMissile] = (samusBombs, blocksPlasmaBeam, shot) => TryStartEnemyImpactForSamusProjectileFamilyMissile(samusBombs, blocksPlasmaBeam, shot),
+        [SamusProjectileFamily.PowerBomb] = (samusBombs, blocksPlasmaBeam, shot) => false,
+        [SamusProjectileFamily.Bomb] = (samusBombs, blocksPlasmaBeam, shot) => false,
+        [SamusProjectileFamily.BeamExplosion] = (samusBombs, blocksPlasmaBeam, shot) => false,
+        [SamusProjectileFamily.MissileExplosion] = (samusBombs, blocksPlasmaBeam, shot) => false,
+    });
+
+    /// <summary>What <see cref="TryStartEnemyImpactForSamusProjectileFamily"/> does for <see cref="SamusProjectileFamily.Missile"/>, <see cref="SamusProjectileFamily.SuperMissile"/>.</summary>
+    private bool TryStartEnemyImpactForSamusProjectileFamilyMissile(SamusBombProjectileSystem samusBombs, bool blocksPlasmaBeam, SamusProjectile shot)
+    {
+        _terrainCollision.KillMissile(shot, samusBombs);
+        return true;
+    }
+
     /// <summary>
     /// Converts one live beam or missile into its ordinary impact animation after
     /// an enemy-owned overlap test accepts it. The enemy's shot reaction deals the damage; this
@@ -182,31 +212,6 @@ internal sealed class ProjectileEnemyImpacts
         if (shot.IsSpent)
             return false;
 
-        switch (shot.Type.Family)
-        {
-            case SamusProjectileFamily.Beam:
-                // Enemy collision marks the shot as having hit only when the
-                // target blocks Plasma or the shot lacks Plasma. Ordinary penetrating
-                // beams, not just special beam-combo particles, retain their lifecycle.
-                if (!blocksPlasmaBeam &&
-                    shot.Type.BeamCombination.HasPlasma)
-                    return true;
-                // Enemy collision only marks the shot; enemy hits never reach the projectile kill's sound.
-                ProjectileTerrainCollision.KillBeam(shot);
-                return true;
-            case SamusProjectileFamily.Missile:
-            case SamusProjectileFamily.SuperMissile:
-                _terrainCollision.KillMissile(shot, samusBombs);
-                return true;
-            case SamusProjectileFamily.PowerBomb:
-            case SamusProjectileFamily.Bomb:
-            case SamusProjectileFamily.BeamExplosion:
-            case SamusProjectileFamily.MissileExplosion:
-                // Existing explosion, bomb, and unknown family shots cannot repeatedly
-                // increment an enemy hit counter merely because their art still overlaps.
-                return false;
-            default:
-                throw new InvalidOperationException($"Undefined SamusProjectileFamily {shot.Type.Family}.");
-        }
+        return TryStartEnemyImpactForSamusProjectileFamily[shot.Type.Family](samusBombs, blocksPlasmaBeam, shot);
     }
 }

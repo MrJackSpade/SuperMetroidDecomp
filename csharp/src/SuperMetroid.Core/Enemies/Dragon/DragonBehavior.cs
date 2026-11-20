@@ -43,6 +43,17 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio = audio;
     }
 
+    /// <summary>What <c>ApplyDragonCue</c> does for each <see cref="DragonCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<DragonCueKind, Action<DragonEnemyState>> ApplyDragonCueForDragonCueKind => field ??= new(new Dictionary<DragonCueKind, Action<DragonEnemyState>>
+    {
+        [DragonCueKind.FinishAttack] = static body =>
+        {
+            if (body.Action != DragonAction.Attacking)
+                throw new InvalidOperationException($"A Dragon's attack finished while it was {body.Action}, not attacking.");
+            body.Action = DragonAction.AttackFinished;
+        },
+    });
+
     /// <summary>
     /// Carries out the Dragon body's animation cue: the attack's last cue finishes the attack, which the body's next update
     /// answers with a fireball (#2476).
@@ -50,16 +61,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The body is not attacking.</exception>
     private static void ApplyDragonCue(DragonEnemyState body, DragonCue cue)
     {
-        switch (cue.Kind)
-        {
-            case DragonCueKind.FinishAttack:
-                if (body.Action != DragonAction.Attacking)
-                    throw new InvalidOperationException($"A Dragon's attack finished while it was {body.Action}, not attacking.");
-                body.Action = DragonAction.AttackFinished;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DragonCueKind)} {cue.Kind}.");
-        }
+        ApplyDragonCueForDragonCueKind[cue.Kind](body);
     }
 
     /// <summary>Initializes a Dragon's wing: it begins on the left-facing wings animation and never runs body AI.</summary>
@@ -90,35 +92,22 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void PlaceFollowUpRecipient(RoomEnemyPlace place) =>
         _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfter(place, distance), DragonPartListingDefinitions.FollowUpReach)[0]);
 
+    /// <summary>What <c>RunDragonMain</c> does for each <see cref="DragonAction"/> member, each member's own arm.</summary>
+    private IdentityTable<DragonAction, Action<RoomEnemyPlace, DragonEnemyState, SamusState>> RunDragonMainForDragonAction => field ??= new(new Dictionary<DragonAction, Action<RoomEnemyPlace, DragonEnemyState, SamusState>>
+    {
+        [DragonAction.WaitToRise] = (place, state, samus) => RunDragonWaitToRise(place, state, samus),
+        [DragonAction.Rising] = (place, state, samus) => RunDragonRising(place, state),
+        [DragonAction.Attacking] = (place, state, samus) => RunDragonAttacking(place, state),
+        [DragonAction.AttackFinished] = (place, state, samus) => RunDragonAttacking(place, state),
+        [DragonAction.RestartingAttack] = (place, state, samus) => RunDragonAttacking(place, state),
+        [DragonAction.WaitToSink] = (place, state, samus) => RunDragonWaitToSink(place, state),
+        [DragonAction.Sinking] = (place, state, samus) => RunDragonSinking(place, state),
+    });
+
     /// <summary>Runs the Dragon body's actions; the body moves its cosmetic wing with it.</summary>
     internal void RunDragonMain(RoomEnemyPlace place, DragonEnemyState state, SamusState samus)
     {
-        switch (state.Action)
-        {
-            case DragonAction.WaitToRise:
-                RunDragonWaitToRise(place, state, samus);
-                return;
-
-            case DragonAction.Rising:
-                RunDragonRising(place, state);
-                return;
-
-            case DragonAction.Attacking or DragonAction.AttackFinished or DragonAction.RestartingAttack:
-                RunDragonAttacking(place, state);
-                return;
-
-            case DragonAction.WaitToSink:
-                RunDragonWaitToSink(place, state);
-                return;
-
-            case DragonAction.Sinking:
-                RunDragonSinking(place, state);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Dragon has no behaviour for action {state.Action}.");
-        }
+        RunDragonMainForDragonAction[state.Action](place, state, samus);
     }
 
     /// <summary>Waits for Samus before rising.</summary>
@@ -158,6 +147,41 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         wing.Position = wing.Position.WithWholeY(wing.Position.Y.Whole - 1);
     }
 
+    /// <summary>What <c>RunDragonAttacking</c> does for each <see cref="DragonAction"/> member, each member's own arm.</summary>
+    private IdentityTable<DragonAction, Action<RoomEnemyPlace, DragonEnemyState, Animation<DragonSegment>>> RunDragonAttackingForDragonAction => field ??= new(new Dictionary<DragonAction, Action<RoomEnemyPlace, DragonEnemyState, Animation<DragonSegment>>>
+    {
+        [DragonAction.Attacking] = (body, bodyState, attack) => bodyState.Playback = EnemyAnimationPlayback.StartUnlessPlaying(body, bodyState.Playback, attack),
+        [DragonAction.RestartingAttack] = (body, bodyState, attack) =>
+        {
+            bodyState.Playback = EnemyAnimationPlayback.Start(body, attack);
+            bodyState.Action = DragonAction.Attacking;
+        },
+        [DragonAction.AttackFinished] = (body, bodyState, attack) =>
+        {
+            SpawnDragonFireball(body, bodyState);
+            // Each fireball queues one sound; two Dragons attacking in one frame queue two.
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.DragonFireballSound, priority: SoundRequestPriority.Normal);
+            if (--bodyState.AttackCounter != 0)
+            {
+                bodyState.Action = DragonAction.RestartingAttack;
+                return;
+            }
+
+            bodyState.ActionTimer = UpdateCountdown.For(DragonTimingDefinitions.WaitBeforeSink);
+            bodyState.Action = DragonAction.WaitToSink;
+        },
+        [DragonAction.WaitToRise] = (body, bodyState, attack) => RunDragonAttackingForDragonActionWaitToRise(body, bodyState, attack),
+        [DragonAction.Rising] = (body, bodyState, attack) => RunDragonAttackingForDragonActionWaitToRise(body, bodyState, attack),
+        [DragonAction.WaitToSink] = (body, bodyState, attack) => RunDragonAttackingForDragonActionWaitToRise(body, bodyState, attack),
+        [DragonAction.Sinking] = (body, bodyState, attack) => RunDragonAttackingForDragonActionWaitToRise(body, bodyState, attack),
+    });
+
+    /// <summary>What <see cref="RunDragonAttackingForDragonAction"/> does for <see cref="DragonAction.WaitToRise"/>, <see cref="DragonAction.Rising"/>, <see cref="DragonAction.WaitToSink"/>, <see cref="DragonAction.Sinking"/>.</summary>
+    private void RunDragonAttackingForDragonActionWaitToRise(RoomEnemyPlace body, DragonEnemyState bodyState, Animation<DragonSegment> attack)
+    {
+        throw new InvalidOperationException($"A Dragon {bodyState.Action} is not attacking.");
+    }
+
     /// <summary>
     /// Attacks, spitting fireballs: the attack animation plays until its finishing cue; the next update spits a fireball
     /// while the attack rests on its last pose, and the update after that starts the attack over (#2145, #2476).
@@ -167,37 +191,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The attack faces the way the body turned before rising.
         Animation<DragonSegment> attack = DragonAnimations.StartingWith(DragonPhases.Attacking(bodyState.Facing));
-        switch (bodyState.Action)
-        {
-            case DragonAction.Attacking:
-                bodyState.Playback = EnemyAnimationPlayback.StartUnlessPlaying(body, bodyState.Playback, attack);
-                return;
-
-            case DragonAction.RestartingAttack:
-                bodyState.Playback = EnemyAnimationPlayback.Start(body, attack);
-                bodyState.Action = DragonAction.Attacking;
-                return;
-
-            case DragonAction.AttackFinished:
-                SpawnDragonFireball(body, bodyState);
-                // Each fireball queues one sound; two Dragons attacking in one frame queue two.
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.DragonFireballSound, priority: SoundRequestPriority.Normal);
-                if (--bodyState.AttackCounter != 0)
-                {
-                    bodyState.Action = DragonAction.RestartingAttack;
-                    return;
-                }
-
-                bodyState.ActionTimer = UpdateCountdown.For(DragonTimingDefinitions.WaitBeforeSink);
-                bodyState.Action = DragonAction.WaitToSink;
-                return;
-
-            case DragonAction.WaitToRise or DragonAction.Rising or DragonAction.WaitToSink or DragonAction.Sinking:
-                throw new InvalidOperationException($"A Dragon {bodyState.Action} is not attacking.");
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DragonAction)} {bodyState.Action}.");
-        }
+        RunDragonAttackingForDragonAction[bodyState.Action](body, bodyState, attack);
     }
 
     /// <summary>Waits before sinking, the attack resting on its last pose; the sink starts the idle pose.</summary>

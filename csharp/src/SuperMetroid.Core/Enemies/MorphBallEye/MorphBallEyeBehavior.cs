@@ -70,6 +70,15 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.Restart();
     }
 
+    /// <summary>What <c>RunMorphBallEyeMain</c> does for each <see cref="MorphBallEyeAction"/> member, each member's own arm.</summary>
+    private IdentityTable<MorphBallEyeAction, Action<RoomEnemyPlace, MorphBallEyeEnemyState, SamusState>> RunMorphBallEyeMainForMorphBallEyeAction => field ??= new(new Dictionary<MorphBallEyeAction, Action<RoomEnemyPlace, MorphBallEyeEnemyState, SamusState>>
+    {
+        [MorphBallEyeAction.WaitForSamus] = (place, state, samus) => WaitForSamusNearMorphBallEye(place, state, samus),
+        [MorphBallEyeAction.Activating] = (place, state, samus) => AdvanceMorphBallEyeActivation(place, state, samus),
+        [MorphBallEyeAction.Active] = (place, state, samus) => TrackSamusWithMorphBallEye(place, state, samus),
+        [MorphBallEyeAction.Deactivating] = (place, state, samus) => AdvanceMorphBallEyeDeactivation(state),
+    });
+
     /// <summary>Runs the body state machine only after Morph Ball is collected, preserving activation and tracking independently of equipment selection.</summary>
     private void RunMorphBallEyeMain(
         RoomEnemyPlace place,
@@ -81,24 +90,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall))
             return;
 
-        switch (state.Action)
-        {
-            case MorphBallEyeAction.WaitForSamus:
-                WaitForSamusNearMorphBallEye(place, state, samus);
-                return;
-            case MorphBallEyeAction.Activating:
-                AdvanceMorphBallEyeActivation(place, state, samus);
-                return;
-            case MorphBallEyeAction.Active:
-                TrackSamusWithMorphBallEye(place, state, samus);
-                return;
-            case MorphBallEyeAction.Deactivating:
-                AdvanceMorphBallEyeDeactivation(state);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Morph-ball eye has no behaviour for action {state.Action}.");
-        }
+        RunMorphBallEyeMainForMorphBallEyeAction[state.Action](place, state, samus);
     }
 
     /// <summary>Starts the eye's opening once Samus is closer than its opening reach on both axes.</summary>
@@ -196,32 +188,23 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.PendingInitialization;
     }
 
+    /// <summary>What <c>StepMorphBallEyeBeam</c> does for each <see cref="MorphBallEyeBeamPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<MorphBallEyeBeamPhase, Action> StepMorphBallEyeBeamForMorphBallEyeBeamPhase => field ??= new(new Dictionary<MorphBallEyeBeamPhase, Action>
+    {
+        [MorphBallEyeBeamPhase.Inactive] = () => { },
+        [MorphBallEyeBeamPhase.PendingInitialization] = () => StartMorphBallEyeBeam(),
+        [MorphBallEyeBeamPhase.Widening] = () => WidenMorphBallEyeBeam(),
+        [MorphBallEyeBeamPhase.Full] = () => StepFullMorphBallEyeBeam(),
+        [MorphBallEyeBeamPhase.Deactivating] = () => FadeMorphBallEyeBeam(),
+    });
+
     /// <summary>
     /// Advances the beam before enemy AI, as the game advances it ahead of the enemies. A beam
     /// spawned by this frame's eye AI consequently initializes on the following frame.
     /// </summary>
     internal void StepMorphBallEyeBeam()
     {
-        switch (MorphBallEyeBeam.Phase)
-        {
-            case MorphBallEyeBeamPhase.Inactive:
-                return;
-            case MorphBallEyeBeamPhase.PendingInitialization:
-                StartMorphBallEyeBeam();
-                return;
-            case MorphBallEyeBeamPhase.Widening:
-                WidenMorphBallEyeBeam();
-                return;
-            case MorphBallEyeBeamPhase.Full:
-                StepFullMorphBallEyeBeam();
-                return;
-            case MorphBallEyeBeamPhase.Deactivating:
-                FadeMorphBallEyeBeam();
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Unknown morph-ball eye beam phase {MorphBallEyeBeam.Phase}.");
-        }
+        StepMorphBallEyeBeamForMorphBallEyeBeamPhase[MorphBallEyeBeam.Phase]();
     }
 
     /// <summary>

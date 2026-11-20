@@ -104,6 +104,18 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWholeY(state.SpawnPosition.Y);
     }
 
+    /// <summary>What <c>RunAlcoonMain</c> does for each <see cref="AlcoonAction"/> member, each member's own arm.</summary>
+    private IdentityTable<AlcoonAction, Action<RoomEnemyPlace, AlcoonEnemyState, SamusState, RoomLevelData>> RunAlcoonMainForAlcoonAction => field ??= new(new Dictionary<AlcoonAction, Action<RoomEnemyPlace, AlcoonEnemyState, SamusState, RoomLevelData>>
+    {
+        [AlcoonAction.WaitingForSamus] = (place, state, samus, level) => WaitForAlcoonActivation(place, state, samus),
+        [AlcoonAction.EmergingRising] = (place, state, samus, level) => RunAlcoonEmergingRise(place, state),
+        [AlcoonAction.EmergingFalling] = (place, state, samus, level) => RunAlcoonEmergingFall(place, state, samus, level),
+        [AlcoonAction.WalkingAndFiring] = (place, state, samus, level) => RunEmergedAlcoon(place, state, samus, level),
+        [AlcoonAction.WaitingForFireAnimation] = (place, state, samus, level) => { },
+        [AlcoonAction.HidingRising] = (place, state, samus, level) => RunAlcoonHidingRise(place, state),
+        [AlcoonAction.HidingFalling] = (place, state, samus, level) => RunAlcoonHidingFall(place, state),
+    });
+
     /// <summary>Runs Alcoon for one update through all seven of its actions.</summary>
     private void RunAlcoonMain(
         RoomEnemyPlace place,
@@ -111,32 +123,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case AlcoonAction.WaitingForSamus:
-                WaitForAlcoonActivation(place, state, samus);
-                return;
-            case AlcoonAction.EmergingRising:
-                RunAlcoonEmergingRise(place, state);
-                return;
-            case AlcoonAction.EmergingFalling:
-                RunAlcoonEmergingFall(place, state, samus, level);
-                return;
-            case AlcoonAction.WalkingAndFiring:
-                RunEmergedAlcoon(place, state, samus, level);
-                return;
-            case AlcoonAction.WaitingForFireAnimation:
-                return;
-            case AlcoonAction.HidingRising:
-                RunAlcoonHidingRise(place, state);
-                return;
-            case AlcoonAction.HidingFalling:
-                RunAlcoonHidingFall(place, state);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Alcoon has no behaviour for action {state.Action}.");
-        }
+        RunAlcoonMainForAlcoonAction[state.Action](place, state, samus, level);
     }
 
     /// <summary>Starts Alcoon's jump when Samus nears its predicted landing point.</summary>

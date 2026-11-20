@@ -56,6 +56,14 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         SetPuyoAnimation(place, state, PuyoSegment.GroundedFast);
     }
 
+    /// <summary>What <c>RunPuyoMain</c> does for each <see cref="PuyoAction"/> member, each member's own arm.</summary>
+    private IdentityTable<PuyoAction, Action<RoomEnemyPlace, PuyoEnemyState, SamusState, RoomLevelData>> RunPuyoMainForPuyoAction => field ??= new(new Dictionary<PuyoAction, Action<RoomEnemyPlace, PuyoEnemyState, SamusState, RoomLevelData>>
+    {
+        [PuyoAction.Grounded] = (place, state, samus, level) => RunGroundedPuyo(place, state, samus),
+        [PuyoAction.Rising] = (place, state, samus, level) => RunAirbornePuyo(place, state, level),
+        [PuyoAction.Falling] = (place, state, samus, level) => RunAirbornePuyo(place, state, level),
+    });
+
     /// <summary>Runs a Puyo for one update and its top-level actions.</summary>
     private void RunPuyoMain(
         RoomEnemyPlace place,
@@ -63,18 +71,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case PuyoAction.Grounded:
-                RunGroundedPuyo(place, state, samus);
-                return;
-            case PuyoAction.Rising or PuyoAction.Falling:
-                RunAirbornePuyo(place, state, level);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Puyo has no behaviour for action {state.Action}.");
-        }
+        RunPuyoMainForPuyoAction[state.Action](place, state, samus, level);
     }
 
     /// <summary>Runs the grounded Puyo.</summary>
@@ -159,48 +156,45 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The definition of the hop <paramref name="state"/> is making.</summary>
     private static PuyoHopDefinition Hop(PuyoEnemyState state) => PuyoHopDefinitions.Hops[state.CurrentHop];
 
+    /// <summary>What <c>RunAirbornePuyo</c> does for each <see cref="PuyoAirborneMovement"/> member, each member's own arm.</summary>
+    private IdentityTable<PuyoAirborneMovement, Action<RoomEnemyPlace, PuyoEnemyState, RoomLevelData>> RunAirbornePuyoForPuyoAirborneMovement => field ??= new(new Dictionary<PuyoAirborneMovement, Action<RoomEnemyPlace, PuyoEnemyState, RoomLevelData>>
+    {
+        [PuyoAirborneMovement.NormalShortHop] = (place, state, level) =>
+        {
+            RunNormalPuyoHop(
+                place,
+                state,
+                level,
+                PuyoSegment.GroundedSlow);
+        },
+        [PuyoAirborneMovement.NormalBigHop] = (place, state, level) =>
+        {
+            RunNormalPuyoHop(
+                place,
+                state,
+                level,
+                PuyoSegment.GroundedMedium);
+        },
+        [PuyoAirborneMovement.NormalLongHop] = (place, state, level) =>
+        {
+            RunNormalPuyoHop(
+                place,
+                state,
+                level,
+                PuyoSegment.GroundedFast);
+        },
+        [PuyoAirborneMovement.GiantHop] = (place, state, level) => RunGiantPuyoHop(place, state, level),
+        [PuyoAirborneMovement.Dropping] = (place, state, level) => RunDroppingPuyo(place, state, level),
+        [PuyoAirborneMovement.Dropped] = (place, state, level) => RunDroppedPuyo(place, state, level),
+    });
+
     /// <summary>Runs the airborne step.</summary>
     private void RunAirbornePuyo(
         RoomEnemyPlace place,
         PuyoEnemyState state,
         RoomLevelData level)
     {
-        switch (state.AirborneMovement)
-        {
-            case PuyoAirborneMovement.NormalShortHop:
-                RunNormalPuyoHop(
-                    place,
-                    state,
-                    level,
-                    PuyoSegment.GroundedSlow);
-                return;
-            case PuyoAirborneMovement.NormalBigHop:
-                RunNormalPuyoHop(
-                    place,
-                    state,
-                    level,
-                    PuyoSegment.GroundedMedium);
-                return;
-            case PuyoAirborneMovement.NormalLongHop:
-                RunNormalPuyoHop(
-                    place,
-                    state,
-                    level,
-                    PuyoSegment.GroundedFast);
-                return;
-            case PuyoAirborneMovement.GiantHop:
-                RunGiantPuyoHop(place, state, level);
-                return;
-            case PuyoAirborneMovement.Dropping:
-                RunDroppingPuyo(place, state, level);
-                return;
-            case PuyoAirborneMovement.Dropped:
-                RunDroppedPuyo(place, state, level);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Puyo has no behaviour for airborne movement {state.AirborneMovement}.");
-        }
+        RunAirbornePuyoForPuyoAirborneMovement[state.AirborneMovement](place, state, level);
     }
 
     /// <summary>Runs a short, big or long hop, which lands into the grounded animation the hop names.</summary>

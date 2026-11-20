@@ -81,26 +81,25 @@ internal sealed class MotherBrainHead
         place.AnimationClock.ShowForGood();
     }
 
+    /// <summary>What <c>RunMotherBrainHeadMain</c> does for each <see cref="MotherBrainBrainAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<MotherBrainBrainAction, Action<RoomEnemyPlace, MotherBrainEnemyState, SamusState>> RunMotherBrainHeadMainForMotherBrainBrainAction => field ??= new(new Dictionary<MotherBrainBrainAction, Action<RoomEnemyPlace, MotherBrainEnemyState, SamusState>>
+    {
+        [MotherBrainBrainAction.ShowsBrainAlone] = static (head, state, samus) => state.BrainActionDrawn = MotherBrainBrainAction.ShowsBrainAlone,
+        [MotherBrainBrainAction.ShowsBrainOnNeck] = static (head, state, samus) =>
+        {
+            StepMotherBrainNeck(
+                state,
+                samus);
+            head.Position = head.Position.WithWhole(state.Neck.BrainAnchor.Position + MotherBrainNeckJointDefinitions.BrainAboveAnchor);
+            state.BrainActionDrawn = MotherBrainBrainAction.ShowsBrainOnNeck;
+        },
+    });
+
     /// <summary>Runs the head main/hurt entry and its brain action's choice of whether her brain and neck are drawn.</summary>
     internal static void RunMotherBrainHeadMain(RoomEnemyPlace head, MotherBrainEnemyState state, SamusState samus)
     {
         // Her brain's action decides whether her own draw shows her neck with her brain.
-        switch (state.BrainAction)
-        {
-            case MotherBrainBrainAction.ShowsBrainAlone:
-                state.BrainActionDrawn = MotherBrainBrainAction.ShowsBrainAlone;
-                return;
-            case MotherBrainBrainAction.ShowsBrainOnNeck:
-                StepMotherBrainNeck(
-                    state,
-                    samus);
-                head.Position = head.Position.WithWhole(state.Neck.BrainAnchor.Position + MotherBrainNeckJointDefinitions.BrainAboveAnchor);
-                state.BrainActionDrawn = MotherBrainBrainAction.ShowsBrainOnNeck;
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Mother Brain has no behaviour for brain action {state.BrainAction}.");
-        }
+        RunMotherBrainHeadMainForMotherBrainBrainAction[state.BrainAction](head, state, samus);
     }
 
     /// <summary>

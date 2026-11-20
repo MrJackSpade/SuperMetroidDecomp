@@ -83,6 +83,18 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.Restart();
     }
 
+    /// <summary>What <c>RunDachoraMain</c> does for each <see cref="DachoraAction"/> member, each member's own arm.</summary>
+    private IdentityTable<DachoraAction, Action<RoomEnemyPlace, DachoraEnemyState, SamusState, RoomLevelData>> RunDachoraMainForDachoraAction => field ??= new(new Dictionary<DachoraAction, Action<RoomEnemyPlace, DachoraEnemyState, SamusState, RoomLevelData>>
+    {
+        [DachoraAction.WaitingForSamus] = (place, state, samus, level) => RunDachoraWaiting(place, state, samus, level),
+        [DachoraAction.BlinkingBeforeRun] = (place, state, samus, level) => RunDachoraBlinking(place, state),
+        [DachoraAction.RunningLeft] = (place, state, samus, level) => RunDachoraLeft(place, state, level),
+        [DachoraAction.RunningRight] = (place, state, samus, level) => RunDachoraRight(place, state, level),
+        [DachoraAction.ChargingShinespark] = (place, state, samus, level) => RunDachoraCharging(place, state),
+        [DachoraAction.Shinesparking] = (place, state, samus, level) => RunDachoraShinespark(place, state, samus, level),
+        [DachoraAction.Falling] = (place, state, samus, level) => RunDachoraFalling(place, state, samus, level),
+    });
+
     /// <summary>Runs the Dachora body's current action.</summary>
     private void RunDachoraMain(
         RoomEnemyPlace place,
@@ -90,33 +102,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case DachoraAction.WaitingForSamus:
-                RunDachoraWaiting(place, state, samus, level);
-                break;
-            case DachoraAction.BlinkingBeforeRun:
-                RunDachoraBlinking(place, state);
-                break;
-            case DachoraAction.RunningLeft:
-                RunDachoraLeft(place, state, level);
-                break;
-            case DachoraAction.RunningRight:
-                RunDachoraRight(place, state, level);
-                break;
-            case DachoraAction.ChargingShinespark:
-                RunDachoraCharging(place, state);
-                break;
-            case DachoraAction.Shinesparking:
-                RunDachoraShinespark(place, state, samus, level);
-                break;
-            case DachoraAction.Falling:
-                RunDachoraFalling(place, state, samus, level);
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Dachora has no behaviour for action {state.Action}.");
-        }
+        RunDachoraMainForDachoraAction[state.Action](place, state, samus, level);
     }
 
     /// <summary>Waits for Samus, including the one-pixel floor probe before proximity.</summary>

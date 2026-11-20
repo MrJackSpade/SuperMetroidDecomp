@@ -92,43 +92,33 @@ internal sealed class CrocomireCombat
             [RoomEnemyProjectileKind.CrocomireSpikeWallPieces] = CrocomireProjectileMotion.SpikeWallCollapsing,
         };
 
+        /// <summary>What <c>Move</c> does for each <see cref="CrocomireProjectileMotion"/> member, each member's own arm.</summary>
+        private IdentityTable<CrocomireProjectileMotion, Action<EnemyProjectileMotionContext>> MoveForCrocomireProjectileMotion => field ??= new(new Dictionary<CrocomireProjectileMotion, Action<EnemyProjectileMotionContext>>
+        {
+            [CrocomireProjectileMotion.ShotAiming] = context => StartCrocomireProjectileFlight(context.Projectile, context.Level),
+            [CrocomireProjectileMotion.ShotFlying] = context => RunCrocomireProjectileFlight(context.Projectile, context.Level),
+            [CrocomireProjectileMotion.SpikeWallCollapsing] = context => RunCrocomireSpikeWallPiece(context.Projectile),
+            [CrocomireProjectileMotion.BridgeFragmentFalling] = context => RunCrocomireBridgeFragment(context.Projectile, context.Level),
+        });
+
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, CrocomireProjectileMotion motion)
         {
-            switch (motion)
-            {
-                case CrocomireProjectileMotion.ShotAiming:
-                    StartCrocomireProjectileFlight(context.Projectile, context.Level);
-                    break;
-                case CrocomireProjectileMotion.ShotFlying:
-                    RunCrocomireProjectileFlight(context.Projectile, context.Level);
-                    break;
-                case CrocomireProjectileMotion.SpikeWallCollapsing:
-                    RunCrocomireSpikeWallPiece(context.Projectile);
-                    break;
-                case CrocomireProjectileMotion.BridgeFragmentFalling:
-                    RunCrocomireBridgeFragment(context.Projectile, context.Level);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(CrocomireProjectileMotion)} {motion}.");
-            }
+            MoveForCrocomireProjectileMotion[motion](context);
         }
+
+        /// <summary>What <c>RunCue</c> does for each <see cref="CrocomireProjectileCue"/> member, each member's own arm.</summary>
+        private IdentityTable<CrocomireProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForCrocomireProjectileCue => field ??= new(new Dictionary<CrocomireProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>>
+        {
+            [CrocomireProjectileCue.SpawnDrops] = (context, projectile) => deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.Crocomire, context.Samus),
+            [CrocomireProjectileCue.Delete] = (context, projectile) => projectile.Delete(),
+        });
 
         /// <summary>Carries out a cue of the shot's animation: the drop, allocated before the deletion frees the actor, or the deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, CrocomireProjectileCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
-            switch (cue)
-            {
-                case CrocomireProjectileCue.SpawnDrops:
-                    deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.Crocomire, context.Samus);
-                    return;
-                case CrocomireProjectileCue.Delete:
-                    projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(CrocomireProjectileCue)} {cue}.");
-            }
+            RunCueForCrocomireProjectileCue[cue](context, projectile);
         }
 
         /// <summary>Runs the one-frame vector setup.</summary>

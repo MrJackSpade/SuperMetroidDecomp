@@ -188,29 +188,26 @@ internal sealed class MotherBrainFakeDeath
         tube.SetSpeciesState(state);
     }
 
+    /// <summary>What <c>RunMotherBrainFallingTubeMain</c> does for each <see cref="MotherBrainTubeAction"/> member, each member's own arm.</summary>
+    private IdentityTable<MotherBrainTubeAction, Action<RoomEnemyPlace, MotherBrainFallingTubeState>> RunMotherBrainFallingTubeMainForMotherBrainTubeAction => field ??= new(new Dictionary<MotherBrainTubeAction, Action<RoomEnemyPlace, MotherBrainFallingTubeState>>
+    {
+        [MotherBrainTubeAction.NonMainTube] = (tube, tubeState) => FallMotherBrainSideTube(tube),
+        [MotherBrainTubeAction.WaitingToFall] = (tube, tubeState) =>
+        {
+            // The main tube falls as its fall delay runs out.
+            if (tubeState.FallDelay.StepKeepsRunning())
+                return;
+            tubeState.Action = MotherBrainTubeAction.Falling;
+            FallMotherBrainMainTube(tube);
+        },
+        [MotherBrainTubeAction.Falling] = (tube, tubeState) => FallMotherBrainMainTube(tube),
+    });
+
     /// <summary>Runs the actions of the falling tubes.</summary>
     internal void RunMotherBrainFallingTubeMain(RoomEnemyPlace tube)
     {
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
-        switch (tubeState.Action)
-        {
-            case MotherBrainTubeAction.NonMainTube:
-                FallMotherBrainSideTube(tube);
-                return;
-            case MotherBrainTubeAction.WaitingToFall:
-                // The main tube falls as its fall delay runs out.
-                if (tubeState.FallDelay.StepKeepsRunning())
-                    return;
-                tubeState.Action = MotherBrainTubeAction.Falling;
-                FallMotherBrainMainTube(tube);
-                return;
-            case MotherBrainTubeAction.Falling:
-                FallMotherBrainMainTube(tube);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Mother Brain falling tube has no behaviour for action {tubeState.Action}.");
-        }
+        RunMotherBrainFallingTubeMainForMotherBrainTubeAction[tubeState.Action](tube, tubeState);
     }
 
     /// <summary>Drops a side tube until it reaches the floor and explodes, trailing smoke as it falls.</summary>

@@ -49,6 +49,13 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             place, state, MochtroidSegment.FreeFlight);
     }
 
+    /// <summary>What <c>RunMochtroidMain</c> does for each <see cref="MochtroidMovementMode"/> member, each member's own arm.</summary>
+    private IdentityTable<MochtroidMovementMode, Action<RoomEnemyPlace, SamusState, RoomLevelData, MochtroidEnemyState>> RunMochtroidMainForMochtroidMovementMode => field ??= new(new Dictionary<MochtroidMovementMode, Action<RoomEnemyPlace, SamusState, RoomLevelData, MochtroidEnemyState>>
+    {
+        [MochtroidMovementMode.NotTouchingSamus] = (place, samus, level, state) => RunMochtroidFreeFlight(place, state, samus, level),
+        [MochtroidMovementMode.TouchingSamus] = (place, samus, level, state) => RunMochtroidAttachedFlight(place, state, samus, level),
+    });
+
     /// <summary>Runs a Mochtroid for one update, resetting its movement before it moves.</summary>
     private void RunMochtroidMain(
         RoomEnemyPlace place,
@@ -58,18 +65,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         MochtroidEnemyState state = place.RequireSpeciesState<MochtroidEnemyState>();
         MochtroidMovementMode selectedMode = state.MovementMode;
         state.MovementMode = MochtroidMovementMode.NotTouchingSamus;
-        switch (selectedMode)
-        {
-            case MochtroidMovementMode.NotTouchingSamus:
-                RunMochtroidFreeFlight(place, state, samus, level);
-                return;
-            case MochtroidMovementMode.TouchingSamus:
-                RunMochtroidAttachedFlight(place, state, samus, level);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Mochtroid movement {selectedMode} is not one of its two movements.");
-        }
+        RunMochtroidMainForMochtroidMovementMode[selectedMode](place, samus, level, state);
     }
 
     /// <summary>Accelerates toward Samus, resolving Y before X and clearing velocity on terrain contact.</summary>

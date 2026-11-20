@@ -72,6 +72,31 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         SetHopperAnimation(place, state, ReadHopperAnimation(place, state, HopperPhase.Landed));
     }
 
+    /// <summary>What <c>RunHopperMain</c> does for each <see cref="HopperAction"/> member, each member's own arm.</summary>
+    private IdentityTable<HopperAction, Action<RoomEnemyPlace, SamusState, RoomLevelData, HopperEnemyState>> RunHopperMainForHopperAction => field ??= new(new Dictionary<HopperAction, Action<RoomEnemyPlace, SamusState, RoomLevelData, HopperEnemyState>>
+    {
+        [HopperAction.ChooseHopSize] = (place, samus, level, state) =>
+        {
+            // Choosing between the two hops takes a whole update.
+            state.HopSize = HopperDecisions.HopsBig.IsTakenBy(_room.Random.Generate()) ? HopperHopSize.Big : HopperHopSize.Small;
+            state.Action = HopperAction.PrepareHop;
+        },
+        [HopperAction.PrepareHop] = (place, samus, level, state) => PrepareHopperHop(state),
+        [HopperAction.ChooseDirection] = (place, samus, level, state) => ChooseHopperDirection(place, state, samus),
+        [HopperAction.StartHop] = (place, samus, level, state) => StartHopperJump(place, state),
+        [HopperAction.Landed] = (place, samus, level, state) => LandHopper(place, state),
+        [HopperAction.HoppingAway] = (place, samus, level, state) => RunHopperHopAway(place, state, level),
+        [HopperAction.Returning] = (place, samus, level, state) => RunHopperReturn(place, state, level),
+        [HopperAction.WaitToHop] = (place, samus, level, state) =>
+        {
+            if (state.ReadyToHop)
+            {
+                state.ReadyToHop = false;
+                state.Action = HopperAction.ChooseHopSize;
+            }
+        },
+    });
+
     /// <summary>Runs the Hopper's current action.</summary>
     private void RunHopperMain(
         RoomEnemyPlace place,
@@ -79,42 +104,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         HopperEnemyState state = place.RequireSpeciesState<HopperEnemyState>();
-        switch (state.Action)
-        {
-            case HopperAction.ChooseHopSize:
-                // Choosing between the two hops takes a whole update.
-                state.HopSize = HopperDecisions.HopsBig.IsTakenBy(_room.Random.Generate()) ? HopperHopSize.Big : HopperHopSize.Small;
-                state.Action = HopperAction.PrepareHop;
-                return;
-            case HopperAction.PrepareHop:
-                PrepareHopperHop(state);
-                return;
-            case HopperAction.ChooseDirection:
-                ChooseHopperDirection(place, state, samus);
-                return;
-            case HopperAction.StartHop:
-                StartHopperJump(place, state);
-                return;
-            case HopperAction.Landed:
-                LandHopper(place, state);
-                return;
-            case HopperAction.HoppingAway:
-                RunHopperHopAway(place, state, level);
-                return;
-            case HopperAction.Returning:
-                RunHopperReturn(place, state, level);
-                return;
-            case HopperAction.WaitToHop:
-                if (state.ReadyToHop)
-                {
-                    state.ReadyToHop = false;
-                    state.Action = HopperAction.ChooseHopSize;
-                }
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Hopper has no behaviour for action {state.Action}.");
-        }
+        RunHopperMainForHopperAction[state.Action](place, samus, level, state);
     }
 
     /// <summary>

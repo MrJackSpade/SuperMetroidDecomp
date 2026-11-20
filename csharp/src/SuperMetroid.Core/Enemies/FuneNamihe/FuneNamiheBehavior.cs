@@ -35,6 +35,21 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
+    /// <summary>What <c>ApplyFuneNamiheCue</c> does for each <see cref="FuneNamiheCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<FuneNamiheCueKind, Action<FuneNamiheEnemyState>> ApplyFuneNamiheCueForFuneNamiheCueKind => field ??= new(new Dictionary<FuneNamiheCueKind, Action<FuneNamiheEnemyState>>
+    {
+        [FuneNamiheCueKind.SpitSound] = state =>
+        {
+            // Shared mouth animation queues the spit sound.
+            QueueFuneNamiheSpitSound();
+        },
+        [FuneNamiheCueKind.FinishActivity] = state =>
+        {
+            // The spit ends the activity whichever way the Fune faces.
+            state.FinishSpit();
+        },
+    });
+
     /// <summary>Carries out one cue of the Fune's and Namihe's animations: the spit sound, a fireball, or finishing the spit.</summary>
     private void ApplyFuneNamiheCue(RoomEnemyPlace place, FuneNamiheEnemyState state, FuneNamiheCue cue)
     {
@@ -44,19 +59,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
         FuneNamiheCueKind kind = ((FuneNamiheCue.Signal)cue).Kind;
-        switch (kind)
-        {
-            case FuneNamiheCueKind.SpitSound:
-                // Shared mouth animation queues the spit sound.
-                QueueFuneNamiheSpitSound();
-                break;
-            case FuneNamiheCueKind.FinishActivity:
-                // The spit ends the activity whichever way the Fune faces.
-                state.FinishSpit();
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(FuneNamiheCueKind)} {kind}.");
-        }
+        ApplyFuneNamiheCueForFuneNamiheCueKind[kind](state);
     }
 
     /// <summary>Starts the Fune waiting on its cooldown and its idle animation, facing as its spawn settings say.</summary>
@@ -82,54 +85,48 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     private static UpdateCountdown CooldownOf(RoomEnemyPlace place) =>
         UpdateCountdown.Lasting(Math.Max(1, place.SpawnSettings<FuneSpawnSettings>().CooldownTime));
 
+    /// <summary>What <c>RunFuneMain</c> does for each <see cref="FuneAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<FuneAction, Action<RoomEnemyPlace, FuneEnemyState>> RunFuneMainForFuneAction => field ??= new(new Dictionary<FuneAction, Action<RoomEnemyPlace, FuneEnemyState>>
+    {
+        [FuneAction.WaitForCooldown] = static (place, state) =>
+        {
+            if (!state.Cooldown.Count())
+                return;
+
+            state.Action = FuneAction.Spitting;
+            StartFuneNamiheAnimation(place, state);
+            state.Cooldown = CooldownOf(place);
+        },
+        [FuneAction.Spitting] = static (place, state) => { },
+    });
+
     /// <summary>Starts the Fune's spit after its cooldown; the active animation owns the return to idle.</summary>
     internal static void RunFuneMain(RoomEnemyPlace place, FuneEnemyState state)
     {
-        switch (state.Action)
-        {
-            case FuneAction.WaitForCooldown:
-                if (!state.Cooldown.Count())
-                    return;
-
-                state.Action = FuneAction.Spitting;
-                StartFuneNamiheAnimation(place, state);
-                state.Cooldown = CooldownOf(place);
-                return;
-
-            case FuneAction.Spitting:
-                // The active animation's finish step is the only owner allowed to leave
-                // the spit. Main AI does nothing until that step.
-                return;
-
-            default:
-                throw new InvalidDataException($"Fune has no behaviour for action {state.Action}.");
-        }
+        RunFuneMainForFuneAction[state.Action](place, state);
     }
+
+    /// <summary>What <c>RunNamiheMain</c> does for each <see cref="NamiheAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<NamiheAction, Action<RoomEnemyPlace, NamiheEnemyState, SamusState>> RunNamiheMainForNamiheAction => field ??= new(new Dictionary<NamiheAction, Action<RoomEnemyPlace, NamiheEnemyState, SamusState>>
+    {
+        [NamiheAction.WaitForSamus] = static (place, state, samus) =>
+        {
+            // Samus exactly at the proximity distance does not wake the Namihe.
+            if (Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) >= place.SpawnSettings<NamiheSpawnSettings>().YProximity)
+            {
+                return;
+            }
+
+            state.Action = NamiheAction.Spitting;
+            StartFuneNamiheAnimation(place, state);
+        },
+        [NamiheAction.Spitting] = static (place, state, samus) => { },
+    });
 
     /// <summary>Starts the Namihe's spit once Samus is vertically closer than its proximity; the spitting animation returns it to waiting.</summary>
     internal static void RunNamiheMain(RoomEnemyPlace place, NamiheEnemyState state, SamusState samus)
     {
-        switch (state.Action)
-        {
-            case NamiheAction.WaitForSamus:
-                // Samus exactly at the proximity distance does not wake the Namihe.
-                if (Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) >= place.SpawnSettings<NamiheSpawnSettings>().YProximity)
-                {
-                    return;
-                }
-
-                state.Action = NamiheAction.Spitting;
-                StartFuneNamiheAnimation(place, state);
-                return;
-
-            case NamiheAction.Spitting:
-                // The active animation's finish step is the only owner allowed to leave
-                // the spit. Main AI does nothing until that step.
-                return;
-
-            default:
-                throw new InvalidDataException($"Namihe has no behaviour for action {state.Action}.");
-        }
+        RunNamiheMainForNamiheAction[state.Action](place, state, samus);
     }
 
     /// <summary>

@@ -398,6 +398,38 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         StartVerticalShutterAnimation(place, state, pose);
     }
 
+    /// <summary>What <c>RunVerticalShutterMain</c> does for each <see cref="VerticalShutterAction"/> member, each member's own arm.</summary>
+    private IdentityTable<VerticalShutterAction, Action<RoomEnemyPlace, VerticalShutterEnemyState, SamusState, Position16<RoomPixels>>> RunVerticalShutterMainForVerticalShutterAction => field ??= new(new Dictionary<VerticalShutterAction, Action<RoomEnemyPlace, VerticalShutterEnemyState, SamusState, Position16<RoomPixels>>>
+    {
+        [VerticalShutterAction.WaitForTimer] = (place, state, samus, camera) =>
+        {
+            state.ActionTimer = state.ActionTimer.Decrement().Remaining;
+            if (state.ActionTimer.IsZero)
+            {
+                state.ActionTimer = WrappingCountdown.Start(place.SpawnSettings<ShutterSpawnSettings>().WaitTime);
+                ActivateVerticalShutter(place, state, camera);
+            }
+        },
+        [VerticalShutterAction.WaitForHorizontalProximity] = (place, state, samus, camera) =>
+        {
+            if (IsSamusWithinShutterHorizontalDistance(
+                place,
+                samus,
+                place.SpawnSettings<ShutterSpawnSettings>().ProximityDistance))
+            {
+                ActivateVerticalShutter(place, state, camera);
+            }
+        },
+        [VerticalShutterAction.Activate] = (place, state, samus, camera) => ActivateVerticalShutter(place, state, camera),
+        [VerticalShutterAction.Still] = (place, state, samus, camera) =>
+        {
+        },
+        [VerticalShutterAction.MovingUp] = (place, state, samus, camera) => MoveVerticalShutter(place, state, samus, direction: VerticalDirection.Up),
+        [VerticalShutterAction.MovingDown] = (place, state, samus, camera) => MoveVerticalShutter(place, state, samus, direction: VerticalDirection.Down),
+        [VerticalShutterAction.StoppedAfterMovingUp] = (place, state, samus, camera) => RunVerticalShutterStopped(place, state, camera, end: VerticalDirection.Up),
+        [VerticalShutterAction.StoppedAfterMovingDown] = (place, state, samus, camera) => RunVerticalShutterStopped(place, state, camera, end: VerticalDirection.Down),
+    });
+
     /// <summary>Runs the vertical shutter's main AI.</summary>
     private void RunVerticalShutterMain(
         RoomEnemyPlace place,
@@ -405,54 +437,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         SamusState samus,
         Position16<RoomPixels> camera)
     {
-        switch (state.Action)
-        {
-            case VerticalShutterAction.WaitForTimer:
-                state.ActionTimer = state.ActionTimer.Decrement().Remaining;
-                if (state.ActionTimer.IsZero)
-                {
-                    state.ActionTimer = WrappingCountdown.Start(place.SpawnSettings<ShutterSpawnSettings>().WaitTime);
-                    ActivateVerticalShutter(place, state, camera);
-                }
-                break;
-
-            case VerticalShutterAction.WaitForHorizontalProximity:
-                if (IsSamusWithinShutterHorizontalDistance(
-                    place,
-                    samus,
-                    place.SpawnSettings<ShutterSpawnSettings>().ProximityDistance))
-                {
-                    ActivateVerticalShutter(place, state, camera);
-                }
-                break;
-
-            case VerticalShutterAction.Activate:
-                ActivateVerticalShutter(place, state, camera);
-                break;
-
-            case VerticalShutterAction.Still:
-                break;
-
-            case VerticalShutterAction.MovingUp:
-                MoveVerticalShutter(place, state, samus, direction: VerticalDirection.Up);
-                break;
-
-            case VerticalShutterAction.MovingDown:
-                MoveVerticalShutter(place, state, samus, direction: VerticalDirection.Down);
-                break;
-
-            case VerticalShutterAction.StoppedAfterMovingUp:
-                RunVerticalShutterStopped(place, state, camera, end: VerticalDirection.Up);
-                break;
-
-            case VerticalShutterAction.StoppedAfterMovingDown:
-                RunVerticalShutterStopped(place, state, camera, end: VerticalDirection.Down);
-                break;
-
-            default:
-                throw new InvalidDataException(
-                    $"Vertical shutter has no behaviour for action {state.Action}.");
-        }
+        RunVerticalShutterMainForVerticalShutterAction[state.Action](place, state, samus, camera);
 
         // An idle shutter reacts when one of Samus's four solid-enemy collisions
         // names this enemy and she has contact damage (e.g. screw attack).

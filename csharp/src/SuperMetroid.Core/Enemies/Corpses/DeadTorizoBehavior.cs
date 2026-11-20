@@ -60,6 +60,29 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
+    /// <summary>What <c>RunDeadTorizoMain</c> does for each <see cref="DeadTorizoPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<DeadTorizoPhase, Action<RoomEnemyPlace, SamusState, DeadTorizoEnemyState>> RunDeadTorizoMainForDeadTorizoPhase => field ??= new(new Dictionary<DeadTorizoPhase, Action<RoomEnemyPlace, SamusState, DeadTorizoEnemyState>>
+    {
+        [DeadTorizoPhase.Wait] = (place, samus, state) =>
+        {
+            if (samus.Kinematics.DidCollideWithSolidEnemy(place) == true)
+                state.Phase = DeadTorizoPhase.PreRot;
+        },
+        [DeadTorizoPhase.PreRot] = (place, samus, state) =>
+        {
+            if (state.PreRotDelay.Step())
+            {
+                place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
+                state.Phase = DeadTorizoPhase.Rotting;
+                RunDeadTorizoRotting(place, state);
+            }
+        },
+        [DeadTorizoPhase.Rotting] = (place, samus, state) => RunDeadTorizoRotting(place, state),
+        [DeadTorizoPhase.Finished] = (place, samus, state) =>
+        {
+        },
+    });
+
     /// <summary>Runs the dead Torizo's main AI.</summary>
     private void RunDeadTorizoMain(RoomEnemyPlace place, SamusState samus)
     {
@@ -73,33 +96,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             TriggerDeadTorizoRotting(place);
         }
 
-        switch (state.Phase)
-        {
-            case DeadTorizoPhase.Wait:
-                if (samus.Kinematics.DidCollideWithSolidEnemy(place) == true)
-                    state.Phase = DeadTorizoPhase.PreRot;
-                break;
-
-            case DeadTorizoPhase.PreRot:
-                if (state.PreRotDelay.Step())
-                {
-                    place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-                    state.Phase = DeadTorizoPhase.Rotting;
-                    RunDeadTorizoRotting(place, state);
-                }
-                break;
-
-            case DeadTorizoPhase.Rotting:
-                RunDeadTorizoRotting(place, state);
-                break;
-
-            case DeadTorizoPhase.Finished:
-                break;
-
-            default:
-                throw new InvalidDataException(
-                    $"Dead Torizo has no behaviour for phase {state.Phase}.");
-        }
+        RunDeadTorizoMainForDeadTorizoPhase[state.Phase](place, samus, state);
     }
 
     /// <summary>Advances the corpse's fall and runs one rot update of its schedule.</summary>

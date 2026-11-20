@@ -239,6 +239,61 @@ internal sealed class CrocomireFight
         _ => throw new InvalidOperationException($"Undefined {nameof(CrocomireStepCondition)} {condition}."),
     };
 
+    /// <summary>What <c>ApplyCrocomireBodySignal</c> comes to for each <see cref="CrocomireBodyCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<CrocomireBodyCueKind, Func<CrocomireEnemyState, SamusState, RoomLevelData, RoomEnemyPlace, CrocomireBodyAnimation?>> ApplyCrocomireBodySignalForCrocomireBodyCueKind => field ??= new(new Dictionary<CrocomireBodyCueKind, Func<CrocomireEnemyState, SamusState, RoomLevelData, RoomEnemyPlace, CrocomireBodyAnimation?>>
+    {
+        [CrocomireBodyCueKind.FightAi] = (state, samus, level, body) => RunCrocomireFightCue(state, samus),
+        [CrocomireBodyCueKind.MaybeStartProjectileAttack] = (state, samus, level, body) =>
+        {
+            if (RollsProjectileAttack(_access.ReadCrocomireRandom()))
+            {
+                state.Phase = CrocomirePhase.ProjectileAttack;
+                state.ShotsSpat = 0;
+                return CrocomireBodyAnimation.ProjectileAttack;
+            }
+            return null;
+        },
+        [CrocomireBodyCueKind.Cry] = (state, samus, level, body) =>
+        {
+            _access.RequestCrocomireSound(CrocomireSoundDefinitions.Cry);
+            return null;
+        },
+        [CrocomireBodyCueKind.BigExplosionSound] = (state, samus, level, body) =>
+        {
+            _access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
+            return null;
+        },
+        [CrocomireBodyCueKind.SkeletonCollapseSound] = (state, samus, level, body) =>
+        {
+            _access.RequestCrocomireSound(CrocomireSoundDefinitions.SkeletonCollapse);
+            return null;
+        },
+        [CrocomireBodyCueKind.ShakeScreen] = (state, samus, level, body) =>
+        {
+            _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), CrocomireFightDefinitions.StepShakeDuration);
+            _access.RequestCrocomireSound(CrocomireSoundDefinitions.ScreenShake);
+            return null;
+        },
+        [CrocomireBodyCueKind.StepTowardSpikeWall] = (state, samus, level, body) =>
+        {
+            if (MoveCrocomire(body, level, CrocomireStepDefinitions.Advance.HorizontalPixels))
+            {
+                state.Phase = CrocomirePhase.BackingOffSpikeWall;
+                return CrocomireBodyAnimation.BackOffFromSpikeWall;
+            }
+            int random = _access.ReadCrocomireRandom();
+            int baseOffset = CrocomireFightDefinitions.SpikeWallDustSide.Toward(
+                BossRandomRolls.InHalfFrom(random, CrocomireRandomDefinitions.SpikeWallDustLeftFrom) ? HorizontalDirection.Left : HorizontalDirection.Right);
+            _access.SpawnCrocomireDust(state, baseOffset + CrocomireRandomDefinitions.SpikeWallDustSpread.Of(random));
+            return null;
+        },
+        [CrocomireBodyCueKind.SkeletonCollapsed] = (state, samus, level, body) =>
+        {
+            state.MarkSkeletonCollapsed();
+            return null;
+        },
+    });
+
     /// <summary>Carries out one signalling body-animation cue; the fight AI and the spike-wall step may start another animation.</summary>
     private CrocomireBodyAnimation? ApplyCrocomireBodySignal(
         CrocomireEnemyState state,
@@ -247,51 +302,7 @@ internal sealed class CrocomireFight
         CrocomireBodyCueKind kind)
     {
         RoomEnemyPlace body = state.Body;
-        switch (kind)
-        {
-            case CrocomireBodyCueKind.FightAi:
-                return RunCrocomireFightCue(state, samus);
-
-            case CrocomireBodyCueKind.MaybeStartProjectileAttack:
-                if (RollsProjectileAttack(_access.ReadCrocomireRandom()))
-                {
-                    state.Phase = CrocomirePhase.ProjectileAttack;
-                    state.ShotsSpat = 0;
-                    return CrocomireBodyAnimation.ProjectileAttack;
-                }
-                return null;
-
-            case CrocomireBodyCueKind.Cry:
-                _access.RequestCrocomireSound(CrocomireSoundDefinitions.Cry);
-                return null;
-            case CrocomireBodyCueKind.BigExplosionSound:
-                _access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
-                return null;
-            case CrocomireBodyCueKind.SkeletonCollapseSound:
-                _access.RequestCrocomireSound(CrocomireSoundDefinitions.SkeletonCollapse);
-                return null;
-            case CrocomireBodyCueKind.ShakeScreen:
-                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), CrocomireFightDefinitions.StepShakeDuration);
-                _access.RequestCrocomireSound(CrocomireSoundDefinitions.ScreenShake);
-                return null;
-
-            case CrocomireBodyCueKind.StepTowardSpikeWall:
-                if (MoveCrocomire(body, level, CrocomireStepDefinitions.Advance.HorizontalPixels))
-                {
-                    state.Phase = CrocomirePhase.BackingOffSpikeWall;
-                    return CrocomireBodyAnimation.BackOffFromSpikeWall;
-                }
-                int random = _access.ReadCrocomireRandom();
-                int baseOffset = CrocomireFightDefinitions.SpikeWallDustSide.Toward(
-                    BossRandomRolls.InHalfFrom(random, CrocomireRandomDefinitions.SpikeWallDustLeftFrom) ? HorizontalDirection.Left : HorizontalDirection.Right);
-                _access.SpawnCrocomireDust(state, baseOffset + CrocomireRandomDefinitions.SpikeWallDustSpread.Of(random));
-                return null;
-            case CrocomireBodyCueKind.SkeletonCollapsed:
-                state.MarkSkeletonCollapsed();
-                return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CrocomireBodyCueKind)} {kind}.");
-        }
+        return ApplyCrocomireBodySignalForCrocomireBodyCueKind[kind](state, samus, level, body);
     }
 
     /// <summary>Whether Crocomire's one-in-four spit roll starts a spit attack where his walk offers one.</summary>
@@ -302,6 +313,102 @@ internal sealed class CrocomireFight
     private static bool CrocomireBodyIsOnScreen(RoomEnemyPlace body, int cameraX) =>
         body.Position.X.Whole - body.Radius.X - CrocomireFightDefinitions.StepBackScreenReach < cameraX;
 
+    /// <summary>What <c>RunCrocomireFightCue</c> comes to for each <see cref="CrocomirePhase"/> member, each member's own arm.</summary>
+    private IdentityTable<CrocomirePhase, Func<CrocomireEnemyState, SamusState, CrocomireBodyAnimation?>> RunCrocomireFightCueForCrocomirePhase => field ??= new(new Dictionary<CrocomirePhase, Func<CrocomireEnemyState, SamusState, CrocomireBodyAnimation?>>
+    {
+        [CrocomirePhase.Dormant] = (state, samus) =>
+        {
+            if (Math.Abs(state.Body.Position.X.Whole - samus.Position.X.Whole) < CrocomireFightDefinitions.WakeDistance)
+            {
+                state.Phase = CrocomirePhase.WaitingForFirstDamage;
+                return CrocomireBodyAnimation.AwaitingHit;
+            }
+            return null;
+        },
+        [CrocomirePhase.SteppingForward] = (state, samus) =>
+        {
+            if (state.StepBack.Take())
+            {
+                if (state.StepCounter != 0)
+                {
+                    state.Phase = CrocomirePhase.SteppingBack;
+                    return CrocomireBodyAnimation.StepBack;
+                }
+            }
+            if (state.Body.Position.X.Whole < CrocomireFightDefinitions.SpikeWallChargeX)
+            {
+                state.Phase = CrocomirePhase.NearSpikeWallCharge;
+                return CrocomireBodyAnimation.NearSpikeWallCharge;
+            }
+            // The phase starts with his step forward, which loops on its own until another phase takes over.
+            return null;
+        },
+        [CrocomirePhase.ProjectileAttack] = (state, samus) =>
+        {
+            if (state.StepBack.Take())
+            {
+                state.Phase = CrocomirePhase.SteppingBack;
+                return CrocomireBodyAnimation.StepBack;
+            }
+            if (state.ShotsSpat < CrocomireProjectileDefinitions.VolleyShotCount)
+            {
+                int gradient = CrocomireVolley.GradientOf(state.ShotsSpat, _access.LastShotGradient);
+                state.ShotsSpat++;
+                SpawnCrocomireProjectile(state.Body, gradient);
+                _access.RequestCrocomireSound(CrocomireSoundDefinitions.ProjectileSpit);
+                return null;
+            }
+            state.Phase = CrocomirePhase.SteppingForward;
+            return CrocomireBodyAnimation.StepForwardAfterDelay;
+        },
+        [CrocomirePhase.NearSpikeWallCharge] = (state, samus) =>
+        {
+            if (state.StepBack.Take())
+            {
+                state.Phase = CrocomirePhase.SteppingBack;
+                return CrocomireBodyAnimation.StepBack;
+            }
+            return null;
+        },
+        [CrocomirePhase.SteppingBack] = (state, samus) =>
+        {
+            if (state.StepCounter != 0)
+                state.StepCounter--;
+            if (state.StepCounter != 0)
+                return CrocomireBodyAnimation.SteppingBack;
+            state.Phase = CrocomirePhase.SteppingForward;
+            return CrocomireBodyAnimation.StepForward;
+        },
+        [CrocomirePhase.BackingOffSpikeWall] = (state, samus) =>
+        {
+            if (state.Body.Position.X.Whole >= CrocomireFightDefinitions.SpikeWallChargeX)
+            {
+                state.Phase = CrocomirePhase.SteppingForward;
+                return CrocomireBodyAnimation.StepForward;
+            }
+            return null;
+        },
+        [CrocomirePhase.WaitingForFirstDamage] = (state, samus) => RunCrocomireWaitingForDamage(
+                    state,
+                    CrocomirePhase.WaitingForSecondDamage),
+        [CrocomirePhase.WaitingForSecondDamage] = (state, samus) => RunCrocomireWaitingForDamage(
+                    state,
+                    CrocomirePhase.SteppingBack),
+        [CrocomirePhase.PowerBombCharge] = (state, samus) =>
+        {
+            // The charge consumes one step and ends once fewer than two remain, as it does when none remained.
+            int remaining = state.StepCounter - 1;
+            if (remaining < 2)
+            {
+                state.StepCounter = 0;
+                state.Phase = CrocomirePhase.SteppingForward;
+                return CrocomireBodyAnimation.StepForward;
+            }
+            state.StepCounter = remaining;
+            return null;
+        },
+    });
+
     /// <summary>
     /// Runs Crocomire's fight AI for the phase his fight is in. Each phase is entered as the animation it plays starts, so
     /// the phase alone says what his body is doing (#2180).
@@ -310,102 +417,7 @@ internal sealed class CrocomireFight
         CrocomireEnemyState state,
         SamusState samus)
     {
-        switch (state.Phase)
-        {
-            case CrocomirePhase.Dormant:
-                if (Math.Abs(state.Body.Position.X.Whole - samus.Position.X.Whole) < CrocomireFightDefinitions.WakeDistance)
-                {
-                    state.Phase = CrocomirePhase.WaitingForFirstDamage;
-                    return CrocomireBodyAnimation.AwaitingHit;
-                }
-                return null;
-
-            case CrocomirePhase.SteppingForward:
-                if (state.StepBack.Take())
-                {
-                    if (state.StepCounter != 0)
-                    {
-                        state.Phase = CrocomirePhase.SteppingBack;
-                        return CrocomireBodyAnimation.StepBack;
-                    }
-                }
-                if (state.Body.Position.X.Whole < CrocomireFightDefinitions.SpikeWallChargeX)
-                {
-                    state.Phase = CrocomirePhase.NearSpikeWallCharge;
-                    return CrocomireBodyAnimation.NearSpikeWallCharge;
-                }
-                // The phase starts with his step forward, which loops on its own until another phase takes over.
-                return null;
-
-            case CrocomirePhase.ProjectileAttack:
-                if (state.StepBack.Take())
-                {
-                    state.Phase = CrocomirePhase.SteppingBack;
-                    return CrocomireBodyAnimation.StepBack;
-                }
-                if (state.ShotsSpat < CrocomireProjectileDefinitions.VolleyShotCount)
-                {
-                    int gradient = CrocomireVolley.GradientOf(state.ShotsSpat, _access.LastShotGradient);
-                    state.ShotsSpat++;
-                    SpawnCrocomireProjectile(state.Body, gradient);
-                    _access.RequestCrocomireSound(CrocomireSoundDefinitions.ProjectileSpit);
-                    return null;
-                }
-                state.Phase = CrocomirePhase.SteppingForward;
-                return CrocomireBodyAnimation.StepForwardAfterDelay;
-
-            case CrocomirePhase.NearSpikeWallCharge:
-                if (state.StepBack.Take())
-                {
-                    state.Phase = CrocomirePhase.SteppingBack;
-                    return CrocomireBodyAnimation.StepBack;
-                }
-                return null;
-
-            case CrocomirePhase.SteppingBack:
-                if (state.StepCounter != 0)
-                    state.StepCounter--;
-                if (state.StepCounter != 0)
-                    return CrocomireBodyAnimation.SteppingBack;
-                state.Phase = CrocomirePhase.SteppingForward;
-                return CrocomireBodyAnimation.StepForward;
-
-            case CrocomirePhase.BackingOffSpikeWall:
-                if (state.Body.Position.X.Whole >= CrocomireFightDefinitions.SpikeWallChargeX)
-                {
-                    state.Phase = CrocomirePhase.SteppingForward;
-                    return CrocomireBodyAnimation.StepForward;
-                }
-                return null;
-
-            case CrocomirePhase.WaitingForFirstDamage:
-                return RunCrocomireWaitingForDamage(
-                    state,
-                    CrocomirePhase.WaitingForSecondDamage);
-
-            case CrocomirePhase.WaitingForSecondDamage:
-                return RunCrocomireWaitingForDamage(
-                    state,
-                    CrocomirePhase.SteppingBack);
-
-            case CrocomirePhase.PowerBombCharge:
-            {
-                // The charge consumes one step and ends once fewer than two remain, as it does when none remained.
-                int remaining = state.StepCounter - 1;
-                if (remaining < 2)
-                {
-                    state.StepCounter = 0;
-                    state.Phase = CrocomirePhase.SteppingForward;
-                    return CrocomireBodyAnimation.StepForward;
-                }
-                state.StepCounter = remaining;
-                return null;
-            }
-
-            default:
-                throw new InvalidDataException(
-                    $"Crocomire fight has no behaviour for phase {state.Phase}.");
-        }
+        return RunCrocomireFightCueForCrocomirePhase[state.Phase](state, samus);
     }
 
     /// <summary>

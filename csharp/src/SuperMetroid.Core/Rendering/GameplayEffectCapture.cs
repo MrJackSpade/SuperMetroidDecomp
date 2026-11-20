@@ -258,6 +258,31 @@ public static class GameplayEffectCapture
         return new(SuitPickupBeamWindow(active.Beam), active.Color);
     }
 
+    /// <summary>What <c>SuitPickupBeamWindow</c> comes to for each <see cref="SamusSuitPickupBeamShape"/> member, each member's own arm.</summary>
+    private static IdentityTable<SamusSuitPickupBeamShape, Func<SamusSuitPickupBeam, int, int, int, int, ScreenWindow>> SuitPickupBeamWindowForSamusSuitPickupBeamShape => field ??= new(new Dictionary<SamusSuitPickupBeamShape, Func<SamusSuitPickupBeam, int, int, int, int, ScreenWindow>>
+    {
+        [SamusSuitPickupBeamShape.None] = static (beam, left, right, lines, centre) => ScreenWindow.Closed,
+        [SamusSuitPickupBeamShape.GrowingFromEdges] = static (beam, left, right, lines, centre) =>
+        {
+            int grown = Math.Min(beam.Progress, lines);
+            if (grown <= 0) return ScreenWindow.Closed;
+            return new([WindowRectangle.Spanning(left, 0, right, grown - 1),
+                WindowRectangle.Spanning(left, lines - grown, right, lines - 1)]);
+        },
+        [SamusSuitPickupBeamShape.Column] = static (beam, left, right, lines, centre) => ScreenWindow.Of(WindowRectangle.Spanning(left, 0, right, lines - 1)),
+        [SamusSuitPickupBeamShape.CurvedColumn] = static (beam, left, right, lines, centre) => ScreenWindow.Of(CurvedColumn(left, right, centre)),
+        [SamusSuitPickupBeamShape.ClosingCurvedColumn] = static (beam, left, right, lines, centre) =>
+        {
+            // The upper wipe always clears at least the first line; the lower wipe is one line shorter.
+            int topWiped = Math.Clamp(beam.Progress, 1, lines);
+            int bottomWiped = Math.Clamp(beam.Progress - 1, 1, lines);
+            int first = Math.Min(topWiped, Height);
+            int end = Math.Clamp(lines - bottomWiped, first, Height);
+            return ScreenWindow.Of(CurvedColumn(left, right, centre), first, end);
+        },
+        [SamusSuitPickupBeamShape.CenterLine] = static (beam, left, right, lines, centre) => ScreenWindow.Of(WindowRectangle.Spanning(left, centre, right, centre)),
+    });
+
     /// <summary>The window of each light-beam outline: columns, a rounded column, its wiped remainder or the centre line.</summary>
     private static ScreenWindow SuitPickupBeamWindow(SamusSuitPickupBeam beam)
     {
@@ -265,35 +290,7 @@ public static class GameplayEffectCapture
         int lines = SuitPickupBeamDefinitions.BeamLines;
         int centre = lines / 2;
         if (left > right) return ScreenWindow.Closed;
-        switch (beam.Shape)
-        {
-            case SamusSuitPickupBeamShape.None:
-                return ScreenWindow.Closed;
-            case SamusSuitPickupBeamShape.GrowingFromEdges:
-            {
-                int grown = Math.Min(beam.Progress, lines);
-                if (grown <= 0) return ScreenWindow.Closed;
-                return new([WindowRectangle.Spanning(left, 0, right, grown - 1),
-                    WindowRectangle.Spanning(left, lines - grown, right, lines - 1)]);
-            }
-            case SamusSuitPickupBeamShape.Column:
-                return ScreenWindow.Of(WindowRectangle.Spanning(left, 0, right, lines - 1));
-            case SamusSuitPickupBeamShape.CurvedColumn:
-                return ScreenWindow.Of(CurvedColumn(left, right, centre));
-            case SamusSuitPickupBeamShape.ClosingCurvedColumn:
-            {
-                // The upper wipe always clears at least the first line; the lower wipe is one line shorter.
-                int topWiped = Math.Clamp(beam.Progress, 1, lines);
-                int bottomWiped = Math.Clamp(beam.Progress - 1, 1, lines);
-                int first = Math.Min(topWiped, Height);
-                int end = Math.Clamp(lines - bottomWiped, first, Height);
-                return ScreenWindow.Of(CurvedColumn(left, right, centre), first, end);
-            }
-            case SamusSuitPickupBeamShape.CenterLine:
-                return ScreenWindow.Of(WindowRectangle.Spanning(left, centre, right, centre));
-            default:
-                throw new ArgumentOutOfRangeException(nameof(beam), beam.Shape, "Unknown suit-pickup beam shape.");
-        }
+        return SuitPickupBeamWindowForSamusSuitPickupBeamShape[beam.Shape](beam, left, right, lines, centre);
     }
 
     /// <summary>The beam's column widened on each line by its rounded sides, widest at the middle line.</summary>

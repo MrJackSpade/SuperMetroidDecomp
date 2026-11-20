@@ -208,36 +208,32 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         part.Playback = playback;
     }
 
+    /// <summary>What <c>ApplyPhantoonPartCue</c> does for each <see cref="PhantoonPartCue"/> member, each member's own arm.</summary>
+    private IdentityTable<PhantoonPartCue, Action<PhantoonEnemyState>> ApplyPhantoonPartCueForPhantoonPartCue => field ??= new(new Dictionary<PhantoonPartCue, Action<PhantoonEnemyState>>
+    {
+        [PhantoonPartCue.PlayMaterializationSound] = state =>
+        {
+            _audio.RequestPhantoonMaterializationSound(state.NextMaterializationSound.Entry);
+            state.NextMaterializationSound = state.NextMaterializationSound.NextInCycle;
+        },
+        [PhantoonPartCue.BeginEyeTracking] = state =>
+        {
+            BeginPhantoonEyeTracking(state);
+        },
+        [PhantoonPartCue.PickNewPattern] = state => Patterns.PickPhantoonSecondRoundPattern(state),
+        [PhantoonPartCue.SpawnCasualFlame] = state =>
+        {
+            Patterns.SpawnPhantoonCasualFlame(state.Body);
+            _audio.QueueEnemySound(PhantoonSoundDefinitions.CasualFlame, PhantoonSoundDefinitions.CasualFlamePriority);
+        },
+    });
+
     /// <summary>Carries out one cue of a Phantoon part animation.</summary>
     private void ApplyPhantoonPartCue(
         PhantoonEnemyState state,
         PhantoonPartCue cue)
     {
-        switch (cue)
-        {
-            case PhantoonPartCue.PlayMaterializationSound:
-                _audio.RequestPhantoonMaterializationSound(state.NextMaterializationSound.Entry);
-                state.NextMaterializationSound = state.NextMaterializationSound.NextInCycle;
-                return;
-
-            case PhantoonPartCue.BeginEyeTracking:
-                BeginPhantoonEyeTracking(state);
-                // The advance resumes its own cursor after the cue, so the animation's hold overwrites the
-                // eye animation this installs, as a rest does; the body's animation survives.
-                return;
-
-            case PhantoonPartCue.PickNewPattern:
-                Patterns.PickPhantoonSecondRoundPattern(state);
-                return;
-
-            case PhantoonPartCue.SpawnCasualFlame:
-                Patterns.SpawnPhantoonCasualFlame(state.Body);
-                _audio.QueueEnemySound(PhantoonSoundDefinitions.CasualFlame, PhantoonSoundDefinitions.CasualFlamePriority);
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(PhantoonPartCue)} {cue}.");
-        }
+        ApplyPhantoonPartCueForPhantoonPartCue[cue](state);
     }
 
     /// <summary>Starts the eye's Samus-tracking animation for the current attack phase.</summary>

@@ -145,25 +145,23 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         ApplyBabyMetroidFrameEffects(state.Colours, step);
     }
 
+    /// <summary>What <c>ShowOrDeleteBabyMetroid</c> does for each <see cref="BabyMetroidVisibilityRequest"/> member, each member's own arm.</summary>
+    private static IdentityTable<BabyMetroidVisibilityRequest, Action<RoomEnemyPlace>> ShowOrDeleteBabyMetroidForBabyMetroidVisibilityRequest => field ??= new(new Dictionary<BabyMetroidVisibilityRequest, Action<RoomEnemyPlace>>
+    {
+        [BabyMetroidVisibilityRequest.Show] = static place => place.Presence = place.Presence.Without(EnemyPresence.Hidden),
+        [BabyMetroidVisibilityRequest.Hide] = static place => place.Presence = place.Presence.With(EnemyPresence.Hidden),
+        [BabyMetroidVisibilityRequest.Unchanged] = static place =>
+        {
+        },
+    });
+
     /// <summary>
     /// Shows, hides or deletes the Baby's place as <paramref name="step"/> asks: its death's flicker and finished fade
     /// show and hide it, and the cutscene's end deletes it (#2310).
     /// </summary>
     private static void ShowOrDeleteBabyMetroid(RoomEnemyPlace place, BabyMetroidCutsceneStepResult step)
     {
-        switch (step.Visibility)
-        {
-            case BabyMetroidVisibilityRequest.Show:
-                place.Presence = place.Presence.Without(EnemyPresence.Hidden);
-                break;
-            case BabyMetroidVisibilityRequest.Hide:
-                place.Presence = place.Presence.With(EnemyPresence.Hidden);
-                break;
-            case BabyMetroidVisibilityRequest.Unchanged:
-                break;
-            default:
-                throw new InvalidOperationException($"Unsupported Baby visibility request {step.Visibility}.");
-        }
+        ShowOrDeleteBabyMetroidForBabyMetroidVisibilityRequest[step.Visibility](place);
         if (step.BabyDeleted)
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
     }

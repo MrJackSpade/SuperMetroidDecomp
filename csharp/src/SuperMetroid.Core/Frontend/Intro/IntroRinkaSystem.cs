@@ -67,19 +67,18 @@ internal sealed class IntroRinkaSystem
             rinka.Sprite.Draw(screenSprites, installedArt: installedArt);
     }
 
+    /// <summary>What <c>HandleRinkaCue</c> does for each <see cref="IntroRinkaCue"/> member, each member's own arm.</summary>
+    private static IdentityTable<IntroRinkaCue, Action<IntroRinka>> HandleRinkaCueForIntroRinkaCue => field ??= new(new Dictionary<IntroRinkaCue, Action<IntroRinka>>
+    {
+        [IntroRinkaCue.StartMoving] = static rinka => rinka.StartMoving(),
+    });
+
     /// <summary>Starts a Rinka's movement, selecting the hit route for the Rinka that strikes Samus and the miss route for the others.</summary>
     private static void HandleRinkaCue(
         IntroRinka rinka,
         IntroRinkaCue cue)
     {
-        switch (cue)
-        {
-            case IntroRinkaCue.StartMoving:
-                rinka.StartMoving();
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroRinkaCue)} {cue}.");
-        }
+        HandleRinkaCueForIntroRinkaCue[cue](rinka);
     }
 
     /// <summary>Spawns the Rinkas of <paramref name="pair"/>, in launch order, after the Rinkas already live.</summary>
@@ -95,6 +94,35 @@ internal sealed class IntroRinkaSystem
             rinkas.Add(new IntroRinka(launch));
     }
 
+    /// <summary>What <c>Fly</c> does for each <see cref="IntroRinkaFlight"/> member, each member's own arm.</summary>
+    private static IdentityTable<IntroRinkaFlight, Action<IntroRinka, SamusState, bool, CinematicActor<IntroRinkaAnimation, CinematicSpritePose, IntroRinkaCue>>> FlyForIntroRinkaFlight => field ??= new(new Dictionary<IntroRinkaFlight, Action<IntroRinka, SamusState, bool, CinematicActor<IntroRinkaAnimation, CinematicSpritePose, IntroRinkaCue>>>
+    {
+        [IntroRinkaFlight.StrikesSamus] = static (rinka, samus, motherBrainExploding, sprite) =>
+        {
+            sprite.Position = Drifted(sprite.Position, rinka.Drift);
+
+            // The Rinka compares its striking edge against a point just left of Samus. Until that crossing,
+            // the actor survives unless Mother Brain has entered her exploding step.
+            if (sprite.ScreenPlace.X + IntroRinkaDefinitions.StrikingEdge < samus.Position.X.Whole - IntroRinkaDefinitions.SamusStruckReach)
+            {
+                if (motherBrainExploding)
+                    sprite.Delete();
+                return;
+            }
+
+            samus.RequestKnockback(IntroRinkaDefinitions.StrikeKnockbackUpdates, IntroRinkaDefinitions.StrikeKnockbackUpdates,
+                Samus.Movement.KnockbackHorizontalDirection.Right);
+            sprite.Delete();
+        },
+        [IntroRinkaFlight.MissesSamus] = static (rinka, samus, motherBrainExploding, sprite) =>
+        {
+            sprite.Position = Drifted(sprite.Position, rinka.Drift);
+            int y = sprite.ScreenPlace.Y;
+            if (y < IntroRinkaDefinitions.MissTopY || y >= IntroRinkaDefinitions.MissBottomY || motherBrainExploding)
+                sprite.Delete();
+        },
+    });
+
     /// <summary>Moves a moving Rinka, publishes Samus knockback on the striking flight, or deletes it at its exit bounds.</summary>
     private static void Fly(
         IntroRinka rinka,
@@ -104,35 +132,7 @@ internal sealed class IntroRinkaSystem
         CinematicActor<IntroRinkaAnimation, CinematicSpritePose, IntroRinkaCue> sprite = rinka.Sprite;
         if (!rinka.IsMoving)
             return;
-        switch (rinka.Flight)
-        {
-            case IntroRinkaFlight.StrikesSamus:
-                sprite.Position = Drifted(sprite.Position, rinka.Drift);
-
-                // The Rinka compares its striking edge against a point just left of Samus. Until that crossing,
-                // the actor survives unless Mother Brain has entered her exploding step.
-                if (sprite.ScreenPlace.X + IntroRinkaDefinitions.StrikingEdge < samus.Position.X.Whole - IntroRinkaDefinitions.SamusStruckReach)
-                {
-                    if (motherBrainExploding)
-                        sprite.Delete();
-                    return;
-                }
-
-                samus.RequestKnockback(IntroRinkaDefinitions.StrikeKnockbackUpdates, IntroRinkaDefinitions.StrikeKnockbackUpdates,
-                    Samus.Movement.KnockbackHorizontalDirection.Right);
-                sprite.Delete();
-                return;
-
-            case IntroRinkaFlight.MissesSamus:
-                sprite.Position = Drifted(sprite.Position, rinka.Drift);
-                int y = sprite.ScreenPlace.Y;
-                if (y < IntroRinkaDefinitions.MissTopY || y >= IntroRinkaDefinitions.MissBottomY || motherBrainExploding)
-                    sprite.Delete();
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroRinkaFlight)} {rinka.Flight}.");
-        }
+        FlyForIntroRinkaFlight[rinka.Flight](rinka, samus, motherBrainExploding, sprite);
     }
 
     /// <summary>

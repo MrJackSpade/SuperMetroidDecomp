@@ -53,29 +53,25 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     internal sealed class WallExplosionBehavior(EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
         : EnemyProjectileBehavior, IEnemyProjectileCues<OldTourianWallExplosionCue>
     {
+        /// <summary>What <c>RunCue</c> does for each <see cref="OldTourianWallExplosionCue"/> member, each member's own arm.</summary>
+        private IdentityTable<OldTourianWallExplosionCue, Action<EnemyProjectile>> RunCueForOldTourianWallExplosionCue => field ??= new(new Dictionary<OldTourianWallExplosionCue, Action<EnemyProjectile>>
+        {
+            [OldTourianWallExplosionCue.StopMoving] = projectile => projectile.HoldStill(),
+            [OldTourianWallExplosionCue.Scatter] = projectile => projectiles.Scatter(projectile, OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter),
+            [OldTourianWallExplosionCue.ExplosionSound] = projectile =>
+            {
+                audio.QueueEnemySound(
+                    OldTourianEscapeShaftWallExplosionAnimationDefinitions.ExplosionSound,
+                    OldTourianEscapeShaftWallExplosionAnimationDefinitions.ExplosionSoundPriority);
+            },
+            [OldTourianWallExplosionCue.Delete] = projectile => projectile.Delete(),
+        });
+
         /// <summary>Carries out one cue of the wall explosion's animation.</summary>
         public void RunCue(EnemyProjectileCueContext context, OldTourianWallExplosionCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
-            switch (cue)
-            {
-                case OldTourianWallExplosionCue.StopMoving:
-                    projectile.HoldStill();
-                    break;
-                case OldTourianWallExplosionCue.Scatter:
-                    projectiles.Scatter(projectile, OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter);
-                    break;
-                case OldTourianWallExplosionCue.ExplosionSound:
-                    audio.QueueEnemySound(
-                        OldTourianEscapeShaftWallExplosionAnimationDefinitions.ExplosionSound,
-                        OldTourianEscapeShaftWallExplosionAnimationDefinitions.ExplosionSoundPriority);
-                    break;
-                case OldTourianWallExplosionCue.Delete:
-                    projectile.Delete();
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(OldTourianWallExplosionCue)} {cue}.");
-            }
+            RunCueForOldTourianWallExplosionCue[cue](projectile);
         }
     }
 }

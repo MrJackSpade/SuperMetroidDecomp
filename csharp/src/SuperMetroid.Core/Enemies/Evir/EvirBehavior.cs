@@ -42,26 +42,19 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         _collision = collision;
     }
 
+    /// <summary>What <c>ApplyEvirCue</c> does for each <see cref="EvirCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<EvirCueKind, Action<EvirSpitState>> ApplyEvirCueForEvirCueKind => field ??= new(new Dictionary<EvirCueKind, Action<EvirSpitState>>
+    {
+        [EvirCueKind.PlaySpitSound] = state => QueueEvirSpitSound(),
+        [EvirCueKind.SetInitialRegenerationOffset] = state => SetInitialEvirRegenerationOffset(state),
+        [EvirCueKind.AdvanceRegenerationOffset] = state => AdvanceEvirRegenerationOffset(state),
+        [EvirCueKind.FinishRegeneration] = state => FinishEvirRegeneration(state),
+    });
+
     /// <summary>Carries out one cue of the Evir spit's animations: the spit sound and the regeneration steps.</summary>
     private void ApplyEvirCue(EvirSpitState state, EvirCue cue)
     {
-        switch (cue.Kind)
-        {
-            case EvirCueKind.PlaySpitSound:
-                QueueEvirSpitSound();
-                break;
-            case EvirCueKind.SetInitialRegenerationOffset:
-                SetInitialEvirRegenerationOffset(state);
-                break;
-            case EvirCueKind.AdvanceRegenerationOffset:
-                AdvanceEvirRegenerationOffset(state);
-                break;
-            case EvirCueKind.FinishRegeneration:
-                FinishEvirRegeneration(state);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EvirCueKind)} {cue.Kind}.");
-        }
+        ApplyEvirCueForEvirCueKind[cue.Kind](state);
     }
 
     /// <summary>Initializes an Evir's arms.</summary>
@@ -169,6 +162,14 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
+    /// <summary>What <c>RunEvirProjectileMain</c> does for each <see cref="EvirSpitAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<EvirSpitAction, Action<RoomEnemyPlace, EvirSpitState, Position16<RoomPixels>>> RunEvirProjectileMainForEvirSpitAction => field ??= new(new Dictionary<EvirSpitAction, Action<RoomEnemyPlace, EvirSpitState, Position16<RoomPixels>>>
+    {
+        [EvirSpitAction.Idle] = static (place, state, camera) => ResetEvirProjectilePosition(place, state),
+        [EvirSpitAction.Moving] = static (place, state, camera) => RunMovingEvirProjectile(place, state, camera),
+        [EvirSpitAction.Regenerating] = static (place, state, camera) => RunRegeneratingEvirProjectile(place, state),
+    });
+
     /// <summary>Runs idle attachment, aimed flight or regeneration after selecting its animation.</summary>
     private static void RunEvirProjectileMain(
         RoomEnemyPlace place,
@@ -198,21 +199,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        switch (state.Action)
-        {
-            case EvirSpitAction.Idle:
-                ResetEvirProjectilePosition(place, state);
-                break;
-            case EvirSpitAction.Moving:
-                RunMovingEvirProjectile(place, state, camera);
-                break;
-            case EvirSpitAction.Regenerating:
-                RunRegeneratingEvirProjectile(place, state);
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Evir projectile has no behaviour for action {state.Action}.");
-        }
+        RunEvirProjectileMainForEvirSpitAction[state.Action](place, state, camera);
     }
 
     /// <summary>Selects left or right body artwork from Samus's signed horizontal side.</summary>

@@ -106,37 +106,31 @@ internal sealed class KraidProjectiles
             [RoomEnemyProjectileKind.KraidCeilingRock] = KraidRockMotion.CeilingRockFalling,
         };
 
+        /// <summary>What <c>Move</c> does for each <see cref="KraidRockMotion"/> member, each member's own arm.</summary>
+        private static IdentityTable<KraidRockMotion, Action<EnemyProjectileMotionContext>> MoveForKraidRockMotion => field ??= new(new Dictionary<KraidRockMotion, Action<EnemyProjectileMotionContext>>
+        {
+            [KraidRockMotion.Flying] = static context => FlyKraidRock(context.Projectile, context.Level),
+            [KraidRockMotion.CeilingRockFalling] = static context => DropKraidCeilingRock(context.Projectile, context.Level),
+        });
+
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, KraidRockMotion motion)
         {
-            switch (motion)
-            {
-                case KraidRockMotion.Flying:
-                    FlyKraidRock(context.Projectile, context.Level);
-                    break;
-                case KraidRockMotion.CeilingRockFalling:
-                    DropKraidCeilingRock(context.Projectile, context.Level);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KraidRockMotion)} {motion}.");
-            }
+            MoveForKraidRockMotion[motion](context);
         }
+
+        /// <summary>What <c>RunCue</c> does for each <see cref="KraidRockCue"/> member, each member's own arm.</summary>
+        private static IdentityTable<KraidRockCue, Action<EnemyProjectile>> RunCueForKraidRockCue => field ??= new(new Dictionary<KraidRockCue, Action<EnemyProjectile>>
+        {
+            [KraidRockCue.StopFlyingFromNextPass] = static projectile => projectile.HoldStill(),
+            [KraidRockCue.Delete] = static projectile => projectile.Delete(),
+        });
 
         /// <summary>Carries out a rock animation's cue: stopping its flight from the next pass, or deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, KraidRockCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
-            switch (cue)
-            {
-                case KraidRockCue.StopFlyingFromNextPass:
-                    projectile.HoldStill();
-                    return;
-                case KraidRockCue.Delete:
-                    projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KraidRockCue)} {cue}.");
-            }
+            RunCueForKraidRockCue[cue](projectile);
         }
     }
 
@@ -162,6 +156,27 @@ internal sealed class KraidProjectiles
         lint.Contact = lint.Contact.With(EnemyContact.IgnoresSamus);
     }
 
+    /// <summary>What <c>RunKraidNailMain</c> does for each <see cref="KraidNailPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<KraidNailPhase, Action<RoomEnemyPlace, KraidNailState, RoomLevelData>> RunKraidNailMainForKraidNailPhase => field ??= new(new Dictionary<KraidNailPhase, Action<RoomEnemyPlace, KraidNailState, RoomLevelData>>
+    {
+        [KraidNailPhase.WaitBeforeLaunch] = (nail, part, level) =>
+        {
+            if (part.PhaseWait.StepRunsOut())
+                part.Phase = KraidNailPhase.Initialize;
+        },
+        [KraidNailPhase.Initialize] = (nail, part, level) => InitializeKraidNailFlight(nail, part),
+        [KraidNailPhase.WaitForLint] = (nail, part, level) =>
+        {
+            if (_parts.TopLint.Position.X.Whole >= KraidArenaDefinitions.SecondScreenX)
+            {
+                part.Phase = KraidNailPhase.Fire;
+                nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
+                nail.Presence = nail.Presence.Without(EnemyPresence.Hidden);
+            }
+        },
+        [KraidNailPhase.Fire] = (nail, part, level) => TickKraidNailFlight(nail, part, level),
+    });
+
     /// <summary>Runs a nail's active flight or rebound phase.</summary>
     internal void RunKraidNailMain(RoomEnemyPlace nail, KraidNailState part, RoomLevelData level)
     {
@@ -171,33 +186,7 @@ internal sealed class KraidProjectiles
             return;
         }
 
-        switch (part.Phase)
-        {
-            case KraidNailPhase.WaitBeforeLaunch:
-                if (part.PhaseWait.StepRunsOut())
-                    part.Phase = KraidNailPhase.Initialize;
-                return;
-
-            case KraidNailPhase.Initialize:
-                InitializeKraidNailFlight(nail, part);
-                return;
-
-            case KraidNailPhase.WaitForLint:
-                if (_parts.TopLint.Position.X.Whole >= KraidArenaDefinitions.SecondScreenX)
-                {
-                    part.Phase = KraidNailPhase.Fire;
-                    nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
-                    nail.Presence = nail.Presence.Without(EnemyPresence.Hidden);
-                }
-                return;
-
-            case KraidNailPhase.Fire:
-                TickKraidNailFlight(nail, part, level);
-                return;
-
-            default:
-                throw new InvalidDataException($"Undefined {nameof(KraidNailPhase)} {part.Phase}.");
-        }
+        RunKraidNailMainForKraidNailPhase[part.Phase](nail, part, level);
     }
 
     /// <summary>Seeds a released nail's velocity, animation, and collision state.</summary>
@@ -265,29 +254,21 @@ internal sealed class KraidProjectiles
     /// </summary>
     private static SignedSixteenSixteen ReflectKraidNailHorizontalVelocity(SignedSixteenSixteen velocity) => -velocity;
 
+    /// <summary>What <c>RunKraidLintMain</c> does for each <see cref="KraidLintPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<KraidLintPhase, Action<RoomEnemyPlace, KraidLintState, SamusState>> RunKraidLintMainForKraidLintPhase => field ??= new(new Dictionary<KraidLintPhase, Action<RoomEnemyPlace, KraidLintState, SamusState>>
+    {
+        [KraidLintPhase.Inactive] = (lint, part, samus) => { },
+        [KraidLintPhase.AlignToKraidBeforeProducing] = (lint, part, samus) => AlignKraidLint(lint, part),
+        [KraidLintPhase.Produce] = (lint, part, samus) => ProduceKraidLint(lint, part),
+        [KraidLintPhase.Charge] = (lint, part, samus) => ChargeKraidLint(lint, part),
+        [KraidLintPhase.Fire] = (lint, part, samus) => FireKraidLint(lint, part, samus),
+    });
+
     /// <summary>Advances a lint part through idle, charge, fire, and reattachment states.</summary>
     internal void RunKraidLintMain(RoomEnemyPlace lint, KraidLintState part, SamusState samus, PseudoScrewCharge pseudoScrew)
     {
         ResolveKraidLintContact(lint, samus, pseudoScrew);
-        switch (part.Phase)
-        {
-            case KraidLintPhase.Inactive:
-                return;
-            case KraidLintPhase.AlignToKraidBeforeProducing:
-                AlignKraidLint(lint, part);
-                return;
-            case KraidLintPhase.Produce:
-                ProduceKraidLint(lint, part);
-                return;
-            case KraidLintPhase.Charge:
-                ChargeKraidLint(lint, part);
-                return;
-            case KraidLintPhase.Fire:
-                FireKraidLint(lint, part, samus);
-                return;
-            default:
-                throw new InvalidDataException($"Undefined {nameof(KraidLintPhase)} {part.Phase} for Kraid lint place {lint.Ordinal}.");
-        }
+        RunKraidLintMainForKraidLintPhase[part.Phase](lint, part, samus);
     }
 
     /// <summary>Places a lint at its body-relative offset while its phase wait runs, and produces it on the wait's last update.</summary>

@@ -131,6 +131,27 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         ArrivalElevator = place;
     }
 
+    /// <summary>What <c>RunElevatorMain</c> does for each <see cref="ElevatorActorStatus"/> member, each member's own arm.</summary>
+    private IdentityTable<ElevatorActorStatus, Action<RoomEnemyPlace, ElevatorEnemyState, SamusState, GameplayAction, SamusProjectileSystem>> RunElevatorMainForElevatorActorStatus => field ??= new(new Dictionary<ElevatorActorStatus, Action<RoomEnemyPlace, ElevatorEnemyState, SamusState, GameplayAction, SamusProjectileSystem>>
+    {
+        [ElevatorActorStatus.Inactive] = (place, state, samus, newlyPressedControllerInput, samusProjectiles) =>
+        {
+            WaitForElevatorDirectionInput(
+                place,
+                samus,
+                newlyPressedControllerInput,
+                samusProjectiles);
+        },
+        [ElevatorActorStatus.Departing] = (place, state, samus, newlyPressedControllerInput, samusProjectiles) => MoveDepartingElevator(place, samus),
+        [ElevatorActorStatus.BeginArrivalReturn] = (place, state, samus, newlyPressedControllerInput, samusProjectiles) =>
+        {
+            ElevatorStatus = ElevatorActorStatus.ReturningToRest;
+            _passEvents.Publish(new ElevatorEvent(ElevatorFrameEvent.ArrivalReturnStarted));
+            MoveElevatorBackToRest(place, state, samus);
+        },
+        [ElevatorActorStatus.ReturningToRest] = (place, state, samus, newlyPressedControllerInput, samusProjectiles) => MoveElevatorBackToRest(place, state, samus),
+    });
+
     /// <summary>Runs the elevator's main behaviour and its four phases.</summary>
     private void RunElevatorMain(
         RoomEnemyPlace place,
@@ -145,34 +166,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             return;
         }
 
-        switch (ElevatorStatus)
-        {
-            case ElevatorActorStatus.Inactive:
-                WaitForElevatorDirectionInput(
-                    place,
-                    samus,
-                    newlyPressedControllerInput,
-                    samusProjectiles);
-                return;
-
-            case ElevatorActorStatus.Departing:
-                MoveDepartingElevator(place, samus);
-                return;
-
-            case ElevatorActorStatus.BeginArrivalReturn:
-                ElevatorStatus = ElevatorActorStatus.ReturningToRest;
-                _passEvents.Publish(new ElevatorEvent(ElevatorFrameEvent.ArrivalReturnStarted));
-                MoveElevatorBackToRest(place, state, samus);
-                return;
-
-            case ElevatorActorStatus.ReturningToRest:
-                MoveElevatorBackToRest(place, state, samus);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Elevator status {ElevatorStatus} is outside the elevator's phases.");
-        }
+        RunElevatorMainForElevatorActorStatus[ElevatorStatus](place, state, samus, newlyPressedControllerInput, samusProjectiles);
     }
 
     /// <summary>Waits for the travel direction input.</summary>

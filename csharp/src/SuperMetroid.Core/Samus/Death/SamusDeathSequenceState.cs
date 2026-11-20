@@ -191,6 +191,16 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
             Phase == SamusDeathSequencePhase.Complete);
     }
 
+    /// <summary>What <c>Draw</c> does for each <see cref="SamusDeathDraw"/> member, each member's own arm.</summary>
+    private IdentityTable<SamusDeathDraw, Action<SamusState, SpriteFrameBuffer, Position16<RoomPixels>, TurningFloorTransform?>> DrawForSamusDeathDraw => field ??= new(new Dictionary<SamusDeathDraw, Action<SamusState, SpriteFrameBuffer, Position16<RoomPixels>, TurningFloorTransform?>>
+    {
+        [SamusDeathDraw.Pose] = (samus, sprites, cameraPosition, turningFloor) => samus.Presentation.DrawWithoutFlicker(samus, sprites, cameraPosition, turningFloor),
+        [SamusDeathDraw.Explosion] = (samus, sprites, cameraPosition, turningFloor) => DrawExplosion(sprites, samus.Artwork.Sheets),
+        [SamusDeathDraw.Nothing] = (samus, sprites, cameraPosition, turningFloor) =>
+        {
+        },
+    });
+
     /// <summary>
     /// Draws what a death update shows of Samus (<paramref name="draws"/>): her death pose with no invincibility flicker,
     /// the suit's explosion on its current picture, or nothing.
@@ -200,19 +210,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         TurningFloorTransform? turningFloor)
     {
         Ensure.NotNull(samus);
-        switch (draws)
-        {
-            case SamusDeathDraw.Pose:
-                samus.Presentation.DrawWithoutFlicker(samus, sprites, cameraPosition, turningFloor);
-                break;
-            case SamusDeathDraw.Explosion:
-                DrawExplosion(sprites, samus.Artwork.Sheets);
-                break;
-            case SamusDeathDraw.Nothing:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined death draw {draws}.");
-        }
+        DrawForSamusDeathDraw[draws](samus, sprites, cameraPosition, turningFloor);
     }
 
     /// <summary>Publishes the one right/left explosion frame at the captured screen position, from <paramref name="sheets"/>.</summary>

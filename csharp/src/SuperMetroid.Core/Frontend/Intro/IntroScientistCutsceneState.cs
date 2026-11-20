@@ -87,17 +87,19 @@ internal sealed class IntroScientistCutsceneState
     public void Draw(ScreenSprites screenSprites, IIntroCinematicSpritePresentation installedArt) =>
         baby.Draw(screenSprites, installedArt: installedArt);
 
+    /// <summary>What <c>HandleCue</c> does for each <see cref="IntroLaboratoryCue"/> member, each member's own arm.</summary>
+    private IdentityTable<IntroLaboratoryCue, Action> HandleCueForIntroLaboratoryCue => field ??= new(new Dictionary<IntroLaboratoryCue, Action>
+    {
+        [IntroLaboratoryCue.StartNextPage] = () =>
+        {
+            // The Baby's last pulse ends by selecting the next page.
+            NextPageRequested = true;
+        },
+    });
+
     /// <summary>Requests the next intro page when the Baby's animation reaches its page cue.</summary>
     private void HandleCue(IntroLaboratoryCue cue)
     {
-        switch (cue)
-        {
-            case IntroLaboratoryCue.StartNextPage:
-                // The Baby's last pulse ends by selecting the next page.
-                NextPageRequested = true;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroLaboratoryCue)} {cue}.");
-        }
+        HandleCueForIntroLaboratoryCue[cue]();
     }
 }

@@ -52,39 +52,33 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         SnapWallSpacePirateXToWallGrid(place);
     }
 
+    /// <summary>What <c>RunWallSpacePirateMain</c> does for each <see cref="WallSpacePirateAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<WallSpacePirateAction, Action<RoomEnemyPlace, WallSpacePirateEnemyState, SamusState>> RunWallSpacePirateMainForWallSpacePirateAction => field ??= new(new Dictionary<WallSpacePirateAction, Action<RoomEnemyPlace, WallSpacePirateEnemyState, SamusState>>
+    {
+        [WallSpacePirateAction.Climbing] = static (place, state, samus) =>
+        {
+            // A Pirate on the left wall fires and jumps right, and one on the right wall left.
+            if (WallSpacePirateCanAttack(place, samus))
+            {
+                StartWallSpacePirateAnimation(
+                    place,
+                    state,
+                    state.Wall == HorizontalDirection.Left
+                        ? WallSpacePirateSegment.FireAndJumpRight
+                        : WallSpacePirateSegment.FireAndJumpLeft);
+            }
+        },
+        [WallSpacePirateAction.Attacking] = static (place, state, samus) => { },
+        [WallSpacePirateAction.WallJumping] = static (place, state, samus) => StepWallSpacePirateJump(place, state, direction: state.Wall),
+    });
+
     /// <summary>Runs a wall Space Pirate's update: climbing its wall, attacking from it or jumping to the other.</summary>
     private static void RunWallSpacePirateMain(
         RoomEnemyPlace place,
         WallSpacePirateEnemyState state,
         SamusState samus)
     {
-        switch (state.Action)
-        {
-            case WallSpacePirateAction.Climbing:
-                // A Pirate on the left wall fires and jumps right, and one on the right wall left.
-                if (WallSpacePirateCanAttack(place, samus))
-                {
-                    StartWallSpacePirateAnimation(
-                        place,
-                        state,
-                        state.Wall == HorizontalDirection.Left
-                            ? WallSpacePirateSegment.FireAndJumpRight
-                            : WallSpacePirateSegment.FireAndJumpLeft);
-                }
-                return;
-
-            case WallSpacePirateAction.Attacking:
-                // The attack animation moves and times the pirate; its cues ready the jump.
-                return;
-
-            case WallSpacePirateAction.WallJumping:
-                StepWallSpacePirateJump(place, state, direction: state.Wall);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Wall Space Pirate has no behaviour for action {state.Action}.");
-        }
+        RunWallSpacePirateMainForWallSpacePirateAction[state.Action](place, state, samus);
     }
 
     /// <summary>

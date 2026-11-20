@@ -196,25 +196,20 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         [RoomEnemyProjectileKind.TourianStatueDescentDust] = null,
     };
 
+    /// <summary>What <c>Move</c> does for each <see cref="TourianStatueEffectMotion"/> member, each member's own arm.</summary>
+    private IdentityTable<TourianStatueEffectMotion, Action<EnemyProjectileMotionContext>> MoveForTourianStatueEffectMotion => field ??= new(new Dictionary<TourianStatueEffectMotion, Action<EnemyProjectileMotionContext>>
+    {
+        [TourianStatueEffectMotion.SplashHolding] = context => HoldTourianStatueSplash(context.Projectile),
+        [TourianStatueEffectMotion.ParticleFalling] = context => DropTourianStatueParticle(context.Projectile),
+        [TourianStatueEffectMotion.SoulRising] = context => RaiseTourianStatueSoul(context.Projectile),
+    });
+
     /// <summary>Moves one of the unlock's effects: the splash's hold, the particle's fall and the soul's rise.</summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>
     /// <param name="motion">The effect's motion.</param>
     internal override void Move(EnemyProjectileMotionContext context, TourianStatueEffectMotion motion)
     {
-        switch (motion)
-        {
-            case TourianStatueEffectMotion.SplashHolding:
-                HoldTourianStatueSplash(context.Projectile);
-                break;
-            case TourianStatueEffectMotion.ParticleFalling:
-                DropTourianStatueParticle(context.Projectile);
-                break;
-            case TourianStatueEffectMotion.SoulRising:
-                RaiseTourianStatueSoul(context.Projectile);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(TourianStatueEffectMotion)} {motion}.");
-        }
+        MoveForTourianStatueEffectMotion[motion](context);
     }
 
     /// <summary>

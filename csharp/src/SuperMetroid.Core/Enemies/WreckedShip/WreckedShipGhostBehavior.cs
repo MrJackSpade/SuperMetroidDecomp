@@ -43,36 +43,24 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     private static void ShowFade(RoomEnemyPlace place, WreckedShipGhostEnemyState state) =>
         place.Shading = PictureShading.Shaded(WreckedShipGhostFadeShade.Of(state.Fade));
 
+    /// <summary>What <c>RunWreckedShipGhostMain</c> does for each <see cref="WreckedShipGhostAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<WreckedShipGhostAction, Action<RoomEnemyPlace, WreckedShipGhostEnemyState, SamusState>> RunWreckedShipGhostMainForWreckedShipGhostAction => field ??= new(new Dictionary<WreckedShipGhostAction, Action<RoomEnemyPlace, WreckedShipGhostEnemyState, SamusState>>
+    {
+        [WreckedShipGhostAction.BrighteningAndFlickering] = static (place, state, samus) => RunWreckedShipGhostBrightening(place, state),
+        [WreckedShipGhostAction.FadingToGhostColours] = static (place, state, samus) => RunWreckedShipGhostColourFade(place, state, samus),
+        [WreckedShipGhostAction.WaitingForWhiteFade] = static (place, state, samus) => RunWreckedShipGhostWhiteFade(place, state),
+        [WreckedShipGhostAction.BobbingWhileVisible] = static (place, state, samus) => RunWreckedShipGhostBobbing(place, state),
+        [WreckedShipGhostAction.InitialInvisibleDelay] = static (place, state, samus) => RunWreckedShipGhostInitialDelay(state),
+        [WreckedShipGhostAction.TrackingSamusForSpawn] = static (place, state, samus) => RunWreckedShipGhostTracking(place, state, samus),
+    });
+
     /// <summary>Runs the Wrecked Ship ghost's actions.</summary>
     private static void RunWreckedShipGhostMain(
         RoomEnemyPlace place,
         WreckedShipGhostEnemyState state,
         SamusState samus)
     {
-        switch (state.Action)
-        {
-            case WreckedShipGhostAction.BrighteningAndFlickering:
-                RunWreckedShipGhostBrightening(place, state);
-                break;
-            case WreckedShipGhostAction.FadingToGhostColours:
-                RunWreckedShipGhostColourFade(place, state, samus);
-                break;
-            case WreckedShipGhostAction.WaitingForWhiteFade:
-                RunWreckedShipGhostWhiteFade(place, state);
-                break;
-            case WreckedShipGhostAction.BobbingWhileVisible:
-                RunWreckedShipGhostBobbing(place, state);
-                break;
-            case WreckedShipGhostAction.InitialInvisibleDelay:
-                RunWreckedShipGhostInitialDelay(state);
-                break;
-            case WreckedShipGhostAction.TrackingSamusForSpawn:
-                RunWreckedShipGhostTracking(place, state, samus);
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Wrecked Ship ghost has no behaviour for action {state.Action}.");
-        }
+        RunWreckedShipGhostMainForWreckedShipGhostAction[state.Action](place, state, samus);
     }
 
     /// <summary>

@@ -124,6 +124,54 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
             MapScrollLimits.OfRevealedPlane(catalog.Get(area), roomGraphics.MapSystem), anchor);
     }
 
+    /// <summary>What <c>Step</c> does for each <see cref="FileSelectMapNavigationPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<FileSelectMapNavigationPhase, Action> StepForFileSelectMapNavigationPhase => field ??= new(new Dictionary<FileSelectMapNavigationPhase, Action>
+    {
+        [FileSelectMapNavigationPhase.AreaReturnRequested] = () =>
+        {
+            if (!requestWait.Step()) return;
+            if (returnWindow is null)
+            {
+                returnWindow = FileSelectMapWindow.CreateReturn(area, InstalledScreenContent.Maps.Labels);
+                Queue(SamusSound.MapReturn);
+            }
+            else if (returnWindow.Step())
+            {
+                navigation.CompleteAreaReturn();
+                returnWindow = null;
+            }
+        },
+        [FileSelectMapNavigationPhase.OptionsRequested] = () =>
+        {
+            if (fade.Darken())
+                Outcome = FileSelectMapOutcome.Options;
+        },
+        [FileSelectMapNavigationPhase.LoadRequested] = () =>
+        {
+            requestWait.Step();
+            if (requestWait.Age <= FileSelectMapDefinitions.LoadPreludeFrames) return;
+            if (!fade.IsBlack)
+            {
+                fade.StepDarker();
+                return;
+            }
+            if (requestWait.IsOver)
+                Outcome = FileSelectMapOutcome.Load;
+        },
+        // Navigation itself advances these phases; no menu countdown runs.
+        [FileSelectMapNavigationPhase.Area] = () => StepForFileSelectMapNavigationPhaseArea(),
+        [FileSelectMapNavigationPhase.PreparingWindow] = () => StepForFileSelectMapNavigationPhaseArea(),
+        [FileSelectMapNavigationPhase.ExpandingWindow] = () => StepForFileSelectMapNavigationPhaseArea(),
+        [FileSelectMapNavigationPhase.InitializingRoom] = () => StepForFileSelectMapNavigationPhaseArea(),
+        [FileSelectMapNavigationPhase.Room] = () => StepForFileSelectMapNavigationPhaseArea(),
+        [FileSelectMapNavigationPhase.EnteringArea] = () => StepForFileSelectMapNavigationPhaseArea(),
+    });
+
+    /// <summary>What <see cref="StepForFileSelectMapNavigationPhase"/> does for <see cref="FileSelectMapNavigationPhase.Area"/>, <see cref="FileSelectMapNavigationPhase.PreparingWindow"/>, <see cref="FileSelectMapNavigationPhase.ExpandingWindow"/>, <see cref="FileSelectMapNavigationPhase.InitializingRoom"/>, <see cref="FileSelectMapNavigationPhase.Room"/>, <see cref="FileSelectMapNavigationPhase.EnteringArea"/>.</summary>
+    private void StepForFileSelectMapNavigationPhaseArea()
+    {
+    }
+
     /// <summary>Advances one menu update, retaining input latching during entry and the game's ordering of icon and colour animation, scrolling, navigation, transition sounds, and delayed load/options handoff.</summary>
     /// <param name="input">Current held controller buttons; edge reading is owned by navigation, not by rendering.</param>
     public void Step(ControllerButton input)
@@ -168,47 +216,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
             }
             return;
         }
-        switch (Phase)
-        {
-            case FileSelectMapNavigationPhase.AreaReturnRequested:
-                if (!requestWait.Step()) break;
-                if (returnWindow is null)
-                {
-                    returnWindow = FileSelectMapWindow.CreateReturn(area, InstalledScreenContent.Maps.Labels);
-                    Queue(SamusSound.MapReturn);
-                }
-                else if (returnWindow.Step())
-                {
-                    navigation.CompleteAreaReturn();
-                    returnWindow = null;
-                }
-                break;
-            case FileSelectMapNavigationPhase.OptionsRequested:
-                if (fade.Darken())
-                    Outcome = FileSelectMapOutcome.Options;
-                break;
-            case FileSelectMapNavigationPhase.LoadRequested:
-                requestWait.Step();
-                if (requestWait.Age <= FileSelectMapDefinitions.LoadPreludeFrames) break;
-                if (!fade.IsBlack)
-                {
-                    fade.StepDarker();
-                    break;
-                }
-                if (requestWait.IsOver)
-                    Outcome = FileSelectMapOutcome.Load;
-                break;
-            // Navigation itself advances these phases; no menu countdown runs.
-            case FileSelectMapNavigationPhase.Area:
-            case FileSelectMapNavigationPhase.PreparingWindow:
-            case FileSelectMapNavigationPhase.ExpandingWindow:
-            case FileSelectMapNavigationPhase.InitializingRoom:
-            case FileSelectMapNavigationPhase.Room:
-            case FileSelectMapNavigationPhase.EnteringArea:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined file-select map phase {Phase}.");
-        }
+        StepForFileSelectMapNavigationPhase[Phase]();
     }
 
     /// <summary>Requests a menu sound at normal priority.</summary>

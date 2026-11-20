@@ -78,6 +78,25 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 : PipeBugSegment.GeegaFlyingRight));
     }
 
+    /// <summary>What <c>RunBrinstarPipeBug</c> does for each <see cref="BrinstarPipeBugAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<BrinstarPipeBugAction, Action<RoomEnemyPlace, BrinstarPipeBugState, SamusState, Position16<RoomPixels>>> RunBrinstarPipeBugForBrinstarPipeBugAction => field ??= new(new Dictionary<BrinstarPipeBugAction, Action<RoomEnemyPlace, BrinstarPipeBugState, SamusState, Position16<RoomPixels>>>
+    {
+        [BrinstarPipeBugAction.WaitUntilOnScreen] = static (place, state, samus, camera) =>
+        {
+            // The bug starts watching for Samus once its pipe is on screen.
+            if (EnemyProcessingWindow.IsWithinProcessingWindow(place, camera))
+                state.Action = BrinstarPipeBugAction.WaitForSamus;
+        },
+        [BrinstarPipeBugAction.WaitForSamus] = static (place, state, samus, camera) => RunBrinstarPipeBugWaiting(place, state, samus),
+        [BrinstarPipeBugAction.Emerge] = static (place, state, samus, camera) => RunBrinstarPipeBugEmergence(place, state, samus),
+        [BrinstarPipeBugAction.FlyHorizontally] = static (place, state, samus, camera) => RunBrinstarPipeBugFlight(place, state, camera.X),
+        [BrinstarPipeBugAction.RespawnDelay] = static (place, state, samus, camera) =>
+        {
+            if (state.RespawnDelay.StepEnds())
+                state.Action = BrinstarPipeBugAction.WaitForSamus;
+        },
+    });
+
     /// <summary>Runs a Brinstar Pipe Bug's action.</summary>
     private static void RunBrinstarPipeBug(
         RoomEnemyPlace place,
@@ -85,31 +104,53 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         Position16<RoomPixels> camera)
     {
-        switch (state.Action)
-        {
-            case BrinstarPipeBugAction.WaitUntilOnScreen:
-                // The bug starts watching for Samus once its pipe is on screen.
-                if (EnemyProcessingWindow.IsWithinProcessingWindow(place, camera))
-                    state.Action = BrinstarPipeBugAction.WaitForSamus;
-                return;
-            case BrinstarPipeBugAction.WaitForSamus:
-                RunBrinstarPipeBugWaiting(place, state, samus);
-                return;
-            case BrinstarPipeBugAction.Emerge:
-                RunBrinstarPipeBugEmergence(place, state, samus);
-                return;
-            case BrinstarPipeBugAction.FlyHorizontally:
-                RunBrinstarPipeBugFlight(place, state, camera.X);
-                return;
-            case BrinstarPipeBugAction.RespawnDelay:
-                if (state.RespawnDelay.StepEnds())
-                    state.Action = BrinstarPipeBugAction.WaitForSamus;
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Brinstar Pipe Bug has no behaviour for action {state.Action}.");
-        }
+        RunBrinstarPipeBugForBrinstarPipeBugAction[state.Action](place, state, samus, camera);
     }
+
+    /// <summary>What <c>RunNorfairPipeBug</c> does for each <see cref="NorfairPipeBugAction"/> member, each member's own arm.</summary>
+    private IdentityTable<NorfairPipeBugAction, Action<RoomEnemyPlace, NorfairPipeBugState, SamusState, Position16<RoomPixels>>> RunNorfairPipeBugForNorfairPipeBugAction => field ??= new(new Dictionary<NorfairPipeBugAction, Action<RoomEnemyPlace, NorfairPipeBugState, SamusState, Position16<RoomPixels>>>
+    {
+        [NorfairPipeBugAction.WaitForFormation] = (place, state, samus, camera) =>
+        {
+            RunNorfairPipeBugFormationWait(place, state);
+            ResetNorfairPipeBugIfOffScreen(place, state, camera);
+        },
+        [NorfairPipeBugAction.WaitForSamus] = (place, state, samus, camera) =>
+        {
+            RunNorfairPipeBugSamusWait(place, state, samus);
+            ResetNorfairPipeBugIfOffScreen(place, state, camera);
+        },
+        [NorfairPipeBugAction.Rise] = (place, state, samus, camera) =>
+        {
+            RunNorfairPipeBugRise(place, state, samus);
+            ResetNorfairPipeBugIfOffScreen(place, state, camera);
+        },
+        [NorfairPipeBugAction.LeaderStagger] = (place, state, samus, camera) =>
+        {
+            state.CountFormationTick();
+            state.Action = NorfairPipeBugAction.WaitForStagger;
+            ResetNorfairPipeBugIfOffScreen(place, state, camera);
+        },
+        [NorfairPipeBugAction.Stagger] = (place, state, samus, camera) =>
+        {
+            RunNorfairPipeBugVerticalStagger(place, state, state.Role.Stagger
+                ?? throw new InvalidOperationException("A Norfair Pipe Bug staggers in a role that holds its height."));
+            ResetNorfairPipeBugIfOffScreen(place, state, camera);
+        },
+        [NorfairPipeBugAction.WaitForStagger] = (place, state, samus, camera) =>
+        {
+            RunNorfairPipeBugStaggerWait(place, state, samus);
+            ResetNorfairPipeBugIfOffScreen(place, state, camera);
+        },
+        [NorfairPipeBugAction.Fly] = (place, state, samus, camera) =>
+        {
+            // A departed member flies at its spawn settings' speed toward Samus's side.
+            SignedSixteenSixteen flightSpeed = place.SpawnSettings<NorfairPipeBugSpawnSettings>().Speed;
+            AddPipeBugLinearVelocity(place, axis: Axis.Horizontal,
+                flightSpeed.Toward(state.FlightDirection));
+            ResetNorfairPipeBugIfOffScreen(place, state, camera);
+        },
+    });
 
     /// <summary>Runs a Norfair Pipe Bug's action.</summary>
     private void RunNorfairPipeBug(
@@ -118,46 +159,18 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         Position16<RoomPixels> camera)
     {
-        switch (state.Action)
-        {
-            case NorfairPipeBugAction.WaitForFormation:
-                RunNorfairPipeBugFormationWait(place, state);
-                ResetNorfairPipeBugIfOffScreen(place, state, camera);
-                return;
-            case NorfairPipeBugAction.WaitForSamus:
-                RunNorfairPipeBugSamusWait(place, state, samus);
-                ResetNorfairPipeBugIfOffScreen(place, state, camera);
-                return;
-            case NorfairPipeBugAction.Rise:
-                RunNorfairPipeBugRise(place, state, samus);
-                ResetNorfairPipeBugIfOffScreen(place, state, camera);
-                return;
-            case NorfairPipeBugAction.LeaderStagger:
-                state.CountFormationTick();
-                state.Action = NorfairPipeBugAction.WaitForStagger;
-                ResetNorfairPipeBugIfOffScreen(place, state, camera);
-                return;
-            case NorfairPipeBugAction.Stagger:
-                RunNorfairPipeBugVerticalStagger(place, state, state.Role.Stagger
-                    ?? throw new InvalidOperationException("A Norfair Pipe Bug staggers in a role that holds its height."));
-                ResetNorfairPipeBugIfOffScreen(place, state, camera);
-                return;
-            case NorfairPipeBugAction.WaitForStagger:
-                RunNorfairPipeBugStaggerWait(place, state, samus);
-                ResetNorfairPipeBugIfOffScreen(place, state, camera);
-                return;
-            case NorfairPipeBugAction.Fly:
-                // A departed member flies at its spawn settings' speed toward Samus's side.
-                SignedSixteenSixteen flightSpeed = place.SpawnSettings<NorfairPipeBugSpawnSettings>().Speed;
-                AddPipeBugLinearVelocity(place, axis: Axis.Horizontal,
-                    flightSpeed.Toward(state.FlightDirection));
-                ResetNorfairPipeBugIfOffScreen(place, state, camera);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Norfair Pipe Bug has no behaviour for action {state.Action}.");
-        }
+        RunNorfairPipeBugForNorfairPipeBugAction[state.Action](place, state, samus, camera);
     }
+
+    /// <summary>What <c>RunYellowPipeBug</c> does for each <see cref="YellowPipeBugAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<YellowPipeBugAction, Action<RoomEnemyPlace, YellowPipeBugState, SamusState, Position16<RoomPixels>>> RunYellowPipeBugForYellowPipeBugAction => field ??= new(new Dictionary<YellowPipeBugAction, Action<RoomEnemyPlace, YellowPipeBugState, SamusState, Position16<RoomPixels>>>
+    {
+        [YellowPipeBugAction.WaitForSamus] = static (place, state, samus, camera) => RunYellowPipeBugWaiting(place, state, samus),
+        [YellowPipeBugAction.EmergenceDelay] = static (place, state, samus, camera) => RunYellowPipeBugDelay(place, state),
+        [YellowPipeBugAction.Fly] = static (place, state, samus, camera) => RunYellowPipeBugStraightFlight(place, state, samus, camera, YellowPipeBugFacing(place)),
+        [YellowPipeBugAction.ArcDipping] = static (place, state, samus, camera) => RunYellowPipeBugArcDip(place, state, camera, YellowPipeBugFacing(place)),
+        [YellowPipeBugAction.ArcClimbing] = static (place, state, samus, camera) => RunYellowPipeBugArcClimb(place, state, camera, YellowPipeBugFacing(place)),
+    });
 
     /// <summary>Runs a yellow Pipe Bug's action.</summary>
     private static void RunYellowPipeBug(
@@ -166,27 +179,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         Position16<RoomPixels> camera)
     {
-        switch (state.Action)
-        {
-            case YellowPipeBugAction.WaitForSamus:
-                RunYellowPipeBugWaiting(place, state, samus);
-                return;
-            case YellowPipeBugAction.EmergenceDelay:
-                RunYellowPipeBugDelay(place, state);
-                return;
-            case YellowPipeBugAction.Fly:
-                RunYellowPipeBugStraightFlight(place, state, samus, camera, YellowPipeBugFacing(place));
-                return;
-            case YellowPipeBugAction.ArcDipping:
-                RunYellowPipeBugArcDip(place, state, camera, YellowPipeBugFacing(place));
-                return;
-            case YellowPipeBugAction.ArcClimbing:
-                RunYellowPipeBugArcClimb(place, state, camera, YellowPipeBugFacing(place));
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Yellow Pipe Bug has no behaviour for action {state.Action}.");
-        }
+        RunYellowPipeBugForYellowPipeBugAction[state.Action](place, state, samus, camera);
     }
 
     /// <summary>Wakes a hidden Brinstar bug only when Samus enters its narrow horizontal and upper vertical band.</summary>

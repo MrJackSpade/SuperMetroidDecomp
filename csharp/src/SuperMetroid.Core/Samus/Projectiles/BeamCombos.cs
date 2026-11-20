@@ -235,6 +235,29 @@ internal sealed class BeamCombos
         CameraPastRoomEdge.FromCamera(shot.Position.Y.Whole, camera.Y) is
             < BeamComboDefinitions.ViewTopReach or >= BeamComboDefinitions.ViewBottomReach;
 
+    /// <summary>What <c>StepPlasmaCombo</c> does for each <see cref="PlasmaRingPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<PlasmaRingPhase, Action<SamusProjectile, Position16<RoomPixels>, PlasmaParticleState>> StepPlasmaComboForPlasmaRingPhase => field ??= new(new Dictionary<PlasmaRingPhase, Action<SamusProjectile, Position16<RoomPixels>, PlasmaParticleState>>
+    {
+        [PlasmaRingPhase.Expanding] = (shot, camera, ring) =>
+        {
+            ring.Radius = ComboRingCollapse.Grown(ring.Radius, BeamComboDefinitions.PlasmaRadiusStep);
+            if (ring.Radius >= BeamComboDefinitions.PlasmaOuterRadius) ring.Phase = PlasmaRingPhase.Contracting;
+        },
+        [PlasmaRingPhase.Contracting] = (shot, camera, ring) =>
+        {
+            ring.Radius = ComboRingCollapse.Grown(ring.Radius, -BeamComboDefinitions.PlasmaRadiusStep);
+            if (ring.Radius < BeamComboDefinitions.PlasmaInnerThreshold) ring.Phase = PlasmaRingPhase.FinalExpansion;
+        },
+        [PlasmaRingPhase.FinalExpansion] = (shot, camera, ring) =>
+        {
+            // Only the final expansion checks visibility. The first two phases
+            // intentionally keep rings alive beyond the viewport, unlike Ice.
+            if (LeftViewHorizontally(shot, camera) || LeftViewVertically(shot, camera))
+                _animation.ClearProjectile(shot);
+            else ring.Radius = ComboRingCollapse.Grown(ring.Radius, BeamComboDefinitions.PlasmaRadiusStep);
+        },
+    });
+
     /// <summary>The Plasma ring update: the ring grows, shrinks and grows again by its phase.</summary>
     internal void StepPlasmaCombo(SamusState samus,
         SamusProjectile shot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
@@ -254,25 +277,7 @@ internal sealed class BeamCombos
         // of the room's origin, places OffRoomPlaces gives it.
         shot.Position = shot.Position.WithWhole(new(OffRoomPlaces.Place(orbit.X + samus.Position.X.Whole), OffRoomPlaces.Place(orbit.Y + samus.Position.Y.Whole)));
         ring.Turn();
-        switch (ring.Phase)
-        {
-            case PlasmaRingPhase.Expanding:
-                ring.Radius = ComboRingCollapse.Grown(ring.Radius, BeamComboDefinitions.PlasmaRadiusStep);
-                if (ring.Radius >= BeamComboDefinitions.PlasmaOuterRadius) ring.Phase = PlasmaRingPhase.Contracting;
-                break;
-            case PlasmaRingPhase.Contracting:
-                ring.Radius = ComboRingCollapse.Grown(ring.Radius, -BeamComboDefinitions.PlasmaRadiusStep);
-                if (ring.Radius < BeamComboDefinitions.PlasmaInnerThreshold) ring.Phase = PlasmaRingPhase.FinalExpansion;
-                break;
-            case PlasmaRingPhase.FinalExpansion:
-                // Only the final expansion checks visibility. The first two phases
-                // intentionally keep rings alive beyond the viewport, unlike Ice.
-                if (LeftViewHorizontally(shot, camera) || LeftViewVertically(shot, camera))
-                    _animation.ClearProjectile(shot);
-                else ring.Radius = ComboRingCollapse.Grown(ring.Radius, BeamComboDefinitions.PlasmaRadiusStep);
-                break;
-            default: throw new InvalidOperationException($"Undefined {nameof(PlasmaRingPhase)} {ring.Phase}.");
-        }
+        StepPlasmaComboForPlasmaRingPhase[ring.Phase](shot, camera, ring);
     }
     /// <summary>
     /// Runs the Spacetime shot's behaviour, its progression overwrite: from an animation that reaches far enough, it

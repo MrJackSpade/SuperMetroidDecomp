@@ -22,6 +22,29 @@ internal sealed class EyeDoorBehavior
         _projectiles = projectiles;
     }
 
+    /// <summary>What <c>SpawnEyeDoorProjectile</c> does for each <see cref="EyeDoorProjectileDefinition"/> member, each member's own arm.</summary>
+    private IdentityTable<EyeDoorProjectileDefinition, Action<EyeDoorProjectileRequest, RoomEnemyProjectileKind, EnemyProjectile, Position16<RoomBlocks>>> SpawnEyeDoorProjectileForEyeDoorProjectileDefinition => field ??= new(new Dictionary<EyeDoorProjectileDefinition, Action<EyeDoorProjectileRequest, RoomEnemyProjectileKind, EnemyProjectile, Position16<RoomBlocks>>>
+    {
+        [EyeDoorProjectileDefinition.Sweat] = (request, kind, projectile, block) =>
+        {
+            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Sweat, graphics: default);
+            projectile.StartAnimation(new EyeDoorSweatAnimation(Sweat, EyeDoorSweatSegment.Falling));
+            InitializeEyeDoorSweat(projectile, request.Facing, block);
+        },
+        [EyeDoorProjectileDefinition.ScatteredSmoke] = (request, kind, projectile, block) =>
+        {
+            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, EnemyProjectileBehavior.Still, graphics: default);
+            InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.ScatteredSmokeAnimation,
+                EyeDoorEffectDefinitions.ScatteredSmokePlacement, block);
+        },
+        [EyeDoorProjectileDefinition.CenteredSmoke] = (request, kind, projectile, block) =>
+        {
+            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, EnemyProjectileBehavior.Still, graphics: default);
+            InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.CenteredSmokeAnimation,
+                EyeDoorEffectDefinitions.CenteredSmokePlacement, block);
+        },
+    });
+
     /// <summary>
     /// Spawns the projectile the eye-door room object's animation chooses,
     /// with the room's graphics. The projectile keeps the room object's block and room
@@ -44,30 +67,7 @@ internal sealed class EyeDoorBehavior
             return; // Spawning fails when the room has no place left for an enemy projectile.
 
         Position16<RoomBlocks> block = request.RoomObjectBlock;
-        switch (request.Definition)
-        {
-            case EyeDoorProjectileDefinition.Sweat:
-                EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Sweat, graphics: default);
-                projectile.StartAnimation(new EyeDoorSweatAnimation(Sweat, EyeDoorSweatSegment.Falling));
-                InitializeEyeDoorSweat(projectile, request.Facing, block);
-                return;
-
-            case EyeDoorProjectileDefinition.ScatteredSmoke:
-                EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, EnemyProjectileBehavior.Still, graphics: default);
-                InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.ScatteredSmokeAnimation,
-                    EyeDoorEffectDefinitions.ScatteredSmokePlacement, block);
-                return;
-
-            case EyeDoorProjectileDefinition.CenteredSmoke:
-                EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, EnemyProjectileBehavior.Still, graphics: default);
-                InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.CenteredSmokeAnimation,
-                    EyeDoorEffectDefinitions.CenteredSmokePlacement, block);
-                return;
-
-            default:
-                throw new InvalidOperationException(
-                    $"Eye-door projectile definition {request.Definition} escaped its setup step.");
-        }
+        SpawnEyeDoorProjectileForEyeDoorProjectileDefinition[request.Definition](request, kind, projectile, block);
     }
 
     /// <summary>
@@ -112,20 +112,17 @@ internal sealed class EyeDoorBehavior
         internal override EnemyProjectileAnimation ShotAnimation() =>
             shot is { } segment ? new EyeDoorProjectileAnimation(this, segment) : base.ShotAnimation();
 
+        /// <summary>What <c>Move</c> does for each <see cref="EyeDoorProjectileMotion"/> member, each member's own arm.</summary>
+        private IdentityTable<EyeDoorProjectileMotion, Action<EnemyProjectileMotionContext>> MoveForEyeDoorProjectileMotion => field ??= new(new Dictionary<EyeDoorProjectileMotion, Action<EnemyProjectileMotionContext>>
+        {
+            [EyeDoorProjectileMotion.ShotFlying] = context => FlyEyeDoorProjectile(this, context.Projectile, context.Level),
+            [EyeDoorProjectileMotion.SweatFalling] = context => DripEyeDoorSweat(this, context.Projectile, context.Level),
+        });
+
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, EyeDoorProjectileMotion motion)
         {
-            switch (motion)
-            {
-                case EyeDoorProjectileMotion.ShotFlying:
-                    FlyEyeDoorProjectile(this, context.Projectile, context.Level);
-                    break;
-                case EyeDoorProjectileMotion.SweatFalling:
-                    DripEyeDoorSweat(this, context.Projectile, context.Level);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(EyeDoorProjectileMotion)} {motion}.");
-            }
+            MoveForEyeDoorProjectileMotion[motion](context);
         }
 
         /// <inheritdoc/>
@@ -246,26 +243,19 @@ internal sealed class EyeDoorBehavior
         projectile.StartAnimation(new EyeDoorProjectileAnimation(owner, EyeDoorProjectileSegment.Impact));
     }
 
+    /// <summary>What <c>ApplyEyeDoorProjectileCue</c> does for each <see cref="EyeDoorProjectileCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<EyeDoorProjectileCueKind, Action<EyeDoorProjectileBehavior, EnemyProjectile, IRoomSamus>> ApplyEyeDoorProjectileCueForEyeDoorProjectileCueKind => field ??= new(new Dictionary<EyeDoorProjectileCueKind, Action<EyeDoorProjectileBehavior, EnemyProjectile, IRoomSamus>>
+    {
+        [EyeDoorProjectileCueKind.AimAtSamus] = static (owner, projectile, samus) => AimEyeDoorProjectileAtSamus(owner, projectile, samus),
+        [EyeDoorProjectileCueKind.StartFlight] = static (owner, projectile, samus) => projectile.StartMotion(owner, EyeDoorProjectileMotion.ShotFlying),
+        [EyeDoorProjectileCueKind.StopMoving] = static (owner, projectile, samus) => projectile.HoldStill(),
+        [EyeDoorProjectileCueKind.Delete] = static (owner, projectile, samus) => projectile.Delete(),
+    });
+
     /// <summary>Carries out one cue of the eye-door shot's animations.</summary>
     private static void ApplyEyeDoorProjectileCue(EyeDoorProjectileBehavior owner, EnemyProjectile projectile, IRoomSamus samus, EyeDoorProjectileCue cue)
     {
-        switch (cue.Kind)
-        {
-            case EyeDoorProjectileCueKind.AimAtSamus:
-                AimEyeDoorProjectileAtSamus(owner, projectile, samus);
-                break;
-            case EyeDoorProjectileCueKind.StartFlight:
-                projectile.StartMotion(owner, EyeDoorProjectileMotion.ShotFlying);
-                break;
-            case EyeDoorProjectileCueKind.StopMoving:
-                projectile.HoldStill();
-                break;
-            case EyeDoorProjectileCueKind.Delete:
-                projectile.Delete();
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EyeDoorProjectileCueKind)} {cue.Kind}.");
-        }
+        ApplyEyeDoorProjectileCueForEyeDoorProjectileCueKind[cue.Kind](owner, projectile, samus);
     }
 
     /// <summary>

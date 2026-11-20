@@ -183,36 +183,35 @@ internal sealed class IntroBabyDiscoveryState
             slimeDrop.Draw(screenSprites, eggEffectArt);
     }
 
+    /// <summary>What <c>CheckDemoPhase</c> does for each <see cref="IntroBabyDiscoveryDemoPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<IntroBabyDiscoveryDemoPhase, Action<bool>> CheckDemoPhaseForIntroBabyDiscoveryDemoPhase => field ??= new(new Dictionary<IntroBabyDiscoveryDemoPhase, Action<bool>>
+    {
+        [IntroBabyDiscoveryDemoPhase.RunningLeft] = crossfadeFinishing =>
+        {
+            if (Samus.Position.X.Whole < IntroBabyDiscoveryDefinitions.DemoRunStopX)
+            {
+                DemoPhase = IntroBabyDiscoveryDemoPhase.StoppedAndLooking;
+                demo.Load(DemoInputRecordingId.IntroBabyDiscoveryStopAndLook);
+            }
+        },
+        [IntroBabyDiscoveryDemoPhase.StoppedAndLooking] = crossfadeFinishing =>
+        {
+            if (crossfadeFinishing)
+            {
+                DemoPhase = IntroBabyDiscoveryDemoPhase.Ending;
+                demo.Load(DemoInputRecordingId.IntroBabyDiscoveryEnd);
+            }
+        },
+        [IntroBabyDiscoveryDemoPhase.Ending] = crossfadeFinishing => { },
+    });
+
     /// <summary>
     /// Moves the scripted input from running to stopping and looking once Samus passes her scripted place, and from
     /// looking to its ending once the crossfade finishes. Runs before the input's step, in the same step.
     /// </summary>
     private void CheckDemoPhase(bool crossfadeFinishing)
     {
-        switch (DemoPhase)
-        {
-            case IntroBabyDiscoveryDemoPhase.RunningLeft:
-                if (Samus.Position.X.Whole < IntroBabyDiscoveryDefinitions.DemoRunStopX)
-                {
-                    DemoPhase = IntroBabyDiscoveryDemoPhase.StoppedAndLooking;
-                    demo.Load(DemoInputRecordingId.IntroBabyDiscoveryStopAndLook);
-                }
-                return;
-
-            case IntroBabyDiscoveryDemoPhase.StoppedAndLooking:
-                if (crossfadeFinishing)
-                {
-                    DemoPhase = IntroBabyDiscoveryDemoPhase.Ending;
-                    demo.Load(DemoInputRecordingId.IntroBabyDiscoveryEnd);
-                }
-                return;
-
-            case IntroBabyDiscoveryDemoPhase.Ending:
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroBabyDiscoveryDemoPhase)} {DemoPhase}.");
-        }
+        CheckDemoPhaseForIntroBabyDiscoveryDemoPhase[DemoPhase](crossfadeFinishing);
     }
 
     /// <summary>Runs the discovery demo recording's end cue, disabling input and both phases of Samus's frame for the frames that follow.</summary>
@@ -228,71 +227,67 @@ internal sealed class IntroBabyDiscoveryState
         samusUpdateStopped = true;
     }
 
+    /// <summary>What <c>HandleEggCue</c> does for each <see cref="IntroDiscoveryCue"/> member, each member's own arm.</summary>
+    private IdentityTable<IntroDiscoveryCue, Action> HandleEggCueForIntroDiscoveryCue => field ??= new(new Dictionary<IntroDiscoveryCue, Action>
+    {
+        [IntroDiscoveryCue.SpawnShellPieces] = () =>
+        {
+            // The six pieces of the shell spawn in their spawn order, which is the order they update and draw in.
+            foreach (IntroEggShellFragment fragment in IntroEggEffectDefinitions.ShellFragments)
+                eggParticles.Add(new IntroEggParticle(fragment, shellFallPastCurve));
+            audio.QueueSound(
+                IntroCinematicDefinitions.Sounds.EggHatch,
+                priority: IntroCinematicDefinitions.Sounds.SoundPriority);
+        },
+        [IntroDiscoveryCue.StartNextPage] = () =>
+        {
+            // This cue switches the outer cinematic phase to page three. The state
+            // owner performs the colour transition; the actor merely reports the request.
+            NextPageRequested = true;
+        },
+        [IntroDiscoveryCue.DeleteEggAfterCrossFade] = () =>
+        {
+            // Page three's cross-fade deletes the egg once it ends.
+            eggBehavior = MetroidEggBehavior.WaitsForCrossFadeEnd;
+        },
+    });
+
     /// <summary>Spawns hatch particles or requests the page-three transition from the egg's animation.</summary>
     private void HandleEggCue(IntroDiscoveryCue cue)
     {
-        switch (cue)
-        {
-            case IntroDiscoveryCue.SpawnShellPieces:
-                // The six pieces of the shell spawn in their spawn order, which is the order they update and draw in.
-                foreach (IntroEggShellFragment fragment in IntroEggEffectDefinitions.ShellFragments)
-                    eggParticles.Add(new IntroEggParticle(fragment, shellFallPastCurve));
-                audio.QueueSound(
-                    IntroCinematicDefinitions.Sounds.EggHatch,
-                    priority: IntroCinematicDefinitions.Sounds.SoundPriority);
-                return;
-
-            case IntroDiscoveryCue.StartNextPage:
-                // This cue switches the outer cinematic phase to page three. The state
-                // owner performs the colour transition; the actor merely reports the request.
-                NextPageRequested = true;
-                return;
-
-            case IntroDiscoveryCue.DeleteEggAfterCrossFade:
-                // Page three's cross-fade deletes the egg once it ends.
-                eggBehavior = MetroidEggBehavior.WaitsForCrossFadeEnd;
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroDiscoveryCue)} {cue}.");
-        }
+        HandleEggCueForIntroDiscoveryCue[cue]();
     }
+
+    /// <summary>What <c>StepConfusedBaby</c> does for each <see cref="ConfusedBabyMotion"/> member, each member's own arm.</summary>
+    private IdentityTable<ConfusedBabyMotion, Action<bool>> StepConfusedBabyForConfusedBabyMotion => field ??= new(new Dictionary<ConfusedBabyMotion, Action<bool>>
+    {
+        [ConfusedBabyMotion.WaitingForHatch] = crossfadeFinishing =>
+        {
+            // The confused baby starts rising on the update the egg first shows its burst shell, after this
+            // update's egg step.
+            if (egg.Shown is { } eggPose && IntroEggPoses.BurstShell.Contains(eggPose))
+            {
+                babyMotion = ConfusedBabyMotion.Rising;
+                BabyVelocity = BabyVelocity.WithY(default);
+            }
+        },
+        [ConfusedBabyMotion.Rising] = crossfadeFinishing => StepHatchedBaby(),
+        [ConfusedBabyMotion.Idling] = crossfadeFinishing =>
+        {
+            if (BabyIdleTimer.Step())
+            {
+                babyMotion = ConfusedBabyMotion.Dancing;
+                BabyVelocity = BabyVelocity.WithY(default);
+                BabyCryingDance = UpdateCountdown.Lasting(IntroBabyDiscoveryDefinitions.CryingDanceUpdates);
+            }
+        },
+        [ConfusedBabyMotion.Dancing] = crossfadeFinishing => StepDancingBaby(crossfadeFinishing),
+    });
 
     /// <summary>Advances the baby from hatch wait through rise, idle, and crossfade dance phases.</summary>
     private void StepConfusedBaby(bool crossfadeFinishing)
     {
-        switch (babyMotion)
-        {
-            case ConfusedBabyMotion.WaitingForHatch:
-                // The confused baby starts rising on the update the egg first shows its burst shell, after this
-                // update's egg step.
-                if (egg.Shown is { } eggPose && IntroEggPoses.BurstShell.Contains(eggPose))
-                {
-                    babyMotion = ConfusedBabyMotion.Rising;
-                    BabyVelocity = BabyVelocity.WithY(default);
-                }
-                return;
-
-            case ConfusedBabyMotion.Rising:
-                StepHatchedBaby();
-                return;
-
-            case ConfusedBabyMotion.Idling:
-                if (BabyIdleTimer.Step())
-                {
-                    babyMotion = ConfusedBabyMotion.Dancing;
-                    BabyVelocity = BabyVelocity.WithY(default);
-                    BabyCryingDance = UpdateCountdown.Lasting(IntroBabyDiscoveryDefinitions.CryingDanceUpdates);
-                }
-                return;
-
-            case ConfusedBabyMotion.Dancing:
-                StepDancingBaby(crossfadeFinishing);
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(ConfusedBabyMotion)} {babyMotion}.");
-        }
+        StepConfusedBabyForConfusedBabyMotion[babyMotion](crossfadeFinishing);
     }
 
     /// <summary>The velocity of the baby's rise and two-axis dance.</summary>

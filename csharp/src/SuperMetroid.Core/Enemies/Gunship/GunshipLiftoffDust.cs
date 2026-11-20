@@ -36,17 +36,16 @@ internal static class GunshipLiftoffDust
     /// <summary>A gunship liftoff dust cloud, which ends with its animation.</summary>
     internal sealed class GunshipDustBehavior : EnemyProjectileBehavior, IEnemyProjectileCues<GunshipDustCue>
     {
+        /// <summary>What <c>RunCue</c> does for each <see cref="GunshipDustCue"/> member, each member's own arm.</summary>
+        private static IdentityTable<GunshipDustCue, Action<EnemyProjectileCueContext>> RunCueForGunshipDustCue => field ??= new(new Dictionary<GunshipDustCue, Action<EnemyProjectileCueContext>>
+        {
+            [GunshipDustCue.Delete] = static context => context.Projectile.Delete(),
+        });
+
         /// <summary>Deletes the dust cloud when its animation ends.</summary>
         public void RunCue(EnemyProjectileCueContext context, GunshipDustCue cue)
         {
-            switch (cue)
-            {
-                case GunshipDustCue.Delete:
-                    context.Projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(GunshipDustCue)} {cue}.");
-            }
+            RunCueForGunshipDustCue[cue](context);
         }
     }
 }

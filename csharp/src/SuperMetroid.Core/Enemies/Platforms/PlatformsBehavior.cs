@@ -102,6 +102,13 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         StartPlatformStillAnimationForHeading(place, state);
     }
 
+    /// <summary>What <c>MovePlatformVertically</c> does for each <see cref="PlatformVerticalMovement"/> member, each member's own arm.</summary>
+    private IdentityTable<PlatformVerticalMovement, Action<RoomEnemyPlace, PlatformEnemyState, SamusState, RoomLevelData, int>> MovePlatformVerticallyForPlatformVerticalMovement => field ??= new(new Dictionary<PlatformVerticalMovement, Action<RoomEnemyPlace, PlatformEnemyState, SamusState, RoomLevelData, int>>
+    {
+        [PlatformVerticalMovement.Rising] = (place, state, samus, level, preHorizontalX) => RaisePlatform(place, state, level),
+        [PlatformVerticalMovement.Sinking] = (place, state, samus, level, preHorizontalX) => SinkPlatform(place, state, samus, level, preHorizontalX),
+    });
+
     /// <summary>Routes the platform through rise or sink physics and carries a riding Samus by accepted motion.</summary>
     /// <param name="place">The platform's place.</param>
     /// <param name="state">The platform's state.</param>
@@ -117,18 +124,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         PlatformVerticalMovement movement,
         int preHorizontalX)
     {
-        switch (movement)
-        {
-            case PlatformVerticalMovement.Rising:
-                RaisePlatform(place, state, level);
-                return;
-            case PlatformVerticalMovement.Sinking:
-                SinkPlatform(place, state, samus, level, preHorizontalX);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Platform Y movement {movement} is neither rising nor falling.");
-        }
+        MovePlatformVerticallyForPlatformVerticalMovement[movement](place, state, samus, level, preHorizontalX);
     }
 
     /// <summary>Returns a depressed platform toward its spawn height, stopping at its resting depth.</summary>

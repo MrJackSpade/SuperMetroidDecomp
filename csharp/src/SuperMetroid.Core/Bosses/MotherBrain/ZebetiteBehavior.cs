@@ -102,27 +102,21 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWholeY(Zebetites.YPosition(definition, state.Half));
     }
 
+    /// <summary>What <c>RunZebetiteMain</c> does for each <see cref="ZebetiteAction"/> member, each member's own arm.</summary>
+    private IdentityTable<ZebetiteAction, Action<RoomEnemyPlace, ZebetiteEnemyState>> RunZebetiteMainForZebetiteAction => field ??= new(new Dictionary<ZebetiteAction, Action<RoomEnemyPlace, ZebetiteEnemyState>>
+    {
+        [ZebetiteAction.SpawnLinkedHalf] = (place, state) => RunZebetiteSpawnLinkedHalf(place, state),
+        [ZebetiteAction.WaitForDoorTransition] = (place, state) => RunZebetiteWaitForDoorTransition(place, state),
+        [ZebetiteAction.Active] = (place, state) => RunZebetiteActive(place, state),
+    });
+
     /// <summary>Runs the main step.</summary>
     private void RunZebetiteMain(RoomEnemyPlace place, ZebetiteEnemyState state)
     {
         if (!_earthquake.IsShaking)
             place.Shake.End();
 
-        switch (state.Action)
-        {
-            case ZebetiteAction.SpawnLinkedHalf:
-                RunZebetiteSpawnLinkedHalf(place, state);
-                break;
-            case ZebetiteAction.WaitForDoorTransition:
-                RunZebetiteWaitForDoorTransition(place, state);
-                break;
-            case ZebetiteAction.Active:
-                RunZebetiteActive(place, state);
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Zebetite has no behaviour for action {state.Action}.");
-        }
+        RunZebetiteMainForZebetiteAction[state.Action](place, state);
     }
 
     /// <summary>Creates a linked half when this generation requires one, then enters the door-transition wait.</summary>

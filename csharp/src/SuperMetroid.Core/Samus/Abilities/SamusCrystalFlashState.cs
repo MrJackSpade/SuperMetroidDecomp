@@ -237,6 +237,14 @@ public sealed class SamusCrystalFlashState
         samus.KnockbackActive = false;
     }
 
+    /// <summary>What <c>StepAmmoDrain</c> does for each <see cref="CrystalFlashAmmoKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<CrystalFlashAmmoKind, Action<SamusState>> StepAmmoDrainForCrystalFlashAmmoKind => field ??= new(new Dictionary<CrystalFlashAmmoKind, Action<SamusState>>
+    {
+        [CrystalFlashAmmoKind.Missiles] = static samus => samus.Missiles = CountsRunBelowZero.DecrementWrapping(samus.Missiles),
+        [CrystalFlashAmmoKind.SuperMissiles] = static samus => samus.SuperMissiles = CountsRunBelowZero.DecrementWrapping(samus.SuperMissiles),
+        [CrystalFlashAmmoKind.PowerBombs] = static samus => samus.PowerBombs = CountsRunBelowZero.DecrementWrapping(samus.PowerBombs),
+    });
+
     /// <summary>
     /// Consumes missiles, supers, then power bombs at the drain's cadence and restores <see cref="CrystalFlashDefinitions.EnergyPerAmmunition"/> for each one spent.
     /// </summary>
@@ -247,21 +255,7 @@ public sealed class SamusCrystalFlashState
         if (!SamusCadenceDefinitions.CrystalFlashDrain.IsDue(frameCounter))
             return;
 
-        switch (DrainingAmmo)
-        {
-            case CrystalFlashAmmoKind.Missiles:
-                samus.Missiles = CountsRunBelowZero.DecrementWrapping(samus.Missiles);
-                break;
-            case CrystalFlashAmmoKind.SuperMissiles:
-                samus.SuperMissiles = CountsRunBelowZero.DecrementWrapping(samus.SuperMissiles);
-                break;
-            case CrystalFlashAmmoKind.PowerBombs:
-                samus.PowerBombs = CountsRunBelowZero.DecrementWrapping(samus.PowerBombs);
-                break;
-            default:
-                throw new InvalidOperationException(
-                    $"Crystal Flash ammunition kind {DrainingAmmo} is undefined.");
-        }
+        StepAmmoDrainForCrystalFlashAmmoKind[DrainingAmmo](samus);
 
         SamusEnergyRestoration.Restore(samus, CrystalFlashDefinitions.EnergyPerAmmunition);
         CountdownStep ammoTimer = _ammoCountdown.CountDownAmmo();

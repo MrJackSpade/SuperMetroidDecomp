@@ -84,6 +84,42 @@ public sealed class CeresHazeState
         FadingOut,
     }
 
+    /// <summary>What <c>Step</c> does for each <see cref="Phase"/> member, each member's own arm.</summary>
+    private IdentityTable<Phase, Action<RoomFade>> StepForPhase => field ??= new(new Dictionary<Phase, Action<RoomFade>>
+    {
+        [Phase.FadingIn] = roomFade =>
+        {
+            if (fade.IsOver)
+                _phase = Phase.Holding;
+            else
+            {
+                _strength = fade.Age;
+                fade.Count();
+            }
+        },
+        [Phase.Holding] = roomFade =>
+        {
+            if (roomFade == RoomFade.FadingOut)
+            {
+                _phase = Phase.FadingOut;
+                fade = UpdateCountdown.Lasting(CeresHazeDefinitions.FadeSteps);
+            }
+        },
+        [Phase.FadingOut] = roomFade =>
+        {
+            if (fade.IsRunning)
+            {
+                // The fade-out counts down from one past full, which the haze shows as full (#2573).
+                _strength = Math.Min(fade.UpdatesLeft, FullStrength);
+                fade.Count();
+            }
+        },
+        [Phase.Waiting] = roomFade =>
+        {
+            throw new InvalidOperationException("Waiting either returns or starts the fade-in above.");
+        },
+    });
+
     /// <summary>One haze step under <paramref name="roomFade"/>.</summary>
     private void Step(RoomFade roomFade)
     {
@@ -93,36 +129,6 @@ public sealed class CeresHazeState
             _phase = Phase.FadingIn;
             fade = UpdateCountdown.Lasting(CeresHazeDefinitions.FadeSteps);
         }
-        switch (_phase)
-        {
-            case Phase.FadingIn:
-                if (fade.IsOver)
-                    _phase = Phase.Holding;
-                else
-                {
-                    _strength = fade.Age;
-                    fade.Count();
-                }
-                break;
-            case Phase.Holding:
-                if (roomFade == RoomFade.FadingOut)
-                {
-                    _phase = Phase.FadingOut;
-                    fade = UpdateCountdown.Lasting(CeresHazeDefinitions.FadeSteps);
-                }
-                break;
-            case Phase.FadingOut:
-                if (fade.IsRunning)
-                {
-                    // The fade-out counts down from one past full, which the haze shows as full (#2573).
-                    _strength = Math.Min(fade.UpdatesLeft, FullStrength);
-                    fade.Count();
-                }
-                break;
-            case Phase.Waiting:
-                throw new InvalidOperationException("Waiting either returns or starts the fade-in above.");
-            default:
-                throw new InvalidOperationException($"Undefined haze phase {_phase}.");
-        }
+        StepForPhase[_phase](roomFade);
     }
 }

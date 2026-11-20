@@ -64,21 +64,18 @@ internal sealed class EndingTypewriter
     /// <summary>Runs the typing one update: the initial delay, character cadence, optional percentage hold, and completion handoff.</summary>
     public void Step() => typing.Step(CarryOut);
 
+    /// <summary>What <c>CarryOut</c> does for each <see cref="EndingTypewriterCue"/> member, each member's own arm.</summary>
+    private IdentityTable<EndingTypewriterCue, Action> CarryOutForEndingTypewriterCue => field ??= new(new Dictionary<EndingTypewriterCue, Action>
+    {
+        [EndingTypewriterCue.ShowPercentage] = () => shownPercentage = ItemPercentage(),
+        [EndingTypewriterCue.Complete] = () => Completed = true,
+    });
+
     /// <summary>Carries out <paramref name="cue"/> of the text's typing.</summary>
     /// <exception cref="InvalidOperationException">The cue is not one a text's typing raises.</exception>
     private void CarryOut(EndingTypewriterCue cue)
     {
-        switch (cue)
-        {
-            case EndingTypewriterCue.ShowPercentage:
-                shownPercentage = ItemPercentage();
-                return;
-            case EndingTypewriterCue.Complete:
-                Completed = true;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined ending typewriter cue {cue}.");
-        }
+        CarryOutForEndingTypewriterCue[cue]();
     }
 
     /// <summary>

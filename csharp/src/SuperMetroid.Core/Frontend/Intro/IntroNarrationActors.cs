@@ -107,6 +107,21 @@ internal sealed class IntroNarrationActors
     /// </summary>
     public void HideCaret() => caretHidden = true;
 
+    /// <summary>What <c>StartPage</c> does for each <see cref="IntroNarrationPageOpening"/> member, each member's own arm.</summary>
+    private IdentityTable<IntroNarrationPageOpening, Action> StartPageForIntroNarrationPageOpening => field ??= new(new Dictionary<IntroNarrationPageOpening, Action>
+    {
+        [IntroNarrationPageOpening.KeepsSetupCaret] = () => { },
+        [IntroNarrationPageOpening.RestoresCaret] = () => ResetCaret(),
+        [IntroNarrationPageOpening.ReplacesEarlierPages] = () =>
+        {
+            ResetCaret();
+            // The eye observes the last page's cinematic phase and permanently changes to its closed, half-open and
+            // deadpan animation; the portrait keeps the eye's frame until that animation's first frame shows at the
+            // eye's next update.
+            eye.StartKeepingShown(IntroEyeAnimations.StartingWith(IntroEyeSegment.FinalPageClosing));
+        },
+    });
+
     /// <summary>
     /// Starts <paramref name="page"/>'s letter-by-letter narration as its definition says (#2489): the first page keeps the
     /// caret its setup started, with the eye's blinking and the portrait already showing; a page after an illustration
@@ -121,23 +136,7 @@ internal sealed class IntroNarrationActors
         StartNarration(page);
         AwaitingInputPage = null;
         FinalHoldEnded = false;
-        switch (opening)
-        {
-            case IntroNarrationPageOpening.KeepsSetupCaret:
-                return;
-            case IntroNarrationPageOpening.RestoresCaret:
-                ResetCaret();
-                return;
-            case IntroNarrationPageOpening.ReplacesEarlierPages:
-                ResetCaret();
-                // The eye observes the last page's cinematic phase and permanently changes to its closed, half-open and
-                // deadpan animation; the portrait keeps the eye's frame until that animation's first frame shows at the
-                // eye's next update.
-                eye.StartKeepingShown(IntroEyeAnimations.StartingWith(IntroEyeSegment.FinalPageClosing));
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroNarrationPageOpening)} {opening}.");
-        }
+        StartPageForIntroNarrationPageOpening[opening]();
     }
 
     /// <summary>Runs the narration's actors in the cinematic game state's order.</summary>
@@ -204,29 +203,30 @@ internal sealed class IntroNarrationActors
             TypeCharacter(typed.Letters - 1);
     }
 
+    /// <summary>What <c>CarryOut</c> does for each <see cref="IntroNarrationTypingCue"/> member, each member's own arm.</summary>
+    private IdentityTable<IntroNarrationTypingCue, Action<IntroNarrationPageId>> CarryOutForIntroNarrationTypingCue => field ??= new(new Dictionary<IntroNarrationTypingCue, Action<IntroNarrationPageId>>
+    {
+        [IntroNarrationTypingCue.ShowSubtitle] = page =>
+        {
+            // Each page opens by showing its subtitle.
+            subtitles.BeginPage(page);
+        },
+        [IntroNarrationTypingCue.BlinkCaret] = page => SetCaretBlinking(),
+        [IntroNarrationTypingCue.FinishPage] = page =>
+        {
+            FinishInstalledNarration(page);
+            narrationAnimation = null;
+            narrationPage = null;
+        },
+    });
+
     /// <summary>Carries out <paramref name="cue"/> of the page's typing.</summary>
     /// <exception cref="InvalidOperationException">The cue is not one a page's typing raises.</exception>
     private void CarryOut(IntroNarrationTypingCue cue)
     {
         IntroNarrationPageId page = narrationPage ?? throw new InvalidDataException(
             "Installed narration typed without an active page identity.");
-        switch (cue)
-        {
-            case IntroNarrationTypingCue.ShowSubtitle:
-                // Each page opens by showing its subtitle.
-                subtitles.BeginPage(page);
-                return;
-            case IntroNarrationTypingCue.BlinkCaret:
-                SetCaretBlinking();
-                return;
-            case IntroNarrationTypingCue.FinishPage:
-                FinishInstalledNarration(page);
-                narrationAnimation = null;
-                narrationPage = null;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined narration typing cue {cue}.");
-        }
+        CarryOutForIntroNarrationTypingCue[cue](page);
     }
 
     /// <summary>

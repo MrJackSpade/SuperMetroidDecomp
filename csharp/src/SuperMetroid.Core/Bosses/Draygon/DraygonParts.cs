@@ -106,20 +106,18 @@ internal sealed class DraygonParts
         eye.Facing = facing;
     }
 
+    /// <summary>What <c>RunDraygonEyeMain</c> does for each <see cref="DraygonEyeAction"/> member, each member's own arm.</summary>
+    private IdentityTable<DraygonEyeAction, Action<DraygonEnemyState, SamusState, DraygonEyeState>> RunDraygonEyeMainForDraygonEyeAction => field ??= new(new Dictionary<DraygonEyeAction, Action<DraygonEnemyState, SamusState, DraygonEyeState>>
+    {
+        [DraygonEyeAction.Inert] = (state, samus, eye) => { },
+        [DraygonEyeAction.Tracking] = (state, samus, eye) => TrackSamusWithDraygonEye(state, samus, eye.Facing),
+    });
+
     /// <summary>Runs the eye's step: inert, or tracking Samus the way the body faces.</summary>
     internal void RunDraygonEyeMain(DraygonEnemyState state, SamusState samus)
     {
         DraygonEyeState eye = state.EyeTracking;
-        switch (eye.Action)
-        {
-            case DraygonEyeAction.Inert:
-                return;
-            case DraygonEyeAction.Tracking:
-                TrackSamusWithDraygonEye(state, samus, eye.Facing);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined Draygon eye action {eye.Action}.");
-        }
+        RunDraygonEyeMainForDraygonEyeAction[eye.Action](state, samus, eye);
     }
 
     /// <summary>

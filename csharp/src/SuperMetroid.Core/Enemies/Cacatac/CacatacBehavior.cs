@@ -75,21 +75,21 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         SetCacatacAnimation(place, state, onFloor ? CacatacSegment.OnFloorIdle : CacatacSegment.OnCeilingIdle);
     }
 
+    /// <summary>What <c>RunCacatacMain</c> does for each <see cref="CacatacAction"/> member, each member's own arm.</summary>
+    private IdentityTable<CacatacAction, Action<RoomEnemyPlace, CacatacEnemyState>> RunCacatacMainForCacatacAction => field ??= new(new Dictionary<CacatacAction, Action<RoomEnemyPlace, CacatacEnemyState>>
+    {
+        [CacatacAction.Patrolling] = (place, state) =>
+        {
+            MoveCacatac(place, state);
+            MaybeStartCacatacAttack(place, state);
+        },
+        [CacatacAction.Stopped] = (place, state) => { },
+    });
+
     /// <summary>Runs a Cacatac for one update: its patrol, or it stays stopped.</summary>
     private void RunCacatacMain(RoomEnemyPlace place, CacatacEnemyState state)
     {
-        switch (state.Action)
-        {
-            case CacatacAction.Patrolling:
-                MoveCacatac(place, state);
-                MaybeStartCacatacAttack(place, state);
-                return;
-            case CacatacAction.Stopped:
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Cacatac has no behaviour for action {state.Action}.");
-        }
+        RunCacatacMainForCacatacAction[state.Action](place, state);
     }
 
     /// <summary>

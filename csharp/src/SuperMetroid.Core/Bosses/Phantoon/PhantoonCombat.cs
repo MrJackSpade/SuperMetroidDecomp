@@ -127,21 +127,18 @@ internal sealed class PhantoonCombat
         internal EnemyProjectileOwnedMotion SpiralOrbiting => field ??= new(nameof(SpiralOrbiting),
             context => RunPhantoonSpiralFlame(context.Projectile));
 
+        /// <summary>What <c>RunCue</c> does for each <see cref="PhantoonFlameCue"/> member, each member's own arm.</summary>
+        private IdentityTable<PhantoonFlameCue, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForPhantoonFlameCue => field ??= new(new Dictionary<PhantoonFlameCue, Action<EnemyProjectileCueContext, EnemyProjectile>>
+        {
+            [PhantoonFlameCue.SpawnDrop] = (context, projectile) => RequestPhantoonFlameDrop(projectile, context.Samus),
+            [PhantoonFlameCue.Delete] = (context, projectile) => projectile.Delete(),
+        });
+
         /// <summary>Carries out a flame animation's cue: the flame's drop, or its deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, PhantoonFlameCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
-            switch (cue)
-            {
-                case PhantoonFlameCue.SpawnDrop:
-                    RequestPhantoonFlameDrop(projectile, context.Samus);
-                    return;
-                case PhantoonFlameCue.Delete:
-                    projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameCue)} {cue}.");
-            }
+            RunCueForPhantoonFlameCue[cue](context, projectile);
         }
 
         /// <summary>Holds an intro flame until its delayed orbit begins.</summary>

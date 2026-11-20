@@ -22,23 +22,18 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="common">The shared participation the entity composes.</param>
     private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BoyonEntity(this, place, common));
 
+    /// <summary>What <c>ApplyBoyonCue</c> does for each <see cref="BoyonCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<BoyonCueKind, Action<RoomEnemyPlace, BoyonEnemyState>> ApplyBoyonCueForBoyonCueKind => field ??= new(new Dictionary<BoyonCueKind, Action<RoomEnemyPlace, BoyonEnemyState>>
+    {
+        [BoyonCueKind.PlayBounceSound] = (place, state) => PlayBoyonBounceSound(state),
+        [BoyonCueKind.ProcessOffScreen] = (place, state) => place.Processing = place.Processing.With(EnemyProcessing.OffScreen),
+        [BoyonCueKind.StopProcessingOffScreen] = (place, state) => place.Processing = place.Processing.Without(EnemyProcessing.OffScreen),
+    });
+
     /// <summary>Carries out one cue of Boyon's animations.</summary>
     private void ApplyBoyonCue(RoomEnemyPlace place, BoyonEnemyState state, BoyonCue cue)
     {
-        switch (cue.Kind)
-        {
-            case BoyonCueKind.PlayBounceSound:
-                PlayBoyonBounceSound(state);
-                break;
-            case BoyonCueKind.ProcessOffScreen:
-                place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
-                break;
-            case BoyonCueKind.StopProcessingOffScreen:
-                place.Processing = place.Processing.Without(EnemyProcessing.OffScreen);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BoyonCueKind)} {cue.Kind}.");
-        }
+        ApplyBoyonCueForBoyonCueKind[cue.Kind](place, state);
     }
 
     /// <summary>Initializes the Boyon.</summary>

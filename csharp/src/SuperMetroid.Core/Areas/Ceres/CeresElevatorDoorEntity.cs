@@ -31,37 +31,32 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
         doors.Presentation.ShowLook(CeresElevatorDoorLookDefinitions.OverlayLook);
     }
 
+    /// <summary>What <c>RunMainAi</c> does for each <see cref="CeresElevatorDoorPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<CeresElevatorDoorPhase, Action<CeresElevatorDoorState>> RunMainAiForCeresElevatorDoorPhase => field ??= new(new Dictionary<CeresElevatorDoorPhase, Action<CeresElevatorDoorState>>
+    {
+        [CeresElevatorDoorPhase.Intact] = state =>
+        {
+            CycleGlowAndPlatform();
+            if (doors.Escape.CeresStatus is CeresEscapeStatus.SelfDestructStarted or CeresEscapeStatus.ElevatorDoorDestroyed)
+            {
+                // Entering the destruction starts its three counters, but deliberately does not run its first step
+                // until the following enemy frame.
+                state.Phase = CeresElevatorDoorPhase.Exploding;
+                state.Rumble = UpdateCountdown.Lasting(RumbleDuration);
+                // The first explosion bursts on the destruction's first update.
+                state.ExplosionWait = UpdateCountdown.LastingOneUpdate();
+                state.NextExplosion = CyclingSequence<Offset16<RoomPixels>>.StartOf(CeresDoorRumbleGeometryDefinitions.ExplosionOffsets);
+            }
+        },
+        [CeresElevatorDoorPhase.Exploding] = state => Explode(),
+        [CeresElevatorDoorPhase.Destroyed] = state => CycleGlowAndPlatform(),
+    });
+
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
         CeresElevatorDoorState state = Place.RequireSpeciesState<CeresElevatorDoorState>();
-        switch (state.Phase)
-        {
-            case CeresElevatorDoorPhase.Intact:
-                CycleGlowAndPlatform();
-                if (doors.Escape.CeresStatus is CeresEscapeStatus.SelfDestructStarted or CeresEscapeStatus.ElevatorDoorDestroyed)
-                {
-                    // Entering the destruction starts its three counters, but deliberately does not run its first step
-                    // until the following enemy frame.
-                    state.Phase = CeresElevatorDoorPhase.Exploding;
-                    state.Rumble = UpdateCountdown.Lasting(RumbleDuration);
-                    // The first explosion bursts on the destruction's first update.
-                    state.ExplosionWait = UpdateCountdown.LastingOneUpdate();
-                    state.NextExplosion = CyclingSequence<Offset16<RoomPixels>>.StartOf(CeresDoorRumbleGeometryDefinitions.ExplosionOffsets);
-                }
-                return;
-
-            case CeresElevatorDoorPhase.Exploding:
-                Explode();
-                return;
-
-            case CeresElevatorDoorPhase.Destroyed:
-                CycleGlowAndPlatform();
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresElevatorDoorPhase)} {state.Phase}.");
-        }
+        RunMainAiForCeresElevatorDoorPhase[state.Phase](state);
     }
 
     /// <inheritdoc/>

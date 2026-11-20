@@ -52,24 +52,24 @@ internal sealed class KraidHead
             UpdateKraidHealthColours(body, state, shown);
     }
 
+    /// <summary>What <c>UpdateKraidHealthColours</c> does for each <see cref="KraidHurtFlashShade"/> member, each member's own arm.</summary>
+    private IdentityTable<KraidHurtFlashShade, Action<RoomEnemyPlace, KraidEnemyState>> UpdateKraidHealthColoursForKraidHurtFlashShade => field ??= new(new Dictionary<KraidHurtFlashShade, Action<RoomEnemyPlace, KraidEnemyState>>
+    {
+        [KraidHurtFlashShade.HurtColours] = (body, state) => state.Colours.ShowHurtFlash(_background.EyeColours.Hurt, _background.EyeColours.Shaded),
+        [KraidHurtFlashShade.BandColours] = (body, state) =>
+        {
+            KraidHealthBand band = HealthBand(body, state);
+            state.Colours.ShowBand(band, BandEyes(band), _background.EyeColours.Shaded);
+        },
+    });
+
     /// <summary>
     /// Shows Kraid in <paramref name="shown"/>, his hurt colours or his current health band's (#1512): his body and every
     /// sprite part take the shade, and his eyes its colours at once.
     /// </summary>
     private void UpdateKraidHealthColours(RoomEnemyPlace body, KraidEnemyState state, KraidHurtFlashShade shown)
     {
-        switch (shown)
-        {
-            case KraidHurtFlashShade.HurtColours:
-                state.Colours.ShowHurtFlash(_background.EyeColours.Hurt, _background.EyeColours.Shaded);
-                break;
-            case KraidHurtFlashShade.BandColours:
-                KraidHealthBand band = HealthBand(body, state);
-                state.Colours.ShowBand(band, BandEyes(band), _background.EyeColours.Shaded);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(KraidHurtFlashShade)} {shown}.");
-        }
+        UpdateKraidHealthColoursForKraidHurtFlashShade[shown](body, state);
         PictureShading parts = state.Colours.Parts;
         foreach (RoomEnemyPlace part in _parts.All)
             part.Shading = parts;
@@ -179,22 +179,17 @@ internal sealed class KraidHead
         };
     }
 
+    /// <summary>What <c>PublishKraidHeadCue</c> does for each <see cref="KraidHeadCue"/> member, each member's own arm.</summary>
+    private IdentityTable<KraidHeadCue, Action> PublishKraidHeadCueForKraidHeadCue => field ??= new(new Dictionary<KraidHeadCue, Action>
+    {
+        [KraidHeadCue.Roar] = () => _access.RequestKraidSound(KraidSoundDefinitions.HeadRoar),
+        [KraidHeadCue.DyingCry] = () => _access.RequestKraidSound(KraidSoundDefinitions.HeadDyingCry),
+    });
+
     /// <summary>Plays a head animation's cry.</summary>
     private void PublishKraidHeadCue(KraidHeadCue cue)
     {
-        switch (cue)
-        {
-            case KraidHeadCue.Roar:
-                _access.RequestKraidSound(KraidSoundDefinitions.HeadRoar);
-                return;
-
-            case KraidHeadCue.DyingCry:
-                _access.RequestKraidSound(KraidSoundDefinitions.HeadDyingCry);
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(KraidHeadCue)} {cue}.");
-        }
+        PublishKraidHeadCueForKraidHeadCue[cue]();
     }
 
     /// <summary>Updates the mouth-open reaction after a damaging shot.</summary>

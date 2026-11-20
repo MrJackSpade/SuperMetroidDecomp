@@ -73,35 +73,22 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;
 
+    /// <summary>What <c>Step</c> does for each <see cref="PauseStep"/> member, each member's own arm.</summary>
+    private IdentityTable<PauseStep, Action<ControllerButton>> StepForPauseStep => field ??= new(new Dictionary<PauseStep, Action<ControllerButton>>
+    {
+        [PauseStep.DarkeningGameplay] = controllerInput => DarkenGameplay(controllerInput),
+        [PauseStep.PreparingPauseScreen] = controllerInput => PreparePauseScreen(controllerInput),
+        [PauseStep.FadingIn] = controllerInput => FadeIn(controllerInput),
+        [PauseStep.Menu] = controllerInput => RunMenu(controllerInput),
+        [PauseStep.FadingOut] = controllerInput => FadeOut(controllerInput),
+        [PauseStep.RestoringGameplay] = controllerInput => RestoreGameplay(controllerInput),
+        [PauseStep.BrighteningGameplay] = controllerInput => BrightenGameplay(controllerInput),
+    });
+
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        switch (session.PauseStep)
-        {
-            case PauseStep.DarkeningGameplay:
-                DarkenGameplay(controllerInput);
-                break;
-            case PauseStep.PreparingPauseScreen:
-                PreparePauseScreen(controllerInput);
-                break;
-            case PauseStep.FadingIn:
-                FadeIn(controllerInput);
-                break;
-            case PauseStep.Menu:
-                RunMenu(controllerInput);
-                break;
-            case PauseStep.FadingOut:
-                FadeOut(controllerInput);
-                break;
-            case PauseStep.RestoringGameplay:
-                RestoreGameplay(controllerInput);
-                break;
-            case PauseStep.BrighteningGameplay:
-                BrightenGameplay(controllerInput);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(PauseStep)} {session.PauseStep}.");
-        }
+        StepForPauseStep[session.PauseStep](controllerInput);
     }
 
     /// <summary>One update of gameplay darkening for the pause.</summary>

@@ -3,6 +3,13 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// <summary>The cues Skree and Metaree share in their common animations.</summary>
 internal static class SkreeMetareeCues
 {
+    /// <summary>What <c>Apply</c> does for each <see cref="SkreeMetareeCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<SkreeMetareeCueKind, Action<RoomEnemyPlace, Action>> ApplyForSkreeMetareeCueKind => field ??= new(new Dictionary<SkreeMetareeCueKind, Action<RoomEnemyPlace, Action>>
+    {
+        [SkreeMetareeCueKind.SetAttackReady] = static (place, markAttackReady) => markAttackReady(),
+        [SkreeMetareeCueKind.ProcessOffScreen] = static (place, markAttackReady) => place.Processing = place.Processing.With(EnemyProcessing.OffScreen),
+    });
+
     /// <summary>
     /// Carries out one cue. The wind-up rests immediately after readying the attack; main AI starts the dive on the
     /// following enemy frame, exactly matching the animation-to-AI hand-off.
@@ -12,16 +19,6 @@ internal static class SkreeMetareeCues
     /// <param name="markAttackReady">Readies the species' attack.</param>
     internal static void Apply(RoomEnemyPlace place, SkreeMetareeCue cue, Action markAttackReady)
     {
-        switch (cue.Kind)
-        {
-            case SkreeMetareeCueKind.SetAttackReady:
-                markAttackReady();
-                break;
-            case SkreeMetareeCueKind.ProcessOffScreen:
-                place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SkreeMetareeCueKind)} {cue.Kind}.");
-        }
+        ApplyForSkreeMetareeCueKind[cue.Kind](place, markAttackReady);
     }
 }

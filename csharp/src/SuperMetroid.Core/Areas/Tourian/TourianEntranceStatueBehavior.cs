@@ -219,18 +219,17 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         private protected override void FollowReveal(EnemyProjectile projectile) =>
             projectile.StartMotion(this, TourianStatueDecorationMotion.FollowingReveal);
 
+        /// <summary>What <c>Move</c> does for each <see cref="TourianStatueDecorationMotion"/> member, each member's own arm.</summary>
+        private IdentityTable<TourianStatueDecorationMotion, Action<EnemyProjectileMotionContext>> MoveForTourianStatueDecorationMotion => field ??= new(new Dictionary<TourianStatueDecorationMotion, Action<EnemyProjectileMotionContext>>
+        {
+            [TourianStatueDecorationMotion.FollowingReveal] = context => PositionTourianEntranceStatueProjectile(context.Projectile),
+            [TourianStatueDecorationMotion.Settled] = context => PositionTourianEntranceStatueProjectile(context.Projectile),
+        });
+
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, TourianStatueDecorationMotion motion)
         {
-            switch (motion)
-            {
-                case TourianStatueDecorationMotion.FollowingReveal:
-                case TourianStatueDecorationMotion.Settled:
-                    PositionTourianEntranceStatueProjectile(context.Projectile);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(TourianStatueDecorationMotion)} {motion}.");
-            }
+            MoveForTourianStatueDecorationMotion[motion](context);
         }
 
         /// <summary>Follows the statue down as it sinks and, for the base decoration, marks the sinking finished once the statues rest.</summary>

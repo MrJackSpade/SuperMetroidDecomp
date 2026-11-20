@@ -38,24 +38,22 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;
 
+    /// <summary>What <c>Step</c> does for each <see cref="DoorTransitionStep"/> member, each member's own arm.</summary>
+    private IdentityTable<DoorTransitionStep, Action<ControllerButton>> StepForDoorTransitionStep => field ??= new(new Dictionary<DoorTransitionStep, Action<ControllerButton>>
+    {
+        [DoorTransitionStep.EnteringDoor] = controllerInput =>
+        {
+            if (StepEnteringDoor(controllerInput))
+                BeginTransition(controllerInput);
+        },
+        [DoorTransitionStep.BeginningTransition] = controllerInput => BeginTransition(controllerInput),
+        [DoorTransitionStep.Transitioning] = controllerInput => StepTransition(controllerInput),
+    });
+
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        switch (session.DoorTransitionStep)
-        {
-            case DoorTransitionStep.EnteringDoor:
-                if (StepEnteringDoor(controllerInput))
-                    BeginTransition(controllerInput);
-                break;
-            case DoorTransitionStep.BeginningTransition:
-                BeginTransition(controllerInput);
-                break;
-            case DoorTransitionStep.Transitioning:
-                StepTransition(controllerInput);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DoorTransitionStep)} {session.DoorTransitionStep}.");
-        }
+        StepForDoorTransitionStep[session.DoorTransitionStep](controllerInput);
     }
 
     /// <summary>

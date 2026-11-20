@@ -102,36 +102,22 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         UpdateSporeSpawnStalks(body, state);
     }
 
+    /// <summary>What <c>RunSporeSpawnMain</c> does for each <see cref="SporeSpawnMovement"/> member, each member's own arm.</summary>
+    private IdentityTable<SporeSpawnMovement, Action<RoomEnemyPlace, SporeSpawnEnemyState>> RunSporeSpawnMainForSporeSpawnMovement => field ??= new(new Dictionary<SporeSpawnMovement, Action<RoomEnemyPlace, SporeSpawnEnemyState>>
+    {
+        [SporeSpawnMovement.Idle] = (body, state) => { },
+        [SporeSpawnMovement.Descending] = (body, state) => RunSporeSpawnDescent(body, state),
+        [SporeSpawnMovement.Moving] = (body, state) => RunSporeSpawnMovement(body, state),
+        [SporeSpawnMovement.SetupDeath] = (body, state) => SetupSporeSpawnDeathVelocity(body, state),
+        [SporeSpawnMovement.Dying] = (body, state) => RunSporeSpawnDying(body, state),
+    });
+
     /// <summary>Runs Spore Spawn's movement for one update.</summary>
     private void RunSporeSpawnMain(
         RoomEnemyPlace body,
         SporeSpawnEnemyState state)
     {
-        switch (state.Movement)
-        {
-            case SporeSpawnMovement.Idle:
-                return;
-
-            case SporeSpawnMovement.Descending:
-                RunSporeSpawnDescent(body, state);
-                return;
-
-            case SporeSpawnMovement.Moving:
-                RunSporeSpawnMovement(body, state);
-                return;
-
-            case SporeSpawnMovement.SetupDeath:
-                SetupSporeSpawnDeathVelocity(body, state);
-                return;
-
-            case SporeSpawnMovement.Dying:
-                RunSporeSpawnDying(body, state);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Spore Spawn has no behaviour for movement {state.Movement}.");
-        }
+        RunSporeSpawnMainForSporeSpawnMovement[state.Movement](body, state);
     }
 
     /// <summary>Runs Spore Spawn's descent into the room.</summary>

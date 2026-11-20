@@ -43,42 +43,34 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.SkreeIdling), AnimationPlace.StartOfAnimation);
     }
 
+    /// <summary>What <c>RunSkreeMain</c> does for each <see cref="SkreeAction"/> member, each member's own arm.</summary>
+    private IdentityTable<SkreeAction, Action<RoomEnemyPlace, SamusState, RoomLevelData, SkreeEnemyState>> RunSkreeMainForSkreeAction => field ??= new(new Dictionary<SkreeAction, Action<RoomEnemyPlace, SamusState, RoomLevelData, SkreeEnemyState>>
+    {
+        [SkreeAction.Idling] = (place, samus, level, state) =>
+        {
+            if (Math.Abs(place.Position.X.Whole - samus.Position.X.Whole) < SkreeMotionDefinitions.WindUpDistance)
+            {
+                StartSkreeAnimation(place, state, SkreeMetareeSegment.SkreePreparingAttack);
+                state.Action = SkreeAction.PreparingAttack;
+            }
+        },
+        [SkreeAction.PreparingAttack] = (place, samus, level, state) => { },
+        [SkreeAction.AttackReady] = (place, samus, level, state) =>
+        {
+            StartSkreeAnimation(place, state, SkreeMetareeSegment.SkreeDiving);
+            state.Action = SkreeAction.Diving;
+            // The dive screeches on the update the wind-up releases it.
+            _audio.QueueEnemySound(EnemySound.DiveScreech, priority: SoundRequestPriority.Normal);
+        },
+        [SkreeAction.Diving] = (place, samus, level, state) => RunSkreeDive(place, state, samus, level),
+        [SkreeAction.Burrowing] = (place, samus, level, state) => RunSkreeBurrow(place, state),
+    });
+
     /// <summary>Winds up near Samus, dives when the wind-up cue is ready, then burrows after floor contact.</summary>
     private void RunSkreeMain(RoomEnemyPlace place, SamusState samus, RoomLevelData level)
     {
         SkreeEnemyState state = place.RequireSpeciesState<SkreeEnemyState>();
-        switch (state.Action)
-        {
-            case SkreeAction.Idling:
-                if (Math.Abs(place.Position.X.Whole - samus.Position.X.Whole) < SkreeMotionDefinitions.WindUpDistance)
-                {
-                    StartSkreeAnimation(place, state, SkreeMetareeSegment.SkreePreparingAttack);
-                    state.Action = SkreeAction.PreparingAttack;
-                }
-                return;
-
-            case SkreeAction.PreparingAttack:
-                return;
-
-            case SkreeAction.AttackReady:
-                StartSkreeAnimation(place, state, SkreeMetareeSegment.SkreeDiving);
-                state.Action = SkreeAction.Diving;
-                // The dive screeches on the update the wind-up releases it.
-                _audio.QueueEnemySound(EnemySound.DiveScreech, priority: SoundRequestPriority.Normal);
-                return;
-
-            case SkreeAction.Diving:
-                RunSkreeDive(place, state, samus, level);
-                return;
-
-            case SkreeAction.Burrowing:
-                RunSkreeBurrow(place, state);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Skree has no behaviour for action {state.Action}.");
-        }
+        RunSkreeMainForSkreeAction[state.Action](place, samus, level, state);
     }
 
     /// <summary>Moves downward by <see cref="SkreeMotionDefinitions.DiveStep"/> and toward Samus by <see cref="SkreeMotionDefinitions.DiveDrift"/> until the downward solid-block probe starts burrowing.</summary>

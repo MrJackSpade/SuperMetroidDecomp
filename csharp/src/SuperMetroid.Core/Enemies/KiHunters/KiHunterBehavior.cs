@@ -125,6 +125,25 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
     }
 
+    /// <summary>What <c>RunKiHunterMain</c> does for each <see cref="KiHunterAction"/> member, each member's own arm.</summary>
+    private IdentityTable<KiHunterAction, Action<RoomEnemyPlace, KiHunterBodyState, SamusState, RoomLevelData>> RunKiHunterMainForKiHunterAction => field ??= new(new Dictionary<KiHunterAction, Action<RoomEnemyPlace, KiHunterBodyState, SamusState, RoomLevelData>>
+    {
+        [KiHunterAction.FlyingPatrol] = (actor, state, samus, level) => RunKiHunterFlyingPatrol(actor, state, samus, level),
+        [KiHunterAction.Swooping] = (actor, state, samus, level) =>
+        {
+            StartKiHunterSwipeOncePastItsAngle(actor, state);
+            RunKiHunterSwoop(actor, state, level);
+        },
+        [KiHunterAction.Swiping] = (actor, state, samus, level) => RunKiHunterSwoop(actor, state, level),
+        [KiHunterAction.RecoveringFromSwoop] = (actor, state, samus, level) => RunKiHunterSwoopRecovery(actor, state, level),
+        [KiHunterAction.FallingAfterWingLoss] = (actor, state, samus, level) => RunKiHunterFalling(actor, state, level),
+        [KiHunterAction.StartGroundJump] = (actor, state, samus, level) => StartKiHunterGroundJump(actor, state, samus),
+        [KiHunterAction.AnimatingOnGround] = (actor, state, samus, level) => { },
+        [KiHunterAction.GroundJump] = (actor, state, samus, level) => RunKiHunterGroundJump(actor, state, level),
+        [KiHunterAction.GroundWait] = (actor, state, samus, level) => RunKiHunterGroundWait(actor, state, samus),
+        [KiHunterAction.SelectAcidSpit] = (actor, state, samus, level) => SelectKiHunterAcidSpit(actor, state, samus),
+    });
+
     /// <summary>Runs the body's main behaviour.</summary>
     private void RunKiHunterMain(
         RoomEnemyPlace actor,
@@ -132,59 +151,20 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case KiHunterAction.FlyingPatrol:
-                RunKiHunterFlyingPatrol(actor, state, samus, level);
-                return;
-            case KiHunterAction.Swooping:
-                StartKiHunterSwipeOncePastItsAngle(actor, state);
-                RunKiHunterSwoop(actor, state, level);
-                return;
-            case KiHunterAction.Swiping:
-                RunKiHunterSwoop(actor, state, level);
-                return;
-            case KiHunterAction.RecoveringFromSwoop:
-                RunKiHunterSwoopRecovery(actor, state, level);
-                return;
-            case KiHunterAction.FallingAfterWingLoss:
-                RunKiHunterFalling(actor, state, level);
-                return;
-            case KiHunterAction.StartGroundJump:
-                StartKiHunterGroundJump(actor, state, samus);
-                return;
-            case KiHunterAction.AnimatingOnGround:
-                return;
-            case KiHunterAction.GroundJump:
-                RunKiHunterGroundJump(actor, state, level);
-                return;
-            case KiHunterAction.GroundWait:
-                RunKiHunterGroundWait(actor, state, samus);
-                return;
-            case KiHunterAction.SelectAcidSpit:
-                SelectKiHunterAcidSpit(actor, state, samus);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Ki-Hunter body has no behaviour for action {state.Action}.");
-        }
+        RunKiHunterMainForKiHunterAction[state.Action](actor, state, samus, level);
     }
+
+    /// <summary>What <c>RunKiHunterWingMain</c> does for each <see cref="KiHunterWingAction"/> member, each member's own arm.</summary>
+    private IdentityTable<KiHunterWingAction, Action<RoomEnemyPlace, KiHunterWingState, RoomLevelData>> RunKiHunterWingMainForKiHunterWingAction => field ??= new(new Dictionary<KiHunterWingAction, Action<RoomEnemyPlace, KiHunterWingState, RoomLevelData>>
+    {
+        [KiHunterWingAction.FollowBody] = (wings, state, level) => FollowKiHunterBody(wings),
+        [KiHunterWingAction.Detached] = (wings, state, level) => RunDetachedKiHunterWing(wings, state, level),
+    });
 
     /// <summary>Runs the wings' main behaviour: following the body, or flying off once detached.</summary>
     private void RunKiHunterWingMain(RoomEnemyPlace wings, KiHunterWingState state, RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case KiHunterWingAction.FollowBody:
-                FollowKiHunterBody(wings);
-                return;
-            case KiHunterWingAction.Detached:
-                RunDetachedKiHunterWing(wings, state, level);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Ki-Hunter wings have no behaviour for action {state.Action}.");
-        }
+        RunKiHunterWingMainForKiHunterWingAction[state.Action](wings, state, level);
     }
 
     /// <summary>Flies the patrol.</summary>
@@ -457,24 +437,20 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
     }
 
+    /// <summary>What <c>RunDetachedKiHunterWing</c> does for each <see cref="KiHunterWingMovement"/> member, each member's own arm.</summary>
+    private IdentityTable<KiHunterWingMovement, Action<RoomEnemyPlace, KiHunterWingState, RoomLevelData>> RunDetachedKiHunterWingForKiHunterWingMovement => field ??= new(new Dictionary<KiHunterWingMovement, Action<RoomEnemyPlace, KiHunterWingState, RoomLevelData>>
+    {
+        [KiHunterWingMovement.Orbit] = (wings, state, level) => RunDetachedKiHunterWingOrbit(wings, state),
+        [KiHunterWingMovement.FallingCollisionArc] = (wings, state, level) => RunDetachedKiHunterWingCollisionArc(wings, state, level),
+    });
+
     /// <summary>Runs the detached wings' behaviour.</summary>
     private void RunDetachedKiHunterWing(
         RoomEnemyPlace wings,
         KiHunterWingState state,
         RoomLevelData level)
     {
-        switch (state.WingMovement)
-        {
-            case KiHunterWingMovement.Orbit:
-                RunDetachedKiHunterWingOrbit(wings, state);
-                return;
-            case KiHunterWingMovement.FallingCollisionArc:
-                RunDetachedKiHunterWingCollisionArc(wings, state, level);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Detached Ki-Hunter has no behaviour for wing movement {state.WingMovement}.");
-        }
+        RunDetachedKiHunterWingForKiHunterWingMovement[state.WingMovement](wings, state, level);
     }
 
     /// <summary>
@@ -756,20 +732,17 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
+        /// <summary>What <c>Move</c> does for each <see cref="KiHunterAcidMotion"/> member, each member's own arm.</summary>
+        private IdentityTable<KiHunterAcidMotion, Action<EnemyProjectileMotionContext>> MoveForKiHunterAcidMotion => field ??= new(new Dictionary<KiHunterAcidMotion, Action<EnemyProjectileMotionContext>>
+        {
+            [KiHunterAcidMotion.Falling] = context => RunKiHunterAcidMovement(this, context.Projectile, context.Level),
+            [KiHunterAcidMotion.Launching] = context => StartKiHunterAcidMovement(this, context.Projectile),
+        });
+
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, KiHunterAcidMotion motion)
         {
-            switch (motion)
-            {
-                case KiHunterAcidMotion.Falling:
-                    RunKiHunterAcidMovement(this, context.Projectile, context.Level);
-                    break;
-                case KiHunterAcidMotion.Launching:
-                    StartKiHunterAcidMovement(this, context.Projectile);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KiHunterAcidMotion)} {motion}.");
-            }
+            MoveForKiHunterAcidMotion[motion](context);
         }
     }
 

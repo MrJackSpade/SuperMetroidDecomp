@@ -24,29 +24,24 @@ internal sealed class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops
     /// <param name="motion">The spore's one motion, its drift.</param>
     internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) => DriftSpore(context.Projectile);
 
+    /// <summary>What <c>RunCue</c> does for each <see cref="SporeSpawnProjectileCue"/> member, each member's own arm.</summary>
+    private IdentityTable<SporeSpawnProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForSporeSpawnProjectileCue => field ??= new(new Dictionary<SporeSpawnProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>>
+    {
+        [SporeSpawnProjectileCue.SetImpactProperties] = (context, spore) => SetImpactProperties(spore),
+        [SporeSpawnProjectileCue.QueueKilledSound] = (context, spore) => deathsAndDrops.QueueEnemyKilledSound(),
+        [SporeSpawnProjectileCue.RequestDrop] = (context, spore) => deathsAndDrops.SpawnEnemyDropFromChanceTable(spore.Position.Whole, SporeSpawnProjectileDefinitions.SporeDropChances, context.Samus),
+        [SporeSpawnProjectileCue.Delete] = (context, spore) => spore.Delete(),
+        [SporeSpawnProjectileCue.SpawnSpore] = (context, spore) =>
+        {
+            throw new InvalidOperationException("A spore's animations release no spores.");
+        },
+    });
+
     /// <summary>Carries out a cue of a shot spore's burst: its impact properties, the killed sound, its drop and its deletion.</summary>
     public void RunCue(EnemyProjectileCueContext context, SporeSpawnProjectileCue cue)
     {
         EnemyProjectile spore = context.Projectile;
-        switch (cue)
-        {
-            case SporeSpawnProjectileCue.SetImpactProperties:
-                SetImpactProperties(spore);
-                return;
-            case SporeSpawnProjectileCue.QueueKilledSound:
-                deathsAndDrops.QueueEnemyKilledSound();
-                return;
-            case SporeSpawnProjectileCue.RequestDrop:
-                deathsAndDrops.SpawnEnemyDropFromChanceTable(spore.Position.Whole, SporeSpawnProjectileDefinitions.SporeDropChances, context.Samus);
-                return;
-            case SporeSpawnProjectileCue.Delete:
-                spore.Delete();
-                return;
-            case SporeSpawnProjectileCue.SpawnSpore:
-                throw new InvalidOperationException("A spore's animations release no spores.");
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SporeSpawnProjectileCue)} {cue}.");
-        }
+        RunCueForSporeSpawnProjectileCue[cue](context, spore);
     }
 
     /// <summary>Drifts a spore one step along its path, deleting it once it falls below the room.</summary>

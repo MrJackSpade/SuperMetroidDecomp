@@ -47,20 +47,17 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;
 
+    /// <summary>What <c>Step</c> does for each <see cref="TimeUpStep"/> member, each member's own arm.</summary>
+    private IdentityTable<TimeUpStep, Action<ControllerButton>> StepForTimeUpStep => field ??= new(new Dictionary<TimeUpStep, Action<ControllerButton>>
+    {
+        [TimeUpStep.WhiteningOut] = controllerInput => WhiteOut(controllerInput),
+        [TimeUpStep.FadingToBlack] = controllerInput => FadeToBlack(controllerInput),
+    });
+
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        switch (session.TimeUpStep)
-        {
-            case TimeUpStep.WhiteningOut:
-                WhiteOut(controllerInput);
-                break;
-            case TimeUpStep.FadingToBlack:
-                FadeToBlack(controllerInput);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {session.TimeUpStep}.");
-        }
+        StepForTimeUpStep[session.TimeUpStep](controllerInput);
     }
 
     /// <summary>One update of gameplay while every colour whitens.</summary>

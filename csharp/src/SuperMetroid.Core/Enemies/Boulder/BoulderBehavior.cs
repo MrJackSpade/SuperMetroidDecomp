@@ -34,6 +34,14 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
+    /// <summary>What <c>InitializeBoulder</c> does for each <see cref="BoulderRoll"/> member, each member's own arm.</summary>
+    private static IdentityTable<BoulderRoll, Action<BoulderEnemyState>> InitializeBoulderForBoulderRoll => field ??= new(new Dictionary<BoulderRoll, Action<BoulderEnemyState>>
+    {
+        [BoulderRoll.Right] = static state => state.Playback = new(BoulderAnimations.StartingWith(BoulderSegment.Right), AnimationPlace.StartOfAnimation),
+        [BoulderRoll.Left] = static state => state.Playback = new(BoulderAnimations.StartingWith(BoulderSegment.Left), AnimationPlace.StartOfAnimation),
+        [BoulderRoll.LeftBreakingOnImpact] = static state => state.Playback = new(BoulderAnimations.StartingWith(BoulderSegment.Left), AnimationPlace.StartOfAnimation),
+    });
+
     /// <summary>Reads the spawn settings as direction, trigger windows and how it starts.</summary>
     internal static void InitializeBoulder(RoomEnemyPlace place)
     {
@@ -60,47 +68,27 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         place.Position = place.Position.WithWholeY(state.RestingY - initialYOffset);
 
-        switch (settings.Roll)
-        {
-            case BoulderRoll.Right:
-                state.Playback = new(BoulderAnimations.StartingWith(BoulderSegment.Right), AnimationPlace.StartOfAnimation);
-                break;
-            case BoulderRoll.Left:
-            case BoulderRoll.LeftBreakingOnImpact:
-                state.Playback = new(BoulderAnimations.StartingWith(BoulderSegment.Left), AnimationPlace.StartOfAnimation);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BoulderRoll)} {settings.Roll}.");
-        }
+        InitializeBoulderForBoulderRoll[settings.Roll](state);
         state.VerticalCompensation = BoulderMotionDefinitions.RollingGroundReach;
     }
+
+    /// <summary>What <c>RunBoulderMain</c> does for each <see cref="BoulderAction"/> member, each member's own arm.</summary>
+    private IdentityTable<BoulderAction, Action<RoomEnemyPlace, BoulderEnemyState, SamusState, RoomLevelData>> RunBoulderMainForBoulderAction => field ??= new(new Dictionary<BoulderAction, Action<RoomEnemyPlace, BoulderEnemyState, SamusState, RoomLevelData>>
+    {
+        [BoulderAction.WaitingForSamus] = (place, state, samus, level) => RunBoulderWaiting(place, state, samus),
+        [BoulderAction.InitialFall] = (place, state, samus, level) => RunBoulderInitialFall(place, state),
+        [BoulderAction.Rebound] = (place, state, samus, level) => RunBoulderRebound(place, state),
+        [BoulderAction.Falling] = (place, state, samus, level) => RunBoulderFalling(place, state, level),
+        [BoulderAction.Rolling] = (place, state, samus, level) => RunBoulderRolling(place, state, level),
+        [BoulderAction.Inert] = (place, state, samus, level) =>
+        {
+        },
+    });
 
     /// <summary>Runs the wait, fall, rebound, roll or inert phase with required Samus and terrain state.</summary>
     private void RunBoulderMain(RoomEnemyPlace place, BoulderEnemyState state, SamusState samus, RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case BoulderAction.WaitingForSamus:
-                RunBoulderWaiting(place, state, samus);
-                break;
-            case BoulderAction.InitialFall:
-                RunBoulderInitialFall(place, state);
-                break;
-            case BoulderAction.Rebound:
-                RunBoulderRebound(place, state);
-                break;
-            case BoulderAction.Falling:
-                RunBoulderFalling(place, state, level);
-                break;
-            case BoulderAction.Rolling:
-                RunBoulderRolling(place, state, level);
-                break;
-            case BoulderAction.Inert:
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Boulder has no behaviour for action {state.Action}.");
-        }
+        RunBoulderMainForBoulderAction[state.Action](place, state, samus, level);
     }
 
     /// <summary>

@@ -75,36 +75,29 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             new(EscapeDachoraAnimations.RunningAroundLowTide, AnimationPlace.StartOfAnimation);
     }
 
+    /// <summary>What <c>RunEscapeEtecoonMain</c> does for each <see cref="EscapeEtecoonAction"/> member, each member's own arm.</summary>
+    private IdentityTable<EscapeEtecoonAction, Action<RoomEnemyPlace, EscapeEtecoonEnemyState, RoomLevelData>> RunEscapeEtecoonMainForEscapeEtecoonAction => field ??= new(new Dictionary<EscapeEtecoonAction, Action<RoomEnemyPlace, EscapeEtecoonEnemyState, RoomLevelData>>
+    {
+        [EscapeEtecoonAction.ExpressingGratitude] = (place, state, level) => { },
+        [EscapeEtecoonAction.Escaping] = (place, state, level) => AddEscapeAnimalX(place, EscapeAnimalMotionDefinitions.EtecoonExitSpeed),
+        [EscapeEtecoonAction.AwaitingEscape] = (place, state, level) =>
+        {
+            // The wait changes only the animation. It deliberately leaves the
+            // existing frame hold intact, so the new animation begins on the same
+            // update boundary the game observes.
+            if (HasCrittersEscaped())
+                state.Playback = new(EscapeEtecoonAnimations.StartingWith(EscapeEtecoonSegment.ExpressGratitudeThenEscape), AnimationPlace.StartOfAnimation);
+        },
+        [EscapeEtecoonAction.Walking] = (place, state, level) => RunEscapeEtecoonWalking(place, state, level),
+    });
+
     /// <summary>Runs an escaping Etecoon's action.</summary>
     private void RunEscapeEtecoonMain(
         RoomEnemyPlace place,
         EscapeEtecoonEnemyState state,
         RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case EscapeEtecoonAction.ExpressingGratitude:
-                return;
-
-            case EscapeEtecoonAction.Escaping:
-                AddEscapeAnimalX(place, EscapeAnimalMotionDefinitions.EtecoonExitSpeed);
-                return;
-
-            case EscapeEtecoonAction.AwaitingEscape:
-                // The wait changes only the animation. It deliberately leaves the
-                // existing frame hold intact, so the new animation begins on the same
-                // update boundary the game observes.
-                if (HasCrittersEscaped())
-                    state.Playback = new(EscapeEtecoonAnimations.StartingWith(EscapeEtecoonSegment.ExpressGratitudeThenEscape), AnimationPlace.StartOfAnimation);
-                return;
-
-            case EscapeEtecoonAction.Walking:
-                RunEscapeEtecoonWalking(place, state, level);
-                return;
-
-            default:
-                throw new InvalidDataException($"Escape Etecoon has no behaviour for action {state.Action}.");
-        }
+        RunEscapeEtecoonMainForEscapeEtecoonAction[state.Action](place, state, level);
     }
 
     /// <summary>Walks and falls, including the collision-only event branch.</summary>

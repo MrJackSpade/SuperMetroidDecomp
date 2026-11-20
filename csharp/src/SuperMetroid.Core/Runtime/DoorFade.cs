@@ -92,6 +92,18 @@ internal sealed class DoorFade(SamusColours samusColours) : IGameplayShadingSour
         Shade(frame, GameplayPictures.EscapeTimer, fade, DoorFadeShades.EscapeTimerDark);
     }
 
+    /// <summary>What <c>Shade</c> does for each <see cref="DoorFadeStage"/> member, each member's own arm.</summary>
+    private static IdentityTable<DoorFadeStage, Action<GameplayShadingBuilder, GameplayPictures, GradualFadeSteps, PictureShade>> ShadeForDoorFadeStage => field ??= new(new Dictionary<DoorFadeStage, Action<GameplayShadingBuilder, GameplayPictures, GradualFadeSteps, PictureShade>>
+    {
+        [DoorFadeStage.FadingOut] = static (frame, pictures, fade, dark) => frame.Shade(pictures, fade.Between(PictureShading.Standard, PictureShading.Shaded(dark))),
+        [DoorFadeStage.Dark] = static (frame, pictures, fade, dark) => frame.Shade(pictures, dark),
+        [DoorFadeStage.FadingIn] = static (frame, pictures, fade, dark) => frame.Shade(pictures, fade.Between(PictureShading.Shaded(dark), PictureShading.Standard)),
+        [DoorFadeStage.None] = static (frame, pictures, fade, dark) =>
+        {
+            throw new InvalidOperationException("A door fade shades its pictures while a fade runs.");
+        },
+    });
+
     /// <summary>
     /// Shades <paramref name="pictures"/> at the fade's stage toward or from <paramref name="dark"/>: a fade out from their
     /// own colours toward it, which shows their own colours until its first moving step, the dark shade while the room is
@@ -100,22 +112,7 @@ internal sealed class DoorFade(SamusColours samusColours) : IGameplayShadingSour
     /// <exception cref="InvalidOperationException">No fade is running, or the stage is undefined.</exception>
     private void Shade(GameplayShadingBuilder frame, GameplayPictures pictures, GradualFadeSteps fade, PictureShade dark)
     {
-        switch (Stage)
-        {
-            case DoorFadeStage.FadingOut:
-                frame.Shade(pictures, fade.Between(PictureShading.Standard, PictureShading.Shaded(dark)));
-                return;
-            case DoorFadeStage.Dark:
-                frame.Shade(pictures, dark);
-                return;
-            case DoorFadeStage.FadingIn:
-                frame.Shade(pictures, fade.Between(PictureShading.Shaded(dark), PictureShading.Standard));
-                return;
-            case DoorFadeStage.None:
-                throw new InvalidOperationException("A door fade shades its pictures while a fade runs.");
-            default:
-                throw new InvalidOperationException($"Undefined door fade stage {Stage}.");
-        }
+        ShadeForDoorFadeStage[Stage](frame, pictures, fade, dark);
     }
 
     /// <summary>

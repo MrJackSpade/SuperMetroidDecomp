@@ -288,6 +288,36 @@ public sealed class SuperMetroidGame
     /// </summary>
     private bool PhaseIsWaitingOutDisplayFrame => Session.RunningPhase.IsWaitingOutDisplayFrame;
 
+    /// <summary>What <c>AdvanceMenuRandom</c> does for each <see cref="PhaseRandomStep"/> member, each member's own arm.</summary>
+    private IdentityTable<PhaseRandomStep, Action> AdvanceMenuRandomForPhaseRandomStep => field ??= new(new Dictionary<PhaseRandomStep, Action>
+    {
+        [PhaseRandomStep.Reseed] = () =>
+        {
+            // Only power-on and soft reset reseed. A continued save must keep the value
+            // produced by gameplay and the game-over and file-map waiting updates.
+            Session.Random.SeedPowerOn();
+            Session.frameClock.Reset();
+            Session.cameraFractions.Clear();
+            // The reset phase itself runs after the first advance; the seed alone is
+            // not what it sees.
+            Session.Random.Generate();
+        },
+        [PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance] = () =>
+        {
+            // The liquid wave and the statues' descent still advance on the update before the pause screen; a lava or
+            // acid wave swaps the halves of the random number.
+            Session.GameplayRuntime.DoorTransition.AdvanceEffectsAndRandom(Session.GameplayRuntime.Room.LoadedScope, Session.GameplayRuntime.Player.IntroducedSamus);
+        },
+        [PhaseRandomStep.Advance] = () =>
+        {
+            if (DisplayFrameWaitContinuation.DrawsRandom(PhaseIsWaitingOutDisplayFrame))
+                Session.Random.Generate();
+        },
+        [PhaseRandomStep.RuntimeOwned] = () =>
+        {
+        },
+    });
+
     /// <summary>
     /// Advances the random generator once per update through the title, file selection and
     /// loading. These phases run once per update and do not run gameplay, which advances it
@@ -295,32 +325,7 @@ public sealed class SuperMetroidGame
     /// </summary>
     private void AdvanceMenuRandom()
     {
-        switch (Session.RunningPhase.RandomStep)
-        {
-            case PhaseRandomStep.Reseed:
-                // Only power-on and soft reset reseed. A continued save must keep the value
-                // produced by gameplay and the game-over and file-map waiting updates.
-                Session.Random.SeedPowerOn();
-                Session.frameClock.Reset();
-                Session.cameraFractions.Clear();
-                // The reset phase itself runs after the first advance; the seed alone is
-                // not what it sees.
-                Session.Random.Generate();
-                break;
-            case PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance:
-                // The liquid wave and the statues' descent still advance on the update before the pause screen; a lava or
-                // acid wave swaps the halves of the random number.
-                Session.GameplayRuntime.DoorTransition.AdvanceEffectsAndRandom(Session.GameplayRuntime.Room.LoadedScope, Session.GameplayRuntime.Player.IntroducedSamus);
-                break;
-            case PhaseRandomStep.Advance:
-                if (DisplayFrameWaitContinuation.DrawsRandom(PhaseIsWaitingOutDisplayFrame))
-                    Session.Random.Generate();
-                break;
-            case PhaseRandomStep.RuntimeOwned:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(PhaseRandomStep)} {Session.RunningPhase.RandomStep}.");
-        }
+        AdvanceMenuRandomForPhaseRandomStep[Session.RunningPhase.RandomStep]();
         // Gameplay advances the generator itself after its liquid wave and statue descent. Do not
         // advance here for gameplay updates or for an update that finishes a waiting step.
     }

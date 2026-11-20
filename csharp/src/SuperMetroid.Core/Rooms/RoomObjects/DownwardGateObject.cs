@@ -71,25 +71,29 @@ internal sealed class DownwardGateObject(GateObjects owner) : SequencedRoomObjec
         }
     }
 
+    /// <summary>What <c>Show</c> does for each <see cref="DownwardGateMovement"/> member, each member's own arm.</summary>
+    private IdentityTable<DownwardGateMovement, Action<RoomObjectPlace, RoomObjectStepContext>> ShowForDownwardGateMovement => field ??= new(new Dictionary<DownwardGateMovement, Action<RoomObjectPlace, RoomObjectStepContext>>
+    {
+        [DownwardGateMovement.None] = (place, context) =>
+        {
+        },
+        [DownwardGateMovement.Lowering] = (place, context) =>
+        {
+            _owner.SpawnMovingGateProjectile(place);
+            context.QueueSound(DownwardGateDefinitions.MovementSound, DownwardGateMovementDefinitions.MovementSoundPriority);
+        },
+        [DownwardGateMovement.Rising] = (place, context) =>
+        {
+            _owner.WakeGateProjectile(place);
+            context.QueueSound(DownwardGateDefinitions.MovementSound, DownwardGateMovementDefinitions.MovementSoundPriority);
+        },
+    });
+
     /// <summary>Starts the movement <paramref name="frame"/> names, then draws it.</summary>
     /// <exception cref="InvalidOperationException">The image names an undefined movement.</exception>
     private protected override void Show(DownwardGateImage frame, RoomObjectPlace place, RoomObjectStepContext context)
     {
-        switch (frame.Starts)
-        {
-            case DownwardGateMovement.None:
-                break;
-            case DownwardGateMovement.Lowering:
-                _owner.SpawnMovingGateProjectile(place);
-                context.QueueSound(DownwardGateDefinitions.MovementSound, DownwardGateMovementDefinitions.MovementSoundPriority);
-                break;
-            case DownwardGateMovement.Rising:
-                _owner.WakeGateProjectile(place);
-                context.QueueSound(DownwardGateDefinitions.MovementSound, DownwardGateMovementDefinitions.MovementSoundPriority);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DownwardGateMovement)} {frame.Starts}.");
-        }
+        ShowForDownwardGateMovement[frame.Starts](place, context);
         context.Draw(place, frame.Draw);
     }
 

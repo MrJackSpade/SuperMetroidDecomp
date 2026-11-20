@@ -64,6 +64,32 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     /// <inheritdoc/>
     public void Strike(ResidentObjectProjectileHit hit) => _strike.Land(hit);
 
+    /// <summary>What <c>Update</c> does for each <see cref="DraygonCannonPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<DraygonCannonPhase, Action<RoomObjectPlace, RoomObjectStepContext>> UpdateForDraygonCannonPhase => field ??= new(new Dictionary<DraygonCannonPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
+    {
+        [DraygonCannonPhase.StartingWhole] = (place, context) =>
+        {
+            WakeArmed = true;
+            Show(place, context, _look.Shield, DraygonCannonPhase.Shielded);
+        },
+        [DraygonCannonPhase.StartingDestroyed] = (place, context) => Destroy(place, context),
+        [DraygonCannonPhase.Shielded] = (place, context) => UpdateForDraygonCannonPhaseShielded(place, context),
+        [DraygonCannonPhase.Smoking] = (place, context) => UpdateForDraygonCannonPhaseShielded(place, context),
+        [DraygonCannonPhase.Flashing] = (place, context) =>
+        {
+            // Once the flash has played, the shield shows again and the cannon rests on it.
+            if (!DrawNewPicture(place, context) && player.HasStopped)
+                Show(place, context, _look.Shield, DraygonCannonPhase.Shielded);
+        },
+    });
+
+    /// <summary>What <see cref="UpdateForDraygonCannonPhase"/> does for <see cref="DraygonCannonPhase.Shielded"/>, <see cref="DraygonCannonPhase.Smoking"/>.</summary>
+    private void UpdateForDraygonCannonPhaseShielded(RoomObjectPlace place, RoomObjectStepContext context)
+    {
+        // The shield shows its time and rests until a missile wakes the cannon; the sparks loop for good.
+        DrawNewPicture(place, context);
+    }
+
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
@@ -75,27 +101,7 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
             CountHit(place, context, destroysAtOnce: hit.Family == SamusProjectileFamily.SuperMissile);
             return;
         }
-        switch (Phase)
-        {
-            case DraygonCannonPhase.StartingWhole:
-                WakeArmed = true;
-                Show(place, context, _look.Shield, DraygonCannonPhase.Shielded);
-                return;
-            case DraygonCannonPhase.StartingDestroyed:
-                Destroy(place, context);
-                return;
-            case DraygonCannonPhase.Shielded or DraygonCannonPhase.Smoking:
-                // The shield shows its time and rests until a missile wakes the cannon; the sparks loop for good.
-                DrawNewPicture(place, context);
-                return;
-            case DraygonCannonPhase.Flashing:
-                // Once the flash has played, the shield shows again and the cannon rests on it.
-                if (!DrawNewPicture(place, context) && player.HasStopped)
-                    Show(place, context, _look.Shield, DraygonCannonPhase.Shielded);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DraygonCannonPhase)} {Phase}.");
-        }
+        UpdateForDraygonCannonPhase[Phase](place, context);
     }
 
     /// <summary>Plays the cannon's pictures one update on and draws the picture the update shows anew, if any.</summary>

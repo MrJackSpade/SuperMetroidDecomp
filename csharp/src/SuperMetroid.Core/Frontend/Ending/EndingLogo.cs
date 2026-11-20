@@ -72,17 +72,16 @@ internal sealed class EndingLogo
         lowerCircle.Step(HandleCue);
     }
 
+    /// <summary>What <c>HandleCue</c> does for each <see cref="EndingLogoCue"/> member, each member's own arm.</summary>
+    private IdentityTable<EndingLogoCue, Action> HandleCueForEndingLogoCue => field ??= new(new Dictionary<EndingLogoCue, Action>
+    {
+        [EndingLogoCue.GreyOut] = () => CrossfadeStarted = true,
+    });
+
     /// <summary>Starts the crossfade on the step after the grey-out cue.</summary>
     private void HandleCue(EndingLogoCue cue)
     {
-        switch (cue)
-        {
-            case EndingLogoCue.GreyOut:
-                CrossfadeStarted = true;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingLogoCue)} {cue}.");
-        }
+        HandleCueForEndingLogoCue[cue]();
     }
 
     /// <summary>Draws the logo's actors among the screen's sprites until the logo completes.</summary>

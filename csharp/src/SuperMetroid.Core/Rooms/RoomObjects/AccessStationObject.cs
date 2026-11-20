@@ -128,24 +128,24 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
         // the map.
     }
 
+    /// <summary>What <c>ReachAccessMoment</c> does for each <see cref="StationAccessCue"/> member, each member's own arm.</summary>
+    private IdentityTable<StationAccessCue, Action<RoomObjectStepContext, StationObjects, IRoomSamus>> ReachAccessMomentForStationAccessCue => field ??= new(new Dictionary<StationAccessCue, Action<RoomObjectStepContext, StationObjects, IRoomSamus>>
+    {
+        [StationAccessCue.Activates] = (context, stations, samus) =>
+        {
+            Activate(stations, samus, context.Outcome);
+            // The recharges release Samus right after their message, before the arm retracts. The map leaves her
+            // locked for leaving the map screen to release.
+            if (Rule.Refill is not null)
+                samus.Control.Unlock();
+        },
+        [StationAccessCue.Disengages] = (context, stations, samus) => context.QueueSound(EnemySound.StationDisengaged, SoundRequestPriority.Normal),
+    });
+
     /// <summary>Carries out the moment <paramref name="cue"/> of the arm's use.</summary>
     private void ReachAccessMoment(StationAccessCue cue, RoomObjectStepContext context, StationObjects stations, IRoomSamus samus)
     {
-        switch (cue)
-        {
-            case StationAccessCue.Activates:
-                Activate(stations, samus, context.Outcome);
-                // The recharges release Samus right after their message, before the arm retracts. The map leaves her
-                // locked for leaving the map screen to release.
-                if (Rule.Refill is not null)
-                    samus.Control.Unlock();
-                return;
-            case StationAccessCue.Disengages:
-                context.QueueSound(EnemySound.StationDisengaged, SoundRequestPriority.Normal);
-                return;
-            default:
-                throw new InvalidDataException($"Unknown station access moment {cue}.");
-        }
+        ReachAccessMomentForStationAccessCue[cue](context, stations, samus);
     }
 
     /// <summary>

@@ -58,23 +58,17 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(place, NuclearWaffleAnimations.StartingWith(NuclearWaffleSegment.BodyLoop));
     }
 
+    /// <summary>What <c>RunNuclearWaffleMain</c> does for each <see cref="NuclearWaffleAction"/> member, each member's own arm.</summary>
+    private IdentityTable<NuclearWaffleAction, Action<RoomEnemyPlace, NuclearWaffleEnemyState>> RunNuclearWaffleMainForNuclearWaffleAction => field ??= new(new Dictionary<NuclearWaffleAction, Action<RoomEnemyPlace, NuclearWaffleEnemyState>>
+    {
+        [NuclearWaffleAction.Waiting] = (place, state) => RunNuclearWaffleWaiting(place, state),
+        [NuclearWaffleAction.Sweeping] = (place, state) => RunNuclearWaffleSweep(place, state),
+    });
+
     /// <summary>Runs the Nuclear Waffle's main AI.</summary>
     private void RunNuclearWaffleMain(RoomEnemyPlace place, NuclearWaffleEnemyState state)
     {
-        switch (state.Action)
-        {
-            case NuclearWaffleAction.Waiting:
-                RunNuclearWaffleWaiting(place, state);
-                return;
-
-            case NuclearWaffleAction.Sweeping:
-                RunNuclearWaffleSweep(place, state);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Nuclear Waffle has no behaviour for action {state.Action}.");
-        }
+        RunNuclearWaffleMainForNuclearWaffleAction[state.Action](place, state);
     }
 
     /// <summary>Waits before a sweep.</summary>

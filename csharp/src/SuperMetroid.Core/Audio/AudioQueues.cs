@@ -324,6 +324,17 @@ public sealed class AudioQueues
             HandleSoundEffectQueue(library, acknowledgements[library], requests);
     }
 
+    /// <summary>What <c>HandleSoundEffectQueue</c> does for each <see cref="SoundRequestHandshakes{TLibrary, TSound}.HandshakeStep"/> member, each member's own arm.</summary>
+    private IdentityTable<SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep, Action<SoundEffectLibrary, List<AudioRequest>>> HandleSoundEffectQueueForHandshakeStep => field ??= new(new Dictionary<SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep, Action<SoundEffectLibrary, List<AudioRequest>>>
+    {
+        [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Wait] = (library, requests) =>
+        {
+        },
+        [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RequestNext] = (library, requests) => SendNextSound(library, requests),
+        [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RepeatRequest] = (library, requests) => requests.Add(AudioRequest.ForSound(library, SoundHandshakes.Awaited(library))),
+        [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Withdraw] = (library, requests) => requests.Add(new AudioRequest.ClearSoundRequest(library)),
+    });
+
     /// <summary>Runs one pass of <paramref name="library"/>'s request cycle and does what the pass asks of its queue.</summary>
     private void HandleSoundEffectQueue(
         SoundEffectLibrary library,
@@ -331,26 +342,7 @@ public sealed class AudioQueues
         List<AudioRequest> requests)
     {
         SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep step = SoundHandshakes.Advance(library, acknowledgement);
-        switch (step)
-        {
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Wait:
-                break;
-
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RequestNext:
-                SendNextSound(library, requests);
-                break;
-
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RepeatRequest:
-                requests.Add(AudioRequest.ForSound(library, SoundHandshakes.Awaited(library)));
-                break;
-
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Withdraw:
-                requests.Add(new AudioRequest.ClearSoundRequest(library));
-                break;
-
-            default:
-                throw new InvalidDataException($"Sound library {library}'s request cycle asked for unknown step {step}.");
-        }
+        HandleSoundEffectQueueForHandshakeStep[step](library, requests);
     }
 
     /// <summary>Takes <paramref name="library"/>'s oldest waiting request, if one waits, asks the library for it, and starts awaiting its acceptance.</summary>

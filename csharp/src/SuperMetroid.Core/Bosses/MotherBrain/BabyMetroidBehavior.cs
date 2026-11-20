@@ -733,21 +733,24 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = playback;
     }
 
+    /// <summary>What <c>ApplyBabyMetroidCue</c> comes to for each <see cref="BabyMetroidCue"/> member, each member's own arm.</summary>
+    private IdentityTable<BabyMetroidCue, Func<AnimationContinuation<BabyMetroidSegment>?>> ApplyBabyMetroidCueForBabyMetroidCue => field ??= new(new Dictionary<BabyMetroidCue, Func<AnimationContinuation<BabyMetroidSegment>?>>
+    {
+        [BabyMetroidCue.MaybeRemorseCry] = () =>
+        {
+            // The cue samples the existing random number; it does not generate a new one.
+            if (BossRandomRolls.InLowerHalf(_room.Random.Read()))
+                return new(BabyMetroidAnimations.StartingAt[BabyMetroidSegment.Remorse], AnimationPlace.StartOfAnimation);
+            RequestBabyMetroidSound(BabyMetroidSoundDefinitions.RemorseCry);
+            return null;
+        },
+    });
+
     /// <summary>Carries out one event of a Baby Metroid animation.</summary>
     /// <returns>The remorse animation from its start when the cry does not sound; otherwise null.</returns>
     private AnimationContinuation<BabyMetroidSegment>? ApplyBabyMetroidCue(BabyMetroidCue cue)
     {
-        switch (cue)
-        {
-            case BabyMetroidCue.MaybeRemorseCry:
-                // The cue samples the existing random number; it does not generate a new one.
-                if (BossRandomRolls.InLowerHalf(_room.Random.Read()))
-                    return new(BabyMetroidAnimations.StartingAt[BabyMetroidSegment.Remorse], AnimationPlace.StartOfAnimation);
-                RequestBabyMetroidSound(BabyMetroidSoundDefinitions.RemorseCry);
-                return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BabyMetroidCue)} {cue}.");
-        }
+        return ApplyBabyMetroidCueForBabyMetroidCue[cue]();
     }
 
     /// <summary>Marks projectile collision and converts shot damage into recoil without vulnerability damage.</summary>

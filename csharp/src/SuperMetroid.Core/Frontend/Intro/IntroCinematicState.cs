@@ -280,6 +280,163 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>True when the SPACE COLONY caption and its final fade have completed.</summary>
     public bool CeresFlightFinished => CurrentCeresFlight?.Finished ?? false;
 
+    /// <summary>What <c>Step</c> does for each <see cref="IntroCinematicPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<IntroCinematicPhase, Action> StepForIntroCinematicPhase => field ??= new(new Dictionary<IntroCinematicPhase, Action>
+    {
+        [IntroCinematicPhase.Initial] = () =>
+        {
+            // Stop the music, then load the opening music data.
+            audio.QueueMusic(MusicRequest.Stop);
+            audio.QueueMusic(
+                MusicRequest.LoadDataSet(MusicDataSet.LastMetroidInCaptivity));
+            Phase = IntroCinematicPhase.WaitForInitialMusicQueue;
+        },
+        [IntroCinematicPhase.WaitForInitialMusicQueue] = () =>
+        {
+            // A request queued with the shortest delay waits out that delay before HasQueuedMusic clears.
+            if (MusicQueueFinished())
+            {
+                Phase = IntroCinematicPhase.FadeInFirstNarration;
+                fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
+            }
+        },
+        [IntroCinematicPhase.FadeInFirstNarration] = () =>
+        {
+            if (fade.Brighten())
+            {
+                Phase = IntroCinematicPhase.LastMetroidIsInCaptivity;
+                timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.FirstLineHold);
+            }
+        },
+        [IntroCinematicPhase.LastMetroidIsInCaptivity] = () =>
+        {
+            if (timer.Step())
+            {
+                audio.QueueMusic(MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.CaptivityLineSong));
+                Phase = IntroCinematicPhase.GalaxyIsAtPeace;
+                timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.CaptivityLineHold);
+            }
+        },
+        [IntroCinematicPhase.GalaxyIsAtPeace] = () =>
+        {
+            if (timer.Step())
+            {
+                // The next music requests wait on the music queue before the
+                // documented four-second hold; they take the shortest delay.
+                audio.QueueMusic(MusicRequest.Stop);
+                audio.QueueMusic(
+                    MusicRequest.LoadDataSet(MusicDataSet.GalaxyAtPeace));
+                audio.ScheduleMusic(
+                    MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.PeaceLineSong),
+                    IntroCinematicDefinitions.Music.SceneTrackDelay);
+                Phase = IntroCinematicPhase.WaitForSecondMusicQueue;
+            }
+        },
+        [IntroCinematicPhase.WaitForSecondMusicQueue] = () =>
+        {
+            if (MusicQueueFinished())
+            {
+                Phase = IntroCinematicPhase.HoldFirstNarration;
+                timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.PeaceLineHold);
+            }
+        },
+        [IntroCinematicPhase.HoldFirstNarration] = () =>
+        {
+            if (timer.Step())
+            {
+                Phase = IntroCinematicPhase.FadeOutFirstNarration;
+                fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
+            }
+        },
+        [IntroCinematicPhase.FadeOutFirstNarration] = () =>
+        {
+            // The fade-out installs the first page's setup, which runs in the next update.
+            if (fade.Darken())
+                Phase = IntroCinematicPhase.SetupFirstPage;
+        },
+        [IntroCinematicPhase.SetupFirstPage] = () => SetupFirstIllustratedPage(),
+        [IntroCinematicPhase.WaitForFirstPageMusicQueue] = () =>
+        {
+            // The scene song scheduled its track delay ahead is the longest request issued by
+            // the first page's setup, so HasQueuedMusic becomes clear once that delay has passed.
+            if (MusicQueueFinished())
+            {
+                Narration.StartPage(Page);
+                Phase = IntroCinematicPhase.FadeInFirstPage;
+                fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
+            }
+        },
+        [IntroCinematicPhase.FadeInFirstPage] = () =>
+        {
+            if (fade.Brighten())
+                Phase = IntroCinematicPhase.PageText;
+        },
+        [IntroCinematicPhase.PageText] = () =>
+        {
+        },
+        [IntroCinematicPhase.PageAwaitingInput] = () =>
+        {
+            if (!subtitles.HoldInputWait() && controller.NewlyPressed != ControllerButton.None)
+                TurnPage();
+        },
+        [IntroCinematicPhase.MotherBrainCrossfade] = () => StepMotherBrainCrossfade(),
+        [IntroCinematicPhase.MotherBrainFlashback] = () =>
+        {
+            if (CurrentFlashbackMotherBrain?.NextPageRequested == true)
+            {
+                // The crossfade recolours every colour from the opening's own, so the fight lights' last record no
+                // longer shows.
+                ColourEffects = ColourEffectSystem.ForScreen();
+                StartPageCrossfade(IntroCrossfadeScene.Flashback);
+            }
+        },
+        [IntroCinematicPhase.PageCrossfade] = () =>
+        {
+            // The reverse crossfade undoes the one into the illustration exactly: the narration and the portrait fade in
+            // while the illustration, its projectiles and its sprites fade out, which keep running beneath it.
+            if (AdvanceCrossfade())
+            {
+                illustration = null;
+                Phase = IntroCinematicPhase.PageText;
+            }
+        },
+        [IntroCinematicPhase.BabyDiscoveryCrossfade] = () => StepBabyDiscoveryCrossfade(),
+        [IntroCinematicPhase.BabyDiscovery] = () =>
+        {
+            if (CurrentBabyDiscovery?.NextPageRequested == true)
+                StartPageCrossfade(IntroCrossfadeScene.Flashback);
+        },
+        [IntroCinematicPhase.BabyMetroidDeliveryCrossfade] = () => StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidDelivery),
+        [IntroCinematicPhase.BabyMetroidDelivery] = () => StepForIntroCinematicPhaseBabyMetroidDelivery(),
+        [IntroCinematicPhase.BabyMetroidExamination] = () => StepForIntroCinematicPhaseBabyMetroidDelivery(),
+        [IntroCinematicPhase.BabyMetroidExaminationCrossfade] = () => StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidExamination),
+        [IntroCinematicPhase.StartFinalPage] = () => StartFinalPage(),
+        [IntroCinematicPhase.IntroFadeOut] = () =>
+        {
+            // The intro's end fades out and finishes once the screen is black.
+            if (fade.Darken())
+            {
+                // The Ceres approach immediately replaces the narration display setup with the
+                // Ceres turning-floor scene. Give that scene its own display, colour, and
+                // brightness owner: the narration has just deliberately reached
+                // a blanked screen, while the approach restores full brightness only after
+                // the delayed music request has completed.
+                CurrentCeresFlight = new IntroCeresFlightState(audio,
+                    CharacterArtwork.CeresFlight,
+                    SceneSheets, subtitles.Enabled);
+                Phase = IntroCinematicPhase.CeresFlight;
+            }
+        },
+        [IntroCinematicPhase.CeresFlight] = () => CeresFlight.Step(),
+    });
+
+    /// <summary>What <see cref="StepForIntroCinematicPhase"/> does for <see cref="IntroCinematicPhase.BabyMetroidDelivery"/>, <see cref="IntroCinematicPhase.BabyMetroidExamination"/>.</summary>
+    private void StepForIntroCinematicPhaseBabyMetroidDelivery()
+    {
+        if (CurrentScientistCutscene?.NextPageRequested == true)
+            StartPageCrossfade(IntroCrossfadeScene.Laboratory);
+    }
+
     /// <summary>Advances the opening cinematic by one gameplay update.</summary>
     /// <param name="controllerInput">The current raw held controller buttons.</param>
     public void Step(ControllerButton controllerInput)
@@ -292,180 +449,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         bool explosionsExistedBeforeThisFrame = FlashbackMotherBrainExplosions is not null;
         frameCounter++;
         crossfadeTick = null;
-        switch (Phase)
-        {
-            case IntroCinematicPhase.Initial:
-                // Stop the music, then load the opening music data.
-                audio.QueueMusic(MusicRequest.Stop);
-                audio.QueueMusic(
-                    MusicRequest.LoadDataSet(MusicDataSet.LastMetroidInCaptivity));
-                Phase = IntroCinematicPhase.WaitForInitialMusicQueue;
-                break;
-
-            case IntroCinematicPhase.WaitForInitialMusicQueue:
-                // A request queued with the shortest delay waits out that delay before HasQueuedMusic clears.
-                if (MusicQueueFinished())
-                {
-                    Phase = IntroCinematicPhase.FadeInFirstNarration;
-                    fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
-                }
-                break;
-
-            case IntroCinematicPhase.FadeInFirstNarration:
-                if (fade.Brighten())
-                {
-                    Phase = IntroCinematicPhase.LastMetroidIsInCaptivity;
-                    timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.FirstLineHold);
-                }
-                break;
-
-            case IntroCinematicPhase.LastMetroidIsInCaptivity:
-                if (timer.Step())
-                {
-                    audio.QueueMusic(MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.CaptivityLineSong));
-                    Phase = IntroCinematicPhase.GalaxyIsAtPeace;
-                    timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.CaptivityLineHold);
-                }
-                break;
-
-            case IntroCinematicPhase.GalaxyIsAtPeace:
-                if (timer.Step())
-                {
-                    // The next music requests wait on the music queue before the
-                    // documented four-second hold; they take the shortest delay.
-                    audio.QueueMusic(MusicRequest.Stop);
-                    audio.QueueMusic(
-                        MusicRequest.LoadDataSet(MusicDataSet.GalaxyAtPeace));
-                    audio.ScheduleMusic(
-                        MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.PeaceLineSong),
-                        IntroCinematicDefinitions.Music.SceneTrackDelay);
-                    Phase = IntroCinematicPhase.WaitForSecondMusicQueue;
-                }
-                break;
-
-            case IntroCinematicPhase.WaitForSecondMusicQueue:
-                if (MusicQueueFinished())
-                {
-                    Phase = IntroCinematicPhase.HoldFirstNarration;
-                    timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.PeaceLineHold);
-                }
-                break;
-
-            case IntroCinematicPhase.HoldFirstNarration:
-                if (timer.Step())
-                {
-                    Phase = IntroCinematicPhase.FadeOutFirstNarration;
-                    fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
-                }
-                break;
-
-            case IntroCinematicPhase.FadeOutFirstNarration:
-                // The fade-out installs the first page's setup, which runs in the next update.
-                if (fade.Darken())
-                    Phase = IntroCinematicPhase.SetupFirstPage;
-                break;
-
-            case IntroCinematicPhase.SetupFirstPage:
-                SetupFirstIllustratedPage();
-                break;
-
-            case IntroCinematicPhase.WaitForFirstPageMusicQueue:
-                // The scene song scheduled its track delay ahead is the longest request issued by
-                // the first page's setup, so HasQueuedMusic becomes clear once that delay has passed.
-                if (MusicQueueFinished())
-                {
-                    Narration.StartPage(Page);
-                    Phase = IntroCinematicPhase.FadeInFirstPage;
-                    fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
-                }
-                break;
-
-            case IntroCinematicPhase.FadeInFirstPage:
-                if (fade.Brighten())
-                    Phase = IntroCinematicPhase.PageText;
-                break;
-
-            case IntroCinematicPhase.PageText:
-                break;
-
-            case IntroCinematicPhase.PageAwaitingInput:
-                if (!subtitles.HoldInputWait() && controller.NewlyPressed != ControllerButton.None)
-                    TurnPage();
-                break;
-
-            case IntroCinematicPhase.MotherBrainCrossfade:
-                StepMotherBrainCrossfade();
-                break;
-
-            case IntroCinematicPhase.MotherBrainFlashback:
-                if (CurrentFlashbackMotherBrain?.NextPageRequested == true)
-                {
-                    // The crossfade recolours every colour from the opening's own, so the fight lights' last record no
-                    // longer shows.
-                    ColourEffects = ColourEffectSystem.ForScreen();
-                    StartPageCrossfade(IntroCrossfadeScene.Flashback);
-                }
-                break;
-
-            case IntroCinematicPhase.PageCrossfade:
-                // The reverse crossfade undoes the one into the illustration exactly: the narration and the portrait fade in
-                // while the illustration, its projectiles and its sprites fade out, which keep running beneath it.
-                if (AdvanceCrossfade())
-                {
-                    illustration = null;
-                    Phase = IntroCinematicPhase.PageText;
-                }
-                break;
-
-            case IntroCinematicPhase.BabyDiscoveryCrossfade:
-                StepBabyDiscoveryCrossfade();
-                break;
-
-            case IntroCinematicPhase.BabyDiscovery:
-                if (CurrentBabyDiscovery?.NextPageRequested == true)
-                    StartPageCrossfade(IntroCrossfadeScene.Flashback);
-                break;
-
-            case IntroCinematicPhase.BabyMetroidDeliveryCrossfade:
-                StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidDelivery);
-                break;
-
-            case IntroCinematicPhase.BabyMetroidDelivery:
-            case IntroCinematicPhase.BabyMetroidExamination:
-                if (CurrentScientistCutscene?.NextPageRequested == true)
-                    StartPageCrossfade(IntroCrossfadeScene.Laboratory);
-                break;
-
-            case IntroCinematicPhase.BabyMetroidExaminationCrossfade:
-                StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidExamination);
-                break;
-
-            case IntroCinematicPhase.StartFinalPage:
-                StartFinalPage();
-                break;
-
-            case IntroCinematicPhase.IntroFadeOut:
-                // The intro's end fades out and finishes once the screen is black.
-                if (fade.Darken())
-                {
-                    // The Ceres approach immediately replaces the narration display setup with the
-                    // Ceres turning-floor scene. Give that scene its own display, colour, and
-                    // brightness owner: the narration has just deliberately reached
-                    // a blanked screen, while the approach restores full brightness only after
-                    // the delayed music request has completed.
-                    CurrentCeresFlight = new IntroCeresFlightState(audio,
-                        CharacterArtwork.CeresFlight,
-                        SceneSheets, subtitles.Enabled);
-                    Phase = IntroCinematicPhase.CeresFlight;
-                }
-                break;
-
-            case IntroCinematicPhase.CeresFlight:
-                CeresFlight.Step();
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroCinematicPhase)} {Phase}.");
-        }
+        StepForIntroCinematicPhase[Phase]();
 
         if (CurrentNarration is not null)
         {

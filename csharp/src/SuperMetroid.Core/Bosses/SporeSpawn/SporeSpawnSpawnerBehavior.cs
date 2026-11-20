@@ -20,38 +20,46 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
     internal override EnemyProjectileAnimation ShotAnimation() =>
         new SporeSpawnProjectileAnimation(this, SporeSpawnProjectileSegment.SpawnerClosed);
 
+    /// <summary>What <c>Move</c> does for each <see cref="SporeSpawnSpawnerMotion"/> member, each member's own arm.</summary>
+    private IdentityTable<SporeSpawnSpawnerMotion, Action<EnemyProjectileMotionContext>> MoveForSporeSpawnSpawnerMotion => field ??= new(new Dictionary<SporeSpawnSpawnerMotion, Action<EnemyProjectileMotionContext>>
+    {
+        [SporeSpawnSpawnerMotion.Releasing] = context => ReleaseSpores(context.Projectile),
+    });
+
     /// <summary>Releases spores on the spawner's random cadence while Spore Spawn lets it.</summary>
     /// <param name="context">The spawner and what its pass hands every motion.</param>
     /// <param name="motion">The spawner's motion, its releasing, which only a spawner's spawn starts.</param>
     internal override void Move(EnemyProjectileMotionContext context, SporeSpawnSpawnerMotion motion)
     {
-        switch (motion)
+        MoveForSporeSpawnSpawnerMotion[motion](context);
+    }
+
+    /// <summary>What <c>RunCue</c> does for each <see cref="SporeSpawnProjectileCue"/> member, each member's own arm.</summary>
+    private IdentityTable<SporeSpawnProjectileCue, Action<EnemyProjectileCueContext, SporeSpawnProjectileCue>> RunCueForSporeSpawnProjectileCue => field ??= new(new Dictionary<SporeSpawnProjectileCue, Action<EnemyProjectileCueContext, SporeSpawnProjectileCue>>
+    {
+        [SporeSpawnProjectileCue.SpawnSpore] = (context, cue) =>
         {
-            case SporeSpawnSpawnerMotion.Releasing:
-                ReleaseSpores(context.Projectile);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SporeSpawnSpawnerMotion)} {motion}.");
-        }
+            // The spore takes the colours of the Spore Spawn that set the spawner up.
+            EnemyProjectile spawner = context.Projectile;
+            SporeSpawnEmitterState emitter = Emitters.Of(spawner);
+            SpawnSporeSpawnSpore(spawner.Position.Whole, emitter.Drift, emitter.SporeSpawn);
+        },
+        [SporeSpawnProjectileCue.SetImpactProperties] = (context, cue) => RunCueForSporeSpawnProjectileCueSetImpactProperties(context, cue),
+        [SporeSpawnProjectileCue.QueueKilledSound] = (context, cue) => RunCueForSporeSpawnProjectileCueSetImpactProperties(context, cue),
+        [SporeSpawnProjectileCue.RequestDrop] = (context, cue) => RunCueForSporeSpawnProjectileCueSetImpactProperties(context, cue),
+        [SporeSpawnProjectileCue.Delete] = (context, cue) => RunCueForSporeSpawnProjectileCueSetImpactProperties(context, cue),
+    });
+
+    /// <summary>What <see cref="RunCueForSporeSpawnProjectileCue"/> does for <see cref="SporeSpawnProjectileCue.SetImpactProperties"/>, <see cref="SporeSpawnProjectileCue.QueueKilledSound"/>, <see cref="SporeSpawnProjectileCue.RequestDrop"/>, <see cref="SporeSpawnProjectileCue.Delete"/>.</summary>
+    private void RunCueForSporeSpawnProjectileCueSetImpactProperties(EnemyProjectileCueContext context, SporeSpawnProjectileCue cue)
+    {
+        throw new InvalidOperationException($"A ceiling spore spawner's animations publish no {cue}.");
     }
 
     /// <summary>Carries out a cue of the spawner's release: the spore it spawns.</summary>
     public void RunCue(EnemyProjectileCueContext context, SporeSpawnProjectileCue cue)
     {
-        switch (cue)
-        {
-            case SporeSpawnProjectileCue.SpawnSpore:
-                // The spore takes the colours of the Spore Spawn that set the spawner up.
-                EnemyProjectile spawner = context.Projectile;
-                SporeSpawnEmitterState emitter = Emitters.Of(spawner);
-                SpawnSporeSpawnSpore(spawner.Position.Whole, emitter.Drift, emitter.SporeSpawn);
-                return;
-            case SporeSpawnProjectileCue.SetImpactProperties or SporeSpawnProjectileCue.QueueKilledSound or SporeSpawnProjectileCue.RequestDrop
-                or SporeSpawnProjectileCue.Delete:
-                throw new InvalidOperationException($"A ceiling spore spawner's animations publish no {cue}.");
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SporeSpawnProjectileCue)} {cue}.");
-        }
+        RunCueForSporeSpawnProjectileCue[cue](context, cue);
     }
 
     /// <summary>

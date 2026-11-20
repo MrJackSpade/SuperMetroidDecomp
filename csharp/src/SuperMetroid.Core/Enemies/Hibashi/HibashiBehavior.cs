@@ -74,26 +74,18 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Radius = place.Radius.WithX(0);
     }
 
+    /// <summary>What <c>RunHibashiMain</c> does for each <see cref="HibashiAction"/> member, each member's own arm.</summary>
+    private IdentityTable<HibashiAction, Action<RoomEnemyPlace, HibashiEnemyState>> RunHibashiMainForHibashiAction => field ??= new(new Dictionary<HibashiAction, Action<RoomEnemyPlace, HibashiEnemyState>>
+    {
+        [HibashiAction.Inactive] = (place, state) => RunHibashiInactive(place, state),
+        [HibashiAction.Active] = (place, state) => { },
+        [HibashiAction.Finished] = (place, state) => RestHibashi(place, state),
+    });
+
     /// <summary>Runs the Hibashi's main AI.</summary>
     private void RunHibashiMain(RoomEnemyPlace place, HibashiEnemyState state)
     {
-        switch (state.Action)
-        {
-            case HibashiAction.Inactive:
-                RunHibashiInactive(place, state);
-                return;
-
-            case HibashiAction.Active:
-                return;
-
-            case HibashiAction.Finished:
-                RestHibashi(place, state);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Hibashi has no behaviour for action {state.Action}.");
-        }
+        RunHibashiMainForHibashiAction[state.Action](place, state);
     }
 
     /// <summary>Runs the inactive Hibashi.</summary>

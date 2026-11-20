@@ -33,30 +33,22 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.YSpeedCurvePlace = state.InitialYSpeedCurvePlace;
     }
 
+    /// <summary>What <c>RunChootMain</c> does for each <see cref="ChootAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<ChootAction, Action<RoomEnemyPlace, ChootEnemyState, SamusState>> RunChootMainForChootAction => field ??= new(new Dictionary<ChootAction, Action<RoomEnemyPlace, ChootEnemyState, SamusState>>
+    {
+        [ChootAction.WaitingForSamus] = static (place, state, samus) => WaitForChootActivation(place, state, samus),
+        [ChootAction.PreparingJump] = static (place, state, samus) => PrepareChootJump(place, state),
+        [ChootAction.Jumping] = static (place, state, samus) => RunChootJump(place, state),
+        [ChootAction.Falling] = static (place, state, samus) => RunChootFall(place, state),
+    });
+
     /// <summary>Runs the Choot's main AI and its four wait, prepare, jump, and fall targets.</summary>
     private static void RunChootMain(
         RoomEnemyPlace place,
         ChootEnemyState state,
         SamusState samus)
     {
-        switch (state.Action)
-        {
-            case ChootAction.WaitingForSamus:
-                WaitForChootActivation(place, state, samus);
-                return;
-            case ChootAction.PreparingJump:
-                PrepareChootJump(place, state);
-                return;
-            case ChootAction.Jumping:
-                RunChootJump(place, state);
-                return;
-            case ChootAction.Falling:
-                RunChootFall(place, state);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Choot has no behaviour for action {state.Action}.");
-        }
+        RunChootMainForChootAction[state.Action](place, state, samus);
     }
 
     /// <summary>Arms the jump delay when Samus comes within the activation distance horizontally.</summary>

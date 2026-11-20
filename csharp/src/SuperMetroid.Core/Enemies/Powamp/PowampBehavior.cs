@@ -82,49 +82,27 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = StartPowampAnimation(place, PowampSegment.BodySlow);
     }
 
+    /// <summary>What <c>RunPowampMain</c> does for each <see cref="PowampAction"/> member, each member's own arm.</summary>
+    private IdentityTable<PowampAction, Action<RoomEnemyPlace, PowampBodyState, RoomLevelData, SamusState, PowampBalloon>> RunPowampMainForPowampAction => field ??= new(new Dictionary<PowampAction, Action<RoomEnemyPlace, PowampBodyState, RoomLevelData, SamusState, PowampBalloon>>
+    {
+        [PowampAction.DeflatedResting] = (place, state, level, samus, balloon) => RunPowampDeflatedResting(place, state, balloon),
+        [PowampAction.Inflating] = (place, state, level, samus, balloon) => RunPowampInflating(place, state, balloon),
+        [PowampAction.InflatedRiseToTargetHeight] = (place, state, level, samus, balloon) => RunPowampRise(place, state, balloon, level, hold: PowampHold.Free),
+        [PowampAction.InflatedFinishWiggle] = (place, state, level, samus, balloon) => RunPowampFinishWiggle(place, state, balloon, level, hold: PowampHold.Free),
+        [PowampAction.GrappledRiseToTargetHeight] = (place, state, level, samus, balloon) => RunPowampRise(place, state, balloon, level, hold: PowampHold.Grappled),
+        [PowampAction.GrappledFinishWiggle] = (place, state, level, samus, balloon) => RunPowampFinishWiggle(place, state, balloon, level, hold: PowampHold.Grappled),
+        [PowampAction.GrappledResting] = (place, state, level, samus, balloon) => RunPowampGrappledResting(place, state, balloon),
+        [PowampAction.Deflating] = (place, state, level, samus, balloon) => RunPowampDeflating(place, state, balloon),
+        [PowampAction.DeflatedSinking] = (place, state, level, samus, balloon) => RunPowampSinking(place, state, balloon, level),
+        [PowampAction.FatalDamage] = (place, state, level, samus, balloon) => BeginPowampDeathSequence(place, state, balloon),
+        [PowampAction.DeathSequence] = (place, state, level, samus, balloon) => RunPowampDeathSequence(place, state, balloon, samus),
+    });
+
     /// <summary>Runs every action of a Powamp's body; the balloon has none, its body moves it.</summary>
     internal void RunPowampMain(RoomEnemyPlace place, PowampBodyState state, RoomLevelData level, SamusState samus)
     {
         PowampBalloon balloon = BalloonOf(place);
-        switch (state.Action)
-        {
-            case PowampAction.DeflatedResting:
-                RunPowampDeflatedResting(place, state, balloon);
-                return;
-            case PowampAction.Inflating:
-                RunPowampInflating(place, state, balloon);
-                return;
-            case PowampAction.InflatedRiseToTargetHeight:
-                RunPowampRise(place, state, balloon, level, hold: PowampHold.Free);
-                return;
-            case PowampAction.InflatedFinishWiggle:
-                RunPowampFinishWiggle(place, state, balloon, level, hold: PowampHold.Free);
-                return;
-            case PowampAction.GrappledRiseToTargetHeight:
-                RunPowampRise(place, state, balloon, level, hold: PowampHold.Grappled);
-                return;
-            case PowampAction.GrappledFinishWiggle:
-                RunPowampFinishWiggle(place, state, balloon, level, hold: PowampHold.Grappled);
-                return;
-            case PowampAction.GrappledResting:
-                RunPowampGrappledResting(place, state, balloon);
-                return;
-            case PowampAction.Deflating:
-                RunPowampDeflating(place, state, balloon);
-                return;
-            case PowampAction.DeflatedSinking:
-                RunPowampSinking(place, state, balloon, level);
-                return;
-            case PowampAction.FatalDamage:
-                BeginPowampDeathSequence(place, state, balloon);
-                return;
-            case PowampAction.DeathSequence:
-                RunPowampDeathSequence(place, state, balloon, samus);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Powamp body has no behaviour for action {state.Action}.");
-        }
+        RunPowampMainForPowampAction[state.Action](place, state, level, samus, balloon);
     }
 
     /// <summary>Counts down the deflated rest and starts balloon inflation.</summary>

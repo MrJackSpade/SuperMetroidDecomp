@@ -119,65 +119,56 @@ internal sealed class IntroCeresFlightState
     /// <summary>True after the SPACE COLONY hold and final fade reach black.</summary>
     public bool Finished => Phase == IntroCeresFlightPhase.Finished;
 
+    /// <summary>What <c>Step</c> does for each <see cref="IntroCeresFlightPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<IntroCeresFlightPhase, Action> StepForIntroCeresFlightPhase => field ??= new(new Dictionary<IntroCeresFlightPhase, Action>
+    {
+        [IntroCeresFlightPhase.Initial] = () =>
+        {
+            // The flight's music data, then its track, on the shared queue.
+            audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Ceres));
+            audio.ScheduleMusic(
+                MusicRequest.SelectTrack(CeresFlightSceneDefinitions.FlightSong),
+                CeresFlightSceneDefinitions.MusicDelay);
+            Phase = IntroCeresFlightPhase.WaitForMusicQueue;
+        },
+        [IntroCeresFlightPhase.WaitForMusicQueue] = () =>
+        {
+            // The approach enables the display once the music queue is empty.
+            if (!audio.HasQueuedMusic)
+            {
+                fade.Show(DisplayBrightness.Full);
+                Phase = IntroCeresFlightPhase.FlyingIntoCamera;
+            }
+        },
+        [IntroCeresFlightPhase.FlyingIntoCamera] = () =>
+        {
+            if (zoom >= CeresFlightRenderDefinitions.FrontNarrowingFloor)
+            {
+                zoom = zoom.Narrowed(CeresFlightRenderDefinitions.SlowZoomStep);
+            }
+            else
+            {
+                SetupRearView();
+            }
+        },
+        [IntroCeresFlightPhase.FlyingTowardCeres] = () => StepFlyingTowardCeres(),
+        [IntroCeresFlightPhase.SpaceColonyTitle] = () => StepSpaceColonyTitle(),
+        [IntroCeresFlightPhase.FadeOut] = () => StepFadeOut(),
+        [IntroCeresFlightPhase.StartGameAtCeres] = () =>
+        {
+            // The handoff runs as the update after the screen goes black; it hands control to
+            // the new-game setup state, whose owner also performs this phase's Ceres checkpoint save.
+            Phase = IntroCeresFlightPhase.Finished;
+        },
+        [IntroCeresFlightPhase.Finished] = () =>
+        {
+        },
+    });
+
     /// <summary>Advances the music gate, camera, rear-view actors, title cadence, or final fade for one update.</summary>
     public void Step()
     {
-        switch (Phase)
-        {
-            case IntroCeresFlightPhase.Initial:
-                // The flight's music data, then its track, on the shared queue.
-                audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Ceres));
-                audio.ScheduleMusic(
-                    MusicRequest.SelectTrack(CeresFlightSceneDefinitions.FlightSong),
-                    CeresFlightSceneDefinitions.MusicDelay);
-                Phase = IntroCeresFlightPhase.WaitForMusicQueue;
-                break;
-
-            case IntroCeresFlightPhase.WaitForMusicQueue:
-                // The approach enables the display once the music queue is empty.
-                if (!audio.HasQueuedMusic)
-                {
-                    fade.Show(DisplayBrightness.Full);
-                    Phase = IntroCeresFlightPhase.FlyingIntoCamera;
-                }
-                break;
-
-            case IntroCeresFlightPhase.FlyingIntoCamera:
-                if (zoom >= CeresFlightRenderDefinitions.FrontNarrowingFloor)
-                {
-                    zoom = zoom.Narrowed(CeresFlightRenderDefinitions.SlowZoomStep);
-                }
-                else
-                {
-                    SetupRearView();
-                }
-                break;
-
-            case IntroCeresFlightPhase.FlyingTowardCeres:
-                StepFlyingTowardCeres();
-                break;
-
-            case IntroCeresFlightPhase.SpaceColonyTitle:
-                StepSpaceColonyTitle();
-                break;
-
-            case IntroCeresFlightPhase.FadeOut:
-                StepFadeOut();
-                break;
-
-            case IntroCeresFlightPhase.StartGameAtCeres:
-                // The handoff runs as the update after the screen goes black; it hands control to
-                // the new-game setup state, whose owner also performs this phase's Ceres checkpoint save.
-                Phase = IntroCeresFlightPhase.Finished;
-                break;
-
-            case IntroCeresFlightPhase.Finished:
-                // The flight has ended; its owner moves to the new-game setup state.
-                break;
-
-            default:
-                throw new InvalidOperationException($"Undefined Ceres flight phase {Phase}.");
-        }
+        StepForIntroCeresFlightPhase[Phase]();
 
         if (Phase == IntroCeresFlightPhase.FlyingIntoCamera)
             StepStarsAndBackground();

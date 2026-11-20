@@ -96,48 +96,27 @@ internal sealed class TorizoAttacks
             [RoomEnemyProjectileKind.TorizoLandingDust] = null,
         };
 
+        /// <summary>What <c>Move</c> does for each <see cref="TorizoProjectileMotion"/> member, each member's own arm.</summary>
+        private IdentityTable<TorizoProjectileMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>> MoveForTorizoProjectileMotion => field ??= new(new Dictionary<TorizoProjectileMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>>
+        {
+            [TorizoProjectileMotion.StatueFragmentFalling] = (context, projectile) => DropStatueFragment(projectile, context.Level),
+            [TorizoProjectileMotion.BombOrbFalling] = (context, projectile) => DropBombOrb(this, projectile, context.Level),
+            [TorizoProjectileMotion.GoldenOrbBouncing] = (context, projectile) => BounceGoldenOrb(this, projectile, context.Level),
+            [TorizoProjectileMotion.SonicBoomFlying] = (context, projectile) => FlySonicBoom(this, projectile, context.Level),
+            [TorizoProjectileMotion.DroolFalling] = (context, projectile) => DropDrool(this, projectile, context.Level),
+            [TorizoProjectileMotion.EggBouncing] = (context, projectile) => BounceEgg(this, projectile, context.Level),
+            [TorizoProjectileMotion.EggCharging] = (context, projectile) => RunGoldenTorizoEggHorizontalCharge(this, projectile, context.Level),
+            [TorizoProjectileMotion.EggDropping] = (context, projectile) => RunGoldenTorizoEggFall(this, projectile, context.Level),
+            [TorizoProjectileMotion.SuperMissileHeld] = (context, projectile) => HoldSuperMissile(projectile),
+            [TorizoProjectileMotion.SuperMissileThrown] = (context, projectile) => RunGoldenTorizoSuperMissileFlight(this, projectile, context.Level),
+            [TorizoProjectileMotion.EyeBeamFlying] = (context, projectile) => FlyEyeBeam(this, projectile, context.Level),
+        });
+
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, TorizoProjectileMotion motion)
         {
             EnemyProjectile projectile = context.Projectile;
-            switch (motion)
-            {
-                case TorizoProjectileMotion.StatueFragmentFalling:
-                    DropStatueFragment(projectile, context.Level);
-                    break;
-                case TorizoProjectileMotion.BombOrbFalling:
-                    DropBombOrb(this, projectile, context.Level);
-                    break;
-                case TorizoProjectileMotion.GoldenOrbBouncing:
-                    BounceGoldenOrb(this, projectile, context.Level);
-                    break;
-                case TorizoProjectileMotion.SonicBoomFlying:
-                    FlySonicBoom(this, projectile, context.Level);
-                    break;
-                case TorizoProjectileMotion.DroolFalling:
-                    DropDrool(this, projectile, context.Level);
-                    break;
-                case TorizoProjectileMotion.EggBouncing:
-                    BounceEgg(this, projectile, context.Level);
-                    break;
-                case TorizoProjectileMotion.EggCharging:
-                    RunGoldenTorizoEggHorizontalCharge(this, projectile, context.Level);
-                    break;
-                case TorizoProjectileMotion.EggDropping:
-                    RunGoldenTorizoEggFall(this, projectile, context.Level);
-                    break;
-                case TorizoProjectileMotion.SuperMissileHeld:
-                    HoldSuperMissile(projectile);
-                    break;
-                case TorizoProjectileMotion.SuperMissileThrown:
-                    RunGoldenTorizoSuperMissileFlight(this, projectile, context.Level);
-                    break;
-                case TorizoProjectileMotion.EyeBeamFlying:
-                    FlyEyeBeam(this, projectile, context.Level);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(TorizoProjectileMotion)} {motion}.");
-            }
+            MoveForTorizoProjectileMotion[motion](context, projectile);
         }
 
         /// <inheritdoc/>

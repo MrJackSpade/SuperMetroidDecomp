@@ -156,6 +156,17 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetYardCrawlingVelocities(YardEnemyState state, YardDirection direction) =>
         state.CrawlingVelocity = YardCrawlVelocity.Apply(state.CrawlSpeed, direction);
 
+    /// <summary>What <c>RunYardMain</c> does for each <see cref="YardMovement"/> member, each member's own arm.</summary>
+    private IdentityTable<YardMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, YardEnemyState>> RunYardMainForYardMovement => field ??= new(new Dictionary<YardMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, YardEnemyState>>
+    {
+        [YardMovement.HoldingStill] = (place, samus, level, state) => { },
+        [YardMovement.Hiding] = (place, samus, level, state) => RunYardHidingMovement(place, state, level),
+        [YardMovement.Airborne] = (place, samus, level, state) => RunYardAirborneMovement(place, state, samus, level),
+        // Direction-changing animation can publish the new direction one frame before it starts the matching
+        // crawl. The game crawls the way its crawl began, not by the briefly newer direction.
+        [YardMovement.Crawling] = (place, samus, level, state) => RunYardCrawlingMovement(place, state, level),
+    });
+
     /// <summary>Runs the Yard's main AI.</summary>
     private void RunYardMain(RoomEnemyPlace place, SamusState samus, RoomLevelData level)
     {
@@ -172,25 +183,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         HandleYardHiding(place, state, samus);
         UpdateYardSolidProperty(place, state, samus);
 
-        switch (state.Movement)
-        {
-            case YardMovement.HoldingStill:
-                return;
-            case YardMovement.Hiding:
-                RunYardHidingMovement(place, state, level);
-                return;
-            case YardMovement.Airborne:
-                RunYardAirborneMovement(place, state, samus, level);
-                return;
-            // Direction-changing animation can publish the new direction one frame before it starts the matching
-            // crawl. The game crawls the way its crawl began, not by the briefly newer direction.
-            case YardMovement.Crawling:
-                RunYardCrawlingMovement(place, state, level);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Yard has no behaviour for movement {state.Movement}.");
-        }
+        RunYardMainForYardMovement[state.Movement](place, samus, level, state);
     }
 
     /// <summary>Runs the look-at/hide test.</summary>

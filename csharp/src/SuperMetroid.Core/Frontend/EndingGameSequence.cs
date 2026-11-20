@@ -42,20 +42,17 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGamePhase
     public bool IsWaitingOutDisplayFrame =>
         session.EndingStep == EndingStep.Credits && session.ScreenAs<EndingCreditsState>()?.IsWaitingOutDisplayFrame == true;
 
+    /// <summary>What <c>Step</c> does for each <see cref="EndingStep"/> member, each member's own arm.</summary>
+    private IdentityTable<EndingStep, Action<ControllerButton>> StepForEndingStep => field ??= new(new Dictionary<EndingStep, Action<ControllerButton>>
+    {
+        [EndingStep.LeavingZebes] = controllerInput => LeaveZebes(controllerInput),
+        [EndingStep.Credits] = controllerInput => RunCredits(),
+    });
+
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        switch (session.EndingStep)
-        {
-            case EndingStep.LeavingZebes:
-                LeaveZebes(controllerInput);
-                break;
-            case EndingStep.Credits:
-                RunCredits();
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingStep)} {session.EndingStep}.");
-        }
+        StepForEndingStep[session.EndingStep](controllerInput);
     }
 
     /// <summary>One update of the departing gunship's gameplay while the screen darkens, which starts the credits once black.</summary>

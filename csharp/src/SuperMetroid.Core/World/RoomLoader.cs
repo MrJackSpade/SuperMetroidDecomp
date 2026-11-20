@@ -576,6 +576,20 @@ internal sealed class RoomLoader
         _backgroundScroll.ForegroundPosition = camera;
     }
 
+    /// <summary>What <c>AlignSamusAfterDoorLoading</c> does for each <see cref="DoorDirection"/> member, each member's own arm.</summary>
+    private static IdentityTable<DoorDirection, Action<SamusState>> AlignSamusAfterDoorLoadingForDoorDirection => field ??= new(new Dictionary<DoorDirection, Action<SamusState>>
+    {
+        [DoorDirection.Right] = static samus => samus.Position = samus.Position.WithWholeX(RoomGridConversions.HalfBlockEnd(samus.Position.X.Whole)),
+        [DoorDirection.Left] = static samus => samus.Position = samus.Position.WithWholeX(RoomGridConversions.HalfBlockStart(samus.Position.X.Whole)),
+        [DoorDirection.Down] = static samus => AlignSamusAfterDoorLoadingForDoorDirectionDown(samus),
+        [DoorDirection.Up] = static samus => AlignSamusAfterDoorLoadingForDoorDirectionDown(samus),
+    });
+
+    /// <summary>What <see cref="AlignSamusAfterDoorLoadingForDoorDirection"/> does for <see cref="DoorDirection.Down"/>, <see cref="DoorDirection.Up"/>.</summary>
+    private static void AlignSamusAfterDoorLoadingForDoorDirectionDown(SamusState samus)
+    {
+    }
+
     /// <summary>
     /// Applies the horizontal eight-pixel doorway alignment on the update after the
     /// scroll ends, before the music wait and the later narrow-door nudges.
@@ -587,20 +601,7 @@ internal sealed class RoomLoader
         if (state.Scroll.IsRunning)
             throw new InvalidOperationException("Door loading has not finished scrolling.");
         SamusState samus = _player.IntroducedSamus;
-        switch (state.Direction)
-        {
-            case DoorDirection.Right:
-                samus.Position = samus.Position.WithWholeX(RoomGridConversions.HalfBlockEnd(samus.Position.X.Whole));
-                break;
-            case DoorDirection.Left:
-                samus.Position = samus.Position.WithWholeX(RoomGridConversions.HalfBlockStart(samus.Position.X.Whole));
-                break;
-            case DoorDirection.Down:
-            case DoorDirection.Up:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined door direction {state.Direction}.");
-        }
+        AlignSamusAfterDoorLoadingForDoorDirection[state.Direction](samus);
     }
 
     /// <summary>

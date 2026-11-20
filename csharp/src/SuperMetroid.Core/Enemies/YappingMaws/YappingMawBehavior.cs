@@ -107,6 +107,15 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             : YappingMawSegment.AttackingUp));
     }
 
+    /// <summary>What <c>RunYappingMawMain</c> does for each <see cref="YappingMawAction"/> member, each member's own arm.</summary>
+    private IdentityTable<YappingMawAction, Action<RoomEnemyPlace, YappingMawEnemyState, SamusState>> RunYappingMawMainForYappingMawAction => field ??= new(new Dictionary<YappingMawAction, Action<RoomEnemyPlace, YappingMawEnemyState, SamusState>>
+    {
+        [YappingMawAction.WaitingForSamus] = (place, state, samus) => WaitForSamusWithYappingMaw(place, state, samus),
+        [YappingMawAction.BeginExtension] = (place, state, samus) => BeginYappingMawExtension(place, state),
+        [YappingMawAction.ExtendingOrRetracting] = (place, state, samus) => AdvanceYappingMawExtension(place, state, samus),
+        [YappingMawAction.RetractedDelay] = (place, state, samus) => WaitAfterYappingMawRetraction(place, state, samus),
+    });
+
     /// <summary>Runs the Maw's main behaviour, then places its four links.</summary>
     private void RunYappingMawMain(
         RoomEnemyPlace place,
@@ -117,24 +126,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.GrabCooldown = state.GrabCooldown.Counted();
         state.IsOffScreen = IsYappingMawPointOffScreen(place, camera);
 
-        switch (state.Action)
-        {
-            case YappingMawAction.WaitingForSamus:
-                WaitForSamusWithYappingMaw(place, state, samus);
-                break;
-            case YappingMawAction.BeginExtension:
-                BeginYappingMawExtension(place, state);
-                break;
-            case YappingMawAction.ExtendingOrRetracting:
-                AdvanceYappingMawExtension(place, state, samus);
-                break;
-            case YappingMawAction.RetractedDelay:
-                WaitAfterYappingMawRetraction(place, state, samus);
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Yapping Maw has no behaviour for action {state.Action}.");
-        }
+        RunYappingMawMainForYappingMawAction[state.Action](place, state, samus);
 
         // The mouth owns the final point. The four body links own the root, quarter, half and three-quarter points of
         // the tongue; they do nothing of their own but show their picture where the Maw places them each update.

@@ -43,6 +43,16 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.MetareeIdling), AnimationPlace.StartOfAnimation);
     }
 
+    /// <summary>What <c>RunMetareeMain</c> does for each <see cref="MetareeAction"/> member, each member's own arm.</summary>
+    private IdentityTable<MetareeAction, Action<RoomEnemyPlace, MetareeEnemyState, SamusState, RoomLevelData>> RunMetareeMainForMetareeAction => field ??= new(new Dictionary<MetareeAction, Action<RoomEnemyPlace, MetareeEnemyState, SamusState, RoomLevelData>>
+    {
+        [MetareeAction.Idling] = (place, state, samus, level) => RunMetareeIdle(place, state, samus),
+        [MetareeAction.PreparingAttack] = (place, state, samus, level) => { },
+        [MetareeAction.AttackReady] = (place, state, samus, level) => LaunchMetareeAttack(place, state),
+        [MetareeAction.LaunchedAttack] = (place, state, samus, level) => RunMetareeDive(place, state, samus, level),
+        [MetareeAction.Burrowing] = (place, state, samus, level) => RunMetareeBurrow(place, state),
+    });
+
     /// <summary>Runs the idle, attack preparation, airborne dive or burrow phase with required Samus and room data.</summary>
     private void RunMetareeMain(
         RoomEnemyPlace place,
@@ -50,31 +60,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case MetareeAction.Idling:
-                RunMetareeIdle(place, state, samus);
-                return;
-
-            case MetareeAction.PreparingAttack:
-                return;
-
-            case MetareeAction.AttackReady:
-                LaunchMetareeAttack(place, state);
-                return;
-
-            case MetareeAction.LaunchedAttack:
-                RunMetareeDive(place, state, samus, level);
-                return;
-
-            case MetareeAction.Burrowing:
-                RunMetareeBurrow(place, state);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Metaree has no behaviour for action {state.Action}.");
-        }
+        RunMetareeMainForMetareeAction[state.Action](place, state, samus, level);
     }
 
     /// <summary>Starts preparation within its activation distance across and takes the dive's speed from Samus's height (<see cref="MetareeDiveSpeed"/>).</summary>

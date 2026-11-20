@@ -26,36 +26,33 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IGamePh
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;
 
+    /// <summary>What <c>Step</c> does for each <see cref="AttractDemoStep"/> member, each member's own arm.</summary>
+    private IdentityTable<AttractDemoStep, Action<ControllerButton>> StepForAttractDemoStep => field ??= new(new Dictionary<AttractDemoStep, Action<ControllerButton>>
+    {
+        [AttractDemoStep.Loading] = controllerInput => Load(controllerInput),
+        [AttractDemoStep.Starting] = controllerInput =>
+        {
+            // The demo's first gameplay pass runs one gameplay frame before revealing the room. Its
+            // extra frame does not count down the playback.
+            session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.AttractDemo });
+            session.display.PublishGameplay(session.GameplayRuntime);
+            session.Enter(AttractDemoStep.Playing);
+        },
+        [AttractDemoStep.Playing] = controllerInput => Play(controllerInput),
+        [AttractDemoStep.Unloading] = controllerInput =>
+        {
+            session.Demo.AdvanceAfterScene(session.DemoPlaylist);
+            session.ReleaseRuntime();
+            session.display.PublishBlack();
+            session.Enter(AttractDemoStep.Routing);
+        },
+        [AttractDemoStep.Routing] = controllerInput => Route(),
+    });
+
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        switch (session.AttractDemoStep)
-        {
-            case AttractDemoStep.Loading:
-                Load(controllerInput);
-                break;
-            case AttractDemoStep.Starting:
-                // The demo's first gameplay pass runs one gameplay frame before revealing the room. Its
-                // extra frame does not count down the playback.
-                session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.AttractDemo });
-                session.display.PublishGameplay(session.GameplayRuntime);
-                session.Enter(AttractDemoStep.Playing);
-                break;
-            case AttractDemoStep.Playing:
-                Play(controllerInput);
-                break;
-            case AttractDemoStep.Unloading:
-                session.Demo.AdvanceAfterScene(session.DemoPlaylist);
-                session.ReleaseRuntime();
-                session.display.PublishBlack();
-                session.Enter(AttractDemoStep.Routing);
-                break;
-            case AttractDemoStep.Routing:
-                Route();
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(AttractDemoStep)} {session.AttractDemoStep}.");
-        }
+        StepForAttractDemoStep[session.AttractDemoStep](controllerInput);
     }
 
     /// <summary>Loads the next demo scene, then holds the black screen for its load frames.</summary>

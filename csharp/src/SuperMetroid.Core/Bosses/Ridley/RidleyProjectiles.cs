@@ -214,6 +214,28 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         [RoomEnemyProjectileKind.RidleyAfterburnCenter] = null,
     };
 
+    /// <summary>What <c>Move</c> does for each <see cref="RidleyFireballMotion"/> member, each member's own arm.</summary>
+    private IdentityTable<RidleyFireballMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>> MoveForRidleyFireballMotion => field ??= new(new Dictionary<RidleyFireballMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>>
+    {
+        [RidleyFireballMotion.FireballFlying] = (context, projectile) => FlyFireball(projectile, context.Level),
+        [RidleyFireballMotion.HorizontalAfterburnFlying] = (context, projectile) =>
+        {
+            // The horizontal afterburn moves sideways through the room's blocks; only its vertical move may meet
+            // the room and end it.
+            projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
+            if (EnemyProjectileEngine.MoveProjectileAxis(projectile, context.Level, axis: Axis.Vertical))
+                BeginAfterburnFinalAnimation(projectile);
+        },
+        [RidleyFireballMotion.VerticalAfterburnFlying] = (context, projectile) =>
+        {
+            // The vertical afterburn moves up or down through the room's blocks; only its sideways move may meet
+            // the room and end it.
+            projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
+            if (EnemyProjectileEngine.MoveProjectileAxis(projectile, context.Level, axis: Axis.Horizontal))
+                BeginAfterburnFinalAnimation(projectile);
+        },
+    });
+
     /// <summary>
     /// Moves a fireball, afterburn centre or directional afterburn: the fireball's flight and both afterburn flights.
     /// </summary>
@@ -222,29 +244,19 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     internal override void Move(EnemyProjectileMotionContext context, RidleyFireballMotion motion)
     {
         EnemyProjectile projectile = context.Projectile;
-        switch (motion)
-        {
-            case RidleyFireballMotion.FireballFlying:
-                FlyFireball(projectile, context.Level);
-                break;
-            case RidleyFireballMotion.HorizontalAfterburnFlying:
-                // The horizontal afterburn moves sideways through the room's blocks; only its vertical move may meet
-                // the room and end it.
-                projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
-                if (EnemyProjectileEngine.MoveProjectileAxis(projectile, context.Level, axis: Axis.Vertical))
-                    BeginAfterburnFinalAnimation(projectile);
-                break;
-            case RidleyFireballMotion.VerticalAfterburnFlying:
-                // The vertical afterburn moves up or down through the room's blocks; only its sideways move may meet
-                // the room and end it.
-                projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
-                if (EnemyProjectileEngine.MoveProjectileAxis(projectile, context.Level, axis: Axis.Horizontal))
-                    BeginAfterburnFinalAnimation(projectile);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(RidleyFireballMotion)} {motion}.");
-        }
+        MoveForRidleyFireballMotion[motion](context, projectile);
     }
+
+    /// <summary>What <c>RunCue</c> does for each <see cref="RidleyFireballCue"/> member, each member's own arm.</summary>
+    private IdentityTable<RidleyFireballCue, Action<EnemyProjectile>> RunCueForRidleyFireballCue => field ??= new(new Dictionary<RidleyFireballCue, Action<EnemyProjectile>>
+    {
+        [RidleyFireballCue.StopMoving] = projectile => projectile.HoldStill(),
+        [RidleyFireballCue.BeginFlight] = projectile => projectile.StartMotion(this, RidleyFireballMotion.FireballFlying),
+        [RidleyFireballCue.SpawnHorizontalAfterburns] = projectile => SpawnAfterburnPair(projectile, axis: Axis.Horizontal),
+        [RidleyFireballCue.SpawnVerticalAfterburns] = projectile => SpawnAfterburnPair(projectile, axis: Axis.Vertical),
+        [RidleyFireballCue.SpawnNextAfterburn] = projectile => SpawnNextAfterburn(projectile),
+        [RidleyFireballCue.Delete] = projectile => projectile.Delete(),
+    });
 
     /// <summary>
     /// Carries out a cue of the fireball and afterburn animations: motion, the afterburn spawns and deletion.
@@ -254,29 +266,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     public void RunCue(EnemyProjectileCueContext context, RidleyFireballCue cue)
     {
         EnemyProjectile projectile = context.Projectile;
-        switch (cue)
-        {
-            case RidleyFireballCue.StopMoving:
-                projectile.HoldStill();
-                return;
-            case RidleyFireballCue.BeginFlight:
-                projectile.StartMotion(this, RidleyFireballMotion.FireballFlying);
-                return;
-            case RidleyFireballCue.SpawnHorizontalAfterburns:
-                SpawnAfterburnPair(projectile, axis: Axis.Horizontal);
-                return;
-            case RidleyFireballCue.SpawnVerticalAfterburns:
-                SpawnAfterburnPair(projectile, axis: Axis.Vertical);
-                return;
-            case RidleyFireballCue.SpawnNextAfterburn:
-                SpawnNextAfterburn(projectile);
-                return;
-            case RidleyFireballCue.Delete:
-                projectile.Delete();
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(RidleyFireballCue)} {cue}.");
-        }
+        RunCueForRidleyFireballCue[cue](projectile);
     }
 
     /// <summary>

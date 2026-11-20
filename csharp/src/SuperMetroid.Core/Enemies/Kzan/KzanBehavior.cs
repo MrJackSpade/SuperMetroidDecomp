@@ -78,34 +78,22 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         bottom.Position = bottom.Position.WithWhole(new(top.Position.X.Whole, top.Position.Y.Whole + KzanMotionDefinitions.BottomBelowTop));
     }
 
+    /// <summary>What <c>RunKzanTopMain</c> does for each <see cref="KzanAction"/> member, each member's own arm.</summary>
+    private IdentityTable<KzanAction, Action<RoomEnemyPlace, KzanEnemyState, SamusState>> RunKzanTopMainForKzanAction => field ??= new(new Dictionary<KzanAction, Action<RoomEnemyPlace, KzanEnemyState, SamusState>>
+    {
+        [KzanAction.WaitingToFall] = (place, state, samus) => RunKzanWaitingToFall(place, state),
+        [KzanAction.Falling] = (place, state, samus) => RunKzanFalling(place, state, samus),
+        [KzanAction.WaitingToRise] = (place, state, samus) => RunKzanWaitingToRise(state),
+        [KzanAction.Rising] = (place, state, samus) => RunKzanRising(place, state, samus),
+    });
+
     /// <summary>Runs the top actor through fall wait, accelerated descent, rise wait, and slow ascent.</summary>
     private void RunKzanTopMain(
         RoomEnemyPlace place,
         KzanEnemyState state,
         SamusState samus)
     {
-        switch (state.Action)
-        {
-            case KzanAction.WaitingToFall:
-                RunKzanWaitingToFall(place, state);
-                return;
-
-            case KzanAction.Falling:
-                RunKzanFalling(place, state, samus);
-                return;
-
-            case KzanAction.WaitingToRise:
-                RunKzanWaitingToRise(state);
-                return;
-
-            case KzanAction.Rising:
-                RunKzanRising(place, state, samus);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Kzan has no behaviour for action {state.Action}.");
-        }
+        RunKzanTopMainForKzanAction[state.Action](place, state, samus);
     }
 
     /// <summary>Decrements the wrapping top wait and resets the fall speed when descent begins.</summary>

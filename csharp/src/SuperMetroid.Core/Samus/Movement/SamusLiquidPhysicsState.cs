@@ -18,6 +18,32 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </remarks>
 public sealed class SamusLiquidPhysicsState
 {
+    /// <summary>What <c>ConfigureFor</c> does for each <see cref="RoomFxType"/> member, each member's own arm.</summary>
+    private IdentityTable<RoomFxType, Action<RoomFxOverlayState>> ConfigureForForRoomFxType => field ??= new(new Dictionary<RoomFxType, Action<RoomFxOverlayState>>
+    {
+        [RoomFxType.Water] = fx => ConfigureWater(LiveSurface(fx), fx.Liquid is RoomWater { IgnoresSurfaceUntilEnabled: true }, fx.Type),
+        [RoomFxType.TourianEntranceStatue] = fx => ConfigureWater(LiveSurface(fx), fx.Liquid is RoomWater { IgnoresSurfaceUntilEnabled: true }, fx.Type),
+        [RoomFxType.Lava] = fx => ConfigureLavaAcid(LiveSurface(fx)),
+        [RoomFxType.Acid] = fx => ConfigureLavaAcid(LiveSurface(fx), RoomFxType.Acid),
+        [RoomFxType.None] = fx => ConfigureForForRoomFxTypeNone(fx),
+        [RoomFxType.Spores] = fx => ConfigureForForRoomFxTypeNone(fx),
+        [RoomFxType.Rain] = fx => ConfigureForForRoomFxTypeNone(fx),
+        [RoomFxType.Fog] = fx => ConfigureForForRoomFxTypeNone(fx),
+        [RoomFxType.ScrollingSky] = fx => ConfigureForForRoomFxTypeNone(fx),
+        [RoomFxType.Fireflea] = fx => ConfigureForForRoomFxTypeNone(fx),
+        [RoomFxType.CeresRidley] = fx => ConfigureForForRoomFxTypeNone(fx),
+        [RoomFxType.CeresElevator] = fx => ConfigureForForRoomFxTypeNone(fx),
+        [RoomFxType.CeresHaze] = fx => ConfigureForForRoomFxTypeNone(fx),
+    });
+
+    /// <summary>What <see cref="ConfigureForForRoomFxType"/> does for <see cref="RoomFxType.None"/>, <see cref="RoomFxType.Spores"/>, <see cref="RoomFxType.Rain"/>, <see cref="RoomFxType.Fog"/>, <see cref="RoomFxType.ScrollingSky"/>, <see cref="RoomFxType.Fireflea"/>, <see cref="RoomFxType.CeresRidley"/>, <see cref="RoomFxType.CeresElevator"/>, <see cref="RoomFxType.CeresHaze"/>.</summary>
+    private void ConfigureForForRoomFxTypeNone(RoomFxOverlayState fx)
+    {
+        // Non-liquid FX still own the FX type, which atmospheric effects keep while the
+        // room has neither liquid surface.
+        ConfigureNonLiquidRoomFx(fx.Type);
+    }
+
     /// <summary>
     /// Takes the room's selected effect into Samus's liquid state, so what the room shows and how Samus moves read one
     /// liquid surface.
@@ -25,34 +51,7 @@ public sealed class SamusLiquidPhysicsState
     public void ConfigureFor(RoomFxOverlayState fx)
     {
         Ensure.NotNull(fx);
-        switch (fx.Type)
-        {
-            case RoomFxType.Water:
-            case RoomFxType.TourianEntranceStatue:
-                ConfigureWater(LiveSurface(fx), fx.Liquid is RoomWater { IgnoresSurfaceUntilEnabled: true }, fx.Type);
-                return;
-            case RoomFxType.Lava:
-                ConfigureLavaAcid(LiveSurface(fx));
-                return;
-            case RoomFxType.Acid:
-                ConfigureLavaAcid(LiveSurface(fx), RoomFxType.Acid);
-                return;
-            case RoomFxType.None:
-            case RoomFxType.Spores:
-            case RoomFxType.Rain:
-            case RoomFxType.Fog:
-            case RoomFxType.ScrollingSky:
-            case RoomFxType.Fireflea:
-            case RoomFxType.CeresRidley:
-            case RoomFxType.CeresElevator:
-            case RoomFxType.CeresHaze:
-                // Non-liquid FX still own the FX type, which atmospheric effects keep while the
-                // room has neither liquid surface.
-                ConfigureNonLiquidRoomFx(fx.Type);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined RoomFxType {fx.Type}.");
-        }
+        ConfigureForForRoomFxType[fx.Type](fx);
     }
 
     /// <summary>

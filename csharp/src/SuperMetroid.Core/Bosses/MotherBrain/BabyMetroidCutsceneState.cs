@@ -693,34 +693,31 @@ public sealed class BabyMetroidCutsceneState
         Health = Math.Max(0, healthBefore - damage);
     }
 
+    /// <summary>What <c>StepSamusRainbowColours</c> does for each <see cref="BabyMetroidSamusRainbowPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<BabyMetroidSamusRainbowPhase, Action<SamusState>> StepSamusRainbowColoursForBabyMetroidSamusRainbowPhase => field ??= new(new Dictionary<BabyMetroidSamusRainbowPhase, Action<SamusState>>
+    {
+        [BabyMetroidSamusRainbowPhase.Inactive] = samus => { },
+        [BabyMetroidSamusRainbowPhase.ActivateWhenEnemyIsLow] = samus =>
+        {
+            // Samus's rainbow starts once the Baby has come down to no more than its margin above her.
+            if (SignedPlace.Y + BabyMetroidCutsceneDefinitions.SamusRainbowAboveBaby < samus.Position.Y.Whole)
+                return;
+            samus.Drained.EnableRainbow(samus);
+            SamusRainbowPhase = BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown;
+        },
+        [BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown] = samus =>
+        {
+            (RainbowFramePart fraction, bool frameCompleted) = SamusRainbowFraction.AdvancedByOneUpdate();
+            SamusRainbowFraction = fraction;
+            if (frameCompleted)
+                samus.Drained.HoldRainbowGlowLonger(longestHold: BabyMetroidCutsceneDefinitions.SamusRainbowLongestHold);
+        },
+    });
+
     /// <summary>Activates Samus's healed rainbow colours when the Baby reaches her, then slows its frame cadence by a fractional counter.</summary>
     private void StepSamusRainbowColours(SamusState samus)
     {
-        switch (SamusRainbowPhase)
-        {
-            case BabyMetroidSamusRainbowPhase.Inactive:
-                return;
-
-            case BabyMetroidSamusRainbowPhase.ActivateWhenEnemyIsLow:
-                // Samus's rainbow starts once the Baby has come down to no more than its margin above her.
-                if (SignedPlace.Y + BabyMetroidCutsceneDefinitions.SamusRainbowAboveBaby < samus.Position.Y.Whole)
-                    return;
-                samus.Drained.EnableRainbow(samus);
-                SamusRainbowPhase = BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown;
-                return;
-
-            case BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown:
-            {
-                (RainbowFramePart fraction, bool frameCompleted) = SamusRainbowFraction.AdvancedByOneUpdate();
-                SamusRainbowFraction = fraction;
-                if (frameCompleted)
-                    samus.Drained.HoldRainbowGlowLonger(longestHold: BabyMetroidCutsceneDefinitions.SamusRainbowLongestHold);
-                return;
-            }
-
-            default:
-                throw new InvalidOperationException($"Unsupported Samus rainbow phase {SamusRainbowPhase}.");
-        }
+        StepSamusRainbowColoursForBabyMetroidSamusRainbowPhase[SamusRainbowPhase](samus);
     }
 
     /// <summary>Slows the horizontal speed by the death fall's drag and adds its gravity to the vertical speed.</summary>

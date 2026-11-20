@@ -79,11 +79,26 @@ internal sealed class EnemyProjectileEngine
     /// <summary>What each new projectile starts from: what its place's previous projectile left there, in this room or the room before.</summary>
     private readonly EnemyProjectilePlaceLeftovers _leftovers = new(EnemyProjectilePlaces.Capacity);
 
+    /// <summary>
+    /// The place the pre-Phantoon room's setup holds, while it holds it (#1851, #2556); none while the room holds no place.
+    /// No projectile stands in it: a spawn passes it by, the projectile pass counts its hold at its turn, and it keeps what
+    /// its previous projectile left there for the spawn that takes it once the hold frees it.
+    /// </summary>
+    private HeldPlace? _heldPlace;
+
+    /// <summary>A place the room holds and the hold that counts it.</summary>
+    /// <param name="Place">The zero-based enemy-projectile place.</param>
+    /// <param name="Hold">The hold, which frees the place on the update after it runs out.</param>
+    private sealed record HeldPlace(int Place, PrePhantoonRoomHeldProjectilePlace Hold);
+
+    /// <summary>Whether <paramref name="place"/> is free for a spawn: no live projectile and no hold of the room's holds it.</summary>
+    private bool IsFree(int place) => _places[place] is not { IsActive: true } && _heldPlace?.Place != place;
+
     /// <summary>The latest projectile of each place the room has spawned into, live or gone, in place order.</summary>
     public IEnumerable<EnemyProjectile> EnemyProjectiles => _places.OfType<EnemyProjectile>();
 
-    /// <summary>How many places no live projectile holds: the free places a spawn can take.</summary>
-    public int FreePlaceCount => _places.Count(projectile => projectile is not { IsActive: true });
+    /// <summary>How many places neither a live projectile nor the room's hold holds: the free places a spawn can take.</summary>
+    public int FreePlaceCount => Enumerable.Range(0, EnemyProjectilePlaces.Capacity).Count(IsFree);
 
     /// <summary>The latest projectile of <paramref name="place"/>, live or gone, or null while the room has spawned none into it.</summary>
     /// <param name="place">The zero-based enemy-projectile place, zero for the last place spawns search.</param>
@@ -102,6 +117,7 @@ internal sealed class EnemyProjectileEngine
     internal void TakeOverFrom(RoomHandOver handOver)
     {
         Array.Clear(_places);
+        _heldPlace = null;
         _leftovers.TakeOverFrom(handOver);
     }
 
@@ -198,6 +214,12 @@ internal sealed class EnemyProjectileEngine
         // pass, and one spawned above it waits for the next.
         foreach (int place in EnemyProjectilePlaces.InRunOrder)
         {
+            if (_heldPlace is { } held && held.Place == place)
+            {
+                if (held.Hold.FreesOnThisUpdate())
+                    _heldPlace = null;
+                continue;
+            }
             if (_places[place] is not { IsActive: true } projectile)
                 continue;
 
@@ -326,15 +348,37 @@ internal sealed class EnemyProjectileEngine
     {
         foreach (int place in EnemyProjectilePlaces.InRunOrder)
         {
-            EnemyProjectile? previous = _places[place];
-            if (previous is not { IsActive: true })
+            if (IsFree(place))
             {
                 Places.RecordSpawn(place);
-                return _places[place] = new EnemyProjectile(place, _leftovers.StartOf(place, previous?.LeftInPlace));
+                return _places[place] = new EnemyProjectile(place, _leftovers.StartOf(place, _places[place]?.LeftInPlace));
             }
         }
         Places.RecordSpawn(null);
         return null;
+    }
+
+    /// <summary>
+    /// Holds the first free place, searched from the last down as a spawn searches, for the pre-Phantoon room's setup
+    /// (<see cref="PrePhantoonRoomHeldProjectilePlace"/>): the setup takes the place as a spawn does, and the place stays
+    /// taken until the projectile pass counts the hold out or a room load clears the pool.
+    /// </summary>
+    /// <param name="hold">The hold that counts the place.</param>
+    /// <exception cref="InvalidOperationException">Every place is held.</exception>
+    internal void HoldFirstFreePlace(PrePhantoonRoomHeldProjectilePlace hold)
+    {
+        Ensure.NotNull(hold);
+        foreach (int place in EnemyProjectilePlaces.InRunOrder)
+        {
+            if (IsFree(place))
+            {
+                Places.RecordSpawn(place);
+                hold.Take();
+                _heldPlace = new HeldPlace(place, hold);
+                return;
+            }
+        }
+        throw new InvalidOperationException("The pre-Phantoon room's held place found no free place in a freshly cleared pool.");
     }
 
     /// <summary>

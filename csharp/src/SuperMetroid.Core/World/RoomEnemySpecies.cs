@@ -536,7 +536,7 @@ internal sealed class RoomEnemySpecies
             rinka.CompleteLoaderTimeCameraReads(loaderInitializedPlace, camera);
 
         /// <inheritdoc/>
-        public void SpawnPrePhantoonRoomProjectile() => PrePhantoonRoom.SpawnPrePhantoonRoomProjectile();
+        public void HoldPrePhantoonRoomProjectilePlace() => PrePhantoonRoom.HoldPrePhantoonRoomProjectilePlace();
 
         /// <inheritdoc/>
         public bool BossHidesMinimap => ridley.RidleyPresent;

@@ -228,30 +228,27 @@ internal static class PhantoonAnimationsVerification
             $"the {label} starts the {program} program");
 
     /// <summary>
-    /// The pre-Phantoon room's held place shows the blank frame and frees itself on the update $86:A3AA deletes its
-    /// projectile (#2561): the hold is counted by its projectile updates, each running the place's behaviour and then its
-    /// animation as the projectile pass does.
+    /// The pre-Phantoon room's held place stays taken until the update $86:A3AA deletes the cartridge's blank projectile
+    /// (#2561, #2556): no projectile stands in it, and the projectile pass counts its hold at its turn.
     /// </summary>
     private static void VerifyPrePhantoonRoomAnimation(IImportCartridgeSource cartridge)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        enemies.PrePhantoonRoomBehavior.SpawnPrePhantoonRoomProjectile();
-        EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace);
-        AssertTrue(projectile.Animation is PrePhantoonRoomAnimation, "the room setup starts the typed room animation");
+        int places = SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity;
+        enemies.PrePhantoonRoomBehavior.HoldPrePhantoonRoomProjectilePlace();
+        AssertEqual(places - 1, enemies.Projectiles.FreePlaceCount, "the room setup holds one place");
+        AssertTrue(!enemies.Projectiles.EnemyProjectiles.Any(), "no projectile stands in the held place");
         // A spawned projectile reads its list's first instruction, the blank frame, on its first update.
         const ushort SpawnedListUpdatesToFirstInstruction = 1;
         var native = new NativeEnemyProjectileListReader(PrePhantoonRoomEntry, SpawnedListUpdatesToFirstInstruction);
+        RoomLevelData level = RoomLevelData.CollisionOnly(new(1, 1), [RoomCollisionType.Air]);
         for (int update = 0; update < 40 && !native.Deleted; update++)
         {
-            enemies.PrePhantoonRoomBehavior.HoldingProjectile.RunMotion(new EnemyProjectileMotionContext(projectile,
-                RoomLevelData.CollisionOnly(new(1, 1), [RoomCollisionType.Air]), RoomEnemyFrameFixtures.StandaloneSamus(),
-                Position16<RoomPixels>.Zero, ShortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero, FrameCounter: 0, InstalledFixtures.CreateBombSystem()));
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
+            enemies.Projectiles.RunPass(level, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero,
+                SuperMetroid.Core.Compatibility.ShortFrameCount.Zero, InstalledFixtures.CreateBombSystem(), frameCounter: 0);
             native.Step(cartridge);
-            AssertEqual(!native.Deleted, projectile.IsActive, $"pre-Phantoon room update {update}: deletion");
-            if (native.Deleted)
-                break;
-            AssertTrue(projectile.Frame == EnemyProjectileFrameId.Blank, $"pre-Phantoon room update {update}: the blank frame, no program frame");
+            AssertEqual(native.Deleted ? places : places - 1, enemies.Projectiles.FreePlaceCount,
+                $"pre-Phantoon room update {update}: the place is held until the cartridge's projectile deletes itself");
         }
         AssertTrue(native.Deleted, "the pre-Phantoon room projectile deletes itself");
     }

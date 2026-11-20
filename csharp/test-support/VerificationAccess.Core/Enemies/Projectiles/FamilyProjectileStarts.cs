@@ -61,7 +61,6 @@ internal static class FamilyProjectileStarts
     /// <param name="kind">What the projectile is; a Tourian statue's spawns only in the statue room's enemies.</param>
     internal static EnemyProjectileBehavior BehaviorOf(RoomEnemySystem enemies, RoomEnemyProjectileKind kind) => kind switch
     {
-        RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace => enemies.PrePhantoonRoomBehavior.HoldingProjectile,
         RoomEnemyProjectileKind.SkreeMetareeParticle =>
             SuperMetroid.Core.Enemies.Skree.SkreeMetareeParticles.Behavior,
         RoomEnemyProjectileKind.CrocomireProjectile => enemies.CrocomireBehavior.Combat.MouthShot,

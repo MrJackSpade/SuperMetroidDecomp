@@ -195,7 +195,6 @@ internal static class EnemyProjectileDefinitionsVerification
                     RoomEnemyProjectileKind.SporeSpawnStalk => SporeSpawnProjectileSegment.Stalk,
                     RoomEnemyProjectileKind.SporeSpawnSpore => SporeSpawnProjectileSegment.SporeShot,
                     RoomEnemyProjectileKind.None or
-                        RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
                         RoomEnemyProjectileKind.YappingMawBody or
                         RoomEnemyProjectileKind.SkreeMetareeParticle or
                         RoomEnemyProjectileKind.CrocomireProjectile or
@@ -308,7 +307,6 @@ internal static class EnemyProjectileDefinitionsVerification
                     RoomEnemyProjectileKind.GoldenTorizoEgg => TorizoProjectileSegment.ChozoOrbWallImpact,
                     RoomEnemyProjectileKind.GoldenTorizoSuperMissile => TorizoProjectileSegment.SuperMissileImpact,
                     RoomEnemyProjectileKind.None or
-                        RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
                         RoomEnemyProjectileKind.YappingMawBody or
                         RoomEnemyProjectileKind.SkreeMetareeParticle or
                         RoomEnemyProjectileKind.CrocomireProjectile or

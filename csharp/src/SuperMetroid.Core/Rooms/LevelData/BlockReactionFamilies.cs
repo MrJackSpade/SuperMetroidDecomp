@@ -33,9 +33,9 @@ public static class BlockReactionFamilies
     };
 
     /// <summary>
-    /// The reactions <paramref name="kind"/> distinguishes: every reaction of its family, or a single null for a kind that
-    /// reads no reaction.
+    /// The reactions <paramref name="kind"/> distinguishes: every reaction of its family, or none for a kind that reads no
+    /// reaction (#2558), whose callers state that case themselves.
     /// </summary>
-    public static IReadOnlyList<BlockReaction?> ReadingsOf(RoomCollisionType kind) =>
-        Of(kind) is { } family ? [.. Reactions(family)] : [null];
+    public static IReadOnlyList<BlockReaction> ReadingsOf(RoomCollisionType kind) =>
+        Of(kind) is { } family ? [.. Reactions(family)] : [];
 }

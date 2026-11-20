@@ -55,11 +55,13 @@ internal sealed class NoobTubeProjectileAnimation
         : EnemyProjectileCueRunner<NoobTubeProjectileSegment, NoobTubeProjectileCue>
     {
         /// <inheritdoc/>
-        internal override AnimationContinuation<NoobTubeProjectileSegment>? Run(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles,
-            NoobTubeProjectileCue cue, AnimationPlayback<NoobTubeProjectileSegment> pastCue)
-        {
-            owner.RunCue(context, cue, mirroring);
-            return null;
-        }
+        internal override AnimationShown<NoobTubeProjectileSegment, TFrame> PlayToNextFrame<TFrame>(
+            AnimationSegments<NoobTubeProjectileSegment, TFrame, NoobTubeProjectileCue> segments, EnemyProjectileCueContext context,
+            ref Animation<NoobTubeProjectileSegment> animation, ref AnimationPlace place) =>
+            Ensure.NotNull(segments).PlayToNextFrame(ref animation, ref place, cue =>
+            {
+                owner.RunCue(context, cue, mirroring);
+                return null;
+            });
     }
 }

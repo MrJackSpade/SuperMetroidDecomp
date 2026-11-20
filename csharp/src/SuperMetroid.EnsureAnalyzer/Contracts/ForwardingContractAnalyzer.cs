@@ -10,9 +10,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// parameters it ignores and, usually, forward the few it reads to the real method. In SuperMetroid.Core a method whose
 /// body never reads two or more of its parameters is reported (SME6426), as is a method whose whole body is one call to
 /// another method of its own type passing a strict subset of its parameters unchanged (SME6427). The fix is to narrow the
-/// contract and register the real method; a method registered under an external contract that cannot be narrowed says so
-/// with <c>[ExternalContract(reason)]</c>. An override or an interface implementation keeps the shape of the contract it
-/// answers, where the parameters some answers need are declared, so SME6426 reads only methods that own their shape.
+/// contract and register the real method; an implementation of an external contract that cannot be narrowed says so with
+/// <c>[ExternalContract(reason)]</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ForwardingContractAnalyzer : DiagnosticAnalyzer
@@ -87,7 +86,7 @@ public sealed class ForwardingContractAnalyzer : DiagnosticAnalyzer
             SymbolEqualityComparer.Default);
         // An out parameter is the method's result: it is written, never read.
         IParameterSymbol[] discarded = [.. method.Parameters.Where(parameter => parameter.RefKind != RefKind.Out && !read.Contains(parameter))];
-        if (discarded.Length >= 2 && OwnsItsShape(method))
+        if (discarded.Length >= 2)
         {
             context.ReportDiagnostic(Diagnostic.Create(DiscardedParametersRule, method.Locations[0], Describe(method),
                 string.Join(", ", discarded.Select(parameter => parameter.Name))));
@@ -142,16 +141,6 @@ public sealed class ForwardingContractAnalyzer : DiagnosticAnalyzer
             }
         }
         return passed.Count < method.Parameters.Length ? passed.Count : null;
-    }
-
-    /// <summary>Whether <paramref name="method"/> owns its shape: it overrides nothing and implements no interface member.</summary>
-    private static bool OwnsItsShape(IMethodSymbol method)
-    {
-        if (method.IsOverride || !method.ExplicitInterfaceImplementations.IsEmpty)
-            return false;
-        INamedTypeSymbol type = method.ContainingType;
-        return !type.AllInterfaces.SelectMany(face => face.GetMembers().OfType<IMethodSymbol>())
-            .Any(member => SymbolEqualityComparer.Default.Equals(type.FindImplementationForInterfaceMember(member), method));
     }
 
     /// <summary>Whether a method carries <c>[ExternalContract(reason)]</c>.</summary>

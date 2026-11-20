@@ -18,8 +18,11 @@ internal abstract class EnemyProjectileSilentAnimation<TSegment, TFrame> : Enemy
     {
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Plays <paramref name="animation"/> on from <paramref name="place"/> to its next frame. The timeline raises no event,
+    /// so nothing of the pass's <paramref name="context"/> is acted on.
+    /// </summary>
     private protected sealed override AnimationShown<TSegment, TFrame> PlayToNextFrame(EnemyProjectileCueContext context,
-        EnemyProjectileEngine projectiles, ref Animation<TSegment> animation, ref AnimationPlace place) =>
+        ref Animation<TSegment> animation, ref AnimationPlace place) =>
         Segments.PlayToNextFrame(ref animation, ref place, static (_, _) => null);
 }

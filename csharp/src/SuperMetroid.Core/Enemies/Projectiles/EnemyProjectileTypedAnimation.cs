@@ -25,6 +25,6 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
 
     /// <inheritdoc/>
     private protected sealed override AnimationShown<TSegment, TFrame> PlayToNextFrame(EnemyProjectileCueContext context,
-        EnemyProjectileEngine projectiles, ref Animation<TSegment> animation, ref AnimationPlace place) =>
-        Segments.PlayToNextFrame(ref animation, ref place, (raised, pastCue) => _cues.Run(context, projectiles, raised, pastCue));
+        ref Animation<TSegment> animation, ref AnimationPlace place) =>
+        _cues.PlayToNextFrame(Segments, context, ref animation, ref place);
 }

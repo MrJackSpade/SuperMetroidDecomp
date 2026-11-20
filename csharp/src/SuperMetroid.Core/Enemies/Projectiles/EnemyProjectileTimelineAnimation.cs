@@ -37,9 +37,9 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
 
     /// <summary>
     /// Plays <paramref name="animation"/> on from <paramref name="place"/> to its next frame through <see cref="Segments"/>,
-    /// carrying out each event the play raises if the timeline raises any.
+    /// carrying out each event the play raises on the projectile of <paramref name="context"/> if the timeline raises any.
     /// </summary>
-    private protected abstract AnimationShown<TSegment, TFrame> PlayToNextFrame(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles,
+    private protected abstract AnimationShown<TSegment, TFrame> PlayToNextFrame(EnemyProjectileCueContext context,
         ref Animation<TSegment> animation, ref AnimationPlace place);
 
     /// <summary>The family's animations, by the segment each starts at.</summary>
@@ -56,11 +56,11 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
     private protected abstract EnemyProjectileFrameId Present(TFrame frame);
 
     /// <summary>Plays the animation on to its next frame.</summary>
-    private protected sealed override EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles)
+    private protected sealed override EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context)
     {
         Animation<TSegment> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
-        AnimationShown<TSegment, TFrame> shown = PlayToNextFrame(context, projectiles, ref animation, ref place);
+        AnimationShown<TSegment, TFrame> shown = PlayToNextFrame(context, ref animation, ref place);
         Playback = new AnimationPlayback<TSegment>(animation, place);
         switch (shown)
         {

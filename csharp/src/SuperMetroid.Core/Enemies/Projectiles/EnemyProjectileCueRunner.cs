@@ -16,11 +16,16 @@ internal abstract class EnemyProjectileCueRunner<TSegment, TEvent>
     where TSegment : struct
 {
     /// <summary>
-    /// Carries out <paramref name="cue"/>, raised on the context's projectile, returning where the play continues from
-    /// <paramref name="pastCue"/>, the place just past the cue, or null to run on.
+    /// Plays <paramref name="animation"/> on from <paramref name="place"/> to its next frame through
+    /// <paramref name="segments"/>, carrying out each event the play raises on the projectile of <paramref name="context"/>:
+    /// a runner whose owner may continue the play elsewhere hands it the place just past each event, and one whose owner
+    /// runs on hands it only the event. On return <paramref name="animation"/> and <paramref name="place"/> are where the
+    /// next play resumes.
     /// </summary>
-    internal abstract AnimationContinuation<TSegment>? Run(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles,
-        TEvent cue, AnimationPlayback<TSegment> pastCue);
+    /// <typeparam name="TFrame">The family's frame identity.</typeparam>
+    internal abstract AnimationShown<TSegment, TFrame> PlayToNextFrame<TFrame>(AnimationSegments<TSegment, TFrame, TEvent> segments,
+        EnemyProjectileCueContext context, ref Animation<TSegment> animation, ref AnimationPlace place)
+        where TFrame : struct;
 
     /// <summary>The runner that hands each event to <paramref name="owner"/>, whose reaction never continues the play elsewhere.</summary>
     internal static EnemyProjectileCueRunner<TSegment, TEvent> By(IEnemyProjectileCues<TEvent> owner) => new ByOwner(Ensure.NotNull(owner));
@@ -34,12 +39,13 @@ internal abstract class EnemyProjectileCueRunner<TSegment, TEvent>
     private sealed class ByOwner(IEnemyProjectileCues<TEvent> owner) : EnemyProjectileCueRunner<TSegment, TEvent>
     {
         /// <inheritdoc/>
-        internal override AnimationContinuation<TSegment>? Run(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles,
-            TEvent cue, AnimationPlayback<TSegment> pastCue)
-        {
-            owner.RunCue(context, cue);
-            return null;
-        }
+        internal override AnimationShown<TSegment, TFrame> PlayToNextFrame<TFrame>(AnimationSegments<TSegment, TFrame, TEvent> segments,
+            EnemyProjectileCueContext context, ref Animation<TSegment> animation, ref AnimationPlace place) =>
+            Ensure.NotNull(segments).PlayToNextFrame(ref animation, ref place, cue =>
+            {
+                owner.RunCue(context, cue);
+                return null;
+            });
     }
 
     /// <summary>Hands each event to a cue owner that may continue the play elsewhere.</summary>
@@ -47,7 +53,8 @@ internal abstract class EnemyProjectileCueRunner<TSegment, TEvent>
     private sealed class ByBranchingOwner(IEnemyProjectileBranchingCues<TSegment, TEvent> owner) : EnemyProjectileCueRunner<TSegment, TEvent>
     {
         /// <inheritdoc/>
-        internal override AnimationContinuation<TSegment>? Run(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles,
-            TEvent cue, AnimationPlayback<TSegment> pastCue) => owner.RunCue(context, cue, pastCue);
+        internal override AnimationShown<TSegment, TFrame> PlayToNextFrame<TFrame>(AnimationSegments<TSegment, TFrame, TEvent> segments,
+            EnemyProjectileCueContext context, ref Animation<TSegment> animation, ref AnimationPlace place) =>
+            Ensure.NotNull(segments).PlayToNextFrame(ref animation, ref place, (cue, pastCue) => owner.RunCue(context, cue, pastCue));
     }
 }

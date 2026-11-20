@@ -18,11 +18,13 @@ internal static class EnemyProjectileCueRunners
         internal static CommonRunner<TSegment> Instance { get; } = new();
 
         /// <inheritdoc/>
-        internal override AnimationContinuation<TSegment>? Run(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles,
-            EnemyProjectileCommonCue cue, AnimationPlayback<TSegment> pastCue)
-        {
-            projectiles.ApplyCommonCue(context.Projectile, cue);
-            return null;
-        }
+        internal override AnimationShown<TSegment, TFrame> PlayToNextFrame<TFrame>(
+            AnimationSegments<TSegment, TFrame, EnemyProjectileCommonCue> segments, EnemyProjectileCueContext context,
+            ref Animation<TSegment> animation, ref AnimationPlace place) =>
+            Ensure.NotNull(segments).PlayToNextFrame(ref animation, ref place, cue =>
+            {
+                context.Projectiles.ApplyCommonCue(context.Projectile, cue);
+                return null;
+            });
     }
 }

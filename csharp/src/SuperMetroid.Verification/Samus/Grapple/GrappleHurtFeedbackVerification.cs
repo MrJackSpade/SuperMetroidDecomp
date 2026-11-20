@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;

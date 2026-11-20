@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Video;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Areas.Escape;

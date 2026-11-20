@@ -27,8 +27,7 @@ internal static class SaveStationSoundVerification
     internal static void VerifySaveStationSound()
     {
         var random = new SharedRandom();
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture()), null, 
-            SuperMetroidGameHostServices.Default with { GameplayFrames = RetainedGameplayFrames.Instance }, random);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture()), null, hostServices: SuperMetroidGameHostServices.Default with { GameplayFrames = RetainedGameplayFrames.Instance }, random: random);
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();

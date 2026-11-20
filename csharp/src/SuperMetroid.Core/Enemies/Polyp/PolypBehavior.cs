@@ -66,10 +66,6 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.CooldownTimer.StepEnds())
                     state.Action = PolypAction.WaitingForSamus;
                 return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Polyp has no behaviour for action {state.Action}.");
         }
     }
 

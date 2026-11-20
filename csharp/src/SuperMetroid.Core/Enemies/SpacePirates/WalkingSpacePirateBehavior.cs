@@ -117,10 +117,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             case WalkingSpacePirateAction.Walking:
                 RunWalkingSpacePirateRight(place, state, samus, level);
                 break;
-
-            default:
-                throw new InvalidDataException(
-                    $"Walking Space Pirate has no behaviour for action {state.Action}.");
         }
 
         // A pirate placed to flinch looks for Samus's shots after its normal AI, and a flinch may replace an animation

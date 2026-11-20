@@ -109,9 +109,6 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Action = HopperAction.ChooseHopSize;
                 }
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Hopper has no behaviour for action {state.Action}.");
         }
     }
 

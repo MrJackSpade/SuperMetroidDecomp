@@ -364,9 +364,6 @@ public sealed class AudioQueues
             case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Withdraw:
                 requests.Add(new AudioRequest.ClearSoundRequest(library));
                 break;
-
-            default:
-                throw new InvalidDataException($"Sound library {library}'s request cycle asked for unknown step {step}.");
         }
     }
 

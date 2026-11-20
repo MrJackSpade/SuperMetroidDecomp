@@ -312,9 +312,6 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
 
             case NorfairRidleyPhase.DeathComplete:
                 return;
-
-            default:
-                throw new InvalidDataException($"Undefined {nameof(NorfairRidleyPhase)} {state.Phase}.");
         }
     }
 

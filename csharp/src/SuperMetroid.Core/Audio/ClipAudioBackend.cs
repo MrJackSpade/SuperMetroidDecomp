@@ -87,8 +87,6 @@ public sealed class ClipAudioBackend
                         throw new InvalidDataException($"{audioEvent} does not follow its request-checking clock step.");
                     StartSoundEffect(startSoundEffect.SoundEffect, frameStart + startSoundEffect.SampleOffset);
                     break;
-                default:
-                    throw new InvalidDataException($"Unknown audio event {audioEvent}.");
             }
         }
         Mix(frameStart, cursor, FramesPerUpdate);

@@ -87,10 +87,6 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
             case HibashiAction.Finished:
                 RestHibashi(place, state);
                 return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Hibashi has no behaviour for action {state.Action}.");
         }
     }
 

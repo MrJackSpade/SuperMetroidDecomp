@@ -118,8 +118,6 @@ internal sealed class MessageBoxFlow
             case MessageBoxOutcome.SuitTransformation:
             case null:
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined message-box outcome {outcome}.");
         }
 
         room.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(room.LevelData);

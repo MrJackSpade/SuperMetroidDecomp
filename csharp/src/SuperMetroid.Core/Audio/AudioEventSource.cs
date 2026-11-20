@@ -49,8 +49,6 @@ internal sealed class AudioEventSource
                 case AudioRequest.ClearSoundRequest clear:
                     clock.Request(clear.Library, null);
                     break;
-                default:
-                    throw new InvalidDataException($"Unknown audio request {request}.");
             }
         }
         var schedule = new SoundClockStep<SoundEffectLibrary, SoundEffectId>[SoundClockTiming.MaximumStepsPerUpdate];

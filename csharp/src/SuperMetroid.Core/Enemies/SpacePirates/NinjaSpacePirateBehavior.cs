@@ -136,9 +136,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             case NinjaSpacePirateAction.DivekickWalkToPost:
                 StepNinjaPirateWalkToPost(place, state, state.Heading);
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Ninja Space Pirate has no behaviour for action {state.Action}.");
         }
     }
 

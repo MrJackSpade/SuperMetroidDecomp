@@ -576,9 +576,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 foreach (CeresExplosionPlacement blast in CeresExplosionDefinitions.FinalWave)
                     SpawnCeresExplosion(CeresExplosionDefinitions.FinalWaveActor, blast);
                 return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresExplosionSpawnerCue)} {cue}.");
         }
     }
 
@@ -697,9 +694,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 Zoom = CeresDestructionSceneDefinitions.Motion.MinimumZoom;
                 Phase = CeresDestructionPhase.FlyingTowardZebes;
                 return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresCue)} {cue}.");
         }
     }
 

@@ -50,8 +50,6 @@ public sealed class SamusLiquidPhysicsState
                 // room has neither liquid surface.
                 ConfigureNonLiquidRoomFx(fx.Type);
                 return;
-            default:
-                throw new InvalidOperationException($"Undefined RoomFxType {fx.Type}.");
         }
     }
 

@@ -40,8 +40,6 @@ internal sealed class EnemyProjectileEngine
             case EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.ReturnToOrigin }:
                 projectile.Position = projectile.Position.WithWhole(projectile.Anchor);
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EnemyProjectileCommonCueKind)} {cue}.");
         }
     }
 

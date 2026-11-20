@@ -123,8 +123,6 @@ internal sealed class KraidDeath
                 if (HasCameraLeftRoomLeftEdge(cameraX))
                     KraidEncounterAccess.MarkKraidPartDead(body);
                 return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(KraidDeathPhase)} {state.BodyState.DeathPhase}.");
         }
     }
 

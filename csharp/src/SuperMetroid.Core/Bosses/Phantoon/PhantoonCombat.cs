@@ -139,8 +139,6 @@ internal sealed class PhantoonCombat
                 case PhantoonFlameCue.Delete:
                     projectile.Delete();
                     return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameCue)} {cue}.");
             }
         }
 

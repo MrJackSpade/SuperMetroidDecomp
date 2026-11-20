@@ -93,9 +93,6 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             case MorphBallEyeAction.Deactivating:
                 AdvanceMorphBallEyeDeactivation(state);
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Morph-ball eye has no behaviour for action {state.Action}.");
         }
     }
 
@@ -216,9 +213,6 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             case MorphBallEyeBeamPhase.Deactivating:
                 FadeMorphBallEyeBeam();
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Unknown morph-ball eye beam phase {MorphBallEyeBeam.Phase}.");
         }
     }
 

@@ -248,9 +248,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 Patterns.SpawnPhantoonCasualFlame(state.Body);
                 _audio.QueueEnemySound(PhantoonSoundDefinitions.CasualFlame, PhantoonSoundDefinitions.CasualFlamePriority);
                 return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(PhantoonPartCue)} {cue}.");
         }
     }
 

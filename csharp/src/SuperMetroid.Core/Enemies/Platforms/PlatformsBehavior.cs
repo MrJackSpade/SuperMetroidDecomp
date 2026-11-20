@@ -124,9 +124,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             case PlatformVerticalMovement.Sinking:
                 SinkPlatform(place, state, samus, level, preHorizontalX);
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Platform Y movement {movement} is neither rising nor falling.");
         }
     }
 

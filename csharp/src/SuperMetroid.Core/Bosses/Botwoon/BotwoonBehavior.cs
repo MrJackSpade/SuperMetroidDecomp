@@ -139,10 +139,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             case BotwoonPhase.WallExplosions:
                 RunBotwoonWallExplosions(head, state);
                 break;
-
-            default:
-                throw new InvalidDataException(
-                    $"Botwoon has no behaviour for phase {state.Phase}.");
         }
 
         UpdateBotwoonHealthBand(head, state);
@@ -254,9 +250,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 return;
             case BotwoonMovement.Finished:
                 throw new InvalidOperationException("Botwoon moves after finishing his movement, before choosing what follows.");
-            default:
-                throw new InvalidDataException(
-                    $"Botwoon has no behaviour for movement {state.Movement}.");
         }
     }
 
@@ -475,9 +468,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 if (state.SpitCooldown.StepRunsOut())
                     state.HeadAction = BotwoonHeadAction.AnimateFromMovement;
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Undefined Botwoon head behaviour {state.HeadAction}.");
         }
     }
 
@@ -582,8 +572,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 // head waiting; the volley follows on his next head step.
                 state.HeadAction = BotwoonHeadAction.SpitAimedVolley;
                 return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BotwoonHeadCue)} {cue}.");
         }
     }
 
@@ -772,8 +760,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             case BotwoonProjectileMotion.SpitFlying:
                 FlyBotwoonSpit(context.Projectile, context.Camera);
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BotwoonProjectileMotion)} {motion}.");
         }
     }
 
@@ -885,9 +871,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
             case BotwoonBodyPhase.Landed:
                 return;
-
-            default:
-                throw new InvalidOperationException($"Botwoon's body has no behaviour for phase {segment.Phase}.");
         }
     }
 

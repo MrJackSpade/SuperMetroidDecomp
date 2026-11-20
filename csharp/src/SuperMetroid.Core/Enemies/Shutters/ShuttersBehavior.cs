@@ -138,10 +138,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
             case GrowingShutterAction.Grow:
                 GrowShutterDown(place, state);
                 return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Growing shutter has no behaviour for action {state.Action}.");
         }
     }
 

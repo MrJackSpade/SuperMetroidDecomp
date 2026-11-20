@@ -118,8 +118,6 @@ internal sealed class DraygonParts
             case DraygonEyeAction.Tracking:
                 TrackSamusWithDraygonEye(state, samus, eye.Facing);
                 return;
-            default:
-                throw new InvalidOperationException($"Undefined Draygon eye action {eye.Action}.");
         }
     }
 
@@ -218,8 +216,6 @@ internal sealed class DraygonParts
             case DraygonCue.SpawnGoop goop:
                 SpawnDraygonGoop(state, goop.Direction);
                 return;
-            default:
-                throw new InvalidOperationException($"Undefined Draygon cue {cue}.");
         }
     }
 

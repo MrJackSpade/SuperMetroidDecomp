@@ -53,8 +53,6 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
             case DoorTransitionStep.Transitioning:
                 StepTransition(controllerInput);
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DoorTransitionStep)} {session.DoorTransitionStep}.");
         }
     }
 

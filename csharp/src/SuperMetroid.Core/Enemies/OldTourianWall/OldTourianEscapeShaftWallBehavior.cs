@@ -73,8 +73,6 @@ internal sealed class OldTourianEscapeShaftWallBehavior
                 case OldTourianWallExplosionCue.Delete:
                     projectile.Delete();
                     break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(OldTourianWallExplosionCue)} {cue}.");
             }
         }
     }

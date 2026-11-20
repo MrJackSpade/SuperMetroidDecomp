@@ -174,9 +174,6 @@ internal sealed class IntroCeresFlightState
             case IntroCeresFlightPhase.Finished:
                 // The flight has ended; its owner moves to the new-game setup state.
                 break;
-
-            default:
-                throw new InvalidOperationException($"Undefined Ceres flight phase {Phase}.");
         }
 
         if (Phase == IntroCeresFlightPhase.FlyingIntoCamera)

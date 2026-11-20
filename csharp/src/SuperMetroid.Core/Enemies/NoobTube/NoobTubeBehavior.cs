@@ -84,10 +84,6 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
                 // projectile left passes on to the next projectile spawned there (EnemyProjectileHandOver).
                 projectile.Velocity = projectile.Velocity.WithY(piece.Velocity.Y);
                 return;
-
-            default:
-                throw new InvalidDataException(
-                    $"N00b-tube setup lost projectile definition {piece.Definition}.");
         }
     }
 
@@ -203,8 +199,6 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
                 case NoobTubePieceMotion.BubbleFlying:
                     MoveNoobTubeBubbleVertically(this, projectile);
                     break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(NoobTubePieceMotion)} {motion}.");
             }
         }
 
@@ -272,8 +266,6 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
                 case NoobTubeProjectileCueKind.Delete:
                     projectile.Delete();
                     break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(NoobTubeProjectileCueKind)} {cue.Kind}.");
             }
         }
     }

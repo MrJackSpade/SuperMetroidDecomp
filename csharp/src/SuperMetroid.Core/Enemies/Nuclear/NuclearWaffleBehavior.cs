@@ -68,10 +68,6 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             case NuclearWaffleAction.Sweeping:
                 RunNuclearWaffleSweep(place, state);
                 return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Nuclear Waffle has no behaviour for action {state.Action}.");
         }
     }
 

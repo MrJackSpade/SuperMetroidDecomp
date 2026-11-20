@@ -65,8 +65,6 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
             case DeathSequenceStep.FinalBlackOut:
                 FinalBlackOut(controllerInput);
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DeathSequenceStep)} {session.DeathStep}.");
         }
     }
 

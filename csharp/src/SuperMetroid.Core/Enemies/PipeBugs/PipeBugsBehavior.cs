@@ -113,9 +113,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.RespawnDelay.StepEnds())
                     state.Action = BrinstarPipeBugAction.WaitForSamus;
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Brinstar Pipe Bug has no behaviour for action {state.Action}.");
         }
     }
 
@@ -161,9 +158,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                     flightSpeed.Toward(state.FlightDirection));
                 ResetNorfairPipeBugIfOffScreen(place, state, camera);
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Norfair Pipe Bug has no behaviour for action {state.Action}.");
         }
     }
 
@@ -191,9 +185,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             case YellowPipeBugAction.ArcClimbing:
                 RunYellowPipeBugArcClimb(place, state, camera, YellowPipeBugFacing(place));
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Yellow Pipe Bug has no behaviour for action {state.Action}.");
         }
     }
 

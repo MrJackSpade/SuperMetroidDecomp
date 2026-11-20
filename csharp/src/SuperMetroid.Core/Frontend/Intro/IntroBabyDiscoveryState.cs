@@ -209,9 +209,6 @@ internal sealed class IntroBabyDiscoveryState
 
             case IntroBabyDiscoveryDemoPhase.Ending:
                 return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroBabyDiscoveryDemoPhase)} {DemoPhase}.");
         }
     }
 
@@ -252,9 +249,6 @@ internal sealed class IntroBabyDiscoveryState
                 // Page three's cross-fade deletes the egg once it ends.
                 eggBehavior = MetroidEggBehavior.WaitsForCrossFadeEnd;
                 return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroDiscoveryCue)} {cue}.");
         }
     }
 
@@ -289,9 +283,6 @@ internal sealed class IntroBabyDiscoveryState
             case ConfusedBabyMotion.Dancing:
                 StepDancingBaby(crossfadeFinishing);
                 return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(ConfusedBabyMotion)} {babyMotion}.");
         }
     }
 

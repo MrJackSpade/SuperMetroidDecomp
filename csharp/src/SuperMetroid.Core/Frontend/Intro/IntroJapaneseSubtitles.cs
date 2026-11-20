@@ -109,8 +109,6 @@ internal sealed class IntroJapaneseSubtitles
                 return;
             case SubtitleStage.None:
                 throw new InvalidOperationException("The intro advanced a subtitle that is not showing.");
-            default:
-                throw new InvalidOperationException($"Unknown intro subtitle stage {stage}.");
         }
     }
 

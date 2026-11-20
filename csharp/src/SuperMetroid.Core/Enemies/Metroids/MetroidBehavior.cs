@@ -58,8 +58,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // One random number, drawn from the shared random sequence, chooses one of the eight idle cries.
                 _audio.QueueEnemySound(MetroidBehaviorDefinitions.Cry.Choose(_room.Random.Generate()), priority: SoundRequestPriority.Normal);
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(MetroidCueKind)} {cue.Kind}.");
         }
     }
 
@@ -105,9 +103,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             case MetroidMovement.PowerBombEscape:
                 RunMetroidPowerBombEscape(place, state);
                 break;
-            default:
-                throw new InvalidDataException(
-                    $"Metroid movement {state.Movement} is not one of its four movements.");
         }
 
         // The ordinary body shows the central picture. Both outer objects are

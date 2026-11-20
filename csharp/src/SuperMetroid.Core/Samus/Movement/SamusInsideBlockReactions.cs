@@ -168,9 +168,6 @@ public static class SamusInsideBlockReactions
                 break;
             case SamusVerticalDirection.Down:
                 break;
-            default:
-                throw new InvalidOperationException(
-                    $"Undefined {nameof(SamusVerticalDirection)} {body.VerticalVelocity.Direction}.");
         }
         if (contact.ContactDamage == SamusBodyAttack.SpeedBooster)
         {

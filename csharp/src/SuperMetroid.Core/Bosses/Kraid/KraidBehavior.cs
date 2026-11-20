@@ -222,8 +222,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidBodyStage.Dying:
                 Death.RunKraidDeathPhase(body, state, cameraX, samus);
                 return;
-            default:
-                throw new InvalidDataException($"Undefined {nameof(KraidBodyStage)} {state.BodyState.Stage}.");
         }
     }
 
@@ -274,9 +272,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidFightPhase.SecondPhaseThinking:
                 KraidLimbs.RunKraidSecondPhaseThinking(state);
                 return;
-
-            default:
-                throw new InvalidDataException($"Undefined {nameof(KraidFightPhase)} {state.BodyState.FightPhase}.");
         }
     }
 }

@@ -169,9 +169,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             case KiHunterAction.SelectAcidSpit:
                 SelectKiHunterAcidSpit(actor, state, samus);
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Ki-Hunter body has no behaviour for action {state.Action}.");
         }
     }
 
@@ -186,9 +183,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             case KiHunterWingAction.Detached:
                 RunDetachedKiHunterWing(wings, state, level);
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Ki-Hunter wings have no behaviour for action {state.Action}.");
         }
     }
 
@@ -476,9 +470,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             case KiHunterWingMovement.FallingCollisionArc:
                 RunDetachedKiHunterWingCollisionArc(wings, state, level);
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Detached Ki-Hunter has no behaviour for wing movement {state.WingMovement}.");
         }
     }
 
@@ -756,8 +747,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 case KiHunterAcidSpitCue.Signal { Kind: KiHunterAcidSpitCueKind.Delete }:
                     projectile.Delete();
                     break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KiHunterAcidSpitCue)} {cue}.");
             }
         }
 
@@ -772,8 +761,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 case KiHunterAcidMotion.Launching:
                     StartKiHunterAcidMovement(this, context.Projectile);
                     break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KiHunterAcidMotion)} {motion}.");
             }
         }
     }

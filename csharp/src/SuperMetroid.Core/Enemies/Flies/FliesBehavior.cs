@@ -63,9 +63,6 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Rotation = RotationDirection.Clockwise;
                 }
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Fly has no behaviour for action {state.Action}.");
         }
     }
 

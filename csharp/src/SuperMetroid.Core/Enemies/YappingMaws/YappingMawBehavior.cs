@@ -52,8 +52,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             case YappingMawCue.Signal { Kind: YappingMawCueKind.PlayBiteSound }:
                 PlayYappingMawAttackSound(state);
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined Yapping Maw cue {cue}.");
         }
     }
 
@@ -129,9 +127,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             case YappingMawAction.RetractedDelay:
                 WaitAfterYappingMawRetraction(place, state, samus);
                 break;
-            default:
-                throw new InvalidDataException(
-                    $"Yapping Maw has no behaviour for action {state.Action}.");
         }
 
         // The mouth owns the final point. The four body links own the root, quarter, half and three-quarter points of

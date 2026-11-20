@@ -41,8 +41,6 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
                 // together.
                 place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SparkCueKind)} {cue.Kind}.");
         }
     }
 
@@ -94,10 +92,6 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
                 FallingSparks.SpawnFallingSpark(place);
                 SetSparkActionTimer(place, state, additionalTime: 0);
                 return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Spark has no behaviour for action {state.Action}.");
         }
     }
 

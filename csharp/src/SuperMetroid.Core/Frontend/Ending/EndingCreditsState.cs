@@ -548,9 +548,6 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
             case EndingSceneCue.SpawnMinutesUnits:
                 EscapeScenes.HandleSpriteCue(actor, cue);
                 return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingSceneCue)} {cue}.");
         }
     }
 

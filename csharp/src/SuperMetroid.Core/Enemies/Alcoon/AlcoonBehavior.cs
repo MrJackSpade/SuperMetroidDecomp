@@ -131,9 +131,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             case AlcoonAction.HidingFalling:
                 RunAlcoonHidingFall(place, state);
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Alcoon has no behaviour for action {state.Action}.");
         }
     }
 

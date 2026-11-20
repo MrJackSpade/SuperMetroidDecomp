@@ -178,9 +178,6 @@ internal sealed class EndingEscapeScenes
             case EndingSceneCue.EndZebesExplosion:
             case EndingSceneCue.TransitionToCredits:
                 throw new InvalidOperationException($"The {cue} cue of the {wrapper.Role} actor changes the ending's phase, which its own update answers.");
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingSceneCue)} {cue}.");
         }
     }
 

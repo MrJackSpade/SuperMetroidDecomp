@@ -76,9 +76,6 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             case SbugAction.MoveForwardThenWait:
                 RunSbugForwardThenWait(place, state);
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Sbug has no behaviour for action {state.Action}.");
         }
     }
 

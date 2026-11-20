@@ -72,10 +72,6 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             case SkreeAction.Burrowing:
                 RunSkreeBurrow(place, state);
                 return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Skree has no behaviour for action {state.Action}.");
         }
     }
 

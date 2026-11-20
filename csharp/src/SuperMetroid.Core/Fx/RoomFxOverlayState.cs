@@ -661,10 +661,6 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
                     liquidRisePhase = LiquidRisePhase.Dormant;
                 }
                 return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Unknown room-liquid rise phase {liquidRisePhase}.");
         }
     }
 
@@ -769,8 +765,6 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             case LiquidTide.None:
                 TideOffset = SignedSixteenSixteen.Zero;
                 return;
-            default:
-                throw new InvalidOperationException($"Undefined liquid tide {Liquid?.Tide}.");
         }
 
         // The tide follows the negative cosine of its phase, not the sine: the sine a quarter turn behind it. A crest's

@@ -208,9 +208,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             case MamaTurtleAction.Falling:
                 RunMamaTurtleFalling(place, state, samus, pseudoScrew, level);
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Mama Turtle has no behaviour for action {state.Action}.");
         }
     }
 
@@ -533,10 +530,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!EnemyCollision.IsSamusStandingOn(baby, samus))
                     state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
                 return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Baby Turtle has no behaviour for action {state.Action}.");
         }
     }
 

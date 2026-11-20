@@ -35,8 +35,6 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
                     throw new InvalidOperationException($"A Waver's spin finished while it was {state.Action}.");
                 state.Action = WaverAction.SpinFinished;
                 return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(WaverCueKind)} {cue.Kind}.");
         }
     }
 

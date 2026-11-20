@@ -598,8 +598,6 @@ internal sealed class RoomLoader
             case DoorDirection.Down:
             case DoorDirection.Up:
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined door direction {state.Direction}.");
         }
     }
 

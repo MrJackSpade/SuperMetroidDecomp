@@ -123,8 +123,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
                 case KagoBugMotion.Falling:
                     RunKagoBugFalling(context.Projectile, context.Level);
                     break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KagoBugMotion)} {motion}.");
             }
         }
 
@@ -148,8 +146,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
                 case KagoBugProjectileCueKind.Delete:
                     projectile.Delete();
                     break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KagoBugProjectileCueKind)} {cue.Kind}.");
             }
         }
 

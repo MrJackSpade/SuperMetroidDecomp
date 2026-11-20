@@ -34,9 +34,6 @@ internal sealed class DownwardGateBehavior
             case DownwardGateProjectileWake wake:
                 WakeDownwardGateProjectile(wake.RoomObjectBlock);
                 return;
-            default:
-                throw new ArgumentOutOfRangeException(
-                    nameof(request), request, "Unknown downward gate projectile request.");
         }
     }
 
@@ -138,8 +135,6 @@ internal sealed class DownwardGateBehavior
             case DownwardGateProjectileCue.Signal { Kind: DownwardGateProjectileCueKind.Delete }:
                 projectile.Delete();
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DownwardGateProjectileCueKind)} {cue}.");
         }
     }
 

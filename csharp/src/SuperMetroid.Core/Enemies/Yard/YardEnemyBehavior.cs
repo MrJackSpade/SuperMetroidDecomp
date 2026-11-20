@@ -168,9 +168,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             case YardMovement.Crawling:
                 RunYardCrawlingMovement(place, state, level);
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Yard has no behaviour for movement {state.Movement}.");
         }
     }
 

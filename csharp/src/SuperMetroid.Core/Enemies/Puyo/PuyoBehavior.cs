@@ -69,9 +69,6 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             case PuyoAction.Rising or PuyoAction.Falling:
                 RunAirbornePuyo(place, state, level);
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Puyo has no behaviour for action {state.Action}.");
         }
     }
 
@@ -195,9 +192,6 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             case PuyoAirborneMovement.Dropped:
                 RunDroppedPuyo(place, state, level);
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Puyo has no behaviour for airborne movement {state.AirborneMovement}.");
         }
     }
 

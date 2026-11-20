@@ -259,9 +259,6 @@ public sealed class SamusCrystalFlashState
             case CrystalFlashAmmoKind.PowerBombs:
                 samus.PowerBombs = CountsRunBelowZero.DecrementWrapping(samus.PowerBombs);
                 break;
-            default:
-                throw new InvalidOperationException(
-                    $"Crystal Flash ammunition kind {DrainingAmmo} is undefined.");
         }
 
         SamusEnergyRestoration.Restore(samus, CrystalFlashDefinitions.EnergyPerAmmunition);

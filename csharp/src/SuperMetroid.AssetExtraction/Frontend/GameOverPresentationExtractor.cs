@@ -118,8 +118,6 @@ public static class GameOverPresentationExtractor
                             initialColumn += GameOverSourceDefinitions.TextRowBytes;
                             destinationByteOffset = initialColumn;
                             continue;
-                        default:
-                            throw new InvalidOperationException($"Undefined {nameof(GameOverTextControl)} {control}.");
                     }
                 }
 

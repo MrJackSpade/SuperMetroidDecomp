@@ -68,10 +68,6 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             case MetareeAction.Burrowing:
                 RunMetareeBurrow(place, state);
                 return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Metaree has no behaviour for action {state.Action}.");
         }
     }
 

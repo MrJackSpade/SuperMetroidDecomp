@@ -35,8 +35,6 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
                     throw new InvalidOperationException($"A Skultera's turn finished while it was {state.Action}.");
                 state.Action = SkulteraAction.TurnFinished;
                 break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SkulteraCueKind)} {cue.Kind}.");
         }
     }
 
@@ -73,9 +71,6 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             case SkulteraAction.TurnFinished:
                 FinishSkulteraTurn(place, state, state.Heading);
                 return;
-            default:
-                throw new InvalidDataException(
-                    $"Skultera has no behaviour for action {state.Action}.");
         }
     }
 

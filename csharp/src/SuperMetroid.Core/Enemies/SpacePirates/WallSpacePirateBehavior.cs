@@ -82,10 +82,6 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             case WallSpacePirateAction.WallJumping:
                 StepWallSpacePirateJump(place, state, direction: state.Wall);
                 return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Wall Space Pirate has no behaviour for action {state.Action}.");
         }
     }
 

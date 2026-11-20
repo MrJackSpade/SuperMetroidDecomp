@@ -9,10 +9,12 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skultera];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Skultera], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SkulteraEntity(this, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SkulteraEntity(this, place, common));
 
     /// <summary>The room's blocks Skultera's horizontal and vertical swim steps meet.</summary>
     private readonly EnemyTerrain _terrain;
@@ -37,7 +39,6 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
         }
     }
-
 
     /// <summary>Initializes the Skultera.</summary>
     internal static void InitializeSkultera(RoomEnemyPlace place)

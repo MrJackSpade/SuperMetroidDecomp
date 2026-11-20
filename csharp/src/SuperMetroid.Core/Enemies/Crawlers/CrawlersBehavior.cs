@@ -13,32 +13,17 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-    [
-        EnemyDefinitionId.Sciser, EnemyDefinitionId.Zero, EnemyDefinitionId.Viola, EnemyDefinitionId.Zeela,
-        EnemyDefinitionId.Sova, EnemyDefinitionId.Zoomer, EnemyDefinitionId.ArmoredZoomer, EnemyDefinitionId.OrangeZoomer,
-    ];
-
-    /// <summary>
-    /// A crawler set up in its animation family that crawls by the shared crawl: Sciser, Zero and Viola each in their own,
-    /// Zeela, Sova and both Zoomers in the shared family; or an orange Zoomer (#2146).
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The place holds no crawler definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.Sciser)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Sciser));
-        if (definition == EnemyDefinitionId.Zero)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Zero));
-        if (definition == EnemyDefinitionId.Viola)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Viola));
-        if (definition is EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Shared));
-        if (definition == EnemyDefinitionId.OrangeZoomer)
-            return EnemyOccupant.Of(new OrangeZoomerEntity(this, place, common));
-        throw new InvalidOperationException($"The crawler species creates no {place.DefinitionId}.");
-    }
+        [EnemyDefinitionId.Sciser] = (place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Sciser)),
+        [EnemyDefinitionId.Zero] = (place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Zero)),
+        [EnemyDefinitionId.Viola] = (place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Viola)),
+        [EnemyDefinitionId.Zeela] = (place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Shared)),
+        [EnemyDefinitionId.Sova] = (place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Shared)),
+        [EnemyDefinitionId.Zoomer] = (place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Shared)),
+        [EnemyDefinitionId.ArmoredZoomer] = (place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Shared)),
+        [EnemyDefinitionId.OrangeZoomer] = (place, common) => EnemyOccupant.Of(new OrangeZoomerEntity(this, place, common)),
+    };
 
     /// <summary>Performs wall, floor, and slope probes for attached crawlers and falling Zoomers.</summary>
     private readonly EnemyTerrain _terrain;

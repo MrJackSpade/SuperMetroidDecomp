@@ -11,38 +11,19 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 [RoomLifetime]
 internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-    [
-        EnemyDefinitionId.Kraid, EnemyDefinitionId.KraidArm, EnemyDefinitionId.KraidFoot, EnemyDefinitionId.KraidLintBottom,
-        EnemyDefinitionId.KraidLintMiddle, EnemyDefinitionId.KraidLintTop, EnemyDefinitionId.KraidFirstNail,
-        EnemyDefinitionId.KraidSecondNail,
-    ];
-
-    /// <summary>One of Kraid's eight parts, each joining its own reference as it initializes (#1877, #2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Kraid definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.Kraid)
-            return EnemyOccupant.Of(new KraidBodyEntity(this, place, common));
-        if (definition == EnemyDefinitionId.KraidArm)
-            return EnemyOccupant.Of(new KraidArmEntity(this, place, common));
-        if (definition == EnemyDefinitionId.KraidFoot)
-            return EnemyOccupant.Of(new KraidFootEntity(this, place, common));
-        if (definition == EnemyDefinitionId.KraidLintTop)
-            return EnemyOccupant.Of(new KraidLintEntity(this, place, common, Parts.TopLintReference, KraidLintPart.Top));
-        if (definition == EnemyDefinitionId.KraidLintMiddle)
-            return EnemyOccupant.Of(new KraidLintEntity(this, place, common, Parts.MiddleLintReference, KraidLintPart.Middle));
-        if (definition == EnemyDefinitionId.KraidLintBottom)
-            return EnemyOccupant.Of(new KraidLintEntity(this, place, common, Parts.BottomLintReference, KraidLintPart.Bottom));
-        if (definition == EnemyDefinitionId.KraidFirstNail)
-            return EnemyOccupant.Of(new KraidNailEntity(this, place, common, Parts.FirstNailReference, KraidNailPart.First));
-        if (definition == EnemyDefinitionId.KraidSecondNail)
-            return EnemyOccupant.Of(new KraidNailEntity(this, place, common, Parts.SecondNailReference, KraidNailPart.Second));
-        throw new InvalidOperationException($"The Kraid species creates no {place.DefinitionId}.");
-    }
+        [EnemyDefinitionId.Kraid] = (place, common) => EnemyOccupant.Of(new KraidBodyEntity(this, place, common)),
+        [EnemyDefinitionId.KraidArm] = (place, common) => EnemyOccupant.Of(new KraidArmEntity(this, place, common)),
+        [EnemyDefinitionId.KraidFoot] = (place, common) => EnemyOccupant.Of(new KraidFootEntity(this, place, common)),
+        [EnemyDefinitionId.KraidLintBottom] = (place, common) => EnemyOccupant.Of(new KraidLintEntity(this, place, common, Parts.BottomLintReference, KraidLintPart.Bottom)),
+        [EnemyDefinitionId.KraidLintMiddle] = (place, common) => EnemyOccupant.Of(new KraidLintEntity(this, place, common, Parts.MiddleLintReference, KraidLintPart.Middle)),
+        [EnemyDefinitionId.KraidLintTop] = (place, common) => EnemyOccupant.Of(new KraidLintEntity(this, place, common, Parts.TopLintReference, KraidLintPart.Top)),
+        [EnemyDefinitionId.KraidFirstNail] = (place, common) => EnemyOccupant.Of(new KraidNailEntity(this, place, common, Parts.FirstNailReference, KraidNailPart.First)),
+        [EnemyDefinitionId.KraidSecondNail] = (place, common) => EnemyOccupant.Of(new KraidNailEntity(this, place, common, Parts.SecondNailReference, KraidNailPart.Second)),
+    };
+
     /// <summary>Kraid's body layer: the body frame he shows, drawn from his installed body sheet.</summary>
     private KraidBodyLayer BodyLayer { get; }
 
@@ -74,8 +55,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal KraidCombat Combat { get; }
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
-
-
 
     /// <summary>Binds Kraid's room systems and shared actor services.</summary>
     internal KraidBehavior(KraidBehaviorDependencies dependencies)
@@ -199,7 +178,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="Damage">The projectile's damage before Kraid's vulnerability multiplier; a copy of the place's non-negative damage.</param>
     /// <param name="IsPlacedBomb">Whether the projectile is a placed bomb or Power Bomb rather than a fired or spread one.</param>
     internal readonly record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, SamusProjectileType Type, int Damage, bool IsPlacedBomb);
-
 
     /// <summary>Runs the phase of the stage the body is in: his rise, his fight, his growth or his death.</summary>
     private void RunKraidBodyStage(

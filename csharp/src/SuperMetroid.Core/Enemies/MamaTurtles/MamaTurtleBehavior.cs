@@ -13,19 +13,11 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyTurtle, EnemyDefinitionId.MamaTurtle];
-
-    /// <summary>The mama turtle, or one of her babies (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no mama turtle definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.MamaTurtle)
-            return EnemyOccupant.Of(new MamaTurtleEntity(this, place, common));
-        if (definition == EnemyDefinitionId.BabyTurtle)
-            return EnemyOccupant.Of(new BabyTurtleEntity(this, place, common));
-        throw new InvalidOperationException($"The mama turtle species creates no {place.DefinitionId}.");
-    }
+        [EnemyDefinitionId.BabyTurtle] = (place, common) => EnemyOccupant.Of(new BabyTurtleEntity(this, place, common)),
+        [EnemyDefinitionId.MamaTurtle] = (place, common) => EnemyOccupant.Of(new MamaTurtleEntity(this, place, common)),
+    };
 
     /// <summary>Moves parent and children against room blocks during hover, fall, and crawling.</summary>
     private readonly EnemyTerrain _terrain;

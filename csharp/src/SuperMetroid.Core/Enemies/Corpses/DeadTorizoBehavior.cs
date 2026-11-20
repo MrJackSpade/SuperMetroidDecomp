@@ -13,10 +13,12 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CorpseTorizo];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.CorpseTorizo], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new DeadTorizoEntity(this, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new DeadTorizoEntity(this, place, common));
 
     /// <summary>Supplies the shared random seed.</summary>
     private readonly EnemyRoomBinding _room;
@@ -99,7 +101,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Dead Torizo has no behaviour for phase {state.Phase}.");
         }
     }
-
 
     /// <summary>Advances the corpse's fall and runs one rot update of its schedule.</summary>
     private void RunDeadTorizoRotting(RoomEnemyPlace place, DeadTorizoEnemyState state)

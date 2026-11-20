@@ -12,19 +12,11 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.EtecoonEscape, EnemyDefinitionId.DachoraEscape];
-
-    /// <summary>An escaping Etecoon, or the escaping Dachora (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no escape animals definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.EtecoonEscape)
-            return EnemyOccupant.Of(new EscapeEtecoonEntity(this, place, common));
-        if (definition == EnemyDefinitionId.DachoraEscape)
-            return EnemyOccupant.WithoutMainAi(new EscapeDachoraEntity(this, place, common));
-        throw new InvalidOperationException($"The escape animals species creates no {place.DefinitionId}.");
-    }
+        [EnemyDefinitionId.EtecoonEscape] = (place, common) => EnemyOccupant.Of(new EscapeEtecoonEntity(this, place, common)),
+        [EnemyDefinitionId.DachoraEscape] = (place, common) => EnemyOccupant.WithoutMainAi(new EscapeDachoraEntity(this, place, common)),
+    };
 
     /// <summary>Provides room events and live Samus state used by both escape-animal branches.</summary>
     private readonly EnemyRoomBinding _room;

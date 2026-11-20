@@ -13,19 +13,11 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldNinja, EnemyDefinitionId.PirateSilverNinja];
-
-    /// <inheritdoc/>
-    /// <exception cref="InvalidOperationException">The place holds no ninja definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.PirateGoldNinja)
-            return EnemyOccupant.Of(new GoldNinjaSpacePirateEntity(this, place, common));
-        if (definition == EnemyDefinitionId.PirateSilverNinja)
-            return EnemyOccupant.Of(new NinjaSpacePirateEntity(this, place, common));
-        throw new InvalidOperationException($"The ninja Space Pirate species creates no {place.DefinitionId}.");
-    }
+        [EnemyDefinitionId.PirateGoldNinja] = (place, common) => EnemyOccupant.Of(new GoldNinjaSpacePirateEntity(this, place, common)),
+        [EnemyDefinitionId.PirateSilverNinja] = (place, common) => EnemyOccupant.Of(new NinjaSpacePirateEntity(this, place, common)),
+    };
 
     /// <summary>Provides the shared RNG used by divekick selection.</summary>
     private readonly EnemyRoomBinding _room;

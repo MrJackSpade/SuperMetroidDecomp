@@ -3,14 +3,9 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>A species owner that creates the entities for the definitions it owns.</summary>
 internal interface IEnemyEntityFactory
 {
-    /// <summary>The definitions whose enemies this factory creates; each definition has exactly one factory.</summary>
-    IReadOnlyList<EnemyDefinitionId> Definitions { get; }
-
-    /// <summary>Creates the entity for a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="place">
-    /// The place, already holding the new identity and, for an occupant placed from a population entry, the entry it is
-    /// spawned from.
-    /// </param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common);
+    /// <summary>
+    /// The creation of the entity of each definition this factory owns (#2553); each definition has exactly one factory,
+    /// and a factory is asked only for the definitions it names here, so no creation looks at which one it was handed.
+    /// </summary>
+    IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations { get; }
 }

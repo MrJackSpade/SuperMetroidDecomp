@@ -21,10 +21,12 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Botwoon];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Botwoon], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BotwoonEntity(this, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BotwoonEntity(this, place, common));
 
     /// <summary>Active room services and RNG used by path and drop decisions.</summary>
     private readonly EnemyRoomBinding _room;
@@ -38,7 +40,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Receives Botwoon's sound and music requests.</summary>
     private readonly EnemyAudioQueue _audio;
-
 
     /// <summary>Binds Botwoon's head, body, colours, collision, and drop services.</summary>
     internal BotwoonBehavior(BotwoonBehaviorDependencies dependencies)

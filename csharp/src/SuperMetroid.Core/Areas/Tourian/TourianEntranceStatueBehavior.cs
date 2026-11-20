@@ -15,11 +15,12 @@ namespace SuperMetroid.Core.Areas.Tourian;
 internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
 {
     /// <inheritdoc/>
-    /// <remarks>Only the statue room can place these.</remarks>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.TourianStatue];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.TourianStatue], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.WithoutMainAi(new TourianEntranceStatueEntity(this, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.WithoutMainAi(new TourianEntranceStatueEntity(this, place, common));
 
     /// <summary>Spawns the scene's decorations and its unlock effects.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -140,7 +141,6 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         _sceneProjectiles.RemoveAll(ended => !ended.IsActive);
         _sceneProjectiles.Add(projectile);
     }
-
 
     /// <summary>
     /// Initializes one of the statue scene's three placements (#2014): the first spawns the scene's decorations, and each

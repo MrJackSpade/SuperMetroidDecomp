@@ -15,19 +15,11 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BombTorizo, EnemyDefinitionId.GoldenTorizo];
-
-    /// <summary>Bomb Torizo or Golden Torizo (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Torizo definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.BombTorizo)
-            return EnemyOccupant.FromSurroundings(new BombTorizoEntity(this, place, common));
-        if (definition == EnemyDefinitionId.GoldenTorizo)
-            return EnemyOccupant.FromSurroundings(new GoldenTorizoEntity(this, place, common));
-        throw new InvalidOperationException($"The Torizo species creates no {place.DefinitionId}.");
-    }
+        [EnemyDefinitionId.BombTorizo] = (place, common) => EnemyOccupant.FromSurroundings(new BombTorizoEntity(this, place, common)),
+        [EnemyDefinitionId.GoldenTorizo] = (place, common) => EnemyOccupant.FromSurroundings(new GoldenTorizoEntity(this, place, common)),
+    };
 
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;
@@ -55,8 +47,6 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Bomb and Golden Torizo's hitboxes, touch and hurt, and what Samus's weapons do to them.</summary>
     internal TorizoCombat Combat { get; }
-
-
 
     /// <summary>The room effects the bosses request this update, where the fight's start asks for the belly's glow.</summary>
     private readonly EnemyPassEvents _passEvents;

@@ -13,24 +13,13 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-        [EnemyDefinitionId.PhantoonBody, EnemyDefinitionId.PhantoonEye, EnemyDefinitionId.PhantoonMouth, EnemyDefinitionId.PhantoonTentacles];
-
-    /// <summary>Phantoon's body, eye, tentacles or mouth (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Phantoon definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.PhantoonBody)
-            return EnemyOccupant.Of(new PhantoonBodyEntity(this, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.PhantoonEye)
-            return EnemyOccupant.Of(new PhantoonEyeEntity(this, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.PhantoonTentacles)
-            return EnemyOccupant.Of(new PhantoonTentaclesEntity(this, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.PhantoonMouth)
-            return EnemyOccupant.Of(new PhantoonMouthEntity(this, place, common, _bossArtwork));
-        throw new InvalidOperationException($"The Phantoon species creates no {place.DefinitionId}.");
-    }
+        [EnemyDefinitionId.PhantoonBody] = (place, common) => EnemyOccupant.Of(new PhantoonBodyEntity(this, place, common, _bossArtwork)),
+        [EnemyDefinitionId.PhantoonEye] = (place, common) => EnemyOccupant.Of(new PhantoonEyeEntity(this, place, common, _bossArtwork)),
+        [EnemyDefinitionId.PhantoonMouth] = (place, common) => EnemyOccupant.Of(new PhantoonMouthEntity(this, place, common, _bossArtwork)),
+        [EnemyDefinitionId.PhantoonTentacles] = (place, common) => EnemyOccupant.Of(new PhantoonTentaclesEntity(this, place, common, _bossArtwork)),
+    };
 
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -58,8 +47,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal PhantoonDeath Death { get; }
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
-
-
 
     /// <summary>Binds room and enemy services for the four-part boss actor.</summary>
     internal PhantoonBehavior(PhantoonBehaviorDependencies dependencies)
@@ -174,7 +161,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Tentacles.Position = state.Tentacles.Position.WithWholeY(body.Position.Y.Whole);
         state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
     }
-
 
     /// <summary>Runs Phantoon's hurt reaction, which only flashes his colours.</summary>
     internal static void ApplyPhantoonHurt(RoomEnemyPlace body, PhantoonEnemyState state)

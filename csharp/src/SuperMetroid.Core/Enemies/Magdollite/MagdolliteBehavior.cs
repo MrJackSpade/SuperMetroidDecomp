@@ -12,10 +12,12 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Magdollite];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Magdollite], Create);
 
-    /// <summary>The Magdollite part the placement names: its head, rising body or tracking overlay (#2342, #2474).</summary>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(place).SpawnSettings<MagdolliteSpawnSettings>().Create(this, place, common);
 
     /// <summary>Supplies the room's apex overreads.</summary>

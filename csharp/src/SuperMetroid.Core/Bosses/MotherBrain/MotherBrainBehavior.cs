@@ -15,22 +15,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-        [EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes];
-
-    /// <summary>Mother Brain's body, her head, or a tube of her fake death (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Mother Brain definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.MotherBrainBody)
-            return EnemyOccupant.Of(new MotherBrainBodyEntity(this, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.MotherBrainHead)
-            return EnemyOccupant.Of(new MotherBrainHeadEntity(this, place, common));
-        if (definition == EnemyDefinitionId.MotherBrainTubes)
-            return EnemyOccupant.Of(new MotherBrainTubesEntity(this, place, common));
-        throw new InvalidOperationException($"The Mother Brain species creates no {place.DefinitionId}.");
-    }
+        [EnemyDefinitionId.MotherBrainBody] = (place, common) => EnemyOccupant.Of(new MotherBrainBodyEntity(this, place, common, _bossArtwork)),
+        [EnemyDefinitionId.MotherBrainHead] = (place, common) => EnemyOccupant.Of(new MotherBrainHeadEntity(this, place, common)),
+        [EnemyDefinitionId.MotherBrainTubes] = (place, common) => EnemyOccupant.Of(new MotherBrainTubesEntity(this, place, common)),
+    };
+
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Draws encounter artwork and applies installed colours.</summary>
@@ -67,8 +58,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
 
-
-
     /// <summary>Binds the encounter's room services while keeping one state owner for body and head.</summary>
     internal MotherBrainBehavior(MotherBrainBehaviorDependencies dependencies)
     {
@@ -87,8 +76,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         Attacks = new MotherBrainAttacks(_room);
         Combat = new MotherBrainCombat(_room, dependencies.Projectiles, dependencies.Audio, dependencies.Collision);
     }
-
-
 
     /// <summary>Runs the common body main/hurt entry.</summary>
     internal void RunMotherBrainBodyMain(

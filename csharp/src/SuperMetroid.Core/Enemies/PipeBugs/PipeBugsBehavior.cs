@@ -9,21 +9,13 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Gamet, EnemyDefinitionId.Geega, EnemyDefinitionId.Zeb, EnemyDefinitionId.Zebbo];
-
-    /// <summary>A Brinstar Pipe Bug (Zeb or Zebbo), a Norfair one (Gamet) or a yellow one (Geega) (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Pipe Bugs definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition is EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo)
-            return EnemyOccupant.Of(new BrinstarPipeBugEntity(place, common));
-        if (definition == EnemyDefinitionId.Gamet)
-            return EnemyOccupant.Of(new NorfairPipeBugEntity(this, place, common));
-        if (definition == EnemyDefinitionId.Geega)
-            return EnemyOccupant.Of(new YellowPipeBugEntity(place, common));
-        throw new InvalidOperationException($"The Pipe Bugs species creates no {place.DefinitionId}.");
-    }
+        [EnemyDefinitionId.Gamet] = (place, common) => EnemyOccupant.Of(new NorfairPipeBugEntity(this, place, common)),
+        [EnemyDefinitionId.Geega] = (place, common) => EnemyOccupant.Of(new YellowPipeBugEntity(place, common)),
+        [EnemyDefinitionId.Zeb] = (place, common) => EnemyOccupant.Of(new BrinstarPipeBugEntity(place, common)),
+        [EnemyDefinitionId.Zebbo] = (place, common) => EnemyOccupant.Of(new BrinstarPipeBugEntity(place, common)),
+    };
 
     /// <summary>The room's enemy places, where each Norfair formation leader finds its formation when it is placed.</summary>
     private readonly EnemyPlaces _places;
@@ -609,7 +601,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvanceYellowPipeBugTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.AdvanceSilently(place, PipeBugAnimations.Segments,
             static (YellowPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback);
-
 
     /// <summary>Runs a Brinstar Pipe Bug's main AI.</summary>
     internal static void RunBrinstarPipeBugMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>

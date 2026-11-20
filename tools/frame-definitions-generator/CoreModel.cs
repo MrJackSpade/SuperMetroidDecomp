@@ -838,19 +838,40 @@ internal sealed class CoreModel
         return false;
     }
 
-    /// <summary>Reads the definitions <paramref name="type"/> declares, directly or through a parts table's keys.</summary>
+    /// <summary>
+    /// Reads the definitions <paramref name="type"/> declares in its creations (#2553): the keys of a map naming each
+    /// definition's own creation, or the definitions, directly or through a parts table's keys, that one creation serves alike.
+    /// </summary>
     private Behaviour ReadBehaviour(INamedTypeSymbol type)
     {
-        var declared = type.GetMembers("Definitions").OfType<IPropertySymbol>().Where(p => !p.IsStatic).ToList();
+        var declared = type.GetMembers("Creations").OfType<IPropertySymbol>().Where(p => !p.IsStatic).ToList();
         if (declared is not [{ DeclaringSyntaxReferences: [var reference] }])
-            throw new InvalidDataException($"{type.ToDisplayString()} creates enemies but does not declare one Definitions property.");
-        if (reference.GetSyntax() is not PropertyDeclarationSyntax { Initializer.Value: CollectionExpressionSyntax collection })
-            throw new InvalidDataException($"{type.ToDisplayString()}.Definitions is not initialized with a collection expression.");
-        SemanticModel model = ModelOf(collection.SyntaxTree);
+            throw new InvalidDataException($"{type.ToDisplayString()} creates enemies but does not declare one Creations property.");
+        if (reference.GetSyntax() is not PropertyDeclarationSyntax { ExpressionBody.Expression: AssignmentExpressionSyntax { Right: var built } } property)
+            throw new InvalidDataException($"{type.ToDisplayString()}.Creations is not built once by its expression body.");
+        SemanticModel model = ModelOf(property.SyntaxTree);
         var names = new List<string>();
         var parts = new Dictionary<string, IFieldSymbol>(StringComparer.Ordinal);
         ISymbol? partsTable = null;
-        foreach (CollectionElementSyntax element in collection.Elements)
+        IEnumerable<CollectionElementSyntax> elements;
+        switch (built)
+        {
+            case BaseObjectCreationExpressionSyntax { Initializer.Expressions: var entries }:
+                foreach (ExpressionSyntax entry in entries)
+                {
+                    if (entry is not AssignmentExpressionSyntax { Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [var key] } })
+                        throw new InvalidDataException($"{type.ToDisplayString()}.Creations has an entry this generator cannot read: {entry}");
+                    names.Add(DefinitionName(model, key.Expression, type));
+                }
+                elements = [];
+                break;
+            case InvocationExpressionSyntax { ArgumentList.Arguments: [{ Expression: CollectionExpressionSyntax each }, _] }:
+                elements = each.Elements;
+                break;
+            default:
+                throw new InvalidDataException($"{type.ToDisplayString()}.Creations is built in a way this generator cannot read: {built}");
+        }
+        foreach (CollectionElementSyntax element in elements)
         {
             switch (element)
             {
@@ -860,7 +881,7 @@ internal sealed class CoreModel
                 case SpreadElementSyntax { Expression: MemberAccessExpressionSyntax { Name.Identifier.Text: "Keys", Expression: var table } }:
                     ISymbol? tableSymbol = model.GetSymbolInfo(table).Symbol;
                     if (partsTable is not null)
-                        throw new InvalidDataException($"{type.ToDisplayString()}.Definitions spreads more than one parts table.");
+                        throw new InvalidDataException($"{type.ToDisplayString()}.Creations spreads more than one parts table.");
                     partsTable = tableSymbol?.OriginalDefinition;
                     foreach ((string key, IFieldSymbol? part) in PartsTableKeys(tableSymbol, type))
                     {
@@ -870,13 +891,13 @@ internal sealed class CoreModel
                     }
                     break;
                 default:
-                    throw new InvalidDataException($"{type.ToDisplayString()}.Definitions has an element this generator cannot read: {element}");
+                    throw new InvalidDataException($"{type.ToDisplayString()}.Creations has an element this generator cannot read: {element}");
             }
         }
         if (names.Count == 0)
             throw new InvalidDataException($"{type.ToDisplayString()} declares no definitions.");
         string family = Regex.Replace(type.Name, "(Behavior|Factory)$", "");
-        return new Behaviour(type, family, RelativePath(collection.SyntaxTree), names, partsTable, parts);
+        return new Behaviour(type, family, RelativePath(property.SyntaxTree), names, partsTable, parts);
     }
 
     /// <summary>The EnemyDefinitionId member <paramref name="expression"/> names.</summary>

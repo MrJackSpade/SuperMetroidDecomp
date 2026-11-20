@@ -20,7 +20,7 @@ internal sealed class EnemySpeciesRegistry
     {
         _common = Ensure.NotNull(common);
         foreach (IEnemyEntityFactory factory in Ensure.NotNull(factories))
-        foreach (EnemyDefinitionId definition in factory.Definitions)
+        foreach (EnemyDefinitionId definition in factory.Creations.Keys)
         {
             if (!Factories.TryAdd(definition, factory))
                 throw new InvalidOperationException(
@@ -67,6 +67,6 @@ internal sealed class EnemySpeciesRegistry
         Ensure.NotNull(place);
         if (!Factories.TryGetValue(place.DefinitionId, out IEnemyEntityFactory? factory))
             throw new InvalidOperationException($"No enemy species owns definition {place.DefinitionId}.");
-        return factory.Create(place, _common);
+        return factory.Creations[place.DefinitionId](place, _common);
     }
 }

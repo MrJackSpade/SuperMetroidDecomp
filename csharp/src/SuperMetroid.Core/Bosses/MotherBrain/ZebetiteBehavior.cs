@@ -14,10 +14,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Zebetite];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Zebetite], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ZebetiteEntity(this, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ZebetiteEntity(this, place, common));
 
     /// <summary>Initializes newly spawned Zebetite places through the common enemy lifecycle.</summary>
     private readonly IEnemyLifecycle _lifecycle;
@@ -41,7 +43,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly SharedFadeStepCount _fadeStepCount;
     /// <summary>The enemy deaths, whose death explosion a dying half leaves.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-
 
     /// <summary>Captures the shared systems used by Zebetite initialization, AI, and reactions.</summary>
     internal ZebetiteBehavior(ZebetiteBehaviorDependencies dependencies)

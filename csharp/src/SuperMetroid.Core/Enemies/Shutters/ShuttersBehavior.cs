@@ -66,23 +66,13 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     }
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kamer, EnemyDefinitionId.ShutterDestroyable, EnemyDefinitionId.ShutterGrowing, EnemyDefinitionId.ShutterShootable];
-
-    /// <summary>The growing shutter, a shootable vertical shutter, the Kamer that reuses it, or a destroyable vertical shutter (#2146, #2179).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Shutters definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.ShutterGrowing)
-            return EnemyOccupant.Of(new GrowingShutterEntity(this, place, common));
-        if (definition == EnemyDefinitionId.ShutterShootable)
-            return EnemyOccupant.Of(new ShootableShutterEntity(this, place, common));
-        if (definition == EnemyDefinitionId.Kamer)
-            return EnemyOccupant.Of(new KamerEntity(this, place, common));
-        if (definition == EnemyDefinitionId.ShutterDestroyable)
-            return EnemyOccupant.Of(new DestroyableShutterEntity(this, place, common));
-        throw new InvalidOperationException($"The Shutters species creates no {place.DefinitionId}.");
-    }
+        [EnemyDefinitionId.Kamer] = (place, common) => EnemyOccupant.Of(new KamerEntity(this, place, common)),
+        [EnemyDefinitionId.ShutterDestroyable] = (place, common) => EnemyOccupant.Of(new DestroyableShutterEntity(this, place, common)),
+        [EnemyDefinitionId.ShutterGrowing] = (place, common) => EnemyOccupant.Of(new GrowingShutterEntity(this, place, common)),
+        [EnemyDefinitionId.ShutterShootable] = (place, common) => EnemyOccupant.Of(new ShootableShutterEntity(this, place, common)),
+    };
 
     /// <summary>Initializes the growing shutter.</summary>
     internal static void InitializeGrowingShutter(RoomEnemyPlace place)

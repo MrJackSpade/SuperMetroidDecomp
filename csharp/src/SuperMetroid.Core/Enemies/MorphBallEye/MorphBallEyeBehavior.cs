@@ -17,10 +17,12 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     internal MorphBallEyeBehavior(EnemyAudioQueue audio) => _audio = audio;
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MorphBallEye];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.MorphBallEye], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(place).SpawnSettings<MorphBallEyeSpawnSettings>() is MorphBallEyeMountSpawnSettings
             ? EnemyOccupant.WithoutMainAi(new MorphBallEyeMountEntity(this, place, common))
             : EnemyOccupant.Of(new MorphBallEyeEntity(this, place, common));

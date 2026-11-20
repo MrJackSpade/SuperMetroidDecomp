@@ -12,10 +12,12 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fune, EnemyDefinitionId.Namihe];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Fune, EnemyDefinitionId.Namihe], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(place).DefinitionId == EnemyDefinitionId.Namihe
             ? EnemyOccupant.Of(new NamiheEntity(this, place, common))
             : EnemyOccupant.Of(new FuneEntity(this, place, common));

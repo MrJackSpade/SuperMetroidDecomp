@@ -10,26 +10,14 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 [RoomLifetime]
 internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-        [EnemyDefinitionId.DraygonArms, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail];
-
-    /// <summary>Draygon's body, eye, tail or arms (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Draygon definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.DraygonBody)
-            return EnemyOccupant.Of(new DraygonBodyEntity(this, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.DraygonEye)
-            return EnemyOccupant.Of(new DraygonEyeEntity(this, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.DraygonTail)
-            return EnemyOccupant.Of(new DraygonTailEntity(this, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.DraygonArms)
-            return EnemyOccupant.Of(new DraygonArmsEntity(this, place, common, _bossArtwork));
-        throw new InvalidOperationException($"The Draygon species creates no {place.DefinitionId}.");
-    }
+        [EnemyDefinitionId.DraygonArms] = (place, common) => EnemyOccupant.Of(new DraygonArmsEntity(this, place, common, _bossArtwork)),
+        [EnemyDefinitionId.DraygonBody] = (place, common) => EnemyOccupant.Of(new DraygonBodyEntity(this, place, common, _bossArtwork)),
+        [EnemyDefinitionId.DraygonEye] = (place, common) => EnemyOccupant.Of(new DraygonEyeEntity(this, place, common, _bossArtwork)),
+        [EnemyDefinitionId.DraygonTail] = (place, common) => EnemyOccupant.Of(new DraygonTailEntity(this, place, common, _bossArtwork)),
+    };
 
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
@@ -66,8 +54,6 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal DraygonCombat Combat { get; }
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
-
-
 
     /// <summary>Binds the encounter's room, projectile, presentation, and interaction owners.</summary>
     internal DraygonBehavior(DraygonBehaviorDependencies dependencies)

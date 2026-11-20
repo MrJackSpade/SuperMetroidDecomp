@@ -21,19 +21,11 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.ShipBottomEntrance, EnemyDefinitionId.ShipTop];
-
-    /// <summary>The gunship's top hull, which moves the ship, or its bottom hull with the entrance pad (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no gunship definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.ShipTop)
-            return EnemyOccupant.FromSurroundings(new GunshipTopEntity(this, place, common));
-        if (definition == EnemyDefinitionId.ShipBottomEntrance)
-            return EnemyOccupant.WithoutMainAi(new GunshipBottomEntity(this, place, common));
-        throw new InvalidOperationException($"The gunship species creates no {place.DefinitionId}.");
-    }
+        [EnemyDefinitionId.ShipBottomEntrance] = (place, common) => EnemyOccupant.WithoutMainAi(new GunshipBottomEntity(this, place, common)),
+        [EnemyDefinitionId.ShipTop] = (place, common) => EnemyOccupant.FromSurroundings(new GunshipTopEntity(this, place, common)),
+    };
 
     /// <summary>Queues engine and entrance-pad sounds at the frame boundaries.</summary>
     private readonly EnemyAudioQueue _audio;

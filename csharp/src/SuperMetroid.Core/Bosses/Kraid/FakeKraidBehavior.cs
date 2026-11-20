@@ -12,10 +12,12 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FakeKraid];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.FakeKraid], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new FakeKraidEntity(this, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new FakeKraidEntity(this, place, common));
 
     /// <summary>Provides the existing random number sampled for Fake Kraid's action decisions.</summary>
     private readonly EnemyRoomBinding _room;
@@ -71,7 +73,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues one of Fake Kraid's sounds as it makes it, after the update's earlier requests.</summary>
     private void RequestFakeKraidSound(SoundEffectId sound) =>
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
-
 
     /// <summary>Sets Fake Kraid up when the room spawns it.</summary>
     private void InitializeFakeKraid(RoomEnemyPlace place, SamusState samus)

@@ -10,21 +10,12 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 [RoomLifetime]
 internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue];
-
-    /// <summary>Crocomire's body, or his tongue (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Crocomire definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.Crocomire)
-            return EnemyOccupant.Of(new CrocomireBodyEntity(this, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.CrocomireTongue)
-            return EnemyOccupant.Of(new CrocomireTongueEntity(this, place, common));
-        throw new InvalidOperationException($"The Crocomire species creates no {place.DefinitionId}.");
-    }
+        [EnemyDefinitionId.Crocomire] = (place, common) => EnemyOccupant.Of(new CrocomireBodyEntity(this, place, common, _bossArtwork)),
+        [EnemyDefinitionId.CrocomireTongue] = (place, common) => EnemyOccupant.Of(new CrocomireTongueEntity(this, place, common)),
+    };
 
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
@@ -50,8 +41,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     private CrocomireSkeleton Skeleton { get; }
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
-
-
 
     /// <summary>Connects Crocomire AI to room collision, rendering, projectiles, and boss-status owners.</summary>
     internal CrocomireBehavior(CrocomireBehaviorDependencies dependencies)

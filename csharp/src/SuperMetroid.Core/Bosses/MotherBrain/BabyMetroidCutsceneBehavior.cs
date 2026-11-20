@@ -14,10 +14,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroidCutscene];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.BabyMetroidCutscene], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BabyMetroidCutsceneEntity(this, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BabyMetroidCutsceneEntity(this, place, common));
 
     /// <summary>Initializes the dynamically allocated Baby through the ordinary enemy lifecycle.</summary>
     private readonly IEnemyLifecycle _lifecycle;
@@ -34,7 +36,6 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
     /// <summary>Shares Mother Brain's body, head, rainbow sequence, and requested music state with her.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
-
 
     /// <summary>Connects the cutscene Baby to its Mother Brain encounter and room services.</summary>
     internal BabyMetroidCutsceneBehavior(BabyMetroidCutsceneBehaviorDependencies dependencies)
@@ -136,7 +137,6 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             samus.Health >= MotherBrainHealthSounds.MinimumEnergy &&
             MotherBrainCadenceDefinitions.BabyHealSound.IsDue(_frameContext.EnemyPassCount))
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
-
 
         if (step.StartedAnimation is { } started)
             baby.Playback = EnemyAnimationPlayback.Start(place, MotherBrainBabyAnimations.StartingAt[started]);

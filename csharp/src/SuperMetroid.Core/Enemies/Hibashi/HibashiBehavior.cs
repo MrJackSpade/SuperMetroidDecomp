@@ -6,10 +6,12 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Hibashi];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Hibashi], Create);
 
-    /// <summary>The Hibashi's flame, or the collision part its placement names (#2342).</summary>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(place).SpawnSettings<HibashiSpawnSettings>() is HibashiCollisionPartSpawnSettings
             ? EnemyOccupant.WithoutMainAi(new HibashiCollisionPartEntity(place, common))
             : EnemyOccupant.Of(new HibashiEntity(this, place, common));

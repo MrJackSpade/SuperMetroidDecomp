@@ -14,13 +14,12 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Powamp];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Powamp], Create);
 
-    /// <summary>
-    /// A Powamp's body or balloon, as the placement's settings name the part it is (#2163). The balloon shares the body's
-    /// definition; only its placement tells them apart.
-    /// </summary>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(place).SpawnSettings<PowampSpawnSettings>() is PowampBalloonSpawnSettings
             ? EnemyOccupant.WithoutMainAi(new PowampBalloonEntity(this, place, common))
             : EnemyOccupant.Of(new PowampBodyEntity(this, place, common));
@@ -505,7 +504,6 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         });
         balloon.Playback = playback;
     }
-
 
     /// <summary>Propagates power-bomb reaction state from the body to its balloon.</summary>
     internal EnemyPowerBombReaction PowampBodyPowerBombReaction => field ??= new()

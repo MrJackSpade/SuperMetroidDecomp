@@ -9,26 +9,17 @@ namespace SuperMetroid.Core.Enemies.Evir;
 internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Evir, EnemyDefinitionId.EvirProjectile];
-
-    /// <summary>
+    /// <remarks>
     /// An Evir's body or arms, as the placement's settings name the part it is, or its spit (#2146). The arms share the
     /// body's definition; only their placement tells them apart.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The place holds no Evir definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// </remarks>
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.Evir)
-        {
-            return place.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
-                ? EnemyOccupant.Of(new EvirArmsEntity(this, place, common))
-                : EnemyOccupant.FromSurroundings(new EvirBodyEntity(this, place, common));
-        }
-        if (definition == EnemyDefinitionId.EvirProjectile)
-            return EnemyOccupant.Of(new EvirSpitEntity(this, place, common));
-        throw new InvalidOperationException($"The Evir species creates no {place.DefinitionId}.");
-    }
+        [EnemyDefinitionId.Evir] = (place, common) => place.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
+            ? EnemyOccupant.Of(new EvirArmsEntity(this, place, common))
+            : EnemyOccupant.FromSurroundings(new EvirBodyEntity(this, place, common)),
+        [EnemyDefinitionId.EvirProjectile] = (place, common) => EnemyOccupant.Of(new EvirSpitEntity(this, place, common)),
+    };
 
     /// <summary>The room's enemy places, where each Evir part finds its partners when it is placed.</summary>
     private readonly EnemyPlaces _places;

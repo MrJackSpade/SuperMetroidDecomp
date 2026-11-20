@@ -11,10 +11,12 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 internal sealed class NoobTubeBehavior : IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.NoobTubeCrack];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.NoobTubeCrack], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.PlacedOnly(new NoobTubeCrackEntity(place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.PlacedOnly(new NoobTubeCrackEntity(place, common));
 
     /// <summary>The pictures and shading every tube piece draws with: the shared sheet in the tube's crack colours.</summary>
     private static readonly SpriteGraphics TubePieceGraphics =
@@ -39,7 +41,6 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     public void SpawnNoobTubeProjectile(
         NoobTubeProjectileRequest request)
     {
-
         NoobTubePiece piece = request.Piece;
         RoomEnemyProjectileKind kind = piece.Definition switch
         {

@@ -10,21 +10,12 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.GrappleRipper, EnemyDefinitionId.Ripper, EnemyDefinitionId.JetRipper];
-
-    /// <summary>The grapple Ripper, the ordinary Ripper or the jet Ripper (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Ripper definition.</exception>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.GrappleRipper)
-            return EnemyOccupant.Of(new GrappleRipperEntity(this, place, common));
-        if (definition == EnemyDefinitionId.JetRipper)
-            return EnemyOccupant.Of(new JetRipperEntity(this, place, common));
-        if (definition == EnemyDefinitionId.Ripper)
-            return EnemyOccupant.Of(new OrdinaryRipperEntity(this, place, common));
-        throw new InvalidOperationException($"The Ripper species creates no {place.DefinitionId}.");
-    }
+        [EnemyDefinitionId.GrappleRipper] = (place, common) => EnemyOccupant.Of(new GrappleRipperEntity(this, place, common)),
+        [EnemyDefinitionId.Ripper] = (place, common) => EnemyOccupant.Of(new OrdinaryRipperEntity(this, place, common)),
+        [EnemyDefinitionId.JetRipper] = (place, common) => EnemyOccupant.Of(new JetRipperEntity(this, place, common)),
+    };
 
     /// <summary>Resolves horizontal wall collisions for all three Ripper variants.</summary>
     private readonly EnemyTerrain _terrain;

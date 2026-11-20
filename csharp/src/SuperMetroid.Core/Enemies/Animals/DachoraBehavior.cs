@@ -13,10 +13,12 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dachora];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Dachora], Create);
 
-    /// <summary>A Dachora's body, or one of the speed-boost echoes its placement names (#2283).</summary>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(place).SpawnSettings<DachoraSpawnSettings>().Role == DachoraRole.SpeedBoostEcho
             ? EnemyOccupant.Of(new DachoraEchoEntity(place, common))
             : EnemyOccupant.Of(new DachoraEntity(this, place, common));

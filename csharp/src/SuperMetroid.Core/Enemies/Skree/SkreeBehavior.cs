@@ -11,10 +11,12 @@ namespace SuperMetroid.Core.Enemies.Skree;
 internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skree];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Skree], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SkreeEntity(this, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="place">The place, holding the new identity and the entry it is spawned from.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SkreeEntity(this, place, common));
 
     /// <summary>Queues the dive and floor-impact sound requests at their AI transitions.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -146,7 +148,6 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException($"A Skree's dive was readied while it was {state.Action}.");
         state.Action = SkreeAction.AttackReady;
     }
-
 
     /// <summary>Spawns Skree's four debris actors before generic death processing of a lethal shot.</summary>
     /// <remarks>The Skree's shot reaction adds its four debris actors after the shared normal shot response reports death, before the

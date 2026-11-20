@@ -5,4 +5,5 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// <param name="WatchesSamus">Whether the Yard watches Samus, to hide from her or turn toward her.</param>
 /// <param name="Solid">Whether the Yard is solid to Samus.</param>
 /// <param name="TakesHits">Whether a touch or a shot reaches the Yard, to kick it or launch it into the air.</param>
+[IndependentFlag("independent facts of one Yard behaviour: whether it is airborne, watches Samus, is solid and takes hits")]
 internal sealed record YardBehaviorDefinition(bool Airborne, bool WatchesSamus, bool Solid, bool TakesHits);

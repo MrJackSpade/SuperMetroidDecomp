@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>The sounds Phantoon's animation cues play.</summary>

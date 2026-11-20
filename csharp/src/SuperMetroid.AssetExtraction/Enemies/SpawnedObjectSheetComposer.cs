@@ -36,14 +36,19 @@ internal static class SpawnedObjectSheetComposer
     /// </summary>
     private const int ProjectilePageCharacters = 256;
 
+    /// <summary>A spawner's own sheet and the character it begins at.</summary>
+    /// <param name="Sheet">The spawned object's own sheet.</param>
+    /// <param name="FirstCharacter">The character its pictures begin at.</param>
+    private sealed record OwnCharacterSheet(SpawnedObjectOwner Sheet, int FirstCharacter);
+
     /// <summary>
     /// The spawners whose objects draw from a sheet of characters of their own, whatever the spawner's, with that sheet and
     /// the character it begins at: Mother Brain's body, whose tank glass draws from its own characters (#1435).
     /// </summary>
-    private static readonly IReadOnlyDictionary<EnemyDefinitionId, (SpawnedObjectOwner Sheet, int FirstCharacter)> OwnCharacterSheets =
-        new Dictionary<EnemyDefinitionId, (SpawnedObjectOwner Sheet, int FirstCharacter)>
+    private static readonly Dictionary<EnemyDefinitionId, OwnCharacterSheet> OwnCharacterSheets =
+        new Dictionary<EnemyDefinitionId, OwnCharacterSheet>
         {
-            [EnemyDefinitionId.MotherBrainBody] = (SpawnedObjectOwner.MotherBrainTankGlass, EnemyCharacterBaseDefinitions.MotherBrainTankGlassCharacters),
+            [EnemyDefinitionId.MotherBrainBody] = new(SpawnedObjectOwner.MotherBrainTankGlass, EnemyCharacterBaseDefinitions.MotherBrainTankGlassCharacters),
         };
 
     /// <summary>

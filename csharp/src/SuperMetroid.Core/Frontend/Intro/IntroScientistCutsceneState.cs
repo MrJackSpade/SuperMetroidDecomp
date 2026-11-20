@@ -17,7 +17,7 @@ internal sealed class IntroScientistCutsceneState
     /// relative to the laboratory subjects; the examination scene moves the second laboratory page down to its end scroll
     /// while the examined baby rises by the same distance.
     /// </summary>
-    private static readonly IReadOnlyDictionary<IntroLaboratoryScene, LaboratoryPan> ScenePans = new Dictionary<IntroLaboratoryScene, LaboratoryPan>
+    private static readonly Dictionary<IntroLaboratoryScene, LaboratoryPan> ScenePans = new Dictionary<IntroLaboratoryScene, LaboratoryPan>
     {
         [IntroLaboratoryScene.Delivery] = new(scroll => scroll.X != 0, IntroLaboratoryDefinitions.DeliveryPagePan, IntroLaboratoryDefinitions.DeliveredBabyCounterPan),
         [IntroLaboratoryScene.Examination] = new(scroll => scroll.Y < IntroLaboratoryDefinitions.ExaminationPageEndY,

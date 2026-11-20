@@ -37,21 +37,26 @@ internal static class RoomSheetShades
         return shades;
     }
 
+    /// <summary>The shades a room of the listed enemies' rooms adds, from the room's sheet inputs.</summary>
+    /// <param name="Enemies">The enemies whose rooms add the shades.</param>
+    /// <param name="Shades">The shades the rooms add.</param>
+    private sealed record EnemyRoomShade(EnemyDefinitionId[] Enemies, Func<RoomBlockSheetInputs, IEnumerable<SheetShade>> Shades);
+
     /// <summary>
     /// The enemies whose colours recolour the rooms that place them, each with the shades they bring, in the order a
     /// tileset's shades list them: Kraid's backdrop, Spore Spawn's room, the Wrecked Ship's power-on Phantoon brings, the
     /// Ceres elevator room's glow, the Tourian statue's looks, Mother Brain's room and the Ridleys' rooms.
     /// </summary>
-    private static readonly IReadOnlyList<(EnemyDefinitionId[] Enemies, Func<RoomBlockSheetInputs, IEnumerable<SheetShade>> Shades)> EnemyRoomShades =
+    private static readonly EnemyRoomShade[] EnemyRoomShades =
     [
-        ([EnemyDefinitionId.Kraid], inputs => KraidBackdropShades.Of(inputs.Bosses.KraidColors
+        new([EnemyDefinitionId.Kraid], inputs => KraidBackdropShades.Of(inputs.Bosses.KraidColors
             ?? throw new InvalidDataException("Kraid's room is shaded from the installed Kraid colours."))),
-        ([EnemyDefinitionId.SporeSpawn], inputs => SporeSpawnSheetShades.Room(inputs.Bosses)),
-        ([EnemyDefinitionId.PhantoonBody], inputs => PhantoonSheetShades.PowerOn(inputs.Bosses)),
-        ([EnemyDefinitionId.CeresElevatorDoor], ElevatorRoomGlow),
-        ([EnemyDefinitionId.TourianStatue], TourianStatueLooks),
-        ([EnemyDefinitionId.MotherBrainBody], inputs => MotherBrainSheetShades.Room(inputs.Maps)),
-        ([EnemyDefinitionId.RidleyCeres, EnemyDefinitionId.Ridley], inputs => RidleySheetShades.Room(inputs.Maps, inputs.Bosses)),
+        new([EnemyDefinitionId.SporeSpawn], inputs => SporeSpawnSheetShades.Room(inputs.Bosses)),
+        new([EnemyDefinitionId.PhantoonBody], inputs => PhantoonSheetShades.PowerOn(inputs.Bosses)),
+        new([EnemyDefinitionId.CeresElevatorDoor], ElevatorRoomGlow),
+        new([EnemyDefinitionId.TourianStatue], TourianStatueLooks),
+        new([EnemyDefinitionId.MotherBrainBody], inputs => MotherBrainSheetShades.Room(inputs.Maps)),
+        new([EnemyDefinitionId.RidleyCeres, EnemyDefinitionId.Ridley], inputs => RidleySheetShades.Room(inputs.Maps, inputs.Bosses)),
     ];
 
     /// <summary>

@@ -63,7 +63,7 @@ internal sealed class BombTorizoHandObjects
     internal bool SamusHasBombs() =>
         _samus.Current.CollectedItems.HasAny(SamusEquipmentFlags.Bombs);
     /// <summary>Throws statue fragment <paramref name="fragment"/> from the hand's block into the step's <paramref name="outcome"/>.</summary>
-    internal static void ThrowFragment(RoomObjectPlace place, BombTorizoStatueFragment fragment, RoomObjectStepOutcome outcome) =>
+    internal void ThrowFragment(RoomObjectPlace place, BombTorizoStatueFragment fragment, RoomObjectStepOutcome outcome) =>
         Ensure.NotNull(outcome).Threw(new BombTorizoStatueProjectileRequest(fragment, Ensure.NotNull(place).Block, _fragments));
 
     /// <summary>

@@ -17,6 +17,7 @@ public sealed class PhantoonPhase
     /// <summary>A phase named <paramref name="name"/> that runs <paramref name="run"/>.</summary>
     /// <param name="name">The phase's name, for diagnostics.</param>
     /// <param name="run">Runs the phase for one update of his encounter.</param>
+    /// <param name="hit">What a hit does to him in the phase.</param>
     private PhantoonPhase(string name, Action<PhantoonPhaseTurn> run, PhantoonHitResponse hit = PhantoonHitResponse.Hurts)
     {
         _name = name;

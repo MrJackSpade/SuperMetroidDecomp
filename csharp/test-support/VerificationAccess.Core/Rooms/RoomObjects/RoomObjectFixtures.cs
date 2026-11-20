@@ -72,7 +72,7 @@ internal static class RoomObjectFixtures
         var room = (RoomObjectRoom)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectRoom));
         var services = (RoomObjectServices)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectServices));
         var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces(), ShotCapClosing(),
-            GameplayAudioRequests.Standalone(), UnspawnedThrows);
+            new RoomObjectOutputs(GameplayAudioRequests.Standalone(), UnspawnedThrows));
         VisualsTable(roomObjects).Add(roomObjects, visuals);
         return roomObjects;
     }
@@ -105,7 +105,7 @@ internal static class RoomObjectFixtures
     {
         RoomObjectVisuals visuals = VisualsOf(fixture);
         var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces(), ShotCapClosing(),
-            GameplayAudioRequests.Standalone(), UnspawnedThrows);
+            new RoomObjectOutputs(GameplayAudioRequests.Standalone(), UnspawnedThrows));
         VisualsTable(roomObjects).Add(roomObjects, visuals);
         return roomObjects;
     }

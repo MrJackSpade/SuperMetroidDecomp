@@ -851,7 +851,7 @@ internal sealed class RoomLoader
         var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _roomObjectVisuals, new CollectibleBlockPairs(),
             new RoomObjectPlaces(),
             new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteGreenDoorFacingLeft),
-            _audioRequests, new RoomObjectThrownProjectileSpawners(roomObjectServices, roomObjectServices));
+            new RoomObjectOutputs(_audioRequests, new RoomObjectThrownProjectileSpawners(roomObjectServices, roomObjectServices)));
         scope.RoomObjects = roomObjects;
         var areaServices = new RoomEnemyRuntimeServices(_system, destinationCamera.Scrolls, _player, roomObjects, _display, progress);
         roomObjects.PopulationLoader.LoadRoomPopulation(roomObjectRoom, room.State.ObjectPopulation, roomObjectBindings);

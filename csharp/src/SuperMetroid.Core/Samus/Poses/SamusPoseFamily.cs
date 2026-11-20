@@ -82,9 +82,8 @@ internal enum SamusPoseFamily
 
     /// <summary>
     /// The eight jumping/falling turn poses that change from right to left, including their up, down, and
-    /// diagonal-up aim variants. <param name="pose">Prospective or active turn pose; direction describes the facing
-    /// change, not horizontal velocity.</param> <returns>Whether the pose is a right-to-left aerial turn admitted by
-    /// the transition selector.</returns>
+    /// diagonal-up aim variants, which the transition selector admits; the direction describes the facing change, not
+    /// horizontal velocity.
     /// </summary>
     RightToLeftAerialTurn,
 
@@ -228,7 +227,7 @@ internal enum SamusPoseFamily
 
     /// <summary>
     /// The grounded balls a Torizo behind Samus sits down for: the grounded morph and spring balls, but the left-facing
-    /// still morph ball, which the cartridge's list leaves out, so a Torizo never sits for it.
+    /// still morph ball, which the game leaves out, so a Torizo never sits for it.
     /// </summary>
     TorizoSitDownBall,
 

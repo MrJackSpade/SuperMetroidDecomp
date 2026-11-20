@@ -137,18 +137,21 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     /// </param>
     /// <param name="places">The room's own room-object places, created with the system by its builder so each room starts with every place free.</param>
     /// <param name="shotCapClosing">Whether a blue cap a shot opened closes behind Samus, composed by the system's builder.</param>
-    /// <param name="audioRequests">The update's audio requests of the runtime, which the room objects' sounds and music join (#2057).</param>
-    /// <param name="thrown">The room's enemy projectiles, among which the projectiles the room objects throw spawn.</param>
+    /// <param name="outputs">
+    /// Where the room objects' step sends what it makes: the update's audio requests, which their sounds and music join
+    /// (#2057), and the room's enemy projectiles, among which the projectiles they throw spawn.
+    /// </param>
     internal RoomObjectSystem(RoomObjectRoom room, RoomObjectServices services, RoomObjectVisuals visuals,
         CollectibleBlockPairs collectibleBlockPairs, RoomObjectPlaces places, ShotOpenedCapClosing<LockedDoor> shotCapClosing,
-        GameplayAudioRequests audioRequests, RoomObjectThrownProjectileSpawners thrown)
+        RoomObjectOutputs outputs)
     {
         Ensure.NotNull(room);
         Ensure.NotNull(services);
-        Ensure.NotNull(thrown);
+        Ensure.NotNull(outputs);
+        RoomObjectThrownProjectileSpawners thrown = outputs.Thrown;
         Events = services.Events;
         Places = new RoomObjectPlaceList(places);
-        Sounds = new RoomObjectSoundQueue(audioRequests);
+        Sounds = new RoomObjectSoundQueue(outputs.AudioRequests);
         Drawing = new RoomObjectBlockDrawing(visuals);
         ProjectileTriggers = new ProjectileTriggerObjects(Places);
         BreakableTerrain = new EnemyBreakableTerrainObjects(Places);
@@ -206,7 +209,7 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     }
 
     /// <summary>The object at <paramref name="place"/> leaves the room, freeing its place.</summary>
-    internal void DeleteObject(RoomObjectPlace place) => Ensure.NotNull(place).Delete();
+
 
     /// <inheritdoc/>
     BlockReactionObjects IRoomObjects.BlockReactions => BlockReactions;
@@ -236,7 +239,7 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     GreyDoorObjects IRoomObjects.GreyDoors => GreyDoors;
 
     /// <inheritdoc/>
-    void IRoomObjects.DeleteObject(RoomObjectPlace place) => DeleteObject(place);
+    void IRoomObjects.DeleteObject(RoomObjectPlace place) => Ensure.NotNull(place).Delete();
 
     /// <inheritdoc/>
     BlockReactionObjects ISamusRoomObjects.BlockReactions => BlockReactions;

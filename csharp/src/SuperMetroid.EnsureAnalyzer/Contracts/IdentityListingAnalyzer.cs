@@ -110,6 +110,9 @@ public sealed class IdentityListingAnalyzer : DiagnosticAnalyzer
             case IConstantPatternOperation constant when IdentityMember(constant.Value) is { } member:
                 members.Add(member);
                 break;
+            default:
+                // A type, relational or declaration pattern, or a constant that is no identity member, names none.
+                break;
         }
     }
 

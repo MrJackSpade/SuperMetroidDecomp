@@ -77,7 +77,7 @@ internal sealed class RottingCorpseCells
     /// Each enemy whose frames show a rotting corpse, with the frames it shows one in and the corpses they rot: every frame
     /// of a dead monster's or the dead Torizo's, and Mother Brain's dead brain.
     /// </summary>
-    private static readonly IReadOnlyDictionary<EnemyDefinitionId, CorpseShowing> Showings = BuildShowings();
+    private static readonly Dictionary<EnemyDefinitionId, CorpseShowing> Showings = BuildShowings();
 
     /// <summary>The frames an enemy shows a rotting corpse in, and the corpses they rot.</summary>
     /// <param name="ShowsIn">Whether one of the enemy's frames shows the corpse.</param>

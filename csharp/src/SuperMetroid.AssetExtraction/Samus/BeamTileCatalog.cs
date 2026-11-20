@@ -56,7 +56,9 @@ public sealed class BeamTileCatalog : IInstalledArtworkContent
         SamusBeamCombination.PlasmaIceWave => InstalledArtworkId.BeamPlasmaIceWaveTiles,
         SuperMetroid.Core.Samus.Projectiles.ChainsawBeamGraphicsDefinitions.Selection => InstalledArtworkId.BeamChainsawTiles,
         SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamGraphicsDefinitions.Selection => InstalledArtworkId.BeamSpacetimeTiles,
-        _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no artwork."),
+        SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave =>
+            throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no artwork."),
+        _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination."),
     };
 
     /// <summary>The beam combination whose sheet a beam VRAM asset uploads: the inverse of <see cref="AssetFor"/>.</summary>

@@ -9,9 +9,9 @@ internal static class EtecoonRouteDefinitions
     /// </summary>
     internal static readonly IReadOnlyDictionary<EtecoonRoute, EtecoonRouteDefinition> Routes = new Dictionary<EtecoonRoute, EtecoonRouteDefinition>
     {
-        [EtecoonRoute.RunLeftToTeachingStart] = new(CallsOnWaking: true, TakesLongRun: false, RepeatsLessons: false),
-        [EtecoonRoute.RunRightToTeachingStart] = new(CallsOnWaking: false, TakesLongRun: false, RepeatsLessons: false),
-        [EtecoonRoute.TeachAtOnce] = new(CallsOnWaking: false, TakesLongRun: true, RepeatsLessons: true),
+        [EtecoonRoute.RunLeftToTeachingStart] = new(CriesOnWaking: true, TakesLongRun: false, RepeatsLessons: false),
+        [EtecoonRoute.RunRightToTeachingStart] = new(CriesOnWaking: false, TakesLongRun: false, RepeatsLessons: false),
+        [EtecoonRoute.TeachAtOnce] = new(CriesOnWaking: false, TakesLongRun: true, RepeatsLessons: true),
     };
 
     /// <summary>The teaching hops an Etecoon counts before the count empties (#2369).</summary>

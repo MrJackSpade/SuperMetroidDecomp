@@ -11,7 +11,7 @@ public static class RoomObjectBlueDoorVisualFiles
     /// The looks that show another look's artwork, with the look whose artwork each shows: the closed cap drawn solid shows
     /// the closed cap's, so it shares that frame's name.
     /// </summary>
-    private static readonly IReadOnlyDictionary<DoorCapLook, DoorCapLook> SharedPictures = new Dictionary<DoorCapLook, DoorCapLook>
+    private static readonly Dictionary<DoorCapLook, DoorCapLook> SharedPictures = new Dictionary<DoorCapLook, DoorCapLook>
     {
         [DoorCapLook.ClosedSolid] = DoorCapLook.Closed,
     };

@@ -15,7 +15,7 @@ public static class PauseEquipmentLabelKeys
         : PauseEquipmentControls.Upgrades.Single(control => control.Label == label).Anchor;
 
     /// <summary>The labels no selector control shows, by their JSON key: Hyper, which shows in the ordinary beam labels' place.</summary>
-    private static readonly IReadOnlyDictionary<PauseEquipmentLabelId, string> KeysApartFromControls = new Dictionary<PauseEquipmentLabelId, string>
+    private static readonly Dictionary<PauseEquipmentLabelId, string> KeysApartFromControls = new Dictionary<PauseEquipmentLabelId, string>
     {
         [PauseEquipmentLabelId.Hyper] = PauseEquipmentLabelArtworkDefinitions.HyperKey,
     };

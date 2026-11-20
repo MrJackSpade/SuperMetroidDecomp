@@ -32,11 +32,11 @@ public static class RoomObjectDraygonCannonVisualFiles
     /// of the cannon's core is written as its two rows, core row first; a frame reaching left splits its top row into the
     /// core and the cell to its left, then writes the lower row from its left end.
     /// </summary>
-    private static readonly IReadOnlyDictionary<HorizontalDirection, (Offset16<RoomBlocks>[] Starts, int[] Counts)> RowsByFacing =
-        new Dictionary<HorizontalDirection, (Offset16<RoomBlocks>[] Starts, int[] Counts)>
+    private static readonly Dictionary<HorizontalDirection, RoomObjectStripRuns> RowsByFacing =
+        new Dictionary<HorizontalDirection, RoomObjectStripRuns>
         {
-            [HorizontalDirection.Right] = ([new(0, 0), new(0, 1)], [2, 2]),
-            [HorizontalDirection.Left] = ([new(0, 0), new(-1, 0), new(-1, 1)], [1, 1, 2]),
+            [HorizontalDirection.Right] = new([new(0, 0), new(0, 1)], [2, 2]),
+            [HorizontalDirection.Left] = new([new(0, 0), new(-1, 0), new(-1, 1)], [1, 1, 2]),
         };
 
     /// <summary>The installed file holding the right- and left-facing cannon frames' pictures.</summary>

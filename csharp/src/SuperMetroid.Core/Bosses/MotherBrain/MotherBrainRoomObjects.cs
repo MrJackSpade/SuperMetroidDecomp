@@ -30,25 +30,27 @@ internal sealed class MotherBrainRoomObjects(RoomObjectPlaceList places)
             // The escape door's blocks become the door and its extensions at once, keeping their pictures until the
             // first draw changes them (#2496).
             foreach (RoomBlockShapeCell cell in setup.Cells)
-                CellSetups[cell.Collision](level, place.Block + cell.Cell);
+                SetUpCell(level, place.Block + cell.Cell, cell.Collision);
         }
     }
 
     /// <summary>The mutations that also set their blocks up, with the blocks they set up: the escape door's.</summary>
-    private static readonly IReadOnlyDictionary<MotherBrainRoomMutation, RoomBlockShape> BlockSetups =
+    private static readonly Dictionary<MotherBrainRoomMutation, RoomBlockShape> BlockSetups =
         new Dictionary<MotherBrainRoomMutation, RoomBlockShape>
         {
             [MotherBrainRoomMutation.EscapeDoor] = EscapeDoorSetup,
         };
 
     /// <summary>
-    /// How each block of a setup is set up, by how it collides: the door block leads through her escape door, and each
-    /// other block takes the behaviour its collision gives it (<see cref="EscapeDoorSetupBehaviors"/>).
+    /// Sets up <paramref name="block"/> of a setup, which collides as <paramref name="collision"/>: a block whose collision
+    /// gives it a behaviour takes that behaviour (<see cref="EscapeDoorSetupBehaviors"/>), and the door block, whose collision
+    /// gives none, leads through her escape door.
     /// </summary>
-    private static readonly IReadOnlyDictionary<RoomCollisionType, Action<RoomLevelData, Position16<RoomBlocks>>> CellSetups =
-        EscapeDoorSetupBehaviors.ToDictionary(entry => entry.Key, entry => (Action<RoomLevelData, Position16<RoomBlocks>>)((level, block) =>
-                level.SetObjectCollisionAndBehavior(block, entry.Key, entry.Value)))
-            .Append(KeyValuePair.Create(RoomCollisionType.DoorBlock, (Action<RoomLevelData, Position16<RoomBlocks>>)((level, block) =>
-                RoomObjectLevelWrites.WriteDoorBlock(level, block, MotherBrainDeathDefinitions.EscapeDoor))))
-            .ToDictionary();
+    private static void SetUpCell(RoomLevelData level, Position16<RoomBlocks> block, RoomCollisionType collision)
+    {
+        if (EscapeDoorSetupBehaviors.TryGetValue(collision, out RoomBlockBehavior behavior))
+            level.SetObjectCollisionAndBehavior(block, collision, behavior);
+        else
+            RoomObjectLevelWrites.WriteDoorBlock(level, block, MotherBrainDeathDefinitions.EscapeDoor);
+    }
 }

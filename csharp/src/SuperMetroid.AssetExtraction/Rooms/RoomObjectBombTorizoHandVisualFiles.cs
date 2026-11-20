@@ -15,11 +15,11 @@ public static class RoomObjectBombTorizoHandVisualFiles
     /// and the one right of it, the block left of it, the pair above and the three below; the cleared hand splits the
     /// hand's row into its right and left halves, then writes the rows below, at the top and above.
     /// </summary>
-    private static readonly IReadOnlyDictionary<BombTorizoHandDraw, (Offset16<RoomBlocks>[] Starts, int[] Counts)> Strips =
-        new Dictionary<BombTorizoHandDraw, (Offset16<RoomBlocks>[] Starts, int[] Counts)>
+    private static readonly Dictionary<BombTorizoHandDraw, RoomObjectStripRuns> Strips =
+        new Dictionary<BombTorizoHandDraw, RoomObjectStripRuns>
         {
-            [BombTorizoHandDraw.Intact] = ([new(0, 0), new(-1, 0), new(0, -1), new(-1, 1)], [2, 1, 2, 3]),
-            [BombTorizoHandDraw.Cleared] = ([new(0, 0), new(-2, 0), new(-2, 1), new(-2, -2), new(-2, -1)], [2, 2, 4, 4, 4]),
+            [BombTorizoHandDraw.Intact] = new([new(0, 0), new(-1, 0), new(0, -1), new(-1, 1)], [2, 1, 2, 3]),
+            [BombTorizoHandDraw.Cleared] = new([new(0, 0), new(-2, 0), new(-2, 1), new(-2, -2), new(-2, -1)], [2, 2, 4, 4, 4]),
         };
 
     /// <summary>Editable Bomb Torizo hand PLM visual JSON filename.</summary>

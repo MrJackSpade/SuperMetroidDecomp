@@ -517,7 +517,7 @@ public static class SamusGrappleSwing
         IReadOnlyDictionary<SpikeReaction, int> damages = block == SwingSpikeBlock.Solid
             ? SamusGrappleSpikeDefinitions.SolidBlockSwingDamage
             : SamusGrappleSpikeDefinitions.PlainBlockSwingDamage;
-        if (!damages.TryGetValue(reaction, out int damage))
+        if (reaction is not { } spike || !damages.TryGetValue(spike, out int damage))
             return;
 
         samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(damage));

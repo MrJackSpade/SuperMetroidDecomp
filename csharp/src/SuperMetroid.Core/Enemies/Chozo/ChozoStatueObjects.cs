@@ -48,7 +48,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     {
         Ensure.NotNull(level);
         RoomBlockBehavior behavior = level.GetCollisionBlock(block).Behavior;
-        if (ChozoStatueSiteDefinitions.Sites.Values.FirstOrDefault(site => site.Area == _area && site.HandBehavior == behavior) is not { } site)
+        if (ChozoStatueSiteDefinitions.Sites.Values.SingleOrDefault(site => site.Area == _area && site.HandBehavior == behavior) is not { } site)
             return;
         // The hand block is solid whether or not the touch is admitted. Samus morphed facing left is not admitted; only
         // these three poses are.

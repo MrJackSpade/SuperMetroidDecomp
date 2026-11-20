@@ -38,7 +38,8 @@ internal static class MotherBrainGlassShardDefinitionsVerification
                 enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
                 enemies.MotherBrainBehavior.Projectiles.SpawnMotherBrainGlassProjectile(new(
                     direction,
-                    RoomObjectBlock: new(0x20, 0x08)));
+                    RoomObjectBlock: new(0x20, 0x08),
+                    Spawner: enemies.MotherBrainBehavior.Projectiles));
 
                 EnemyProjectile shard =
                     enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);

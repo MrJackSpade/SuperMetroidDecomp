@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// Whether a bomb's blast only reports passing or stopping at the kind's blocks, spawning no room object and changing no
 /// terrain.
 /// </param>
+[IndependentFlag("independent facts of one collision kind: whether bombs pass it and whether a bomb leaves it alone")]
 internal sealed record RoomCollisionTypeDefinition(
     RoomCollisionBehaviorKind Behavior,
     BlockReactionFamily? Reactions,

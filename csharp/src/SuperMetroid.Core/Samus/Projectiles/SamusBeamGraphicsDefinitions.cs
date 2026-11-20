@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>
 /// The beam combinations with beam graphics of their own (#1736), each with the combination whose shade its beams show:
 /// the twelve combinations equipment makes, each in its own shade; the Chainsaw beam, which shows the shade of the
-/// combination it shares its colours with; and the SpaceTime beam, in its own. Spazer with Plasma, alone or with Ice and
+/// combination it shares its colours with; and the Spacetime beam, in its own. Spazer with Plasma, alone or with Ice and
 /// Wave together, has no beam graphics.
 /// </summary>
 internal static class SamusBeamGraphicsDefinitions

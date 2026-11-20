@@ -8,5 +8,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// from its first update.
 /// </param>
 /// <param name="KeepsUpdatingOffScreen">Whether the piece keeps updating while it is off screen.</param>
+[IndependentFlag("whether a falling tube piece keeps updating off screen is a fact of that piece, independent of its other values")]
 internal readonly record struct MotherBrainFallingTubeDefinition(Extent16<RoomPixels> Radius, int Floor, int? FallWaitUpdates = null,
     bool KeepsUpdatingOffScreen = false);

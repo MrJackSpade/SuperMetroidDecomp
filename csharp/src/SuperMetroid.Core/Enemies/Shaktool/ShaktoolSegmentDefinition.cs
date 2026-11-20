@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// <param name="CollisionAnimation">The head bob the segment plays as the chain recovers from striking a wall.</param>
 /// <param name="AnchorsChain">Whether the segment is the chain's fixed anchor rather than centred on the segment before it.</param>
 /// <param name="IsSaw">Whether the segment is one of the chain's two saws, which the swap's fractions of a pixel pass by.</param>
+[IndependentFlag("independent roles of one segment: whether it anchors the chain and whether it is the saw")]
 internal readonly record struct ShaktoolSegmentDefinition(
     EnemyProcessing Processing,
     EnemyContact Contact,

@@ -21,7 +21,7 @@ public static class RoomObjectEyeDoorVisualFiles
     /// The frames that show another frame's picture, with the frame whose picture each shows: the mirrored opening clear
     /// shows the left clear's, so the installed file holds 23 frames.
     /// </summary>
-    private static readonly IReadOnlyDictionary<RoomObjectDraw, RoomObjectDraw> SharedPictures = new Dictionary<RoomObjectDraw, RoomObjectDraw>
+    private static readonly Dictionary<RoomObjectDraw, RoomObjectDraw> SharedPictures = new Dictionary<RoomObjectDraw, RoomObjectDraw>
     {
         [EyeDoorObjectDrawDefinitions.MirroredOpeningClear] = EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, EyeDoorOrientation.Left)),
     };
@@ -30,7 +30,7 @@ public static class RoomObjectEyeDoorVisualFiles
     /// The published key of each frame with a picture of its own (#1994): the shared clear picture once, then each side's
     /// looks by side and look.
     /// </summary>
-    private static readonly IReadOnlyDictionary<RoomObjectDraw, string> VisualKeys = PublishedKeys();
+    private static readonly Dictionary<RoomObjectDraw, string> VisualKeys = PublishedKeys();
 
     /// <summary>The eye-door as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =

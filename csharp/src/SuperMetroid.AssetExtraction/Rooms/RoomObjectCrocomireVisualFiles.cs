@@ -24,7 +24,7 @@ public static class RoomObjectCrocomireVisualFiles
     ]);
 
     /// <summary>The frames that write one of the arena's invisible walls; every other frame writes along the bridge's row.</summary>
-    private static readonly IReadOnlySet<CrocomireArenaDraw> WallFrames = new HashSet<CrocomireArenaDraw>
+    private static readonly HashSet<CrocomireArenaDraw> WallFrames = new HashSet<CrocomireArenaDraw>
     {
         CrocomireArenaDraw.ClearInvisibleWall,
         CrocomireArenaDraw.CreateInvisibleWall,

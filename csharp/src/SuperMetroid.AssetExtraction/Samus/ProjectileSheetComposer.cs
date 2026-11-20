@@ -165,8 +165,7 @@ internal static class ProjectileSheetComposer
         /// <inheritdoc/>
         internal override SpriteArtwork BasePage(SamusSheetInputs inputs) => IntroObjectPage.Of(inputs.Intro);
 
-        // The intro loads the beam palette, then its whole palette over it.
-        /// <inheritdoc/>
+        /// <summary>The intro's colours: it loads the beam palette, then its whole palette over it.</summary>
         internal override RgbColor[] Colours(SamusSheetInputs inputs) => [.. inputs.Intro.Palette.SpriteColours];
     }
 }

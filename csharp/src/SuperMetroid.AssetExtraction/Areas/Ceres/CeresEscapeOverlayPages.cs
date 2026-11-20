@@ -37,13 +37,18 @@ internal static class CeresEscapeOverlayPages
     /// Each overlay's wording and the eight-pixel rows its glyphs stand: one for the title, two for a subtitle line, whose
     /// sixteen-pixel glyphs are an upper and a lower row.
     /// </summary>
-    private static readonly IReadOnlyDictionary<CeresEscapeWarningPicture, (string Text, int GlyphRows)> Wordings =
-        new Dictionary<CeresEscapeWarningPicture, (string Text, int GlyphRows)>
+    private static readonly Dictionary<CeresEscapeWarningPicture, OverlayWording> Wordings =
+        new Dictionary<CeresEscapeWarningPicture, OverlayWording>
         {
-            [Emergency] = (EmergencyText, TitleGlyphRows),
-            [JapaneseSelfDestructLine] = (JapaneseSelfDestructText, SubtitleGlyphRows),
-            [JapaneseEscapeLine] = (JapaneseEscapeText, SubtitleGlyphRows),
+            [Emergency] = new(EmergencyText, TitleGlyphRows),
+            [JapaneseSelfDestructLine] = new(JapaneseSelfDestructText, SubtitleGlyphRows),
+            [JapaneseEscapeLine] = new(JapaneseEscapeText, SubtitleGlyphRows),
         };
+
+    /// <summary>An overlay's wording and the eight-pixel rows its glyphs stand.</summary>
+    /// <param name="Text">The wording the overlay spells.</param>
+    /// <param name="GlyphRows">The eight-pixel rows its glyphs stand.</param>
+    private sealed record OverlayWording(string Text, int GlyphRows);
 
     /// <summary>The authored wording one page spells: the title, or a subtitle line.</summary>
     /// <exception cref="KeyNotFoundException"><paramref name="page"/> is not one of the overlays.</exception>

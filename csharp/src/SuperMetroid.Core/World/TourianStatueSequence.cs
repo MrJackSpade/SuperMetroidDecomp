@@ -223,7 +223,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
         /// <inheritdoc/>
         public void BlackOutEyes() =>
             // The statue shows its eye colours blacked out, then its grey, as the shades the import pre-colours (#1512).
-            sequence._statue.ShowStatueLook(definition.ClearedShade, definition.DrawnInRoomBackground);
+            sequence._statue.ShowStatueLook(definition.ClearedShade, DrawnInRoomBackground);
 
         /// <inheritdoc/>
         public void SpawnEyeGlow() => sequence._statue.SpawnEyeGlow(definition.Eye);
@@ -250,7 +250,13 @@ public sealed class TourianStatueSequence : IDisplayLatch
         public void FinishRelease() => sequence._statue.Animation.FinishRelease(TourianGreyStatueSets.Alone[definition.Statue]);
 
         /// <inheritdoc/>
-        public void TurnGrey() => sequence._statue.ShowStatueLook(definition.GreyShade, definition.DrawnInRoomBackground);
+        public void TurnGrey() => sequence._statue.ShowStatueLook(definition.GreyShade, DrawnInRoomBackground);
+
+        /// <summary>
+        /// Whether the statue is drawn in the room's background, as Kraid's and Draygon's are, so that its looks show over
+        /// the room's pictures rather than over the scene's sprites: a statue with no sprite statue of its own is.
+        /// </summary>
+        private bool DrawnInRoomBackground => definition.GreyedSprite is null;
 
         /// <summary>The statue's animation <paramref name="animation"/>, from its start.</summary>
         private AnimationContinuation<TourianStatueBlockSegment> Start(TourianStatueBlockSegment animation) =>

@@ -14,16 +14,16 @@ public static class RoomObjectChozoStatueVisualFiles
     /// The strips both slope-access frames are written as: the ledge, the fill five rows below it, and the step below the
     /// fill's sixth block, one row at a time.
     /// </summary>
-    private static readonly (Offset16<RoomBlocks>[] Starts, int[] Counts) SlopeAccessStrips =
-        ([new(0, 0), new(0, 5), new(5, 6), new(5, 7), new(5, 8)], [14, 9, 2, 1, 1]);
+    private static readonly RoomObjectStripRuns SlopeAccessStrips =
+        new([new(0, 0), new(0, 5), new(5, 6), new(5, 7), new(5, 8)], [14, 9, 2, 1, 1]);
 
     /// <summary>Each statue frame's strips, where each starts and how many blocks long: the cleared hand is written as its one block.</summary>
-    private static readonly IReadOnlyDictionary<ChozoStatueDraw, (Offset16<RoomBlocks>[] Starts, int[] Counts)> Strips =
-        new Dictionary<ChozoStatueDraw, (Offset16<RoomBlocks>[] Starts, int[] Counts)>
+    private static readonly Dictionary<ChozoStatueDraw, RoomObjectStripRuns> Strips =
+        new Dictionary<ChozoStatueDraw, RoomObjectStripRuns>
         {
             [ChozoStatueDraw.ClearSlopeAccess] = SlopeAccessStrips,
             [ChozoStatueDraw.BlockSlopeAccess] = SlopeAccessStrips,
-            [ChozoStatueDraw.LowerNorfairClearedHand] = ([new(0, 0)], [1]),
+            [ChozoStatueDraw.LowerNorfairClearedHand] = new([new(0, 0)], [1]),
         };
 
     /// <summary>JSON filename for the cleared Chozo hand and Wrecked Ship slope-access appearances.</summary>

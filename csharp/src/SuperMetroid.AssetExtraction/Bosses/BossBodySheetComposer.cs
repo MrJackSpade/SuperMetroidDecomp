@@ -52,7 +52,7 @@ internal static class BossBodySheetComposer
     /// The bosses whose body layer gameplay also shades from the room and the menus' colours, with those shades: Mother
     /// Brain's body layer; every other body has only the shades of its own colours.
     /// </summary>
-    private static readonly IReadOnlyDictionary<BossBodyOwner, Func<RoomBlockSheetInputs, IReadOnlyList<SheetShade>>> LayerShades =
+    private static readonly Dictionary<BossBodyOwner, Func<RoomBlockSheetInputs, IReadOnlyList<SheetShade>>> LayerShades =
         new Dictionary<BossBodyOwner, Func<RoomBlockSheetInputs, IReadOnlyList<SheetShade>>>
         {
             [BossBodyOwner.MotherBrain] = inputs => MotherBrainSheetShades.BodyLayer(inputs.Maps, inputs.Bosses),

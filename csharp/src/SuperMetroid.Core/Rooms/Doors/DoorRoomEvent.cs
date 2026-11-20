@@ -24,7 +24,7 @@ public abstract class DoorRoomEvent
     internal virtual void Run(IDoorEventRoom room) => Ensure.NotNull(room);
 
     /// <summary>Whether the event starts the Wrecked Ship's treadmill, whose setup blocks the room's entrance then holds.</summary>
-    internal virtual bool StartsTreadmill => false;
+    internal virtual bool StartsWreckedShipTreadmill => false;
 
     /// <inheritdoc/>
     public override string ToString() => Name;
@@ -89,7 +89,7 @@ public abstract class DoorRoomEvent
     private sealed class TreadmillStarted(WreckedShipTreadmillDirection direction) : DoorRoomEvent($"StartsTreadmill{direction}")
     {
         /// <inheritdoc/>
-        internal override bool StartsTreadmill => true;
+        internal override bool StartsWreckedShipTreadmill => true;
 
         /// <inheritdoc/>
         /// <remarks>

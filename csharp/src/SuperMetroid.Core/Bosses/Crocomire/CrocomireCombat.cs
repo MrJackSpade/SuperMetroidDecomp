@@ -217,13 +217,13 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>The touch reactions that push Samus back as well as hurting her, with the push: his claws'.</summary>
-    private static readonly IReadOnlyDictionary<EnemyReaction, int> TouchPushes = new Dictionary<EnemyReaction, int>
+    private static readonly Dictionary<EnemyReaction, int> TouchPushes = new Dictionary<EnemyReaction, int>
     {
         [CrocomireReactions.ClawTouch] = CrocomireFightDefinitions.ClawPush,
     };
 
     /// <summary>The steps a weapon striking his mouth on screen pushes him back by; a weapon not listed pushes nothing.</summary>
-    private static readonly IReadOnlyDictionary<SamusProjectileFamily, int> MouthPushSteps = new Dictionary<SamusProjectileFamily, int>
+    private static readonly Dictionary<SamusProjectileFamily, int> MouthPushSteps = new Dictionary<SamusProjectileFamily, int>
     {
         [SamusProjectileFamily.Beam] = CrocomireFightDefinitions.ChargedBeamSteps,
         [SamusProjectileFamily.Missile] = CrocomireFightDefinitions.MissileSteps,

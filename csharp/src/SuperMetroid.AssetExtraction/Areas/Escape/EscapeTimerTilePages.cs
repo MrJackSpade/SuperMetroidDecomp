@@ -14,7 +14,7 @@ public static class EscapeTimerTilePages
     };
 
     /// <summary>Each timer page, by the typed tile asset installed for it.</summary>
-    private static readonly IReadOnlyDictionary<InstalledArtworkId, EscapeTimerTilePage> PagesByAsset =
+    private static readonly Dictionary<InstalledArtworkId, EscapeTimerTilePage> PagesByAsset =
         Enum.GetValues<EscapeTimerTilePage>().ToDictionary(AssetOf);
 
     /// <summary>The timer page <paramref name="asset"/> is installed for, when it is one.</summary>

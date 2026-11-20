@@ -303,8 +303,8 @@ internal sealed class SamusPresentation
             case SamusAnimationTurnTransition turn:
                 // A jump the pose input already selected survives the turn's final frame; checking held Jump instead
                 // would accept inputs the pose input never matched.
-                if (!samus.Control.InputLocked && !demoPoseInput && prospectiveInputPose is { } selected &&
-                    SamusPoseTraits.IsIn(selected, SamusPoseFamily.JumpLaunch))
+                if (!samus.Control.InputLocked && !demoPoseInput && prospectiveInputPose is { } selectedJump &&
+                    SamusPoseTraits.IsIn(selectedJump, SamusPoseFamily.JumpLaunch))
                     return;
                 if (!samus.Control.InputLocked && !demoPoseInput) samus.InputSnapshot.AutoJump.Install();
                 // The transition neither selects a new delay nor advances the shown frame; the pose transitions that

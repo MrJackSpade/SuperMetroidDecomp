@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// One ending reward's post-credits presentation (#1513): what Samus is dressed in and the sheet her actors draw from,
 /// the colour groups its reveal fades in, and the actors its idle pose, gesture and jump spawn.
 /// </summary>
-/// <param name="Dress">What the reward dresses Samus in, whose characters her post-credits actors draw from.</param>
+/// <param name="Dress">What the reward dresses Samus in, whose pictures her post-credits actors draw from.</param>
 /// <param name="Sheet">The sheet of the post-credits Samus the reward shows, until she falls, and of the shooting stars.</param>
 /// <param name="RevealFades">
 /// The colour groups the reveal crossfades the waiting backdrop into, in fade order; none for a reward that shows its own

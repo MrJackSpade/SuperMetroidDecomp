@@ -412,7 +412,7 @@ internal static class LookupStream1Verification
         var uploads = new SpriteArtworkPlacements();
         AssertTrue(stock.TryRecordNativeTransfer(uploads, 0xb0c000, 512, 0x7e00) && stock.TryRecordNativeTransfer(uploads, 0xb0c200, 288, 0x7f00), "Both synchronous native uploads accepted");
         AssertTrue(uploads.Uploads.Select(upload => upload.FirstByte).SequenceEqual([0x3c00, 0x3e00]) &&
-            ((byte[])[.. EscapeTimerTilePageTransfers.Resolve(stock, InstalledArtworkId.EscapeTimerFirstTiles).Span, .. EscapeTimerTilePageTransfers.Resolve(stock, InstalledArtworkId.EscapeTimerSecondTiles).Span]).SequenceEqual(native),
+            ((byte[])[.. EscapeTimerTilePageTransfers.Resolve(stock, EscapeTimerTilePage.First).Span, .. EscapeTimerTilePageTransfers.Resolve(stock, EscapeTimerTilePage.Second).Span]).SequenceEqual(native),
             "The two synchronous pages show the native bytes where they land in the OBJ characters");
         AssertTrue(stock.TryResolve(0xb0c000, 512, out var first) && first.Span.SequenceEqual(native.AsSpan(0, 512)), "First restored native page resolution");
         AssertTrue(stock.TryResolve(0xb0c200, 288, out var second) && second.Span.SequenceEqual(native.AsSpan(512)), "Second restored native page resolution");

@@ -46,7 +46,7 @@ internal static class RoomFxBlendSheetShades
     private static int FirstInkOf(RoomEffectTint blend) => InkRunsApart.TryGetValue(blend, out int first) ? first : FirstInk;
 
     /// <summary>The blends whose colour run starts elsewhere than the first blend ink, with the ink it starts at: the empty blend's.</summary>
-    private static readonly IReadOnlyDictionary<RoomEffectTint, int> InkRunsApart = new Dictionary<RoomEffectTint, int>
+    private static readonly Dictionary<RoomEffectTint, int> InkRunsApart = new Dictionary<RoomEffectTint, int>
     {
         [RoomEffectTint.None] = ClearedInk,
     };

@@ -59,7 +59,7 @@ internal static class PaletteFxRoomShades
     /// The areas whose every room's pictures show colour objects no FX record names, with those objects: Tourian's, whose
     /// statue room spawns the bosses' statue grey-outs.
     /// </summary>
-    private static readonly IReadOnlyDictionary<AreaId, ImmutableArray<ColourEffectId>> AreaColourEffects =
+    private static readonly Dictionary<AreaId, ImmutableArray<ColourEffectId>> AreaColourEffects =
         new Dictionary<AreaId, ImmutableArray<ColourEffectId>>
         {
             [AreaId.Tourian] = StatueGreyOuts,

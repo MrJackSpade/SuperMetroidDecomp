@@ -82,7 +82,7 @@ internal static class BossSheetShades
         ReadOnlySpan<RgbColor> standard);
 
     /// <summary>Each boss whose body sheet gameplay shades, with how it is shaded; every other body sheet has no shades.</summary>
-    private static readonly IReadOnlyDictionary<BossBodyOwner, BodyShading> BodyShades = new Dictionary<BossBodyOwner, BodyShading>
+    private static readonly Dictionary<BossBodyOwner, BodyShading> BodyShades = new Dictionary<BossBodyOwner, BodyShading>
     {
         [BossBodyOwner.Draygon] = (bosses, _, _) => DraygonBackground(bosses),
         [BossBodyOwner.Phantoon] = (bosses, _, _) => PhantoonSheetShades.Body(bosses),
@@ -112,7 +112,7 @@ internal static class BossSheetShades
     /// Each boss whose spawned objects show his shades wherever they are drawn (#1513), with those shades; the objects every
     /// other enemy spawns show none.
     /// </summary>
-    private static readonly IReadOnlyDictionary<EnemyDefinitionId, Func<BossSourceArtwork, IReadOnlyList<SheetShade>>> SpawnedObjectShades =
+    private static readonly Dictionary<EnemyDefinitionId, Func<BossSourceArtwork, IReadOnlyList<SheetShade>>> SpawnedObjectShades =
         new Dictionary<EnemyDefinitionId, Func<BossSourceArtwork, IReadOnlyList<SheetShade>>>
         {
             [EnemyDefinitionId.Botwoon] = bosses => [.. Botwoon(bosses, BotwoonRow * LoadedSetColours.RowColours)],
@@ -129,7 +129,7 @@ internal static class BossSheetShades
     /// Each boss whose spawned objects show his shades in a row his fight loads (#1513), with those row shades over the
     /// loaded colours; the objects every other enemy spawns show none.
     /// </summary>
-    private static readonly IReadOnlyDictionary<EnemyDefinitionId, Func<BossSourceArtwork, LoadedSetColours, IReadOnlyList<SheetRowShade>>> SpawnedRowShades =
+    private static readonly Dictionary<EnemyDefinitionId, Func<BossSourceArtwork, LoadedSetColours, IReadOnlyList<SheetRowShade>>> SpawnedRowShades =
         new Dictionary<EnemyDefinitionId, Func<BossSourceArtwork, LoadedSetColours, IReadOnlyList<SheetRowShade>>>
         {
             [EnemyDefinitionId.Crocomire] = CrocomireProjectiles,
@@ -168,7 +168,7 @@ internal static class BossSheetShades
     /// his death arm.
     /// </summary>
     /// <exception cref="InvalidDataException">His colours are not installed, or an eye colour is not unique on his picture.</exception>
-    private static IReadOnlyList<SheetShade> KraidBody(BossSourceArtwork bosses, ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<RgbColor> standard)
+    private static List<SheetShade> KraidBody(BossSourceArtwork bosses, ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<RgbColor> standard)
     {
         KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's body is shaded from the installed Kraid colours.");
         var shades = new List<SheetShade>();

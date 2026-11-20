@@ -29,7 +29,10 @@ internal sealed class EnemyTileTransfers(ImportEnemyArtwork installed,
 
     /// <summary>Resolves an escape-timer page from the supplied atlas; enemy tile fixtures queue no other asset.</summary>
     public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
-        timer is null ? throw new InvalidOperationException($"Enemy tile fixtures queue no asset {asset}.") : EscapeTimerTilePageTransfers.Resolve(timer, asset);
+        timer is null ? throw new InvalidOperationException($"Enemy tile fixtures queue no asset {asset}.") : EscapeTimerTilePageTransfers.Resolve(timer,
+            EscapeTimerTilePages.TryPageOf(asset, out EscapeTimerTilePage page)
+                ? page
+                : throw new ArgumentOutOfRangeException(nameof(asset), asset, "Enemy tile fixtures queue only the escape timer's pages."));
 
     /// <summary>Resolves a native Ceres or Torizo transfer, in the runtime artwork's order; enemy tiles are named by identity (#1412).</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)

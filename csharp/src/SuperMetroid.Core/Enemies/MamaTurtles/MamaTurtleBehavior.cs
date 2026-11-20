@@ -10,21 +10,17 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>The mama turtle species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySpawnFactory<BabyTurtleSpawnSettings>
+internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyTurtle, EnemyDefinitionId.MamaTurtle];
-
-    /// <summary>The mama turtle, or one of her babies (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no mama turtle definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, BabyTurtleSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// <summary>The mama turtle, or one of her babies, from its settings (#2146).</summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void Register(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.MamaTurtle)
-            return EnemyOccupant.Running(new MamaTurtleEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.BabyTurtle)
-            return EnemyOccupant.Running(new BabyTurtleEntity(this, occupant, place, common, settings));
-        throw new InvalidOperationException($"The mama turtle species creates no {occupant.DefinitionId}.");
+        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>([EnemyDefinitionId.MamaTurtle], (occupant, _, place, common) =>
+            EnemyOccupant.Running(new MamaTurtleEntity(this, occupant, place, common)));
+        registrar.Spawns<BabyTurtleSpawnSettings>([EnemyDefinitionId.BabyTurtle], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new BabyTurtleEntity(this, occupant, place, common, settings)));
     }
 
     /// <summary>Moves parent and children against room blocks during hover, fall, and crawling.</summary>

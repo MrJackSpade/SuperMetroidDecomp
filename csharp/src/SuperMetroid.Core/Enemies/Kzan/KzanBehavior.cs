@@ -5,21 +5,17 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>The Kzan species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class KzanBehavior : IEnemySpecies, IEnemySpawnFactory<KzanSpawnSettings>
+internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.KzanBottom, EnemyDefinitionId.KzanTop];
-
-    /// <summary>A Kzan's top, or the bottom that follows it (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Kzan definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, KzanSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// <summary>A Kzan's top, from its settings, or the bottom that follows it (#2146).</summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void Register(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.KzanTop)
-            return EnemyOccupant.Running(new KzanTopEntity(this, occupant, place, common, settings));
-        if (definition == EnemyDefinitionId.KzanBottom)
-            return EnemyOccupant.Of(new KzanBottomEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The Kzan species creates no {occupant.DefinitionId}.");
+        Ensure.NotNull(registrar).Spawns<KzanSpawnSettings>([EnemyDefinitionId.KzanTop], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new KzanTopEntity(this, occupant, place, common, settings)));
+        registrar.Spawns<EnemySpawnSettings>([EnemyDefinitionId.KzanBottom], (occupant, _, place, common) =>
+            EnemyOccupant.Of(new KzanBottomEntity(this, occupant, place, common)));
     }
 
     /// <summary>The room's enemy places, where each bottom finds its top when it is placed.</summary>

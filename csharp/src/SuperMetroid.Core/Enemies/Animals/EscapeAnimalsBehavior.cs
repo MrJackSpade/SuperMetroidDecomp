@@ -9,21 +9,17 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The escape animals species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemySpawnFactory<EscapeEtecoonSpawnSettings>
+internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.EtecoonEscape, EnemyDefinitionId.DachoraEscape];
-
-    /// <summary>An escaping Etecoon, or the escaping Dachora (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no escape animals definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, EscapeEtecoonSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// <summary>An escaping Etecoon, from its settings, or the escaping Dachora (#2146).</summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void Register(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.EtecoonEscape)
-            return EnemyOccupant.Running(new EscapeEtecoonEntity(this, occupant, place, common, settings));
-        if (definition == EnemyDefinitionId.DachoraEscape)
-            return EnemyOccupant.PlacedOnly(new EscapeDachoraEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The escape animals species creates no {occupant.DefinitionId}.");
+        Ensure.NotNull(registrar).Spawns<EscapeEtecoonSpawnSettings>([EnemyDefinitionId.EtecoonEscape], (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new EscapeEtecoonEntity(this, occupant, place, common, settings)));
+        registrar.Spawns<EnemySpawnSettings>([EnemyDefinitionId.DachoraEscape], (occupant, _, place, common) =>
+            EnemyOccupant.PlacedOnly(new EscapeDachoraEntity(this, occupant, place, common)));
     }
 
     /// <summary>Provides room events and live Samus state used by both escape-animal branches.</summary>

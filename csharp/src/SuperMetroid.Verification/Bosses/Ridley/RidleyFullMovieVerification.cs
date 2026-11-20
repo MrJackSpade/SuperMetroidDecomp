@@ -644,7 +644,7 @@ internal static class RidleyFullMovieVerification
                 AssertEqual(source, menu.ScreenMode, "source page remains through fade-out");
                 AssertEqual(15 - update, menu.TransitionBrightness, "native zero-delay fade-out brightness");
             }
-            AssertEqual(source == PauseScreenMode.Map ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad,
+            AssertEqual(new PausePageTransition(destination, PausePageTransitionStage.Load),
                 menu.Transition, "black frame returns into separate load dispatcher");
             menu.Step(0, 0);
             AssertEqual(destination, menu.ScreenMode, "separate load dispatch installs destination");

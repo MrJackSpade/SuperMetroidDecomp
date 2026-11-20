@@ -35,8 +35,8 @@ internal static class PausePresentationContractChecks
                     backdrop.LoadTo(tilemap, AreaId.Ceres);
                     backdrop.LoadTo(tilemap, (AreaId)99);
                     backdrop.CreateButtonTilemap();
-                    wireframe.ApplyTo(page, PauseWireframeKind.VariaSuitHiJump);
-                    wireframe.ApplyTo(page, (PauseWireframeKind)99);
+                    wireframe.ApplyTo(page, new PauseWireframe(PauseWireframeSuit.VariaSuit, PauseWireframeBoots.HiJumpBoots));
+                    wireframe.ApplyTo(page, new PauseWireframe((PauseWireframeSuit)99, PauseWireframeBoots.RegularBoots));
                     labels.ApplyInventory(page, 0, 0, 0, 0, false);
                     selector.Draw(oam, sheet, PauseEquipmentControls.SpaceJump, look);
                     selector.Draw(oam, sheet, PauseEquipmentControls.Boots[^1], look);

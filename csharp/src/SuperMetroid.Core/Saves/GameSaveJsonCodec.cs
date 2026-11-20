@@ -21,6 +21,20 @@ public static class GameSaveJsonCodec
     private static readonly DefeatedBosses AllDefeatableBosses =
         Enum.GetValues<DefeatedBosses>().Aggregate((left, right) => left | right);
 
+    /// <summary>
+    /// The save's <c>japaneseText</c> field for each text language (#2560): the one map between a slot's language and the
+    /// field saves have always kept for it, read in both directions.
+    /// </summary>
+    private static readonly FrozenDictionary<TextLanguage, bool> SavedJapaneseText = new Dictionary<TextLanguage, bool>
+    {
+        [TextLanguage.English] = false,
+        [TextLanguage.Japanese] = true,
+    }.ToFrozenDictionary();
+
+    /// <summary>The text language each value of a save's <c>japaneseText</c> field names: <see cref="SavedJapaneseText"/> read back.</summary>
+    private static readonly FrozenDictionary<bool, TextLanguage> SavedLanguages =
+        SavedJapaneseText.ToFrozenDictionary(entry => entry.Value, entry => entry.Key);
+
     /// <summary>Captures all meaningful persistent state without a duplicate raw save-memory image.</summary>
     public static GameSaveJsonDocument Capture(SaveSlotStore saves)
     {
@@ -36,8 +50,7 @@ public static class GameSaveJsonCodec
         {
             SelectedSlot = SlotNumber(saves.ReadSelectedSlot()),
             Slots = slots,
-            GameCompleted = saves.History == SaveFileHistory.GameCompleted,
-            PowerOnFoundNoValidSave = saves.History == SaveFileHistory.PowerOnFoundNoValidSave,
+            History = saves.History,
         };
     }
 
@@ -93,9 +106,7 @@ public static class GameSaveJsonCodec
                 saves.SaveSlot(SlotAt(slotIndex), ToSnapshot(slot));
         }
         saves.SelectSlot(SlotAt(document.SelectedSlot));
-        saves.RestoreHistory(document.GameCompleted ? SaveFileHistory.GameCompleted
-            : document.PowerOnFoundNoValidSave ? SaveFileHistory.PowerOnFoundNoValidSave
-            : SaveFileHistory.None);
+        saves.RestoreHistory(document.History);
         return saves;
     }
 
@@ -137,7 +148,7 @@ public static class GameSaveJsonCodec
         HudItem = slot.HudItem,
         MoonwalkEnabled = slot.MoonwalkEnabled,
         IconCancelEnabled = slot.IconCancelEnabled,
-        JapaneseText = slot.Language == TextLanguage.Japanese,
+        JapaneseText = Ensure.Listed(SavedJapaneseText, slot.Language),
         StartupRoute = slot.StartupRoute,
         Progression = CaptureProgression(slot.Progression),
     };
@@ -174,7 +185,7 @@ public static class GameSaveJsonCodec
             ControllerBindings = bindings,
             MoonwalkEnabled = slot.MoonwalkEnabled,
             IconCancelEnabled = slot.IconCancelEnabled,
-            Language = slot.JapaneseText ? TextLanguage.Japanese : TextLanguage.English,
+            Language = SavedLanguages[slot.JapaneseText],
             StartupRoute = slot.StartupRoute,
             EquippedItems = slot.Inventory.EquippedItems,
             CollectedItems = slot.Inventory.CollectedItems,
@@ -229,8 +240,6 @@ public static class GameSaveJsonCodec
             throw new InvalidDataException("selectedSlot must be 0, 1, or 2");
         if (document.Slots is null || document.Slots.Length != SaveSlots.All.Count)
             throw new InvalidDataException("slots must contain exactly three entries");
-        if (document.GameCompleted && document.PowerOnFoundNoValidSave)
-            throw new InvalidDataException("gameCompleted and powerOnFoundNoValidSave cannot both hold");
 
         for (int slotIndex = 0; slotIndex < document.Slots.Length; slotIndex++)
         {
@@ -319,6 +328,7 @@ public static class GameSaveJsonCodec
         options.Converters.Add(new SaveKeyJsonConverter<HudItem>(HudItemKeys.Installed));
         options.Converters.Add(new SaveKeyJsonConverter<SaveStartupRoute>(SaveStartupRouteKeys.Installed));
         options.Converters.Add(new SaveKeyJsonConverter<AreaId>(AreaIdKeys.Installed));
+        options.Converters.Add(new SaveKeyJsonConverter<SaveFileHistory>(SaveFileHistoryKeys.Installed));
         options.Converters.Add(new SaveFlagsJsonConverter<ControllerButton>(ControllerButtonKeys.Installed, ControllerButtonKeys.ListedOrder, (left, right) => left | right));
         options.Converters.Add(new SaveFlagsJsonConverter<SamusEquipmentFlags>(SamusEquipmentFlagsKeys.Installed, SamusEquipmentFlagsKeys.ListedOrder, (left, right) => left | right));
         options.Converters.Add(new SaveFlagsJsonConverter<SamusBeamFlags>(SamusBeamFlagsKeys.Installed, SamusBeamFlagsKeys.ListedOrder, (left, right) => left | right));

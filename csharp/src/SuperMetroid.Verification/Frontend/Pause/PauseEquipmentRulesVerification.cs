@@ -61,10 +61,10 @@ internal static class PauseEquipmentRulesVerification
         ushort[] original = new ushort[4];
         for (int index = 0; index < original.Length; index++) original[index] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82b257 + index * 2));
         // The native table lists the wireframes for neither, Hi-Jump, Varia, then both.
-        PauseWireframeKind[] nativeOrder =
+        PauseWireframe[] nativeOrder =
         [
-            PauseWireframeKind.PowerSuit, PauseWireframeKind.PowerSuitHiJump,
-            PauseWireframeKind.VariaSuit, PauseWireframeKind.VariaSuitHiJump,
+            new(PauseWireframeSuit.PowerSuit, PauseWireframeBoots.RegularBoots), new(PauseWireframeSuit.PowerSuit, PauseWireframeBoots.HiJumpBoots),
+            new(PauseWireframeSuit.VariaSuit, PauseWireframeBoots.RegularBoots), new(PauseWireframeSuit.VariaSuit, PauseWireframeBoots.HiJumpBoots),
         ];
         // Every equipment word whose bits all record items: the codec rejects the rest, which no equipment set produces.
         ushort recorded = Enum.GetValues<SamusEquipmentFlags>()
@@ -75,7 +75,7 @@ internal static class PauseEquipmentRulesVerification
                 continue;
             int expected = Array.IndexOf(original, (ushort)(word & nativeMask));
             AssertTrue(expected >= 0, "native masked input has a table match");
-            AssertEqual(nativeOrder[expected], PauseEquipmentRules.WireframeKind(SamusEquipmentWordCodec.FromEquipmentWord((ushort)word)), "complete native wireframe selection domain");
+            AssertEqual(nativeOrder[expected], PauseEquipmentRules.Wireframe(SamusEquipmentWordCodec.FromEquipmentWord((ushort)word)), "complete native wireframe selection domain");
         }
     }
 

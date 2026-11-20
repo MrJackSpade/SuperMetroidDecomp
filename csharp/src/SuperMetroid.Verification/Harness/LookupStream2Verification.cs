@@ -439,19 +439,20 @@ internal static class LookupStream2Verification
     {
         byte[] json = PauseWireframeExtractor.Extract(rom);
         var stock = PauseWireframePresentation.Load(new MemoryStream(json));
-        foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
+        for (int place = 0; place < PauseWireframe.All.Count; place++)
         {
-            int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(((int)PauseMenuSourceDefinitions.PauseWireframePointers + (int)kind * 2)) | 0x820000;
+            PauseWireframe kind = PauseWireframe.All[place];
+            int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(((int)PauseMenuSourceDefinitions.PauseWireframePointers + place * 2)) | 0x820000;
             var native = new byte[PauseWireframeDefinitions.Cells * 2];
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + cell * 2)));
             Confirm(stock, kind, BackgroundTileWordBytes.Tiles(native), "Installed wireframe preserves every native tile word");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyTo(new BackgroundTile[PauseWireframeDefinitions.PageTiles], (PauseWireframeKind)4), "Wireframe kind bound");
-        AssertThrows<ArgumentException>(() => stock.ApplyTo(new BackgroundTile[1], PauseWireframeKind.PowerSuit), "Wireframe page bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyTo(new BackgroundTile[PauseWireframeDefinitions.PageTiles], new PauseWireframe((PauseWireframeSuit)4, PauseWireframeBoots.RegularBoots)), "Wireframe kind bound");
+        AssertThrows<ArgumentException>(() => stock.ApplyTo(new BackgroundTile[1], PauseWireframe.All[0]), "Wireframe page bound");
         Console.WriteLine("Wireframe composition: 544 native words, four full native patches and untouched-page/bounds checks pass.");
 
-        static void Confirm(PauseWireframePresentation presentation, PauseWireframeKind kind, BackgroundTile[] tiles, string context)
+        static void Confirm(PauseWireframePresentation presentation, PauseWireframe kind, BackgroundTile[] tiles, string context)
         {
             BackgroundTile[] actual = Enumerable.Repeat(BackgroundTileWords.ToTile(0xaaaa), PauseWireframeDefinitions.PageTiles).ToArray();
             BackgroundTile[] expected = actual.ToArray();

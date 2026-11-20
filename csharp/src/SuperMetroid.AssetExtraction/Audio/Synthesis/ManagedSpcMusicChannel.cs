@@ -103,13 +103,13 @@ internal sealed class ManagedSpcMusicChannel
     internal int PitchTarget;
     /// <summary>Fractional pitch byte restored when a slide reaches its target.</summary>
     internal int FineTune;
-    /// <summary>Whether the pattern's cut-key effect suppresses this voice's notes (#2560).</summary>
-    internal bool CutKey;
+    /// <summary>The pattern's cut-key setting, which suppresses this voice's notes while it holds (#2560).</summary>
+    internal SpcMusicCutKey CutKey;
 
     /// <summary>Appends every field of this music voice, in declaration order, to a driver-state snapshot (#1305).</summary>
     internal void WriteState(List<byte> state)
     {
-        SpcDriverSnapshot.AddBytes(state, [Index, NoteTicksLeft, NoteKeyOffTicksLeft, SubroutineLoops, VolumeFadeTicks, PanTicks, PitchSlideLength, PitchSlideDelayLeft, VibratoHoldCount, VibratoDepth, TremoloHoldCount, TremoloDepth, VibratoChangeCount, NoteLength, NoteGateOffFixedPoint, ChannelVolumeMaster, InstrumentId, PitchEnvelopeTicks, PitchEnvelopeDelay, SpcDriverSnapshot.Byte(PitchEnvelopeDirection), PitchEnvelopeSlide, VibratoCount, VibratoRate, VibratoDelayTicks, VibratoFadeTicks, VibratoFadeAddPerTick, VibratoDepthTarget, TremoloCount, TremoloRate, TremoloDelayTicks, ChannelTransposition, VolumeFadeTarget, FinalVolume, PanTarget, PanFlags, PitchTarget, FineTune, SpcDriverSnapshot.CutKeyByte(CutKey)]);
+        SpcDriverSnapshot.AddBytes(state, [Index, NoteTicksLeft, NoteKeyOffTicksLeft, SubroutineLoops, VolumeFadeTicks, PanTicks, PitchSlideLength, PitchSlideDelayLeft, VibratoHoldCount, VibratoDepth, TremoloHoldCount, TremoloDepth, VibratoChangeCount, NoteLength, NoteGateOffFixedPoint, ChannelVolumeMaster, InstrumentId, PitchEnvelopeTicks, PitchEnvelopeDelay, SpcDriverSnapshot.Byte(PitchEnvelopeDirection), PitchEnvelopeSlide, VibratoCount, VibratoRate, VibratoDelayTicks, VibratoFadeTicks, VibratoFadeAddPerTick, VibratoDepthTarget, TremoloCount, TremoloRate, TremoloDelayTicks, ChannelTransposition, VolumeFadeTarget, FinalVolume, PanTarget, PanFlags, PitchTarget, FineTune, CutKey.DriverByte]);
         SpcDriverSnapshot.AddWords(state, [PatternOrderPointer, InstrumentPitchBase, SavedPatternPointer, PatternStartPointer, ChannelVolume, VolumeFadeAddPerTick, PanValue, PanAddPerTick, Pitch, PitchAddPerTick]);
     }
 }

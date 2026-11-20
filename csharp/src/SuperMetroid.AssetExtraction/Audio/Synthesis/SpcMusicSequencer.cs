@@ -44,7 +44,7 @@ internal sealed class SpcMusicSequencer
             channel.FineTune = 0;
             channel.ChannelTransposition = 0;
             channel.PitchEnvelopeTicks = 0;
-            channel.CutKey = false;
+            channel.CutKey = SpcMusicCutKey.Off;
             channel.VibratoDepth = 0;
             channel.TremoloDepth = 0;
         }
@@ -239,8 +239,7 @@ internal sealed class SpcMusicSequencer
                 channel.PatternOrderPointer = SpcDriverWrap.Word(channel.PatternOrderPointer + 1);
                 break;
             case SpcMusicEffect.CutKey:
-                // The driver stores the argument plus one, so an argument of $FF wraps to zero and turns the cut off.
-                channel.CutKey = unchecked((byte)(argument + 1)) != 0;
+                channel.CutKey = SpcMusicCutKey.FromArgument(argument);
                 break;
             case SpcMusicEffect.FastForwardForFrames:
                 fastForward = unchecked((byte)(argument + 1));
@@ -591,7 +590,7 @@ internal sealed class SpcMusicSequencer
                         HandleEffect(channel, noteCommand);
                         continue;
                     }
-                    if (!channel.CutKey && fastForward == 0)
+                    if (!channel.CutKey.Holds && fastForward == 0)
                         PlayNote(channel, noteCommand);
                     channel.NoteTicksLeft = channel.NoteLength;
                     int gateTicks = SpcFixedPoint.Scale(channel.NoteTicksLeft, channel.NoteGateOffFixedPoint);

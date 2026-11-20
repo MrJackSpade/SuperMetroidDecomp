@@ -66,7 +66,7 @@ internal static class PauseEquipmentPageLayout
     /// </summary>
     internal static ShownEquipmentPage Reference { get; } = new(
         [.. PauseEquipmentControls.Upgrades.Select(control => new ShownEquipmentLabel(control.Label, PauseEquipmentLabelState.Blank))],
-        HyperBeam: false, PauseWireframeKind.PowerSuit, Reserve: null, ShownReserveArrow.NoReserves);
+        HyperBeam: false, new PauseWireframe(PauseWireframeSuit.PowerSuit, PauseWireframeBoots.RegularBoots), Reserve: null, ShownReserveArrow.NoReserves);
 
     /// <summary>
     /// Every picture of the equipment page (#1467, #1515). No part's picture shows a cell another part writes: the base
@@ -100,8 +100,8 @@ internal static class PauseEquipmentPageLayout
             }
         }
         yield return Part(PauseEquipmentPictures.HyperBeamsFrame, LayOut(maps, Reference with { HyperBeam = true }), parts.HyperColumn, afterHyper);
-        foreach (PauseWireframeKind kind in PauseSheetFrameOrder.Wireframes)
-            yield return Part(PauseEquipmentPictures.WireframeFrame(kind), LayOut(maps, Reference with { Wireframe = kind }), parts.Wireframe, afterWireframe);
+        foreach (PauseWireframe wireframe in PauseSheetFrameOrder.Wireframes)
+            yield return Part(PauseEquipmentPictures.WireframeFrame(wireframe), LayOut(maps, Reference with { Wireframe = wireframe }), parts.Wireframe, afterWireframe);
         yield return Part(PauseEquipmentPictures.ReserveAbsentFrame, LayOut(maps, Reference), parts.Reserve, afterReserve);
         foreach (ReserveTankMode mode in PauseSheetFrameOrder.ReserveModes)
         {
@@ -151,8 +151,8 @@ internal static class PauseEquipmentPageLayout
         foreach (PauseEquipmentLabelState state in PauseSheetFrameOrder.LabelStates)
             yield return PauseEquipmentPictures.LabelFrame(control.Label, state);
         yield return PauseEquipmentPictures.HyperBeamsFrame;
-        foreach (PauseWireframeKind kind in PauseSheetFrameOrder.Wireframes)
-            yield return PauseEquipmentPictures.WireframeFrame(kind);
+        foreach (PauseWireframe wireframe in PauseSheetFrameOrder.Wireframes)
+            yield return PauseEquipmentPictures.WireframeFrame(wireframe);
         yield return PauseEquipmentPictures.ReserveAbsentFrame;
         foreach (ReserveTankMode mode in PauseSheetFrameOrder.ReserveModes)
         {

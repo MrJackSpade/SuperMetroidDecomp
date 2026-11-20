@@ -25,9 +25,6 @@ internal static class SpcDriverSnapshot
     /// <summary>The driver's byte for the music's publication dirty marker (#2560): its high bit when set.</summary>
     public static int DirtyByte(bool dirty) => dirty ? SpcDriverDefinitions.Music.DirtyMarker : 0;
 
-    /// <summary>The driver's byte for a voice's cut-key effect (#2560): nonzero while the cut holds.</summary>
-    public static int CutKeyByte(bool cut) => cut ? SpcDriverDefinitions.Music.CutKeyHeld : 0;
-
     /// <summary>The driver's byte for the form of a channel's last slide instruction: the legato opcode, or zero (#2560).</summary>
     public static int Byte(SoundEffectSlideForm form) => form switch
     {

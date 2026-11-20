@@ -77,8 +77,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private PauseButtonHighlight ButtonHighlight { get; set; }
     /// <summary>How the map page shows the area map (#1466, #1467), as last loaded.</summary>
     private ShownAreaMap ShownMap { get; set; }
-    /// <summary>Current map/equipment fade or load phase, or null while no page change is in progress.</summary>
-    private PauseMenuTransition? Transition { get; set; }
+    /// <summary>The map/equipment page change in progress, or null while none is.</summary>
+    private PausePageTransition? Transition { get; set; }
     /// <summary>
     /// The page transition's fade: one level darker every update on the way out, and one level brighter on alternate
     /// updates on the way in after the load.
@@ -179,7 +179,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             {
                 audio.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
                 SetPauseButtonLabelMode(PauseButtonHighlight.EquipmentPage);
-                Transition = PauseMenuTransition.MapToEquipmentFadeOut;
+                Transition = new(PauseScreenMode.Equipment, PausePageTransitionStage.FadeOut);
                 transitionFade.Restart(DisplayBrightness.Full, 0);
             }
             bool mapStart = HandleStartButton(delayedPressed);
@@ -199,7 +199,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         {
             audio.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
             SetPauseButtonLabelMode(PauseButtonHighlight.MapPage);
-            Transition = PauseMenuTransition.EquipmentToMapFadeOut;
+            Transition = new(PauseScreenMode.Map, PausePageTransitionStage.FadeOut);
             transitionFade.Restart(DisplayBrightness.Full, 0);
         }
         return HandleStartButton(delayedPressed);
@@ -292,47 +292,44 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Advances map/equipment fade, page load, and brightness phases.</summary>
     private void StepPageTransition()
     {
-        switch (Transition)
+        PausePageTransition transition = Transition ?? throw new InvalidDataException("No pause-page transition is in progress.");
+        switch (transition.Stage)
         {
-            case PauseMenuTransition.MapToEquipmentFadeOut:
-            case PauseMenuTransition.EquipmentToMapFadeOut:
+            case PausePageTransitionStage.FadeOut:
                 if (!transitionFade.Darken())
                     return;
 
                 // The fade-out returns at black before the separate load update.
-                Transition = Transition == PauseMenuTransition.MapToEquipmentFadeOut
-                    ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad;
+                Transition = transition with { Stage = PausePageTransitionStage.Load };
                 return;
 
-            case PauseMenuTransition.MapToEquipmentLoad:
-            case PauseMenuTransition.EquipmentToMapLoad:
-                if (Transition == PauseMenuTransition.MapToEquipmentLoad)
+            case PausePageTransitionStage.Load:
+                ScreenMode = transition.Destination;
+                switch (transition.Destination)
                 {
-                    ScreenMode = PauseScreenMode.Equipment;
-                    // The selector resets on each equipment-page entry.
-                    SelectFirstCollectedEquipment();
-                    ResetItemSelectorAnimation();
-                    Transition = PauseMenuTransition.MapToEquipmentFadeIn;
+                    case PauseScreenMode.Equipment:
+                        // The selector resets on each equipment-page entry.
+                        SelectFirstCollectedEquipment();
+                        ResetItemSelectorAnimation();
+                        break;
+                    case PauseScreenMode.Map:
+                        LoadMapPage();
+                        break;
+                    default:
+                        throw new InvalidDataException($"Invalid pause-page destination {transition.Destination}.");
                 }
-                else
-                {
-                    ScreenMode = PauseScreenMode.Map;
-                    LoadMapPage();
-                    Transition = PauseMenuTransition.EquipmentToMapFadeIn;
-                }
+                Transition = transition with { Stage = PausePageTransitionStage.FadeIn };
                 transitionFade.Restart(DisplayBrightness.Black, PauseFadeTiming.WaitBeforeEachStep);
                 return;
 
-            case PauseMenuTransition.MapToEquipmentFadeIn:
-            case PauseMenuTransition.EquipmentToMapFadeIn:
+            case PausePageTransitionStage.FadeIn:
                 // The load set the fade to wait one update before each brightness step.
                 if (transitionFade.Brighten())
                     Transition = null;
                 return;
 
-            case null:
             default:
-                throw new InvalidDataException($"Invalid pause-page transition {Transition}.");
+                throw new InvalidDataException($"Invalid pause-page transition {transition}.");
         }
     }
 

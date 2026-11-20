@@ -323,8 +323,7 @@ internal static class GameSaveJsonVerification
 
         // Schema eight listed used stations by their numbers (#1723); Norfair's list numbers stations 0 through 5 and 8
         // through 10, so 6 and 15 name none, and the upgrade drops them.
-        JsonObject overwritten = RequiredJson.Parse(SavedJson(LoadStationDefinitions.CrocomireSave)).AsObject();
-        overwritten["schemaVersion"] = 8;
+        JsonObject overwritten = SaveSchemaFixtures.AtSchema(SavedJson(LoadStationDefinitions.CrocomireSave), 8);
         ToSchemaEightSlots(overwritten);
         JsonObject norfair = overwritten.Required("slots").Required(0).Required("progression").Required("usedStations").AsArray()
             .Select(entry => entry?.AsObject() ?? throw new InvalidOperationException("A used-station entry is null."))
@@ -365,22 +364,28 @@ internal static class GameSaveJsonVerification
         AssertEqual(SaveFileHistory.PowerOnFoundNoValidSave, store.History, "saving a slot leaves the history");
 
         string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(store));
-        AssertTrue(json.Contains("\"gameCompleted\": false", StringComparison.Ordinal) &&
-            json.Contains("\"powerOnFoundNoValidSave\": true", StringComparison.Ordinal), "the JSON save names the history");
+        AssertTrue(json.Contains("\"history\": \"powerOnFoundNoValidSave\"", StringComparison.Ordinal), "the JSON save names the history");
         SaveSlotStore loaded = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), maps);
         AssertEqual(SaveFileHistory.PowerOnFoundNoValidSave, loaded.History, "the history survives the JSON save");
         AssertEqual(1, loaded.EarthquakeSoundDelayAtPowerOn().ExtraFrames,
             "a valid save after a power-on that found none adds the rumble's frame at the next power-on");
-        AssertInvalidJsonSave(json.Replace("\"gameCompleted\": false", "\"gameCompleted\": true", StringComparison.Ordinal),
-            "powerOnFoundNoValidSave");
+        AssertInvalidJsonSave(json.Replace("\"history\": \"powerOnFoundNoValidSave\"", "\"history\": \"bothMarks\"", StringComparison.Ordinal),
+            "bothMarks");
 
-        JsonObject schemaEleven = RequiredJson.Parse(json).AsObject();
-        schemaEleven["schemaVersion"] = 11;
+        JsonObject schemaFifteen = SaveSchemaFixtures.AtSchema(json, 15);
+        AssertEqual(true, schemaFifteen["powerOnFoundNoValidSave"]?.GetValue<bool>(), "schema fifteen marks the power-on that found no valid save");
+        GameSaveJsonDocument upgradedFifteen = LegacyGameSaveJson.Deserialize(schemaFifteen.ToJsonString(), "game save", out bool migratedFifteen);
+        AssertTrue(migratedFifteen, "a schema-fifteen save is upgraded");
+        AssertEqual(SaveFileHistory.PowerOnFoundNoValidSave, upgradedFifteen.History, "a schema-fifteen save's marks become its history");
+        schemaFifteen["gameCompleted"] = true;
+        SaveSchemaTranslationVerification.AssertInvalidLegacyJsonSave(schemaFifteen.ToJsonString(), "cannot both hold");
+
+        JsonObject schemaEleven = SaveSchemaFixtures.AtSchema(json, 11);
         schemaEleven.Remove("powerOnFoundNoValidSave");
         GameSaveJsonDocument upgraded = LegacyGameSaveJson.Deserialize(schemaEleven.ToJsonString(), "game save", out bool migrated);
         AssertTrue(migrated, "a schema-eleven save is upgraded");
-        AssertTrue(!upgraded.PowerOnFoundNoValidSave && !upgraded.GameCompleted, "a schema-eleven save upgrades to no history");
-        Console.WriteLine("  Save-file history: a power-on that found no valid save survives the JSON save; schema eleven upgrades to none.");
+        AssertEqual(SaveFileHistory.None, upgraded.History, "a schema-eleven save upgrades to no history");
+        Console.WriteLine("  Save-file history: a power-on that found no valid save survives the JSON save; schemas fifteen and eleven upgrade to their histories.");
     }
 
     /// <summary>The store the earlier save holds: several story events, items, doors, stations, maps and explored cells.</summary>
@@ -459,11 +464,11 @@ internal static class GameSaveJsonVerification
 
     /// <summary>
     /// The save <see cref="EarlierSaveStore"/> holds, as the game wrote it before saves read their lists in any order
-    /// (#2543, captured at 371cc2aaf5).
+    /// (#2543, captured at 371cc2aaf5), its history named as schema sixteen names it (#2560).
     /// </summary>
     private const string EarlierSaveJson = """
         {
-          "schemaVersion": 15,
+          "schemaVersion": 16,
           "selectedSlot": 0,
           "slots": [
             {
@@ -603,8 +608,7 @@ internal static class GameSaveJsonVerification
             null,
             null
           ],
-          "gameCompleted": false,
-          "powerOnFoundNoValidSave": false
+          "history": "none"
         }
         """;
 

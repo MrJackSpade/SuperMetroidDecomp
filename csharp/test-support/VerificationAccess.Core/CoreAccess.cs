@@ -105,6 +105,18 @@ internal static class CoreAccess
         internal void StepMotherBrainDemo() => intro.StepMotherBrainDemo(intro.RunningFlashback);
         /// <summary>Prepares the running flashback's sprites.</summary>
         internal SpriteFrameBuffer PrepareMotherBrainSprites() => intro.PrepareMotherBrainSprites(intro.RunningFlashback);
+        /// <summary>The running discovery scene's crossfade step.</summary>
+        internal void StepBabyDiscoveryCrossfade() => intro.StepBabyDiscoveryCrossfade(intro.CurrentBabyDiscovery
+            ?? throw new InvalidOperationException("The fixture steps the discovery's crossfade after setting it up."));
+        /// <summary>The discovery scene, which the fixture set up.</summary>
+        internal IntroBabyDiscoveryState BabyDiscovery => intro.CurrentBabyDiscovery
+            ?? throw new InvalidOperationException("The fixture reads the discovery after setting it up.");
+        /// <summary>The scientist scene, which the fixture set up.</summary>
+        internal IntroScientistCutsceneState ScientistCutscene => intro.CurrentScientistCutscene
+            ?? throw new InvalidOperationException("The fixture reads the scientist scene after setting it up.");
+        /// <summary>The flight to Ceres, which the fixture reached.</summary>
+        internal IntroCeresFlightState CeresFlight => intro.CurrentCeresFlight
+            ?? throw new InvalidOperationException("The fixture reads the Ceres flight after reaching it.");
         /// <summary>Sets up the discovery after the running flashback.</summary>
         internal void SetupBabyDiscoveryCrossfade() => intro.SetupBabyDiscoveryCrossfade(intro.RunningFlashback);
         /// <summary>Flashback Samus's whole-pixel X coordinate when that actor exists.</summary>

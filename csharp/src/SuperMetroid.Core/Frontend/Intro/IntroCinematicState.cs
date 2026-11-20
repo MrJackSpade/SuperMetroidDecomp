@@ -164,19 +164,10 @@ public sealed class IntroCinematicState : IFrontendScreen
     private IntroSamusDisplay flashbackSamusDisplay;
     /// <summary>Egg and baby actors in the SR388 discovery flashback.</summary>
     internal IntroBabyDiscoveryState? CurrentBabyDiscovery { get; private set; }
-    /// <summary>The Baby Metroid discovery scene, which exists while that scene runs.</summary>
-    internal IntroBabyDiscoveryState BabyDiscovery => CurrentBabyDiscovery ??
-        throw new InvalidOperationException("The Baby Metroid discovery scene is not running.");
     /// <summary>Laboratory actors shared by delivery and examination scenes.</summary>
     internal IntroScientistCutsceneState? CurrentScientistCutscene { get; private set; }
-    /// <summary>The scientist cutscene, which exists while that scene runs.</summary>
-    internal IntroScientistCutsceneState ScientistCutscene => CurrentScientistCutscene ??
-        throw new InvalidOperationException("The scientist cutscene is not running.");
     /// <summary>Final SPACE COLONY flight sequence after the narrated pages.</summary>
     internal IntroCeresFlightState? CurrentCeresFlight { get; private set; }
-    /// <summary>The flight to Ceres, which exists while that scene runs.</summary>
-    internal IntroCeresFlightState CeresFlight => CurrentCeresFlight ??
-        throw new InvalidOperationException("The Ceres flight is not running.");
     /// <summary>
     /// What the running crossfade did on this update (#1980), or null on an update no crossfade runs: the actors the
     /// crossfade's finish ends react to it after the cinematic phase has advanced it.
@@ -393,8 +384,8 @@ public sealed class IntroCinematicState : IFrontendScreen
                 }
                 break;
 
-            case IntroCinematicPhase.BabyDiscoveryCrossfade:
-                StepBabyDiscoveryCrossfade();
+            case IntroCinematicPhase.BabyDiscoveryCrossfade when CurrentBabyDiscovery is { } discovery:
+                StepBabyDiscoveryCrossfade(discovery);
                 break;
 
             case IntroCinematicPhase.BabyDiscovery:
@@ -436,8 +427,8 @@ public sealed class IntroCinematicState : IFrontendScreen
                 }
                 break;
 
-            case IntroCinematicPhase.CeresFlight:
-                CeresFlight.Step();
+            case IntroCinematicPhase.CeresFlight when CurrentCeresFlight is { } flight:
+                flight.Step();
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(IntroCinematicPhase)} {Phase}.");
@@ -678,7 +669,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>Reuses the text-to-gameplay fade before showing the SR388 discovery room alone.</summary>
-    internal void StepBabyDiscoveryCrossfade()
+    /// <param name="discovery">The discovery scene the crossfade shows.</param>
+    internal void StepBabyDiscoveryCrossfade(IntroBabyDiscoveryState discovery)
     {
         if (!AdvanceCrossfade())
             return;
@@ -686,7 +678,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The crossfade's end clears the English text region after the final fade update. The
         // second room page is already shown, so the SR388 room becomes the sole room page.
         ClearVisibleNarrationText();
-        StartFightLightsIfSamusDrawsFirst(BabyDiscovery.SamusDisplay);
+        StartFightLightsIfSamusDrawsFirst(discovery.SamusDisplay);
         Phase = IntroCinematicPhase.BabyDiscovery;
     }
 
@@ -992,43 +984,45 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>Orders Samus and discovery actors by how the intro shows Samus before finalizing sprite data.</summary>
-    internal SpriteFrameBuffer PrepareBabyDiscoverySprites()
+    /// <param name="discovery">The discovery scene shown.</param>
+    internal SpriteFrameBuffer PrepareBabyDiscoverySprites(IntroBabyDiscoveryState discovery)
     {
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         // The cinematic draw layers Samus and the cinematic actors by how the intro shows her.
-        IntroSamusDisplay display = BabyDiscovery.SamusDisplay;
+        IntroSamusDisplay display = discovery.SamusDisplay;
         if (display == IntroSamusDisplay.InFrontOfActors)
-            DrawBabyDiscoverySamus(sprites);
+            DrawBabyDiscoverySamus(discovery, sprites);
         screenSprites.BeginFrame();
-        BabyDiscovery.DrawActors(screenSprites, IntroSprites(CinematicSpriteFamily.IntroEggEffect),
+        discovery.DrawActors(screenSprites, IntroSprites(CinematicSpriteFamily.IntroEggEffect),
             IntroSprites(CinematicSpriteFamily.IntroDiscoveryActor));
         screenSprites.FinishFrame();
         foreach (SpriteDraw draw in screenSprites.Draws)
             sprites.Add(draw);
         if (display == IntroSamusDisplay.BehindActors)
-            DrawBabyDiscoverySamus(sprites);
+            DrawBabyDiscoverySamus(discovery, sprites);
         sprites.FinalizeFrame();
 
         return sprites;
     }
 
     /// <summary>Draws Samus in screen-relative coordinates as the demo brings her in from the right.</summary>
-    private void DrawBabyDiscoverySamus(SpriteFrameBuffer sprites)
+    private void DrawBabyDiscoverySamus(IntroBabyDiscoveryState discovery, SpriteFrameBuffer sprites)
     {
         // This cinematic deliberately keeps the camera's X at zero. Samus starts at X 376,
         // outside the 256-pixel viewport, and the demo makes her enter from the right; the
         // second room page shows different art, not a hidden camera coordinate of 256.
-        BabyDiscovery.Samus.Presentation.Draw(BabyDiscovery.Samus, sprites, cameraPosition: Position16<RoomPixels>.Zero, frameCounter);
+        discovery.Samus.Presentation.Draw(discovery.Samus, sprites, cameraPosition: Position16<RoomPixels>.Zero, frameCounter);
     }
 
     /// <summary>Collects the scientist scene's actors for the current cinematic display.</summary>
-    internal SpriteFrameBuffer PrepareScientistSprites()
+    /// <param name="cutscene">The scientist scene shown.</param>
+    internal SpriteFrameBuffer PrepareScientistSprites(IntroScientistCutsceneState cutscene)
     {
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         screenSprites.BeginFrame();
-        ScientistCutscene.Draw(screenSprites, IntroSprites(CinematicSpriteFamily.IntroScientist));
+        cutscene.Draw(screenSprites, IntroSprites(CinematicSpriteFamily.IntroScientist));
         screenSprites.FinishFrame();
         foreach (SpriteDraw draw in screenSprites.Draws)
             sprites.Add(draw);
@@ -1111,15 +1105,15 @@ public sealed class IntroCinematicState : IFrontendScreen
             room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.MotherBrainRoom, FightRoomShading),
                 flashback.MotherBrain.Background.AsPlaneOffset());
         }
-        else if (illustration == IntroIllustration.BabyDiscovery)
+        else if (illustration == IntroIllustration.BabyDiscovery && CurrentBabyDiscovery is { } discovery)
         {
-            sprites = PrepareBabyDiscoverySprites();
+            sprites = PrepareBabyDiscoverySprites(discovery);
             room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.BabyDiscoveryRoom, crossfade.SceneShading), new(0, GameplayFlashbackVerticalScroll));
         }
-        else if (illustration is IntroIllustration.BabyDelivery or IntroIllustration.BabyExamination)
+        else if (illustration is IntroIllustration.BabyDelivery or IntroIllustration.BabyExamination && CurrentScientistCutscene is { } cutscene)
         {
-            sprites = PrepareScientistSprites();
-            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePages.Laboratory(ScientistCutscene.Scene), crossfade.SceneShading), ScientistCutscene.Background);
+            sprites = PrepareScientistSprites(cutscene);
+            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePages.Laboratory(cutscene.Scene), crossfade.SceneShading), cutscene.Background);
         }
         else if (CurrentNarration is null)
         {

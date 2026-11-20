@@ -31,7 +31,7 @@ internal static class MotherBrainFallingTubePopulationDefinitions
             [MotherBrainTubePiece.BottomRight] = new(new(16, 32), 248),
             [MotherBrainTubePiece.BottomMiddleLeft] = new(new(8, 24), 240),
             [MotherBrainTubePiece.BottomMiddleRight] = new(new(8, 24), 240),
-            [MotherBrainTubePiece.Main] = new(new(16, 32), 246),
+            [MotherBrainTubePiece.Main] = new(new(16, 32), 246, MainFallWaitUpdates, KeepsUpdatingOffScreen: true),
         };
     /// <summary>The updates the main tube waits before it falls, the last being the update it starts to fall on.</summary>
     internal const int MainFallWaitUpdates = 33;

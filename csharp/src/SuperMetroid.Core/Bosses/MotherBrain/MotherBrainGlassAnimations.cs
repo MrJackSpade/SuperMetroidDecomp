@@ -116,9 +116,12 @@ internal static class MotherBrainGlassAnimations
         ],
     });
 
+    /// <summary>The glass segments whose animation holds once shown rather than looping: the deleted sparkle.</summary>
+    private static readonly MotherBrainGlassSegment[] HoldingSegments = [P.Sparkle];
+
     /// <summary>Each glass animation: a shard's spin loops for good, and the deleted sparkle rests.</summary>
     internal static IReadOnlyDictionary<MotherBrainGlassSegment, Animation<MotherBrainGlassSegment>> StartingAt { get; } =
-        Enum.GetValues<MotherBrainGlassSegment>().ToDictionary(segment => segment, segment => segment == P.Sparkle
+        Enum.GetValues<MotherBrainGlassSegment>().ToDictionary(segment => segment, segment => HoldingSegments.Contains(segment)
             ? new Animation<MotherBrainGlassSegment>([Segments.Whole(segment)], AnimationEnd.Holds)
             : Animation<MotherBrainGlassSegment>.Looping([Segments.Whole(segment)]));
 

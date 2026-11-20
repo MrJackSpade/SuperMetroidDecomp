@@ -220,9 +220,7 @@ internal sealed class MotherBrainCombat
     /// animation shows a body frame, then what its frame shows. Her body's own entity asks (#2301).
     /// </summary>
     internal static EnemyHitboxContact FindMotherBrainBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe) =>
-        FindHitboxReaction(enemy, enemy.Frame == EnemyFrameId.MotherBrainBrainHitArea
-            ? MotherBrainCollisionDefinitions.BrainComponents
-            : MotherBrainCollision.ComponentsAt(enemy.Frame), probe);
+        FindHitboxReaction(enemy, MotherBrainCollision.ComponentsAt(enemy.Frame), probe);
 
     /// <summary>
     /// The reaction of the first hitbox the probe overlaps on her head: her brain, whose rectangle it owns (#2220). Her head's

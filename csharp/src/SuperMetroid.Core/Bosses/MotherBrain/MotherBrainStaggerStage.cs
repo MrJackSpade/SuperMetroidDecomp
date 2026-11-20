@@ -10,12 +10,17 @@ internal sealed class MotherBrainStaggerStage
     /// <param name="speed">How fast she staggers.</param>
     /// <param name="neckTurn">How far her neck turns each update.</param>
     /// <param name="pauseUpdates">The updates she pauses once the walk reaches its end.</param>
-    internal MotherBrainStaggerStage(MotherBrainWalkSpeed speed, RotationAngle neckTurn, int pauseUpdates)
+    /// <param name="beamRunsOut">Whether her drained rainbow beam runs out as the stage begins.</param>
+    internal MotherBrainStaggerStage(MotherBrainWalkSpeed speed, RotationAngle neckTurn, int pauseUpdates, bool beamRunsOut = false)
     {
         Speed = speed;
         NeckTurn = neckTurn;
         PauseUpdates = pauseUpdates;
+        BeamRunsOut = beamRunsOut;
     }
+
+    /// <summary>Whether her drained rainbow beam runs out as the stage begins.</summary>
+    internal bool BeamRunsOut { get; }
 
     /// <summary>How fast she staggers.</summary>
     internal MotherBrainWalkSpeed Speed { get; }

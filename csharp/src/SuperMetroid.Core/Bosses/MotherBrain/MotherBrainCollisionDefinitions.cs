@@ -85,6 +85,7 @@ internal static class MotherBrainCollisionDefinitions
     /// </summary>
     internal static readonly Dictionary<EnemyFrameId, EnemyCollisionComponent[]> FrameComponents = new()
     {
+        [EnemyFrameId.MotherBrainBrainHitArea] = BrainComponents,
         [EnemyFrameId.MotherBrainBodyStanding] =
         [
             new(new(18, 58), RightLegHitboxes),

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Mother Brain species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemySettingsFactory<MotherBrainTubeSpawnSettings>
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
@@ -17,6 +17,18 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
         [EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes];
+
+    /// <summary>A falling tube of her glass, the piece its spawn names.</summary>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MotherBrainTubeSpawnSettings settings) =>
+        new MotherBrainTubesEntity(this, place, common, setup, settings);
+
+    /// <inheritdoc/>
+    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    {
+        IEnemyEntityFactory untold = this;
+        Ensure.NotNull(registry).Add(untold);
+        registry.Add<MotherBrainTubeSpawnSettings>(this);
+    }
 
     /// <summary>Mother Brain's body, her head, or a tube of her fake death (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Mother Brain definition.</exception>
@@ -27,8 +39,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             return new MotherBrainBodyEntity(this, place, common, _bossArtwork);
         if (definition == EnemyDefinitionId.MotherBrainHead)
             return new MotherBrainHeadEntity(this, place, common);
-        if (definition == EnemyDefinitionId.MotherBrainTubes)
-            return new MotherBrainTubesEntity(this, place, common, setup);
         throw new InvalidOperationException($"The Mother Brain species creates no {place.DefinitionId}.");
     }
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>

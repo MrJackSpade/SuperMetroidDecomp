@@ -15,13 +15,25 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// post-Ceres and escape lift-offs, with the frame events it publishes.
 /// </summary>
 [RoomLifetime]
-internal sealed class GunshipBehavior : IEnemyEntityFactory
+internal sealed class GunshipBehavior : IEnemyEntityFactory, IEnemySettingsFactory<GunshipSpawnSettings>
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.ShipBottomEntrance, EnemyDefinitionId.ShipTop];
+
+    /// <summary>The gunship's bottom hull or its entrance pad, as its placement names (#2146).</summary>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, GunshipSpawnSettings settings) =>
+        new GunshipBottomEntity(this, place, common, setup, settings);
+
+    /// <inheritdoc/>
+    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    {
+        IEnemyEntityFactory untold = this;
+        Ensure.NotNull(registry).Add(untold);
+        registry.Add<GunshipSpawnSettings>(this);
+    }
 
     /// <summary>The gunship's top hull, which moves the ship, or its bottom hull with the entrance pad (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no gunship definition.</exception>
@@ -30,8 +42,6 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.ShipTop)
             return new GunshipTopEntity(this, place, common, setup);
-        if (definition == EnemyDefinitionId.ShipBottomEntrance)
-            return new GunshipBottomEntity(this, place, common, setup);
         throw new InvalidOperationException($"The gunship species creates no {place.DefinitionId}.");
     }
 
@@ -141,17 +151,17 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// Initializes bottom hull or pad from the enemies its room lists before it; after Ceres the bottom hull is placed
     /// against the loading <paramref name="samus"/>.
     /// </summary>
-    internal GunshipPieceState InitializeGunshipBottom(RoomEnemyPlace place, SamusState samus)
+    internal GunshipPieceState InitializeGunshipBottom(RoomEnemyPlace place, SamusState samus, GunshipSpawnSettings settings)
     {
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
         // The piece takes the state the top hull, listed before it, made for it as it was placed.
         GunshipPieceState state = _pieceStates.Of(place);
-        state.Playback = EnemyAnimationPlayback.Start(place, GunshipAnimations.StartingWith(place.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad
+        state.Playback = EnemyAnimationPlayback.Start(place, GunshipAnimations.StartingWith(settings.Part == GunshipBottomPiece.EntrancePad
             ? GunshipSegment.BottomEntrancePad
             : GunshipSegment.BottomHull));
 
-        if (place.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad)
+        if (settings.Part == GunshipBottomPiece.EntrancePad)
         {
             // The hull the pad takes its height from can stand above the room's top, after Ceres.
             place.Position = OffRoomPlaces.WithWholeY(place.Position, GunshipPadBorrowedHeight.Start(

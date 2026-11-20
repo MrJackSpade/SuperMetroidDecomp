@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>The Morph Ball eye species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySettingsFactory<MorphBallEyeBodySpawnSettings>, IEnemySettingsFactory<MorphBallEyeMountSpawnSettings>
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -20,34 +20,43 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MorphBallEye];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
-        Ensure.NotNull(place).SpawnSettings<MorphBallEyeSpawnSettings>() is MorphBallEyeMountSpawnSettings
-            ? new MorphBallEyeMountEntity(this, place, common)
-            : new MorphBallEyeEntity(this, place, common);
+    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    {
+        Ensure.NotNull(registry).Add<MorphBallEyeBodySpawnSettings>(this);
+        registry.Add<MorphBallEyeMountSpawnSettings>(this);
+    }
+
+    /// <summary>The eye itself, facing the way its placement names.</summary>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MorphBallEyeBodySpawnSettings settings) =>
+        new MorphBallEyeEntity(this, place, common, settings);
+
+    /// <summary>The eye's mount, on the side its placement names.</summary>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MorphBallEyeMountSpawnSettings settings) =>
+        new MorphBallEyeMountEntity(this, place, common, settings);
 
     /// <summary>The room-global beam an eye body casts.</summary>
     public MorphBallEyeBeamState MorphBallEyeBeam { get; } = new();
 
     /// <summary>Initializes a closed eye body from its spawn facing.</summary>
-    internal static MorphBallEyeEnemyState InitializeMorphBallEyeBody(RoomEnemyPlace place)
+    internal static MorphBallEyeEnemyState InitializeMorphBallEyeBody(RoomEnemyPlace place, MorphBallEyeBodySpawnSettings settings)
     {
-        var state = new MorphBallEyeEnemyState(MorphBallEyeAction.WaitForSamus);
+        var state = new MorphBallEyeEnemyState(MorphBallEyeAction.WaitForSamus, settings);
         ShowNothingUntilAnimated(place);
 
         // The placement's facing is fixed by its mounting, not a live facing test.
-        state.Playback = new(MorphBallEyeAnimations.StartingWith(place.SpawnSettings<MorphBallEyeBodySpawnSettings>().Facing == HorizontalDirection.Right
+        state.Playback = new(MorphBallEyeAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
             ? MorphBallEyeSegment.FacingRightClosed
             : MorphBallEyeSegment.FacingLeftClosed), AnimationPlace.StartOfAnimation);
         return state;
     }
 
     /// <summary>Offsets a beam mount to its side of the eye, starts its pose and resets the room-global beam.</summary>
-    internal MorphBallEyeMountState InitializeMorphBallEyeMount(RoomEnemyPlace place)
+    internal MorphBallEyeMountState InitializeMorphBallEyeMount(RoomEnemyPlace place, MorphBallEyeMountSpawnSettings settings)
     {
         var state = new MorphBallEyeMountState();
         ShowNothingUntilAnimated(place);
 
-        var mount = MorphBallEyeGeometry.Mount(place.SpawnSettings<MorphBallEyeMountSpawnSettings>().Side);
+        var mount = MorphBallEyeGeometry.Mount(settings.Side);
         place.Position += mount.Offset;
         state.Playback = new(MorphBallEyeAnimations.StartingWith(mount.Animation), AnimationPlace.StartOfAnimation);
 
@@ -113,7 +122,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.ActionTimer = UpdateCountdown.For(MorphBallEyeWatchDefinitions.TransitionDuration);
         eye.AnimationClock.StepOnNextUpdate();
-        state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeBodySpawnSettings>().Facing == HorizontalDirection.Right
+        state.Playback = new(MorphBallEyeAnimations.StartingWith(state.Settings.Facing == HorizontalDirection.Right
             ? MorphBallEyeSegment.FacingRightActivating
             : MorphBallEyeSegment.FacingLeftActivating), AnimationPlace.StartOfAnimation);
         state.Action = MorphBallEyeAction.Activating;
@@ -153,7 +162,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             state.IsActivated = false;
             state.ActionTimer = UpdateCountdown.For(MorphBallEyeWatchDefinitions.TransitionDuration);
             state.Aim = null;
-            state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeBodySpawnSettings>().Facing == HorizontalDirection.Right
+            state.Playback = new(MorphBallEyeAnimations.StartingWith(state.Settings.Facing == HorizontalDirection.Right
                 ? MorphBallEyeSegment.FacingRightDeactivating
                 : MorphBallEyeSegment.FacingLeftDeactivating), AnimationPlace.StartOfAnimation);
             state.Action = MorphBallEyeAction.Deactivating;

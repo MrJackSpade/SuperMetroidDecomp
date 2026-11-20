@@ -4,11 +4,12 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// <param name="species">The work robot species owner.</param>
 /// <param name="place">The place the robot occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class UnpoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class UnpoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, WorkRobotSpawnSettings settings)
     : WorkRobotEntity(species, place, common)
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal UnpoweredWorkRobotEnemyState State { get; } = species.InitializeUnpoweredWorkRobot(place);
+    internal UnpoweredWorkRobotEnemyState State { get; } = species.InitializeUnpoweredWorkRobot(place, settings);
 
     /// <summary>Takes no action of its own.</summary>
     /// <param name="frame">The enemy frame.</param>

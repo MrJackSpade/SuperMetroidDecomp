@@ -3,16 +3,16 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 
 /// <summary>The Hibashi species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class HibashiBehavior : IEnemySpecies, IEnemySettingsFactory<HibashiSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Hibashi];
 
     /// <summary>The Hibashi's flame, or the collision part its placement names (#2342).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
-        Ensure.NotNull(place).SpawnSettings<HibashiSpawnSettings>().Part == HibashiPart.CollisionPart
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, HibashiSpawnSettings settings) =>
+        Ensure.NotNull(settings).Part == HibashiPart.CollisionPart
             ? new HibashiCollisionPartEntity(place, common)
-            : new HibashiEntity(this, place, common);
+            : new HibashiEntity(this, place, common, settings);
 
     /// <summary>The room's enemy places, where each visible geyser finds its hitbox when it is placed.</summary>
     private readonly EnemyPlaces _places;
@@ -58,9 +58,9 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Initializes the flame: it sets up its first wait (<see cref="HibashiDefinitions.FirstWait"/>) and the collision part
     /// it finds, and starts the eruption animation, whose first step plays on its first update.
     /// </summary>
-    internal HibashiEnemyState InitializeHibashi(RoomEnemyPlace place)
+    internal HibashiEnemyState InitializeHibashi(RoomEnemyPlace place, HibashiSpawnSettings settings)
     {
-        var state = new HibashiEnemyState(HibashiAction.Inactive);
+        var state = new HibashiEnemyState(HibashiAction.Inactive, settings);
         _hitboxes.Place(place, _places.ListedAfter(place, 1));
         state.InactiveTimer = UpdateCountdown.For(HibashiDefinitions.FirstWait);
         state.Playback = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Flame));
@@ -117,7 +117,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void RestHibashi(RoomEnemyPlace flame, HibashiEnemyState state)
     {
-        state.InactiveTimer = UpdateCountdown.For(flame.SpawnSettings<HibashiSpawnSettings>().InactiveTime + EnemyWaitDefinitions.RunOutUpdate);
+        state.InactiveTimer = UpdateCountdown.For(state.Settings.InactiveTime + EnemyWaitDefinitions.RunOutUpdate);
         state.Action = HibashiAction.Inactive;
     }
 

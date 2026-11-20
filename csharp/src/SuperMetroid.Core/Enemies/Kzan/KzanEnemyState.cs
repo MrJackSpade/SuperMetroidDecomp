@@ -9,8 +9,16 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// </summary>
 public sealed class KzanEnemyState
 {
+    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
+    internal KzanSpawnSettings Settings { get; }
+
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal KzanEnemyState(KzanAction action) => Action = action;
+    /// <param name="settings">What the enemy's population entry told its species.</param>
+    internal KzanEnemyState(KzanAction action, KzanSpawnSettings settings)
+    {
+        Settings = Ensure.NotNull(settings);
+        Action = action;
+    }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<KzanSegment> Playback { get; set; }

@@ -9,18 +9,28 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The escape animals species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemySettingsFactory<EscapeEtecoonSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.EtecoonEscape, EnemyDefinitionId.DachoraEscape];
+
+    /// <summary>An escaping Etecoon, in the role its placement names (#2146).</summary>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EscapeEtecoonSpawnSettings settings) =>
+        new EscapeEtecoonEntity(this, place, common, settings);
+
+    /// <inheritdoc/>
+    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    {
+        IEnemyEntityFactory untold = this;
+        Ensure.NotNull(registry).Add(untold);
+        registry.Add<EscapeEtecoonSpawnSettings>(this);
+    }
 
     /// <summary>An escaping Etecoon, or the escaping Dachora (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no escape animals definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.EtecoonEscape)
-            return new EscapeEtecoonEntity(this, place, common);
         if (definition == EnemyDefinitionId.DachoraEscape)
             return new EscapeDachoraEntity(this, place, common);
         throw new InvalidOperationException($"The escape animals species creates no {place.DefinitionId}.");
@@ -39,10 +49,10 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the escape Etecoon.</summary>
-    internal EscapeEtecoonEnemyState InitializeEscapeEtecoon(RoomEnemyPlace place)
+    internal EscapeEtecoonEnemyState InitializeEscapeEtecoon(RoomEnemyPlace place, EscapeEtecoonSpawnSettings settings)
     {
         EscapeEtecoonInitialization initialization =
-            EscapeEtecoons.Initialization(place.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
+            EscapeEtecoons.Initialization(settings.Role);
         var state = new EscapeEtecoonEnemyState(initialization.Action);
 
         // The critters-escaped event means the animals already escaped on an earlier visit, so the animal leaves the

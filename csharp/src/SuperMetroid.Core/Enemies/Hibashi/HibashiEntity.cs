@@ -4,11 +4,12 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 /// <param name="species">The Hibashi species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class HibashiEntity(HibashiBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class HibashiEntity(HibashiBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, HibashiSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal HibashiEnemyState State { get; } = species.InitializeHibashi(place);
+    internal HibashiEnemyState State { get; } = species.InitializeHibashi(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunHibashiMain(Place, State);

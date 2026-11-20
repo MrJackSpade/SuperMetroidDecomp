@@ -4,4 +4,8 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// <param name="Facing">The way it faces.</param>
 /// <param name="CooldownTime">The updates it waits between spits.</param>
 /// <param name="LaunchSpeed">The speed, in pixels per update, at which its fireballs fly away from it.</param>
-internal sealed record FuneSpawnSettings(HorizontalDirection Facing, int CooldownTime, SignedEightEight LaunchSpeed) : FuneNamiheSpawnSettings(Facing, LaunchSpeed);
+internal sealed record FuneSpawnSettings(HorizontalDirection Facing, int CooldownTime, SignedEightEight LaunchSpeed) : FuneNamiheSpawnSettings(Facing, LaunchSpeed)
+{
+    /// <inheritdoc/>
+    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).Place(this, placing);
+}

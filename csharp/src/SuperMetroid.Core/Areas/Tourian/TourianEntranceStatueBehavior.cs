@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// eyes and greys the released statues show. Only the statue room builds one, with that room (#2382, #2426).
 /// </summary>
 [RoomLifetime]
-internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
+internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySettingsFactory<TourianEntranceStatueSpawnSettings>, IGameplayShadingSource
 {
     /// <inheritdoc/>
     /// <remarks>Only the statue room can place these.</remarks>
@@ -20,10 +20,10 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
 
     /// <inheritdoc/>
     /// <remarks>The placement joins the scene's occupants and spawns its decorations as it is built (#2554).</remarks>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, TourianEntranceStatueSpawnSettings settings)
     {
         var occupant = new TourianEntranceStatueEntity(this, place, common);
-        InitializeTourianEntranceStatue(occupant);
+        InitializeTourianEntranceStatue(occupant, settings);
         return occupant;
     }
 
@@ -151,14 +151,14 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// Initializes one of the statue scene's three placements (#2014): the first spawns the scene's decorations, and each
     /// shows the scene's entrance look until it leaves its place.
     /// </summary>
-    internal void InitializeTourianEntranceStatue(TourianEntranceStatueEntity occupant)
+    internal void InitializeTourianEntranceStatue(TourianEntranceStatueEntity occupant, TourianEntranceStatueSpawnSettings settings)
     {
         Ensure.NotNull(occupant);
         RoomEnemyPlace statue = occupant.OccupiedPlace;
         if (!_occupants.Contains(occupant))
             _occupants.Add(occupant);
         // The base decoration, Ridley and Phantoon spawn in this order, which gives them their authored draw order.
-        if (statue.Spawn.Population.SpawnSettingsOf<TourianEntranceStatueSpawnSettings>().Role == TourianEntranceStatueRole.SpawnsDecorations)
+        if (Ensure.NotNull(settings).Role == TourianEntranceStatueRole.SpawnsDecorations)
         {
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatueBaseDecoration,

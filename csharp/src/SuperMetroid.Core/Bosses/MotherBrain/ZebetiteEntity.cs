@@ -7,7 +7,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="setup">How the half is set up: a linked half joins its primary.</param>
-internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ZebetiteSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
@@ -17,7 +18,7 @@ internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemyPlace pl
     private EnemyShotReaction OwnZebetiteShotReaction => field ??= species.ZebetiteShotReactionOf(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal ZebetiteEnemyState State { get; } = species.InitializeZebetite(place, setup);
+    internal ZebetiteEnemyState State { get; } = species.InitializeZebetite(place, setup, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunZebetiteMain(Place, State);

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>The work robot species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<WorkRobotSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.WorkRobot, EnemyDefinitionId.UnpoweredWorkRobot];
@@ -20,13 +20,13 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// states once Phantoon is defeated, so it always has power (#2455).
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no work robot definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WorkRobotSpawnSettings settings)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.WorkRobot)
             return new PoweredWorkRobotEntity(this, place, common);
         if (definition == EnemyDefinitionId.UnpoweredWorkRobot)
-            return new UnpoweredWorkRobotEntity(this, place, common);
+            return new UnpoweredWorkRobotEntity(this, place, common, settings);
         throw new InvalidOperationException($"The work robot species creates no {place.DefinitionId}.");
     }
 
@@ -104,11 +104,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Initializes an unpowered robot.</summary>
     /// <returns>The robot's state, holding the pose its placement names.</returns>
-    internal UnpoweredWorkRobotEnemyState InitializeUnpoweredWorkRobot(RoomEnemyPlace place)
+    internal UnpoweredWorkRobotEnemyState InitializeUnpoweredWorkRobot(RoomEnemyPlace place, WorkRobotSpawnSettings settings)
     {
         // The placement names the unpowered pose the robot holds.
         var state = new UnpoweredWorkRobotEnemyState(
-            new(WorkRobotAnimations.StartingWith(place.SpawnSettings<WorkRobotSpawnSettings>().Pose), AnimationPlace.StartOfAnimation));
+            new(WorkRobotAnimations.StartingWith(settings.Pose), AnimationPlace.StartOfAnimation));
         place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
         place.AnimationClock.Restart();
 

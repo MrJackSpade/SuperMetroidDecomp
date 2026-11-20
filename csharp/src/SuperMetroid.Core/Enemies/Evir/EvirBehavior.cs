@@ -6,10 +6,33 @@ namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>The Evir species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemySettingsFactory<EvirSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Evir, EnemyDefinitionId.EvirProjectile];
+
+    /// <summary>An Evir's body, or its arms, as its placement names (#2146).</summary>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EvirSpawnSettings settings)
+    {
+        _settingsOf.Place(Ensure.NotNull(place), Ensure.NotNull(settings));
+        return settings.Part == EvirBodyPart.Arms
+            ? new EvirArmsEntity(this, place, common)
+            : new EvirBodyEntity(this, place, common, setup, settings);
+    }
+
+    /// <summary>
+    /// What each body's and arms' placement told them, recorded as each is built: a body's first half-cycle reads the period
+    /// of the part its speed borrows from (<see cref="EvirBorrowedFirstHalfCycle"/>).
+    /// </summary>
+    private readonly EnemyPartLinks<EvirSpawnSettings> _settingsOf = new();
+
+    /// <inheritdoc/>
+    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    {
+        IEnemyEntityFactory untold = this;
+        Ensure.NotNull(registry).Add(untold);
+        registry.Add<EvirSpawnSettings>(this);
+    }
 
     /// <summary>
     /// An Evir's body or arms, as the placement's settings name the part it is, or its spit (#2146). The arms share the
@@ -19,12 +42,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.Evir)
-        {
-            return place.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
-                ? new EvirArmsEntity(this, place, common)
-                : new EvirBodyEntity(this, place, common, setup);
-        }
         if (definition == EnemyDefinitionId.EvirProjectile)
             return new EvirSpitEntity(this, place, common);
         throw new InvalidOperationException($"The Evir species creates no {place.DefinitionId}.");
@@ -96,33 +113,30 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfter(place, distance), EvirPartListingDefinitions.FollowUpReach));
 
     /// <summary>Initializes an Evir's body, facing Samus.</summary>
-    internal EvirBodyState InitializeEvirBody(RoomEnemyPlace place, SamusState samus)
+    internal EvirBodyState InitializeEvirBody(RoomEnemyPlace place, SamusState samus, EvirSpawnSettings settings)
     {
         PlaceFollowUpRecipients(place);
 
         // The room lists each Evir's spit two places after its body, behind the arms.
-        var state = new EvirBodyState(spit: _places.ListedAfter(place, EvirPartListingDefinitions.SpitPlacesAfterBody));
+        var state = new EvirBodyState(spit: _places.ListedAfter(place, EvirPartListingDefinitions.SpitPlacesAfterBody), settings);
         SetEvirBodyFacing(place, state, samus);
 
         // The body bobs down at its speed and up at the same speed.
-        EvirSpawnSettings settings = place.SpawnSettings<EvirSpawnSettings>();
-        state.MovementTimer = UpdateCountdown.For(EvirBorrowedFirstHalfCycle.Of(settings.Speed, _places.InUpdateOrder, PlaceLender.Instance) + EnemyWaitDefinitions.RunOutUpdate);
+        state.MovementTimer = UpdateCountdown.For(EvirBorrowedFirstHalfCycle.Of(settings.Speed, _places.InUpdateOrder, new PlaceLender(_settingsOf)) + EnemyWaitDefinitions.RunOutUpdate);
         state.BobbingDirection = VerticalDirection.Up;
         state.ShowsSpawnAnimation = true;
         return state;
     }
 
     /// <summary>What an Evir body's first half-cycle reads of a room's enemy place (<see cref="EvirBorrowedFirstHalfCycle"/>).</summary>
-    private sealed class PlaceLender : IEvirHalfCycleLender<RoomEnemyPlace>
+    /// <param name="settingsOf">What each Evir part's placement told it.</param>
+    private sealed class PlaceLender(EnemyPartLinks<EvirSpawnSettings> settingsOf) : IEvirHalfCycleLender<RoomEnemyPlace>
     {
-        /// <summary>The one reader every body uses.</summary>
-        internal static PlaceLender Instance { get; } = new();
-
         /// <inheritdoc/>
         public bool IsEmpty(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).IsFree;
 
         /// <inheritdoc/>
-        public int DirectionChangePeriod(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod;
+        public int DirectionChangePeriod(RoomEnemyPlace enemy) => settingsOf.Of(Ensure.NotNull(enemy)).DirectionChangePeriod;
 
         /// <inheritdoc/>
         public bool IsEvirSpit(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).DefinitionId == EnemyDefinitionId.EvirProjectile;
@@ -167,7 +181,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Spit.FoundEnemy is not EvirSpitEntity { State.Action: EvirSpitAction.Regenerating })
             SetEvirBodyFacing(place, state, samus);
 
-        EvirSpawnSettings settings = place.SpawnSettings<EvirSpawnSettings>();
+        EvirSpawnSettings settings = state.Settings;
         place.Position = place.Position.AdvanceY(state.BobbingVelocity(settings.Speed));
 
         // Every later half of the bobbing lasts the body's whole direction-change period and the update it turns on,

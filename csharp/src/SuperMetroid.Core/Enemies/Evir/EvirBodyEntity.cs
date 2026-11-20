@@ -8,11 +8,12 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="setup">How the enemy comes to be set up, whose surroundings its initialization reads.</param>
-internal sealed class EvirBodyEntity(EvirBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class EvirBodyEntity(EvirBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EvirSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal EvirBodyState State { get; } = species.InitializeEvirBody(place, setup.SurroundingsOf(place).Samus);
+    internal EvirBodyState State { get; } = species.InitializeEvirBody(place, setup.SurroundingsOf(place).Samus, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirBodyMainAi(Place, State, frame);

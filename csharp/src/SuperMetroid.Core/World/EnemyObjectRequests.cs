@@ -12,10 +12,6 @@ namespace SuperMetroid.Core.World;
 internal sealed class EnemyObjectRequests(ChozoStatueBehavior chozoStatue, DownwardGateBehavior downwardGate) : IEnemyObjectRequests
 {
     /// <inheritdoc/>
-    public IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ActivateChozoStatueHandTrigger() =>
-        chozoStatue.ActivateChozoStatueHandTrigger();
-
-    /// <inheritdoc/>
     public void ApplyDownwardGateProjectileRequest(DownwardGateProjectileRequest request) =>
         downwardGate.ApplyDownwardGateProjectileRequest(request);
 }

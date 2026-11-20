@@ -4,11 +4,12 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// <param name="species">The Kzan species owner.</param>
 /// <param name="place">The place the top occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class KzanTopEntity(KzanBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class KzanTopEntity(KzanBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, KzanSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal KzanEnemyState State { get; } = KzanBehavior.InitializeKzanTop(place);
+    internal KzanEnemyState State { get; } = KzanBehavior.InitializeKzanTop(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunKzanTopMainAi(Place, State, frame);

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="norfair">Lower Norfair Ridley's encounter behaviour.</param>
 /// <param name="ceres">Ceres Ridley's encounter behaviour.</param>
 /// <param name="escape">The station's escape progress, which ends Ceres Ridley's touch and drawing.</param>
-internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRidleyBehavior ceres, ICeresEscapeStatus escape) : IEnemyEntityFactory
+internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRidleyBehavior ceres, ICeresEscapeStatus escape) : IEnemyEntityFactory, IEnemySettingsFactory<RidleyExplosionSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
@@ -30,8 +30,18 @@ internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRi
         }
         if (definition == EnemyDefinitionId.RidleyCeres)
             return new CeresRidleyEntity(ceres, escape, place, common);
-        if (definition == EnemyDefinitionId.RidleyBreakupPiece)
-            return new RidleyBreakupPieceEntity(norfair, place, common, setup);
-        throw new InvalidOperationException($"The Ridley factory creates no {place.DefinitionId}.");
+        throw new InvalidOperationException($"The Ridley factory creates no {place.DefinitionId} told nothing.");
     }
+
+    /// <inheritdoc/>
+    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    {
+        IEnemyEntityFactory untold = this;
+        Ensure.NotNull(registry).Add(untold);
+        registry.Add<RidleyExplosionSpawnSettings>(this);
+    }
+
+    /// <summary>A piece of Lower Norfair Ridley's breakup explosion, the part its spawn names (#2146).</summary>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, RidleyExplosionSpawnSettings settings) =>
+        new RidleyBreakupPieceEntity(norfair, place, common, setup, settings);
 }

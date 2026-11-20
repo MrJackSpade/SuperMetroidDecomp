@@ -7,7 +7,8 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// <param name="species">The Ki-Hunter species owner.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, KiHunterSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
@@ -17,7 +18,7 @@ internal sealed class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyPlac
     private EnemyShotReaction OwnKiHunterShotReaction => field ??= species.KiHunterShotReactionOf(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal KiHunterBodyState State { get; } = species.InitializeKiHunter(place);
+    internal KiHunterBodyState State { get; } = species.InitializeKiHunter(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterBodyMainAi(Place, State, frame);

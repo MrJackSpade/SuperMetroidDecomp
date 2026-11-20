@@ -11,13 +11,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Zebetite species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemySettingsFactory<ZebetiteSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Zebetite];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new ZebetiteEntity(this, place, common, setup);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ZebetiteSpawnSettings settings) => new ZebetiteEntity(this, place, common, setup, settings);
 
     /// <summary>Initializes newly spawned Zebetite places through the common enemy lifecycle.</summary>
     private readonly IEnemyLifecycle _lifecycle;
@@ -75,12 +75,13 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sets a Zebetite up when the room spawns it.</summary>
     /// <param name="place">The half's place.</param>
     /// <param name="setup">How the half is set up: a linked half joins its primary, whom it holds as its linked half.</param>
-    internal ZebetiteEnemyState InitializeZebetite(RoomEnemyPlace place, EnemySetup setup)
+    /// <param name="settings">Which half the placement names.</param>
+    internal ZebetiteEnemyState InitializeZebetite(RoomEnemyPlace place, EnemySetup setup, ZebetiteSpawnSettings settings)
     {
         int generation = _room.Services.ZebetiteProgress.ZebetitesDestroyed;
         // A barrier every Zebetite's fall has destroyed shows nothing; a new barrier shows its form's unhurt picture.
         ZebetiteGenerationDefinition? standing = generation == PersistentProgress.ZebetiteCount ? null : Zebetites.Generation(generation);
-        var state = new ZebetiteEnemyState(place.Spawn.Population, standing is { } barrier
+        var state = new ZebetiteEnemyState(Ensure.NotNull(settings).Half, standing is { } barrier
             ? new ZebetiteShown.Picture(HealthPicture(barrier.Form, ZebetiteDefinitions.MaximumHealth))
             : ZebetiteShown.AllDestroyed);
         if (state.Half == ZebetiteHalf.Linked)

@@ -64,10 +64,10 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
 
     /// <summary>Initializes the Ceres steam, drawn where the motion <paramref name="motions"/> give its variant puts it.</summary>
     /// <exception cref="InvalidDataException">The room cannot place a vent of the variant's action.</exception>
-    internal CeresSteamEnemyState InitializeCeresSteam(RoomEnemyPlace place, CeresSteamVentMotions motions)
+    internal CeresSteamEnemyState InitializeCeresSteam(RoomEnemyPlace place, CeresSteamVentMotions motions, CeresSteamSpawnSettings settings)
     {
         CeresSteamInitialization initialization = CeresSteamInitializations.Initialization(
-            place.Spawn.Population.SpawnSettingsOf<CeresSteamSpawnSettings>().Variant);
+            Ensure.NotNull(settings).Variant);
 
         // The vent animates, which shows and hides its plume, and collides by its frames' plume rectangles, which no
         // radius can describe.

@@ -92,6 +92,9 @@ internal sealed class EnemyRoomEffects
                 case ChozoStatueObjectAsked chozo:
                     site.RoomObjects.ChozoStatue.TrySpawnChozoStatueObject(site.Level, chozo.Request);
                     break;
+                case ChozoStatueHandAsked hand:
+                    site.RoomObjects.ChozoStatue.TrySpawnChozoStatueHand(site.Level, hand.Request, hand.Hand);
+                    break;
                 case TorizoBellyGlowRequest glow:
                     site.ColourEffects.StartTorizoBellyGlow(glow.Glow, glow.Torizo, site.Samus.EquippedItems);
                     break;

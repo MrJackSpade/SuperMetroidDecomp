@@ -4,11 +4,12 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// <param name="species">The Fune/Namihe species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class NamiheEntity(FuneNamiheBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class NamiheEntity(FuneNamiheBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, NamiheSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal NamiheEnemyState State { get; } = FuneNamiheBehavior.InitializeNamihe(place);
+    internal NamiheEnemyState State { get; } = FuneNamiheBehavior.InitializeNamihe(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>

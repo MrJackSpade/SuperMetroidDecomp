@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Rinka species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class RinkaBehavior : IEnemySpecies, IEnemySettingsFactory<RinkaSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Rinka];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new RinkaEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, RinkaSpawnSettings settings) => new RinkaEntity(this, place, common, settings);
 
     /// <summary>Applies normal Samus contact damage before the Rinka's own death.</summary>
     private readonly EnemyCollision _collision;
@@ -68,9 +68,9 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Sets a Rinka up when the room spawns it.</summary>
-    internal RinkaEnemyState InitializeRinka(RoomEnemyPlace place)
+    internal RinkaEnemyState InitializeRinka(RoomEnemyPlace place, RinkaSpawnSettings settings)
     {
-        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, LifeAnimation(place), place.SpawnSettings<RinkaSpawnSettings>().SharedSpawnPoint);
+        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, LifeAnimation(settings.SharedSpawnPoint), settings.SharedSpawnPoint);
 
         // Every Rinka starts animating and untouchable. Mother Brain's Rinkas also run off-screen and never respawn;
         // an ordinary room Rinka respawns: its death explosion brings it back in its place in the room's listing.
@@ -124,18 +124,18 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AimDelay.LastFor(RinkaLifeDefinitions.AimDelayUpdates);
         state.Velocity = default;
 
-        if (IsSpecialRinka(place) && _rinkaTerminationFlag)
+        if (IsSpecialRinka(state) && _rinkaTerminationFlag)
         {
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
             return;
         }
-        state.Playback = RinkaEnemyState.Starting(LifeAnimation(place));
+        state.Playback = RinkaEnemyState.Starting(LifeAnimation(state.SpawnPoint));
         place.AnimationClock.Restart();
     }
 
     /// <summary>The animation each of <paramref name="place"/>'s lives starts: a special Rinka's or an ordinary one's.</summary>
-    private static RinkaSegment LifeAnimation(RoomEnemyPlace place) =>
-        IsSpecialRinka(place) ? RinkaSegment.KeptRunningOffScreen : RinkaSegment.Ordinary;
+    private static RinkaSegment LifeAnimation(RinkaSpawnPoint? sharedSpawnPoint) =>
+        sharedSpawnPoint is not null ? RinkaSegment.KeptRunningOffScreen : RinkaSegment.Ordinary;
 
     /// <summary>True while a door load still owes a special Rinka its spawn choice.</summary>
     public bool HasDeferredLoaderTimeCameraReads => _deferredRinkaSpawns.Count != 0;
@@ -167,7 +167,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_deferredRinkaSpawns.Count != 0)
             throw new InvalidOperationException(
                 "A Rinka ran before the door loader chose every special Rinka's spawn point.");
-        if (IsSpecialRinka(place) && _rinkaTerminationFlag)
+        if (IsSpecialRinka(state) && _rinkaTerminationFlag)
         {
             ReleaseSpecialRinkaSpawn(state);
             RunRinkaDeathAnimation(place);
@@ -228,7 +228,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         ReleaseSpecialRinkaSpawn(state);
-        if (!IsSpecialRinka(place))
+        if (!IsSpecialRinka(state))
         {
             RunRinkaDeathAnimation(place);
             return;
@@ -288,7 +288,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         RinkaEnemyState state)
     {
-        if (IsSpecialRinka(place))
+        if (IsSpecialRinka(state))
         {
             ReleaseSpecialRinkaSpawn(state);
             if (_rinkaTerminationFlag)
@@ -344,7 +344,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Distinguishes Mother Brain's parameterized spawn-sharing actors from ordinary room Rinkas.</summary>
-    private static bool IsSpecialRinka(RoomEnemyPlace place) => place.SpawnSettings<RinkaSpawnSettings>().SharedSpawnPoint is not null;
+    private static bool IsSpecialRinka(RinkaEnemyState state) => state.SpawnPoint is not null;
 
     /// <summary>Rinka's reaction to a bomb: the common damage without the generic death, then, when the hit kills it, Rinka's own death.</summary>
     /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>

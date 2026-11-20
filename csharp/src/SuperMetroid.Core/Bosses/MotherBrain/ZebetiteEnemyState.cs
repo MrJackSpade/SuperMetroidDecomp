@@ -11,12 +11,12 @@ public sealed class ZebetiteEnemyState
     /// Creates the state for one Zebetite half from its spawn parameters, its pairing, showing <paramref name="shown"/>. It
     /// has no linked half until a pair links its halves.
     /// </summary>
-    /// <param name="population">The half's spawn parameters.</param>
+    /// <param name="half">Which half the placement names.</param>
     /// <param name="shown">What the half shows: its barrier's picture, or nothing for a barrier every Zebetite's fall has destroyed.</param>
-    internal ZebetiteEnemyState(RoomEnemyPlacement population, ZebetiteShown shown)
+    internal ZebetiteEnemyState(ZebetiteHalf half, ZebetiteShown shown)
     {
         Shown = Ensure.NotNull(shown);
-        Half = population.SpawnSettingsOf<ZebetiteSpawnSettings>().Half;
+        Half = half;
         // A primary half first spawns its linked half, which itself waits out the door transition.
         Action = Half == ZebetiteHalf.Linked ? ZebetiteAction.WaitForDoorTransition : ZebetiteAction.SpawnLinkedHalf;
     }

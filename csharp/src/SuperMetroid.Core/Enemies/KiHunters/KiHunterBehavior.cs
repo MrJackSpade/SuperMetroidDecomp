@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>The Ki-Hunter species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class KiHunterBehavior : IEnemySpecies, IEnemySettingsFactory<KiHunterSpawnSettings>, IEnemySettingsFactory<KiHunterWingsSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
@@ -18,17 +18,20 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyDefinitionId.KihunterRedWings, EnemyDefinitionId.KihunterYellow, EnemyDefinitionId.KihunterYellowWings,
     ];
 
-    /// <summary>A body of any colour, or its wings (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Ki-Hunter definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    /// <inheritdoc/>
+    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition is EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterRed or EnemyDefinitionId.KihunterYellow)
-            return new KiHunterBodyEntity(this, place, common);
-        if (definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterRedWings or EnemyDefinitionId.KihunterYellowWings)
-            return new KiHunterWingsEntity(this, place, common);
-        throw new InvalidOperationException($"The Ki-Hunter species creates no {place.DefinitionId}.");
+        Ensure.NotNull(registry).Add<KiHunterSpawnSettings>(this);
+        registry.Add<KiHunterWingsSpawnSettings>(this);
     }
+
+    /// <summary>A body of any colour, winged or not as its placement names (#2146).</summary>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, KiHunterSpawnSettings settings) =>
+        new KiHunterBodyEntity(this, place, common, settings);
+
+    /// <summary>A body's wings, detaching at the health their placement names (#2146).</summary>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, KiHunterWingsSpawnSettings settings) =>
+        new KiHunterWingsEntity(this, place, common, settings);
 
     /// <summary>Provides the active room state used by Ki-Hunter movement.</summary>
     private readonly EnemyRoomBinding _room;
@@ -49,6 +52,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// a body reads them after its wings were deleted as set up, as a wingless Ki-Hunter's are.
     /// </summary>
     private readonly EnemyPartLinks<KiHunterWingsSpawnSettings> _wingSettingsOfBody = new();
+
+    /// <summary>What each body's placement told it, recorded as it is placed for the wings its room lists after it (#2554).</summary>
+    private readonly EnemyPartLinks<KiHunterSpawnSettings> _bodySettings = new();
 
     /// <summary>Connects Ki-Hunter AI to room collision, projectile, audio and place services.</summary>
     internal KiHunterBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyPlaces places)
@@ -89,9 +95,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Ki-Hunter body.</summary>
-    internal KiHunterBodyState InitializeKiHunter(RoomEnemyPlace body)
+    internal KiHunterBodyState InitializeKiHunter(RoomEnemyPlace body, KiHunterSpawnSettings settings)
     {
         _wingsOfBody.Place(body, _places.ListedAfter(body, 1));
+        _bodySettings.Place(body, settings);
         var state = new KiHunterBodyState(KiHunterAction.FlyingPatrol);
 
         // Every Ki-Hunter animation is played by the shared enemy animation, which this property admits.
@@ -106,7 +113,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // A wingless Ki-Hunter is the permanently ground-bound form. The wing listed after it
         // starts deleted and the body skips every later detachment side effect.
-        if (body.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
+        if (settings.Wings == KiHunterWings.Wingless)
         {
             state.Action = KiHunterAction.FallingAfterWingLoss;
             state.VerticalVelocity = KiHunterMotionDefinitions.WinglessFallStartVelocity;
@@ -115,17 +122,17 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Ki-Hunter's wings, which find their body listed right before them.</summary>
-    internal KiHunterWingState InitializeKiHunterWings(RoomEnemyPlace wings)
+    internal KiHunterWingState InitializeKiHunterWings(RoomEnemyPlace wings, KiHunterWingsSpawnSettings settings)
     {
         _bodyOfWings.Place(wings, _places.ListedBefore(wings, 1));
         RoomEnemyPlace body = GetKiHunterBody(wings);
-        _wingSettingsOfBody.Place(body, wings.SpawnSettings<KiHunterWingsSpawnSettings>());
+        _wingSettingsOfBody.Place(body, settings);
         var state = new KiHunterWingState(KiHunterWingAction.FollowBody);
 
         wings.Processing = wings.Processing.With(EnemyProcessing.Animates);
         StartKiHunterAnimation(wings, state, KiHunterSegment.WingsLeft);
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
-        if (body.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
+        if (_bodySettings.Of(body).Wings == KiHunterWings.Wingless)
             wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
         return state;
     }

@@ -7,8 +7,16 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 /// </summary>
 public sealed class HibashiEnemyState
 {
+    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
+    internal HibashiSpawnSettings Settings { get; }
+
     /// <summary>Starts the flame in <paramref name="action"/>.</summary>
-    internal HibashiEnemyState(HibashiAction action) => Action = action;
+    /// <param name="settings">What the enemy's population entry told its species.</param>
+    internal HibashiEnemyState(HibashiAction action, HibashiSpawnSettings settings)
+    {
+        Settings = Ensure.NotNull(settings);
+        Action = action;
+    }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<HibashiSegment> Playback { get; set; }

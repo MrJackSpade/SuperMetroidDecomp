@@ -4,7 +4,18 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 public sealed class FuneEnemyState : FuneNamiheEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal FuneEnemyState(FuneAction action) => Action = action;
+    /// <param name="settings">What the enemy's population entry told its species.</param>
+    internal FuneEnemyState(FuneAction action, FuneSpawnSettings settings)
+    {
+        Action = action;
+        Settings = Ensure.NotNull(settings);
+    }
+
+    /// <summary>What the enemy's population entry told its species, which it starts from and reads for its life (#2554).</summary>
+    internal FuneSpawnSettings Settings { get; }
+
+    /// <inheritdoc/>
+    internal override FuneNamiheSpawnSettings SharedSettings => Settings;
 
     /// <summary>The waiting or spitting behaviour.</summary>
     public FuneAction Action { get; internal set; }

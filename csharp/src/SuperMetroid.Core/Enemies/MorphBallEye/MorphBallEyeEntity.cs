@@ -7,11 +7,12 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// <param name="species">The MorphBallEye species owner.</param>
 /// <param name="place">The place the eye occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MorphBallEyeEntity(MorphBallEyeBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class MorphBallEyeEntity(MorphBallEyeBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, MorphBallEyeBodySpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal MorphBallEyeEnemyState State { get; } = MorphBallEyeBehavior.InitializeMorphBallEyeBody(place);
+    internal MorphBallEyeEnemyState State { get; } = MorphBallEyeBehavior.InitializeMorphBallEyeBody(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunMorphBallEyeMainAi(Place, State, frame);

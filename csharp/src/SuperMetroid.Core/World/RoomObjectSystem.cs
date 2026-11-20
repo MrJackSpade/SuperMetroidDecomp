@@ -159,7 +159,7 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
         SamusEater = new SamusEaterObjects(services.Samus, Places);
         EscapeAnimals = new EscapeAnimalObjects(services.Events, Places, Drawing);
         SpeedBoosterEscape = new SpeedBoosterEscapeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake);
-        ChozoStatue = new ChozoStatueObjects(room.System, room.Area, services.Enemies, services.RoomFx, Places);
+        ChozoStatue = new ChozoStatueObjects(room.System, room.Area, services.RoomFx, Places);
         DraygonCannons = new DraygonCannonObjects(services.Enemies);
         BombTorizoHand = reachedByEnemies.BombTorizoHand;
         NoobTube = new NoobTubeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies);

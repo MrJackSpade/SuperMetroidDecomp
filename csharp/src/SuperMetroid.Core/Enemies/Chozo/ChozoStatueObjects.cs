@@ -18,23 +18,24 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     /// <summary>The room's room objects, which the hand checks and the statues' objects join.</summary>
     private readonly RoomObjectPlaceList _places;
 
-    /// <summary>Starts the statue's hand sequence, which the room's enemies run, and names the room objects it spawns at once.</summary>
-    private readonly IChozoStatueHandActivation _hands;
+    /// <summary>
+    /// The statue each hand spawned in the room belongs to, by the hand's block: a hand is bound to its statue when the
+    /// statue asks for it (#2554).
+    /// </summary>
+    private readonly Dictionary<Position16<RoomBlocks>, IChozoStatueHandActivation> _hands = [];
     /// <summary>The room's liquid, which the Lower Norfair statue lowers.</summary>
     private readonly IRoomLiquid _roomFx;
 
     /// <summary>Binds Chozo hand behavior to its room services and room objects.</summary>
     /// <param name="system">The room's system and event state.</param>
     /// <param name="area">The room's area.</param>
-    /// <param name="hands">Starts the statue's hand sequence, which the room's enemies run.</param>
     /// <param name="roomFx">The room's liquid.</param>
     /// <param name="places">The room's room objects.</param>
-    internal ChozoStatueObjects(SharedGameState system, AreaId area, IChozoStatueHandActivation hands, IRoomLiquid roomFx,
+    internal ChozoStatueObjects(SharedGameState system, AreaId area, IRoomLiquid roomFx,
         RoomObjectPlaceList places)
     {
         _system = system;
         _area = area;
-        _hands = hands;
         _roomFx = roomFx;
         _places = places;
     }
@@ -52,7 +53,8 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
             behavior == ChozoStatueRoomDefinitions.WreckedShipHandBehavior;
         bool lowerNorfair = _area == AreaId.Norfair &&
             behavior == ChozoStatueRoomDefinitions.LowerNorfairHandBehavior;
-        if (!wreckedShip && !lowerNorfair) return;
+        // Only a statue's hand, spawned by the statue it belongs to, holds a hand's behaviour.
+        if ((!wreckedShip && !lowerNorfair) || !_hands.TryGetValue(block, out IChozoStatueHandActivation? hand)) return;
         // Both setups report the block solid regardless of admission. The morph-left pose
         // is deliberately absent: the game explicitly lists these three poses.
         bool eligible = movingDown && collisionPose is
@@ -70,10 +72,24 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
             // Both trigger setups clear only the hand block's type before waking the statue (#2502). Its behaviour, picture
             // and what it shows survive until the room object the statue then spawns runs.
             level.SetCollision(block, RoomCollisionType.Air);
-            foreach (RoomObjectSpawnRequest<ChozoStatueRoomObject> request in _hands.ActivateChozoStatueHand())
+            foreach (RoomObjectSpawnRequest<ChozoStatueRoomObject> request in hand.ActivateChozoStatueHand())
                 TrySpawnChozoStatueObject(level, request);
         }
         check.Delete();
+    }
+
+    /// <summary>
+    /// Spawns the statue's hand <paramref name="request"/> names at its block, bound to <paramref name="hand"/>, the statue it
+    /// belongs to, whose wake the hand's trigger starts.
+    /// </summary>
+    /// <returns>False when the room is full; nothing is spawned or bound then.</returns>
+    public bool TrySpawnChozoStatueHand(RoomLevelData level, RoomObjectSpawnRequest<ChozoStatueRoomObject> request, IChozoStatueHandActivation hand)
+    {
+        Ensure.NotNull(hand);
+        if (!TrySpawnChozoStatueObject(level, request))
+            return false;
+        _hands[Ensure.NotNull(level).GridBlock(request.Block)] = hand;
+        return true;
     }
 
     /// <summary>

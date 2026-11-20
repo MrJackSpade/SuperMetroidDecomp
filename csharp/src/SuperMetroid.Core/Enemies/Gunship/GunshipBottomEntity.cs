@@ -8,11 +8,12 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// <param name="place">The place the bottom hull occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="setup">How the enemy comes to be set up, whose surroundings its initialization reads.</param>
-internal sealed class GunshipBottomEntity(GunshipBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class GunshipBottomEntity(GunshipBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, GunshipSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal GunshipPieceState State { get; } = species.InitializeGunshipBottom(place, setup.SurroundingsOf(place).Samus);
+    internal GunshipPieceState State { get; } = species.InitializeGunshipBottom(place, setup.SurroundingsOf(place).Samus, settings);
 
     /// <summary>Takes no action of its own; the top hull moves the ship.</summary>
     /// <param name="frame">The enemy frame.</param>

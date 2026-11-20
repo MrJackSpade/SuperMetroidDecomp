@@ -8,11 +8,12 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// <param name="species">The MorphBallEye species owner.</param>
 /// <param name="place">The place the mount occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MorphBallEyeMountEntity(MorphBallEyeBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class MorphBallEyeMountEntity(MorphBallEyeBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, MorphBallEyeMountSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal MorphBallEyeMountState State { get; } = species.InitializeMorphBallEyeMount(place);
+    internal MorphBallEyeMountState State { get; } = species.InitializeMorphBallEyeMount(place, settings);
 
     /// <summary>A mount only shows its pose: its main AI does nothing.</summary>
     /// <param name="frame">The update's frame, which the mount does not read.</param>

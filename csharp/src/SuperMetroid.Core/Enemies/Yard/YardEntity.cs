@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Enemies.Yard;
 internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, YardSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The species' YardShotReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyShotReaction OwnYardShotReaction => field ??= species.YardShotReaction(State);
+
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal YardSpawnSettings Settings { get; } = settings;
 
@@ -35,7 +38,7 @@ internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant oc
     }
 
     /// <summary>The Yard's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == YardReactions.Shot ? species.YardShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == YardReactions.Shot ? OwnYardShotReaction : base.ShotReaction;
 
     /// <summary>The Yard's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

@@ -37,14 +37,15 @@ internal sealed class TorizoMovement
     /// Sets up Crateria's Bomb Torizo or Norfair's Golden Torizo as he spawns; which Torizo he is, not the room's area,
     /// chooses his values.
     /// </summary>
-    internal void InitializeTorizo(RoomEnemyPlace torizo, TorizoVariant variant, SamusState samus, GameplayAction controllerInput)
+    /// <returns>The state the Torizo holds from its setup.</returns>
+    internal TorizoEnemyState InitializeTorizo(RoomEnemyPlace torizo, TorizoVariant variant, SamusState samus, GameplayAction controllerInput)
     {
         var state = new TorizoEnemyState(variant)
         {
             // Every Torizo placement starts it standing, unstunned and whole, its face and gut not yet blown up.
             Posture = TorizoPosture.Initial,
         };
-        torizo.SetSpeciesState(state);
+
 
         // Each area keeps its own Torizo defeat, which both encounters read: a Torizo already beaten in this area
         // never appears.

@@ -11,6 +11,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemyPopulationSurroundings surroundings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The species' BabyMetroidShotReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyShotReaction OwnBabyMetroidShotReaction => field ??= species.BabyMetroidShotReaction(State);
+
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal BabyMetroidEnemyState State { get; } = BabyMetroidBehavior.InitializeBabyMetroid(place, surroundings.Camera.X);
 
@@ -34,7 +37,7 @@ internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyOc
     }
 
     /// <summary>Baby Metroid's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == BabyMetroidReactions.Shot ? species.BabyMetroidShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == BabyMetroidReactions.Shot ? OwnBabyMetroidShotReaction : base.ShotReaction;
 
     /// <summary>Runs the Baby Metroid's own bomb reaction, which comes before the ignoring check, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>

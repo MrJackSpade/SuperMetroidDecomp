@@ -9,6 +9,12 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, PlatformSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The species' TripperShotReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyShotReaction OwnTripperShotReaction => field ??= PlatformsBehavior.TripperShotReaction(State);
+
+    /// <summary>The species' TripperBombReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyBombReaction OwnTripperBombReaction => field ??= PlatformsBehavior.TripperBombReaction(State);
+
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal PlatformSpawnSettings Settings { get; } = settings;
 
@@ -22,12 +28,12 @@ internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemyOccupa
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PlatformsBehavior.AdvancePlatformsTypedAnimation(Place, State);
 
     /// <summary>The Tripper's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == PlatformsReactions.TripperShot ? PlatformsBehavior.TripperShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == PlatformsReactions.TripperShot ? OwnTripperShotReaction : base.ShotReaction;
 
     /// <summary>The Tripper's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == PlatformsReactions.TripperShot ? PlatformsBehavior.TripperBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == PlatformsReactions.TripperShot ? OwnTripperBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Tripper's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

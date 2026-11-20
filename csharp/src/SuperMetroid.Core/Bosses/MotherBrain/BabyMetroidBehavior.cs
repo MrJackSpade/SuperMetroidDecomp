@@ -745,14 +745,15 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Marks projectile collision and converts shot damage into recoil without vulnerability damage.</summary>
-    internal EnemyShotReaction BabyMetroidShotReaction => field ??= new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal EnemyShotReaction BabyMetroidShotReaction(BabyMetroidEnemyState state) => new()
     {
         // A shot marks its collision and the Baby recoils, without hurting it: the shot's strength and the first shot's
         // aim decide the recoil.
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            ResolveBabyMetroidShot(c.Enemy, c.Enemy.RequireSpeciesState<BabyMetroidEnemyState>(), c.Shot.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Shots));
+            ResolveBabyMetroidShot(c.Enemy, state, c.Shot.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Shots));
             return true;
         },
     };

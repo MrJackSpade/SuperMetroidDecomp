@@ -731,12 +731,13 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     }
 
     /// <summary>Routes bomb hits through the shared shot reaction without generic death animation.</summary>
-    internal EnemyBombReaction BotwoonBombReaction => field ??= new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal EnemyBombReaction BotwoonBombReaction(BotwoonEnemyState state) => new()
     {
         RunsGenericDeath = false,
         // Botwoon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<BotwoonEnemyState>()),
+        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, state),
     };
 
     /// <summary>Botwoon's body segments and spit (#1760): their spawners start their animations, and Botwoon runs them.</summary>
@@ -783,19 +784,21 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     }
 
     /// <summary>Applies power-bomb damage while preserving Botwoon's delayed death traversal.</summary>
-    internal EnemyPowerBombReaction BotwoonPowerBombReaction => field ??= new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal EnemyPowerBombReaction BotwoonPowerBombReaction(BotwoonEnemyState state) => new()
     {
         ExemptFromGenericDeath = true,
-        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<BotwoonEnemyState>()),
+        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, state),
     };
 
     /// <summary>Resolves the health bands and skips generic death on shot hits.</summary>
-    internal EnemyShotReaction BotwoonShotReaction => field ??= new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal EnemyShotReaction BotwoonShotReaction(BotwoonEnemyState state) => new()
     {
         ExemptFromGenericDeath = true,
         // Botwoon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<BotwoonEnemyState>()),
+        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, state),
     };
 
     /// <summary>Resolves Samus contact, leaving Botwoon at zero health to die his own way.</summary>

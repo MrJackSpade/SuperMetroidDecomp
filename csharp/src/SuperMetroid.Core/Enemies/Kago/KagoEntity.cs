@@ -9,10 +9,10 @@ internal sealed class KagoEntity(KagoBehavior species, RoomEnemyOccupant occupan
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The Kago's own shot reaction, built for this occupant.</summary>
-    private readonly EnemyShotReaction ownShot = species.KagoShotReaction(occupant, occupant.SpawnSettings<KagoSpawnSettings>());
+    private EnemyShotReaction OwnShot => field ??= species.KagoShotReaction(Occupant, Occupant.SpawnSettings<KagoSpawnSettings>(), State);
 
     /// <summary>The Kago's own stages around common bomb damage, built for this occupant.</summary>
-    private readonly EnemyBombReaction ownBomb = species.KagoBombReaction(occupant, occupant.SpawnSettings<KagoSpawnSettings>());
+    private EnemyBombReaction OwnBomb => field ??= species.KagoBombReaction(Occupant, Occupant.SpawnSettings<KagoSpawnSettings>(), State);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal KagoEnemyState State { get; } = KagoBehavior.InitializeKago(place);
@@ -21,12 +21,12 @@ internal sealed class KagoEntity(KagoBehavior species, RoomEnemyOccupant occupan
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KagoBehavior.AdvanceKagoTypedAnimation(Place, State);
 
     /// <summary>The Kago's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == KagoReactions.Shot ? ownShot : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == KagoReactions.Shot ? OwnShot : base.ShotReaction;
 
     /// <summary>The Kago's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == KagoReactions.Shot ? ownBomb : base.CommonBombDamageReaction(context);
+        context.SelectedShot == KagoReactions.Shot ? OwnBomb : base.CommonBombDamageReaction(context);
 
     /// <summary>The Kago's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

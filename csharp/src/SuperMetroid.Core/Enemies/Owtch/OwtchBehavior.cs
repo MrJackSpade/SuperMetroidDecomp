@@ -171,9 +171,10 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Allows common bomb damage only while the Owtch walks left, the one way its shell leaves it open.</summary>
-    internal static EnemyBombReaction OwtchBombReaction { get; } = new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal static EnemyBombReaction OwtchBombReaction(OwtchEnemyState state) => new()
     {
-        Rejects = c => !OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()),
+        Rejects = c => !OwtchAcceptsOrdinaryShot(state),
     };
 
     /// <summary>Runs Owtch's main AI.</summary>
@@ -195,11 +196,12 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Turns ordinary shots away from Owtch's shell unless it is walking left.</summary>
     /// <remarks>A shot the shell turns away does no damage, and a non-Plasma shot still ends where it struck, so the
     /// shell is immune while Owtch moves right, sinks, is buried or rises.</remarks>
-    internal static EnemyShotReaction OwtchShotReaction { get; } = new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal static EnemyShotReaction OwtchShotReaction(OwtchEnemyState state) => new()
     {
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            if (OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()))
+            if (OwtchAcceptsOrdinaryShot(state))
                 return false;
             if (c.MarksCollision)
                 c.Projectile.Spend();

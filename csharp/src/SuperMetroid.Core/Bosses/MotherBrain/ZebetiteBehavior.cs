@@ -272,12 +272,13 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Lets a bomb finish as a shot does on the Zebetite, without the generic death.</summary>
-    internal EnemyBombReaction ZebetiteBombReaction => field ??= new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal EnemyBombReaction ZebetiteBombReaction(ZebetiteEnemyState state) => new()
     {
         RunsGenericDeath = false,
         // The bomb's common damage shows no hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<ZebetiteEnemyState>()),
+        AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy, state),
     };
 
     /// <summary>Runs Zebetite's main AI.</summary>
@@ -288,13 +289,14 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs shot damage, then shares it across the linked Zebetites' health, with no generic death.</summary>
-    internal EnemyShotReaction ZebetiteShotReaction => field ??= new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal EnemyShotReaction ZebetiteShotReaction(ZebetiteEnemyState state) => new()
     {
         EndsWithoutImpact = true,
         ExemptFromGenericDeath = true,
         // The Zebetite's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<ZebetiteEnemyState>()),
+        AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy, state),
     };
 
     /// <summary>Routes Zebetite contact through normal touch collision while skipping generic death animation.</summary>

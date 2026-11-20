@@ -88,9 +88,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs a bomb's common damage on Kago before its quake, its hit count and its bug spawn.</summary>
     /// <param name="kago">The Kago the reaction is built for, whose sheet the objects it spawns draw from.</param>
     /// <param name="kagoSpawnSettings">What the enemy's population entry tells its species.</param>
-    internal EnemyBombReaction KagoBombReaction(RoomEnemyOccupant kago, KagoSpawnSettings kagoSpawnSettings) => new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal EnemyBombReaction KagoBombReaction(RoomEnemyOccupant kago, KagoSpawnSettings kagoSpawnSettings, KagoEnemyState state) => new()
     {
-        AfterCommon = c => ResolveKagoShotAfterCommon(kago, kagoSpawnSettings, c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
+        AfterCommon = c => ResolveKagoShotAfterCommon(kago, kagoSpawnSettings, c.Enemy, state),
     };
 
     /// <summary>A Kago bug (#1760).</summary>
@@ -290,9 +291,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies Kago's shell response after the common projectile-shot reaction has resolved damage.</summary>
     /// <param name="kago">The Kago the reaction is built for, whose sheet the objects it spawns draw from.</param>
     /// <param name="kagoSpawnSettings">What the enemy's population entry tells its species.</param>
-    internal EnemyShotReaction KagoShotReaction(RoomEnemyOccupant kago, KagoSpawnSettings kagoSpawnSettings) => new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal EnemyShotReaction KagoShotReaction(RoomEnemyOccupant kago, KagoSpawnSettings kagoSpawnSettings, KagoEnemyState state) => new()
     {
-        AfterCommon = c => ResolveKagoShotAfterCommon(kago, kagoSpawnSettings, c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
+        AfterCommon = c => ResolveKagoShotAfterCommon(kago, kagoSpawnSettings, c.Enemy, state),
     };
 
     /// <summary>Spawns and initializes a Kago bug; with no projectile place free, none spawns.</summary>

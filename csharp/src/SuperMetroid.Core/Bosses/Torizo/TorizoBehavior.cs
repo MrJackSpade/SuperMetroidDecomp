@@ -19,13 +19,18 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Bomb Torizo or Golden Torizo (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Torizo definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        throw new InvalidOperationException($"Enemy {Ensure.NotNull(occupant).DefinitionId} is only placed by its room's population load.");
+
+    /// <inheritdoc/>
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.BombTorizo)
-            return EnemyOccupant.FromSurroundings(new BombTorizoEntity(this, occupant, place, common));
+            return EnemyOccupant.Running(new BombTorizoEntity(this, occupant, place, common, surroundings));
         if (definition == EnemyDefinitionId.GoldenTorizo)
-            return EnemyOccupant.FromSurroundings(new GoldenTorizoEntity(this, occupant, place, common));
+            return EnemyOccupant.Running(new GoldenTorizoEntity(this, occupant, place, common, surroundings));
         throw new InvalidOperationException($"The Torizo species creates no {occupant.DefinitionId}.");
     }
 

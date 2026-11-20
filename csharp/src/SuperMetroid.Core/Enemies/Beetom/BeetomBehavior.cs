@@ -473,9 +473,10 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Beetom's reaction to a bomb: after the common damage, it lets go of Samus.</summary>
     /// <remarks>Common damage can kill the Beetom before it lets go; a Beetom it kills has nothing left to let go of.</remarks>
-    internal static EnemyBombReaction BeetomBombReaction { get; } = new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal static EnemyBombReaction BeetomBombReaction(BeetomEnemyState state) => new()
     {
-        AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<BeetomEnemyState>()),
+        AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy, state),
     };
 
     /// <summary>Runs Beetom's main AI.</summary>
@@ -493,9 +494,10 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Clears attachment after every accepted common shot, including zero damage.</summary>
     /// <remarks>Beetom lets go after the common damage of every accepted hit, including a hit that deals it no
     /// damage.</remarks>
-    internal static EnemyShotReaction BeetomShotReaction { get; } = new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal static EnemyShotReaction BeetomShotReaction(BeetomEnemyState state) => new()
     {
-        AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<BeetomEnemyState>()),
+        AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy, state),
     };
 
     /// <summary>Attaches Beetom to Samus on its selected custom contact reaction.</summary>

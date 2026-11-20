@@ -46,7 +46,13 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant o
     }
 
     /// <summary>The Metroid's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MetroidReactions.Shot ? species.ShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MetroidReactions.Shot ? OwnShot : base.ShotReaction;
+
+    /// <summary>The Metroid's own shot reaction, built once for this Metroid with its state (#2554).</summary>
+    private EnemyShotReaction OwnShot => field ??= species.ShotReaction(State);
+
+    /// <summary>The Metroid's own Power Bomb reaction, built once for this Metroid with its state (#2554).</summary>
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= MetroidBehavior.PowerBombReaction(State);
 
     /// <summary>The Metroid's own bomb reaction, which comes before the ignoring check, where its definition leaves shots to it.</summary>
     /// <param name="context">The bomb contact.</param>
@@ -60,7 +66,7 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant o
 
     /// <summary>The Metroid's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
     public override EnemyPowerBombReaction PowerBombReaction =>
-        LeavesPowerBombToSpecies ? MetroidBehavior.PowerBombReaction : base.PowerBombReaction;
+        LeavesPowerBombToSpecies ? OwnPowerBomb : base.PowerBombReaction;
 
     /// <summary>The Metroid's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path selects (none: the definition leaves shots to the Metroid), or the empty frame's.</param>

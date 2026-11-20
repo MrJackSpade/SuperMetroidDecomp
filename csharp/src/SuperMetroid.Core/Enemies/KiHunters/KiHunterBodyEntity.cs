@@ -12,6 +12,12 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 internal sealed class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KiHunterSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The species' KiHunterShotReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyShotReaction OwnKiHunterShotReaction => field ??= species.KiHunterShotReaction(State);
+
+    /// <summary>The species' KiHunterBombReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyBombReaction OwnKiHunterBombReaction => field ??= species.KiHunterBombReaction(State);
+
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal KiHunterSpawnSettings Settings { get; } = settings;
 
@@ -25,12 +31,12 @@ internal sealed class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccu
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceKiHunterBodyTypedAnimation(Occupant, Place, State);
 
     /// <summary>The Ki-Hunter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == KiHunterReactions.Shot ? species.KiHunterShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == KiHunterReactions.Shot ? OwnKiHunterShotReaction : base.ShotReaction;
 
     /// <summary>The Ki-Hunter's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == KiHunterReactions.Shot ? species.KiHunterBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == KiHunterReactions.Shot ? OwnKiHunterBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Ki-Hunter's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

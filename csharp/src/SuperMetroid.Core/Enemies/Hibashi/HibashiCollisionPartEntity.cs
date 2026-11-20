@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 /// <param name="place">The place the collision part occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class HibashiCollisionPartEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => HibashiBehavior.InitializeHibashiCollisionPart(Place);
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal HibashiCollisionPartState State { get; } = HibashiBehavior.InitializeHibashiCollisionPart(place);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => HibashiBehavior.AdvanceHibashiCollisionPartTypedAnimation(Place, Place.RequireSpeciesState<HibashiCollisionPartState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => HibashiBehavior.AdvanceHibashiCollisionPartTypedAnimation(Place, State);
 }

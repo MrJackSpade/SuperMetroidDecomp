@@ -261,12 +261,13 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Replaces a frozen Tripper's frame after common Bomb reaction using its movement direction.</summary>
-    internal static EnemyBombReaction TripperBombReaction { get; } = new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal static EnemyBombReaction TripperBombReaction(PlatformEnemyState state) => new()
     {
         AfterCommon = c =>
         {
             if (c.Enemy.Freeze.IsRunning)
-                c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
+                c.Enemy.Frame = TripperFrozenFrame(state.XMovement);
         },
     };
 
@@ -289,12 +290,13 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies Tripper's direction-specific frozen frame after a successful common shot freeze.</summary>
     /// <remarks>After the common shot reaction freezes a Tripper at once, its current frame is replaced with its direction's
     /// frozen frame.</remarks>
-    internal static EnemyShotReaction TripperShotReaction { get; } = new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal static EnemyShotReaction TripperShotReaction(PlatformEnemyState state) => new()
     {
         AfterCommon = c =>
         {
             if (c.Froze)
-                c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
+                c.Enemy.Frame = TripperFrozenFrame(state.XMovement);
         },
     };
 

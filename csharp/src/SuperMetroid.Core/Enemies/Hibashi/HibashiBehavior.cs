@@ -11,7 +11,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The Hibashi's flame, or the collision part its placement names (#2342).</summary>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         occupant.SpawnSettings<HibashiSpawnSettings>() is HibashiCollisionPartSpawnSettings
-            ? EnemyOccupant.WithoutMainAi(new HibashiCollisionPartEntity(occupant, place, common))
+            ? EnemyOccupant.PlacedOnly(new HibashiCollisionPartEntity(occupant, place, common))
             : EnemyOccupant.Running(new HibashiEntity(this, occupant, place, common, occupant.SpawnSettings<HibashiFlameSpawnSettings>()));
 
     /// <summary>The room's enemy places, where each visible geyser finds its hitbox when it is placed.</summary>
@@ -48,11 +48,12 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the collision part, which holds the one-frame hitbox animation.</summary>
-    internal static void InitializeHibashiCollisionPart(RoomEnemyPlace place) =>
-        place.SetSpeciesState(new HibashiCollisionPartState
+    /// <returns>The state the collision part holds from its setup.</returns>
+    internal static HibashiCollisionPartState InitializeHibashiCollisionPart(RoomEnemyPlace place) =>
+        new()
         {
             Playback = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Hitbox)),
-        });
+        };
 
     /// <summary>
     /// Initializes the flame: it sets up its first wait (<see cref="HibashiDefinitions.FirstWait"/>) and the collision part

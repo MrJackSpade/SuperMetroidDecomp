@@ -149,20 +149,22 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The power-bomb response, which ignores corpses already marked decomposed.</summary>
-    internal static EnemyPowerBombReaction DeadTourianPowerBombReaction { get; } = new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal static EnemyPowerBombReaction DeadTourianPowerBombReaction(DeadTourianCorpseEnemyState state) => new()
     {
-        ReplacesCommon = c => ResolveDeadTourianCorpsePowerBomb(c.Enemy, c.Enemy.RequireSpeciesState<DeadTourianCorpseEnemyState>()),
+        ReplacesCommon = c => ResolveDeadTourianCorpsePowerBomb(c.Enemy, state),
     };
 
     /// <summary>Shot handling that marks the shot's hit and starts decomposition without health damage.</summary>
     /// <remarks>A shot makes the corpse keep updating off screen and lets Samus pass through it, and starts its rot; it
     /// deals no damage and makes no impact.</remarks>
-    internal static EnemyShotReaction DeadTourianShotReaction { get; } = new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal static EnemyShotReaction DeadTourianShotReaction(DeadTourianCorpseEnemyState state) => new()
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            TriggerDeadTourianCorpseRotting(c.Enemy, c.Enemy.RequireSpeciesState<DeadTourianCorpseEnemyState>());
+            TriggerDeadTourianCorpseRotting(c.Enemy, state);
             return true;
         },
     };

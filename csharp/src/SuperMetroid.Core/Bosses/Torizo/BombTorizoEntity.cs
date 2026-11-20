@@ -7,11 +7,13 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place Bomb Torizo occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class BombTorizoEntity(TorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : TorizoEntity(species, occupant, place, common)
+/// <param name="surroundings">The room, Samus, controller and camera the population load sets the Torizo up in.</param>
+internal sealed class BombTorizoEntity(TorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    EnemyPopulationSurroundings surroundings)
+    : TorizoEntity(species, occupant, place, common, surroundings, TorizoVariant.Bomb)
 {
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunBombTorizoMainAi(Occupant, Place, Place.RequireSpeciesState<TorizoEnemyState>(), frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunBombTorizoMainAi(Occupant, Place, State, frame);
 
     /// <summary>He is Crateria's Bomb Torizo.</summary>
     protected override TorizoVariant Variant => TorizoVariant.Bomb;
@@ -22,17 +24,17 @@ internal sealed class BombTorizoEntity(TorizoBehavior species, RoomEnemyOccupant
     /// <inheritdoc/>
     public override bool RunHurt(RoomEnemyFrame frame)
     {
-        Species.Combat.ApplyBombTorizoHurt(Occupant, Place, Place.RequireSpeciesState<TorizoEnemyState>());
+        Species.Combat.ApplyBombTorizoHurt(Occupant, Place, State);
         return true;
     }
 
     /// <inheritdoc/>
-    protected override EnemyShotReaction OwnShotReaction => Species.Combat.BombTorizoShotReaction;
+    protected override EnemyShotReaction OwnShotReaction => field ??= TorizoCombat.BombTorizoShotReaction(State);
 
     /// <inheritdoc/>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        Species.Combat.ReactToBombTorizoBomb(context, context.Enemy.RequireSpeciesState<TorizoEnemyState>());
+        Species.Combat.ReactToBombTorizoBomb(context, State);
         return true;
     }
 }

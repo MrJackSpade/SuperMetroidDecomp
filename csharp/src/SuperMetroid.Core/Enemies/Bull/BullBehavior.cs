@@ -198,13 +198,14 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Applies Bull's immune-hit recoil after common bomb damage handling: a bomb that leaves the Bull's health alone kicks
     /// it straight up (<see cref="BullMovementDefinitions.BombKickAngle"/>), so a killed Bull has no reaction.
     /// </summary>
-    internal EnemyBombReaction BombReaction { get; } =
+    /// <param name="state">The state of the Bull the reaction is built for.</param>
+    internal static EnemyBombReaction BombReaction(BullEnemyState state) =>
         new()
         {
             AfterCommon = c =>
             {
                 if (c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMovementDefinitions.BombKickAngle);
+                    ResolveBullImmuneShot(c.Enemy, state, BullMovementDefinitions.BombKickAngle);
             },
         };
 
@@ -212,13 +213,14 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Applies recoil after a frozen or undamaging accepted projectile hit. Only such a hit kicks the Bull, so a killed
     /// Bull has no reaction.
     /// </summary>
-    internal EnemyShotReaction ShotReaction { get; } =
+    /// <param name="state">The state of the Bull the reaction is built for.</param>
+    internal static EnemyShotReaction ShotReaction(BullEnemyState state) =>
         new()
         {
             AfterCommon = c =>
             {
                 if (c.Froze || c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMovementDefinitions.ShotAngles.For(c.ProjectileDirection));
+                    ResolveBullImmuneShot(c.Enemy, state, BullMovementDefinitions.ShotAngles.For(c.ProjectileDirection));
             },
         };
 }

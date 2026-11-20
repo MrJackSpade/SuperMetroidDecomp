@@ -7,11 +7,13 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place Golden Torizo occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class GoldenTorizoEntity(TorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : TorizoEntity(species, occupant, place, common)
+/// <param name="surroundings">The room, Samus, controller and camera the population load sets the Torizo up in.</param>
+internal sealed class GoldenTorizoEntity(TorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    EnemyPopulationSurroundings surroundings)
+    : TorizoEntity(species, occupant, place, common, surroundings, TorizoVariant.Golden)
 {
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunGoldenTorizoMainAi(Occupant, Place, Place.RequireSpeciesState<TorizoEnemyState>(), frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunGoldenTorizoMainAi(Occupant, Place, State, frame);
 
     /// <summary>He is Norfair's Golden Torizo.</summary>
     protected override TorizoVariant Variant => TorizoVariant.Golden;
@@ -22,17 +24,17 @@ internal sealed class GoldenTorizoEntity(TorizoBehavior species, RoomEnemyOccupa
     /// <inheritdoc/>
     public override bool RunHurt(RoomEnemyFrame frame)
     {
-        Species.Combat.ApplyGoldenTorizoHurt(Occupant, Place, Place.RequireSpeciesState<TorizoEnemyState>());
+        Species.Combat.ApplyGoldenTorizoHurt(Occupant, Place, State);
         return true;
     }
 
     /// <inheritdoc/>
-    protected override EnemyShotReaction OwnShotReaction => Species.Combat.GoldenTorizoShotReaction;
+    protected override EnemyShotReaction OwnShotReaction => field ??= TorizoCombat.GoldenTorizoShotReaction(State);
 
     /// <inheritdoc/>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        Species.Combat.ReactToGoldenTorizoBomb(context, context.Enemy.RequireSpeciesState<TorizoEnemyState>());
+        Species.Combat.ReactToGoldenTorizoBomb(context, State);
         return true;
     }
 

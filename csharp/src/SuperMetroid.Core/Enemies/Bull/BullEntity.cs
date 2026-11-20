@@ -26,12 +26,18 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemyOccupant occupan
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BullBehavior.AdvanceBullAnimation(Place, State);
 
     /// <summary>The Bull's own recoil reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == BullReactions.Shot ? species.ShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == BullReactions.Shot ? OwnShot : base.ShotReaction;
+
+    /// <summary>The Bull's own shot reaction, built once for this Bull with its state (#2554).</summary>
+    private EnemyShotReaction OwnShot => field ??= BullBehavior.ShotReaction(State);
+
+    /// <summary>The Bull's own bomb stages, built once for this Bull with its state (#2554).</summary>
+    private EnemyBombReaction OwnBomb => field ??= BullBehavior.BombReaction(State);
 
     /// <summary>The Bull's own bomb recoil around common bomb damage, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == BullReactions.Shot ? species.BombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == BullReactions.Shot ? OwnBomb : base.CommonBombDamageReaction(context);
 
     /// <summary>The Bull's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

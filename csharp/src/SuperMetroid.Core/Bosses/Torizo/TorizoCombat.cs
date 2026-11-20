@@ -112,20 +112,24 @@ internal sealed class TorizoCombat
 
 
     /// <summary>Bomb Torizo's shot reaction (#2240): its hitbox reactions before impact, then common damage without its death.</summary>
-    internal EnemyShotReaction BombTorizoShotReaction => field ??= ShotReaction(ResolveBombTorizoShotBeforeImpact);
+    /// <param name="state">The state of the Torizo the reaction is built for.</param>
+    internal static EnemyShotReaction BombTorizoShotReaction(TorizoEnemyState state) =>
+        ShotReaction(state, (in EnemyShotContext c) => ResolveBombTorizoShotBeforeImpact(c, state));
 
     /// <summary>
     /// Golden Torizo's shot reaction (#2240): its own catches, dodges and stuns before impact, then common damage without its
     /// death. Its definition's own reaction and its body hitboxes' ordinary reaction both come here.
     /// </summary>
-    internal EnemyShotReaction GoldenTorizoShotReaction => field ??= ShotReaction(ResolveGoldenTorizoShotBeforeImpact);
+    /// <param name="state">The state of the Torizo the reaction is built for.</param>
+    internal static EnemyShotReaction GoldenTorizoShotReaction(TorizoEnemyState state) =>
+        ShotReaction(state, (in EnemyShotContext c) => ResolveGoldenTorizoShotBeforeImpact(c, state));
 
     /// <summary>
     /// A Torizo's shot reaction, resolving each hit first by <paramref name="beforeImpact"/>. Its stand-up and sit-down
     /// frames' transitional reaction must stay distinguishable from the ordinary one, which the before-impact resolution
     /// tells apart.
     /// </summary>
-    private static EnemyShotReaction ShotReaction(EnemyShotStage beforeImpact) => new()
+    private static EnemyShotReaction ShotReaction(TorizoEnemyState state, EnemyShotStage beforeImpact) => new()
     {
         BeforeImpact = beforeImpact,
         ExemptFromGenericDeath = true,
@@ -134,7 +138,7 @@ internal sealed class TorizoCombat
         AfterCommon = c =>
         {
             if (c.Enemy.Health == 0)
-                BeginTorizoDeath(c.Enemy, c.Enemy.RequireSpeciesState<TorizoEnemyState>());
+                BeginTorizoDeath(c.Enemy, state);
         },
     };
 
@@ -150,10 +154,9 @@ internal sealed class TorizoCombat
     /// Bomb Torizo's guards before shared shot damage (#2240): its stand-up and sit-down frames take no shot, nor does it
     /// during its hurt flash or while its animation is locked; each such hit is consumed. Returns whether it was.
     /// </summary>
-    internal static bool ResolveBombTorizoShotBeforeImpact(in EnemyShotContext c)
+    internal static bool ResolveBombTorizoShotBeforeImpact(in EnemyShotContext c, TorizoEnemyState torizoState)
     {
         RoomEnemyPlace enemy = c.Enemy;
-        TorizoEnemyState torizoState = enemy.RequireSpeciesState<TorizoEnemyState>();
         if (c.HitboxShot == TorizoReactions.StandUpSitDownShot || enemy.HurtFlash.IsRunning || torizoState.AnimationLocked)
         {
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
@@ -166,10 +169,9 @@ internal sealed class TorizoCombat
     /// Golden Torizo's guards and missile catches before shared shot damage (#2240); returns true when the hit was consumed
     /// by a special reaction.
     /// </summary>
-    internal static bool ResolveGoldenTorizoShotBeforeImpact(in EnemyShotContext c)
+    internal static bool ResolveGoldenTorizoShotBeforeImpact(in EnemyShotContext c, TorizoEnemyState torizoState)
     {
         RoomEnemyPlace enemy = c.Enemy;
-        TorizoEnemyState torizoState = enemy.RequireSpeciesState<TorizoEnemyState>();
         // The stand-up and sit-down frames admit common no-death damage only while the flash timer is zero and the body's
         // animation is unlocked, and never reach the catches: missiles are not caught, Supers are not reflected, and the
         // counterattack is not armed through these transitional body rectangles.
@@ -197,7 +199,7 @@ internal sealed class TorizoCombat
                 c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                 c.Projectile.FlyOn();
                 torizoState.Phase = TorizoPhase.Idle;
-                TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.FacesRight(enemy, enemy.RequireSpeciesState<TorizoEnemyState>())
+                TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.FacesRight(enemy, torizoState)
                     ? TorizoAnimation.GoldenDodgeTurningRight
                     : TorizoAnimation.GoldenDodgeTurningLeft));
                 return true;
@@ -205,17 +207,17 @@ internal sealed class TorizoCombat
 
             if (c.Family == SamusProjectileFamily.SuperMissile)
             {
-                if (TorizoFacing.FacesSamus(enemy, enemy.RequireSpeciesState<TorizoEnemyState>(), c.Samus))
+                if (TorizoFacing.FacesSamus(enemy, torizoState, c.Samus))
                 {
                     c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                     torizoState.CaughtSuperMissile = true;
                     torizoState.Phase = TorizoPhase.Idle;
                     c.Projectile.Spend();
-                    TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.Posture(enemy, enemy.RequireSpeciesState<TorizoEnemyState>()).LeadsWithFarFoot
-                        ? TorizoFacing.FacesRight(enemy, enemy.RequireSpeciesState<TorizoEnemyState>())
+                    TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.Posture(enemy, torizoState).LeadsWithFarFoot
+                        ? TorizoFacing.FacesRight(enemy, torizoState)
                             ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileLeftLegForward
                             : TorizoAnimation.GoldenFacingLeftCatchingSuperMissileRightLegForward
-                        : TorizoFacing.FacesRight(enemy, enemy.RequireSpeciesState<TorizoEnemyState>())
+                        : TorizoFacing.FacesRight(enemy, torizoState)
                             ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileRightLegForward
                             : TorizoAnimation.GoldenFacingLeftCatchingSuperMissileLeftLegForward));
                     return true;

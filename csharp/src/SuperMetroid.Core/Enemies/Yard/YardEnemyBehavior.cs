@@ -604,7 +604,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Kicks a struck Yard's shell into the air, or lets a bomb's or a power bomb's vulnerability damage run.</summary>
-    internal EnemyShotReaction YardShotReaction => field ??= new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal EnemyShotReaction YardShotReaction(YardEnemyState state) => new()
     {
         AdmitsBombFamilies = true,
         // A bomb or a power bomb deals the Yard its vulnerability damage; every other shot that strikes it only kicks
@@ -613,7 +614,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
                 return false;
-            ResolveYardBeamLaunch(c.Enemy, c.Enemy.RequireSpeciesState<YardEnemyState>(), c.Samus);
+            ResolveYardBeamLaunch(c.Enemy, state, c.Samus);
             return true;
         },
     };

@@ -22,7 +22,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (definition == EnemyDefinitionId.EtecoonEscape)
             return EnemyOccupant.Running(new EscapeEtecoonEntity(this, occupant, place, common, occupant.SpawnSettings<EscapeEtecoonSpawnSettings>()));
         if (definition == EnemyDefinitionId.DachoraEscape)
-            return EnemyOccupant.WithoutMainAi(new EscapeDachoraEntity(this, occupant, place, common));
+            return EnemyOccupant.PlacedOnly(new EscapeDachoraEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The escape animals species creates no {occupant.DefinitionId}.");
     }
 
@@ -67,21 +67,22 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the escape Dachora.</summary>
-    internal void InitializeEscapeDachora(RoomEnemyPlace place)
+    /// <returns>The state the Dachora holds from its setup.</returns>
+    internal EscapeDachoraEnemyState InitializeEscapeDachora(RoomEnemyPlace place)
     {
-        place.SetSpeciesState(new EscapeDachoraEnemyState());
+        var state = new EscapeDachoraEnemyState();
         if (HasCrittersEscaped())
         {
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
-            return;
+            return state;
         }
 
         // Dachora's placement already animates and keeps it from touching Samus; the setup makes it animate again.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.Restart();
-        place.RequireSpeciesState<EscapeDachoraEnemyState>().Playback =
-            new(EscapeDachoraAnimations.RunningAroundLowTide, AnimationPlace.StartOfAnimation);
+        state.Playback = new(EscapeDachoraAnimations.RunningAroundLowTide, AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>Runs an escaping Etecoon's action.</summary>

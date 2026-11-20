@@ -721,9 +721,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(wings, KiHunterAnimations.StartingWith(segment));
 
     /// <summary>Runs wing-detachment logic after common bomb damage to a Ki-Hunter body.</summary>
-    internal EnemyBombReaction KiHunterBombReaction => field ??= new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal EnemyBombReaction KiHunterBombReaction(KiHunterBodyState state) => new()
     {
-        AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KiHunterBodyState>()),
+        AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy, state),
     };
 
     /// <summary>Ki-Hunter acid, spat either way (#1760).</summary>
@@ -802,9 +803,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 : null);
 
     /// <summary>Runs wing-detachment logic after common shot damage to a body.</summary>
-    internal EnemyShotReaction KiHunterShotReaction => field ??= new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal EnemyShotReaction KiHunterShotReaction(KiHunterBodyState state) => new()
     {
-        AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KiHunterBodyState>()),
+        AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy, state),
     };
 
     /// <summary>

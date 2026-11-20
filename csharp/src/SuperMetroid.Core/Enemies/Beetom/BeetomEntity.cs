@@ -9,6 +9,12 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemyPopulationSurroundings surroundings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The species' BeetomShotReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyShotReaction OwnBeetomShotReaction => field ??= BeetomBehavior.BeetomShotReaction(State);
+
+    /// <summary>The species' BeetomBombReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyBombReaction OwnBeetomBombReaction => field ??= BeetomBehavior.BeetomBombReaction(State);
+
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal BeetomEnemyState State { get; } = species.InitializeBeetom(place, Ensure.NotNull(surroundings).Samus, surroundings.ControllerInput);
 
@@ -32,12 +38,12 @@ internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemyOccupant occ
     }
 
     /// <summary>The Beetom's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == BeetomReactions.Shot ? BeetomBehavior.BeetomShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == BeetomReactions.Shot ? OwnBeetomShotReaction : base.ShotReaction;
 
     /// <summary>The Beetom's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == BeetomReactions.Shot ? BeetomBehavior.BeetomBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == BeetomReactions.Shot ? OwnBeetomBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Beetom's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

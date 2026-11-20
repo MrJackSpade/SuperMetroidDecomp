@@ -221,19 +221,21 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts corpse rotting on a power bomb without common damage handling.</summary>
-    internal EnemyPowerBombReaction DeadTorizoPowerBombReaction => field ??= new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal EnemyPowerBombReaction DeadTorizoPowerBombReaction(DeadTorizoEnemyState state) => new()
     {
-        ReplacesCommon = c => TriggerDeadTorizoPowerBomb(c.Enemy, c.Enemy.RequireSpeciesState<DeadTorizoEnemyState>()),
+        ReplacesCommon = c => TriggerDeadTorizoPowerBomb(c.Enemy, state),
     };
 
     /// <summary>Marks projectile collision and starts rotting without impact animation or health loss.</summary>
-    internal EnemyShotReaction DeadTorizoShotReaction => field ??= new()
+    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
+    internal EnemyShotReaction DeadTorizoShotReaction(DeadTorizoEnemyState state) => new()
     {
         // A shot is marked as having hit the corpse, deals no damage and makes no explosion, and starts the rot.
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            TriggerDeadTorizoRotting(c.Enemy, c.Enemy.RequireSpeciesState<DeadTorizoEnemyState>());
+            TriggerDeadTorizoRotting(c.Enemy, state);
             return true;
         },
     };

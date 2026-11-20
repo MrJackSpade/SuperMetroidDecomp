@@ -12,8 +12,11 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the Torizo occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction, ILitTorizo
+/// <param name="surroundings">The room, Samus, controller and camera the population load sets the Torizo up in.</param>
+/// <param name="variant">Which Torizo the entity is.</param>
+internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    EnemyPopulationSurroundings surroundings, TorizoVariant variant)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction, ILitTorizo
 {
     /// <summary>The Torizo species owner.</summary>
     protected TorizoBehavior Species => species;
@@ -21,8 +24,8 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant o
     /// <summary>Whether this Torizo has no health left: its belly's glow ends on the first update it sees so (#1700).</summary>
     public bool IsDefeated => Place.Health == 0;
 
-    /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) => Species.Movement.InitializeTorizo(Place, Variant, surroundings.Samus, surroundings.ControllerInput);
+    /// <summary>The Torizo's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal TorizoEnemyState State { get; } = species.Movement.InitializeTorizo(place, variant, surroundings.Samus, surroundings.ControllerInput);
 
     /// <summary>Which Torizo this is, Crateria's Bomb Torizo or Norfair's Golden Torizo, whose values his fight reads (#2301, #2410).</summary>
     protected abstract TorizoVariant Variant { get; }
@@ -31,7 +34,7 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant o
     public abstract void RunMainAi(IEnemyAiFrame frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceTorizoTypedAnimation(Occupant, Place, Place.RequireSpeciesState<TorizoEnemyState>(), this, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceTorizoTypedAnimation(Occupant, Place, State, this, context);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe)
@@ -56,7 +59,7 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant o
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == TorizoReactions.Touch)
-            Species.Combat.ReactToTorizoTouch(context, context.Place.RequireSpeciesState<TorizoEnemyState>());
+            Species.Combat.ReactToTorizoTouch(context, State);
         else
             base.ReactToTouch(context);
     }
@@ -76,7 +79,7 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant o
 
     /// <summary>Shows a step of the belly glow this Torizo's fight start lit, on this Torizo (#2240).</summary>
     /// <param name="frame">The glow's step.</param>
-    public void ShowGlow(ColourEffectFrame frame) => TorizoBehavior.ShowBellyGlow(Place, Place.RequireSpeciesState<TorizoEnemyState>(), frame);
+    public void ShowGlow(ColourEffectFrame frame) => TorizoBehavior.ShowBellyGlow(Place, State, frame);
 
     /// <summary>The Torizo shot reactions both Torizos own, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>

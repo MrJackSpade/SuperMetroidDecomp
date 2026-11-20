@@ -24,9 +24,9 @@ public static class PauseReserveUiDefinitions
     /// <summary>$82:8F70: the zero digit's tile, glyph 4 in palette two; digits zero through nine are consecutive.</summary>
     public static BackgroundTile DigitZeroTile { get; } = new(4, 2, FlipHorizontally: false, FlipVertically: false, HighPriority: false);
     /// <summary>$82:ADE4/$ADF6 solid-arrow color six.</summary>
-    public static PaletteRgb5 SolidColor6 { get; } = new() { Red = 22, Green = 10, Blue = 0 };
+    public static PaletteRgb5 SolidShade { get; } = new() { Red = 22, Green = 10, Blue = 0 };
     /// <summary>$82:ADDD/$ADEF solid-arrow color eleven.</summary>
-    public static PaletteRgb5 SolidColor11 { get; } = new() { Red = 30, Green = 28, Blue = 0 };
+    public static PaletteRgb5 SolidLight { get; } = new() { Red = 30, Green = 28, Blue = 0 };
     /// <summary>BG palette selectors used by enabled and disabled reserve arrows.</summary>
     public const int EnabledPalette = 6, DisabledPalette = 7;
     /// <summary>First vertical arrow cell, number of vertical arrows, and row stride in cells.</summary>

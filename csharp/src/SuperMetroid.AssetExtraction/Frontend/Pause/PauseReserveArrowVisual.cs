@@ -12,9 +12,9 @@ public sealed record PauseReserveArrowVisual
     /// <summary>BG palette selector 0-7 applied when the pause owner disables the arrow; stock uses seven.</summary>
     public required int DisabledPalette { get; init; }
     /// <summary>RGB5 bevel color for arrow slot six when pulse animation is disabled.</summary>
-    public required PaletteRgb5 SolidColor6 { get; init; }
+    public required PaletteRgb5 SolidShade { get; init; }
     /// <summary>RGB5 bevel color for arrow slot eleven when pulse animation is disabled.</summary>
-    public required PaletteRgb5 SolidColor11 { get; init; }
+    public required PaletteRgb5 SolidLight { get; init; }
     /// <summary>Exactly 32 ordered pulse frames, selected by the low five bits of the accepted NMI counter; native colors originate at $82:AD5D/$AD9D.</summary>
     public required PauseReserveArrowFrame[] Frames { get; init; }
 }

@@ -43,7 +43,7 @@ public static partial class LibraryBackgroundProgramDefinitions
         new(LibraryBackgroundCommand.TransferForKraid, LibraryBackgroundSource.HudCharacters, LibraryBackgroundDestination.KraidLayer3Characters, 4096, null),
         new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.BrinstarKraidUpper), LibraryBackgroundDestination.TilemapStaging, 0, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.KraidBackgroundPages, 4096, null),
-        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.BrinstarKraidLower0), LibraryBackgroundDestination.TilemapStaging, 0, null),
+        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.BrinstarKraidLower), LibraryBackgroundDestination.TilemapStaging, 0, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 4096, null),
     ]);
 
@@ -177,7 +177,7 @@ public static partial class LibraryBackgroundProgramDefinitions
 
     /// <summary>The BrinstarVariedSmallPattern library-background program.</summary>
     private static LibraryBackgroundProgram BrinstarVariedSmallPattern { get; } = new(LibraryBackgroundDefinitions.BrinstarVariedSmallPattern, [
-        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.BrinstarSmallPatternVariety0), LibraryBackgroundDestination.TilemapStaging, 0, null),
+        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.BrinstarSmallPatternVariety), LibraryBackgroundDestination.TilemapStaging, 0, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 2048, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
     ]);
@@ -198,7 +198,7 @@ public static partial class LibraryBackgroundProgramDefinitions
 
     /// <summary>The BrinstarWideVerticalTowerBrick library-background program.</summary>
     private static LibraryBackgroundProgram BrinstarWideVerticalTowerBrick { get; } = new(LibraryBackgroundDefinitions.BrinstarWideVerticalTowerBrick, [
-        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.BrinstarWideVerticalTowerBrick0), LibraryBackgroundDestination.TilemapStaging, 0, null),
+        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.BrinstarWideVerticalTowerBrick), LibraryBackgroundDestination.TilemapStaging, 0, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 2048, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
     ]);
@@ -219,7 +219,7 @@ public static partial class LibraryBackgroundProgramDefinitions
 
     /// <summary>The BrinstarVerticalBrick library-background program.</summary>
     private static LibraryBackgroundProgram BrinstarVerticalBrick { get; } = new(LibraryBackgroundDefinitions.BrinstarVerticalBrick, [
-        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.BrinstarVerticalBrick0), LibraryBackgroundDestination.TilemapStaging, 0, null),
+        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.BrinstarVerticalBrick), LibraryBackgroundDestination.TilemapStaging, 0, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 2048, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
     ]);
@@ -240,14 +240,14 @@ public static partial class LibraryBackgroundProgramDefinitions
 
     /// <summary>The BrinstarNarrowVerticalTowerBrickVines library-background program.</summary>
     private static LibraryBackgroundProgram BrinstarNarrowVerticalTowerBrickVines { get; } = new(LibraryBackgroundDefinitions.BrinstarNarrowVerticalTowerBrickVines, [
-        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.BrinstarNarrowVerticalTowerBrickVines0), LibraryBackgroundDestination.TilemapStaging, 0, null),
+        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.BrinstarNarrowVerticalTowerBrickVines), LibraryBackgroundDestination.TilemapStaging, 0, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 2048, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
     ]);
 
     /// <summary>The StatuesHallwayGreyTowerBrick library-background program.</summary>
     private static LibraryBackgroundProgram StatuesHallwayGreyTowerBrick { get; } = new(LibraryBackgroundDefinitions.StatuesHallwayGreyTowerBrick, [
-        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.BrinstarNarrowVerticalTowerBrickGrey0), LibraryBackgroundDestination.TilemapStaging, 0, null),
+        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.BrinstarNarrowVerticalTowerBrickGrey), LibraryBackgroundDestination.TilemapStaging, 0, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 4096, null),
     ]);
 
@@ -267,7 +267,7 @@ public static partial class LibraryBackgroundProgramDefinitions
 
     /// <summary>The NorfairSmallPatternBrownPurple library-background program.</summary>
     private static LibraryBackgroundProgram NorfairSmallPatternBrownPurple { get; } = new(LibraryBackgroundDefinitions.NorfairSmallPatternBrownPurple, [
-        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.NorfairSmallPatternBrownPurple0), LibraryBackgroundDestination.TilemapStaging, 0, null),
+        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.NorfairSmallPatternBrownPurple), LibraryBackgroundDestination.TilemapStaging, 0, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 2048, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
     ]);
@@ -352,7 +352,7 @@ public static partial class LibraryBackgroundProgramDefinitions
 
     /// <summary>The WreckedShipEntranceHall library-background program.</summary>
     private static LibraryBackgroundProgram WreckedShipEntranceHall { get; } = new(LibraryBackgroundDefinitions.WreckedShipEntranceHall, [
-        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.WreckedShipEntranceHall0), LibraryBackgroundDestination.TilemapStaging, 0, null),
+        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.WreckedShipEntranceHall), LibraryBackgroundDestination.TilemapStaging, 0, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 2048, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
     ]);

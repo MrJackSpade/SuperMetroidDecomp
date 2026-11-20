@@ -39,8 +39,8 @@ public static class PauseReserveUiExtractor
         for (int frame = 0; frame < frames.Length; frame++)
             frames[frame] = new()
             {
-                Color6 = Rgb(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveArrowFirstColours + frame * 2)),
-                Color11 = Rgb(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveArrowSecondColours + frame * 2)),
+                Shade = Rgb(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveArrowFirstColours + frame * 2)),
+                Light = Rgb(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveArrowSecondColours + frame * 2)),
             };
         using var output = new MemoryStream();
         PauseReserveUiFile.Write(output, new()
@@ -53,8 +53,8 @@ public static class PauseReserveUiExtractor
                 Cells = arrowCells,
                 EnabledPalette = PauseReserveUiDefinitions.EnabledPalette,
                 DisabledPalette = PauseReserveUiDefinitions.DisabledPalette,
-                SolidColor6 = PauseReserveUiDefinitions.SolidColor6,
-                SolidColor11 = PauseReserveUiDefinitions.SolidColor11,
+                SolidShade = PauseReserveUiDefinitions.SolidShade,
+                SolidLight = PauseReserveUiDefinitions.SolidLight,
                 Frames = frames,
             },
         });

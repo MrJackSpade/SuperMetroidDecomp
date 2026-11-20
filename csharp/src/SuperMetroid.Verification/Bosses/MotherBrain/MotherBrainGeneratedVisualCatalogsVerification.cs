@@ -38,21 +38,21 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
     private static readonly string[] OriginalMotherBrainBg2Names =
     [
         "mother_brain_body_bg2_standing",
-        "mother_brain_body_bg2_walking_0",
-        "mother_brain_body_bg2_walking_1",
-        "mother_brain_body_bg2_walking_2",
-        "mother_brain_body_bg2_walking_3",
-        "mother_brain_body_bg2_walking_4",
-        "mother_brain_body_bg2_walking_5",
-        "mother_brain_body_bg2_walking_6",
-        "mother_brain_body_bg2_walking_7",
+        "mother_brain_body_bg2_walking_near_leg_lifting",
+        "mother_brain_body_bg2_walking_near_leg_reaching",
+        "mother_brain_body_bg2_walking_near_leg_planting",
+        "mother_brain_body_bg2_walking_legs_apart",
+        "mother_brain_body_bg2_walking_far_leg_lifting",
+        "mother_brain_body_bg2_walking_far_leg_passing",
+        "mother_brain_body_bg2_walking_far_leg_planting",
+        "mother_brain_body_bg2_walking_legs_together",
         "mother_brain_body_bg2_crouched",
         "mother_brain_body_bg2_uncrouching",
         "mother_brain_body_bg2_leaning_down",
-        "mother_brain_body_bg2_death_beam_0",
-        "mother_brain_body_bg2_death_beam_1",
-        "mother_brain_body_bg2_death_beam_2",
-        "mother_brain_body_bg2_death_beam_3",
+        "mother_brain_body_bg2_hand_curling",
+        "mother_brain_body_bg2_arm_drawn_back",
+        "mother_brain_body_bg2_arm_flung_out",
+        "mother_brain_body_bg2_arm_returning",
     ];
 
     /// <summary>Checks 16 OAM identities, native part counts, iteration, and bounds.</summary>

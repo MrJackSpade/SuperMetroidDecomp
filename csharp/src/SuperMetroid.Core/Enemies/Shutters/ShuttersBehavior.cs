@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -91,11 +92,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
 
         // The shutter's new clock shows no new frame until its animation's first step shows one.
         place.CollidesByFrameHitboxes = false;
-        StartGrowingShutterAnimation(
-            place,
-            state,
-            ShutterSegment.QuarterGrown,
-            GrowthRadius(state.GrowthLevel));
+        ListStep<ShutterSegment> first = GrowingShutterEnemyState.FirstSection;
+        StartGrowingShutterAnimation(place, state, first.Entry, GrowthRadius(first));
     }
 
     /// <summary>What <c>RunGrowingShutterMain</c> does for each <see cref="GrowingShutterAction"/> member, each member's own arm.</summary>
@@ -150,17 +148,17 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     /// <summary>Runs the four growth stages.</summary>
     private static void GrowShutterDown(RoomEnemyOccupant occupant, RoomEnemyPlace place, GrowingShutterEnemyState state)
     {
-        if (state.IsFullyGrown)
+        if (state.Growing is not { } section)
             return;
 
         place.Position = place.Position.AdvanceY(occupant.SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed);
-        int targetY = state.OriginYForLevel() + GrowingShutterDefinitions.SectionLength;
+        int targetY = state.OriginY(section) + GrowingShutterDefinitions.SectionLength;
 
         // A section finishes only once the shutter has moved past its section length, not on reaching it; each section
         // but the last is then placed its intermediate inset short of its full-size end.
         if (targetY >= place.Position.Y.Whole)
             return;
-        FinishGrowingShutterSection(place, state, targetY, direction: VerticalDirection.Down);
+        FinishGrowingShutterSection(place, state, section, targetY, direction: VerticalDirection.Down);
     }
 
     /// <summary>Runs the four upward growth stages.</summary>
@@ -169,19 +167,19 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         GrowingShutterEnemyState state,
         SamusState samus)
     {
-        if (state.IsFullyGrown)
+        if (state.Growing is not { } section)
             return;
 
         int previousY = place.Position.Y.Whole;
         place.Position = place.Position.AdvanceY(UpwardGrowthVelocity(occupant.SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed));
-        int targetY = state.OriginYForLevel() - GrowingShutterDefinitions.SectionLength;
+        int targetY = state.OriginY(section) - GrowingShutterDefinitions.SectionLength;
         if (targetY < place.Position.Y.Whole)
         {
             CarrySamusWithGrowingShutter(place, samus, previousY);
             return;
         }
 
-        FinishGrowingShutterSection(place, state, targetY, direction: VerticalDirection.Up);
+        FinishGrowingShutterSection(place, state, section, targetY, direction: VerticalDirection.Up);
         CarrySamusWithGrowingShutter(place, samus, previousY);
     }
 
@@ -217,32 +215,23 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     internal static void FinishGrowingShutterSection(
         RoomEnemyPlace place,
         GrowingShutterEnemyState state,
+        ListStep<ShutterSegment> section,
         int targetY,
         VerticalDirection direction)
     {
-        bool finalSection = state.GrowthLevel == GrowingShutterEnemyState.SectionCount - 1;
-        int placedY = finalSection
+        ListStep<ShutterSegment>? next = section.Following;
+        int placedY = next is null
             ? targetY
             : targetY + (GrowingShutterDefinitions.IntermediateInset.Toward(direction.Reversed()));
         place.Position = place.Position.WithWholeY(placedY);
-        state.GrowthLevel += 1;
+        state.Growing = next;
 
-        if (finalSection)
-            return;
-
-        ShutterSegment segment = state.GrowthLevel switch
-        {
-            1 => ShutterSegment.HalfGrown,
-            2 => ShutterSegment.ThreeQuartersGrown,
-            3 => ShutterSegment.FullyGrown,
-            _ => throw new InvalidDataException(
-                $"Growing shutter advanced to invalid level {state.GrowthLevel}."),
-        };
-        StartGrowingShutterAnimation(place, state, segment, GrowthRadius(state.GrowthLevel));
+        if (next is { } growing)
+            StartGrowingShutterAnimation(place, state, growing.Entry, GrowthRadius(growing));
     }
 
-    /// <summary>The vertical radius of a shutter grown <paramref name="level"/> sections past its first.</summary>
-    private static int GrowthRadius(int level) => GrowingShutterDefinitions.SectionRadius * (level + 1);
+    /// <summary>The vertical radius of a shutter growing <paramref name="section"/>: one section's radius per section grown, its own included.</summary>
+    private static int GrowthRadius(ListStep<ShutterSegment> section) => GrowingShutterDefinitions.SectionRadius * (section.Place + 1);
 
     /// <summary>Restarts the next growth pose and updates the shutter's vertical collision radius.</summary>
     private static void StartGrowingShutterAnimation(

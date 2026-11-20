@@ -95,11 +95,16 @@ public static class BlockAnimationLoops
         BlockAnimationLoopDefinitions.AwaitingAreaBoss.Contains(Require(animation));
 
     /// <summary>The animation a room effect of <paramref name="type"/> shows on the effect overlay, or null for one that shows none.</summary>
-    public static BlockAnimation? OnEffectOverlay(RoomFxType type)
-    {
-        return BlockAnimationLoopDefinitions.EffectOverlayAnimations.TryGetValue(type, out BlockAnimation animation)
-            ? Require(animation) : null;
-    }
+    public static BlockAnimation? OnEffectOverlay(RoomFxType type) =>
+        EffectOverlayLoops.TryGetValue(type, out BlockAnimation animation) ? animation : null;
+
+    /// <summary>
+    /// The animation each room effect type shows on the effect overlay, each checked once, as the loops are built, to have a
+    /// loop, so no effect's animation is checked again as it starts (#2553).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">An effect's animation has no loop.</exception>
+    private static IReadOnlyDictionary<RoomFxType, BlockAnimation> EffectOverlayLoops { get; } =
+        BlockAnimationLoopDefinitions.EffectOverlayAnimations.ToDictionary(entry => entry.Key, entry => Require(entry.Value));
 
     /// <summary>The treadmill animation a Wrecked Ship entrance door starts for a belt pushing <paramref name="direction"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is undefined.</exception>

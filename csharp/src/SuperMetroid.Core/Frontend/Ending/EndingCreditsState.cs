@@ -479,7 +479,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         if (PhaseHold.Count())
         {
             // The backdrop wait's end shows the complete result panel before its hold.
-            InstalledArtwork.PostCreditsText.ShowResultPanel();
+            InstalledArtwork.PostCreditsText.ShowNextPanel();
             Enter(EndingCreditsPhase.PostCreditsWaitingSamus, EndingSequenceDefinitions.Timing.ResultPanelHoldFrames);
         }
         return true;

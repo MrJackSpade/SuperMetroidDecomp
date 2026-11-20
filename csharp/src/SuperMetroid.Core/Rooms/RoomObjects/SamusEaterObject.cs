@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// immunity, shows its fangs out, then its idle image for one update, and leaves the room.
 /// </summary>
 [RoomLifetime]
-internal sealed class SamusEaterObject : SequencedRoomObject<SamusEaterSegment, SamusEaterChewFrame, NoAnimationCue>
+internal sealed class SamusEaterObject : SilentSequencedRoomObject<SamusEaterSegment, SamusEaterChewFrame>
 {
     /// <summary>A plant that has just caught Samus.</summary>
     /// <param name="owner">The room's plants, which reach Samus.</param>

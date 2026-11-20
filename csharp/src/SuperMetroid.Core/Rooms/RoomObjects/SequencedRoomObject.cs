@@ -86,9 +86,7 @@ internal abstract class SequencedRoomObject<TSegment, TFrame, TEvent> : RoomObje
     /// <param name="raised">The event.</param>
     /// <param name="place">The object's place.</param>
     /// <param name="context">The update.</param>
-    /// <exception cref="InvalidOperationException">The object's animations raise no event.</exception>
-    private protected virtual void Raise(TEvent raised, RoomObjectPlace place, RoomObjectStepContext context) =>
-        throw new InvalidOperationException($"{GetType().Name} at block {place.Block} raised {raised}, but its animations raise no event.");
+    private protected abstract void Raise(TEvent raised, RoomObjectPlace place, RoomObjectStepContext context);
 
     /// <summary>Plays <paramref name="animation"/> from its start, its first frame showing on this update.</summary>
     /// <exception cref="InvalidOperationException">The animation shows no frame on its first update.</exception>

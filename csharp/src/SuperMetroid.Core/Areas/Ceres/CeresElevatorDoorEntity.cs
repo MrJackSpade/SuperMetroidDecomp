@@ -72,9 +72,9 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
             // The last update ends the destruction: the door hides, keeps cycling the glow and platform from the next update
             // on, and publishes its destruction so the room's turning floor begins the rotation after Ridley's escape.
             Place.Presence = Place.Presence.With(EnemyPresence.Hidden);
+            // The escape status only ever advances, and the destruction began once it reached the self-destruct.
             state.Phase = CeresElevatorDoorPhase.Destroyed;
-            if (doors.Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
-                doors.Escape.CeresStatus = CeresEscapeStatus.ElevatorDoorDestroyed;
+            doors.Escape.CeresStatus = CeresEscapeStatus.ElevatorDoorDestroyed;
             return;
         }
 

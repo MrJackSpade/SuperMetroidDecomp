@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="owner">The room's tube owner, which reaches Samus, the events, the water, the earthquake and the debris.</param>
 [RoomLifetime]
-internal sealed class NoobTubeObject(NoobTubeObjects owner) : SequencedRoomObject<NoobTubeSegment, TerrainChangeFrame, NoAnimationCue>(NoobTubeAnimations.Segments), IShootableRoomObject
+internal sealed class NoobTubeObject(NoobTubeObjects owner) : SilentSequencedRoomObject<NoobTubeSegment, TerrainChangeFrame>(NoobTubeAnimations.Segments), IShootableRoomObject
 {
     /// <summary>The room's tube owner.</summary>
     private readonly NoobTubeObjects _owner = Ensure.NotNull(owner);

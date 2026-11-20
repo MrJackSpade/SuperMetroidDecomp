@@ -137,7 +137,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         {
             // The elevator has already selected standing pose and locked Samus. The following update owns the
             // elevator hold (CeresElevatorDepartureDefinitions.DepartureHoldFrames); this update does not count it down.
-            session.ceresDeparture.Begin();
+            session.ceresDeparture = new();
             session.Enter(session.Phases.CeresDeparture);
         },
         [GameplayUpdateTransition.Door] = () =>

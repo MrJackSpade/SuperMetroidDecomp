@@ -33,12 +33,12 @@ public sealed class CeresTurningFloor
     public Offset16<FloorPixels> Center { get; internal set; }
     /// <summary>Gets the picture of the Baby capsule's cycle the floor shows (#2329).</summary>
     public ListStep<CeresFloorActorPicture> Capsule { get; internal set; } = FirstCapsulePicture;
-    /// <summary>Gets the picture of the wings' two-beat cycle the floor shows (#2329).</summary>
-    public ListStep<CeresFloorActorPicture> Wings { get; internal set; } = FirstWingPicture;
+    /// <summary>Gets the beat of the wings' two-beat cycle the floor shows (#2329).</summary>
+    public ListStep<CeresGetawayWingBeat> Wings { get; internal set; } = FirstWingPicture;
 
     /// <summary>The capsule's picture as a getaway starts: the first of its cycle.</summary>
     internal static ListStep<CeresFloorActorPicture> FirstCapsulePicture => ListStep<CeresFloorActorPicture>.FirstOf(CeresFloorAnimationDefinitions.CapsuleCycle);
 
     /// <summary>The wings' picture as a getaway starts: the first of their cycle.</summary>
-    internal static ListStep<CeresFloorActorPicture> FirstWingPicture => ListStep<CeresFloorActorPicture>.FirstOf(CeresFloorAnimationDefinitions.WingCycle);
+    internal static ListStep<CeresGetawayWingBeat> FirstWingPicture => ListStep<CeresGetawayWingBeat>.FirstOf(CeresFloorAnimationDefinitions.WingCycle);
 }

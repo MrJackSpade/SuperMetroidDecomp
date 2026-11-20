@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="owner">The room's gates, which reach Samus and the gate projectiles.</param>
 [RoomLifetime]
-internal sealed class DownwardGateObject(GateObjects owner) : SequencedRoomObject<DownwardGateSegment, DownwardGateImage, NoAnimationCue>(DownwardGateAnimations.Segments)
+internal sealed class DownwardGateObject(GateObjects owner) : SilentSequencedRoomObject<DownwardGateSegment, DownwardGateImage>(DownwardGateAnimations.Segments)
 {
     /// <summary>The room's gates.</summary>
     private readonly GateObjects _owner = Ensure.NotNull(owner);

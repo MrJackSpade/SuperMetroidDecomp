@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
@@ -10,28 +10,17 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// </summary>
 public sealed class CeresRidleyGetawayBoostDelays
 {
-    /// <summary>The ten delays the raised wings leave behind, by running frame.</summary>
-    private readonly IReadOnlyList<int> leftByWingsRaised;
-
-    /// <summary>The ten delays the lowered wings leave behind, by running frame.</summary>
-    private readonly IReadOnlyList<int> leftByWingsLowered;
+    /// <summary>The ten delays each wing beat leaves behind, by running frame.</summary>
+    private readonly IdentityTable<CeresGetawayWingBeat, IReadOnlyList<int>> leftByWings;
 
     /// <summary>Keeps the delays the import pipeline validated for each wing frame, by running frame.</summary>
-    internal CeresRidleyGetawayBoostDelays(IReadOnlyList<int> leftByWingsRaised, IReadOnlyList<int> leftByWingsLowered)
-    {
-        this.leftByWingsRaised = Ensure.NotNull(leftByWingsRaised);
-        this.leftByWingsLowered = Ensure.NotNull(leftByWingsLowered);
-    }
+    internal CeresRidleyGetawayBoostDelays(IReadOnlyList<int> leftByWingsRaised, IReadOnlyList<int> leftByWingsLowered) =>
+        leftByWings = new(new Dictionary<CeresGetawayWingBeat, IReadOnlyList<int>>
+        {
+            [CeresGetawayWingBeat.Raised] = Ensure.NotNull(leftByWingsRaised),
+            [CeresGetawayWingBeat.Lowered] = Ensure.NotNull(leftByWingsLowered),
+        });
 
-    /// <summary>The ten delays wing frame <paramref name="frame"/> leaves behind, by running frame.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of the wing's frames.</exception>
-    public IReadOnlyList<int> LeftBy(CeresFloorActorPicture frame) => frame switch
-    {
-        CeresFloorActorPicture.WingsRaised => leftByWingsRaised,
-        CeresFloorActorPicture.WingsLowered => leftByWingsLowered,
-        CeresFloorActorPicture.BabyVertical or CeresFloorActorPicture.BabyRound or CeresFloorActorPicture.BabyHorizontal or
-            CeresFloorActorPicture.ElevatorLight or CeresFloorActorPicture.ElevatorDark =>
-            throw new InvalidDataException($"The getaway's {frame} floor frame leaves no Speed Booster delays."),
-        _ => throw new InvalidDataException($"Unknown Ceres floor animation frame {frame}."),
-    };
+    /// <summary>The ten delays wing beat <paramref name="beat"/> leaves behind, by running frame.</summary>
+    public IReadOnlyList<int> LeftBy(CeresGetawayWingBeat beat) => leftByWings[beat];
 }

@@ -10,13 +10,17 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Dessgeega, EnemyDefinitionId.DessgeegaLarge, EnemyDefinitionId.Sidehopper, EnemyDefinitionId.SidehopperLarge, EnemyDefinitionId.SidehopperTourian], Create);
+    /// <remarks>Each hopper definition's creation carries the kind <see cref="HopperKindDefinitions.Kinds"/> gives it.</remarks>
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= HopperKindDefinitions.Kinds.ToDictionary(
+        entry => entry.Key, entry => (EnemyEntityCreation)((occupant, place, common) => Create(occupant, place, common, entry.Value)));
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
     /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
     /// <param name="place">The place, already holding the occupant.</param>
     /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new HoppersEntity(this, occupant, place, common));
+    /// <param name="kind">The kind of hopper the occupant's definition is.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, HopperKind kind) =>
+        EnemyOccupant.Of(new HoppersEntity(this, occupant, place, common, kind));
 
     /// <summary>Supplies the shared RNG seed consumed during Hopper initialization.</summary>
     private readonly EnemyRoomBinding _room;
@@ -63,9 +67,8 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly record struct ApplyHopperCueContext(RoomEnemyPlace Place, HopperEnemyState State, HoppersBehavior Owner);
 
     /// <summary>Initializes the Hopper.</summary>
-    internal void InitializeHopper(RoomEnemyPlace place, RoomEnemyOccupant occupant)
+    internal void InitializeHopper(RoomEnemyPlace place, RoomEnemyOccupant occupant, HopperKind kind)
     {
-        HopperKind kind = HopperAnimationChoices.KindOf(Ensure.NotNull(occupant).DefinitionId);
         // The placement's reseed is followed by a draw it never reads, which later consumers observe.
         _room.Random.Reseed(SpeciesRandomReseed.HopperPlacement);
         _room.Random.Generate();

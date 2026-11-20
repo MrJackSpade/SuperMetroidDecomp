@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// nothing (#2481).
 /// </summary>
 internal abstract class EyeDoorPartObject
-    : SequencedRoomObject<EyeDoorPartSegment, EyeDoorPartPose, NoAnimationCue>
+    : SilentSequencedRoomObject<EyeDoorPartSegment, EyeDoorPartPose>
 {
     /// <summary>A part of <paramref name="part"/>'s kind and facing, just placed in <paramref name="door"/>.</summary>
     /// <param name="part">Which part this is, the body's middle or its bottom, and the way its door faces.</param>

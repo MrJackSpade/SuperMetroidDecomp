@@ -34,30 +34,20 @@ internal sealed class CeresDepartureGameSequence(FrontendSession session) : IGam
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        // Entering the departure begins its hold, and its completed fade leaves it for Ceres's destruction; the fade's own
-        // step accepts only the fading phase.
-        if (session.ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator)
-            HoldOnElevator(controllerInput);
-        else
-            FadeToBlack(controllerInput);
-    }
-
-    /// <summary>One update of gameplay during the elevator hold.</summary>
-    private void HoldOnElevator(ControllerButton controllerInput)
-    {
+        // Entering the departure begins its hold, and its completed fade leaves it for Ceres's destruction.
+        bool fading = session.ceresDeparture.Phase == CeresDeparturePhase.FadingToBlack;
         // The arrival descent runs in ordinary main gameplay while the elevator's enemy projectiles lock Samus; the
         // departure is only the hold and the fade.
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.CeresDeparture });
         session.display.PublishGameplay(session.GameplayRuntime);
-        session.ceresDeparture.StepHoldAfterGameplay();
+        bool ceresFadeFinished = session.ceresDeparture.StepAfterGameplay();
+        if (fading)
+            FadeToBlack(ceresFadeFinished);
     }
 
-    /// <summary>One update of gameplay during the fade to black, which saves the checkpoint and starts Ceres's destruction once black.</summary>
-    private void FadeToBlack(ControllerButton controllerInput)
+    /// <summary>Shows the fade to black's step, which saves the checkpoint and starts Ceres's destruction once black.</summary>
+    private void FadeToBlack(bool ceresFadeFinished)
     {
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.CeresDeparture });
-        session.display.PublishGameplay(session.GameplayRuntime);
-        bool ceresFadeFinished = session.ceresDeparture.StepFadeAfterGameplay();
         session.SetDisplayBrightness(session.ceresDeparture.Brightness);
         if (ceresFadeFinished)
         {

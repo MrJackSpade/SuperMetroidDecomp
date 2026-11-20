@@ -52,7 +52,7 @@ internal static class BotwoonAnimations
 
     /// <summary>The head's segments: each head animation's beats.</summary>
     internal static AnimationSegments<BotwoonHeadAnimationSegment, BotwoonHeadFrame, BotwoonHeadCue> HeadSegments { get; } = new(
-        HeadAnimationKeys.ToDictionary(segment => segment, HeadBeats), HeadAnimationKeys);
+        HeadBeatsBySegment(), HeadAnimationKeys);
 
     /// <summary>The head animation that starts at each of the head's segments: it plays that segment's beats once and holds its last frame.</summary>
     internal static IReadOnlyDictionary<BotwoonHeadAnimationSegment, Animation<BotwoonHeadAnimationSegment>> HeadStartingAt { get; } =
@@ -197,14 +197,20 @@ internal static class BotwoonAnimations
         // The remaining members, BotwoonBodyAnimationSegmentKind.Tail and BotwoonBodyAnimationSegmentKind.Hidden.
         : new([BodySegments.Whole(segment)], AnimationEnd.Holds);
 
-    /// <summary>The beats of head animation <paramref name="segment"/>.</summary>
-    private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] HeadBeats(BotwoonHeadAnimationSegment segment) => segment switch
+    /// <summary>Each head animation's beats, built from the facing each moving and spitting head is made with.</summary>
+    private static Dictionary<BotwoonHeadAnimationSegment, AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[]> HeadBeatsBySegment()
     {
-        { Kind: BotwoonHeadAnimationSegmentKind.Hidden } => HiddenHead(),
-        { Kind: BotwoonHeadAnimationSegmentKind.Moving, Facing: { } facing } => MovingHead(facing),
-        { Kind: BotwoonHeadAnimationSegmentKind.Spitting, Facing: { } facing } => SpittingHead(facing),
-        _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "Undefined Botwoon head animation."),
-    };
+        Dictionary<BotwoonHeadAnimationSegment, AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[]> beats = new()
+        {
+            [BotwoonHeadAnimationSegment.Hidden] = HiddenHead(),
+        };
+        foreach (CompassDirection facing in FacingOrder)
+        {
+            beats[BotwoonHeadAnimationSegment.Moving(facing)] = MovingHead(facing);
+            beats[BotwoonHeadAnimationSegment.Spitting(facing)] = SpittingHead(facing);
+        }
+        return beats;
+    }
 
     /// <summary>The invisible head frame, held while Botwoon is inside a wall.</summary>
     private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] HiddenHead() => [HeadFrame(BotwoonHeadFrame.Hidden, 1)];

@@ -39,7 +39,7 @@ internal static class FirefleaBehaviorVerification
     /// </summary>
     internal static void VerifyFirefleaVerticalExtents()
     {
-        var frame = new ClockedEnemyAiFrame(
+        _ = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
             new FrameCounters(0));
         foreach ((ushort y, VerticalDirection expectedDirection) in new VerifyFirefleaVerticalExtentsCase[] { new(100, VerticalDirection.Up), new(91, VerticalDirection.Down), new(108, VerticalDirection.Down) })

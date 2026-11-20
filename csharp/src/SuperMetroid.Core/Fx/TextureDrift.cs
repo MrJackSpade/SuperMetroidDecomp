@@ -27,9 +27,6 @@ internal readonly record struct TextureDrift
         this.down = WithinRepeat(down);
     }
 
-    /// <summary>No drift: the texture where the room's load placed it.</summary>
-    internal static TextureDrift None => default;
-
     /// <summary>The whole pixels the texture has moved across and down, each 0 through <see cref="RepeatPixels"/> less one.</summary>
     internal Offset16<OverlayPixels> Whole => new(across.Whole, down.Whole);
 

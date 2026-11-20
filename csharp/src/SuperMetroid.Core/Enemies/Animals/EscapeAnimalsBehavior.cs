@@ -16,7 +16,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>An escaping Etecoon, in the role its placement names (#2146).</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EscapeEtecoonSpawnSettings settings) =>
-        new EscapeEtecoonEntity(this, place, common, settings);
+        new EscapeEtecoonEntity(this, occupant, place, common, settings);
 
     /// <inheritdoc/>
     void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)

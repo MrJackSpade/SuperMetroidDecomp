@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 /// of the jumping parent its room lists right before it, shown only while that parent rises.
 /// </summary>
 /// <param name="species">The Squeept species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the follower occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class NorfairLavaJumperFollowerEntity(SqueeptBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)

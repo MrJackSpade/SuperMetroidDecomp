@@ -77,7 +77,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemySettingsFactory<Gr
 
     /// <summary>The growing shutter, growing as its placement names (#2146).</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, GrowingShutterSpawnSettings settings) =>
-        new GrowingShutterEntity(this, place, common, settings);
+        new GrowingShutterEntity(this, occupant, place, common, settings);
 
     /// <summary>A shootable vertical shutter, the Kamer that reuses it, or a destroyable vertical shutter (#2146, #2179).</summary>
     /// <exception cref="InvalidOperationException">The place holds no vertical shutter's definition.</exception>
@@ -91,7 +91,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemySettingsFactory<Gr
         if (definition == EnemyDefinitionId.ShutterDestroyable)
         {
             // A destroyable shutter is kept among the shutters the escape's flash shows on as it is built (#2380).
-            var shutter = new DestroyableShutterEntity(this, place, common, settings);
+            var shutter = new DestroyableShutterEntity(this, occupant, place, common, settings);
             KeepDestroyableShutter(shutter);
             return shutter;
         }

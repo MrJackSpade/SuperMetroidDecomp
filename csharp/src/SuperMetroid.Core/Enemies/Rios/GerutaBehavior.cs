@@ -15,8 +15,8 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemySettingsFactory<Enem
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EnemyFollowerSpawnSettings settings) =>
         settings.Role == EnemyFollowerRole.Follower
-            ? new GerutaFollowerEntity(this, place, common)
-            : new GerutaEntity(this, place, common);
+            ? new GerutaFollowerEntity(this, occupant, place, common)
+            : new GerutaEntity(this, occupant, place, common);
 
     /// <summary>Provides the shared RNG advanced by every parent and flame follower.</summary>
     private readonly EnemyRoomBinding _room;

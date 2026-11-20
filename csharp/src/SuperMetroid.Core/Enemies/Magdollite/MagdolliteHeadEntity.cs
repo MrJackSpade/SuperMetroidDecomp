@@ -2,7 +2,6 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>A Magdollite's head: it faces Samus, sinks into the lava to start an attack and emerges when its arm lands.</summary>
 /// <param name="species">The Magdollite species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the head occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="setup">How the enemy comes to be set up, whose surroundings its initialization reads.</param>
@@ -15,9 +14,9 @@ internal sealed class MagdolliteHeadEntity(MagdolliteBehavior species, RoomEnemy
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) =>
-        Species.RunMagdolliteHead(Occupant, Place, State, Ensure.NotNull(frame).Samus);
+        Species.RunMagdolliteHead(Place, State, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) =>
-        Species.AdvanceMagdolliteTypedAnimation(Occupant, Place, State, context);
+        Species.AdvanceMagdolliteTypedAnimation(Place, State, context);
 }

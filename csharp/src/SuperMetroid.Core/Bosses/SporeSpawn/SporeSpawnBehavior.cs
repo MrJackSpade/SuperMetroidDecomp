@@ -20,7 +20,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SporeSpawn];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new SporeSpawnEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new SporeSpawnEntity(this, occupant, place, common);
 
     /// <summary>Provides boss event state, installed colors, and the room RNG.</summary>
     private readonly EnemyRoomBinding _room;

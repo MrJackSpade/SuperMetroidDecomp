@@ -27,11 +27,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemySettingsFactory<Ki
 
     /// <summary>A body of any colour, winged or not as its placement names (#2146).</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, KiHunterSpawnSettings settings) =>
-        new KiHunterBodyEntity(this, place, common, settings);
+        new KiHunterBodyEntity(this, occupant, place, common, settings);
 
     /// <summary>A body's wings, detaching at the health their placement names (#2146).</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, KiHunterWingsSpawnSettings settings) =>
-        new KiHunterWingsEntity(this, place, common, settings);
+        new KiHunterWingsEntity(this, occupant, place, common, settings);
 
     /// <summary>Provides the active room state used by Ki-Hunter movement.</summary>
     private readonly EnemyRoomBinding _room;

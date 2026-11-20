@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 /// <param name="place">The place he occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class DefeatedNorfairRidleyEntity(RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyAi
+internal sealed class DefeatedNorfairRidleyEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi
 {
     /// <summary>Takes no action: he is deleted as he is placed.</summary>
     /// <param name="frame">The enemy frame.</param>

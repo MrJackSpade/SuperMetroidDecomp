@@ -2,7 +2,6 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>One walking Space Pirate occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The walking Space Pirate species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
@@ -10,13 +9,13 @@ internal sealed class WalkingSpacePirateEntity(WalkingSpacePirateBehavior specie
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal WalkingSpacePirateEnemyState State { get; } = WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(Occupant, place, settings);
+    internal WalkingSpacePirateEnemyState State { get; } = WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(place, settings);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunWalkingSpacePirateMainAi(Occupant, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunWalkingSpacePirateMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWalkingSpacePirateTypedAnimation(Occupant, Place, State, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWalkingSpacePirateTypedAnimation(Place, State, context);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => SpacePirateHitboxes.Find(Place, probe);
@@ -24,6 +23,12 @@ internal sealed class WalkingSpacePirateEntity(WalkingSpacePirateBehavior specie
     /// <summary>Pirate contact and shots both meet the frame hitboxes the game defines for the Pirate.</summary>
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
+
+    /// <summary>Every ordinary Pirate's touch reaction, which its definition leaves to it.</summary>
+    public EnemyReaction? SpeciesTouch => SpacePirateReactions.Touch;
+
+    /// <summary>Every ordinary Pirate's shot reaction, which its definition leaves to it.</summary>
+    public EnemyReaction? SpeciesShot => SpacePirateReactions.Shot;
 
     /// <summary>Whether the Pirates' own touch, where the definition leaves Samus's touch to them, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == SpacePirateReactions.Touch || base.ReactsToTouch;
@@ -47,7 +52,7 @@ internal sealed class WalkingSpacePirateEntity(WalkingSpacePirateBehavior specie
         WalkingSpacePirateBehavior.SpacePirateBombReaction;
 
     /// <summary>The Pirate shot reactions, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species definition or the selected hitbox names.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction reaction) =>
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         SpacePirateHitboxes.OwnsShotReaction(reaction);
 }

@@ -2,7 +2,6 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>One YappingMaw occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The YappingMaw species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
@@ -10,10 +9,10 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemyOccu
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal YappingMawEnemyState State { get; } = species.InitializeYappingMaw(Occupant, place, settings);
+    internal YappingMawEnemyState State { get; } = species.InitializeYappingMaw(place, settings);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunYappingMawMainAi(Occupant, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunYappingMawMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYappingMawTypedAnimation(Place, State, context);
@@ -49,6 +48,6 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemyOccu
     public override void RunFrozen() => YappingMawBehavior.RunYappingMawFrozen(Place, State);
 
     /// <summary>The Yapping Maw's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == YappingMawReactions.Shot;
 }

@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// Power Bombs his definition leaves to him, met by his own frames' hitboxes.
 /// </summary>
 /// <param name="species">The Draygon species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
@@ -35,9 +34,15 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupa
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunDraygonBodyMainAi(Place, State, frame);
 
+    /// <summary>The body's touch reaction, which its definition leaves to it.</summary>
+    public override EnemyReaction? SpeciesTouch => DraygonReactions.Touch;
+
+    /// <summary>The body's shot reaction, which its definition leaves to it.</summary>
+    public override EnemyReaction? SpeciesShot => DraygonReactions.Shot;
+
     /// <summary>
     /// The body's hurt behaviour: it flashes body, eye and tail together, while a connected grapple's electrocution may
-    /// drain another <see cref="DraygonArenaDefinitions.GrappleShockDamage"/> at its shock cadence.
+    /// drain another 256 health every eighth frame.
     /// </summary>
     /// <param name="frame">The enemy frame.</param>
     public override bool RunHurt(RoomEnemyFrame frame)
@@ -88,6 +93,6 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupa
     public override EnemyCapabilities Capabilities => EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>The body's shot reaction and its dud shot, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == DraygonReactions.Shot || reaction == EnemyReaction.DudShot;
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction == DraygonReactions.Shot || reaction == EnemyReaction.DudShot;
 }

@@ -14,8 +14,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemySettingsFactory<Drag
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, DragonSpawnSettings settings) =>
         settings.Part == DragonPart.Wing
-            ? new DragonWingEntity(this, place, common)
-            : new DragonEntity(this, place, common);
+            ? new DragonWingEntity(this, occupant, place, common)
+            : new DragonEntity(this, occupant, place, common);
 
     /// <summary>Allocates Dragon's fireball volleys from the room projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;

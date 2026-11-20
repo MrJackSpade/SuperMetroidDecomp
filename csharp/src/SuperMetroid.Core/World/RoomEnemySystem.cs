@@ -150,8 +150,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The elevator journey the runtime reads and resets.</summary>
     internal IElevatorJourney Elevator => SpeciesComposition.Elevator;
 
-    /// <summary>The gunship's save prompt and health check.</summary>
-    internal IGunshipSession Gunship => SpeciesComposition.Gunship;
 
     /// <summary>The Ceres encounter's status and runtime operations.</summary>
     internal ICeresEncounter Ceres => SpeciesComposition.Ceres;
@@ -175,7 +173,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// The statue room's entrance statue and unlock effects as its statue sequence drives them; null in every other room
     /// (#2486).
     /// </summary>
-    internal ITourianStatueActors? TourianStatue => SpeciesComposition.TourianStatue;
+    internal RoomTourianStatues? TourianStatue => SpeciesComposition.TourianStatue;
 
     /// <summary>The ceiling tiles that fall in Ceres station during its escape.</summary>
     internal CeresFallingTiles CeresFallingTiles => SpeciesComposition.CeresFallingTiles;

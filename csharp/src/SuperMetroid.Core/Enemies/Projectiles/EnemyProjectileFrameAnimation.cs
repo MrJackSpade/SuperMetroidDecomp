@@ -45,7 +45,7 @@ internal abstract class EnemyProjectileFrameAnimation<TSegment, TEvent> : EnemyP
     /// <summary>Starts <paramref name="animation"/> before its first play, its cues carried out by <paramref name="runCue"/>.</summary>
     /// <param name="animation">The animation.</param>
     /// <param name="runCue">Carries out each of the animation's cues.</param>
-    private protected EnemyProjectileFrameAnimation(Animation<TSegment> animation, CueRunner runCue)
+    private protected EnemyProjectileFrameAnimation(Animation<TSegment> animation, EnemyProjectileCueRunner<TSegment, TEvent> runCue)
         : base(animation, runCue)
     {
     }

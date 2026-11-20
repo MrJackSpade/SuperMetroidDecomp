@@ -25,7 +25,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IEnemySettingsFacto
 
     /// <summary>The gunship's bottom hull or its entrance pad, as its placement names (#2146).</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, GunshipSpawnSettings settings) =>
-        new GunshipBottomEntity(this, place, common, setup, settings);
+        new GunshipBottomEntity(this, occupant, place, common, setup, settings);
 
     /// <inheritdoc/>
     void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)
@@ -41,7 +41,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IEnemySettingsFacto
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.ShipTop)
-            return new GunshipTopEntity(this, place, common, setup);
+            return new GunshipTopEntity(this, occupant, place, common, setup);
         throw new InvalidOperationException($"The gunship species creates no {place.DefinitionId}.");
     }
 

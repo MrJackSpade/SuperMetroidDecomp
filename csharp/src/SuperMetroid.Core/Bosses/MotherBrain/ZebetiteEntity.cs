@@ -4,7 +4,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>One Zebetite occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Zebetite species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="setup">How the half is set up: a linked half joins its primary.</param>
@@ -19,7 +18,7 @@ internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemyOccupant
     private EnemyShotReaction OwnZebetiteShotReaction => field ??= species.ZebetiteShotReactionOf(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal ZebetiteEnemyState State { get; } = species.InitializeZebetite(Occupant, place, setup, settings);
+    internal ZebetiteEnemyState State { get; } = species.InitializeZebetite(place, setup, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunZebetiteMain(Place, State);
@@ -49,6 +48,6 @@ internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemyOccupant
         context.SelectedShot == ZebetiteReactions.Shot ? OwnZebetiteBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Zebetite's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == ZebetiteReactions.Shot;
 }

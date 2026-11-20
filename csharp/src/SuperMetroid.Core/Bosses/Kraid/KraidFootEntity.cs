@@ -4,7 +4,6 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's foot (#2146): it follows his walk, with the limbs' own shot and bomb reactions.</summary>
 /// <param name="species">The Kraid species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the foot occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="kraid">The encounter his body began, which the part joins.</param>

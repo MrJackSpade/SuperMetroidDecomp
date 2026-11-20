@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// definitions.
 /// </summary>
 /// <param name="species">The Kraid species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the limb occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal abstract class KraidLimbEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
@@ -30,8 +29,9 @@ internal abstract class KraidLimbEntity(KraidBehavior species, RoomEnemyOccupant
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Limbs.AdvanceKraidPartAnimation(Part);
 
-    /// <summary>The limb's own shot reaction: an arm's or a foot's hitboxes decide it behind its definition's ignoring one.</summary>
-    public override EnemyShotReaction ShotReaction => LimbShotReaction;
+    /// <summary>The limb's shot reaction behind its ignoring definition, or the shared one.</summary>
+    public override EnemyShotReaction ShotReaction =>
+        Place.Definition.Shot == EnemyReaction.Ignore ? LimbShotReaction : base.ShotReaction;
 
     /// <summary>The limb's own shot reaction, which its hitboxes decide behind its definition's ignoring one (#2301).</summary>
     protected abstract EnemyShotReaction LimbShotReaction { get; }

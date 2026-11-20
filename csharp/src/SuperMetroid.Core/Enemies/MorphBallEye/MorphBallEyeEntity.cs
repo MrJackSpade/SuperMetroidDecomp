@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// the eye that opens. Its placement names it the eye rather than a beam mount (<see cref="MorphBallEyeMountEntity"/>).
 /// </summary>
 /// <param name="species">The MorphBallEye species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the eye occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
@@ -13,10 +12,10 @@ internal sealed class MorphBallEyeEntity(MorphBallEyeBehavior species, RoomEnemy
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal MorphBallEyeEnemyState State { get; } = MorphBallEyeBehavior.InitializeMorphBallEyeBody(Occupant, place, settings);
+    internal MorphBallEyeEnemyState State { get; } = MorphBallEyeBehavior.InitializeMorphBallEyeBody(place, settings);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMorphBallEyeMainAi(Occupant, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMorphBallEyeMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MorphBallEyeBehavior.AdvanceMorphBallEyeTypedAnimation(Place, State, context);

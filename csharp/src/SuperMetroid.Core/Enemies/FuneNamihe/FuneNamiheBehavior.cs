@@ -23,11 +23,11 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemySettingsFactory<
 
     /// <summary>A Fune, spitting at the cooldown its placement names.</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, FuneSpawnSettings settings) =>
-        new FuneEntity(this, place, common, settings);
+        new FuneEntity(this, occupant, place, common, settings);
 
     /// <summary>A Namihe, waking within the reach its placement names.</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, NamiheSpawnSettings settings) =>
-        new NamiheEntity(this, place, common, settings);
+        new NamiheEntity(this, occupant, place, common, settings);
 
     /// <summary>Allocates the shared directional fireball fired by either species' animation.</summary>
     private readonly EnemyProjectileEngine _projectiles;

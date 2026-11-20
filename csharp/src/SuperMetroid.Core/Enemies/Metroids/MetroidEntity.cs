@@ -2,7 +2,6 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>One Metroid occupant: its own AI and reactions, with the shared ones its definition names.</summary>
 /// <param name="species">The Metroid species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
@@ -10,10 +9,10 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant o
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal MetroidEnemyState State { get; } = species.InitializeMetroid(Occupant, place, settings);
+    internal MetroidEnemyState State { get; } = species.InitializeMetroid(place, settings);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Occupant, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMetroidTypedAnimation(Place, State, context);
@@ -55,7 +54,7 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant o
     /// <param name="context">The bomb contact.</param>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        if (Occupant.Definition.Shot != MetroidReactions.Shot)
+        if (!Occupant.Definition.Shot == MetroidReactions.Shot)
             return base.TryReactToBomb(context);
         species.ReactToMetroidBomb(context, State);
         return true;

@@ -31,20 +31,20 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemySettingsFactory<Cr
         if (definition == EnemyDefinitionId.Sciser)
             return new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser, settings);
         if (definition == EnemyDefinitionId.Zero)
-            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Zero, settings);
+            return new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero, settings);
         if (definition is EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer)
-            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Shared, settings);
+            return new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared, settings);
         throw new InvalidOperationException($"The crawler species crawls no {place.DefinitionId} from a surface.");
     }
 
     /// <summary>A Viola, starting on the block side its placement names, which is also the surface it crawls (#2146).</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ViolaSpawnSettings settings) =>
-        new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Viola,
+        new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Viola,
             new CrawlerSpawnSettings(Orientation: Ensure.NotNull(settings).BlockSide, BlockSide: settings.BlockSide, CrawlSpeed: settings.CrawlSpeed));
 
     /// <summary>An orange Zoomer (#2146).</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, OrangeZoomerSpawnSettings settings) =>
-        new OrangeZoomerEntity(this, place, common, settings);
+        new OrangeZoomerEntity(this, occupant, place, common, settings);
 
     /// <inheritdoc/>
     void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)

@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// own touch where its definition leaves Samus's touch to it.
 /// </summary>
 /// <param name="species">The mama turtle species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the turtle occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal abstract class TurtleEntity(MamaTurtleBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
@@ -31,7 +30,7 @@ internal abstract class TurtleEntity(MamaTurtleBehavior species, RoomEnemyOccupa
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (Occupant.Definition.Touch != TurtleReactions.Touch)
+        if (!Occupant.Definition.Touch == TurtleReactions.Touch)
             base.ReactToTouch(context);
         else
             ReactToOwnTouch(context);

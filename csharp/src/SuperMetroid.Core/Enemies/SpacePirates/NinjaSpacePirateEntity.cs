@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// Ninja's armour is its own (<see cref="GoldNinjaSpacePirateEntity"/>, #2179).
 /// </summary>
 /// <param name="species">The ninja Space Pirate species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
@@ -16,13 +15,13 @@ internal class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnem
     protected NinjaSpacePirateBehavior Species => species;
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal NinjaSpacePirateEnemyState State { get; } = NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(Occupant, place, settings);
+    internal NinjaSpacePirateEnemyState State { get; } = NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunNinjaSpacePirateMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceNinjaSpacePirateTypedAnimation(Occupant, Place, State, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceNinjaSpacePirateTypedAnimation(Place, State, context);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => SpacePirateHitboxes.Find(Place, probe);
@@ -30,6 +29,12 @@ internal class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnem
     /// <summary>Pirate contact and shots both meet the frame hitboxes the game defines for the Pirate.</summary>
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
+
+    /// <summary>Every ordinary Pirate's touch reaction, which its definition leaves to it.</summary>
+    public EnemyReaction? SpeciesTouch => SpacePirateReactions.Touch;
+
+    /// <summary>Every ordinary Pirate's shot reaction, which its definition leaves to it.</summary>
+    public EnemyReaction? SpeciesShot => SpacePirateReactions.Shot;
 
     /// <summary>Whether the Pirates' own touch, where the definition leaves Samus's touch to them, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == SpacePirateReactions.Touch || base.ReactsToTouch;
@@ -53,7 +58,7 @@ internal class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnem
         WalkingSpacePirateBehavior.SpacePirateBombReaction;
 
     /// <summary>The Pirate shot reactions, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species definition or the selected hitbox names.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction reaction) =>
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         SpacePirateHitboxes.OwnsShotReaction(reaction);
 }

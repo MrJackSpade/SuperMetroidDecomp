@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// </summary>
 /// <param name="place">The place the tongue occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class DefeatedCrocomireTongueEntity(RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyAi
+internal sealed class DefeatedCrocomireTongueEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi
 {
     /// <summary>Takes no action: the tongue is deleted as it is placed.</summary>
     /// <param name="frame">The enemy frame.</param>

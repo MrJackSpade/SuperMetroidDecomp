@@ -15,8 +15,8 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemySettingsFactory<Enemy
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EnemyFollowerSpawnSettings settings) =>
         settings.Role == EnemyFollowerRole.Follower
-            ? new HoltzFollowerEntity(this, place, common)
-            : new HoltzEntity(this, place, common);
+            ? new HoltzFollowerEntity(this, occupant, place, common)
+            : new HoltzEntity(this, occupant, place, common);
 
     /// <summary>Supplies the shared random draw taken before every parent's and follower's AI runs.</summary>
     private readonly EnemyRoomBinding _room;

@@ -13,11 +13,7 @@ internal abstract class EnemyProjectileCommonFrameAnimation<TSegment> : EnemyPro
     /// <summary>Starts <paramref name="animation"/> before its first play, the engine carrying out its shared cues.</summary>
     /// <param name="animation">The animation.</param>
     private protected EnemyProjectileCommonFrameAnimation(Animation<TSegment> animation)
-        : base(animation, static (context, projectiles, cue, _) =>
-        {
-            projectiles.ApplyCommonCue(context.Projectile, cue);
-            return null;
-        })
+        : base(animation, EnemyProjectileCueRunners.Common<TSegment>())
     {
     }
 }

@@ -2,7 +2,6 @@ namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>One Yard occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Yard species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
@@ -13,7 +12,7 @@ internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant oc
     private EnemyShotReaction OwnYardShotReaction => field ??= species.YardShotReactionOf(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal YardEnemyState State { get; } = YardEnemyBehavior.InitializeYard(Occupant, place, settings);
+    internal YardEnemyState State { get; } = YardEnemyBehavior.InitializeYard(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunYardMainAi(Place, State, frame);
@@ -29,7 +28,7 @@ internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant oc
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == YardReactions.Touch)
-            species.ReactToYardTouch(Occupant, context, State);
+            species.ReactToYardTouch(context, State);
         else
             base.ReactToTouch(context);
     }
@@ -38,6 +37,6 @@ internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant oc
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == YardReactions.Shot ? OwnYardShotReaction : base.ShotReaction;
 
     /// <summary>The Yard's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == YardReactions.Shot;
 }

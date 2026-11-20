@@ -5,5 +5,5 @@ internal sealed record MagdolliteBodySpawnSettings : MagdolliteSpawnSettings
 {
     /// <inheritdoc/>
     internal override IEnemyEntity Create(MagdolliteBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
-        new MagdolliteBodyEntity(species, place, common);
+        new MagdolliteBodyEntity(species, occupant, place, common);
 }

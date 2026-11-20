@@ -12,7 +12,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
 
     /// <summary>A Kzan's top, falling as its placement names (#2146).</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, KzanSpawnSettings settings) =>
-        new KzanTopEntity(this, place, common, settings);
+        new KzanTopEntity(this, occupant, place, common, settings);
 
     /// <inheritdoc/>
     void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)

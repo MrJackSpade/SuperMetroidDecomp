@@ -20,7 +20,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyGroupFactory, I
 
     /// <summary>A falling tube of her glass, the piece its spawn names.</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MotherBrainTubeSpawnSettings settings) =>
-        new MotherBrainTubesEntity(this, place, common, setup, settings);
+        new MotherBrainTubesEntity(this, occupant, place, common, setup, settings);
 
     /// <inheritdoc/>
     void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)

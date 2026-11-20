@@ -2,7 +2,6 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>One Tourian corpse occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Tourian corpses' species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
@@ -17,7 +16,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOc
     private EnemyShotReaction OwnDeadTourianShotReaction => field ??= DeadTourianBehavior.DeadTourianShotReactionOf(State);
 
     /// <inheritdoc/>
-    public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(State, Occupant);
+    public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal DeadTourianCorpseEnemyState State { get; } = DeadTourianBehavior.InitializeDeadTourianCorpse(place, settings);
@@ -48,7 +47,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOc
     /// <param name="context">The bomb contact.</param>
     public override bool TryReplaceCommonBombDamage(EnemyBombContext context)
     {
-        if (context.SelectedShot != CorpseReactions.Shot)
+        if (!(context.SelectedShot is null))
             return base.TryReplaceCommonBombDamage(context);
         DeadTourianBehavior.ReplaceDeadTourianBombDamage(context, State);
         return true;
@@ -58,6 +57,6 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOc
     public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? OwnDeadTourianPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The dead Tourian corpse's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == CorpseReactions.Shot;
 }

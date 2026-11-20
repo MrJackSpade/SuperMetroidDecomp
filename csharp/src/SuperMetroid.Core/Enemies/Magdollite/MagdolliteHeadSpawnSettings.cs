@@ -7,5 +7,5 @@ internal sealed record MagdolliteHeadSpawnSettings(SignedSixteenSixteen Speed, i
 {
     /// <inheritdoc/>
     internal override IEnemyEntity Create(MagdolliteBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
-        new MagdolliteHeadEntity(species, place, common, setup, this);
+        new MagdolliteHeadEntity(species, occupant, place, common, setup, this);
 }

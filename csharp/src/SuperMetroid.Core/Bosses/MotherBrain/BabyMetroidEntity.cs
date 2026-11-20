@@ -4,7 +4,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>One Baby Metroid occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Baby Metroid species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="setup">How the enemy comes to be set up, whose surroundings its initialization reads.</param>
@@ -39,17 +38,17 @@ internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyOc
     /// <summary>Baby Metroid's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == BabyMetroidReactions.Shot ? OwnBabyMetroidShotReaction : base.ShotReaction;
 
-    /// <summary>Runs the Baby Metroid's own bomb reaction, which comes before the ignoring check, for a bomb that selects its own shot reaction.</summary>
+    /// <summary>Runs Baby Metroid's its own bomb reaction, which comes before the ignoring check, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        if (context.SelectedShot != BabyMetroidReactions.Shot)
+        if (!(context.SelectedShot is null))
             return base.TryReactToBomb(context);
         BabyMetroidBehavior.ReactToBabyMetroidBomb(context, State);
         return true;
     }
 
     /// <summary>Baby Metroid's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == BabyMetroidReactions.Shot;
 }

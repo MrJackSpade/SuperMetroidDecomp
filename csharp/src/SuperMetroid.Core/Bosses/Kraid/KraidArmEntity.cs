@@ -4,7 +4,6 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's arm (#2146): its swipe, its push of Samus, and its own shot reaction.</summary>
 /// <param name="species">The Kraid species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the arm occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="kraid">The encounter his body began, which the part joins.</param>
@@ -33,6 +32,9 @@ internal sealed class KraidArmEntity(KraidBehavior species, RoomEnemyOccupant oc
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => KraidLimbs.RunKraidArmMain(Place, Encounter, frame.Camera.Y);
 
+    /// <summary>The arm's touch reaction, which its definition leaves to it.</summary>
+    public override EnemyReaction? SpeciesTouch => KraidReactions.ArmTouch;
+
     /// <summary>Whether the arm's push, where its definition leaves Samus's touch to it, or a shared touch applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == KraidReactions.ArmTouch || base.ReactsToTouch;
 
@@ -47,6 +49,6 @@ internal sealed class KraidArmEntity(KraidBehavior species, RoomEnemyOccupant oc
     }
 
     /// <summary>The arm's shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species definition or the selected hitbox names.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == KraidReactions.ArmShot;
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction == KraidReactions.ArmShot;
 }

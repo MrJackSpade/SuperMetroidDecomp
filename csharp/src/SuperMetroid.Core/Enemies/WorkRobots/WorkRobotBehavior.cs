@@ -26,7 +26,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<W
         if (definition == EnemyDefinitionId.WorkRobot)
             return new PoweredWorkRobotEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.UnpoweredWorkRobot)
-            return new UnpoweredWorkRobotEntity(this, place, common, settings);
+            return new UnpoweredWorkRobotEntity(this, occupant, place, common, settings);
         throw new InvalidOperationException($"The work robot species creates no {place.DefinitionId}.");
     }
 

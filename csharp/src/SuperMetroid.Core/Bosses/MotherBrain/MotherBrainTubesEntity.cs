@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// definition names.
 /// </summary>
 /// <param name="species">The MotherBrain species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the tube occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="setup">The spawn joining the encounter the tube falls in.</param>
@@ -16,7 +15,7 @@ internal sealed class MotherBrainTubesEntity(MotherBrainBehavior species, RoomEn
     : MotherBrainEntity(species, occupant, place, common)
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal MotherBrainFallingTubeState State { get; } = MotherBrainFakeDeath.InitializeMotherBrainFallingTube(Occupant, place, settings);
+    internal MotherBrainFallingTubeState State { get; } = MotherBrainFakeDeath.InitializeMotherBrainFallingTube(place, settings);
 
     /// <inheritdoc/>
     /// <remarks>The tube holds the encounter that spawned it from its setup (#2218).</remarks>

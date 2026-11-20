@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// shots and bombs that may strip its wings.
 /// </summary>
 /// <param name="species">The Ki-Hunter species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
@@ -19,13 +18,13 @@ internal sealed class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccu
     private EnemyShotReaction OwnKiHunterShotReaction => field ??= species.KiHunterShotReactionOf(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal KiHunterBodyState State { get; } = species.InitializeKiHunter(Occupant, place, settings);
+    internal KiHunterBodyState State { get; } = species.InitializeKiHunter(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterBodyMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceKiHunterBodyTypedAnimation(Occupant, Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceKiHunterBodyTypedAnimation(Place, State);
 
     /// <summary>The Ki-Hunter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == KiHunterReactions.Shot ? OwnKiHunterShotReaction : base.ShotReaction;
@@ -36,6 +35,6 @@ internal sealed class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccu
         context.SelectedShot == KiHunterReactions.Shot ? OwnKiHunterBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Ki-Hunter's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == KiHunterReactions.Shot;
 }

@@ -2,7 +2,6 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>One Mochtroid occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Mochtroid species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class MochtroidEntity(MochtroidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
@@ -34,6 +33,6 @@ internal sealed class MochtroidEntity(MochtroidBehavior species, RoomEnemyOccupa
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MochtroidReactions.Shot ? MochtroidBehavior.MochtroidShotReaction : base.ShotReaction;
 
     /// <summary>The Mochtroid's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == MochtroidReactions.Shot;
 }

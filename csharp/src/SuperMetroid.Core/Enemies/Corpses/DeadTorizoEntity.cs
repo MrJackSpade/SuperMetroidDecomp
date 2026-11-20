@@ -2,7 +2,6 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>One dead Torizo occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The dead Torizo species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
@@ -47,7 +46,7 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyOccu
     /// <param name="context">The bomb contact.</param>
     public override bool TryReplaceCommonBombDamage(EnemyBombContext context)
     {
-        if (context.SelectedShot != CorpseReactions.Shot)
+        if (!(context.SelectedShot is null))
             return base.TryReplaceCommonBombDamage(context);
         DeadTorizoBehavior.ReplaceDeadTorizoBombDamage(context, State);
         return true;
@@ -57,6 +56,6 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyOccu
     public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? OwnDeadTorizoPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The dead Torizo's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == CorpseReactions.Shot;
 }

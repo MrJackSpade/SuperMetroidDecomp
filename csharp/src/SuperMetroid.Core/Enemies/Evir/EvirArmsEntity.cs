@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// them.
 /// </summary>
 /// <param name="species">The Evir species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the arms occupy.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class EvirArmsEntity(EvirBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
@@ -30,6 +29,6 @@ internal sealed class EvirArmsEntity(EvirBehavior species, RoomEnemyOccupant occ
     public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? species.EvirPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The Evir's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == EvirReactions.Shot;
 }

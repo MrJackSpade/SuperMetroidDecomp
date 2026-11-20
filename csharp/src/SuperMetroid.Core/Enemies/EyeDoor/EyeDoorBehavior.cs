@@ -39,8 +39,7 @@ internal sealed class EyeDoorBehavior
                 $"Undefined {nameof(EyeDoorProjectileDefinition)} {request.Definition}."),
         };
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind,
-            request.Definition == EyeDoorProjectileDefinition.Sweat ? Sweat : EnemyProjectileBehavior.Still, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, EnemyProjectileBehavior.Still, default);
         if (projectile is null)
             return; // Spawning fails when the room has no place left for an enemy projectile.
 
@@ -48,7 +47,7 @@ internal sealed class EyeDoorBehavior
         switch (request.Definition)
         {
             case EyeDoorProjectileDefinition.Sweat:
-                projectile.StartAnimation(new EyeDoorSweatAnimation(Sweat, EyeDoorSweatSegment.Falling, SweatDrop));
+                projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatSegment.Falling, SweatDrop));
                 InitializeEyeDoorSweat(projectile, request.Facing, block);
                 return;
 
@@ -76,7 +75,7 @@ internal sealed class EyeDoorBehavior
     {
         Ensure.NotNull(system);
         var shot = new ShotBehavior(new EyeDoorShotState(request.Door, system));
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EyeDoorProjectile, shot, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EyeDoorProjectile, shot, default);
         if (projectile is null)
             return; // Spawning fails when the room has no place left for an enemy projectile.
 
@@ -85,7 +84,7 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>A sweat drop (#1760): it falls from its spawn and splashes on the floor.</summary>
-    private EyeDoorProjectileBehavior Sweat => SweatDrop;
+    internal EnemyProjectileBehavior Sweat => SweatDrop;
 
     /// <summary>The sweat drop's behaviour, which owns its animations' cues.</summary>
     private SweatBehavior SweatDrop => field ??= new SweatBehavior();
@@ -95,9 +94,6 @@ internal sealed class EyeDoorBehavior
     internal sealed class ShotBehavior(EyeDoorShotState shot)
         : EnemyProjectileMotionBehavior<SingleMotion>(initial: null), IEnemyProjectileCues<EyeDoorProjectileCue>
     {
-        /// <summary>Each shot's door, the game state that records its opening and its heading, given as its eye fires it.</summary>
-        internal EnemyProjectileStates<EyeDoorShotState> Shots { get; } = new();
-
         /// <inheritdoc/>
         internal override EnemyProjectileAnimation ShotAnimation() => new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Shot, this);
 
@@ -135,7 +131,7 @@ internal sealed class EyeDoorBehavior
     {
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
-            DripEyeDoorSweat(this, context.Projectile, context.Level, this);
+            DripEyeDoorSweat(context.Projectile, context.Level, this);
 
         /// <inheritdoc/>
         public void RunCue(EnemyProjectileCueContext context, EyeDoorSweatCue cue)
@@ -159,7 +155,6 @@ internal sealed class EyeDoorBehavior
     /// opening.
     /// </summary>
     private static void InitializeEyeDoorProjectile(
-        EyeDoorProjectileBehavior owner,
         EnemyProjectile projectile,
         EyeDoorAttackRequest request)
     {
@@ -191,7 +186,7 @@ internal sealed class EyeDoorBehavior
     /// Starts smoke showing <paramref name="animation"/> scattered across <paramref name="placement"/>: one random number
     /// places the smoke on both axes, then the smoke draws one more random number of its own.
     /// </summary>
-    private void InitializeEyeDoorSmoke(
+    internal void InitializeEyeDoorSmoke(
         EnemyProjectile projectile,
         DustExplosionAnimation animation,
         DustExplosionPlacement placement,
@@ -211,7 +206,6 @@ internal sealed class EyeDoorBehavior
 
     /// <summary>Moves the eye shot, accelerates along its angle, and switches to impact on collision or door opening.</summary>
     internal static void FlyEyeDoorProjectile(
-        EyeDoorProjectileBehavior owner,
         EnemyProjectile projectile,
         EyeDoorShotState shot,
         RoomLevelData level,
@@ -220,7 +214,7 @@ internal sealed class EyeDoorBehavior
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Horizontal, EyeDoorEffectCollision.Rule) ||
             EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical, EyeDoorEffectCollision.Rule))
         {
-            StartEyeDoorProjectileImpact(owner, projectile, cues);
+            StartEyeDoorProjectileImpact(projectile, cues);
             return;
         }
 
@@ -229,12 +223,11 @@ internal sealed class EyeDoorBehavior
             ReadEyeDoorAcceleration(shot.Heading + TrigonometryAngle.HalfTurn));
 
         if (shot.Doors.HasOpenedDoor(shot.Door))
-            StartEyeDoorProjectileImpact(owner, projectile, cues);
+            StartEyeDoorProjectileImpact(projectile, cues);
     }
 
     /// <summary>Applies sweat gravity and starts the impact animation on a downward vertical collision.</summary>
-    private static void DripEyeDoorSweat(
-        EyeDoorProjectileBehavior owner,
+    internal static void DripEyeDoorSweat(
         EnemyProjectile projectile,
         RoomLevelData level,
         IEnemyProjectileCues<EyeDoorSweatCue> sweat)
@@ -246,7 +239,7 @@ internal sealed class EyeDoorBehavior
             projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole - EyeDoorEffectDefinitions.SweatSplashRise);
             // The floor splash stops the drop's movement, as the animation switch does.
             projectile.HoldStill();
-            projectile.StartAnimation(new EyeDoorSweatAnimation(owner, EyeDoorSweatSegment.HitFloor, sweat));
+            projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatSegment.HitFloor, sweat));
             return;
         }
 
@@ -257,11 +250,11 @@ internal sealed class EyeDoorBehavior
     /// The eye shot's per-update acceleration along <paramref name="angle"/>'s sine: a sixteenth of the one-pixel sine
     /// velocity, rounded toward decreasing coordinates, so a small negative sine still accelerates the shot back.
     /// </summary>
-    private static SignedEightEight ReadEyeDoorAcceleration(TrigonometryAngle angle) =>
+    internal static SignedEightEight ReadEyeDoorAcceleration(TrigonometryAngle angle) =>
         EnemyMath.SineVelocity(angle, 1).DividedRoundingDown(16);
 
     /// <summary>Sends an eye-door shot into its typed impact animation, stopping its movement as the animation switch does.</summary>
-    private static void StartEyeDoorProjectileImpact(EyeDoorProjectileBehavior owner, EnemyProjectile projectile, IEnemyProjectileCues<EyeDoorProjectileCue> cues)
+    private static void StartEyeDoorProjectileImpact(EnemyProjectile projectile, IEnemyProjectileCues<EyeDoorProjectileCue> cues)
     {
         projectile.HoldStill();
         projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Impact, cues));
@@ -271,7 +264,7 @@ internal sealed class EyeDoorBehavior
     /// Aims the projectile at Samus: keeps the angle to
     /// Samus and launches the shot along it at unit speed.
     /// </summary>
-    private static void AimEyeDoorProjectileAtSamus(EyeDoorProjectileBehavior owner, EnemyProjectile projectile, EyeDoorShotState shot, IRoomSamus samus)
+    private static void AimEyeDoorProjectileAtSamus(EnemyProjectile projectile, EyeDoorShotState shot, IRoomSamus samus)
     {
         shot.Heading = EnemyMath.CalculateAimAngle(
             new(samus.Position.X.Whole - projectile.Position.X.Whole, samus.Position.Y.Whole - projectile.Position.Y.Whole));

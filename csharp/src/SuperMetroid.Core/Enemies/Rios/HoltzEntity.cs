@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// the flames of the follower its room lists right after it (<see cref="HoltzFollowerEntity"/>).
 /// </summary>
 /// <param name="species">The Holtz species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class HoltzEntity(HoltzBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)

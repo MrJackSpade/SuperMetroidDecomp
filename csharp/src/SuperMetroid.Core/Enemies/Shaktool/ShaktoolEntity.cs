@@ -2,7 +2,6 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>One Shaktool occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Shaktool species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
@@ -10,13 +9,13 @@ internal sealed class ShaktoolEntity(ShaktoolBehavior species, RoomEnemyOccupant
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal ShaktoolSegmentState State { get; } = species.InitializeShaktool(Occupant, place, settings);
+    internal ShaktoolSegmentState State { get; } = species.InitializeShaktool(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunShaktoolMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceShaktoolTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceShaktoolTypedAnimation(Place, context);
 
     /// <summary>Whether Shaktool's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == ShaktoolReactions.Touch || base.ReactsToTouch;
@@ -40,6 +39,6 @@ internal sealed class ShaktoolEntity(ShaktoolBehavior species, RoomEnemyOccupant
         context.SelectedShot == ShaktoolReactions.Shot ? species.ShaktoolBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>Shaktool's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == ShaktoolReactions.Shot;
 }

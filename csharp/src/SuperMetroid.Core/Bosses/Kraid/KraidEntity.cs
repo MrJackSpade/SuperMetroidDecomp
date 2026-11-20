@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// before it sets up, so his parts reach one another (#1877), and answers his hitboxes.
 /// </summary>
 /// <param name="species">The Kraid species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal abstract class KraidEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
@@ -25,6 +24,12 @@ internal abstract class KraidEntity(KraidBehavior species, RoomEnemyOccupant occ
 
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);
+
+    /// <summary>None: no part but the arm has a touch reaction its hitboxes name.</summary>
+    public virtual EnemyReaction? SpeciesTouch => null;
+
+    /// <summary>None: the arm's, foot's and body's definitions name the ignoring shot reaction.</summary>
+    public EnemyReaction? SpeciesShot => null;
 
     /// <summary>None: only his arm and foot have hitboxes of their own, which their entities find (#2301).</summary>
     public virtual EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe)

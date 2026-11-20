@@ -12,8 +12,8 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySettingsFactory<Ene
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EnemyFollowerSpawnSettings settings) =>
         settings.Role == EnemyFollowerRole.Follower
-            ? new NorfairLavaJumperFollowerEntity(this, place, common)
-            : new SqueeptEntity(this, place, common);
+            ? new NorfairLavaJumperFollowerEntity(this, occupant, place, common)
+            : new SqueeptEntity(this, occupant, place, common);
 
     /// <summary>Supplies one random number per parent and follower AI frame.</summary>
     private readonly EnemyRoomBinding _room;

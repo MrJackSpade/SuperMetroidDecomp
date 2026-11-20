@@ -11,8 +11,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySettingsFactory<Hib
     /// <summary>The Hibashi's flame, or the collision part its placement names (#2342).</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, HibashiSpawnSettings settings) =>
         Ensure.NotNull(settings).Part == HibashiPart.CollisionPart
-            ? new HibashiCollisionPartEntity(place, common)
-            : new HibashiEntity(this, place, common, settings);
+            ? new HibashiCollisionPartEntity(occupant, place, common)
+            : new HibashiEntity(this, occupant, place, common, settings);
 
     /// <summary>The room's enemy places, where each visible geyser finds its hitbox when it is placed.</summary>
     private readonly EnemyPlaces _places;

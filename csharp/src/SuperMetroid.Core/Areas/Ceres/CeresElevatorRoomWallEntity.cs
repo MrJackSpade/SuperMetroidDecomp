@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// the enemies.
 /// </summary>
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the wall occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class CeresElevatorRoomWallEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
@@ -19,7 +18,7 @@ internal sealed class CeresElevatorRoomWallEntity(CeresDoorBehavior doors, RoomE
     internal CeresDoorAnimationState State { get; } = doors.Start(place, CeresDoorSegment.ElevatorRoomWall);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => doors.EscapeQuake.Keep(EarthquakeReach.RoomBlocksSceneryAndEnemies);
+    public void RunMainAi(IEnemyAiFrame frame) => doors.EscapeQuake.Keep(EarthquakeReach.ForegroundBackgroundAndEnemies);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, State, context.Samus);

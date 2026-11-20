@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// and wings, his hand-authored extended body and tail tip, his shot reaction and his Power Bomb reaction.
 /// </summary>
 /// <param name="body">The parts of Ridley's body both encounters run.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal abstract class RidleyEntity(RidleyBody body, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
@@ -37,6 +36,12 @@ internal abstract class RidleyEntity(RidleyBody body, RoomEnemyOccupant occupant
     /// <inheritdoc/>
     public abstract RidleyBodySegment? CutFireballingShort(SamusState samus);
 
+    /// <summary>None: both Ridley bodies' definitions name the ordinary touch.</summary>
+    public EnemyReaction? SpeciesTouch => null;
+
+    /// <summary>Both Ridley bodies' shot reaction, which their definitions leave to them.</summary>
+    public EnemyReaction? SpeciesShot => RidleyReactions.Shot;
+
     /// <summary>Both Ridley bodies' own Power Bomb reaction where their definitions leave the blast to them, or the shared one.</summary>
     public override EnemyPowerBombReaction PowerBombReaction =>
         LeavesPowerBombToSpecies ? RidleyInteractions.RidleyPowerBombReaction : base.PowerBombReaction;
@@ -60,7 +65,7 @@ internal abstract class RidleyEntity(RidleyBody body, RoomEnemyOccupant occupant
     /// <param name="samus">Samus.</param>
     /// <param name="pseudoScrew">Samus's held charge, which her Pseudo Screw contact spends.</param>
     public virtual void ResolveAfterSamusContact(SamusState samus, PseudoScrewCharge pseudoScrew) =>
-        Body.Contact.ResolveSamusContact(Occupant, samus, pseudoScrew);
+        _ = Body.Contact.ResolveSamusContact(Place, samus, pseudoScrew);
 
     /// <summary>Ridley's AI publishes the shading the common enemy drawing draws him in: his body, wings and tail share one latched phase (#1512).</summary>
     public PictureShading? CommonDrawShading() => Encounter.CommonDrawShading;
@@ -72,6 +77,6 @@ internal abstract class RidleyEntity(RidleyBody body, RoomEnemyOccupant occupant
         Body.Drawing.DrawTailAndWings(sprites, Place, Encounter, camera);
 
     /// <summary>Both Ridley bodies' shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == RidleyReactions.Shot;
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction == RidleyReactions.Shot;
 }

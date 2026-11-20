@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// Crocomire's component contact. Its frames carry no hitboxes (#1870, #1889).
 /// </summary>
 /// <param name="species">The Crocomire species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the tongue occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="crocomire">The encounter his body began, which the tongue joins.</param>
@@ -36,8 +35,8 @@ internal sealed class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemy
     }
 
     /// <summary>The tongue's ordinary touch leads to Crocomire's component contact.</summary>
-    protected override bool OwnsTouch => Occupant.Definition.Touch == EnemyReaction.OrdinaryTouch;
+    protected override bool OwnsTouch => Place.Definition.Touch == EnemyReaction.OrdinaryTouch;
 
     /// <summary>The tongue's ordinary shot leads to his hitboxes' reactions.</summary>
-    protected override bool OwnsShot => Occupant.Definition.Shot == EnemyReaction.OrdinaryShot;
+    protected override bool OwnsShot => Place.Definition.Shot == EnemyReaction.OrdinaryShot;
 }

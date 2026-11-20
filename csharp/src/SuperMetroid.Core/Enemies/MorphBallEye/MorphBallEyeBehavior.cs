@@ -28,11 +28,11 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySettingsFactor
 
     /// <summary>The eye itself, facing the way its placement names.</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MorphBallEyeBodySpawnSettings settings) =>
-        new MorphBallEyeEntity(this, place, common, settings);
+        new MorphBallEyeEntity(this, occupant, place, common, settings);
 
     /// <summary>The eye's mount, on the side its placement names.</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MorphBallEyeMountSpawnSettings settings) =>
-        new MorphBallEyeMountEntity(this, place, common, settings);
+        new MorphBallEyeMountEntity(this, occupant, place, common, settings);
 
     /// <summary>The room-global beam an eye body casts.</summary>
     public MorphBallEyeBeamState MorphBallEyeBeam { get; } = new();

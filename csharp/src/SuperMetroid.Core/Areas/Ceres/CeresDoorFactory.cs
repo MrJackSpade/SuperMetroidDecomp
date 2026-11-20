@@ -31,7 +31,7 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
         if (actor == EnemyDefinitionId.CeresRidleyRoomDoor)
             return new CeresRidleyRoomDoorEntity(_doors, occupant, place, common);
         if (actor == EnemyDefinitionId.CeresElevatorRoomWall)
-            return new CeresElevatorRoomWallEntity(_doors, place, common);
+            return new CeresElevatorRoomWallEntity(_doors, occupant, place, common);
         throw new InvalidDataException($"{actor} is no Ceres door or wall told nothing.");
     }
 
@@ -46,7 +46,7 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
 
     /// <summary>A Ceres door, facing as its placement names.</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CeresDoorSpawnSettings settings) =>
-        new CeresDoorEntity(_doors, place, common, Ensure.NotNull(settings).Facing switch
+        new CeresDoorEntity(_doors, occupant, place, common, Ensure.NotNull(settings).Facing switch
         {
             HorizontalDirection.Right => CeresDoorSegment.DoorFacingRight,
             HorizontalDirection.Left => CeresDoorSegment.DoorFacingLeft,
@@ -55,7 +55,7 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
 
     /// <summary>A getaway chamber wall, standing on the side its placement names.</summary>
     public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CeresGetawayChamberWallSpawnSettings settings) =>
-        new CeresGetawayChamberWallEntity(_doors, place, common, Ensure.NotNull(settings).Side switch
+        new CeresGetawayChamberWallEntity(_doors, occupant, place, common, Ensure.NotNull(settings).Side switch
         {
             HorizontalDirection.Left => CeresDoorSegment.GetawayChamberLeftWall,
             HorizontalDirection.Right => CeresDoorSegment.GetawayChamberRightWall,

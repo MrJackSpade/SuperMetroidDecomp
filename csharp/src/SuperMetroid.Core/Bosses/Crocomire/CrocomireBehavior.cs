@@ -35,9 +35,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyGroupFactory
     private IEnemyEntity Tongue(RoomEnemyPlace place, EnemyCommonParticipation common, CrocomireEnemyState crocomire)
     {
         if (!Fight.TongueIsDeletedAtOnce)
-            return new CrocomireTongueEntity(this, place, common, crocomire);
+            return new CrocomireTongueEntity(this, occupant, place, common, crocomire);
         CrocomireFight.DeleteDefeatedTongue(place);
-        return new DefeatedCrocomireTongueEntity(place, common);
+        return new DefeatedCrocomireTongueEntity(occupant, place, common);
     }
 
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>

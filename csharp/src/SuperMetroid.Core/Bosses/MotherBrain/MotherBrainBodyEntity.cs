@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// a bomb, and the pictures she shows on her boss body layer.
 /// </summary>
 /// <param name="species">The MotherBrain species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
@@ -34,6 +33,9 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Body.AdvanceMotherBrainBodyAnimation(Encounter, context.Samus);
 
+    /// <summary>The body's shot reaction, which its definition leaves to it.</summary>
+    public override EnemyReaction? SpeciesShot => MotherBrainReactions.BodyShot;
+
     /// <summary>The body's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MotherBrainReactions.BodyShot ? Species.Combat.BodyShotReaction : base.ShotReaction;
 
@@ -52,7 +54,7 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     /// </summary>
     /// <exception cref="InvalidDataException">The body's definition leaves the blast to the species.</exception>
     public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies
-        ? throw new InvalidDataException($"Enemy {Place.Occupant?.DefinitionId} has no response to its own Power Bomb reaction.")
+        ? throw new InvalidDataException($"Enemy {Place.DefinitionId} has no response to its own Power Bomb reaction.")
         : base.PowerBombReaction;
 
     /// <inheritdoc/>
@@ -66,6 +68,6 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     public override EnemyCapabilities Capabilities => EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>The body's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == MotherBrainReactions.BodyShot;
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction == MotherBrainReactions.BodyShot;
 }

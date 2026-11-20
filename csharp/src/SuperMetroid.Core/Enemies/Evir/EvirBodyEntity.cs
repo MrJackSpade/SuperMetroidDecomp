@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// where its definition leaves them to it, each followed by the Evir's follow-up to its arms and spit.
 /// </summary>
 /// <param name="species">The Evir species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="setup">How the enemy comes to be set up, whose surroundings its initialization reads.</param>
@@ -14,10 +13,10 @@ internal sealed class EvirBodyEntity(EvirBehavior species, RoomEnemyOccupant occ
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal EvirBodyState State { get; } = species.InitializeEvirBody(Occupant, place, setup.SurroundingsOf(place).Samus, settings);
+    internal EvirBodyState State { get; } = species.InitializeEvirBody(place, setup.SurroundingsOf(place).Samus, settings);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirBodyMainAi(Occupant, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirBodyMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => EvirBehavior.AdvanceEvirPartTypedAnimation(Place, State);
@@ -47,6 +46,6 @@ internal sealed class EvirBodyEntity(EvirBehavior species, RoomEnemyOccupant occ
     public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? species.EvirPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The Evir's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == EvirReactions.Shot;
 }

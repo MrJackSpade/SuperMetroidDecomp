@@ -23,7 +23,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
         if (definition == EnemyDefinitionId.PirateGoldNinja)
             return new GoldNinjaSpacePirateEntity(this, occupant, place, common, settings);
         if (definition == EnemyDefinitionId.PirateSilverNinja)
-            return new NinjaSpacePirateEntity(this, place, common, settings);
+            return new NinjaSpacePirateEntity(this, occupant, place, common, settings);
         throw new InvalidOperationException($"The ninja Space Pirate species creates no {place.DefinitionId}.");
     }
 
@@ -558,12 +558,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
         : SingleMotionProjectileBehavior(context => FlyNinjaPirateClaw(context.Projectile, claw, context.Camera), initial: null),
             IEnemyProjectileCues<SpacePirateClawCue>
     {
-        /// <summary>Each claw's throw and its speed along it, given as its pirate throws it.</summary>
-        internal EnemyProjectileStates<NinjaPirateClawState> Claws { get; } = new();
-
-        /// <inheritdoc/>
-        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
-            FlyNinjaPirateClaw(this, context.Projectile, context.Camera);
 
         /// <inheritdoc/>
         /// <exception cref="InvalidOperationException">The cue throws the claw a way other than its thrower chose.</exception>

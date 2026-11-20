@@ -15,7 +15,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.NoobTubeCrack];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new NoobTubeCrackEntity(place, common);
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new NoobTubeCrackEntity(occupant, place, common);
 
     /// <summary>The pictures and shading every tube piece draws with: the shared sheet in the tube's crack colours.</summary>
     private static readonly SpriteGraphics TubePieceGraphics =

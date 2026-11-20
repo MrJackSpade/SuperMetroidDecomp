@@ -385,12 +385,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
         : SingleMotionProjectileBehavior(context => FlyPirateLaser(context.Projectile, laser, context.Camera), initial: null),
             IEnemyProjectileCues<SpacePirateLaserCue>
     {
-        /// <summary>Each laser's speed and way, given as its firer aims it.</summary>
-        internal EnemyProjectileStates<PirateLaserState> Lasers { get; } = new();
-
-        /// <inheritdoc/>
-        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
-            FlyPirateLaser(this, context.Projectile, context.Camera);
 
         /// <inheritdoc/>
         /// <exception cref="InvalidOperationException">The cue fires the laser a way other than its firer chose.</exception>

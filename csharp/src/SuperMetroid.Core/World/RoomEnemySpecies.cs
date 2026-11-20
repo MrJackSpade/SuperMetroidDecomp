@@ -138,7 +138,7 @@ internal sealed class RoomEnemySpecies
             var statueScene = new TourianEntranceStatueBehavior(enemies.Projectiles, statueRoom);
             var unlockEffects = new TourianUnlockBehavior(enemies.Room, enemies.Projectiles, enemies.Earthquake, enemies.Audio, statueScene, statueRoom);
             tourianEntranceStatueBehavior = statueScene;
-            TourianStatue = new TourianStatueActors(statueScene, unlockEffects);
+            TourianStatue = new RoomTourianStatues(statueRoom, new TourianStatueActors(statueScene, unlockEffects));
         }
         var sporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = enemies.Audio, Room = enemies.Room, Presentation = enemies.Presentation, Projectiles = enemies.Projectiles, EffectActors = enemies.EffectActors, FrameContext = enemies.FrameContext, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, PassEvents = enemies.PassEvents, CameraFloor = enemies.CameraFloor });
         var fallingSparksBehavior = new FallingSparksBehavior(enemies.Room, enemies.Projectiles, enemies.EffectActors, enemies.FallingSparkFloorProbe);
@@ -157,7 +157,7 @@ internal sealed class RoomEnemySpecies
         var norfairRidleyBehavior = new NorfairRidleyBehavior(new NorfairRidleyBehaviorDependencies { Lifecycle = enemies.Lifecycle, Room = enemies.Room, Earthquake = enemies.Earthquake, Audio = enemies.Audio, DeathsAndDrops = enemies.DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyBody = RidleyBody, RidleyProjectiles = RidleyProjectiles, RoomFx = enemies.RoomFx, Presentation = enemies.Presentation });
         var puyoBehavior = new PuyoBehavior(enemies.Room, enemies.Terrain, enemies.PuyoCeilingTurn);
         var prePhantoonRoomBehavior = new PrePhantoonRoomBehavior(enemies.Projectiles);
-        var powampBehavior = new PowampBehavior(enemies.Terrain, enemies.Projectiles, enemies.Places, enemies.Collision, enemies.DeathsAndDrops);
+        var powampBehavior = new PowampBehavior(enemies.Terrain, enemies.Projectiles, enemies.Collision, enemies.DeathsAndDrops);
         var polypBehavior = new PolypBehavior(enemies.Room, enemies.Projectiles);
         var platformsBehavior = new PlatformsBehavior(enemies.Terrain);
         var pipeBugsBehavior = new PipeBugsBehavior(enemies.Places);
@@ -176,11 +176,11 @@ internal sealed class RoomEnemySpecies
         var metroidBehavior = new MetroidBehavior(enemies.Room, enemies.Terrain, enemies.Audio, enemies.EffectActors, enemies.FrameContext, enemies.DeathsAndDrops);
         var metareeBehavior = new MetareeBehavior(enemies.Projectiles, enemies.Audio);
         var oumBehavior = new OumBehavior(enemies.Terrain, enemies.Collision, enemies.Audio);
-        var mamaTurtleBehavior = new MamaTurtleBehavior(enemies.Terrain, enemies.Earthquake, enemies.Places, enemies.Collision, enemies.Audio);
+        var mamaTurtleBehavior = new MamaTurtleBehavior(enemies.Terrain, enemies.Earthquake, enemies.Collision, enemies.Audio);
         var magdolliteBehavior = new MagdolliteBehavior(enemies.Room, enemies.Projectiles, enemies.Places, enemies.Collision, enemies.DeathsAndDrops, enemies.Audio);
         var holtzBehavior = new HoltzBehavior(enemies.Room, enemies.Terrain, enemies.Places, enemies.Audio);
         var kzanBehavior = new KzanBehavior(enemies.Places, enemies.Audio);
-        var kraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { PassEvents = enemies.PassEvents, Room = enemies.Room, Terrain = enemies.Terrain, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, EffectActors = enemies.EffectActors, Presentation = enemies.BossPresentation, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, CameraDistance = enemies.CameraDistance  });
+        var kraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { PassEvents = enemies.PassEvents, Room = enemies.Room, Terrain = enemies.Terrain, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, EffectActors = enemies.EffectActors, Presentation = enemies.BossPresentation, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, CameraDistance = enemies.CameraDistance, Encounters = enemies.BossEncounters });
         var kiHunterBehavior = new KiHunterBehavior(enemies.Room, enemies.Terrain, enemies.Projectiles, enemies.Audio, enemies.Places);
         var kagoBehavior = new KagoBehavior(enemies.Room, enemies.Projectiles, enemies.Earthquake, enemies.DeathsAndDrops, enemies.RoomStatus, enemies.Audio);
         var hoppersBehavior = new HoppersBehavior(enemies.Room, enemies.Terrain, enemies.Audio);
@@ -309,7 +309,7 @@ internal sealed class RoomEnemySpecies
         ];
         Registry = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(() => enemies.Collision), [boyonBehavior, bullBehavior, zoaBehavior, waverBehavior, chootBehavior, atomicBehavior, skulteraBehavior, puyoBehavior, rioBehavior, fliesBehavior, sparkBehavior, sbugBehavior, multiviolaBehavior, cacatacBehavior, alcoonBehavior, boulderBehavior, nuclearWaffleBehavior, hibashiBehavior, wreckedShipGhostBehavior, kzanBehavior, ripperBehavior, mochtroidBehavior, skreeBehavior, owtchBehavior, beetomBehavior, kagoBehavior, firefleaBehavior, metareeBehavior, polypBehavior, hoppersBehavior, crawlersBehavior, platformsBehavior, yardBehavior, yappingMawBehavior, etecoonBehavior, dachoraBehavior, oumBehavior, workRobotBehavior, blueBrinstarFaceBlockBehavior, dragonBehavior, funeNamiheBehavior, powampBehavior, gerutaBehavior, holtzBehavior, squeeptBehavior, shaktoolBehavior, metroidBehavior, walkingSpacePirateBehavior, wallSpacePirateBehavior, ninjaSpacePirateBehavior, chozoStatueBehavior, deadSidehopperBehavior, deadTorizoBehavior, deadTourianBehavior, babyMetroidBehavior, fakeKraidBehavior, elevatorBehavior, magdolliteBehavior, escapeAnimalsBehavior, rinkaBehavior, zebetiteBehavior, shuttersBehavior, evirBehavior, kiHunterBehavior, pipeBugsBehavior, mamaTurtleBehavior, morphBallEyeBehavior, new CeresDoorFactory(ceresDoorBehavior), steamVents, gunshipBehavior, botwoonBehavior, sporeSpawnBehavior, torizoBehavior, kraidBehavior, crocomireBehavior, draygonBehavior, phantoonBehavior, motherBrainBehavior, babyMetroidCutsceneBehavior, noobTubeBehavior,
             new RidleyEntityFactory(norfairRidleyBehavior, ceresRidleyBehavior, RidleyEncounter),
-            .. Present<IEnemyEntityFactory>(tourianEntranceStatueBehavior), .. Present<IEnemyEntityFactory>(elevatorDoors)],
+            .. Present<IEnemySpeciesFactory>(tourianEntranceStatueBehavior), .. Present<IEnemySpeciesFactory>(elevatorDoors)],
             // What the owners the room's scenery did not let it build would have placed; the registry refuses a room that
             // builds an owner of one, or lacks an owner of any other.
             [
@@ -329,10 +329,10 @@ internal sealed class RoomEnemySpecies
         RoomEffectSteps = [new PhantoonBodyDisplaySteps(enemies.BossEncounters)];
         Shadings = [ceresDoorBehavior, .. Present<IGameplayShadingSource>(tourianEntranceStatueBehavior)];
         Elevator = elevatorBehavior;
-        Gunship = new GunshipSession(gunshipBehavior);
+
         LoaderHooks = new LoaderOperations(rinkaBehavior, prePhantoonRoomBehavior, RidleyEncounter);
         LoadPreparation = new RoomLoadPreparation(gunshipBehavior, rinkaBehavior);
-        AttractDemoHooks = new AttractDemoOperations(kraidBehavior);
+        AttractDemoHooks = new AttractDemoOperations(enemies.BossEncounters);
         RoomObjectSpawns = new ObjectSpawns(noobTubeBehavior, eyeDoorBehavior, oldTourianEscapeShaftWallBehavior, draygonBehavior,
             motherBrainBehavior, torizoBehavior, escapeExplosionsBehavior);
         RoomObjectRequests = new ObjectRequests(chozoStatueBehavior, downwardGateBehavior);
@@ -397,8 +397,6 @@ internal sealed class RoomEnemySpecies
     /// <summary>The elevator journey the runtime reads and resets.</summary>
     internal IElevatorJourney Elevator { get; }
 
-    /// <summary>The gunship's save prompt and health check.</summary>
-    internal IGunshipSession Gunship { get; }
 
     /// <summary>The Ceres encounter's status and runtime operations.</summary>
     internal ICeresEncounter Ceres { get; }
@@ -428,7 +426,7 @@ internal sealed class RoomEnemySpecies
     /// The statue room's entrance statue and unlock effects as its statue sequence drives them; null in every other room
     /// (#2486).
     /// </summary>
-    internal ITourianStatueActors? TourianStatue { get; }
+    internal RoomTourianStatues? TourianStatue { get; }
 
     /// <summary>The ceiling tiles that fall in Ceres station during its escape.</summary>
     internal CeresFallingTiles CeresFallingTiles { get; }
@@ -561,11 +559,13 @@ internal sealed class RoomEnemySpecies
     }
 
     /// <summary>The attract demo's setup of Kraid's room.</summary>
-    /// <param name="kraid">Kraid.</param>
-    private sealed class AttractDemoOperations(KraidBehavior kraid) : IEnemyAttractDemoHooks
+    /// <param name="encounters">The room's bosses' encounters, whose waits on Kraid his body's setup runs.</param>
+    private sealed class AttractDemoOperations(RoomBossEncounters encounters) : IEnemyAttractDemoHooks
     {
         /// <inheritdoc/>
-        public void StartKraidPhaseWait(int updates) => kraid.Parts.Encounter.BodyState.PhaseWait.LastFor(updates);
+        /// <remarks>The wait is composed with the encounter Kraid's body begins, as it finishes setting up (#2218, #2554).</remarks>
+        public void StartKraidPhaseWaitAsHeSetsUp(int updates) =>
+            encounters.WhenKraidSetsUp(kraid => kraid.BodyState.PhaseWait.LastFor(updates));
     }
 
     /// <summary>The enemy-side effects room objects and room effects trigger, carried out by the owners they belong to.</summary>

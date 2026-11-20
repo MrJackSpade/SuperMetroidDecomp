@@ -16,8 +16,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     {
         _settingsOf.Place(Ensure.NotNull(place), Ensure.NotNull(settings));
         return settings.Part == EvirBodyPart.Arms
-            ? new EvirArmsEntity(this, place, common)
-            : new EvirBodyEntity(this, place, common, setup, settings);
+            ? new EvirArmsEntity(this, occupant, place, common)
+            : new EvirBodyEntity(this, occupant, place, common, setup, settings);
     }
 
     /// <summary>

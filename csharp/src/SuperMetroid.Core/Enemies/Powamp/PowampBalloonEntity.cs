@@ -7,18 +7,20 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// (#2554). It keeps the Power Bomb reaction its definition leaves to it.
 /// </summary>
 /// <param name="species">The Powamp species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the balloon occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">How far the grapple pulls the balloon, as its placement names.</param>
 internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, PowampSpawnSettings settings)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <summary>The balloon's own shot reaction, built for this occupant.</summary>
-    private readonly EnemyShotReaction ownShot = species.PowampBalloonShotReaction(occupant);
-
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal PowampBalloonState State { get; } = PowampBehavior.InitializePowampBalloon(place, settings);
+
+    /// <summary>Does nothing: the balloon has no AI of its own, its body moves it.</summary>
+    /// <param name="frame">The enemy pass's frame.</param>
+    public void RunMainAi(IEnemyAiFrame frame)
+    {
+    }
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBalloonTypedAnimation(Place, State);

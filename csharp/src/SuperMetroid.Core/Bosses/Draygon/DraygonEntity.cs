@@ -9,11 +9,10 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>
 /// One of Draygon's occupants: his body (<see cref="DraygonBodyEntity"/>), eye (<see cref="DraygonEyeEntity"/>), tail
 /// (<see cref="DraygonTailEntity"/>) or arms (<see cref="DraygonArmsEntity"/>). Every part plays its animation through the
-/// encounter, answers his hitboxes and shows its frames as placed pictures; the parts other than the body take the
-/// shared reactions their definitions name.
+/// encounter, answers his hitboxes and may show its frames on his boss body layer; the parts other than the
+/// body take the shared reactions their definitions name.
 /// </summary>
 /// <param name="species">The Draygon species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
@@ -46,6 +45,12 @@ internal abstract class DraygonEntity(DraygonBehavior species, RoomEnemyOccupant
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
         DraygonCombat.FindDraygonHitboxReaction(Place, probe);
+
+    /// <summary>None: the parts other than the body name shared touch reactions.</summary>
+    public virtual EnemyReaction? SpeciesTouch => null;
+
+    /// <summary>None: the parts other than the body name shared shot reactions.</summary>
+    public virtual EnemyReaction? SpeciesShot => null;
 
     /// <inheritdoc/>
     public SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts => Encounter.BodyParts;

@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// shared reactions otherwise. Its state inherits the shot-reaction guard of the previous Bull in its place.
 /// </summary>
 /// <param name="species">The Bull species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the Bull occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
@@ -19,11 +18,11 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemyOccupant occupan
     private EnemyShotReaction OwnBullShotReaction => field ??= BullBehavior.BullShotReactionOf(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal BullEnemyState State { get; } = species.InitializeBull(Occupant, place, settings);
+    internal BullEnemyState State { get; } = species.InitializeBull(place, settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        BullBehavior.RunBullMain(Occupant, Place, State, frame.Samus);
+        BullBehavior.RunBullMain(Place, State, frame.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BullBehavior.AdvanceBullAnimation(Place, State, context);
@@ -37,6 +36,6 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemyOccupant occupan
         context.SelectedShot == BullReactions.Shot ? OwnBullBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Bull's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == BullReactions.Shot;
 }

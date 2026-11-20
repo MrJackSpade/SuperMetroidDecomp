@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ridley found defeated is deleted as he initializes and begins no encounter.
 /// </summary>
 /// <param name="norfair">Lower Norfair Ridley's encounter behaviour.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place Ridley occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class NorfairRidleyEntity(NorfairRidleyBehavior norfair, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)

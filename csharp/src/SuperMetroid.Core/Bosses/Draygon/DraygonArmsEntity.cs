@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's arms (#2146), which his body's fight animates: they take no action of their own.</summary>
 /// <param name="species">The Draygon species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the arms occupy.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>

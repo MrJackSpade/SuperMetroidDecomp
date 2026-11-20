@@ -59,6 +59,30 @@ public static class XrayScopeDefinitions
         internal static SamusAnimationFrame Down { get; } = new(SamusAnimationSegmentName.Main, 4);
     }
 
+    /// <summary>
+    /// The aims a scope facing each way shows across its angles (#2557): a right-facing scope turns from up to down as its
+    /// angle grows past each of <see cref="AnimationAngles"/>' right-facing angles, a left-facing one from down to up.
+    /// </summary>
+    internal static IReadOnlyDictionary<SamusFacingDirection, XrayAimBands> AimBands { get; } = new Dictionary<SamusFacingDirection, XrayAimBands>
+    {
+        [SamusFacingDirection.Right] = new(
+            [
+                (AnimationAngles.RightRaisedFrom, Aims.Up),
+                (AnimationAngles.RightLevelFrom, Aims.Raised),
+                (AnimationAngles.RightLoweredFrom, Aims.Level),
+                (AnimationAngles.RightDownFrom, Aims.Lowered),
+            ],
+            AtAndPast: Aims.Down),
+        [SamusFacingDirection.Left] = new(
+            [
+                (AnimationAngles.LeftDownBelow, Aims.Down),
+                (AnimationAngles.LeftLoweredBelow, Aims.Lowered),
+                (AnimationAngles.LeftLevelBelow, Aims.Level),
+                (AnimationAngles.LeftRaisedBelow, Aims.Raised),
+            ],
+            AtAndPast: Aims.Up),
+    };
+
     /// <summary>How the X-ray scope's cone widens.</summary>
     public static class Cone
     {

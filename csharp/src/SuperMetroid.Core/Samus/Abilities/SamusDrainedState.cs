@@ -56,7 +56,7 @@ public sealed class SamusDrainedState
     /// stands then, not for its own beat.
     /// </summary>
     private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Rainbow { get; } =
-        SamusGlowPlay.Starting(SamusGlowSegment.HyperBeamRainbow);
+        SamusGlowPlay.Starting(SamusGlowSegment.Of(SamusGlow.HyperBeamRainbow));
 
     /// <summary>
     /// How Samus answers Up after each movement, which either drain setup chooses: able or unable to stand. It
@@ -149,7 +149,7 @@ public sealed class SamusDrainedState
         Ensure.NotNull(samus);
         RainbowGlowing = true;
         RainbowGlowHold = RainbowGlowHold.Starting;
-        SamusGlowPlay.RestartShowing(Rainbow, SamusGlowSegment.HyperBeamRainbow, RainbowGlowHold.Updates);
+        SamusGlowPlay.RestartShowing(Rainbow, SamusGlowSegment.Of(SamusGlow.HyperBeamRainbow), RainbowGlowHold.Updates);
         _colouringStage = SpecialColouringStage.Showing;
     }
 
@@ -169,7 +169,7 @@ public sealed class SamusDrainedState
         Ensure.NotNull(samus);
         RainbowGlowing = false;
         RainbowGlowHold = RainbowGlowHold.None;
-        SamusGlowPlay.Restart(Rainbow, SamusGlowSegment.HyperBeamRainbow);
+        SamusGlowPlay.Restart(Rainbow, SamusGlowSegment.Of(SamusGlow.HyperBeamRainbow));
         _colouringStage = SpecialColouringStage.Ending;
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.RainbowStopFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
     }

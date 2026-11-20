@@ -81,14 +81,14 @@ public sealed class SamusCrystalFlashState
     /// starts it, and its first shade shows on the flash's first colouring update.
     /// </summary>
     private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> BodyPulse { get; } =
-        SamusGlowPlay.Starting(SamusGlowSegment.CrystalFlashBody);
+        SamusGlowPlay.Starting(SamusGlowSegment.Of(SamusGlow.CrystalFlashBody));
 
     /// <summary>
     /// The bubble's colours turning (#2387), its shades played over and over on their
     /// own count beside the body's: activation starts it, and its first shade shows on the flash's first colouring update.
     /// </summary>
     private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> BubbleTurn { get; } =
-        SamusGlowPlay.Starting(SamusGlowSegment.CrystalFlashBubble);
+        SamusGlowPlay.Starting(SamusGlowSegment.Of(SamusGlow.CrystalFlashBubble));
 
     /// <summary>
     /// Where the flash's colouring stands (#2562): showing its pulse and bubble, or ended by the flash's finish, its next
@@ -155,8 +155,8 @@ public sealed class SamusCrystalFlashState
         _ammoCountdown.StartAmmoCountdown(CrystalFlashDefinitions.AmmunitionPerKind);
         RaisedHeight = 0;
         _colouring.Take(SamusSpecialColouringKind.CrystalFlash);
-        SamusGlowPlay.Restart(BodyPulse, SamusGlowSegment.CrystalFlashBody);
-        SamusGlowPlay.Restart(BubbleTurn, SamusGlowSegment.CrystalFlashBubble);
+        SamusGlowPlay.Restart(BodyPulse, SamusGlowSegment.Of(SamusGlow.CrystalFlashBody));
+        SamusGlowPlay.Restart(BubbleTurn, SamusGlowSegment.Of(SamusGlow.CrystalFlashBubble));
         Colouring = SpecialColouringStage.Showing;
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
         EndHitImmunityAndKnockback(samus);

@@ -119,7 +119,7 @@ public sealed class SamusXrayState
     /// the full beam cycles the steady visor cycle's. Its first shade shows on the colouring update after it starts.
     /// </summary>
     private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Visor { get; } =
-        SamusGlowPlay.Starting(SamusGlowSegment.XrayVisorWidening);
+        SamusGlowPlay.Starting(SamusGlowSegment.Of(SamusGlow.XrayVisorWidening));
 
 /// <summary>
     /// Runs the admission tests and pose selection of the X-ray setup.
@@ -243,7 +243,7 @@ public sealed class SamusXrayState
         // The same step takes over Samus's suit colouring and clears
         // the special colouring timer even when an interrupted Flash, not a normal charge, owns it.
         samus.CrystalFlash.RelinquishSuitColouring();
-        SamusGlowPlay.Restart(Visor, SamusGlowSegment.XrayVisorWidening);
+        SamusGlowPlay.Restart(Visor, SamusGlowSegment.Of(SamusGlow.XrayVisorWidening));
         samus.AudioRequests.QueueSound(SamusSound.XrayStart, SoundRequestPriority.Normal);
         OwnsSamusControl = true;
     }
@@ -297,13 +297,13 @@ public sealed class SamusXrayState
         AngularWideningSpeed = RotationAngle.Zero;
         VisorShadeMode = XrayVisorShadeMode.Widening;
         _colouring.Release(SamusSpecialColouringKind.Xray);
-        SamusGlowPlay.Restart(Visor, SamusGlowSegment.XrayVisorWidening);
+        SamusGlowPlay.Restart(Visor, SamusGlowSegment.Of(SamusGlow.XrayVisorWidening));
     }
 
     /// <summary>Another special suit colouring takes over from X-ray's.</summary>
     internal void RelinquishSuitColouring()
     {
-        SamusGlowPlay.Restart(Visor, SamusGlowSegment.XrayVisorWidening);
+        SamusGlowPlay.Restart(Visor, SamusGlowSegment.Of(SamusGlow.XrayVisorWidening));
         VisorShadeMode = XrayVisorShadeMode.Widening;
     }
 
@@ -367,16 +367,9 @@ public sealed class SamusXrayState
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.TurningOnGround)
             return;
 
-        bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        SamusAnimationFrame aim = facingLeft
-            ? Angle < XrayScopeDefinitions.AnimationAngles.LeftDownBelow ? XrayScopeDefinitions.Aims.Down :
-              Angle < XrayScopeDefinitions.AnimationAngles.LeftLoweredBelow ? XrayScopeDefinitions.Aims.Lowered :
-              Angle < XrayScopeDefinitions.AnimationAngles.LeftLevelBelow ? XrayScopeDefinitions.Aims.Level :
-              Angle < XrayScopeDefinitions.AnimationAngles.LeftRaisedBelow ? XrayScopeDefinitions.Aims.Raised : XrayScopeDefinitions.Aims.Up
-            : Angle < XrayScopeDefinitions.AnimationAngles.RightRaisedFrom ? XrayScopeDefinitions.Aims.Up :
-              Angle < XrayScopeDefinitions.AnimationAngles.RightLevelFrom ? XrayScopeDefinitions.Aims.Raised :
-              Angle < XrayScopeDefinitions.AnimationAngles.RightLoweredFrom ? XrayScopeDefinitions.Aims.Level :
-              Angle < XrayScopeDefinitions.AnimationAngles.RightDownFrom ? XrayScopeDefinitions.Aims.Lowered : XrayScopeDefinitions.Aims.Down;
+        // Any pose not facing left aims as a right-facing scope does.
+        SamusFacingDirection facing = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? SamusFacingDirection.Left : SamusFacingDirection.Right;
+        SamusAnimationFrame aim = XrayScopeDefinitions.AimBands[facing].AimAt(Angle);
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, aim, timer: XrayScopeDefinitions.Holds.Aim);
     }
 
@@ -481,7 +474,7 @@ public sealed class SamusXrayState
             // every X-ray shade value; the visor's glow restarts at its widening for the next X-ray.
             SamusSuitShade.Show(colours, equippedItems);
             _colouring.Release(SamusSpecialColouringKind.Xray);
-            SamusGlowPlay.Restart(Visor, SamusGlowSegment.XrayVisorWidening);
+            SamusGlowPlay.Restart(Visor, SamusGlowSegment.Of(SamusGlow.XrayVisorWidening));
             VisorShadeMode = XrayVisorShadeMode.Widening;
             return true;
         }
@@ -492,7 +485,7 @@ public sealed class SamusXrayState
         if (VisorShadeMode == XrayVisorShadeMode.Widening && BeamPhase is not (XrayBeamPhase.NoBeam or XrayBeamPhase.Widening))
         {
             // The visor enters the steady cycle, whose first shade shows on this update.
-            SamusGlowPlay.Restart(Visor, SamusGlowSegment.VisorCycle);
+            SamusGlowPlay.Restart(Visor, SamusGlowSegment.Of(SamusGlow.VisorCycle));
             VisorShadeMode = XrayVisorShadeMode.FullBeam;
         }
 

@@ -73,7 +73,7 @@ public sealed class SamusHorizontalSpeedState
         SamusGlowPlay.Starting(FullBodyGlowStart);
 
     /// <summary>The glow the shared place starts in, before its first shade.</summary>
-    private const SamusGlowSegment FullBodyGlowStart = SamusGlowSegment.ScrewAttackPower;
+    private static SamusGlowSegment FullBodyGlowStart => SamusGlowSegment.In(SamusGlow.ScrewAttack, SamusSuit.Power);
 
     /// <summary>
     /// Whether the Speed Booster's echo sound is playing: set before the echo sound's start request, cleared with the
@@ -382,7 +382,7 @@ public sealed class SamusHorizontalSpeedState
 
         // The Speed Booster goes on from where the shared glow stands once its hold runs out: a Screw Attack spin that stood
         // past the Speed Booster's four shades leaves it on its brightest, which it rests on as every boosted run does.
-        if (SamusGlowPlay.StepToNextShadeGoingOnIn(FullBodyGlow, SamusGlowAnimationDefinitions.SpeedBooster[suit]) is not { } shown)
+        if (SamusGlowPlay.StepToNextShadeGoingOnIn(FullBodyGlow, SamusGlowSegment.In(SamusGlow.SpeedBoosterRising, suit)) is not { } shown)
             return;
         colours.ShowSuit(shown);
     }
@@ -416,7 +416,7 @@ public sealed class SamusHorizontalSpeedState
         SamusSuit suit)
     {
         AnimationPlayback<SamusGlowSegment> cycle = FullBodyGlow.Playback;
-        colours.ShowSuit(SamusGlowPlay.NextShade(SamusGlowAnimationDefinitions.ScrewAttack[suit], ref cycle).Shown);
+        colours.ShowSuit(SamusGlowPlay.NextShade(SamusGlowSegment.In(SamusGlow.ScrewAttack, suit), ref cycle).Shown);
         FullBodyGlow.GoOnFrom(cycle);
     }
 

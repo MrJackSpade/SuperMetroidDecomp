@@ -131,7 +131,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         RoomEnemyPlace wing = bodyState.Wing;
-        DragonWingState wingState = wing.RequireSpeciesState<DragonWingState>();
+        DragonWingState wingState = EnemyPartners.Listed<DragonWingEntity>(wing).State;
         bodyState.ActionTimer = UpdateCountdown.For(DragonTimingDefinitions.RiseOrSinkDuration);
         bodyState.Action = DragonAction.Rising;
 
@@ -271,7 +271,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances a Dragon body's typed animation, whose attack raises its finishing cue.</summary>
     internal static void AdvanceDragonBodyTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, DragonAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<DragonEnemyState>(), DragonAnimations.Segments,
             static (DragonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) =>
             {
@@ -281,7 +281,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances a Dragon wing's typed animation, which raises no cue.</summary>
     internal static void AdvanceDragonWingTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, DragonAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<DragonWingState>(), DragonAnimations.Segments,
             static (DragonWingState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A Dragon wing's cue-free animation raised {cue}."));
 

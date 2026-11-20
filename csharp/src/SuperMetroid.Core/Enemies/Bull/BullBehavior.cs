@@ -191,7 +191,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Bull's idle and immune-shot animations (#641).</summary>
     internal static void AdvanceBullAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, BullAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<BullEnemyState>(), BullAnimations.Segments,
             static (BullEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Bull animation raised {cue}."));
 
@@ -205,7 +205,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = c =>
             {
                 if (c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMovementDefinitions.BombKickAngle);
+                    ResolveBullImmuneShot(c.Enemy, EnemyPartners.Listed<BullEntity>(c.Enemy).State, BullMovementDefinitions.BombKickAngle);
             },
         };
 
@@ -219,7 +219,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = c =>
             {
                 if (c.Froze || c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMotion.ShotAngle(c.ProjectileDirection));
+                    ResolveBullImmuneShot(c.Enemy, EnemyPartners.Listed<BullEntity>(c.Enemy).State, BullMotion.ShotAngle(c.ProjectileDirection));
             },
         };
 }

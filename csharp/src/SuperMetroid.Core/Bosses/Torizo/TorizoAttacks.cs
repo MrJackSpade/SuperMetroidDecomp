@@ -186,7 +186,7 @@ internal sealed class TorizoAttacks
                 {
                     // The floor impact waits while Golden Torizo's eye-beam explosions are disabled; once they are enabled,
                     // it bursts into flames.
-                    TorizoEnemyState state = projectile.StateOf<TorizoOwnedProjectileState>().Owner.RequireSpeciesState<TorizoEnemyState>();
+                    TorizoEnemyState state = projectile.StateOf<TorizoOwnedProjectileState>()EnemyPartners.Listed<TorizoEntity>(.Owner).State;
                     return state.EyeBeamExplosionsEnabled ? TorizoProjectileAnimations.ContinueWith(TorizoProjectileSegment.EyeBeamFloorFlames) : null;
                 }
                 case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.MayTurnToSmoke }:

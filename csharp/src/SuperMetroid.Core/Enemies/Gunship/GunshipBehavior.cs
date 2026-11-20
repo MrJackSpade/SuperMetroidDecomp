@@ -76,11 +76,11 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     {
         RoomEnemyPlace top = _topAwaitingSaveAnswer
             ?? throw new InvalidOperationException("The gunship save prompt is not awaiting a response.");
-        RoomEnemyPlace pad = top.RequireSpeciesState<GunshipPieces>().EntrancePad;
+        RoomEnemyPlace pad = EnemyPartners.Listed<GunshipTopEntity>(top).Pieces.EntrancePad;
         _topAwaitingSaveAnswer = null;
-        top.RequireSpeciesState<GunshipState>().Phase = GunshipPhase.WaitForExitPadToOpen;
+        EnemyPartners.Listed<GunshipTopEntity>(top).Ship.Phase = GunshipPhase.WaitForExitPadToOpen;
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
-        top.RequireSpeciesState<GunshipState>().PhaseTimer = UpdateCountdown.For(GunshipBoardingDefinitions.PadMovementDuration);
+        EnemyPartners.Listed<GunshipTopEntity>(top).Ship.PhaseTimer = UpdateCountdown.For(GunshipBoardingDefinitions.PadMovementDuration);
     }
 
     /// <summary>Starts <paramref name="segment"/> on <paramref name="place"/> from the next update.</summary>

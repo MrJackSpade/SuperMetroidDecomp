@@ -616,14 +616,14 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
                 return false;
-            ResolveYardBeamLaunch(c.Enemy, c.Enemy.RequireSpeciesState<YardEnemyState>(), c.Samus);
+            ResolveYardBeamLaunch(c.Enemy, EnemyPartners.Listed<YardEntity>(c.Enemy).State, c.Samus);
             return true;
         },
     };
 
     /// <summary>Runs Yard's touch reaction, including its facing-dependent shell response.</summary>
     internal void ReactToYardTouch(EnemyTouchContext context) =>
-        ResolveYardTouch(context.Place, context.Place.RequireSpeciesState<YardEnemyState>(), context.Samus, context.PseudoScrew, context.ControllerInput);
+        ResolveYardTouch(context.Place, EnemyPartners.Listed<YardEntity>(context.Place).State, context.Samus, context.PseudoScrew, context.ControllerInput);
 
     /// <summary>The enemy-library sound queued by a Yard shell kick, launch or wall bounce.</summary>
     private static readonly SoundEffectId YardBounceSound =

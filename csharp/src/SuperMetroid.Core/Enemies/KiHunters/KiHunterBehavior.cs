@@ -561,7 +561,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             if (bodyState.Flies)
             {
                 // A body that still flies still has its wings in place.
-                KiHunterWingState wingState = wings.RequireSpeciesState<KiHunterWingState>();
+                KiHunterWingState wingState = EnemyPartners.Listed<KiHunterWingsEntity>(wings).State;
                 bodyState.Action = KiHunterAction.FallingAfterWingLoss;
                 bodyState.VerticalVelocity = KiHunterMotionDefinitions.WinglessFallStartVelocity;
                 if (wingState.Action != KiHunterWingAction.Detached)
@@ -642,7 +642,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Animation cue: return to steady art and sync attached wings.</summary>
     private KiHunterSegment ReturnKiHunterToSteadyAnimation(RoomEnemyPlace body)
     {
-        KiHunterBodyState state = body.RequireSpeciesState<KiHunterBodyState>();
+        KiHunterBodyState state = EnemyPartners.Listed<KiHunterBodyEntity>(body).State;
         bool movingRight = state.Heading == HorizontalDirection.Right;
         KiHunterSegment wingSegment = movingRight
             ? KiHunterSegment.WingsRight
@@ -698,7 +698,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// wings are deleted as they are set up, and detached wings are deleted where they land. A body whose wings are
     /// gone has none to keep in step with its flight.
     /// </summary>
-    private static KiHunterWingState? WingsInPlace(RoomEnemyPlace wings) => wings.SpeciesState<KiHunterWingState>();
+    private static KiHunterWingState? WingsInPlace(RoomEnemyPlace wings) => wings.Entity is KiHunterWingsEntity entity ? entity.State : null;
 
     /// <summary>
     /// The wings the body found when it was placed, which its room lists right after it. They may already be gone, as a
@@ -785,13 +785,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances a Ki-Hunter's wings' cue-free typed animation.</summary>
     internal static void AdvanceKiHunterWingsTypedAnimation(RoomEnemyPlace wings) =>
-        EnemyAnimationPlayback.Advance(wings, KiHunterAnimations.Segments,
+        EnemyAnimationPlayback.Advance(wings, wings.RequireSpeciesState<KiHunterWingState>(), KiHunterAnimations.Segments,
             static (KiHunterWingState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => throw new InvalidOperationException($"A Ki-Hunter wing animation raised {cue}."));
 
     /// <summary>Advances a Ki-Hunter body's typed animation, carrying out its cues.</summary>
     internal void AdvanceKiHunterBodyTypedAnimation(RoomEnemyPlace body, KiHunterBodyState kiHunterBodyState) =>
-        EnemyAnimationPlayback.Advance(body, KiHunterAnimations.Segments,
+        EnemyAnimationPlayback.Advance(body, body.RequireSpeciesState<KiHunterBodyState>(), KiHunterAnimations.Segments,
             static (KiHunterBodyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyKiHunterCue(body, kiHunterBodyState, cue) is { } target
                 ? new AnimationContinuation<KiHunterSegment>(KiHunterAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

@@ -92,7 +92,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ActivateChozoStatueHandTrigger()
     {
         RoomEnemyPlace statue = _statue ?? throw new InvalidOperationException("A Chozo hand triggered in a room whose statue was never placed.");
-        statue.RequireSpeciesState<ChozoStatueState>().TriggerHand();
+        EnemyPartners.Listed<ChozoStatueEntity>(statue).State.TriggerHand();
         DisableChozoStatueSamusControls();
         if (statue.SpawnSettings<ChozoStatueSpawnSettings>().Site == ChozoStatueSite.LowerNorfair)
         {
@@ -286,7 +286,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances ChozoStatue's typed animation.</summary>
     internal void AdvanceChozoStatueTypedAnimation(RoomEnemyPlace place, ChozoStatueState chozoStatueState, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, ChozoStatueAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<ChozoStatueState>(), ChozoStatueAnimations.Segments,
             static (ChozoStatueState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyChozoStatueCue(place, chozoStatueState, cue, context.Samus, context.Level) is { } target
                 ? new AnimationContinuation<ChozoStatueSegment>(ChozoStatueAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

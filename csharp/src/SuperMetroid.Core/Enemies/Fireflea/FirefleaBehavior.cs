@@ -139,7 +139,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Fireflea's typed animation.</summary>
     internal static void AdvanceFirefleaTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, FirefleaAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<FirefleaEnemyState>(), FirefleaAnimations.Segments,
             static (FirefleaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Fireflea animation raised {cue}."));
 

@@ -266,7 +266,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Boulder's typed animation.</summary>
     internal static void AdvanceBoulderTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, BoulderAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<BoulderEnemyState>(), BoulderAnimations.Segments,
             static (BoulderEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Boulder animation raised {cue}."));
 

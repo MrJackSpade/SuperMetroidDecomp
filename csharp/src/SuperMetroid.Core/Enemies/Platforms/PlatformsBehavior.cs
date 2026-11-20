@@ -262,7 +262,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c =>
         {
             if (c.Enemy.Freeze.IsRunning)
-                c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
+                c.Enemy.Frame = TripperFrozenFrame(EnemyPartners.Listed<PlatformsEntity>(c.Enemy).State.XMovement);
         },
     };
 
@@ -274,7 +274,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Platforms's typed animation.</summary>
     internal static void AdvancePlatformsTypedAnimation(RoomEnemyPlace place, PlatformEnemyState platformEnemyState, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, PlatformAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<PlatformEnemyState>(), PlatformAnimations.Segments,
             static (PlatformEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
@@ -290,7 +290,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c =>
         {
             if (c.Froze)
-                c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
+                c.Enemy.Frame = TripperFrozenFrame(EnemyPartners.Listed<PlatformsEntity>(c.Enemy).State.XMovement);
         },
     };
 

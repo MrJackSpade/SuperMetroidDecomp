@@ -430,7 +430,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances the Oum's typed animation.</summary>
     internal void AdvanceOumTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, OumAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<OumEnemyState>(), OumAnimations.Segments,
             static (OumEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

@@ -525,7 +525,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances YappingMaw's typed animation.</summary>
     internal void AdvanceYappingMawTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, YappingMawAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<YappingMawEnemyState>(), YappingMawAnimations.Segments,
             static (YappingMawEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
@@ -544,5 +544,5 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void ReactToYappingMawTouch(EnemyTouchContext context) =>
         // The Maw's touch deals no contact damage: once its grab cooldown has run out, a touch catches Samus,
         // taking her input and holding her in the mouth.
-        ResolveYappingMawTouch(context.Place.RequireSpeciesState<YappingMawEnemyState>(), context.Samus);
+        ResolveYappingMawTouch(EnemyPartners.Listed<YappingMawEntity>(context.Place).State, context.Samus);
 }

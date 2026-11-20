@@ -197,7 +197,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        HoltzEnemyState parentState = parent.RequireSpeciesState<HoltzEnemyState>();
+        HoltzEnemyState parentState = EnemyPartners.Listed<HoltzEntity>(parent).State;
         follower.Freeze.Restart(parent.Freeze.UpdatesLeft);
         if (parent.Freeze.IsRunning || !parentState.FollowerVisible)
         {
@@ -290,13 +290,13 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances a Holtz flame follower's typed animation, which raises no cue.</summary>
     internal static void AdvanceHoltzFollowerTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, HoltzAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<HoltzFollowerState>(), HoltzAnimations.Segments,
             static (HoltzFollowerState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A Lower Norfair Rio flame follower's cue-free animation raised {cue}."));
 
     /// <summary>Advances a Holtz parent's typed animation, whose cues it carries out.</summary>
     internal static void AdvanceHoltzTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, HoltzAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<HoltzEnemyState>(), HoltzAnimations.Segments,
             static (HoltzEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) =>
             {

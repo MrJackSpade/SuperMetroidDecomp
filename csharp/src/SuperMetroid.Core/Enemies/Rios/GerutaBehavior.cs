@@ -43,10 +43,11 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal GerutaFollowerState InitializeGerutaFollower(RoomEnemyPlace place)
     {
         _parents.Place(place, _places.ListedBefore(place, 1));
-        ValidateGerutaParent(place);
+        GerutaEnemyState parent = ValidateGerutaParent(place);
         var state = new GerutaFollowerState
         {
             Playback = new(GerutaAnimations.StartingWith(GerutaSegment.FlamesAscending), AnimationPlace.StartOfAnimation),
+            Parent = parent,
         };
         return state;
     }
@@ -191,9 +192,8 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
         // The pair is checked when the follower is placed; a parent deleted without a kill is read as it left its place and
-        // its animation (RoomEnemyPlace.FoundState).
-        GerutaEnemyState parentState = parent.FoundState<GerutaEnemyState>() ?? throw new InvalidOperationException(
-            $"Rio flame follower {follower.Ordinal} finds no Rio in its parent's place {parent.Ordinal}.");
+        // its animation (the parent it holds).
+        GerutaEnemyState parentState = followerState.Parent;
         follower.Freeze.Restart(parent.Freeze.UpdatesLeft);
         if (parent.Freeze.IsRunning || parentState.Idles)
         {
@@ -266,16 +266,18 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The parent the follower found when it was placed, the enemy its room lists directly before it.</summary>
     private RoomEnemyPlace GetPrecedingGerutaPlace(RoomEnemyPlace follower) => _parents.Of(follower);
 
-    /// <summary>Requires a flame follower to directly follow a primary Geruta population entry.</summary>
-    private void ValidateGerutaParent(RoomEnemyPlace follower)
+    /// <summary>The state of the primary Geruta a flame follower directly follows, which its population entry needs.</summary>
+    /// <exception cref="InvalidDataException">The room lists no Geruta right before the follower.</exception>
+    private GerutaEnemyState ValidateGerutaParent(RoomEnemyPlace follower)
     {
         RoomEnemyPlace parent = GetPrecedingGerutaPlace(follower);
-        if (parent.Entity is not GerutaEntity)
+        if (parent.Entity is not GerutaEntity geruta)
         {
             throw new InvalidDataException(
                 $"Norfair Rio follower in place {follower.Ordinal} must immediately follow " +
                 "a parent of the same definition.");
         }
+        return geruta.State;
     }
 
     /// <summary>Runs a Geruta flame follower's main AI: it advances the shared enemy RNG, as every parent does, then follows its parent.</summary>
@@ -295,13 +297,13 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances a Geruta flame follower's typed animation, which raises no cue.</summary>
     internal static void AdvanceGerutaFollowerTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, GerutaAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<GerutaFollowerState>(), GerutaAnimations.Segments,
             static (GerutaFollowerState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A Norfair Rio flame follower's cue-free animation raised {cue}."));
 
     /// <summary>Advances a Geruta parent's typed animation, whose cues it carries out.</summary>
     internal static void AdvanceGerutaTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, GerutaAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<GerutaEnemyState>(), GerutaAnimations.Segments,
             static (GerutaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) =>
             {

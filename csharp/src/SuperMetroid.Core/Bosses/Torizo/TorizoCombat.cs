@@ -29,7 +29,7 @@ internal sealed class TorizoCombat
     internal void ReactToBombTorizoBomb(EnemyBombContext c)
     {
         RoomEnemyPlace torizo = c.Enemy;
-        TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
+        TorizoEnemyState state = EnemyPartners.Listed<TorizoEntity>(torizo).State;
         if (c.SelectedShot == TorizoReactions.StandUpSitDownShot)
             return;
         // The reaction returns during the hurt flash, and rejects the bomb while the animation is locked.
@@ -46,7 +46,7 @@ internal sealed class TorizoCombat
     internal void ReactToGoldenTorizoBomb(EnemyBombContext c)
     {
         RoomEnemyPlace torizo = c.Enemy;
-        TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
+        TorizoEnemyState state = EnemyPartners.Listed<TorizoEntity>(torizo).State;
         if (c.SelectedShot == TorizoReactions.StandUpSitDownShot)
         {
             if (torizo.HurtFlash.IsRunning || state.AnimationLocked)
@@ -136,7 +136,7 @@ internal sealed class TorizoCombat
         AfterCommon = c =>
         {
             if (c.Enemy.Health == 0)
-                BeginTorizoDeath(c.Enemy, c.Enemy.RequireSpeciesState<TorizoEnemyState>());
+                BeginTorizoDeath(c.Enemy, EnemyPartners.Listed<TorizoEntity>(c.Enemy).State);
         },
     };
 
@@ -145,7 +145,7 @@ internal sealed class TorizoCombat
     {
         _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
         if (context.Place.Health == 0)
-            BeginTorizoDeath(context.Place, context.Place.RequireSpeciesState<TorizoEnemyState>());
+            BeginTorizoDeath(context.Place, EnemyPartners.Listed<TorizoEntity>(context.Place).State);
     }
 
     /// <summary>
@@ -155,7 +155,7 @@ internal sealed class TorizoCombat
     internal static bool ResolveBombTorizoShotBeforeImpact(in EnemyShotContext c)
     {
         RoomEnemyPlace enemy = c.Enemy;
-        TorizoEnemyState torizoState = enemy.RequireSpeciesState<TorizoEnemyState>();
+        TorizoEnemyState torizoState = EnemyPartners.Listed<TorizoEntity>(enemy).State;
         if (c.HitboxShot == TorizoReactions.StandUpSitDownShot || enemy.HurtFlash.IsRunning || torizoState.AnimationLocked)
         {
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
@@ -171,7 +171,7 @@ internal sealed class TorizoCombat
     internal static bool ResolveGoldenTorizoShotBeforeImpact(in EnemyShotContext c)
     {
         RoomEnemyPlace enemy = c.Enemy;
-        TorizoEnemyState torizoState = enemy.RequireSpeciesState<TorizoEnemyState>();
+        TorizoEnemyState torizoState = EnemyPartners.Listed<TorizoEntity>(enemy).State;
         // The stand-up and sit-down frames admit common no-death damage only while the flash timer is zero and the body's
         // animation is unlocked, and never reach the catches: missiles are not caught, Supers are not reflected, and the
         // counterattack is not armed through these transitional body rectangles.

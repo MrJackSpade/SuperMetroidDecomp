@@ -290,7 +290,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         foreach (RoomEnemyPlace robot in _poweredRobots)
         {
             // A place whose robot has left it, and any enemy that took the place since, shows no glow.
-            if (robot.SpeciesState<WorkRobotEnemyState>() is not null)
+            if (robot.Entity is PoweredWorkRobotEntity)
                 robot.Shading = glow;
         }
     }
@@ -320,13 +320,13 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances an unpowered robot's pose, which holds and raises no cue.</summary>
     internal static void AdvanceUnpoweredWorkRobotTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, WorkRobotAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<UnpoweredWorkRobotEnemyState>(), WorkRobotAnimations.Segments,
             static (UnpoweredWorkRobotEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"An unpowered Work Robot's pose raised {cue}."));
 
     /// <summary>Advances a powered robot's typed animation.</summary>
     internal void AdvanceWorkRobotTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, WorkRobotAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<WorkRobotEnemyState>(), WorkRobotAnimations.Segments,
             static (WorkRobotEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyWorkRobotCue(place, state, context, cue) is { } continuesAt
                 ? new AnimationContinuation<WorkRobotSegment>(WorkRobotAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)

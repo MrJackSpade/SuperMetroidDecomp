@@ -186,7 +186,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         foreach (RoomEnemyPlace place in _corpses)
         {
-            if (place.SpeciesState<DeadTorizoEnemyState>() is not { } state)
+            if (place.Entity is not DeadTorizoEntity { State: var state })
                 continue;
 
             // The heap is published wherever it lies; the display clips it to the view (#1541).

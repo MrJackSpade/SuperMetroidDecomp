@@ -280,7 +280,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         NorfairPipeBugFormation formation = _formations.Of(place);
         if (formation.Members.All(static member =>
-                member.Place.FoundState<NorfairPipeBugState>() is { Action: NorfairPipeBugAction.WaitForFormation }))
+                member.Place.FoundEnemy is NorfairPipeBugEntity { State.Action: NorfairPipeBugAction.WaitForFormation }))
         {
             state.Action = NorfairPipeBugAction.WaitForSamus;
         }
@@ -307,7 +307,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // A member killed since the formation armed has nothing to launch: it respawns waiting, as a new bug.
         foreach (NorfairPipeBugMember member in formation.Members)
         {
-            if (member.Place.SpeciesState<NorfairPipeBugState>() is not { } memberState)
+            if (member.Place.Entity is not NorfairPipeBugEntity { State: var memberState })
                 continue;
             memberState.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(samusIsRight
                 ? PipeBugSegment.GametRisingRight
@@ -606,17 +606,17 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances a Brinstar Pipe Bug's typed animation.</summary>
     internal static void AdvanceBrinstarPipeBugTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, PipeBugAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<BrinstarPipeBugState>(), PipeBugAnimations.Segments,
             static (BrinstarPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
 
     /// <summary>Advances a Norfair Pipe Bug's typed animation.</summary>
     internal static void AdvanceNorfairPipeBugTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, PipeBugAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<NorfairPipeBugState>(), PipeBugAnimations.Segments,
             static (NorfairPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
 
     /// <summary>Advances a yellow Pipe Bug's typed animation.</summary>
     internal static void AdvanceYellowPipeBugTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, PipeBugAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<YellowPipeBugState>(), PipeBugAnimations.Segments,
             static (YellowPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
 
     /// <summary>Rejects a cue: no Pipe Bug animation raises one.</summary>

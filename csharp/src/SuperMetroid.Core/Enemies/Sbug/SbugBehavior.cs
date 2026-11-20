@@ -157,7 +157,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Sbug's typed animation.</summary>
     internal static void AdvanceSbugTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, SbugAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<SbugEnemyState>(), SbugAnimations.Segments,
             static (SbugEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Sbug's cue-free animation raised {cue}."));
 

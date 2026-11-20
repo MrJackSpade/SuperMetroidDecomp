@@ -63,7 +63,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Multiviola's typed animation.</summary>
     internal static void AdvanceMultiviolaTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, MultiviolaAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<MultiviolaEnemyState>(), MultiviolaAnimations.Segments,
             static (MultiviolaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Multiviola animation raised {cue}."));
 

@@ -370,7 +370,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         foreach (ShaktoolChainSegment segment in group)
         {
             // The chain keeps moving through the rest of the update that kills a segment, reaching the killed segment's cleared state.
-            if (segment.Place.FoundOrClearedState<ShaktoolSegmentState>() is null)
+            if (segment.Place.Found is not (EnemyPlaceFinding.Enemy { Entity: ShaktoolEntity } or EnemyPlaceFinding.Cleared))
             {
                 throw new InvalidDataException(
                     $"Shaktool group rooted at place {group[0].Place.Ordinal} is missing its segment at place {segment.Place.Ordinal}.");
@@ -387,11 +387,15 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// The state of the segment in <paramref name="place"/>: its own, or, for the segment a hit killed this update, the
     /// emptied state the rest of its chain reads and writes among the states the kill cleared
-    /// (<see cref="RoomEnemyPlace.FoundOrClearedState{T}"/>, <see cref="RemovedEnemyLeftovers{TStates}"/>).
+    /// (<see cref="RoomEnemyPlace.Found"/>, <see cref="RemovedEnemyLeftovers"/>).
     /// </summary>
     private static ShaktoolSegmentState RequireShaktoolState(RoomEnemyPlace place) =>
-        place.FoundOrClearedState<ShaktoolSegmentState>() ?? throw new InvalidOperationException(
-            $"Enemy place {place.Ordinal} has no initialized Shaktool state.");
+        place.Found switch
+        {
+            EnemyPlaceFinding.Enemy { Entity: ShaktoolEntity segment } => segment.State,
+            EnemyPlaceFinding.Cleared cleared => cleared.Record.ShaktoolSegment,
+            _ => throw new InvalidDataException($"Enemy place {place.Ordinal} holds no Shaktool segment."),
+        };
 
     /// <summary>Carries out one cue of a Shaktool segment's animation.</summary>
     internal void ApplyShaktoolCue(RoomEnemyPlace place, ShaktoolCue cue)

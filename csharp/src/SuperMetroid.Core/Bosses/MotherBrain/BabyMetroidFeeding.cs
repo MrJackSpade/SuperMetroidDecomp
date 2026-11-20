@@ -15,6 +15,6 @@ internal sealed class BabyMetroidFeeding(EnemyPlaces enemies) : IBabyMetroidFeed
 {
     /// <inheritdoc/>
     public bool HasAlreadyFedOn(RoomEnemyPlace victim) =>
-        BabyMetroidVictim.FeederOf(enemies.InUpdateOrder, Ensure.NotNull(victim).Ordinal)?.SpeciesState<BabyMetroidEnemyState>()
-            is { Action: BabyMetroidAction.Dormant };
+        BabyMetroidVictim.FeederOf(enemies.InUpdateOrder, Ensure.NotNull(victim).Ordinal)?.Entity
+            is BabyMetroidEntity { State.Action: BabyMetroidAction.Dormant };
 }

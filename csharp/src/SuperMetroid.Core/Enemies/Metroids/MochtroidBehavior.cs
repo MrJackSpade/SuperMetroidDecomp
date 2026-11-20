@@ -192,7 +192,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Mochtroid's typed animation.</summary>
     internal static void AdvanceMochtroidTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, MochtroidAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<MochtroidEnemyState>(), MochtroidAnimations.Segments,
             static (MochtroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) => throw new InvalidOperationException($"Mochtroid's cue-free animation raised {cue}."));
 
@@ -204,7 +204,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the attachment and drain reaction for Samus overlap.</summary>
     internal void ReactToMochtroidTouch(EnemyTouchContext context) =>
-        ResolveMochtroidTouch(context.Place, context.Place.RequireSpeciesState<MochtroidEnemyState>(), context.Samus, context.PseudoScrew);
+        ResolveMochtroidTouch(context.Place, EnemyPartners.Listed<MochtroidEntity>(context.Place).State, context.Samus, context.PseudoScrew);
 
     /// <summary>The Mochtroid's own shot reaction, which runs the common shot damage with no stage of its own.</summary>
     internal static EnemyShotReaction MochtroidShotReaction { get; } = new();

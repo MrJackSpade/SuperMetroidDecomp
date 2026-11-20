@@ -301,7 +301,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>Advances the Wrecked Ship ghost's typed animation.</summary>
     internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, WreckedShipGhostAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<WreckedShipGhostEnemyState>(), WreckedShipGhostAnimations.Segments,
             static (WreckedShipGhostEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"The Wrecked Ship ghost's cue-free animation raised {cue}."));
 

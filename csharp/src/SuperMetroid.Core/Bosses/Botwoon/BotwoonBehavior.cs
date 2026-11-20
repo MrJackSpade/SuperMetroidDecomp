@@ -888,7 +888,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
     /// <summary>The state of the Botwoon whose body <paramref name="segment"/> is part of: his head's.</summary>
     private static BotwoonEnemyState Encounter(BotwoonSegmentState segment) =>
-        segment.Head.RequireSpeciesState<BotwoonEnemyState>();
+        EnemyPartners.Listed<BotwoonEntity>(segment.Head).State;
 
     /// <summary>Installs a segment animation for its angle and applies the head's hurt flash.</summary>
     internal static void AnimateBotwoonBodySegment(

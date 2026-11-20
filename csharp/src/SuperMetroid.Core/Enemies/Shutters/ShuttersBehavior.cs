@@ -615,7 +615,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ReactVerticalShutter(
         RoomEnemyPlace place,
         Position16<RoomPixels> camera) =>
-        ReactVerticalShutter(place, place.RequireSpeciesState<VerticalShutterEnemyState>(), camera);
+        ReactVerticalShutter(place, EnemyPartners.Listed<VerticalShutterEntity>(place).State, camera);
 
     /// <summary>
     /// Decides whether a reaction may start the shutter in <paramref name="place"/>, whose state is
@@ -641,7 +641,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.ShotActivated = true;
         }
 
-        if (place.FoundState<VerticalShutterEnemyState>() is { Action: VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown })
+        if (place.FoundEnemy is VerticalShutterEntity { State.Action: VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown })
             return;
 
         state.Action = MovingToward(state.ReactionDirection);

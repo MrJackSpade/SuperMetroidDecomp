@@ -222,7 +222,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Rio's typed animation.</summary>
     internal static void AdvanceRioTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, RioAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<RioEnemyState>(), RioAnimations.Segments,
             static (RioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

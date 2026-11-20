@@ -9,4 +9,10 @@ public sealed class NorfairLavaJumperFollowerState
 {
     /// <summary>Where the follower's looping animation resumes.</summary>
     internal AnimationPlayback<NorfairLavaJumperSegment> Playback { get; set; }
+
+    /// <summary>
+    /// The parent the follower found when it was placed, the lava jumper its room lists right before it (#2554): its
+    /// state as it moves on, and as a deletion without a kill left it.
+    /// </summary>
+    internal required SqueeptState Parent { get; init; }
 }

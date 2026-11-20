@@ -468,7 +468,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private PowampBalloon BalloonOf(RoomEnemyPlace body)
     {
         RoomEnemyPlace balloon = _balloons.Of(body);
-        return new(balloon, balloon.RequireSpeciesState<PowampBalloonState>());
+        return new(balloon, EnemyPartners.Listed<PowampBalloonEntity>(balloon).State);
     }
 
     /// <summary>Routes bomb hits through common shot logic and mirrors damage state to the balloon.</summary>
@@ -491,7 +491,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances the body's pulse.</summary>
     internal static void AdvancePowampBodyTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, PowampAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<PowampBodyState>(), PowampAnimations.Segments,
             static (PowampBodyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => RaisesNoCues(cue));
 

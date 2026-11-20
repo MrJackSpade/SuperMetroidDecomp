@@ -361,7 +361,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Puyo's typed animation.</summary>
     internal static void AdvancePuyoTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, PuyoAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<PuyoEnemyState>(), PuyoAnimations.Segments,
             static (PuyoEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Puyo's cue-free animation raised {cue}."));
 

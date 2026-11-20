@@ -204,7 +204,7 @@ internal sealed class KraidProjectiles
     {
         // The pair coordinates its next launch through the other actor's previous
         // velocity and spawn flag. Read that actor before overwriting this one's state.
-        // The sibling is read in its place whatever the place holds (RoomEnemyPlace.FoundState): a sibling killed since it
+        // The sibling is read in its place whatever the place holds (RoomEnemyPlace.FoundEnemy): a sibling killed since it
         // was set up has a cleared place, which reads as a nail at rest that took no alternate spawn, so the launch goes up.
         KraidNailState? siblingPart = KraidEncounterAccess.FoundKraidPart<KraidNailState>(part.SiblingPlace);
         int random = _room.Random.Read();

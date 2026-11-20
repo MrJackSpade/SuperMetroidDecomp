@@ -40,6 +40,7 @@ internal static class EnemyAnimationPlayback
     /// each event against the state and may continue the play in another animation.
     /// </summary>
     /// <param name="place">The enemy.</param>
+    /// <param name="state">The enemy's species state, which holds its playback.</param>
     /// <param name="segments">The species' animation segments.</param>
     /// <param name="frame">The installed frame an animation frame shows.</param>
     /// <param name="read">Reads the species state's playback.</param>
@@ -47,6 +48,7 @@ internal static class EnemyAnimationPlayback
     /// <param name="react">Carries out an event, returning where the play continues, or null to play on.</param>
     internal static void Advance<TState, TSegment, TFrame, TEvent>(
         RoomEnemyPlace place,
+        TState state,
         AnimationSegments<TSegment, TFrame, TEvent> segments,
         Func<TFrame, EnemyFrameId> frame,
         Func<TState, AnimationPlayback<TSegment>> read,
@@ -58,12 +60,12 @@ internal static class EnemyAnimationPlayback
         where TEvent : notnull
     {
         Ensure.NotNull(place);
+        Ensure.NotNull(state);
         Ensure.NotNull(read);
         Ensure.NotNull(write);
         Ensure.NotNull(react);
         if (!place.AnimationClock.Expire())
             return;
-        TState state = place.RequireSpeciesState<TState>();
         AnimationPlayback<TSegment> playback = read(state);
         Play(place, segments, ref playback, frame, raised => react(state, raised));
         write(state, playback);
@@ -75,6 +77,7 @@ internal static class EnemyAnimationPlayback
     /// </summary>
     internal static void Advance<TState, TSegment, TEvent>(
         RoomEnemyPlace place,
+        TState state,
         AnimationSegments<TSegment, EnemyFrameId, TEvent> segments,
         Func<TState, AnimationPlayback<TSegment>> read,
         Action<TState, AnimationPlayback<TSegment>> write,
@@ -82,7 +85,7 @@ internal static class EnemyAnimationPlayback
         where TState : class
         where TSegment : struct
         where TEvent : notnull =>
-        Advance(place, segments, Shown, read, write, react);
+        Advance(place, state, segments, Shown, read, write, react);
 
     /// <summary>Plays an animation that shows the species' installed frames directly, as the other overload plays one.</summary>
     /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>

@@ -273,7 +273,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace[] echoes = _echoes.Of(place);
         state.TrailTimer = UpdateCountdown.Ended();
         foreach (RoomEnemyPlace echo in echoes)
-            echo.RequireSpeciesState<DachoraEchoState>().Lifetime = UpdateCountdown.Ended();
+            EnemyPartners.Listed<DachoraEchoEntity>(echo).State.Lifetime = UpdateCountdown.Ended();
         state.VerticalAcceleration = SignedSixteenSixteen.Zero;
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole - DachoraMotionDefinitions.ChargeCrouchDepth);
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.DachoraLaunchSound, priority: SoundRequestPriority.Normal);
@@ -282,7 +282,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? DachoraSegment.EchoRight
             : DachoraSegment.EchoLeft;
         foreach (RoomEnemyPlace echo in echoes)
-            echo.RequireSpeciesState<DachoraEchoState>().Playback = StartedDachoraAnimation(echo, echoList);
+            EnemyPartners.Listed<DachoraEchoEntity>(echo).State.Playback = StartedDachoraAnimation(echo, echoList);
     }
 
     /// <summary>Runs upward acceleration, trail placement, and ceiling collision.</summary>
@@ -364,7 +364,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int trailPlace = 0; trailPlace < echoes.Length; trailPlace++)
         {
             RoomEnemyPlace echo = echoes[trailPlace];
-            DachoraEchoState echoState = echo.RequireSpeciesState<DachoraEchoState>();
+            DachoraEchoState echoState = EnemyPartners.Listed<DachoraEchoEntity>(echo).State;
             if (echoState.Lifetime.IsRunning)
                 continue;
 
@@ -453,13 +453,13 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances the Dachora body's cue-free typed animation.</summary>
     internal static void AdvanceDachoraTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, DachoraAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<DachoraEnemyState>(), DachoraAnimations.Segments,
             static (DachoraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Dachora animation raised {cue}."));
 
     /// <summary>Advances a speed-boost echo's cue-free typed animation.</summary>
     internal static void AdvanceDachoraEchoTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, DachoraAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<DachoraEchoState>(), DachoraAnimations.Segments,
             static (DachoraEchoState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Dachora echo animation raised {cue}."));
 

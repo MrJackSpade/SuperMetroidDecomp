@@ -475,7 +475,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the crawlers' surface animations (#641).</summary>
     internal static void AdvanceCrawlerTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, CrawlerAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<CrawlerEnemyState>(), CrawlerAnimations.Segments,
             static (CrawlerEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free crawler animation raised {cue}."));
 }

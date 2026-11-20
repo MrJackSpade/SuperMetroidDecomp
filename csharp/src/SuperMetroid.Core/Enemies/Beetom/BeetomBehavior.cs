@@ -489,7 +489,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Beetom's typed animation.</summary>
     internal static void AdvanceBeetomTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, BeetomAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<BeetomEnemyState>(), BeetomAnimations.Segments,
             static (BeetomEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyBeetomCue(place, cue) is { } target
                 ? new AnimationContinuation<BeetomSegment>(BeetomAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
@@ -506,5 +506,5 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Attaches Beetom to Samus on its selected custom contact reaction.</summary>
     internal void ReactToBeetomTouch(EnemyTouchContext context) =>
-        ResolveBeetomTouch(context.Place, context.Place.RequireSpeciesState<BeetomEnemyState>(), context.Samus, context.PseudoScrew);
+        ResolveBeetomTouch(context.Place, EnemyPartners.Listed<BeetomEntity>(context.Place).State, context.Samus, context.PseudoScrew);
 }

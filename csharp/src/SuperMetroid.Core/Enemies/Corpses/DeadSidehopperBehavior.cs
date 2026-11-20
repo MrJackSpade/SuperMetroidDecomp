@@ -333,7 +333,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private void ResolveDeadSidehopperPowerBomb(EnemyPowerBombContext context)
     {
         RoomEnemyPlace place = context.Enemy;
-        DeadSidehopperEnemyState state = place.RequireSpeciesState<DeadSidehopperEnemyState>();
+        DeadSidehopperEnemyState state = EnemyPartners.Listed<DeadSidehopperEntity>(place).State;
         if (state.IsDrained)
         {
             ResolveDeadSidehopperShot(place, state);
@@ -434,5 +434,5 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     internal void ReactToDeadSidehopperTouch(EnemyTouchContext context) =>
         // Before Baby Metroid finishes feeding, the touch reaction uses normal contact damage without a death animation. At
         // the end of the drain it instead starts the corpse decomposition and never enters common touch damage.
-        ResolveDeadSidehopperTouch(context.Place, context.Place.RequireSpeciesState<DeadSidehopperEnemyState>(), context.Samus, context.PseudoScrew);
+        ResolveDeadSidehopperTouch(context.Place, EnemyPartners.Listed<DeadSidehopperEntity>(context.Place).State, context.Samus, context.PseudoScrew);
 }

@@ -168,13 +168,13 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances the collision part's hitbox hold.</summary>
     internal static void AdvanceHibashiCollisionPartTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, HibashiAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<HibashiCollisionPartState>(), HibashiAnimations.Segments,
             static (HibashiCollisionPartState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"The Hibashi collision part's animation raised {cue}."));
 
     /// <summary>Advances the flame's eruption animation.</summary>
     internal void AdvanceHibashiTypedAnimation(RoomEnemyPlace place, HibashiEnemyState hibashiEnemyState, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, HibashiAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<HibashiEnemyState>(), HibashiAnimations.Segments,
             static (HibashiEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

@@ -237,7 +237,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         StartMagdolliteAnimation(head, state, samusSide == HorizontalDirection.Right ? MagdolliteSegment.RightIdle : MagdolliteSegment.LeftIdle);
 
         (_, _, RoomEnemyPlace overlay) = RequireMagdolliteComposite(head);
-        MagdolliteOverlayState overlayState = overlay.RequireSpeciesState<MagdolliteOverlayState>();
+        MagdolliteOverlayState overlayState = EnemyPartners.Listed<MagdolliteOverlayEntity>(overlay).State;
         if (overlayState.AttackCooldown.IsRunning)
             return;
 
@@ -256,7 +256,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteHeadState state)
     {
         (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(head);
-        body.RequireSpeciesState<MagdolliteBodyState>().Release();
+        EnemyPartners.Listed<MagdolliteBodyEntity>(body).State.Release();
         state.Action = MagdolliteHeadAction.WaitingForBodyLanding;
     }
 
@@ -333,7 +333,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteBodyState state)
     {
         (RoomEnemyPlace head, _, _) = RequireMagdolliteComposite(body);
-        MagdolliteHeadState headState = head.RequireSpeciesState<MagdolliteHeadState>();
+        MagdolliteHeadState headState = EnemyPartners.Listed<MagdolliteHeadEntity>(head).State;
         state.RiseDisplacementY += AddMagdolliteY(body, HeadRise(head).Speed);
 
         if (state.RiseDisplacementY >= 0)
@@ -359,7 +359,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteOverlayState state)
     {
         (RoomEnemyPlace head, _, _) = RequireMagdolliteComposite(overlay);
-        if (head.RequireSpeciesState<MagdolliteHeadState>().IsSubmerging)
+        if (EnemyPartners.Listed<MagdolliteHeadEntity>(head).State.IsSubmerging)
             state.Action = MagdolliteOverlayAction.TrackingRisingBody;
     }
 
@@ -369,7 +369,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteOverlayState state)
     {
         (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(overlay);
-        MagdolliteBodyState bodyState = body.RequireSpeciesState<MagdolliteBodyState>();
+        MagdolliteBodyState bodyState = EnemyPartners.Listed<MagdolliteBodyEntity>(body).State;
         StartMagdolliteAnimation(overlay, state, MagdolliteSegment.PillarCap);
         bodyState.Action = MagdolliteBodyAction.Falling;
         state.Action = MagdolliteOverlayAction.TrackingFallingBody;
@@ -384,7 +384,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(overlay);
-        MagdolliteBodyState bodyState = body.RequireSpeciesState<MagdolliteBodyState>();
+        MagdolliteBodyState bodyState = EnemyPartners.Listed<MagdolliteBodyEntity>(body).State;
         if (bodyState.Action == MagdolliteBodyAction.HoldingAtApex)
         {
             state.ThrowDirection = SamusSide(samus, overlay);
@@ -407,8 +407,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteOverlayState state)
     {
         (RoomEnemyPlace head, RoomEnemyPlace body, _) = RequireMagdolliteComposite(overlay);
-        MagdolliteHeadState headState = head.RequireSpeciesState<MagdolliteHeadState>();
-        MagdolliteBodyState bodyState = body.RequireSpeciesState<MagdolliteBodyState>();
+        MagdolliteHeadState headState = EnemyPartners.Listed<MagdolliteHeadEntity>(head).State;
+        MagdolliteBodyState bodyState = EnemyPartners.Listed<MagdolliteBodyEntity>(body).State;
         if (headState.Action == MagdolliteHeadAction.Waiting)
         {
             state.Action = MagdolliteOverlayAction.WaitingForAttack;
@@ -648,7 +648,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances the typed animation of the Magdollite part whose state is a <typeparamref name="TState"/>.</summary>
     internal void AdvanceMagdolliteTypedAnimation<TState>(RoomEnemyPlace place, EnemyAnimationCueContext context)
         where TState : MagdollitePartState =>
-        EnemyAnimationPlayback.Advance(place, MagdolliteAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<TState>(), MagdolliteAnimations.Segments,
             static (TState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

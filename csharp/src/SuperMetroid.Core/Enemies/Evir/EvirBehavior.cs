@@ -153,7 +153,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidDataException">The population places no Evir body there.</exception>
     private static void RequirePlacedBody(RoomEnemyPlace body, RoomEnemyPlace part, string partName)
     {
-        if (body.SpeciesState<EvirBodyState>() is null)
+        if (body.Entity is not EvirBodyEntity)
             throw new InvalidDataException($"Evir {partName} of enemy {part.Ordinal} follows {body.DefinitionId}, not an Evir body.");
     }
 
@@ -164,7 +164,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // During regeneration the mouth, arms, and projectile retain their launch facing. The body reads its spit's place
         // whatever it holds: a spit a power bomb's follow-up deleted (FollowUpAfterStruckPart) as it left itself, and a
         // killed spit's cleared place as not regenerating.
-        if (state.Spit.FoundState<EvirSpitState>() is not { Action: EvirSpitAction.Regenerating })
+        if (state.Spit.FoundEnemy is not EvirSpitEntity { State.Action: EvirSpitAction.Regenerating })
             SetEvirBodyFacing(place, state, samus);
 
         EvirSpawnSettings settings = place.SpawnSettings<EvirSpawnSettings>();
@@ -353,16 +353,16 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// spawned (#2145).
     /// </summary>
     private static bool EvirBodyFacesRight(EvirSpitState spit) =>
-        spit.Body.FoundState<EvirBodyState>() is { ShowsSpawnAnimation: false, Facing: HorizontalDirection.Right };
+        spit.Body.FoundEnemy is EvirBodyEntity { State: { ShowsSpawnAnimation: false, Facing: HorizontalDirection.Right } };
 
     /// <summary>
     /// The facing an arms or spit reads from its body in <paramref name="bodyPlace"/>: the living body's own, a deleted
     /// body's last, or, once a hit has killed the body, left, as its cleared place reads (the arms and spit see left on
     /// the final update they still receive)
-    /// (<see cref="RoomEnemyPlace.FoundState{T}"/>).
+    /// (<see cref="RoomEnemyPlace.FoundEnemy"/>).
     /// </summary>
     private static HorizontalDirection BodyFacingOf(RoomEnemyPlace bodyPlace) =>
-        bodyPlace.FoundState<EvirBodyState>()?.Facing ?? HorizontalDirection.Left;
+        bodyPlace.FoundEnemy is EvirBodyEntity found ? found.State.Facing : HorizontalDirection.Left;
 
     /// <summary>Animation cue: finishes regeneration.</summary>
     private static void FinishEvirRegeneration(EvirSpitState state) => state.Action = EvirSpitAction.Idle;
@@ -411,7 +411,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         firstRelative.AiStates = firstRelative.AiStates | EnemyAiStates.Frozen;
         // The game compares the action of the enemy listed two places on with the moving spit's. In the
         // Evir rooms that place holds an Evir or nothing, never another species.
-        if (secondRelative.SpeciesState<EvirSpitState>()?.Action != EvirSpitAction.Moving)
+        if (secondRelative.Entity is not EvirSpitEntity { State.Action: EvirSpitAction.Moving })
         {
             secondRelative.Freeze.Restart(actor.Freeze.UpdatesLeft);
             secondRelative.AiStates = secondRelative.AiStates | EnemyAiStates.Frozen;
@@ -442,12 +442,11 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             frame.Camera);
     }
 
-    /// <summary>Advances an Evir body's or arms' cue-free typed animation, the part keeping its playback in its <typeparamref name="TState"/>.</summary>
-    internal static void AdvanceEvirPartTypedAnimation<TState>(RoomEnemyPlace place, TState tState) where TState : EvirPartState
+    /// <summary>Advances an Evir body's or arms' cue-free typed animation, the part keeping its playback in its state.</summary>
+    internal static void AdvanceEvirPartTypedAnimation(RoomEnemyPlace place, EvirPartState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        EvirPartState state = tState;
         AnimationPlayback<EvirSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, EvirAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"An Evir body's or arms' cue-free animation raised {cue}."));

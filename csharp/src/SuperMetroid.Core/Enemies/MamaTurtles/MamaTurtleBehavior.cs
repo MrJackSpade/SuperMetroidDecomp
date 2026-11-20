@@ -575,7 +575,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.X));
 
         RoomEnemyPlace parentPlace = MamaOf(baby);
-        MamaTurtleEnemyState parent = parentPlace.RequireSpeciesState<MamaTurtleEnemyState>();
+        MamaTurtleEnemyState parent = EnemyPartners.Listed<MamaTurtleEntity>(parentPlace).State;
         if (!parent.LiesInShell)
             return;
 
@@ -702,7 +702,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The state of <paramref name="baby"/>'s Mama, who found it when she was placed.</summary>
-    private MamaTurtleEnemyState MamaStateOf(RoomEnemyPlace baby) => MamaOf(baby).RequireSpeciesState<MamaTurtleEnemyState>();
+    private MamaTurtleEnemyState MamaStateOf(RoomEnemyPlace baby) => EnemyPartners.Listed<MamaTurtleEntity>(MamaOf(baby)).State;
 
     /// <summary>The place of <paramref name="baby"/>'s Mama, who linked it when she was placed.</summary>
     /// <exception cref="InvalidOperationException">No Mama Turtle found <paramref name="baby"/> as she was placed.</exception>
@@ -790,9 +790,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Routes Mama contact to shell and fall handling.</summary>
     internal void ReactToMamaTurtleTouch(EnemyTouchContext context) =>
-        ResolveMamaTurtleTouch(context.Place, context.Place.RequireSpeciesState<MamaTurtleEnemyState>(), context.Samus, context.PseudoScrew);
+        ResolveMamaTurtleTouch(context.Place, EnemyPartners.Listed<MamaTurtleEntity>(context.Place).State, context.Samus, context.PseudoScrew);
 
     /// <summary>Routes baby contact to separation and wake behavior.</summary>
     internal void ReactToBabyTurtleTouch(EnemyTouchContext context) =>
-        ResolveBabyTurtleTouch(context.Place, context.Place.RequireSpeciesState<BabyTurtleEnemyState>(), context.Samus, context.Level);
+        ResolveBabyTurtleTouch(context.Place, EnemyPartners.Listed<BabyTurtleEntity>(context.Place).State, context.Samus, context.Level);
 }

@@ -131,7 +131,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (SpawnZebetite(ZebetiteHalf.Linked) is { } secondary)
             {
-                secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedHalf = place;
+                EnemyPartners.Listed<ZebetiteEntity>(secondary).State.LinkedHalf = place;
                 state.LinkedHalf = secondary;
             }
         }

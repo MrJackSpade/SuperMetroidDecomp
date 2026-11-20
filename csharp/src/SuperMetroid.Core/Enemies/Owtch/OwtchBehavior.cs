@@ -173,7 +173,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Allows common bomb damage only while the Owtch walks left, the one way its shell leaves it open.</summary>
     internal static EnemyBombReaction OwtchBombReaction { get; } = new()
     {
-        Rejects = c => !OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()),
+        Rejects = c => !OwtchAcceptsOrdinaryShot(EnemyPartners.Listed<OwtchEntity>(c.Enemy).State),
     };
 
     /// <summary>Runs Owtch's main AI.</summary>
@@ -184,7 +184,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Owtch's typed animation.</summary>
     internal static void AdvanceOwtchTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, OwtchAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, place.RequireSpeciesState<OwtchEnemyState>(), OwtchAnimations.Segments,
             static (OwtchEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
@@ -199,7 +199,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            if (OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()))
+            if (OwtchAcceptsOrdinaryShot(EnemyPartners.Listed<OwtchEntity>(c.Enemy).State))
                 return false;
             if (c.MarksCollision)
                 c.Projectile.Spend();

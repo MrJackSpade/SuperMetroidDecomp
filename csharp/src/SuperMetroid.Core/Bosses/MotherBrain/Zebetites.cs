@@ -16,9 +16,7 @@ internal static class Zebetites
 
     /// <summary>The placement the primary or linked half spawns from.</summary>
     internal static RoomEnemyPlacement SpawnPopulation(ZebetiteHalf half) =>
-        SpawnPopulations.TryGetValue(half, out RoomEnemyPlacement placement)
-            ? placement
-            : throw new InvalidOperationException($"Undefined {nameof(ZebetiteHalf)} {half}.");
+        SpawnPopulations[half];
 
     /// <summary>
     /// The room pixel row a generation's <paramref name="half"/> stands on: a single barrier on the centre line, a split

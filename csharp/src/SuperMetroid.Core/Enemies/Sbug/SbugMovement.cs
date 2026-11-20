@@ -9,15 +9,10 @@ internal static class SbugMovement
     /// <summary>The directional loop of <paramref name="facing"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="facing"/> is not one of the eight facings.</exception>
     internal static SbugSegment FacingAnimation(CompassDirection facing) =>
-        SbugMovementDefinitions.FacingAnimations.TryGetValue(facing, out SbugSegment segment)
-            ? segment
-            : throw new InvalidDataException($"Sbug facing {facing} is not one of the eight facings.");
+        SbugMovementDefinitions.FacingAnimations[facing];
 
     /// <summary>The action <paramref name="behavior"/> starts.</summary>
     /// <exception cref="InvalidDataException"><paramref name="behavior"/> is outside the three selectors.</exception>
     internal static SbugAction ActivationAction(SbugActivationBehavior behavior) =>
-        SbugMovementDefinitions.ActivationActions.TryGetValue(behavior, out SbugAction action)
-            ? action
-            : throw new InvalidDataException(
-                $"Sbug activation behavior {behavior} is not one of the three activation behaviours.");
+        SbugMovementDefinitions.ActivationActions[behavior];
 }

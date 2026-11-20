@@ -6,8 +6,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroEggMotionDefinitions
 {
     /// <summary>Where each piece of the shell starts, which <see cref="IntroEggMotion.FragmentInitialPosition"/> selects.</summary>
-    internal static readonly IReadOnlyDictionary<IntroEggShellFragment, Offset16<ScreenPixels>> FragmentInitialPositions =
-        new Dictionary<IntroEggShellFragment, Offset16<ScreenPixels>>
+    internal static readonly IdentityTable<IntroEggShellFragment, Offset16<ScreenPixels>> FragmentInitialPositions = new(new Dictionary<IntroEggShellFragment, Offset16<ScreenPixels>>
         {
             [IntroEggShellFragment.UpperLeft] = new(108, 147),
             [IntroEggShellFragment.UpperRight] = new(115, 147),
@@ -15,11 +14,10 @@ internal static class IntroEggMotionDefinitions
             [IntroEggShellFragment.Centre] = new(112, 150),
             [IntroEggShellFragment.Right] = new(118, 153),
             [IntroEggShellFragment.Lower] = new(115, 155),
-        };
+        });
 
     /// <summary>Each piece of the shell's horizontal launch speed, which <see cref="IntroEggMotion.FragmentX"/> selects.</summary>
-    internal static readonly IReadOnlyDictionary<IntroEggShellFragment, SignedSixteenSixteen> FragmentXVelocities =
-        new Dictionary<IntroEggShellFragment, SignedSixteenSixteen>
+    internal static readonly IdentityTable<IntroEggShellFragment, SignedSixteenSixteen> FragmentXVelocities = new(new Dictionary<IntroEggShellFragment, SignedSixteenSixteen>
         {
             [IntroEggShellFragment.UpperLeft] = SignedSixteenSixteen.FromPixelFraction(-3, 4),
             [IntroEggShellFragment.UpperRight] = SignedSixteenSixteen.FromPixelFraction(1, 4),
@@ -27,7 +25,7 @@ internal static class IntroEggMotionDefinitions
             [IntroEggShellFragment.Centre] = SignedSixteenSixteen.FromPixelFraction(-7, 8),
             [IntroEggShellFragment.Right] = SignedSixteenSixteen.FromPixelFraction(1, 2),
             [IntroEggShellFragment.Lower] = SignedSixteenSixteen.FromPixelFraction(1, 8),
-        };
+        });
 
     /// <summary>
     /// The updates <see cref="ShellFall"/> covers. The upper-left and upper-right pieces fly three updates past it before

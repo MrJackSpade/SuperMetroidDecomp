@@ -105,8 +105,7 @@ public static class BlockAnimationLoops
     /// <summary>The treadmill animation a Wrecked Ship entrance door starts for a belt pushing <paramref name="direction"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is undefined.</exception>
     public static BlockAnimation Treadmill(WreckedShipTreadmillDirection direction) =>
-        BlockAnimationLoopDefinitions.TreadmillAnimations.TryGetValue(direction, out BlockAnimation animation) ? animation
-            : throw new InvalidDataException($"Unknown Wrecked Ship treadmill direction {direction}.");
+        BlockAnimationLoopDefinitions.TreadmillAnimations[direction];
 
     /// <summary><paramref name="animation"/>, which must have a loop.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="animation"/> is undefined or has no loop.</exception>

@@ -13,7 +13,5 @@ internal static class PowampMotion
     /// <summary>The acceleration of a spike flying in <paramref name="direction"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the eight directions.</exception>
     internal static PixelVelocity<RoomPixels> SpikeAcceleration(CompassDirection direction) =>
-        SpikeAccelerations.TryGetValue(direction, out PixelVelocity<RoomPixels> acceleration)
-            ? acceleration
-            : throw new InvalidDataException($"Invalid Powamp spike direction {direction}.");
+        SpikeAccelerations[direction];
 }

@@ -65,7 +65,5 @@ internal static class BotwoonNavigation
 
     /// <summary>The one-pixel movement a path step stands for.</summary>
     private static Offset16<RoomPixels> Movement(BotwoonPathStep step) =>
-        BotwoonNavigationDefinitions.StepMovements.TryGetValue(step, out Offset16<RoomPixels> movement)
-            ? movement
-            : throw new InvalidDataException($"Undefined Botwoon path step {step}.");
+        BotwoonNavigationDefinitions.StepMovements[step];
 }

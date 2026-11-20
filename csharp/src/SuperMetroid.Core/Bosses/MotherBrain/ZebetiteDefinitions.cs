@@ -35,9 +35,9 @@ internal static class ZebetiteDefinitions
         new(EnemyDefinitionId.Zebetite, new(0, 0), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, CollidesByFrameHitboxes: false, new ZebetiteSpawnSettings(ZebetiteHalf.Linked));
 
     /// <summary>The placement each half spawns from.</summary>
-    internal static readonly Dictionary<ZebetiteHalf, RoomEnemyPlacement> SpawnPopulations = new()
+    internal static readonly IdentityTable<ZebetiteHalf, RoomEnemyPlacement> SpawnPopulations = new(new Dictionary<ZebetiteHalf, RoomEnemyPlacement>
     {
         [ZebetiteHalf.Primary] = PrimarySpawn,
         [ZebetiteHalf.Linked] = LinkedSpawn,
-    };
+    });
 }

@@ -43,9 +43,9 @@ internal static class YardDirectionDefinitions
     /// The visible and hidden airborne animations by facing. Detach, contact-kick and shot-launch repeat these
     /// pairs.
     /// </summary>
-    internal static readonly Dictionary<HorizontalDirection, YardAirborneAnimationDefinition> AirborneFacings = new()
+    internal static readonly IdentityTable<HorizontalDirection, YardAirborneAnimationDefinition> AirborneFacings = new(new Dictionary<HorizontalDirection, YardAirborneAnimationDefinition>
     {
         [HorizontalDirection.Left] = new(YardSegment.AirborneFacingLeft, YardSegment.HiddenOnFloorMovingLeft),
         [HorizontalDirection.Right] = new(YardSegment.AirborneFacingRight, YardSegment.HiddenOnFloorMovingRight),
-    };
+    });
 }

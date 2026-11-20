@@ -50,8 +50,7 @@ internal static class PowampMotionDefinitions
     /// The acceleration of a spike flying in each direction: an eighth of a pixel an update, each update, along each axis
     /// the direction leans along.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<CompassDirection, PixelVelocity<RoomPixels>> SpikeAccelerations =
-        new Dictionary<CompassDirection, PixelVelocity<RoomPixels>>
+    internal static readonly IdentityTable<CompassDirection, PixelVelocity<RoomPixels>> SpikeAccelerations = new(new Dictionary<CompassDirection, PixelVelocity<RoomPixels>>
         {
             [CompassDirection.Up] = new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-1, 8)),
             [CompassDirection.UpRight] = new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(1, 8), SignedEightEight.FromPixelFraction(-1, 8)),
@@ -61,7 +60,7 @@ internal static class PowampMotionDefinitions
             [CompassDirection.DownLeft] = new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 8), SignedEightEight.FromPixelFraction(1, 8)),
             [CompassDirection.Left] = new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 8), SignedEightEight.Zero),
             [CompassDirection.UpLeft] = new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 8), SignedEightEight.FromPixelFraction(-1, 8)),
-        };
+        });
 
     /// <summary>
     /// The inflate stage a sinking balloon restarts when Powamp dies, by the pose it has sunk to (#1839): sunk halfway it

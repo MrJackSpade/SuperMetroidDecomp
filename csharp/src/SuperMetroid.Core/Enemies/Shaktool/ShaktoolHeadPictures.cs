@@ -8,8 +8,5 @@ internal static class ShaktoolHeadPictures
     /// <summary>The picture of the head aiming along <paramref name="orientation"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="orientation"/> is not one of the eight directions.</exception>
     internal static EnemyFrameId Aiming(CompassDirection orientation) =>
-        ShaktoolHeadPictureDefinitions.AimedPictures.TryGetValue(orientation, out EnemyFrameId picture)
-            ? picture
-            : throw new InvalidDataException(
-                $"Shaktool orientation {orientation} is not one of the eight directions.");
+        ShaktoolHeadPictureDefinitions.AimedPictures[orientation];
 }

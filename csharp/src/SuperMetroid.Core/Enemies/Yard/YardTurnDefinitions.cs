@@ -6,7 +6,7 @@ internal static class YardTurnDefinitions
     /// <summary>
     /// The turn records the movement step uses for each way the Yard crawls. Ordinary turns look seven pixels along motion.
     /// </summary>
-    internal static readonly Dictionary<YardDirection, YardTurnDefinition> Turns = new()
+    internal static readonly IdentityTable<YardDirection, YardTurnDefinition> Turns = new(new Dictionary<YardDirection, YardTurnDefinition>
     {
         [YardDirection.OnFloorMovingLeft] = new(new(-7, 0), YardSegment.OutsideTurnOnFloorMovingLeft, YardSegment.InsideTurnOnFloorMovingLeft),
         [YardDirection.OnRightWallMovingDown] = new(new(0, 7), YardSegment.OutsideTurnOnRightWallMovingDown, YardSegment.InsideTurnOnRightWallMovingDown),
@@ -16,7 +16,7 @@ internal static class YardTurnDefinitions
         [YardDirection.OnLeftWallMovingDown] = new(new(0, 7), YardSegment.OutsideTurnOnLeftWallMovingDown, YardSegment.InsideTurnOnLeftWallMovingDown),
         [YardDirection.OnCeilingMovingLeft] = new(new(-7, 0), YardSegment.OutsideTurnOnCeilingMovingLeft, YardSegment.InsideTurnOnCeilingMovingLeft),
         [YardDirection.OnRightWallMovingUp] = new(new(0, -7), YardSegment.OutsideTurnOnRightWallMovingUp, YardSegment.InsideTurnOnRightWallMovingUp),
-    };
+    });
 
     /// <summary>
     /// How the four crawls along a floor or ceiling continue while the Yard's turns are suppressed, which the crawls along

@@ -58,8 +58,7 @@ internal static class BotwoonNavigationDefinitions
     internal const int HoleBearingReach = 255;
 
     /// <summary>The one-pixel movement each step of a path stands for: one pixel along each axis the step points along.</summary>
-    internal static IReadOnlyDictionary<BotwoonPathStep, Offset16<RoomPixels>> StepMovements { get; } =
-        new Dictionary<BotwoonPathStep, Offset16<RoomPixels>>
+    internal static IdentityTable<BotwoonPathStep, Offset16<RoomPixels>> StepMovements { get; } = new(new Dictionary<BotwoonPathStep, Offset16<RoomPixels>>
         {
             [BotwoonPathStep.Up] = new(0, -1),
             [BotwoonPathStep.UpRight] = new(1, -1),
@@ -69,5 +68,5 @@ internal static class BotwoonNavigationDefinitions
             [BotwoonPathStep.DownLeft] = new(-1, 1),
             [BotwoonPathStep.Left] = new(-1, 0),
             [BotwoonPathStep.UpLeft] = new(-1, -1),
-        };
+        });
 }

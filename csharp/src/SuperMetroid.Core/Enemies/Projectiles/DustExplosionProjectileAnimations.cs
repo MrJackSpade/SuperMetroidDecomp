@@ -163,7 +163,7 @@ internal static class DustExplosionProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<DustExplosionAnimation, Animation<DustExplosionAnimation>> StartingAt { get; } = new Dictionary<DustExplosionAnimation, Animation<DustExplosionAnimation>>
+    internal static IdentityTable<DustExplosionAnimation, Animation<DustExplosionAnimation>> StartingAt { get; } = new(new Dictionary<DustExplosionAnimation, Animation<DustExplosionAnimation>>
     {
         [P.MotherBrainElbowChargeParticle] = new([Segments.Whole(P.MotherBrainElbowChargeParticle)], AnimationEnd.Holds),
         [P.MotherBrainElbowChargeEnergy] = new([Segments.Whole(P.MotherBrainElbowChargeEnergy)], AnimationEnd.Holds),
@@ -179,14 +179,12 @@ internal static class DustExplosionProjectileAnimations
         [P.ShortBigDustCloud] = new([Segments.Whole(P.ShortBigDustCloud)], AnimationEnd.Holds),
         [P.BigDustCloud] = new([Segments.Whole(P.BigDustCloud)], AnimationEnd.Holds),
         [P.LongDraygonBreathBubbles] = new([Segments.Whole(P.LongDraygonBreathBubbles)], AnimationEnd.Holds),
-    };
+    });
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="segment"/> is not one of the fourteen animations.</exception>
     internal static Animation<DustExplosionAnimation> StartingWith(DustExplosionAnimation segment) =>
-        StartingAt.TryGetValue(segment, out Animation<DustExplosionAnimation>? animation)
-            ? animation
-            : throw new ArgumentOutOfRangeException(nameof(segment), segment, "Undefined misc-dust animation.");
+        StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

@@ -205,8 +205,12 @@ internal static class TestOnlyMembers
         // the pattern narrows to.
         void RecordUnbound(SimpleNameSyntax name, SymbolInfo info)
         {
+            // A method group converted to a delegate binds to the extension member standing in for the private method, yet
+            // C# reports it as an inaccessible candidate of a name that binds to nothing.
             if (ReceiverType(compilation, tree, name) is not { TypeKind: not TypeKind.Error } named ||
-                info.Symbol is not null && !Unrelated(info.Symbol, named))
+                info.Symbol is not null && !Unrelated(info.Symbol, named) ||
+                info.CandidateReason == CandidateReason.Inaccessible && info.CandidateSymbols.Any(candidate =>
+                    candidate.ContainingType is { TypeKind: TypeKind.Extension } && !Unrelated(candidate, named)))
                 return;
             string way = Access(AccessExpression(name));
             for (INamedTypeSymbol? owner = named; owner is not null; owner = owner.BaseType)

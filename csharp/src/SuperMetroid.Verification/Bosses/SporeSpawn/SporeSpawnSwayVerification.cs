@@ -36,7 +36,7 @@ internal static class SporeSpawnSwayVerification
                 SwayStep = new(RotationAngle.FromSteps(Math.Abs(delta)), delta < 0 ? RotationDirection.Clockwise : RotationDirection.Counterclockwise),
                 Angle = RotationAngle.FromSteps(start),
             };
-            state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(body, segment))];
+            state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(body.HeldOccupant(), body, segment))];
             body.SetSpeciesState(state);
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },

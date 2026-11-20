@@ -54,7 +54,7 @@ internal static class PhantoonShotDamageVerification
         body.Frame = EnemyFrameId.PhantoonEyeHitboxBody;
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         body.Health = 2500;
-        PhantoonEnemyState state = enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1],
+        PhantoonEnemyState state = enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1],
             enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = PhantoonPhase.Swooping });
         state.PhaseWait.LastFor(60);
 

@@ -11,7 +11,7 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyOccu
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeSporeSpawn(Place);
+    public void Initialize() => species.InitializeSporeSpawn(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunSporeSpawnMainAi(Place, Encounter);

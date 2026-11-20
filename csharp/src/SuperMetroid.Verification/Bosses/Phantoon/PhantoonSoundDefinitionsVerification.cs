@@ -27,7 +27,7 @@ internal static class PhantoonSoundDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
-        var state = new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+        var state = new PhantoonEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
         enemies.BeginPhantoonAsSetUp(state);
         Action<PhantoonEnemyState, PhantoonPartCue> process = enemies.PhantoonBehavior.ApplyPhantoonPartCue;
 

@@ -64,9 +64,9 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Metroid.</summary>
-    internal void InitializeMetroid(RoomEnemyPlace place)
+    internal void InitializeMetroid(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(place);
+        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(occupant, place.Shading);
         RoomEffectActor electricity = _effectActors.SpawnRoomEffectActor(
             place.Position.Whole,
             RoomEffectActorKind.MetroidElectricity,
@@ -87,7 +87,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs a Metroid for one update and whichever of its four movements it is in.</summary>
-    private void RunMetroidMain(RoomEnemyPlace place, SamusState samus, RoomLevelData level)
+    private void RunMetroidMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus, RoomLevelData level)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
         int targetY = samus.Position.Y.Whole - MetroidBehaviorDefinitions.AimAboveSamus;
@@ -112,8 +112,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The ordinary body shows the central picture. Both outer objects are
         // repositioned and re-enabled every update the Metroid is not frozen, right after it moves.
-        PositionMetroidOuterBody(state.Electricity, place, SpriteGraphics.SpawnedBy(place));
-        PositionMetroidOuterBody(state.Shell, place, SpriteGraphics.SpawnedBy(place));
+        PositionMetroidOuterBody(state.Electricity, place, SpriteGraphics.SpawnedBy(occupant, place.Shading));
+        PositionMetroidOuterBody(state.Shell, place, SpriteGraphics.SpawnedBy(occupant, place.Shading));
     }
 
     /// <summary>Pulls the Metroid's velocity toward Samus, harder the farther she is.</summary>
@@ -431,9 +431,9 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Metroid's main AI.</summary>
-    internal void RunMetroidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMetroidMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunMetroidMain(place, frame.Samus, frame.Level);
+        RunMetroidMain(occupant, place, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Metroid's typed animation.</summary>

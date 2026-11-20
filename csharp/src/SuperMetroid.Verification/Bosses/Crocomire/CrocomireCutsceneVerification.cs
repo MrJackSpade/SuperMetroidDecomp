@@ -103,7 +103,7 @@ internal static class CrocomireCutsceneVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: new BossSourceArtwork { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) });
         var body = enemies.Places.InUpdateOrder[0];
         body.Position = body.Position.WithWhole(new(1480, 144));
-        var state = new CrocomireEnemyState(body);
+        var state = new CrocomireEnemyState(body.HeldOccupant(), body);
         body.SetSpeciesState(state);
         state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
         enemies.VerificationServices().SetRoomScrollState = scrolls.SetRoomScreen;
@@ -187,7 +187,7 @@ internal static class CrocomireCutsceneVerification
             enemies.VerificationServices().IsAreaMiniBossDefeated = () => defeated;
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
-            enemies.CrocomireBehavior.Fight.InitializeCrocomire(body);
+            enemies.CrocomireBehavior.Fight.InitializeCrocomire(body.HeldOccupant(), body);
             string room = defeated ? "a defeated room" : "a living fight";
             RoomScrollState[] kept = scrolls.KeptStates;
             for (int cell = 0; cell < kept.Length; cell++)

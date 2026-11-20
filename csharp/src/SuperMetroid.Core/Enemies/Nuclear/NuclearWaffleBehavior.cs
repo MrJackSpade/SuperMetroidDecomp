@@ -32,7 +32,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Nuclear Waffle.</summary>
-    internal void InitializeNuclearWaffle(RoomEnemyPlace place)
+    internal void InitializeNuclearWaffle(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         NuclearWaffleSpawnSettings settings = place.SpawnSettings<NuclearWaffleSpawnSettings>();
         NuclearWaffleSweepDefinition sweep = settings.Sweep;
@@ -41,7 +41,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> origin = place.Position.Whole;
         place.Position = place.Position.WithWhole(NuclearWaffleOrbitPoint(origin, settings.OrbitRadius, sweep.StartAngle));
         Position16<RoomPixels> initialHead = place.Position.Whole;
-        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(place);
+        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(occupant, place.Shading);
 
         var state = new NuclearWaffleEnemyState(NuclearWaffleAction.Waiting)
         {

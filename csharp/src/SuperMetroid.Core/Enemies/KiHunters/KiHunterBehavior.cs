@@ -64,11 +64,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Ki-Hunter body's animations. Returning to flight continues at the flying animation for
     /// the current direction, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private KiHunterSegment? ApplyKiHunterCue(RoomEnemyPlace place, KiHunterCue cue)
+    private KiHunterSegment? ApplyKiHunterCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, KiHunterCue cue)
     {
         if (cue is KiHunterCue.Spit spit)
         {
-            SpawnKiHunterAcidFromCue(place, direction: spit.Direction);
+            SpawnKiHunterAcidFromCue(occupant, place, direction: spit.Direction);
             return null;
         }
         KiHunterCueKind kind = ((KiHunterCue.Signal)cue).Kind;
@@ -665,10 +665,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = KiHunterAction.GroundWait;
 
     /// <summary>Emits the acid projectile and sound, then starts the spit wait (<see cref="KiHunterMotionDefinitions.SpitWait"/>).</summary>
-    private void SpawnKiHunterAcidFromCue(RoomEnemyPlace body, HorizontalDirection direction)
+    private void SpawnKiHunterAcidFromCue(RoomEnemyOccupant occupant, RoomEnemyPlace body, HorizontalDirection direction)
     {
         _audio.QueueEnemySound(EnemySound.AcidSpit, priority: SoundRequestPriority.Normal);
-        SpawnKiHunterAcidSpit(body, direction);
+        SpawnKiHunterAcidSpit(occupant, body, direction);
         body.RequireSpeciesState<KiHunterBodyState>().WaitTimer = UpdateCountdown.For(KiHunterMotionDefinitions.SpitWait);
     }
 
@@ -790,10 +790,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             (state, cue) => throw new InvalidOperationException($"A Ki-Hunter wing animation raised {cue}."));
 
     /// <summary>Advances a Ki-Hunter body's typed animation, carrying out its cues.</summary>
-    internal void AdvanceKiHunterBodyTypedAnimation(RoomEnemyPlace body) =>
+    internal void AdvanceKiHunterBodyTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace body) =>
         EnemyAnimationPlayback.Advance(body, KiHunterAnimations.Segments,
             static (KiHunterBodyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyKiHunterCue(body, cue) is { } target
+            (state, cue) => ApplyKiHunterCue(occupant, body, cue) is { } target
                 ? new AnimationContinuation<KiHunterSegment>(KiHunterAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 
@@ -807,9 +807,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Spawns an acid spit from its definition and setup.
     /// The acid draws from the Ki-Hunter's spawned-object sheet in the colours the firing body shows.
     /// </summary>
-    internal void SpawnKiHunterAcidSpit(RoomEnemyPlace body, HorizontalDirection direction)
+    internal void SpawnKiHunterAcidSpit(RoomEnemyOccupant occupant, RoomEnemyPlace body, HorizontalDirection direction)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KiHunterAcidSpit, Acid, SpriteGraphics.SpawnedBy(body));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KiHunterAcidSpit, Acid, SpriteGraphics.SpawnedBy(occupant, body.Shading));
         if (projectile is null)
             return;
 

@@ -110,7 +110,7 @@ internal static class CrocomireAnimationsVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         body.Position = body.Position.WithWhole(new(576, 144));
-        var state = new CrocomireEnemyState(body);
+        var state = new CrocomireEnemyState(body.HeldOccupant(), body);
         body.SetSpeciesState(state);
         state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;

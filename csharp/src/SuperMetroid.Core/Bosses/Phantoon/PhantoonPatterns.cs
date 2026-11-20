@@ -393,7 +393,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Emits the scheduled rain pattern while Phantoon is hidden.</summary>
     internal void RunPhantoonHiddenFlameRain(
-        RoomEnemyPlace body,
+        RoomEnemyOccupant occupant, RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         if (!state.PhaseWait.StepRunsOut())
@@ -404,12 +404,12 @@ internal sealed class PhantoonPatterns
         body.Position = body.Position.WithWhole(pattern.BodyPosition);
         state.FigureEight.Direction = PhantoonPathDirection.Forwards;
         state.Phase = PhantoonPhase.BecomeSolidAfterFlameRain;
-        SpawnPhantoonFlameRain(body, pattern);
+        SpawnPhantoonFlameRain(occupant, body, pattern);
     }
 
     /// <summary>Starts the first rain pattern after the intro round.</summary>
     internal void RunPhantoonInitialFlameRain(
-        RoomEnemyPlace body,
+        RoomEnemyOccupant occupant, RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
@@ -420,7 +420,7 @@ internal sealed class PhantoonPatterns
 
         state.WindowEnd = PhantoonWindowEnd.EyeCloses;
         state.Phase = PhantoonPhase.BecomeSolidAfterFlameRain;
-        SpawnPhantoonFlameRain(body, body.Position.X.Whole < PhantoonArenaDefinitions.MiddleX
+        SpawnPhantoonFlameRain(occupant, body, body.Position.X.Whole < PhantoonArenaDefinitions.MiddleX
             ? PhantoonRainPatternDefinitions.FirstRainFromLeftHalf
             : PhantoonRainPatternDefinitions.FirstRainFromRightHalf);
     }
@@ -610,13 +610,13 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Places the rain's hanging flames in rotating room columns, each falling a hang step after the last.</summary>
-    private void SpawnPhantoonFlameRain(RoomEnemyPlace body, PhantoonRainPattern pattern)
+    private void SpawnPhantoonFlameRain(RoomEnemyOccupant occupant, RoomEnemyPlace body, PhantoonRainPattern pattern)
     {
         ListStep<int> column = pattern.FirstColumn;
         int hangUpdates = PhantoonArenaDefinitions.RainFallDelayStep;
         for (int flame = 0; flame < PhantoonArenaDefinitions.RainFlameCount; flame++)
         {
-            SpawnPhantoonRainFlame(body, column.Entry, hangUpdates);
+            SpawnPhantoonRainFlame(occupant, body, column.Entry, hangUpdates);
             column = column.NextInCycle;
             hangUpdates += PhantoonArenaDefinitions.RainFallDelayStep;
         }
@@ -653,10 +653,11 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Initializes a casual flame, which falls from the mouth harmless until it strikes the floor.</summary>
+    /// <param name="occupant">The enemy holding <paramref name="body"/>.</param>
     /// <param name="body">Phantoon's body.</param>
-    internal bool SpawnPhantoonCasualFlame(RoomEnemyPlace body)
+    internal bool SpawnPhantoonCasualFlame(RoomEnemyOccupant occupant, RoomEnemyPlace body)
     {
-        EnemyProjectile? flame = AllocateDestroyableFlame(body);
+        EnemyProjectile? flame = AllocateDestroyableFlame(occupant, body);
         if (flame is null)
             return false;
         flame.Velocity = flame.Velocity.WithX(SignedEightEight.Zero);
@@ -678,7 +679,7 @@ internal sealed class PhantoonPatterns
     internal bool SpawnPhantoonRageFlame(PhantoonEnemyState phantoon, PhantoonRageFlameStart start)
     {
         RoomEnemyPlace body = phantoon.Body;
-        EnemyProjectile? flame = AllocateDestroyableFlame(body);
+        EnemyProjectile? flame = AllocateDestroyableFlame(phantoon.BodyOccupant, body);
         if (flame is null)
             return false;
         flame.State = new PhantoonOrbitingFlameState(phantoon, start.Angle)
@@ -696,7 +697,7 @@ internal sealed class PhantoonPatterns
     internal bool SpawnPhantoonSpiralFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
     {
         RoomEnemyPlace body = phantoon.Body;
-        EnemyProjectile? flame = AllocateDestroyableFlame(body);
+        EnemyProjectile? flame = AllocateDestroyableFlame(phantoon.BodyOccupant, body);
         if (flame is null)
             return false;
         flame.State = new PhantoonOrbitingFlameState(phantoon, start);
@@ -706,12 +707,13 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Initializes a rain flame over a room column, falling after it hangs.</summary>
+    /// <param name="occupant">The enemy holding <paramref name="body"/>.</param>
     /// <param name="body">Phantoon's body.</param>
     /// <param name="columnX">The screen X of the rain column the flame falls in (<see cref="PhantoonFlameSpawns.RainXs"/>).</param>
     /// <param name="hangUpdates">The updates from the flame's first to its fall, the flame hanging on every earlier one.</param>
-    internal bool SpawnPhantoonRainFlame(RoomEnemyPlace body, int columnX, int hangUpdates)
+    internal bool SpawnPhantoonRainFlame(RoomEnemyOccupant occupant, RoomEnemyPlace body, int columnX, int hangUpdates)
     {
-        EnemyProjectile? flame = AllocateDestroyableFlame(body);
+        EnemyProjectile? flame = AllocateDestroyableFlame(occupant, body);
         if (flame is null)
             return false;
         flame.State = new PhantoonRainFlameState(hangUpdates);
@@ -723,9 +725,9 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Allocates a destroyable flame and gives it the idle animation and a still, whole-pixel start.</summary>
     /// <returns>The flame, or null when every enemy projectile place is in use.</returns>
-    private EnemyProjectile? AllocateDestroyableFlame(RoomEnemyPlace body)
+    private EnemyProjectile? AllocateDestroyableFlame(RoomEnemyOccupant occupant, RoomEnemyPlace body)
     {
-        EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PhantoonDestroyableFlame, _combat.DestroyableFlame, SpriteGraphics.SpawnedBy(body));
+        EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PhantoonDestroyableFlame, _combat.DestroyableFlame, SpriteGraphics.SpawnedBy(occupant, body.Shading));
         if (flame is null)
             return null;
 

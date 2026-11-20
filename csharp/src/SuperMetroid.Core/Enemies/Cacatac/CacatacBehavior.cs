@@ -32,7 +32,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of Cacatac's animations.</summary>
-    private CacatacSegment? ApplyCacatacCue(RoomEnemyPlace place, CacatacEnemyState state, CacatacCue cue)
+    private CacatacSegment? ApplyCacatacCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, CacatacEnemyState state, CacatacCue cue)
     {
         switch (cue)
         {
@@ -43,7 +43,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
                 PlayCacatacSpikeSound();
                 break;
             case CacatacCue.SpawnSpike spike:
-                SpawnCacatacSpike(place, spike.Direction);
+                SpawnCacatacSpike(occupant, place, spike.Direction);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined Cacatac cue {cue}.");
@@ -149,10 +149,10 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Cacatac's typed animation.</summary>
-    internal void AdvanceCacatacTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal void AdvanceCacatacTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext _) =>
         EnemyAnimationPlayback.Advance(place, CacatacAnimations.Segments,
             static (CacatacEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyCacatacCue(place, state, cue) is { } target
+            (state, cue) => ApplyCacatacCue(occupant, place, state, cue) is { } target
                 ? new AnimationContinuation<CacatacSegment>(CacatacAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 
@@ -160,9 +160,9 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Spawns a spike projectile from the Cacatac and initializes it.
     /// The source actor supplies the origin's fractions of a pixel and the sheet and colours its spikes draw in.
     /// </summary>
-    internal void SpawnCacatacSpike(RoomEnemyPlace source, CacatacSpikeDirection direction)
+    internal void SpawnCacatacSpike(RoomEnemyOccupant occupant, RoomEnemyPlace source, CacatacSpikeDirection direction)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CacatacSpike, Spike, SpriteGraphics.SpawnedBy(source));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CacatacSpike, Spike, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 

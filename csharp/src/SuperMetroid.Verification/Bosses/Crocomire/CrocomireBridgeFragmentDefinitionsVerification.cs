@@ -30,7 +30,7 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
             "Crocomire bridge fragment past the last");
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0]);
+        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0].HeldOccupant(), enemies.Places.InUpdateOrder[0]);
         CrocomireDeathState death = state.Death;
         // $86:92A5 reads the seed without advancing it; generating one would fail here.
         enemies.VerificationServices().ReadRandom = () => 0x1234;

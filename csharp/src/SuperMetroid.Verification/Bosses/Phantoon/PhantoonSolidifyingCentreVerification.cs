@@ -40,7 +40,7 @@ internal static class PhantoonSolidifyingCentreVerification
         body.Frame = EnemyFrameId.PhantoonInvulnerableBody;
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         body.Health = 2500;
-        var state = new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = PhantoonPhase.EyeTracksSamus };
+        var state = new PhantoonEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = PhantoonPhase.EyeTracksSamus };
         state.PhaseWait.LastFor(60);
         enemies.BeginPhantoonAsSetUp(state);
 

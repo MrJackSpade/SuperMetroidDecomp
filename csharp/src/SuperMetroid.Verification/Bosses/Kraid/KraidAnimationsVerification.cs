@@ -468,7 +468,7 @@ internal static class KraidAnimationsVerification
         random = 16;
         enemies.KraidBehavior.Rise.RequestKraidRisingRock(source);
         random = 2;
-        enemies.KagoBehavior.SpawnKagoBug(source);
+        enemies.KagoBehavior.SpawnKagoBug(source.HeldOccupant(), source);
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KagoBug),
             "the real Kago producer allocates its bug");
         foreach ((RoomEnemyProjectileKind kind, KraidRockSegment program) in new[]

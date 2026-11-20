@@ -74,7 +74,7 @@ internal static class YappingMawRetractionHoldVerification
         place.Position = place.Position.WithWhole(new(128, 128));
         place.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 301);
         place.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, reachParameter);
-        enemies.YappingMawBehavior.InitializeYappingMaw(place);
+        enemies.YappingMawBehavior.InitializeYappingMaw(place.HeldOccupant(), place);
         YappingMawEnemyState state = enemies.YappingMawStates[0] ?? throw new InvalidOperationException("Yapping Maw has no state.");
         return new NewInitializedYappingMawResult(enemies, place, state);
     }

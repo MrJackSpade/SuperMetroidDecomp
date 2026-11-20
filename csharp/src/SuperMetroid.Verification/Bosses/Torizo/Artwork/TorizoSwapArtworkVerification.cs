@@ -138,7 +138,7 @@ internal static class TorizoSwapArtworkVerification
 
     /// <summary>Shows artwork look <paramref name="look"/> through the production cue of <paramref name="torizo"/>, whose programs make it.</summary>
     private static void ShowTorizoArtwork(RoomEnemySystem enemies, RoomEnemyPlace place, EncounterArtwork torizo, TorizoArtworkLook look) =>
-        AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(place,
+        AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(place.HeldOccupant(), place,
                 new TorizoEnemyState(torizo == EncounterArtwork.GoldenTorizo ? TorizoVariant.Golden : TorizoVariant.Bomb),
                 new TorizoCueInputs { Torizo = LivingTorizo.Instance, Samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), Level = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ControllerInput = 0, FrameCounter = 0 },
                 new TorizoCue.ShowArtwork(look),

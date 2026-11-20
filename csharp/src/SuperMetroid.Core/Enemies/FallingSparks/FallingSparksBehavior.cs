@@ -29,9 +29,9 @@ internal sealed class FallingSparksBehavior
     }
 
     /// <summary>Allocates and initializes a falling spark projectile.</summary>
-    internal void SpawnFallingSpark(RoomEnemyPlace source)
+    internal void SpawnFallingSpark(RoomEnemyOccupant occupant, RoomEnemyPlace source)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FallingSpark, Spark, SpriteGraphics.SpawnedBy(source));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FallingSpark, Spark, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 

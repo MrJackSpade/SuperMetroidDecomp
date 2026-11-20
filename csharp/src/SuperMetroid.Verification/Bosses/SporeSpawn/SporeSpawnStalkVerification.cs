@@ -28,7 +28,7 @@ internal static class SporeSpawnStalkVerification
         body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
-        enemies.SporeSpawnBehavior.InitializeSporeSpawn(body);
+        enemies.SporeSpawnBehavior.InitializeSporeSpawn(body.HeldOccupant(), body);
         SporeSpawnEnemyState state = body.RequireSpeciesState<SporeSpawnEnemyState>();
 
         AssertEqual(4, state.StalkLinks.Count, "Spore Spawn's stalk has four links");

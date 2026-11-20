@@ -78,7 +78,7 @@ internal static class BotwoonAnimationsVerification
     {
         HeadUpdateInputs inputs = HeadUpdateInputs.Standalone();
         Action<RoomEnemyPlace, BotwoonEnemyState> animateHead = BotwoonBehavior.AnimateBotwoonHeadFromMovement;
-        Action<RoomEnemySystem, RoomEnemyPlace, BotwoonEnemyState, SamusState> aimHead = (owner, a0, a1, a2) => owner.BotwoonBehavior.AimBotwoonAtSamus(a0, a1, a2);
+        Action<RoomEnemySystem, RoomEnemyPlace, BotwoonEnemyState, SamusState> aimHead = (owner, a0, a1, a2) => owner.BotwoonBehavior.AimBotwoonAtSamus(a0.HeldOccupant(), a0, a1, a2);
         OctantVector[] octantVectors =
             [new OctantVector(0, -100), new OctantVector(100, -100), new OctantVector(100, 0), new OctantVector(100, 100), new OctantVector(0, 100), new OctantVector(-100, 100), new OctantVector(-100, 0), new OctantVector(-100, -100)];
         // The direction each vector points, as the cartridge's octant lists number them clockwise from up.
@@ -169,7 +169,7 @@ internal static class BotwoonAnimationsVerification
                 $"segment selector ${selector:X2}");
         }
 
-        Action<RoomEnemyPlace, byte, ushort> spawnSpit = (head, angle, speed) => enemies.BotwoonBehavior.SpawnBotwoonSpit(head, new TrigonometryAngle(angle), speed);
+        Action<RoomEnemyPlace, byte, ushort> spawnSpit = (head, angle, speed) => enemies.BotwoonBehavior.SpawnBotwoonSpit(head.HeldOccupant(), head, new TrigonometryAngle(angle), speed);
         spawnSpit(enemies.Places.InUpdateOrder[0], 0x40, 0x0180);
         EnemyProjectile spit = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonSpit);
         AssertTrue(spit.Animation is BotwoonSpitAnimation, "the real spit producer starts the typed spit animation");
@@ -198,7 +198,7 @@ internal static class BotwoonAnimationsVerification
             segment.PresentationOperandAddress, "the restarted segment shows its first frame");
 
         // Landing hands the segment to the shared native big-explosion list.
-        Func<RoomEnemyPlace, int, BotwoonSegmentState> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
+        Func<RoomEnemyPlace, int, BotwoonSegmentState> spawnBody = (head, segment) => enemies.BotwoonBehavior.SpawnBotwoonBodySegment(head.HeldOccupant(), head, segment);
         Action<EnemyProjectile, int> runBody = enemies.BotwoonBehavior.MoveBotwoonBodySegment;
         BotwoonSegmentState spawned = spawnBody(head, 1);
         EnemyProjectile body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);

@@ -76,17 +76,17 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         {
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnBombTorizoChozoOrb),
-                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoChozoOrb(torizo),
+                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoChozoOrb(torizo.HeldOccupant(), torizo),
                 facingRight,
                 TorizoRandomizedProjectileDefinitions.BombChozoOrb.Toward(facingRight ? HorizontalDirection.Right : HorizontalDirection.Left));
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoChozoOrb),
-                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoChozoOrb(torizo),
+                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoChozoOrb(torizo.HeldOccupant(), torizo),
                 facingRight,
                 TorizoRandomizedProjectileDefinitions.GoldenChozoOrb.Toward(facingRight ? HorizontalDirection.Right : HorizontalDirection.Left));
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoEgg),
-                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEgg(torizo),
+                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEgg(torizo.HeldOccupant(), torizo),
                 facingRight,
                 TorizoRandomizedProjectileDefinitions.GoldenEgg.Toward(facingRight ? HorizontalDirection.Right : HorizontalDirection.Left));
             VerifyGoldenEyeBeamSpawn(facingRight);
@@ -113,7 +113,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
         torizo.BindTorizoFixtureState(facingRight ? 0x8000 : 0);
 
-        enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo);
+        enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo.HeldOccupant(), torizo);
 
         EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17);
         Offset16<RoomPixels> muzzle = facingRight ? TorizoProjectilePlacementDefinitions.EyeBeamMuzzle : TorizoProjectilePlacementDefinitions.EyeBeamMuzzle.MirroredX();

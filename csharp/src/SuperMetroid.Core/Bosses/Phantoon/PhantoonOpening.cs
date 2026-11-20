@@ -109,7 +109,7 @@ internal sealed class PhantoonOpening
     internal bool SpawnPhantoonStartingFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
     {
         RoomEnemyPlace body = phantoon.Body;
-        EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PhantoonStartingFlame, _combat.StartingFlame, SpriteGraphics.SpawnedBy(body));
+        EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PhantoonStartingFlame, _combat.StartingFlame, SpriteGraphics.SpawnedBy(phantoon.BodyOccupant, body.Shading));
         if (flame is null)
             return false;
 

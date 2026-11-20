@@ -57,7 +57,7 @@ internal static class PhantoonFlameSpawnsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             PhantoonPatterns patterns = enemies.PhantoonBehavior.Patterns;
             var body = enemies.Places.InUpdateOrder[0];
-            var phantoon = new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+            var phantoon = new PhantoonEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
             body.Position = body.Position.WithWhole(new(origin, origin));
             PhantoonFlameSpawnType type = PhantoonNativeWords.FlameSpawnTypes.Decode(
                 LittleEndianBytes.HighByte(parameter), "Phantoon flame spawn type");
@@ -66,9 +66,9 @@ internal static class PhantoonFlameSpawnsVerification
             // spiral flame's start angle, or a rain flame's column in its low nibble and fall delay over eight above it.
             bool spawned = type switch
             {
-                PhantoonFlameSpawnType.Casual => patterns.SpawnPhantoonCasualFlame(body),
+                PhantoonFlameSpawnType.Casual => patterns.SpawnPhantoonCasualFlame(body.HeldOccupant(), body),
                 PhantoonFlameSpawnType.Enraged => patterns.SpawnPhantoonRageFlame(phantoon, RageStart(rom, index)),
-                PhantoonFlameSpawnType.Rain => patterns.SpawnPhantoonRainFlame(body, PhantoonFlameSpawns.RainXs[index & 15], (index & 240) >> 1),
+                PhantoonFlameSpawnType.Rain => patterns.SpawnPhantoonRainFlame(body.HeldOccupant(), body, PhantoonFlameSpawns.RainXs[index & 15], (index & 240) >> 1),
                 PhantoonFlameSpawnType.Spiral => patterns.SpawnPhantoonSpiralFlame(phantoon, new TrigonometryAngle(rom.ReadCartridgeByte(SpiralAngleTable + index))),
                 _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {type}."),
             };

@@ -34,9 +34,9 @@ internal static class DragonFireballBehaviorVerification
         DragonEnemyState state = enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires the Dragon's state.");
 
         state.Facing = HorizontalDirection.Left;
-        enemies.DragonBehavior.SpawnDragonFireball(body, state);
+        enemies.DragonBehavior.SpawnDragonFireball(body.HeldOccupant(), body, state);
         state.Facing = HorizontalDirection.Right;
-        enemies.DragonBehavior.SpawnDragonFireball(body, state);
+        enemies.DragonBehavior.SpawnDragonFireball(body.HeldOccupant(), body, state);
         EnemyProjectile left = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.DragonFireball && projectile.Velocity.X.InTwoHundredFiftySixthsOfPixel < 0);
         EnemyProjectile right = enemies.Projectiles.EnemyProjectiles.Single(

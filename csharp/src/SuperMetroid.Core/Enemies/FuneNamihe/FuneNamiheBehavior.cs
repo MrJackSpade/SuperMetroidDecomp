@@ -35,11 +35,11 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Fune's and Namihe's animations: the spit sound, a fireball, or finishing the spit.</summary>
-    private FuneNamiheSegment? ApplyFuneNamiheCue(RoomEnemyPlace place, FuneNamiheEnemyState state, FuneNamiheCue cue)
+    private FuneNamiheSegment? ApplyFuneNamiheCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, FuneNamiheEnemyState state, FuneNamiheCue cue)
     {
         if (cue is FuneNamiheCue.Fire fire)
         {
-            SpawnFuneNamiheFireball(place, state, fire.Direction, state.Fireball);
+            SpawnFuneNamiheFireball(occupant, place, state, fire.Direction, state.Fireball);
             return null;
         }
         FuneNamiheCueKind kind = ((FuneNamiheCue.Signal)cue).Kind;
@@ -156,10 +156,10 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyFuneNamiheFireball(context.Projectile, context.Camera));
 
     /// <summary>Advances a Fune's or Namihe's typed animation, whose state is a <typeparamref name="TState"/>.</summary>
-    internal void AdvanceFuneNamiheTypedAnimation<TState>(RoomEnemyPlace place) where TState : FuneNamiheEnemyState =>
+    internal void AdvanceFuneNamiheTypedAnimation<TState>(RoomEnemyOccupant occupant, RoomEnemyPlace place) where TState : FuneNamiheEnemyState =>
         EnemyAnimationPlayback.Advance(place, FuneNamiheAnimations.Segments,
             static (TState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyFuneNamiheCue(place, state, cue) is { } target
+            (state, cue) => ApplyFuneNamiheCue(occupant, place, state, cue) is { } target
                 ? new AnimationContinuation<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 
@@ -168,12 +168,12 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// from its mouth (<see cref="FuneNamiheEnemyState.MouthDrop"/>).
     /// </summary>
     internal void SpawnFuneNamiheFireball(
-        RoomEnemyPlace source,
+        RoomEnemyOccupant occupant, RoomEnemyPlace source,
         FuneNamiheEnemyState state,
         HorizontalDirection direction,
         RoomEnemyProjectileKind kind)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, Fireball, SpriteGraphics.SpawnedBy(source));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, Fireball, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 

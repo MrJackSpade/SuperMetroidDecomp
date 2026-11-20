@@ -474,7 +474,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             EnemyDefinitionId spawner = BurstSpawner(program);
             bool skree = spawner == EnemyDefinitionId.Skree;
             RoomEnemySystem enemies = BurstSystem(artwork, spawner);
-            Action<RoomEnemyPlace> spawn = place => SuperMetroid.Core.Enemies.Skree.SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, place,
+            Action<RoomEnemyPlace> spawn = place => SuperMetroid.Core.Enemies.Skree.SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, place.HeldOccupant(), place,
                 skree ? SkreeMetareeParticleSegment.Skree : SkreeMetareeParticleSegment.Metaree);
             // The burst's spawner binds through the system's own registry, which owns its species (#2010).
             RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[0];

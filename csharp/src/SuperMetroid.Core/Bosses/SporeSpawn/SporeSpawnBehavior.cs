@@ -64,7 +64,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
     /// <summary>Sets Spore Spawn up when the room spawns it; his body holds his encounter from here on (#2231).</summary>
-    internal void InitializeSporeSpawn(RoomEnemyPlace body)
+    internal void InitializeSporeSpawn(RoomEnemyOccupant occupant, RoomEnemyPlace body)
     {
         var state = new SporeSpawnEnemyState
         {
@@ -79,7 +79,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Shading = state.Colours.Sprites;
 
         // He hangs from the ceiling by the stalk's links, the last he spawns highest (#1932).
-        state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => SpawnSporeSpawnStalk(body, segment)).Reverse()];
+        state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => SpawnSporeSpawnStalk(occupant, body, segment)).Reverse()];
 
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
@@ -97,7 +97,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _frameContext.RequestFullSweep();
         _cameraFloor.Hold(SporeSpawnArenaDefinitions.LowestCameraY);
         foreach (SporeSpawnEmitter emitter in SporeSpawnProjectileDefinitions.Emitters)
-            SpawnSporeSpawnSpawner(body, state, emitter);
+            SpawnSporeSpawnSpawner(occupant, body, state, emitter);
         UpdateSporeSpawnStalks(body, state);
     }
 
@@ -533,9 +533,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             samus: samus);
     /// <summary>Spawns the stalk link at <paramref name="segment"/> from his body and returns it (#1932).</summary>
     /// <exception cref="InvalidOperationException">No projectile place is free: he spawns his stalk into his room's empty places.</exception>
-    internal EnemyProjectile SpawnSporeSpawnStalk(RoomEnemyPlace body, Offset16<RoomPixels> segment)
+    internal EnemyProjectile SpawnSporeSpawnStalk(RoomEnemyOccupant occupant, RoomEnemyPlace body, Offset16<RoomPixels> segment)
     {
-        EnemyProjectile stalk = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnStalk, Stalk, SpriteGraphics.SpawnedBy(body)) ?? throw new InvalidOperationException(
+        EnemyProjectile stalk = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnStalk, Stalk, SpriteGraphics.SpawnedBy(occupant, body.Shading)) ?? throw new InvalidOperationException(
             "Spore Spawn's stalk found no free projectile place; he spawns it as his room loads, into its empty places.");
 
         stalk.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
@@ -544,9 +544,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Spawns the ceiling spore emitter at <paramref name="emitter"/> for <paramref name="state"/>'s fight and runs its setup.</summary>
-    internal void SpawnSporeSpawnSpawner(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnEmitter emitter)
+    internal void SpawnSporeSpawnSpawner(RoomEnemyOccupant occupant, RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnEmitter emitter)
     {
-        EnemyProjectile? spawner = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnSpawner, Spawner, SpriteGraphics.SpawnedBy(body));
+        EnemyProjectile? spawner = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnSpawner, Spawner, SpriteGraphics.SpawnedBy(occupant, body.Shading));
         if (spawner is null)
             return;
 

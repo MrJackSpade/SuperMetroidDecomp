@@ -40,7 +40,7 @@ internal static class PhantoonAnimationsVerification
         eye.Bind(EnemyDefinitionId.PhantoonEye, eye.Definition);
         tentacles.Bind(EnemyDefinitionId.PhantoonTentacles, tentacles.Definition);
         mouth.Bind(EnemyDefinitionId.PhantoonMouth, mouth.Definition);
-        enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body, eye, tentacles, mouth));
+        enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body.HeldOccupant(), body, eye, tentacles, mouth));
         return enemies;
     }
 
@@ -211,7 +211,7 @@ internal static class PhantoonAnimationsVerification
         AssertStarted(starting.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PhantoonStartingFlame),
             PhantoonFlameSegment.StartingFlame, "starting flame");
         RoomEnemySystem casual = NewFlameSystem();
-        AssertStarted(SpawnDestroyable(casual, (patterns, phantoon) => patterns.SpawnPhantoonCasualFlame(phantoon.Body), "casual"), PhantoonFlameSegment.CasualFallingKindling, "casual flame");
+        AssertStarted(SpawnDestroyable(casual, (patterns, phantoon) => patterns.SpawnPhantoonCasualFlame(phantoon.Body.HeldOccupant(), phantoon.Body), "casual"), PhantoonFlameSegment.CasualFallingKindling, "casual flame");
         RoomEnemySystem rage = NewFlameSystem();
         AssertStarted(SpawnDestroyable(rage, SpawnRageFlame, "rage"), PhantoonFlameSegment.Burning, "rage flame");
     }

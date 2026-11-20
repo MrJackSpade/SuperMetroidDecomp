@@ -40,7 +40,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
                 Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
             };
             var state = new FakeKraidEnemyState();
-            enemies.FakeKraidBehavior.SpawnFakeKraidSpitPair(source, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
+            enemies.FakeKraidBehavior.SpawnFakeKraidSpitPair(source.HeldOccupant(), source, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
 
             EnemyProjectile[] spawned = enemies.Projectiles.EnemyProjectiles
                 .Where(projectile => projectile.IsActive)
@@ -75,7 +75,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
                 Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
             };
             var state = new FakeKraidEnemyState() { Facing = facing };
-            bool spawned = enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, row);
+            bool spawned = enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source.HeldOccupant(), source, state, row);
             AssertTrue(spawned, $"Fake Kraid spike row {row} allocated");
             EnemyProjectile spike = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.IsActive);

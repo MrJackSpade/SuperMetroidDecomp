@@ -39,11 +39,11 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Alcoon's animations: spitting a fireball, starting to walk, or taking a stride. Starting to
     /// walk always continues at the walk for the Alcoon's facing, and a stride that meets a wall turns it round to the other walk.
     /// </summary>
-    private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue)
+    private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue)
     {
         if (cue is AlcoonCue.Fire fire)
         {
-            SpawnAlcoonFireball(place, fire.Launch);
+            SpawnAlcoonFireball(occupant, place, fire.Launch);
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
             return null;
         }
@@ -378,15 +378,15 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Alcoon's typed animation.</summary>
-    internal void AdvanceAlcoonTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
+    internal void AdvanceAlcoonTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context) =>
         EnemyAnimationPlayback.Advance(place, AlcoonAnimations.Segments,
             static (AlcoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyAlcoonCue(place, state, context.Level, cue));
+            (state, cue) => ApplyAlcoonCue(occupant, place, state, context.Level, cue));
 
     /// <summary>Spits an Alcoon fireball with the vertical speed of <paramref name="launch"/>.</summary>
-    internal void SpawnAlcoonFireball(RoomEnemyPlace alcoon, AlcoonFireballLaunch launch)
+    internal void SpawnAlcoonFireball(RoomEnemyOccupant occupant, RoomEnemyPlace alcoon, AlcoonFireballLaunch launch)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.AlcoonFireball, Fireball, SpriteGraphics.SpawnedBy(alcoon));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.AlcoonFireball, Fireball, SpriteGraphics.SpawnedBy(occupant, alcoon.Shading));
         if (projectile is null)
             return;
 

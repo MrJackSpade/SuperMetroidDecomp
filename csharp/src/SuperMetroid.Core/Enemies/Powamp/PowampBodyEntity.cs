@@ -15,7 +15,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant
     public void Initialize() => species.InitializePowampBody(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Place, Place.RequireSpeciesState<PowampBodyState>(), frame.Level, frame.Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Occupant, Place, Place.RequireSpeciesState<PowampBodyState>(), frame.Level, frame.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBodyTypedAnimation(Place);
@@ -28,7 +28,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            species.ReactToPowampBodyTouch(context);
+            species.ReactToPowampBodyTouch(Occupant, context);
         else
             base.ReactToTouch(context);
     }

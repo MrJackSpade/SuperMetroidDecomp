@@ -38,12 +38,13 @@ public readonly record struct SpriteGraphics
     internal static SpriteGraphics SharedIn(PictureShading shading) => new(SpawnedObjectOwner.Shared, shading);
 
     /// <summary>
-    /// What <paramref name="spawner"/> hands the objects it spawns: its own spawned-object sheet, in the shading it shows
-    /// its pictures in now.
+    /// What <paramref name="spawner"/> hands the objects it spawns: its own spawned-object sheet, in
+    /// <paramref name="shading"/>, the shading it shows its pictures in now.
     /// </summary>
-    internal static SpriteGraphics SpawnedBy(RoomEnemyPlace spawner) =>
-        new(SpawnedObjectOwner.Of(Ensure.NotNull(spawner).Occupant?.DefinitionId
-            ?? throw new InvalidOperationException($"Enemy place {spawner.Ordinal} spawns while holding no enemy.")), spawner.Shading);
+    /// <param name="spawner">The enemy spawning the objects, whose identity names the sheet.</param>
+    /// <param name="shading">The shading the spawner shows its pictures in now.</param>
+    internal static SpriteGraphics SpawnedBy(RoomEnemyOccupant spawner, PictureShading shading) =>
+        new(SpawnedObjectOwner.Of(Ensure.NotNull(spawner).DefinitionId), shading);
 
     /// <summary>The same sheet under <paramref name="shading"/>.</summary>
     internal SpriteGraphics In(PictureShading shading) => this with { Shading = shading };

@@ -77,11 +77,11 @@ internal sealed class TorizoMovement
 
     /// <summary>Interrupts Bomb Torizo's fight at its gut and face health thresholds; otherwise its body moves by its motion.</summary>
     internal void RunBombTorizoActiveState(
-        RoomEnemyPlace torizo,
+        RoomEnemyOccupant occupant, RoomEnemyPlace torizo,
         TorizoEnemyState state,
         RoomLevelData level)
     {
-        _body.MaybeSpawnLowHealthDrool(torizo);
+        _body.MaybeSpawnLowHealthDrool(occupant, torizo);
 
         // Until its gut and face are blown up, which its death also does, health thresholds interrupt the current
         // authored animation with the core/head bursts.

@@ -42,7 +42,7 @@ internal static class FuneNamiheFireballBehaviorVerification
             {
                 foreach (EnemyProjectile candidate in enemies.Projectiles.EnemyProjectiles)
                     candidate.Delete();
-                enemies.FuneNamiheBehavior.SpawnFuneNamiheFireball(source, spitter, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, kind);
+                enemies.FuneNamiheBehavior.SpawnFuneNamiheFireball(source.HeldOccupant(), source, spitter, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, kind);
                 EnemyProjectile fireball = enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.Kind == kind);
                 FuneNamiheFireballSegment program = movingRight ? FuneNamiheFireballSegment.Right : FuneNamiheFireballSegment.Left;
                 AssertTrue(fireball.Animation is FuneNamiheFireballAnimation animation && animation.PlayingSegment == program,

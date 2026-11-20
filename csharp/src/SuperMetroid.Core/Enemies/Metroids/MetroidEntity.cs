@@ -9,10 +9,10 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant o
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeMetroid(Place);
+    public void Initialize() => species.InitializeMetroid(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMetroidTypedAnimation(Place, context);

@@ -63,7 +63,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         RoomEnemyPlace eye = enemies.Places.InUpdateOrder[1];
         RoomEnemyPlace tentacles = enemies.Places.InUpdateOrder[2];
-        var state = new PhantoonEnemyState(body, eye, tentacles, enemies.Places.InUpdateOrder[3]);
+        var state = new PhantoonEnemyState(body.HeldOccupant(), body, eye, tentacles, enemies.Places.InUpdateOrder[3]);
         enemies.BeginPhantoonAsSetUp(state);
         // His live colour handlers name the shades of his body and room and the typed fades between them (#1512, #2251);
         // the import pre-colours each settled colouring from the installed colours, which this compares with the catalog.

@@ -9,7 +9,7 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemyOccu
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeYappingMaw(Place);
+    public void Initialize() => species.InitializeYappingMaw(Occupant, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunYappingMawMainAi(Place, frame);

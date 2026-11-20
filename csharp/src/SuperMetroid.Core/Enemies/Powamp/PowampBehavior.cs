@@ -84,7 +84,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs every action of a Powamp's body; the balloon has none, its body moves it.</summary>
-    internal void RunPowampMain(RoomEnemyPlace place, PowampBodyState state, RoomLevelData level, SamusState samus)
+    internal void RunPowampMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, PowampBodyState state, RoomLevelData level, SamusState samus)
     {
         PowampBalloon balloon = BalloonOf(place);
         switch (state.Action)
@@ -120,7 +120,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                 BeginPowampDeathSequence(place, state, balloon);
                 return;
             case PowampAction.DeathSequence:
-                RunPowampDeathSequence(place, state, balloon, samus);
+                RunPowampDeathSequence(occupant, place, state, balloon, samus);
                 return;
             default:
                 throw new InvalidDataException(
@@ -312,7 +312,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Deletes the balloon after the death delay, emits spikes, then runs generic body death.</summary>
     private void RunPowampDeathSequence(
-        RoomEnemyPlace body,
+        RoomEnemyOccupant occupant, RoomEnemyPlace body,
         PowampBodyState state,
         PowampBalloon balloon,
         SamusState samus)
@@ -327,7 +327,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         // the projectile pool selects.
         balloon.Place.Health = 0;
         balloon.Place.Presence = balloon.Place.Presence.With(EnemyPresence.Deleted);
-        int? lastSpikePlace = SpawnPowampSpikeBurst(body, body.Shading);
+        int? lastSpikePlace = SpawnPowampSpikeBurst(occupant, body, body.Shading);
         _deathsAndDrops.StartGenericEnemyDeath(body, ExplosionAfterBurst(lastSpikePlace), samus);
     }
 
@@ -342,7 +342,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyDeathExplosionDefinitions.LeftoverNumbered.LeftByProjectilePlace(lastSpikePlace);
 
     /// <summary>Finishes a touch on a Powamp's body: when it kills the Powamp, its balloon goes and its spikes burst out.</summary>
-    private void ResolvePowampTouch(RoomEnemyPlace body, SamusState samus, PseudoScrewCharge pseudoScrew)
+    private void ResolvePowampTouch(RoomEnemyOccupant occupant, RoomEnemyPlace body, SamusState samus, PseudoScrewCharge pseudoScrew)
     {
         // The spikes take the body's colours from before the touch, which may change them.
         PictureShading lookBeforeTouch = body.Shading;
@@ -352,7 +352,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
         PowampBalloon balloon = BalloonOf(body);
         balloon.Place.Presence = balloon.Place.Presence.With(EnemyPresence.Deleted);
-        SpawnPowampSpikeBurst(body, lookBeforeTouch);
+        SpawnPowampSpikeBurst(occupant, body, lookBeforeTouch);
         body.Shading = EnemyShades.InProjectileLook;
     }
 
@@ -550,33 +550,34 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Applies touch behavior to the body before its fatal-shot state begins.</summary>
-    internal void ReactToPowampBodyTouch(EnemyTouchContext context)
+    internal void ReactToPowampBodyTouch(RoomEnemyOccupant occupant, EnemyTouchContext context)
     {
         if (!BodyRefusesContact(context.Place))
-            ResolvePowampTouch(context.Place, context.Samus, context.PseudoScrew);
+            ResolvePowampTouch(occupant, context.Place, context.Samus, context.PseudoScrew);
     }
 
     /// <summary>Applies the Powamp's touch to the balloon while it accepts contact.</summary>
-    internal void ReactToPowampBalloonTouch(EnemyTouchContext context)
+    internal void ReactToPowampBalloonTouch(RoomEnemyOccupant occupant, EnemyTouchContext context)
     {
         // A balloon that refuses contact ignores Samus's touch.
         if (!PlacementRefusesContact(context.Place))
-            ResolvePowampTouch(context.Place, context.Samus, context.PseudoScrew);
+            ResolvePowampTouch(occupant, context.Place, context.Samus, context.PseudoScrew);
     }
     /// <summary>Fires the Powamp's spikes in eight directions, drawn in <paramref name="look"/>.</summary>
+    /// <param name="occupant">The enemy holding <paramref name="body"/>.</param>
     /// <param name="body">The Powamp firing them.</param>
     /// <param name="look">The colours the spikes are drawn in.</param>
     /// <returns>
     /// The projectile pool place of the last spike the burst fired, which selects a shot Powamp's explosion
     /// (<see cref="ExplosionAfterBurst"/>), or null when the pool was full before all eight had fired.
     /// </returns>
-    internal int? SpawnPowampSpikeBurst(RoomEnemyPlace body, PictureShading look)
+    internal int? SpawnPowampSpikeBurst(RoomEnemyOccupant occupant, RoomEnemyPlace body, PictureShading look)
     {
         int? lastSpikePlace = null;
         // The spikes fire in their authored order, each taking the last free enemy-projectile place afresh.
         foreach (CompassDirection direction in PowampMotionDefinitions.SpikeFiringOrder)
         {
-            EnemyProjectile? spike = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PowampSpike, Spike, SpriteGraphics.SpawnedBy(body).In(look));
+            EnemyProjectile? spike = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PowampSpike, Spike, SpriteGraphics.SpawnedBy(occupant, body.Shading).In(look));
             if (spike is null)
                 return null;
 

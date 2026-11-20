@@ -32,7 +32,7 @@ internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccup
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            species.ReactToPowampBalloonTouch(context);
+            species.ReactToPowampBalloonTouch(Occupant, context);
         else
             base.ReactToTouch(context);
     }

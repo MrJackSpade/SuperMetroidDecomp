@@ -62,7 +62,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the main step.</summary>
-    private void RunSparkMain(RoomEnemyPlace place, SparkEnemyState state)
+    private void RunSparkMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SparkEnemyState state)
     {
         switch (state.Action)
         {
@@ -91,7 +91,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!DecrementSparkTimerAndTestExpired(state))
                     return;
 
-                _fallingSparksBehavior.SpawnFallingSpark(place);
+                _fallingSparksBehavior.SpawnFallingSpark(occupant, place);
                 SetSparkActionTimer(place, state, additionalTime: 0);
                 return;
 
@@ -121,9 +121,9 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Spark's main AI.</summary>
-    internal void RunSparkMainAi(RoomEnemyPlace place, IEnemyAiFrame _)
+    internal void RunSparkMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame _)
     {
-        RunSparkMain(place, place.RequireSpeciesState<SparkEnemyState>());
+        RunSparkMain(occupant, place, place.RequireSpeciesState<SparkEnemyState>());
     }
 
     /// <summary>Advances Spark's typed animation.</summary>

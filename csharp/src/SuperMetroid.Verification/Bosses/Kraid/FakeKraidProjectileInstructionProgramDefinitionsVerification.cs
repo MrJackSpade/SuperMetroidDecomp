@@ -48,14 +48,14 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         };
         var state = new FakeKraidEnemyState();
 
-        enemies.FakeKraidBehavior.SpawnFakeKraidSpit(source, 12, new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(384), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-512)));
+        enemies.FakeKraidBehavior.SpawnFakeKraidSpit(source.HeldOccupant(), source, 12, new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(384), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-512)));
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.FakeKraidSpit),
             "real Fake Kraid spit producer allocates its projectile in the enemy projectile pool");
         state.Facing = HorizontalDirection.Left;
-        AssertTrue(enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, FakeKraidSpikeRow.Top),
+        AssertTrue(enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source.HeldOccupant(), source, state, FakeKraidSpikeRow.Top),
             "real Fake Kraid left-spike producer allocates its projectile");
         state.Facing = HorizontalDirection.Right;
-        AssertTrue(enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, FakeKraidSpikeRow.Middle),
+        AssertTrue(enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source.HeldOccupant(), source, state, FakeKraidSpikeRow.Middle),
             "real Fake Kraid right-spike producer allocates its projectile");
 
         var cases = new[]

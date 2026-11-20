@@ -496,7 +496,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Every cue runs on to the next step, so none redirects.
     /// </summary>
     private void ApplyMagdolliteCue(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, RoomEnemyPlace place,
         MagdollitePartState state,
         MagdolliteCue cue,
         Position16<RoomPixels> camera)
@@ -557,7 +557,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             }
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SpawnLava }:
-                SpawnMagdolliteLava(place, place.RequireSpeciesState<MagdolliteOverlayState>().ThrowDirection);
+                SpawnMagdolliteLava(occupant, place, place.RequireSpeciesState<MagdolliteOverlayState>().ThrowDirection);
                 break;
             case MagdolliteCue.ShiftFromThrowOrigin shift:
                 place.Position = place.Position.WithWhole(place.RequireSpeciesState<MagdolliteOverlayState>().ThrowOrigin + shift.Offset);
@@ -646,13 +646,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances the typed animation of the Magdollite part whose state is a <typeparamref name="TState"/>.</summary>
-    internal void AdvanceMagdolliteTypedAnimation<TState>(RoomEnemyPlace place, EnemyAnimationCueContext context)
+    internal void AdvanceMagdolliteTypedAnimation<TState>(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context)
         where TState : MagdollitePartState =>
         EnemyAnimationPlayback.Advance(place, MagdolliteAnimations.Segments,
             static (TState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
-                ApplyMagdolliteCue(place, state, cue, context.Camera);
+                ApplyMagdolliteCue(occupant, place, state, cue, context.Camera);
                 return null;
             });
 
@@ -680,9 +680,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Position.X.Whole < part.Position.X.Whole ? HorizontalDirection.Left : HorizontalDirection.Right;
 
     /// <summary>Spawns and initializes a Magdollite lava ball thrown <paramref name="thrown"/>.</summary>
-    internal void SpawnMagdolliteLava(RoomEnemyPlace source, HorizontalDirection thrown)
+    internal void SpawnMagdolliteLava(RoomEnemyOccupant occupant, RoomEnemyPlace source, HorizontalDirection thrown)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.LavaThrownByMagdollite, Lava, SpriteGraphics.SpawnedBy(source));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.LavaThrownByMagdollite, Lava, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 

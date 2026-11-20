@@ -188,14 +188,14 @@ internal static class LookupStream5Verification
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
             var body = system.Places.InUpdateOrder[0];
             var eye = system.Places.InUpdateOrder[1];
-            var state = new PhantoonEnemyState(body, eye, system.Places.InUpdateOrder[2], system.Places.InUpdateOrder[3]);
+            var state = new PhantoonEnemyState(body.HeldOccupant(), body, eye, system.Places.InUpdateOrder[2], system.Places.InUpdateOrder[3]);
             system.BeginPhantoonAsSetUp(state);
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => (ushort)(++randomCalls == 1 ? bucket : nextPattern);
             // The fade writes Phantoon's palette rows toward its installed fade colors.
             system.BossArtwork = InstalledFixtures.BossArtwork;
             Action<PhantoonEnemyState> fade = system.PhantoonBehavior.Patterns.RunPhantoonFlameRainFadeOut;
-            Action<RoomEnemyPlace, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain;
+            Action<RoomEnemyPlace, PhantoonEnemyState> tick = (phantoon, encounter) => system.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain(phantoon.HeldOccupant(), phantoon, encounter);
             body.Position = body.Position.WithWhole(new(111, 99)); state.FigureEight.PathPlace = PhantoonPath.At(42); state.PhaseWait.LastFor(17);
             state.Phase = PhantoonPhase.FadeOutDuringFlameRain;
             // He fades out of the colouring the fight shows him in (#1512), his health band's.
@@ -249,7 +249,7 @@ internal static class LookupStream5Verification
             var body = system.Places.InUpdateOrder[0];
             var eye = system.Places.InUpdateOrder[1];
             var mouth = system.Places.InUpdateOrder[3];
-            var state = new PhantoonEnemyState(body, eye, system.Places.InUpdateOrder[2], mouth);
+            var state = new PhantoonEnemyState(body.HeldOccupant(), body, eye, system.Places.InUpdateOrder[2], mouth);
             system.BeginPhantoonAsSetUp(state);
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => { randomCalls++; return (ushort)(reversed ? 1 : 0); };
@@ -363,7 +363,7 @@ internal static class LookupStream5Verification
             var body = system.Places.InUpdateOrder[0];
             var eye = system.Places.InUpdateOrder[1];
             var tentacles = system.Places.InUpdateOrder[2];
-            var state = new PhantoonEnemyState(body, eye, tentacles, system.Places.InUpdateOrder[3]);
+            var state = new PhantoonEnemyState(body.HeldOccupant(), body, eye, tentacles, system.Places.InUpdateOrder[3]);
             system.BeginPhantoonAsSetUp(state);
             system.VerificationServices().NextRandom = () => (ushort)bucket;
             Action<PhantoonEnemyState> open = system.PhantoonBehavior.BeginPhantoonEyeTracking;
@@ -964,7 +964,7 @@ internal static class LookupStream5Verification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Marker reference ROM revision");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var body = enemies.Places.InUpdateOrder[0];
-        var state = new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+        var state = new PhantoonEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
         Action<RoomEnemyPlace, PhantoonEnemyState, ushort, int> shot = (shotPlace, shotPhantoon, shotType, shotDamage) =>
             enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(shotPlace, shotPhantoon, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(shotType), shotDamage);
         ushort random = 0;
@@ -1276,11 +1276,11 @@ internal static class LookupStream5Verification
             enemies.VerificationServices().NextRandom = () => { calls++; return random; };
             var body = enemies.Places.InUpdateOrder[0];
             var eye = enemies.Places.InUpdateOrder[1];
-            var state = new PhantoonEnemyState(body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+            var state = new PhantoonEnemyState(body.HeldOccupant(), body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
             enemies.BeginPhantoonAsSetUp(state);
             state.PhaseWait.LastFor(1);
             state.FigureEight.Direction = PhantoonPathDirection.Backwards;
-            new Action<RoomEnemyPlace, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain)(body, state);
+            enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain(body.HeldOccupant(), body, state);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), state.FigureEight.PathPlace.Place, "Real rain cursor handoff");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + pattern * 8)), body.Position.X.Whole, "Real rain body placement X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + pattern * 8)), body.Position.Y.Whole, "Real rain body placement Y");
@@ -1305,7 +1305,7 @@ internal static class LookupStream5Verification
         Action<RoomEnemyPlace, PhantoonEnemyState, SamusState> pointEye = PhantoonPatterns.PointPhantoonEyeAtSamus;
         RoomEnemyPlace eyeBody = eyeEnemies.Places.InUpdateOrder[0];
         RoomEnemyPlace trackingEye = eyeEnemies.Places.InUpdateOrder[1];
-        var eyeState = new PhantoonEnemyState(eyeBody, trackingEye, eyeEnemies.Places.InUpdateOrder[2], eyeEnemies.Places.InUpdateOrder[3]);
+        var eyeState = new PhantoonEnemyState(eyeBody.HeldOccupant(), eyeBody, trackingEye, eyeEnemies.Places.InUpdateOrder[2], eyeEnemies.Places.InUpdateOrder[3]);
         eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
         foreach ((short x, short y, CompassDirection direction, _) in eyeTargets)
         {

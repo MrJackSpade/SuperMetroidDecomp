@@ -22,7 +22,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
         ushort random = 0;
         int advances = 0;
         enemies.VerificationServices().NextRandom = () => { advances++; return random; };
-        Action<RoomEnemyPlace> spawn = enemies.FallingSparksBehavior.SpawnFallingSpark;
+        Action<RoomEnemyPlace> spawn = spark => enemies.FallingSparksBehavior.SpawnFallingSpark(spark.HeldOccupant(), spark);
         Action<EnemyProjectile> move = FallingSparksBehavior.AddFallingSparkHorizontalVelocity;
         var source = enemies.Places.InUpdateOrder[0];
         var projectile = enemies.Projectiles.ProjectileInPlace(17);

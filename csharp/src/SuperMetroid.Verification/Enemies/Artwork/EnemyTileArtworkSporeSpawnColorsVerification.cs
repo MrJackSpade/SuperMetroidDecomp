@@ -67,7 +67,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
-        enemies.SporeSpawnBehavior.InitializeSporeSpawn(body);
+        enemies.SporeSpawnBehavior.InitializeSporeSpawn(body.HeldOccupant(), body);
         SporeSpawnEnemyState state = body.RequireSpeciesState<SporeSpawnEnemyState>();
         // His live colour handlers name shades of his sprites and room (#1512); the import pre-colours each from the
         // installed colours.

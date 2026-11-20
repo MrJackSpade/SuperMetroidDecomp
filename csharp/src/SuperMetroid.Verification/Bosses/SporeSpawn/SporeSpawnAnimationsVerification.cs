@@ -143,7 +143,7 @@ internal static class SporeSpawnAnimationsVerification
             if (program is SporeSpawnProjectileSegment.SpawnerClosed or SporeSpawnProjectileSegment.SpawnerRelease)
             {
                 projectile.Delete();
-                enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(enemies.Places.InUpdateOrder[0], sporeSpawn, new(new(128, 256), HorizontalDirection.Right));
+                enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(enemies.Places.InUpdateOrder[0].HeldOccupant(), enemies.Places.InUpdateOrder[0], sporeSpawn, new(new(128, 256), HorizontalDirection.Right));
                 projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.SporeSpawnSpawner);
             }
             projectile.StartAnimation(new SporeSpawnProjectileAnimation(program));

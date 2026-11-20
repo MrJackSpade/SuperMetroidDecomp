@@ -81,10 +81,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Sets Phantoon's body up when the room spawns it: it begins the encounter with his eye, tentacles and mouth, which
     /// his room lists right after his body (#2252), and holds its part of it.
     /// </summary>
-    internal void InitializePhantoonBody(RoomEnemyPlace body)
+    internal void InitializePhantoonBody(RoomEnemyOccupant occupant, RoomEnemyPlace body)
     {
         RoomEnemyPlace[] parts = _places.ListedRunAfter(body, PhantoonPartListingDefinitions.PartsAfterBody);
-        var state = new PhantoonEnemyState(body, eye: parts[0], tentacles: parts[1], mouth: parts[2]);
+        var state = new PhantoonEnemyState(occupant, body, eye: parts[0], tentacles: parts[1], mouth: parts[2]);
         // The room steps his body wave and visibility and its display latches them from the room from here (#2194).
         _encounters.Attach(state);
 
@@ -221,10 +221,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 Patterns.RunPhantoonFlameRainFadeOut(state);
                 break;
             case PhantoonPhase.SpawnFlameRain:
-                Patterns.RunPhantoonHiddenFlameRain(body, state);
+                Patterns.RunPhantoonHiddenFlameRain(state.BodyOccupant, body, state);
                 break;
             case PhantoonPhase.FadeOutBeforeFirstFlameRain:
-                Patterns.RunPhantoonInitialFlameRain(body, state);
+                Patterns.RunPhantoonInitialFlameRain(state.BodyOccupant, body, state);
                 break;
             case PhantoonPhase.FadeOutBeforeRage:
                 Patterns.RunPhantoonFadeOutBeforeRage(state);
@@ -350,7 +350,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case PhantoonPartCue.SpawnCasualFlame:
-                Patterns.SpawnPhantoonCasualFlame(state.Body);
+                Patterns.SpawnPhantoonCasualFlame(state.BodyOccupant, state.Body);
                 _audio.QueueEnemySound(PhantoonSoundDefinitions.CasualFlame, PhantoonSoundDefinitions.CasualFlamePriority);
                 return;
 

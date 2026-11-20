@@ -89,7 +89,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfter(place, distance), DragonPartListingDefinitions.FollowUpReach)[0]);
 
     /// <summary>Runs the Dragon body's actions; the body moves its cosmetic wing with it.</summary>
-    internal void RunDragonMain(RoomEnemyPlace place, DragonEnemyState state, SamusState samus)
+    internal void RunDragonMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, DragonEnemyState state, SamusState samus)
     {
         switch (state.Action)
         {
@@ -102,7 +102,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case DragonAction.Attacking or DragonAction.AttackFinished or DragonAction.RestartingAttack:
-                RunDragonAttacking(place, state);
+                RunDragonAttacking(occupant, place, state);
                 return;
 
             case DragonAction.WaitToSink:
@@ -161,7 +161,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// while the attack rests on its last pose, and the update after that starts the attack over (#2145, #2476).
     /// </summary>
     /// <exception cref="InvalidOperationException">The body is in none of the attack's phases.</exception>
-    internal void RunDragonAttacking(RoomEnemyPlace body, DragonEnemyState bodyState)
+    internal void RunDragonAttacking(RoomEnemyOccupant occupant, RoomEnemyPlace body, DragonEnemyState bodyState)
     {
         // The attack faces the way the body turned before rising.
         Animation<DragonSegment> attack = DragonAnimations.StartingWith(DragonPhases.Attacking(bodyState.Facing));
@@ -177,7 +177,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case DragonAction.AttackFinished:
-                SpawnDragonFireball(body, bodyState);
+                SpawnDragonFireball(occupant, body, bodyState);
                 // Each fireball queues one sound; two Dragons attacking in one frame queue two.
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.DragonFireballSound, priority: SoundRequestPriority.Normal);
                 if (--bodyState.AttackCounter != 0)
@@ -303,9 +303,9 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Spawns and initializes a Dragon fireball.</summary>
-    internal void SpawnDragonFireball(RoomEnemyPlace body, DragonEnemyState bodyState)
+    internal void SpawnDragonFireball(RoomEnemyOccupant occupant, RoomEnemyPlace body, DragonEnemyState bodyState)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DragonFireball, Fireball, SpriteGraphics.SpawnedBy(body));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DragonFireball, Fireball, SpriteGraphics.SpawnedBy(occupant, body.Shading));
         if (projectile is null)
             return;
 

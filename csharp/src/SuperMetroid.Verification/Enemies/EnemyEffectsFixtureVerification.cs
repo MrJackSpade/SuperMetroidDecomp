@@ -52,7 +52,7 @@ internal static class EnemyEffectsFixtureVerification
         {
             if (art is not null)
                 Enemies.BossArtwork = new BossSourceArtwork { CrocomireMelting = art };
-            Actor = new CrocomireEnemyState(Enemies.Places.InUpdateOrder[0]);
+            Actor = new CrocomireEnemyState(Enemies.Places.InUpdateOrder[0].HeldOccupant(), Enemies.Places.InUpdateOrder[0]);
             Enemies.Places.InUpdateOrder[1].SetSpeciesState(new CrocomireTongueState(Actor));
             Actor.JoinTongue(Enemies.Places.InUpdateOrder[1]);
             Actor.Body.Position = Actor.Body.Position.WithWhole(new(400, 144));

@@ -29,8 +29,8 @@ internal static class KiHunterAcidSpitBehaviorVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
         };
-        enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, HorizontalDirection.Left);
-        enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, HorizontalDirection.Right);
+        enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body.HeldOccupant(), body, HorizontalDirection.Left);
+        enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body.HeldOccupant(), body, HorizontalDirection.Right);
         // Both ways' acid is one kind, its velocity its way (#2278).
         EnemyProjectile left = Find(HorizontalDirection.Left);
         EnemyProjectile right = Find(HorizontalDirection.Right);

@@ -11,7 +11,7 @@ internal sealed class BombTorizoEntity(TorizoBehavior species, RoomEnemyOccupant
     : TorizoEntity(species, occupant, place, common)
 {
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunBombTorizoMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunBombTorizoMainAi(Occupant, Place, frame);
 
     /// <summary>He is Crateria's Bomb Torizo.</summary>
     protected override TorizoVariant Variant => TorizoVariant.Bomb;
@@ -22,7 +22,7 @@ internal sealed class BombTorizoEntity(TorizoBehavior species, RoomEnemyOccupant
     /// <inheritdoc/>
     public override bool RunHurt(RoomEnemyFrame frame)
     {
-        Species.Combat.ApplyBombTorizoHurt(Place);
+        Species.Combat.ApplyBombTorizoHurt(Occupant, Place);
         return true;
     }
 

@@ -60,10 +60,10 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Sets Crocomire up when the room spawns it.</summary>
-    internal void InitializeCrocomire(RoomEnemyPlace place)
+    internal void InitializeCrocomire(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         _roomStatus.Boss = AreaBoss.Crocomire;
-        var state = new CrocomireEnemyState(place);
+        var state = new CrocomireEnemyState(occupant, place);
         place.SetSpeciesState(state);
         // The room's shaking main and his melt's display read him from the room from here (#2194); his parts each hold
         // the encounter from their own setup.

@@ -58,14 +58,14 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Yapping Maw.</summary>
-    internal void InitializeYappingMaw(RoomEnemyPlace place)
+    internal void InitializeYappingMaw(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         // The body links are spawned mouth end first, link 3 down to link 0, so each takes the projectile place the pool
         // gives it in that order; the Maw keeps them in root-to-mouth order.
         var bodies = new EnemyProjectile[YappingMawAttackDefinitions.TongueLinks];
         for (int link = bodies.Length - 1; link >= 0; link--)
         {
-            EnemyProjectile? body = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.YappingMawBody, EnemyProjectileBehavior.Still, SpriteGraphics.SpawnedBy(place));
+            EnemyProjectile? body = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.YappingMawBody, EnemyProjectileBehavior.Still, SpriteGraphics.SpawnedBy(occupant, place.Shading));
             if (body is null)
             {
                 throw new InvalidDataException(
@@ -91,7 +91,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
                     ? RoomEffectActorKind.YappingMawBaseFacingDown
                     : RoomEffectActorKind.YappingMawBaseFacingUp,
-                SpriteGraphics.SpawnedBy(place)),
+                SpriteGraphics.SpawnedBy(occupant, place.Shading)),
         };
         place.SetSpeciesState(state);
 

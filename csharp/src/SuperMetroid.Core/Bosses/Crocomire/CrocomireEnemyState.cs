@@ -20,7 +20,16 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => false;
 
     /// <summary>Creates the state for Crocomire's body place.</summary>
-    internal CrocomireEnemyState(RoomEnemyPlace body) => Body = body;
+    /// <param name="bodyOccupant">The enemy holding his body's place.</param>
+    /// <param name="body">His body's place.</param>
+    internal CrocomireEnemyState(RoomEnemyOccupant bodyOccupant, RoomEnemyPlace body)
+    {
+        BodyOccupant = bodyOccupant;
+        Body = body;
+    }
+
+    /// <summary>The enemy holding his body's place, whose sheet the objects he spawns draw from (#2558).</summary>
+    public RoomEnemyOccupant BodyOccupant { get; }
 
     /// <summary>Crocomire's body's and sprites' colours (#1512).</summary>
     internal CrocomireColours Colours { get; } = new();

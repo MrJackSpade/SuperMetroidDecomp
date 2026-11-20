@@ -16,7 +16,7 @@ internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyOccu
     : PhantoonEntity(species, occupant, place, common, bossArtwork), IEnemyContactHooks, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public override void Initialize() => Species.InitializePhantoonBody(Place);
+    public override void Initialize() => Species.InitializePhantoonBody(Occupant, Place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunPhantoonBodyMainAi(Encounter, frame);

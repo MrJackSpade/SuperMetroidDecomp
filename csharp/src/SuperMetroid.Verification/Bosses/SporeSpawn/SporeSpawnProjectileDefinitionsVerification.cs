@@ -52,8 +52,8 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace, ushort> spawnStalk = (stalkBody, stalkIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(stalkBody, SporeSpawnProjectileDefinitions.StalkSegments[stalkIndex]);
-        Action<RoomEnemyPlace, ushort> spawnSpawner = (spawnerBody, spawnerIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(spawnerBody, new SporeSpawnEnemyState(), SporeSpawnProjectileDefinitions.Emitters[spawnerIndex]);
+        Action<RoomEnemyPlace, ushort> spawnStalk = (stalkBody, stalkIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(stalkBody.HeldOccupant(), stalkBody, SporeSpawnProjectileDefinitions.StalkSegments[stalkIndex]);
+        Action<RoomEnemyPlace, ushort> spawnSpawner = (spawnerBody, spawnerIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(spawnerBody.HeldOccupant(), spawnerBody, new SporeSpawnEnemyState(), SporeSpawnProjectileDefinitions.Emitters[spawnerIndex]);
         Action<EnemyProjectile> move = SporeSpawnSporeBehavior.DriftSpore;
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Position = body.Position.WithWhole(new(0x1234, 0x0200));

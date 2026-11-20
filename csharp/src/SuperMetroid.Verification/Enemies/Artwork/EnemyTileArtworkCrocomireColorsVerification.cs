@@ -64,7 +64,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
-        enemies.CrocomireBehavior.Fight.InitializeCrocomire(body);
+        enemies.CrocomireBehavior.Fight.InitializeCrocomire(body.HeldOccupant(), body);
         CrocomireEnemyState state = body.RequireSpeciesState<CrocomireEnemyState>();
         AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.Fighting>(), state.DeathStage,
             "installed Crocomire colors leave living fight phase unchanged");

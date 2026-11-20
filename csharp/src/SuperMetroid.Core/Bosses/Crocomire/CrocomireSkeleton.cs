@@ -268,7 +268,7 @@ internal sealed class CrocomireSkeleton
     /// </summary>
     internal void SpawnCrocomireSpikeWallPieces(CrocomireEnemyState state)
     {
-        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(state.Body);
+        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(state.BodyOccupant, state.Body.Shading);
 
         foreach (CrocomireSpikeWallPiece piece in CrocomireSpikeMotionDefinitions.Pieces.Reverse())
         {

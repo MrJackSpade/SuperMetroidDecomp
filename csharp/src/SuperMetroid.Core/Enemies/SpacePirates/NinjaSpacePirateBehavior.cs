@@ -455,11 +455,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>Allocates a claw with the selected throw direction, offset, graphics, and outbound speed.</summary>
     internal void SpawnNinjaPirateClaw(
-        RoomEnemyPlace source,
+        RoomEnemyOccupant occupant, RoomEnemyPlace source,
         HorizontalDirection thrown,
         Offset16<RoomPixels> spawnOffset)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateClaw, Claw, SpriteGraphics.SpawnedBy(source));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateClaw, Claw, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 
@@ -497,7 +497,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// Carries out one cue of the ninja Space Pirates' animations. Becoming active continues at the active stance facing
     /// Samus, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemyPlace place, NinjaSpacePirateCue cue, SamusState samus)
+    private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, NinjaSpacePirateCue cue, SamusState samus)
     {
         NinjaSpacePirateEnemyState state = place.RequireSpeciesState<NinjaSpacePirateEnemyState>();
         switch (cue)
@@ -509,7 +509,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 Walking.RequestSpacePirateSound(playSound.Sound);
                 return null;
             case NinjaSpacePirateCue.ThrowClaw throwClaw:
-                SpawnNinjaPirateClaw(place, throwClaw.Throw, throwClaw.Offset);
+                SpawnNinjaPirateClaw(occupant, place, throwClaw.Throw, throwClaw.Offset);
                 return null;
             case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartActive }:
             {
@@ -591,10 +591,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Advances the ninja Space Pirate's typed animation.</summary>
-    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
+    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context) =>
         EnemyAnimationPlayback.Advance(place, NinjaSpacePirateAnimations.Segments,
             static (NinjaSpacePirateEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyNinjaSpacePirateCue(place, cue, context.Samus) is { } continuesAt
+            (state, cue) => ApplyNinjaSpacePirateCue(occupant, place, cue, context.Samus) is { } continuesAt
                 ? new AnimationContinuation<NinjaSpacePirateSegment>(NinjaSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
 

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidVerification;
@@ -34,6 +35,8 @@ internal static class MotherBrainAnimationsVerification
         IImportCartridgeSource cartridge = rom;
         int body = CompareBody(cartridge).Values.Sum(list => list.BeatAddresses.Length);
         int head = CompareHead(cartridge).Values.Sum(list => list.BeatAddresses.Length);
+        int lateFight = CompareLateFight(cartridge, new Dictionary<ushort, NativeFrameShownAgain>()).Values.Sum(list => list.BeatAddresses.Length);
+        int babyAttack = CompareBabyAttack(cartridge, new Dictionary<ushort, NativeFrameShownAgain>()).Values.Sum(list => list.BeatAddresses.Length);
         CompareBaby(cartridge);
         CompareBabyMetroid(cartridge);
         CompareZebetites(cartridge);
@@ -42,7 +45,7 @@ internal static class MotherBrainAnimationsVerification
         VerifyBrainCadence();
         VerifyBrainRandomHolds();
         VerifyBodyMoves();
-        Console.WriteLine($"  Mother Brain animations: {body} body and {head} brain beats, the Baby, Shitroid, Zebetite and tube lists " +
+        Console.WriteLine($"  Mother Brain animations: {body} body and {head} head, {lateFight} late-fight and {babyAttack} Baby-attack brain beats, the Baby, Shitroid, Zebetite and tube lists " +
             "match bank $A9/$A6; the brain's cadence, random holds and body moves match the native routines.");
     }
 

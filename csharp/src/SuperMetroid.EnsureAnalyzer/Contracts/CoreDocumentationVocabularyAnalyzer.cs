@@ -321,7 +321,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     private static readonly Regex CompoundName = new(@"\b(?:[A-Z][a-z0-9]+|[a-z][a-z0-9]+)(?:[A-Z][A-Za-z0-9]*)+\b", RegexOptions.CultureInvariant);
 
     /// <summary>A documentation comment's markup, whose cross-references the compiler checks itself.</summary>
-    private static readonly Regex Markup = new(@"<[^>]*>", RegexOptions.CultureInvariant);
+    internal static readonly Regex Markup = new(@"<[^>]*>", RegexOptions.CultureInvariant);
 
     /// <summary>
     /// The machine's vocabulary in prose, as whole words with a plural or verb ending; the processor's direct page, spaced
@@ -2508,7 +2508,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// <see cref="RandomOddnessByPronounProse"/>, <see cref="BossTableCountAndFractionProse"/> and
     /// <see cref="StorageUnitAndOriginalProgramProse"/> read as a space so a phrase runs on across it.
     /// </summary>
-    private static readonly Regex CommentLineBreak = new(@"\s*\r?\n\s*(?:///?|\*+)?\s*", RegexOptions.CultureInvariant);
+    internal static readonly Regex CommentLineBreak = new(@"\s*\r?\n\s*(?:///?|\*+)?\s*", RegexOptions.CultureInvariant);
 
     /// <summary>
     /// A storage unit told on a member whose type already measures it (#2491), outside hardware owners and markup: a
@@ -3008,7 +3008,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Whether only white space, with one line break, lies between <paramref name="above"/> and <paramref name="below"/>.</summary>
-    private static bool OnTheNextLine(Microsoft.CodeAnalysis.Text.SourceText source, SyntaxTrivia above, SyntaxTrivia below)
+    internal static bool OnTheNextLine(Microsoft.CodeAnalysis.Text.SourceText source, SyntaxTrivia above, SyntaxTrivia below)
     {
         string between = source.ToString(Microsoft.CodeAnalysis.Text.TextSpan.FromBounds(above.Span.End, below.SpanStart));
         return between.All(char.IsWhiteSpace) && between.Count(character => character == '\n') == 1;
@@ -3299,7 +3299,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         string.Concat(snakeCase.Split('_').Select(part => part.Length == 0 ? part : char.ToUpperInvariant(part[0]) + part.Substring(1)));
 
     /// <summary>Whether a node lies in a type marked as a compatibility service or encoding owner.</summary>
-    private static bool IsInHardwareOwner(SyntaxNode? node)
+    internal static bool IsInHardwareOwner(SyntaxNode? node)
     {
         for (SyntaxNode? current = node; current is not null; current = current.Parent)
         {

@@ -397,8 +397,7 @@ internal static class IntroCinematicArtworkVerification
                 File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), IntroMotherBrainExplosionSpriteFormat.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroMotherBrainExplosions);
-        var explosions = new IntroMotherBrainExplosionSystem();
-        explosions.SpawnFourthHitExplosions();
+        var explosions = IntroMotherBrainExplosionSystem.SpawnFourthHitExplosions();
         explosions.Step(crossfadeFinishing: false);
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();

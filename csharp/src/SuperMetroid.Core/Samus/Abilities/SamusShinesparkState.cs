@@ -51,7 +51,14 @@ public sealed class SamusShinesparkState
         _colouring = Ensure.NotNull(colouring);
         _acceleration = Ensure.NotNull(acceleration);
         _orbitTravel = Ensure.NotNull(orbitTravel);
+        _movement = new SparkMovement(this);
     }
+
+    /// <summary>The spark's hold on Samus's movement, reached through <see cref="Movement"/>.</summary>
+    private readonly SparkMovement _movement;
+
+    /// <summary>The spark's hold on Samus's movement while it moves her (<see cref="OwnsMovement"/>); none otherwise.</summary>
+    internal SparkMovement? Movement => OwnsMovement ? _movement : null;
 
     /// <summary>The special colouring timer: <see cref="ShinesparkDefinitions.StoredShineFrames"/> stored, <see cref="ShinesparkDefinitions.WindupShadeFrames"/> in windup, and <see cref="ShinesparkDefinitions.SparkShadeFrames"/> during active motion.</summary>
     public UpdateCountdown ShineTimer { get; private set; } = UpdateCountdown.Ended();
@@ -245,7 +252,7 @@ public sealed class SamusShinesparkState
         // The windup sets these whatever they held. The speed boost stays at its full stage through the windup
         // even though her base speed is zero and her extra speed becomes exactly the windup's run speed.
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(UnsignedSixteenSixteen.Zero);
-        samus.Knockback = Movement.SamusKnockback.None;
+        samus.Knockback = SuperMetroid.Core.Samus.Movement.SamusKnockback.None;
         samus.HorizontalSpeed.SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage;
         samus.HorizontalSpeed.ExtraRunSpeed = ShinesparkDefinitions.WindupRunSpeed;
         samus.HorizontalSpeed.BaseSpeed = default;
@@ -298,13 +305,10 @@ public sealed class SamusShinesparkState
     /// <param name="terrain">The room terrain Samus's block collision probes: the level data and the room objects that react to touched blocks (#633).</param>
     /// <param name="samus">Live player state; movement, energy, contact damage, pose state, and echo coordinates may change during the call.</param>
     /// <param name="frame">What one shinespark step reads from the frame: clocks, projectiles, invincibility and the previous checkpoint (#633).</param>
-    /// <exception cref="InvalidOperationException">The spark does not move Samus (<see cref="OwnsMovement"/>): a stored shine or no spark.</exception>
-    internal ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame)
+    private ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
-        if (!OwnsMovement)
-            throw new InvalidOperationException("The shinespark does not move Samus.");
 
         if (Phase == ShinesparkPhase.Windup)
         {
@@ -692,5 +696,16 @@ public sealed class SamusShinesparkState
             return new BlockMoveResult(SignedSixteenSixteen.Zero, true, EnemyCollision: enemy);
 
         return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), CanBreakBombBlocks = true, IncludeSolidEnemies = false });
+    }
+
+    /// <summary>The spark's hold on Samus's movement (<see cref="Movement"/>): from the windup, through the launch and the crash.</summary>
+    /// <param name="spark">The shinespark that holds her movement.</param>
+    internal sealed class SparkMovement(SamusShinesparkState spark)
+    {
+        /// <summary>Runs one frame of the spark's windup, flight or crash.</summary>
+        /// <param name="terrain">The room terrain Samus's block collision probes: the level data and the room objects that react to touched blocks (#633).</param>
+        /// <param name="samus">Live player state; movement, energy, contact damage, pose state, and echo coordinates may change during the call.</param>
+        /// <param name="frame">What one shinespark step reads from the frame: clocks, projectiles, invincibility and the previous checkpoint (#633).</param>
+        internal ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame) => spark.Step(terrain, samus, frame);
     }
 }

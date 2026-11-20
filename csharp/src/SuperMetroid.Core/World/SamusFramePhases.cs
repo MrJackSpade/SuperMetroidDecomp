@@ -554,12 +554,12 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>Runs Samus's movement while <see cref="SamusMovementOwner.Shinespark"/> holds it.</summary>
-    private void RunShinespark(SamusControlFrame frame, SamusState samus, RoomScope room)
+    private void RunShinespark(SamusControlFrame frame, SamusState samus, RoomScope room, SamusShinesparkState.SparkMovement spark)
     {
         // Samus's environment-selected vertical acceleration pair is used
         // as spark acceleration. The projectile step does not replace it.
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-        frame.Record(samus.Shinespark.Step(new SamusTerrain { Level = room.LevelData, RoomObjects = room.RoomObjects }, samus, new ShinesparkFrame { FrameCounter = _clock.Counter, SamusCannotDie = _assists.Current.SamusCannotDie, Projectiles = room.Projectiles, GameTimeFrames = _gameTime.Frames, PreviousCheckpoint = frame.PreviousCameraPoint }));
+        frame.Record(spark.Step(new SamusTerrain { Level = room.LevelData, RoomObjects = room.RoomObjects }, samus, new ShinesparkFrame { FrameCounter = _clock.Counter, SamusCannotDie = _assists.Current.SamusCannotDie, Projectiles = room.Projectiles, GameTimeFrames = _gameTime.Frames, PreviousCheckpoint = frame.PreviousCameraPoint }));
         if (frame.ShinesparkMovement is { WindupTimedOut: true })
         {
             // The spark publishes an interrupted vertical pose. That
@@ -568,8 +568,6 @@ internal sealed class SamusFramePhases
             _player.ClearProspectivePoses();
         }
     }
-
-
 
     /// <summary>
     /// Runs the owner of Samus's movement this frame, in priority order: nothing under the death, suit-pickup and
@@ -673,10 +671,10 @@ internal sealed class SamusFramePhases
         }
         // The shinespark's windup, active launch, and crash move her regardless of the pose's
         // movement type; ordinary special-movement-type physics does not exist to fall back to.
-        if (samus.Shinespark.OwnsMovement)
+        if (samus.Shinespark.Movement is { } spark)
         {
             frame.SampleMovementOwner(SamusMovementOwner.Shinespark);
-            RunShinespark(frame, samus, room);
+            RunShinespark(frame, samus, room, spark);
             return;
         }
         // Samus's control lock installs an input mode which advances existing

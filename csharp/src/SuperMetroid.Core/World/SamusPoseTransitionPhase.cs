@@ -283,7 +283,7 @@ internal sealed class SamusPoseTransitionPhase
         if (!transitionApplied &&
             frame.BombJumpMovement is { FellWithoutFloor: true })
         {
-            SamusPosturePoseTransitions.ApplyBombJumpFallingPose(samus);
+            SamusPosturePoseTransitions.ApplyBombJumpFallingPose(samus, terrain, _clock.Counter);
             _player.ClearProspectivePoses();
             transitionApplied = true;
         }

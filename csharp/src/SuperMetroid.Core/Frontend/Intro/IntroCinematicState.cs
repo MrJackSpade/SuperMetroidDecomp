@@ -496,8 +496,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 flashbackSamusDisplay = IntroSamusDisplay.Hidden;
             if (CurrentFlashbackMotherBrain.TakeMissileHit(flashbackProjectiles.EnemyImpacts, flashbackBombProjectiles))
             {
-                FlashbackMotherBrainExplosions = new IntroMotherBrainExplosionSystem();
-                FlashbackMotherBrainExplosions.SpawnFourthHitExplosions();
+                FlashbackMotherBrainExplosions = IntroMotherBrainExplosionSystem.SpawnFourthHitExplosions();
             }
         }
 

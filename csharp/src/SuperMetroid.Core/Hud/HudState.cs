@@ -230,13 +230,17 @@ public sealed class HudState
     }
 
     /// <summary>Whether Samus holds the item <paramref name="icon"/> shows.</summary>
-    private bool Holds(HudIcon icon) => icon switch
+    private bool Holds(HudIcon icon)
     {
-        HudIcon.Missile => values.MaxMissiles != 0,
-        HudIcon.SuperMissile => values.MaxSuperMissiles != 0,
-        HudIcon.PowerBomb => values.MaxPowerBombs != 0,
-        HudIcon.Grapple => values.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam),
-        HudIcon.XRay => values.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope),
-        _ => throw new ArgumentOutOfRangeException(nameof(icon), icon, "Undefined item icon."),
-    };
+        if (icon == HudIcon.Missile)
+            return values.MaxMissiles != 0;
+        if (icon == HudIcon.SuperMissile)
+            return values.MaxSuperMissiles != 0;
+        if (icon == HudIcon.PowerBomb)
+            return values.MaxPowerBombs != 0;
+        if (icon == HudIcon.Grapple)
+            return values.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam);
+        // The X-ray icon is the last of the five.
+        return values.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope);
+    }
 }

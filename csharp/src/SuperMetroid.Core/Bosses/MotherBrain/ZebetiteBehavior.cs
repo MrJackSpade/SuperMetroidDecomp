@@ -197,16 +197,19 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>The picture of <paramref name="form"/> at <paramref name="health"/>: the first its catalog shows at that health.</summary>
-    /// <exception cref="InvalidOperationException">The health is below every picture's, which no Zebetite's is.</exception>
+    /// <summary>
+    /// The picture a Zebetite of <paramref name="form"/> shows at <paramref name="health"/>: the first of its pictures whose
+    /// least health the health reaches, the last of them covering every health below the others' down to none.
+    /// </summary>
     private static EnemyFrameId HealthPicture(ZebetiteBarrierForm form, int health)
     {
-        foreach (ZebetiteHealthPicture picture in ZebetiteHealthPictureDefinitions.ByForm[form])
+        IReadOnlyList<ZebetiteHealthPicture> pictures = ZebetiteHealthPictureDefinitions.ByForm[form];
+        for (int index = 0; index < pictures.Count - 1; index++)
         {
-            if (health >= picture.MinimumHealth)
-                return picture.Picture;
+            if (health >= pictures[index].MinimumHealth)
+                return pictures[index].Picture;
         }
-        throw new InvalidOperationException($"A {form} Zebetite has no picture at health {health}.");
+        return pictures[^1].Picture;
     }
 
     /// <summary>Finds a free place in the room's enemies and initializes a primary or linked half from its population entry.</summary>

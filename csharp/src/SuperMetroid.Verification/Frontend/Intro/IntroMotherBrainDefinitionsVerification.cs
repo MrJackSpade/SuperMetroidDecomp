@@ -104,8 +104,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         AssertTrue(!motherBrain.IsVisible,
             "intro Mother Brain page-two crossfade deletes the actor at timer zero");
 
-        var explosions = new IntroMotherBrainExplosionSystem();
-        explosions.SpawnFourthHitExplosions();
+        var explosions = IntroMotherBrainExplosionSystem.SpawnFourthHitExplosions();
         AssertEqual(8, explosions.ActiveCount, "intro Mother Brain allocates all explosion actors");
         var explosionActors = explosions.actors;
         for (int frame = 0; frame < 192; frame++)

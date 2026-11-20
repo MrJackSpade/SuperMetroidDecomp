@@ -66,7 +66,8 @@ internal sealed class RidleyDrawing
         RidleyFacing facing = ridley.Flight.FacingDirection;
         if (facing == RidleyFacing.Turning)
             return;
-        EnemyFrameId wingFrame = ridley.Flight.Wings.Pose.Entry.For(facing);
+        RidleyWingPose pose = ridley.Flight.Wings.Pose.Entry;
+        EnemyFrameId wingFrame = facing == RidleyFacing.Left ? pose.FacingLeft : pose.FacingRight;
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.RidleyWings), wingFrame,
             place.Position.Whole.RelativeToCamera(camera), ridley.TailAndWingsShading);
     }

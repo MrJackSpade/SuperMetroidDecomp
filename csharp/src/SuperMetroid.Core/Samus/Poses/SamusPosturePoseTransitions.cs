@@ -516,10 +516,11 @@ internal static class SamusPosturePoseTransitions
     /// <summary>
     /// Applies the walk-off transition after a bomb-jump frame moved down without a floor. Only the pose
     /// changes: the airborne ball's setup leaves vertical speed for the next
-    /// bomb-jump frame, whose passing-zero test turns the jump downward. Movement types whose
+    /// bomb-jump frame, whose passing-zero test turns the jump downward. An upright body (standing, running, crouching,
+    /// moonwalking or stopped at a wall) takes the plain fall of its facing. Movement types whose
     /// falling entry is "no change" keep their pose.
     /// </summary>
-    public static void ApplyBombJumpFallingPose(SamusState samus)
+    public static void ApplyBombJumpFallingPose(SamusState samus, SamusTerrain terrain, int frameCounter)
     {
         bool left = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         if (SamusPoseMetadata.IsGroundedSpringBallPose(samus.Pose))
@@ -528,8 +529,37 @@ internal static class SamusPosturePoseTransitions
             ApplyMorphBallPoseChange(samus, left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose);
         else if (SamusPoseMetadata.ReadMovementType(samus) is SamusMovementType.Standing or SamusMovementType.Running or
                  SamusMovementType.Crouching or SamusMovementType.Moonwalking or SamusMovementType.RanIntoWall)
-            throw new InvalidOperationException(
-                $"Bomb-jump falling result for humanoid pose {samus.Pose} (airborne walk-off) has no walk-off falling result.");
+            ApplyUprightBombJumpFall(samus, left ? SamusPoseId.FallingLeftPose : SamusPoseId.FallingRightPose, terrain, frameCounter);
+    }
+
+    /// <summary>
+    /// Installs the plain fall <paramref name="fall"/> an upright bomb-jumping Samus takes when the jump passes its apex
+    /// with no floor below, as any pose change is installed: through the larger-pose collision, which a crouching body
+    /// grows through and a low ceiling can refuse, and then the fall's own setup, which picks the acceleration mode from her
+    /// extra run speed. The bomb jump keeps its vertical speed, as it does for a ball.
+    /// </summary>
+    private static void ApplyUprightBombJumpFall(SamusState samus, SamusPoseId fall, SamusTerrain terrain, int frameCounter)
+    {
+        SamusPoseId sourcePose = samus.Pose;
+        LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
+            terrain.Level,
+            fall,
+            frameCounter,
+            terrain.RoomObjects,
+            out int centerAdjustment);
+        if (collision != LargerPoseCollisionOutcome.Allowed)
+        {
+            if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+                samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
+            return;
+        }
+
+        samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(
+            samus.Kinematics.Position.Y.Whole + centerAdjustment);
+        samus.Pose = fall;
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusAerialPoseTransitions.InitializeOrdinaryAerialAcceleration(samus);
+        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>

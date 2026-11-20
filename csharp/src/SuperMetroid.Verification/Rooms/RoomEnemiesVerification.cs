@@ -1128,10 +1128,10 @@ internal static void VerifyCeresRidleyRoomEntry()
     {
         if (curveIndex != 0)
             GetawayFrame();
-        Offset16<FloorPixels> drift = CeresRidleyGetawayCurve.DriftAt(curveIndex);
+        Offset16<FloorPixels> drift = CeresRidleyGetawayCurve.Steps[curveIndex].Drift;
         expectedX = unchecked((ushort)(expectedX - drift.X));
         expectedY = unchecked((ushort)(expectedY + drift.Y));
-        AssertEqual(CeresRidleyGetawayCurve.ZoomAt(curveIndex), enemies.CeresEscape.Floor.Zoom, "Ceres real getaway zoom publication");
+        AssertEqual(CeresRidleyGetawayCurve.Steps[curveIndex].Zoom, enemies.CeresEscape.Floor.Zoom, "Ceres real getaway zoom publication");
         AssertEqual(unchecked((short)expectedX), enemies.CeresEscape.Floor.Offset.X, "Ceres real getaway horizontal integration");
         AssertEqual(unchecked((short)expectedY), enemies.CeresEscape.Floor.Offset.Y, "Ceres real getaway vertical integration");
         AssertTrue(enemies.CeresEscape.Floor.Active, "Ceres getaway retains all 112 authored motion frames");

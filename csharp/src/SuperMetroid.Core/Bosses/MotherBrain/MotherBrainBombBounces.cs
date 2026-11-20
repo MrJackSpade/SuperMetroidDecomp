@@ -13,7 +13,7 @@ internal abstract record MotherBrainBombBounces
     }
 
     /// <summary>The bomb's first fall, before any bounce, at the ordinary gravity.</summary>
-    internal static MotherBrainBombBounces FirstFall { get; } = new Flying.Falling();
+    internal static Flying FirstFall { get; } = new Flying.Falling();
 
     /// <summary>The bomb is in the air: falling for the first time, or after a bounce.</summary>
     internal abstract record Flying : MotherBrainBombBounces

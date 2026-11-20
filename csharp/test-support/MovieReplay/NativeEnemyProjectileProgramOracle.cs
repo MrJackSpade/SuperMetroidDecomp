@@ -41,7 +41,7 @@ internal static class NativeEnemyProjectileProgramOracle
     internal static int CompareAll<TSegment, TFrame, TEvent>(
         IImportCartridgeSource cartridge,
         NativeProgramEntry<TSegment>[] entries,
-        AnimationSegments<TSegment, TFrame, TEvent> segments,
+        UnpausedAnimationSegments<TSegment, TFrame, TEvent> segments,
         IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
         Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TEvent> rules,
@@ -100,7 +100,7 @@ internal static class NativeEnemyProjectileProgramOracle
     internal static Dictionary<TSegment, NativeEnemyList<TSegment>> Lists<TSegment, TFrame, TEvent>(
         IImportCartridgeSource cartridge,
         NativeProgramEntry<TSegment>[] entries,
-        AnimationSegments<TSegment, TFrame, TEvent> segments,
+        UnpausedAnimationSegments<TSegment, TFrame, TEvent> segments,
         Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TEvent> rules,
         Func<TFrame, ushort?>? reflectedPresentationKey = null)
@@ -165,7 +165,7 @@ internal static class NativeEnemyProjectileProgramOracle
         IImportCartridgeSource cartridge,
         IReadOnlyList<ushort> lists,
         IReadOnlyDictionary<TAnimation, ushort> entries,
-        AnimationSegments<TAnimation, TFrame, TEvent> steps,
+        UnpausedAnimationSegments<TAnimation, TFrame, TEvent> steps,
         IReadOnlyDictionary<TAnimation, Animation<TAnimation>> animations,
         Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TEvent> rules,
@@ -223,7 +223,7 @@ internal static class NativeEnemyProjectileProgramOracle
     /// animation keyed by a segment must start at that <c>opening</c> segment; one started by its own name has none.
     /// </summary>
     private static void CompareAnimation<TAnimation, TFrame, TEvent>(
-        IImportCartridgeSource cartridge, HashSet<ushort> isList, ushort start, AnimationSegments<TAnimation, TFrame, TEvent> steps,
+        IImportCartridgeSource cartridge, HashSet<ushort> isList, ushort start, UnpausedAnimationSegments<TAnimation, TFrame, TEvent> steps,
         string animation, TAnimation? opening, Animation<TAnimation> typed, Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TEvent> rules, Func<TFrame, ushort?>? reflectedPresentationKey, HashSet<ushort> played, HashSet<ushort> counted,
         HashSet<ushort> pastLoopMarks)
@@ -343,7 +343,7 @@ internal static class NativeEnemyProjectileProgramOracle
 
     /// <summary>Reads one typed segment's native list, comparing its beats with the segment's.</summary>
     private static NativeEnemyList<TSegment> Read<TSegment, TFrame, TEvent>(
-        IImportCartridgeSource cartridge, NativeProgramEntry<TSegment>[] entries, AnimationSegments<TSegment, TFrame, TEvent> segments,
+        IImportCartridgeSource cartridge, NativeProgramEntry<TSegment>[] entries, UnpausedAnimationSegments<TSegment, TFrame, TEvent> segments,
         Func<TFrame, ushort> presentationKey, NativeEnemyProjectileCueRules<TEvent> rules, Func<TFrame, ushort?>? reflectedPresentationKey,
         TSegment segment, ushort entry)
         where TSegment : struct, Enum

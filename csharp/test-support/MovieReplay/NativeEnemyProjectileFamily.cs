@@ -19,7 +19,7 @@ internal abstract class NativeEnemyProjectileFamily
     /// </summary>
     internal static NativeEnemyProjectileAnimationFamily<TSegment, TFrame, TEvent> Of<TSegment, TFrame, TEvent>(
         NativeProgramEntry<TSegment>[] entries,
-        AnimationSegments<TSegment, TFrame, TEvent> segments,
+        UnpausedAnimationSegments<TSegment, TFrame, TEvent> segments,
         IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
         Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TEvent> rules,

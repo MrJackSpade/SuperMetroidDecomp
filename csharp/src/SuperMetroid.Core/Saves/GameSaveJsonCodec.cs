@@ -208,12 +208,11 @@ public static class GameSaveJsonCodec
     private static SaveSlot SlotAt(int number) => SaveSlots.All[number];
 
     /// <summary>The number a JSON save gives <paramref name="slot"/>: its place in the file select's list, from zero.</summary>
-    private static int SlotNumber(SaveSlot slot)
-    {
-        for (int number = 0; number < SaveSlots.All.Count; number++)
-            if (SaveSlots.All[number] == slot) return number;
-        throw new ArgumentOutOfRangeException(nameof(slot), slot, "Undefined save slot.");
-    }
+    private static int SlotNumber(SaveSlot slot) => SlotNumbers[slot];
+
+    /// <summary>Each slot's place in the file select's list, which names every slot.</summary>
+    private static IdentityTable<SaveSlot, int> SlotNumbers { get; } = new(
+        Enumerable.Range(0, SaveSlots.All.Count).ToDictionary(number => SaveSlots.All[number]));
 
     /// <summary>Requires a supported schema, valid selected slot, and exactly the game's slot count.</summary>
     private static void Validate(GameSaveJsonDocument document)

@@ -244,13 +244,10 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         audio.QueueSound(CrySound(sound), priority: GameOverMenuDefinitions.SoundPriority);
 
     /// <summary>The sound of one of the Baby's cries.</summary>
-    /// <exception cref="InvalidDataException">The cry is not one of the Baby's.</exception>
-    private static SoundEffectId CrySound(GameOverBabySound sound) => sound switch
-    {
-        GameOverBabySound.FirstCry => GameOverMenuDefinitions.FirstCry,
-        GameOverBabySound.SecondCry => GameOverMenuDefinitions.SecondCry,
-        GameOverBabySound.ThirdCry => GameOverMenuDefinitions.ThirdCry,
-        _ => throw new InvalidDataException($"Unknown game-over Baby sound {sound}."),
-    };
+    private static SoundEffectId CrySound(GameOverBabySound sound) =>
+        sound == GameOverBabySound.FirstCry ? GameOverMenuDefinitions.FirstCry
+        : sound == GameOverBabySound.SecondCry ? GameOverMenuDefinitions.SecondCry
+        // The remaining member, GameOverBabySound.ThirdCry.
+        : GameOverMenuDefinitions.ThirdCry;
 
 }

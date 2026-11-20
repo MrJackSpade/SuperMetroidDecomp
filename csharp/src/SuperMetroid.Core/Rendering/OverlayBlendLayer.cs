@@ -31,8 +31,6 @@ public sealed record OverlayBlendLayer : DisplayLayer
     {
         if (firstLine is < 0 or > ScreenGeometry.ScreenHeightPixels)
             throw new ArgumentOutOfRangeException(nameof(firstLine));
-        if (operation is not (BlendOperation.Add or BlendOperation.Subtract))
-            throw new ArgumentOutOfRangeException(nameof(operation));
         Picture = picture;
         FirstLine = firstLine;
         Operation = operation;

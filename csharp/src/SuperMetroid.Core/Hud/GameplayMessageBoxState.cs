@@ -313,11 +313,14 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// The button <paramref name="messageId"/>'s panel names: the configured Shoot or Run binding's, as the glyph shows it;
     /// null for a message whose panel names no button.
     /// </summary>
-    private ControllerButton? PanelButton(GameplayMessageId messageId) => GameplayMessageButtons.PanelBinding(messageId) switch
+    private ControllerButton? PanelButton(GameplayMessageId messageId)
     {
-        GameplayMessagePanelButtonBinding.Shoot => GameplayMessageButtons.Shown(_bindings.Shoot),
-        GameplayMessagePanelButtonBinding.Run => GameplayMessageButtons.Shown(_bindings.Dash),
-        GameplayMessagePanelButtonBinding.None => null,
-        _ => throw new InvalidDataException($"Unknown gameplay-message panel binding for {messageId}."),
-    };
+        GameplayMessagePanelButtonBinding binding = GameplayMessageButtons.PanelBinding(messageId);
+        if (binding == GameplayMessagePanelButtonBinding.Shoot)
+            return GameplayMessageButtons.Shown(_bindings.Shoot);
+        if (binding == GameplayMessagePanelButtonBinding.Run)
+            return GameplayMessageButtons.Shown(_bindings.Dash);
+        // The remaining member, GameplayMessagePanelButtonBinding.None.
+        return null;
+    }
 }

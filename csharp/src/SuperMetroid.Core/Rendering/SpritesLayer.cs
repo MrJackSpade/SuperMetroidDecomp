@@ -32,11 +32,7 @@ public sealed record SpritesLayer : DisplayLayer
             if (draw is null)
                 throw new ArgumentException("Each of a sprite layer's draws needs an entry.", nameof(draws));
         }
-        Blend = blend switch
-        {
-            SpriteBlend.Drawn or SpriteBlend.Glows => blend,
-            _ => throw new ArgumentOutOfRangeException(nameof(blend), blend, "Undefined sprite blend."),
-        };
+        Blend = blend;
         if (tint is not null && blend != SpriteBlend.Drawn)
             throw new ArgumentException("A tint brightens drawn sprites, not sprites that glow.", nameof(tint));
         Draws = draws;

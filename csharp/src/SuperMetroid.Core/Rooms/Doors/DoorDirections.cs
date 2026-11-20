@@ -7,10 +7,5 @@ public static class DoorDirections
     /// True for down and up, as the door transition and room loader test it. Horizontal
     /// doors align camera Y and step X; vertical doors align camera X and step Y.
     /// </summary>
-    public static bool IsVertical(this DoorDirection direction) => direction switch
-    {
-        DoorDirection.Right or DoorDirection.Left => false,
-        DoorDirection.Down or DoorDirection.Up => true,
-        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined door direction."),
-    };
+    public static bool IsVertical(this DoorDirection direction) => direction is DoorDirection.Down or DoorDirection.Up;
 }

@@ -262,13 +262,10 @@ public sealed class SamusLiquidPhysicsState
             return samus.SlowdownLevel;
 
         SamusLiquidMedium medium = DetermineRawMediumAtBoundary(PoseBottomPixel(samus));
-        return medium switch
-        {
-            SamusLiquidMedium.Water => SamusAnimationDelayDefinitions.WaterAnimationDelay,
-            SamusLiquidMedium.LavaOrAcid => SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay,
-            SamusLiquidMedium.Air => samus.SlowdownLevel,
-            _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
-        };
+        return medium == SamusLiquidMedium.Water ? SamusAnimationDelayDefinitions.WaterAnimationDelay
+            : medium == SamusLiquidMedium.LavaOrAcid ? SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay
+            // The remaining member, SamusLiquidMedium.Air.
+            : samus.SlowdownLevel;
     }
 
     /// <summary>

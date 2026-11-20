@@ -135,7 +135,7 @@ internal static class EnemyHitBurstVerification
             bool shown = pirate.Entity is GoldNinjaSpacePirateEntity
                 ? PirateHitboxShotActions.GoldNinjaShowsHitBurst(reaction)
                 : PirateHitboxShotActions.ShowsHitBurst(reaction);
-            AssertEqual(shows, shown, $"{pirate.DefinitionId} through {reaction} shows the burst");
+            AssertEqual(shows, shown, $"{pirate.Occupant?.DefinitionId} through {reaction} shows the burst");
         }
         Console.WriteLine("  Pirate hit burst: the common and Pirate reactions show it, but not on the gold Ninja nor through the Ninja body reactions.");
     }

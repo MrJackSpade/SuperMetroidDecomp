@@ -83,7 +83,10 @@ internal static class SpcMusicDefinitionCodec
         {
             DecodedTrack definition = DecodeTrack(dataIndex, track, trackPointers[track], ram, written);
             tracks.Add(definition);
-            foreach (TrackWord word in definition.Words)
+            // An inactive track plays no program, so it names no phrase.
+            if (definition.Program is not { } program)
+                continue;
+            foreach (TrackWord word in program.Words)
             {
                 if (word.Phrase is { } phraseAddress)
                     DecodePhrase(dataIndex, phraseAddress, ram, written, phrases, programs);

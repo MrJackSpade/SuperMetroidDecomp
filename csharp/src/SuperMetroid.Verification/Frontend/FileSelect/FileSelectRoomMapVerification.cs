@@ -450,7 +450,7 @@ internal static class FileSelectRoomMapVerification
         }
         var precedence = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, system), new(240, 128));
         precedence.Step((ControllerButton.Up | ControllerButton.Down | ControllerButton.Left | ControllerButton.Right));
-        AssertEqual(MapScrollDirection.Left, precedence.Direction, "simultaneous map input uses native arrow order");
+        AssertEqual(MapScrollDirection.Left, precedence.StepUnderWay?.Direction, "simultaneous map input uses native arrow order");
         var empty = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, new SharedGameState(new SharedRandom())), new(216, 48));
         AssertEqual(208, empty.Limits.Left, "empty map uses retail left default");
         AssertEqual(224, empty.Limits.Right, "empty map uses retail right default");

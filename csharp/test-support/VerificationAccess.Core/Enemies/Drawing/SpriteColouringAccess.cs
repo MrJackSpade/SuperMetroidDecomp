@@ -69,11 +69,11 @@ internal static class SpriteColouringAccess
     {
         /// <summary>The row the slot's draws select under the graphics set <paramref name="enemies"/>' room draws under.</summary>
         internal int PaletteRowIn(RoomEnemySystem enemies) =>
-            RowSelectedBy(self.Shading, enemies.GraphicsSet.DrawRow(self.DefinitionId));
+            RowSelectedBy(self.Shading, enemies.GraphicsSet.DrawRow(self.HeldOccupant().DefinitionId));
 
         /// <summary>Gives the slot the shading native row <paramref name="row"/> denotes under <paramref name="enemies"/>' loaded set.</summary>
         internal void SetPaletteRow(RoomEnemySystem enemies, int row) =>
-            self.Shading = ShadingInRow(row, enemies.GraphicsSet.DrawRow(self.DefinitionId));
+            self.Shading = ShadingInRow(row, enemies.GraphicsSet.DrawRow(self.HeldOccupant().DefinitionId));
     }
 
     /// <summary>Rows of a sprite's graphics.</summary>

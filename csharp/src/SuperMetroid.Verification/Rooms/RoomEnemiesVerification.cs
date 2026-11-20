@@ -1110,7 +1110,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(ridley.Presence.HasAny(EnemyPresence.Hidden),
         "Ceres Ridley ordinary actor yields to getaway presentation");
     RoomEnemyPlace[] mode7Walls = enemies.Places.InUpdateOrder
-        .Where(place => place.DefinitionId == EnemyDefinitionId.CeresGetawayChamberWall)
+        .Where(place => place.Holds(EnemyDefinitionId.CeresGetawayChamberWall))
         .ToArray();
     AssertTrue(mode7Walls.All(wall => wall.Presence.HasAny(EnemyPresence.Hidden)), "the getaway wall actors draw nothing; the getaway scene shows the walls");
     AssertEqual(2, mode7Walls.Length,

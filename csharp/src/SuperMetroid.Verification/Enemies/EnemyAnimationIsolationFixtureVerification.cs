@@ -36,7 +36,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         /// where the cartridge writes its transparent sprites.
         /// </summary>
         internal bool FrameShowsNothing(RoomEnemyPlace place) =>
-            place.Frame is { } frame && Enemies.Presentation.Artwork.Enemy(place.DefinitionId).Sheet.ShowsNothing(EnemySheetDefinitions.FrameName(frame));
+            place.Frame is { } frame && Enemies.Presentation.Artwork.Enemy(place.HeldOccupant().DefinitionId).Sheet.ShowsNothing(EnemySheetDefinitions.FrameName(frame));
         /// <summary>Enemy runtime fed by this fixture's room, RNG, and artwork.</summary>
         internal RoomEnemySystem Enemies { get; }
         /// <summary>The Boyon placed in the first enemy slot.</summary>
@@ -72,7 +72,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Enemies.VerificationServices().SetAreaTorizoDefeated = () => BossBitCalls++;
 
             Actor.Bind(EnemyDefinitionId.Boyon, Actor.Definition);
-            Actor.Bind(Actor.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(Actor.DefinitionId));
+            Actor.Bind(Actor.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(Actor.HeldOccupant().DefinitionId));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Position = Actor.Position.WithWhole(new(128, (ushort)(FloorY - Actor.Radius.Y - 12)));

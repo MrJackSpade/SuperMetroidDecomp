@@ -16,6 +16,11 @@ using SuperMetroid.TestSupport.SamusNativeCodecs;
 /// shutter bomb arc against native WRAM and trajectory evidence.</summary>
 internal static class ShutterNativeArc
 {
+    /// <summary>The enemy the arc's place holds, which the arc reads its spawn and identity from.</summary>
+    /// <exception cref="InvalidOperationException">The place holds no enemy.</exception>
+    private static RoomEnemyOccupant HeldOccupant(RoomEnemyPlace place) =>
+        place.Occupant ?? throw new InvalidOperationException($"Enemy place {place.Ordinal} holds no enemy.");
+
     /// <summary>
     /// Regenerates issue #347's native comparison inputs from the reproduced case: the frame-117
     /// WRAM seed, every later frame's bomb slots, and the production trajectory the verifier pins.
@@ -52,7 +57,7 @@ internal static class ShutterNativeArc
     {
         var scenario = ShutterBombArcScenario.Reproduced(RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true));
         var shutter = scenario.Runtime.Room.LoadedScope.Enemies.VerticalShutterStates[0];
-        ShutterSpawnSettings settings = scenario.Runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[0].HeldOccupant().SpawnSettings<ShutterSpawnSettings>();
+        ShutterSpawnSettings settings = HeldOccupant(scenario.Runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[0]).SpawnSettings<ShutterSpawnSettings>();
         for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
         {
             scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
@@ -138,17 +143,17 @@ internal static class ShutterNativeArc
         {
             int offset = i * 64;
             var place = runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[i];
-            Word(0xF78 + offset, EnemyDefinitionIds.HeaderPointer(place.DefinitionId));
+            Word(0xF78 + offset, EnemyDefinitionIds.HeaderPointer(HeldOccupant(place).DefinitionId));
             Word(0xF8E + offset, EnemyFrameCartridgeLookupTooling.Word(place.Frame));
-            ram[0xFA6 + offset] = RoomEnemyDefinitionImporterTooling.Bank(rom, place.DefinitionId);
+            ram[0xFA6 + offset] = RoomEnemyDefinitionImporterTooling.Bank(rom, HeldOccupant(place).DefinitionId);
             Word(0xF7A + offset, place.Position.X.Whole); Word(0xF7E + offset, place.Position.Y.Whole);
             Word(0xF80 + offset, place.Position.Y.Fraction); Word(0xF82 + offset, place.Radius.X);
             Word(0xF84 + offset, place.Radius.Y); Word(0xF86 + offset, 0x8000);
         }
         var shutter = runtime.Room.LoadedScope.Enemies.VerticalShutterStates[0];
         RoomEnemyPlace shutterPlace = runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[0];
-        ShutterSpawnSettings settings = shutterPlace.HeldOccupant().SpawnSettings<ShutterSpawnSettings>();
-        SignedSixteenSixteen upward = ShuttersBehavior.VerticalShutterVelocity(shutterPlace.HeldOccupant(), VerticalDirection.Up);
+        ShutterSpawnSettings settings = HeldOccupant(shutterPlace).SpawnSettings<ShutterSpawnSettings>();
+        SignedSixteenSixteen upward = ShuttersBehavior.VerticalShutterVelocity(HeldOccupant(shutterPlace), VerticalDirection.Up);
         Word(0xFA8, ShutterArcNativeWords.Action((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Action));
         Word(0xFB0, upward.Fraction); Word(0xFB2, upward.UnsignedWholePixels);
         Word(0xFAC, settings.Speed.Fraction); Word(0xFAE, settings.Speed.UnsignedWholePixels);

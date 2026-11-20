@@ -54,7 +54,7 @@ internal static class PowerBombDeathRadiusVerification
         static RoomEnemyPlace Place(RoomEnemyPlace actor, ushort x, ushort health)
         {
             actor.Bind(EnemyDefinitionId.Atomic, actor.Definition);
-            actor.Bind(actor.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(actor.DefinitionId));
+            actor.Bind(actor.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(actor.HeldOccupant().DefinitionId));
             actor.Health = health;
             actor.Position = actor.Position.WithWhole(new(x, explosionY));
             actor.Radius = new(actor.Definition.Radius.X, actor.Definition.Radius.Y);

@@ -68,7 +68,7 @@ internal static class RoomEnemyPlaceFrameAccess
                 catch (ArgumentOutOfRangeException exception)
                 {
                     throw new InvalidOperationException(
-                        $"Enemy slot {self.Ordinal} ({self.DefinitionId}, contact {self.Contact}, processing {self.Processing}, presence {self.Presence}) cannot show ${self.NativeHeader.Bank:X2}:{value:X4}.",
+                        $"Enemy slot {self.Ordinal} ({self.Occupant?.DefinitionId}, contact {self.Contact}, processing {self.Processing}, presence {self.Presence}) cannot show ${self.NativeHeader.Bank:X2}:{value:X4}.",
                         exception);
                 }
             }

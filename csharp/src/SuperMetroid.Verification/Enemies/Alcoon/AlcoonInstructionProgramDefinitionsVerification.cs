@@ -73,7 +73,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             {
                 // A playback that has just passed a frame beat is showing that pose; one resting on a held frame stands past
                 // its phase's last beat, the held frame.
-                if (place.DefinitionId == EnemyDefinitionId.Alcoon &&
+                if (place.Holds(EnemyDefinitionId.Alcoon) &&
                     enemies.AlcoonStates[place.Ordinal] is { Playback: { Place.Beat: > 0 } playback } &&
                     playback.Animation.Phases[playback.Place.Phase] is var phase &&
                     phase.FirstBeat + Math.Min(playback.Place.Beat, phase.BeatCount) - 1 is var shownBeat &&

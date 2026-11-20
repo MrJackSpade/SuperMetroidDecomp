@@ -38,7 +38,7 @@ internal sealed class RidleyNativeInstructionPointers
     /// <exception cref="InvalidOperationException">The actor keeps no cursor this translates.</exception>
     internal ushort Enemy(RoomEnemySystem enemies, RoomEnemyPlace actor) =>
         TranslatedEnemy(enemies, actor) ?? throw new InvalidOperationException(
-            $"Enemy {actor.DefinitionId} in slot {actor.Ordinal} keeps no cursor a native instruction pointer translates.");
+            $"Enemy {actor.Occupant?.DefinitionId} in slot {actor.Ordinal} keeps no cursor a native instruction pointer translates.");
 
     /// <summary>
     /// The native instruction pointer of <paramref name="actor"/>: Ridley's body and breakup fragments and the Pipe Bugs
@@ -46,9 +46,9 @@ internal sealed class RidleyNativeInstructionPointers
     /// </summary>
     internal ushort? TranslatedEnemy(RoomEnemySystem enemies, RoomEnemyPlace actor)
     {
-        if (RidleyInteractionsConstants.IsRidleyDefinition(actor.DefinitionId))
+        if (RidleyInteractionsConstants.IsRidleyDefinition(actor.HeldOccupant().DefinitionId))
             return body.Body(RequireRidley(enemies).Flight);
-        if (actor.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece)
+        if (actor.Holds(EnemyDefinitionId.RidleyBreakupPiece))
         {
             // A fragment's frame sits at its list entry and its hold at the sleep after the frame record.
             return RidleyNativeProgramOracle.BreakupPointer(actor);

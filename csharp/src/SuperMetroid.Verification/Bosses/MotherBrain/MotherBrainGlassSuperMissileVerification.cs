@@ -27,7 +27,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         enemies.VerificationServices().HeadShotOnGlassCounted = () => glassHits++;
         var head = enemies.Places.InUpdateOrder[1];
         head.Bind(EnemyDefinitionId.MotherBrainHead, head.Definition);
-        head.Bind(head.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(head.DefinitionId));
+        head.Bind(head.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(head.HeldOccupant().DefinitionId));
         head.Position = head.Position.WithWhole(new(128, 128));
         head.Radius = new(16, 16);
         head.Frame = EnemyFrameId.MotherBrainBrainHitArea;

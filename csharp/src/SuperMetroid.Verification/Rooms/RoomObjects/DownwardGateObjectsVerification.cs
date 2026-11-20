@@ -258,7 +258,7 @@ internal static class DownwardGateObjectsVerification
             ? gateBlockIndex - 1
             : gateBlockIndex + 1;
         RoomBlockBehavior bts = level.GetCollisionBlockByIndex(triggerBlockIndex).Behavior;
-        AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(level, level.BlockAt(triggerBlockIndex), bts, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectile)),
+        AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(level, level.BlockAt(triggerBlockIndex), bts, BlockStrike.By(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectile))),
             $"{trigger} is claimed by the gate dispatcher");
         RoomObjectPlaceSnapshot gate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);

@@ -25,7 +25,7 @@ internal static class FirefleaDoubleDeathVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LowerNorfairFireflea);
         var samus = runtime.Player.IntroducedSamus;
         RoomEnemyPlace fireflea = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.Fireflea);
+            place.Holds(EnemyDefinitionId.Fireflea));
         ushort x = fireflea.Position.X.Whole, y = fireflea.Position.Y.Whole;
         // Screw attack contact ($0A6E = 3) kills through CommonA3_OrdinaryTouchAI.
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.ScrewAttack;

@@ -108,7 +108,7 @@ internal static class MovieDesyncComparison
             {
                 // $0F86 properties, $0F92 instruction list pointer, $0F94 instruction timer.
                 int slotBase = MovieDesyncMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(actor.Ordinal);
-                Console.WriteLine($"  enemy {actor.Ordinal} {actor.DefinitionId} " +
+                Console.WriteLine($"  enemy {actor.Ordinal} {actor.Occupant?.DefinitionId} " +
                     $"port timer={actor.AnimationClock.Hold:X4} prop={SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(actor):X}" +
                     $"pos={actor.Position.X.Whole:X4}.{actor.Position.X.Fraction:X4}/{actor.Position.Y.Whole:X4}.{actor.Position.Y.Fraction:X4} " +
                     $"native inst={Native(slotBase + 0x1a)}/{Native(slotBase + 0x1c)} prop={Native(slotBase + 0x0e)} " +
@@ -256,7 +256,7 @@ internal static class MovieDesyncComparison
             string owner = $"Enemy {actor.Ordinal}";
             Check(owner + " identity", actor.AwaitsRespawn
                 ? SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWordsConstants.AwaitingRespawnHeader
-                : SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), address + MovieDesyncMemory.EnemyIdentityOffset);
+                : SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.HeldOccupant().DefinitionId), address + MovieDesyncMemory.EnemyIdentityOffset);
             if (actor.Occupant is null) continue;
             Position16<RoomPixels> whole = NativeWholePosition(actor);
             Check(owner + " X", whole.X, address + MovieDesyncMemory.EnemyXOffset);
@@ -284,5 +284,5 @@ internal static class MovieDesyncComparison
     /// main AI holds the refilled health.
     /// </summary>
     private static int NativeHealth(RoomEnemyPlace actor) =>
-        actor.DefinitionId == EnemyDefinitionId.BabyMetroid && actor.FrameCounter != 0 ? RefilledBabyMetroidNativeHealth : actor.Health;
+        actor.Holds(EnemyDefinitionId.BabyMetroid) && actor.FrameCounter != 0 ? RefilledBabyMetroidNativeHealth : actor.Health;
 }

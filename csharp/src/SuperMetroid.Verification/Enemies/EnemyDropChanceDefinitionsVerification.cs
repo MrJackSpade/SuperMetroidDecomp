@@ -38,7 +38,7 @@ internal static class EnemyDropChanceDefinitionsVerification
                 $"enemy drop table ${word:X4} chances in column order");
 
             EnemyDropRoll selected = fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(chances, fixture.Samus);
-            AssertTrue(selected is EnemyDropRoll.NothingDrops or EnemyDropRoll.PickupDrops { Kind: var kind } && Enum.IsDefined(kind),
+            AssertTrue(selected is EnemyDropRoll.NothingDrops || selected is EnemyDropRoll.PickupDrops { Kind: var kind } && Enum.IsDefined(kind),
                 $"production enemy drop table ${word:X4} returns a defined outcome");
         }
 

@@ -83,7 +83,7 @@ internal static class NativeEnemyFamilyStateImport
         // the encounter's state grouped by what it does (#1933).
         if (enemy.SpeciesState<PhantoonPart>()?.Phantoon is { } phantoon)
         {
-            EnemyDefinitionId part = enemy.DefinitionId;
+            EnemyDefinitionId part = enemy.HeldOccupant().DefinitionId;
             if (part == EnemyDefinitionId.PhantoonEye)
             {
                 // The cartridge's count opens the eye on the update it reaches zero; one it ran to zero or below opens it on
@@ -166,7 +166,7 @@ internal static class NativeEnemyFamilyStateImport
             if (words.E < GunshipLandingBrake.All.Count)
                 gunshipRecord.LandingBrake = GunshipLandingBrake.All[words.E];
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.ShipBottomEntrance && index > 0 &&
+        if (enemy.Holds(EnemyDefinitionId.ShipBottomEntrance) && index > 0 &&
             enemies.Places.InUpdateOrder[index - 1].SpeciesState<GunshipState>() is { } bottomOfShip)
         {
             // The bottom hull, listed right after the top, keeps the ship's engine-sound timer in variable D, its
@@ -497,7 +497,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             babyTurtleRecord.Action = MamaTurtlesNativeWords.BabyTurtleActions.Decode(words.A, "recorded BabyTurtleAction");
             // Every Baby Turtle's parent is a Mama Turtle, who links her babies when she is placed.
-            if (enemies.Places.InUpdateOrder[SlotIndex(words.B, "Baby Turtle parent offset")].DefinitionId != EnemyDefinitionId.MamaTurtle)
+            if (enemies.Places.InUpdateOrder[SlotIndex(words.B, "Baby Turtle parent offset")].Occupant?.DefinitionId != EnemyDefinitionId.MamaTurtle)
                 throw new InvalidDataException($"Recorded Baby Turtle parent offset ${words.B:X4} does not name a Mama Turtle.");
             babyTurtleRecord.SpawnTopCenter = new(words.C, words.D);
             // The record keeps the baby's signed whole-pixel speed (#2338): its sign the way it heads, a still baby's way kept.
@@ -799,7 +799,7 @@ internal static class NativeEnemyFamilyStateImport
             beetom.ButtonCounter = unchecked((short)words.E);
             beetom.LastSeenPlayerActions = GameplayActionWordCodec.FromJoypadWord(words.F, "native Beetom previous controller input");
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.Shaktool && enemies.ShaktoolSegments[index] is { } segment)
+        if (enemy.Holds(EnemyDefinitionId.Shaktool) && enemies.ShaktoolSegments[index] is { } segment)
         {
             int segmentIndex = Array.IndexOf(ShaktoolSegmentDefinitions.Segments, enemy.HeldOccupant().SpawnSettings<ShaktoolSpawnSettings>().Segment);
             // Every segment's record holds a copy of the chain's target; the leading saw's, which no straightening turns
@@ -842,7 +842,7 @@ internal static class NativeEnemyFamilyStateImport
             // Only the angle word's low byte is ever read; movement discards its high byte.
             skultera.Angle = RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.F));
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.Coven && enemy.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
+        if (enemy.Holds(EnemyDefinitionId.Coven) && enemy.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
         {
             ghost.Action = WreckedShipNativeWords.WreckedShipGhostActions.Decode(words.A, "recorded WreckedShipGhostAction");
             // Word B is the one timer the cartridge keeps for every phase; the port keeps a countdown for each timed phase
@@ -891,12 +891,12 @@ internal static class NativeEnemyFamilyStateImport
             crawler.Action = (enemy.Entity is OrangeZoomerEntity ? CrawlersNativeWords.OrangeZoomerActions : CrawlersNativeWords.SurfaceCrawlerActions)
                 .Decode(words.F, "recorded CrawlerAction");
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.Holtz && enemy.SpeciesState<HoltzEnemyState>() is { } holtz)
+        if (enemy.Holds(EnemyDefinitionId.Holtz) && enemy.SpeciesState<HoltzEnemyState>() is { } holtz)
         {
             holtz.Velocity = new(new SignedEightEight(words.D), new SignedEightEight(words.C));
             holtz.Action = RiosNativeWords.HoltzActions.Decode(words.F, "recorded LowerNorfairRioAction");
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.EtecoonEscape && enemy.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
+        if (enemy.Holds(EnemyDefinitionId.EtecoonEscape) && enemy.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
         {
             // The record's signed walking speed: its sign is the way the Etecoon walks (#2369).
             var escapeVelocity = new SignedEightEight(words.A);
@@ -904,7 +904,7 @@ internal static class NativeEnemyFamilyStateImport
             PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Speed), escapeVelocity.IsNegative ? escapeVelocity.Negated() : escapeVelocity);
             PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Action), AnimalsNativeWords.EscapeEtecoonActionAt(words.F));
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.FaceBlock && enemy.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
+        if (enemy.Holds(EnemyDefinitionId.FaceBlock) && enemy.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
         {
             // The game keeps a woken face as a flag beside the turn its wake installed; the port's face is awake while it
             // plays that turn (#2476). The recording's place in the turn is not imported: a woken face holds its turn's end.
@@ -915,18 +915,18 @@ internal static class NativeEnemyFamilyStateImport
                 faceBlock.Playback = new(turn, AnimationPlace.HoldingIn(0, turn.Phases[0].BeatCount));
             }
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.NuclearWaffle && enemy.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
+        if (enemy.Holds(EnemyDefinitionId.NuclearWaffle) && enemy.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
         {
             waffle.Action = NuclearNativeWords.NuclearWaffleActions.Decode(words.A, "recorded NuclearWaffleAction");
             waffle.WaitingTimer = TrueWait(words.B);
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.Polyp && enemy.SpeciesState<PolypEnemyState>() is { } polyp)
+        if (enemy.Holds(EnemyDefinitionId.Polyp) && enemy.SpeciesState<PolypEnemyState>() is { } polyp)
         {
             polyp.Action = PolypNativeWords.PolypActions.Decode(words.A, "recorded PolypAction");
             polyp.CooldownTimer = TrueWait(words.B);
         }
         // The halves reuse the same words for different values, each half into its own state (#1845).
-        if (enemy.DefinitionId == EnemyDefinitionId.Powamp && enemy.SpeciesState<PowampBalloonState>() is { } powampBalloon)
+        if (enemy.Holds(EnemyDefinitionId.Powamp) && enemy.SpeciesState<PowampBalloonState>() is { } powampBalloon)
         {
             powampBalloon.Spawn = new(words.A, words.B);
             // The balloon reads its grappled rise from its spawn settings (#2439); the recording's copy must be the placement's.
@@ -935,7 +935,7 @@ internal static class NativeEnemyFamilyStateImport
             if (words.F != PowampNativeWords.BalloonIdleWord)
                 throw new InvalidDataException($"Recorded Powamp balloon runs ${words.F:X4}, not the balloon's empty routine.");
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.Powamp && enemy.SpeciesState<PowampBodyState>() is { } powampBody)
+        if (enemy.Holds(EnemyDefinitionId.Powamp) && enemy.SpeciesState<PowampBodyState>() is { } powampBody)
         {
             powampBody.YVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.A), words.B);
             powampBody.Wiggle = PowampWiggle.All[Index(words.C, PowampWiggle.All.Count - 1, "Powamp wiggle phase")];
@@ -943,7 +943,7 @@ internal static class NativeEnemyFamilyStateImport
             powampBody.ActionTimer = UpdateCountdown.For(ZeroOrBelowDuration(words.E));
             powampBody.Action = PowampNativeWords.PowampActions.Decode(words.F, "recorded PowampAction");
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.MamaTurtle && enemy.SpeciesState<MamaTurtleEnemyState>() is { } mama)
+        if (enemy.Holds(EnemyDefinitionId.MamaTurtle) && enemy.SpeciesState<MamaTurtleEnemyState>() is { } mama)
         {
             MamaTurtleAction mamaAction = MamaTurtlesNativeWords.MamaTurtleActions.Decode(words.A, "recorded MamaTurtleAction");
             // Only the horizontal velocity's whole pixels live in the record; its fraction and the vertical velocity do not.
@@ -1105,14 +1105,14 @@ internal static class NativeEnemyFamilyStateImport
             if ((right ? HorizontalDirection.Right : HorizontalDirection.Left) != enemy.HeldOccupant().SpawnSettings<NamiheSpawnSettings>().Facing)
                 throw new InvalidDataException($"Recorded Namihe selector ${words.A:X4} does not face its placement's {enemy.HeldOccupant().SpawnSettings<NamiheSpawnSettings>().Facing}.");
         }
-        if (enemy.DefinitionId is EnemyDefinitionId.GrappleRipper or EnemyDefinitionId.Ripper or EnemyDefinitionId.JetRipper &&
+        if (enemy.Occupant?.DefinitionId is EnemyDefinitionId.GrappleRipper or EnemyDefinitionId.Ripper or EnemyDefinitionId.JetRipper &&
             enemy.SpeciesState<RipperEnemyState>() is { } ripperVariant)
         {
             ripperVariant.Heading = unchecked((short)words.D) < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
             // The Ripper flies its placement's speed (#2450), which the recording's must be.
             SignedSixteenSixteen recordedRipperSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpeedTableCodec.LinearSpeedAtOffset(words.E);
             // A grapple Ripper's placement keeps its patrol bounds beside its speed (#2512).
-            SignedSixteenSixteen placementRipperSpeed = enemy.DefinitionId == EnemyDefinitionId.GrappleRipper
+            SignedSixteenSixteen placementRipperSpeed = enemy.Holds(EnemyDefinitionId.GrappleRipper)
                 ? enemy.HeldOccupant().SpawnSettings<GrappleRipperSpawnSettings>().Speed
                 : enemy.HeldOccupant().SpawnSettings<RipperSpawnSettings>().Speed;
             SignedSixteenSixteen ripperRightward = RipperBehavior.FlyingVelocity(placementRipperSpeed, HorizontalDirection.Right);
@@ -1219,7 +1219,7 @@ internal static class NativeEnemyFamilyStateImport
             // the last hop's, which its next hop clears.
             puyo.Action = PuyoAction.Falling;
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.Coven && enemy.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
+        if (enemy.Holds(EnemyDefinitionId.Coven) && enemy.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
         {
             // The lock-on timer ($7E:781A) counts Samus's keeping still, the directed movement timer ($7E:781C) her keeping
             // her direction; the appearance sets both, which the ghost keeps until it watches her again (#2512).

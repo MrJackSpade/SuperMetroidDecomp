@@ -118,7 +118,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 if (color != XrayScopeDefinitionsPaletteConstants.VisorCgramIndex)
                     words.Add(shown[color].ToWord());
             foreach (var actor in runtime.Enemies.Places.InUpdateOrder)
-                words.AddRange([SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), actor.Position.X.Whole, actor.Position.X.Fraction,
+                words.AddRange([SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.HeldOccupant().DefinitionId), actor.Position.X.Whole, actor.Position.X.Fraction,
                     actor.Position.Y.Whole, actor.Position.Y.Fraction, checked((ushort)actor.Health), actor.SpritemapPointer,
                     checked((ushort)actor.AnimationClock.Hold)]);
             return words.ToArray();
@@ -507,7 +507,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 string owner = $"Enemy {actor.Ordinal}";
                 Check(owner + " identity", actor.AwaitsRespawn
                     ? SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWordsConstants.AwaitingRespawnHeader
-                    : SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), address);
+                    : SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.HeldOccupant().DefinitionId), address);
                 if (actor.Occupant is null || W(address) == 0) continue;
                 Check(owner + " X", actor.Position.X.Whole, address + 2);
                 Check(owner + " X fraction", actor.Position.X.Fraction, address + 4);
@@ -542,7 +542,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check(owner + " InvincibilityTimer", actor.Invincibility.UpdatesLeft, address + 40);
                 Check(owner + " ShakeTimer", actor.Shake.UpdatesLeft, address + 42);
                 // A breakup fragment's count only flickers it; the cartridge keeps only that phase of it (#1940).
-                if (actor.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece)
+                if (actor.Holds(EnemyDefinitionId.RidleyBreakupPiece))
                     CheckValue(owner + " flicker phase", actor.FrameCounter & 1, W(address + 44) & 1);
                 else
                     Check(owner + " FrameCounter", actor.FrameCounter, address + 44);

@@ -831,7 +831,7 @@ internal static class LookupStream5Verification
         }
         var priority = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, state), new(240, 128));
         _ = priority.Step((native[0] | native[1] | native[2] | native[3]));
-        AssertEqual(MapScrollDirection.Left, priority.Direction, "Left takes priority among simultaneous directions");
+        AssertEqual(MapScrollDirection.Left, priority.StepUnderWay?.Direction, "Left takes priority among simultaneous directions");
         Console.WriteLine("Map buttons: four native semantic cases, domain bounds, four-direction pulses, release and priority pass.");
     }
 

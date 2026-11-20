@@ -249,7 +249,7 @@ internal static class RightFacingGateGlitchVerification
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(128, 0));
 
         RoomEnemyPlace frozen = runtime.Enemies.Places.InUpdateOrder.First(boyon =>
-            boyon.DefinitionId == EnemyDefinitionId.Boyon);
+            boyon.Holds(EnemyDefinitionId.Boyon));
         foreach (RoomEnemyPlace enemy in runtime.Enemies.Places.InUpdateOrder)
         {
             if (!ReferenceEquals(enemy, frozen))

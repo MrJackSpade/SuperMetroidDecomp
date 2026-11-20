@@ -62,7 +62,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             throw new InvalidDataException("Mother Brain Baby allocator produced no physical slot.");
         AssertEqual(1, baby.Ordinal, "Mother Brain Baby first free physical slot");
         AssertEqual(EnemyDefinitionId.BabyMetroidCutscene,
-            baby.DefinitionId,
+            baby.HeldOccupant().DefinitionId,
             "Mother Brain Baby physical definition");
         AssertEqual(population, baby.HeldOccupant().Spawn,
             "Mother Brain Baby retained population snapshot");

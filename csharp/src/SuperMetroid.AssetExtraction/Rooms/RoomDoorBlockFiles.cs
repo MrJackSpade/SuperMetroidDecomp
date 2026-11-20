@@ -130,7 +130,7 @@ internal static class RoomDoorBlockFiles
                 var blocks = new List<RoomDoorBlock>();
                 foreach ((string exitName, DoorBlockDocument[] positions) in exits)
                 {
-                    DoorBlockExit exit = exitsByName.TryGetValue(exitName, out DoorBlockExit found)
+                    DoorBlockExit exit = exitsByName.TryGetValue(exitName, out DoorBlockExit? found)
                         ? found
                         : throw new InvalidDataException($"Room door blocks {path} name unknown door '{exitName}' in {roomName}.");
                     blocks.AddRange(positions.Select(position => new RoomDoorBlock(position.Block(path), exit)));

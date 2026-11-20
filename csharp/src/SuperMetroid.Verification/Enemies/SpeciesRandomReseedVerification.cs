@@ -48,7 +48,7 @@ internal static class SpeciesRandomReseedVerification
         place.Bind(EnemyDefinitionId.Sidehopper, place.Definition);
         place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         place.SetSpawnSettings(new HopperSpawnSettings(HopperSurface.Floor));
-        enemies.HoppersBehavior.InitializeHopper(place);
+        enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant());
         AssertEqual(new ReseedCase([Word(HopperSeedOperand)], 1), new ReseedCase([.. seeds], draws),
             "a Sidehopper's placement reseeds with the cartridge's seed and draws once");
 

@@ -64,7 +64,7 @@ internal static class StatueSplashVerification
                     // Isolate the spawned actor after the real crossing so every
                     // emitted sprite can be compared against its native screen origin.
                     foreach (var other in enemies.Projectiles.EnemyProjectiles)
-                        if (other != splash) other.Kind = 0;
+                        if (other != splash) other.Delete();
                     int visibleFrames = 0;
                     ushort splashX = (ushort)SixteenSixteenWords.WholeOf(unchecked((uint)x));
                     for (int age = 0; age < 64 && splash.IsActive; age++)

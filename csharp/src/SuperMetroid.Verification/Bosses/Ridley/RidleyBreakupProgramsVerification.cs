@@ -44,7 +44,7 @@ internal static class RidleyBreakupProgramsVerification
         body.HoldRidley(state);
         death(body, state, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
         AssertEqual(RidleyGrabState.Released, state.GrabState, "Ridley death releases Samus before breakup");
-        var fragments = enemies.Places.InUpdateOrder.Where(place => place.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece).ToArray();
+        var fragments = enemies.Places.InUpdateOrder.Where(place => place.Holds(EnemyDefinitionId.RidleyBreakupPiece)).ToArray();
         AssertEqual(12, fragments.Length, "Ridley death spawns all twelve body/tail fragments");
         AssertEqual(EnemyFrameId.RidleyTailTipPointingToward157, fragments[0].RequireSpeciesState<RidleyExplosionFragmentState>().Picture,
             "reported tail orientation selects the second tip pose ($A6:CA9B)");

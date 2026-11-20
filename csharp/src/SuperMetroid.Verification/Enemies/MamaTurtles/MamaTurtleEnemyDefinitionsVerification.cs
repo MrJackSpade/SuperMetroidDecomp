@@ -49,9 +49,9 @@ internal static class MamaTurtleEnemyDefinitionsVerification
 
         AssertEqual(5, enemies.Places.EnemyCount, "Mama Turtle retail population count");
         AssertEqual(EnemyDefinitionId.MamaTurtle,
-            enemies.Places.InUpdateOrder[0].DefinitionId, "Mama Turtle parent header identity");
+            enemies.Places.InUpdateOrder[0].HeldOccupant().DefinitionId, "Mama Turtle parent header identity");
         AssertEqual(EnemyDefinitionId.BabyTurtle,
-            enemies.Places.InUpdateOrder[1].DefinitionId, "Baby Turtle header identity");
+            enemies.Places.InUpdateOrder[1].HeldOccupant().DefinitionId, "Baby Turtle header identity");
         AssertEqual(EnemyDefinitionsVerification.ReadNativeEnemyDefinition(rom, EnemyDefinitionId.MamaTurtle),
             enemies.Places.InUpdateOrder[0].Definition, "Mama Turtle loaded definition");
         for (int slot = 1; slot < 5; slot++)

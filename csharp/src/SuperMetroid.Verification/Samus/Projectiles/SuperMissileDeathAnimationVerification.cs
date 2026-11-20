@@ -43,7 +43,7 @@ internal static class SuperMissileDeathAnimationVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RisingTide);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.LockOutPlayer();
-        RoomEnemyPlace enemy = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == enemyDefinition);
+        RoomEnemyPlace enemy = runtime.Enemies.Places.InUpdateOrder.First(place => place.Occupant?.DefinitionId == enemyDefinition);
         enemy.Health = 1;
         enemy.Invincibility.End();
         // The room loads both on the empty map, which the shot pass skips. The Dragon shows its surfaced frame ($E80C,

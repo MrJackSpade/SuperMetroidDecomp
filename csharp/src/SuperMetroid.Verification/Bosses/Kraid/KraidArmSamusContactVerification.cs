@@ -29,7 +29,7 @@ internal static class KraidArmSamusContactVerification
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid);
         RoomEnemyPlace arm = runtime.Enemies.Places.InUpdateOrder[1];
-        AssertEqual(EnemyDefinitionId.KraidArm, arm.DefinitionId, "slot one is Kraid's arm");
+        AssertEqual(EnemyDefinitionId.KraidArm, arm.Occupant?.DefinitionId, "slot one is Kraid's arm");
 
         // Native update 35724: the arm and Samus as they stand when EnemyMain tests contact.
         arm.Position = arm.Position.WithWhole(new(0x00b0, 0x01df));

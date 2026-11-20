@@ -172,9 +172,9 @@ internal static class EnemyDefinitionsVerification
             RoomEnemyPlace tube = enemies.Places.InUpdateOrder[index];
             AssertEqual(native, tube.HeldOccupant().Spawn,
                 $"production tube spawn {index} retains its authored placement and parameters");
-            AssertEqual(native.Position.X, tube.Position.X.Whole,
+            AssertEqual(RoomEnemyPopulationRecordCodec.PositionWordsOf(native.Placing).X, tube.Position.X.Whole,
                 $"production tube spawn {index} uses its compiled X coordinate");
-            AssertEqual(native.Position.Y, tube.Position.Y.Whole,
+            AssertEqual(RoomEnemyPopulationRecordCodec.PositionWordsOf(native.Placing).Y, tube.Position.Y.Whole,
                 $"production tube spawn {index} uses its compiled Y coordinate");
         }
         AssertEqual(5, enemies.Places.EnemyCount,

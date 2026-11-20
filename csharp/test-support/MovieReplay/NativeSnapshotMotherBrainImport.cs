@@ -90,7 +90,7 @@ internal static class NativeSnapshotMotherBrainImport
             ? null
             : BodyPlaybackAt(state.Body);
         Dictionary<MotherBrainTubePiece, NativeEnemyList<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
-        foreach (RoomEnemyPlace tube in runtime.Enemies.Places.InUpdateOrder.Where(place => place.DefinitionId == EnemyDefinitionId.MotherBrainTubes))
+        foreach (RoomEnemyPlace tube in runtime.Enemies.Places.InUpdateOrder.Where(place => place.Holds(EnemyDefinitionId.MotherBrainTubes)))
         {
             tube.RequireSpeciesState<MotherBrainFallingTubeState>().Playback = NativeEnemyAnimationOracle.PlaybackAt(
                 tubes, MotherBrainNativeListAddresses.TubeEntries, MotherBrainTubeAnimations.StartingAt, AnimationScript(tube));
@@ -380,7 +380,7 @@ internal static class NativeSnapshotMotherBrainImport
         BossBodyFrameSource? staged = BossBodySheetComposer.Frames(bosses, BossBodyOwner.MotherBrain).FirstOrDefault(frame =>
             frame.Cells.All(entry => entry.Key < screen.Length && screen[entry.Key] == entry.Value.PackedWord));
         if (staged is not null)
-            image.Show(state.Body.DefinitionId, sheet.Frame(staged.Name));
+            image.Show(state.Body.HeldOccupant().DefinitionId, sheet.Frame(staged.Name));
         if (!BossBodyWords.Of(image.Publish(), BossBodyOwner.MotherBrain, bosses).AsSpan(0, screen.Length).SequenceEqual(screen))
             throw new InvalidDataException("The snapshot's staged Mother Brain body is not one installed body frame over her blank.");
         runtime.Enemies.Presentation.AttachBossBody(image);

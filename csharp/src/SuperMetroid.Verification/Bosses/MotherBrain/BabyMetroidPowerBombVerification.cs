@@ -22,7 +22,7 @@ internal static class BabyMetroidPowerBombVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemyPlace babyMetroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
+            place.Holds(EnemyDefinitionId.BabyMetroid));
         BabyMetroidEnemyState state = babyMetroid.SpeciesState<BabyMetroidEnemyState>()
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
         state.Action = BabyMetroidAction.WaitForCamera;

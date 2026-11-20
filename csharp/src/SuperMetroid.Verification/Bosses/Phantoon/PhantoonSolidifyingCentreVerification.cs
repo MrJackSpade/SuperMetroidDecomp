@@ -35,7 +35,7 @@ internal static class PhantoonSolidifyingCentreVerification
             definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
-        body.Bind(body.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(body.DefinitionId));
+        body.Bind(body.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(body.HeldOccupant().DefinitionId));
         body.Position = body.Position.WithWhole(new(128, 96));
         body.Frame = EnemyFrameId.PhantoonInvulnerableBody;
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);

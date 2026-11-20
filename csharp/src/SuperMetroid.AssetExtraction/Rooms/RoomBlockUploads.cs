@@ -588,7 +588,7 @@ internal static class RoomBlockUploads
         /// installed room block sheet restyles them.
         /// </summary>
         internal IReadOnlyList<RoomObjectDynamicCollectibleGraphic> Collectibles =>
-            [.. placedCollectibles.OrderBy(DynamicCollectibleGraphics.KindIndex).Select(DynamicCollectibleGraphics.Get)];
+            [.. placedCollectibles.OrderBy(DynamicCollectibleGraphics.UploadOrder).Select(DynamicCollectibleGraphics.Get)];
 
         /// <summary>Records that a room of the tileset places collectible <paramref name="kind"/>.</summary>
         /// <exception cref="InvalidDataException">The tileset's rooms are Ceres rooms, which place no collectibles.</exception>

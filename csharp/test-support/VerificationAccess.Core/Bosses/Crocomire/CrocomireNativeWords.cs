@@ -90,7 +90,11 @@ internal static class CrocomireNativeWords
 
         if (state.DeathStage.Entry is CrocomireDeathStage.RumbleHiddenWall)
         {
-            (state.RumbleOscillation, state.RumbleTowardExtreme) = RumbleAt(wordD);
+            (int oscillation, state.RumbleTowardExtreme) = RumbleAt(wordD);
+            // The cursor past the last oscillation names none under way.
+            state.RumbleOscillation = oscillation < CrocomireRumbleDefinitions.Oscillations.Length
+                ? ListStep<CrocomireRumbleOscillation>.At(CrocomireRumbleDefinitions.Oscillations, oscillation)
+                : null;
         }
         else
         {

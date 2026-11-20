@@ -583,7 +583,6 @@ internal static class NativeSnapshotImport
             if (projectile.BlocksSamusProjectiles) properties |= NativeSnapshotMemory.EnemyProjectileShotCollision;
             VerificationAssertions.AssertEqual(W(NativeSnapshotMemory.EnemyProjectileProperties + index), properties,
                 $"initial enemy projectile {projectile.Place} properties");
-        }
             projectile.Position = projectile.Position.WithWhole(leftPosition);
             projectile.Velocity = leftVelocity;
         }

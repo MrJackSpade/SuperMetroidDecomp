@@ -94,7 +94,7 @@ internal static class RoomEnemySystemAccess
             Ensure.NotNull(samusBombs);
             var kraid = self.Kraid;
             RoomEnemyPlace body = self.Places.InUpdateOrder[0];
-            if (kraid is null || body.DefinitionId != EnemyDefinitionId.Kraid ||
+            if (kraid is null || body.Occupant?.DefinitionId != EnemyDefinitionId.Kraid ||
                 body.Presence.HasAny(EnemyPresence.Deleted))
                 return 0;
             IReadOnlyList<KraidBehavior.KraidPassProjectile> tested = KraidBehavior.TestedByShotPasses(projectiles, samusBombs);

@@ -108,7 +108,7 @@ internal static class EnemyDropsVerification
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var samusColours = new SamusColours();
         fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, SamusProjectiles = projectiles, SamusColours = samusColours });
-        AssertTrue(enemy.AwaitsRespawn && enemy.DefinitionId == EnemyDefinitionId.None,
+        AssertTrue(enemy.AwaitsRespawn && enemy.Occupant is null,
             "contact death leaves the respawning enemy's place awaiting its respawn");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "contact death counted once");
         AssertEqual(1, enemy.FrameCounter, "the death update still counts the awaiting place's update");
@@ -381,7 +381,7 @@ internal static class EnemyDropsVerification
         // A Fireflea touched with health nine left dies in the small explosion.
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy,
             deathAnimation: EnemyDeathExplosionDefinitions.LeftoverNumbered.Named(9), fixture.Samus);
-        AssertTrue(enemy.AwaitsRespawn && enemy.DefinitionId == EnemyDefinitionId.None,
+        AssertTrue(enemy.AwaitsRespawn && enemy.Occupant is null,
             "respawning death leaves the enemy's place awaiting its respawn");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled,
             "generic enemy death increments room kill counter");

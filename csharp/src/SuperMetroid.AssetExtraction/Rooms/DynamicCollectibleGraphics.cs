@@ -21,6 +21,12 @@ internal static class DynamicCollectibleGraphics
         return new(kind, palettes, Convert.FromHexString(Tiles[GraphicIndex(kind)]));
     }
 
+    /// <summary>The place of <paramref name="kind"/> in <see cref="RoomObjectDynamicCollectibleGraphicsDefinitions.Kinds"/>, the order the dynamic uploads list it.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="kind"/> has no dynamic graphics upload.</exception>
+    internal static int UploadOrder(InWorldCollectibleKind kind) => HasUpload(kind)
+        ? Array.IndexOf(Kinds, kind)
+        : throw new InvalidDataException($"Permanent-item kind {kind} has no dynamic graphics upload.");
+
     /// <summary>The place of <paramref name="kind"/>'s artwork block among the item graphics, in their stored order.</summary>
     internal static int GraphicIndex(InWorldCollectibleKind kind) => Array.IndexOf(StoredGraphics, GraphicFor(kind));
 

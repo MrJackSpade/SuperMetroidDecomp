@@ -31,13 +31,13 @@ internal static class RespawnedEnemyContactVerification
         samus.Control.Unlock();
 
         RoomEnemyPlace enemy = runtime.Enemies.Places.InUpdateOrder.Single(place =>
-            place.DefinitionId == respawningEnemy && place.Position.X.Whole == respawnX);
+            place.Occupant?.DefinitionId == respawningEnemy && place.Position.X.Whole == respawnX);
         AssertTrue(enemy.Presence.HasAny(EnemyPresence.RespawnsIfKilled),
             "the Hellway actor respawns when killed");
         runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(enemy, EnemyDeathExplosion.Small, samus);
 
         StepUntil(
-            () => enemy.DefinitionId == respawningEnemy,
+            () => enemy.Occupant?.DefinitionId == respawningEnemy,
             _ => runtime.StepFrame(0),
             maximumFrames: 200,
             context: "Hellway enemy respawn");

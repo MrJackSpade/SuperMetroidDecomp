@@ -765,7 +765,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(0xa4e1, runtime.Clock.Counter, "sound wait accepts exactly one NMI");
         AssertEqual(DoorTransitionPhase.FadeOutSourceRoom, game.DoorTransitionPhaseForVerification, "source fade begins after sound drain");
         var actor = runtime.Enemies.Places.InUpdateOrder[6];
-        AssertEqual(EnemyDefinitionId.Zebbo, actor.DefinitionId, "native source-room pipe bug");
+        AssertEqual(EnemyDefinitionId.Zebbo, actor.Occupant?.DefinitionId, "native source-room pipe bug");
         var pipeBugPointers = new PipeBugNativeInstructionPointers(CartridgeImportSource.Require(bus));
         BrinstarPipeBugState pipeBug = runtime.Enemies.BrinstarPipeBugStates[6] ?? throw new InvalidOperationException("The source-room pipe bug has no state.");
         pipeBug.Playback = pipeBugPointers.PlaybackAt(NativeSnapshotMemory.PipeBugBeforeFadeInstruction);

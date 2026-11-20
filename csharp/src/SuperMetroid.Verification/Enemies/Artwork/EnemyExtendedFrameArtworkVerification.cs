@@ -279,21 +279,21 @@ internal static class EnemyExtendedFrameArtworkVerification
         if (art is not null)
         {
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
-            enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(place.DefinitionId));
+            enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(place.HeldOccupant().DefinitionId));
             place.Shading = PictureShading.Standard;
         }
         // Ridley's scene draws his tail and wings before his body while his movement animation runs, and his AI latches
         // whether his body draws in the hurt flash; this fixture's animation is off and its latch holds his own colours.
-        if (place.DefinitionId == EnemyDefinitionId.Ridley)
+        if (place.Holds(EnemyDefinitionId.Ridley))
         {
             place.HoldRidley(new NorfairRidleyState());
         }
         place.CollidesByFrameHitboxes = true;
         place.Frame = frame;
         // Kraid's arm and foot show the pose their record stores, its step and depth, through their part state (#2210).
-        if (place.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot)
+        if (place.Occupant?.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot)
         {
-            place.SetSpeciesState<SuperMetroid.Core.Bosses.Kraid.KraidPartState>(place.DefinitionId == EnemyDefinitionId.KraidArm
+            place.SetSpeciesState<SuperMetroid.Core.Bosses.Kraid.KraidPartState>(place.Holds(EnemyDefinitionId.KraidArm)
                 ? new SuperMetroid.Core.Bosses.Kraid.KraidEnemyState(new SuperMetroid.Core.Bosses.Kraid.KraidParts()).ArmState
                 : new SuperMetroid.Core.Bosses.Kraid.KraidEnemyState(new SuperMetroid.Core.Bosses.Kraid.KraidParts()).FootState);
             place.SpritemapPointer = pointer;

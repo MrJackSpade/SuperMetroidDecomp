@@ -27,7 +27,7 @@ internal static class FrozenTimeEnemyProjectilesVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MtEverest);
         runtime.Player.IntroducedSamus.Control.LockOutPlayer();
-        RoomEnemyPlace victim = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.Sciser);
+        RoomEnemyPlace victim = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Sciser));
         runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(victim, EnemyDeathExplosion.Normal, runtime.Player.IntroducedSamus);
         EnemyProjectile explosion = runtime.Enemies.Projectiles.EnemyProjectiles
             .Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);

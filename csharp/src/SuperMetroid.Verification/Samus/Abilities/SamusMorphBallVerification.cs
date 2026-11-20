@@ -1171,7 +1171,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
             powerBombDoorLevel,
             powerBombDoorLevel.BlockAt(bombDoorIndex),
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
-            SamusBombProjectileSystem.PowerBombType),
+            BlockStrike.By(SamusBombProjectileSystem.PowerBombType)),
         "power-bomb family remains rejected by blue-door setup");
     AssertEqual(RoomCollisionType.ShootableBlock,
         powerBombDoorLevel.GetCollisionBlockByIndex(bombDoorIndex).CollisionType,
@@ -1227,7 +1227,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
             powerBombShotLevel,
             powerBombShotLevel.BlockAt(shotIndex),
             behavior: 8,
-            projectileType: BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.PowerBomb)),
+            strike: BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.PowerBomb)),
             solidBlock: true),
         "power bomb allocates BTS-eight respawning block PLM");
     AssertEqual(RoomTerrainBlock.Of(0x057, BlockMirroring.None, RoomCollisionType.SolidBlock),
@@ -1323,7 +1323,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
             superShotLevel,
             superShotLevel.BlockAt(shotIndex),
             behavior: 10,
-            projectileType: BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.Missile)),
+            strike: BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.Missile)),
             solidBlock: true),
         "ordinary missile is rejected by Super Missile block setup");
     AssertEqual(RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.ShootableBlock),
@@ -1335,7 +1335,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
             superShotLevel,
             superShotLevel.BlockAt(shotIndex),
             behavior: 10,
-            projectileType: BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
+            strike: BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
             solidBlock: true),
         "Super Missile allocates BTS-A respawning block PLM");
     AssertEqual(RoomTerrainBlock.Of(0x09f, BlockMirroring.None, RoomCollisionType.SolidBlock),
@@ -1368,7 +1368,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
                 permanentWeaponLevel,
                 permanentWeaponLevel.BlockAt(shotIndex),
                 behavior,
-                SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectileType),
+                BlockStrike.By(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectileType)),
                 solidBlock: true),
             $"{familyName} allocates permanent weapon-gated block PLM");
         for (int frame = 0; frame < 20; frame++)
@@ -1413,7 +1413,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
             noOpShotLevel,
             noOpShotLevel.BlockAt(shotIndex),
             behavior: 0x10,
-            projectileType: BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.PowerBomb)),
+            strike: BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.PowerBomb)),
             solidBlock: true),
         "BTS-ten allocates the native B974 collision-probe PLM");
     AssertEqual(3, noOpShotObjects.Places.ActiveCount,

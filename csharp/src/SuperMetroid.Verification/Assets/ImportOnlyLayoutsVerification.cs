@@ -27,8 +27,8 @@ internal static class ImportOnlyLayoutsVerification
     private static IEnumerable<(string Component, string File)> Layouts()
     {
         string enemyTiles = GameInstallationLayout.EnemyTileDirectoryName;
-        yield return (enemyTiles, CrocomireMeltingArtworkFormat.FirstTilemapFileName);
-        yield return (enemyTiles, CrocomireMeltingArtworkFormat.SecondTilemapFileName);
+        yield return (enemyTiles, CrocomireMeltingArtworkFormat.FleshTilemapFileName);
+        yield return (enemyTiles, CrocomireMeltingArtworkFormat.BareSkullTilemapFileName);
         yield return (enemyTiles, KraidBackgroundArtworkFormat.UpperFileName);
         yield return (enemyTiles, KraidBackgroundArtworkFormat.LowerFileName);
         foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)

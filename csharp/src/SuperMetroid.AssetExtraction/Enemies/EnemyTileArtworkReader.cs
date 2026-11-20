@@ -299,17 +299,17 @@ internal sealed class EnemyTileArtworkReader
     /// <exception cref="InvalidDataException">An extracted file is invalid.</exception>
     internal CrocomireMeltingArtwork CrocomireMelting(string importData)
     {
-        byte[] first = ReadImportData(importData, CrocomireMeltingArtworkFormat.FirstFileName);
-        byte[] second = ReadImportData(importData, CrocomireMeltingArtworkFormat.SecondFileName);
+        byte[] first = ReadImportData(importData, CrocomireMeltingArtworkFormat.FleshFileName);
+        byte[] second = ReadImportData(importData, CrocomireMeltingArtworkFormat.BareSkullFileName);
         byte[] firstTilemap = ReadImportData(importData,
-            CrocomireMeltingArtworkFormat.FirstTilemapFileName);
+            CrocomireMeltingArtworkFormat.FleshTilemapFileName);
         byte[] secondTilemap = ReadImportData(importData,
-            CrocomireMeltingArtworkFormat.SecondTilemapFileName);
+            CrocomireMeltingArtworkFormat.BareSkullTilemapFileName);
         try
         {
             return CrocomireMeltingArtwork.Load(
-                RoomCharacterAtlasPng.Read(new MemoryStream(first, writable: false), CrocomireMeltingArtworkFormat.FirstByteCount),
-                RoomCharacterAtlasPng.Read(new MemoryStream(second, writable: false), CrocomireMeltingArtworkFormat.SecondByteCount),
+                RoomCharacterAtlasPng.Read(new MemoryStream(first, writable: false), CrocomireMeltingArtworkFormat.FleshByteCount),
+                RoomCharacterAtlasPng.Read(new MemoryStream(second, writable: false), CrocomireMeltingArtworkFormat.BareSkullByteCount),
                 new MemoryStream(firstTilemap, writable: false),
                 new MemoryStream(secondTilemap, writable: false));
         }

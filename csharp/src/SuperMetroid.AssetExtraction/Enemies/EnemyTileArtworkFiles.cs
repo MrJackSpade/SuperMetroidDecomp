@@ -96,21 +96,21 @@ public static class EnemyTileArtworkFiles
         ValidateDefinitionIds(headers);
         byte[] firstMelt = ExtractCrocomireMelt(bus,
             CrocomireMeltingIllustration.Flesh,
-            CrocomireMeltingArtworkFormat.FirstByteCount);
+            CrocomireMeltingArtworkFormat.FleshByteCount);
         byte[] secondMelt = ExtractCrocomireMelt(bus,
             CrocomireMeltingIllustration.BareSkull,
-            CrocomireMeltingArtworkFormat.SecondByteCount);
+            CrocomireMeltingArtworkFormat.BareSkullByteCount);
         byte[] firstMeltTilemap = ExtractCrocomireMeltTilemap(bus,
             CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.Flesh));
         byte[] secondMeltTilemap = ExtractCrocomireMeltTilemap(bus,
             CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.BareSkull));
-        File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.FirstFileName), firstMelt);
-        File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.SecondFileName), secondMelt);
+        File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.FleshFileName), firstMelt);
+        File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.BareSkullFileName), secondMelt);
         // The melt layouts, like Kraid's, only compose the boss body sheets, whose pictures the installation holds (#1638).
         File.WriteAllBytes(Path.Combine(importData,
-            CrocomireMeltingArtworkFormat.FirstTilemapFileName), firstMeltTilemap);
+            CrocomireMeltingArtworkFormat.FleshTilemapFileName), firstMeltTilemap);
         File.WriteAllBytes(Path.Combine(importData,
-            CrocomireMeltingArtworkFormat.SecondTilemapFileName), secondMeltTilemap);
+            CrocomireMeltingArtworkFormat.BareSkullTilemapFileName), secondMeltTilemap);
         byte[] skeletonPlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CrocomireSourceDefinitions.SkeletonChunk(0),
             CrocomireSkeletonCharacterDefinitions.TotalByteCount);

@@ -28,15 +28,15 @@ internal enum YardSegment
     CrawlingOnRightWallMovingDown,
     /// <summary>
     /// Rounding an outside corner from crawling down with its back to the left, a quarter turn in three steps, then
-    /// crawling right with upside down.
+    /// crawling right on the ceiling, its back down.
     /// </summary>
     OutsideTurnOnRightWallMovingDown,
     /// <summary>
-    /// Crawling right with upside down, its legs tucking, spreading and stepping, repeating; it can hide from here.
+    /// Crawling right on the ceiling, its back down, its legs tucking, spreading and stepping, repeating; it can hide from here.
     /// </summary>
     CrawlingOnCeilingMovingRight,
     /// <summary>
-    /// Rounding an outside corner from crawling right with upside down, a quarter turn in three steps, then crawling up
+    /// Rounding an outside corner from crawling right on the ceiling, its back down, a quarter turn in three steps, then crawling up
     /// with its back to the right.
     /// </summary>
     OutsideTurnOnCeilingMovingRight,
@@ -66,15 +66,15 @@ internal enum YardSegment
     CrawlingOnLeftWallMovingDown,
     /// <summary>
     /// Rounding an outside corner from crawling down with its back to the right, a quarter turn in three steps, then
-    /// crawling left with upside down.
+    /// crawling left on the ceiling, its back down.
     /// </summary>
     OutsideTurnOnLeftWallMovingDown,
     /// <summary>
-    /// Crawling left with upside down, its legs tucking, spreading and stepping, repeating; it can hide from here.
+    /// Crawling left on the ceiling, its back down, its legs tucking, spreading and stepping, repeating; it can hide from here.
     /// </summary>
     CrawlingOnCeilingMovingLeft,
     /// <summary>
-    /// Rounding an outside corner from crawling left with upside down, a quarter turn in three steps, then crawling up
+    /// Rounding an outside corner from crawling left on the ceiling, its back down, a quarter turn in three steps, then crawling up
     /// with its back to the left.
     /// </summary>
     OutsideTurnOnCeilingMovingLeft,
@@ -90,11 +90,11 @@ internal enum YardSegment
     InsideTurnOnFloorMovingLeft,
     /// <summary>
     /// Turning into an inside corner from crawling up with its back to the right, a quarter turn in three steps, then
-    /// crawling right with upside down.
+    /// crawling right on the ceiling, its back down.
     /// </summary>
     InsideTurnOnLeftWallMovingUp,
     /// <summary>
-    /// Turning into an inside corner from crawling right with upside down, a quarter turn in three steps, then crawling
+    /// Turning into an inside corner from crawling right on the ceiling, its back down, a quarter turn in three steps, then crawling
     /// down with its back to the left.
     /// </summary>
     InsideTurnOnCeilingMovingRight,
@@ -110,11 +110,11 @@ internal enum YardSegment
     InsideTurnOnFloorMovingRight,
     /// <summary>
     /// Turning into an inside corner from crawling up with its back to the left, a quarter turn in three steps, then
-    /// crawling left with upside down.
+    /// crawling left on the ceiling, its back down.
     /// </summary>
     InsideTurnOnRightWallMovingUp,
     /// <summary>
-    /// Turning into an inside corner from crawling left with upside down, a quarter turn in three steps, then crawling
+    /// Turning into an inside corner from crawling left on the ceiling, its back down, a quarter turn in three steps, then crawling
     /// down with its back to the right.
     /// </summary>
     InsideTurnOnCeilingMovingLeft,
@@ -134,7 +134,7 @@ internal enum YardSegment
     /// </summary>
     HiddenOnFloorMovingLeft,
     /// <summary>
-    /// Tucking its legs in to hide while crawling left with upside down, then shut in its shell before it crawls on.
+    /// Tucking its legs in to hide while crawling left on the ceiling, its back down, then shut in its shell before it crawls on.
     /// </summary>
     HidingOnCeilingMovingLeft,
     /// <summary>The closed shell of a hiding Yard upside down moving left, shown again however often its update ends (#2180, #2276).</summary>
@@ -142,7 +142,7 @@ internal enum YardSegment
     /// <summary>The hidden shell of a Yard upside down moving left before the Yard crawls on (#2276).</summary>
     HiddenOnCeilingMovingLeft,
     /// <summary>
-    /// Tucking its legs in to hide while crawling right with upside down, then shut in its shell before it crawls on.
+    /// Tucking its legs in to hide while crawling right on the ceiling, its back down, then shut in its shell before it crawls on.
     /// </summary>
     HidingOnCeilingMovingRight,
     /// <summary>The closed shell of a hiding Yard upside down moving right, shown again however often its update ends (#2180, #2276).</summary>

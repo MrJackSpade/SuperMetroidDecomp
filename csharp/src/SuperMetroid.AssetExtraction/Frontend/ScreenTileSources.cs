@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
-/// <summary>The installed stock artwork the screen tile sheets compose from (#1392), each family read when first needed.</summary>
+/// <summary>The import's reads of the stock artwork the screen tile sheets compose from (#1392), each family read when first needed.</summary>
 /// <param name="maps">Reads the menus' presentation.</param>
 /// <param name="intro">Reads the opening cinematic's artwork.</param>
 /// <param name="endingObjects">Reads the ending's object artwork.</param>

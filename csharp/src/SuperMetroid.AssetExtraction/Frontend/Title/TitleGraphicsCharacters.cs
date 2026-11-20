@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>
-/// The installed title artwork as the import pipeline reads it (#1409, #1463): the ordered OBJ compositions, the Mode 7
+/// The import's title artwork (#1409, #1463): the ordered OBJ compositions, the Mode 7
 /// floor and Baby Metroid characters as chunky 8-bit pixels and the OBJ characters as SNES 4-bpp planar bytes, which the
 /// title sheets compose from.
 /// </summary>
@@ -53,11 +53,11 @@ public sealed class TitleGraphicsCharacters
 
     /// <summary>One title composition as a whole frame over the title OBJ page (#1392); its parts take their draw's palette.</summary>
     internal SpriteFrame Frame(TitleSprite sprite, string name) => sprites.TryGetValue(sprite, out SpriteComposition? composition)
-        ? composition.ToFrame(name, 0) : throw new InvalidDataException($"Title composition {sprite} is missing from installed artwork.");
+        ? composition.ToFrame(name, 0) : throw new InvalidDataException($"Title composition {sprite} is missing from the title artwork the import read.");
 
     /// <summary>One card typing step, the whole of what it shows, as a frame over the title OBJ page (#1979).</summary>
     internal SpriteFrame Frame(TitleCardTyping typed, string name) => cards.TryGetValue(typed, out SpriteComposition? composition)
-        ? composition.ToFrame(name, 0) : throw new InvalidDataException($"Title card typing {typed} is missing from installed artwork.");
+        ? composition.ToFrame(name, 0) : throw new InvalidDataException($"Title card typing {typed} is missing from the title artwork the import read.");
 
     /// <summary>Loads and validates the editable title graphics and map assets.</summary>
     /// <param name="floorTilesPng">Indexed 256-color PNG containing the title Mode 7 characters.</param>

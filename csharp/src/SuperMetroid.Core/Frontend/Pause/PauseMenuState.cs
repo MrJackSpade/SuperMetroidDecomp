@@ -131,10 +131,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // stays over the area it covers instead of the map showing there.
         screen.ShowHud(entry.GameplayHud);
 
-        // Pause setup ends by clearing the effect overlay
-        // beneath the HUD. Pause draws
-        // only the HUD's own pictures (PauseScreen.ShownHudPictures), so every otherwise-empty map
-        // square shows nothing.
 
         // The pause screen's base page shows the button page's two label rows over the backdrop's bottom rows, its labels
         // lit or dimmed by the highlight; the frame is the area's backdrop picture, the button rows' picture and each
@@ -435,8 +431,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>
-    /// Runs the three button-label lighting variants and the redraw of the two label rows
-    /// that follows each: the frame shows its labels in <paramref name="highlight"/>'s shades from the next capture.
+    /// Sets which button labels are lit: the frame shows its labels in <paramref name="highlight"/>'s shades from the
+    /// next capture.
     /// </summary>
     private void SetPauseButtonLabelMode(PauseButtonHighlight highlight) =>
         ButtonHighlight = Enum.IsDefined(highlight) ? highlight : throw new ArgumentOutOfRangeException(nameof(highlight), highlight, "Undefined pause highlight.");

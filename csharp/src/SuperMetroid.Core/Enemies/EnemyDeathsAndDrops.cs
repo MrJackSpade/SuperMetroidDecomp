@@ -89,7 +89,7 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>
     /// Starts an enemy's generic death. The enemy is cleared immediately,
-    /// while the death explosion retains the definition, position, and optional respawn index until
+    /// while the death explosion keeps the killed enemy, its position and whether it respawns until
     /// its authored animation reaches its become-pickup cue.
     /// </summary>
     /// <param name="enemy">The dying enemy.</param>
@@ -156,7 +156,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// The twelve item drops' shared behaviour.
+    /// Spawns <paramref name="count"/> drops scattered around a base, each placed by one random sample.
     /// Each pickup advances RNG once for both coordinates; spawning the pickup
     /// and choosing its drop then advance it on their own inside the pickup. Both scatters read
     /// their fields from the one sample.
@@ -172,7 +172,7 @@ internal sealed class EnemyDeathsAndDrops
         ScatterDrops(count, xBase, xScatter, yBase, yScatter, position => SpawnEnemyDropFromDefinition(position, definitionId, samus));
 
     /// <summary>
-    /// The twelve item drops' shared behaviour, each rolling <paramref name="dropChances"/> (#2244): a fight whose drops
+    /// Spawns <paramref name="count"/> drops that each roll <paramref name="dropChances"/> (#2244): a fight whose drops
     /// roll a table of their own rather than an enemy's.
     /// </summary>
     internal void SpawnEnemyDropScatter(

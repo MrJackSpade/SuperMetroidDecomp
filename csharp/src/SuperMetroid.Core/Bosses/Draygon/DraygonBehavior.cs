@@ -208,7 +208,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static DraygonSwoopSide SwoopSideOf(DraygonEnemyState state) =>
         state.PassDirection == HorizontalDirection.Right ? RightSwoop : LeftSwoop;
 
-    /// <summary>Advances the typed animation of <paramref name="place"/>, one of the parts of <paramref name="draygon"/>.</summary>
+    /// <summary>Advances the typed animation of <paramref name="part"/>, one of Draygon's parts, in <paramref name="context"/>.</summary>
     internal void AdvanceDraygonTypedAnimation(DraygonPart part, EnemyAnimationCueContext context)
     {
         Parts.AdvanceDraygonPartAnimation(part, context.Samus);

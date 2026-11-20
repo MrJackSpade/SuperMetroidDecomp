@@ -34,7 +34,7 @@ internal sealed class EndingRewardGesture
         return jumps;
     }
 
-    /// <summary>Places current actors as the supplied sprites.</summary>
+    /// <summary>Draws the gesture's actors among the screen's sprites.</summary>
     public void Draw(ScreenSprites destination, IIntroCinematicSpritePresentation installedArt)
     {
         Ensure.NotNull(destination);
@@ -42,7 +42,7 @@ internal sealed class EndingRewardGesture
             actor.Draw(destination, installedArt: installedArt);
     }
 
-    /// <summary>Converts the jump cue into a suited or suitless handoff: whether <paramref name="cue"/> starts the jump.</summary>
+    /// <summary>Whether <paramref name="cue"/> hands the gesture off to the jump.</summary>
     private static bool HandleCue(EndingRewardGestureCue cue)
     {
         switch (cue)

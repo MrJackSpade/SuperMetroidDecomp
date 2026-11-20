@@ -426,8 +426,8 @@ internal sealed class EnemyProjectileEngine
             : projectile.Radius.X;
 
         // The block scan checks every room block crossed by the projectile's perpendicular diameter
-        // (EnemyProjectileBlockScan). The positive edge is inclusive, hence radius - 1, so projectiles moving right or
-        // down collide where those moving left or up do. The edge wraps as CoordinateAxis states.
+        // (EnemyProjectileBlockScan). The positive edge is the radius's last pixel, hence radius - 1. The edge wraps as
+        // CoordinateAxis states.
         int movementEdge = TerrainScanEdges.Edge(nextPosition +
             (movingNegative ? -movementRadius : movementRadius - 1));
         var scan = EnemyProjectileBlockScan.Across(

@@ -2,12 +2,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>Immutable mechanics for Crateria's paired late-escape palette loops.</summary>
-/// <remarks>
-/// The two definitions share an eleven-record duration schedule.
-/// Their 176 BGR555 words remain live presentation data; this catalog owns palette
-/// placement, timing, waits, and loop control.
-/// </remarks>
+/// <summary>The records of Crateria's two escape lightning effects and the colours each writes, for the import.</summary>
 public static class CrateriaEscapeLightningPaletteFxColorDefinitions
 {
 

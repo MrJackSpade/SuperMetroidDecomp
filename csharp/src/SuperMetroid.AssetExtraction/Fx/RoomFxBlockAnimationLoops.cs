@@ -37,14 +37,14 @@ public static class RoomFxBlockAnimationLoops
         }
     }
 
-    /// <summary>One loop's frames and the distinct pictures they show, as the installed atlas stores them (#1527).</summary>
+    /// <summary>One loop's frames and the distinct pictures they show, as the import's atlas stores them (#1527).</summary>
     extension(BlockAnimation loop)
     {
         /// <summary>The frames the loop shows, in order, each with the passes it is shown for (<see cref="BlockAnimationLoops.Frames"/>).</summary>
         /// <exception cref="InvalidOperationException">The animation has no loop.</exception>
         internal IReadOnlyList<TimedArtworkFrame> Frames => BlockAnimationLoops.Frames(loop);
 
-        /// <summary>The distinct pictures the object's frames show, each held once in the installed atlas.</summary>
+        /// <summary>The distinct pictures the object's frames show, each held once in the import's atlas.</summary>
         /// <exception cref="InvalidDataException">
         /// The object has no pictures in the atlas, or its picture count is not between one and its frame count.
         /// </exception>

@@ -25,8 +25,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (cue.Kind)
         {
-            case BoyonCueKind.StartBounce:
-                StartBoyonBounce(state);
+            case BoyonCueKind.PlayBounceSound:
+                PlayBoyonBounceSound(state);
                 break;
             case BoyonCueKind.ProcessOffScreen:
                 place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
@@ -174,7 +174,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         return distance < place.SpawnSettings<BoyonSpawnSettings>().TriggerDistance;
     }
 
-    /// <summary>Starts the idle or bounce animation and restarts its frame and auxiliary timers.</summary>
+    /// <summary>Starts the idle or bouncing animation from its start.</summary>
     private static void SetBoyonAnimation(RoomEnemyPlace place, BoyonEnemyState state, BoyonSegment segment)
     {
         state.Playback = EnemyAnimationPlayback.Start(place, BoyonAnimations.StartingWith(segment));
@@ -185,7 +185,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// bouncing, so the arc it permits is already under way (#2432).
     /// </summary>
     /// <exception cref="InvalidOperationException">The Boyon is not bouncing.</exception>
-    private void StartBoyonBounce(BoyonEnemyState state)
+    private void PlayBoyonBounceSound(BoyonEnemyState state)
     {
         if (!state.IsBouncing)
             throw new InvalidOperationException($"A Boyon's bounce cue ran in its {state.Phase} phase.");

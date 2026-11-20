@@ -100,7 +100,7 @@ internal sealed class DraygonGoop
             FinishDraygonGoopFiring(state, direction);
     }
 
-    /// <summary>Places Draygon offscreen and selects the next swoop after a goop pass exits.</summary>
+    /// <summary>Ends the goop firing: his arms go idle and he starts his recovery pass.</summary>
     private static void FinishDraygonGoopFiring(DraygonEnemyState state, HorizontalDirection direction)
     {
         state.ArmsPart.StartAnimation(direction == HorizontalDirection.Right

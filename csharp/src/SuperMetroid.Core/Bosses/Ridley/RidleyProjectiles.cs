@@ -189,7 +189,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
             source.Velocity);
     }
 
-    /// <summary>Switches an afterburn branch that struck something to its final five-frame animation; it keeps moving and still hurts Samus.</summary>
+    /// <summary>Switches an afterburn branch that struck something to its final animation: it stops, sparks and puffs while it still hurts Samus.</summary>
     internal void BeginAfterburnFinalAnimation(EnemyProjectile projectile)
     {
         projectile.StartAnimation(new RidleyFireballAnimation(this, RidleyFireballSegment.AfterburnFinal));

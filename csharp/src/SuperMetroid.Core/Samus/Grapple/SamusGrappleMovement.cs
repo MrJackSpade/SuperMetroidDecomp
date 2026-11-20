@@ -140,9 +140,8 @@ public static class SamusGrappleMovement
 
         // Firing tests the current endpoint against ordinary enemies before moving the
         // beam through its four block-collision substeps. The collision reports the
-        // enemy's grapple reaction; firing acts only on the definition's
-        // seven common reactions. Kill and no interaction deliberately go on to the room's blocks, exactly like an
-        // enemy with no grapple reaction.
+        // enemy's grapple reaction: the reactions that stop the beam or connect it act here, while Kill and no
+        // interaction let it go on to the room's blocks, exactly like an enemy with no grapple reaction.
         GrappleEnemyCollision enemy = enemyCollision(grapple.Anchor);
         switch (enemy.Reaction)
         {

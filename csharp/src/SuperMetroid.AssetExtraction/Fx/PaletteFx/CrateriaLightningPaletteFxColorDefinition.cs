@@ -1,6 +1,6 @@
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>Calculated setup, two repeated flash groups and neutral intervals of the Landing Site's lightning.</summary>
+/// <summary>The Landing Site lightning's records and the colours each writes.</summary>
 public sealed class CrateriaLightningPaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions.</summary>

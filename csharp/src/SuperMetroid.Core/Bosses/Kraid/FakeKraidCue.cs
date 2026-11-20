@@ -18,6 +18,6 @@ internal abstract record FakeKraidCue
     /// <summary>Walks one step (<see cref="FakeKraidProjectileDefinitions.StepPixels"/>) unless the walk's last step turns him round, then faces Samus.</summary>
     internal sealed record Move : FakeKraidCue;
 
-    /// <summary>Records the cry sound while Fake Kraid is on screen.</summary>
+    /// <summary>Queues Fake Kraid's cry while he is on screen.</summary>
     internal sealed record PlayCrySound : FakeKraidCue;
 }

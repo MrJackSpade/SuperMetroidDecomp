@@ -266,7 +266,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal EnemyBombReaction ZebetiteBombReaction => field ??= new()
     {
         RunsGenericDeath = false,
-        // The Zebetite's shot reaction runs the common damage without the hit burst.
+        // The bomb's common damage shows no hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
         AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy),
     };

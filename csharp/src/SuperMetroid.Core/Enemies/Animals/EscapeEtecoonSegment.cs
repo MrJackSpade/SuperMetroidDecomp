@@ -8,19 +8,19 @@ internal enum EscapeEtecoonSegment
 {
     /// <summary>The leftward run's low-tide check, its entry cue.</summary>
     RunningLeftLowTide,
-    /// <summary>The leftward run's four strides at low tide.</summary>
+    /// <summary>One stride running left at low tide, repeating.</summary>
     RunningLeftLowTideStride,
     /// <summary>Running left at high tide, stretching, bunching and pushing off, repeating.</summary>
     RunningLeftHighTide,
     /// <summary>The rightward run's low-tide check, its entry cue.</summary>
     RunningRightLowTide,
-    /// <summary>The rightward run's four strides at low tide.</summary>
+    /// <summary>One stride running right at low tide, repeating.</summary>
     RunningRightLowTideStride,
     /// <summary>Running right at high tide, stretching, bunching and pushing off, repeating.</summary>
     RunningRightHighTide,
     /// <summary>The escape run's start, its entry cue.</summary>
     RunningForEscape,
-    /// <summary>The escape run's four strides.</summary>
+    /// <summary>One stride of the escape run, repeating.</summary>
     RunningForEscapeStride,
     /// <summary>Standing still, looking right, then turning to look left and back again, repeating.</summary>
     Stationary,

@@ -183,7 +183,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                 place.Position = place.Position.WithWholeX(place.Position.X.Whole + move.Offset);
                 return null;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(EscapeEtecoonCueKind)} {cue}.");
+                throw new InvalidOperationException($"Undefined {nameof(EscapeEtecoonCue)} {cue}.");
         }
     }
 
@@ -225,7 +225,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     private static AnimationContinuation<EscapeDachoraSegment> EscapeTakesOver(HorizontalDirection lap) =>
         lap == HorizontalDirection.Left ? EscapeDachoraAnimations.EscapeAfterLeftLap : EscapeDachoraAnimations.EscapeAfterRightLap;
 
-    /// <summary>Samples the critters-escaped event for Dachora's animation branch and room revisit handling.</summary>
+    /// <summary>Whether the critters have escaped, which both escaping animals read.</summary>
     private bool HasCrittersEscaped() => _room.Services.Events.Has(StoryEvent.CrittersEscaped);
 
     /// <summary>

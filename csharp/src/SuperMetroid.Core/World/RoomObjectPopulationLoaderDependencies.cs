@@ -42,6 +42,6 @@ internal sealed record RoomObjectPopulationLoaderDependencies
     /// <summary>Draygon's wall cannons, whose objects each placement sets up with the cannons' firing they stop (#2400).</summary>
     public required DraygonCannonObjects DraygonCannons { get; init; }
 
-    /// <summary>Maridia's glass tube, which population sets up.</summary>
+    /// <summary>Maridia's glass tube, which the room's population sets up as it is placed.</summary>
     public required NoobTubeObjects NoobTube { get; init; }
 }

@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// A scroll check past the scroll cells reads the stored maps in the order the game keeps them: area by area, each area
 /// as runs of eight neighbouring cells of a row, the 32 rows of the left half of the map first and then the right half,
 /// four runs to a row. A run with no explored cell reads as a closed screen, a run whose only explored cell is its last
-/// (rightmost) one reads as a screen open with the camera aligned to its top, and any other run reads as an open screen
-/// (a closed, a top-aligned and an open screen alike). The stored map after the seventh
+/// (rightmost) one reads as a screen open with the camera aligned to its top, and any other run reads as an open screen.
+/// The stored map after the seventh
 /// area's is never stored and reads as unexplored.
 /// </para>
 /// </summary>

@@ -12,9 +12,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// random choice, and naming it for the random sample would misname every counter it reads. A counter read here may run
 /// below zero; its field is read from the counter's place in its cycle counted from below. Read at every alternating or
 /// cycling choice, through the named field its family's catalog gives for what the phase shows or decides. Evidence:
-/// the game read these phases by masking and shifting its counters, reading a negative counter in two's complement;
-/// each phase's original masking and shifting of its counter, which a field reproduces bit for bit; the SMV replays
-/// compare the counters and what their phases show and decide on every update.
+/// the game read these phases by masking and shifting its counters, reading a negative counter in two's complement, and
+/// a field reproduces each phase's masking and shifting bit for bit; the SMV replays compare the counters and what their
+/// phases show and decide on every update.
 /// </remarks>
 /// <param name="Shift">The position of the field's lowest bit in the counter.</param>
 /// <param name="Width">How many bits the field holds, 1 through 15.</param>

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// <summary>Editable baby-Metroid OAM art for the two scientist scenes only.</summary>
 public sealed class IntroScientistSpritePresentation : ICinematicSpriteFrames
 {
-    /// <summary>Validated baby-Metroid compositions keyed by bank-$8C spritemap identity.</summary>
+    /// <summary>Validated baby-Metroid compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
     /// <inheritdoc/>
@@ -27,7 +27,7 @@ public sealed class IntroScientistSpritePresentation : ICinematicSpriteFrames
 
     /// <summary>Loads and validates all six baby-Metroid visual frames for the scientist scenes.</summary>
     /// <param name="json">The caller-owned stream containing the editable sprite document.</param>
-    /// <returns>The compiled presentation keyed by native bank-$8C spritemap identities.</returns>
+    /// <returns>The compiled presentation, its compositions keyed by the poses that show them.</returns>
     /// <exception cref="InvalidDataException">The JSON, version, frame set, or sprite parts are invalid.</exception>
     public static IntroScientistSpritePresentation Load(Stream json)
     {

@@ -437,9 +437,8 @@ public enum SamusPoseId
     RunningAimDiagonalDownLeftPose,
 
     /// <summary>
-    /// This pose is a stationary right-facing normal jump with the cannon extended. Unlike
-    /// <see cref="NeutralJumpRightPose"/>, it deliberately has no no-input fallback, so the firing body can
-    /// remain active until another input transition or landing replaces it.
+    /// This pose is a stationary right-facing normal jump with the cannon extended. With no input it keeps the current
+    /// pose, so the firing body stays until another input transition or landing replaces it.
     /// </summary>
     NormalJumpGunExtendedRightPose,
 

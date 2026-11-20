@@ -346,7 +346,7 @@ internal sealed class IntroBabyDiscoveryState
         if (crossfadeFinishing)
         {
             confusedBaby.Delete();
-            // The dancing baby's drift.
+            // The crossfade's end deletes the baby and hides Samus.
             SamusDisplay = IntroSamusDisplay.Hidden;
             return;
         }

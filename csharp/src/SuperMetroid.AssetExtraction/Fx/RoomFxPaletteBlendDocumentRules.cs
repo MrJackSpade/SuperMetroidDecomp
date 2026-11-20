@@ -4,7 +4,7 @@ using SuperMetroid.Core.Fx.Artwork;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
-/// The installed room-FX blend document's rules (<see cref="RoomFxPaletteBlendDefinitions"/>): the eight retail blends in
+/// The import's room-FX blend document's rules (<see cref="RoomFxPaletteBlendDefinitions"/>): the eight retail blends in
 /// document order and each blend's document key, which <see cref="RoomEffectTintKeys"/> writes out.
 /// </summary>
 public static class RoomFxPaletteBlendDocumentRules
@@ -26,7 +26,7 @@ public static class RoomFxPaletteBlendDocumentRules
     }
 
     /// <summary>
-    /// The installed document's key for <paramref name="id"/>. Each key names the tint as the blend's identity does (#1740),
+    /// The import document's key for <paramref name="id"/>. Each key names the tint as the blend's identity does (#1740),
     /// never the cartridge's colour-table offset.
     /// </summary>
     /// <param name="id">One of the eight blends exposed by <see cref="Ids"/>; <see cref="RoomEffectTint.None"/> clears the blend and has no resource key.</param>

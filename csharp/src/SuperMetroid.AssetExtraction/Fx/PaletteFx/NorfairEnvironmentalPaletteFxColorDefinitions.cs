@@ -2,20 +2,9 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>Immutable mechanics for Norfair's four synchronized environmental loops.</summary>
+/// <summary>The records of Norfair's four synchronized environmental effects and the colours each writes, for the import.</summary>
 /// <remarks>
-/// The four Norfair definitions share sixteen authored phases. Their 320 BGR555 words
-/// remain presentation data. The first owner additionally publishes sixteen byte-sized
-/// heat-phase operands consumed by the separate Samus-in-heat palette object.
-/// The first definition's records i=0..15 publish phase byte i,
-/// then a duration, three colors, a skip of four colors, two
-/// colors, and a wait. The other definitions' records
-/// omit the phase publication
-/// and skip eight colors. Their colour byte indices are 106, 130, 162,
-/// and 194 respectively. Each terminal goto returns to its
-/// first record after a 116-frame cycle; i=16 reaches control. All 224
-/// mechanics words and sixteen phase bytes match the
-/// original programs and the guarded production caller.
+/// The four effects share the heat shimmer's phases, one record for each.
 /// </remarks>
 public static class NorfairEnvironmentalPaletteFxColorDefinitions
 {

@@ -149,8 +149,7 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>
-    /// Below half health the arm switches to its slow swing, unless its stored animation is
-    /// already the slow one or a later animation.
+    /// Below half health the arm switches to its slow swing, but only while it swings normally.
     /// </summary>
     private KraidPartSegment? SelectKraidArmSpeedAnimation(KraidEnemyState state) =>
         _parts.Body.Health < state.HalfHealth && state.ArmState.SwingsNormally

@@ -49,7 +49,7 @@ internal sealed class CrocomireCombat
     /// <param name="state">The encounter the bombed part is part of.</param>
     internal void ReactToCrocomireBomb(EnemyBombContext c, CrocomireEnemyState state) =>
         // Crocomire's species definition names no shot reaction; every live component supplies its own. Normal bombs
-        // therefore reach the same hit counter, dust, or mouth reaction selected by the map.
+        // therefore reach the same hit counter, dust, or mouth reaction his frame's hitbox selects.
         ResolveCrocomireHitboxShot(state, c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShot, c.Camera);
 
     /// <summary>

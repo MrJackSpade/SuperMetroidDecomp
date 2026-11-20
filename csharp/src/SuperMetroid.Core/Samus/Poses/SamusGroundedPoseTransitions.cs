@@ -33,7 +33,7 @@ internal static class SamusGroundedPoseTransitions
     public static void TurnForNoTransition(SamusState samus, SamusMovementType movementType)
     {
         if (movementType is not (SamusMovementType.TurningOnGround or
-            SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling))
+            SamusMovementType.TurningRisingOrAimedCrouched or SamusMovementType.TurningWhileFalling))
             throw new InvalidOperationException($"Turn fallback requires a turning movement type, not {movementType}.");
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));

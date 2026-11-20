@@ -73,14 +73,14 @@ public static class EndingObjectArtworkFormat
     /// hold their pictures in.
     /// </summary>
     internal static IReadOnlyList<EndingExplosionPicture> ExplosionPictures { get; } =
-        [EndingExplosionPicture.WideExplosion, EndingExplosionPicture.ConcentricExplosion, EndingExplosionPicture.Eclipse, EndingExplosionPicture.Blank];
+        [EndingExplosionPicture.WideExplosion, EndingExplosionPicture.ConcentricExplosion, EndingExplosionPicture.Eclipse, EndingExplosionPicture.BurstGlow];
     /// <summary>The installed fragment each explosion picture fills (#2567): its map page, counted from page $70 in fours.</summary>
     internal static IReadOnlyDictionary<EndingExplosionPicture, int> FragmentNumbers { get; } = new Dictionary<EndingExplosionPicture, int>
     {
         [EndingExplosionPicture.WideExplosion] = 0,
         [EndingExplosionPicture.ConcentricExplosion] = 1,
         [EndingExplosionPicture.Eclipse] = 2,
-        [EndingExplosionPicture.Blank] = 3,
+        [EndingExplosionPicture.BurstGlow] = 3,
     };
     /// <summary>Published fragment keys use the page sequence70,74,78,7c.</summary>
     /// <param name="index">Zero-based fragment index, zero through three; <see cref="FragmentNumbers"/> names each picture's.</param>

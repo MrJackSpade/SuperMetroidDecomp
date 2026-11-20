@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>
 /// The stations' animations (#1554, #1994), played by the shared animation playback: each animation's images in order,
 /// with the updates each shows. The map and resource displays glow dim, lit and bright, more quickly once the map is
-/// held, again and again; the save station's idle image shows once, and the accepted save flashes its pod's lights on
+/// held, again and again; the save station's idle image shows again and again, and the accepted save flashes its pod's lights on
 /// and off for its authored loops.
 /// </summary>
 internal static class StationAnimationDefinitions

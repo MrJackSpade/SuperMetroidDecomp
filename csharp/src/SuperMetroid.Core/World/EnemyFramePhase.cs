@@ -10,12 +10,12 @@ using SuperMetroid.Core.Bosses.Ridley;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The enemy phase of a gameplay frame: preparing the enemy frame, running the enemies, and resolving beam hits
-/// updated after it.
+/// The enemy phase of a gameplay frame: preparing the enemy frame, running the enemies, and applying what their pass
+/// produced.
 /// </summary>
 internal sealed class EnemyFramePhase
 {
-    /// <summary>Receives Phantoon's body-layer placement before the next frame boundary latches the frame.</summary>
+    /// <summary>Where the layers stand: the foreground position follows the camera X an enemy moves the view to.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Supplies the held and newly pressed actions to the enemies.</summary>
     private readonly GameplayActionInput _playerActions;

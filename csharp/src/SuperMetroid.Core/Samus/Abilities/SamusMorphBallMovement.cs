@@ -394,7 +394,7 @@ public static class SamusMorphBallMovement
         return result;
     }
 
-    /// <summary>Rejects missing game, level, or Samus state before entering a morph movement path.</summary>
+    /// <summary>Rejects a missing level or Samus state before entering a morph movement path.</summary>
     private static void Validate(
         RoomLevelData level,
         SamusState samus)

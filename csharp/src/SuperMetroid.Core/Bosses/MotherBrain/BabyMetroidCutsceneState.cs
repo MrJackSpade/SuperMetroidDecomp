@@ -102,7 +102,7 @@ public sealed class BabyMetroidCutsceneState
 
     /// <summary>
     /// Enemy health, which the Baby's place holds (#2572): Mother Brain's onion rings and her drain lower it there, and the
-    /// Baby's steps read it there. The Baby's enemy definition supplies 3,200.
+    /// Baby's steps read it there. The Baby arrives with <see cref="BabyMetroidCutsceneDefinitions.ArrivalHealth"/>.
     /// </summary>
     /// <exception cref="InvalidOperationException">The final beam's spawn has not given the Baby its place.</exception>
     public int Health
@@ -137,11 +137,11 @@ public sealed class BabyMetroidCutsceneState
 
     /// <summary>
     /// Where the Baby's next death explosion bursts (#2315): each takes the next point of the scatter shared with Ridley's
-    /// death, the first after the last, starting from the scatter's second point.
+    /// death, the first after the last, starting from the scatter's first point.
     /// </summary>
     public ListStep<Offset16<RoomPixels>> NextDeathExplosion { get; private set; } = FirstDeathExplosion;
 
-    /// <summary>Where the Baby's first death explosion bursts: the shared scatter's second point.</summary>
+    /// <summary>Where the Baby's first death explosion bursts: the shared scatter's first point.</summary>
     private static ListStep<Offset16<RoomPixels>> FirstDeathExplosion => ListStep<Offset16<RoomPixels>>.FirstOf(DeathExplosionScatterDefinitions.Offsets);
 
     /// <summary>How far the room lights' recovery has come (#2316): each update of the final cutscene shows its next image.</summary>
@@ -227,8 +227,8 @@ public sealed class BabyMetroidCutsceneState
         BabyMetroidVisibilityRequest visibility = BabyMetroidVisibilityRequest.Unchanged;
 
         // The Baby's touch is tested before its movement, against the Baby's position from the previous frame. The
-        // Baby's touch is active only while it latches onto Samus; broad Samus/enemy hitboxes gate it, then its own
-        // divisor-16 acceleration decides when both axes have reached the latch point. The Baby's phase and its move by
+        // Baby's touch is active only while it latches onto Samus; broad Samus/enemy hitboxes gate it, then the latch
+        // acceleration's arrival on both axes at the latch point starts the healing. The Baby's phase and its move by
         // its velocity follow this update.
         if (Phase == BabyMetroidCutscenePhase.LatchOntoSamus && TouchesSamus(samus))
         {
@@ -385,8 +385,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.MoveToSamus:
             {
-                // The route step enables health-based colour selection on every route update. The ambient cry takes its
-                // own chance.
+                // The ambient cry takes its own chance each route update.
                 ambientCrySoundQueued = MotherBrainRandomDefinitions.BabyMetroidCries.IsTakenBy(randomNumber);
 
                 // The route is its authored legs, each steered to its waypoint with its own wrong-way speed.

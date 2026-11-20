@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 [RoomLifetime]
 internal sealed class EnemyFrameContext
 {
-    /// <summary>Binds the enemy pass to the session that holds the random enemy counter.</summary>
+    /// <summary>Binds the enemy pass to the session that holds the count of enemy passes that outlives each room.</summary>
     /// <param name="session">The enemy state that outlives each room.</param>
     internal EnemyFrameContext(EnemySession session) => _session = Ensure.NotNull(session);
 

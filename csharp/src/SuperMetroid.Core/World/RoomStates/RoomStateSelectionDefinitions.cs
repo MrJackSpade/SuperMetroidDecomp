@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Direct ordered state-selection branches for every room.</summary>
 /// <remarks>The room definitions' state choices test named events, defeated bosses (DefeatedBosses) and equipment
-/// predicates in order; the first successful condition wins (<see cref="RoomStateSelection"/>). Each of the 54
-/// conditional choices lists its branches in authored order after its default state. Unconditional rooms name their
-/// single state. Only the 262 rooms are listed.</remarks>
+/// predicates in order; the first successful condition wins (<see cref="RoomStateSelection"/>). Each conditional choice
+/// lists its branches in authored order after its default state. Unconditional rooms name their single state. Every room
+/// of <see cref="SuperMetroid.Core.Rooms.RoomDefinitions.All"/> is listed.</remarks>
 public static class RoomStateSelectionDefinitions
 {
     /// <summary>Each room's state choice, in authored room order.</summary>

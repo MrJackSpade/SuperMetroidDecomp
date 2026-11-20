@@ -58,8 +58,9 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly record struct DeferredRinkaSpawn(RoomEnemyPlace Place, RinkaEnemyState State);
 
     /// <summary>
-    /// Captures camera coordinates used by the Rinka's flight and spawn checks. StepFrame refreshes these before
-    /// any Rinka AI; Load supplies the already-positioned destination camera for initialization.
+    /// Captures camera coordinates used by the Rinka's flight and spawn checks. <see cref="BeginEnemyFrame"/> refreshes
+    /// them before any Rinka AI, the room load supplies the already-positioned destination camera for initialization,
+    /// and <see cref="CompleteLoaderTimeCameraReads"/> supplies the camera of the update the door loader reaches a place on.
     /// </summary>
     internal void SetRinkaCamera(Position16<RoomPixels> camera)
     {
@@ -348,7 +349,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal EnemyBombReaction RinkaBombReaction => field ??= new()
     {
         RunsGenericDeath = false,
-        // Rinka's shot reaction runs the common damage without the hit burst.
+        // The bomb's common damage shows no hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
         AfterCommon = c => ResolveRinkaCombatAfterCommon(c.Enemy),
     };

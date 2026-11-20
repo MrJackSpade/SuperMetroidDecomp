@@ -40,7 +40,7 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] BombTorizoBelly { get; init; }
     /// <summary>Gets six three-color belly phases for Golden Torizo, with its own native program identity.</summary>
     public required PaletteRgb5[][] GoldenTorizoBelly { get; init; }
-    /// <summary>Gets eight eight-color grey-out records for the Tourian statues, each kept as installed.</summary>
+    /// <summary>Gets eight eight-color grey-out records for the Tourian statues.</summary>
     public required PaletteRgb5[][] TourianStatueGrey { get; init; }
     /// <summary>Gets thirteen eight-color records for surface lightning, including the long neutral holds and brief flashes defined by the native program.</summary>
     public required PaletteRgb5[][] CrateriaSurfaceLightning { get; init; }
@@ -76,7 +76,7 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] ZebesExplosionCrust { get; init; }
     /// <summary>Gets eight fifteen-color fade records for the explosion's grey-cloud layer.</summary>
     public required PaletteRgb5[][] ZebesExplosionGreyClouds { get; init; }
-    /// <summary>Gets sixteen sixteen-color gunship fade records, each kept as installed.</summary>
+    /// <summary>Gets sixteen sixteen-color gunship fade records.</summary>
     public required PaletteRgb5[][] ZebesExplosionGunship { get; init; }
     /// <summary>Gets nine sixteen-color Power Suit loading records: four two-record groups followed by the terminal palette row.</summary>
     public required PaletteRgb5[][] SamusLoadingPowerSuit { get; init; }
@@ -84,9 +84,9 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] SamusLoadingVariaSuit { get; init; }
     /// <summary>Gets nine sixteen-color Gravity Suit loading records with the same compiled group timing as the other suits.</summary>
     public required PaletteRgb5[][] SamusLoadingGravitySuit { get; init; }
-    /// <summary>Gets fourteen sixteen-color post-credits icon glare records, each kept as installed.</summary>
+    /// <summary>Gets fourteen sixteen-color post-credits icon glare records.</summary>
     public required PaletteRgb5[][] PostCreditsIconGlare { get; init; }
-    /// <summary>Gets fourteen two-color red-flash records for the Tourian escape shutter, held for six updates per record.</summary>
+    /// <summary>Gets fourteen six-colour red-flash records for the Tourian escape shutter, each held for two updates (<see cref="SuperMetroid.AssetExtraction.Fx.PaletteFx.TourianEscapeRedFlashPaletteFxColorDefinitions"/>).</summary>
     public required PaletteRgb5[][] TourianEscapeShutter { get; init; }
     /// <summary>Gets fourteen four-color red-flash records for the Tourian escape background, held for four updates per record.</summary>
     public required PaletteRgb5[][] TourianEscapeBackground { get; init; }

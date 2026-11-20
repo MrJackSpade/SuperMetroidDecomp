@@ -680,7 +680,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.ExposedEnergyTank, new(11, 9), new CollectibleSetup(new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.Exposed), new CollectibleIdentity(ItemLocationDefinitions.HopperEnergyTankExposedEnergyTank))),
     ]);
 
-    /// <summary>The room objects the Big Pink Save Room room places in every state.</summary>
+    /// <summary>The room objects the Big Pink Save Room places in every state.</summary>
     public static RoomObjectPopulation BigPinkSaveRoom { get; } = RoomObjectPopulation.FromPlacements(nameof(BigPinkSaveRoom),
     [
         new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationSetup(new SaveStationPlace(LoadStationDefinitions.BigPinkSave))),
@@ -2113,7 +2113,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationSetup(new SaveStationPlace(LoadStationDefinitions.AqueductSave))),
     ]);
 
-    /// <summary>The room objects the The Precious room places in every state.</summary>
+    /// <summary>The room objects the Precious room places in every state.</summary>
     public static RoomObjectPopulation ThePrecious { get; } = RoomObjectPopulation.FromPlacements(nameof(ThePrecious),
     [
         new(RoomObjectKind.ScrollTrigger, new(4, 14), new ScrollTriggerSetup(RoomScrollChange.ThePreciousOpensScreens0x0And0x1)),
@@ -2359,7 +2359,7 @@ internal static class RoomObjectPopulationDefinitions
     [
     ]);
 
-    /// <summary>The room objects the Ceres Ridley hallway places in every state: none.</summary>
+    /// <summary>The room objects the Ceres Ridley Hallway room places in every state: none.</summary>
     public static RoomObjectPopulation CeresRidleyHallway { get; } = RoomObjectPopulation.FromPlacements(nameof(CeresRidleyHallway),
     [
     ]);

@@ -699,8 +699,8 @@ internal sealed class EnemyCollision
             if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
                 continue;
 
-            // A definition names only the ignoring reaction, which the entity answers, or none; an entity with a Power
-            // Bomb reaction it has no response to throws here.
+            // A definition names only the ignoring reaction, which the entity answers, or none; an entity without a
+            // Power Bomb reaction takes the common damage.
             EnemyPowerBombReaction? reaction = (enemy.Entity as IEnemyPowerBombReaction)?.PowerBombReaction;
             if (reaction?.SkipsEnemy?.Invoke(enemy) == true)
                 continue;

@@ -233,8 +233,7 @@ public sealed class SamusCrystalFlashState
     }
 
     /// <summary>
-    /// Consumes missiles, supers, then power bombs at the drain's cadence and restores <see cref="CrystalFlashDefinitions.EnergyPerAmmunition"/> for each one spent. Nothing
-    /// stops a count at zero, so a kind the activation check let through with fewer than its share drains below zero.
+    /// Consumes missiles, supers, then power bombs at the drain's cadence and restores <see cref="CrystalFlashDefinitions.EnergyPerAmmunition"/> for each one spent.
     /// </summary>
     private void StepAmmoDrain(SamusState samus, int frameCounter)
     {

@@ -34,7 +34,7 @@ internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyPl
     /// <summary>Baby Metroid's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.BabyMetroidShotReaction : base.ShotReaction;
 
-    /// <summary>Runs Baby Metroid's its own bomb reaction, which comes before the ignoring check, for a bomb that selects its own shot reaction.</summary>
+    /// <summary>Runs the Baby Metroid's own bomb reaction, which comes before the ignoring check, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override bool TryReactToBomb(EnemyBombContext context)
     {

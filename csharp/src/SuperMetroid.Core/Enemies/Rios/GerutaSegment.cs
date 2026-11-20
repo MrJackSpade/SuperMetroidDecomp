@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// </summary>
 internal enum GerutaSegment
 {
-    /// <summary>Hovering, its wings spread, level and drooping, with its flames behind it, repeating.</summary>
+    /// <summary>Hovering, its wings spread, level and drooping, its flames hidden, repeating.</summary>
     Idle,
     /// <summary>
     /// Its wings flattening, lifting and sweeping up as it starts to swoop down, its flames moving with them.

@@ -29,7 +29,7 @@ internal static class BoyonAnimations
         [P.Bouncing] =
         [
             Cue(new(K.ProcessOffScreen)),
-            Cue(new(K.StartBounce)),
+            Cue(new(K.PlayBounceSound)),
         ],
         [P.BouncingStar] =
         [

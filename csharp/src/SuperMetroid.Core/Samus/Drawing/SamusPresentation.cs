@@ -333,7 +333,8 @@ internal sealed class SamusPresentation
                 break;
 
             case SamusAnimationVerticalSpeedTransition verticalSpeed:
-                // Read only on a cue value's place (#1535): the pose depends on whether Samus has any vertical speed alone.
+                // Read only when the cue's place is reached (#1535): the pose it names depends only on whether Samus has
+                // any vertical speed.
                 samus.CuePose.Name(samus.Kinematics.VerticalVelocity.IsMoving
                     ? verticalSpeed.Airborne
                     : verticalSpeed.Grounded);

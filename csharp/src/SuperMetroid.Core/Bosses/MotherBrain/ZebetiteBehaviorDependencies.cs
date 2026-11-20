@@ -12,10 +12,10 @@ internal sealed record ZebetiteBehaviorDependencies
     /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }
 
-    /// <summary>The room the Zebetites is in: its area, its enemy definitions and the game services and random numbers its enemies use.</summary>
+    /// <summary>The room the Zebetites are in: its area, its enemy definitions and the game services and random numbers its enemies use.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
-    /// <summary>The room's earthquake, which the Zebetites starts.</summary>
+    /// <summary>The room's earthquake, whose shaking the Zebetites read.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
     /// <summary>The room's enemy places.</summary>
@@ -24,10 +24,10 @@ internal sealed record ZebetiteBehaviorDependencies
     /// <summary>Samus's passage through a door, during which a newly initialized Zebetite stays inert.</summary>
     public required DoorPassage DoorPassage { get; init; }
 
-    /// <summary>The room-wide enemy state the game reads, which the Zebetites sets.</summary>
+    /// <summary>The room-wide enemy state the game reads, which the Zebetites set.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }
 
-    /// <summary>The enemies' touches, shots and bombs with Samus, which the Zebetites reacts to.</summary>
+    /// <summary>The enemies' touches, shots and bombs with Samus, which the Zebetites react to.</summary>
     public required EnemyCollision Collision { get; init; }
 
     /// <summary>The enemy update's sound and music requests.</summary>

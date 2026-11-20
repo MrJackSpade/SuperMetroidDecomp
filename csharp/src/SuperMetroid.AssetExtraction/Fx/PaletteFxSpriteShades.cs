@@ -30,7 +30,8 @@ internal static class PaletteFxSpriteShades
     /// row whose first ink is <paramref name="rowFirstInk"/>, coloured from <paramref name="colours"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">
-    /// The group recolours no sprite row, the program shows another group, a colour is not installed, or a record writes
+    /// The group recolours no sprite row, the program shows another group, a colour is missing from the import's
+    /// palette-effect colours, or a record writes
     /// past the row.
     /// </exception>
     internal static IEnumerable<SheetShade> Of(ColourEffectId effect, ColourEffectColours group, int rowFirstInk, IPaletteFxColorSource colours)

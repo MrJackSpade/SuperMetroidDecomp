@@ -28,7 +28,7 @@ public sealed record ColourEffectInputs
     public required IRoomSamusAccess Samus { get; init; }
 
     /// <summary>
-    /// The long frame counter this update (<see cref="FrameClock.Counter"/>), 0 through one short of
+    /// The game's update count this update (<see cref="FrameClock.Counter"/>), 0 through one short of
     /// <see cref="FrameClock.CounterPeriod"/>: the heat shimmer plays its damage sound at its cadence's place in it. Values
     /// the counter never holds are rejected (#1627).
     /// </summary>

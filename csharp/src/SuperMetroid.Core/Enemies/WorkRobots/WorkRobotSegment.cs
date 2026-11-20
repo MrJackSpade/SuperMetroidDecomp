@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
-/// The Work Robot's unpowered poses and its walk, wall, recoil, laser and ledge animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// The Work Robot's unpowered poses and its walk, wall, recoil, laser and ledge animations (#641).
 /// Their steps are <see cref="WorkRobotAnimations"/>.
 /// </summary>
 internal enum WorkRobotSegment

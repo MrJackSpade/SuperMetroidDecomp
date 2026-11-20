@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -8,15 +9,14 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <param name="Flip">The part's own mirroring, combined with the draw's whole-frame flip.</param>
 /// <param name="Palette">The part's OBJ palette row 0..7, or null to use the draw's palette; <see cref="SpriteFrame"/>
 /// rejects a row outside that range.</param>
-/// <param name="Priority">The part's priority against the backgrounds 0..3, or null to use the draw's priority;
-/// <see cref="SpriteFrame"/> rejects a priority outside that range.</param>
+/// <param name="Depth">Where the part draws among the room's layers, or null to draw at the draw's depth.</param>
 public readonly record struct SpriteFramePart(
     Offset16<ScreenPixels> Offset,
     Extent16<ScreenPixels> Size,
     int Character,
     PictureFlip Flip,
     int? Palette,
-    int? Priority)
+    ActorDepth? Depth)
 {
     /// <summary>The highest character index this part reads in its artwork.</summary>
     public int LastCharacter =>

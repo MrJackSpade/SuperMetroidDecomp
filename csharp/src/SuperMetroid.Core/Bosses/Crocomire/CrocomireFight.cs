@@ -96,8 +96,7 @@ internal sealed class CrocomireFight
         foreach (Position16<RoomScreens> screen in CrocomireCameraDefinitions.BehindWallScreens)
             _room.Services.RoomScroll.Write(screen, RoomScrollState.Closed);
 
-        // The wall's and the projectiles' colours his setup loads are the import's shades of them, which his wall,
-        // the bridge's fragments and his projectiles draw in (#1512).
+        // His wall, the bridge's fragments and his projectiles draw in their own shades (#1512).
     }
 
     /// <summary>Sets Crocomire's tongue up when the room spawns it.</summary>
@@ -294,7 +293,7 @@ internal sealed class CrocomireFight
                 _access.RequestCrocomireSound(CrocomireSoundDefinitions.SkeletonCollapse);
                 return null;
             case CrocomireBodyCueKind.ShakeScreen:
-                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), CrocomireFightDefinitions.StepShakeDuration);
+                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), CrocomireFightDefinitions.StepShakeDuration);
                 _access.RequestCrocomireSound(CrocomireSoundDefinitions.ScreenShake);
                 return null;
 

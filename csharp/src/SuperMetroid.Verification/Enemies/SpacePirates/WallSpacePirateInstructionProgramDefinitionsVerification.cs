@@ -156,7 +156,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 jumpingRight ? WallSpacePirateSegment.FireAndJumpRight : WallSpacePirateSegment.FireAndJumpLeft), AnimationPlace.StartOfAnimation);
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
-                new FrameCounters(0));
+                new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
             for (int update = 1; update <= 32; update++)
             {
                 WallSpacePirateBehavior.RunWallSpacePirateMainAi(place, frame);

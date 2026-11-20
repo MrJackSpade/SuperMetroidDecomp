@@ -72,6 +72,7 @@ internal static class Program
                 new AnalyzerSuite(nameof(VerifyTupleAnalyzer), VerifyTupleAnalyzer),
                 new AnalyzerSuite(nameof(CoreVocabularyAnalyzerTests.VerifyCoreVocabularyAnalyzer), CoreVocabularyAnalyzerTests.VerifyCoreVocabularyAnalyzer),
                 new AnalyzerSuite(nameof(CoreDocumentationVocabularyAnalyzerTests.VerifyCoreDocumentationVocabularyAnalyzer), CoreDocumentationVocabularyAnalyzerTests.VerifyCoreDocumentationVocabularyAnalyzer),
+                new AnalyzerSuite(nameof(CoreDocumentationStorageAndHistoryAnalyzerTests.VerifyCoreDocumentationStorageAndHistoryAnalyzer), CoreDocumentationStorageAndHistoryAnalyzerTests.VerifyCoreDocumentationStorageAndHistoryAnalyzer),
                 new AnalyzerSuite(nameof(NativeAddressAnalyzerTests.VerifyNativeAddressAnalyzer), NativeAddressAnalyzerTests.VerifyNativeAddressAnalyzer),
                 new AnalyzerSuite(nameof(RoomGridIdiomAnalyzerTests.VerifyRoomGridIdiomAnalyzer), RoomGridIdiomAnalyzerTests.VerifyRoomGridIdiomAnalyzer),
                 new AnalyzerSuite(nameof(CoordinateWrapAnalyzerTests.VerifyCoordinateWrapAnalyzer), CoordinateWrapAnalyzerTests.VerifyCoordinateWrapAnalyzer),

@@ -120,7 +120,7 @@ internal static class TitleSpriteExtractor
                 TileColumn = attributes.TileNumber % TitleGraphicsFormat.ObjectTileColumns,
                 TileRow = attributes.TileNumber / TitleGraphicsFormat.ObjectTileColumns,
                 Size = x.IsLarge ? 16 : 8,
-                Priority = attributes.Priority,
+                Depth = attributes.Depth,
                 Palette = null,
                 FlipX = attributes.FlipHorizontally,
                 FlipY = attributes.FlipVertically,

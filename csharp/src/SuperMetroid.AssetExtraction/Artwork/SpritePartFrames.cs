@@ -47,7 +47,7 @@ public static class SpritePartFrames
     private static SpriteFrame SmallObjectFrame(SpritePart alone, int firstCharacter)
     {
         return SmallObjects.GetOrAdd(new SmallObjectKey(alone, firstCharacter), key => new SpriteFrame(
-            $"Piece.{key.Part.Character:X3}.{key.Part.Palette}.{key.Part.Priority}.{(key.Part.FlipsHorizontally ? "h" : "")}{(key.Part.FlipsVertically ? "v" : "")}"
+            $"Piece.{key.Part.Character:X3}.{key.Part.Palette}.{key.Part.Depth}.{(key.Part.FlipsHorizontally ? "h" : "")}{(key.Part.FlipsVertically ? "v" : "")}"
                 + (key.Part.Offset == Offset16<ScreenPixels>.Zero ? "" : $".{key.Part.Offset.X}.{key.Part.Offset.Y}"),
             [Part(key.Part, key.FirstCharacter)]));
     }

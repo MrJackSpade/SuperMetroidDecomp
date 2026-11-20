@@ -15,8 +15,9 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
-/// The installed catalogs a gameplay runtime is built over and binds (#2049): every one is required, since the host installs
-/// its artwork before gameplay builds anything that draws (<see cref="Frontend.GameArtwork.Gameplay"/>). The runtime never
+/// The installed catalogs a gameplay runtime is built over and binds (#2049): every one is required, since the host
+/// puts its artwork in place before gameplay builds anything that draws (<see cref="Frontend.GameArtwork.Gameplay"/>).
+/// The runtime never
 /// sees the frontend's cinematic and ending catalogs.
 /// </summary>
 [ArchitectureReview("context-bag", "The installed artwork set a gameplay runtime is built over, as one value; every member is an immutable artwork catalog, not a service.")]

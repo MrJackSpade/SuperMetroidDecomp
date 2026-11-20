@@ -27,8 +27,8 @@ public readonly record struct UnitComponent
     private const int TwoFiftySixthsPerCoarseStep = 2;
 
     /// <summary>
-    /// The fine sine (<see cref="Trigonometry.FineSignedSine"/>) of <paramref name="angle"/> read coarsely (#2453): its size
-    /// as <see cref="Trigonometry.CoarseSizeOfFineSine"/> reads it, 128ths of the whole, with the sine's sign at the angle.
+    /// The fine sine (<see cref="Trigonometry.FineSignedSine"/>) of <paramref name="angle"/> read coarsely (#2453): its
+    /// size as <see cref="Trigonometry.CoarseSizeOfFineSine"/> reads it, with the sine's sign at the angle.
     /// </summary>
     public static UnitComponent CoarseFineSineOf(TrigonometryAngle angle) =>
         new(angle.WithSineSign(Trigonometry.CoarseSizeOfFineSine(angle) * TwoFiftySixthsPerCoarseStep));

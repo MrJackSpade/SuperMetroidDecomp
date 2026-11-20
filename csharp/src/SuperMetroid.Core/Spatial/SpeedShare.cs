@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// A share of a move or a speed, from a 256th of it to the whole of it (#2356): how much of a grounded move crosses a
-/// slope, how much of a crawler's speed carries along one, or one substep's part of a grapple extension. The game's
-/// shares are whole 256ths, so a share is authored as a fraction whose denominator divides 256.
+/// A share of a move or a speed, from its finest share to the whole of it (#2356): how much of a grounded move crosses
+/// a slope, how much of a crawler's speed carries along one, or one substep's part of a grapple extension. A share is
+/// authored as a fraction of the whole.
 /// </summary>
 public readonly record struct SpeedShare
 {

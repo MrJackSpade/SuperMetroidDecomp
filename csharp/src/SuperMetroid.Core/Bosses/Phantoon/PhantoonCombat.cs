@@ -334,7 +334,7 @@ internal sealed class PhantoonCombat
         }
     }
 
-    /// <summary>Runs the boss-owned tail of Phantoon's hitbox reaction after common vulnerability damage.</summary>
+    /// <summary>Phantoon's own reaction to a damaging shot, after the common damage.</summary>
     private void ResolvePhantoonShotReaction(
         RoomEnemyPlace body,
         PhantoonEnemyState state,
@@ -569,8 +569,8 @@ internal sealed class PhantoonCombat
     {
         reaction = null;
 
-        // Phantoon's frames' hitboxes are his collision definitions', never his editable background frames'; the
-        // invulnerable body's centre point is a compatibility rule (PhantoonSolidifyingCentre).
+        // His pictures' hit areas are his collision definitions', never his editable pictures'; the invulnerable body's
+        // centre point is a compatibility rule (PhantoonSolidifyingCentre).
         foreach (EnemyCollisionComponent component in
                  PhantoonCollision.ComponentsAt(enemy.Frame))
         {

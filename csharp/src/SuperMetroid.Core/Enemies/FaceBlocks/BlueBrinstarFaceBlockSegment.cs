@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
 /// <summary>
-/// The Blue Brinstar face block's neutral and turning animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// The Blue Brinstar face block's neutral and turning animations (#641).
 /// Their steps are <see cref="BlueBrinstarFaceBlockAnimations"/>.
 /// </summary>
 internal enum BlueBrinstarFaceBlockSegment

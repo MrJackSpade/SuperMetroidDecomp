@@ -362,23 +362,23 @@ internal static class SamusAnimationDelayDefinitions
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation TurningLeftToRightCrouchingAimDiagonalUpAnimation { get; } = new(SamusAnimationName.TurningLeftToRightCrouchingAimDiagonalUp, [new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingAimDiagonalUpRightPose))]);
 
-    /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnJumpLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation MoonwalkTurnJumpLeftAnimation { get; } = new(SamusAnimationName.MoonwalkTurnJumpLeft, [new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpLeftPose))]);
+    /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnToSpinJumpLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
+    internal static SamusPoseAnimation MoonwalkTurnToSpinJumpLeftAnimation { get; } = new(SamusAnimationName.MoonwalkTurnToSpinJumpLeft, [new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpLeftPose))]);
 
-    /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnJumpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation MoonwalkTurnJumpRightAnimation { get; } = new(SamusAnimationName.MoonwalkTurnJumpRight, [new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpRightPose))]);
+    /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnToSpinJumpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
+    internal static SamusPoseAnimation MoonwalkTurnToSpinJumpRightAnimation { get; } = new(SamusAnimationName.MoonwalkTurnToSpinJumpRight, [new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpRightPose))]);
 
-    /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnJumpAimUpLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation MoonwalkTurnJumpAimUpLeftAnimation { get; } = new(SamusAnimationName.MoonwalkTurnJumpAimUpLeft, [new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpLeftPose))]);
+    /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
+    internal static SamusPoseAnimation MoonwalkTurnToSpinJumpAimUpLeftAnimation { get; } = new(SamusAnimationName.MoonwalkTurnToSpinJumpAimUpLeft, [new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpLeftPose))]);
 
-    /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnJumpAimUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation MoonwalkTurnJumpAimUpRightAnimation { get; } = new(SamusAnimationName.MoonwalkTurnJumpAimUpRight, [new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpRightPose))]);
+    /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
+    internal static SamusPoseAnimation MoonwalkTurnToSpinJumpAimUpRightAnimation { get; } = new(SamusAnimationName.MoonwalkTurnToSpinJumpAimUpRight, [new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpRightPose))]);
 
-    /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnJumpAimDownLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation MoonwalkTurnJumpAimDownLeftAnimation { get; } = new(SamusAnimationName.MoonwalkTurnJumpAimDownLeft, [new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpLeftPose))]);
+    /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
+    internal static SamusPoseAnimation MoonwalkTurnToSpinJumpAimDownLeftAnimation { get; } = new(SamusAnimationName.MoonwalkTurnToSpinJumpAimDownLeft, [new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpLeftPose))]);
 
-    /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnJumpAimDownRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation MoonwalkTurnJumpAimDownRightAnimation { get; } = new(SamusAnimationName.MoonwalkTurnJumpAimDownRight, [new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpRightPose))]);
+    /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
+    internal static SamusPoseAnimation MoonwalkTurnToSpinJumpAimDownRightAnimation { get; } = new(SamusAnimationName.MoonwalkTurnToSpinJumpAimDownRight, [new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpRightPose))]);
 
     /// <summary>
     /// The left-facing Draygon grab animation, which no pose Samus holds animates by: only a frame read past another animation's end
@@ -638,12 +638,12 @@ internal static class SamusAnimationDelayDefinitions
         TurningLeftToRightFallingAimDiagonalUpAnimation,
         TurningRightToLeftCrouchingAimDiagonalUpAnimation,
         TurningLeftToRightCrouchingAimDiagonalUpAnimation,
-        MoonwalkTurnJumpLeftAnimation,
-        MoonwalkTurnJumpRightAnimation,
-        MoonwalkTurnJumpAimUpLeftAnimation,
-        MoonwalkTurnJumpAimUpRightAnimation,
-        MoonwalkTurnJumpAimDownLeftAnimation,
-        MoonwalkTurnJumpAimDownRightAnimation,
+        MoonwalkTurnToSpinJumpLeftAnimation,
+        MoonwalkTurnToSpinJumpRightAnimation,
+        MoonwalkTurnToSpinJumpAimUpLeftAnimation,
+        MoonwalkTurnToSpinJumpAimUpRightAnimation,
+        MoonwalkTurnToSpinJumpAimDownLeftAnimation,
+        MoonwalkTurnToSpinJumpAimDownRightAnimation,
         DraygonGrabbingLeftAnimation,
         CompactAirborneRightAnimation,
         CompactAirborneLeftAnimation,

@@ -333,19 +333,16 @@ public static class SamusBlockCollision
                 move.Displacement.IsNegative ? HorizontalDirection.Left : HorizontalDirection.Right,
                 acceptedDisplacement);
 
-        // Align Y to whole pixels after both collision and non-collision paths.
-        // Direct uses (notably the prospective-running-pose probe)
-        // omit that movement step and must retain the unaligned whole-pixel Y. The game never turns the alignment off
-        // for a move that asks for it (#1682): only a movement type no pose has would have cleared its enable.
+        // Every move that asks for slope alignment gets it, whether it collides or not, and leaves Samus on whole
+        // pixels; a direct probe (the prospective running pose's) keeps its own whole-pixel height (#1682).
         SlopeAlignmentResult alignment = SamusSlopePhysics.AlignYPosition(
             terrain.Level,
             state.Position.Whole,
             state.Radius.Y,
             horizontalSlopeCollisionEnabled: move.AlignToSlopeAfterMovement);
         state.Position = state.Position.WithWholeY(alignment.Position.Y);
-        // Slope alignment only sets this latch; it does not clear a square-floor contact
-        // published by the previous vertical pass. The vertical move consumes it before
-        // the next terrain Y move of some distance clears it.
+        // Slope alignment marks Samus as on a slope and keeps a square floor she already stands on; the next vertical
+        // move reads the mark, and a terrain move of some distance after it clears it.
         if (alignment.Adjusted)
             state.RestOnSlope();
 
@@ -397,9 +394,8 @@ public static class SamusBlockCollision
             if (probe.Collided)
             {
                 // Solid-enemy success bypasses the block check and moves only to the
-                // current enemy boundary. This is also how the game's vertical-collision flags
-                // distinguish an enemy stop from an unobstructed terrain move. The accepted gap is never negative: the
-                // probe ignores an enemy Samus is already embedded in.
+                // An enemy stop moves Samus only to the enemy's edge, which tells it from a free terrain move. The gap
+                // is never negative: an enemy Samus is already inside does not stop her.
                 SignedSixteenSixteen clippedMagnitude = SignedSixteenSixteen.FromWholePixels(probe.Distance);
                 acceptedDisplacement = acceptedDisplacement.Along(clippedMagnitude);
                 collided = true;
@@ -409,8 +405,8 @@ public static class SamusBlockCollision
 
         if (!collided && !acceptedDisplacement.IsZero)
         {
-            // Only a terrain move of some distance clears this latch. A solid-enemy
-            // stop skips the terrain, and a zero movement does not clear it either.
+            // Slope support stops counting after a terrain move of some distance; an enemy stop or no movement keeps
+            // it.
             state.LeaveSlope();
             VerticalTerrainScan scan = ScanVerticalTerrain(terrain, state, owner, pose, new VerticalTerrainProbe { Displacement = acceptedDisplacement, ScanLeftToRight = move.ScanLeftToRight, CanBreakBombBlocks = move.CanBreakBombBlocks, DoorBlocks = move.DoorBlocks, BlockReactionDirection = move.BlockReactionDirection });
             acceptedDisplacement = scan.AcceptedDisplacement;
@@ -928,9 +924,7 @@ public static class SamusBlockCollision
             state,
             displacement,
             leadingBoundary);
-        // A downward square-slope hit publishes support. Without this
-        // latch, fast running probes farther than the eight-pixel floor thickness
-        // on the next frame and can embed Samus below its surface.
+        // A downward square-slope hit counts as standing on the slope, so a fast run's next probe meets its surface.
         if (!displacement.IsNegative) state.RestOnSlope();
         return true;
     }

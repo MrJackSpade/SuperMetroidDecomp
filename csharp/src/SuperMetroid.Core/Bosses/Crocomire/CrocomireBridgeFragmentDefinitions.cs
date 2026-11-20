@@ -14,11 +14,8 @@ internal static class CrocomireBridgeFragmentDefinitions
     private static readonly ImmutableArray<int> CrumbleXPositions = [1920, 1840, 1936, 1856, 1968, 1888, 1952, 1904, 1808, 1872, 1824];
 
     /// <summary>
-    /// The gravity on a falling bridge fragment, each update. The fragment starts falling
-    /// at under half a pixel an update and is removed when its terrain probe finds a block, at the latest as it leaves the
-    /// room, at most fifty screens tall (<see cref="Rooms.Scrolling.RoomScrollGrid.KeptCellCount"/>); its fall speed
-    /// therefore stays below 50 pixels an update, and the game's restart of a fall reaching 64 pixels an update is never
-    /// reached (#1795).
+    /// The gravity on a falling bridge fragment, each update. The fragment starts falling at under half a pixel an
+    /// update and is removed when its terrain probe finds a block, at the latest as it leaves the room (#1795).
     /// </summary>
     internal static readonly SignedEightEight Gravity = SignedEightEight.FromPixelFraction(3, 32);
 

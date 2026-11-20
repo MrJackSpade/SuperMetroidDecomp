@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// The frames an enemy shows: every installed enemy frame, and the empty frame every enemy family shares. Each is named for
 /// what its picture shows: its owner, then its pose and facing, or the turn, size or placement that tells it from the
 /// owner's other pictures, which its summary spells out; no animation that shows it and no place in one names it. One
-/// picture is one frame however many records store it; frames that share a picture are named for what tells them apart,
+/// picture is one frame; frames that share a picture are named for what tells them apart,
 /// such as their hitboxes. Its installed name is its name in snake case (<see cref="EnemyFrameNameDefinitions"/>), which
 /// gives its installed sheet key (<see cref="EnemyFrameSheetKeys"/>), so a frame's identity never reaches a file.
 /// </summary>

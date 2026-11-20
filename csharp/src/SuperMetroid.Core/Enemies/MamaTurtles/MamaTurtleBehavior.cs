@@ -717,14 +717,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private static BabyTurtleSegment BabyCrawl(HorizontalDirection heading) =>
         heading == HorizontalDirection.Left ? BabyTurtleSegment.CrawlingLeft : BabyTurtleSegment.CrawlingRight;
 
-    /// <summary>Starts a Mama Turtle animation with its frame timer set to one.</summary>
+    /// <summary>Starts a Mama Turtle animation, which shows its first frame on the next update.</summary>
     private static void StartTurtleAnimation(RoomEnemyPlace place, MamaTurtleEnemyState state, MamaTurtleSegment segment)
     {
         state.Playback = new(MamaTurtleAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Starts a baby turtle animation with its frame timer set to one.</summary>
+    /// <summary>Starts a baby turtle animation, which shows its first frame on the next update.</summary>
     private static void StartTurtleAnimation(RoomEnemyPlace place, BabyTurtleEnemyState state, BabyTurtleSegment segment)
     {
         state.Playback = new(BabyTurtleAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);

@@ -4,11 +4,10 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Direct ordered state-selection branches for every room.</summary>
-/// <remarks>The room definitions' state choices test named events, boss flags and
-/// equipment predicates in order; the first successful condition wins
-/// (<see cref="RoomStateSelection"/>). Each conditional choice lists
-/// its branches in authored order after its default state. Unconditional rooms
-/// name their single state. Every room of <see cref="SuperMetroid.Core.Rooms.RoomDefinitions.All"/> is listed.</remarks>
+/// <remarks>The room definitions' state choices test named events, defeated bosses (DefeatedBosses) and equipment
+/// predicates in order; the first successful condition wins (<see cref="RoomStateSelection"/>). Each conditional choice
+/// lists its branches in authored order after its default state. Unconditional rooms name their single state. Every room
+/// of <see cref="SuperMetroid.Core.Rooms.RoomDefinitions.All"/> is listed.</remarks>
 public static class RoomStateSelectionDefinitions
 {
     /// <summary>Each room's state choice, in authored room order.</summary>

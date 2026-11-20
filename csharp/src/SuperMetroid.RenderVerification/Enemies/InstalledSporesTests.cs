@@ -116,8 +116,8 @@ internal static class InstalledSporesTests
                         FxOverlayFixtures.ArtworkOf(baseline.EffectPlane, stock.RoomFxPages,
                             new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]));
                     var layer = GameplayEffectCapture.CaptureEffectBlendingBehind(gameplay, spores, (OverlayBehindRoomBlend)spores.Blend);
-                    Require(!layer.RevealBlocks && layer.Blend.Blended == (BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop) &&
-                        layer.Blend.Operation == BlendOperation.Add && !layer.Blend.Halved &&
+                    Require(!layer.RevealBlocks && layer.Blend is EffectBehindRoomBlend { Effect: { Blended: BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop, Operation: BlendOperation.Add } } &&
+                        
                         layer.Window.IsClosed && layer.OverlayBehind is not null && !layer.BackgroundBehind,
                         "Spore capture does not brighten the background, the actors and the backdrop with the spores lying behind them.");
                     packets.Add(new(packets.Count + 1, new LayeredScene(

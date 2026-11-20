@@ -23,7 +23,7 @@ public sealed class InstalledProjectileTrails
     };
     /// <summary>Resolves one trail frame to its selected single-piece appearance.</summary>
     /// <param name="frame">The trail frame: one of the ice sparkles', the wave trail's or the missile trail's.</param>
-    /// <returns>The character, palette, priority and mirroring.</returns>
+    /// <returns>The character, palette, depth and mirroring.</returns>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not a trail frame.</exception>
     public SpritePart Resolve(SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame frame) =>
         attributes.TryGetValue(frame, out SpritePart appearance) ? appearance : throw new InvalidDataException($"Missing trail frame {frame}.");
@@ -34,7 +34,7 @@ public sealed class InstalledProjectileTrails
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">
     /// JSON is malformed, contains duplicate/unknown properties, lacks the exact 42 native record keys or version 1, has
-    /// invalid tile, palette or priority values, or gives two records of one frame different appearances (#2348).
+    /// invalid tile or palette values, or gives two records of one frame different appearances (#2348).
     /// </exception>
     public static InstalledProjectileTrails Load(Stream json)
     {
@@ -57,10 +57,10 @@ public sealed class InstalledProjectileTrails
             string name = ProjectileTrailVisualDefinitions.RecordNames[index];
             if (!document.Frames.TryGetValue(name, out var p) || p is null ||
                 (uint)p.TileColumn >= ProjectileSpriteDefinitions.TileColumns || (uint)p.TileRow >= ProjectileSpriteDefinitions.TileRows ||
-                (uint)p.Palette > 7 || (uint)p.Priority > 3)
+                (uint)p.Palette > 7)
                 throw new InvalidDataException($"Missing or invalid trail appearance {name}.");
             SpritePart appearance = SpritePart.Single(p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
-                p.Palette, p.Priority, (p.FlipX ? PictureFlip.Horizontal : 0) | (p.FlipY ? PictureFlip.Vertical : 0));
+                p.Palette, p.Depth, (p.FlipX ? PictureFlip.Horizontal : 0) | (p.FlipY ? PictureFlip.Vertical : 0));
             // Every record of one frame shows that frame's one appearance (#2348).
             if (!attributes.TryAdd(frame, appearance) && attributes[frame] != appearance)
                 throw new InvalidDataException($"Trail appearance {name} differs from another record of frame {frame}.");

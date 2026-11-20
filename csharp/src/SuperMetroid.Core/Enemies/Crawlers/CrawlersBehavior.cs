@@ -76,8 +76,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void InitializeCrawler(RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
     {
-        // The population entry names the starting surface. The Viola's setup alone takes its block side
-        // instead, and a Viola's entry names no surface.
+        // The placement names the starting surface; the Viola alone takes its block side instead, and a Viola's
+        // placement names no surface.
         CrawlerSurfaceOrientation orientation;
         CrawlerSurfaceOrientation blockSide;
         SignedEightEight? crawlSpeed;
@@ -437,8 +437,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         GetSurfaceSlopeAdjustedHorizontalDisplacement(place, state.Velocity, level);
 
     /// <summary>
-    /// Shared geometry from the crawlers' slope-processing horizontal mover. Both the common
-    /// crawlers and Yard multiply their tangent by the game's non-square-slope factor.
+    /// The crawl's horizontal step along the slope it stands on, which the common crawlers and Yard share.
     /// </summary>
     internal static SignedSixteenSixteen GetSurfaceSlopeAdjustedHorizontalDisplacement(
         RoomEnemyPlace place,

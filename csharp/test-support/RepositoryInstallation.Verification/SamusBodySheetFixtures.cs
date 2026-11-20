@@ -217,7 +217,7 @@ internal static class SamusBodySheetFixtures
                 ? SamusOverlaySheetComposer.Sources(fixture, SamusArmCannonArtworkFiles.LoadCoverCharacters(cannon,
                     CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.SamusBodyDirectoryName)))
                 : SamusSheetSources.For(fixture, id);
-            var layout = new SpriteSheetLayout(composedSources[index], 0, 0);
+            var layout = new SpriteSheetLayout(composedSources[index], 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
             composedSheets[index] = paintedLayouts.GetOrAdd($"{id}-{layout.Identity}", _ => new(() =>
             {
                 painted[index] = true;
@@ -246,7 +246,7 @@ internal static class SamusBodySheetFixtures
 
     /// <summary>Composes and loads the fixture sheet <paramref name="id"/> from <paramref name="sources"/>.</summary>
     private static SpriteSheet Load(SpriteSheetId id, SpriteSheetSources sources, string suffix) =>
-        Load(id, new SpriteSheetLayout(sources, 0, 0), suffix);
+        Load(id, new SpriteSheetLayout(sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom), suffix);
 
     /// <summary>Paints and loads the fixture sheet <paramref name="id"/> laid out as <paramref name="layout"/>.</summary>
     private static SpriteSheet Load(SpriteSheetId id, SpriteSheetLayout layout, string suffix)

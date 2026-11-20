@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>
-/// The baby turtles' crawl, hiding, shell and spin animations (#641, #2342): one segment per animation a spawn, branch or wake enters, in authored order. Their steps are
+/// The baby turtles' crawl, hiding, shell and spin animations (#641, #2342). Their steps are
 /// <see cref="BabyTurtleAnimations"/>.
 /// </summary>
 internal enum BabyTurtleSegment

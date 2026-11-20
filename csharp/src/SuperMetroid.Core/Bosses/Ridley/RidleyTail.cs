@@ -291,7 +291,7 @@ internal sealed class RidleyTail
             {
                 if (target < link.Distance)
                     link.TargetDistance = null;
-                // Every link's longest is under 25 pixels, so the extended length stays far inside its range.
+                // The link stops at its longest distance.
                 link.Distance = SignedEightEight.Min(link.LongestDistance, link.Distance + tail.ExtensionSpeed);
             }
             else if (link.Distance > link.RestDistance)

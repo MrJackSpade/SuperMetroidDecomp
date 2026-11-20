@@ -193,9 +193,8 @@ internal static class FirefleaFxVerification
         AssertTrue(ordinaryDarkness.Layers[0] is GameplayBlendLayer,
             "normal Fireflea display retains source identity for darkness subtraction");
         var darkLayer = (GameplayBlendLayer)ordinaryDarkness.Layers[0];
-        AssertEqual(BlendedLayers.Background | BlendedLayers.Backdrop, darkLayer.Blend.Blended,
-            "normal Fireflea darkens the background and the backdrop, not the foreground or Samus");
-        AssertEqual(BlendOperation.Subtract, darkLayer.Blend.Operation, "normal Fireflea darkness subtracts its shade");
+        AssertTrue(darkLayer.Blend is FirefleaDarknessBlend,
+            "normal Fireflea shows its darkness, which darkens the background and the backdrop, not the foreground or Samus");
         AssertTrue(darkLayer.Window.IsClosed,
             "ordinary Fireflea darkness has no X-ray exemption window");
         AssertTrue(!darkLayer.RevealBlocks && darkLayer.OverlayBehind is null && !darkLayer.BackgroundBehind,
@@ -207,16 +206,15 @@ internal static class FirefleaFxVerification
         var layer = (GameplayBlendLayer)packet.Layers[0];
         AssertTrue(!layer.RevealBlocks && layer.OverlayBehind is null && !layer.BackgroundBehind,
             "Fireflea preserves room maps and subtracts its shade, with nothing lying behind");
-        AssertEqual(BlendedLayers.Foreground | BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop,
-            layer.Blend.Blended, "Fireflea X-ray darkens both backgrounds, the actors and the backdrop");
-        AssertTrue(layer.Blend.Operation == BlendOperation.Subtract && !layer.Blend.Halved, "Fireflea X-ray subtracts its shade whole");
-        AssertEqual(new FadeLevelColour(shade, shade, shade).ToColour(), layer.Blend.Colour,
+        AssertTrue(layer.Blend is XrayDimmingBlend { Mode.KeepsDarkness: true },
+            "Fireflea X-ray keeps the darkness, darkening the whole room with its shade whole");
+        AssertEqual(new FadeLevelColour(shade, shade, shade).ToColour(), ((XrayDimmingBlend)layer.Blend).Tint,
             "Fireflea's grey shade survives 90 frozen runtime frames");
         for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive && !runtime.Freeze.TimeIsFrozen, "Fireflea X-ray teardown releases gameplay");
         var restored = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-        AssertEqual(BlendedLayers.Background | BlendedLayers.Backdrop, ((GameplayBlendLayer)restored.Layers[0]).Blend.Blended,
-            "Fireflea teardown restores room subtraction rather than unblended rendering");
+        AssertTrue(((GameplayBlendLayer)restored.Layers[0]).Blend is FirefleaDarknessBlend,
+            "Fireflea teardown restores the room's darkness rather than unblended rendering");
     }
 
     /// <summary>Dispatches the focused Fireflea FX verification command.</summary>

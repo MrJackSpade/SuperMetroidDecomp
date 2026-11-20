@@ -9,7 +9,7 @@ internal static class WaverMotionDefinitions
     /// <summary>How far above and below its line a Waver's wave reaches, in pixels.</summary>
     internal const int WaveHeight = 4;
 
-    /// <summary>How far a Waver's wave turns each update, in steps (256ths of a turn) (#2182).</summary>
+    /// <summary>How far a Waver's wave turns each update, in steps of the turn (#2182).</summary>
     internal const int WaveStep = 2;
 
     /// <summary>The steps into each half of its wave at which a Waver spins (#2182).</summary>

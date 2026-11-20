@@ -55,7 +55,7 @@ internal static class EscapeTimerSheetComposer
                 size, attributes.TileNumber - EscapeTimerTileAtlasFormat.FirstCharacter,
                 (attributes.FlipHorizontally ? PictureFlip.Horizontal : PictureFlip.None) |
                 (attributes.FlipVertically ? PictureFlip.Vertical : PictureFlip.None),
-                null, attributes.Priority);
+                null, attributes.Depth);
         }
         return [.. parts];
     }

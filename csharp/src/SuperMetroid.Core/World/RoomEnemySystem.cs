@@ -431,8 +431,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 bool ranActorAi = GrappleBehavior.RunCommonGrappleAi(place, aiFrame);
                 // The hurt behaviour replaces main AI while the enemy is hurt: the species' own, or the inert one its
                 // definition names. The grappled, hurt and frozen states are tried in that order, and the first one the
-                // enemy is in selects its behaviour even when that behaviour does nothing. Hurt therefore delays frozen
-                // AI until the flash's end clears the hurt state; falling through here prematurely clears flash.
+                // enemy is in selects its behaviour even when that behaviour does nothing, so the hurt state delays
+                // frozen behaviour until the flash ends.
                 if (!ranActorAi &&
                     (place.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None &&
                     place.Entity is IEnemyHurtReaction hurt &&
@@ -576,7 +576,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         RoomLevelData level,
         SamusState samus,
         Position16<RoomPixels> camera,
-        int shortFrameCounter,
+        Compatibility.ShortFrameCount shortFrameCounter,
         SamusBombProjectileSystem samusBombs,
         int frameCounter)
     {

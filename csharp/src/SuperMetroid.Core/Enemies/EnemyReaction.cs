@@ -22,9 +22,8 @@ public sealed class EnemyReaction
     public static EnemyReaction DudShot { get; } = new(nameof(DudShot));
 
     /// <summary>
-    /// The reaction that does nothing. Every reaction that returns at once is this one reaction, whichever enemy names
-    /// it; whether the engine still tests an enemy's extended hitboxes is the definition's separate
-    /// <see cref="EnemyHitboxScan"/>, not a property of this reaction.
+    /// The reaction that does nothing, whichever enemy names it; whether the engine still tests an enemy's extended
+    /// hitboxes is the definition's separate <see cref="EnemyHitboxScan"/>, not a property of this reaction.
     /// </summary>
     public static EnemyReaction Ignore { get; } = new(nameof(Ignore));
 

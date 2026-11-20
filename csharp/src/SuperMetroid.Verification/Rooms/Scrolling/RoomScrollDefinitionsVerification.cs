@@ -40,7 +40,7 @@ internal static class RoomScrollDefinitionsVerification
         foreach (ushort roomPointer in roomPointers)
         foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
         {
-            SelectedRoom header = SelectedRoom.LoadUsingCompiledSelection(
+            SelectedRoom header = SelectedRoom.ForProgress(
                 RoomDefinitions.Get(roomPointer), context);
             if (!auditedStates.Add(header.State.Pointer))
                 continue;
@@ -104,7 +104,7 @@ internal static class RoomScrollDefinitionsVerification
             () => RoomScrollGrid.LoadNativeTable([0], new Extent16<RoomScreens>(1, 1)),
             "compiled scroll installation rejects incomplete storage");
 
-        SelectedRoom ceres = SelectedRoom.LoadUsingCompiledSelection(
+        SelectedRoom ceres = SelectedRoom.ForProgress(
             SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator.Placement.Door.DestinationRoom, RoomStateSelectionContexts.NoProgress);
         var guardedCeres = CreateRetailRuntimeFixture();
         // A new session's scroll cells start cleared, so Ceres's cells past its own read red.

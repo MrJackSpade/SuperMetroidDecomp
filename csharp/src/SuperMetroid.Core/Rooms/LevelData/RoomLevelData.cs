@@ -271,9 +271,9 @@ public sealed class RoomLevelData
         WriteObjectTerrain(Size.RowMajorIndex(block), terrain, terrain.Appearance);
 
     /// <summary>
-    /// A room object's write of only a block's collision kind and behaviour at its block, inside the grid or in the terrain
-    /// beyond the room (#2496): the block keeps its picture and what it shows, as a room object that rewrites nothing but a
-    /// block's type and its parameter does. A block of the grid no longer leads where its earlier behaviour did.
+    /// A room object's change of only how a block collides and what it does, inside the grid or in the terrain beyond
+    /// the room (#2496): the block keeps its picture and what it shows. A block of the grid no longer leads where its
+    /// earlier behaviour did.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The block is past the terrain beyond the room.</exception>
     internal void SetObjectCollisionAndBehavior(Position16<RoomBlocks> block, RoomCollisionType collision, RoomBlockBehavior behavior)
@@ -325,8 +325,8 @@ public sealed class RoomLevelData
         WriteObjectTerrain(GridPlace(block), terrain, terrain.Appearance);
 
     /// <summary>
-    /// Replaces only one foreground block's collision kind, as a room object that rewrites nothing but a block's type does
-    /// (#2494): the block keeps its picture, what it shows, its behaviour and where it leads; the block must lie in the grid.
+    /// Changes only how one foreground block collides (#2494): the block keeps its picture, what it shows, its
+    /// behaviour and where it leads; the block must lie in the grid.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
     internal void SetCollision(Position16<RoomBlocks> block, RoomCollisionType collision)

@@ -553,8 +553,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (delta == 0)
             return new BabyMetroidAxisStep(true, velocity);
 
-        // Every approach clamps the speed to five pixels an update and a hit's recoil adds less than one, so the step
-        // stays far inside the velocity's range.
+        // The speed is capped at BabyMetroidFlightDefinitions.LatchMaximumSpeed.
         SignedEightEight speed = delta >= 0
             ? SignedEightEight.Max(-BabyMetroidFlightDefinitions.LatchMaximumSpeed, velocity - acceleration)
             : SignedEightEight.Min(BabyMetroidFlightDefinitions.LatchMaximumSpeed, velocity + acceleration);
@@ -752,8 +751,8 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Marks projectile collision and converts shot damage into recoil without vulnerability damage.</summary>
     internal EnemyShotReaction BabyMetroidShotReaction => field ??= new()
     {
-        // Like Dead Torizo, Baby Metroid receives the projectile prelude but never creates an impact or
-        // enters vulnerability damage. Its own reaction converts shot strength and the first shot's aim into recoil.
+        // A shot marks its collision and the Baby recoils, without hurting it: the shot's strength and the first shot's
+        // aim decide the recoil.
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);

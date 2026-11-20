@@ -7,9 +7,8 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// A room and the state its selection chose: the room's fixed definition and the settings of that state.
 /// </summary>
 /// <remarks>
-/// The game selects the room's state immediately after reading
-/// the fixed definition. State selection is data-driven and can depend on events, bosses, or
-/// inventory. A new game's Ceres start has none of them, so it takes each room's default state.
+/// A room's state is chosen from progress as the room loads: its events, bosses and inventory. A new game's Ceres start
+/// has none of them, so it takes each room's default state.
 /// <see cref="FallingCameraOffset"/> and <see cref="RisingCameraOffset"/> are how many pixels above Samus the camera aims its top as she falls and as she rises.
 /// <see cref="UsesIsolatedDoorTransition"/> is the definition's flag that door transitions read: when the
 /// source or destination room sets it, the transition hides the foreground below the HUD and does not keep the colours
@@ -38,7 +37,7 @@ public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings S
     /// <summary>Selects <paramref name="room"/>'s state for <paramref name="selection"/> from the room definitions.</summary>
     /// <param name="room">The room.</param>
     /// <param name="selection">The progress and equipment the room's state conditions read (#2290).</param>
-    public static SelectedRoom LoadUsingCompiledSelection(
+    public static SelectedRoom ForProgress(
         RoomDefinition room,
         RoomStateSelectionContext selection) =>
         new(Ensure.NotNull(room), RoomStateSelection.Select(room, selection));

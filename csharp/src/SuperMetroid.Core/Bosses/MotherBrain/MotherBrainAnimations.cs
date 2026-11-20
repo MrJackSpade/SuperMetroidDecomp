@@ -93,9 +93,8 @@ internal static class MotherBrainAnimations
 
     /// <summary>
     /// Each body animation, by the segment it starts at: every segment but the hand beam's charge and firing is played once,
-    /// then held. The red hand beam raises her arm, charges (<see cref="HandBeamCharges"/>) and fires; the arm drawn back shows twice running
-    /// before the beam fires: her body shows each new frame of its own on her body layer, so the second showing is a frame
-    /// of its own (#2318).
+    /// then held. The red hand beam raises her arm, charges (<see cref="HandBeamCharges"/>) and fires; the arm drawn
+    /// back shows twice running before the beam fires, each a frame of its own on her body (#2318).
     /// </summary>
     private static Dictionary<B, Animation<B>> BodyStartingAt { get; } = new Dictionary<B, Animation<B>>(
         Enum.GetValues<B>().Except([B.HandBeam, B.HandBeamCharge, B.HandBeamFire])
@@ -203,9 +202,9 @@ internal static class MotherBrainAnimations
         BodyCue(new MotherBrainBodyCue.SetPose(pose));
 
     /// <summary>
-    /// Every brain segment, as its list shows it (#2318). Nothing waits on her brain showing a new frame, so a picture its
-    /// list shows twice running with nothing between is one frame of both: the Hyper Beam recoil opens her mouth as the
-    /// stretch does without drooling, so its wide and its widest mouth each show as one frame. Her still pictures hold.
+    /// Every brain segment, as it shows her brain (#2318). A picture shown twice in a row with nothing between is one
+    /// frame of both: the Hyper Beam recoil opens her mouth as the stretch does without drooling, so its wide and its
+    /// widest mouth each show as one frame. Her still pictures hold.
     /// </summary>
     internal static AnimationSegments<H, EnemyFrameId, MotherBrainHeadCue> HeadSegments { get; } = new(
         new Dictionary<H, AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[]>

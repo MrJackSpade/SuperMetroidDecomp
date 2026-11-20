@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
-/// <summary>Misc dust's typed animation.</summary>
+/// <summary>The animation of a dust cloud, explosion, smoke or bubbles.</summary>
 internal sealed class DustExplosionProjectileAnimation(DustExplosionAnimation animation)
     : EnemyProjectileFrameAnimation<DustExplosionAnimation, EnemyProjectileCommonCue>(DustExplosionProjectileAnimations.StartingWith(animation), EnemyProjectileCueRunners.Common<DustExplosionAnimation>())
 {

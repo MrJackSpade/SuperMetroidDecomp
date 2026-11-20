@@ -190,9 +190,9 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     public static RoomBlockBehavior Sloping(SlopeGeometry slope) => new(SlopeWrites.Carrying(slope));
 
     /// <summary>
-    /// This behaviour as a room of <paramref name="area"/> holds it (#1805): a behaviour whose special-block and special-air
-    /// readings the area's own tables give, as the area resolves it, and any other behaviour unchanged. The installation and
-    /// the room objects' writes hold such a behaviour unresolved, and a room's load resolves it.
+    /// This behaviour as a room of <paramref name="area"/> holds it (#1805): a behaviour with the special-block and
+    /// special-air reactions it has in that area, and any other behaviour unchanged. The installation and the room
+    /// objects' changes hold such a behaviour unresolved, and a room's load resolves it.
     /// </summary>
     /// <param name="area">The room's area, one of the game's areas.</param>
     /// <exception cref="ArgumentOutOfRangeException">

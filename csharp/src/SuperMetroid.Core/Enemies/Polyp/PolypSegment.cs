@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>
-/// Polyp's stationary pose as a typed animation (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// Polyp's stationary pose as a typed animation (#641).
 /// Their steps are <see cref="PolypAnimations"/>.
 /// </summary>
 internal enum PolypSegment

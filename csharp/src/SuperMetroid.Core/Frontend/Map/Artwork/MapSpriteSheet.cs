@@ -14,7 +14,7 @@ internal static class MapSpriteSheet
     /// </summary>
     /// <param name="sheet">The map sprite sheet.</param>
     /// <param name="id">The map sprite drawn.</param>
-    /// <param name="sprites">The screen's sprite entries.</param>
+    /// <param name="sprites">The screen's sprites.</param>
     /// <param name="origin">Where the frame's origin lands.</param>
     /// <param name="screen">The map screen the sprite is drawn on.</param>
     /// <param name="colouring">What the map shows the sprite's recolourable parts as.</param>
@@ -30,7 +30,7 @@ internal static class MapSpriteSheet
     /// <summary>Places <paramref name="id"/>'s frame at <paramref name="origin"/> in <paramref name="shading"/>.</summary>
     /// <param name="sheet">The map sprite sheet.</param>
     /// <param name="id">The map sprite drawn.</param>
-    /// <param name="sprites">The screen's sprite entries.</param>
+    /// <param name="sprites">The screen's sprites.</param>
     /// <param name="origin">Where the frame's origin lands.</param>
     /// <param name="shading">The shades the sprite shows, such as the highlight cycle's current frame.</param>
     internal static void Draw(SpriteSheet sheet, MapSpriteId id, ScreenSprites sprites, Offset16<ScreenPixels> origin,

@@ -47,8 +47,8 @@ internal sealed class NorfairRidleyCombat
 
     /// <summary>
     /// Sets Lower Norfair Ridley up and begins his encounter, which his body holds from then on
-    /// (#2231). A defeated Ridley is deleted before any encounter, workspace or colour side effects, matching the
-    /// defeated-boss gate, and begins none; a live fight begins with Ridley below the visible arena.
+    /// (#2231). A defeated Ridley is deleted before his encounter or his colours begin, as every defeated boss is, and
+    /// begins none; a live fight begins with Ridley below the visible arena.
     /// </summary>
     internal void InitializeNorfairRidley(RoomEnemyPlace place)
     {
@@ -126,7 +126,7 @@ internal sealed class NorfairRidleyCombat
 
         state.Phase = NorfairRidleyPhase.SwoopAimDown;
         state.SwoopPhaseTimer.LastFor(NorfairRidleyMotionDefinitions.SwoopDiveUpdates);
-        state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
+        state.Flight.SwoopHeading = RotationAngle.Zero;
     }
 
     /// <summary>Advances the swoop velocity arc and changes phase, for <paramref name="nextUpdates"/>, as its countdown runs out.</summary>
@@ -252,7 +252,7 @@ internal sealed class NorfairRidleyCombat
             return;
         }
 
-        // The fall is clamped to six pixels an update, so adding the acceleration stays far inside the speed's range.
+        // The fall is capped at the pogo's fastest fall.
         state.Flight.Velocity = state.Flight.Velocity.WithY(SignedEightEight.Min(state.Flight.Velocity.Y + state.PogoDownwardAcceleration, NorfairRidleyMotionDefinitions.PogoMaximumFallSpeed));
 
         if (!RidleyTail.RidleyTailTouchesTerrain(state.Tail, level))
@@ -293,8 +293,7 @@ internal sealed class NorfairRidleyCombat
             return;
         }
 
-        // The rise starts at its launch speed and slows toward rest, so adding the acceleration never passes the speed's
-        // range.
+        // The rise slows toward rest and stops at its peak.
         SignedEightEight nextVertical = state.Flight.Velocity.Y + state.PogoUpwardAcceleration;
         if (!nextVertical.IsNegative)
         {

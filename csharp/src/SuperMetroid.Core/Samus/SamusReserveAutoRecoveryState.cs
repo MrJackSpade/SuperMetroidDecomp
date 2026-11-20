@@ -59,8 +59,7 @@ public sealed class SamusReserveAutoRecoveryState
             }
             else
             {
-                // The game's below-zero repair after this decrement handled corrupt reserve counts; a count
-                // decremented from a positive value reaches zero first.
+                // The reserve count stops at zero.
                 samus.ReserveEnergy = SamusQuantity.DecrementPositive(samus.ReserveEnergy);
             }
         }

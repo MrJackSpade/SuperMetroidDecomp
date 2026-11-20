@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// How far a scene has zoomed its turning floor: how many floor pixels one screen pixel spans, authored and stepped in
-/// 256ths of a floor pixel. <see cref="OwnSize"/> shows the floor at its own size, a larger zoom shows it smaller and a
-/// smaller zoom shows it larger. The scenes' thresholds, starting zooms and per-update steps are all whole 256ths, so the
-/// zoom keeps that count exactly; it is never negative.
+/// How far a scene has zoomed its turning floor: how many floor pixels one screen pixel spans, to a fine fraction of a
+/// floor pixel. <see cref="OwnSize"/> shows the floor at its own size, a larger zoom shows it smaller and a smaller
+/// zoom shows it larger. The scenes' thresholds, starting zooms and per-update steps all lie on that fraction, so the
+/// zoom keeps them exactly; it is never negative.
 /// </summary>
 public readonly record struct FloorZoom : IComparable<FloorZoom>
 {

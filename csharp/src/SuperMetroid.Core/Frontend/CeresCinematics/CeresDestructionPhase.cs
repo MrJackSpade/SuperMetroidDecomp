@@ -24,7 +24,7 @@ internal sealed class CeresDestructionPhase
     /// <summary>Holds the first Ceres scene until its queued music has drained.</summary>
     internal static CeresDestructionPhase WaitForMusicQueue { get; } = new(nameof(WaitForMusicQueue), cinematic => cinematic.RunWaitForMusicQueue());
 
-    /// <summary>Drifts the camera and raises master brightness to full.</summary>
+    /// <summary>Fades the scene in from black while the camera drifts.</summary>
     internal static CeresDestructionPhase FadeInAndDrift { get; } = new(nameof(FadeInAndDrift), cinematic => cinematic.RunFadeInAndDrift());
 
     /// <summary>Continues camera drift and zoom until the final station blast is spawned.</summary>

@@ -353,10 +353,8 @@ public sealed class SamusShinesparkState
             CapPreviousY(samus, frame.PreviousCheckpoint);
         }
 
-        // The game's X and Y movement share one collision flag. Diagonal movement runs Y
-        // last, so a clear vertical probe replaces an earlier wall hit and allows the
-        // spark to slide upward. Combining both results would terminate a spark
-        // early; use the last executed axis, including when its result is clear.
+        // A diagonal spark ends only when its vertical move collides: a clear vertical move after a wall hit lets the
+        // spark slide upward.
         bool collided = vertical?.Collided ?? horizontal?.Collided ?? false;
         // The cannot-die assist bypasses only the energy exit. Terrain/enemy collision still
         // ends all three launch directions in the ordinary crash.

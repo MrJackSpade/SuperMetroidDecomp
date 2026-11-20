@@ -26,7 +26,7 @@ internal static class SamusPoseTransitions
         // sources it also accepts the moonwalk turn jumps, the grounded turn between a moonwalk and its jump.
         bool supportedSource =
             SamusPoseMetadata.WalksOffFloor(samus.Pose) ||
-            SamusPoseMetadata.IsMoonwalkTurnJumpPose(samus.Pose);
+            SamusPoseMetadata.IsMoonwalkTurnToSpinJumpPose(samus.Pose);
         SamusPoseId expectedTarget = SelectFallingPoseForCurrentAim(samus);
         if (!supportedSource || targetPose != expectedTarget)
         {
@@ -86,10 +86,9 @@ internal static class SamusPoseTransitions
     /// is known to have room for the destination pose, followed by grounded collision cleanup.
     /// </summary>
     /// <remarks>
-    /// Playable room code must call <see cref="SamusPoseTransitions.ApplyAerialLandingInRoom"/> instead. The game
-    /// sends every prospective landing pose through the changed-pose collision; omitting
-    /// that probe lets the much taller landing body overlap a low ceiling. This roomless entry
-    /// point is for cinematic movement only.
+    /// Playable room code calls <see cref="SamusPoseTransitions.ApplyAerialLandingInRoom"/> instead, which tests every
+    /// landing pose against the changed-pose collision, so the much taller landing body never overlaps a low ceiling.
+    /// This roomless form is for cinematic movement only.
     /// </remarks>
     public static void ApplyAerialLanding(
         SamusState samus,
@@ -284,9 +283,8 @@ internal static class SamusPoseTransitions
         if (samus.CuePose.Named is not SamusPoseId targetPose)
             return false;
 
-        // The game's pose initialization computes its own local delay without replacing
-        // the extra animation delay this frame's liquid step published. The pose-transition cue adds that
-        // delay once more after installing the new animation.
+        // Her pose's setup works out its own delay and keeps the extra animation delay this update's liquid step
+        // published; the pose-transition cue adds that delay once more after the new animation starts.
         int cueExtraAnimationDelay = samus.ExtraAnimationDelay;
 
         // Only a pose-transition cue of the current pose's own animation leaves a pose pending; anything else means the
@@ -297,7 +295,7 @@ internal static class SamusPoseTransitions
                 $"Animation transition {samus.Pose} -> {targetPose} is no pose-transition cue of the pose's animation.");
         }
 
-        bool startsMoonwalkJump = SamusPoseMetadata.IsMoonwalkTurnJumpPose(samus.Pose) &&
+        bool startsMoonwalkJump = SamusPoseMetadata.IsMoonwalkTurnToSpinJumpPose(samus.Pose) &&
             targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose;
         SamusPoseId sourcePose = samus.Pose;
         SamusMovementType previousMovementType = SamusPoseMetadata.ReadMovementType(sourcePose);

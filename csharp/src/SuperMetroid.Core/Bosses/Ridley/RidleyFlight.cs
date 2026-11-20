@@ -56,14 +56,13 @@ internal sealed class RidleyFlight
         place.Position = place.Position.WithY(y);
     }
 
-    /// <summary>Integrates one axis of his velocity into a position, in 256ths of a pixel, and clips to an arena bound.</summary>
+    /// <summary>Moves a position by one axis of his velocity and clips it to an arena bound.</summary>
     private static RidleyAxisMotion IntegrateAxis(
         FixedCoordinate position,
         SignedEightEight velocity,
         int minimum,
         int maximum)
     {
-        // Ridley's velocity moves him in 256ths of a pixel.
         // A bound above the room's top lies at a negative height, as SignedPlace reads his place.
         FixedCoordinate moved = position.MovedBy(velocity);
 
@@ -105,13 +104,13 @@ internal sealed class RidleyFlight
             speed = SignedEightEight.Max(targetSpeed, speed - RidleyFlightDefinitions.SwoopSpeedStep);
         flight.SwoopSpeed = speed;
 
-        RotationAngle angle = turn.Turn(flight.SwoopAngleAccumulator);
+        RotationAngle angle = turn.Turn(flight.SwoopHeading);
         // The heading stops at the target once it has turned past it, measured the short way round the turn, as it
         // does onto the half-turn recovery target after a rightward swoop.
         bool negativeDifference = angle.TurnFrom(targetAngle) < 0;
         if (turn.Direction == RotationDirection.Clockwise ? negativeDifference : !negativeDifference)
             angle = targetAngle;
-        flight.SwoopAngleAccumulator = angle;
+        flight.SwoopHeading = angle;
         TrigonometryAngle phase = angle.ToTrigonometryAngle();
         flight.Velocity = flight.Velocity.WithX(SpeedAlongAngle.Along(speed, phase));
         flight.Velocity = flight.Velocity.WithY(SpeedAlongAngle.Along(speed, phase.TurnedBy(TrigonometryAngle.QuarterTurn)));

@@ -67,10 +67,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             : NinjaSpacePirateSegment.AwaitingSamusFacingLeft;
         state.Playback = new(NinjaSpacePirateAnimations.StartingWith(initial), AnimationPlace.StartOfAnimation);
 
-        // The post distance describes the requested distance between posts. The setup
-        // first establishes those requested posts around the population X coordinate, then
-        // deliberately replaces them with a symmetric pair derived from its acceleration
-        // sum. That adjustment is why the final span can differ slightly from the post distance.
+        // The posts lie symmetrically about the placement's midpoint, at the distance the spin covers, which can differ
+        // slightly from the placement's post distance.
         int requestedLeft = startsAtLeft
             ? place.Position.X.Whole
             : place.Position.X.Whole - settings.PostDistance;
@@ -276,7 +274,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             NinjaSpacePirateSegment.ClawAttackRight);
     }
 
-    /// <summary>Retries RNG until a nonzero dive choice after higher-priority reactions fail.</summary>
+    /// <summary>
+    /// When no reaction comes first, draws random numbers until SpacePirateDecisions.DivekickDrawnAgain no longer takes
+    /// one, then divekicks.
+    /// </summary>
     private void RunNinjaPirateReadyToDivekick(
         RoomEnemyPlace place,
         NinjaSpacePirateEnemyState state,
@@ -295,8 +296,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return;
         }
 
-        // Every accepted draw starts the same divekick. The draws are kept because advancing the RNG until it
-        // draws a number not divisible by four is observable.
+        // Every kept draw starts the same divekick; three draws in four are kept.
         bool drawsAgain;
         do
             drawsAgain = SpacePirateDecisions.DivekickDrawnAgain.IsTakenBy(_room.Random.Generate());
@@ -356,7 +356,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     private static void InitializeNinjaPirateDive(NinjaSpacePirateEnemyState state) =>
         state.DiveSpeed = SpacePirateMotionDefinitions.NinjaDiveStartSpeed;
 
-    /// <summary>Rises until signed speed turns negative, then switches to the descent animation.</summary>
+    /// <summary>Rises until its speed carries it downward, then switches to the descent animation.</summary>
     private static void StepNinjaPirateDiveJump(
         RoomEnemyPlace place,
         NinjaSpacePirateEnemyState state,
@@ -549,7 +549,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         }
     }
 
-    /// <summary>Installs an animation and restarts its frame timer.</summary>
+    /// <summary>Starts an animation and restarts its frame timer.</summary>
     private static void StartNinjaPirateAnimation(
         RoomEnemyPlace place,
         NinjaSpacePirateEnemyState state,

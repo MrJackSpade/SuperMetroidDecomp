@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
-/// An angle along a Nuclear Waffle's sweep (#2042): steps (256ths of a turn) with a 256th-of-a-step fraction, counted on
+/// An angle along a Nuclear Waffle's sweep (#2042): steps of the turn with a fraction of a step, counted on
 /// past a full turn rather than wrapping. A sweep runs over the top of the orbit from just short of a full turn into
 /// the next turn, and its links trail the head, so the angles a sweep compares
 /// span more than one turn: an angle and the same direction a turn later stand at different places along the sweep and
@@ -13,12 +13,12 @@ public readonly record struct NuclearWaffleSweepAngle : IComparable<NuclearWaffl
     /// <summary>Number of fractions in one step.</summary>
     private const int FractionsPerStep = 256;
 
-    /// <summary>The angle <paramref name="fractionsOfStep"/> 256ths of a step on from zero.</summary>
+    /// <summary>The angle <paramref name="fractionsOfStep"/> fractions of a step on from zero.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The angle lies below zero.</exception>
     private NuclearWaffleSweepAngle(int fractionsOfStep) =>
         FractionsOfStep = Ensure.AtLeastZero(fractionsOfStep);
 
-    /// <summary>The angle in 256ths of a step from zero, counted on past each full turn.</summary>
+    /// <summary>The angle in fractions of a step from zero, counted on past each full turn.</summary>
     [IntegerQuantity("sweep angle in 256ths of a step, counted on past each full turn")]
     private int FractionsOfStep { get; }
 

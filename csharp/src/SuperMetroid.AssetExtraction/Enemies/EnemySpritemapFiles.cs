@@ -61,7 +61,7 @@ internal static class EnemySpritemapFiles
                 TileColumn = attributes.TileNumber % EnemySpritemapCompiler.TileColumns,
                 TileRow = attributes.TileNumber / EnemySpritemapCompiler.TileColumns,
                 Size = x.IsLarge ? 16 : 8,
-                Priority = attributes.Priority,
+                Depth = attributes.Depth,
                 Palette = attributes.PaletteIndex,
                 FlipX = attributes.FlipHorizontally,
                 FlipY = attributes.FlipVertically,

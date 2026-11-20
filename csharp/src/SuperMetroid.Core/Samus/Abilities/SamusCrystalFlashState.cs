@@ -14,11 +14,10 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// bubble phase, and the ending.
 /// </summary>
 /// <remarks>
-/// Crystal Flash is unusual even among Samus's scripted movement states. The game
-/// attempts it only when the power-bomb explosion centred on Samus finishes; successful
-/// initiation then takes both her pose input and her movement from her pose. Keeping that
-/// hold as <see cref="Phase"/> prevents <see cref="SamusPoseId.CrystalFlashRightPose"/> and <see cref="SamusPoseId.CrystalFlashLeftPose"/>
-/// from accidentally inheriting invented special-movement physics.
+/// Crystal Flash starts only when the power-bomb explosion centred on Samus finishes; once it starts, it takes both her
+/// pose input and her movement from her pose, and <see cref="Phase"/> holds them, so
+/// <see cref="SamusPoseId.CrystalFlashRightPose"/> and <see cref="SamusPoseId.CrystalFlashLeftPose"/> move only as
+/// Crystal Flash moves them.
 /// </remarks>
 public sealed class SamusCrystalFlashState
 {
@@ -116,9 +115,8 @@ public sealed class SamusCrystalFlashState
         if (controllerInput != RequiredInput)
             return false;
 
-        // The remaining preconditions are literal comparisons. Reserve energy must
-        // be empty even when the reserve mode is manual; possession of a reserve tank alone
-        // does not matter. Each current ammo count, not its maximum, must supply the flash's ammunition.
+        // Samus must have no reserve energy, whatever the reserve mode and whether she has a reserve tank, and at least
+        // the flash's ammunition of each kind in hand.
         if (samus.Kinematics.VerticalVelocity.IsMoving ||
             samus.Health >= CrystalFlashDefinitions.AdmittingEnergyBelow || samus.ReserveEnergy != 0 ||
             samus.Missiles < CrystalFlashDefinitions.AmmunitionPerKind ||
@@ -142,17 +140,14 @@ public sealed class SamusCrystalFlashState
         // taking Samus's movement. Rejected activation must not shift it.
         samus.CommitPoseHistory();
 
-        // Crystal Flash reuses shinespark state but moves Samus by its own phases. The
-        // states stay separate so Crystal Flash is never mistaken for a spark.
+        // Crystal Flash takes Samus's movement from the shinespark.
         samus.Shinespark.RelinquishToCrystalFlash();
         // Reserve Mode leaves X-Ray's cone effect alive but Crystal Flash still takes over
         // Samus's special suit colouring. Keep the greyout; release only X-ray's suit
         // colouring so Crystal Flash's colouring alone colours Samus.
         samus.Xray.RelinquishSuitColouring();
-        // Flash admission can occur after the Super Metroid has already installed drained
-        // crouching art, or while Draygon holds Samus. Crystal Flash takes her movement from both; if the
-        // drained state kept its Drained phase alive, it would re-lock Samus after Flash completed
-        // instead of reproducing the documented adjacent timing that frees the stun.
+        // Crystal Flash can start while the Baby Metroid drains Samus or while Draygon holds her; it takes her movement
+        // from both, and when it ends the drain's stun is over.
         SamusMovementHandOver.To(samus, SamusMovementOwner.CrystalFlash);
         samus.InputSnapshot.CrystalFlashPoseInputLocked = true;
         RaiseUpdatesLeft = UpdateCountdown.For(CrystalFlashDefinitions.RaiseUpdates);
@@ -313,10 +308,9 @@ public sealed class SamusCrystalFlashState
     /// Runs Crystal Flash's suit colouring for one update.
     /// </summary>
     /// <remarks>
-    /// The beams' colours are split deliberately: the body's shade pulses slowly through its steps, while the bubble's
-    /// shade, laid over the beams' upper colours, rotates more quickly through its own. The import
-    /// pre-colours Samus in every step of both (#1512); completion shows the beam shade of the currently equipped beam
-    /// combination again.
+    /// Her beams' colours show two shades: the body's shade pulses slowly through its steps, while the bubble's shade,
+    /// over the upper part of her beam colours, rotates more quickly through its own. The import pre-colours Samus in
+    /// every step of both (#1512); completion shows the beam shade of the currently equipped beam combination again.
     /// </remarks>
     public bool UpdateColouring(SamusColours colours, SamusState samus)
     {
@@ -342,8 +336,7 @@ public sealed class SamusCrystalFlashState
         if (BodyPulse.StepToNewFrame() is { } body)
             colours.LayOverBeams(body);
 
-        // Every active update reports the shade handled, including frames on which neither timer
-        // expires. The outer colouring step must therefore suppress its normal copy.
+        // Crystal Flash's shade holds Samus's colours on every update it runs, whether or not either timer runs out.
         return true;
     }
 }

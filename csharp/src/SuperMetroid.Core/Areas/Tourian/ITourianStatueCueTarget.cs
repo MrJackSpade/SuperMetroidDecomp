@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 internal interface ITourianStatueCueTarget
 {
-    /// <summary>Sets the statue's own animating flag.</summary>
+    /// <summary>Makes the statue join the statues that are animating.</summary>
     void MarkAnimating();
 
     /// <summary>The already-grey finish when the statue's grey event exists, else null.</summary>
@@ -17,7 +17,7 @@ internal interface ITourianStatueCueTarget
     /// <summary>The release when the statue's area boss is dead, else null.</summary>
     AnimationContinuation<TourianStatueBlockSegment>? MayBeReleased();
 
-    /// <summary>Clears the statue's own animating flag.</summary>
+    /// <summary>Makes the statue stop animating.</summary>
     void ClearAnimating();
 
     /// <summary>The waiting oscillation while another release runs, else null.</summary>

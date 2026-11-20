@@ -37,9 +37,9 @@ public static class TourianStatueSequenceDefinitions
     /// (<see cref="SuperMetroid.Core.Fx.RoomEarthquake.Sustain"/>), so the shake lasts past its end.
     /// </summary>
     public static readonly EarthquakeShake DescentEarthquake =
-        new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.ForegroundAndBackground);
+        new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocksAndScenery);
 
     /// <summary>The light up-and-down foreground earthquake a release sustains.</summary>
     public static readonly EarthquakeShake ReleaseEarthquake =
-        new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground);
+        new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks);
 }

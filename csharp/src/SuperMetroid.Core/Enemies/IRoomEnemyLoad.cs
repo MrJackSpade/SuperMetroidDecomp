@@ -13,7 +13,8 @@ public interface IRoomEnemyLoad : IRoomEnemyPopulationSource, IRoomEnemyActorCon
     /// <summary>Which gunship arrival this load performs.</summary>
     GunshipLoadScenario GunshipScenario { get; }
 
-    /// <summary>Whether camera reads made at load time are deferred because the room streams in through a door.</summary>
+    /// <summary>Whether enemies placed while the door's scroll is under way read the camera once the destination is
+    /// shown.</summary>
     bool DeferLoaderTimeCameraReads { get; }
 
     /// <summary>What gameplay shows over the room's load (#1466), which its enemies show into.</summary>

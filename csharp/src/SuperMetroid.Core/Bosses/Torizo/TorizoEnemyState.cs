@@ -75,10 +75,9 @@ public sealed class TorizoEnemyState
     public bool AnimationLocked { get; internal set; }
 
     /// <summary>
-    /// Stepping cues counted since a decision last reset it. Golden Torizo's repeated-jump decision fires once it reaches
-    /// <see cref="TorizoDecisionDefinitions.RepeatedJumpSteps"/> and resets it, and that decision follows every one of its
-    /// stepping cues; Bomb Torizo never reads it. No fight steps a Torizo anywhere near the end of its range (#1945), so it
-    /// counts on.
+    /// Stepping cues counted since a decision last reset it. Golden Torizo's repeated-jump decision fires once it
+    /// reaches <see cref="TorizoDecisionDefinitions.RepeatedJumpSteps"/> and resets it, and that decision follows every
+    /// one of its stepping cues; Bomb Torizo never reads it (#1945).
     /// </summary>
     public int DecisionCounter { get; internal set; }
 

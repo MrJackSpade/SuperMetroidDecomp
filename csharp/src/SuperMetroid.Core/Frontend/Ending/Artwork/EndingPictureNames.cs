@@ -29,7 +29,7 @@ public static class EndingPictureNames
 
     /// <summary>The explosion's map <paramref name="map"/>, a whole screen.</summary>
     [InstalledKey]
-    public static string ExplosionMap(EndingExplosionPicture map) => "ExplosionMap" + EndingExplosionPictureKeys.Installed.Of(map);
+    public static string ExplosionPicture(EndingExplosionPicture picture) => "ExplosionPicture" + EndingExplosionPictureKeys.Installed.Of(picture);
 
     /// <summary>The credits roll's line of <paramref name="role"/>, the whole line however high.</summary>
     [InstalledKey]

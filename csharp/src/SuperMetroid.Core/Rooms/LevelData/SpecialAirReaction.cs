@@ -1,10 +1,11 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
-/// What a special-air block does with its behaviour (#1722, #1742, #1805): a conveyor or the scroll trigger, the same in
-/// every area, or one of the reactions an area's own table gives (the plants, quicksand and sandfalls, Speed Booster
-/// blocks and the Chozo hands). The import resolves what the room's area makes of the area's own reactions into these, so
-/// each names one thing (<see cref="SuperMetroid.Core.Fx.SpecialAirReactions"/>). Its values are arbitrary; a behaviour written for another
+/// What a special-air block does with its behaviour (#1722, #1742, #1805): a conveyor or the scroll trigger, the same
+/// in every area, or one of the reactions only some areas have (the plants, quicksand and sandfalls, Speed Booster
+/// blocks and the Chozo hands). The import resolves what the room's area makes of those reactions into these, so each
+/// names one thing (<see cref="SuperMetroid.Core.Fx.SpecialAirReactions"/>). Its values are arbitrary; a behaviour
+/// written for another
 /// collision kind is read as one of these through <see cref="RoomBlockBehavior"/>, or as none when special air has no
 /// reaction for it.
 /// </summary>

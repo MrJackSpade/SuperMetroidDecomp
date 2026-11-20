@@ -1,16 +1,13 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>The rocks Kraid's growth knocks from the ceiling, in the order they fall (#2400).</summary>
-/// <remarks>
-/// The game drops the rocks one at a time from the first and stops after the last, so it only ever reads whole rocks: no
-/// partial or past-the-end read is reachable, and none is reproduced (#1473).
-/// </remarks>
+/// <summary>The rocks Kraid's growth knocks from the ceiling, in the order they fall, one at a time; after the last no
+/// more fall (#2400, #1473).</summary>
 public static class KraidCeilingRockDefinitions
 {
     /// <summary>
-    /// The nine rocks. They alternate between the gaps at block columns 2 to 6 and 10 to 13, taking each gap's right then
-    /// left remaining edge inward; each falls at the centre of its block (16 times the column plus 8) on row 18, column 2
-    /// showing the left-edge background as it crumbles and the other columns their odd or even column's. Their irregular
+    /// The nine rocks. They alternate between the gaps at block columns 2 to 6 and 10 to 13, taking each gap's right
+    /// then left remaining edge inward; each falls at the centre of the block it breaks on row 18, column 2 showing the
+    /// left-edge background as it crumbles and the other columns their odd or even column's. Their irregular
     /// order is visible: the ceiling breaks from scattered points as his body rises, rather than sweeping across the room.
     /// </summary>
     public static IReadOnlyList<KraidCeilingRock> Rocks { get; } =

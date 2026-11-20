@@ -43,8 +43,8 @@ public sealed class RidleyFlightState
     public PixelVelocity<RoomPixels> Velocity { get; internal set; }
     /// <summary>His wing beat: the pose his wings show and the countdown to the next, paced by his flight speed (#2329).</summary>
     public RidleyWingBeat Wings { get; }
-    /// <summary>Gets the swoop's heading, which wraps around the full turn; its whole step selects the sine sample.</summary>
-    public RotationAngle SwoopAngleAccumulator { get; internal set; }
+    /// <summary>Gets the swoop's heading, which sets the swoop's direction.</summary>
+    public RotationAngle SwoopHeading { get; internal set; }
     /// <summary>
     /// Gets the swoop's speed along its heading, held to his fastest, moved by <see cref="RidleyFlightDefinitions.SwoopSpeedStep"/> each update
     /// toward each phase's target speed before it resolves into axis velocities.

@@ -2,7 +2,8 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
-/// <summary>The frames Phantoon draws on his body layer (#1466): his body and eye, gaze, tentacle and mouth poses. Every other frame he selects is drawn as sprites.</summary>
+/// <summary>The frames Phantoon shows as his body's pictures (#1466): his body and eye, gaze, tentacle and mouth
+/// poses.</summary>
 internal static class PhantoonBodyLayerFrameDefinitions
 {
     /// <summary>The frames Phantoon draws on his body layer, each a frame of his installed body sheet.</summary>

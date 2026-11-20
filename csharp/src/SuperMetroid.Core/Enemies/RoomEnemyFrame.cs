@@ -38,8 +38,9 @@ internal sealed record RoomEnemyFrame
     /// <summary>Samus's held charge as a Pseudo Screw contact this pass spends it: her projectiles' and her colours' (#2159).</summary>
     public PseudoScrewCharge PseudoScrew => new(SamusProjectiles, SamusColours);
 
-    /// <summary>The game's short frame counter, 0 through 255, which a door's scroll restarts.</summary>
-    public required int ShortCounter { get; init; }
+    /// <summary>The enemies' short update count, which paces their cadences and which a door's scroll
+    /// restarts.</summary>
+    public required Compatibility.ShortFrameCount ShortCounter { get; init; }
 
     /// <summary>Shared bomb and power-bomb state used by collision order and actor effects.</summary>
     public required SamusBombProjectileSystem SamusBombs { get; init; }

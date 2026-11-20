@@ -7,10 +7,6 @@ namespace SuperMetroid.Core.Runtime;
 /// in as it is made. A sound request passes the queues' own test (<see cref="SoundQueueAdmission"/>), which turns it away
 /// while an attract demo plays or a power bomb explodes; a music request is dropped while an attract demo plays.
 /// </summary>
-/// <remarks>
-/// Evidence: the game's music queues test the game state (below the demo states) before queueing, and nothing
-/// else; its sound queues make their own tests, which the session's queues model.
-/// </remarks>
 /// <param name="queues">The session's queues.</param>
 /// <param name="demo">Whether an attract demo is driving the runtime.</param>
 internal sealed class SessionGameplayAudioQueues(AudioQueues queues, IAttractDemoState demo) : IGameplaySoundQueue, IGameplayMusicQueue

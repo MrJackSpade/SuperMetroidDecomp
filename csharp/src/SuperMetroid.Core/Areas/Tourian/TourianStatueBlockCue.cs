@@ -30,7 +30,7 @@ internal sealed class TourianStatueBlockCue
             return null;
         });
 
-    /// <summary>Sets the statue's own animating flag in the shared animation state.</summary>
+    /// <summary>Makes the statue join the statues that are animating.</summary>
     internal static TourianStatueBlockCue MarkAnimating { get; } = Effect(nameof(MarkAnimating), target => target.MarkAnimating());
 
     /// <summary>The statue may already be grey: when its grey event exists, it starts its already-grey finish (#2189).</summary>
@@ -39,7 +39,7 @@ internal sealed class TourianStatueBlockCue
     /// <summary>The statue may be released: when its area boss is dead, it starts its release (#2189).</summary>
     internal static TourianStatueBlockCue MayBeReleased { get; } = new(nameof(MayBeReleased), target => target.MayBeReleased());
 
-    /// <summary>Clears the statue's own animating flag.</summary>
+    /// <summary>Makes the statue stop animating.</summary>
     internal static TourianStatueBlockCue ClearAnimating { get; } = Effect(nameof(ClearAnimating), target => target.ClearAnimating());
 
     /// <summary>The statue may wait its turn: while another release runs, it starts its waiting oscillation.</summary>

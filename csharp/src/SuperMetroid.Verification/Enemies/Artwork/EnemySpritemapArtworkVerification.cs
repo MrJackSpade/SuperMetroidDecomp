@@ -437,9 +437,8 @@ internal static class EnemySpritemapArtworkVerification
                 var installed = new OamBuffer();
                 DrawImportedEnemySpritemap(rom, native, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = palette, BaseTileIndex = baseTile });
                 installed.AddEnemySpritemap(parts, new Position16<ScreenPixels>(x, y), palette, baseTile);
-                AssertTrue(native.ImageEquals(installed) &&
-                           native.NextByteOffset == installed.NextByteOffset,
-                    $"installed {frame.Name} OAM matches native at {x:X4},{y:X4}");
+                AssertTrue(SuperMetroid.Verification.Harness.OamPriorityComparison.SameApartFromPriority(native, installed),
+                    $"installed {frame.Name} OAM matches native at {x:X4},{y:X4} apart from the priority tier each part's depth replaces (#2550)");
             }
             // Bank-$B4 frames belong to the room sprite-object renderer, not an
             // enemy slot whose definition selects an $A0-$B3 spritemap bank.
@@ -477,8 +476,9 @@ internal static class EnemySpritemapArtworkVerification
                 PaletteBits = NativeSpriteGraphicsWords.PaletteBits(drawn is null ? throw new InvalidOperationException("Verification requires the drawn slot.") : drawnRow),
                 BaseTileIndex = checked((ushort)drawnBase),
             });
-            // A picture the sheet keeps once for several identical frames stands for any of their OAM (#1513).
-            bool stands = room.ImageEquals(nativeRoom) || SpriteFrameBufferAccess.DrawnStandsFor(sprites =>
+            // A picture the sheet keeps once for several identical frames stands for any of their OAM (#1513); each part's
+            // depth replaces its priority tier (#2550).
+            bool stands = SuperMetroid.Verification.Harness.OamPriorityComparison.ImagesEqualApartFromPriority(nativeRoom, room) || SpriteFrameBufferAccess.DrawnStandsFor(sprites =>
                 {
                     RoomEnemySystem redrawn = drawnRoom ?? throw new InvalidOperationException("Verification requires the drawn room.");
                     redrawn.Drawing.Advance(new(0, 0));

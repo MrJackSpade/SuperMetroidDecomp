@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// Kraid's typed part animations (#641, #1600, #1885): each foot, arm, lint and fingernail segment's beats, each beat naming
 /// the pose it shows (#2210): an installed picture, the foot's step from where its walk first shows that picture, and the
 /// depth of the parts Kraid shows while he rises; and the animation starting at each, which plays its segments whole. A
-/// pose the foot shows again straight after itself is one beat of both durations (#2296): nothing waits on a part's frame
-/// running out or showing anew, so the second showing changed nothing. The arm's normal swing marks its start and its last frame, and
+/// pose the foot shows again straight after itself is one beat of both durations (#2296). The arm's normal swing marks
+/// its start and its last frame, and
 /// each walk its last frame and the backward walk each lap's start (#2301): the moments Kraid's lunges and walks wait on.
 /// </summary>
 internal static class KraidAnimations

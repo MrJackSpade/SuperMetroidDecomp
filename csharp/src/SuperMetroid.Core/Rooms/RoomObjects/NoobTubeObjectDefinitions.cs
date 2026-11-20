@@ -26,7 +26,7 @@ public static class NoobTubeObjectDefinitions
 
     /// <summary>The light diagonal earthquake, shaking both layers, the break starts.</summary>
     public static readonly EarthquakeShake Earthquake =
-        new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.ForegroundAndBackground);
+        new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.RoomBlocksAndScenery);
 
     /// <summary>How long the break's earthquake lasts, in frames.</summary>
     public const int EarthquakeFrames = 64;

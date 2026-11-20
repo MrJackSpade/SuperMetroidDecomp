@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's shared neck math. Both the live room-enemy actor
-/// and the later rainbow-beam sequence use these exact angle steps; keeping them here
-/// prevents the two encounter halves from slowly acquiring different articulation rules.
+/// How Mother Brain's neck bobs, lowers and raises, by the same angle steps in the fight and in the rainbow beam's
+/// sequence.
 /// </summary>
 internal static class MotherBrainNeckKinematics
 {
@@ -94,8 +93,7 @@ internal static class MotherBrainNeckKinematics
                     $"Unsupported lower-neck movement {lowerMovement}.");
         }
 
-        // Runs the upper step after the lower step, so it observes the
-        // lower angle and movement-index mutations made immediately above on this frame.
+        // The upper neck moves after the lower neck and sees its new angle and movement.
         switch (upperMovement)
         {
             case MotherBrainNeckMovement.None:

@@ -87,17 +87,17 @@ internal static class RoomVisualLayoutsVerification
             // Past the grid: every level word the decompressed level reaches, the last possibly half the fill,
             // then the fill to the end of the cleared level space; the fill decodes to the game's edge-solid block.
             int payloadWords = (native.Length - 2 + 1) / 2;
-            AssertEqual(Math.Max(0, payloadWords - count), terrain.Following.Length,
+            AssertEqual(Math.Max(0, payloadWords - count), terrain.PastGrid.Blocks.Length,
                 $"room level {level} data following the grid");
-            AssertEqual(Math.Max(LevelSpaceWords, payloadWords) - count, terrain.BeyondCount,
+            AssertEqual(Math.Max(LevelSpaceWords, payloadWords) - count, terrain.PastGrid.SpaceBlocks,
                 $"room level {level} terrain beyond the grid");
-            for (int index = 0; index < terrain.Following.Length; index++)
+            for (int index = 0; index < terrain.PastGrid.Blocks.Length; index++)
             {
                 int offset = 2 + (count + index) * 2;
                 ushort word = offset + 1 < native.Length
                     ? BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(offset))
                     : (ushort)(native[offset] | (FillWord & 0xff00));
-                AssertEqual(RoomLevelWordCodec.Decode(word), terrain.Following[index],
+                AssertEqual(RoomLevelWordCodec.Decode(word), terrain.PastGrid.Blocks[index],
                     $"room level {level} block {count + index} past the grid");
             }
             AssertEqual(RoomTerrainBlocks.EdgeSolid.Collision, RoomLevelWordCodec.Decode(FillWord).Collision,
@@ -112,7 +112,7 @@ internal static class RoomVisualLayoutsVerification
         int spikeBlocks = 0;
         foreach (RoomDefinition header in RetailRooms.All)
         {
-            SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(header, RoomStateSelectionContexts.NoProgress);
+            SelectedRoom room = SelectedRoom.ForProgress(header, RoomStateSelectionContexts.NoProgress);
             ushort headerPointer = header.Pointer;
             foreach (ushort statePointer in RoomStateSelection.GetStatePointers(header))
             {

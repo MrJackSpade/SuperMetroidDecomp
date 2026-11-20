@@ -9,9 +9,8 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>
 /// One of Phantoon's occupants: his body (<see cref="PhantoonBodyEntity"/>), or his eye
 /// (<see cref="PhantoonEyeEntity"/>), tentacles (<see cref="PhantoonTentaclesEntity"/>) or mouth
-/// (<see cref="PhantoonMouthEntity"/>), drawing parts that play their own animations. Every part answers his
-/// hitboxes and may show its frames on his boss body layer; the drawing parts take the shared reactions
-/// their definitions name.
+/// (<see cref="PhantoonMouthEntity"/>), drawing parts that play their own animations. Every part answers his hitboxes
+/// and shows its frames as placed pictures; the drawing parts take the shared reactions their definitions name.
 /// </summary>
 /// <param name="species">The Phantoon species owner.</param>
 /// <param name="place">The place the part occupies.</param>
@@ -51,7 +50,7 @@ internal abstract class PhantoonEntity(PhantoonBehavior species, RoomEnemyPlace 
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
-        PhantoonBodyLayerFrameDefinitions.Frames.Contains(selected) ? bossArtwork.Body(BossBodyOwner.Phantoon).Frame(selected) : null;
+        bossArtwork.Body(BossBodyOwner.Phantoon).Find(selected);
 
     /// <summary>None: the drawing parts name shared touch reactions.</summary>
     public virtual EnemyReaction? SpeciesTouch => null;

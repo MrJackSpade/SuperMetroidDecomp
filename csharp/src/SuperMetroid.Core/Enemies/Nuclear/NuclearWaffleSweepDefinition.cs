@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
-/// <summary>One Puromi/Nuclear Waffle sweep geometry definition.</summary>
+/// <summary>One Nuclear Waffle sweep's shape.</summary>
 /// <param name="StartAngle">Angle each sweep restarts from.</param>
 /// <param name="EndAngle">Angle the links clamp to; the final damaging link reaching it ends the sweep.</param>
 /// <param name="SegmentSpacing">

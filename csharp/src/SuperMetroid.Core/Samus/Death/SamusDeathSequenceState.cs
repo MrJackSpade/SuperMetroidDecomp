@@ -11,9 +11,8 @@ namespace SuperMetroid.Core.Samus.Death;
 
 /// <summary>
 /// Owns Samus's fatal-damage pose, picture, shade, flashing, whiteout, and suit-
-/// explosion sequence. This is deliberately not folded into knockback merely because the
-/// death-sequence poses have the knockback movement type: the death game states stop Samus's normal input
-/// and movement phases and run this independent state machine instead.
+/// explosion sequence. It is apart from knockback, though the death-sequence poses have the knockback movement type:
+/// the death stops Samus's normal input and movement and runs this sequence instead.
 /// </summary>
 public sealed class SamusDeathSequenceState : IGameplayShadingSource
 {
@@ -22,8 +21,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
 
     /// <summary>
     /// True from the death sequence's setup through the terminal white frame. A completed sequence
-    /// remains an owner until the outer game-state fade replaces the room, preventing normal
-    /// knockback movement code from accidentally resuming on <see cref="SamusPoseId.DeathSequenceRightPose"/> and <see cref="SamusPoseId.DeathSequenceLeftPose"/>.
+    /// remains an owner until the outer game-state fade replaces the room, so normal knockback movement never resumes
+    /// on <see cref="SamusPoseId.DeathSequenceRightPose"/> and <see cref="SamusPoseId.DeathSequenceLeftPose"/>.
     /// </summary>
     public bool IsActive => Phase != SamusDeathSequencePhase.Inactive;
 

@@ -19,7 +19,7 @@ public sealed class ControllerInputState
     /// </summary>
     public ControllerButton NewlyPressed { get; private set; }
 
-    /// <summary>Latches one completed automatic controller sample.</summary>
+    /// <summary>Latches the buttons of one update.</summary>
     /// <remarks>Raw input is validated where it enters the game (recordings, replays, hosts), not here.</remarks>
     public void Latch(ControllerButton input)
     {

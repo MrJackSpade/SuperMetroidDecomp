@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>The random bits that spread a dying corpse's dust clouds.</summary>
+/// <summary>The random choices that spread a dying corpse's dust clouds: how far right each cloud lies.</summary>
 internal static class CorpseDustDefinitions
 {
     /// <summary>

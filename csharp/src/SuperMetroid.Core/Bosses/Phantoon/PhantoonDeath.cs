@@ -108,7 +108,7 @@ internal sealed class PhantoonDeath
             state.Phase = PhantoonPhase.BeginFinalWavyDeath;
     }
 
-    /// <summary>Starts the distorted background and pixelation stages after the fatal swoop.</summary>
+    /// <summary>Starts his body's wave and pixelation after the fatal swoop.</summary>
     internal void BeginPhantoonWavyPixelatedDeath(PhantoonEnemyState state)
     {
         RoomEnemyPlace mouth = state.Mouth;
@@ -195,8 +195,8 @@ internal sealed class PhantoonDeath
         if (!AdvanceWreckedShipPowerOn(state))
             return;
 
-        // The death drops scatter room-graphics pickups over the visible boss arena.
-        // The coordinates are absolute room coordinates, not offsets from Phantoon's body.
+        // The death drops scatter energy and ammunition pickups over the visible boss arena. The coordinates are
+        // absolute room coordinates, not offsets from Phantoon's body.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.PhantoonBody,
             count: PhantoonArenaDefinitions.DeathDropCount,

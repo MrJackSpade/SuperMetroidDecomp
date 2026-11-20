@@ -469,8 +469,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
                     $"Vertical shutter has no behaviour for action {state.Action}.");
         }
 
-        // An idle shutter reacts when one of Samus's four solid-enemy collisions
-        // names this enemy and she has contact damage (e.g. screw attack).
+        // An idle shutter reacts when Samus's attacking body meets it (SolidContactPlaceCombination), as with the Screw
+        // Attack.
         if (state.Action is not (VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown) &&
             SamusContactsIdleShutter(place, samus))
         {

@@ -456,7 +456,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AttachedToSamus = false;
     }
 
-    /// <summary>Installs a Beetom animation and primes its animation timer.</summary>
+    /// <summary>Starts a Beetom animation and primes its animation timer.</summary>
     private static void SetBeetomAnimation(
         RoomEnemyPlace place,
         BeetomEnemyState state,

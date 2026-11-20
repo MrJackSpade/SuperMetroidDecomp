@@ -207,9 +207,8 @@ internal static class SamusAerialPoseTransitions
         {
             SamusGroundedPoseTransitions.FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
 
-            // Unlike the grounded and aerial turn setups, the spin-jump setup cancels the speed boost right
-            // after folding the extra speed in. Waiting for another movement frame would leave the running-momentum flag
-            // observably stale.
+            // Unlike the grounded and aerial turn setups, the spin-jump setup cancels the speed boost right after
+            // folding the extra speed in, so her running momentum ends on this update.
             samus.HorizontalSpeed.CancelRunningMomentum(oldDirection);
         }
 
@@ -224,8 +223,7 @@ internal static class SamusAerialPoseTransitions
         samus.Pose = SelectEquippedSpinPose(samus, genericTarget, start: SpinPoseStart.SkipFirstFrame);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-        // The spin jump's initialization writes frame one, skipping the static first spin frame. This
-        // is easy to miss because an ordinary ground jump initializes the pose elsewhere.
+        // The reversed spin starts on its second frame.
         SamusPresentation.InitializeAnimation(samus, SamusAnimationDelays.AnimationForPose(samus.Pose).AfterStart);
     }
 
@@ -529,9 +527,8 @@ internal static class SamusAerialPoseTransitions
     }
 
     /// <summary>
-    /// Drops the pending transition shot, as every update does after the
-    /// HUD and projectile step. A shot refused by the cooldown or by Samus's shot count must lose the bridge too;
-    /// it is deliberately not retained until some later shot succeeds.
+    /// Drops the pending transition shot, as every update does after the HUD and projectile step: a shot refused by the
+    /// cooldown or by Samus's shot count loses it too, and no later shot takes it up.
     /// </summary>
     public static void DropTransitionShot(SamusState samus) => samus.TransitionShot.Drop();
 

@@ -224,8 +224,7 @@ internal sealed class PhantoonPatterns
                 state.EyePart.StartAnimation(PhantoonPartSegment.EyeCloseAndPickNewPattern);
                 body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
-                // This flag makes the next pattern choice take the initial flame-rain
-                // branch after the eye-close animation runs its flame-rain cue.
+                // After the eye closes, his next round starts with a flame rain.
                 state.NextPattern = PhantoonPatternChoice.FlameRain;
                 return;
             }

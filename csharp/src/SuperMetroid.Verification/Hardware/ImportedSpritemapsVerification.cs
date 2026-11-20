@@ -70,8 +70,8 @@ internal static class ImportedSpritemapsVerification
             clipVerticalWrap: true, originYIsOnScreen: true);
         AssertEqual(expected.NextByteOffset, actual.NextByteOffset,
             $"projectile frame $86:{operand:X4} native sprite part count");
-        AssertTrue(expected.ImageEquals(actual),
-            $"projectile frame $86:{operand:X4} installed composition matches native OAM");
+        AssertTrue(SuperMetroid.Verification.Harness.OamPriorityComparison.SameApartFromPriority(expected, actual),
+            $"projectile frame $86:{operand:X4} installed composition matches native OAM apart from the priority tier each part's depth replaces (#2550)");
     }
 
     /// <summary>Reads a native bank-$86 projectile frame-selector byte for the OAM comparison.</summary>

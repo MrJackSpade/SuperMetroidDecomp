@@ -437,7 +437,7 @@ internal sealed class ProjectileTerrainCollision
     /// </summary>
     internal void KillBeamOnBlockCollision(SamusProjectileOccupant held)
     {
-        SamusProjectile shot = held.Projectile;
+        _ = held.Projectile;
         _impactAudio.RequestBeamImpactSound();
         KillBeam(held);
     }

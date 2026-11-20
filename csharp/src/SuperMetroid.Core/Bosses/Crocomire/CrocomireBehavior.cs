@@ -190,7 +190,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Crocomire's main AI.</summary>
     internal void RunCrocomireMainAi(RoomEnemyOccupant crocomire, IEnemyAiFrame frame)
     {
-        RoomEnemyPlace place = crocomire.Place;
+        _ = crocomire.Place;
         RunCrocomireMain(crocomire, frame.Samus, frame.PseudoScrew, frame.Camera);
     }
 }

@@ -143,7 +143,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts active AI on the first update after Samus's passage through the door ends.</summary>
     private void RunZebetiteWaitForDoorTransition(RoomEnemyOccupant zebetite, ZebetiteEnemyState state)
     {
-        RoomEnemyPlace place = zebetite.Place;
+        _ = zebetite.Place;
         // Ordinary doors and elevators alike hold the barrier inert during the passage, and it enters its
         // active body on the first update after.
         if (_doorPassage.IsUnderWay)
@@ -248,7 +248,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Removes the half in its small death explosion, never to respawn, and records its room kill.</summary>
     private void FinishZebetiteDeath(RoomEnemyOccupant zebetite)
     {
-        RoomEnemyPlace place = zebetite.Place;
+        _ = zebetite.Place;
         _deathsAndDrops.RemoveKilledEnemy(zebetite, EnemyDeathExplosion.Small, respawns: false);
         _roomStatus.RecordKill();
     }

@@ -70,9 +70,6 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// </summary>
     internal void KeepEarthquakeGoing() => Earthquake = new(Earthquake?.Shake, MotherBrainEarthquakeLength.Indefinite);
 
-    /// <summary>Runs the room's earthquake on for <paramref name="frames"/> frames, keeping any shake this update started.</summary>
-    internal void RunEarthquakeOn(int frames) => Earthquake = new(Earthquake?.Shake, new MotherBrainEarthquakeLength.Lasting(frames));
-
     /// <summary>Stops the room's earthquake, keeping any shake this update started for a later run.</summary>
     internal void StopEarthquake() => Earthquake = new(Earthquake?.Shake, MotherBrainEarthquakeLength.Stopped);
 

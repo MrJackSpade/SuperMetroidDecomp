@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Fx;

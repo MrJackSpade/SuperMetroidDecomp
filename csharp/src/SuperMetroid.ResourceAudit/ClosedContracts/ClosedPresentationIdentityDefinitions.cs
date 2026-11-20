@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Enemies.Animals;
-using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;

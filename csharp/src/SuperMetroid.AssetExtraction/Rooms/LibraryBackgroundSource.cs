@@ -30,9 +30,6 @@ public abstract record LibraryBackgroundSource
     /// <summary>The HUD's characters.</summary>
     public static LibraryBackgroundSource HudCharacters { get; } = new HudCharacterSet();
 
-    /// <summary>The compressed tilemap <paramref name="tilemap"/>.</summary>
-    public static LibraryBackgroundSource Compressed(RoomBackgroundTilemap tilemap) => new CompressedTilemap(tilemap);
-
     /// <summary>Scrolling-sky page <paramref name="page"/>, 0 through 6.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="page"/> is not a sky page.</exception>
     public static LibraryBackgroundSource Sky(int page) => new SkyPage(page);

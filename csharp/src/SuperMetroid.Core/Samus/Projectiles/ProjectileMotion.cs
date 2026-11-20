@@ -496,7 +496,7 @@ internal sealed class ProjectileMotion
     private static bool MissileShootableReaction(RoomLevelData level, SamusProjectileOccupant held, RoomCollisionBlock block,
         ISamusRoomObjects roomObjects)
     {
-        SamusProjectile shot = held.Projectile;
+        _ = held.Projectile;
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
         {

@@ -426,7 +426,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
-        RoomEnemyPlace mama = turtle.Place;
+        _ = turtle.Place;
         ResolveMamaTurtleExpandedContact(turtle, samus, pseudoScrew);
         if (state.ActionTimer.StepEnds())
             state.Action = MamaTurtleAction.Falling;

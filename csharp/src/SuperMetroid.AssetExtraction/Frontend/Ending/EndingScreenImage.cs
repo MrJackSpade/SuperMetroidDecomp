@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.Ending;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 

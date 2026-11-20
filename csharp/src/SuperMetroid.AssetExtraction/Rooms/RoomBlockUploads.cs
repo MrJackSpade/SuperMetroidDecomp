@@ -17,7 +17,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Hud;

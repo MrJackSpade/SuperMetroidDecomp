@@ -149,7 +149,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     internal void InitializeTourianEntranceStatue(TourianEntranceStatueEntity occupant)
     {
         Ensure.NotNull(occupant);
-        RoomEnemyPlace statue = occupant.OccupiedPlace;
+        _ = occupant.OccupiedPlace;
         DecorationBehavior decorations = Decorations;
         if (!_occupants.Contains(occupant))
             _occupants.Add(occupant);

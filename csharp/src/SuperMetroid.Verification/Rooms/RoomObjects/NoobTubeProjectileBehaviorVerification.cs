@@ -155,7 +155,7 @@ internal static class NoobTubeProjectileBehaviorVerification
             throw new InvalidOperationException($"N00b-tube projectile {projectile.Kind} exceeded {maximumTicks} forced ticks.");
         }
 
-        void Process(RoomEnemySystem system, EnemyProjectile projectile, int shortCounter)
+        void Process(RoomEnemySystem system, EnemyProjectile projectile, SuperMetroid.Core.Compatibility.ShortFrameCount shortCounter)
         {
             system.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter);
             if (!projectile.IsActive)

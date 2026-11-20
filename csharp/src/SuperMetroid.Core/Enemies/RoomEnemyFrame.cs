@@ -40,7 +40,7 @@ internal sealed record RoomEnemyFrame
 
     /// <summary>The enemies' short update count, which paces their cadences and which a door's scroll
     /// restarts.</summary>
-    public required int ShortCounter { get; init; }
+    public required Compatibility.ShortFrameCount ShortCounter { get; init; }
 
     /// <summary>Shared bomb and power-bomb state used by collision order and actor effects.</summary>
     public required SamusBombProjectileSystem SamusBombs { get; init; }

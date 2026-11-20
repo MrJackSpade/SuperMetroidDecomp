@@ -223,11 +223,11 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         /// Flickers the crack: alternate values of <paramref name="shortCounter"/> hide it and show it. The crack keeps
         /// whichever its flicker last chose once it falls.
         /// </summary>
-        private void FlickerNoobTubeCrack(EnemyProjectile projectile, int shortCounter) =>
+        private void FlickerNoobTubeCrack(EnemyProjectile projectile, Compatibility.ShortFrameCount shortCounter) =>
             Pieces.Of(projectile).IsHidden = NoobTubeCadenceDefinitions.CrackHidden.IsSetIn(shortCounter);
 
         /// <summary>Carries out one cue of the crack, shard and bubble animations; <paramref name="shortCounter"/> times the flicker.</summary>
-        private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, int shortCounter, NoobTubeProjectileCue cue, NoobTubeShardMirroring mirroring)
+        private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, Compatibility.ShortFrameCount shortCounter, NoobTubeProjectileCue cue, NoobTubeShardMirroring mirroring)
         {
             bool atOwnColumn = NoobTubeCadenceDefinitions.DebrisAtOwnColumn.IsSetIn(shortCounter);
             switch (cue.Kind)

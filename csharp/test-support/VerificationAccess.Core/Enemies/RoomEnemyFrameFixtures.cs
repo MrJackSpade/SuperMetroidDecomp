@@ -92,7 +92,7 @@ internal static class RoomEnemyFrameFixtures
         SamusColours = inputs.Colours,
         SamusBombs = inputs.Bombs,
         FrameCounter = frameCounter,
-        ShortCounter = frameCounter % FrameClock.ShortCounterPeriod,
+        ShortCounter = new SuperMetroid.Core.Compatibility.ShortFrameCount(frameCounter % SuperMetroid.Core.Compatibility.ShortFrameCount.Period),
     };
 
     /// <summary>Supplies and runs a check's enemy passes on one enemy system.</summary>

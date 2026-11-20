@@ -181,7 +181,7 @@ internal sealed class EnemyProjectileEngine
         RoomLevelData level,
         SamusState samus,
         Position16<RoomPixels> camera,
-        int shortCounter,
+        Compatibility.ShortFrameCount shortCounter,
         SamusBombProjectileSystem samusBombs,
         int frameCounter)
     {
@@ -540,7 +540,7 @@ internal sealed class EnemyProjectileEngine
         EnemyProjectile projectile,
         SamusState samus,
         Position16<RoomPixels> camera,
-        int shortCounter,
+        Compatibility.ShortFrameCount shortCounter,
         SamusBombProjectileSystem samusBombs)
     {
         if (projectile.Animation is { } animation)

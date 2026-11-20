@@ -20,6 +20,6 @@ internal readonly record struct EnemyProjectileCueContext(
     EnemyProjectile Projectile,
     SamusState Samus,
     Position16<RoomPixels> Camera,
-    int ShortCounter,
+    Compatibility.ShortFrameCount ShortCounter,
     SamusBombProjectileSystem SamusBombs,
     EnemyProjectileEngine Projectiles);

@@ -96,7 +96,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         internal void Step(int frame)
         {
             Enemies.StepEnemyProjectiles(Level, Samus, frameCounterByte: unchecked((byte)frame));
-            Enemies.StepStandaloneFrame(Enemies.StandaloneFrame(Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = Samus, ShortCounter = unchecked((byte)frame) });
+            Enemies.StepStandaloneFrame(Enemies.StandaloneFrame(Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = Samus, ShortCounter = new SuperMetroid.Core.Compatibility.ShortFrameCount(unchecked((byte)frame)) });
         }
 
         /// <summary>Captures a complete enemy and projectile OAM draw for artwork comparison.</summary>

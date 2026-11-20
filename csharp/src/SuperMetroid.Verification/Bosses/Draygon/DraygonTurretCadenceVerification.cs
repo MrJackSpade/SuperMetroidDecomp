@@ -38,7 +38,7 @@ internal static class DraygonTurretCadenceVerification
         int StepWith(byte counter8, ushort counter16)
         {
             int before = WallTurrets();
-            stepped = runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, ShortCounter = counter8, FrameCounter = counter16 };
+            stepped = runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, ShortCounter = new SuperMetroid.Core.Compatibility.ShortFrameCount(counter8), FrameCounter = counter16 };
             runtime.Enemies.StepStandaloneFrame(stepped);
             return WallTurrets() - before;
         }

@@ -14,7 +14,7 @@ internal static class EnemyProjectileEngineAccess
         /// Samus bombs: no power bomb explodes for a cue to test (#2159).
         /// </summary>
         internal void AdvanceEnemyProjectileAnimations(EnemyProjectile projectile, SamusState samus, Position16<RoomPixels> camera,
-            int shortCounter) =>
+            SuperMetroid.Core.Compatibility.ShortFrameCount shortCounter) =>
             engine.AdvanceEnemyProjectileAnimations(projectile, samus, camera, shortCounter, InstalledFixtures.CreateBombSystem());
     }
 }

@@ -1279,8 +1279,9 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // A counter told by the range its storage holds (#2321).
         Expect("class P { /// <summary>Every second update of the frame counter of 0 through 65535.</summary>\nint F => 0; }",
             "('counter of 0 through 65535')");
-        // Whether a sound plays, a counter's cadence and a hardware owner are English.
-        Expect("class P { /// <summary>Whether her beam's sound plays; every second update of the frame counter.</summary>\nint F => 0; }");
+        // Whether a sound plays, a counter's cadence told by its place and a hardware owner are English; a cadence counted by
+        // number is reported (#2549).
+        Expect("class P { /// <summary>Whether her beam's sound plays; counted on the frame counter at the period's even place.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the SFX flag; the frame counter of 0 through 255.</summary>\n[CompatibilityService(\"sfx\")] class Sfx { }");
         // The machine's arithmetic and the original's data told for a value, outside hardware owners and markup (#2292).
         Expect("class P { /// <summary>Gravity applies while the whole pixels, compared as signed, stay below the cap.</summary>\nint F => 0; }",

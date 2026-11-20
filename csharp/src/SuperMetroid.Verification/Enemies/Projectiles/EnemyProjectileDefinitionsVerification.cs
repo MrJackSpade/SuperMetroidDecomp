@@ -63,7 +63,8 @@ internal static class EnemyProjectileDefinitionsVerification
         foreach (RoomEnemyProjectileKind kind in kinds)
         {
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
-            projectile.Delete();
+            // Each kind spawns a fresh projectile into the place, as production spawns one.
+            projectile = enemies.Projectiles.Occupy(17, kind);
             FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
             if (startingMotions[kind].Length == 0)
@@ -134,6 +135,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(ReferenceEquals(initialProgram, projectile.Animation), $"{kind} production touch keeps its program");
             }
 
+            projectile = enemies.Projectiles.Occupy(17, kind);
             FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedStandard);
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.BlocksSamusProjectiles = true;

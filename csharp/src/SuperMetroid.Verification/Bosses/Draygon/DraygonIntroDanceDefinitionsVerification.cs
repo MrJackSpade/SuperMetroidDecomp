@@ -187,7 +187,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         {
             // The first Evir waits the shortest, so it reaches one step past the path's end first.
             IntroStage = UpdateCountdownAccess.AtAge(DraygonIntroDanceDefinitions.DurationFrames,
-                DraygonIntroDanceDefinitions.TracedPath.Length + DraygonIntroDance.StartDelay(0)),
+                DraygonIntroDanceDefinitions.TracedPath.Length + 1 + DraygonIntroDance.StartDelay(0)),
         };
         RoomEffectActor malformedSprite = malformedEnemies.EffectActors.SpawnRoomEffectActor(new(0x0100, 0x0180),
             RoomEffectActorKind.EvirFacingLeft, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(DraygonColours.Evirs));

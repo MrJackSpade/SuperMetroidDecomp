@@ -121,8 +121,8 @@ internal static class BossDisplayBindingsFixtureVerification
         /// <summary>Runs the production enemy drawing path once, publishing into <paramref name="frame"/>.</summary>
         internal void DrawInto(SpriteFrameBuffer frame)
         {
-            Enemies.Drawing.Advance(new(0, 0));
-            Enemies.Drawing.Draw(frame, new(0, 0), RoomEnemyFrameFixtures.StandaloneSamus());
+            var prepared = Enemies.Drawing.Advance(new(0, 0));
+            Enemies.Drawing.Draw(prepared, frame, new(0, 0), RoomEnemyFrameFixtures.StandaloneSamus());
         }
 
 

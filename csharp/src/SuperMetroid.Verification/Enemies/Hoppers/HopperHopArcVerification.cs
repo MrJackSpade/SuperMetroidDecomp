@@ -45,7 +45,7 @@ internal static class HopperHopArcVerification
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(start);
             state.YSpeedCurvePlaceStep = QuadraticSpeedCurvePlace.FromMarks(step);
 
-            enemies.HoppersBehavior.RunHoppersMainAi(place, frame);
+            enemies.HoppersBehavior.RunHoppersMainAi(place, place.RequireSpeciesState<HopperEnemyState>(), frame);
 
             string context = $"Hopper {(falling ? "returning" : "rising")} from record {start} by {step}";
             AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected), state.YSpeedCurvePlace, context);

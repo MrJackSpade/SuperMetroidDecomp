@@ -65,7 +65,7 @@ internal static class GrappleEnemyDeathVerification
             // The death program queues its cry as the projectile pass runs it.
             heardDeath |= fixture.System.Audio.LatestSound ==
                 EnemySound.EnemyKilled;
-            if (explosion.State is EnemyPickupState { Kind: EnemyPickupKind.SmallEnergy })
+            if (explosion.StateOrNull<EnemyPickupState>() is { Kind: EnemyPickupKind.SmallEnergy })
             {
                 AssertEqual(31, frame, "small explosion uses the cartridge's complete 31-frame animation");
                 sawPickup = true;

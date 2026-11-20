@@ -62,7 +62,7 @@ internal static class BoulderBehaviorVerification
                 RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) },
                 new FrameCounters(0));
 
-            enemies.BoulderBehavior.RunBoulderMainAi(place, frame);
+            enemies.BoulderBehavior.RunBoulderMainAi(place, place.RequireSpeciesState<BoulderEnemyState>(), frame);
 
             AssertEqual(expected, state.BounceCurvePlace.InTwoHundredFiftySixthsOfMark, $"Boulder rebound clock from {start}");
             AssertEqual(action, state.Action, $"Boulder rebound from {start} selects its next function");

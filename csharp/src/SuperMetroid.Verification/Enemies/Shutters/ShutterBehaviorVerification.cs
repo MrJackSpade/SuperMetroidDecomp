@@ -39,7 +39,7 @@ internal static class ShutterBehaviorVerification
             VerifyPose(definition, ShutterSegment.FullyGrown,
                 (enemies, place) =>
                 {
-                    ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("Verification requires a bound shutter."))).Initialize();
+                    place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
                     VerticalShutterEnemyState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<VerticalShutterEntity>(place).State;
                     AssertEqual(ShuttersBehavior.InitialAction(place.SpawnSettings<ShutterSpawnSettings>().TriggerMode), state.Action,
                         $"shutter {definition} starts in its trigger's initial action (#2075)");
@@ -52,7 +52,7 @@ internal static class ShutterBehaviorVerification
         kamer.Bind(EnemyDefinitionId.Kamer, kamer.Definition);
         // The Kamer's own entity sets it up, showing its platform (#2179).
         AssertTrue(kamer.Entity is KamerEntity, "the Kamer is its own entity");
-        ((IEnemyInitialization)kamer.Entity!).Initialize();
+        kamer.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(new AnimationPlayback<ShutterSegment>(ShutterAnimations.StartingWith(ShutterSegment.KamerPlatform), AnimationPlace.StartOfAnimation),
             kamerSystem.Places.InUpdateOrder[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback, "Kamer vertical platform starts its loop");
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(ShutterAnimations.Segments, ShutterSegment.KamerPlatform, ShutterFrameToolingDefinitions.Spritemap),
@@ -235,7 +235,7 @@ internal static class ShutterBehaviorVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[ordinal];
             place.Bind(definition, place.Definition);
             place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(2, 0));
-            ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("Verification requires a bound shutter."))).Initialize();
+            place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
             place.Shading = PictureShading.Standard;
             return place;
         }

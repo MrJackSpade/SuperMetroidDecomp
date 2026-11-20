@@ -1601,7 +1601,7 @@ internal static class LookupStream5Verification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(SpawnedObjectFixtures.InstalledTilesWith(installed)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
         enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.Places.InUpdateOrder[0].Definition);
-        enemies.HoldCeresRidley(enemies.Places.InUpdateOrder[0], new CeresRidleyState(Position16<RoomPixels>.Zero));
+        enemies.Places.InUpdateOrder[0].SetUpPlaced<CeresRidleyState>();
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         var door = enemies.Places.InUpdateOrder[1];

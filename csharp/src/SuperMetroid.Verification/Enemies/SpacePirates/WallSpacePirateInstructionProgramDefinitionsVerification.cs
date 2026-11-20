@@ -159,7 +159,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 new FrameCounters(0));
             for (int update = 1; update <= 32; update++)
             {
-                WallSpacePirateBehavior.RunWallSpacePirateMainAi(place, frame);
+                WallSpacePirateBehavior.RunWallSpacePirateMainAi(place, place.RequireSpeciesState<WallSpacePirateEnemyState>(), frame);
                 RotationAngle expected = start.TurnedBySteps(jumpingRight ? -4 * update : 4 * update);
                 AssertEqual(expected, state.WallJumpArcAngle,
                     $"wall Pirate {(jumpingRight ? "right" : "left")} jump angle after update {update} wraps around the turn");

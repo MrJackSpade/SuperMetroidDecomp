@@ -59,25 +59,25 @@ internal static class KzanBehaviorVerification
             new FrameCounters(0));
 
         state.Action = KzanAction.Falling;
-        enemies.KzanBehavior.RunKzanTopMainAi(place, frame);
+        enemies.KzanBehavior.RunKzanTopMainAi(place, place.RequireSpeciesState<KzanEnemyState>(), frame);
         AssertEqual(KzanAction.Falling, state.Action, "above the falling target the top keeps falling");
         AssertEqual((ushort)128, place.Position.Y.Whole, "the first falling step uses the zero speed entry");
         AssertEqual(SignedSixteenSixteen.FromSixteenthsOfPixel(1), state.FallingSpeed, "each falling step accelerates the fall by a sixteenth of a pixel per update");
 
         place.Position = place.Position.WithWholeY(160);
-        enemies.KzanBehavior.RunKzanTopMainAi(place, frame);
+        enemies.KzanBehavior.RunKzanTopMainAi(place, place.RequireSpeciesState<KzanEnemyState>(), frame);
         AssertEqual(KzanAction.WaitingToRise, state.Action, "reaching the falling target lands the top");
         AssertEqual((ushort)160, place.Position.Y.Whole, "the top lands on the falling target");
         AssertEqual((SoundEffectId?)EnemySoundEffectDefinitions.KzanLandingSoundEffect,
             enemies.Audio.LatestSound, "landing queues the library-two landing sound");
 
         state.Action = KzanAction.Rising;
-        enemies.KzanBehavior.RunKzanTopMainAi(place, frame);
+        enemies.KzanBehavior.RunKzanTopMainAi(place, place.RequireSpeciesState<KzanEnemyState>(), frame);
         AssertEqual(KzanAction.Rising, state.Action, "below the rising target the top keeps rising");
         AssertEqual((ushort)159, place.Position.Y.Whole, "half a pixel of rise borrows from the whole position");
 
         place.Position = place.Position.WithWholeY(127);
-        enemies.KzanBehavior.RunKzanTopMainAi(place, frame);
+        enemies.KzanBehavior.RunKzanTopMainAi(place, place.RequireSpeciesState<KzanEnemyState>(), frame);
         AssertEqual(KzanAction.WaitingToFall, state.Action, "passing above the rising target stops the rise");
         AssertEqual((ushort)128, place.Position.Y.Whole, "the top stops on the rising target");
         Console.WriteLine("  Kzan targets: the top's fall and rise stop at the spawn plus its fall and at its spawn.");

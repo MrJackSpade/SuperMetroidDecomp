@@ -173,7 +173,6 @@ internal static class RidleyExplosionDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0x8130;
-        Action<RoomEnemyPlace> initialize = enemies.NorfairRidleyBehavior.Death.InitializeNorfairRidleyExplosion;
 
         RoomEnemyPlace fragment = enemies.Places.InUpdateOrder[1];
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
@@ -202,8 +201,7 @@ internal static class RidleyExplosionDefinitionsVerification
                 state.Tail.Tip.Angle = RidleyTailAngle.FromStepsFromStraightDown(orientation << 4);
 
                 // The piece joins the breakup of his encounter and his body as his death spawns it (#2231).
-                fragment.SetSpeciesState(new RidleyBreakupSource(state, body.Position.Whole));
-                initialize(fragment);
+                fragment.SetUp(new EnemySetup.Joining<RidleyBreakupSource>(new RidleyBreakupSource(state, body.Position.Whole)));
 
                 AssertEqual(1, fragment.AnimationClock.Hold,
                     "Ridley breakup production instruction timer");

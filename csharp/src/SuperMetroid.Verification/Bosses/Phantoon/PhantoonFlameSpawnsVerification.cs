@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
@@ -92,20 +93,18 @@ internal static class PhantoonFlameSpawnsVerification
                 PhantoonFlameSpawnType.Casual => 0,
                 _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {type}."),
             };
-            AssertEqual(angle, flame.State is PhantoonOrbitingFlameState orbit ? orbit.Angle.RawValue : (ushort)0, "Actual flame initial angle; flames that do not orbit keep none");
+            AssertEqual(angle, flame.StateOrNull<PhantoonOrbitingFlameState>() is { } orbit ? orbit.Angle.RawValue : (ushort)0, "Actual flame initial angle; flames that do not orbit keep none");
             AssertEqual(x, flame.Position.X.Whole, "Actual flame initial X");
             AssertEqual(y, flame.Position.Y.Whole, "Actual flame initial wrapped Y");
             // The native word that kept a rage flame's signed turn step or a rain flame's fall delay: each is now a named
             // field, the rage flame's a turn whose signed step is the native word.
-            ushort typedSpeed = flame.State switch
-            {
-                PhantoonRainFlameState rain => checked((ushort)rain.HangUpdates),
-                PhantoonOrbitingFlameState rage when type == PhantoonFlameSpawnType.Enraged =>
-                    unchecked((ushort)rage.TurnPerUpdate.StepsFrom(TrigonometryAngle.Zero)),
-                _ => 0,
-            };
+            ushort typedSpeed = flame.StateOrNull<PhantoonRainFlameState>() is { } rain
+                ? checked((ushort)rain.HangUpdates)
+                : flame.StateOrNull<PhantoonOrbitingFlameState>() is { } rage && type == PhantoonFlameSpawnType.Enraged
+                    ? unchecked((ushort)rage.TurnPerUpdate.StepsFrom(TrigonometryAngle.Zero))
+                    : (ushort)0;
             AssertEqual(speed, typedSpeed, "Actual flame turn step or fall delay");
-            AssertEqual(0, flame.State is PhantoonOrbitingFlameState start ? start.Radius : 0, "Actual flame initial radius");
+            AssertEqual(0, flame.StateOrNull<PhantoonOrbitingFlameState>() is { } start ? start.Radius : 0, "Actual flame initial radius");
             AssertEqual((ushort)0, flame.Velocity.Y.RawValue, "Actual flame initial vertical speed");
             AssertEqual((ushort)0, flame.Position.X.Fraction, "Actual flame initial fractional X");
             AssertEqual((ushort)0, flame.Position.Y.Fraction, "Actual flame initial fractional Y");

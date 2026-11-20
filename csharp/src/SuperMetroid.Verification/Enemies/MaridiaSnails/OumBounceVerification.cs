@@ -47,7 +47,7 @@ internal static class OumBounceVerification
                 RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
                 new FrameCounters(0));
 
-            enemies.OumBehavior.RunOumMainAi(place, frame);
+            enemies.OumBehavior.RunOumMainAi(place, place.RequireSpeciesState<OumEnemyState>(), frame);
 
             AssertEqual(expected, state.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, $"Oum {context}: record");
             AssertEqual(expectedPhase, state.BouncePhase, $"Oum {context}: bounce phase");

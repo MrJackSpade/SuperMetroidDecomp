@@ -65,7 +65,7 @@ internal static class RipperBehaviorVerification
             place.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
             RipperBehavior.InitializeGrappleRipper(place, place.SpawnSettings<GrappleRipperSpawnSettings>());
-            RipperBehavior.ReverseRipperVariant(place);
+            RipperBehavior.ReverseRipperVariant(place, place.RequireSpeciesState<RipperEnemyState>());
             VerifyInstalledLoop(enemies, place, RipperSegment.GrappleRipperMovingLeft, "GrappleRipper left reversal");
         }
 

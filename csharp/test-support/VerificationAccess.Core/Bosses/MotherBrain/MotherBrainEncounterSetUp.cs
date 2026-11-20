@@ -16,9 +16,7 @@ internal static class MotherBrainEncounterSetUp
         internal MotherBrainEnemyState BeginAsSetUp(MotherBrainEnemyState state, params RoomEnemyPlace[] parts)
         {
             encounter.Begin(state);
-            state.Body.SetSpeciesState(state);
-            foreach (RoomEnemyPlace part in parts)
-                part.SetSpeciesState(state);
+            _ = parts;
             return state;
         }
     }

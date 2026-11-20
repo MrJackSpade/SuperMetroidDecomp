@@ -87,15 +87,15 @@ internal static class YappingMawExtensionVerification
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
             new FrameCounters(0));
-        enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
-        enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
+        enemies.YappingMawBehavior.RunYappingMawMainAi(place, place.RequireSpeciesState<YappingMawEnemyState>(), frame);
+        enemies.YappingMawBehavior.RunYappingMawMainAi(place, place.RequireSpeciesState<YappingMawEnemyState>(), frame);
         AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, "setup begins the extension");
         AssertEqual(SignedSixteenSixteen.Zero, state.Extension.InFixedPoint, "setup starts the curl at zero");
 
         state.Extension = new YappingMawCurl(start);
         state.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
         state.CurlPhase = phase;
-        enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
+        enemies.YappingMawBehavior.RunYappingMawMainAi(place, place.RequireSpeciesState<YappingMawEnemyState>(), frame);
         return state;
     }
 }

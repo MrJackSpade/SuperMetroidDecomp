@@ -72,8 +72,8 @@ internal static class EnemyFormatDrawEntriesVerification
 
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
-        enemies.Drawing.Draw(sprites, Position16<RoomPixels>.Zero, RoomEnemyFrameFixtures.StandaloneSamus());
+        var prepared = enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
+        enemies.Drawing.Draw(prepared, sprites, Position16<RoomPixels>.Zero, RoomEnemyFrameFixtures.StandaloneSamus());
         enemies.Projectiles.DrawEnemyProjectilesAt(sprites, Position16<RoomPixels>.Zero, EnemyProjectileDepth.InFrontOfSamus, false);
         sprites.FinalizeFrame();
         SpriteDraw[] draws = [.. sprites.Draws];
@@ -98,8 +98,8 @@ internal static class EnemyFormatDrawEntriesVerification
         // An enemy drawn in another look shows its frame under that look's shading (#1512).
         ordinary.Shading = EnemyShades.FrozenLook;
         sprites.BeginFrame();
-        enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
-        enemies.Drawing.Draw(sprites, Position16<RoomPixels>.Zero, RoomEnemyFrameFixtures.StandaloneSamus());
+        var prepared102 = enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
+        enemies.Drawing.Draw(prepared102, sprites, Position16<RoomPixels>.Zero, RoomEnemyFrameFixtures.StandaloneSamus());
         sprites.FinalizeFrame();
         AssertImage(sprites.Draws[0], new SpriteSource(SpriteSourceKind.Enemy), beetomSheet.Frame(EnemySheetDefinitions.FrameName(ordinaryFrame)),
             new(100, 80), EnemyShades.FrozenLook, "Ordinary enemy in another look");
@@ -112,8 +112,8 @@ internal static class EnemyFormatDrawEntriesVerification
         int undisplayed = ordinary.Shake.UpdatesLeft;
         ordinary.Shake.Restart(2);
         sprites.BeginFrame();
-        enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
-        enemies.Drawing.Draw(sprites, Position16<RoomPixels>.Zero, RoomEnemyFrameFixtures.StandaloneSamus());
+        var prepared116 = enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
+        enemies.Drawing.Draw(prepared116, sprites, Position16<RoomPixels>.Zero, RoomEnemyFrameFixtures.StandaloneSamus());
         sprites.FinalizeFrame();
         AssertEqual(1, undisplayed, "An undrawn frame consumes one shake tick");
         AssertEqual(undisplayed, ordinary.Shake.UpdatesLeft, "A drawn frame consumes the same shake tick");
@@ -125,16 +125,16 @@ internal static class EnemyFormatDrawEntriesVerification
         ordinary.Shake.End();
         ordinary.Position = ordinary.Position.WithWhole(new(20, 10));
         sprites.BeginFrame();
-        enemies.Drawing.Advance(camera);
-        enemies.Drawing.Draw(sprites, camera, RoomEnemyFrameFixtures.StandaloneSamus());
+        var prepared129 = enemies.Drawing.Advance(camera);
+        enemies.Drawing.Draw(prepared129, sprites, camera, RoomEnemyFrameFixtures.StandaloneSamus());
         sprites.FinalizeFrame();
         AssertEqual(new Offset16<ScreenPixels>(-16, -14), sprites.Draws[0].Origin, "An enemy left of and above the view draws at a negative place");
         ordinary.Position = ordinary.Position.WithWhole(camera);
         ordinary.FrameCounter = Enumerable.Range(0, 16).First(EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsSetIn);
         ordinary.Shake.Restart(1);
         sprites.BeginFrame();
-        enemies.Drawing.Advance(camera);
-        enemies.Drawing.Draw(sprites, camera, RoomEnemyFrameFixtures.StandaloneSamus());
+        var prepared137 = enemies.Drawing.Advance(camera);
+        enemies.Drawing.Draw(prepared137, sprites, camera, RoomEnemyFrameFixtures.StandaloneSamus());
         sprites.FinalizeFrame();
         AssertEqual(new Offset16<ScreenPixels>(-1, 0), sprites.Draws[0].Origin, "A shake left at the view's edge draws the enemy one pixel left of the view");
         Console.WriteLine($"Enemy-format draws: ordinary and whole extended entries from their graphics set's sheets, a frame in another look, and a projectile over the enemy tile page; shake advance independent of display; places left of and above the view are negative.");

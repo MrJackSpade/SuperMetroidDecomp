@@ -48,9 +48,8 @@ internal static class RidleyAnimationsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(definition, body.Definition);
-        RidleyEncounterState state = definition == EnemyDefinitionId.RidleyCeres ? new CeresRidleyState(Position16<RoomPixels>.Zero) : new NorfairRidleyState();
+        RidleyEncounterState state = definition == EnemyDefinitionId.RidleyCeres ? body.SetUpPlaced<CeresRidleyState>() : body.SetUpPlaced<NorfairRidleyState>();
         state.Flight.FacingDirection = facing;
-        body.HoldRidley(state);
         return new NewRidleyResult(enemies, state, body);
     }
 

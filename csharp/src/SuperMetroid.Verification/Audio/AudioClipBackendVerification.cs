@@ -65,8 +65,8 @@ internal static class AudioClipBackendVerification
             IReadOnlyList<AudioRequest> commands = update switch
             {
                 0 => dataSet is MusicDataSet loaded
-                    ? [new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(loaded)]
-                    : [new AudioRequest.ChangeMusicDataSet(null)],
+                    ? [new AudioRequest.InstallSharedSounds(), new AudioRequest.ChangeMusicDataSet(loaded)]
+                    : [new AudioRequest.InstallSharedSounds()],
                 1 => [request],
                 _ => [],
             };
@@ -96,7 +96,7 @@ internal static class AudioClipBackendVerification
     private static void VerifyMusicCommands(ClipAudioLibrary clips, int beatUpdates)
     {
         var script = new Script(clips);
-        script.Advance([new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
+        script.Advance([new AudioRequest.InstallSharedSounds(), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         script.Advance([AudioRequest.ForTrack(MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, RoomTrack))]);
         script.AdvanceUntil(() => script.State.Song is not null, beatUpdates);
         long start = script.State.SongStart;
@@ -134,7 +134,7 @@ internal static class AudioClipBackendVerification
             entry.Sound.Library == SoundEffectLibrary.Enemies &&
             entry.Policy is { Priority: SoundEffectPriorityEffect.Low, IgnoresPriority: false } && entry.Sound != high.Sound);
         var script = new Script(clips.Clips);
-        script.Advance([new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
+        script.Advance([new AudioRequest.InstallSharedSounds(), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         ClipLibraryState library2 = script.State.Libraries[SoundEffectLibrary.Enemies];
 
         script.Advance([new AudioRequest.RequestSound(high.Sound)]);

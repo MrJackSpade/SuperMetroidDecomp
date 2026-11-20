@@ -84,7 +84,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
             int offset = step * 2;
             spore.Kind = RoomEnemyProjectileKind.SporeSpawnSpore;
             spore.Position = spore.Position.WithWhole(new(0x0200, 0x0200));
-            spore.State = new SporeSpawnSporeState(mirrored != 0 ? HorizontalDirection.Left : HorizontalDirection.Right) { PathStep = ListStep<Offset16<RoomPixels>>.At(SporeSpawnProjectileDefinitions.Drift, step) };
+            spore.Rebind(new SporeSpawnSporeBehavior(enemies.DeathsAndDrops, new SporeSpawnSporeState(mirrored != 0 ? HorizontalDirection.Left : HorizontalDirection.Right) { PathStep = ListStep<Offset16<RoomPixels>>.At(SporeSpawnProjectileDefinitions.Drift, step) }));
             int x = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + offset));
             int y = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + ((offset + 1) & 0xff)));
             move(spore);

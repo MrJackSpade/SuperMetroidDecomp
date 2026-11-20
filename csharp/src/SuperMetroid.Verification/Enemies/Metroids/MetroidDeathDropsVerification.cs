@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Runtime;

@@ -34,7 +34,7 @@ internal static class BabyMetroidGradualAccelerationVerification
         state.Action = BabyMetroidAction.RiseAfterFeeding;
         state.Velocity = default;
         babyMetroid.Position = babyMetroid.Position.WithWholeX(0x02d6).WithWholeY(0x009c).WithFractionY(0x6b00);
-        runtime.Enemies.BabyMetroidBehavior.RunBabyMetroidMain(babyMetroid, runtime.Player.Samus, new Position16<RoomPixels>(0x0200, 0x0000), runtime.BombProjectiles);
+        runtime.Enemies.BabyMetroidBehavior.RunBabyMetroidMain(babyMetroid, babyMetroid.RequireSpeciesState<BabyMetroidEnemyState>(), runtime.Player.Samus, new Position16<RoomPixels>(0x0200, 0x0000), runtime.BombProjectiles);
 
         AssertEqual((ushort)0xfff1, state.Velocity.Y.RawValue, "the reversal step borrows once, reaching Y velocity $FFF1");
         AssertEqual((ushort)0x009c, babyMetroid.Position.Y.Whole, "the rise stays within the same pixel");
@@ -72,7 +72,7 @@ internal static class BabyMetroidGradualAccelerationVerification
             samus.Health = 500;
             samus.Position = samus.Position.WithWhole(new(0x01c3, 0x00b9));
             samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithWhole(ySpeed));
-            runtime.Enemies.BabyMetroidBehavior.RunBabyMetroidMain(babyMetroid, samus, new Position16<RoomPixels>(0x0158, 0x0000), runtime.BombProjectiles);
+            runtime.Enemies.BabyMetroidBehavior.RunBabyMetroidMain(babyMetroid, babyMetroid.RequireSpeciesState<BabyMetroidEnemyState>(), samus, new Position16<RoomPixels>(0x0158, 0x0000), runtime.BombProjectiles);
             AssertEqual(expectedX, babyMetroid.Position.X.Whole, $"Y speed {ySpeed}: the drain's X add takes CMP #4's carry");
             AssertEqual(expectedSpeed, samus.Kinematics.VerticalVelocity.Speed.Whole, $"Y speed {ySpeed}: the drain clamps only speeds of 4 or more");
         }
@@ -150,7 +150,7 @@ internal static class BabyMetroidGradualAccelerationVerification
                 700, target.X, velocity.X, divisor, OriginalOffScreenReversalKick, () => offScreen);
             SignedEightEight expectedY = BabyMetroidGradualAcceleration.AccelerateVertically(150, target.Y, velocity.Y, divisor);
 
-            behavior.RunBabyMetroidMain(babyMetroid, samus, camera, runtime.BombProjectiles);
+            behavior.RunBabyMetroidMain(babyMetroid, babyMetroid.RequireSpeciesState<BabyMetroidEnemyState>(), samus, camera, runtime.BombProjectiles);
 
             AssertEqual(expectedX, state.Velocity.X, $"{flight.Action} {flight.Side} from {velocity} with the camera at {camera}: X velocity");
             AssertEqual(expectedY, state.Velocity.Y, $"{flight.Action} {flight.Side} from {velocity} with the camera at {camera}: Y velocity");

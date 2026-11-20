@@ -69,12 +69,12 @@ internal static class CeresSteamAnimationsVerification
         RoomEnemyPlace vent = enemies.Places.InUpdateOrder[0];
         vent.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)CeresSteamVariant.Up);
         vent.Bind(EnemyDefinitionId.CeresSteam, vent.Definition);
-        ((IEnemyInitialization)(vent.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
+        vent.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(wait, SuperMetroid.Core.Enemies.EnemyPartners.Listed<CeresSteamEntity>(vent).State.UpdatesToActivation, "the vent draws its wait");
 
         bool Hidden() => vent.Presence.HasAny(EnemyPresence.Hidden) && vent.Contact.HasAny(EnemyContact.IgnoresSamus);
         int update = 0;
-        void Advance() { update++; CeresSteamBehavior.AdvanceCeresSteamAnimation(vent); }
+        void Advance() { update++; CeresSteamBehavior.AdvanceCeresSteamAnimation(vent, vent.RequireSpeciesState<CeresSteamEnemyState>()); }
 
         for (int dormant = 1; dormant <= wait; dormant++)
         {

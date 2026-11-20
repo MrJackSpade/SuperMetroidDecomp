@@ -53,19 +53,19 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         {
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnBombTorizoChozoOrb),
-                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoChozoOrb(torizo),
+                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoChozoOrb(torizo, torizo.RequireSpeciesState<TorizoEnemyState>()),
                 facingRight,
                 TorizoRandomizedProjectileDefinitions.BombChozoOrb.Toward(facingRight ? HorizontalDirection.Right : HorizontalDirection.Left),
                 projectile => (projectile.Animation as TorizoChozoOrbAnimation)?.PlayingSegment);
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoChozoOrb),
-                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoChozoOrb(torizo),
+                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoChozoOrb(torizo, torizo.RequireSpeciesState<TorizoEnemyState>()),
                 facingRight,
                 TorizoRandomizedProjectileDefinitions.GoldenChozoOrb.Toward(facingRight ? HorizontalDirection.Right : HorizontalDirection.Left),
                 projectile => (projectile.Animation as TorizoChozoOrbAnimation)?.PlayingSegment);
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoEgg),
-                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEgg(torizo),
+                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEgg(torizo, torizo.RequireSpeciesState<TorizoEnemyState>()),
                 facingRight,
                 TorizoRandomizedProjectileDefinitions.GoldenEgg.Toward(facingRight ? HorizontalDirection.Right : HorizontalDirection.Left),
                 projectile => (projectile.Animation as GoldenTorizoEggAnimation)?.PlayingSegment);
@@ -134,7 +134,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
         torizo.BindTorizoFixtureState(facingRight ? 0x8000 : 0);
 
-        enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo);
+        enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo, torizo.RequireSpeciesState<TorizoEnemyState>());
 
         EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17);
         Offset16<RoomPixels> muzzle = facingRight ? TorizoProjectilePlacementDefinitions.EyeBeamMuzzle : TorizoProjectilePlacementDefinitions.EyeBeamMuzzle.MirroredX();

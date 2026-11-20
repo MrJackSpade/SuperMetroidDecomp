@@ -480,8 +480,8 @@ internal static class EnemySpritemapArtworkVerification
             bool stands = room.ImageEquals(nativeRoom) || SpriteFrameBufferAccess.DrawnStandsFor(sprites =>
                 {
                     RoomEnemySystem redrawn = drawnRoom ?? throw new InvalidOperationException("Verification requires the drawn room.");
-                    redrawn.Drawing.Advance(new(0, 0));
-                    redrawn.Drawing.Draw(sprites, new(0, 0), RoomEnemyFrameFixtures.StandaloneSamus());
+                    var prepared = redrawn.Drawing.Advance(new(0, 0));
+                    redrawn.Drawing.Draw(prepared, sprites, new(0, 0), RoomEnemyFrameFixtures.StandaloneSamus());
                 }, nativeRoom);
             if (!stands)
                 differing.Add($"{frame.Name} (drawn by {owner}): native {OamRecords(nativeRoom)}, installed {OamRecords(room)}");

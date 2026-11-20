@@ -55,7 +55,7 @@ internal static class AudioBankTransitionVerification
     private static void VerifyAudioBankTransition(AudioUploadAssetDefinition bank)
     {
         var renderer = AudioSessionAccess.CreateSynthesizing(InstalledFixtures.Audio);
-        renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(null)]);
+        renderer.RenderFrame([new AudioRequest.InstallSharedSounds()]);
         MusicDataSet dataSet = bank.DataSet ?? throw new InvalidOperationException($"{bank.Name} holds no music data set.");
         renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(dataSet)]);
         renderer.RenderFrame([AudioRequest.ForTrack(AreaThemeDefinitions.Themes[dataSet])]);

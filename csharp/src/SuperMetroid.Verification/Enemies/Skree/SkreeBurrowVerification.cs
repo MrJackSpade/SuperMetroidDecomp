@@ -36,7 +36,7 @@ internal static class SkreeBurrowVerification
             if (++diveUpdates > 16)
                 throw new InvalidOperationException("The diving Skree never struck the solid row.");
             AssertEqual(0, state.BurrowTimer.UpdatesLeft, $"dive update {diveUpdates} leaves the burrow unstarted");
-            enemies.SkreeBehavior.RunSkreeMain(place, samus, level);
+            enemies.SkreeBehavior.RunSkreeMain(place, place.RequireSpeciesState<SkreeEnemyState>(), samus, level);
         }
         AssertEqual(SkreeAction.Burrowing, state.Action, "the dive ends in a burrow");
         AssertEqual(SkreeMotionDefinitions.BurrowDuration, state.BurrowTimer.UpdatesLeft, "the burrow starts its whole countdown as the Skree strikes the ground");
@@ -44,11 +44,11 @@ internal static class SkreeBurrowVerification
         int burrowTop = place.Position.Y.Whole;
         for (int update = 1; update < SkreeMotionDefinitions.BurrowDuration; update++)
         {
-            enemies.SkreeBehavior.RunSkreeMain(place, samus, level);
+            enemies.SkreeBehavior.RunSkreeMain(place, place.RequireSpeciesState<SkreeEnemyState>(), samus, level);
             AssertTrue(!place.Presence.HasAny(EnemyPresence.Deleted), $"the Skree is still burrowing after {update} burrowing updates");
             AssertEqual(burrowTop + update * SkreeMotionDefinitions.BurrowSink, place.Position.Y.Whole, $"burrowing update {update} sinks the Skree");
         }
-        enemies.SkreeBehavior.RunSkreeMain(place, samus, level);
+        enemies.SkreeBehavior.RunSkreeMain(place, place.RequireSpeciesState<SkreeEnemyState>(), samus, level);
         AssertTrue(place.Presence.HasAny(EnemyPresence.Deleted), "the Skree is gone on its twenty-first burrowing update");
         Console.WriteLine("  Skree burrow: the burrow lasts 21 updates from the dive's landing and the dive leaves it unstarted.");
     }

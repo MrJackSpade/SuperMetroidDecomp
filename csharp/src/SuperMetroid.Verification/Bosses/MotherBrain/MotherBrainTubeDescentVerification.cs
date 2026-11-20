@@ -20,8 +20,7 @@ internal static class MotherBrainTubeDescentVerification
         state.Head.Position = state.Head.Position.WithWholeY(72);
         tube.Bind(EnemyDefinitionId.MotherBrainTubes, tube.Definition);
         // The tube holds the encounter that spawned it, as its spawn gives it (#2218).
-        tube.SetSpeciesState(state);
-        MotherBrainFakeDeath.InitializeMotherBrainFallingTube(tube, tube.SpawnSettings<MotherBrainTubeSpawnSettings>());
+        tube.SetUp(new EnemySetup.Joining<MotherBrainEnemyState>(state));
         // The descent is traced from the update the main tube starts to fall: its wait runs out on its first update.
         SuperMetroid.Core.Enemies.EnemyPartners.Listed<MotherBrainTubesEntity>(tube).State.FallDelay.LastFor(1);
         Action<RoomEnemyPlace> step = enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain;

@@ -17,7 +17,7 @@ internal static class BombTorizoDroolSineVerification
     internal static void VerifyBombTorizoDroolSine(CartridgeImportAddressSpace rom)
     {
         Action<RoomEnemySystem, RoomEnemyPlace> spawn =
-            (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoLowHealthDrool(torizo);
+            (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoLowHealthDrool(torizo, torizo.RequireSpeciesState<TorizoEnemyState>());
 
         for (int random = byte.MinValue; random <= byte.MaxValue; random++)
         {

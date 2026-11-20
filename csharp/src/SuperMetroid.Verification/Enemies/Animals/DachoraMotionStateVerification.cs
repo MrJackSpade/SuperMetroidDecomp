@@ -54,7 +54,7 @@ internal static class DachoraMotionStateVerification
             fall.Speed = SignedSixteenSixteen.FromParts(whole, fraction);
             fallPlace.Position = fallPlace.Position.WithWhole(new(64, 32));
 
-            fallEnemies.DachoraBehavior.RunDachoraMainAi(fallPlace, frame);
+            fallEnemies.DachoraBehavior.RunDachoraMainAi(fallPlace, fallPlace.RequireSpeciesState<DachoraEnemyState>(), frame);
 
             string context = $"Dachora falling at {whole} and {fraction}/65536 pixels";
             AssertEqual(expectedWhole, fall.Speed.UnsignedWholePixels, $"{context}: whole speed word");
@@ -80,7 +80,7 @@ internal static class DachoraMotionStateVerification
             DachoraEchoState state = SuperMetroid.Core.Enemies.EnemyPartners.Listed<DachoraEchoEntity>(place).State;
             state.Lifetime = UpdateCountdown.For(lifetime);
 
-            DachoraBehavior.RunDachoraEchoMainAi(place, frame);
+            DachoraBehavior.RunDachoraEchoMainAi(place, place.RequireSpeciesState<DachoraEchoState>(), frame);
 
             AssertEqual(expected, state.Lifetime.UpdatesLeft, $"echo lifetime {lifetime} counts down without wrapping");
             AssertEqual(invisible, place.Presence.HasAny(EnemyPresence.Hidden), $"echo lifetime {lifetime} visibility");
@@ -118,7 +118,7 @@ internal static class DachoraMotionStateVerification
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
             new FrameCounters(0));
-        enemies.DachoraBehavior.RunDachoraMainAi(body, frame);
+        enemies.DachoraBehavior.RunDachoraMainAi(body, body.RequireSpeciesState<DachoraEnemyState>(), frame);
         AssertEqual(DachoraAction.Shinesparking, state.Action, "the charge launches the shinespark");
         AssertEqual(0, state.TrailTimer.UpdatesLeft, "the launch clears the body's trail timer");
         AssertTrue(echoes.All(echo => echo.Lifetime.IsOver), "the launch frees every echo");
@@ -127,7 +127,7 @@ internal static class DachoraMotionStateVerification
         int[] timers = [1, 0, 1];
         for (int update = 0; update < lives.Length; update++)
         {
-            enemies.DachoraBehavior.RunDachoraMainAi(body, frame);
+            enemies.DachoraBehavior.RunDachoraMainAi(body, body.RequireSpeciesState<DachoraEnemyState>(), frame);
             AssertEqual(timers[update], state.TrailTimer.UpdatesLeft, $"the body's trail timer after shinespark update {update}");
             AssertEqual(string.Join(",", lives[update]), string.Join(",", echoes.Select(echo => echo.Lifetime.UpdatesLeft)),
                 $"the echoes' lives after shinespark update {update}");
@@ -159,7 +159,7 @@ internal static class DachoraMotionStateVerification
     /// speed-boost echo (#2283).
     /// </summary>
     private static void InitializeThroughEntity(RoomEnemyPlace place) =>
-        (place.Entity as IEnemyInitialization ?? throw new InvalidOperationException("A Dachora place initializes.")).Initialize();
+        place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
 
     /// <summary>Runs Dachora's motion-state and echo-lifetime checks.</summary>
     [VerificationCommand("--dachora-motion-state")]

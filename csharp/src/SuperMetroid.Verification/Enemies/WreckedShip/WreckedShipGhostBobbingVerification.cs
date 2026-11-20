@@ -40,7 +40,7 @@ internal static class WreckedShipGhostBobbingVerification
             state.BobbingOriginY = originY;
             state.VerticalVelocity = SignedSixteenSixteen.FromParts(whole, 0);
 
-            WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(place, frame);
+            WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(place, place.RequireSpeciesState<WreckedShipGhostEnemyState>(), frame);
 
             AssertEqual(expectedY, place.Position.Y.Whole, $"Ghost {context}: position");
             AssertEqual((ushort)0, place.Position.Y.Fraction, $"Ghost {context}: subposition");

@@ -180,17 +180,18 @@ internal static class BotwoonAnimationsVerification
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
         var state = head.SetUpPlacedAs<BotwoonEnemyState>(EnemyDefinitionId.Botwoon);
         // A changed selector restarts the segment; an unchanged one keeps running.
-        Action<EnemyProjectile, int> animate = BotwoonBehavior.AnimateBotwoonBodySegment;
+        Action<BotwoonSegmentState, int> animate = BotwoonBehavior.AnimateBotwoonBodySegment;
         var segment = new EnemyProjectile(1, default) { Kind = RoomEnemyProjectileKind.BotwoonBody };
         var segmentAnimation = new BotwoonSegmentAnimation(BotwoonSegmentSelectorCodec.Program(0));
-        segment.State = new BotwoonSegmentState(head, 1, segment, segmentAnimation);
+        var segmentState = new BotwoonSegmentState(head, state, 1, segment, segmentAnimation);
+        segment.Rebind(enemies.BotwoonBehavior.Segment(segmentState));
         segment.StartAnimation(segmentAnimation);
         Pass(segment);
         Pass(segment);
-        animate(segment, 0);
+        animate(segmentState, 0);
         AssertEqual((ushort)7, segment.FrameHold.RawValue, "an unchanged Botwoon segment program keeps its timer");
-        segment.StateOf<BotwoonSegmentState>().Pose = BotwoonSegmentSelectorCodec.Program(2);
-        animate(segment, 0);
+        segmentState.Pose = BotwoonSegmentSelectorCodec.Program(2);
+        animate(segmentState, 0);
         AssertEqual((ushort)1, segment.FrameHold.RawValue, "a changed Botwoon segment program restarts");
         Pass(segment);
         AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.BotwoonBodyUpRightRipple0),

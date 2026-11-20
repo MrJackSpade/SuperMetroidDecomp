@@ -39,10 +39,11 @@ internal static class MotherBrainRingBabyHealthVerification
         ring.Position = ring.Position.WithWhole(new(0x00ae, 0x008c));
         ring.Radius = new(1, 1);
         ring.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
-        ring.State = new MotherBrainOnionRingState(state, mouthWaitUpdates: 1);
+        var ringState = new MotherBrainOnionRingState(state, mouthWaitUpdates: 1);
+        ring.Rebind(runtime.Enemies.MotherBrainBehavior.Projectiles.OnionRing(ringState));
         babyMetroid.Position = babyMetroid.Position.WithWhole(new(0x00ce, 0x00b0));
 
-        runtime.Enemies.MotherBrainBehavior.Projectiles.OnionRing.FlyMotherBrainOnionRing(ring, runtime.Player.Samus, 0);
+        runtime.Enemies.MotherBrainBehavior.Projectiles.Projectile.FlyMotherBrainOnionRing(ring, ringState, runtime.Player.Samus, 0);
         AssertEqual(0x0c30, babyMetroid.Health, "the ring charges the Baby $50");
         AssertEqual(0x0c30, babyPlace.Health, "the Baby slot's health drops within the projectile pass");
         Console.WriteLine("Mother Brain ring Baby health: the hit writes the Baby slot's health immediately.");

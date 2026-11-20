@@ -38,7 +38,7 @@ internal static class BotwoonPositionHistoryVerification
             "InitAI_Botwoon hides the head from collision with property $0400");
         head.Contact = head.Contact.Without(EnemyContact.IgnoresSamus);
         head.Health = 0;
-        BotwoonBehavior.ResolveBotwoonCombatAfterCommon(head);
+        BotwoonBehavior.ResolveBotwoonCombatAfterCommon(head, head.RequireSpeciesState<BotwoonEnemyState>());
         AssertTrue(head.Contact.HasAny(EnemyContact.IgnoresSamus) &&
             !head.Contact.HasAny(EnemyContact.SolidToSamus),
             "a lethal hit makes the head intangible with property $0400");

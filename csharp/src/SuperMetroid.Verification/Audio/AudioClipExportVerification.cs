@@ -172,7 +172,7 @@ internal static class AudioClipExportVerification
         int kept = 0;
         IReadOnlyList<AudioRequest>[] script =
         [
-            [new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(context)],
+            [new AudioRequest.InstallSharedSounds(), new AudioRequest.ChangeMusicDataSet(context)],
             [request],
         ];
         for (int index = 0; kept < pcm.Length; index++)

@@ -60,8 +60,9 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         rinka.SetSpawnSettings(new RinkaSpawnSettings(special ? RinkaSpawnPoint.FarRightUpper : null));
         rinka.AnimationClock.StepOnNextUpdate();
 
-        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, program, special ? RinkaSpawnPoint.FarRightUpper : null);
-        enemies.Places.InUpdateOrder[0].SetSpeciesState(state);
+        var state = rinka.SetUpPlaced<RinkaEnemyState>();
+        state.Action = RinkaAction.WatchForLeavingViewport;
+        state.Playback = new(RinkaAnimations.StartingWith(program), SuperMetroid.Core.Animation.AnimationPlace.StartOfAnimation);
 
         object?[] arguments = [rinka, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
 

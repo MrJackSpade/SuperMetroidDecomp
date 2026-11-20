@@ -108,7 +108,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
 
     /// <summary>Initializes <paramref name="place"/> through the entity its placement made, as a room's spawn does.</summary>
     private static void InitializeThroughEntity(RoomEnemyPlace place) =>
-        (place.Entity as IEnemyInitialization ?? throw new InvalidOperationException("A Dachora place initializes.")).Initialize();
+        place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
 
     /// <summary>Runs the Dachora animation verification.</summary>
     [VerificationCommand("--dachora-instruction-program-definitions")]

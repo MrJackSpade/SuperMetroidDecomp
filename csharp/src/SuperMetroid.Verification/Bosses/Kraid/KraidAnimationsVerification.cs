@@ -368,7 +368,7 @@ internal static class KraidAnimationsVerification
         KraidNailState part = state.Nail(KraidNailPart.First);
         RoomEnemyPlace nail = part.Place;
         nail.Bind(EnemyDefinitionId.KraidFirstNail, nail.Definition);
-        enemies.KraidBehavior.Projectiles.InitializeKraidNail(nail, KraidNailPart.First);
+        KraidProjectiles.InitializeKraidNail(nail, nail.RequireSpeciesState<KraidEnemyState>(), KraidNailPart.First);
         AssertEqual((EnemyFrameId?)EnemyFrameId.KraidNailTurned0, nail.Frame, "a fingernail set up shows its spin's first pose");
         AssertEqual(KraidAnimations.StartingWith(KraidPartSegment.NailLoop), part.Playback.Animation, "the pose is its spin's");
         AssertTrue(nail.AnimationClock.IsStopped, "the set-up fingernail's spin waits");

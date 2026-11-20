@@ -286,7 +286,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         // whether his body draws in the hurt flash; this fixture's animation is off and its latch holds his own colours.
         if (place.DefinitionId == EnemyDefinitionId.Ridley)
         {
-            place.HoldRidley(new NorfairRidleyState());
+            place.SetUpPlaced<NorfairRidleyState>();
         }
         place.CollidesByFrameHitboxes = true;
         place.Frame = frame;

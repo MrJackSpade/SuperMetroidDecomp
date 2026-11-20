@@ -44,17 +44,17 @@ internal static class MetareeBurrowVerification
         {
             if (++diveUpdates > 16)
                 throw new InvalidOperationException("The diving Metaree never struck the solid row.");
-            enemies.MetareeBehavior.RunMetareeMainAi(place, frame);
+            enemies.MetareeBehavior.RunMetareeMainAi(place, place.RequireSpeciesState<MetareeEnemyState>(), frame);
         }
         AssertEqual(MetareeAction.Burrowing, state.Action, "the dive ends in a burrow");
         AssertEqual(MetareeMotionDefinitions.BurrowLifetime, state.BurrowTimer.UpdatesLeft, "the burrow starts its whole countdown as the Metaree strikes the ground");
 
         for (int update = 1; update < MetareeMotionDefinitions.BurrowLifetime; update++)
         {
-            enemies.MetareeBehavior.RunMetareeMainAi(place, frame);
+            enemies.MetareeBehavior.RunMetareeMainAi(place, place.RequireSpeciesState<MetareeEnemyState>(), frame);
             AssertTrue(!place.Presence.HasAny(EnemyPresence.Deleted), $"the Metaree is still burrowing after {update} burrowing updates");
         }
-        enemies.MetareeBehavior.RunMetareeMainAi(place, frame);
+        enemies.MetareeBehavior.RunMetareeMainAi(place, place.RequireSpeciesState<MetareeEnemyState>(), frame);
         AssertTrue(place.Presence.HasAny(EnemyPresence.Deleted), "the Metaree is gone on its twenty-first burrowing update");
         Console.WriteLine("  Metaree burrow: the burrow lasts 21 updates from the dive's landing.");
     }

@@ -49,7 +49,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
             RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
         enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
         enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.Places.InUpdateOrder[0].Definition);
-        enemies.HoldCeresRidley(enemies.Places.InUpdateOrder[0], new CeresRidleyState(Position16<RoomPixels>.Zero));
+        enemies.Places.InUpdateOrder[0].SetUpPlaced<CeresRidleyState>();
         RoomEnemyPlace door = enemies.Places.InUpdateOrder[1];
         door.StartCeresDoorOrWall(EnemyDefinitionId.CeresRidleyRoomDoor, EnemySpawnSettings.None);
         door.RequireSpeciesState<CeresDoorAnimationState>().Look = CeresRidleyRoomDoorLook.Overlay;

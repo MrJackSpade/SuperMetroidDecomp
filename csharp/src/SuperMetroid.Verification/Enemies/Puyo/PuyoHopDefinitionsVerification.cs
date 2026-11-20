@@ -76,7 +76,7 @@ internal static class PuyoHopDefinitionsVerification
             state.AirborneMovement = PuyoAirborneMovement.Dropping;
             state.HopType = PuyoHopType.Dropping;
             state.CurrentHop = cut;
-            enemies.PuyoBehavior.RunPuyoMainAi(place, new ClockedEnemyAiFrame(
+            enemies.PuyoBehavior.RunPuyoMainAi(place, place.RequireSpeciesState<PuyoEnemyState>(), new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with
                 {
                     Camera = Position16<RoomPixels>.Zero,

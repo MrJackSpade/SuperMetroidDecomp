@@ -53,7 +53,7 @@ internal static class FrozenMetroidShellVerification
         Require(expected.NextByteOffset > 0, "The frozen shell must contain visible sprite parts.");
         for (int frame = 0; frame < 3; frame++)
         {
-            MetroidBehavior.RunMetroidFrozen(enemy);
+            MetroidBehavior.RunMetroidFrozen(enemy, enemy.RequireSpeciesState<MetroidEnemyState>());
             enemies.EffectActors.StepRoomEffectActors();
             Require(shell.SpritemapPointer == expectedPointer,
                 $"Frozen shell retained ${shell.SpritemapPointer:X4}, expected ${expectedPointer:X4}.");

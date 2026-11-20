@@ -33,13 +33,10 @@ internal static class SporeSpawnDeathDriftVerification
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
             body.Position = body.Position.WithWhole(start);
-            var state = new SporeSpawnEnemyState
-            {
-                Movement = SporeSpawnMovement.SetupDeath,
-                MovementCenter = new(128, 624),
-            };
+            var state = body.SetUpPlaced<SporeSpawnEnemyState>();
+            state.Movement = SporeSpawnMovement.SetupDeath;
+            state.MovementCenter = new(128, 624);
             state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(body, segment)).OfType<EnemyProjectile>()];
-            body.SetSpeciesState(state);
 
             enemies.SporeSpawnBehavior.RunSporeSpawnMainAi(body, state);
             FixedVector<RoomPixels> velocity = state.DeathVelocity;

@@ -15,6 +15,9 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 /// </summary>
 internal static class EndingSceneColoursVerification
 {
+    /// <summary>The space backdrops of a scene whose space colours run no effect: the checks' scenes run none.</summary>
+    private static readonly EndingSpaceBackdrops NoSpaceBackdrops = new(new Dictionary<ColourEffectFrame, RgbColor>());
+
     /// <summary>Runs the scene colour checks on the ending's colours alone, without an installation.</summary>
     internal static void VerifyEndingSceneColours()
     {
@@ -23,20 +26,20 @@ internal static class EndingSceneColoursVerification
         var explosion = new RgbColor(33, 41, 49);
 
         var colours = new EndingColours();
-        colours.Load(EndingColourLoad.Escape, escape);
+        colours.StartScene(EndingColourLoad.Escape, escape);
         colours.Fade(EndingFade.ExplosionBackground, 3);
         colours.Flash(EndingFlash.SilhouetteBackdrop, black);
         colours.ColourEffects.StartScreen(EndingColourEffectDefinitions.GunshipEmergence);
         colours.ColourEffects.StepScreen();
-        colours.Load(EndingColourLoad.Explosion, explosion);
+        colours.StartScene(EndingColourLoad.Explosion, explosion);
         colours.ResetColourEffects();
         AssertTrue(colours.Shades.SequenceEqual([EndingShades.Loaded(EndingColourLoad.Explosion)]),
             "a scene's whole screen of colours shows nothing an earlier scene showed");
-        AssertEqual(explosion, colours.Backdrop(null), "a scene shows its own backdrop");
+        AssertEqual(explosion, colours.Backdrop(NoSpaceBackdrops), "a scene shows its own backdrop");
 
         colours.Fade(EndingFade.ExplosionBackground, 5);
         colours.Fade(EndingFade.ExplodingPlanet, 5);
-        colours.Load(EndingColourLoad.ExplosionBackgrounds, null);
+        colours.Restore(EndingColourLoad.ExplosionBackgrounds);
         PictureShade[] restoredScene = [EndingShades.Loaded(EndingColourLoad.Explosion), EndingShades.Loaded(EndingColourLoad.ExplosionBackgrounds),
             EndingShades.Faded(EndingFade.ExplodingPlanet, 5)];
         AssertTrue(colours.Shades.SequenceEqual(restoredScene),
@@ -48,20 +51,20 @@ internal static class EndingSceneColoursVerification
             colours.ColourEffects.FrameOf(ColourEffectColours.GunshipEmergingFromExplosion)
             ?? throw new InvalidOperationException("The gunship's emergence showed no record on its first step."));
         AssertTrue(colours.Shades.SequenceEqual([.. restoredScene, gunshipRecord]), "a running palette effect shows the record it holds");
-        AssertThrows<InvalidOperationException>(() => colours.Load(EndingColourLoad.FinalGunship, null),
+        AssertThrows<InvalidOperationException>(() => colours.Restore(EndingColourLoad.FinalGunship),
             "the final gunship's colours cannot restore colours the gunship's emergence still animates");
 
         colours.ResetColourEffects();
         AssertTrue(colours.Shades.SequenceEqual(restoredScene), "cleared palette effects stop showing their records, and nothing else");
 
-        colours.Load(EndingColourLoad.PostCredits, black);
+        colours.StartScene(EndingColourLoad.PostCredits, black);
         AssertTrue(colours.Shades.SequenceEqual([EndingShades.Loaded(EndingColourLoad.PostCredits)]),
             "the post-credits scenes keep nothing of the scenes before them");
 
         // Each actor shows only the colour effects authored for it (#1544): the animals' escape pod, which once shared the
         // planet's colour group, shows none of the planet's fade, glow or fade-out, and no actor shows the gunship's record.
         var actors = new EndingColours();
-        actors.Load(EndingColourLoad.Explosion, explosion);
+        actors.StartScene(EndingColourLoad.Explosion, explosion);
         actors.Fade(EndingFade.ExplodingPlanet, 5);
         actors.Flash(EndingFlash.PlanetGlow, null);
         actors.ColourEffects.StartScreen(EndingColourEffectDefinitions.FadePlanet);
@@ -92,27 +95,27 @@ internal static class EndingSceneColoursVerification
         // The post-credits shot's turning floor is drawn in the shot's colours, so it keeps the shot's fade, which the
         // restored shot ends, and none of Samus shooting's fade.
         var shot = new EndingColours();
-        shot.Load(EndingColourLoad.PostCredits, black);
+        shot.StartScene(EndingColourLoad.PostCredits, black);
         shot.Fade(EndingFade.Shot, 7);
         shot.Fade(EndingFade.ShootingSamus, 3);
         AssertTrue(shot.SceneryShading(EndingScenery.PostCreditsShotFloor).Shades.SequenceEqual(
                 [EndingShades.Loaded(EndingColourLoad.PostCredits), EndingShades.Faded(EndingFade.Shot, 7)]),
             "the post-credits shot's floor fades with the shot, not with Samus shooting");
-        shot.Load(EndingColourLoad.RestoredShot, null);
+        shot.Restore(EndingColourLoad.RestoredShot);
         AssertTrue(shot.SceneryShading(EndingScenery.PostCreditsShotFloor).Shades.SequenceEqual(
                 [EndingShades.Loaded(EndingColourLoad.PostCredits), EndingShades.Loaded(EndingColourLoad.RestoredShot)]),
             "the restored shot ends the shot's fade-out on its floor");
 
         // The backdrop is the scene's own until its flashes cover it, each over those the scene brings in before it.
         var backdrop = new EndingColours();
-        backdrop.Load(EndingColourLoad.Explosion, explosion);
+        backdrop.StartScene(EndingColourLoad.Explosion, explosion);
         backdrop.Flash(EndingFlash.SilhouetteBackdrop, RgbColor.White);
-        AssertEqual(RgbColor.White, backdrop.Backdrop(null), "the silhouette whitens the backdrop");
+        AssertEqual(RgbColor.White, backdrop.Backdrop(NoSpaceBackdrops), "the silhouette whitens the backdrop");
         backdrop.Flash(EndingFlash.ExplosionWhiteout, RgbColor.White);
         backdrop.Flash(EndingFlash.WhiteoutCleared, black);
-        AssertEqual(black, backdrop.Backdrop(null), "the flyaway clears the whiteout's backdrop to black");
-        backdrop.Load(EndingColourLoad.Credits, escape);
-        AssertEqual(escape, backdrop.Backdrop(null), "the next scene shows its own backdrop");
+        AssertEqual(black, backdrop.Backdrop(NoSpaceBackdrops), "the flyaway clears the whiteout's backdrop to black");
+        backdrop.StartScene(EndingColourLoad.Credits, escape);
+        AssertEqual(escape, backdrop.Backdrop(NoSpaceBackdrops), "the next scene shows its own backdrop");
         Console.WriteLine("  Ending scene colours: each scene shows its own colours, loads, fades, flashes and effects within a scene, "
             + "restores end the effects they restore, cleared effects end, each actor, picture and floor shows only its own effects.");
     }

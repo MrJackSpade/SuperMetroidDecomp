@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Samus.Projectiles;

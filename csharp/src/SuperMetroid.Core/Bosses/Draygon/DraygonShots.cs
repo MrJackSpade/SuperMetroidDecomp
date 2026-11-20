@@ -199,7 +199,7 @@ internal sealed class DraygonShots
     /// </summary>
     /// <param name="goop">The behaviour of the goop that stuck, which owns its animations' cues.</param>
     /// <param name="attached">What the stuck goop keeps.</param>
-    private sealed class StuckGoopBehavior(FlyingShotBehavior goop, DraygonGoopAttachedState attached)
+    internal sealed class StuckGoopBehavior(FlyingShotBehavior goop, DraygonGoopAttachedState attached)
         : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving)
     {
         /// <inheritdoc/>

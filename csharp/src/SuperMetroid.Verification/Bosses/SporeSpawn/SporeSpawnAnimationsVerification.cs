@@ -197,18 +197,15 @@ internal static class SporeSpawnAnimationsVerification
         body.Health = 960;
         body.AnimationClock.StepOnNextUpdate();
 
-        var state = new SporeSpawnEnemyState
-        {
-            Movement = SporeSpawnMovement.Idle,
-            MovementCenter = body.Position.Whole,
-            SwayRadius = new(48),
-            SwayStep = new(RotationAngle.FromSteps(1), RotationDirection.Counterclockwise),
-            BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
-        };
+        var state = body.SetUpPlaced<SporeSpawnEnemyState>();
+        state.Movement = SporeSpawnMovement.Idle;
+        state.MovementCenter = body.Position.Whole;
+        state.SwayRadius = new(48);
+        state.SwayStep = new(RotationAngle.FromSteps(1), RotationDirection.Counterclockwise);
+        state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         enemies.VerificationServices().NextRandom = () => 4660;
         SamusState samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
         // His body holds his encounter, as his initialization installs it (#2231).
-        body.SetSpeciesState(state);
 
         for (int frame = 0; frame < frames; frame++)
         {

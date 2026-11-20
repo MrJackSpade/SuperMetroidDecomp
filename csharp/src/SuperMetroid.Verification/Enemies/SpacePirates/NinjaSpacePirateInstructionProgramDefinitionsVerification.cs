@@ -158,7 +158,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 ushort expectedY = unchecked((ushort)(place.Position.Y.Whole - nativeSpeed / 256));
                 nativeSpeed = unchecked((ushort)(nativeSpeed - speedStep));
                 bool riseEnds = unchecked((short)nativeSpeed) < 0;
-                enemies.NinjaSpacePirateBehavior.RunNinjaSpacePirateMainAi(place, frame);
+                enemies.NinjaSpacePirateBehavior.RunNinjaSpacePirateMainAi(place, place.RequireSpeciesState<NinjaSpacePirateEnemyState>(), frame);
                 AssertEqual(expectedY, place.Position.Y.Whole, $"ninja divekick rise update {update} climbs by the speed's whole pixels");
                 if (!riseEnds)
                 {

@@ -657,7 +657,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             // The shard is spawned as the tube's spawner spawns it, bound to the tube pieces' behaviour that carries out its
             // cues (#1760). The first shard's animation opens on its flying loop, whose first beat is the reflecting flicker.
             FamilyProjectileStarts.Initialize(enemies, slot, RoomEnemyProjectileKind.NoobTubeShard, SpawnedGraphics);
-            slot.State = new NoobTubeDebrisState(column: 128);
+            var debris = enemies.NoobTubeBehavior.DebrisPiece(new NoobTubeDebrisState(column: 128), NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownOutward], NoobTubePieceMotion.ShardFlying);
+            slot.Rebind(debris);
+            slot.StartAnimation(debris.Animation);
             slot.Position = slot.Position.WithWhole(new(128, 96));
             enemies.Projectiles.AdvanceEnemyProjectileAnimations(slot, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: 0);
             // It draws from the sheets a set spawning it composes from this artwork.

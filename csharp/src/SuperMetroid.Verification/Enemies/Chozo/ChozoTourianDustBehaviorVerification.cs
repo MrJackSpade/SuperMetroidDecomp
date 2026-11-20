@@ -39,7 +39,7 @@ internal static class ChozoTourianDustBehaviorVerification
             EnemyProjectile dust = enemies.Projectiles.ProjectileInPlace(0);
             dust.Delete();
             FamilyProjectileStarts.Initialize(enemies, dust, kind, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard);
-            dust.State = new AnchoredProjectileState(new(128, 96));
+            dust.Rebind(new AnchoredProjectileBehavior(new(128, 96)));
             AssertTrue(dust.Animation is ChozoTourianDustAnimation animation && animation.PlayingSegment == program, $"{kind} starts {program}");
             (bool deleted, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, dust, nativeStart, 600, kind.ToString());
             AssertTrue(deleted, $"{kind} deletes itself after its program, at update {updates}");

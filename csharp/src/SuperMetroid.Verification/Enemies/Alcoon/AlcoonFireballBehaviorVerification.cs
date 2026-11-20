@@ -34,7 +34,7 @@ internal static class AlcoonFireballBehaviorVerification
         {
             state.WalkingDirection = direction;
             foreach (AlcoonFireballLaunch launch in new[] { AlcoonFireballLaunchDefinitions.Upward, AlcoonFireballLaunchDefinitions.Level, AlcoonFireballLaunchDefinitions.Downward })
-                enemies.AlcoonBehavior.SpawnAlcoonFireball(source, launch);
+                enemies.AlcoonBehavior.SpawnAlcoonFireball(source, source.RequireSpeciesState<AlcoonEnemyState>(), launch);
         }
         EnemyProjectile[] fireballs = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball)];
         AssertEqual(6, fireballs.Length, "all three fire commands spawn in both facings");

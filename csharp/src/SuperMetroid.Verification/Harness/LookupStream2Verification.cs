@@ -1079,7 +1079,7 @@ internal static class LookupStream2Verification
             {
                 Type = trailingType,
                 Animation = SamusProjectileProgramAddresses.StandingAt(0x86e3),
-                Position = new(new(100, 0), new(200, 0)),
+                Position = new(new(SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification.ShotColumn, 0), new(200, 0)),
             };
             projectiles.Trails.SpawnTrail(projectile);
             // An empty trail family (programs, direction list or coordinates outside the compiled data) draws no trail (#1318).
@@ -1088,20 +1088,8 @@ internal static class LookupStream2Verification
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects the left table's trail");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn selects the right table's trail");
             AssertEqual(1, trail.Left.FrameHold, "Selector extraction leaves allocation timer unchanged");
-            // The sparkle stands on its placement from the shot, which for this frame is the shot's own column; its picture
-            // carries its own anchor (#2573).
-            AssertEqual(100, trail.Origin.X + trail.Left.Offset.X, "Selector extraction leaves origin offset unchanged");
-            OamBuffer drawn = SpriteFrameBuffer.DrawnOam(frame =>
-            {
-                projectiles.AdvanceTrails(false);
-                projectiles.DrawTrails(frame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
-            });
-            // Native keeps and draws the left sparkle's picture from the shot's column less half the picture, 96; the
-            // port's centred picture lands there. A left program that shows no pose draws nothing to compare.
-            if (!trail.Left.HasEnded && trail.Left.ShownPose is not null)
-                AssertEqual(new Position16<ScreenPixels>(100 - SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.PictureHalf,
-                        trail.Origin.Y + trail.Left.DisplayedOffset.Y - SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.PictureHalf),
-                    drawn.GetEntry(0).Position, "Selector extraction's left picture is drawn where native draws it");
+            SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification.AssertSelectedTrailStandsOnShot(
+                projectiles, trail, SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification.ShotColumn);
         }
         Console.WriteLine("Trail selectors: every trailing projectile's real spawn selection passes.");
     }

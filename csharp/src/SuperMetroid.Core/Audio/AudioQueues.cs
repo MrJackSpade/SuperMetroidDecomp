@@ -23,8 +23,8 @@ public sealed class AudioQueues
     /// </summary>
     private readonly Queue<QueuedMusic> Music = new();
     /// <summary>Each sound library's own queue of waiting requests.</summary>
-    private readonly Dictionary<SoundEffectLibrary, SoundQueue> SoundQueues =
-        SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new SoundQueue());
+    private readonly IdentityTable<SoundEffectLibrary, SoundQueue> SoundQueues =
+        new(SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new SoundQueue()));
     /// <summary>The request cycle each sound queue runs with its library, injected by the session's composition root.</summary>
     private readonly SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> SoundHandshakes;
 
@@ -351,9 +351,5 @@ public sealed class AudioQueues
     }
 
     /// <summary>The queue of <paramref name="library"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is not a sound library.</exception>
-    private SoundQueue QueueOf(SoundEffectLibrary library) =>
-        SoundQueues.TryGetValue(library, out SoundQueue? queue)
-            ? queue
-            : throw new ArgumentOutOfRangeException(nameof(library), library, "Unknown sound-effect library.");
+    private SoundQueue QueueOf(SoundEffectLibrary library) => SoundQueues[library];
 }

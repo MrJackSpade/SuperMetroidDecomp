@@ -81,7 +81,10 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// True while the current menu step waits out a frame of the display (after blanking or unblanking): the next update
     /// finishes that step instead of starting a new update of the menu (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    public bool IsWaitingOutDisplayFrame { get; private set; }
+    public bool IsWaitingOutDisplayFrame => phaseAfterDisplayFrame is not null;
+
+    /// <summary>The step a display-frame wait leads to once it is waited out (<see cref="IsWaitingOutDisplayFrame"/>); none while no wait runs.</summary>
+    private GameOverMenuPhase? phaseAfterDisplayFrame;
 
     /// <summary>How the menu hands off to the outer game-state loop (#2562), kept once it reaches one.</summary>
     public GameOverMenuOutcome Outcome { get; private set; }
@@ -110,7 +113,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
             if (!fade.IsBlack)
                 throw new InvalidOperationException("Game-over menu must begin from a black screen.");
             audio.QueueSound(RoomSound.Silence, priority: GameOverMenuDefinitions.SoundPriority);
-            IsWaitingOutDisplayFrame = true;
+            phaseAfterDisplayFrame = GameOverMenuPhase.Initialize;
         },
         [GameOverMenuPhase.Initialize] = pressed =>
         {
@@ -122,7 +125,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
             SelectedItem = YesNoChoice.Yes;
             fade.Show(0);
             // Unblank, then wait out one update before advancing the step.
-            IsWaitingOutDisplayFrame = true;
+            phaseAfterDisplayFrame = GameOverMenuPhase.WaitForInitialMusic;
         },
         [GameOverMenuPhase.WaitForInitialMusic] = pressed =>
         {
@@ -183,22 +186,12 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     public void Step(ControllerButton controllerInput)
     {
         controller.Latch(controllerInput);
-        if (IsWaitingOutDisplayFrame)
+        if (phaseAfterDisplayFrame is { } next)
         {
             // Each wait ends its step: what follows it only finishes setting up the screen and
-            // moves the menu on to its next step.
-            IsWaitingOutDisplayFrame = false;
-            Phase = Phase switch
-            {
-                GameOverMenuPhase.BlackHold => GameOverMenuPhase.Initialize,
-                GameOverMenuPhase.Initialize => GameOverMenuPhase.WaitForInitialMusic,
-                GameOverMenuPhase.WaitForInitialMusic or
-                    GameOverMenuPhase.FadeIn or
-                    GameOverMenuPhase.Main or
-                    GameOverMenuPhase.FadeOutToContinue or
-                    GameOverMenuPhase.FadeOutToTitle => throw new InvalidOperationException($"Game-over phase {Phase} has no frame wait."),
-                _ => throw new InvalidOperationException($"Game-over phase {Phase} has no frame wait."),
-            };
+            // moves the menu on to the step the wait leads to.
+            phaseAfterDisplayFrame = null;
+            Phase = next;
             return;
         }
 

@@ -337,13 +337,9 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             Phase = SelectedItem == FileSelectItem.Copy ? new FileSelectPhase.FadeOutToCopy() : new FileSelectPhase.FadeOutToClear();
             return;
         }
-        if (SelectedItem == FileSelectItem.Exit)
-        {
-            QueueCursorSound();
-            Phase = new FileSelectPhase.FadeOutToTitle();
-            return;
-        }
-        throw new InvalidDataException($"Invalid file-select main item {SelectedItem}.");
+        // Exit is the last of the main page's items.
+        QueueCursorSound();
+        Phase = new FileSelectPhase.FadeOutToTitle();
     }
 
     /// <summary>Moves through main-page entries while skipping Copy and Clear when no save exists.</summary>

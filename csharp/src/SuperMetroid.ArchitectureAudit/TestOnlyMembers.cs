@@ -122,11 +122,11 @@ internal static class TestOnlyMembers
             {
                 if (invocation.Expression is not MemberAccessExpressionSyntax { Expression: var state } || !state.ToString().EndsWith("PrivateState", StringComparison.Ordinal) ||
                     SemanticModels.At(compilation, tree, invocation).GetOperation(invocation) is not IInvocationOperation operation ||
-                    PrivateStateMemberAnalyzer.MissingMember(operation) is not { } missing)
+                    PrivateStateMembers.MissingMember(operation) is not { } missing)
                     continue;
                 yield return $"{file}:{missing.Site.GetLocation().GetLineSpan().StartLinePosition.Line + 1}: {missing.Call} names the " +
                     $"{missing.Kind} '{missing.Name}', which {missing.Owner.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)} " +
-                    $"does not have [{PrivateStateMemberAnalyzer.PrivateStateMemberId}].";
+                    "does not have [SME6477].";
             }
         }
     }

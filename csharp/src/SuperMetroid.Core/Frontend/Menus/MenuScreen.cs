@@ -65,7 +65,7 @@ internal sealed class MenuScreen
         PlacedPlanePicture.WithOriginAt(picture, origin, PictureShading.Standard);
 
     /// <summary>The solid colour the screen shows where nothing is drawn (#1512): file select's, or the world map's selected area's.</summary>
-    public RgbColor Backdrop { get; set; }
+    public RgbColor Backdrop { private get; set; }
 
     /// <summary>The sprites the menu shows over its pages this frame: its cursors, arrows and icons.</summary>
     public ScreenSprites Sprites { get; }

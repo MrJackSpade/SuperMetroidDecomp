@@ -65,15 +65,24 @@ internal static class PhantoonFlameSpawnsVerification
             int index = LittleEndianBytes.LowByte(parameter);
             // The parameter's index byte decodes into the producer's typed start: a rage flame's start angle and turn, a
             // spiral flame's start angle, or a rain flame's column in its low nibble and fall delay over eight above it.
-            bool spawned = type switch
+            switch (type)
             {
-                PhantoonFlameSpawnType.Casual => patterns.SpawnPhantoonCasualFlame(body.HeldOccupant(), body),
-                PhantoonFlameSpawnType.Enraged => patterns.SpawnPhantoonRageFlame(phantoon, RageStart(rom, index)),
-                PhantoonFlameSpawnType.Rain => patterns.SpawnPhantoonRainFlame(body.HeldOccupant(), body, PhantoonFlameSpawns.RainXs[index & 15], (index & 240) >> 1),
-                PhantoonFlameSpawnType.Spiral => patterns.SpawnPhantoonSpiralFlame(phantoon, new TrigonometryAngle(rom.ReadCartridgeByte(SpiralAngleTable + index))),
-                _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {type}."),
-            };
-            AssertTrue(spawned, "Real Phantoon flame allocation succeeds");
+                case PhantoonFlameSpawnType.Casual:
+                    patterns.SpawnPhantoonCasualFlame(body.HeldOccupant(), body);
+                    break;
+                case PhantoonFlameSpawnType.Enraged:
+                    patterns.SpawnPhantoonRageFlame(phantoon, RageStart(rom, index));
+                    break;
+                case PhantoonFlameSpawnType.Rain:
+                    patterns.SpawnPhantoonRainFlame(body.HeldOccupant(), body, PhantoonFlameSpawns.RainXs[index & 15], (index & 240) >> 1);
+                    break;
+                case PhantoonFlameSpawnType.Spiral:
+                    patterns.SpawnPhantoonSpiralFlame(phantoon, new TrigonometryAngle(rom.ReadCartridgeByte(SpiralAngleTable + index)));
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {type}.");
+            }
+            // The real Phantoon flame allocation succeeds: exactly one flame holds a place.
             var flame = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             ushort angle = type switch
             {
@@ -93,20 +102,22 @@ internal static class PhantoonFlameSpawnsVerification
                 PhantoonFlameSpawnType.Casual => 0,
                 _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {type}."),
             };
-            AssertEqual(angle, flame.State is PhantoonOrbitingFlameState orbit ? orbit.Angle.RawValue : (ushort)0, "Actual flame initial angle; flames that do not orbit keep none");
+            PhantoonCombat.PhantoonFlameBehavior flames = enemies.PhantoonBehavior.Combat.DestroyableFlame;
+            bool orbits = type is PhantoonFlameSpawnType.Enraged or PhantoonFlameSpawnType.Spiral;
+            AssertEqual(angle, orbits ? flames.Orbits.Of(flame).Angle.RawValue : (ushort)0, "Actual flame initial angle; flames that do not orbit keep none");
             AssertEqual(x, flame.Position.X.Whole, "Actual flame initial X");
             AssertEqual(y, flame.Position.Y.Whole, "Actual flame initial wrapped Y");
             // The native word that kept a rage flame's signed turn step or a rain flame's fall delay: each is now a named
             // field, the rage flame's a turn whose signed step is the native word.
-            ushort typedSpeed = flame.State switch
+            ushort typedSpeed = type switch
             {
-                PhantoonRainFlameState rain => checked((ushort)rain.HangUpdates),
-                PhantoonOrbitingFlameState rage when type == PhantoonFlameSpawnType.Enraged =>
-                    unchecked((ushort)rage.TurnPerUpdate.StepsFrom(TrigonometryAngle.Zero)),
+                PhantoonFlameSpawnType.Rain => checked((ushort)flames.Rains.Of(flame).HangUpdates),
+                PhantoonFlameSpawnType.Enraged => unchecked((ushort)flames.Orbits.Of(flame).TurnPerUpdate.StepsFrom(TrigonometryAngle.Zero)),
+                PhantoonFlameSpawnType.Casual or PhantoonFlameSpawnType.Spiral => 0,
                 _ => 0,
             };
             AssertEqual(speed, typedSpeed, "Actual flame turn step or fall delay");
-            AssertEqual(0, flame.State is PhantoonOrbitingFlameState start ? start.Radius : 0, "Actual flame initial radius");
+            AssertEqual(0, orbits ? flames.Orbits.Of(flame).Radius : 0, "Actual flame initial radius");
             AssertEqual((ushort)0, flame.Velocity.Y.RawValue, "Actual flame initial vertical speed");
             AssertEqual((ushort)0, flame.Position.X.Fraction, "Actual flame initial fractional X");
             AssertEqual((ushort)0, flame.Position.Y.Fraction, "Actual flame initial fractional Y");

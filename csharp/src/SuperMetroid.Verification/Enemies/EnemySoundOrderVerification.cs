@@ -80,8 +80,7 @@ internal static class EnemySoundOrderVerification
         shot.Position = shot.Position.WithWhole(new(0x0100, 0x0100));
 
         enemies.Audio.BeginFrame();
-        AssertEqual(1, enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(shots, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())),
-            "the indestructible link rejects the shot");
+        enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(shots, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
         AssertSequenceEqual(new[] { new SoundRequest(SamusSound.DudShot, SoundRequestPriority.Normal) }, enemies.Audio.SoundRequests,
             "the rejected shot queues the dud sound at once, at normal priority");
 
@@ -122,7 +121,7 @@ internal static class EnemySoundOrderVerification
         enemy.Bind(enemy.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
         enemy.SetSpawnParameter2(EnemyDefinitionId.Boyon, 64);
         enemy.Position = enemy.Position.WithWhole(new(256, 512));
-        BoyonBehavior.InitializeBoyon(enemy.HeldOccupant(), enemy);
+        BoyonBehavior.InitializeBoyon(enemy);
         BoyonEnemyState state = enemy.RequireSpeciesState<BoyonEnemyState>();
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         samus.Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole);

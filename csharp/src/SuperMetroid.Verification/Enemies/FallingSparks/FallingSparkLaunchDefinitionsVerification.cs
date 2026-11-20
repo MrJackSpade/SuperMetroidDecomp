@@ -23,7 +23,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
         int advances = 0;
         enemies.VerificationServices().NextRandom = () => { advances++; return random; };
         Action<RoomEnemyPlace> spawn = spark => enemies.FallingSparksBehavior.SpawnFallingSpark(spark.HeldOccupant(), spark);
-        Action<EnemyProjectile> move = FallingSparksBehavior.AddFallingSparkHorizontalVelocity;
+        Action<EnemyProjectile> move = enemies.FallingSparksBehavior.AddFallingSparkHorizontalVelocity;
         var source = enemies.Places.InUpdateOrder[0];
         // The place's projectile before each spawn is a stale spark the check leaves there.
         var projectile = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.FallingSpark);
@@ -51,7 +51,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             AssertEqual(source.Position.Y.Fraction, projectile.Position.Y.Fraction, "Spark copies source Y fraction");
             AssertEqual((ushort)0, projectile.Velocity.X.RawValue, "Spark clears aliased vertical fraction");
             AssertEqual((ushort)0, projectile.Velocity.Y.RawValue, "Spark clears aliased vertical whole");
-            SignedSixteenSixteen drift = projectile.StateOf<FallingSparkState>().HorizontalStep;
+            SignedSixteenSixteen drift = enemies.FallingSparksBehavior.Spark.States.Of(projectile).HorizontalStep;
             AssertEqual(whole, drift.UnsignedWholePixels, "Actual spark drift whole pixels");
             AssertEqual(fraction, drift.Fraction, "Actual spark drift fraction");
             uint expected = unchecked(SixteenSixteenWords.Compose(source.Position.X.Whole, source.Position.X.Fraction) + (SixteenSixteenWords.FromWhole(whole) | fraction));

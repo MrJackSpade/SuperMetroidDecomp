@@ -322,7 +322,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
 
     EnemyProjectile eyeShot = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.EyeDoorProjectile);
-    eyeShot.Behavior = SuperMetroid.Core.Enemies.Projectiles.FamilyProjectileStarts.BehaviorOf(enemies, eyeShot.Kind);
+    global::SuperMetroid.Core.PrivateState.Set(eyeShot, "Behavior", (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(SuperMetroid.Core.Enemies.Projectiles.FamilyProjectileStarts.BehaviorOf(enemies, eyeShot.Kind)));
     eyeShot.Position = eyeShot.Position.WithWhole(new(0x01b5, 0x0180));
     eyeShot.BlocksSamusProjectiles = true;
     eyeShot.CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
@@ -348,12 +348,10 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     link.SpritemapPointer = 0;
     link.Install(SamusShotBehaviors.SuperMissileLink, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
-    int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
+    enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
         shots,
         new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
 
-    AssertEqual(2, hits,
-        "blocking enemy projectile visits Super Missile owner and linked slot");
     AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), owner.Type,
         "enemy-projectile collision preserves fresh Super Missile family");
     AssertEqual(0x9f3b, owner.InstructionPointer,
@@ -556,8 +554,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         Health = 99,
         Position = FixedPosition<RoomPixels>.FromWhole(ripper.Position.Whole),
     };
-    AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), controllerInput: 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ripper, Position16<RoomPixels>.Zero),
-        "Ripper radius contact reaches common touch AI");
+    enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), controllerInput: 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ripper, Position16<RoomPixels>.Zero);
     AssertEqual(94, samus.Health, "Ripper header contact damage");
     AssertEqual(0x60, samus.InvincibilityTimer.RawValue, "Ripper contact invincibility clock");
     AssertEqual(5, samus.KnockbackHold.UpdatesLeft, "Ripper contact knockback clock");
@@ -593,13 +590,12 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     }
 
     SamusProjectile shot = ArmProjectile(projectiles, ripper, type: 0x8000, damage: 20);
-    AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
-        "Ripper ineffective power-beam collision");
+    enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
+    AssertTrue(shot.IsSpent, "Ripper ineffective power-beam collision spends the shot");
     AssertEqual(200, ripper.Health, "Ripper power-beam immunity comes from ROM vulnerability");
 
     shot = ArmProjectile(projectiles, ripper, type: 0x8002, damage: 20);
-    AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
-        "Ripper Ice Beam collision");
+    enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
     AssertEqual(400, ripper.Freeze.UpdatesLeft, "Ripper Ice vulnerability freezes actor");
     ushort frozenX = ripper.Position.X.Whole;
     // The Ice Beam froze it, so Samus has it equipped; an enemy thaws at once when she has not.
@@ -621,8 +617,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     for (int hit = 0; hit < 2; hit++)
     {
         shot = ArmProjectile(projectiles, ripper, type: 0x0200, damage: 100);
-        AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
-            $"Ripper Super Missile hit {hit + 1}");
+        enemies.ResolveShotsOnInteractiveEnemies(projectiles, samusBombs, SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(criesBefore + hit + 1, enemies.Audio.SoundRequests.Count(request =>
             request.SoundEffect == expectedHurtCry && request.Priority.Requests == 3),
             "common shot queues the header cry for surviving and lethal hits");
@@ -633,7 +628,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     EnemyProjectile ripperDeath = enemies.Projectiles.SpawnedInPlace(17);
     AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, ripperDeath.Kind,
         "Ripper zero health allocates the shared F345 death actor");
-    AssertEqual(definitionPointer, ripperDeath.StateOf<EnemyDeathExplosionState>().Dropper?.DefinitionId,
+    AssertEqual(definitionPointer, enemies.DeathsAndDrops.Explosions.Of(ripperDeath).Dropper?.DefinitionId,
         "Ripper death actor retains its header for EEAF drop selection");
     AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "Ripper death increments room kill count");
 
@@ -1046,8 +1041,8 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(1, enemies.CeresRidleyBehavior.Hits.ResolveCeresRidleyProjectileHits(
             projectiles, samusBombs),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
-        observedNormalRidleyPalette |= !state.HurtFlashShows.Body;
-        observedFlashRidleyPalette |= state.HurtFlashShows.Body;
+        observedNormalRidleyPalette |= !global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState, global::SuperMetroid.Core.Bosses.Ridley.RidleyHurtFlashShowing>(state, "HurtFlashShows").Body;
+        observedFlashRidleyPalette |= global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState, global::SuperMetroid.Core.Bosses.Ridley.RidleyHurtFlashShowing>(state, "HurtFlashShows").Body;
         if (hit == 49)
             AssertEqual(0x7000, Shown()[0xf1],
                 "Ceres Ridley 50-hit health palette");
@@ -1092,11 +1087,10 @@ internal static void VerifyCeresRidleyRoomEntry()
             retreatBackgroundColor ??= RgbColor.FromWord(Shown()[0x51]);
         // Room main follows enemy AI, so the handoff frame also takes getaway step zero.
         enemies.CeresEscape.RunGetawayRoomMain(samus, ceresFloor, 0);
-        observedFakeRetreat |= state.Phase is
-            CeresRidleyPhase.FakeRetreatMoveToPosition or
-            CeresRidleyPhase.FakeRetreatRising or
-            CeresRidleyPhase.WaitBeforeRetrievingBaby or
-            CeresRidleyPhase.RetrieveBaby;
+        observedFakeRetreat |= state.Phase == CeresRidleyPhase.FakeRetreatMoveToPosition ||
+            state.Phase == CeresRidleyPhase.FakeRetreatRising ||
+            state.Phase == CeresRidleyPhase.WaitBeforeRetrievingBaby ||
+            state.Phase == CeresRidleyPhase.RetrieveBaby;
         retreatFrames++;
     }
     AssertTrue(observedFakeRetreat,
@@ -1298,7 +1292,7 @@ static void WriteZebesEscapeWarning(TestAddressSpace bus)
             WriteTestByte(bus, cursor++, checked((byte)character));
     }
 
-    Word(EscapeTypewriterExtractor.DelayCommand);
+    Word(checked((ushort)EscapeTypewriterExtractor.DelayCommand));
     Word(EscapeTypewriterDefinitions.CharacterDelayFrames);
     Word((ushort)EscapeTypewriterCommand.LineStart);
     Word(0x4905);

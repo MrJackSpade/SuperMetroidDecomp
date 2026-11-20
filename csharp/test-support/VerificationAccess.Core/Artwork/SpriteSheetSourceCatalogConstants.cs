@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 internal static class SpriteSheetSourceCatalogConstants
 {
     /// <summary>
-    /// Whether <paramref name="sheet"/> composes from sprite parts (<see cref="SpriteSheetSourceCatalog.For"/>), rather than from the cartridge (the
+    /// Whether <paramref name="sheet"/> composes from sprite parts (<c>For</c>), rather than from the cartridge (the
     /// escape timer) or from the pictures, pages and floors <see cref="SpriteSheetSourceCatalog.Compose"/> paints directly.
     /// </summary>
     internal static bool ComposesFromSpriteParts(SpriteSheetId sheet) =>

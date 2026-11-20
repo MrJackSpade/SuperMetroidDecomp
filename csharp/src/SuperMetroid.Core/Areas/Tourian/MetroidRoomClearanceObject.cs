@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 internal sealed class MetroidRoomClearanceObject(StoryEvent cleared) : RoomObjectBehaviour
 {
     /// <summary>The event the watch marks once the quota is met.</summary>
-    internal StoryEvent Cleared { get; } = cleared;
+    private StoryEvent Cleared { get; } = cleared;
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)

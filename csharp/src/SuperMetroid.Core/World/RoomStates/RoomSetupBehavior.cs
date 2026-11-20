@@ -147,7 +147,7 @@ public abstract class RoomSetupBehavior
 
         /// <inheritdoc/>
         internal override void PlaceRoomObjects(RoomSetupPlacing placing) =>
-            Ensure.NotNull(placing).RoomObjects.CeresEscape.TrySealElevatorDoor(placing.Level);
+            Ensure.NotNull(placing).RoomObjects.CeresEscape.SealElevatorDoor(placing.Level);
     }
 
     /// <summary>
@@ -213,7 +213,7 @@ public abstract class RoomSetupBehavior
     {
         /// <inheritdoc/>
         internal override void PlaceRoomObjects(RoomSetupPlacing placing) =>
-            Ensure.NotNull(placing).RoomObjects.Tourian.TrySpawnEscapeAcidRise(placing.Level);
+            Ensure.NotNull(placing).RoomObjects.Tourian.SpawnEscapeAcidRise(placing.Level);
 
         /// <inheritdoc/>
         internal override void StartWithRoomEnemies(RoomSetupEnemiesLoaded loaded)
@@ -228,7 +228,7 @@ public abstract class RoomSetupBehavior
     {
         /// <inheritdoc/>
         internal override void PlaceRoomObjects(RoomSetupPlacing placing) =>
-            Ensure.NotNull(placing).RoomObjects.EscapeAnimals.TrySpawnCrateriaMainstreetEscapePassage(placing.Level);
+            Ensure.NotNull(placing).RoomObjects.EscapeAnimals.SpawnCrateriaMainstreetEscapePassage(placing.Level);
 
         /// <inheritdoc/>
         internal override void StartWithRoomEnemies(RoomSetupEnemiesLoaded loaded) =>
@@ -240,7 +240,7 @@ public abstract class RoomSetupBehavior
     {
         /// <inheritdoc/>
         internal override void PlaceRoomObjects(RoomSetupPlacing placing) =>
-            Ensure.NotNull(placing).RoomObjects.Tourian.TrySpawnOldTourianEscapeShaftWall(placing.Level);
+            Ensure.NotNull(placing).RoomObjects.Tourian.SpawnOldTourianEscapeShaftWall(placing.Level);
     }
 
     /// <summary>The rescued animals' room's escape setup, which spawns the room object that turns their wall into shootable blocks.</summary>
@@ -250,7 +250,7 @@ public abstract class RoomSetupBehavior
         internal override void PlaceRoomObjects(RoomSetupPlacing placing)
         {
             Ensure.NotNull(placing);
-            placing.RoomObjects.EscapeAnimals.TrySpawnCrittersEscapeWall(placing.Level,
+            placing.RoomObjects.EscapeAnimals.SpawnCrittersEscapeWall(placing.Level,
                 placing.Level.GridBlock(new(EscapeAnimalWallDefinitions.WallX, EscapeAnimalWallDefinitions.WallY)));
         }
     }
@@ -260,7 +260,7 @@ public abstract class RoomSetupBehavior
     {
         /// <inheritdoc/>
         internal override void PlaceRoomObjects(RoomSetupPlacing placing) =>
-            Ensure.NotNull(placing).RoomObjects.Shaktool.TrySpawnShaktoolRoomController(placing.Scrolls);
+            Ensure.NotNull(placing).RoomObjects.Shaktool.SpawnShaktoolRoomController(placing.Scrolls);
     }
 
     /// <summary>Tourian's first room's setup, which hands Samus its area's map as a map station would (#1799).</summary>

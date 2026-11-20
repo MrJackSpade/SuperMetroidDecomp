@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Frontend;
@@ -264,7 +265,7 @@ internal static class OutOfHealthGameStateVerification
         GameClockReading beforeTakeoff = runtime.GameTime.Reading;
 
         game.Step(0);
-        AssertTrue(runtime.EnemyFrameResults.LastEnemyFrame.Reports(GunshipFrameEvent.EscapeTakeoffCompleted),
+        AssertTrue(runtime.EnemyFrameResults.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.EscapeTakeoffCompleted)),
             $"the ship's ascent completes the takeoff; the top hull is at {top.Position.Y.Whole} in {GunshipState.Of(top).Phase}");
         AssertTrue(game.IsAt(EndingStep.LeavingZebes), $"the gunship's takeoff takes the update Samus runs out of health on, not her death; ended in {game.GameState}");
         AssertEqual(beforeTakeoff, runtime.GameTime.Reading, "the out-of-health check returns before counting the play time");
@@ -411,7 +412,7 @@ internal static class OutOfHealthGameStateVerification
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new(128, 96));
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
         int landing = 0;
         do
@@ -443,7 +444,7 @@ internal static class OutOfHealthGameStateVerification
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new(128, 139));
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
         game.Step(0);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the fixture's update stays in main gameplay");
@@ -463,7 +464,7 @@ internal static class OutOfHealthGameStateVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
         return (game, runtime, samus);
     }

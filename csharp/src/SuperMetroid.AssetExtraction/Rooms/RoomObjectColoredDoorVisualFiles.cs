@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectColoredDoorVisualFiles
 {
     /// <summary>JSON filename for yellow, green, and red door-cap visual frames.</summary>
-    public const string VisualFileName = "colored-doors.json";
+    private const string VisualFileName = "colored-doors.json";
 
     /// <summary>The cap colours in the installed file's order (#2567): yellow, green, red.</summary>
     private static readonly IReadOnlyList<ColoredDoorColor> Colors = Ensure.EveryMemberOnce<ColoredDoorColor>(
@@ -37,20 +37,24 @@ public static class RoomObjectColoredDoorVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates yellow, green, and red cap frames in their authored order.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
+    private static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
             foreach (RoomObjectDraw draw in Draws())
             {
-                TryGet(draw, out var list);
-                yield return list;
+                yield return DrawListOf(draw);
             }
         }
     }
 
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the coloured door cap draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a coloured door cap draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a coloured door cap draw.");
+
     /// <summary>Builds the draw list of a recognized colored cap from how its cells collide.</summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         bool found = RoomObjectDrawIdentity.TryFrame<ColoredDoorCaps.Draw>(request, out ColoredDoorCaps.Draw cap);
         list = found ? RoomObjectShapeRun.DrawList(request, cap.Blocks, RoomObjectShapeRun.Line(cap.Vertical, cap.Blocks)) : default;
@@ -58,7 +62,7 @@ public static class RoomObjectColoredDoorVisualFiles
     }
 
     /// <summary>Names a compiled cap frame by color, direction, and what it shows for editable artwork (#1994).</summary>
-    internal static string VisualId(RoomObjectDraw request)
+    private static string VisualId(RoomObjectDraw request)
     {
         if (!RoomObjectDrawIdentity.TryFrame<ColoredDoorCaps.Draw>(request, out var draw))
             throw new InvalidDataException($"Colored-door draw {request} has no visual ID.");

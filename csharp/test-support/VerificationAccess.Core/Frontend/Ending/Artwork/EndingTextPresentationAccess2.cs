@@ -5,10 +5,15 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// <summary>Verification access to <see cref="EndingTextPresentation"/> members production does not use.</summary>
 internal static class EndingTextPresentationAccess2
 {
-    /// <summary>Exposes <see cref="EndingTextPresentation"/> state that only verification reads.</summary>
-    extension(EndingTextPresentation self)
+    /// <summary>Reads the typewriter text an extracted ending-text document installs, as the game reads it.</summary>
+    extension(EndingTextPresentation)
     {
-        /// <summary>The characters the ending's typewriter types, which the game reads instead of this presentation (#1467).</summary>
-        public EndingTypewriterText Typewriter() => new([.. self.percentage], [.. self.finalMessage]);
+        /// <summary>
+        /// The characters the ending's typewriter types from the extracted ending-text document <paramref name="artwork"/>:
+        /// the typewriter text the extraction installs from it, read as the game reads it (#1467, #1638).
+        /// </summary>
+        /// <exception cref="InvalidDataException">The document, or the typewriter text it installs, does not decode.</exception>
+        public static EndingTypewriterText TypewriterOf(byte[] artwork) =>
+            EndingTextPresentation.ReadTypewriter(new MemoryStream(EndingTextPresentation.ExtractTypewriter(artwork), writable: false));
     }
 }

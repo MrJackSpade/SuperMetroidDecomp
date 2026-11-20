@@ -50,7 +50,7 @@ internal static class PowampAnimations
     /// The animation that starts at each segment an owner can start or restart at. An inflated or deflated balloon rests on
     /// its picture until its body starts its next inflate or sink (#2439); nothing waits on the rest's length.
     /// </summary>
-    internal static IReadOnlyDictionary<PowampSegment, Animation<PowampSegment>> StartingAt { get; } = new Dictionary<PowampSegment, Animation<PowampSegment>>
+    private static Dictionary<PowampSegment, Animation<PowampSegment>> StartingAt { get; } = new Dictionary<PowampSegment, Animation<PowampSegment>>
     {
         [P.BodyFast] = Animation<PowampSegment>.Looping([Segments.Whole(P.BodyFast)]),
         [P.BodySlow] = Animation<PowampSegment>.Looping([Segments.Whole(P.BodySlow)]),

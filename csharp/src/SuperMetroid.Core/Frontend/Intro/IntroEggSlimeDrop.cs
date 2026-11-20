@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroEggSlimeDrop
 {
     /// <summary>Discovery sprite owning this drop's position and impact animation.</summary>
-    internal readonly CinematicActor<IntroEggEffectAnimation, CinematicSpritePose, NoAnimationCue> sprite;
+    private readonly CinematicActor<IntroEggEffectAnimation, CinematicSpritePose, NoAnimationCue> sprite;
     /// <summary>How the drop flies: its sideways drift and its vertical speed for each update it has flown.</summary>
     private readonly IntroEggSlimeLaunch launch;
     /// <summary>

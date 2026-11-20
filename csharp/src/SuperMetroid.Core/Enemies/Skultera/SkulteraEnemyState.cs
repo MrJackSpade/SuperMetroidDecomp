@@ -24,7 +24,7 @@ public sealed class SkulteraEnemyState
     public HorizontalDirection Heading { get; internal set; }
 
     /// <summary>The vertical oscillation's phase, carried on around the circle.</summary>
-    public RotationAngle Angle { get; internal set; }
+    public RotationAngle Angle { get; private set; }
 
     /// <summary>
     /// Oscillation offset retained from the preceding movement attempt, in pixels (at most the radius either way): each

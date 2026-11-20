@@ -147,9 +147,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         SamusPoseId genericTarget = jumping
             ? targetFacesLeft ? SamusPoseId.TurningRightToLeftJumpPose : SamusPoseId.TurningLeftToRightJumpPose
             : targetFacesLeft ? SamusPoseId.TurningRightToLeftFallingPose : SamusPoseId.TurningLeftToRightFallingPose;
-        AssertTrue(
-            SamusAerialPoseTransitions.TryApplyAerialTurn(samus, level, genericTarget, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-            $"{(jumping ? "jump" : "fall")} turn direction {shotDirection} fits");
+        SamusAerialPoseTransitions.ApplyAerialTurn(samus, level, genericTarget, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
         AssertEqual(expectedPose, samus.Pose, $"{(jumping ? "jump" : "fall")} selector direction {shotDirection}");
         AssertEqual(0x00018000u, samus.HorizontalSpeed.BaseSpeed.RawValue, "aerial selector folds extra speed");
         AssertEqual(SamusAccelerationMode.Turning, samus.HorizontalSpeed.AccelerationMode, "aerial selector starts turn mode");
@@ -168,7 +166,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     turn.HorizontalSpeed.ExtraRunSpeed = turn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x8000);
     turn.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(turn.Kinematics.VerticalVelocity.Speed.WithWhole(2), SamusVerticalDirection.Up);
     turn.Kinematics.YAcceleration = turn.Kinematics.YAcceleration.WithFraction(0x2800);
-    AssertTrue(SamusAerialPoseTransitions.TryApplyAerialTurn(turn, level, SamusPoseId.TurningRightToLeftJumpPose, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled), "diagonal-up aerial turn installs");
+    SamusAerialPoseTransitions.ApplyAerialTurn(turn, level, SamusPoseId.TurningRightToLeftJumpPose, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     FixedCoordinate turnXBefore = turn.Kinematics.Position.X;
     SamusAerialMovement.StepTurningInAir(level, turn, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SixteenSixteenWords.ToDisplacement(0x00010000), turn.Kinematics.Position.X - turnXBefore, "turn retains old rightward momentum after native 0.8000 deceleration");
@@ -266,7 +264,7 @@ level, ineligibleHistory, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roo
     AssertEqual(0, ineligibleHistory.AnimationNumber, "rejected history cannot rewind wall animation");
     AssertEqual(0x4321, ineligibleHistory.Kinematics.Position.X.Fraction,
         "rejected rightward wall probe cannot set real X fraction to FFFF");
-    earlyContact.SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling;
+    global::SuperMetroid.Core.PrivateState.Set(earlyContact, "SolidVerticalCollisionResult", (global::SuperMetroid.Core.Samus.Movement.SamusVerticalCollisionResult)(SamusVerticalCollisionResult.HitCeiling));
     AerialMovementResult contactFrame = SamusAerialMovement.StepSpinJump(
 level, earlyContact, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertTrue(!contactFrame.WallJumpTriggered, "early wall chord contacts without launch");

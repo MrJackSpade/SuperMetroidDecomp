@@ -16,17 +16,17 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// body's definition; only their placement tells them apart.
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no Evir definition.</exception>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Evir)
         {
             return occupant.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
-                ? new EvirArmsEntity(this, occupant, place, common)
-                : new EvirBodyEntity(this, occupant, place, common);
+                ? EnemyOccupant.Of(new EvirArmsEntity(this, occupant, place, common))
+                : EnemyOccupant.FromSurroundings(new EvirBodyEntity(this, occupant, place, common));
         }
         if (definition == EnemyDefinitionId.EvirProjectile)
-            return new EvirSpitEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new EvirSpitEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The Evir species creates no {occupant.DefinitionId}.");
     }
 
@@ -52,7 +52,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Evir spit's animations: the spit sound and the regeneration steps.</summary>
-    private EvirSegment? ApplyEvirCue(EvirSpitState state, EvirCue cue)
+    private void ApplyEvirCue(EvirSpitState state, EvirCue cue)
     {
         switch (cue.Kind)
         {
@@ -71,7 +71,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EvirCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
     /// <summary>Initializes an Evir's arms.</summary>
@@ -470,10 +469,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         EvirSpitState state = place.RequireSpeciesState<EvirSpitState>();
         AnimationPlayback<EvirSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, EvirAnimations.Segments, ref playback,
-            cue => ApplyEvirCue(state, cue) is { } target
-                ? new AnimationContinuation<EvirSegment>(EvirAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
-                : null);
+        EnemyAnimationPlayback.PlayApplyingCues(place, EvirAnimations.Segments, ref playback,
+            (EvirCue cue) => ApplyEvirCue(state, cue));
         state.Playback = playback;
     }
 

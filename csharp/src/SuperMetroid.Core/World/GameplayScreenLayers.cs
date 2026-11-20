@@ -29,14 +29,14 @@ internal sealed class GameplayScreenLayers
 
     /// <summary>
     /// Chooses the layers before the projectiles move: a door transition's own layers, foreground and the sprites alone
-    /// while Mother Brain's death hides her body and the background behind it, and the waterfall rooms' layers when their effect's blend lays the
-    /// background behind the room (#1545).
+    /// while the room's boss body hides its own layer and the background behind it (#2571), and the waterfall rooms' layers
+    /// when their effect's blend lays the background behind the room (#1545).
     /// </summary>
     internal void Choose(RoomScope room)
     {
         Chosen = _room.DoorTransitionShownLayers ??
             (ScreenLayers.Foreground | ScreenLayers.Sprites |
-                (room.Enemies.DisplaySources.MotherBrain?.DeathHidesBodyLayer == true
+                (room.Enemies.DisplaySources.BossBody?.HidesBackgroundLayer == true
                     ? ScreenLayers.None
                     : ScreenLayers.Background | ScreenLayers.BossBody));
         if (_room.DoorTransitionShownLayers is null &&

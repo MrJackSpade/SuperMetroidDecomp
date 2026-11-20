@@ -25,7 +25,7 @@ public static class SamusGroundedMovement
     /// <remarks>
     /// <see cref="SamusPoseId.ForwardFacingPowerSuitPose"/> and <see cref="SamusPoseId.ForwardFacingSuitedPose"/> share <see cref="SamusMovementType.Standing"/> movement with ordinary standing, but the game
     /// returns before horizontal movement, speed cleanup, and the one-pixel grounding probe.
-    /// It clears <see cref="SamusState.SolidVerticalCollisionResult"/> every update; while an elevator moves, it first
+    /// It clears her solid vertical collision result (<see cref="SamusState"/>) every update; while an elevator moves, it first
     /// moves her one pixel down through the downward block collision. The elevator actor remains a separate producer of the status,
     /// and of the platform art; this method holds the complete Samus-side consumer.
     /// </remarks>
@@ -35,7 +35,7 @@ public static class SamusGroundedMovement
     /// <param name="elevatorIsMoving">Whether an elevator carries her this update.</param>
     /// <param name="roomObjects">The room's room objects and door contacts her scan reaches.</param>
     /// <param name="doorBlocks">What the door blocks the elevator carries her through do to her (#2545).</param>
-    internal static BlockMoveResult? StepFacingForward(
+    internal static void StepFacingForward(
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
@@ -51,21 +51,19 @@ public static class SamusGroundedMovement
                 $"Forward-facing movement requires a forward-facing pose, not {samus.Pose}.");
         }
 
-        BlockMoveResult? vertical = null;
         if (elevatorIsMoving)
         {
             // A moving elevator carries Samus down one whole pixel through the downward mover; the collision direction
             // the game sets first is read by nothing before the next move sets its own. That move deliberately skips
             // solid-enemy collision but retains ordinary room-block and behaviour scanning and the
             // alternating left/right order selected from the frame counter's parity.
-            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SamusMovementDefinitions.ElevatorCarry, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false, DoorBlocks = doorBlocks });
+            _ = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SamusMovementDefinitions.ElevatorCarry, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false, DoorBlocks = doorBlocks });
         }
 
         // Clearing the vertical collision result is all front-view movement does without a moving elevator. In
         // particular, stale base/extra X speed is retained; facing forward clears those speeds at
         // setup time, not every frame in this movement step.
         samus.ForgetVerticalCollisionResult();
-        return vertical;
     }
 
     /// <summary>

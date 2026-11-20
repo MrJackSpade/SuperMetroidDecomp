@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// by frame. Every frame's cells stay solid, the visually open one included, and the closing timing stays with the
 /// gate's typed object.
 /// </summary>
-public sealed class InstalledEscapeGateFrames
+public sealed class InstalledEscapeGateFrames : IRoomObjectFamilyPictures
 {
     /// <summary>Holds the pictures the import made of every gate frame.</summary>
     /// <param name="images">Every gate frame's picture.</param>
@@ -13,4 +13,8 @@ public sealed class InstalledEscapeGateFrames
 
     /// <summary>Every gate frame's picture.</summary>
     internal RoomObjectFrameImages<MotherBrainEscapeGateDraw> Images { get; }
+
+    /// <inheritdoc/>
+    IReadOnlyDictionary<RoomObjectDraw, RoomObjectFrameImage> IRoomObjectFamilyPictures.Pictures =>
+        Images.All.ToDictionary(RoomObjectDraw (picture) => MotherBrainEscapeGateDraws.Family.Of(picture.Key), picture => picture.Value);
 }

@@ -44,9 +44,8 @@ internal static class ChozoStatueVisualsVerification
             {
                 var level = CreateEmptyRoom(new(width, 16));
                 var roomObjects = RoomObjectFixtures.Unbound(RoomObjectFixtures.Installed with { RoomObjectChozoStatueVisuals = installed });
-                AssertTrue(roomObjects.ChozoStatue.TrySpawnChozoStatueObject(level,
-                    new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), header)),
-                    $"Chozo actor {header} spawns in a bounded test room");
+                roomObjects.ChozoStatue.SpawnChozoStatueObject(level,
+                    new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), header));
                 roomObjects.Step(level);
                 int origin = 4 * width + 3;
                 AssertEqual(physical,
@@ -58,9 +57,8 @@ internal static class ChozoStatueVisualsVerification
 
             var crumbleLevel = CreateEmptyRoom(new(width, 16));
             var crumbleObjects = RoomObjectFixtures.Unbound();
-            AssertTrue(crumbleObjects.ChozoStatue.TrySpawnChozoStatueObject(crumbleLevel,
-                new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueRoomObject.PlugCrumbleUnderFootstep)),
-                "Chozo crumble plug spawns in a bounded test room");
+            crumbleObjects.ChozoStatue.SpawnChozoStatueObject(crumbleLevel,
+                new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueRoomObject.PlugCrumbleUnderFootstep));
             var seenCrumbleBlocks = new HashSet<RoomTerrainBlock>();
             for (int frame = 0; frame < 15; frame++)
             {
@@ -78,9 +76,8 @@ internal static class ChozoStatueVisualsVerification
 
             var wreckedHandLevel = CreateEmptyRoom(new(width, 16));
             var wreckedHandObjects = RoomObjectFixtures.Unbound();
-            AssertTrue(wreckedHandObjects.ChozoStatue.TrySpawnChozoStatueObject(wreckedHandLevel,
-                new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueRoomObject.WreckedShipHand)),
-                "Wrecked Ship hand spawns");
+            wreckedHandObjects.ChozoStatue.SpawnChozoStatueObject(wreckedHandLevel,
+                new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueRoomObject.WreckedShipHand));
             wreckedHandObjects.Step(wreckedHandLevel);
             AssertTrue(wreckedHandObjects.PopulationPlaces.Count == 0,
                 "Wrecked Ship hand executes the shared compiled delete list");

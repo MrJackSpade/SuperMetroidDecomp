@@ -11,7 +11,7 @@ public sealed class RoomBackgroundTilemapAtlas
     /// <summary>The placed tiles in page order, row-major inside each 32-by-32 page.</summary>
     private readonly BackgroundTile[] tiles;
     /// <summary>Retains a validated one- or two-page tilemap independent of JSON arrays.</summary>
-    internal RoomBackgroundTilemapAtlas(BackgroundTile[] tiles) => this.tiles = tiles;
+    private RoomBackgroundTilemapAtlas(BackgroundTile[] tiles) => this.tiles = tiles;
 
     /// <summary>The placed tiles in page order, row-major inside each 32-by-32 page.</summary>
     public ReadOnlyMemory<BackgroundTile> Tiles => tiles;

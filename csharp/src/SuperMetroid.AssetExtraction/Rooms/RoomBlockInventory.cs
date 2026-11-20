@@ -55,7 +55,7 @@ internal sealed class RoomBlockInventory
     /// The inventory of <paramref name="states"/>, each showing what its level places and what <paramref name="writers"/> its
     /// installed data starts write; a Ceres state shows only what its level places.
     /// </summary>
-    internal static RoomBlockInventory Of(IEnumerable<InventoriedRoomState> states, IReadOnlyList<RoomBlockWriter> writers)
+    private static RoomBlockInventory Of(IEnumerable<InventoriedRoomState> states, IReadOnlyList<RoomBlockWriter> writers)
     {
         Ensure.NotNull(states);
         Ensure.NotNull(writers);

@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroRinkaSystem
 {
     /// <summary>The live Rinkas, in spawn order; a deleted Rinka leaves the list at the end of the pass that deletes it.</summary>
-    internal readonly List<IntroRinka> rinkas = [];
+    private readonly List<IntroRinka> rinkas = [];
     /// <summary>The waves of launches still to come, the next first (<see cref="IntroRinkaDefinitions.Launches"/>).</summary>
     private readonly Queue<IntroRinkaLaunchWave> waves = new(IntroRinkaDefinitions.Launches);
     /// <summary>The next wave's wait, counted once each update; the update it ends on launches the wave.</summary>

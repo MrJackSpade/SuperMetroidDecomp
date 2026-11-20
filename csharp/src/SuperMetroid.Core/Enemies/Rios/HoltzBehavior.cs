@@ -13,10 +13,10 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Holtz];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
-            ? new HoltzFollowerEntity(this, occupant, place, common)
-            : new HoltzEntity(this, occupant, place, common);
+            ? EnemyOccupant.Of(new HoltzFollowerEntity(this, occupant, place, common))
+            : EnemyOccupant.Of(new HoltzEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared random draw taken before every parent's and follower's AI runs.</summary>
     private readonly EnemyRoomBinding _room;
@@ -293,7 +293,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"A Lower Norfair Rio flame follower's cue-free animation raised {cue}."));
 
     /// <summary>Advances a Holtz parent's typed animation, whose cues it carries out.</summary>
-    internal static void AdvanceHoltzTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceHoltzTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, HoltzAnimations.Segments,
             static (HoltzEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) =>

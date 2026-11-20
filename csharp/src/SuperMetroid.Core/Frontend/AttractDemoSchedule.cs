@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class AttractDemoSchedule
 {
     /// <summary>The demo set the title plays.</summary>
-    internal AttractDemoSet Set { get; private set; } = StockAttractDemoScenes.FirstSet;
+    private AttractDemoSet Set { get; set; } = StockAttractDemoScenes.FirstSet;
 
     /// <summary>
     /// How many of <see cref="Set"/>'s demonstrations have begun since the set last started from its first; the next
@@ -21,7 +21,7 @@ internal sealed class AttractDemoSchedule
     internal UpdateCountdown Playback { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>The still-frame hold after the scene's scripted input, over until the script runs out.</summary>
-    internal UpdateCountdown Hold { get; private set; } = UpdateCountdown.Ended();
+    private UpdateCountdown Hold { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The blank enemy-setup waits (<see cref="GameLoadingDefinitions.EnemySetupWaits"/>) before the scene becomes visible;

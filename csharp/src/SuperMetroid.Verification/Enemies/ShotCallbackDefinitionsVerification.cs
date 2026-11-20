@@ -138,8 +138,7 @@ internal static class ShotCallbackDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole),
             };
 
-            AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), enemy, Position16<RoomPixels>.Zero),
-                $"literal touch no-op ${callback:X6} is admitted by production collision");
+            enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), enemy, Position16<RoomPixels>.Zero);
             AssertEqual(99, samus.Health,
                 $"literal touch no-op ${callback:X6} does not damage Samus");
             AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -166,10 +165,10 @@ internal static class ShotCallbackDefinitionsVerification
             projectile.Radius = new(4, 4);
             projectile.Animation = ProjectileFixturePlaybacks.Active();
 
-            AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(
+            enemies.ResolveShotsOnInteractiveEnemies(
                     projectiles,
-                    new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
-                $"literal shot no-op ${callback:X6} is admitted by production collision");
+                    new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus());
+            AssertTrue(projectile.IsSpent, $"literal shot no-op ${callback:X6} is admitted by production collision: the shot is spent");
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 $"literal shot no-op ${callback:X6} requires no executable read");
         }

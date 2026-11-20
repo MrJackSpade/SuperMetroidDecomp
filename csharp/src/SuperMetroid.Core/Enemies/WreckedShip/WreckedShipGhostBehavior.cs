@@ -13,7 +13,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Coven];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new WreckedShipGhostEntity(occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WreckedShipGhostEntity(occupant, place, common));
 
     /// <summary>Initializes the Wrecked Ship ghost.</summary>
     internal static void InitializeWreckedShipGhost(RoomEnemyPlace place)
@@ -166,7 +166,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// Installs the direction-selected relative position and begins brightening, its flicker's first step to start on the
     /// first update it brightens.
     /// </summary>
-    internal static void SpawnWreckedShipGhost(
+    private static void SpawnWreckedShipGhost(
         RoomEnemyPlace place,
         WreckedShipGhostEnemyState state,
         Position16<RoomPixels> samusPosition)
@@ -180,7 +180,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Brightens the ghost toward its white flash, flickering as it brightens; once no colour changes, it fades to its own colours.</summary>
-    internal static void RunWreckedShipGhostBrightening(
+    private static void RunWreckedShipGhostBrightening(
         RoomEnemyPlace place,
         WreckedShipGhostEnemyState state)
     {
@@ -263,7 +263,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// Advances the flicker: when the current step's updates run out, the next step starts and may show the ghost; past the
     /// last step the flicker ends and every later update keeps the ghost visible for this cycle.
     /// </summary>
-    internal static void AdvanceWreckedShipGhostFlicker(
+    private static void AdvanceWreckedShipGhostFlicker(
         RoomEnemyPlace place,
         WreckedShipGhostEnemyState state)
     {
@@ -288,7 +288,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// Steps the ghost's fade: every colour channel moves exactly one level toward its target per frame; the return value
     /// counts channel changes, not changed colours.
     /// </summary>
-    internal static int StepWreckedShipGhostFadeTowardTarget(
+    private static int StepWreckedShipGhostFadeTowardTarget(
         RoomEnemyPlace place,
         WreckedShipGhostEnemyState state)
     {
@@ -300,7 +300,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Advances the Wrecked Ship ghost's typed animation.</summary>
-    internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, WreckedShipGhostAnimations.Segments,
             static (WreckedShipGhostEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"The Wrecked Ship ghost's cue-free animation raised {cue}."));

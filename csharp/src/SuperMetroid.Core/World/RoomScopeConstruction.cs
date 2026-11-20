@@ -63,7 +63,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
 
 
     /// <summary>The scrolling-sky updater, once the definition step has composed a sky room's main.</summary>
-    public ScrollingSkyState? ScrollingSky { get; private set; }
+    private ScrollingSkyState? ScrollingSky { get; set; }
 
     /// <summary>The turning floor the room shows, or null when it shows none (#1649).</summary>
     public RoomFloor? Floor { get; set; }
@@ -84,7 +84,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     public SamusBombProjectileSystem? BombProjectiles { get; set; }
 
     /// <summary>The effect-overlay FX, once the FX step has built it.</summary>
-    public RoomFxOverlayState? FxOverlay { get; set; }
+    public RoomFxOverlayState? FxOverlay { private get; set; }
 
     /// <summary>The colour effects, once the FX step has built them.</summary>
     public ColourEffectSystem? ColourEffects { get; set; }
@@ -224,8 +224,6 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         BlockAnimations = BlockAnimations ?? throw Missing(nameof(BlockAnimations)),
         TourianStatues = TourianStatues,
         Main = Main,
-        MaridiaElevatube = MaridiaElevatube,
-        CeresElevatorShaft = CeresElevatorShaft,
         Enemies = Enemies ?? throw Missing(nameof(Enemies)),
         RoomObjects = RoomObjects ?? throw Missing(nameof(RoomObjects)),
     };

@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 internal sealed class ScrollTriggerObject(RoomScrollChange change) : RoomObjectBehaviour
 {
     /// <summary>Whether Samus has touched the trigger since its writes last ran; repeated touches before then change nothing.</summary>
-    internal bool Triggered { get; private set; }
+    private bool Triggered { get; set; }
 
     /// <summary>The room's authored scroll change the trigger applies.</summary>
-    internal RoomScrollChange Change { get; } = change;
+    private RoomScrollChange Change { get; } = change;
 
     /// <summary>Samus touches the trigger: its writes run on the next room-object update.</summary>
     internal void Touch() => Triggered = true;

@@ -15,10 +15,10 @@ internal readonly record struct EndingShipShakeCursor
     }
 
     /// <summary>The shake sequence the cursor plays.</summary>
-    internal IReadOnlyList<SignedSixteenSixteen> Sequence { get; }
+    private IReadOnlyList<SignedSixteenSixteen> Sequence { get; }
 
     /// <summary>How many displacements of <see cref="Sequence"/> the cursor has played since the sequence last started.</summary>
-    internal int Place { get; }
+    private int Place { get; }
 
     /// <summary>A cursor at the start of <paramref name="sequence"/>.</summary>
     /// <exception cref="ArgumentException"><paramref name="sequence"/> is empty.</exception>

@@ -27,7 +27,7 @@ public static class GameplayMessageBoxDefinitions
         /// <summary>Per-step change in message-window radius.</summary>
         public const int RadiusStepPixels = 2;
         /// <summary>Minimum updates an item-acquisition message remains displayed.</summary>
-        public const int ItemMinimumDisplayFrames = 360;
+        private const int ItemMinimumDisplayFrames = 360;
         /// <summary>Minimum updates a station message remains displayed.</summary>
         public const int StationMinimumDisplayFrames = 10;
 

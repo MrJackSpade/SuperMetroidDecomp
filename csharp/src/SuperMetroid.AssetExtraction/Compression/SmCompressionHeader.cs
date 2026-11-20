@@ -64,7 +64,7 @@ public readonly record struct SmCompressionHeader
         _ => throw UndefinedCommand(Command),
     };
     /// <summary>Whether this header ends the compressed stream without emitting output or reading a payload.</summary>
-    public bool IsTerminator { get; }
+    private bool IsTerminator { get; }
     /// <summary>Whether a copy command uses a one-byte backward distance instead of a two-byte absolute output offset.</summary>
     public bool IsRelativeCopy => Command switch
     {
@@ -94,7 +94,7 @@ public readonly record struct SmCompressionHeader
     /// <param name="number">The command field's value.</param>
     /// <returns>The command the number selects.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="number"/> is outside 0-7.</exception>
-    public static SmCompressionCommand CommandOfNumber(int number) =>
+    private static SmCompressionCommand CommandOfNumber(int number) =>
         commandsByNumber[Ensure.BetweenInclusive(0, commandsByNumber.Length - 1, number)];
 
     /// <summary>Decodes the command and expanded run length without consuming or validating its payload.</summary>

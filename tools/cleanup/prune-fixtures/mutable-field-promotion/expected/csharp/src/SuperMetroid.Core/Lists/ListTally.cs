@@ -11,7 +11,4 @@ internal sealed class ListTally
 
     /// <summary>The entries counted, which production reads.</summary>
     internal int Total => counted;
-
-    /// <summary>Twice the entries counted, which only checks read.</summary>
-    internal int Doubled => counted * 2;
 }

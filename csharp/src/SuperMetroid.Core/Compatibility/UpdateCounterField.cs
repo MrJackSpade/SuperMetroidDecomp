@@ -27,7 +27,7 @@ public readonly record struct UpdateCounterField(int Shift, int Width)
     public int Of(int counter) => (counter >> Shift) & (Outcomes - 1);
 
     /// <summary>How many values the field can take.</summary>
-    public int Outcomes => 1 << Width;
+    private int Outcomes => 1 << Width;
 
     /// <summary>Whether the field, a single bit, is set in <paramref name="counter"/>.</summary>
     /// <param name="counter">The counter that paces the phase, as the game holds it.</param>

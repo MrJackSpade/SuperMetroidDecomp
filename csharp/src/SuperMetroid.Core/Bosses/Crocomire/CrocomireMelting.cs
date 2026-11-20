@@ -46,7 +46,7 @@ internal sealed class CrocomireMelting
     /// </summary>
     private void ShowFirstCrocomireMeltImage(CrocomireEnemyState state)
     {
-        _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.Flesh);
+        BossBodyFrame image = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.Flesh);
         StartCrocomireMeltingBodyAnimation(state, CrocomireBodyAnimation.MeltingFleshTopRow);
 
         CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Melting);
@@ -56,16 +56,16 @@ internal sealed class CrocomireMelting
         tongue.Presence = tongue.Presence.Without(EnemyPresence.Hidden);
         tongue.Position = tongue.Position.WithWhole(new(state.Body.Position.X.Whole, state.Body.Position.Y.Whole + CrocomireMeltingDefinitions.TongueBelowBody));
 
-        ShowCrocomireMeltingImage(CrocomireMeltingIllustration.Flesh);
+        _bodyLayer.ShowCrocomireBodyFrame(image);
     }
 
     /// <summary>Shows his bare skull's melt image. It first levels the melt's distortion and leaves the tongue alone.</summary>
     private void ShowSecondCrocomireMeltImage(CrocomireEnemyState state)
     {
-        _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.BareSkull);
+        BossBodyFrame image = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.BareSkull);
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
         StartCrocomireMeltingBodyAnimation(state, CrocomireBodyAnimation.MeltingBareSkullTopRow);
-        ShowCrocomireMeltingImage(CrocomireMeltingIllustration.BareSkull);
+        _bodyLayer.ShowCrocomireBodyFrame(image);
     }
 
     /// <summary>
@@ -74,7 +74,8 @@ internal sealed class CrocomireMelting
     /// </summary>
     /// <exception cref="InvalidOperationException">No boss body sheets are installed.</exception>
     /// <exception cref="InvalidDataException">His body sheet has no such melt image.</exception>
-    internal BossBodyFrame RequireCrocomireMeltingImage(CrocomireMeltingIllustration illustration) =>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="illustration"/> is not one of his two melt images.</exception>
+    private BossBodyFrame RequireCrocomireMeltingImage(CrocomireMeltingIllustration illustration) =>
         _bossArtwork.Body(BossBodyOwner.Crocomire).Frame(CrocomireMeltingFrameNames.Of(illustration));
 
     /// <summary>Starts the selected body melting animation, which the melt image just shown on his body layer goes with.</summary>
@@ -84,20 +85,15 @@ internal sealed class CrocomireMelting
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, bodyAnimation);
     }
 
-    /// <summary>Shows melt image <paramref name="illustration"/> as his whole body, in place of the body frame it showed (#1515).</summary>
-    private void ShowCrocomireMeltingImage(CrocomireMeltingIllustration illustration) =>
-        _bodyLayer.ShowCrocomireBodyFrame(RequireCrocomireMeltingImage(illustration));
-
     /// <summary>
     /// Begins <paramref name="pass"/>'s melt: levels the melt's stretch, resets its distortion, and starts
     /// the pass with no column erased and its first band to show. Each band keeps the previous pass's picture until this
-    /// pass shows its own.
+    /// pass shows its own. The installation composes both melt images into his body sheet (#1466), and the pass's erase steps
+    /// show its image from there.
     /// </summary>
-    /// <exception cref="InvalidDataException">The installed boss artwork has no melt images.</exception>
-    internal void BeginCrocomireMeltPass(CrocomireEnemyState state, CrocomireMeltingIllustration pass)
+    internal static void BeginCrocomireMeltPass(CrocomireEnemyState state, CrocomireMeltingIllustration pass)
     {
         CrocomireDeathState death = state.Death;
-        _ = RequireCrocomireMeltingImage(pass);
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
         state.AdvanceDeathStage();
         death.DistortionStep = CrocomireMeltingDefinitions.FirstDistortionSlope;
@@ -130,7 +126,7 @@ internal sealed class CrocomireMelting
     /// skull an update after them that shows none.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="pass"/> is not a melt image.</exception>
-    internal static int BandRound(CrocomireMeltingIllustration pass) => pass switch
+    private static int BandRound(CrocomireMeltingIllustration pass) => pass switch
     {
         CrocomireMeltingIllustration.Flesh => CrocomireMeltingDefinitions.FirstPassBandRound,
         CrocomireMeltingIllustration.BareSkull => CrocomireMeltingDefinitions.SecondPassBandRound,
@@ -194,7 +190,7 @@ internal sealed class CrocomireMelting
     /// band at the new step, starting the bands over after the last, and his body shows the whole melt image as the step
     /// leaves it (#1513). Once every column is erased it shows nothing more, while the distortion runs on to its end.
     /// </summary>
-    internal void EraseNextCrocomireMeltingColumn(CrocomireDeathState death)
+    private void EraseNextCrocomireMeltingColumn(CrocomireDeathState death)
     {
         Ensure.NotNull(death);
         if (death.MeltColumnsErased == CrocomireMeltingDefinitions.ColumnCount)

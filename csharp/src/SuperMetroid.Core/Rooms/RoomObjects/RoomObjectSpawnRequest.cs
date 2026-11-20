@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="Block">The room block the room object is created at.</param>
 /// <param name="RoomObject">The room object spawned there.</param>
 public readonly record struct RoomObjectSpawnRequest<TObject>(Position16<RoomBlocks> Block, TObject RoomObject)
-    where TObject : struct, Enum;
+    where TObject : notnull;

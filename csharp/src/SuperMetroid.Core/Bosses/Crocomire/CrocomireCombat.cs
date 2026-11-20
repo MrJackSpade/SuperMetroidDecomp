@@ -56,24 +56,34 @@ internal sealed class CrocomireCombat
     /// The mouth's shot (#1760): its spawner starts its animation, and a shot one runs its typed shot animation, whose
     /// drop is allocated with Crocomire's chances before the deletion frees the exploding actor.
     /// </summary>
-    internal EnemyProjectileBehavior MouthShot => field ??= new CrocomireProjectileBehavior(_projectiles, _deathsAndDrops, _access,
-        () => new CrocomireProjectileAnimation(CrocomireProjectileSegment.Shot));
+    internal CrocomireProjectileBehavior MouthShot => field ??= new CrocomireProjectileBehavior(_projectiles, _deathsAndDrops, _access,
+        CrocomireProjectileSegment.Shot);
 
     /// <summary>The bridge's fragments and the spike wall's pieces (#1760): their spawners start their animations.</summary>
-    internal EnemyProjectileBehavior Debris => field ??= new CrocomireProjectileBehavior(_projectiles, _deathsAndDrops, _access);
+    internal CrocomireProjectileBehavior Debris => field ??= new CrocomireProjectileBehavior(_projectiles, _deathsAndDrops, _access);
 
     /// <summary>One of Crocomire's projectiles: the shot's aim and flight, the spike wall's and the bridge's falls, and their cues.</summary>
     /// <param name="projectiles">The enemy projectiles, which raise the dust a landing spike-wall piece leaves.</param>
     /// <param name="deathsAndDrops">The drops a shot mouth shot leaves.</param>
     /// <param name="access">Crocomire's last shot's gradient and his sounds.</param>
-    /// <param name="shot">The animation a destroying shot starts, or null for the shared delete animation.</param>
-    private sealed class CrocomireProjectileBehavior(
+    /// <param name="shot">Where the animation a destroying shot starts begins, or null for the shared delete animation.</param>
+    internal sealed class CrocomireProjectileBehavior(
         EnemyProjectileEngine projectiles,
         EnemyDeathsAndDrops deathsAndDrops,
         CrocomireEncounterAccess access,
-        Func<EnemyProjectileAnimation>? shot = null)
-        : EnemyProjectileMotionBehavior<CrocomireProjectileMotion>(StartingMotions, shot), IEnemyProjectileCues<CrocomireProjectileCue>
+        CrocomireProjectileSegment? shot = null)
+        : EnemyProjectileMotionBehavior<CrocomireProjectileMotion>(StartingMotions), IEnemyProjectileCues<CrocomireProjectileCue>
     {
+        /// <summary>The gradient each mouth shot flies along, given as Crocomire spits it.</summary>
+        internal EnemyProjectileStates<CrocomireProjectileState> Gradients { get; } = new();
+
+        /// <summary>Which piece of the spike wall each falling piece is, given as the wall breaks.</summary>
+        internal EnemyProjectileStates<CrocomireSpikeWallPieceState> SpikeWallPieces { get; } = new();
+
+        /// <inheritdoc/>
+        internal override EnemyProjectileAnimation ShotAnimation() =>
+            shot is { } segment ? new CrocomireProjectileAnimation(this, segment) : base.ShotAnimation();
+
         /// <summary>The mouth shot aims, and the bridge fragments and spike-wall pieces fall, from their spawn.</summary>
         private static readonly Dictionary<RoomEnemyProjectileKind, CrocomireProjectileMotion?> StartingMotions = new()
         {
@@ -83,7 +93,7 @@ internal sealed class CrocomireCombat
         };
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, CrocomireProjectileMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, CrocomireProjectileMotion motion)
         {
             switch (motion)
             {
@@ -122,7 +132,7 @@ internal sealed class CrocomireCombat
         }
 
         /// <summary>Runs the one-frame vector setup.</summary>
-        private static void StartCrocomireProjectileFlight(
+        private void StartCrocomireProjectileFlight(
             EnemyProjectile projectile,
             RoomLevelData level)
         {
@@ -130,15 +140,15 @@ internal sealed class CrocomireCombat
             EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
 
             // The shot keeps the gradient its volley fires it along. The angle starts at up, not right: Y uses negative cosine.
-            int gradient = projectile.StateOf<CrocomireProjectileState>().Gradient;
+            int gradient = Gradients.Of(projectile).Gradient;
             projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateAimAngle(new(-CrocomireProjectileDefinitions.AimReachLeft, gradient)));
-            projectile.StartMotion(CrocomireProjectileMotion.ShotFlying);
+            projectile.StartMotion(this, CrocomireProjectileMotion.ShotFlying);
         }
 
         /// <summary>Runs the shard motion, exact to the 256th of a pixel, whose limits each piece takes from its place in the wall.</summary>
         private void RunCrocomireSpikeWallPiece(EnemyProjectile projectile)
         {
-            CrocomireSpikeWallPieceState piece = projectile.StateOf<CrocomireSpikeWallPieceState>();
+            CrocomireSpikeWallPieceState piece = SpikeWallPieces.Of(projectile);
             SignedSixteenSixteen maximumAcceleration = piece.Piece.MaximumAcceleration;
             SignedSixteenSixteen acceleration = piece.Acceleration;
             if (acceleration != maximumAcceleration)
@@ -266,7 +276,7 @@ internal sealed class CrocomireCombat
     /// Resolves Crocomire's mouth reaction. Whether his body's left edge is on screen reads <paramref name="camera"/>, the
     /// camera as the shot or bomb pass runs, as the game reads the live camera there (#1875).
     /// </summary>
-    internal void ResolveCrocomireMouthShot(
+    private void ResolveCrocomireMouthShot(
         CrocomireEnemyState state,
         RoomEnemyPlace body,
         SamusProjectileType projectileType,
@@ -357,7 +367,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Projects a projectile's direction into its sideways and vertical speeds: its cosine and negative sine at the volley's speed.</summary>
-    internal static PixelVelocity<RoomPixels> CalculateCrocomireProjectileVelocity(TrigonometryAngle aim) => new(
+    private static PixelVelocity<RoomPixels> CalculateCrocomireProjectileVelocity(TrigonometryAngle aim) => new(
         EnemyMath.SineVelocity(aim + TrigonometryAngle.QuarterTurn, CrocomireProjectileDefinitions.VolleySpeed),
         EnemyMath.SineVelocity(aim + TrigonometryAngle.HalfTurn, CrocomireProjectileDefinitions.VolleySpeed));
 

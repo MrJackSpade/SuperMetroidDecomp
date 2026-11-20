@@ -31,13 +31,13 @@ internal sealed class OldTourianEscapeShaftWallBehavior
             return; // Spawning fails when the room has no place left for an enemy projectile.
 
         // The wall's projectile draws from the room's own graphics.
-        projectile.StartAnimation(new OldTourianWallExplosionAnimation(OldTourianWallExplosionSegment.Start));
+        projectile.StartAnimation(new OldTourianWallExplosionAnimation(WallExplosion, OldTourianWallExplosionSegment.Start));
         projectile.Position = projectile.Position.WithWholeX(OldTourianEscapeShaftWallExplosionAnimationDefinitions.XPosition);
         projectile.Position = projectile.Position.WithWholeY(OldTourianEscapeShaftWallExplosionAnimationDefinitions.YPosition);
     }
 
     /// <summary>The fake wall's explosion (#1760): it holds still while its spawner's animation plays.</summary>
-    internal EnemyProjectileBehavior WallExplosion => field ??= new WallExplosionBehavior(_projectiles, _audio);
+    private WallExplosionBehavior WallExplosion => field ??= new WallExplosionBehavior(_projectiles, _audio);
 
     /// <summary>
     /// The fake wall's explosion, which carries out its animation's cues: it scatters through the projectile engine and
@@ -45,7 +45,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     /// </summary>
     /// <param name="projectiles">The enemy projectiles, which scatter the explosion.</param>
     /// <param name="audio">The enemy sound queue the explosion's sound joins.</param>
-    private sealed class WallExplosionBehavior(EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
+    internal sealed class WallExplosionBehavior(EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
         : EnemyProjectileBehavior, IEnemyProjectileCues<OldTourianWallExplosionCue>
     {
         /// <summary>Carries out one cue of the wall explosion's animation.</summary>

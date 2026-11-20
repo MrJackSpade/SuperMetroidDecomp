@@ -40,15 +40,15 @@ public sealed class HudState
     /// What the minimap shows around Samus's cell as its last update read it; none before the minimap has been updated
     /// since the HUD was set up, while the template's starter picture shows.
     /// </summary>
-    internal MinimapGrid? Minimap { get; private set; }
+    private MinimapGrid? Minimap { get; set; }
 
     /// <summary>Previous item selection used to detect a change of selection and its sound.</summary>
-    internal HudItem PreviousSelectedItem { get; private set; }
+    private HudItem PreviousSelectedItem { get; set; }
     /// <summary>The installed HUD layout the values are placed by.</summary>
-    internal GameplayHudPresentation? Presentation { get; private set; }
+    private GameplayHudPresentation? Presentation { get; set; }
 
     /// <summary>Suppresses minimap updates once a boss has set up its fight.</summary>
-    public bool MinimapDisabled { get; private set; }
+    private bool MinimapDisabled { get; set; }
 
     /// <summary>Hides the minimap's fifteen cells and disables updates.</summary>
     internal void DisableMinimapForBoss()

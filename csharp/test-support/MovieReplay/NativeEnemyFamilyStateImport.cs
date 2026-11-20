@@ -136,7 +136,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.FigureEight.PathPlace = PhantoonPath.At(words.A);
                 phantoon.Death.ExplosionPasses = words.A;
                 phantoon.StartingFlames.Orbiting = words.B != 0;
-                phantoon.FigureEight.Speed = new PhantoonPathSpeed(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B));
+                phantoon.FigureEight.Speed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPathSpeed>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { (global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B)) });
                 phantoon.FigureEight.Stage = PhantoonFigureEightStageWords.Decode(words.D);
                 if (words.F != 0)
                     phantoon.Phase = PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");
@@ -172,8 +172,8 @@ internal static class NativeEnemyFamilyStateImport
             // The bottom hull, listed right after the top, keeps the ship's engine-sound timer in variable D, its
             // rumble frame in E and its escape speed in F.
             bottomOfShip.EngineSoundTimer = UpdateCountdown.For(ZeroOrBelowDuration(words.D));
-            bottomOfShip.Rumble = UpdateCountdownAccess.AtAge(GunshipTakeoffDefinitions.EngineRumbleFrames,
-                Math.Min((int)words.E, GunshipTakeoffDefinitions.EngineRumbleFrames));
+            bottomOfShip.Rumble.PlaceAt(UpdateCountdownAccess.AtAge(GunshipTakeoffDefinitions.EngineRumbleFrames,
+                Math.Min((int)words.E, GunshipTakeoffDefinitions.EngineRumbleFrames)));
             bottomOfShip.EscapeVelocity = new SignedEightEight(words.F);
         }
         if (enemy.SpeciesState<CeresSteamEnemyState>() is { } ceresSteamRecord)
@@ -288,7 +288,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<CrocomireEnemyState>() is { } crocomireRecord)
         {
-            crocomireRecord.DeathStage = CrocomireNativeWords.DeathStages.Decode(words.A, "recorded Crocomire death stage");
+            global::SuperMetroid.Core.PrivateState.Set(crocomireRecord, "DeathStage", (global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathStage>)(CrocomireNativeWords.DeathStages.Decode(words.A, "recorded Crocomire death stage")));
             if (CrocomireNativeWords.DamageReactionPending(words.B))
                 crocomireRecord.StepBack.Ask();
             else
@@ -300,13 +300,11 @@ internal static class NativeEnemyFamilyStateImport
             // The cartridge keeps several of the body's values in each of words D, E and F; the phase says which.
             CrocomireNativeWords.ImportSharedWords(crocomireRecord, words.D, words.E, words.F);
         }
-        if (enemy.SpeciesState<CrocomireTongueState>() is { } crocomireTongueRecord)
-            crocomireTongueRecord.BodyXOffset = words.A;
         if (enemy.SpeciesState<DeadSidehopperEnemyState>() is { } deadSidehopperRecord)
         {
             deadSidehopperRecord.Action = CorpsesNativeWords.DeadSidehopperActions.Decode(words.A, "recorded DeadSidehopperAction");
-            deadSidehopperRecord.PreRotDelay = UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
-                Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates));
+            deadSidehopperRecord.PreRotDelay.PlaceAt(UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
+                Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates)));
             deadSidehopperRecord.PostLandingPause = TrueWait(words.F);
         }
         if (enemy.SpeciesState<BotwoonEnemyState>() is { } botwoonRecord)
@@ -359,7 +357,7 @@ internal static class NativeEnemyFamilyStateImport
             // in variable D; each is read here as the meaning the recorded phase gives it.
             if (dachoraRecord.Action is DachoraAction.BlinkingBeforeRun or DachoraAction.ChargingShinespark)
             {
-                dachoraRecord.PhaseTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.A));
+                global::SuperMetroid.Core.PrivateState.Set(dachoraRecord, "PhaseTimer", (global::SuperMetroid.Core.UpdateCountdown)(UpdateCountdownAccess.Recorded(unchecked((short)words.A))));
                 dachoraRecord.Speed = SignedSixteenSixteen.FromParts(0, words.B);
                 dachoraRecord.VerticalAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.D);
             }
@@ -562,7 +560,7 @@ internal static class NativeEnemyFamilyStateImport
             growingShutterRecord.Action = growingAction;
             // The record keeps every section's origin; Core derives them from the first, the spawn row (#2183), and the
             // recorded origins must be the ones it derives.
-            growingShutterRecord.SpawnY = words.B;
+            global::SuperMetroid.Core.PrivateState.Set(growingShutterRecord, "SpawnY", (int)(words.B));
             ushort[] originRows = [words.B, words.C, words.D, words.E];
             for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
             {
@@ -794,7 +792,7 @@ internal static class NativeEnemyFamilyStateImport
             beetom.Action = beetomAction;
             // Only an action that goes one way names its heading (#2277).
             if (beetomHeading is { } beetomGoes)
-                beetom.Heading = beetomGoes;
+                global::SuperMetroid.Core.PrivateState.Set(beetom, "Heading", (global::SuperMetroid.Core.Spatial.HorizontalDirection)(beetomGoes));
             beetom.ActionTimer = TrueWait(words.D);
             beetom.ButtonCounter = unchecked((short)words.E);
             beetom.LastSeenPlayerActions = GameplayActionWordCodec.FromJoypadWord(words.F, "native Beetom previous controller input");
@@ -840,7 +838,7 @@ internal static class NativeEnemyFamilyStateImport
             if (skulteraSpeed != enemy.HeldOccupant().SpawnSettings<SkulteraSpawnSettings>().Speed)
                 throw new InvalidDataException($"Recorded Skultera speed {skulteraSpeed} is not its placement's {enemy.HeldOccupant().SpawnSettings<SkulteraSpawnSettings>().Speed}.");
             // Only the angle word's low byte is ever read; movement discards its high byte.
-            skultera.Angle = RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.F));
+            global::SuperMetroid.Core.PrivateState.Set(skultera, "Angle", (global::SuperMetroid.Core.Spatial.RotationAngle)(RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.F))));
         }
         if (enemy.Holds(EnemyDefinitionId.Coven) && enemy.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
         {
@@ -901,7 +899,7 @@ internal static class NativeEnemyFamilyStateImport
             // The record's signed walking speed: its sign is the way the Etecoon walks (#2369).
             var escapeVelocity = new SignedEightEight(words.A);
             PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Direction), escapeVelocity.IsNegative ? HorizontalDirection.Left : HorizontalDirection.Right);
-            PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Speed), escapeVelocity.IsNegative ? escapeVelocity.Negated() : escapeVelocity);
+            PrivateState.Set(escape, "Speed", escapeVelocity.IsNegative ? escapeVelocity.Negated() : escapeVelocity);
             PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Action), AnimalsNativeWords.EscapeEtecoonActionAt(words.F));
         }
         if (enemy.Holds(EnemyDefinitionId.FaceBlock) && enemy.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
@@ -930,8 +928,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             powampBalloon.Spawn = new(words.A, words.B);
             // The balloon reads its grappled rise from its spawn settings (#2439); the recording's copy must be the placement's.
-            if (words.D != enemy.HeldOccupant().SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance)
-                throw new InvalidDataException($"Recorded Powamp grapple rise {words.D} is not its placement's {enemy.HeldOccupant().SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance}.");
+            if (words.D != enemy.HeldOccupant().SpawnSettings<PowampBalloonSpawnSettings>().GrappleTravelDistance)
+                throw new InvalidDataException($"Recorded Powamp grapple rise {words.D} is not its placement's {enemy.HeldOccupant().SpawnSettings<PowampBalloonSpawnSettings>().GrappleTravelDistance}.");
             if (words.F != PowampNativeWords.BalloonIdleWord)
                 throw new InvalidDataException($"Recorded Powamp balloon runs ${words.F:X4}, not the balloon's empty routine.");
         }
@@ -985,9 +983,9 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.DeadTourianCorpses[index] is { } corpse)
         {
-            corpse.Phase = DeadTourianCorpsePhaseOf(corpse.Species, words.A);
-            corpse.PreRotDelay = UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
-                Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates));
+            corpse.Phase = DeadTourianCorpsePhaseOf(DeadTourianBehavior.SpeciesOf(enemy.HeldOccupant().DefinitionId), words.A);
+            corpse.PreRotDelay.PlaceAt(UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
+                Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates)));
         }
         if (enemies.RioStates[index] is { } rio)
         {

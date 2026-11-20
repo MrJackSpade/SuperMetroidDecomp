@@ -39,8 +39,7 @@ internal static class ElevatorStandUpContactVerification
         ISamusRoomObjects roomObjects = SamusRoomObjectFixtures.Uninstalled;
         AssertTrue(roomObjects.DoorContacts.ElevatorStand.Take() is false, "no contact before the stand-up");
 
-        AssertTrue(SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(samus, level, SamusPoseId.FacingLeftNormalPose, 0, roomObjects: roomObjects),
-            "the standing body fits above the elevator");
+        SamusPosturePoseTransitions.ApplyDirectCrouchToStandingTransition(samus, level, SamusPoseId.FacingLeftNormalPose, 0, roomObjects: roomObjects);
         AssertEqual(SamusPoseId.FacingLeftNormalPose, samus.Pose, "Samus stands");
         AssertTrue(roomObjects.DoorContacts.ElevatorStand.Take(),
             "the probe for the new standing pose ($02 < $09) arms the elevator");

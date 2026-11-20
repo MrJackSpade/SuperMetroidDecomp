@@ -13,14 +13,14 @@ internal static class IntroRinkaDefinitions
         new(IntroRinkaAnimation.Rinka);
 
     /// <summary>The first pair launched, in launch order: the Rinka that strikes Samus, then one that flies past her.</summary>
-    internal static IReadOnlyList<IntroRinkaLaunch> StrikingPair { get; } =
+    private static IReadOnlyList<IntroRinkaLaunch> StrikingPair { get; } =
     [
         new(new(112, 72), SignedSixteenSixteen.FromPixelFraction(1, 2), IntroRinkaFlight.StrikesSamus),
         new(new(192, 56), SignedSixteenSixteen.FromPixelFraction(-1, 2), IntroRinkaFlight.MissesSamus),
     ];
 
     /// <summary>The second pair launched, in launch order: both fly past Samus.</summary>
-    internal static IReadOnlyList<IntroRinkaLaunch> MissingPair { get; } =
+    private static IReadOnlyList<IntroRinkaLaunch> MissingPair { get; } =
     [
         new(new(128, 48), SignedSixteenSixteen.FromPixelFraction(1, 2), IntroRinkaFlight.MissesSamus),
         new(new(232, 80), SignedSixteenSixteen.FromPixelFraction(-1, 2), IntroRinkaFlight.MissesSamus),

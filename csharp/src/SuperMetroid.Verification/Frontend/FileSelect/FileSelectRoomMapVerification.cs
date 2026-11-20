@@ -70,7 +70,7 @@ internal static class FileSelectRoomMapVerification
                 ShownMapCell expected = explored ? ShownMapCell.Explored(stockCell)
                     : downloaded && map.IsRevealedByMapStation(at) ? ShownMapCell.Unexplored(stockCell)
                     : ShownMapCell.Unexplored(MapCell.Empty);
-                AssertEqual(expected, graphics.AreaMap.Cells[y * 64 + x],
+                AssertEqual(expected, graphics.ShownCells.Cells[y * 64 + x],
                     $"room-select area {area} downloaded={downloaded} cell {x},{y}");
                 AssertEqual(expected, pause.Cells[y * 64 + x], "shared builder shows the pause map's hidden cells empty");
                 AssertEqual(explored, system.IsMapTileExplored(area, new(checked((ushort)x), checked((ushort)y))), "map projection does not mark exploration");
@@ -176,7 +176,7 @@ internal static class FileSelectRoomMapVerification
         var spriteDocument = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
         {
-            MapSpriteId id = MapArrowSprites.Picture(direction);
+            MapSpriteId id = Ensure.Listed(MapArrowDefinitions.Pictures, direction);
             string name = MapSpriteArtwork.FrameNames.Single(frame => frame.Id == id).Name;
             spriteDocument.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
                 TileColumn = 0, TileRow = 1, Size = 8, Priority = 3, Palette = null, FlipX = false, FlipY = false }];

@@ -72,7 +72,13 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     private readonly EnemySpeciesRegistry _registry;
 
     /// <summary>The enemy occupying the place, bound with its identity; null while the place is empty.</summary>
-    internal IEnemyEntity? Entity { get; private set; }
+    internal IEnemyEntity? Entity => BoundEntity?.Entity;
+
+    /// <summary>
+    /// The occupant's entity with the setup and main AI it runs, as its factory named them (#2571); null while the place is
+    /// empty.
+    /// </summary>
+    internal EnemyOccupant? BoundEntity { get; private set; }
 
     /// <summary>
     /// The species states the current occupant owns (#1543). Its species installs them as it initializes, and the place
@@ -141,7 +147,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
         Definition = definition;
         OccupantStates = new();
         AnimationClock = new();
-        Entity = _registry.Create(occupant, this);
+        BoundEntity = _registry.Create(occupant, this);
     }
 
     /// <summary>
@@ -151,7 +157,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     private void ReleaseEntity()
     {
         IEnemyEntity? leaving = Entity;
-        Entity = null;
+        BoundEntity = null;
         if (leaving is IEnemyDeparture departure)
             departure.Leave();
     }

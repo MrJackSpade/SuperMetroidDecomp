@@ -31,7 +31,7 @@ internal static class SamusProjectileVelocityWords
         if (slot.Behavior is PlasmaSpecialAttackRing)
             return PlasmaPhaseWord(slot.KindStateAs<PlasmaParticleState>().Phase);
         if (slot.Behavior is SpazerSpecialAttackFlight)
-            return SignedStepWord(slot.KindStateAs<SpazerParticleState>().TurnPerUpdate);
+            return SignedStepWord(global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.OrbitingParticleState, global::SuperMetroid.Core.Spatial.TrigonometryAngle>(slot.KindStateAs<SpazerParticleState>(), "TurnPerUpdate"));
         return slot.Velocity.Y.RawValue;
     }
 

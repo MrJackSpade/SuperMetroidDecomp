@@ -77,7 +77,7 @@ internal static class BossMapMarkersVerification
                 // slot. Compare that actual constructor path with the live source.
                 var savedMenu = new FileSelectMapMenuState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new SharedRandom(), slot, 0,
                     RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
-                var savedGraphics = savedMenu.roomGraphics;
+                var savedGraphics = savedMenu.RoomGraphics;
                 var liveGraphics = new FileSelectRoomMapGraphics(system, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), screenContent: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
                 var marker = new FileSelectStationMarker(SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), 0, "boss map fixture"), RetailPresentationFixture().Maps.SaveMarkers);
                 int scrollX = x - 128, scrollY = y - 112;

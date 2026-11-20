@@ -24,9 +24,9 @@ public static class RoomEnemyPopulationDefinitions
     ], ListCount, PlacementCount);
 
     /// <summary>Number of distinct populations the room states select, empty ones included.</summary>
-    public const int ListCount = 301;
+    private const int ListCount = 301;
     /// <summary>Total placements across the distinct populations, a population that several room states select counted once.</summary>
-    public const int PlacementCount = 1658;
+    private const int PlacementCount = 1658;
 
     /// <summary>The enemy population shared by the Draygon room and the Mother Brain room once each area's boss is dead.</summary>
     public static RoomEnemyPopulationDefinition DraygonOrMotherBrainWhenAreaBossDead => MaridiaRoomEnemyPopulationDefinitions.DraygonOrMotherBrainWhenAreaBossDead;

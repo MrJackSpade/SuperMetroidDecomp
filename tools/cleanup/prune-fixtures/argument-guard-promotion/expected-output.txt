@@ -1,1 +1,1 @@
-MANUAL Method SuperMetroid.Core.Lists.ListWindows.WideWidth(string?) (kept in place: it uses SuperMetroid.Core.Lists.ListWindows.Checked(string?), which checks an argument by hand (title is null), a check that made internal must use Ensure (SME6201): write it with Ensure, csharp/src/SuperMetroid.Core/Lists/ListWindows.cs:12)
+Relocated 1 declarations into 1 files; deleted 0 emptied files; 0 members made internal; 1 private members reached through private-access members; 0 renamed without their underscore; 0 left for manual relocation.

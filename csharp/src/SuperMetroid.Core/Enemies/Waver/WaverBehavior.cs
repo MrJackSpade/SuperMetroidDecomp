@@ -12,7 +12,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Waver];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new WaverEntity(this, occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WaverEntity(this, occupant, place, common));
 
     /// <summary>Room collision service used to reflect horizontal motion and the sine wave on impact.</summary>
     private readonly EnemyTerrain _terrain;
@@ -108,7 +108,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Starts a changed facing or spin animation and restarts its frame timer (#2145); the Waver spins while a spin plays
     /// and glides while a steady pose shows (#2450).
     /// </summary>
-    internal static void SetWaverAnimation(RoomEnemyPlace place, WaverEnemyState state, WaverSegment segment)
+    private static void SetWaverAnimation(RoomEnemyPlace place, WaverEnemyState state, WaverSegment segment)
     {
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, WaverAnimations.StartingWith(segment));
         state.Action = WaverAnimationChoices.IsSpin(segment) ? WaverAction.Spinning : WaverAction.Gliding;
@@ -121,7 +121,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Waver's typed animation.</summary>
-    internal static void AdvanceWaverTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceWaverTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, WaverAnimations.Segments,
             static (WaverEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>

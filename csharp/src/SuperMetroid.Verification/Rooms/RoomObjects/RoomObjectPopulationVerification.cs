@@ -137,7 +137,9 @@ internal static class RoomObjectPopulationVerification
                 DestinationScreen: new(0, 0),
                 SamusSpeed: DoorSamusSpeed.None,
                 Setup: DoorSetupDefinitions.None);
-            bool spawned = roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, door);
+            int placedBefore = roomObjects.PopulationPlaces.Count;
+            roomObjects.DoorObjects.SpawnDoorClosingObject(level, door);
+            bool spawned = roomObjects.PopulationPlaces.Count > placedBefore;
             AssertEqual(expectedHeader != 0, spawned,
                 $"door-closing direction {direction} fallback admission matches cartridge");
             if (expectedHeader == 0)
@@ -190,11 +192,10 @@ internal static class RoomObjectPopulationVerification
             const ushort population = 0x9000;
             byte blockX = (byte)(1 + definitionIndex % 4);
             byte blockY = (byte)(1 + definitionIndex / 4);
-            var decoded = new RoomObjectPopulation($"$8F:{population:X4}",
-            [
+            var decoded = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation>([typeof(string), typeof(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)], new object?[] { (string)($"$8F:{population:X4}"), (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)([
                 RoomObjectPlacementAccess.Placed(header,
                     new(blockX, blockY), RoomObjectRoomArgumentWords.Decode(header, 0x8000)), // Negative argument always closes.
-            ]);
+            ]) });
 
             RoomLevelData level = CreateRoom(new(8, 8),
                 new RoomTerrainBlock[64],
@@ -211,8 +212,7 @@ internal static class RoomObjectPopulationVerification
                 DestinationScreen: new(0, 0),
                 SamusSpeed: DoorSamusSpeed.None,
                 Setup: DoorSetupDefinitions.None);
-            AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor),
-                $"resident door $84:{raw:X4} accepts transition redirect");
+            roomObjects.DoorObjects.SpawnDoorClosingObject(level, enteringDoor);
             RoomObjectPlaceSnapshot place = roomObjects.PopulationPlaces.Single();
             AssertTrue(TypedDoorObjectOracle.IsClosing(place.Behaviour), $"resident door $84:{raw:X4} starts its closing");
             if (eyeDoorBody)
@@ -228,9 +228,8 @@ internal static class RoomObjectPopulationVerification
         RoomLevelData blueLevel = CreateRoom(new(8, 8), new RoomTerrainBlock[64], new RoomBlockBehavior[64]);
         var blueObjects = RoomObjectFixtures.Bound(new RoomObjectRoom(blueLevel, new SharedGameState(new SharedRandom()), AreaId.Crateria),
             RoomObjectServiceFixtures.Uninstalled, RoomObjectFixtures.Unbound());
-        AssertTrue(blueObjects.DoorObjects.TrySpawnBlueDoorOpening(blueLevel, new(1, 1),
-                RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)), BlockStrike.GrappleTouch.Instance),
-            "a shot blue cap stands at the door's block");
+        blueObjects.DoorObjects.SpawnBlueDoorOpening(blueLevel, new(1, 1),
+                RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)), BlockStrike.GrappleTouch.Instance);
         var blueDoor = new DoorDefinition(
             Name: "fixture door",
             DestinationRoom: FixtureRooms.UnloadedDestination,
@@ -239,8 +238,7 @@ internal static class RoomObjectPopulationVerification
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.None,
             Setup: DoorSetupDefinitions.None);
-        AssertTrue(blueObjects.DoorObjects.TrySpawnDoorClosingObject(blueLevel, blueDoor),
-            "a shot blue cap at the door's block closes behind Samus");
+        blueObjects.DoorObjects.SpawnDoorClosingObject(blueLevel, blueDoor);
         AssertEqual(1, blueObjects.Places.ActiveCount, "no closer joins the shot cap that closes");
         const int ShotLeftBlueCapHeader = 0x84c8a2;
         ushort shotCapClosing = CartridgeImportSource.Require(rom).ReadCartridgeWord(ShotLeftBlueCapHeader + 4);
@@ -256,11 +254,9 @@ internal static class RoomObjectPopulationVerification
         landingSiteOpened.OpenDoor(LockedDoorDefinitions.LandingSiteGreenDoorFacingLeft);
         var openObjects = RoomObjectFixtures.Bound(new RoomObjectRoom(openLevel, landingSiteOpened, AreaId.Crateria),
             RoomObjectServiceFixtures.Uninstalled, RoomObjectFixtures.Unbound());
-        AssertTrue(openObjects.DoorObjects.TrySpawnBlueDoorOpening(openLevel, new(1, 1),
-                RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)), BlockStrike.GrappleTouch.Instance),
-            "a shot blue cap stands at the door's block once more");
-        AssertTrue(openObjects.DoorObjects.TrySpawnDoorClosingObject(openLevel, blueDoor),
-            "the door places its own closer beside the shot cap");
+        openObjects.DoorObjects.SpawnBlueDoorOpening(openLevel, new(1, 1),
+                RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)), BlockStrike.GrappleTouch.Instance);
+        openObjects.DoorObjects.SpawnDoorClosingObject(openLevel, blueDoor);
         AssertEqual(2, openObjects.Places.ActiveCount, "the shot cap stays and the closer joins it");
         AssertTrue(openObjects.Places.InUpdateOrder[0].Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Opening },
             "the shot cap keeps opening");
@@ -430,8 +426,7 @@ internal static class RoomObjectPopulationVerification
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.AxisDefault,
             Setup: DoorSetupDefinitions.None);
-        AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor),
-            "Bomb Torizo entry redirects the resident door to its secondary list");
+        roomObjects.DoorObjects.SpawnDoorClosingObject(level, enteringDoor);
         AssertEqual(GreyDoorPhase.HeldOpen, roomObjects.GreyDoorSnapshots.Single().Phase,
             "redirected actor retains explicit grey-door ownership while closing");
 
@@ -534,8 +529,7 @@ internal static class RoomObjectPopulationVerification
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.AxisDefault,
             Setup: DoorSetupDefinitions.None);
-        AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor),
-            "room $9B9D redirects its resident grey door to closing list $BE59");
+        roomObjects.DoorObjects.SpawnDoorClosingObject(level, enteringDoor);
 
         for (int frame = 0; frame < 10; frame++)
         {
@@ -632,7 +626,7 @@ internal static class RoomObjectPopulationVerification
 
         RoomFxOverlayState CreateFx(ushort baseY, int? targetY, ushort velocity, byte timer)
         {
-            var fx = new RoomFxOverlayState(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+            var fx = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.RoomFxOverlayState>([typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) });
             fx.SetLiquidLevel(baseY);
             if (targetY is int target)
                 fx.MoveLiquidTo(target, new SignedEightEight(velocity), timer);
@@ -774,14 +768,13 @@ internal static class RoomObjectPopulationVerification
         const int inRoomX = 2;
         const int inRoomY = 2;
 
-        var decoded = new RoomObjectPopulation($"$8F:{population:X4}",
-        [
+        var decoded = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation>([typeof(string), typeof(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)], new object?[] { (string)($"$8F:{population:X4}"), (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)([
             RoomObjectPlacementAccess.Placed(RoomObjectKind.GreenDoorFacingRight,
                 new(offRoomX, offRoomY), new DoorLock(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent))
             with { Site = RoomObjectSite.OffTheRoom },
             RoomObjectPlacementAccess.Placed(RoomObjectKind.GreenDoorFacingLeft,
                 new(inRoomX, inRoomY), new DoorLock(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x28), DoorOpeningPersistence.Persistent)),
-        ]);
+        ]) });
 
         RoomLevelData level = CreateRoom(new(width, height),
             new RoomTerrainBlock[width * height],
@@ -805,22 +798,20 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(RoomTerrainBlock.Of(0x004, BlockMirroring.None, RoomCollisionType.ShootableBlock), level.GetCollisionBlock(new(inRoomX, inRoomY)).Terrain,
             "in-room record following the harmless tail actor still draws normally");
 
-        var malformed = new RoomObjectPopulation($"$8F:{malformedPopulation:X4}",
-        [
+        var malformed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation>([typeof(string), typeof(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)], new object?[] { (string)($"$8F:{malformedPopulation:X4}"), (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)([
             RoomObjectPlacementAccess.Placed(RoomObjectKind.ScrollTrigger,
                 new(offRoomX, offRoomY), scrollChange: RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned) with { Site = RoomObjectSite.OffTheRoom },
-        ]);
+        ]) });
         AssertThrows<InvalidDataException>(
             () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), malformed, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "a room object other than a coloured door is refused off the room");
 
         // The import decodes each placement to the block it occupies (#2034): one off the grid that it did not decode as off
         // the room is refused, and one decoded off the room must lie past the grid.
-        var undecoded = new RoomObjectPopulation("undecoded off-room door",
-        [
+        var undecoded = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation>([typeof(string), typeof(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)], new object?[] { (string)("undecoded off-room door"), (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)([
             RoomObjectPlacementAccess.Placed(RoomObjectKind.GreenDoorFacingRight,
                 new(offRoomX, offRoomY), new DoorLock(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent)),
-        ]);
+        ]) });
         AssertThrows<InvalidDataException>(
             () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), undecoded, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "a grid placement off the grid is refused");
@@ -908,8 +899,7 @@ internal static class RoomObjectPopulationVerification
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.AxisDefault,
             Setup: DoorSetupDefinitions.None);
-        AssertTrue(escape.DoorObjects.TrySpawnDoorClosingObject(escapeLevel, motherBrainExit),
-            "direction-nine Mother Brain exit redirects the resident gate");
+        escape.DoorObjects.SpawnDoorClosingObject(escapeLevel, motherBrainExit);
         AssertEqual(1, escape.Places.ActiveCount,
             "resident escape gate is redirected in place rather than duplicated");
         AssertEqual(0, escape.PopulationPlaces.Single().UpdatePosition,
@@ -940,18 +930,16 @@ internal static class RoomObjectPopulationVerification
             new RoomBlockBehavior[width * height]);
         fallbackLevel.SetTerrain(gateBlock, originalGateWord);
         var fallback = RoomObjectFixtures.Unbound();
-        AssertTrue(fallback.DoorObjects.TrySpawnDoorClosingObject(fallbackLevel, motherBrainExit),
-            "special door without a resident cap spawns C8D0 fallback");
-        AssertTrue(fallback.PopulationPlaces.Single().Behaviour is MotherBrainEscapeGateObject { Change: var closing }
-                && closing == MotherBrainEscapeGateDefinitions.Closing,
+        fallback.DoorObjects.SpawnDoorClosingObject(fallbackLevel, motherBrainExit);
+        AssertTrue(fallback.PopulationPlaces.Single().Behaviour is MotherBrainEscapeGateObject closing
+                && closing.Starts(MotherBrainEscapeGateDefinitions.Closing),
             "fallback actor is the escape gate closing behind Samus");
         AssertEqual(deactivatedGateWord, fallbackLevel.GetCollisionBlockByIndex(gateBlock).Terrain,
             "fallback C8D0 executes the shared deactivate setup");
 
         var nonClosingDoor = motherBrainExit with { Orientation = new(DoorDirection.Right, DoorClosingBehavior.None) };
         var nonClosing = RoomObjectFixtures.Unbound();
-        AssertTrue(!nonClosing.DoorObjects.TrySpawnDoorClosingObject(fallbackLevel, nonClosingDoor),
-            "directions zero through three retain the native no-closing-PLM branch");
+        nonClosing.DoorObjects.SpawnDoorClosingObject(fallbackLevel, nonClosingDoor);
         AssertEqual(0, nonClosing.Places.ActiveCount,
             "non-closing door does not consume a PLM slot");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -1104,8 +1092,7 @@ internal static class RoomObjectPopulationVerification
         var system = new SharedGameState(new SharedRandom());
         var roomObjects = RoomObjectFixtures.Unbound();
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, system, AreaId.Maridia), RoomObjectPopulationImporter.Read(bus, emptyPopulation), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });
-        AssertTrue(roomObjects.Shaktool.TrySpawnShaktoolRoomController(scrolls),
-            "Shaktool room setup spawns its resident controller");
+        roomObjects.Shaktool.SpawnShaktoolRoomController(scrolls);
         // The native setup writes the room's first four cells, row by row: those are the room's four screens.
         AssertEqual(4, scrolls.Screens.Count(), "the Shaktool room is one row of four screens");
         AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadScreen(new(0, 0)),

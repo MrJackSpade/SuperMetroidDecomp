@@ -38,7 +38,7 @@ internal sealed class CeresRidleyFlight
     /// Ridley sets himself up. A Ceres Ridley whose boss is already dead never spawns: the room's state once its boss is
     /// dead places no Ridley, only its door.
     /// </summary>
-    internal CeresRidleyState InitializeCeresRidley(RoomEnemyPlace place)
+    internal void InitializeCeresRidley(RoomEnemyPlace place)
     {
         // Ceres Ridley starts with a fresh encounter, below, and the minimap stays off, which the room's load sees to once
         // the enemies are loaded; Ceres has no arena to mark explored.
@@ -60,7 +60,6 @@ internal sealed class CeresRidleyFlight
         // He arrives with the door's, container's and Baby's colours, his own hidden in black for his eye and body fades.
         ridley.Colours.ShowCeresArrival();
         _presentation.BossShadings.Show(BossShadingLayer.Ridley, ridley.Colours);
-        return ridley;
     }
 
     /// <summary>Ceres Ridley's lift-off starts his rise toward his hover.</summary>
@@ -259,7 +258,7 @@ internal sealed class CeresRidleyFlight
         AccelerateRidleyToward(place, state.Flight, CeresRidleyArenaDefinitions.RetreatPoint, CeresRidleyFlightDefinitions.SweepDivisor);
         if (RidleyFlight.SignedPlace(place).Y < CeresRidleyArenaDefinitions.BabyDropLineY)
         {
-            state.Baby.Action = CeresBabyAction.Drop;
+            state.Baby.Drop();
             state.Phase = CeresRidleyPhase.WaitBeforeRetrievingBaby;
             state.PhaseTimer.LastFor(CeresRidleyFlightDefinitions.BabyRetrievalDelayUpdates);
         }
@@ -319,7 +318,7 @@ internal sealed class CeresRidleyFlight
     /// Steers both axes of his velocity toward <paramref name="target"/>, where it lies from the room's origin, which
     /// may be above the chamber, at a negative height.
     /// </summary>
-    internal static void AccelerateRidleyToward(
+    private static void AccelerateRidleyToward(
         RoomEnemyPlace place,
         RidleyFlightState flight,
         Offset16<RoomPixels> target,
@@ -327,7 +326,7 @@ internal sealed class CeresRidleyFlight
         AccelerateRidleyToward(place, flight, Position16<RoomPixels>.Zero + target, divisor);
 
     /// <summary>Steers both axes of his velocity toward a target, raising a step that divides to zero to one.</summary>
-    internal static void AccelerateRidleyToward(
+    private static void AccelerateRidleyToward(
         RoomEnemyPlace place,
         RidleyFlightState flight,
         Position16<RoomPixels> target,

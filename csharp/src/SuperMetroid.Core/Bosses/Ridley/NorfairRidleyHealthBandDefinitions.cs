@@ -16,7 +16,7 @@ internal static class NorfairRidleyHealthBandDefinitions
     ], healthShade: null);
 
     /// <summary>Ridley below 9000 health, showing the wounded colouring.</summary>
-    internal static NorfairRidleyHealthBand Wounded { get; } = new(hoverDivisor: 8, grabDivisor: 13,
+    private static NorfairRidleyHealthBand Wounded { get; } = new(hoverDivisor: 8, grabDivisor: 13,
     [
         Pogo(SignedEightEight.FromPixelFraction(21, 32), SignedEightEight.FromPixelFraction(31, 8), SignedEightEight.FromPixelFraction(3, 16), SignedEightEight.FromPixelFraction(1, 2)),
         Pogo(SignedEightEight.FromPixelFraction(25, 32), SignedEightEight.FromPixelFraction(17, 4), SignedEightEight.FromPixelFraction(3, 16), SignedEightEight.FromPixelFraction(1, 2)),
@@ -25,7 +25,7 @@ internal static class NorfairRidleyHealthBandDefinitions
     ], RidleyHealthShadeDefinitions.Wounded);
 
     /// <summary>Ridley below 5400 health, showing the badly wounded colouring.</summary>
-    internal static NorfairRidleyHealthBand BadlyWounded { get; } = new(hoverDivisor: 6, grabDivisor: 9,
+    private static NorfairRidleyHealthBand BadlyWounded { get; } = new(hoverDivisor: 6, grabDivisor: 9,
     [
         Pogo(SignedEightEight.FromPixelFraction(11, 16), SignedEightEight.FromPixelFraction(11, 2), SignedEightEight.FromPixelFraction(1, 4), SignedEightEight.FromPixels(4)),
         Pogo(SignedEightEight.FromPixelFraction(13, 16), SignedEightEight.FromPixelFraction(45, 8), SignedEightEight.FromPixelFraction(1, 4), SignedEightEight.FromPixels(4)),
@@ -34,7 +34,7 @@ internal static class NorfairRidleyHealthBandDefinitions
     ], RidleyHealthShadeDefinitions.BadlyWounded);
 
     /// <summary>Ridley below 1800 health: his fastest seek and lunge, his highest bounces, and the nearly-dead colouring.</summary>
-    internal static NorfairRidleyHealthBand NearlyDead { get; } = new(hoverDivisor: 4, grabDivisor: 6,
+    private static NorfairRidleyHealthBand NearlyDead { get; } = new(hoverDivisor: 4, grabDivisor: 6,
     [
         Pogo(SignedEightEight.FromPixelFraction(23, 32), SignedEightEight.FromPixelFraction(13, 2), SignedEightEight.FromPixelFraction(5, 16), SignedEightEight.FromPixels(5)),
         Pogo(SignedEightEight.FromPixelFraction(27, 32), SignedEightEight.FromPixelFraction(53, 8), SignedEightEight.FromPixelFraction(5, 16), SignedEightEight.FromPixels(5)),

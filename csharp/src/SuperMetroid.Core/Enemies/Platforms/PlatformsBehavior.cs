@@ -15,7 +15,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SuspensorPlatform, EnemyDefinitionId.Tripper];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new PlatformsEntity(this, occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new PlatformsEntity(this, occupant, place, common));
 
     /// <summary>Clips the Tripper's and the suspensor platform's horizontal and vertical displacement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;
@@ -196,7 +196,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Steps the place one mark on along the quadratic speed curve, holding it at the cap its spawn settings name: as many
     /// marks on as their vertical acceleration updates.
     /// </summary>
-    internal static void IncrementAndClampPlatformYSpeed(RoomEnemyOccupant occupant, PlatformEnemyState state)
+    private static void IncrementAndClampPlatformYSpeed(RoomEnemyOccupant occupant, PlatformEnemyState state)
     {
         QuadraticSpeedCurvePlace cap = QuadraticSpeedCurvePlace.FromMarks(occupant.SpawnSettings<PlatformSpawnSettings>().VerticalAccelerationUpdates);
         state.YSpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
@@ -227,7 +227,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Selects the moving animation from which platform it is and its current horizontal direction.</summary>
-    internal static void StartPlatformMovingAnimationForHeading(
+    private static void StartPlatformMovingAnimationForHeading(
         RoomEnemyPlace place,
         PlatformEnemyState state)
     {
@@ -236,7 +236,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Selects the stationary animation from which platform it is and its current horizontal direction.</summary>
-    internal static void StartPlatformStillAnimationForHeading(
+    private static void StartPlatformStillAnimationForHeading(
         RoomEnemyPlace place,
         PlatformEnemyState state)
     {
@@ -275,7 +275,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Platforms's typed animation.</summary>
-    internal static void AdvancePlatformsTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvancePlatformsTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, PlatformAnimations.Segments,
             static (PlatformEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>

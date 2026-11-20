@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>
 /// One of Phantoon's eight health bands (#2259): the colours his body shows, from his own at full health to his reddest
 /// below an eighth of it. He is in the highest band whose <see cref="MinimumHealth"/> his health reaches, and in
-/// <see cref="PhantoonHealthBandDefinitions.BelowEighth"/> below them all.
+/// the reddest of <see cref="PhantoonHealthBandDefinitions"/> below them all.
 /// </summary>
 public sealed class PhantoonHealthBand
 {

@@ -68,7 +68,7 @@ public static class CeresDoorVisualFiles
     /// <param name="tilePng">Caller-owned <c>ceres-door-tiles.png</c> stream compiling to $0400 bytes.</param>
     /// <param name="paletteJson">Caller-owned <c>ceres-door-colors.json</c> stream containing setup colors and animation rows.</param>
     /// <returns>The compiled visual snapshot; streams are consumed from their current positions and left open.</returns>
-    public static CeresDoorSourceArtwork Read(Stream tilePng, Stream paletteJson)
+    private static CeresDoorSourceArtwork Read(Stream tilePng, Stream paletteJson)
     {
         Ensure.NotNull(tilePng);
         Ensure.NotNull(paletteJson);
@@ -97,7 +97,7 @@ public static class CeresDoorVisualFiles
     }
 
     /// <summary>Serializes visual JSON as indented camel-case UTF-8, validating version, palette dimensions and RGB5 bounds before returning it; PNG admission is a separate boundary.</summary>
-    public static byte[] Write(CeresDoorVisualDocument document)
+    private static byte[] Write(CeresDoorVisualDocument document)
     {
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, Options);
         // The PNG is validated independently; validate color structure here.

@@ -29,10 +29,4 @@ internal sealed class CeresRidleyRoomDoorEntity(CeresDoorBehavior doors, RoomEne
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, context.Samus);
-
-    /// <summary>
-    /// How the door shows (#2573): its overlay picture from its animation's <see cref="CeresDoorCueKind.ShowOverlay"/>
-    /// until its <see cref="CeresDoorCueKind.MakeVisibleAndShowActor"/>, otherwise its actor frames.
-    /// </summary>
-    public CeresRidleyRoomDoorLook Look => Place.RequireSpeciesState<CeresRidleyRoomDoorState>().Look;
 }

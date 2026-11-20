@@ -72,7 +72,7 @@ internal static class RoomRevealPresentationContractChecks
         // rules, not ROM or room input. Four chosen requests confirm this API change.
         var entries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
-        foreach (Enum? reaction in BlockReactionFamilies.ReadingsOf(type))
+        foreach (BlockReaction? reaction in BlockReactionFamilies.ReadingsOf(type))
             if (XrayReveals.Find(type, reaction) is { } command && InstalledXrayReveals.IsDrawable(command))
                 entries.Add(new(type, reaction, XrayRevealVisualBlocks.ForShape(command,
                     [.. new[] { 1, 2, 3, 4 }.Take(XrayRevealVisualBlocks.CountFor(command))])));

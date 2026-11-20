@@ -84,10 +84,10 @@ internal static class GameOverRomDataVerification
             else StepBaby();
             ticks++;
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(pointer + 4)),
-                GameOverBabyAnimationDefinitions.NativePalettePointer(babyMenu.BabyColours),
+                GameOverBabyAnimationDefinitions.PalettePointers.Word(babyMenu.BabyColours),
                 "game-over live colours match independent ROM stream record each tick");
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(pointer + 2)),
-                GameOverBabyAnimationDefinitions.NativeSpritemap(babyMenu.BabyFrame),
+                GameOverBabyAnimationDefinitions.Spritemaps.Word(babyMenu.BabyFrame),
                 "game-over live pose matches independent ROM stream spritemap each tick");
             AssertEqual(cries + 1, roomRequests.Count, "game-over cry queue changes only at native handoffs");
         }

@@ -190,6 +190,6 @@ internal static class MotherBrainNeckKinematics
     /// <summary>
     /// One axis of a joint's displacement: its distance times the angle's sine, in whole pixels rounded down.
     /// </summary>
-    internal static int CalculateSignedComponent(TrigonometryAngle angle, int distance) =>
+    private static int CalculateSignedComponent(TrigonometryAngle angle, int distance) =>
         UnitComponent.SineOf(angle).ReachRoundedDownOf(distance);
 }

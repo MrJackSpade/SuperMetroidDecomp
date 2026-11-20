@@ -23,7 +23,7 @@ public sealed record RoomEnemyPlacement(
     EnemySpawnSettings SpawnSettings)
 {
     /// <summary>What the entry tells its species about how to start.</summary>
-    public EnemySpawnSettings SpawnSettings { get; init; } = Ensure.NotNull(SpawnSettings);
+    public EnemySpawnSettings SpawnSettings { get; } = Ensure.NotNull(SpawnSettings);
 
     /// <summary>The entry's settings as the <typeparamref name="T"/> its species reads.</summary>
     /// <exception cref="InvalidDataException">The entry carries other settings.</exception>

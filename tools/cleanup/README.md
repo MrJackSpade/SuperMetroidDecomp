@@ -330,7 +330,9 @@ calls, and keeps an abstract property production reads only through its override
 an interface member needs no rule: an explicit implementation is reached only through it, and an implicit one does not
 need it.
 
-The promotion fixtures hold the shape of the 2026-11-13 failure at 5eddba348d, where the prune made the private field
+Since #2570 the promotion fixtures below hold what the prune does into test-support instead: the private member stays private,
+reached through its generated `<Owner>PrivateAccess` member, and the moves the refusals kept in place relocate. Before,
+the promotion fixtures held the shape of the 2026-11-13 failure at 5eddba348d, where the prune made the private field
 `RoomObjectSlotTable._places` internal for moved test code and the build failed on SME6354, and the other rules a
 promotion can break. `underscore-promotion` promotes an underscore-prefixed private field that moved code reaches
 through `this`, through a conditional access and in documentation: it becomes internal as `places`, and every reference
@@ -411,7 +413,17 @@ method without an implementation moves as written, private to its new class, and
 class reaches it or when a staying one must become internal. An instance partial member that becomes an extension
 member is written once from its two parts, and the run fails when they are not both repository source.
 
-A staying member becomes internal (a promotion) when moved code reaches it: through its owner's name, `this`, a receiver
+Moved into test-support, a staying member moved code reaches stays private (#2570): moved code reaches it through a
+generated private-access member, `<Owner>PrivateAccess` in the owner's verification-access folder (or beside the moved
+code when that folder is not under the destination), an extension member of the same name and signature that reaches
+the private member through `PrivateState`, so C# binds the moved code's unchanged reference to it; every generated class
+is imported in `PrivateAccessImports.cs`. Production keeps no member wider for checks, and no promotion rule applies.
+Only a type moved code names still becomes internal. A member no extension member can stand in for (a constructor, an
+indexer, an event, a generic member or owner, a `ref struct` in its signature) and a private setter of a property moved
+code otherwise sees are refused, with a `MANUAL` line. The architecture audit's `--fix-test-only-members` generates the
+same classes for members only checks reach.
+
+Moved into a development-only project, a staying member becomes internal (a promotion) when moved code reaches it: through its owner's name, `this`, a receiver
 or a conditional access, or by constructing its type. A promotion changes only accessibility, so the rules it can break
 are the build's rules that read accessibility (`PromotionRules`, `PromotedNames` and `RenamePairing` in the same
 folder), each met or refused before anything is written. A refused promotion keeps the moves that reach the member in

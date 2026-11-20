@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
@@ -103,7 +104,7 @@ internal sealed record RoomScope
     public required CeresHazeState? CeresHaze { get; init; }
 
     /// <summary>The room's block animations: those its effect lists and the Wrecked Ship entrance treadmill a door's setup may start.</summary>
-    public required RoomBlockAnimations BlockAnimations { get; init; }
+    public required RoomBlockAnimations BlockAnimations { private get; init; }
 
     /// <summary>The room's Tourian statue animations and descent, or null for a room whose setup does not unlock the statues (#2287).</summary>
     public required TourianStatueSequence? TourianStatues { get; init; }
@@ -113,15 +114,6 @@ internal sealed record RoomScope
     /// state runs none (#2287).
     /// </summary>
     public required IRoomMain? Main { get; init; }
-
-    /// <summary>The Maridia elevatube's ride, which the tube's doors start, or null outside the elevatube (#2287).</summary>
-    public required MaridiaElevatubeRoomMainState? MaridiaElevatube { get; init; }
-
-    /// <summary>
-    /// The Ceres elevator shaft's turn and elevator, or null outside the shaft and in the shaft entered other than through its
-    /// elevator door (#2287).
-    /// </summary>
-    public required CeresElevatorShaftRoomMainState? CeresElevatorShaft { get; init; }
 
     /// <summary>The room's enemy population and the species owners that run it.</summary>
     public required RoomEnemySystem Enemies { get; init; }
@@ -162,5 +154,15 @@ internal sealed record RoomScope
             throw new InvalidOperationException("This room's Ceres elevator arrival has already begun.");
         CeresElevatorArrival = Ensure.NotNull(arrival);
     }
+
+    /// <summary>The room's actors that stand in front of Samus (#2571): the Ceres elevator arrival once it has begun.</summary>
+    internal IEnumerable<IActorInFrontOfSamus> ActorsInFrontOfSamus => CeresElevatorArrival is { } arrival ? [arrival] : [];
+
+    /// <summary>
+    /// The displayed states the accepted frame's boundary latches (#2571): the enemies' and, in the statue room, the
+    /// statues' descent.
+    /// </summary>
+    internal IEnumerable<IDisplayLatch> DisplayLatches =>
+        TourianStatues is { } statues ? [.. Enemies.DisplaySources.DisplayLatches, statues] : Enemies.DisplaySources.DisplayLatches;
 
 }

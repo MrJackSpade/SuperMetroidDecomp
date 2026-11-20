@@ -26,13 +26,13 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Receives the cursor and confirmation sounds.</summary>
     private readonly AudioQueues audio;
     /// <summary>The menu screen the options menu draws: its artwork, pictures, colours and sprite entries.</summary>
-    internal readonly MenuScreen screen;
+    private readonly MenuScreen screen;
     /// <summary>Derives newly pressed buttons from the held controller buttons.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>The installed menu art, bound when the game is bound to its installed content.</summary>
     private InstalledScreenContent screenContent;
     /// <summary>The page last loaded and the state its labels, language rows and toggle choices were drawn from (#1467).</summary>
-    internal ShownOptionsPage ShownPage { get; private set; }
+    private ShownOptionsPage ShownPage { get; set; }
     /// <summary>Page whose input and cursor policy currently apply.</summary>
     private GameOptionsPage page = GameOptionsPage.Primary;
     /// <summary>Page to load when the current page has dissolved to black.</summary>
@@ -94,7 +94,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     }
 
     /// <summary>The row the cursor is on: the selected row of the page the menu shows (#2206).</summary>
-    public GameOptionsRow SelectedRow => page switch
+    private GameOptionsRow SelectedRow => page switch
     {
         GameOptionsPage.Primary => new GameOptionsRow.OnPrimaryPage(primaryRow),
         GameOptionsPage.Controller => new GameOptionsRow.OnControllerPage(controllerRow),

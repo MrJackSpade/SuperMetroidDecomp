@@ -10,13 +10,13 @@ internal static class ShotBlockObjectDraws
 {
     /// <summary>The shot blocks' breakup frames, pictured by the installed shot-block frames.</summary>
     internal static RoomObjectDrawFamily<BreakupDraw> BreakupFamily { get; } =
-        RoomObjectDrawFamily<BreakupDraw>.Pictured<InstalledRoomObjectShotBlockVisuals>("shot-block",
-            frame => frame.Blocks, (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<BreakupDraw>("shot-block",
+            frame => frame.Blocks);
 
     /// <summary>The shot blocks' restoration frames, pictured by the installed shot-block frames.</summary>
     internal static RoomObjectDrawFamily<RestorationDraw> RestorationFamily { get; } =
-        RoomObjectDrawFamily<RestorationDraw>.Pictured<InstalledRoomObjectShotBlockVisuals>("shot-block",
-            frame => frame.Blocks, (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<RestorationDraw>("shot-block",
+            frame => frame.Blocks);
 
     /// <summary>A shot block of <paramref name="shape"/> showing <paramref name="stage"/> of its breakup.</summary>
     internal static RoomObjectFrameDraw<BreakupDraw> Breakup(BlockArrangement shape, BlockBreakupStage stage) =>

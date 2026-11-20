@@ -140,7 +140,7 @@ public static class HostOptionsIni
                     doorTransitionAutosave = ParseBoolean(sourceName, lineNumber, key, value);
                     continue;
                 }
-                if (key.Equals(nameof(SuperMetroidGameOptions.ResetBossesOnLoad), StringComparison.OrdinalIgnoreCase))
+                if (key.Equals("ResetBossesOnLoad", StringComparison.OrdinalIgnoreCase))
                 {
                     if (resetBossesOnLoad.HasValue)
                         throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");

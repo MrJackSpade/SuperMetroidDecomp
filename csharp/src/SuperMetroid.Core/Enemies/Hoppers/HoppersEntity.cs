@@ -15,5 +15,5 @@ internal sealed class HoppersEntity(HoppersBehavior species, RoomEnemyOccupant o
     public void RunMainAi(IEnemyAiFrame frame) => species.RunHoppersMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceHoppersTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceHoppersTypedAnimation(Place);
 }

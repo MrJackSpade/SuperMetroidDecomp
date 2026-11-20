@@ -14,7 +14,7 @@ public sealed class ShinesparkCrashEcho
     private Position16<RoomPixels> _position;
 
     /// <summary>The shot that carries the echo, or none before the echo first departs and after Samus's shots are cleared.</summary>
-    internal SamusProjectile? Shot { get; private set; }
+    private SamusProjectile? Shot { get; set; }
 
     /// <summary>Where the echo is shown, or none once no shot carries it.</summary>
     public Position16<RoomPixels>? ShownPosition =>
@@ -38,9 +38,5 @@ public sealed class ShinesparkCrashEcho
     internal void MoveTo(Position16<RoomPixels> position) => _position = position;
 
     /// <summary>Samus's shots have been cleared, and with them the echo.</summary>
-    internal void Forget()
-    {
-        Shot = null;
-        _position = Position16<RoomPixels>.Zero;
-    }
+    internal void Forget() => Shot = null;
 }

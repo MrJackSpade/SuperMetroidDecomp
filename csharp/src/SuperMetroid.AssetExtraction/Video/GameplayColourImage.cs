@@ -16,7 +16,6 @@ public static class GameplayColourImage
     {
         Ensure.LengthEqual(image, SnesCgram.ColorCount);
         return new GameplayStartingColours(
-            image.Slice(GameplayColourPositionDefinitions.BackgroundSetsFirst, GameplayColourPositionDefinitions.SetsColours).ToArray(),
             image.Slice(GameplayColourPositionDefinitions.SpriteSetsFirst, GameplayColourPositionDefinitions.SetsColours).ToArray(),
             image.Slice(GameplayColourPositionDefinitions.SamusSuitFirst, GameplayColourPositionDefinitions.SetColours).ToArray(),
             image.Slice(GameplayColourPositionDefinitions.SamusBeamsFirst, GameplayColourPositionDefinitions.SetColours).ToArray(),

@@ -26,7 +26,7 @@ public static class GameplayMessageTilemapDefinitions
     public const int SaveSelectionRowWords = 32;
 
     /// <summary>The blank glyph drawn when no button the glyphs show is bound.</summary>
-    public static BackgroundTile UnknownGlyph { get; } = new(78, 2, highPriority: true);
+    private static BackgroundTile UnknownGlyph { get; } = new(78, 2, highPriority: true);
 
     /// <summary>The glyph of each button a panel can name, and of no such button.</summary>
     public static FrozenDictionary<ControllerButton, BackgroundTile> Glyphs { get; } = new Dictionary<ControllerButton, BackgroundTile>

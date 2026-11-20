@@ -1,9 +1,13 @@
+using SuperMetroid.Core.Enemies;
 using static SuperMetroid.TestSupport.MovieReplay.NoobTubeProjectileNativeListAddresses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.NoobTube;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 
@@ -20,23 +24,25 @@ internal static class NoobTubeProjectileAnimationsVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int steps = Family.CompareAll(cartridge);
         Func<EnemyProjectileAnimation, ushort?> pointers = Family.NativePointers(cartridge);
+        // The pieces' animations are bound to the tube's own piece behaviour, which carries out their events.
+        RoomEnemySystem enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            definitions: CompiledRoomEnemyDefinitions.Instance);
+        NoobTubeBehavior.NoobTubeProjectileBehavior pieces = enemies.NoobTubeBehavior.TubePieces;
         foreach ((NoobTubeShard shard, ushort entry) in ShardEntries)
         {
             Animation<NoobTubeProjectileSegment> flight = NoobTubeProjectileAnimations.ShardAnimations[shard];
-            AssertEqual<ushort?>(entry, pointers(new NoobTubeProjectileAnimation(flight)), $"a spawned {shard} shard stands at its native entry");
+            AssertEqual<ushort?>(entry, pointers(new NoobTubeProjectileAnimation(pieces, flight)), $"a spawned {shard} shard stands at its native entry");
 
-            var spawned = new NoobTubeProjectileAnimation(NoobTubeProjectileAnimations.StartingWith(NoobTubeProjectileSegment.Crack));
+            var spawned = new NoobTubeProjectileAnimation(pieces, NoobTubeProjectileAnimations.StartingWith(NoobTubeProjectileSegment.Crack));
             AssertTrue(Family.TryResumeAt(cartridge, spawned, entry, nativeLoopCounter: 0)
                     && ReferenceEquals(spawned.Playback.Animation, flight) && spawned.Playback.Place == AnimationPlace.StartOfAnimation,
                 $"a recording at {shard}'s native entry resumes before the shard's first flicker");
 
             // Between two flickers of the flight the recording rests on the flight's count-down, its loop counter holding
             // the flickers left.
-            var flying = new NoobTubeProjectileAnimation(flight)
-            {
-                Playback = new AnimationPlayback<NoobTubeProjectileSegment>(flight, new AnimationPlace(0, flight.Phases[0].BeatCount).WithPlaysLeft(20)),
-            };
-            var flown = new NoobTubeProjectileAnimation(NoobTubeProjectileAnimations.StartingWith(NoobTubeProjectileSegment.Crack));
+            var flying = new NoobTubeProjectileAnimation(pieces, flight);
+            flying.SetPlayback(new AnimationPlayback<NoobTubeProjectileSegment>(flight, new AnimationPlace(0, flight.Phases[0].BeatCount).WithPlaysLeft(20)));
+            var flown = new NoobTubeProjectileAnimation(pieces, NoobTubeProjectileAnimations.StartingWith(NoobTubeProjectileSegment.Crack));
             AssertTrue(pointers(flying) is { } resting && resting != entry && Family.TryResumeAt(cartridge, flown, resting, nativeLoopCounter: 20)
                     && ReferenceEquals(flown.Playback.Animation, flight) && flown.Playback.Place == flying.Playback.Place,
                 $"a recording between {shard}'s flickers resumes the shard's flight with the flickers it has left");

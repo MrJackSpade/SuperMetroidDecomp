@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using K = SuperMetroid.Core.Bosses.Kraid.FakeKraidCueKind;
 using P = SuperMetroid.Core.Bosses.Kraid.FakeKraidSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -17,7 +16,7 @@ internal static class FakeKraidAnimations
     {
         [P.ChooseAction] =
         [
-            Cue(new FakeKraidCue.Signal(K.ChooseAction)),
+            Cue(new FakeKraidCue.ChooseAction()),
         ],
         [P.StepForwardsFacingLeft] =
         [
@@ -25,12 +24,12 @@ internal static class FakeKraidAnimations
             Show(EnemyFrameId.FakeKraidSteppingFacingLeftFrontFootLifting, 12),
             Show(EnemyFrameId.FakeKraidSteppingFacingLeftFrontFootForward, 8),
             Show(EnemyFrameId.FakeKraidSteppingFacingLeftFeetPlanted, 12),
-            Cue(new FakeKraidCue.Signal(K.Move)),
+            Cue(new FakeKraidCue.Move()),
         ],
         [P.StepBackwardsFacingLeft] =
         [
             Show(EnemyFrameId.FakeKraidSteppingFacingLeftFeetTogether, 16),
-            Cue(new FakeKraidCue.Signal(K.Move)),
+            Cue(new FakeKraidCue.Move()),
             Show(EnemyFrameId.FakeKraidSteppingFacingLeftFeetPlanted, 12),
             Show(EnemyFrameId.FakeKraidSteppingFacingLeftFrontFootForward, 8),
             Show(EnemyFrameId.FakeKraidSteppingFacingLeftFrontFootLifting, 12),
@@ -38,7 +37,7 @@ internal static class FakeKraidAnimations
         [P.FireSpitFacingLeft] =
         [
             Show(EnemyFrameId.FakeKraidFacingLeftMouthClosed, 16),
-            Cue(new FakeKraidCue.Signal(K.PlayCrySound)),
+            Cue(new FakeKraidCue.PlayCrySound()),
             Show(EnemyFrameId.FakeKraidFacingLeftMouthOpening, 8),
             Cue(new FakeKraidCue.Spit(HorizontalDirection.Left)),
             Show(EnemyFrameId.FakeKraidFacingLeftMouthWide, 16),
@@ -50,12 +49,12 @@ internal static class FakeKraidAnimations
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFrontFootLifting, 12),
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFrontFootForward, 8),
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFeetPlanted, 12),
-            Cue(new FakeKraidCue.Signal(K.Move)),
+            Cue(new FakeKraidCue.Move()),
         ],
         [P.StepBackwardsFacingRight] =
         [
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFeetTogether, 16),
-            Cue(new FakeKraidCue.Signal(K.Move)),
+            Cue(new FakeKraidCue.Move()),
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFeetPlanted, 12),
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFrontFootForward, 8),
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFrontFootLifting, 12),
@@ -63,7 +62,7 @@ internal static class FakeKraidAnimations
         [P.FireSpitFacingRight] =
         [
             Show(EnemyFrameId.FakeKraidFacingRightMouthClosed, 16),
-            Cue(new FakeKraidCue.Signal(K.PlayCrySound)),
+            Cue(new FakeKraidCue.PlayCrySound()),
             Show(EnemyFrameId.FakeKraidFacingRightMouthOpening, 8),
             Cue(new FakeKraidCue.Spit(HorizontalDirection.Right)),
             Show(EnemyFrameId.FakeKraidFacingRightMouthWide, 16),
@@ -75,7 +74,7 @@ internal static class FakeKraidAnimations
     /// The animation that starts at each step and spit (#2214): it plays, then chooses the next action, which always
     /// continues at the step or spit it picks, so no animation plays past its choice and none starts at the choice.
     /// </summary>
-    internal static IReadOnlyDictionary<FakeKraidSegment, Animation<FakeKraidSegment>> StartingAt { get; } = new Dictionary<FakeKraidSegment, Animation<FakeKraidSegment>>
+    private static Dictionary<FakeKraidSegment, Animation<FakeKraidSegment>> StartingAt { get; } = new Dictionary<FakeKraidSegment, Animation<FakeKraidSegment>>
     {
         [P.StepForwardsFacingLeft] = new([Segments.Whole(P.StepForwardsFacingLeft), Segments.Whole(P.ChooseAction)], AnimationEnd.Holds),
         [P.StepBackwardsFacingLeft] = new([Segments.Whole(P.StepBackwardsFacingLeft), Segments.Whole(P.ChooseAction)], AnimationEnd.Holds),

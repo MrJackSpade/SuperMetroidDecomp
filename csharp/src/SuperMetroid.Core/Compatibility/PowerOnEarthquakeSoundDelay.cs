@@ -24,7 +24,7 @@ public sealed class PowerOnEarthquakeSoundDelay
     public static PowerOnEarthquakeSoundDelay None { get; } = new(extraFrames: 0);
 
     /// <summary>A session whose power-on check adds one frame.</summary>
-    public static PowerOnEarthquakeSoundDelay OneFrame { get; } = new(extraFrames: 1);
+    private static PowerOnEarthquakeSoundDelay OneFrame { get; } = new(extraFrames: 1);
 
     /// <summary>The delay a session gets from what its power-on found in the save file.</summary>
     /// <param name="validSaveFound">Whether any slot held a valid save.</param>

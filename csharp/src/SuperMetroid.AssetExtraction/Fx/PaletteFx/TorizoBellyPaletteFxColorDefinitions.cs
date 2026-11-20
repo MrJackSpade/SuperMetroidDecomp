@@ -18,7 +18,7 @@ public static class TorizoBellyPaletteFxColorDefinitions
 {
 
     /// <summary>Three BGR555 colors are presentation-owned by each timed record.</summary>
-    public const int ColorsPerFrame = 3;
+    private const int ColorsPerFrame = 3;
 
     /// <summary>The Bomb and Golden Torizo programs in palette-definition order.</summary>
     public static IReadOnlyList<TorizoBellyPaletteFxColorDefinition> All { get; } =
@@ -26,13 +26,11 @@ public static class TorizoBellyPaletteFxColorDefinitions
         new()
         {
             Owner = TorizoBellyPaletteOwner.BombTorizo,
-            Object = ColourEffectId.BombTorizoBelly,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.BombTorizoBelly, ColorsPerFrame),
         },
         new()
         {
             Owner = TorizoBellyPaletteOwner.GoldenTorizo,
-            Object = ColourEffectId.GoldenTorizoBelly,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.GoldenTorizoBelly, ColorsPerFrame),
         },
     ];

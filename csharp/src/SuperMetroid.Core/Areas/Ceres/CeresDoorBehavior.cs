@@ -80,7 +80,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
     /// The step of the elevator room's glow the elevator door cycles, which the room's pictures show as
     /// <see cref="CeresDoorShades.ElevatorRoomGlow"/> (#1512); null before the door first cycles it.
     /// </summary>
-    internal int? ElevatorRoomGlowStep { get; set; }
+    internal int? ElevatorRoomGlowStep { private get; set; }
 
     /// <summary>Lays the elevator room's glow step, once the door has cycled one, over the room's pictures (#1512).</summary>
     public void ShadeGameplay(GameplayShadingBuilder frame)
@@ -126,28 +126,28 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
     }
 
     /// <summary>The animation a right-facing door starts, standing closed, when it appears with Samus away (#2189).</summary>
-    internal const CeresDoorSegment RightDoorClosedAnimation = CeresDoorSegment.ClosedFacingRight;
+    private const CeresDoorSegment RightDoorClosedAnimation = CeresDoorSegment.ClosedFacingRight;
 
     /// <summary>The animation a left-facing door starts, standing closed, when it appears with Samus away (#2189).</summary>
-    internal const CeresDoorSegment LeftDoorClosedAnimation = CeresDoorSegment.ClosedFacingLeft;
+    private const CeresDoorSegment LeftDoorClosedAnimation = CeresDoorSegment.ClosedFacingLeft;
 
     /// <summary>The animation an open right-facing door starts, closing, once Samus is away (#2189).</summary>
-    internal const CeresDoorSegment RightDoorClosingAnimation = CeresDoorSegment.CloseFacingRight;
+    private const CeresDoorSegment RightDoorClosingAnimation = CeresDoorSegment.CloseFacingRight;
 
     /// <summary>The animation an open left-facing door starts, closing, once Samus is away (#2189).</summary>
-    internal const CeresDoorSegment LeftDoorClosingAnimation = CeresDoorSegment.CloseFacingLeft;
+    private const CeresDoorSegment LeftDoorClosingAnimation = CeresDoorSegment.CloseFacingLeft;
 
     /// <summary>The animation a closed right-facing door starts again, waiting closed, while Samus is away (#2189).</summary>
-    internal const CeresDoorSegment RightDoorWaitingAnimation = CeresDoorSegment.ClosedFacingRightWait;
+    private const CeresDoorSegment RightDoorWaitingAnimation = CeresDoorSegment.ClosedFacingRightWait;
 
     /// <summary>The animation a closed left-facing door starts again, waiting closed, while Samus is away (#2189).</summary>
-    internal const CeresDoorSegment LeftDoorWaitingAnimation = CeresDoorSegment.ClosedFacingLeftWait;
+    private const CeresDoorSegment LeftDoorWaitingAnimation = CeresDoorSegment.ClosedFacingLeftWait;
 
     /// <summary>The animation the door of Ridley's room starts again while the area boss is alive (#2189).</summary>
-    internal const CeresDoorSegment RidleyRoomDoorWaitingAnimation = CeresDoorSegment.RidleyRoomDoorWait;
+    private const CeresDoorSegment RidleyRoomDoorWaitingAnimation = CeresDoorSegment.RidleyRoomDoorWait;
 
     /// <summary>The animation the elevator room's wall starts, as a left-facing door, until Ceres Ridley has escaped (#2189).</summary>
-    internal const CeresDoorSegment ElevatorRoomWallDoorAnimation = CeresDoorSegment.DoorFacingLeft;
+    private const CeresDoorSegment ElevatorRoomWallDoorAnimation = CeresDoorSegment.DoorFacingLeft;
 
     /// <summary>
     /// Carries out one cue of a door's or wall's animation, returning the segment whose animation the owner starts on a waiting

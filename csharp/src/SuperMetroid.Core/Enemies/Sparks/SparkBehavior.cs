@@ -19,13 +19,13 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Spark];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new SparkEntity(this, occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SparkEntity(this, occupant, place, common));
 
     /// <summary>Owner of the falling-spark projectile emitted by one spark action.</summary>
-    private readonly FallingSparksBehavior _fallingSparksBehavior;
+    private FallingSparksBehavior FallingSparks { get; }
 
     /// <summary>Binds the spark species to its falling-spark producer.</summary>
-    internal SparkBehavior(FallingSparksBehavior fallingSparksBehavior) => _fallingSparksBehavior = fallingSparksBehavior;
+    internal SparkBehavior(FallingSparksBehavior fallingSparksBehavior) => FallingSparks = fallingSparksBehavior;
 
     /// <summary>Carries out one cue of Spark's animations.</summary>
     private static void ApplySparkCue(RoomEnemyPlace place, SparkCue cue)
@@ -91,7 +91,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!DecrementSparkTimerAndTestExpired(state))
                     return;
 
-                _fallingSparksBehavior.SpawnFallingSpark(occupant, place);
+                FallingSparks.SpawnFallingSpark(occupant, place);
                 SetSparkActionTimer(occupant, state, additionalTime: 0);
                 return;
 
@@ -103,7 +103,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Counts one update of the Spark's wait: whether it ends on this update, which every action follows with a new wait.</summary>
     /// <exception cref="InvalidOperationException">The wait is already over: a counting Spark's base time is zero.</exception>
-    internal static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state) => state.ActionTimer.Count();
+    private static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state) => state.ActionTimer.Count();
 
     /// <summary>
     /// Sets the Spark's action timer: its placement's wait between actions (#2450) and <paramref name="additionalTime"/>.
@@ -121,13 +121,13 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Spark's main AI.</summary>
-    internal void RunSparkMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame _)
+    internal void RunSparkMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         RunSparkMain(occupant, place, place.RequireSpeciesState<SparkEnemyState>());
     }
 
     /// <summary>Advances Spark's typed animation.</summary>
-    internal static void AdvanceSparkTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceSparkTypedAnimation(RoomEnemyPlace place)
     {
         if (!place.AnimationClock.Expire())
             return;

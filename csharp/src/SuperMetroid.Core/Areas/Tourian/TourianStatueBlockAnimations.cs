@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using K = SuperMetroid.Core.Areas.Tourian.TourianStatueBlockCueKind;
 using P = SuperMetroid.Core.Areas.Tourian.TourianStatueBlockSegment;
 using F = SuperMetroid.Core.Fx.Artwork.TourianStatueBlockPicture;
 
@@ -44,8 +43,8 @@ internal sealed class TourianStatueBlockAnimations
         {
             [P.Entry] =
             [
-                Cue(new(K.MarkAnimating)),
-                Cue(new(K.MayAlreadyBeGrey)),
+                Cue(TourianStatueBlockCue.MarkAnimating),
+                Cue(TourianStatueBlockCue.MayAlreadyBeGrey),
                 Show(F.EyesBright, firstFrameDuration),
             ],
             [P.Oscillate] =
@@ -54,28 +53,28 @@ internal sealed class TourianStatueBlockAnimations
                 Show(F.EyesDark, 12),
                 Show(F.EyesDim, 12),
                 Show(F.EyesBright, 16),
-                Cue(new(K.MayBeReleased)),
-                Cue(new(K.ClearAnimating)),
+                Cue(TourianStatueBlockCue.MayBeReleased),
+                Cue(TourianStatueBlockCue.ClearAnimating),
             ],
             [P.Release] =
             [
-                Cue(new(K.MayWaitItsTurn)),
-                Cue(new(K.ClaimRelease)),
-                Cue(new(K.BlackOutEyes)),
+                Cue(TourianStatueBlockCue.MayWaitItsTurn),
+                Cue(TourianStatueBlockCue.ClaimRelease),
+                Cue(TourianStatueBlockCue.BlackOutEyes),
                 Show(F.EyesDim, 16),
                 Show(F.EyesDark, 16),
-                Cue(new(K.SpawnEyeGlow)),
+                Cue(TourianStatueBlockCue.SpawnEyeGlow),
                 Show(F.Released, 192),
-                Cue(new(K.SpawnSoul)),
-                Cue(new(K.SpawnGreyColourEffect)),
+                Cue(TourianStatueBlockCue.SpawnSoul),
+                Cue(TourianStatueBlockCue.SpawnGreyColourEffect),
                 Show(F.Released, 128),
-                Cue(new(K.SetGreyEvent)),
-                Cue(new(K.FinishRelease)),
+                Cue(TourianStatueBlockCue.SetGreyEvent),
+                Cue(TourianStatueBlockCue.FinishRelease),
             ],
             [P.AlreadyGrey] =
             [
-                Cue(new(K.FinishRelease)),
-                Cue(new(K.TurnGrey)),
+                Cue(TourianStatueBlockCue.FinishRelease),
+                Cue(TourianStatueBlockCue.TurnGrey),
             ],
         });
 

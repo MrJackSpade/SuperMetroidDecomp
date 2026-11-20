@@ -56,8 +56,8 @@ internal static class CrystalFlashVisualsVerification
         RgbColor dark = InstalledFixtures.SamusShadeSources.Death.WhiteoutColor(DarkBeamsStep);
         RgbColor light = InstalledFixtures.SamusShadeSources.Death.WhiteoutColor(LightBeamsStep);
         AssertTrue(dark != light, "the two whiteout shades that isolate the Crystal Flash body show different colours");
-        FramePaint beamsDark = packet.Paint.WithShownDraws(ShadeSamus(packet.Paint.SpriteDraws, SamusShades.DeathWhiteout(new SuperMetroid.Core.Samus.Death.SamusWhiteoutShade(DarkBeamsStep))));
-        FramePaint beamsLight = packet.Paint.WithShownDraws(ShadeSamus(packet.Paint.SpriteDraws, SamusShades.DeathWhiteout(new SuperMetroid.Core.Samus.Death.SamusWhiteoutShade(LightBeamsStep))));
+        FramePaint beamsDark = packet.Paint.WithShownDraws(ShadeSamus(packet.Paint.SpriteDraws, SamusShades.DeathWhiteout(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.Death.SamusWhiteoutShade>([typeof(int)], new object?[] { (int)(DarkBeamsStep) }))));
+        FramePaint beamsLight = packet.Paint.WithShownDraws(ShadeSamus(packet.Paint.SpriteDraws, SamusShades.DeathWhiteout(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.Death.SamusWhiteoutShade>([typeof(int)], new object?[] { (int)(LightBeamsStep) }))));
         int centerX = samus.Position.X.Whole - runtime.Display.DisplayedGameplayScrolls.ForegroundPosition.X;
         int centerY = samus.Position.Y.Whole - runtime.Display.DisplayedGameplayScrolls.ForegroundPosition.Y;
         AssertTrue(centerX is >= 32 and <= 223 && centerY is >= 64 and <= 191,

@@ -63,7 +63,7 @@ try {
     foreach ($match in [regex]::Matches($doorFile, '\[0x([0-9a-f]{4})\] = (\w*DoorDefinitions)\.(\w+),')) {
         $doorNames[[Convert]::ToInt32($match.Groups[1].Value, 16)] = $match.Groups[2].Value + '.' + $match.Groups[3].Value
     }
-    if ($doorNames.Count -ne 596) { throw "Expected 596 door names, found $($doorNames.Count)." }
+    if ($doorNames.Count -ne 594) { throw "Expected 594 door names, found $($doorNames.Count)." }
     function Format-Door([int]$door) {
         if ($door -eq 0) { throw 'A door transfer names no door.' }
         if (-not $doorNames.ContainsKey($door)) { throw ('Library transfer names unknown door ${0:X4}.' -f $door) }
@@ -148,16 +148,17 @@ try {
     }
     $backgroundRooms = @{}
     foreach ($stateFile in [IO.Directory]::GetFiles($roomStates, '*RoomStateDefinitions.cs')) {
-        # A state is chosen by its property's name, which its installed key string need not match (#2552).
-        $property = $null
+        # A state is named by its declared member, which the selections name; its installed key may keep an older name.
+        $declared = $null
         foreach ($line in [IO.File]::ReadAllLines($stateFile)) {
-            $propertyMatch = [regex]::Match($line, 'public static RoomStateSettings (\w+) \{ get; \}')
-            if ($propertyMatch.Success) { $property = $propertyMatch.Groups[1].Value }
+            $declarationMatch = [regex]::Match($line, 'RoomStateSettings (\w+) \{ get; \} =')
+            if ($declarationMatch.Success) { $declared = $declarationMatch.Groups[1].Value }
             $stateMatch = [regex]::Match($line, 'new\("(\w+)",')
             $backgroundMatch = [regex]::Match($line, 'LibraryBackgroundDefinitions\.(\w+)')
             if (-not $stateMatch.Success -or -not $backgroundMatch.Success) { continue }
-            if ($null -eq $property) { throw "Room state $($stateMatch.Groups[1].Value) is declared by no property." }
-            $state = $property
+            if ($null -eq $declared) { throw "Room state $($stateMatch.Groups[1].Value) in $stateFile follows no declaration." }
+            $state = $declared
+            $declared = $null
             if (-not $stateRooms.ContainsKey($state)) { throw "Room state $state loads a library background but no room chooses it." }
             $background = $backgroundMatch.Groups[1].Value
             if (-not $backgroundRooms.ContainsKey($background)) { $backgroundRooms[$background] = [Collections.Generic.HashSet[string]]::new() }
@@ -250,7 +251,8 @@ try {
             throw ('Library list ${0:X4} shows {1} but gives entry doors pictures of their own.' -f $pointer, $view)
         }
         $lines.Add(('    /// <summary>The {0} library-background program.</summary>' -f $programName))
-        $lines.Add(('    public static LibraryBackgroundProgram {0} {{ get; }} = new(LibraryBackgroundDefinitions.{1}, [' -f
+        # Each program is reached through All; checks name one through its generated private access (#2570).
+$lines.Add(('    private static LibraryBackgroundProgram {0} {{ get; }} = new(LibraryBackgroundDefinitions.{1}, [' -f
             $programName, $backgroundName))
         $lines.AddRange($instructionLines)
         $lines.Add('    ]);')

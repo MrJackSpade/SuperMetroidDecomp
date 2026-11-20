@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// <summary>
 /// The action Beetom performs each frame. Setup actions intentionally remain separate states: in
 /// the game, choosing an action takes one frame and starting that action takes another before movement
-/// begins. An action that goes one way goes the way <see cref="BeetomEnemyState.Heading"/> names (#2277).
+/// begins. An action that goes one way goes the way <c>Heading</c> names (#2277).
 /// Its values are arbitrary.
 /// </summary>
 public enum BeetomAction

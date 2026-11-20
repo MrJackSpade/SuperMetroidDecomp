@@ -199,7 +199,7 @@ internal sealed class BeamFiring
     }
 
     /// <summary>Attempts allocation and muzzle setup for an ordinary or charged beam shot.</summary>
-    internal BeamShot? TryFireBeam(
+    private BeamShot? TryFireBeam(
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerNewInput,
@@ -307,7 +307,7 @@ internal sealed class BeamFiring
     }
 
     /// <summary>Allocates charged-Plasma art with Hyper damage, Wave collision, and the Hyper Beam's cooldown (<see cref="SamusProjectileCooldownDefinitions.HyperBeamShot"/>).</summary>
-    internal BeamShot? TryFireHyperBeam(
+    private BeamShot? TryFireHyperBeam(
         RoomLevelData level,
         SamusState samus,
         SamusBombProjectileSystem samusBombs,
@@ -517,7 +517,7 @@ internal sealed class BeamFiring
     /// pixels per update: the base speed along the direction plus the motion it inherits from Samus. Each axis wraps as
     /// a velocity does, so an unauthored speed that passes the end of the range continues from the other end.
     /// </summary>
-    internal static PixelVelocity<RoomPixels> LaunchVelocity(
+    private static PixelVelocity<RoomPixels> LaunchVelocity(
         ProjectileLaunchInheritance inheritance,
         SamusProjectileDirection direction,
         SignedEightEight baseSpeed)
@@ -547,7 +547,7 @@ internal sealed class BeamFiring
     /// firing a beam or a missile sets it, and it is counted down to none once each gameplay update, after Samus and the
     /// enemies have moved.
     /// </summary>
-    public UpdateCountdown InteractionImmunity { get; internal set; } = UpdateCountdown.Ended();
+    internal UpdateCountdown InteractionImmunity { private get; set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether a shot just fired keeps Samus from interacting with her own projectiles.</summary>
     public bool SuppressesInteraction => InteractionImmunity.IsRunning;

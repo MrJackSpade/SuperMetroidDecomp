@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed class SamusCrystalFlashState
 {
     /// <summary>The exact held actions that start Crystal Flash: Down, both aims and Shoot, and nothing else.</summary>
-    public const GameplayAction RequiredInput =
+    private const GameplayAction RequiredInput =
         GameplayAction.Down | GameplayAction.AimDown | GameplayAction.AimUp | GameplayAction.Shoot;
 
     /// <summary>The phase in which Crystal Flash moves Samus, or none once another owner has taken her movement.</summary>
@@ -75,27 +75,27 @@ public sealed class SamusCrystalFlashState
     /// The room line Samus's whole Y reached at the end of the complete 20-pixel rise: the finishing phase walks her down
     /// one pixel an update while her whole Y differs from it.
     /// </summary>
-    public int RaisedHeight { get; private set; }
+    private int RaisedHeight { get; set; }
 
     /// <summary>
     /// The body's colour pulse (#2387), its ten shades of ten colouring updates each played over and over: activation
     /// starts it, and its first shade shows on the flash's first colouring update.
     /// </summary>
-    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> BodyPulse { get; } =
+    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> BodyPulse { get; } =
         SamusGlowPlay.Starting(SamusGlowSegment.CrystalFlashBody);
 
     /// <summary>
     /// The bubble's colours turning (#2387), its six shades of five colouring updates each played over and over on their
     /// own count beside the body's: activation starts it, and its first shade shows on the flash's first colouring update.
     /// </summary>
-    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> BubbleTurn { get; } =
+    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> BubbleTurn { get; } =
         SamusGlowPlay.Starting(SamusGlowSegment.CrystalFlashBubble);
 
     /// <summary>
     /// Where the flash's colouring stands (#2562): showing its pulse and bubble, or ended by the flash's finish, its next
     /// colouring update showing the equipped beams' colours again and releasing the shade.
     /// </summary>
-    public SpecialColouringStage Colouring { get; private set; }
+    private SpecialColouringStage Colouring { get; set; }
 
 /// <summary>
     /// Starts Crystal Flash when Samus may use it: checks every admission condition and sets up the raise.
@@ -212,7 +212,6 @@ public sealed class SamusCrystalFlashState
         }
 
         return new CrystalFlashMovementResult(
-            phaseAtStart,
             BubbleStarted: phaseAtStart == CrystalFlashPhase.Raising && Phase == CrystalFlashPhase.DrainingAmmo);
     }
 

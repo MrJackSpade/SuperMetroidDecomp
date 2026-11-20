@@ -7,6 +7,6 @@ internal static class ListBoundsAccess
     extension(ListBounds self)
     {
         /// <summary>The list's first entry, which only checks read.</summary>
-        internal int Start => self.first;
+        internal int Start => self._first;
     }
 }

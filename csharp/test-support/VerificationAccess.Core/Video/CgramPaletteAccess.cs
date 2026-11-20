@@ -12,9 +12,9 @@ internal static class CgramPaletteAccess
         /// <summary>Writes <paramref name="colors"/> starting at <paramref name="start"/>.</summary>
         public void CopyFrom(ReadOnlySpan<RgbColor> colors, int start = 0)
         {
-            self.CheckSpan(start, colors.Length);
+            CgramPalette target = self.Slice(start, colors.Length);
             for (int index = 0; index < colors.Length; index++)
-                self.cgram.SetColor(self.first + start + index, colors[index]);
+                target.Write(index, colors[index]);
         }
         /// <summary>
         /// Streams little-endian colour words through the CGDATA port ($2122) starting at
@@ -24,9 +24,9 @@ internal static class CgramPaletteAccess
         {
             if ((littleEndianWords.Length & 1) != 0)
                 throw new ArgumentException("CGRAM data must contain complete two-byte colours.", nameof(littleEndianWords));
-            self.CheckSpan(start, littleEndianWords.Length / ColourWordCodec.ByteCount);
+            CgramPalette target = self.Slice(start, littleEndianWords.Length / ColourWordCodec.ByteCount);
             for (int color = 0; color < littleEndianWords.Length / ColourWordCodec.ByteCount; color++)
-                self.cgram.SetColor(self.first + start + color, RgbColor.FromWordIgnoringTopBit(
+                target.Write(color, RgbColor.FromWordIgnoringTopBit(
                     LittleEndianBytes.Word(littleEndianWords[color * 2], littleEndianWords[color * 2 + 1])));
         }
     }

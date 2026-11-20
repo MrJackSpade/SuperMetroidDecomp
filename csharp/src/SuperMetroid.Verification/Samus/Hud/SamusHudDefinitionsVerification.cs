@@ -56,8 +56,8 @@ internal static class SamusHudDefinitionsVerification
         }
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         Action<SamusState, ushort> setTurn = (state, turn) =>
-            state.TransitionShot.Hand(turn == 0 ? null : new SamusTransitionShot(SuperMetroid.Core.Samus.Poses.SamusPoseRecordDecoding.DirectionOfAimByte(turn & byte.MaxValue)
-                ?? throw new InvalidOperationException($"Turn word {turn} names no aim; a handed-over shot always names one.")));
+            state.TransitionShot.Hand(turn == 0 ? null : global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { (global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)(SuperMetroid.Core.Samus.Poses.SamusPoseRecordDecoding.DirectionOfAimByte(turn & byte.MaxValue)
+                ?? throw new InvalidOperationException($"Turn word {turn} names no aim; a handed-over shot always names one.")) }));
         foreach (int movement in SamusMovementTypeNumbers.Named)
         {
             SamusHudSelectionMode handler = HandlerOf(rom, movement);

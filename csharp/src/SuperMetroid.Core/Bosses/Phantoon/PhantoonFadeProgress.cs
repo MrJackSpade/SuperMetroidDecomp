@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public sealed class PhantoonFadeProgress
 {
     /// <summary>The steps the fade has taken since it last completed, which is the next step's place in the fade.</summary>
-    public int Steps { get; internal set => field = Ensure.AtLeastZero(value); }
+    private int Steps { get; set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>Whether the fade has finished: it takes no step until a phase that fades resumes it.</summary>
     public bool IsFinished { get; private set; }

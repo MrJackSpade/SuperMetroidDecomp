@@ -14,7 +14,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Boulder];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new BoulderEntity(this, occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BoulderEntity(this, occupant, place, common));
 
     /// <summary>Moves the actor through room collision during fall and roll phases.</summary>
     private readonly EnemyTerrain _terrain;
@@ -38,9 +38,6 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new BoulderEnemyState(BoulderAction.WaitingForSamus);
         place.SetSpeciesState(state);
 
-        state.BounceCurvePlace = QuadraticSpeedCurvePlace.Start;
-        state.TravelCurvePlace = QuadraticSpeedCurvePlace.Start;
-        state.ImpactsSoFar = 0;
         state.RestingY = place.Position.Whole.Y;
         state.PreviousY = place.Position.Y;
 
@@ -170,7 +167,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Accelerates through terrain contact; ordinary impacts consume bounces while a boulder that breaks on impact breaks at the first.</summary>
-    internal void RunBoulderFalling(RoomEnemyOccupant occupant, RoomEnemyPlace place, BoulderEnemyState state, RoomLevelData level)
+    private void RunBoulderFalling(RoomEnemyOccupant occupant, RoomEnemyPlace place, BoulderEnemyState state, RoomLevelData level)
     {
         SignedSixteenSixteen verticalDisplacement = state.BounceCurvePlace.Speed.Positive;
         if (_terrain.MoveEnemyVertically(level, place, verticalDisplacement))
@@ -265,7 +262,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         QuadraticSpeedCurvePlace.Min(value + increment, maximum);
 
     /// <summary>Advances Boulder's typed animation.</summary>
-    internal static void AdvanceBoulderTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceBoulderTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, BoulderAnimations.Segments,
             static (BoulderEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Boulder animation raised {cue}."));

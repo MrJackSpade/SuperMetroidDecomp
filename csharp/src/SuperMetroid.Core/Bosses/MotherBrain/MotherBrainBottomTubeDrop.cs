@@ -10,4 +10,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed record MotherBrainBottomTubeDrop(
     MotherBrainTubePiece Piece,
     RoomObjectSpawnRequest<MotherBrainRoomMutation> Clears,
-    int WaitAfterUpdates) : MotherBrainTubeDrop(Clears, WaitAfterUpdates);
+    int WaitAfterUpdates) : MotherBrainFollowedTubeDrop(Clears, WaitAfterUpdates);

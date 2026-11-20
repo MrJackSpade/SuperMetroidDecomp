@@ -36,7 +36,7 @@ internal static class SkulteraOwnedStateVerification
 
         // The wave steps forward while the Skultera swims the way it started and backward once a turn has brought it
         // the other way (#2450).
-        state.Angle = RotationAngle.FromSteps(250);
+        global::SuperMetroid.Core.PrivateState.Set(state, "Angle", (global::SuperMetroid.Core.Spatial.RotationAngle)(RotationAngle.FromSteps(250)));
         state.AdvanceAngle(settings);
         AssertEqual((byte)4, state.Angle.ToTrigonometryAngle().RawValue, "the phase wraps forward through a full turn");
         state.Heading = settings.StartDirection == HorizontalDirection.Left ? HorizontalDirection.Right : HorizontalDirection.Left;

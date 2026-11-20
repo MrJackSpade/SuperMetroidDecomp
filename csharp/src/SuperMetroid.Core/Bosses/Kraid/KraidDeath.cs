@@ -74,7 +74,7 @@ internal sealed class KraidDeath
                 return;
 
             case KraidDeathPhase.FadeOut:
-                _ = _head.AdvanceKraidHeadAnimation(state);
+                _head.AdvanceKraidHeadAnimation(state);
                 if (_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToBlack))
                 {
                     state.BodyState.DeathPhase = KraidDeathPhase.ShowBody;
@@ -83,13 +83,13 @@ internal sealed class KraidDeath
                 return;
 
             case KraidDeathPhase.ShowBody:
-                _ = _head.AdvanceKraidHeadAnimation(state);
+                _head.AdvanceKraidHeadAnimation(state);
                 state.BodyState.DeathPhase = KraidDeathPhase.StartSinking;
                 state.ShowBody();
                 return;
 
             case KraidDeathPhase.StartSinking:
-                _ = _head.AdvanceKraidHeadAnimation(state);
+                _head.AdvanceKraidHeadAnimation(state);
                 state.BodyState.DeathPhase = KraidDeathPhase.Sink;
                 state.SinkRumbleWait.LastFor(KraidArenaDefinitions.SinkFirstSoundUpdates);
                 body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
@@ -138,7 +138,7 @@ internal sealed class KraidDeath
     /// Starts the death animation and prepares its room mutation schedule. His health has run out, so the update's colour
     /// handling, which runs before it, has already cut his hurt flash short.
     /// </summary>
-    internal void InitializeKraidDeath(KraidEnemyState state, SamusState samus)
+    private void InitializeKraidDeath(KraidEnemyState state, SamusState samus)
     {
         state.Colours.ShowDeathArm();
         state.ArmState.StartAnimation(KraidPartSegment.ArmDyingOrPreparingToLunge);
@@ -161,7 +161,7 @@ internal sealed class KraidDeath
     /// <summary>Moves the body downward through the authored sink sequence.</summary>
     private void RunKraidDeathSink(RoomEnemyPlace body, KraidEnemyState state, SamusState samus)
     {
-        _ = _head.AdvanceKraidHeadAnimation(state);
+        _head.AdvanceKraidHeadAnimation(state);
         if (state.SinkRumbleWait.StepRunsOut())
         {
             _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
@@ -200,7 +200,7 @@ internal sealed class KraidDeath
     }
 
     /// <summary>Takes the sink step the body has reached as it descends, if any: its ceiling block goes and a rock falls from it.</summary>
-    internal void TakeKraidSinkStep(RoomEnemyPlace body)
+    private void TakeKraidSinkStep(RoomEnemyPlace body)
     {
         if (KraidSinkSchedule.StepAt(body.Position.Y.Whole) is not KraidSinkStep step)
             return;

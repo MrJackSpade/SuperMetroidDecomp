@@ -31,17 +31,11 @@ public static class ZebesExplosionAmbientPaletteFxColorDefinitions
         new()
         {
             Owner = ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow,
-            Object = ColourEffectId.ZebesExplosionPlanetAfterglow,
-            ColorsPerFrame = 8,
-            CycleFrames = 96,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.ZebesExplosionPlanetAfterglow, 8),
         },
         new()
         {
             Owner = ZebesExplosionAmbientPaletteFxProgramOwner.Lava,
-            Object = ColourEffectId.ExplodingZebesLava,
-            ColorsPerFrame = 1,
-            CycleFrames = 70,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.ExplodingZebesLava, 1),
         },
     ];

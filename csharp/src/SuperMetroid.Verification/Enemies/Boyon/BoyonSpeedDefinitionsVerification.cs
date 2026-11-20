@@ -19,7 +19,7 @@ internal static class BoyonSpeedDefinitionsVerification
     internal static void VerifyCompiledBoyonSpeeds(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Action<RoomEnemyPlace> initialize = fixturePlace => BoyonBehavior.InitializeBoyon(fixturePlace.HeldOccupant(), fixturePlace);
+        Action<RoomEnemyPlace> initialize = fixturePlace => BoyonBehavior.InitializeBoyon(fixturePlace);
         RoomEnemyPlace actor = enemies.Places.InUpdateOrder[0];
         actor.Bind(EnemyDefinitionId.Boyon, actor.Definition);
         int initialized = 0;

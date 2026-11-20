@@ -1,5 +1,9 @@
 # The compatibility layer
 
+> This describes the old C# code only. The v1.0.0 Godot game's compatibility layer is a different and much smaller
+> thing ([v1.0.0 manifesto](v1.0.0-manifesto.md), sections 2 and 5): each service listed here is a claim about the
+> game to re-examine, not something to rebuild.
+
 Core is a C# game (v0.9.0 manifesto). The one place behaviour of the original hardware survives in it is the
 compatibility layer: a small set of services and value types, in the `SuperMetroid.Core.Compatibility` module, that
 reproduce timing or values of the original machine which change what the simulation does next. Everything else that

@@ -48,7 +48,7 @@ internal static class RidleyShotHealthStageVerification
         ridley.Health = 9340;
         state.FightMode = RidleyFightMode.PowerBombDodge;
         state.HealthBand = NorfairRidleyHealthBandDefinitions.Unhurt;
-        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(ridley.Position.Whole);
+        runtime.Enemies.PrepareEnemyProcessingList(ridley.Position.Whole);
         foreach (int index in new[] { 0, 1 })
         {
             SamusProjectile shot = runtime.Projectiles.Shots[index];

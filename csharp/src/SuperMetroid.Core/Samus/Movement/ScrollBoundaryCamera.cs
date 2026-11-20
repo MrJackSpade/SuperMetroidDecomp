@@ -25,7 +25,7 @@ public sealed class ScrollBoundaryCamera
     /// <summary>
     /// Gets the camera's position: whole pixels and fraction.
     /// </summary>
-    public FixedPosition<RoomPixels> Position { get; internal set; }
+    public FixedPosition<RoomPixels> Position { get; private set; }
 
     /// <summary>Gets the camera's integer position (its top-left room pixel).</summary>
     public Position16<RoomPixels> PixelPosition => Position.Whole;
@@ -34,13 +34,13 @@ public sealed class ScrollBoundaryCamera
     /// Gets the camera target calculated from Samus's position: horizontally from her facing
     /// context, vertically from the room's falling and rising camera offsets.
     /// </summary>
-    public Position16<RoomPixels> IdealPosition { get; private set; }
+    private Position16<RoomPixels> IdealPosition { get; set; }
 
     /// <summary>
     /// Gets the most recently calculated camera speed on each axis:
     /// the distance Samus moved, either way, plus one pixel.
     /// </summary>
-    public FixedVector<RoomPixels> Speed { get; internal set; }
+    public FixedVector<RoomPixels> Speed { get; private set; }
 
     /// <summary>
     /// Samus's previous position written at the end of scrolling, or that the camera has been placed since its last
@@ -434,7 +434,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>Stops rightward travel at the ideal point, room edge, or closed screen to the right.</summary>
-    internal void HandleScrollingRight()
+    private void HandleScrollingRight()
     {
         int proposed = Position.X.Whole;
 
@@ -465,7 +465,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>Stops leftward travel at the ideal point, room edge, or current closed screen.</summary>
-    internal void HandleScrollingLeft()
+    private void HandleScrollingLeft()
     {
         int proposed = Position.X.Whole;
         if (CameraPastRoomEdge.LiesBefore(Position.X.Whole, IdealPosition.X))
@@ -491,7 +491,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>Applies the top-aligned versus closed/open vertical alignment and blocks downward travel at room or scroll limits.</summary>
-    internal void HandleScrollingDown()
+    private void HandleScrollingDown()
     {
         int proposed = Position.Y.Whole;
         Position16<RoomScreens> current = VerticalCheckScreen();
@@ -532,7 +532,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>Stops upward travel at the ideal point, room top, or current closed screen.</summary>
-    internal void HandleScrollingUp()
+    private void HandleScrollingUp()
     {
         int proposed = Position.Y.Whole;
         if (CameraPastRoomEdge.LiesBefore(Position.Y.Whole, IdealPosition.Y))

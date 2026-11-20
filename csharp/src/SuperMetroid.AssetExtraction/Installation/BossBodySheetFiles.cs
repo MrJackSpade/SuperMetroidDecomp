@@ -19,7 +19,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 public static class BossBodySheetFiles
 {
     /// <summary>The manifest naming each boss's frames.</summary>
-    public const string ManifestFileName = "boss-bodies.json";
+    private const string ManifestFileName = "boss-bodies.json";
 
     /// <summary>
     /// The manifest's schema revision: 6 names each frame's one whole picture, where it lies on the body's area and the
@@ -50,7 +50,7 @@ public static class BossBodySheetFiles
     /// </summary>
     /// <param name="sheets">Every boss's composed body sheet.</param>
     /// <param name="directory">The family's directory, created if absent.</param>
-    internal static InstalledSheetFamily Write(IReadOnlyList<ComposedBossBodySheet> sheets, string directory)
+    private static InstalledSheetFamily Write(IReadOnlyList<ComposedBossBodySheet> sheets, string directory)
     {
         Ensure.NotNull(sheets);
         Directory.CreateDirectory(directory);
@@ -72,7 +72,7 @@ public static class BossBodySheetFiles
 
     /// <summary>Loads the body sheet of each boss the files hold, which may be fewer than every boss.</summary>
     /// <exception cref="InvalidDataException">The manifest, an image or a frame manifest is invalid.</exception>
-    internal static IReadOnlyList<BossBodySheet> LoadEach(string directory)
+    private static IReadOnlyList<BossBodySheet> LoadEach(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         string manifestPath = Path.Combine(directory, ManifestFileName);

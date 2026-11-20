@@ -25,9 +25,9 @@ internal static class DraygonGoopDropsVerification
         runtime.Player.IntroducedSamus.Health = 10;
         var enemies = runtime.Enemies;
         var goop = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.DraygonGoop);
-        goop.Behavior = FamilyProjectileStarts.BehaviorOf(enemies, goop.Kind);
+        global::SuperMetroid.Core.PrivateState.Set(goop, "Behavior", (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(FamilyProjectileStarts.BehaviorOf(enemies, goop.Kind)));
         goop.HoldStill();
-        goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.GoopShot));
+        goop.StartAnimation(new DraygonProjectileAnimation(enemies.DraygonBehavior.Shots.Goop, DraygonProjectileSegment.GoopShot));
         goop.Position = goop.Position.WithWhole(new(120, 240));
         var burstMaps = new HashSet<ushort>();
         for (int frame = 0; frame < 16; frame++)

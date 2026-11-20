@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -263,7 +262,7 @@ public sealed class SamusState
     /// of one update is never rounded on its own; how the fraction reaches the whole energy is the compatibility layer's
     /// (<see cref="PeriodicDamageEnergyFraction"/>).
     /// </summary>
-    public PeriodicDamageEnergyFraction EnergyFraction { get; private set; }
+    private PeriodicDamageEnergyFraction EnergyFraction { get; set; }
 
     /// <summary>
     /// Takes periodic damage as the game's periodic damage does: the fraction comes off <see cref="EnergyFraction"/>
@@ -606,7 +605,7 @@ public sealed class SamusState
     /// next one. Most movement methods return collision results directly; Draygon-held movement has no displacement and its
     /// sole effect is forgetting this result. A downward move keeps a wall jump's result unless it lands.
     /// </summary>
-    public SamusVerticalCollisionResult SolidVerticalCollisionResult { get; set; }
+    public SamusVerticalCollisionResult SolidVerticalCollisionResult { get; private set; }
 
     /// <summary>A downward move leaves its result: landed when it collided, otherwise falling, unless a wall jump's is kept.</summary>
     internal void LeaveDownwardMoveResult(bool landed)

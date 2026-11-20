@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.Elevator;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -29,7 +30,7 @@ internal static class UnpauseElevatorFlagsVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
 
         runtime.Enemies.ElevatorBehavior.PublishElevatorDoorContact();
         AssertEqual(ElevatorArming.DoorContact, runtime.Enemies.ElevatorBehavior.DoorArming, "the elevator is armed before the pause");

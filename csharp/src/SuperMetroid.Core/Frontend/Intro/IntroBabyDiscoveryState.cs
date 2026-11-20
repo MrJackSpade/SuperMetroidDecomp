@@ -19,11 +19,11 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>Receives the egg-hatch and baby-cry sound requests.</summary>
     private readonly AudioQueues audio;
     /// <summary>Feeds the scripted pose and movement input to Samus.</summary>
-    internal readonly DemoInputState demo = new();
+    private readonly DemoInputState demo = new();
     /// <summary>What the scripted input watches for before its next step.</summary>
     internal IntroBabyDiscoveryDemoPhase DemoPhase { get; private set; } = IntroBabyDiscoveryDemoPhase.RunningLeft;
     /// <summary>Particles emitted when the egg begins hatching.</summary>
-    internal readonly List<IntroEggParticle> eggParticles = [];
+    private readonly List<IntroEggParticle> eggParticles = [];
     /// <summary>Drops emitted as the baby rises past the hatch row.</summary>
     private readonly List<IntroEggSlimeDrop> slimeDrops = [];
     /// <summary>The session's random number generator, which the demo's Samus animation draws from.</summary>
@@ -31,13 +31,13 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>The installed steps the egg's shell fragments fall by past their gravity curve.</summary>
     private readonly ShellFragmentFallPastCurve shellFallPastCurve;
     /// <summary>The egg actor whose animation controls the hatch sequence.</summary>
-    internal readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroDiscoveryCue> egg;
+    private readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroDiscoveryCue> egg;
     /// <summary>What the egg waits for: Samus's approach, then nothing while it hatches, then page three's cross-fade.</summary>
     private MetroidEggBehavior eggBehavior = MetroidEggBehavior.WaitsForSamus;
     /// <summary>How the confused baby moves: waiting for the hatch, rising out of the egg, idling, then dancing.</summary>
     private ConfusedBabyMotion babyMotion = ConfusedBabyMotion.WaitingForHatch;
     /// <summary>The baby actor that waits for the egg's completed frame before moving.</summary>
-    internal readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroDiscoveryCue> confusedBaby;
+    private readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroDiscoveryCue> confusedBaby;
 
     /// <summary>Sets up the scene's Samus state, partial room collision map, actors, and demo input list.</summary>
     /// <param name="random">The session's random number generator, which the demo's Samus animation draws from.</param>
@@ -79,7 +79,7 @@ internal sealed class IntroBabyDiscoveryState
     public SamusState Samus { get; }
 
     /// <summary>The 32 by 16 discovery room's collision: its two authored strips and air elsewhere.</summary>
-    public RoomLevelData Level { get; }
+    private RoomLevelData Level { get; }
 
     /// <summary>Signals the outer cinematic owner to start the next page's colour transition.</summary>
     /// <remarks>

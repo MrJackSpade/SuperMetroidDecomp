@@ -29,7 +29,7 @@ internal static class KagoBugProjectileBehaviorVerification
             shell.Bind(EnemyDefinitionId.Kago, shell.Definition);
             enemies.KagoBehavior.SpawnKagoBug(shell.HeldOccupant(), shell);
             EnemyProjectile bug = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.KagoBug);
-            bug.StartAnimation(new KagoBugProjectileAnimation(program));
+            bug.StartAnimation(new KagoBugProjectileAnimation(enemies.KagoBehavior.Bug, program));
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, bug, KagoBugProjectileNativeListAddresses.Entry(program), 40, program.ToString());
             AssertTrue(!deleted, $"{program} keeps the bug");
         }
@@ -83,7 +83,7 @@ internal static class KagoBugProjectileBehaviorVerification
         enemies.KagoBehavior.SpawnKagoBug(shell.HeldOccupant(), shell);
         EnemyProjectile bug = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.KagoBug);
         SpriteGraphics spawned = bug.Graphics;
-        bug.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Shot));
+        bug.StartAnimation(new KagoBugProjectileAnimation(enemies.KagoBehavior.Bug, KagoBugProjectileSegment.Shot));
         EnemyProjectileFrameId[] burst = [.. KagoBugProjectileAnimations.Segments.Beats(KagoBugProjectileSegment.Shot).Select(beat => beat.ShownFrame).OfType<EnemyProjectileFrameId>()];
         AssertEqual(5, burst.Length, "the shot bug's burst shows five frames");
         var shown = new HashSet<EnemyProjectileFrameId>();

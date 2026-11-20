@@ -69,7 +69,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         Vulnerability: null);
 
     /// <summary>The cutscene actors' and getaway chamber walls' definitions, by identity.</summary>
-    internal static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
+    private static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
         new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>
     {
         [EnemyDefinitionId.BabyMetroidCutscene] = BabyMetroidCutscene,

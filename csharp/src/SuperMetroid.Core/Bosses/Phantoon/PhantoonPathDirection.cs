@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Which way Phantoon runs his figure-eight path (#2471, <see cref="PhantoonPath.Places"/>).</summary>
+/// <summary>Which way Phantoon runs his figure-eight path (#2471, <c>Places</c>).</summary>
 public enum PhantoonPathDirection
 {
     /// <summary>On to each next place of the path, past its last to its first.</summary>

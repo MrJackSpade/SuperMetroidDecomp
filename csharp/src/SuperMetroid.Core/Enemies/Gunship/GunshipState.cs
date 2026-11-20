@@ -35,7 +35,7 @@ internal sealed class GunshipState
     /// counted once each: its age chooses each update's shake, and the rumble strengthens at
     /// <see cref="GunshipTakeoffDefinitions.RumbleStrengthensFrame"/>.
     /// </summary>
-    public UpdateCountdown Rumble { get; internal set; } = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineRumbleFrames);
+    public UpdateCountdown Rumble { get; } = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineRumbleFrames);
 
     /// <summary>The phase the ship runs.</summary>
     public GunshipPhase Phase { get; internal set; }

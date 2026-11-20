@@ -10,16 +10,10 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// <param name="place">The place the wing occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class DragonWingEntity(DragonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public void Initialize() => species.InitializeDragonWing(Place);
-
-    /// <summary>Does nothing: the wing has no AI of its own, its body moves it.</summary>
-    /// <param name="frame">The enemy pass's frame.</param>
-    public void RunMainAi(IEnemyAiFrame frame)
-    {
-    }
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DragonBehavior.AdvanceDragonWingTypedAnimation(Place);

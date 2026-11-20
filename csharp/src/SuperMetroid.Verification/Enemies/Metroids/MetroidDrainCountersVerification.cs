@@ -20,9 +20,9 @@ internal static class MetroidDrainCountersVerification
             Drain = FractionalEnergyDrain.HoldingOver(3 * FractionalEnergyDrain.PartsPerEnergy / 16),
         };
         AssertTrue(!metroid.DrainTakesEnergy(EnergyAmount.FromEnergyFraction(3, 16)), "a fraction equal to what is held over takes no energy");
-        AssertEqual(0, metroid.Drain.HeldOver, "nothing is held over after it");
+        AssertEqual(0, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Enemies.Metroids.MetroidEnemyState, global::SuperMetroid.Core.Compatibility.FractionalEnergyDrain>(metroid, "Drain").HeldOver, "nothing is held over after it");
         AssertTrue(metroid.DrainTakesEnergy(EnergyAmount.FromEnergyFraction(3, 16)), "a fraction above what is held over takes an energy");
-        AssertEqual(13 * FractionalEnergyDrain.PartsPerEnergy / 16, metroid.Drain.HeldOver, "the rest of the energy taken is held over");
+        AssertEqual(13 * FractionalEnergyDrain.PartsPerEnergy / 16, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Enemies.Metroids.MetroidEnemyState, global::SuperMetroid.Core.Compatibility.FractionalEnergyDrain>(metroid, "Drain").HeldOver, "the rest of the energy taken is held over");
         AssertEqual(65536, FractionalEnergyDrain.PartsPerEnergy, "an energy is drained in the original's 65536 parts");
         AssertTrue(FractionalEnergyDrain.Start.TakesEnergy(1), "a drain that has taken nothing takes an energy on its first fraction");
 

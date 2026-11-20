@@ -24,19 +24,19 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Zeela, Sova and both Zoomers in the shared family; or an orange Zoomer (#2146).
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no crawler definition.</exception>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Sciser)
-            return new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser);
+            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser));
         if (definition == EnemyDefinitionId.Zero)
-            return new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero);
+            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero));
         if (definition == EnemyDefinitionId.Viola)
-            return new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Viola);
+            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Viola));
         if (definition is EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer)
-            return new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared);
+            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared));
         if (definition == EnemyDefinitionId.OrangeZoomer)
-            return new OrangeZoomerEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new OrangeZoomerEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The crawler species creates no {occupant.DefinitionId}.");
     }
 
@@ -56,7 +56,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The crawl a crawler on its surface takes: along a side wall it crawls vertically, along a floor or ceiling
     /// horizontally; its entity decides how, the orange Zoomer by its own pursuit.
     /// </summary>
-    internal static CrawlerAction CrawlActionOn(CrawlerEnemyState state) => state.Surface switch
+    private static CrawlerAction CrawlActionOn(CrawlerEnemyState state) => state.Surface switch
     {
         CrawlerSurfaceOrientation.OnLeftWall or CrawlerSurfaceOrientation.OnRightWall => CrawlerAction.CrawlingVertically,
         CrawlerSurfaceOrientation.OnCeiling or CrawlerSurfaceOrientation.OnFloor => CrawlerAction.CrawlingHorizontally,
@@ -118,7 +118,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="crawlSpeed">The crawl speed on both axes, or none to keep <paramref name="velocity"/>.</param>
     /// <param name="velocity">The velocity kept when there is no crawl speed.</param>
     /// <returns>The reset velocity: <paramref name="velocity"/> or the crawl speed on both axes, signed by the block side.</returns>
-    internal static PixelVelocity<RoomPixels> ResetCrawlerVelocities(
+    private static PixelVelocity<RoomPixels> ResetCrawlerVelocities(
         CrawlerSurfaceOrientation blockSide, SignedEightEight? crawlSpeed, PixelVelocity<RoomPixels> velocity)
     {
         if (crawlSpeed is SignedEightEight speed)
@@ -394,7 +394,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Turns a crawler off a wall onto the floor or ceiling its vertical tangent leads to.</summary>
-    internal static void SetCrawlerVerticalSurfaceAnimation(
+    private static void SetCrawlerVerticalSurfaceAnimation(
         RoomEnemyPlace place,
         CrawlerEnemyState state)
     {
@@ -405,7 +405,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Turns a crawler off a floor or ceiling onto the wall its horizontal tangent leads to.</summary>
-    internal static void SetCrawlerHorizontalSurfaceAnimation(
+    private static void SetCrawlerHorizontalSurfaceAnimation(
         RoomEnemyPlace place,
         CrawlerEnemyState state)
     {
@@ -480,7 +480,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RunOrangeZoomerMain(place, frame.Samus, frame.Level);
 
     /// <summary>Runs the crawlers' surface animations (#641).</summary>
-    internal static void AdvanceCrawlerTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceCrawlerTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, CrawlerAnimations.Segments,
             static (CrawlerEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free crawler animation raised {cue}."));

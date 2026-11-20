@@ -13,10 +13,10 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Geruta];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
-            ? new GerutaFollowerEntity(this, occupant, place, common)
-            : new GerutaEntity(this, occupant, place, common);
+            ? EnemyOccupant.Of(new GerutaFollowerEntity(this, occupant, place, common))
+            : EnemyOccupant.Of(new GerutaEntity(this, occupant, place, common));
 
     /// <summary>Provides the shared RNG advanced by every parent and flame follower.</summary>
     private readonly EnemyRoomBinding _room;
@@ -298,7 +298,7 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"A Norfair Rio flame follower's cue-free animation raised {cue}."));
 
     /// <summary>Advances a Geruta parent's typed animation, whose cues it carries out.</summary>
-    internal static void AdvanceGerutaTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceGerutaTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, GerutaAnimations.Segments,
             static (GerutaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) =>

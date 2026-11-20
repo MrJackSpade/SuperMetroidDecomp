@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// setup holds its projectile place; the hold itself is counted by the place (<see cref="PrePhantoonRoomHeldProjectilePlace"/>).
 /// </summary>
 internal sealed class PrePhantoonRoomAnimation()
-    : EnemyProjectileTypedAnimation<PrePhantoonRoomSegment, EnemyProjectileFrameId, NoAnimationCue>(BlankHeld)
+    : EnemyProjectileSilentAnimation<PrePhantoonRoomSegment, EnemyProjectileFrameId>(BlankHeld)
 {
     /// <summary>The updates the projectile's one hidden beat lasts before the animation holds it hidden for good.</summary>
     private const int HiddenUpdates = 1;

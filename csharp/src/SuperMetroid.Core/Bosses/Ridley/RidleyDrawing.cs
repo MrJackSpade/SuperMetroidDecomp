@@ -40,7 +40,7 @@ internal sealed class RidleyDrawing
     /// <param name="sprites">The frame's sprites.</param>
     /// <param name="ridley">Ridley's encounter.</param>
     /// <param name="camera">The camera.</param>
-    internal void DrawTail(SpriteFrameBuffer sprites, RidleyEncounterState ridley, Position16<RoomPixels> camera)
+    private void DrawTail(SpriteFrameBuffer sprites, RidleyEncounterState ridley, Position16<RoomPixels> camera)
     {
         RidleyTailLink tip = ridley.Tail.Tip;
         // The tip's pose follows the direction it points in, turned by the link before it.
@@ -61,7 +61,7 @@ internal sealed class RidleyDrawing
     /// <param name="place">Ridley's body.</param>
     /// <param name="ridley">Ridley's encounter.</param>
     /// <param name="camera">The camera.</param>
-    internal void DrawWings(SpriteFrameBuffer sprites, RoomEnemyPlace place, RidleyEncounterState ridley, Position16<RoomPixels> camera)
+    private void DrawWings(SpriteFrameBuffer sprites, RoomEnemyPlace place, RidleyEncounterState ridley, Position16<RoomPixels> camera)
     {
         RidleyFacing facing = ridley.Flight.FacingDirection;
         if (facing == RidleyFacing.Turning)

@@ -15,5 +15,5 @@ internal sealed class BoulderEntity(BoulderBehavior species, RoomEnemyOccupant o
     public void RunMainAi(IEnemyAiFrame frame) => species.RunBoulderMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BoulderBehavior.AdvanceBoulderTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BoulderBehavior.AdvanceBoulderTypedAnimation(Place);
 }

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidMouthHitboxes
 {
     /// <summary>The rectangle of <paramref name="shape"/>, relative to Kraid's body position.</summary>
-    public static EnemyHitboxRectangle Resolve(KraidMouthHitbox shape) =>
+    private static EnemyHitboxRectangle Resolve(KraidMouthHitbox shape) =>
         KraidMouthHitboxDefinitions.Rectangles.TryGetValue(shape, out EnemyHitboxRectangle rectangle)
             ? rectangle
             : throw new InvalidOperationException($"Undefined Kraid mouth hitbox {shape}.");

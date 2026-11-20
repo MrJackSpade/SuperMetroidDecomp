@@ -6,16 +6,10 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <param name="place">The place the animal occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class EscapeDachoraEntity(EscapeAnimalsBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
     public void Initialize() => species.InitializeEscapeDachora(Place);
-
-    /// <inheritdoc/>
-    /// <remarks>The escape Dachora has no main behaviour; it moves through its animation.</remarks>
-    public void RunMainAi(IEnemyAiFrame frame)
-    {
-    }
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceEscapeDachoraTypedAnimation(Place, context);

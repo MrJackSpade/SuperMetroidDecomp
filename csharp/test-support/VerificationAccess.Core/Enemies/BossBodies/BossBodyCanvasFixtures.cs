@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using System.Buffers.Binary;
+using System.Collections.Immutable;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Enemies.BossBodies;
@@ -30,6 +31,25 @@ internal static class BossBodyCanvasFixtures
     {
         enemies.BossArtworkBinding.BodySheets = sheets;
         enemies.Presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Crocomire));
+    }
+
+    /// <summary>
+    /// Attaches the body that <paramref name="part"/>'s boss attaches at its initialization, before any of its parts shows a
+    /// frame, with no part showing anything on it yet. A place that is no part a boss draws on its body, as any ordinary
+    /// enemy or Draygon's tail, attaches none. Its boss's body sheets are those already bound to <paramref name="enemies"/>.
+    /// </summary>
+    internal static void AttachBodyOfPart(RoomEnemySystem enemies, RoomEnemyPlace part)
+    {
+        if (part.Entity is not IBossBodyFrames)
+            return;
+        foreach ((BossBodyOwner owner, ImmutableArray<EnemyDefinitionId> parts) in BossBodyPartDefinitions.DrawOrders)
+        {
+            if (parts.Any(part.Holds))
+            {
+                enemies.Presentation.AttachBossBody(new BossBodyParts(owner));
+                return;
+            }
+        }
     }
 
     /// <summary>Whether <paramref name="first"/> and <paramref name="second"/> show the same frames, shown above the same row.</summary>

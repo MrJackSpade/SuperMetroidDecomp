@@ -13,7 +13,7 @@ public readonly record struct GunshipLandingBrake
     private int Step { get; }
 
     /// <summary>Every brake of the schedule, in the order the ship takes them.</summary>
-    public static IReadOnlyList<GunshipLandingBrake> All { get; } =
+    private static IReadOnlyList<GunshipLandingBrake> All { get; } =
         [.. Enumerable.Range(0, GunshipMotionDefinitions.LandingBrakeYDeltas.Length).Select(step => new GunshipLandingBrake(step))];
 
     /// <summary>The schedule's first brake.</summary>

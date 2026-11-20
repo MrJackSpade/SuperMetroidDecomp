@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -118,7 +117,7 @@ internal sealed class KraidRise
     /// Shows the fixed room backdrop over the room's blocks (#1352, #1406, #1466): the blocks and cells it shows over show
     /// their pictures with it from here.
     /// </summary>
-    internal void ShowKraidRoomBackdrop() => _presentation.Appearance.ShowKraidBackdrop();
+    private void ShowKraidRoomBackdrop() => _presentation.Appearance.ShowKraidBackdrop();
 
     /// <summary>
     /// Brings Kraid's grown body in front of the room's sprites before his second phase. Only a risen
@@ -202,7 +201,7 @@ internal sealed class KraidRise
     }
 
     /// <summary>Installs the grown body pose, room scrolls, and second-phase behavior.</summary>
-    internal void FinishKraidGrowth(RoomEnemyPlace body, KraidEnemyState state)
+    private void FinishKraidGrowth(RoomEnemyPlace body, KraidEnemyState state)
     {
         SetupKraidSecondPhaseThinking(body, state);
 
@@ -228,15 +227,15 @@ internal sealed class KraidRise
     }
 
     /// <summary>Requests a rock from the floor during the growth sequence.</summary>
-    internal void RequestKraidRisingRock(RoomEnemyPlace body)
+    private void RequestKraidRisingRock(RoomEnemyPlace body)
     {
         int random = _access.ReadKraidRandomNumber();
-        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KraidRisingRock, KraidProjectiles.Rocks, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
+        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KraidRisingRock, _background.Rocks, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
         if (rock is null)
             return;
 
         // The random sample's side chooses the rock's pose (#2278).
-        rock.StartAnimation(new KraidRockAnimation(KraidRandomDefinitions.RisingRockFliesRight.IsTakenBy(random)
+        rock.StartAnimation(new KraidRockAnimation(_background.Rocks, KraidRandomDefinitions.RisingRockFliesRight.IsTakenBy(random)
             ? KraidRockSegment.RisingRightPose
             : KraidRockSegment.SharedPose));
         // A rock on the left starts one pixel further from the body than its mirror on the right.

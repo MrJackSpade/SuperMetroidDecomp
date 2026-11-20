@@ -116,7 +116,7 @@ internal sealed class CrocomireFight
 
         CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Fight);
         place.CollidesByFrameHitboxes = true;
-        var tongueState = new CrocomireTongueState(state) { BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset };
+        var tongueState = new CrocomireTongueState(state);
         place.SetSpeciesState(tongueState);
         place.Shading = state.Body.Shading;
     }
@@ -463,16 +463,16 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Spawns one of Crocomire's fight projectiles, fired along <paramref name="gradient"/>.</summary>
-    internal void SpawnCrocomireProjectile(RoomEnemyPlace body, int gradient)
+    private void SpawnCrocomireProjectile(RoomEnemyPlace body, int gradient)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CrocomireProjectile, _combat.MouthShot, graphics: SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading));
         if (projectile is null)
             return;
 
-        projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.Mouth));
+        projectile.StartAnimation(new CrocomireProjectileAnimation(_combat.MouthShot, CrocomireProjectileSegment.Mouth));
         projectile.Velocity = CrocomireFightDefinitions.SpitVelocity;
         projectile.Position = projectile.Position.WithWhole(body.Position.Whole + CrocomireFightDefinitions.SpitOffset);
         projectile.Position = projectile.Position.WithoutFractions();
-        projectile.State = new CrocomireProjectileState(gradient);
+        _combat.MouthShot.Gradients.Start(projectile, new CrocomireProjectileState(gradient));
     }
 }

@@ -57,7 +57,7 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Retains audio commands across recoverable device failures.</summary>
     private readonly AudioFrameRecovery audioFrameRecovery = new();
     /// <summary>Software-rendered canvas and keyboard-focus target.</summary>
-    internal readonly RuntimeCanvas canvas = new() { Dock = DockStyle.Fill, TabStop = true };
+    private readonly RuntimeCanvas canvas = new() { Dock = DockStyle.Fill, TabStop = true };
     /// <summary>Toolbar text for frame, room, state, and recovery feedback.</summary>
     private readonly ToolStripLabel statusLabel = HostToolbarLayout.CreateStatusLabel();
     /// <summary>WinForms wakeup timer; elapsed time determines actual game updates.</summary>
@@ -65,7 +65,7 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Monotonic clock used to accumulate 60 Hz gameplay updates.</summary>
     private readonly Stopwatch playbackClock = new();
     /// <summary>Tracks simulation, paint, and renderer timing for the status display.</summary>
-    internal readonly FrameTimingCounter frameTimings = new();
+    private readonly FrameTimingCounter frameTimings = new();
     /// <summary>Pressed keyboard buttons cleared on host deactivation.</summary>
     private readonly HostKeyboardInputState keyboard = new();
     /// <summary>Prevents stale inputs when the desktop session changes activation.</summary>
@@ -75,7 +75,7 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Elapsed wall-clock updates waiting to be simulated.</summary>
     private double pendingPlaybackFrames;
     /// <summary>Current frontend dispatcher and its retained display state.</summary>
-    internal SuperMetroidGame game;
+    private SuperMetroidGame game;
     /// <summary>Host-owned PCM storage; the device copies each frame on submit.</summary>
     private readonly short[] audioFrame = new short[AudioSession.PcmSamplesPerFrame];
     /// <summary>Installation root holding player saves, recordings, and debugger states.</summary>
@@ -83,7 +83,7 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Digest of selected installed content used for replay and state compatibility.</summary>
     private GameContentIdentity? installedContentIdentity;
     /// <summary>Recoverable wave output fed by accepted audio frames.</summary>
-    internal RecoveringAudioOutput? audioDevice;
+    private RecoveringAudioOutput? audioDevice;
     /// <summary>Crash-reproduction controller recorder for the active session.</summary>
     private ControllerInputRecorder? inputRecorder;
     /// <summary>Persistent debugger snapshots bound to installed content identity.</summary>
@@ -304,7 +304,7 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>Persists the selected debugger slot with the current game and its audio session.</summary>
-    internal void SaveDebuggerState(int slot)
+    private void SaveDebuggerState(int slot)
     {
         if (driver is not null)
             throw new InvalidOperationException("Debugger states are disabled while a recorded timeline drives the host.");
@@ -316,7 +316,7 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>Validates a state, drains old presentation work, then rebinds game and audio.</summary>
-    internal async Task LoadDebuggerState(int slot)
+    private async Task LoadDebuggerState(int slot)
     {
         if (driver is not null)
             throw new InvalidOperationException("Debugger states are disabled while a recorded timeline drives the host.");
@@ -449,7 +449,7 @@ public sealed class PlayableGameControl : UserControl
     private bool CanAdvanceAudioFrame() => audioDevice is null || audioDevice.CanAcceptFrame;
 
     /// <summary>Advances one accepted frontend frame and refreshes its display if available.</summary>
-    internal void StepFrame(ControllerButton? forcedInput = null)
+    private void StepFrame(ControllerButton? forcedInput = null)
     {
         FrontendFrame? frame = AdvanceOneFrame(forcedInput);
         if (frame is not null)
@@ -650,7 +650,7 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>Starts or pauses wall-clock playback without changing translated state.</summary>
-    internal void SetPlaying(bool playing)
+    private void SetPlaying(bool playing)
     {
         pendingPlaybackFrames = 0;
         playbackClock.Restart();
@@ -841,16 +841,16 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Invalidates older display packets across reset and state-load boundaries.</summary>
     private long displayGeneration;
     /// <summary>The game's latest display under the host's presentation identity, awaiting GPU publication.</summary>
-    internal RenderFrame? pendingDisplay;
+    private RenderFrame? pendingDisplay;
 
     /// <summary>Gives a display the game published the next presentation sequence in the current generation.</summary>
     private RenderFrame PresentationFrame(DisplayPacket display) => new(new(++displaySequence, displayGeneration), display);
     /// <summary>Asynchronous Direct3D worker owning the canvas window when enabled.</summary>
-    internal D3D11RenderWorker? gpuWorker;
+    private D3D11RenderWorker? gpuWorker;
     /// <summary>Prevents duplicate renderer initialization for this control.</summary>
     private bool rendererStarted;
     /// <summary>Stops new display publication during worker shutdown.</summary>
-    internal bool rendererStopping;
+    private bool rendererStopping;
     /// <summary>Containing form used to observe resize and minimization.</summary>
     private Form? rendererHost;
     /// <summary>Prior worker present count for computing displayed frames per second.</summary>
@@ -907,7 +907,7 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>Pauses playback, drains the old display generation, then restarts in place.</summary>
-    internal async Task RestartAsync()
+    private async Task RestartAsync()
     {
         bool resume = playbackTimer.Enabled;
         SetPlaying(false);
@@ -930,7 +930,7 @@ public sealed class PlayableGameControl : UserControl
         new D3D11RenderWorker(window, clientSize, generation, D3D11DeviceKind.Hardware));
 
     /// <summary>Verification seam for a worker that genuinely fails asynchronous device/window startup.</summary>
-    internal async Task InitializeRendererAsync(Func<nint, Extent16<DisplayPixels>, long, D3D11RenderWorker> createWorker)
+    private async Task InitializeRendererAsync(RenderWorkerFactory createWorker)
     {
         Ensure.NotNull(createWorker);
         ObjectDisposedException.ThrowIf(IsDisposed, this);

@@ -19,7 +19,7 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemyOccupant occupan
         BullBehavior.RunBullMain(Occupant, Place, Place.RequireSpeciesState<BullEnemyState>(), frame.Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BullBehavior.AdvanceBullAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BullBehavior.AdvanceBullAnimation(Place);
 
     /// <summary>The Bull's own recoil reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.ShotReaction : base.ShotReaction;

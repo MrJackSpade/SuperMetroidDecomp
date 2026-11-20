@@ -49,7 +49,7 @@ internal static class RespawnedEnemyContactVerification
         // placeholder; only the next frame's prologue admits the respawned actor.
         AssertTrue(runtime.Enemies.GrappleBehavior.ResolveGrappleEndpoint(enemy.Position.Whole) is null,
             "the respawn frame's interactive list does not yet contain the respawned actor");
-        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y));
+        runtime.Enemies.PrepareEnemyProcessingList(new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y));
         AssertTrue(runtime.Enemies.GrappleBehavior.ResolveGrappleEndpoint(enemy.Position.Whole) is { Reaction: not GrappleEnemyReaction.None },
             "the next frame's prologue list lets the grapple reach the respawned actor");
         enemy.AiStates = EnemyAiStates.None;

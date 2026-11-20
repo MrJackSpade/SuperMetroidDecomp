@@ -38,10 +38,9 @@ internal static class ShaktoolSamusContactVerification
 
         runtime.Enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(
             new Position16<RoomPixels>(0, 0));
-        bool touched = runtime.Enemies.Collision.ResolveOrdinarySamusContact(
+        runtime.Enemies.Collision.ResolveOrdinarySamusContact(
             samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, runtime.Room.LoadedLevelData, segment, Position16<RoomPixels>.Zero);
 
-        AssertTrue(touched, "the overlapping Shaktool segment runs its touch reaction");
         AssertTrue(samus.Health < healthBefore, "$AA:DF2F deals common contact damage");
         AssertTrue(!samus.InvincibilityTimer.IsZero, "Shaktool contact damage starts invincibility");
         Console.WriteLine("  Shaktool Samus contact: a touching segment damages Samus through the common touch.");

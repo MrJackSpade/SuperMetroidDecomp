@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoCollisionDefinitions
 {
     /// <summary>The list of a frame without collision.</summary>
-    internal static readonly TorizoHitboxList Empty = new([]);
+    private static readonly TorizoHitboxList Empty = new([]);
 
     /// <summary>The seated right-facing body, narrower on the left than the left-facing one.</summary>
     private static readonly TorizoHitboxList SeatedBodyRight = new([new(-15, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);

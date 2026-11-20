@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
@@ -16,10 +15,10 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fune, EnemyDefinitionId.Namihe];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(occupant).DefinitionId == EnemyDefinitionId.Namihe
-            ? new NamiheEntity(this, occupant, place, common)
-            : new FuneEntity(this, occupant, place, common);
+            ? EnemyOccupant.Of(new NamiheEntity(this, occupant, place, common))
+            : EnemyOccupant.Of(new FuneEntity(this, occupant, place, common));
 
     /// <summary>Allocates the shared directional fireball fired by either species' animation.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -35,12 +34,12 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Fune's and Namihe's animations: the spit sound, a fireball, or finishing the spit.</summary>
-    private FuneNamiheSegment? ApplyFuneNamiheCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, FuneNamiheEnemyState state, FuneNamiheCue cue)
+    private void ApplyFuneNamiheCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, FuneNamiheEnemyState state, FuneNamiheCue cue)
     {
         if (cue is FuneNamiheCue.Fire fire)
         {
             SpawnFuneNamiheFireball(occupant, place, state, fire.Direction, state.Fireball);
-            return null;
+            return;
         }
         FuneNamiheCueKind kind = ((FuneNamiheCue.Signal)cue).Kind;
         switch (kind)
@@ -56,7 +55,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(FuneNamiheCueKind)} {kind}.");
         }
-        return null;
     }
 
     /// <summary>Starts the Fune waiting on its cooldown and its idle animation, facing as its spawn settings say.</summary>
@@ -79,7 +77,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The Fune's wait between spits, as its spawn settings give it: the cooldown time's updates, the last the one it spits
     /// on; a cooldown of nothing spits on the first waiting update, as a cooldown of one does.
     /// </summary>
-    internal static UpdateCountdown CooldownOf(RoomEnemyOccupant occupant) =>
+    private static UpdateCountdown CooldownOf(RoomEnemyOccupant occupant) =>
         UpdateCountdown.Lasting(Math.Max(1, occupant.SpawnSettings<FuneSpawnSettings>().CooldownTime));
 
     /// <summary>Starts the Fune's spit after its cooldown; the active animation owns the return to idle.</summary>
@@ -152,22 +150,20 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(FuneNamiheDefinitions.SpitSoundEffect, priority: SoundRequestPriority.Normal);
 
     /// <summary>A Fune or Namihe fireball (#1760): it flies horizontally at its speed until it leaves the camera.</summary>
-    internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
+    private static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
         context => FlyFuneNamiheFireball(context.Projectile, context.Camera));
 
     /// <summary>Advances a Fune's or Namihe's typed animation, whose state is a <typeparamref name="TState"/>.</summary>
     internal void AdvanceFuneNamiheTypedAnimation<TState>(RoomEnemyOccupant occupant, RoomEnemyPlace place) where TState : FuneNamiheEnemyState =>
-        EnemyAnimationPlayback.Advance(place, FuneNamiheAnimations.Segments,
+        EnemyAnimationPlayback.AdvanceApplyingCues(place, FuneNamiheAnimations.Segments,
             static (TState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyFuneNamiheCue(occupant, place, state, cue) is { } target
-                ? new AnimationContinuation<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
-                : null);
+            (TState state, FuneNamiheCue cue) => ApplyFuneNamiheCue(occupant, place, state, cue));
 
     /// <summary>
     /// Runs the shared projectile setup. The fireball flies at the spitter's spawn settings' launch speed in its direction,
     /// from its mouth (<see cref="FuneNamiheEnemyState.MouthDrop"/>).
     /// </summary>
-    internal void SpawnFuneNamiheFireball(
+    private void SpawnFuneNamiheFireball(
         RoomEnemyOccupant occupant, RoomEnemyPlace source,
         FuneNamiheEnemyState state,
         HorizontalDirection direction,

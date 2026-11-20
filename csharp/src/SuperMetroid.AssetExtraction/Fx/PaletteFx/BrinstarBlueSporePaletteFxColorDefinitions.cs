@@ -32,7 +32,7 @@ public static class BrinstarBlueSporePaletteFxColorDefinitions
         };
 
     /// <summary>Three BGR555 colors are presentation-owned by each timed record.</summary>
-    public const int ColorsPerFrame = 3;
+    private const int ColorsPerFrame = 3;
 
     /// <summary>The standard-room and Spore Spawn variants in definition order.</summary>
     public static IReadOnlyList<BrinstarBlueSporePaletteFxColorDefinition> All { get; } = [Standard, SporeSpawn];

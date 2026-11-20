@@ -30,7 +30,7 @@ public sealed class SamusShinesparkState
     private readonly SuitPickupSparkCarryover<SamusSuitPickupStage> _acceleration;
 
     /// <summary>
-    /// How far the crash's orbiting copies have turned, 0 through <see cref="CrashOrbitTravelCarryover.LargestTravel"/>:
+    /// How far the crash's orbiting copies have turned, 0 through the largest travel <see cref="CrashOrbitTravelCarryover"/> carries over:
     /// the crash's entry keeps what the last orbit or the first echo it released left, and the first echo overwrites it
     /// with its height while it flies.
     /// </summary>
@@ -61,7 +61,7 @@ public sealed class SamusShinesparkState
     /// update and over again, in the suit Samus shows. Every suit's glow runs its shades alike, so a change of suit goes on
     /// from where the glow stood; each start of the shine or the spark starts it again.
     /// </summary>
-    internal AnimationPlayback<SamusGlowSegment> ShineGlow { get; private set; } = ShineGlowStart;
+    private AnimationPlayback<SamusGlowSegment> ShineGlow { get; set; } = ShineGlowStart;
 
     /// <summary>The shine's glow before its first shade.</summary>
     private static AnimationPlayback<SamusGlowSegment> ShineGlowStart => SamusGlowPlay.Before(SamusGlowSegment.StoredShinePower);
@@ -70,14 +70,14 @@ public sealed class SamusShinesparkState
     /// The updates the windup still waits for a direction: <see cref="ShinesparkDefinitions.WindupFrames"/> when it
     /// starts, launching her upward on the update it runs out.
     /// </summary>
-    public UpdateCountdown WindupCountdown { get; private set; } = UpdateCountdown.Ended();
+    private UpdateCountdown WindupCountdown { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The updates the crash still holds its echoes on Samus once its orbit has drawn in:
     /// <see cref="ShinesparkDefinitions.CrashHoldFrames"/> when the hold starts, finishing the crash on the update it runs
     /// out.
     /// </summary>
-    public UpdateCountdown CrashHoldCountdown { get; private set; } = UpdateCountdown.Ended();
+    private UpdateCountdown CrashHoldCountdown { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>The shinespark's phase: a stored shine, or the windup, flight or crash that moves Samus.</summary>
     public ShinesparkPhase Phase { get; private set; }
@@ -114,20 +114,20 @@ public sealed class SamusShinesparkState
     /// The stage of the crash's orbit: expanding at crash entry, orbiting once the radius reaches sixteen,
     /// and contracting once the orbit's travel reaches 128.
     /// </summary>
-    public ShinesparkCrashOrbitStage CrashOrbitStage { get; private set; }
+    private ShinesparkCrashOrbitStage CrashOrbitStage { get; set; }
 
     /// <summary>
     /// Distance of the two orbiting copies from Samus in pixels, 0 through 16: zero at crash entry, raised by four each
     /// update the orbit expands until it reaches sixteen and lowered by four each update it contracts until it reaches
     /// zero.
     /// </summary>
-    public int CrashRadius { get; private set; }
+    private int CrashRadius { get; set; }
 
     /// <summary>The first orbiting copy's angle around Samus.</summary>
-    public RotationAngle FirstCrashEchoAngle { get; private set; }
+    private RotationAngle FirstCrashEchoAngle { get; set; }
 
     /// <summary>The second orbiting copy's angle, half a turn from the first.</summary>
-    public RotationAngle SecondCrashEchoAngle { get; private set; }
+    private RotationAngle SecondCrashEchoAngle { get; set; }
 
     /// <summary>
     /// The turn both orbiting copies take on each orbiting update: toward increasing angles while Samus faces left and
@@ -512,7 +512,7 @@ public sealed class SamusShinesparkState
     /// and expires the shinesparking shade. A released first echo leaves Samus's height as the next orbit's travel; a
     /// crash that releases no first echo leaves the travel its own orbit ended on.
     /// </summary>
-    internal ShinesparkMovementResult FinishCrash(SamusState samus, SamusProjectileSystem projectiles)
+    private ShinesparkMovementResult FinishCrash(SamusState samus, SamusProjectileSystem projectiles)
     {
         Ensure.NotNull(projectiles);
         // Resolve the crash axis before publishing the standing pose.
@@ -595,7 +595,7 @@ public sealed class SamusShinesparkState
     /// The offset <paramref name="radius"/> pixels from Samus along <paramref name="angle"/> at which the crash places its
     /// orbiting copies and echoes: each component the radius scaled by the angle's sine or cosine, truncated toward zero.
     /// </summary>
-    internal static Offset16<RoomPixels> OffsetAlong(
+    private static Offset16<RoomPixels> OffsetAlong(
         RotationAngle angle,
         int radius)
     {

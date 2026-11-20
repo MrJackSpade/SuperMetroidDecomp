@@ -75,7 +75,7 @@ internal static class CacatacAnimations
     /// The animation that starts at each segment an owner can start or restart at (#2275). The upright idle restores the
     /// patrol on every cycle; the upside-down idle restores it once, its own entry cue, and then cycles its poses.
     /// </summary>
-    internal static IReadOnlyDictionary<CacatacSegment, Animation<CacatacSegment>> StartingAt { get; } = new Dictionary<CacatacSegment, Animation<CacatacSegment>>
+    private static Dictionary<CacatacSegment, Animation<CacatacSegment>> StartingAt { get; } = new Dictionary<CacatacSegment, Animation<CacatacSegment>>
     {
         [P.OnFloorIdle] = Animation<CacatacSegment>.Looping([Segments.Whole(P.OnFloorIdle)]),
         [P.OnFloorAttack] = Animation<CacatacSegment>.LeadingInto([Segments.Whole(P.OnFloorAttack)], [Segments.Whole(P.OnFloorIdle)]),

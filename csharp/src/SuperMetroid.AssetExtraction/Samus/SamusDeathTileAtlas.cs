@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public sealed class SamusDeathTileAtlas
 {
     /// <summary>The installed explosion characters, in atlas order.</summary>
-    internal readonly byte[] planar;
+    private readonly byte[] planar;
 
     /// <summary>Validates the five pages and keeps every installed byte.</summary>
     private SamusDeathTileAtlas(byte[] planar)

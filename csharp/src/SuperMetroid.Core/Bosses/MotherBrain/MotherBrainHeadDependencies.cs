@@ -25,16 +25,10 @@ internal sealed record MotherBrainHeadDependencies
     /// <summary>The current enemy pass's clocks and flags.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
 
-    /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
-    public required MotherBrainEncounter MotherBrainEncounter { get; init; }
-
     /// <summary>The other actors in the room: the Baby, the Rinkas, the Pirate laser and the afterburn.</summary>
     public required IMotherBrainRoomActors RoomActors { get; init; }
 
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
     public required MotherBrainProjectiles ProjectileAttacks { get; init; }
-
-    /// <summary>Mother Brain's state lookups, body and brain animation setters, timers and room-object requests.</summary>
-    public required MotherBrainEncounterAccess Access { get; init; }
 
 }

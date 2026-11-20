@@ -11,7 +11,6 @@ internal static class CrocomireArenaDraws
 {
     /// <summary>The arena's five frames, pictured by the installed Crocomire arena frames.</summary>
     internal static RoomObjectDrawFamily<CrocomireArenaDraw> Family { get; } =
-        RoomObjectDrawFamily<CrocomireArenaDraw>.Pictured<InstalledRoomObjectCrocomireVisuals>("Crocomire arena",
-            frame => RoomObjectDrawFamily<CrocomireArenaDraw>.Defined(CrocomireArenaObjectDrawDefinitions.Shapes, frame),
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<CrocomireArenaDraw>("Crocomire arena",
+            frame => RoomObjectDrawFamily<CrocomireArenaDraw>.Defined(CrocomireArenaObjectDrawDefinitions.Shapes, frame));
 }

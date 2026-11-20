@@ -34,7 +34,14 @@ internal static class RoomObjectFrameClosedContractDefinitions
     /// descriptor sources the provider's guard and the loader's enumeration share, and <see cref="Shared"/>.
     /// </summary>
     private static ClosedPresentationContract Family(string type, string rule, string provider, string loader, params string[] descriptors) =>
-        new(type, rule, ["Image"],
+        Family(["Image"], type, rule, provider, loader, descriptors);
+
+    /// <summary>
+    /// One family's proof whose provider reads its installed frames through more than <c>Image</c>: every listed read is
+    /// guarded by the same descriptor sources.
+    /// </summary>
+    private static ClosedPresentationContract Family(string[] methods, string type, string rule, string provider, string loader, params string[] descriptors) =>
+        new(type, rule, methods,
             [new(provider), new(loader), .. descriptors.Select(path => new ReviewedSource(path)), .. Shared]);
 
     /// <summary>Every room-object frame-picture provider the drawing reads, with its reviewed sources.</summary>
@@ -92,7 +99,8 @@ internal static class RoomObjectFrameClosedContractDefinitions
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/InstalledRoomObjectLinkedRestoreVisuals.cs",
             "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectLinkedRestoreVisualFiles.cs",
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/LinkedRestoreObjectFamily.cs"),
-        Family("SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectBlueDoorVisuals", "room-object-blue-door-complete-frames",
+        // The closed cap drawn solid shows its facing's closed cap, which the provider reads for each facing.
+        Family(["Image", "ClosedSolid"], "SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectBlueDoorVisuals", "room-object-blue-door-complete-frames",
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/InstalledRoomObjectBlueDoorVisuals.cs",
             "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectBlueDoorVisualFiles.cs",
             "csharp/src/SuperMetroid.Core/Rooms/Doors/BlueDoorCaps.cs",

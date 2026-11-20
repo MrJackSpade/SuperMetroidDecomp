@@ -41,17 +41,13 @@ internal sealed class DoorObjects
     /// from its next update. With no door there, or one that stays open, the door's closing behaviour may place a blue cap
     /// closing toward the travel direction or the escape gate closing, in the first free place, like any other room object.
     /// </remarks>
-    /// <returns>
-    /// True when an object at the door closes or a closer was placed; false for a door that does not close or a full
-    /// room.
-    /// </returns>
-    public bool TrySpawnDoorClosingObject(RoomLevelData level, DoorDefinition door)
+    public void SpawnDoorClosingObject(RoomLevelData level, DoorDefinition door)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(door);
 
         if (door.RoomObjectBlock is not { } closing)
-            return false;
+            return;
         Position16<RoomBlocks> block = level.GridBlock(closing);
         foreach (RoomObjectPlace resident in _places.InUpdateOrder)
         {
@@ -65,21 +61,20 @@ internal sealed class DoorObjects
 
             // The closing keeps everything else the object holds: a cap that waits for a shot still does.
             standing.CloseBehindSamus();
-            return true;
+            return;
         }
 
         if (DoorClosingObjects.GetDefinition(door.Orientation) is not { } fallback)
-            return false;
+            return;
 
         if (_places.Spawn() is not { } place)
-            return false;
+            return;
 
         place.Block = block;
         place.Become(fallback is DoorClosingObjectDefinition.BlueCap { Facing: var facing }
             ? BlueDoorCapObject.Closing(facing)
             : new MotherBrainEscapeGateObject(MotherBrainEscapeGateDefinitions.Closing));
         SetupPassableBlock(level, place);
-        return true;
     }
 
     /// <summary>
@@ -139,7 +134,7 @@ internal sealed class DoorObjects
     /// (<see cref="BlueDoorCapObject"/>). A Power Bomb is the one projectile that does not open it. A full room loses the
     /// request, as the game's block-spawned objects do.
     /// </remarks>
-    public bool TrySpawnBlueDoorOpening(
+    public void SpawnBlueDoorOpening(
         RoomLevelData level,
         Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
@@ -157,10 +152,10 @@ internal sealed class DoorObjects
 
         // A Power Bomb opens no blue cap: the cap stays shut and no room object takes a place.
         if (strike.Family == SamusProjectileFamily.PowerBomb)
-            return false;
+            return;
 
         if (_places.Spawn() is not { } place)
-            return false;
+            return;
 
         place.Block = position;
         // A later closing behind Samus at this block asks the room's shot-cap rule whether the cap stays open (#1906), and
@@ -170,6 +165,5 @@ internal sealed class DoorObjects
         // The block turns solid at once, before the cap is drawn. The cap's first draw comes on its next update, while collision
         // sees the solid block at once. Only its type changes, so it keeps what it shows until that draw (#2502).
         level.SetCollision(position, RoomCollisionType.SolidBlock);
-        return true;
     }
 }

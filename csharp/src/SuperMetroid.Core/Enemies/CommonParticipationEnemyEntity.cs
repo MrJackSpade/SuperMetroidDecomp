@@ -17,7 +17,7 @@ internal abstract class CommonParticipationEnemyEntity(RoomEnemyOccupant occupan
     internal RoomEnemyOccupant Occupant { get; } = Ensure.NotNull(occupant);
 
     /// <summary>The place the enemy occupies; its definition names the shared responses.</summary>
-    protected RoomEnemyPlace Place { get; } = place;
+    internal RoomEnemyPlace Place { get; } = place;
 
     /// <summary>The shared responses.</summary>
     protected EnemyCommonParticipation Common { get; } = common;

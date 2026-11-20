@@ -14,7 +14,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Oum];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new OumEntity(this, occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new OumEntity(this, occupant, place, common));
 
     /// <summary>Resolves floor, ledge, and wall contact during bounce and roll phases.</summary>
     private readonly EnemyTerrain _terrain;
@@ -372,7 +372,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     /// still shows its spawn idle it counts as playing the right-facing idle, and its first start of another animation, the
     /// left-facing idle included, starts it afresh (<see cref="OumEnemyState.ShowsSpawnIdle"/>).
     /// </summary>
-    internal static void StartOumAnimation(
+    private static void StartOumAnimation(
         RoomEnemyPlace place,
         OumEnemyState state,
         OumSegment segment)
@@ -429,7 +429,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances the Oum's typed animation.</summary>
-    internal void AdvanceOumTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal void AdvanceOumTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, OumAnimations.Segments,
             static (OumEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>

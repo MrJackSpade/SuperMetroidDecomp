@@ -39,7 +39,6 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
         new()
         {
             Owner = TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight,
-            Colours = ColourEffectColours.BabyMetroidTubeLight,
             FrameCount = 2 * TubeDimmingSteps,
             ColorsPerFrame = TubeColourCount,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.TitleScreenBabyMetroidTubeLight, TubeColourCount),
@@ -49,7 +48,6 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
         new()
         {
             Owner = TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays,
-            Colours = ColourEffectColours.TitleScreenDisplays,
             FrameCount = DisplayStates,
             ColorsPerFrame = DisplayColourCount,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.TitleScreenFlickeringDisplays, DisplayColourCount),

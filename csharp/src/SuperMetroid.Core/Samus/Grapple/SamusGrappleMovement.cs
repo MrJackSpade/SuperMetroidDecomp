@@ -546,7 +546,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>Chooses the fall pose from shot direction and body radius, with standing exceptions for both swinging poses.</summary>
-    internal static SamusPoseId SelectDroppedPose(SamusState samus)
+    private static SamusPoseId SelectDroppedPose(SamusState samus)
     {
         // The swinging poses ignore the shot direction and always fall to ordinary
         // standing, even though their live collision radius is compact.
@@ -569,7 +569,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>Applies an exact special-angle connection, including its pose and bounded camera displacement.</summary>
-    internal static bool TryHandleSpecialAngle(
+    private static bool TryHandleSpecialAngle(
         SamusState samus,
         SamusGrappleState grapple,
         Position16<RoomPixels> previousPosition,
@@ -752,9 +752,9 @@ public static class SamusGrappleMovement
                 // blue door setup's power-bomb rejection; the ordinary opening owner
                 // supplies all four cap blocks, timing, collision changes, and sound.
                 if (block.Behavior.TryGetDownwardGateTrigger(out _))
-                    roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.At, block.Behavior, BlockStrike.GrappleTouch.Instance);
+                    roomObjects.Gates.SpawnDownwardGateTrigger(level, block.At, block.Behavior, BlockStrike.GrappleTouch.Instance);
                 else if (block.Behavior.TryGetBlueDoorOrientation(out _))
-                    roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, block.At, block.Behavior, BlockStrike.GrappleTouch.Instance);
+                    roomObjects.DoorObjects.SpawnBlueDoorOpening(level, block.At, block.Behavior, BlockStrike.GrappleTouch.Instance);
                 else if (block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
                 {
                     // A shot-triggered block also reacts to the grapple: its resident actor hears of a hit with no
@@ -764,7 +764,7 @@ public static class SamusGrappleMovement
                             $"Grapple trigger block {block.Position} has no resident room-object owner.");
                 }
                 else if (block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
-                    roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
+                    roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
                 else
                 {
                     try
@@ -814,7 +814,7 @@ public static class SamusGrappleMovement
     /// Commits attachment, selecting the movement-specific pose and either locked or swinging handling; the pose itself
     /// is left pending for the frame's pose update (<see cref="ApplyPendingConnectionPose"/>).
     /// </summary>
-    internal static GrappleMovementResult ConnectAcceptedFiringCore(
+    private static GrappleMovementResult ConnectAcceptedFiringCore(
         SamusState samus,
         SamusGrappleState grapple,
         Position16<RoomPixels> previousPosition,
@@ -956,7 +956,7 @@ public static class SamusGrappleMovement
     /// Recomputes a firing beam's rope start and flare from Samus's final pose and position, the rope start at her
     /// projectile height and the flare at her picture's art origin.
     /// </summary>
-    internal static void RefreshFiringOrigins(
+    private static void RefreshFiringOrigins(
         SamusState samus,
         SamusGrappleState grapple)
     {
@@ -1106,7 +1106,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>Changes Samus's pose as she fires the grapple beam, before the grapple's phase runs.</summary>
-    internal static GrappleMovementResult? HandleFiringPoseChange(
+    private static GrappleMovementResult? HandleFiringPoseChange(
         RoomLevelData level, SamusState samus, GameplayAction controllerInput)
     {
         var grapple = samus.Grapple;

@@ -13,7 +13,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mella, EnemyDefinitionId.Mellow, EnemyDefinitionId.MaridiaFly];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new FliesEntity(this, occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new FliesEntity(this, occupant, place, common));
 
     /// <summary>Provides the shared room RNG whose advance is part of each fly AI update.</summary>
     private readonly EnemyRoomBinding _room;
@@ -135,7 +135,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The dive toward Samus along <paramref name="angle"/>, her aim: the dive's speed across along its cosine and its speed
     /// down along its negative sine (the sine a half turn ahead), since the aim counts up and rooms count down.
     /// </summary>
-    internal static PixelVelocity<RoomPixels> DiveVelocity(TrigonometryAngle angle) => new(
+    private static PixelVelocity<RoomPixels> DiveVelocity(TrigonometryAngle angle) => new(
         EnemyMath.SineVelocity(angle + TrigonometryAngle.QuarterTurn, FlyMotionDefinitions.DiveAcrossSpeed),
         EnemyMath.SineVelocity(angle + TrigonometryAngle.HalfTurn, FlyMotionDefinitions.DiveDownSpeed));
 
@@ -143,7 +143,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// One update's step around the circle at <paramref name="angle"/>: one pixel along its sine across and one along its
     /// sine a quarter turn behind (the negative cosine) down.
     /// </summary>
-    internal static PixelVelocity<RoomPixels> CircleStep(TrigonometryAngle angle) => new(
+    private static PixelVelocity<RoomPixels> CircleStep(TrigonometryAngle angle) => new(
         EnemyMath.SineVelocity(angle, 1),
         EnemyMath.SineVelocity(angle - TrigonometryAngle.QuarterTurn, 1));
 
@@ -162,7 +162,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Flies's typed animation.</summary>
-    internal static void AdvanceFliesTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceFliesTypedAnimation(RoomEnemyPlace place)
     {
         if (!place.AnimationClock.Expire())
             return;

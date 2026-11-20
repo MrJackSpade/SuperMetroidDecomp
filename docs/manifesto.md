@@ -22,10 +22,8 @@ the game running. It is also the thing the project exists to remove.
 
 ## 2. Where it is going
 
-The destination is a Godot project with editable scenes, driven by a modern simulation that still produces the
-cartridge's gameplay exactly. `docs/godot-architecture.md` describes the target shape: phase dispatch through
-entities into domain services, shared state as explicit relationships between objects with real lifetimes, one
-owner of simulation advancement, a display snapshot boundary, semantic audio and input contracts.
+The destination is a Godot game that plays as the cartridge does, written new
+(`docs/v1.0.0-manifesto.md`, `docs/godot-architecture.md`).
 
 The path there is deliberate and ordered:
 
@@ -33,10 +31,11 @@ The path there is deliberate and ordered:
 2. **Remove the machine.** Replace emulated storage, hardware layouts, native words, cartridge addresses and
    address-valued dispatch with owned state, typed domains, semantic identities and behaviour objects, inside the
    C# product, with the existing hosts consuming the modernised simulation.
-3. **Migrate to Godot.** Port a modern simulation, not an emulator-shaped one.
+3. **Write it in Godot.** A new program, designed for Godot, with this code as its reference for what the game does
+   ([the v1.0.0 manifesto](v1.0.0-manifesto.md)). This code is not moved or reused, and this manifesto, its
+   analyzers and its rules stop at the Godot project's boundary.
 
-Every ticket in stage two moves the simulation toward the shape of stage three without starting it. The migration
-will be cheap or impossible in direct proportion to how honestly stage two is done.
+Stage two exists to make this code a clear reference for stage three. It does not define stage three's design.
 
 ## 3. The standard of cleanliness
 

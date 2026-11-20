@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public sealed class RoomBackgroundTilemaps
 {
     /// <summary>Copied tilemap lookup; each selected atlas remains the caller's installed compilation.</summary>
-    internal readonly Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas> byTilemap;
+    private readonly Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas> byTilemap;
 
     /// <summary>Installs every background tilemap the library-background programs decompress, copying the lookup while retaining the supplied compiled atlases.</summary>
     /// <param name="byTilemap">Complete mapping from every <see cref="RoomBackgroundTilemap"/> to its nonnull selected tilemap.</param>

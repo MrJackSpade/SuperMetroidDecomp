@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 public sealed class EndingCompletionTextSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled digits and colon keyed by the poses that show them.</summary>
-    internal readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
+    private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
     /// <summary>Compiled typed-text steps keyed by the text and the letters each shows typed (#2195).</summary>
     private readonly Dictionary<EndingTextTyping, SpriteComposition> typings;

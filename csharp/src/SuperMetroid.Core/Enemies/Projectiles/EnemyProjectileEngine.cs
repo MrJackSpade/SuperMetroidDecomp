@@ -38,7 +38,7 @@ internal sealed class EnemyProjectileEngine
                 Scatter(projectile, scatter.Spread);
                 break;
             case EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.ReturnToOrigin }:
-                projectile.Position = projectile.Position.WithWhole(projectile.StateOf<AnchoredProjectileState>().Anchor);
+                projectile.Position = projectile.Position.WithWhole(projectile.Anchor);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EnemyProjectileCommonCueKind)} {cue}.");
@@ -114,14 +114,13 @@ internal sealed class EnemyProjectileEngine
     /// Nuclear Waffle link, makes the dud sound and stays; a projectile that plays its shot animation, such as Kago's
     /// bug, switches to it.
     /// </summary>
-    public int ResolveEnemyProjectileSamusProjectileHits(
+    public void ResolveEnemyProjectileSamusProjectileHits(
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem samusBombs)
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(samusBombs);
 
-        int hitCount = 0;
         for (int enemyProjectileIndex = _places.Length - 1;
              enemyProjectileIndex >= 0;
              enemyProjectileIndex--)
@@ -167,11 +166,8 @@ internal sealed class EnemyProjectileEngine
                     enemyProjectile.PersistsOnSamusContact = false;
                     enemyProjectile.CanDamageSamus = true;
                 }
-                hitCount++;
             }
         }
-
-        return hitCount;
     }
 
     /// <summary>One projectile pass: every live projectile's motion, then its animation.</summary>
@@ -292,7 +288,7 @@ internal sealed class EnemyProjectileEngine
     /// Draws the projectiles at <paramref name="depth"/>, the last place first: among projectiles at one depth, one in a
     /// later place is drawn over one in an earlier place.
     /// </summary>
-    internal void DrawEnemyProjectilesAt(
+    private void DrawEnemyProjectilesAt(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera,
         EnemyProjectileDepth depth,
@@ -302,7 +298,7 @@ internal sealed class EnemyProjectileEngine
         for (int place = _places.Length - 1; place >= 0; place--)
         {
             if (_places[place] is not { IsActive: true } projectile ||
-                projectile.State is IFlickeringProjectileState { IsHidden: true } ||
+                BehaviorOf(projectile).IsHidden(projectile) ||
                 projectile.Depth != depth ||
                 projectile.Frame is not { } frame)
                 continue;
@@ -497,7 +493,7 @@ internal sealed class EnemyProjectileEngine
         level.GetCollisionBlock(pixel.ToRoomBlock()).CollisionType != RoomCollisionType.Air;
 
     /// <summary>Checks radius overlap and publishes touch-animation or damage behavior for a projectile that reaches Samus.</summary>
-    internal static KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(
+    private static KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(
         EnemyProjectile projectile,
         SamusState samus)
     {
@@ -551,7 +547,7 @@ internal sealed class EnemyProjectileEngine
     /// <param name="camera">The camera of the pass, for cues that test the screen.</param>
     /// <param name="shortCounter">The game's short frame counter for the pass, 0 through 255, which cue cadences sample.</param>
     /// <param name="samusBombs">Samus's bombs, whose power bomb explosion a cue may test.</param>
-    internal void AdvanceEnemyProjectileAnimations(
+    private void AdvanceEnemyProjectileAnimations(
         EnemyProjectile projectile,
         SamusState samus,
         Position16<RoomPixels> camera,
@@ -560,7 +556,7 @@ internal sealed class EnemyProjectileEngine
     {
         if (projectile.Animation is { } animation)
         {
-            animation.Advance(new(projectile, samus, camera, shortCounter, Ensure.NotNull(samusBombs)), this);
+            animation.Advance(new(projectile, samus, camera, shortCounter, Ensure.NotNull(samusBombs), this));
             return;
         }
 

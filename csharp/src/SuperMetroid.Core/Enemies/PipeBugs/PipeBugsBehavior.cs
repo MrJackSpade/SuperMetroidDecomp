@@ -13,15 +13,15 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A Brinstar Pipe Bug (Zeb or Zebbo), a Norfair one (Gamet) or a yellow one (Geega) (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Pipe Bugs definition.</exception>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition is EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo)
-            return new BrinstarPipeBugEntity(occupant, place, common);
+            return EnemyOccupant.Of(new BrinstarPipeBugEntity(occupant, place, common));
         if (definition == EnemyDefinitionId.Gamet)
-            return new NorfairPipeBugEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new NorfairPipeBugEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.Geega)
-            return new YellowPipeBugEntity(occupant, place, common);
+            return EnemyOccupant.Of(new YellowPipeBugEntity(occupant, place, common));
         throw new InvalidOperationException($"The Pipe Bugs species creates no {occupant.DefinitionId}.");
     }
 
@@ -264,7 +264,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts <paramref name="animation"/> unless it is the one playing, which keeps playing (#2145).</summary>
-    internal static void SelectBrinstarPipeBugAnimation(
+    private static void SelectBrinstarPipeBugAnimation(
         RoomEnemyPlace place,
         BrinstarPipeBugState state,
         PipeBugSegment animation) =>
@@ -288,7 +288,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Launches the five-bug rise when Samus enters the leader's trigger, retaining follower frame timers.</summary>
-    internal void RunNorfairPipeBugSamusWait(
+    private void RunNorfairPipeBugSamusWait(
         RoomEnemyOccupant occupant, RoomEnemyPlace leader,
         NorfairPipeBugState leaderState,
         SamusState samus)
@@ -602,7 +602,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The playback of <paramref name="segment"/>'s animation started afresh, its first step playing on the next update.</summary>
-    internal static AnimationPlayback<PipeBugSegment> StartPipeBugAnimation(RoomEnemyPlace place, PipeBugSegment segment) =>
+    private static AnimationPlayback<PipeBugSegment> StartPipeBugAnimation(RoomEnemyPlace place, PipeBugSegment segment) =>
         EnemyAnimationPlayback.Start(place, PipeBugAnimations.StartingWith(segment));
 
     /// <summary>Advances a Brinstar Pipe Bug's typed animation.</summary>

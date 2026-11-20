@@ -53,16 +53,16 @@ internal sealed class BlueDoorCapObject : DoorCapObject
     /// The door the cap stands in, as the door it took over from named it; null for a cap a shot opens or one closing
     /// behind Samus, which stand in no door of their own.
     /// </summary>
-    internal PlacedDoor? Door { get; }
+    private PlacedDoor? Door { get; }
 
     /// <summary>What the cap is doing.</summary>
-    internal BlueDoorCapPhase Phase { get; private set; }
+    private BlueDoorCapPhase Phase { get; set; }
 
     /// <summary>
     /// The room's rule for whether the cap closes behind Samus when a shot opened it (#1906): such a cap names no door of its
     /// own. Null for a cap no shot opened.
     /// </summary>
-    internal readonly ShotOpenedCapClosing<LockedDoor>? shotCapClosing;
+    private readonly ShotOpenedCapClosing<LockedDoor>? shotCapClosing;
 
     /// <inheritdoc/>
     /// <remarks>

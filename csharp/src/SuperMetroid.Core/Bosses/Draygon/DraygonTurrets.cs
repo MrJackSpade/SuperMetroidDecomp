@@ -50,7 +50,7 @@ internal sealed class DraygonTurrets
     }
 
     /// <summary>Fires a wall turret and runs the wall turret projectile's setup.</summary>
-    internal void SpawnDraygonWallTurret(
+    private void SpawnDraygonWallTurret(
         SamusState samus,
         int random)
     {
@@ -62,14 +62,14 @@ internal sealed class DraygonTurrets
         if (turret is null)
             return;
 
-        turret.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.WallTurretBloom));
+        turret.StartAnimation(new DraygonProjectileAnimation(_shots.WallTurretShot, DraygonProjectileSegment.WallTurretBloom));
         turret.Position = FixedPosition<RoomPixels>.FromWhole(DraygonCannonData.FiringOrigins[cannon]);
 
         // The shot flies along the direction from the turret to Samus at the wall turret's speed, its direction on
         // each axis taken from that direction every update.
         TrigonometryAngle flightAngle = EnemyMath.CalculateAimAngle(
             new(samus.Position.X.Whole - turret.Position.X.Whole, samus.Position.Y.Whole - turret.Position.Y.Whole));
-        DraygonParts.SetDraygonProjectileVelocity(turret, flightAngle, DraygonProjectileSpeeds.WallTurret);
+        DraygonParts.SetDraygonProjectileVelocity(_shots.WallTurretShot, turret, flightAngle, DraygonProjectileSpeeds.WallTurret);
 
         // The shot holds still until its muzzle bloom reaches the step that sets it flying.
     }

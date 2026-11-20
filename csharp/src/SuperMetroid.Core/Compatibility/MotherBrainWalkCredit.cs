@@ -27,10 +27,10 @@ public readonly record struct MotherBrainWalkCredit
     public const int HyperBeamShotCost = 266;
 
     /// <summary>Stores the credit, 0 through <see cref="WrappingCounter.LargestCount"/>; callers use <see cref="Of"/>.</summary>
-    internal MotherBrainWalkCredit(int credit) => Credit = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, credit);
+    private MotherBrainWalkCredit(int credit) => Credit = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, credit);
 
     /// <summary>The credit, 0 through <see cref="WrappingCounter.LargestCount"/>, for the snapshot codec and parity checks.</summary>
-    public int Credit { get; }
+    private int Credit { get; }
 
     /// <summary>No credit at all.</summary>
     public static MotherBrainWalkCredit Empty => default;

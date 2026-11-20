@@ -27,9 +27,6 @@ internal sealed record ExtractedAudioAssetParts
     /// <summary>The SFX programs' encoded bytes and routes.</summary>
     public required SpcSoundEffectImage SoundEffectImage { get; init; }
 
-    /// <summary>Canonical sample count.</summary>
-    public required int CanonicalSampleCount { get; init; }
-
     /// <summary>Stable SHA-256 identity of the validated selected manifest. The canonical JSON contains every upload/WAV hash plus all editable routing, instrument, music, and SFX definitions, so formatting-only changes do not alter this value while any audible edit does.</summary>
     public required string ContentIdentity { get; init; }
 }

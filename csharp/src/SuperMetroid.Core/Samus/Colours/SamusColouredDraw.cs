@@ -17,7 +17,7 @@ public sealed record SamusColouredDraw : SpriteDraw
         : base(source, origin) => Image = Ensure.NotNull(image);
 
     /// <summary>The sheet frame shown.</summary>
-    public SpriteSheetFrame Image { get; }
+    private SpriteSheetFrame Image { get; }
 
     /// <inheritdoc/>
     internal override ImageSpriteDraw Published(PictureShading samusShading) =>

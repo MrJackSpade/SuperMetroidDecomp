@@ -263,12 +263,46 @@ internal sealed class Walk
             }
         }
         LinkConstructorArguments();
+        LinkProjectileBehaviourStarts();
         RecordHandedPrograms();
         RouteDataEffectActors();
         // Helper evidence first, so a family a helper starts on what its callers spawn is on those spawns' collections
         // when the names no spawning caller reaches look for where the walk spawns their families.
         RouteHelperEvidence();
         RouteUnspawnedNames();
+    }
+
+    /// <summary>
+    /// Makes the code constructing a projectile behaviour the caller of each of the behaviour's own members that starts a
+    /// family on its projectiles and is called by no code the walk reaches (#2571): the shot or touch animation the engine
+    /// starts on a projectile bound to that behaviour draws where the spawns using that construction draw, as it did when
+    /// the start was a lambda handed to the construction. A start whose program the behaviour's constructor is handed
+    /// (<c>shot is { } segment</c>) is the caller's only where that construction hands it one: Crocomire's mouth shot
+    /// starts its shot animation, his debris, built with none, never does.
+    /// </summary>
+    private void LinkProjectileBehaviourStarts()
+    {
+        foreach (Unit unit in _recorded.ToList())
+        {
+            UnitScan scan = ScanOf(unit);
+            if (unit.Kind != UnitKind.Member || !_model.IsProjectileBehaviour(unit.Type) || _callers.ContainsKey(unit)
+                || scan.SpawnCalls.Count > 0 || scan.FamilyPrograms.Count == 0)
+                continue;
+            IParameterSymbol[] programParameters = [.. scan.FamilyProgramArguments.Values.SelectMany(arguments => arguments)
+                .Select(argument => ProgramTracer.ConstructorParameterOf(argument.Program, argument.Semantic)).OfType<IParameterSymbol>()
+                .Distinct<IParameterSymbol>(SymbolEqualityComparer.Default)];
+            foreach (IMethodSymbol constructor in unit.Type.InstanceConstructors)
+            {
+                foreach (CallSite site in _model.CallSites(constructor))
+                {
+                    if (site.Caller is not { } constructing
+                        || programParameters.Any(parameter => SymbolEqualityComparer.Default.Equals(parameter.ContainingSymbol, constructor.OriginalDefinition)
+                            && (site.ArgumentFor(parameter) is not { } passed || passed is LiteralExpressionSyntax { RawKind: (int)Microsoft.CodeAnalysis.CSharp.SyntaxKind.NullLiteralExpression })))
+                        continue;
+                    Of(_callers, unit).Add(constructing);
+                }
+            }
+        }
     }
 
     /// <summary>

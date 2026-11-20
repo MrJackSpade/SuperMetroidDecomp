@@ -16,16 +16,16 @@ internal sealed class CrocomireColours : IGameplayShadingSource
     internal static PictureShading ProjectileShading { get; } = PictureShading.Shaded(CrocomireShades.Projectiles);
 
     /// <summary>Whether his body has shown its fight colours; before, it shows the room's.</summary>
-    internal bool ShowsFightBody { get; private set; }
+    private bool ShowsFightBody { get; set; }
 
     /// <summary>Whether his body shows the white hurt flash.</summary>
-    internal bool HurtFlash { get; private set; }
+    private bool HurtFlash { get; set; }
 
     /// <summary>Whether his sprites show his skeleton's arm colours.</summary>
-    internal bool ShowsSkeletonArm { get; private set; }
+    private bool ShowsSkeletonArm { get; set; }
 
     /// <summary>Whether his sprites show the wall spikes' colours.</summary>
-    internal bool ShowsWallSpikes { get; private set; }
+    private bool ShowsWallSpikes { get; set; }
 
     /// <summary>Shows his body's fight colours, or the white hurt flash when <paramref name="white"/>.</summary>
     internal void ShowBody(bool white)

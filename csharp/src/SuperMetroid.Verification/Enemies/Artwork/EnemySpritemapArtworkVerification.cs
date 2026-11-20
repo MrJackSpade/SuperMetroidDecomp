@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.World.Artwork;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Verification.Enemies.Puyo;
 using SuperMetroid.Verification.Enemies.Choot;
@@ -103,7 +104,7 @@ internal static class EnemySpritemapArtworkVerification
             "installed Bull normal animation loops back to its first frame on time");
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException(
             "Bull initializer did not publish typed state.");
-        BullBehavior.ResolveBullImmuneShot(bull, state, BullMotion.ShotAngle(SamusProjectileDirection.Right));
+        BullBehavior.ResolveBullImmuneShot(bull, state, BullMovementDefinitions.ShotAngles.For(SamusProjectileDirection.Right));
         for (int frame = 0; frame < 61; frame++)
             EnemyInstructionRunner.Process(arguments);
         AssertEqual(BullAnimationsConstants.Spritemaps(BullSegment.Idle).First(), bull.SpritemapPointer,
@@ -520,6 +521,8 @@ internal static class EnemySpritemapArtworkVerification
                 place.PopulateFor(definition, placed.SpawnSettings);
             place.Bind(definition, place.Definition);
             place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+            // A boss's part draws in a room whose boss has attached the body its body frames show on (#2573).
+            BossBodyCanvasFixtures.AttachBodyOfPart(enemies, place);
             place.Shading = PictureShading.Standard;
             // The catalog-wide composition check includes families newer than the
             // fixture's actor-name mapping. Its frame identity owns the actual bank.

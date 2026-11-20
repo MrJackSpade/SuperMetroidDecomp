@@ -17,17 +17,17 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Draygon's body, eye, tail or arms (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Draygon definition.</exception>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.DraygonBody)
-            return new DraygonBodyEntity(this, occupant, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new DraygonBodyEntity(this, occupant, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.DraygonEye)
-            return new DraygonEyeEntity(this, occupant, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new DraygonEyeEntity(this, occupant, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.DraygonTail)
-            return new DraygonTailEntity(this, occupant, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new DraygonTailEntity(this, occupant, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.DraygonArms)
-            return new DraygonArmsEntity(this, occupant, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new DraygonArmsEntity(this, occupant, place, common, _bossArtwork));
         throw new InvalidOperationException($"The Draygon species creates no {occupant.DefinitionId}.");
     }
 
@@ -39,10 +39,10 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal DraygonParts Parts { get; }
 
     /// <summary>The wall turrets' firing cadence during Draygon's fight.</summary>
-    internal DraygonTurrets Turrets { get; }
+    private DraygonTurrets Turrets { get; }
 
     /// <summary>Draygon's entrance: the opening delay and its dance.</summary>
-    internal DraygonIntro Intro { get; }
+    private DraygonIntro Intro { get; }
 
     /// <summary>Draygon's swoops across the room and its climb straight up.</summary>
     internal DraygonSwoops Swoops { get; }
@@ -51,16 +51,16 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal DraygonMovement Movement { get; }
 
     /// <summary>Draygon's goop passes.</summary>
-    internal DraygonGoop Goop { get; }
+    private DraygonGoop Goop { get; }
 
     /// <summary>The goop and turret shots as projectiles.</summary>
-    internal DraygonShots Shots { get; }
+    private DraygonShots Shots { get; }
 
     /// <summary>Draygon grabbing Samus: the chase, the spiral carry, the tail whips and the release.</summary>
-    internal DraygonGrab Grab { get; }
+    private DraygonGrab Grab { get; }
 
     /// <summary>Draygon's death: drifting to its burial point, the Evirs and sinking below the room.</summary>
-    internal DraygonDeath Death { get; }
+    private DraygonDeath Death { get; }
 
     /// <summary>Draygon's hitboxes, touch and hurt, and what Samus's weapons do to it.</summary>
     internal DraygonCombat Combat { get; }

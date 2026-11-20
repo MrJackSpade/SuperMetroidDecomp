@@ -25,7 +25,7 @@ internal static class PowampOwnedStateVerification
         balloon.Position = balloon.Position.WithWhole(new(0x0180, 0x0020));
         PowampBehavior.InitializePowampBalloon(balloon);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
-        body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0, PowampContact.Accepts));
+        body.SetSpawnSettings(new PowampBodySpawnSettings(PowampContact.Accepts));
         body.Bind(EnemyDefinitionId.Powamp, body.Definition);
         // The body rests below its balloon, inside the room.
         body.Position = body.Position.WithWhole(new(0x0180, 0x0040));
@@ -38,7 +38,7 @@ internal static class PowampOwnedStateVerification
             ?? throw new InvalidOperationException("The body half has no body state.");
         AssertEqual(null, balloon.SpeciesState<PowampBodyState>(), "the balloon holds no body state");
         AssertEqual(new Position16<RoomPixels>(0x0180, 0x0020), balloonState.Spawn, "the balloon keeps its spawn");
-        AssertEqual(65535, balloon.HeldOccupant().SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance, "the grapple rise keeps parameter two's full word");
+        AssertEqual(65535, balloon.HeldOccupant().SpawnSettings<PowampBalloonSpawnSettings>().GrappleTravelDistance, "the grapple rise keeps parameter two's full word");
         AssertEqual(new PowampBalloonInflation(PowampBalloonSequence.Sinking, 2), balloonState.Inflation,
             "the balloon starts deflated, at the end of its sinking sequence");
         AssertEqual(PowampAction.DeflatedResting, bodyState.Action, "the body starts resting");

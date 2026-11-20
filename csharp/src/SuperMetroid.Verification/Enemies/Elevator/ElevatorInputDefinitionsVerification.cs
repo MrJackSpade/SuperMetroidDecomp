@@ -53,7 +53,7 @@ internal static class ElevatorInputDefinitionsVerification
             wait(place, samus, native, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateProjectileSystem());
             AssertEqual(ElevatorActorStatus.Departing, enemies.ElevatorBehavior.ElevatorStatus,
                 $"elevator departure input {direction}");
-            AssertTrue(enemies.LastEnemyFrame.Reports(ElevatorFrameEvent.DepartureStarted),
+            AssertTrue(enemies.LastEnemyFrame.Reports(new ElevatorEvent(ElevatorFrameEvent.DepartureStarted)),
                 $"elevator departure event {direction}");
             AssertEqual(travel, enemies.ElevatorBehavior.ElevatorTravel, $"elevator departure {direction} sets the ride's way (#2531)");
             AssertEqual(true, samus.Control.InputLocked, $"elevator Samus input lock {direction}");

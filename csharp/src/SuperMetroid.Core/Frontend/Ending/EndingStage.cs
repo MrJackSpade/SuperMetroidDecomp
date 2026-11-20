@@ -57,8 +57,7 @@ internal sealed class EndingStage
         Place(new EndingPictureSprite(new(position, EndingShades.Drawn(colouring), EndingSceneAnimations.Pictures, animation), role));
 
     /// <summary>Adds the typed text <paramref name="definition"/> authors in its place in the running order (#2195).</summary>
-    /// <returns>The actor added.</returns>
-    internal EndingSprite SpawnText(EndingTextDefinition definition, EndingSpriteRole role) =>
+    internal void SpawnText(EndingTextDefinition definition, EndingSpriteRole role) =>
         Place(new EndingTextSprite(new(definition.Position, EndingShades.Drawn(definition.Colouring), EndingTextAnimations.Texts, definition.Text), role));
 
     /// <summary>
@@ -86,8 +85,7 @@ internal sealed class EndingStage
         Array.IndexOf(EndingCastOrderDefinitions.SoleActorsLast, role) is int rank and >= 0 ? rank : null;
 
     /// <summary>Installs a sprite from its authored position, attributes and animation.</summary>
-    /// <returns>The actor added.</returns>
-    internal EndingSprite SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
+    internal void SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
         SpawnSprite(
             definition.Position,
             definition.Colouring,

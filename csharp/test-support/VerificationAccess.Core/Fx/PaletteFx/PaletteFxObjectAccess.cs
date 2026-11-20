@@ -145,62 +145,62 @@ internal static class PaletteFxObjectAccess
     extension(CinematicGlowPaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 
     /// <summary>Native view of a <see cref="CrateriaEscapeLightningPaletteFxColorDefinition"/>.</summary>
     extension(CrateriaEscapeLightningPaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 
     /// <summary>Native view of a <see cref="NorfairEnvironmentalPaletteFxColorDefinition"/>.</summary>
     extension(NorfairEnvironmentalPaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 
     /// <summary>Native view of a <see cref="OldTourianEscapeAccentPaletteFxColorDefinition"/>.</summary>
     extension(OldTourianEscapeAccentPaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 
     /// <summary>Native view of a <see cref="SamusLoadingSuitPaletteFxColorDefinition"/>.</summary>
     extension(SamusLoadingSuitPaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 
     /// <summary>Native view of a <see cref="TorizoBellyPaletteFxColorDefinition"/>.</summary>
     extension(TorizoBellyPaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 
     /// <summary>Native view of a <see cref="TourianEscapeRedFlashPaletteFxColorDefinition"/>.</summary>
     extension(TourianEscapeRedFlashPaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 
     /// <summary>Native view of a <see cref="ZebesExplosionAmbientPaletteFxColorDefinition"/>.</summary>
     extension(ZebesExplosionAmbientPaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 
     /// <summary>Native view of a <see cref="ZebesExplosionLayerFadePaletteFxColorDefinition"/>.</summary>
     extension(ZebesExplosionLayerFadePaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 }

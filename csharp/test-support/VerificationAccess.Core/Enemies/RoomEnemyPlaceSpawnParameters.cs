@@ -27,7 +27,7 @@ internal static class RoomEnemyPlaceSpawnParameters
         RoomEnemyPlacement entry = place.History is PopulatedEnemyPlace populated
             ? populated.LastSpawn
             : throw new InvalidOperationException($"A check sets the spawn settings of enemy place {place.Ordinal}, where it has bound no enemy.");
-        place.Bind(entry with { SpawnSettings = settings }, place.Definition);
+        place.Bind(Settled(entry, settings), place.Definition);
     }
 
     /// <summary>
@@ -35,8 +35,8 @@ internal static class RoomEnemyPlaceSpawnParameters
     /// the room origin in a place no enemy has been spawned in.
     /// </summary>
     internal static void BindPlaced(this RoomEnemyPlace place, EnemyDefinitionId species, EnemySpawnSettings settings) =>
-        place.Bind((place.History is PopulatedEnemyPlace populated ? populated.LastSpawn : PlacementFor(species, settings))
-            with { DefinitionId = species, SpawnSettings = settings }, place.Definition);
+        place.Bind(Settled((place.History is PopulatedEnemyPlace populated ? populated.LastSpawn : PlacementFor(species, settings))
+            with { DefinitionId = species }, settings), place.Definition);
 
     /// <summary>
     /// Binds <paramref name="species"/> in the place as an entry placing it at the room origin would, with no contact,
@@ -44,6 +44,10 @@ internal static class RoomEnemyPlaceSpawnParameters
     /// </summary>
     internal static void PopulateFor(this RoomEnemyPlace place, EnemyDefinitionId species, EnemySpawnSettings settings) =>
         place.Bind(PlacementFor(species, settings), place.Definition);
+
+    /// <summary><paramref name="entry"/> giving its species <paramref name="settings"/> instead of its own.</summary>
+    private static RoomEnemyPlacement Settled(RoomEnemyPlacement entry, EnemySpawnSettings settings) =>
+        new(entry.DefinitionId, entry.Placing, entry.Contact, entry.Processing, entry.Presence, entry.CollidesByFrameHitboxes, settings);
 
     /// <summary>An entry placing <paramref name="species"/> at the room origin with no contact, processing or presence of its own.</summary>
     internal static RoomEnemyPlacement PlacementFor(EnemyDefinitionId species, EnemySpawnSettings settings) =>

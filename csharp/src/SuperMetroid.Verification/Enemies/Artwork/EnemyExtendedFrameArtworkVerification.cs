@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core;
@@ -276,6 +277,8 @@ internal static class EnemyExtendedFrameArtworkVerification
         EnemyFrameId? frame = RoomEnemyPlaceFrameAccess.TryFrameAt(bank, pointer);
         place.Bind(ExtendedFrameShower(frame), place.Definition);
         place.Bind(place.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
+        // A boss's part draws in a room whose boss has attached the body its body frames show on (#2573).
+        BossBodyCanvasFixtures.AttachBodyOfPart(enemies, place);
         if (art is not null)
         {
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.

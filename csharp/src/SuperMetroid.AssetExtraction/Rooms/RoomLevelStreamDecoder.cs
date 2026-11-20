@@ -153,9 +153,9 @@ internal static class RoomLevelStreamDecoder
         foreach (AreaId area in areas)
         {
             RoomBlockBehavior resolved = RoomBlockBehaviorCodec.Decode(area, value);
-            Enum reaction = resolved.ReactionIn(family) ?? throw new InvalidDataException(
+            BlockReaction reaction = resolved.ReactionIn(family) ?? throw new InvalidDataException(
                 $"Room level {level} block {index} is {kind} with behaviour {resolved}, which gives its kind no reaction in {area}.");
-            RoomBlockBehavior first = RoomBlockBehavior.ReactingAs(reaction);
+            RoomBlockBehavior first = reaction.Behavior;
             if (!GiveSameReactions(first.In(area), resolved))
                 throw new InvalidDataException(
                     $"Room level {level} block {index} is {kind} with behaviour {resolved}, whose reaction's first behaviour {first} reacts otherwise.");

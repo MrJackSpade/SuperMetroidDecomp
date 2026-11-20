@@ -179,7 +179,7 @@ internal sealed class CrocomireBridgeCollapse
     };
 
     /// <summary>Plays the acid's burning sound each time its wait runs out, every <see cref="CrocomireBridgeCollapseDefinitions.AcidSoundInterval"/> updates.</summary>
-    internal void RunCrocomireAcidSounds(CrocomireDeathState death)
+    private void RunCrocomireAcidSounds(CrocomireDeathState death)
     {
         if (death.AcidSoundWait.StepKeepsRunning())
             return;
@@ -188,7 +188,7 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>Rests his body submerged while the pause's wait runs; he starts to rise on the update it runs out.</summary>
-    internal static void RunCrocomireSubmergedPause(CrocomireEnemyState state)
+    private static void RunCrocomireSubmergedPause(CrocomireEnemyState state)
     {
         if (state.DeathStageWait.StepKeepsRunning())
             return;
@@ -197,7 +197,7 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>Crocomire's sinking fall to a fraction of a pixel, with the camera his main update runs with.</summary>
-    internal void RunCrocomireSink(CrocomireEnemyState state, Position16<RoomPixels> camera)
+    private void RunCrocomireSink(CrocomireEnemyState state, Position16<RoomPixels> camera)
     {
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
         state.StepBack.Forget();
@@ -227,7 +227,7 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>Runs Crocomire's rise, to a fraction of a pixel, as the game does.</summary>
-    internal static void RunCrocomireRise(CrocomireEnemyState state)
+    private static void RunCrocomireRise(CrocomireEnemyState state)
     {
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
         RoomEnemyPlace body = state.Body;
@@ -328,19 +328,18 @@ internal sealed class CrocomireBridgeCollapse
         if (fragment >= CrocomireBridgeFragmentDefinitions.FragmentCount)
             return;
 
-        // The fragment counts as launched even when no projectile place is free. Its colours are the wall's, set below.
+        // The fragment counts as launched even when no projectile place is free.
         death.BridgeFragmentsSpawned = fragment + 1;
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CrocomireBridgeCrumbling, _combat.Debris, graphics: SpriteGraphics.SharedStandard);
+        // The fragments draw in the wall colours Crocomire's encounter installs.
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CrocomireBridgeCrumbling, _combat.Debris, SpriteGraphics.SharedIn(CrocomireColours.WallShading));
         if (projectile is null)
             return;
 
-        projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.BridgeFragment));
+        projectile.StartAnimation(new CrocomireProjectileAnimation(_combat.Debris, CrocomireProjectileSegment.BridgeFragment));
         projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(fragment));
         projectile.Position = projectile.Position.WithWholeY(CrocomireBridgeFragmentDefinitions.Y).WithoutFractions();
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);
         // The fragment's fall speed reads the room's random number without drawing a new one.
         projectile.Velocity = projectile.Velocity.WithY(CrocomireRandomDefinitions.BridgeFragmentFallSpeed.Of(_room.Random.Read()));
-        // The fragments draw in the wall colours Crocomire's encounter installs.
-        projectile.Graphics = SpriteGraphics.SharedIn(CrocomireColours.WallShading);
     }
 }

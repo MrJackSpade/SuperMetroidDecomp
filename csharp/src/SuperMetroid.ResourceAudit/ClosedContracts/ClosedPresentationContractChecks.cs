@@ -70,7 +70,7 @@ internal static class ClosedPresentationContractChecks
                     gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open, SuperMetroid.Core.Frontend.GameOver.GameOverBabyColouring.Idle);
                     gameOver.DrawBaby(oam, sheet, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99, SuperMetroid.Core.Frontend.GameOver.GameOverBabyColouring.Idle);
                     reserve.ApplyLabel(cells, dynamicIndex > 0 ? PauseReserveLabel.Auto : PauseReserveLabel.Manual);
-                    _ = arrow.Pulse(dynamicIndex);
+                    _ = arrow.Shades();
                     reserve.ApplyDigit(cells, 0, 10);
                     _ = beam.Colours(0);
                     _ = beam.Colours(SuperMetroid.Core.Progression.SamusBeamCombination.SpazerPlasma);
@@ -85,8 +85,8 @@ internal static class ClosedPresentationContractChecks
                     chozo.ResolveTubeCracks(0);
                     samusDeath.SuitedColor(2, 9, 15);
                     samusDeath.SuitedColor(3, 9, 15);
-                    samusDeath.ExplosionPaletteIndex(8);
-                    samusDeath.ExplosionPaletteIndex(9);
+                    samusDeath.WhiteoutColor(21);
+                    samusDeath.WhiteoutColor(22);
                     _ = levels.DoorBlocks(room, level);
                     _ = levels.DoorBlocks(room, new SuperMetroid.Core.Rooms.LevelData.RoomLevelId("NoSuchLevel"));
                 }

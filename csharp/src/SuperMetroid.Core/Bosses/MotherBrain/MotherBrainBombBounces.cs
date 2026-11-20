@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainBombBounces
 {
     /// <summary>The bounces a bomb makes before it expires.</summary>
-    internal static int Count => MotherBrainBombBounceDefinitions.BounceAccelerations.Length;
+    private static int Count => MotherBrainBombBounceDefinitions.BounceAccelerations.Length;
 
     /// <summary>Whether a bomb that has bounced <paramref name="bounces"/> times has landed from its last bounce, so it expires.</summary>
     internal static bool HasExpired(int bounces) => bounces == Count + 1;

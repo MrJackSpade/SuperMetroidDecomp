@@ -10,7 +10,7 @@ internal sealed class DefinitionIndex
     internal int Count => Declared.Count;
 
     /// <summary>The definitions, declared once.</summary>
-    internal Declarations Declared => field ??= new(["Power", "Ice"], 2);
+    private Declarations Declared => field ??= new(["Power", "Ice"], 2);
 
     /// <summary>The declared definitions.</summary>
     /// <param name="Names">Each definition's name.</param>

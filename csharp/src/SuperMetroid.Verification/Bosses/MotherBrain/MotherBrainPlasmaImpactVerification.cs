@@ -35,7 +35,7 @@ internal static class MotherBrainPlasmaImpactVerification
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var shot = shots.Shots[0];
         SeedChargedPlasma();
-        AssertEqual(1, Hit(), "Charged Plasma produces one accepted head impact");
+        Hit();
         AssertEqual(17550, head.Health, "Native charged vulnerability applies exactly one 450-damage hit");
         // The bank-$A0 walker only marks the shot; the next projectile pass removes it (#1269).
         AssertTrue(shot.IsSpent,
@@ -48,7 +48,7 @@ internal static class MotherBrainPlasmaImpactVerification
         for (int frame = 0; frame < 3; frame++)
         {
             shots.HandleShots(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, Position16<RoomPixels>.Zero, bombs, new SharedGameState(new SharedRandom()));
-            AssertEqual(0, Hit(), "The same shot cannot damage the head on a subsequent frame");
+            Hit();
             AssertEqual(17550, head.Health, "Later overlap preserves health after the one impact");
             AssertEqual(MotherBrainWalkCredit.Of(4096 - MotherBrainWalkCredit.StepCredit), state.WalkCounter,
                 "Later overlap does not spend walk credit again");
@@ -70,15 +70,15 @@ internal static class MotherBrainPlasmaImpactVerification
         // The first case's Plasma hit left the head invincible; $A0:A17C skips it until the
         // timer expires, so this case starts once that immunity has run out.
         head.Invincibility.End();
-        AssertEqual(1, Hit(), "Hyper Beam still accepts its later-form damage callback");
+        Hit();
         AssertEqual(16550, head.Health, "Hyper Beam retains its native charged damage selection");
-        AssertEqual(MotherBrainPhase3NeckPhase.StartHyperBeamRecoil, lateFight.ThirdPhaseFight.Phase3NeckPhase,
+        AssertEqual(MotherBrainPhase3NeckPhase.StartHyperBeamRecoil, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainThirdPhaseFight, global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainPhase3NeckPhase>(lateFight.ThirdPhaseFight, "Phase3NeckPhase"),
             "Hyper Beam retains its phase-three recoil transition");
         AssertTrue(shot.IsSpent, "Hyper Beam also obeys the head collision property");
         Console.WriteLine("Mother Brain Plasma: one charged impact/damage event, no later-frame repeats, recoil and first-form restriction passed.");
         return 0;
 
-        int Hit() => enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
+        void Hit() => enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
         void SeedChargedPlasma()
         {
             shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true); shot.Damage = 450; shot.Direction = SamusProjectileDirection.Right;

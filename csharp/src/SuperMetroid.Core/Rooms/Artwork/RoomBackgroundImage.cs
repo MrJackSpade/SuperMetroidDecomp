@@ -18,7 +18,7 @@ public sealed class RoomBackgroundImage
     public const string FrameName = "image";
 
     /// <summary>Pixels along a cell's side.</summary>
-    public const int CellPixels = 16;
+    private const int CellPixels = 16;
 
     /// <summary>
     /// Checks the image is whole cells across and down, that each installed part of its picture (#1634) is the image's size,

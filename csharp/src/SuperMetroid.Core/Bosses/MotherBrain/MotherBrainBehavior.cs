@@ -20,15 +20,15 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Mother Brain's body, her head, or a tube of her fake death (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Mother Brain definition.</exception>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.MotherBrainBody)
-            return new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.MotherBrainHead)
-            return new MotherBrainHeadEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new MotherBrainHeadEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.MotherBrainTubes)
-            return new MotherBrainTubesEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new MotherBrainTubesEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The Mother Brain species creates no {occupant.DefinitionId}.");
     }
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
@@ -54,13 +54,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     internal MotherBrainFakeDeath FakeDeath { get; }
 
     /// <summary>Mother Brain rising into her second form: its graphics, brain setup, the rise and the menacing head shake.</summary>
-    internal MotherBrainAscent Ascent { get; }
+    private MotherBrainAscent Ascent { get; }
 
     /// <summary>Mother Brain's second-phase attacks: choosing one, the bomb walk, the lasers and the hand beam.</summary>
     internal MotherBrainAttacks Attacks { get; }
 
     /// <summary>Mother Brain's rainbow beam, its colours, and her death.</summary>
-    internal MotherBrainRainbowAndDeath RainbowAndDeath { get; }
+    private MotherBrainRainbowAndDeath RainbowAndDeath { get; }
 
     /// <summary>Mother Brain's hitboxes and touch, and what Samus's weapons do to her head and body.</summary>
     internal MotherBrainCombat Combat { get; }
@@ -79,7 +79,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
         Projectiles = new MotherBrainProjectiles(_room, dependencies.Projectiles, dependencies.Earthquake, dependencies.DeathsAndDrops, _motherBrainEncounter, dependencies.RoomActors);
         Access = new MotherBrainEncounterAccess(_passEvents);
-        Head = new MotherBrainHead(new MotherBrainHeadDependencies { Room = _room, Places = dependencies.Places, Projectiles = dependencies.Projectiles, Audio = dependencies.Audio, Presentation = _presentation, FrameContext = dependencies.FrameContext, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access  });
+        Head = new MotherBrainHead(new MotherBrainHeadDependencies { Room = _room, Places = dependencies.Places, Projectiles = dependencies.Projectiles, Audio = dependencies.Audio, Presentation = _presentation, FrameContext = dependencies.FrameContext, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles });
         Body = new MotherBrainBody(new MotherBrainBodyDependencies { PassEvents = _passEvents, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access , Presentation = _presentation, Places = dependencies.Places });
         FakeDeath = new MotherBrainFakeDeath(new MotherBrainFakeDeathDependencies { PassEvents = _passEvents, Lifecycle = dependencies.Lifecycle, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, MotherBrainEncounter = _motherBrainEncounter, Access = Access, ProjectileAttacks = Projectiles });
         Ascent = new MotherBrainAscent(_room, dependencies.Projectiles, dependencies.Earthquake, _presentation, dependencies.FrameContext, _motherBrainEncounter);
@@ -150,7 +150,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the phase of her fake death's descent her body is in, after her first phase ends.</summary>
-    internal void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState samus)
+    private void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState samus)
     {
         switch (state.DescentPhase)
         {
@@ -237,7 +237,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs one update of Mother Brain's room flash, while it runs: it plays on through its fourteen images, each shown two
     /// updates, looping (<see cref="MotherBrainRoomFlashAnimations"/>), and her room shows the image it stands on.
     /// </summary>
-    internal static void RunMotherBrainRoomFlash(MotherBrainEnemyState state)
+    private static void RunMotherBrainRoomFlash(MotherBrainEnemyState state)
     {
         if (state.RoomFlash is not { } flash)
             return;

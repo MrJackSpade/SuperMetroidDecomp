@@ -12,7 +12,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Zoa];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new ZoaEntity(occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ZoaEntity(occupant, place, common));
 
     /// <summary>Advances Zoa's typed animation (#641) in place of the shared enemy animation.</summary>
     internal static void AdvanceZoaAnimation(RoomEnemyPlace place)
@@ -75,7 +75,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Wakes when Samus enters the 128-pixel column and rises facing her.</summary>
-    internal static void RunZoaWait(
+    private static void RunZoaWait(
         RoomEnemyPlace place,
         ZoaEnemyState state,
         SamusState samus)
@@ -92,7 +92,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Reveals Zoa and rises until it reaches Samus's height, then starts its shooting animation.</summary>
-    internal static void RunZoaRising(
+    private static void RunZoaRising(
         RoomEnemyPlace place,
         ZoaEnemyState state,
         SamusState samus)
@@ -110,7 +110,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Travels in the selected facing direction and resets whole-pixel position when its center exits the camera square.</summary>
-    internal static void RunZoaShooting(
+    private static void RunZoaShooting(
         RoomEnemyPlace place,
         ZoaEnemyState state,
         Position16<RoomPixels> camera)
@@ -137,7 +137,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts <paramref name="segment"/>'s animation, restarting its timers, only when it differs from the one playing (#2145).</summary>
-    internal static void SetZoaAnimation(RoomEnemyPlace place, ZoaEnemyState state, ZoaSegment segment) =>
+    private static void SetZoaAnimation(RoomEnemyPlace place, ZoaEnemyState state, ZoaSegment segment) =>
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, ZoaAnimations.StartingWith(segment));
 
     /// <summary>Runs Zoa's main AI.</summary>

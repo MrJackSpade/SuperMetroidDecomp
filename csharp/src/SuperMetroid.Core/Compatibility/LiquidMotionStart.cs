@@ -18,9 +18,6 @@ public readonly record struct LiquidMotionStart
     /// <summary>Whether the liquid's motion has begun: every later motion pass moves it.</summary>
     public bool HasBegun { get; private init; }
 
-    /// <summary>The liquid of a room that has just loaded: its next motion pass only begins its motion.</summary>
-    public static LiquidMotionStart AfterRoomLoad => default;
-
     /// <summary>A liquid whose motion has begun: each motion pass moves it.</summary>
     public static LiquidMotionStart Begun { get; } = new() { HasBegun = true };
 }

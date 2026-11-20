@@ -42,7 +42,7 @@ internal static class TypedSineProductsVerification
     }
 
     /// <summary>The longest radius the short circle sine is compared at: two of the product's radius spans.</summary>
-    private const int LongestCircleRadius = 2 * ShortCircleProduct.RadiusSpan - 1;
+    private static readonly int LongestCircleRadius = 2 * ShortCircleProduct.RadiusSpan - 1;
 
     /// <summary>
     /// The short circle product's sine distance (#2537) equals the arithmetic it replaced for every angle and every radius

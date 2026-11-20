@@ -110,7 +110,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         : this(owner, name => typeof(D3D11FrameRenderer).Assembly.GetManifestResourceStream(name)) { }
 
     /// <summary>Resource-lookup seam for strict missing-shader startup verification.</summary>
-    internal D3D11FrameRenderer(D3D11RenderDevice owner, Func<string, Stream?> openShaderResource)
+    private D3D11FrameRenderer(D3D11RenderDevice owner, Func<string, Stream?> openShaderResource)
     {
         this.owner = Ensure.NotNull(owner);
         this.openShaderResource = Ensure.NotNull(openShaderResource);

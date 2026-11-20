@@ -28,7 +28,7 @@ internal sealed class CeresStationBlast
     /// Runs one update of the blast's stages, glowing in <paramref name="glowColors"/>; a blast that is not running stays
     /// still.
     /// </summary>
-    internal void StepFrame(InstalledPowerBombGlowColors glowColors) => _ = timeline.StepFrame(glowColors);
+    internal void StepFrame(InstalledPowerBombGlowColors glowColors) => timeline.StepFrame(glowColors);
 
     /// <summary>The blast's oval of added colour as a screen layer from the screen's top line, or null while it is not running.</summary>
     internal ColourAddWindowLayer? Capture()

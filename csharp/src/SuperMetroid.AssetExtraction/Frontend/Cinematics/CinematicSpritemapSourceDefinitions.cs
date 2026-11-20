@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Cinematics;
 internal static class CinematicSpritemapSourceDefinitions
 {
     /// <summary>Bank $8C, where every cinematic spritemap is stored.</summary>
-    internal const byte Bank = 0x8c;
+    private const byte Bank = 0x8c;
 
     /// <summary>
     /// The spritemap of each step of the ending's typed texts (#2195), which shows its text typed as far as one more letter:

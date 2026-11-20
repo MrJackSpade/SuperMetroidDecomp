@@ -13,9 +13,17 @@
   <ItemGroup>
     <!-- The partial-type analyzer and this audit share one generated-code test. -->
     <Compile Include="../SuperMetroid.EnsureAnalyzer/SourceLayout/GeneratedSource.cs" Link="Shared/GeneratedSource.cs" />
+    <!-- The test-only-member census judges checks' private-state names with SME6477's own lookup. -->
+    <Compile Include="../SuperMetroid.EnsureAnalyzer/Contracts/PrivateStateMembers.cs" Link="Shared/PrivateStateMembers.cs" />
     <!-- The module inventory reads the same module map the #626 analyzers enforce. -->
     <Compile Include="../SuperMetroid.EnsureAnalyzer/Modules/ModuleMap.cs" Link="Shared/ModuleMap.cs" />
     <Compile Include="../SuperMetroid.ReachabilityAudit/SolutionLoading/**/*.cs" LinkBase="SolutionLoading" />
+    <!-- The test-only-member fix and the reachability prune generate one kind of private-access class. -->
+    <Compile Include="../SuperMetroid.ReachabilityAudit/Removal/PrivateAccessShims.cs" Link="Shared/PrivateAccessShims.cs" />
+    <!-- The test-only-member census counts what System.Text.Json reads and writes as production use, as reachability finds it. -->
+    <Compile Include="../SuperMetroid.ReachabilityAudit/Analysis/JsonSerializationScan.cs" Link="Shared/JsonSerializationScan.cs" />
+    <Compile Include="../SuperMetroid.ReachabilityAudit/Analysis/GenericHelperArgument.cs" Link="Shared/GenericHelperArgument.cs" />
+    <Compile Include="../SuperMetroid.ReachabilityAudit/Declarations/SymbolIdentity.cs" Link="Shared/SymbolIdentity.cs" />
   </ItemGroup>
   <Import Project="../../test-support/WindowsConsole.projitems" />
 </Project>

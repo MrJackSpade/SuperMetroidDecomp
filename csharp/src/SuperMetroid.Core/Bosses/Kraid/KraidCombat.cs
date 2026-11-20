@@ -122,10 +122,10 @@ internal sealed class KraidCombat
     /// Resolves projectile hits on Kraid's mouth. Projectile
     /// removal is deferred to the projectile's own update.
     /// </summary>
-    internal int ResolveKraidMouthProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
+    internal void ResolveKraidMouthProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
         if (KraidSinkingSkipsProjectileCollision(state))
-            return 0;
+            return;
 
         int mouthHits = 0;
         KraidMouthHitbox? innerMouth = tested.Count == 0 ? null : KraidHeadAnimations.InnerMouthAt(state.HeadPlayback);
@@ -189,18 +189,16 @@ internal sealed class KraidCombat
             if (body.Health < 1 && state.BodyState.Fights)
                 BeginKraidDeath(state);
         }
-
-        return mouthHits;
     }
 
     /// <summary>
     /// Resolves projectile hits on Kraid's body, the independent
     /// outer mouth/body pass.
     /// </summary>
-    internal int ResolveKraidBodyProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
+    internal void ResolveKraidBodyProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
         if (KraidSinkingSkipsProjectileCollision(state))
-            return 0;
+            return;
 
         bool chargedHit = false;
         int bodyHits = 0;
@@ -234,22 +232,21 @@ internal sealed class KraidCombat
                 state.ArmMouthReopens();
             }
         }
-        return bodyHits;
     }
 
     /// <summary>Places a mouth shape at Kraid's body position as the bounds a collision pass starts from.</summary>
-    internal static KraidPassBounds PlaceKraidPassBounds(RoomEnemyPlace body, KraidMouthHitbox shape) =>
+    private static KraidPassBounds PlaceKraidPassBounds(RoomEnemyPlace body, KraidMouthHitbox shape) =>
         PlaceKraidPassBounds(body, KraidMouthHitboxes.ResolveCollision(shape));
 
     /// <summary>Places a mouth shape's left, top and bottom edges at Kraid's body position.</summary>
-    internal static KraidPassBounds PlaceKraidPassBounds(RoomEnemyPlace body, KraidMouthCollisionEdges shape) =>
+    private static KraidPassBounds PlaceKraidPassBounds(RoomEnemyPlace body, KraidMouthCollisionEdges shape) =>
         KraidPassBounds.Placed(
             body.Position.X.Whole + shape.Left,
             body.Position.Y.Whole + shape.Top,
             body.Position.Y.Whole + shape.Bottom);
 
     /// <summary>Whether a projectile overlaps the pass's bounds as the mouth pass tests them.</summary>
-    internal static bool OverlapsKraidMouth(KraidPassBounds bounds, KraidBehavior.KraidCollisionShot shot) =>
+    private static bool OverlapsKraidMouth(KraidPassBounds bounds, KraidBehavior.KraidCollisionShot shot) =>
         bounds.Overlaps(
             shot.Position.Y - shot.Radius.Y,
             shot.Position.Y + shot.Radius.Y,
@@ -259,7 +256,7 @@ internal sealed class KraidCombat
     /// Whether a projectile overlaps Kraid's body: inside the pass's bounds when it reaches above their bottom, and
     /// otherwise left of the body's contour at its height, which leaves the projectile's right edge as the bottom.
     /// </summary>
-    internal static bool OverlapsKraidBody(ref KraidPassBounds bounds, RoomEnemyPlace body, KraidBehavior.KraidCollisionShot shot)
+    private static bool OverlapsKraidBody(ref KraidPassBounds bounds, RoomEnemyPlace body, KraidBehavior.KraidCollisionShot shot)
     {
         if (bounds.IsAboveBottom(shot.Position.Y - shot.Radius.Y))
             return bounds.ReachesTopAndLeft(shot.Position.Y + shot.Radius.Y, shot.Position.X + shot.Radius.X);

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectSpeedBoosterVisualFiles
 {
     /// <summary>Editable Speed Booster bomb-reveal visual JSON filename.</summary>
-    public const string VisualFileName = "speed-booster.json";
+    private const string VisualFileName = "speed-booster.json";
 
     /// <summary>The Speed Booster reveal as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -30,15 +30,15 @@ public static class RoomObjectSpeedBoosterVisualFiles
     internal const string BombRevealVisualId = "bomb-reveal";
 
     /// <summary>The one-block reveal's draw list, built from the block the game writes.</summary>
-    internal static RoomObjectDrawLists.DrawList BombReveal =>
+    private static RoomObjectDrawLists.DrawList BombReveal =>
         RoomObjectShapeRun.DrawList(SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw, SpeedBoosterBlockObjectDrawDefinitions.BombRevealShape,
             RoomObjectShapeRun.Row(new(0, 0), 1));
 
     /// <summary>The sole bomb-reveal draw list.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All => [BombReveal];
+    private static IEnumerable<RoomObjectDrawLists.DrawList> All => [BombReveal];
 
     /// <summary>Accepts only the bomb-reveal draw and rejects unrelated PLM drawings.</summary>
-    internal static string VisualId(RoomObjectDraw request) => request == SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw
+    private static string VisualId(RoomObjectDraw request) => request == SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw
         ? BombRevealVisualId
         : throw new InvalidDataException($"Speed Booster draw {request} has no visual ID.");
 }

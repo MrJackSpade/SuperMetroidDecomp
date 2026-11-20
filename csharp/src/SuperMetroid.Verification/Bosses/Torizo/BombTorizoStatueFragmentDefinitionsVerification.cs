@@ -29,11 +29,11 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
         {
             BombTorizoStatueFragmentDefinition expected = BombTorizoStatueFragmentDefinitions.Fragments[index];
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            EnemyProjectile projectile =
-                enemies.TorizoBehavior.Attacks.SpawnBombTorizoStatueBreakingProjectile(
-                    new BombTorizoStatueProjectileRequest(
-                        index,
-                        RoomObjectBlock: new(10, 20))) ??
+            enemies.TorizoBehavior.Attacks.SpawnBombTorizoStatueBreakingProjectile(
+                new BombTorizoStatueProjectileRequest(
+                    index,
+                    RoomObjectBlock: new(10, 20)));
+            EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.SingleOrDefault(item => item.IsActive) ??
                 throw new InvalidDataException(
                     $"Bomb Torizo statue fragment {index} failed to allocate.");
 
@@ -50,7 +50,7 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
                 $"Bomb Torizo statue fragment {index} production Y");
             AssertEqual(expected.InitialFallSpeed, projectile.Velocity.Y,
                 $"Bomb Torizo statue fragment {index} production velocity");
-            AssertEqual(expected.Acceleration, projectile.StateOf<BombTorizoStatueFragmentState>().Acceleration,
+            AssertEqual(expected.Acceleration, enemies.TorizoBehavior.Attacks.TorizoProjectiles.StatueFragments.Of(projectile).Acceleration,
                 $"Bomb Torizo statue fragment {index} production acceleration");
         }
 

@@ -34,7 +34,7 @@ internal sealed class DoorTransitionState
     public DoorTransitionPhase Phase => stage.Phase;
 
     /// <summary>Gets whether the transition has begun and has not yet completed.</summary>
-    public bool IsActive => stage is OrdinaryDoorTransition;
+    private bool IsActive => stage is OrdinaryDoorTransition;
 
     /// <summary>
     /// Whether the next update continues the destination's load from the update before, which began it on

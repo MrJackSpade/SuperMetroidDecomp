@@ -208,7 +208,7 @@ internal sealed class MotherBrainBody
     /// ordinary enemy radius. Phase one enables only the brain list; later phases also
     /// admit the body and three independently positioned neck segments.
     /// </summary>
-    internal static bool ResolveMotherBrainSamusCollision(
+    internal static void ResolveMotherBrainSamusCollision(
         MotherBrainEnemyState state,
         SamusState samus)
     {
@@ -219,7 +219,7 @@ internal sealed class MotherBrainBody
                 MotherBrainContactPart.Body,
                 state.Body.Position.Whole))
         {
-            return true;
+            return;
         }
 
         RoomEnemyPlace head = state.Head;
@@ -229,7 +229,7 @@ internal sealed class MotherBrainBody
                 MotherBrainContactPart.Brain,
                 head.Position.Whole))
         {
-            return true;
+            return;
         }
 
         if ((enabled & MotherBrainHitboxParts.Neck) != MotherBrainHitboxParts.None)
@@ -242,15 +242,14 @@ internal sealed class MotherBrainBody
                         MotherBrainContactPart.Neck,
                         joint.Position))
                 {
-                    return true;
+                    return;
                 }
             }
         }
-        return false;
     }
 
     /// <summary>Checks a single head or body contact region and applies the phase-specific collision response.</summary>
-    internal static bool ResolveMotherBrainSamusCollisionPart(
+    private static bool ResolveMotherBrainSamusCollisionPart(
         MotherBrainEnemyState state,
         SamusState samus,
         MotherBrainContactPart contactPart,
@@ -299,7 +298,7 @@ internal sealed class MotherBrainBody
     /// Runs the hand beam's charging setup. The body—not the articulated
     /// head—is the source: its frame puts the hand at its hand offset.
     /// </summary>
-    internal void SpawnMotherBrainHandBeamCharging(
+    private void SpawnMotherBrainHandBeamCharging(
         MotherBrainEnemyState state,
         SamusState samus)
     {
@@ -320,8 +319,8 @@ internal sealed class MotherBrainBody
             EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle),
             EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
-        beam.State = new MotherBrainProjectileState(state);
-        beam.StartAnimation(new MotherBrainHandBeamAnimation());
+        _projectileAttacks.Projectile.MotherBrains.Start(beam, new MotherBrainProjectileState(state));
+        beam.StartAnimation(new MotherBrainHandBeamAnimation(_projectileAttacks.Projectile));
     }
 
     /// <summary>
@@ -352,7 +351,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>Spawns one of Mother Brain's turrets, <paramref name="definition"/>.</summary>
-    internal void SpawnMotherBrainTurret(MotherBrainEnemyState state, MotherBrainTurretDefinition definition)
+    private void SpawnMotherBrainTurret(MotherBrainEnemyState state, MotherBrainTurretDefinition definition)
     {
         EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRoomTurret, _projectileAttacks.Projectile, MotherBrainTurretDefinitions.Graphics);
         if (turret is null)
@@ -360,8 +359,8 @@ internal sealed class MotherBrainBody
 
 
         turret.Position = turret.Position.WithWhole(definition.Position);
-        turret.State = new MotherBrainTurretState(state, definition);
-        turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(definition.InitialDirection)));
+        _projectileAttacks.Projectile.Turrets.Start(turret, new MotherBrainTurretState(state, definition));
+        turret.StartAnimation(new MotherBrainTurretAnimation(_projectileAttacks.Projectile, MotherBrainTurretPose.Turret(definition.InitialDirection)));
 
         // A new turret draws a random number for each of its two waits, its turning wait first.
         _projectileAttacks.Projectile.ResetMotherBrainTurretRotationTimer(turret);

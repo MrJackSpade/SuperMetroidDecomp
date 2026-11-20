@@ -68,7 +68,7 @@ public sealed class SuperMetroidGame
     /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
     /// <param name="hostServices">The compatibility services and display policy.</param>
     /// <param name="random">The session's random number generator, which the frontend and every gameplay runtime share.</param>
-    internal SuperMetroidGame(
+    private SuperMetroidGame(
         SaveSlotStore saves,
         GameplayAssists? assists,
         SuperMetroidGameHostServices hostServices,
@@ -129,11 +129,11 @@ public sealed class SuperMetroidGame
 
 
     /// <summary>Runs one update and returns its status.</summary>
-    public FrontendFrame Step(ControllerButton controllerInput)
+    private FrontendFrame Step(ControllerButton controllerInput)
     {
         // The sound queues read whether the door transition has disabled sound effects from the door's phase itself as each
         // request is made (#2499); the phase's audio here chooses only the update's own audio processing.
-        GamePhaseAudio phaseAudio = Phases.Of(Session.GameState).Audio;
+        GamePhaseAudio phaseAudio = Session.RunningPhase.Audio;
         bool publishesHeldInputAfterPause = phaseAudio == GamePhaseAudio.PublishesHeldInputAfterPause;
         bool messageWasActive = Session.Runtime?.MessageBox.IsActive == true;
         bool doorAudioUpdate = phaseAudio is GamePhaseAudio.DoorTransition or GamePhaseAudio.DoorTransitionSoundsDisabled;
@@ -162,7 +162,7 @@ public sealed class SuperMetroidGame
         AdvanceMenuRandom();
         if (Session.Runtime is not null)
             Session.Runtime.RunningGameState = Session.GameState;
-        Phases.Of(Session.GameState).Step(controllerInput);
+        Session.RunningPhase.Step(controllerInput);
 
         Session.CollectFrontendAudioRequests();
         // Opening a message box cancels sound effects before the box's first update.
@@ -202,38 +202,6 @@ public sealed class SuperMetroidGame
         return new(Session.GameState, PhaseName, FrameNumber, audio);
     }
 
-    /// <summary>The gameplay phases, which the pause's brightening and the time-up's white-out also run (<see cref="GameplayGamePhases"/>).</summary>
-    private GameplayGamePhases GameplayPhases => field ??= new GameplayGamePhases(Session);
-
-    /// <summary>One phase per sequence; each runs that sequence's update and owns its steps.</summary>
-    private GamePhaseTable Phases => field ??= new GamePhaseTable(
-        [
-            new TitleGameSequence(Session),
-            new FileSelectGameSequence(Session),
-            new LoadingGameSequence(Session),
-            new GamePhase(SuperMetroidGameState.GameplayFadeIn,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => GameplayPhases.RunGameplayFadeIn(controllerInput),
-                name: () => Session.GameplayFadeLeadsToCeresArrival ? $"Ceres elevator fade-in (brightness {Session.GameplayFadeIn.Level})" : $"Landing Site fade-in (brightness {Session.GameplayFadeIn.Level})"),
-            new GamePhase(SuperMetroidGameState.MainGameplay,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => GameplayPhases.RunMainGameplay(controllerInput),
-                name: () => "Gameplay"),
-            new DoorTransitionGameSequence(Session),
-            new PauseGameSequence(Session, GameplayPhases),
-            new GamePhase(SuperMetroidGameState.ReserveTankRefill,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => GameplayPhases.RunReserveTankRefill(controllerInput),
-                name: () => "Reserve tank refill"),
-            new DeathGameSequence(Session),
-            new GameOverMenuGamePhase(Session),
-            new IntroCinematicGamePhase(Session),
-            new CeresDepartureGameSequence(Session),
-            new CeresDestructionGameSequence(Session),
-            new TimeUpGameSequence(Session, GameplayPhases),
-            new EndingGameSequence(Session),
-            new AttractDemoGameSequence(Session),
-        ]);
 
     /// <summary>
     /// Reads the current status without advancing the game-state loop. No update ran, so it publishes no audio; an update's
@@ -242,7 +210,7 @@ public sealed class SuperMetroidGame
     public FrontendFrame CurrentFrame => new(Session.GameState, PhaseName, FrameNumber, new AudioFrameEvents([]));
 
     /// <summary>Human-readable active subphase for diagnostics, without changing state.</summary>
-    private string PhaseName => Phases.Of(Session.GameState).Name;
+    private string PhaseName => Session.RunningPhase.Name;
 
     /// <summary>
     /// The display the game last published, stamped with the current frame number, without advancing the game, its
@@ -318,16 +286,16 @@ public sealed class SuperMetroidGame
     /// True when the current phase's step is waiting out a frame of the display, so the next update finishes it instead
     /// of starting a new update of the phase (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    internal bool PhaseIsWaitingOutDisplayFrame => Phases.Of(Session.GameState).IsWaitingOutDisplayFrame;
+    private bool PhaseIsWaitingOutDisplayFrame => Session.RunningPhase.IsWaitingOutDisplayFrame;
 
     /// <summary>
     /// Advances the random generator once per update through the title, file selection and
     /// loading. These phases run once per update and do not run gameplay, which advances it
     /// itself. Saves keep no copy of the generator.
     /// </summary>
-    internal void AdvanceMenuRandom()
+    private void AdvanceMenuRandom()
     {
-        switch (Phases.Of(Session.GameState).RandomStep)
+        switch (Session.RunningPhase.RandomStep)
         {
             case PhaseRandomStep.Reseed:
                 // Only power-on and soft reset reseed. A continued save must keep the value
@@ -351,7 +319,7 @@ public sealed class SuperMetroidGame
             case PhaseRandomStep.RuntimeOwned:
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(PhaseRandomStep)} {Phases.Of(Session.GameState).RandomStep}.");
+                throw new InvalidOperationException($"Undefined {nameof(PhaseRandomStep)} {Session.RunningPhase.RandomStep}.");
         }
         // Gameplay advances the generator itself after its liquid wave and statue descent. Do not
         // advance here for gameplay updates or for an update that finishes a waiting step.

@@ -15,7 +15,7 @@ internal static class PipeBugBehaviorVerification
 {
     /// <summary>
     /// The Zeb, Zebbo, Gamet and Geega initializers start their native first loops, and every loop installed through
-    /// <see cref="PipeBugsBehavior.StartPipeBugAnimation"/> runs one pass and returns to its first pose on time; each family
+    /// <c>StartPipeBugAnimation</c> runs one pass and returns to its first pose on time; each family
     /// keeps its animation in its own state (#1845).
     /// </summary>
     internal static void VerifyPipeBugBehavior()
@@ -64,7 +64,7 @@ internal static class PipeBugBehaviorVerification
             NorfairPipeBugState state = place.RequireSpeciesState<NorfairPipeBugState>();
             state.Action = NorfairPipeBugAction.WaitForStagger;
             state.Role = new NorfairPipeBugRole.Leader(StaggerTarget: 72);
-            PrivateState.Set(state, nameof(NorfairPipeBugState.Departure), UpdateCountdownAccess.AtAge(72, before));
+            PrivateState.Set(state, "Departure", UpdateCountdownAccess.AtAge(72, before));
             enemies.PipeBugsBehavior.RunNorfairPipeBugMainAi(place.HeldOccupant(), place, Frame(new(200, 128)));
             AssertEqual(after, state.Departure.Age, $"Norfair Pipe Bug count after {before}");
             AssertEqual(departs ? NorfairPipeBugAction.Fly : NorfairPipeBugAction.WaitForStagger, state.Action,
@@ -145,7 +145,7 @@ internal static class PipeBugBehaviorVerification
             state.Action = NorfairPipeBugAction.Stagger;
             state.Role = role;
             state.RiseEndY = 128;
-            PrivateState.Set(state, nameof(NorfairPipeBugState.Departure), UpdateCountdown.Lasting(role.StaggerTarget));
+            PrivateState.Set(state, "Departure", UpdateCountdown.Lasting(role.StaggerTarget));
             int updates = 0;
             while (state.Action == NorfairPipeBugAction.Stagger && updates <= stagger.Distance + 1)
             {

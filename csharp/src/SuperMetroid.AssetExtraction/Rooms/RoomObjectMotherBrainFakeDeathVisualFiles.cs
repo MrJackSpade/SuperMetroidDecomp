@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectMotherBrainFakeDeathVisualFiles
 {
     /// <summary>The installed file holding the fake-death room frames' pictures.</summary>
-    public const string VisualFileName = "mother-brain-fake-death.json";
+    private const string VisualFileName = "mother-brain-fake-death.json";
 
     /// <summary>
     /// The tube clears in the installed file's order after the wall, the door and the mural rows (#2567): the ceiling's,

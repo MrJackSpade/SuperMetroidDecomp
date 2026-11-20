@@ -26,7 +26,7 @@ public sealed class CrocomireSkeletonArtwork
     /// its last chunk, and that end is no chunk.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="index"/> names no chunk of the sequence.</exception>
-    internal static int RequireChunk(int index) =>
+    private static int RequireChunk(int index) =>
         (uint)index < CrocomireSkeletonCharacterDefinitions.ChunkCount ? index
             : throw new InvalidDataException($"Crocomire skeleton upload index {index} names no chunk of its sequence.");
 

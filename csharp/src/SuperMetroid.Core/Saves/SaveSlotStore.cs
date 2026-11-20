@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Saves;
 public sealed class SaveSlotStore
 {
     /// <summary>Each saved slot's decoded record; a slot with no entry is empty or invalid.</summary>
-    internal readonly Dictionary<SaveSlot, SuperMetroidSaveSlot> slots = [];
+    private readonly Dictionary<SaveSlot, SuperMetroidSaveSlot> slots = [];
 
     /// <summary>The file-select menu's persistent selection.</summary>
     private SaveSlot selectedSlot;
@@ -101,7 +101,7 @@ public sealed class SaveSlotStore
     public SaveSlot ReadSelectedSlot() => selectedSlot;
 
     /// <summary>Whether the save file's history holds a completed game, which unlocks the completion demo set.</summary>
-    public bool HasCompletedGame => History == SaveFileHistory.GameCompleted;
+    private bool HasCompletedGame => History == SaveFileHistory.GameCompleted;
 
     /// <summary>The ending completes the game; the save file's history keeps it until a power-on finds no valid save.</summary>
     public void CompleteGame() => History = SaveFileHistory.GameCompleted;

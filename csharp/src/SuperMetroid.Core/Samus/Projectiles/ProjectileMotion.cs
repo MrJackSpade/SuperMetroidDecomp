@@ -286,7 +286,7 @@ internal sealed class ProjectileMotion
     /// Creates the invisible collision link at ignition in the lowest free place and records its place in the owner; with
     /// no free place the owner keeps the link it named (<see cref="UnlinkedSuperMissileLink"/>).
     /// </summary>
-    internal void SpawnSuperMissileLink(
+    private void SpawnSuperMissileLink(
         SamusState samus,
         SamusProjectile owner,
         SuperMissileShotState ownerState)
@@ -486,7 +486,7 @@ internal sealed class ProjectileMotion
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
         {
-            _ = roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
+            roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
             return true;
         }
         ProjectileTerrainCollision.TrySpawnShootableReaction(level, shot, block, roomObjects);
@@ -494,7 +494,7 @@ internal sealed class ProjectileMotion
     }
 
     /// <summary>Tests the missile's centre against a slope's mirrored surface, or the square slope's quarter it lies in.</summary>
-    internal static bool MissileSlopePointReaction(
+    private static bool MissileSlopePointReaction(
         RoomCollisionBlock block,
         SamusProjectile shot)
     {

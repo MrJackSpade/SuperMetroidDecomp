@@ -3,10 +3,23 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>One quarter of a square slope block, in the slope shape's own unmirrored frame: its column half and row half.</summary>
-/// <param name="Column">The quarter's column half.</param>
-/// <param name="Row">The quarter's row half.</param>
-public readonly record struct SquareSlopeQuadrant(SquareSlopeColumnHalf Column, SquareSlopeRowHalf Row)
+public readonly record struct SquareSlopeQuadrant
 {
+    /// <summary>A value of its parts; only its own operations make one.</summary>
+    /// <param name="column">The quarter's column half.</param>
+    /// <param name="row">The quarter's row half.</param>
+    private SquareSlopeQuadrant(SquareSlopeColumnHalf column, SquareSlopeRowHalf row)
+    {
+        Column = column;
+        Row = row;
+    }
+
+    /// <summary>The quarter's column half.</summary>
+    public SquareSlopeColumnHalf Column { get; init; }
+
+    /// <summary>The quarter's row half.</summary>
+    public SquareSlopeRowHalf Row { get; init; }
+
     /// <summary>Whether the quarter is in the shape's right column half; otherwise the left.</summary>
     public bool Right => Column == SquareSlopeColumnHalf.Right;
 

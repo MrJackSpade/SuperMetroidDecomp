@@ -28,7 +28,7 @@ internal static class DynamicCollectibleGraphics
         : throw new InvalidDataException($"Permanent-item kind {kind} has no dynamic graphics upload.");
 
     /// <summary>The place of <paramref name="kind"/>'s artwork block among the item graphics, in their stored order.</summary>
-    internal static int GraphicIndex(InWorldCollectibleKind kind) => Array.IndexOf(StoredGraphics, GraphicFor(kind));
+    private static int GraphicIndex(InWorldCollectibleKind kind) => Array.IndexOf(StoredGraphics, GraphicFor(kind));
 
     /// <summary>Maps collectible identity to its distinct bank $89 tile block, independent of enum order.</summary>
     private static ItemGraphic GraphicFor(InWorldCollectibleKind kind) => kind switch
@@ -62,7 +62,7 @@ internal static class DynamicCollectibleGraphics
     /// select their accent palette in the top-right tile of each frame; X-ray
     /// uses its top row with different palettes between the two frames.
     /// </summary>
-    internal static byte PaletteOffset(InWorldCollectibleKind kind, int tile)
+    private static byte PaletteOffset(InWorldCollectibleKind kind, int tile)
     {
         if (!HasUpload(kind))
             throw new InvalidDataException(

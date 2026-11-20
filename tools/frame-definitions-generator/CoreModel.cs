@@ -87,8 +87,8 @@ internal sealed class CoreModel
         AnimationSegments = SingleType("AnimationSegments", arity: 3);
         _entity = SingleType("IEnemyEntity");
         INamedTypeSymbol factory = SingleType("IEnemyEntityFactory");
-        INamedTypeSymbol typedAnimation = SingleType("EnemyProjectileTypedAnimation", arity: 3);
-        TypedAnimation = typedAnimation;
+        INamedTypeSymbol timelineAnimation = SingleType("EnemyProjectileTimelineAnimation", arity: 3);
+        TimelineAnimation = timelineAnimation;
         _projectileBehaviour = SingleType("EnemyProjectileBehavior");
         foreach (string name in TableNames)
             _tables.Add(SingleType(name));
@@ -97,7 +97,7 @@ internal sealed class CoreModel
 
         foreach (INamedTypeSymbol type in Types)
         {
-            if (type.TypeKind == TypeKind.Class && !type.IsAbstract && DerivesFrom(type, typedAnimation))
+            if (type.TypeKind == TypeKind.Class && !type.IsAbstract && DerivesFrom(type, timelineAnimation))
                 _families.Add(type);
         }
         foreach (INamedTypeSymbol type in Types)
@@ -168,9 +168,10 @@ internal sealed class CoreModel
 
     /// <summary>
     /// The base every projectile program family derives from (#1600), whose type arguments are its segment, frame and event
-    /// types; the segment type names the programs (the segments an animation starts at).
+    /// types; the segment type names the programs (the segments an animation starts at). A family whose timeline raises
+    /// events and one whose timeline raises none (#2571) both derive from it.
     /// </summary>
-    public INamedTypeSymbol TypedAnimation { get; }
+    public INamedTypeSymbol TimelineAnimation { get; }
 
     /// <summary>What each projectile program family's animations show, read from their segments and animations once.</summary>
     public ProjectileProgramFrames ProgramFrames => _programFrames ??= new ProjectileProgramFrames(this);
@@ -329,17 +330,49 @@ internal sealed class CoreModel
 
     /// <summary>
     /// The programs <paramref name="creation"/>, a construction of a projectile program family, can start it in: the
-    /// members of the family's program type its first argument names, each branch of a conditional or switch among them;
-    /// null when any branch is no such member.
+    /// members of the family's program type its program argument names (<see cref="ProgramArgumentOf"/>), each branch of a
+    /// conditional or switch among them; null when any branch is no such member.
     /// </summary>
     public IReadOnlySet<string>? ProgramsOf(SemanticModel semantic, BaseObjectCreationExpressionSyntax creation, INamedTypeSymbol family)
     {
         INamedTypeSymbol? programType = ProgramTypeOf(family);
-        if (creation.ArgumentList is not { Arguments: [var first, ..] } || programType is null)
+        if (ProgramArgumentOf(semantic, creation, family) is not { } program || programType is null)
             return null;
         var programs = new HashSet<string>(StringComparer.Ordinal);
-        return AddPrograms(semantic, first.Expression, programType, programs) ? programs : null;
+        return AddPrograms(semantic, program, programType, programs) ? programs : null;
     }
+
+    /// <summary>
+    /// The parameter of <paramref name="constructor"/>, one of <paramref name="family"/>'s, that hands it the program it
+    /// starts in: the one taking the family's program type or an animation of it. The owner its cues go to may come before
+    /// it (#2571). Null when the constructor takes no program.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The constructor takes more than one program.</exception>
+    public IParameterSymbol? ProgramParameterOf(IMethodSymbol constructor, INamedTypeSymbol family)
+    {
+        if (ProgramTypeOf(family) is not { } programType)
+            return null;
+        IParameterSymbol[] programs = [.. constructor.Parameters.Where(parameter => IsProgramValue(parameter.Type, programType))];
+        return programs switch
+        {
+            [] => null,
+            [var program] => program.OriginalDefinition,
+            _ => throw new InvalidDataException($"{constructor.ToDisplayString()} takes more than one program."),
+        };
+    }
+
+    /// <summary>The argument <paramref name="creation"/>, a construction of <paramref name="family"/>, passes for its program; null when none.</summary>
+    public ExpressionSyntax? ProgramArgumentOf(SemanticModel semantic, BaseObjectCreationExpressionSyntax creation, INamedTypeSymbol family) =>
+        creation.ArgumentList is { } arguments && semantic.GetSymbolInfo(creation).Symbol is IMethodSymbol constructor
+            && ProgramParameterOf(constructor, family) is { } program
+            ? CallSite.ArgumentFor(arguments, program)
+            : null;
+
+    /// <summary>Whether <paramref name="type"/> names a program of <paramref name="programType"/>: the program type, or an animation of it.</summary>
+    private static bool IsProgramValue(ITypeSymbol type, INamedTypeSymbol programType) =>
+        SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, programType.OriginalDefinition)
+        || type is INamedTypeSymbol { Name: "Animation", TypeArguments: [var played] }
+            && SymbolEqualityComparer.Default.Equals(played.OriginalDefinition, programType.OriginalDefinition);
 
     /// <summary>
     /// The type naming <paramref name="family"/>'s programs (the segments an animation starts at): the first type argument
@@ -349,7 +382,7 @@ internal sealed class CoreModel
     {
         for (INamedTypeSymbol? type = family; type is not null; type = type.BaseType)
         {
-            if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, TypedAnimation))
+            if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, TimelineAnimation))
                 return type.TypeArguments[0] as INamedTypeSymbol;
         }
         return null;
@@ -363,7 +396,7 @@ internal sealed class CoreModel
     {
         for (INamedTypeSymbol? type = family; type is not null; type = type.BaseType)
         {
-            if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, TypedAnimation))
+            if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, TimelineAnimation))
                 return (type.TypeArguments[2] as INamedTypeSymbol)?.OriginalDefinition;
         }
         return null;
@@ -468,7 +501,7 @@ internal sealed class CoreModel
         var pending = new Queue<IParameterSymbol>();
         foreach (IMethodSymbol constructor in family.OriginalDefinition.InstanceConstructors)
         {
-            if (constructor.Parameters is [var program, ..])
+            if (ProgramParameterOf(constructor, family) is { } program)
                 Pass(constructor, program);
         }
         while (pending.TryDequeue(out IParameterSymbol? handed))
@@ -485,7 +518,11 @@ internal sealed class CoreModel
                     continue;
                 foreach (ExpressionSyntax choice in Choices(passed))
                 {
-                    if (HandedParameter(site.Semantic.GetSymbolInfo(choice).Symbol) is { } source && parameters.Add(source))
+                    ISymbol? symbol = site.Semantic.GetSymbolInfo(choice).Symbol;
+                    // A local a pattern declares hands on what the pattern tests (#2571): shot is { } segment hands on shot.
+                    if (symbol is ILocalSymbol local && ProgramTracer.PatternTested(local) is { } tested)
+                        symbol = site.Semantic.GetSymbolInfo(tested).Symbol;
+                    if (HandedParameter(symbol) is { } source && parameters.Add(source))
                         pending.Enqueue(source);
                 }
             }
@@ -494,11 +531,12 @@ internal sealed class CoreModel
 
     /// <summary>
     /// The parameter <paramref name="symbol"/> reads a value handed in through: a parameter of a method (not of a lambda or
-    /// local function), or the primary-constructor parameter a positional record's property is; null for anything else.
+    /// local function, and not the instance a member runs on), or the primary-constructor parameter a positional record's
+    /// property is; null for anything else.
     /// </summary>
     public IParameterSymbol? HandedParameter(ISymbol? symbol) => symbol switch
     {
-        IParameterSymbol { ContainingSymbol: IMethodSymbol { MethodKind: not (MethodKind.AnonymousFunction or MethodKind.LocalFunction) } } parameter =>
+        IParameterSymbol { IsThis: false, ContainingSymbol: IMethodSymbol { MethodKind: not (MethodKind.AnonymousFunction or MethodKind.LocalFunction) } } parameter =>
             parameter.OriginalDefinition,
         IPropertySymbol property when IsSource(property) => PositionalParameter(property),
         _ => null,

@@ -89,9 +89,10 @@ internal static class NoobTubeProjectileBehaviorVerification
             edgeSystem.StepEnemyProjectiles(tunnel, standingSamus, frameCounterByte: step & byte.MaxValue);
             if (!edgeShard.IsActive)
                 break;
-            int column = edgeShard.StateOf<NoobTubeDebrisState>().X.Whole;
+            int column = edgeSystem.NoobTubeBehavior.TubePieces.Pieces.Of(edgeShard).X.Whole;
             passedLeftEdge |= column > CoordinateAxis.LastNonNegative;
-            if (edgeShard.Animation is not NoobTubeProjectileAnimation { ShowsMirroredFrame: true })
+            if (edgeShard.Animation is not NoobTubeProjectileAnimation shardAnimation ||
+                !global::SuperMetroid.Core.PrivateState.Get<NoobTubeProjectileAnimation, bool>(shardAnimation, "ShowsMirroredFrame"))
                 continue;
             AssertEqual(unchecked((ushort)(NoobTubeDebrisDefinitions.ShardMirrorSpan - column)), edgeShard.Position.X.Whole,
                 $"step {step}: the shard's mirror image lies across the tube from its column {column}");
@@ -171,16 +172,16 @@ internal static class NoobTubeProjectileBehaviorVerification
                 if (command == NativeEnemyProjectileInstruction.NoobTubeShardReflectFlicker)
                 {
                     expectedOperand = unchecked((ushort)(entry + (oddFrame ? 2 : 4)));
-                    ushort column = projectile.StateOf<NoobTubeDebrisState>().X.Whole;
+                    ushort column = system.NoobTubeBehavior.TubePieces.Pieces.Of(projectile).X.Whole;
                     AssertEqual(oddFrame ? column : unchecked((ushort)(256 - column)), projectile.Position.X.Whole,
                         $"reflected flicker at $86:{entry:X4} column");
                 }
                 else if (command == NativeEnemyProjectileInstruction.NoobTubeShardFlicker)
                 {
                     expectedOperand = unchecked((ushort)(entry + 2));
-                    AssertEqual(projectile.StateOf<NoobTubeDebrisState>().X.Whole, projectile.Position.X.Whole,
+                    AssertEqual(system.NoobTubeBehavior.TubePieces.Pieces.Of(projectile).X.Whole, projectile.Position.X.Whole,
                         $"hiding flicker at $86:{entry:X4} column");
-                    AssertEqual(!oddFrame, projectile.StateOf<NoobTubeDebrisState>().IsHidden, $"hiding flicker at $86:{entry:X4} hides the shard on even frames");
+                    AssertEqual(!oddFrame, system.NoobTubeBehavior.TubePieces.Pieces.Of(projectile).IsHidden, $"hiding flicker at $86:{entry:X4} hides the shard on even frames");
                 }
             }
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands, expectedOperand);

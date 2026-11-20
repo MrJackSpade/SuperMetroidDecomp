@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 
@@ -12,7 +11,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Choot];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new ChootEntity(occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ChootEntity(occupant, place, common));
 
     /// <summary>Initializes the Choot, selecting a falling pattern and calculating ascent speed from parameters.</summary>
     internal static void InitializeChoot(RoomEnemyOccupant occupant, RoomEnemyPlace place)
@@ -72,7 +71,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Waits out the jump delay, then starts the jumping animation.</summary>
-    internal static void PrepareChootJump(RoomEnemyPlace place, ChootEnemyState state)
+    private static void PrepareChootJump(RoomEnemyPlace place, ChootEnemyState state)
     {
         if (!state.JumpDelayTimer.Step())
             return;
@@ -82,7 +81,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies quadratic ascent without room collision and snaps whole coordinates to the calculated falling origin at the apex.</summary>
-    internal static void RunChootJump(RoomEnemyOccupant occupant, RoomEnemyPlace place, ChootEnemyState state)
+    private static void RunChootJump(RoomEnemyOccupant occupant, RoomEnemyPlace place, ChootEnemyState state)
     {
         // The Choot rises at its place's speed on the curve, passing through the room's blocks during this leap.
         SignedSixteenSixteen upwardDisplacement = state.YSpeedCurvePlace.Speed.Negative;
@@ -104,7 +103,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Follows authored path offsets, advancing its origin at each loop's end and restoring the exact spawn state after the final loop.</summary>
-    internal static void RunChootFall(RoomEnemyOccupant occupant, RoomEnemyPlace place, ChootEnemyState state)
+    private static void RunChootFall(RoomEnemyOccupant occupant, RoomEnemyPlace place, ChootEnemyState state)
     {
         ChootFallingPath fallingPath = occupant.SpawnSettings<ChootSpawnSettings>().FallingPath;
         if (state.FallingLoop.IsOver)
@@ -157,15 +156,13 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Choot's typed animation.</summary>
-    internal static void AdvanceChootTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, ChootAnimations.Segments,
+    internal static void AdvanceChootTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.AdvanceApplyingCues(place, ChootAnimations.Segments,
             static (ChootEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyChootCue(place, cue) is { } target
-                ? new AnimationContinuation<ChootSegment>(ChootAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
-                : null);
+            (ChootEnemyState _, ChootCue cue) => ApplyChootCue(place, cue));
 
     /// <summary>Carries out one cue of Choot's animation: each switches off-screen processing on or off.</summary>
-    private static ChootSegment? ApplyChootCue(RoomEnemyPlace place, ChootCue cue)
+    private static void ApplyChootCue(RoomEnemyPlace place, ChootCue cue)
     {
         place.Processing = cue.Kind switch
         {
@@ -173,7 +170,6 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             ChootCueKind.StopProcessingOffScreen => place.Processing.Without(EnemyProcessing.OffScreen),
             _ => throw new InvalidOperationException($"Undefined {nameof(ChootCueKind)} {cue.Kind}."),
         };
-        return null;
     }
 
     /// <summary>Runs Choot's main AI.</summary>

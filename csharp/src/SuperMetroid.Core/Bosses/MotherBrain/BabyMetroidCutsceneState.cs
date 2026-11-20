@@ -45,7 +45,7 @@ public sealed class BabyMetroidCutsceneState
     public const int YHitboxRadius = 36;
 
     /// <summary>The entrance's current phase.</summary>
-    public BabyMetroidCutscenePhase Phase { get; internal set; } =
+    public BabyMetroidCutscenePhase Phase { get; private set; } =
         BabyMetroidCutscenePhase.Inactive;
 
     /// <summary>
@@ -74,7 +74,7 @@ public sealed class BabyMetroidCutsceneState
     public FixedPosition<RoomPixels> Position
     {
         get => HeldPlace.Position;
-        internal set => HeldPlace.Position = value;
+        private set => HeldPlace.Position = value;
     }
 
     /// <summary>
@@ -84,16 +84,16 @@ public sealed class BabyMetroidCutsceneState
     internal Offset16<RoomPixels> SignedPlace => OffRoomPlaces.Signed(Position.Whole);
 
     /// <summary>Velocity in pixels per update.</summary>
-    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
+    private PixelVelocity<RoomPixels> Velocity { get; set; }
 
     /// <summary>The curved entrance's speed, zero through fourteen pixels an update.</summary>
-    public SignedEightEight Speed { get; private set; }
+    private SignedEightEight Speed { get; set; }
 
     /// <summary>Heading of the curved entrance; only its whole step is passed to shared component math.</summary>
-    public RotationAngle Angle { get; private set; }
+    private RotationAngle Angle { get; set; }
 
     /// <summary>Phase timer: each timed phase counts it down and moves on as it runs out (<see cref="BossCountdown"/>).</summary>
-    public BossCountdown PhaseTimer { get; } = new();
+    private BossCountdown PhaseTimer { get; } = new();
 
     /// <summary>
     /// The leg of the ceiling-to-Samus route the Baby steers along once it reaches the ceiling, at its place on the route
@@ -109,7 +109,7 @@ public sealed class BabyMetroidCutsceneState
     public int Health
     {
         get => HeldPlace.Health;
-        internal set => HeldPlace.Health = value;
+        private set => HeldPlace.Health = value;
     }
 
     /// <summary>The Baby's place, which holds its position and health.</summary>
@@ -222,7 +222,6 @@ public sealed class BabyMetroidCutsceneState
         // spawned in turn: when the room's enemy projectiles have nearly no room left, the earlier clouds take it.
         var releaseDustClouds = new List<BabyMetroidReleaseDustRequest>(capacity: BabyMetroidCutsceneDefinitions.ReleaseDustOffsets.Count);
         bool ambientCrySoundQueued = false;
-        bool samusRainbowActivated = false;
         DustExplosionRequest? deathExplosion = null;
         MotherBrainFadeImage? babyFadeImage = null;
         MotherBrainFadeImage? recoveryLightsImage = null;
@@ -595,7 +594,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.DeathSequence:
-                StepSamusRainbowColours(samus, ref samusRainbowActivated);
+                StepSamusRainbowColours(samus);
                 AccelerateDownwardsForDeath();
                 if (StepFadeToBlack(ref babyFadeImage))
                 {
@@ -615,7 +614,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.PauseAfterFade:
-                StepSamusRainbowColours(samus, ref samusRainbowActivated);
+                StepSamusRainbowColours(samus);
                 if (PhaseTimer.StepRunsOut())
                 {
                     // Letting Samus rainbow some more starts on the pause's last update, which is its first.
@@ -696,9 +695,7 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>Activates Samus's healed rainbow colours when the Baby reaches her, then slows its frame cadence by a fractional counter.</summary>
-    private void StepSamusRainbowColours(
-        SamusState samus,
-        ref bool samusRainbowActivated)
+    private void StepSamusRainbowColours(SamusState samus)
     {
         switch (SamusRainbowPhase)
         {
@@ -710,7 +707,6 @@ public sealed class BabyMetroidCutsceneState
                 if (SignedPlace.Y + BabyMetroidCutsceneDefinitions.SamusRainbowAboveBaby < samus.Position.Y.Whole)
                     return;
                 samus.Drained.EnableRainbow(samus);
-                samusRainbowActivated = true;
                 SamusRainbowPhase = BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown;
                 return;
 
@@ -795,20 +791,10 @@ public sealed class BabyMetroidCutsceneState
             : targetHeading;
 
         TrigonometryAngle angle = Angle.ToTrigonometryAngle();
+        // Each component is the speed multiplied by the sine's size, signed as the sine is.
         Velocity = new(
-            CalculateVelocityComponent(Speed, angle),
-            CalculateVelocityComponent(Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
-    }
-
-    /// <summary>Multiplies speed by the angle's sine, rounding the product down to a 256th of a pixel, as the game does.</summary>
-    /// <param name="speed">The speed, taken without its sign.</param>
-    /// <param name="angle">The angle whose sine scales the speed.</param>
-    internal static SignedEightEight CalculateVelocityComponent(
-        SignedEightEight speed,
-        TrigonometryAngle angle)
-    {
-        // The speed is multiplied by the sine's size and the product's sign is the sine's.
-        return SpeedAlongAngle.Along(speed, angle);
+            SpeedAlongAngle.Along(Speed, angle),
+            SpeedAlongAngle.Along(Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
 
     /// <summary>Moves the Baby by its velocity, in 256ths of a pixel, leaving the position's finer-than-256ths part untouched.</summary>

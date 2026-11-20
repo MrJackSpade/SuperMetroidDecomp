@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
@@ -44,7 +45,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         // request library-two sounds at low priority.
         var death = default(MotherBrainRainbowBeamAttackStepResult) with
         {
-            DeathExplosions = [],
+            Effects = [], DeathExplosions = [],
             EscapeColourEffectRequests = [], EscapeDoorParticleSpawns = [],
             CorpseDustRequests = [new MotherBrainCorpseDustRequest(new Position16<RoomPixels>(0x0080, 0x0080), DustExplosionAnimation.CorpseDustCloud, SoundEffectQueued: true, SoundEffect: EnemySound.LiquidDamage)],
             EscapeDoorExplosion = new DustExplosionRequest(new(0x0080, 0x0080), DustExplosionAnimation.SmallExplosion, EnemySound.SmallExplosion),

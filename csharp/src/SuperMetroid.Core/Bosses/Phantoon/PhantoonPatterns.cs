@@ -77,7 +77,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Moves his body along its figure-eight path by the figure-eight's speed.</summary>
-    internal static void StepPhantoonFigureEight(RoomEnemyPlace body, PhantoonFigureEightState figureEight)
+    private static void StepPhantoonFigureEight(RoomEnemyPlace body, PhantoonFigureEightState figureEight)
     {
         bool backwards = figureEight.Direction == PhantoonPathDirection.Backwards;
         if (backwards)
@@ -103,7 +103,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Changes horizontal velocity over the forward half of a figure-eight.</summary>
-    internal static void AdjustPhantoonForwardFigureEightSpeed(PhantoonFigureEightState figureEight)
+    private static void AdjustPhantoonForwardFigureEightSpeed(PhantoonFigureEightState figureEight)
     {
         if (figureEight.Stage == PhantoonFigureEightStage.EasingIn)
         {
@@ -136,7 +136,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Changes horizontal velocity over the returning half of a figure-eight.</summary>
-    internal static void AdjustPhantoonReverseFigureEightSpeed(PhantoonFigureEightState figureEight)
+    private static void AdjustPhantoonReverseFigureEightSpeed(PhantoonFigureEightState figureEight)
     {
         if (figureEight.Stage == PhantoonFigureEightStage.EasingIn)
         {
@@ -174,7 +174,7 @@ internal sealed class PhantoonPatterns
         figureEight.Speed += change;
 
     /// <summary>Advances the casual-flame burst while he runs his figure-eight.</summary>
-    internal void StepPhantoonCasualFlameSchedule(PhantoonEnemyState state)
+    private void StepPhantoonCasualFlameSchedule(PhantoonEnemyState state)
     {
         if (!state.CasualFlames.Hold.StepRunsOut())
             return;
@@ -312,10 +312,8 @@ internal sealed class PhantoonPatterns
         state.FigureEight.Speed = PhantoonMotionDefinitions.FigureEightStartSpeed;
         state.NextPattern = PhantoonPatternChoice.FigureEight;
 
-        // The call deliberately starts a pattern phase which is immediately
-        // overwritten with the fade-in phase. Its timer, direction, and movement-side
-        // effects remain live, so run the shared pattern choice in full.
-        PickPhantoonSecondRoundPattern(state);
+        // The round's timers and figure-eight direction are the shared pattern choice's; the phase is the fade-in's.
+        ApplyPhantoonSecondRoundSettings(state);
         state.Phase = PhantoonPhase.FadeInBeforeFigureEight;
         state.BodyFade.Resume();
     }
@@ -626,6 +624,20 @@ internal sealed class PhantoonPatterns
     internal void PickPhantoonSecondRoundPattern(
         PhantoonEnemyState state)
     {
+        ApplyPhantoonSecondRoundSettings(state);
+        state.Phase = state.NextPattern == PhantoonPatternChoice.FlameRain
+            ? PhantoonPhase.FadeOutBeforeFirstFlameRain
+            : PhantoonPhase.MoveInFigureEightThenOpenEye;
+        if (state.NextPattern == PhantoonPatternChoice.FlameRain)
+            state.BodyFade.Resume();
+    }
+
+    /// <summary>
+    /// Sets the round's pattern timer and eye-closed wait, drawing the wait from the room's random numbers, and turns the
+    /// figure-eight forwards or backwards by the frame counter.
+    /// </summary>
+    private void ApplyPhantoonSecondRoundSettings(PhantoonEnemyState state)
+    {
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.PatternPickUpdates);
         state.Round.EyeClosedWait.LastFor(PhantoonRandomDefinitions.EyeClosed.Choose(_room.Random.Generate()));
         if (PhantoonCadenceDefinitions.FigureEightReverses.IsSetIn(_frameContext.FrameCounter))
@@ -644,83 +656,73 @@ internal sealed class PhantoonPatterns
             state.FigureEight.Stage = PhantoonFigureEightStage.EasingIn;
             state.FigureEight.Direction = PhantoonPathDirection.Forwards;
         }
-
-        state.Phase = state.NextPattern == PhantoonPatternChoice.FlameRain
-            ? PhantoonPhase.FadeOutBeforeFirstFlameRain
-            : PhantoonPhase.MoveInFigureEightThenOpenEye;
-        if (state.NextPattern == PhantoonPatternChoice.FlameRain)
-            state.BodyFade.Resume();
     }
 
     /// <summary>Initializes a casual flame, which falls from the mouth harmless until it strikes the floor.</summary>
     /// <param name="occupant">The enemy holding <paramref name="body"/>.</param>
     /// <param name="body">Phantoon's body.</param>
-    internal bool SpawnPhantoonCasualFlame(RoomEnemyOccupant occupant, RoomEnemyPlace body)
+    internal void SpawnPhantoonCasualFlame(RoomEnemyOccupant occupant, RoomEnemyPlace body)
     {
         EnemyProjectile? flame = AllocateDestroyableFlame(occupant, body);
         if (flame is null)
-            return false;
+            return;
         flame.Velocity = flame.Velocity.WithX(SignedEightEight.Zero);
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.MouthOffset);
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualFallingKindling));
-        flame.StartMotion(PhantoonFlameMotion.CasualFalling);
+        flame.StartAnimation(new PhantoonFlameAnimation(_combat.DestroyableFlame, PhantoonFlameSegment.CasualFallingKindling));
+        flame.StartMotion(_combat.DestroyableFlame.CasualFalling);
 
         // The falling flame's step changes the spawn definition's harmful, shootable properties to harmless ones.
         // The falling flame therefore cannot hurt Samus and cannot be shot until
         // it has struck the floor and changed into the bouncing form.
         flame.CanDamageSamus = false;
         flame.BlocksSamusProjectiles = false;
-        return true;
     }
 
     /// <summary>Initializes an enraged flame, which circles the body from its start as its circle widens.</summary>
     /// <param name="phantoon">The encounter, whose body the flame circles.</param>
     /// <param name="start">Where on its circle the flame starts and which way it circles.</param>
-    internal bool SpawnPhantoonRageFlame(PhantoonEnemyState phantoon, PhantoonRageFlameStart start)
+    private void SpawnPhantoonRageFlame(PhantoonEnemyState phantoon, PhantoonRageFlameStart start)
     {
         RoomEnemyPlace body = phantoon.Body;
         EnemyProjectile? flame = AllocateDestroyableFlame(phantoon.BodyOccupant, body);
         if (flame is null)
-            return false;
-        flame.State = new PhantoonOrbitingFlameState(phantoon, start.Angle)
+            return;
+        _combat.DestroyableFlame.Orbits.Start(flame, new PhantoonOrbitingFlameState(phantoon, start.Angle)
         {
             TurnPerUpdate = PhantoonFlameSpawns.RageTurnPerUpdate(start),
-        };
+        });
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.MouthOffset);
-        flame.StartMotion(PhantoonFlameMotion.RageOrbiting);
-        return true;
+        flame.StartMotion(_combat.DestroyableFlame.RageOrbiting);
     }
 
     /// <summary>Initializes a spiral flame, which circles the body clockwise from its start as its circle widens.</summary>
     /// <param name="phantoon">The encounter, whose body the flame circles.</param>
     /// <param name="start">The flame's starting angle round the body.</param>
-    internal bool SpawnPhantoonSpiralFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
+    private void SpawnPhantoonSpiralFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
     {
         RoomEnemyPlace body = phantoon.Body;
         EnemyProjectile? flame = AllocateDestroyableFlame(phantoon.BodyOccupant, body);
         if (flame is null)
-            return false;
-        flame.State = new PhantoonOrbitingFlameState(phantoon, start);
+            return;
+        _combat.DestroyableFlame.Orbits.Start(flame, new PhantoonOrbitingFlameState(phantoon, start));
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.FlameCircleCentre);
-        flame.StartMotion(PhantoonFlameMotion.SpiralOrbiting);
-        return true;
+        flame.StartMotion(_combat.DestroyableFlame.SpiralOrbiting);
     }
 
     /// <summary>Initializes a rain flame over a room column, falling after it hangs.</summary>
     /// <param name="occupant">The enemy holding <paramref name="body"/>.</param>
     /// <param name="body">Phantoon's body.</param>
-    /// <param name="columnX">The screen X of the rain column the flame falls in (<see cref="PhantoonFlameSpawns.RainXs"/>).</param>
+    /// <param name="columnX">The screen X of the rain column the flame falls in (<see cref="PhantoonFlameSpawnDefinitions.RainXs"/>).</param>
     /// <param name="hangUpdates">The updates from the flame's first to its fall, the flame hanging on every earlier one.</param>
-    internal bool SpawnPhantoonRainFlame(RoomEnemyOccupant occupant, RoomEnemyPlace body, int columnX, int hangUpdates)
+    private void SpawnPhantoonRainFlame(RoomEnemyOccupant occupant, RoomEnemyPlace body, int columnX, int hangUpdates)
     {
         EnemyProjectile? flame = AllocateDestroyableFlame(occupant, body);
         if (flame is null)
-            return false;
-        flame.State = new PhantoonRainFlameState(hangUpdates);
+            return;
+        _combat.DestroyableFlame.Rains.Start(flame, new PhantoonRainFlameState(hangUpdates));
         flame.Position = flame.Position.WithWholeX(columnX);
         flame.Position = flame.Position.WithWholeY(PhantoonArenaDefinitions.RainStartY);
-        flame.StartMotion(PhantoonFlameMotion.RainFalling);
-        return true;
+        flame.StartMotion(_combat.DestroyableFlame.RainFalling);
     }
 
     /// <summary>Allocates a destroyable flame and gives it the idle animation and a still, whole-pixel start.</summary>
@@ -731,7 +733,7 @@ internal sealed class PhantoonPatterns
         if (flame is null)
             return null;
 
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.Burning));
+        flame.StartAnimation(new PhantoonFlameAnimation(_combat.DestroyableFlame, PhantoonFlameSegment.Burning));
         flame.Position = flame.Position.WithoutFractions();
         flame.Velocity = flame.Velocity.WithY(SignedEightEight.Zero);
         return flame;

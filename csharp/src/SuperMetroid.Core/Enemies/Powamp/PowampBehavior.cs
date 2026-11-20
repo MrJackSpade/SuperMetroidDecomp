@@ -20,10 +20,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// A Powamp's body or balloon, as the placement's settings name the part it is (#2163). The balloon shares the body's
     /// definition; only its placement tells them apart.
     /// </summary>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        occupant.SpawnSettings<PowampSpawnSettings>().Part == PowampPart.Balloon
-            ? new PowampBalloonEntity(this, occupant, place, common)
-            : new PowampBodyEntity(this, occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        occupant.SpawnSettings<PowampSpawnSettings>() is PowampBalloonSpawnSettings
+            ? EnemyOccupant.WithoutMainAi(new PowampBalloonEntity(this, occupant, place, common))
+            : EnemyOccupant.Of(new PowampBodyEntity(this, occupant, place, common));
 
     /// <summary>Clips body rise and sink motion against room collision.</summary>
     private readonly EnemyTerrain _terrain;
@@ -187,7 +187,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         AdvancePowampWiggle(body, state, balloon, stop: PowampWiggleStop.Never);
         bool collided = _terrain.MoveEnemyVertically(level, body, state.YVelocity);
         int travelDistance = hold == PowampHold.Grappled
-            ? balloon.Occupant.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance
+            ? balloon.Occupant.SpawnSettings<PowampBalloonSpawnSettings>().GrappleTravelDistance
             : PowampMotionDefinitions.UngrappledRise;
 
         // The rise continues while the body is still below the target. A room collision completes the rise regardless
@@ -338,7 +338,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// explosions and any later place, or a full pool, which leaves no explosion's number, the small one.
     /// </summary>
     /// <param name="lastSpikePlace">The zero-based pool place of the burst's last spike, or null when the pool was full.</param>
-    internal static EnemyDeathExplosion ExplosionAfterBurst(int? lastSpikePlace) =>
+    private static EnemyDeathExplosion ExplosionAfterBurst(int? lastSpikePlace) =>
         EnemyDeathExplosionDefinitions.LeftoverNumbered.LeftByProjectilePlace(lastSpikePlace);
 
     /// <summary>Finishes a touch on a Powamp's body: when it kills the Powamp, its balloon goes and its spikes burst out.</summary>
@@ -419,7 +419,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Positions the balloon above the body at its pose's height: the latest pose it has shown, or before its first pose
     /// shows, its sequence's first pose.
     /// </summary>
-    internal static void AlignPowampBalloonY(RoomEnemyPlace body, PowampBalloon balloon) =>
+    private static void AlignPowampBalloonY(RoomEnemyPlace body, PowampBalloon balloon) =>
         balloon.Place.Position = balloon.Place.Position.WithWholeY(
             body.Position.Y.Whole + PowampMotion.BalloonHeight(balloon.State.Inflation.Pose));
 
@@ -445,7 +445,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Restarts the balloon's animation at <paramref name="segment"/> on the next animation pass, and its sequence where
     /// that animation starts it (#1845).
     /// </summary>
-    internal static void StartPowampBalloonAnimation(RoomEnemyPlace balloon, PowampBalloonState state, PowampSegment segment)
+    private static void StartPowampBalloonAnimation(RoomEnemyPlace balloon, PowampBalloonState state, PowampSegment segment)
     {
         state.Playback = StartPowampAnimation(balloon, segment);
         state.Inflation = PowampMotionDefinitions.BalloonAnimationStarts.TryGetValue(segment, out PowampBalloonInflation start)
@@ -487,7 +487,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// A Powamp spike (#1760): it flies outward, accelerating, with room collision. A shot spike runs the same private
     /// delete animation its definition names as its shot animation.
     /// </summary>
-    internal static readonly EnemyProjectileBehavior Spike = new SingleMotionProjectileBehavior(
+    private StatefulSingleMotionProjectileBehavior<PowampSpikeState> Spike => field ??= new(
         context => FlyPowampSpike(context.Projectile, context.Level),
         shot: () => new PowampSpikeAnimation(PowampSpikeSegment.Delete));
 
@@ -578,7 +578,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The projectile pool place of the last spike the burst fired, which selects a shot Powamp's explosion
     /// (<see cref="ExplosionAfterBurst"/>), or null when the pool was full before all eight had fired.
     /// </returns>
-    internal int? SpawnPowampSpikeBurst(RoomEnemyOccupant occupant, RoomEnemyPlace body, PictureShading look)
+    private int? SpawnPowampSpikeBurst(RoomEnemyOccupant occupant, RoomEnemyPlace body, PictureShading look)
     {
         int? lastSpikePlace = null;
         // The spikes fire in their authored order, each taking the last free enemy-projectile place afresh.
@@ -592,18 +592,18 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             spike.StartAnimation(new PowampSpikeAnimation(PowampSpikeSegment.Flying));
             spike.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
             spike.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
-            spike.State = new PowampSpikeState(direction);
+            Spike.States.Start(spike, new PowampSpikeState(direction));
             lastSpikePlace = spike.Place;
         }
         return lastSpikePlace;
     }
 
     /// <summary>Flies the Powamp spike for one update.</summary>
-    internal static void FlyPowampSpike(
+    internal void FlyPowampSpike(
         EnemyProjectile spike,
         RoomLevelData level)
     {
-        CompassDirection direction = spike.StateOf<PowampSpikeState>().Direction;
+        CompassDirection direction = Spike.States.Of(spike).Direction;
 
         PixelVelocity<RoomPixels> acceleration = PowampMotion.SpikeAcceleration(direction);
         spike.Velocity = spike.Velocity.WithX(spike.Velocity.X + acceleration.X);
@@ -619,7 +619,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Marks a spike for its deletion animation after its movement phase ends.</summary>
-    internal static void BeginPowampSpikeDeletion(EnemyProjectile spike)
+    private static void BeginPowampSpikeDeletion(EnemyProjectile spike)
     {
         // The animation deletes the spike as its first step, which the animation pass carries out later in this same
         // update.

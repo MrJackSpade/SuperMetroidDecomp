@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class KagoEntity(KagoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The Kago's own shot reaction, built for this occupant.</summary>
     private readonly EnemyShotReaction ownShot = species.KagoShotReaction(occupant);
@@ -18,13 +18,7 @@ internal sealed class KagoEntity(KagoBehavior species, RoomEnemyOccupant occupan
     public void Initialize() => KagoBehavior.InitializeKago(Place);
 
     /// <inheritdoc/>
-    /// <remarks>The Kago has no main behaviour (#1814): its animation plays the shell and its shot reaction does the rest.</remarks>
-    public void RunMainAi(IEnemyAiFrame frame)
-    {
-    }
-
-    /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KagoBehavior.AdvanceKagoTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KagoBehavior.AdvanceKagoTypedAnimation(Place);
 
     /// <summary>The Kago's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? ownShot : base.ShotReaction;

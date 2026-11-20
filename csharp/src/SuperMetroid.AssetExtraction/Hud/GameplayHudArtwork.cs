@@ -36,11 +36,11 @@ public sealed class GameplayHudArtwork
     internal GameplayHudPresentationParts LayoutParts { get; }
 
     /// <summary>Gets the tile used to clear mutable HUD cells.</summary>
-    internal BackgroundTile Blank => parts.Blank;
+    private BackgroundTile Blank => parts.Blank;
     /// <summary>Gets the tile for a filled energy tank.</summary>
-    internal BackgroundTile FilledEnergyTank => parts.FilledEnergyTank;
+    private BackgroundTile FilledEnergyTank => parts.FilledEnergyTank;
     /// <summary>Gets the tile for an empty energy tank.</summary>
-    internal BackgroundTile EmptyEnergyTank => parts.EmptyEnergyTank;
+    private BackgroundTile EmptyEnergyTank => parts.EmptyEnergyTank;
     /// <summary>Gets the colour variant applied to the selected item icon.</summary>
     internal int SelectedPalette => parts.SelectedPalette;
     /// <summary>Gets the colour variant applied to deselected item icons.</summary>
@@ -48,7 +48,7 @@ public sealed class GameplayHudArtwork
 
     /// <summary>Writes the complete editable HUD template into a mutable tilemap.</summary>
     /// <param name="tiles">The 32-by-3 HUD tilemap to populate.</param>
-    internal void ApplyTemplate(Span<BackgroundTile> tiles)
+    private void ApplyTemplate(Span<BackgroundTile> tiles)
     {
         ValidateTilemap(tiles);
         parts.Template.AsSpan().CopyTo(tiles);
@@ -57,7 +57,7 @@ public sealed class GameplayHudArtwork
     /// <summary>Draws an item icon when its anchor cell is currently blank.</summary>
     /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
     /// <param name="item">The item icon.</param>
-    internal void TryApplyIcon(Span<BackgroundTile> tiles, HudIcon item)
+    private void TryApplyIcon(Span<BackgroundTile> tiles, HudIcon item)
     {
         ValidateTilemap(tiles);
         GameplayHudIcon icon = Icon(item);
@@ -71,7 +71,7 @@ public sealed class GameplayHudArtwork
     /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
     /// <param name="selectedItem">The selected item.</param>
     /// <param name="palette">The colour variant to apply.</param>
-    internal void ToggleItemHighlight(Span<BackgroundTile> tiles, HudItem selectedItem, int palette)
+    private void ToggleItemHighlight(Span<BackgroundTile> tiles, HudItem selectedItem, int palette)
     {
         ValidateTilemap(tiles);
         if ((uint)palette >= BackgroundTile.ColourVariants) throw new ArgumentOutOfRangeException(nameof(palette));

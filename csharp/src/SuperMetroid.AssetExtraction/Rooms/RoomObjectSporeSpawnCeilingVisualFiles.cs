@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectSporeSpawnCeilingVisualFiles
 {
     /// <summary>Editable Spore Spawn ceiling visual JSON filename.</summary>
-    public const string VisualFileName = "spore-spawn-ceiling.json";
+    private const string VisualFileName = "spore-spawn-ceiling.json";
 
     /// <summary>The ceiling's frames in the installed file's order (#2567): the clear, then the ceiling cracked, crumbling and crumbled.</summary>
     private static readonly IReadOnlyList<SporeSpawnCeilingDraw> FrameOrder = Ensure.EveryMemberOnce<SporeSpawnCeilingDraw>(
@@ -40,14 +40,13 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of the clear and crumble frames.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
+    private static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
             foreach (SporeSpawnCeilingDraw frame in FrameOrder)
             {
-                TryGet(SporeSpawnCeilingDraws.Family.Of(frame), out var list);
-                yield return list;
+                yield return DrawListOf(SporeSpawnCeilingDraws.Family.Of(frame));
             }
         }
     }
@@ -59,12 +58,17 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
     /// <summary>Names the clear layout and the three successive crumble appearances for visual editing.</summary>
     internal static string VisualId(SporeSpawnCeilingDraw frame) => SporeSpawnCeilingDrawKeys.Installed.Of(frame);
 
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the Spore Spawn ceiling draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a Spore Spawn ceiling draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a Spore Spawn ceiling draw.");
+
     /// <summary>
     /// The draw list of a clear or crumble frame as the cartridge writes it: the square's two rows, top row first, each
     /// cell colliding as the game's block shape for the frame says (#1608). The run form is the cartridge's; the game
     /// draws the shape.
     /// </summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!RoomObjectDrawIdentity.TryShape(SporeSpawnCeilingDraws.Family, request, out RoomBlockShape? described))
         {

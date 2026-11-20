@@ -12,13 +12,13 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A Kzan's top, or the bottom that follows it (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Kzan definition.</exception>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.KzanTop)
-            return new KzanTopEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new KzanTopEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.KzanBottom)
-            return new KzanBottomEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new KzanBottomEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The Kzan species creates no {occupant.DefinitionId}.");
     }
 
@@ -193,7 +193,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Kzan's typed animation.</summary>
-    internal static void AdvanceKzanTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceKzanTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, KzanAnimations.Segments,
             static (KzanEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Kzan animation raised {cue}."));

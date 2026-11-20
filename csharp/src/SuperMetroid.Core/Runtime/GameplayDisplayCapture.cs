@@ -144,7 +144,7 @@ public static class GameplayDisplayCapture
     /// </summary>
     /// <param name="latched">The ordinary room frame the frame boundary latched.</param>
     /// <param name="live">The display inputs read as the frame ends.</param>
-    public static OrdinaryGameplayBase CaptureOrdinaryBase(OrdinaryRoomFrameLatch latched, GameplayFrameEndDisplayInputs live)
+    private static OrdinaryGameplayBase CaptureOrdinaryBase(OrdinaryRoomFrameLatch latched, GameplayFrameEndDisplayInputs live)
     {
         Ensure.NotNull(latched);
         Ensure.NotNull(live);
@@ -157,7 +157,7 @@ public static class GameplayDisplayCapture
         // The room's background shows where its own scroll puts it, moved by the room's shake as any background is. Its scroll
         // is signed (#2305): the backend repeats each background picture by its own size, so a scroll left of or above the
         // background's origin needs no wrap.
-        Position16<RoomPixels> camera = scrolls.ForegroundPosition;
+        _ = scrolls.ForegroundPosition;
         Offset16<BackgroundPixels> backgroundScroll = scrolls.BackgroundScroll + shake.Background;
         if (latched.TourianStatueVerticalOffset is int descent)
             // The statue room's descent supplies the background's vertical scroll per line after the
@@ -251,13 +251,13 @@ public static class GameplayDisplayCapture
     /// <summary>The power bomb's live window inputs drawn in the colour the accepted frame latched.</summary>
     /// <param name="live">The display inputs read as the frame ends.</param>
     /// <param name="latched">The room's frame the frame boundary latched.</param>
-    internal static PowerBombRenderSnapshot PowerBomb(GameplayFrameEndDisplayInputs live, RoomFrameLatch latched) =>
+    private static PowerBombRenderSnapshot PowerBomb(GameplayFrameEndDisplayInputs live, RoomFrameLatch latched) =>
         live.PowerBomb with { Oval = live.PowerBomb.Oval with { Colour = latched.Tints.PowerBomb } };
 
     /// <summary>The suit pickup's live light beam drawn in the colour the accepted frame latched, or null while inactive.</summary>
     /// <param name="live">The display inputs read as the frame ends.</param>
     /// <param name="latched">The room's frame the frame boundary latched.</param>
-    internal static SamusSuitPickupFlash? SuitPickup(GameplayFrameEndDisplayInputs live, RoomFrameLatch latched) =>
+    private static SamusSuitPickupFlash? SuitPickup(GameplayFrameEndDisplayInputs live, RoomFrameLatch latched) =>
         live.SuitPickupBeam is { } beam ? new(beam, latched.Tints.SuitPickup) : null;
 
     /// <summary>

@@ -57,7 +57,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             EnemyProjectile projectile = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.BombTorizoChozoOrb);
-            enemies.TorizoBehavior.Attacks.InitializeTorizoRandomizedProjectile(projectile, torizo, definition);
+            enemies.TorizoBehavior.Attacks.InitializeTorizoRandomizedProjectile(enemies.TorizoBehavior.Attacks.ChozoOrb, projectile, torizo, definition);
 
             AssertEqual<TorizoProjectileSegment?>(definition.Animation, (projectile.Animation as TorizoProjectileAnimation)?.PlayingSegment,
                 $"{name} production program");

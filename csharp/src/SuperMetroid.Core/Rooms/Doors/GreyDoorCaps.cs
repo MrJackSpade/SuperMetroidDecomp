@@ -32,6 +32,5 @@ internal static class GreyDoorCaps
 
     /// <summary>The grey caps and the cleared openings (#2034), pictured by the installed grey-door frames.</summary>
     internal static RoomObjectDrawFamily<Draw> Family { get; } =
-        RoomObjectDrawFamily<Draw>.Pictured<InstalledRoomObjectGreyDoorVisuals>("grey-door", cap => cap.Blocks,
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<Draw>("grey-door", cap => cap.Blocks);
 }

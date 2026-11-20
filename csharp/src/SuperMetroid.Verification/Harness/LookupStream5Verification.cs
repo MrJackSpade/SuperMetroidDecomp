@@ -318,7 +318,7 @@ internal static class LookupStream5Verification
         CeresFloorActorPicture[] strips = [CeresFloorActorPicture.ElevatorLight, CeresFloorActorPicture.ElevatorDark];
         for (int frame = 0; frame < strips.Length; frame++)
         {
-            IReadOnlyDictionary<int, int> cells = CeresFloorDrawings.Cells(strips[frame]);
+            Dictionary<int, int> cells = CeresFloorDrawings.Cells(strips[frame]);
             for (int cell = 0; cell < 4; cell++)
                 AssertEqual<int>(rom.ReadCartridgeByte(CeresSourceDefinitionsDoorConstants.PlatformFrames + frame * 4 + cell), cells[12 * 128 + 14 + cell],
                     "The import pictures the platform strip's native cells");
@@ -1132,7 +1132,7 @@ internal static class LookupStream5Verification
                 rom.ReadCartridgeByte(0x88ea8d + phase * 4) & FadeLevelColour.FullLevel).ToColour();
             AssertEqual(expected, MorphBallEyeBeamDefinitions.CycleColors[phase], "Native two-channel triangle intensities");
             step();
-            AssertEqual(expected, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Color, "Actual beam colour, zero blue intensity included");
+            AssertEqual(expected, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeBeamState, global::SuperMetroid.Core.Assets.RgbColor>(owner.MorphBallEyeBehavior.MorphBallEyeBeam, "Color"), "Actual beam colour, zero blue intensity included");
             AssertEqual(MorphBallEyeBeamColour.All[(phase + 1) & 15], owner.MorphBallEyeBehavior.MorphBallEyeBeam.NextColour, "Actual cycling and wrap after the sixteenth colour");
         }
         AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.MorphBallEye, PopulationWords.Parameters(0, 0x8004)),
@@ -1287,7 +1287,7 @@ internal static class LookupStream5Verification
             AssertEqual(PhantoonPathDirection.Forwards, state.FigureEight.Direction, "Real rain direction reset");
             AssertEqual(PhantoonPhase.BecomeSolidAfterFlameRain, state.Phase, "Real rain phase handoff");
             AssertEqual(1, calls, "Rain consumes one RNG word");
-            var flames = enemies.Projectiles.EnemyProjectiles.Where(p => p.IsActive).OrderBy(p => p.StateOf<PhantoonRainFlameState>().HangUpdates).ToArray();
+            var flames = enemies.Projectiles.EnemyProjectiles.Where(p => p.IsActive).OrderBy(p => enemies.PhantoonBehavior.Combat.DestroyableFlame.Rains.Of(p).HangUpdates).ToArray();
             AssertEqual(8, flames.Length, "Actual rain population");
             AssertTrue(flames.All(flame => flame.Position.X.Whole != body.Position.X.Whole), "Calculated rain gap lies at the body X");
             for (int i = 0; i < 8; i++)
@@ -1295,7 +1295,7 @@ internal static class LookupStream5Verification
                 int column = (rom.ReadCartridgeByte(0xa7cfc2 + pattern) + i) % 9;
                 AssertEqual(rom.ReadCartridgeByte(0x8698f7 + column), flames[i].Position.X.Whole, "Actual rain column order with wrap");
                 AssertEqual((ushort)40, flames[i].Position.Y.Whole, "Actual rain ceiling Y");
-                AssertEqual((i + 1) * 8, flames[i].StateOf<PhantoonRainFlameState>().HangUpdates, "Actual staggered rain delay");
+                AssertEqual((i + 1) * 8, enemies.PhantoonBehavior.Combat.DestroyableFlame.Rains.Of(flames[i]).HangUpdates, "Actual staggered rain delay");
             }
         }
 
@@ -1815,7 +1815,7 @@ internal static class LookupStream5Verification
                 door.FrameCounter = (ushort)counter; door.ElevatorDoor().RunMainAi(aiFrame);
                 int row = (counter & 0x38) >> 3;
                 // The tick names the glow step the room's pictures show, which the import paints from this row (#1512).
-                AssertEqual(row, system.CeresDoorBehavior.ElevatorRoomGlowStep, "Actual native eight-tick row selection");
+                AssertEqual(row, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior, int?>(system.CeresDoorBehavior, "ElevatorRoomGlowStep"), "Actual native eight-tick row selection");
             }
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
             {

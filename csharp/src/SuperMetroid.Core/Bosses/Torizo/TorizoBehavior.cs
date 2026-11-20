@@ -19,13 +19,13 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Bomb Torizo or Golden Torizo (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Torizo definition.</exception>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.BombTorizo)
-            return new BombTorizoEntity(this, occupant, place, common);
+            return EnemyOccupant.FromSurroundings(new BombTorizoEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.GoldenTorizo)
-            return new GoldenTorizoEntity(this, occupant, place, common);
+            return EnemyOccupant.FromSurroundings(new GoldenTorizoEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The Torizo species creates no {occupant.DefinitionId}.");
     }
 
@@ -51,7 +51,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal TorizoAttacks Attacks { get; }
 
     /// <summary>The branches Bomb and Golden Torizo's animations take on Samus's position, and their walk steps.</summary>
-    internal TorizoChoices Choices { get; }
+    private TorizoChoices Choices { get; }
 
     /// <summary>Bomb and Golden Torizo's hitboxes, touch and hurt, and what Samus's weapons do to them.</summary>
     internal TorizoCombat Combat { get; }
@@ -238,7 +238,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// cue: the place in the walk an interruption keeps (#2028). <see cref="TorizoCueInputs.FrameCounter"/> is the frame
     /// counter, which both attack choosers add; only whether it lies in the second half of each sixteen-frame cycle survives.
     /// </summary>
-    internal AnimationContinuation<TorizoBodySegment>? ApplyTorizoCue(
+    private AnimationContinuation<TorizoBodySegment>? ApplyTorizoCue(
         RoomEnemyOccupant occupant, RoomEnemyPlace torizo,
         TorizoEnemyState state,
         TorizoCueInputs inputs,
@@ -552,7 +552,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Moves a Torizo by a posture change's displacement standing up, or back by it sitting down.</summary>
-    internal static void ApplyTorizoPosture(
+    private static void ApplyTorizoPosture(
         RoomEnemyPlace torizo,
         Offset16<RoomPixels> displacement,
         TorizoPostureKind kind) =>

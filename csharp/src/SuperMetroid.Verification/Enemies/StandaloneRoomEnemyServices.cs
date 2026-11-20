@@ -62,6 +62,9 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         /// <summary>Advances the host-supplied RNG generator exactly once.</summary>
         public int Generate() => generate();
 
+        /// <summary>Advances the host-supplied RNG generator exactly once, its value unread.</summary>
+        public void Advance() => _ = generate();
+
         /// <summary>Reads a configured seed source or fails at the missing RNG dependency.</summary>
         int IEnemyRandomNumbers.Read() => (Read ?? throw Unavailable.Missing("read the current random-number word"))();
 

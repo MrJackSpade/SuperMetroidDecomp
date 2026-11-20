@@ -44,7 +44,7 @@ public readonly record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSp
     public static QuadraticSpeedCurvePlace FromMarks(int marks) => new(checked(marks * TwoHundredFiftySixthsPerMark));
 
     /// <summary>The place <paramref name="twoHundredFiftySixths"/> 256ths of a mark along the curve, or the step of that many.</summary>
-    public static QuadraticSpeedCurvePlace FromTwoHundredFiftySixthsOfMark(int twoHundredFiftySixths) => new(twoHundredFiftySixths);
+    private static QuadraticSpeedCurvePlace FromTwoHundredFiftySixthsOfMark(int twoHundredFiftySixths) => new(twoHundredFiftySixths);
 
     /// <summary>
     /// The place <paramref name="numerator"/> <paramref name="denominator"/>ths of a mark along the curve, or the step of that

@@ -214,7 +214,7 @@ internal static class LookupStream1Verification
             balloon.Bind(balloon.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
             PowampBehavior.InitializePowampBalloon(balloon);
             var body = enemies.Places.InUpdateOrder[1];
-            body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0, PowampContact.Accepts));
+            body.SetSpawnSettings(new PowampBodySpawnSettings(PowampContact.Accepts));
             body.Bind(EnemyDefinitionId.Powamp, body.Definition);
             body.Bind(body.HeldOccupant().DefinitionId, default(RoomEnemyDefinition));
             enemies.PowampBehavior.InitializePowampBody(body);
@@ -661,6 +661,10 @@ internal static class LookupStream1Verification
         }
         for (int row = 0; row < 12; row++)
         {
+            // The glitch-ball and instant morphing records name no pose (#2048): no path gives Samus their numbers, so the
+            // draw never indexes their rows by them. The earlier poses' frames still read on into those rows, as their checks show.
+            if (!SamusPoseNumbering.NamesPose(0x35 + row))
+                continue;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(0x35 + row);
             AssertTrue(stock.Placements[pose].FrameRises is { } rises && rises.SequenceEqual(posture.Skip(row * 2).Select(offset => -offset)),
                 "Each posture-transition frame installs the negated native offset its frame indexes");
@@ -1028,7 +1032,7 @@ internal static class LookupStream1Verification
             AssertEqual(Word(0xa8d897 + 4 * index), intervals.Deceleration, "stream1 Bull deceleration interval");
         }
         foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
-            AssertEqual(new TrigonometryAngle(Word(0xa8d871 + 2 * direction.ToAimIndex())), BullMotion.ShotAngle(direction), "stream1 Bull compass angle");
+            AssertEqual(new TrigonometryAngle(Word(0xa8d871 + 2 * direction.ToAimIndex())), BullMovementDefinitions.ShotAngles.For(direction), "stream1 Bull compass angle");
         AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Bull, PopulationWords.Parameters(13, 0)), "stream1 Bull invalid interval");
         for (byte index = 0; index < 6; index++)
             AssertEqual(Word(0xa29f36 + 2 * index), CacatacTravelDistance(index), "stream1 Cacatac patrol blocks");
@@ -1651,7 +1655,8 @@ internal static class LookupStream1Verification
             // A record storing a composition again, byte for byte, shows that composition (#2295).
             ushort sprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(Word(0x930000 | (pointer + 2)));
             var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
-            AssertTrue(!shots.Animation.AdvanceProjectileAnimation(slot), "Actual native timed frame survives");
+            shots.Animation.AdvanceProjectileAnimation(slot);
+            AssertTrue(slot.IsActive, "Actual native timed frame survives");
             // A list repeating one still picture is held: no timer, the place at the list's end (#2347).
             bool still = SamusProjectileProgramAddresses.ShowsStillPicture(pointer);
             AssertEqual<int?>(still ? null : duration, slot.NativeFrameHold, "Actual timer unchanged, a still picture held");
@@ -1663,7 +1668,8 @@ internal static class LookupStream1Verification
             interpreted++;
             if (duration == 0 || still) continue; // Existing bomb contract excludes zero-duration timed records; no bomb holds a still picture.
             var bomb = new SamusBomb(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
-            AssertTrue(!bombs.AdvanceProjectileAnimation(bomb), "Actual bomb timed frame survives");
+            bombs.AdvanceProjectileAnimation(bomb);
+            AssertTrue(bomb.IsActive, "Actual bomb timed frame survives");
             AssertEqual(duration, bomb.NativeFrameHold, "Actual bomb timer unchanged");
             AssertEqual(sprite, bomb.SpritemapPointer, "Installed bomb artwork selection");
             AssertEqual(LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4)), bomb.Radius.X, "Actual bomb X radius");
@@ -1794,9 +1800,13 @@ internal static class LookupStream1Verification
                         trail = pointer; pointer += 8;
                     }
                 }
-                AssertEqual(deleted, shots.Animation.AdvanceProjectileAnimation(slot), "Exact native projectile deletion tick");
+                shots.Animation.AdvanceProjectileAnimation(slot);
+                AssertEqual(deleted, !slot.IsActive, "Exact native projectile deletion tick");
                 if (bombPlays)
-                    AssertEqual(deleted, bombs.AdvanceProjectileAnimation(bomb), "Exact native bomb deletion tick");
+                {
+                    bombs.AdvanceProjectileAnimation(bomb);
+                    AssertEqual(deleted, !bomb.IsActive, "Exact native bomb deletion tick");
+                }
                 actualTicks++;
                 if (deleted)
                 {

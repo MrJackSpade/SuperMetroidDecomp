@@ -55,7 +55,7 @@ internal static class GrappleEnemyDeathVerification
         AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "native death routine drops the active grapple");
         AssertEqual(100, explosion.Position.X.Whole, "death explosion preserves enemy X");
         AssertEqual(100, explosion.Position.Y.Whole, "death explosion preserves enemy Y");
-        AssertEqual(EnemyPlaceFixtures.StandIn, explosion.StateOf<EnemyDeathExplosionState>().Dropper?.DefinitionId, "death actor retains drop-table identity");
+        AssertEqual(EnemyPlaceFixtures.StandIn, fixture.System.DeathsAndDrops.Explosions.Of(explosion).Dropper?.DefinitionId, "death actor retains drop-table identity");
         var spriteFrames = new HashSet<string>();
         bool sawPickup = false;
         bool heardDeath = false;
@@ -65,7 +65,7 @@ internal static class GrappleEnemyDeathVerification
             // The death program queues its cry as the projectile pass runs it.
             heardDeath |= fixture.System.Audio.LatestSound ==
                 EnemySound.EnemyKilled;
-            if (explosion.State is EnemyPickupState { Kind: EnemyPickupKind.SmallEnergy })
+            if (fixture.System.DeathsAndDrops.Pickups.Of(explosion) is { Kind: EnemyPickupKind.SmallEnergy })
             {
                 AssertEqual(31, frame, "small explosion uses the cartridge's complete 31-frame animation");
                 sawPickup = true;

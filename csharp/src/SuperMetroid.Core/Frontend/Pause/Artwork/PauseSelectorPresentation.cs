@@ -48,7 +48,7 @@ public sealed class PauseSelectorPresentation
 
     /// <summary>The installed screen-pixel anchor of <paramref name="control"/>.</summary>
     /// <exception cref="InvalidDataException">The installation has no anchor for the control.</exception>
-    public Offset16<ScreenPixels> Anchor(PauseEquipmentControl control)
+    private Offset16<ScreenPixels> Anchor(PauseEquipmentControl control)
     {
         string name = Ensure.NotNull(control).Anchor;
         return anchors.TryGetValue(name, out Offset16<ScreenPixels> anchor) ? anchor

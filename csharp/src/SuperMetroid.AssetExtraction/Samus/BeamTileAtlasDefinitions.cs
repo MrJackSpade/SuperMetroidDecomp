@@ -45,7 +45,17 @@ public static class BeamTileAtlasDefinitions
     /// <exception cref="ArgumentOutOfRangeException">The selection is outside the supported ordinary/bounded domain.</exception>
     public static string FileName(SamusBeamCombination selection)
     {
-        _ = ArtworkOrdinal(selection);
+        RequireArtwork(selection);
         return $"beam-{selection.TableIndex:X2}-tiles.png";
+    }
+
+    /// <summary>Requires that <paramref name="selection"/> has a tile sheet: every combination but the two Spazer-Plasma ones.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The combination is undefined or has no artwork.</exception>
+    public static void RequireArtwork(SamusBeamCombination selection)
+    {
+        if (!Enum.IsDefined(selection))
+            throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination.");
+        if (selection is SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave)
+            throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no artwork.");
     }
 }

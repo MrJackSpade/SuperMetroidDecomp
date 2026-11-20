@@ -15,5 +15,5 @@ internal sealed class PuyoEntity(PuyoBehavior species, RoomEnemyOccupant occupan
     public void RunMainAi(IEnemyAiFrame frame) => species.RunPuyoMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PuyoBehavior.AdvancePuyoTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PuyoBehavior.AdvancePuyoTypedAnimation(Place);
 }

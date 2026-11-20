@@ -15,13 +15,13 @@ internal sealed class SamusPresentation
     /// The whole body picture the body last drew, which the speed-booster echoes repeat; none before the body is drawn.
     /// While invincibility flicker hides the body the echoes keep repeating the picture last drawn (#1392).
     /// </summary>
-    public SamusBodyFrame? DrawnFrame { get; private set; }
+    private SamusBodyFrame? DrawnFrame { get; set; }
 
     /// <summary>
     /// The signed screen place Samus's body picture was last drawn at, from her world position and the foreground scroll:
     /// left of or above the screen is negative.
     /// </summary>
-    public Offset16<ScreenPixels> DrawOrigin { get; private set; }
+    private Offset16<ScreenPixels> DrawOrigin { get; set; }
 
     /// <summary>The installed artwork she draws from, bound by whoever built her; never part of save state.</summary>
     private readonly SamusArtworkBinding _artwork;
@@ -393,13 +393,12 @@ internal sealed class SamusPresentation
     /// <param name="cameraPosition">The camera the body is placed against.</param>
     /// <param name="frameCounter">The update counter invincibility's flicker reads.</param>
     /// <param name="turningFloor">The turning floor that rotates her drawn point, or null on a still floor.</param>
-    /// <returns>Whether the body was drawn.</returns>
     /// <remarks>
     /// The body is one whole picture (#1513, #1585): her pose at the picture frame the installed <see cref="SamusShownFrames"/> give the
     /// animation frame, placed at the origin the import baked into that installed frame (#1517). The body is always a whole
     /// Samus of her pose, while her animation frame and carried movement stay as gameplay left them.
     /// </remarks>
-    public bool Draw(SamusState samus,
+    public void Draw(SamusState samus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> cameraPosition,
         int frameCounter,
@@ -420,10 +419,9 @@ internal sealed class SamusPresentation
             !SamusCadenceDefinitions.InvincibilityFlickerHidden.IsSetIn(frameCounter);
         // A hidden body keeps the picture and origin it last drew, which the echoes repeat.
         if (!bodyVisible)
-            return false;
+            return;
 
         DrawBody(samus, sprites, cameraPosition, pictureFrame, turningFloor);
-        return true;
     }
 
     /// <summary>

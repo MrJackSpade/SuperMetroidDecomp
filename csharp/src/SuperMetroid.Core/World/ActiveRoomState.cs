@@ -62,7 +62,7 @@ internal sealed class ActiveRoomState
     }
 
     /// <summary>The value one room view reads: the part under construction during a load, otherwise the loaded scope's.</summary>
-    internal T? View<T>(Func<RoomScopeConstruction, T?> building, Func<RoomScope, T?> loaded) where T : class =>
+    private T? View<T>(Func<RoomScopeConstruction, T?> building, Func<RoomScope, T?> loaded) where T : class =>
         _construction is { } construction ? building(construction) : Scope is { } scope ? loaded(scope) : null;
 
     /// <summary>The selected room/state definition for a generic backed room.</summary>
@@ -97,7 +97,7 @@ internal sealed class ActiveRoomState
     /// Active room's loaded foreground, block behaviours and background. Rendering and collision must
     /// share this instance; null means no room level data has been loaded yet.
     /// </summary>
-    public RoomLevelData? LevelData => View(c => c.LevelData, s => s.LevelData);
+    private RoomLevelData? LevelData => View(c => c.LevelData, s => s.LevelData);
     /// <summary>The loaded room's level data.</summary>
     public RoomLevelData LoadedLevelData => LevelData ??
         throw new InvalidOperationException("No room level data is loaded.");

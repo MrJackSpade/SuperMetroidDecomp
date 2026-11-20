@@ -582,8 +582,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Ridley TailWhipRequest", ridleyState.Tail.Whip.IsWaiting ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyTailWhipRequest);
                 Check("Ridley TailExtensionSpeed", ridleyState.Tail.ExtensionSpeed.RawValue, NativeSnapshotMemory.RidleyTailExtensionSpeed);
                 Check("Ridley TailAngleDelta", checked((ushort)ridleyState.Tail.SwingStep.Steps), NativeSnapshotMemory.RidleyTailAngleDelta);
-                Check("Ridley TailMinimumClockwiseAngle", RidleyTailNativeWords.Angle(ridleyState.Tail.MinimumClockwiseAngle), NativeSnapshotMemory.RidleyTailMinimumClockwiseAngle);
-                Check("Ridley TailMaximumCounterClockwiseAngle", RidleyTailNativeWords.Angle(ridleyState.Tail.MaximumCounterClockwiseAngle), NativeSnapshotMemory.RidleyTailMaximumCounterClockwiseAngle);
+                Check("Ridley TailMinimumClockwiseAngle", RidleyTailNativeWords.Angle(global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyTailState, global::SuperMetroid.Core.Bosses.Ridley.RidleyTailAngle>(ridleyState.Tail, "MinimumClockwiseAngle")), NativeSnapshotMemory.RidleyTailMinimumClockwiseAngle);
+                Check("Ridley TailMaximumCounterClockwiseAngle", RidleyTailNativeWords.Angle(global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyTailState, global::SuperMetroid.Core.Bosses.Ridley.RidleyTailAngle>(ridleyState.Tail, "MaximumCounterClockwiseAngle")), NativeSnapshotMemory.RidleyTailMaximumCounterClockwiseAngle);
                 Check("Ridley TailWhipTargetClockwiseAngle", RidleyTailNativeWords.WhipTarget(ridleyState.Tail.ClockwiseWhipTarget), NativeSnapshotMemory.RidleyTailWhipTargetClockwiseAngle);
                 Check("Ridley TailWhipTargetCounterClockwiseAngle", RidleyTailNativeWords.WhipTarget(ridleyState.Tail.CounterClockwiseWhipTarget), NativeSnapshotMemory.RidleyTailWhipTargetCounterClockwiseAngle);
                 Check("Ridley IdealInterSegmentTailAngle", checked((ushort)ridleyState.Tail.IdealLinkSpacing.Steps), NativeSnapshotMemory.RidleyIdealInterSegmentTailAngle);
@@ -671,7 +671,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     // The movie's memory records the block as its row-major index in bytes; the port's place is its position.
                     RoomLevelData objectLevel = runtime.Room.LevelData ?? throw new InvalidDataException("Missing active room level data.");
                     Check($"PLM {slotIndex} BlockIndex", unchecked((ushort)(objectLevel.Size.RowMajorIndex(place.Block) * 2)), NativeSnapshotMemory.RoomObjectBlockIndex + offset);
-                    Check($"PLM {slotIndex} grey-door wait", DoorsNativeWords.GreyDoorWaitWord(typedDoor.Waits, typedDoor.Lock.Condition),
+                    Check($"PLM {slotIndex} grey-door wait", DoorsNativeWords.GreyDoorWaitWord(typedDoor.Waits, typedDoor.Lock.PlacedCondition),
                         NativeSnapshotMemory.RoomObjectFrameBehavior + offset);
                     // The cartridge keeps a pending projectile hit in the loop counter's storage; a pending hit is
                     // compared as the family the recorded word decodes to. A grey cap counts no loops of its own, its
@@ -728,7 +728,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Beam charge", SamusSnapshotWords.EncodeBeamCharge(runtime.Projectiles.Charge.Level), NativeSnapshotMemory.BeamCharge);
                 Check("ProjectileCounter", runtime.Projectiles.Pool.ShotCount.Count, NativeSnapshotMemory.ProjectileCount);
                 Check("PreviousBeamChargeCounter", SamusSnapshotWords.EncodeBeamCharge(runtime.Projectiles.Charge.PreviousCharge), NativeSnapshotMemory.PreviousCharge);
-                Check("InteractionImmunityUpdatesLeft", runtime.Projectiles.Firing.InteractionImmunity.UpdatesLeft, NativeSnapshotMemory.ProjectileInteractionImmunity);
+                Check("InteractionImmunityUpdatesLeft", global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.BeamFiring, global::SuperMetroid.Core.UpdateCountdown>(runtime.Projectiles.Firing, "InteractionImmunity").UpdatesLeft, NativeSnapshotMemory.ProjectileInteractionImmunity);
                 Check("ChargedShotGlowTimer", SamusSnapshotWords.EncodeChargedShotGlow(runtime.Projectiles.Charge.ChargedShotGlow), NativeSnapshotMemory.ChargedShotGlow);
                 Check("ChargeGlowStep", runtime.Projectiles.Charge.ChargeGlowStep * sizeof(ushort), NativeSnapshotMemory.ChargePaletteIndex);
                 Check("BombCounter", runtime.BombProjectiles.BombCounter, NativeSnapshotMemory.BombCount);
@@ -821,7 +821,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // A Super Missile's link never sets or reads its trail timer, on the cartridge or here; the cartridge's word is
                 // whatever the place's previous projectile left, which a fresh link does not inherit (#1590).
                 if (projectile.Behavior != SamusShotBehaviors.SuperMissileLink)
-                    Check(owner + " TrailTimer", projectile.Trail?.UpdatesLeft
+                    Check(owner + " TrailTimer", global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile, global::SuperMetroid.Core.UpdateCountdown?>(projectile, "Trail")?.UpdatesLeft
                         ?? throw new InvalidDataException($"{owner} leaves no trail, which no projectile this movie reaches does."),
                         NativeSnapshotMemory.ProjectileTrailTimer + index);
                 // No Spazer phase is compared: only a Spazer special attack's particles have one, they set it before
@@ -851,8 +851,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     NativeSnapshotMemory.EnemyProjectileGraphics + index);
                 // The showcase's projectiles keep only their program's loop count in the native timer word: the plays a
                 // repeated phase has left, which the instruction pointer's progress through the counted list compares (#2006).
-                Enum? nativeMotion = EnemyProjectileMotionAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index));
-                if (!Equals(projectile.Motion, nativeMotion))
+                EnemyProjectileMotion? nativeMotion = projectile.MotionOfWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index));
+                if (!ReferenceEquals(projectile.Motion, nativeMotion))
                     mismatches.Add($"{owner} Motion: native={nativeMotion?.ToString() ?? "holding still"} port={projectile.Motion?.ToString() ?? "holding still"}");
                 Check(owner + " XFraction", projectile.Position.X.Fraction, NativeSnapshotMemory.EnemyProjectileXFraction + index);
                 Check(owner + " YFraction", projectile.Position.Y.Fraction, NativeSnapshotMemory.EnemyProjectileYFraction + index);
@@ -896,7 +896,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     case RoomEnemyProjectileKind.RidleyFireball:
                         // $86:940E consumes F only as a zero/nonzero afterburn gate.
                         // The caller may leave a noncanonical nonzero parameter (e.g. $E).
-                        if ((projectile.StateOf<RidleyAfterburnChainState>().Remaining != 0) !=
+                        if ((runtime.Enemies.RidleyProjectiles.Afterburns.Of(projectile).Remaining != 0) !=
                             (W(NativeSnapshotMemory.EnemyProjectileVariableF + index) == 0))
                             mismatches.Add(owner + " fireball afterburn gate differs");
                         break;
@@ -906,7 +906,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                         // The native chain count is a byte stepped past zero by the afterburn that ends the chain, which
                         // leaves it at $FF; the port's count of afterburns left stays at zero.
                         int nativeRemainingAfterburns = W(NativeSnapshotMemory.EnemyProjectileVariableE + index);
-                        CheckValue(owner + " remaining afterburns", projectile.StateOf<RidleyAfterburnChainState>().Remaining,
+                        CheckValue(owner + " remaining afterburns", runtime.Enemies.RidleyProjectiles.Afterburns.Of(projectile).Remaining,
                             nativeRemainingAfterburns == 0xff ? 0 : nativeRemainingAfterburns);
                         // The cartridge stores the kind a directional afterburn's successor takes, its own (#2245); a centre stores
                         // none. Each way's afterburn is one of its axis's kind's definitions (#2378).
@@ -1024,12 +1024,12 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     // caller X ($86:EF3E/F118), not allocated-slot Y, and never read it
                     // again. Their retained per-slot word is not a live source identity, and the port's explosion drops
                     // it once it has rolled its drop (#2455).
-                    if (projectile.State is EnemyDeathExplosionState explosion)
-                        Check(owner + " source enemy header", explosion.Dropper is { } dropper ? SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(dropper.DefinitionId) : 0, NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
+                    if (projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion)
+                        Check(owner + " source enemy header", runtime.Enemies.DeathsAndDrops.Explosions.Of(projectile).Dropper is { } dropper ? SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(dropper.DefinitionId) : 0, NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
                     // The native word holds the killed slot's table offset, bit 15 for a respawn, $FFFF for none; a
                     // cleared projectile's names the first slot. Only a direct drop is made a pickup from the start: a
                     // death's pickup is its explosion's.
-                    KilledEnemy? killed = projectile.State is IFromKilledEnemy dropped ? dropped.KilledEnemy : null;
+                    KilledEnemy? killed = projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion ? runtime.Enemies.DeathsAndDrops.Explosions.Of(projectile).KilledEnemy : null;
                     Check(owner + " killed enemy index", projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup ? 0xffff
                         : SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(killed?.Enemy.Place.Ordinal ?? 0) | (killed is { Respawns: true } ? 0x8000 : 0),
                         NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);

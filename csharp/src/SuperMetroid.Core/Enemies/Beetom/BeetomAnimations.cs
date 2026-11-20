@@ -88,7 +88,7 @@ internal static class BeetomAnimations
     /// screen, its own entry cue, and then strides for good; a hop ends on its tucked legs, held (#2432); a drain shows its
     /// green gem once and then pulses red for good.
     /// </summary>
-    internal static IReadOnlyDictionary<BeetomSegment, Animation<BeetomSegment>> StartingAt { get; } = new Dictionary<BeetomSegment, Animation<BeetomSegment>>
+    private static Dictionary<BeetomSegment, Animation<BeetomSegment>> StartingAt { get; } = new Dictionary<BeetomSegment, Animation<BeetomSegment>>
     {
         [P.CrawlingLeft] = Animation<BeetomSegment>.LeadingInto([Segments.Whole(P.CrawlingLeft)], [Segments.Whole(P.CrawlingLeftStride)]),
         [P.HopLeft] = new([Segments.Whole(P.HopLeft)], AnimationEnd.Holds),

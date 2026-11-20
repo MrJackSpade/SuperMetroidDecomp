@@ -15,5 +15,5 @@ internal sealed class KzanTopEntity(KzanBehavior species, RoomEnemyOccupant occu
     public void RunMainAi(IEnemyAiFrame frame) => species.RunKzanTopMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KzanBehavior.AdvanceKzanTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KzanBehavior.AdvanceKzanTypedAnimation(Place);
 }

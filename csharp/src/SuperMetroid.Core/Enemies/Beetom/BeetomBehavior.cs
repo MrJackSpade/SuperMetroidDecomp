@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -15,7 +14,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Beetom];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new BeetomEntity(this, occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new BeetomEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared RNG seed and generation used by Beetom action choice.</summary>
     private readonly EnemyRoomBinding _room;
@@ -43,7 +42,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Beetom's animations: whether it keeps processing off screen.</summary>
-    private static BeetomSegment? ApplyBeetomCue(RoomEnemyPlace place, BeetomCue cue)
+    private static void ApplyBeetomCue(RoomEnemyPlace place, BeetomCue cue)
     {
         switch (cue.Kind)
         {
@@ -56,7 +55,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BeetomCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
 
@@ -66,8 +64,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         BeetomEnemyState state = _inheritance.Inherit(place.Ordinal, static previous => new BeetomEnemyState(previous, BeetomAction.DecideAction));
         place.SetSpeciesState(state);
 
-        state.ActionTimer = UpdateCountdown.Ended();
-        state.AttachedToSamus = false;
         state.ButtonCounter = BeetomMotionDefinitions.MashCount;
         state.LastSeenPlayerActions = controllerInput;
 
@@ -176,7 +172,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Uses one random sample to choose to idle or hop (<see cref="BeetomDecisions.DistantChoice"/>, #2369) and which way to
     /// face.
     /// </summary>
-    internal void ChooseDistantBeetomAction(BeetomEnemyState state)
+    private void ChooseDistantBeetomAction(BeetomEnemyState state)
     {
         int random = _room.Random.Generate();
         BeetomDistantChoice choice = BeetomDecisions.DistantChoice.Choose(random);
@@ -188,7 +184,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts the crawl toward <paramref name="direction"/> and its animation.</summary>
-    internal static void StartBeetomCrawling(RoomEnemyPlace place, BeetomEnemyState state, HorizontalDirection direction)
+    private static void StartBeetomCrawling(RoomEnemyPlace place, BeetomEnemyState state, HorizontalDirection direction)
     {
         state.Begin(BeetomAction.Crawling, direction);
         SetBeetomAnimation(
@@ -200,7 +196,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Arms a short or long arc from its precomputed initial speed-curve place.</summary>
-    internal static void StartBeetomHop(
+    private static void StartBeetomHop(
         RoomEnemyPlace place,
         BeetomEnemyState state,
         QuadraticSpeedCurvePlace initialYSpeedCurvePlace,
@@ -240,7 +236,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts the attached blood-drain animation for the current facing.</summary>
-    internal static void StartBeetomDrain(RoomEnemyPlace place, BeetomEnemyState state, HorizontalDirection side)
+    private static void StartBeetomDrain(RoomEnemyPlace place, BeetomEnemyState state, HorizontalDirection side)
     {
         SetBeetomAnimation(
             place,
@@ -477,12 +473,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),
     };
 
-    /// <summary>Runs Beetom's initialization AI.</summary>
-    internal void SetUpBeetom(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
-    {
-        InitializeBeetom(place, surroundings.Samus, surroundings.ControllerInput);
-    }
-
     /// <summary>Runs Beetom's main AI.</summary>
     internal void RunBeetomMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
@@ -490,12 +480,10 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Beetom's typed animation.</summary>
-    internal static void AdvanceBeetomTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, BeetomAnimations.Segments,
+    internal static void AdvanceBeetomTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.AdvanceApplyingCues(place, BeetomAnimations.Segments,
             static (BeetomEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyBeetomCue(place, cue) is { } target
-                ? new AnimationContinuation<BeetomSegment>(BeetomAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
-                : null);
+            (BeetomEnemyState _, BeetomCue cue) => ApplyBeetomCue(place, cue));
 
     /// <summary>Clears attachment after every accepted common shot, including zero damage.</summary>
     /// <remarks>Beetom lets go after the common damage of every accepted hit, including a hit that deals it no

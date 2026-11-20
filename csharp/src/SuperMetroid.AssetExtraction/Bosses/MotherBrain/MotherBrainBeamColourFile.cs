@@ -16,7 +16,7 @@ public static class MotherBrainBeamColourFile
     public const string FileName = "mother-brain-beam-colours.json";
 
     /// <summary>Supported schema revision: 2 writes each colour as <c>#rrggbb</c> (#2564).</summary>
-    public const int Version = 2;
+    private const int Version = 2;
 
     /// <summary>The document holding <paramref name="colours"/>.</summary>
     /// <param name="colours">The beam backdrop's first colour and its cycle.</param>

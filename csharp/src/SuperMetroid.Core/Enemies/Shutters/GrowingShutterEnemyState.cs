@@ -26,7 +26,7 @@ public sealed class GrowingShutterEnemyState
     }
 
     /// <summary>The row the shutter spawned at, the first section's origin (#2183).</summary>
-    public int SpawnY { get; internal set; }
+    public int SpawnY { get; private set; }
 
     /// <summary>The way the shutter grows, from its spawn row.</summary>
     public VerticalDirection Growth { get; }
@@ -53,7 +53,7 @@ public sealed class GrowingShutterEnemyState
     /// in the shutter's own column.
     /// </summary>
     /// <param name="level">The growth level, 0 through 3.</param>
-    public int SectionOriginY(int level) =>
+    private int SectionOriginY(int level) =>
         SpawnY + Ensure.BetweenInclusive(0, SectionCount - 1, level) *
             (SectionOriginSpacing.Toward(Growth));
 

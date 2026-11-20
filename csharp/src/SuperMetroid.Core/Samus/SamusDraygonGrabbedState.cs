@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Samus;
 public sealed class SamusDraygonGrabbedState
 {
     /// <summary>Where Samus is in Draygon's hold: free, held, held while another owner moves her, or released unseen.</summary>
-    public SamusDraygonHoldPhase Phase { get; private set; }
+    private SamusDraygonHoldPhase Phase { get; set; }
 
     /// <summary>
     /// True while Draygon holds Samus: from the grab until her release, the escape check runs after each of her
@@ -157,7 +157,7 @@ public sealed class SamusDraygonGrabbedState
     /// Releases Samus as she breaks free: the release Draygon has not yet seen, which his next carry of her reports
     /// (<see cref="CarryTo"/>).
     /// </summary>
-    public void Release(SamusState samus)
+    private void Release(SamusState samus)
     {
         LetGo(samus);
         Phase = SamusDraygonHoldPhase.ReleasedUnseen;

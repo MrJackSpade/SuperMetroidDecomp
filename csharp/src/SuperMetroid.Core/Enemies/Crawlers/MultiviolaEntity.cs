@@ -15,5 +15,5 @@ internal sealed class MultiviolaEntity(MultiviolaBehavior species, RoomEnemyOccu
     public void RunMainAi(IEnemyAiFrame frame) => species.RunMultiviolaMainAi(Occupant, Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MultiviolaBehavior.AdvanceMultiviolaTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MultiviolaBehavior.AdvanceMultiviolaTypedAnimation(Place);
 }

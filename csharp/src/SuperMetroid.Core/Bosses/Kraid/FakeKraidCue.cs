@@ -12,7 +12,12 @@ internal abstract record FakeKraidCue
     /// <param name="Direction">The way the spit flies.</param>
     internal sealed record Spit(HorizontalDirection Direction) : FakeKraidCue;
 
-    /// <summary>A cue that signals what it does and carries nothing else.</summary>
-    /// <param name="Kind">What the cue does.</param>
-    internal sealed record Signal(FakeKraidCueKind Kind) : FakeKraidCue;
+    /// <summary>Continues at the step or spit animation his wait between spits and his facing select.</summary>
+    internal sealed record ChooseAction : FakeKraidCue;
+
+    /// <summary>Walks one four-pixel step unless the walk's last step turns him round, then faces Samus.</summary>
+    internal sealed record Move : FakeKraidCue;
+
+    /// <summary>Records the cry sound while Fake Kraid is on screen.</summary>
+    internal sealed record PlayCrySound : FakeKraidCue;
 }

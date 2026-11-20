@@ -10,10 +10,10 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Squeept];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
-            ? new NorfairLavaJumperFollowerEntity(this, occupant, place, common)
-            : new SqueeptEntity(this, occupant, place, common);
+            ? EnemyOccupant.Of(new NorfairLavaJumperFollowerEntity(this, occupant, place, common))
+            : EnemyOccupant.Of(new SqueeptEntity(this, occupant, place, common));
 
     /// <summary>Supplies one random number per parent and follower AI frame.</summary>
     private readonly EnemyRoomBinding _room;
@@ -72,7 +72,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs the jumping parent's main behaviour: its rising, flipping and falling actions. Main advances the shared
     /// random numbers once each update.
     /// </summary>
-    internal void RunSqueeptMain(
+    private void RunSqueeptMain(
         RoomEnemyPlace place,
         SqueeptState state)
     {

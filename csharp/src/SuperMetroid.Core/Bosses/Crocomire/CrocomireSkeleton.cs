@@ -245,7 +245,7 @@ internal sealed class CrocomireSkeleton
     /// <see cref="CrocomireSkeletonLookDefinitions.BaringDuration"/> updates his frames show the skeleton look from this
     /// update's frame on; once bared, a later update bares nothing more.
     /// </summary>
-    internal void BareCrocomireSkeleton(CrocomireDeathState death)
+    private void BareCrocomireSkeleton(CrocomireDeathState death)
     {
         if (death.SkeletonBaring.StepEnds())
             _presentation.ShowLook(CrocomireSkeletonLookDefinitions.SkeletonLook);
@@ -266,7 +266,7 @@ internal sealed class CrocomireSkeleton
     /// its definition, which sets how far below the wall's top it stands. The melt empties the enemy projectiles just
     /// before, so every piece is spawned.
     /// </summary>
-    internal void SpawnCrocomireSpikeWallPieces(CrocomireEnemyState state)
+    private void SpawnCrocomireSpikeWallPieces(CrocomireEnemyState state)
     {
         SpriteGraphics graphics = SpriteGraphics.SpawnedBy(state.BodyOccupant, state.Body.Shading);
 
@@ -276,11 +276,11 @@ internal sealed class CrocomireSkeleton
             if (projectile is null)
                 return;
 
-            projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.SpikeWallPiece));
+            projectile.StartAnimation(new CrocomireProjectileAnimation(_combat.Debris, CrocomireProjectileSegment.SpikeWallPiece));
             projectile.Position = projectile.Position.WithWhole(CrocomireSkeletonDefinitions.SpikeWallTop
                 + new Offset16<RoomPixels>(0, piece.Depth));
             projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
-            projectile.State = new CrocomireSpikeWallPieceState(piece);
+            _combat.Debris.SpikeWallPieces.Start(projectile, new CrocomireSpikeWallPieceState(piece));
             projectile.Position = projectile.Position.WithoutFractions();
         }
     }

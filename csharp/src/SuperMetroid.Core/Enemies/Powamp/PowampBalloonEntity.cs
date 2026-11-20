@@ -10,19 +10,13 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// <param name="place">The place the balloon occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The balloon's own shot reaction, built for this occupant.</summary>
     private readonly EnemyShotReaction ownShot = species.PowampBalloonShotReaction(occupant);
 
     /// <inheritdoc/>
     public void Initialize() => PowampBehavior.InitializePowampBalloon(Place);
-
-    /// <summary>Does nothing: the balloon has no AI of its own, its body moves it.</summary>
-    /// <param name="frame">The enemy pass's frame.</param>
-    public void RunMainAi(IEnemyAiFrame frame)
-    {
-    }
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBalloonTypedAnimation(Place);

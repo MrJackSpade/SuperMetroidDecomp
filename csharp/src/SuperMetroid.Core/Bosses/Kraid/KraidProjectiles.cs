@@ -78,21 +78,26 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>The rocks Kraid's rise throws up and the ceiling rocks his roar shakes down (#1760): their spawners start their animations.</summary>
-    internal static EnemyProjectileBehavior Rocks { get; } = new RockBehavior();
+    internal RockBehavior Rocks { get; } = new();
 
     /// <summary>
     /// A rock Kraid spits (#1760): its spawner starts its animation, and a shot one runs its typed burst, the animation its
     /// definition names.
     /// </summary>
-    internal static EnemyProjectileBehavior SpitRock { get; } = new RockBehavior(() => new KraidRockAnimation(KraidRockSegment.SpitRockShot));
+    internal RockBehavior SpitRock { get; } = new(KraidRockSegment.SpitRockShot);
 
     /// <summary>
     /// One of Kraid's rocks: a rock's flight with room collision, drag and gravity, a ceiling rock's fall, and the rock
     /// animations' cues.
     /// </summary>
-    private sealed class RockBehavior(Func<EnemyProjectileAnimation>? shot = null)
-        : EnemyProjectileMotionBehavior<KraidRockMotion>(StartingMotions, shot), IEnemyProjectileCues<KraidRockCue>
+    /// <param name="shot">Where the animation a destroying shot starts begins, or null for the shared delete animation.</param>
+    internal sealed class RockBehavior(KraidRockSegment? shot = null)
+        : EnemyProjectileMotionBehavior<KraidRockMotion>(StartingMotions), IEnemyProjectileCues<KraidRockCue>
     {
+        /// <inheritdoc/>
+        internal override EnemyProjectileAnimation ShotAnimation() =>
+            shot is { } segment ? new KraidRockAnimation(this, segment) : base.ShotAnimation();
+
         /// <summary>A spat or rising rock flies, and a ceiling rock falls, from its spawn.</summary>
         private static readonly Dictionary<RoomEnemyProjectileKind, KraidRockMotion?> StartingMotions = new()
         {
@@ -102,7 +107,7 @@ internal sealed class KraidProjectiles
         };
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, KraidRockMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, KraidRockMotion motion)
         {
             switch (motion)
             {
@@ -196,7 +201,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Seeds a released nail's velocity, animation, and collision state.</summary>
-    internal void InitializeKraidNailFlight(RoomEnemyPlace nail, KraidNailState part)
+    private void InitializeKraidNailFlight(RoomEnemyPlace nail, KraidNailState part)
     {
         // The pair coordinates its next launch through the other actor's previous
         // velocity and spawn flag. Read that actor before overwriting this one's state.
@@ -229,7 +234,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Advances nail position and terrain response for one enemy update.</summary>
-    internal void TickKraidNailFlight(RoomEnemyPlace nail, KraidNailState part, RoomLevelData level)
+    private void TickKraidNailFlight(RoomEnemyPlace nail, KraidNailState part, RoomLevelData level)
     {
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, nail, part.NailVelocity.X))
             part.NailVelocity = part.NailVelocity.WithX(ReflectKraidNailHorizontalVelocity(part.NailVelocity.X));
@@ -241,7 +246,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Checks whether a nail crosses the body contour that reverses its flight.</summary>
-    internal bool KraidBodyContourReflectsNail(RoomEnemyPlace nail, KraidNailState part)
+    private bool KraidBodyContourReflectsNail(RoomEnemyPlace nail, KraidNailState part)
     {
         RoomEnemyPlace body = _parts.Body;
         int relativeY = nail.Position.Y.Whole - body.Position.Y.Whole;
@@ -286,7 +291,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Places a lint at its body-relative offset while its phase wait runs, and produces it on the wait's last update.</summary>
-    internal void AlignKraidLint(RoomEnemyPlace lint, KraidLintState part)
+    private void AlignKraidLint(RoomEnemyPlace lint, KraidLintState part)
     {
         lint.Position = lint.Position.WithWholeX(_parts.Body.Position.X.Whole - lint.Radius.X);
         if (part.PhaseWait.StepRunsOut())

@@ -13,7 +13,7 @@ public static class RoomFxBlockAnimationAtlasFormat
     /// <summary>Character count in the contiguous Tourian-statue strip; each statue picture is an overlapping window within it.</summary>
     public const int StatueTileCount = 96;
     /// <summary>Character count of the historical prefix including the statue strip but preceding the spore animation extension.</summary>
-    public const int PreSporesTileCount = PreStatueTileCount + StatueTileCount;
+    private const int PreSporesTileCount = PreStatueTileCount + StatueTileCount;
     /// <summary>Nine 2bpp characters across the three spore pictures.</summary>
     public const int SporesTileCount = 9;
     /// <summary>Character count of the historical prefix including spores but preceding horizontal-spike artwork.</summary>

@@ -27,7 +27,7 @@ public sealed class GitHubErrorReporter : IDisposable
     /// <summary>Remote lookup, comment, and creation operations used by the single worker.</summary>
     private readonly IGitHubIssueClient issueClient;
     /// <summary>Nonblocking multiwriter queue processed in report order by one remote worker.</summary>
-    internal readonly Channel<QueuedWork> queue = Channel.CreateUnbounded<QueuedWork>(
+    private readonly Channel<QueuedWork> queue = Channel.CreateUnbounded<QueuedWork>(
         new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
     /// <summary>Counts repeated failures per fingerprint and context after excluding frame/input changes.</summary>
     private readonly Dictionary<string, int> sessionOccurrences = new(StringComparer.Ordinal);
@@ -46,7 +46,7 @@ public sealed class GitHubErrorReporter : IDisposable
     }
 
     /// <summary>Starts the same reporting worker with an injected issue client for focused host checks.</summary>
-    internal GitHubErrorReporter(string repository, IGitHubIssueClient issueClient)
+    private GitHubErrorReporter(string repository, IGitHubIssueClient issueClient)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(repository);
         this.repository = repository;

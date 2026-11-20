@@ -32,9 +32,9 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <summary>Renders the six-area selection view during entry and area navigation.</summary>
     private readonly FileSelectAreaMapGraphics areaGraphics;
     /// <summary>Renders the selected area's room map, including exploration and markers.</summary>
-    internal readonly FileSelectRoomMapGraphics roomGraphics;
+    private readonly FileSelectRoomMapGraphics roomGraphics;
     /// <summary>Owns room-map scroll position anchored to the selected save station.</summary>
-    internal MapScroll Scroll { get; private set; }
+    private MapScroll Scroll { get; set; }
     /// <summary>Save-station marker positioned from the installed presentation catalog.</summary>
     private FileSelectStationMarker marker;
     /// <summary>The saved station, which restores the marker and scroll anchor.</summary>
@@ -192,7 +192,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                 if (requestWait.Age <= FileSelectMapDefinitions.LoadPreludeFrames) break;
                 if (!fade.IsBlack)
                 {
-                    _ = fade.Darken();
+                    fade.StepDarker();
                     break;
                 }
                 if (requestWait.IsOver)

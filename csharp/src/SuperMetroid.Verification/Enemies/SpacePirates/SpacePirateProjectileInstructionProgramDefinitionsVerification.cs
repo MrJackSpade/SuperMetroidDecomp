@@ -47,7 +47,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             SpacePirateProjectileNativeListAddresses.Family.NativePointers(CartridgeImportSource.Require(rom));
 
         foreach ((bool movingRight, ushort program, ushort loop,
-                  Enum movement, ushort expectedX) in new[]
+                  SingleMotion movement, ushort expectedX) in new[]
                  {
                      new VerifySpacePirateProjectileInstructionProgramDefinitionsCase(false,
                          SpacePirateProjectileInstructionProgramDefinitions.LaserLeft,
@@ -68,15 +68,15 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             EnemyProjectile laser = enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<RoomPixels>(128, 96), movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, PirateLaserSpeed.Fast) ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<R....");
             AssertEqual(program, NativePointer(laser),
                 "real Pirate/Mother Brain laser producer selects its facing program");
-            AssertEqual<Enum?>(null, laser.Motion,
+            AssertTrue(laser.HoldsStill,
                 "laser initializer keeps muzzle frames stationary");
             RunForcedTicks(enemies, laser, 3);
             AssertEqual((ushort)128, laser.Position.X.Whole,
                 "three laser muzzle frames remain stationary");
             RunForcedTick(enemies, laser);
-            AssertEqual<Enum?>(movement, laser.Motion,
+            AssertTrue(laser.MovesBy(movement),
                 "laser program installs its facing movement callback");
-            AssertEqual(movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, laser.StateOf<PirateLaserState>().Direction,
+            AssertEqual(movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, enemies.WalkingSpacePirateBehavior.Laser.Lasers.Of(laser).Direction,
                 "the laser flies the way its producer chose");
             AssertEqual(expectedX, laser.Position.X.Whole,
                 "laser callback executes immediately on installation");
@@ -85,7 +85,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                 "laser completes its authored frames and loops");
         }
 
-        foreach ((ushort direction, ushort program, ushort loop, Enum movement) in new[]
+        foreach ((ushort direction, ushort program, ushort loop, SingleMotion movement) in new[]
                  {
                      new SpacePirateProjectileInstructionProgramDefinitionsVerifySpacePirateProjectileInstructionProgramDefinitionsCase(0,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeft,
@@ -106,9 +106,9 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             AssertEqual(program, NativePointer(claw),
                 "real Ninja Pirate claw producer selects its facing program");
             RunForcedTick(enemies, claw);
-            AssertEqual<Enum?>(movement, claw.Motion,
+            AssertTrue(claw.MovesBy(movement),
                 "claw program installs its facing movement callback");
-            AssertEqual(direction != 0 ? HorizontalDirection.Right : HorizontalDirection.Left, claw.StateOf<NinjaPirateClawState>().Thrown,
+            AssertEqual(direction != 0 ? HorizontalDirection.Right : HorizontalDirection.Left, enemies.NinjaSpacePirateBehavior.Claw.Claws.Of(claw).Thrown,
                 "the claw flies along the throw its producer chose");
             RunForcedTicks(enemies, claw, 8);
             AssertEqual(unchecked((ushort)(loop + 4)), NativePointer(claw),

@@ -63,7 +63,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         {
             RoomEnemySystem enemies = NewSystem();
             // The collapse step names the pose its spawn falls in, the one the kind's spawn starts.
-            MotherBrainTopTubeSegment pose = FamilyProjectileStarts.StartingAnimation(item.Kind) is MotherBrainTopTubeAnimation started
+            MotherBrainTopTubeSegment pose = FamilyProjectileStarts.StartingAnimation(item.Kind)?.Invoke(enemies) is MotherBrainTopTubeAnimation started
                 ? started.PlayingSegment
                 : throw new InvalidOperationException($"{item.Kind} is not a top tube.");
             enemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainTopTube(item.Kind, pose, new Position16<RoomPixels>(item.X, item.Y));

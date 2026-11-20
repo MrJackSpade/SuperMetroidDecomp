@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// depth of its own, as each beat of the animation says, as Kraid's foot steps its pictures along its walk and his parts
 /// sit behind the room's front tiles while he rises. The common draw places the enemy's picture so.
 /// </summary>
-internal interface IPlacedEnemyPicture : IEnemyEntity
+internal interface IPlacedEnemyPicture
 {
     /// <summary>How far the shown picture sits from the enemy's place.</summary>
     Offset16<RoomPixels> PicturePlacement { get; }

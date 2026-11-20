@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>The work robot species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.WorkRobot, EnemyDefinitionId.UnpoweredWorkRobot];
@@ -20,13 +20,13 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// states once Phantoon is defeated, so it always has power (#2455).
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no work robot definition.</exception>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.WorkRobot)
-            return new PoweredWorkRobotEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new PoweredWorkRobotEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.UnpoweredWorkRobot)
-            return new UnpoweredWorkRobotEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new UnpoweredWorkRobotEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The work robot species creates no {occupant.DefinitionId}.");
     }
 
@@ -55,7 +55,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The powered robots' glow (#2380): the place its step shows and the updates that step has left. A room starts it on
     /// its last step, stopped.
     /// </summary>
-    internal readonly AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue> glow =
+    private readonly AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue> glow =
         AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue>.StartShowing(
             WorkRobotGlowAnimations.Segments, WorkRobotGlowAnimations.Restarted);
 
@@ -65,10 +65,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// The place of the glow every powered robot shows (#2393); after the last step the cycle starts again at the first.
     /// </summary>
-    internal WorkRobotGlowPlace GlowPlace => glow.Showing;
+    private WorkRobotGlowPlace GlowPlace => glow.Showing;
 
     /// <summary>The glow every powered robot in the room shows now (#1512).</summary>
-    internal PictureShading Glow => PictureShading.Shaded(WorkRobotShades.Glow(GlowPlace));
+    private PictureShading Glow => PictureShading.Shaded(WorkRobotShades.Glow(GlowPlace));
 
     /// <summary>Initializes a powered robot.</summary>
     internal void InitializePoweredWorkRobot(RoomEnemyPlace place)
@@ -103,8 +103,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes an unpowered robot.</summary>
-    /// <returns>The robot's state, holding the pose its placement names.</returns>
-    internal UnpoweredWorkRobotEnemyState InitializeUnpoweredWorkRobot(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal void InitializeUnpoweredWorkRobot(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         // The placement names the unpowered pose the robot holds.
         var state = new UnpoweredWorkRobotEnemyState(
@@ -116,7 +115,6 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // An unpowered robot stops the room's glow, an earlier powered robot's too: in a room placing both, the order
         // they are placed in decides whether the glow runs.
         GlowRuns = false;
-        return state;
     }
 
     /// <summary>
@@ -277,7 +275,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Plays the powered robots' glow on after the enemies' update unless it is stopped; when the step's time is up the
     /// glow shows its next step on every powered robot still in the place it set up and holds it for that step's hold.
     /// </summary>
-    internal void StepGlow()
+    public void StepGlow()
     {
         if (!GlowRuns)
             return;
@@ -310,7 +308,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     internal EnemyShotReaction UnpoweredWorkRobotShotReaction { get; } = new();
 
     /// <summary>A Work Robot laser, whichever way it flies (#1760): it flies with room collision.</summary>
-    internal static readonly EnemyProjectileBehavior Laser = new SingleMotionProjectileBehavior(
+    private static readonly EnemyProjectileBehavior Laser = new SingleMotionProjectileBehavior(
         context => FlyWorkRobotLaser(context.Projectile, context.Level));
 
     /// <summary>Runs a powered robot's main AI.</summary>
@@ -348,7 +346,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Allocates a Work Robot laser: it flies ahead of the robot, the way it faces, and up, straight or down as
     /// <paramref name="laser"/> names, its velocity holding its way (#2278).
     /// </summary>
-    internal void SpawnWorkRobotLaser(
+    private void SpawnWorkRobotLaser(
         RoomEnemyPlace robot,
         WorkRobotEnemyState state,
         WorkRobotLaser laser,

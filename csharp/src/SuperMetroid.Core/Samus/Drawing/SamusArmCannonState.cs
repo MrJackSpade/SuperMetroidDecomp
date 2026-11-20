@@ -27,19 +27,19 @@ public sealed class SamusArmCannonState
     internal SamusArmCannonState(SamusArtworkBinding artwork) => _artwork = Ensure.NotNull(artwork);
 
     /// <summary>Whether the cover is open or opening; false while closed or closing.</summary>
-    public bool IsOpen { get; private set; }
+    private bool IsOpen { get; set; }
 
     /// <summary>Whether an opening or closing is still under way.</summary>
-    public bool IsTransitioning { get; private set; }
+    private bool IsTransitioning { get; set; }
 
     /// <summary>The cover picture shown, or null while the cover is closed.</summary>
-    public SamusArmCannonCoverFrame? Frame { get; private set; }
+    private SamusArmCannonCoverFrame? Frame { get; set; }
 
     /// <summary>
     /// The HUD selection's stability wait, lasting <see cref="SamusArmCannonDefinitions.StableSelectionUpdates"/>: a
     /// change starts it again, counting the changing update as its first, and a transition may begin once it is over.
     /// </summary>
-    internal readonly UpdateCountdown stability = UpdateCountdown.Lasting(SamusArmCannonDefinitions.StableSelectionUpdates);
+    private readonly UpdateCountdown stability = UpdateCountdown.Lasting(SamusArmCannonDefinitions.StableSelectionUpdates);
 
     /// <summary>Where this frame's cover is drawn relative to the body, from the pose's drawing mode.</summary>
     public SamusArmCannonDrawOrder DrawOrder { get; private set; }

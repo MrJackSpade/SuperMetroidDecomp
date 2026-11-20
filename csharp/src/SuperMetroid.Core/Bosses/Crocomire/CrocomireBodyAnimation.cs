@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <summary>
 /// Crocomire's body, melting and skeleton animations, each named for what it shows (#1938, #2399). His fight and death start
 /// them by name and never ask where in an animation his body stands (#2180); each plays the
-/// <see cref="CrocomireBodySegment"/> runs <see cref="CrocomireBodyAnimations.StartingAt"/> lists for it.
+/// <see cref="CrocomireBodySegment"/> runs <see cref="CrocomireBodyAnimations.StartingWith"/> starts it with.
 /// </summary>
 public enum CrocomireBodyAnimation
 {

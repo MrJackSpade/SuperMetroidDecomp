@@ -2,7 +2,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -46,7 +45,7 @@ internal sealed class MotherBrainFakeDeath
     /// Collision radii and landing floor selected by piece role. The two
     /// outer and two inner pieces share their values; the main tube has its own floor.
     /// </summary>
-    internal static MotherBrainFallingTubeDefinition MotherBrainFallingTubeBody(MotherBrainTubePiece piece) =>
+    private static MotherBrainFallingTubeDefinition MotherBrainFallingTubeBody(MotherBrainTubePiece piece) =>
         MotherBrainFallingTubePopulationDefinitions.Bodies[piece];
 
     /// <summary>Steps Mother Brain's fake-death grey fade and moves on once the fade is over.</summary>
@@ -69,7 +68,7 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Stops her room's flash and shows its steady grey.</summary>
-    internal static void StopMotherBrainRoomFlash(MotherBrainEnemyState state)
+    private static void StopMotherBrainRoomFlash(MotherBrainEnemyState state)
     {
         state.RoomFlash = null;
         state.Colours.ShowRoomGrey();
@@ -126,6 +125,9 @@ internal sealed class MotherBrainFakeDeath
                 case MotherBrainTopTubeDrop top:
                     SpawnMotherBrainTopTube(top.Kind, top.Segment, top.Start);
                     break;
+                case MotherBrainMainTubeDrop:
+                    SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.Main);
+                    break;
                 default:
                     throw new InvalidOperationException($"Mother Brain's tube collapse cannot drop {drop}.");
             }
@@ -134,12 +136,13 @@ internal sealed class MotherBrainFakeDeath
         }
 
         _access.RequestMotherBrainObject(drop.Clears.Block, drop.Clears.RoomObject);
-        state.TubeCollapseTimer.LastFor(drop.WaitAfterUpdates);
+        if (drop is MotherBrainFollowedTubeDrop followed)
+            state.TubeCollapseTimer.LastFor(followed.WaitAfterUpdates);
         state.TubeCollapse = new(tube.Following, MotherBrainTubeDropStage.Standing);
     }
 
     /// <summary>Spawns the top tube projectile of <paramref name="kind"/>, falling as <paramref name="tube"/> shows, for the scripted collapse.</summary>
-    internal void SpawnMotherBrainTopTube(
+    private void SpawnMotherBrainTopTube(
         RoomEnemyProjectileKind kind,
         MotherBrainTopTubeSegment tube,
         Position16<RoomPixels> position)
@@ -151,11 +154,11 @@ internal sealed class MotherBrainFakeDeath
         projectile.StartAnimation(new MotherBrainTopTubeAnimation(tube));
         projectile.Position = projectile.Position.WithWhole(position);
         projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
-        projectile.State = new MotherBrainTopTubeState();
+        _projectileAttacks.Projectile.TopTubes.Start(projectile, new MotherBrainTopTubeState());
     }
 
     /// <summary>Creates the falling tube enemy of <paramref name="piece"/>.</summary>
-    internal void SpawnMotherBrainFallingTube(MotherBrainEnemyState state, MotherBrainTubePiece piece)
+    private void SpawnMotherBrainFallingTube(MotherBrainEnemyState state, MotherBrainTubePiece piece)
     {
         // The bound source supplies the fixed cutscene placement; rooms resolve it from the loaded definitions.
         RoomEnemyPlacement population = _room.Definitions.ReadFallingTubePopulation(piece);
@@ -249,7 +252,7 @@ internal sealed class MotherBrainFakeDeath
         StopMotherBrainRoomFlash(state);
         _earthquake.Start(MotherBrainTubeCollapseDefinitions.LandingShake, MotherBrainTubeCollapseDefinitions.LandingShakeUpdates);
         // The fake death removes the room's liquid effects, and any X-ray cone, for the rest of the encounter.
-        _passEvents.Publish(new MotherBrainTubeLanded());
+        _passEvents.Publish(new LiquidSurfaceStilled());
         state.Head.Position = state.Head.Position.WithWholeY(MotherBrainFightDefinitions.BrainFloorY);
         state.Body.Position = state.Body.Position.WithWhole(MotherBrainFightDefinitions.StandingBodyPosition);
 

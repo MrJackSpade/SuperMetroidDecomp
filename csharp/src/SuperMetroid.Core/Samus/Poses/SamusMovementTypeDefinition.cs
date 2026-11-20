@@ -21,6 +21,10 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// The setup the pose update runs when her input chooses no new pose and her pose names none
 /// (<see cref="SamusNoTransitionSetups"/>).
 /// </param>
+/// <param name="PoseMovement">
+/// The movement the type runs for the pose that owns Samus's movement, or none for the types whose own movers own it
+/// (the Grapple, the compact airborne poses and the special movement).
+/// </param>
 internal sealed record SamusMovementTypeDefinition(
     SamusMomentumResponse NoTransitionResponse,
     SamusBombJumpSetup BombJump,
@@ -29,4 +33,5 @@ internal sealed record SamusMovementTypeDefinition(
     GrappleFiringResponse GrappleFiring,
     SamusHudSelectionMode HudSelection,
     SamusKnockbackResponse Knockback,
-    SamusNoTransitionSetup NoTransitionSetup = SamusNoTransitionSetup.KeepsMomentum);
+    SamusNoTransitionSetup NoTransitionSetup,
+    SamusPoseMovement? PoseMovement = null);

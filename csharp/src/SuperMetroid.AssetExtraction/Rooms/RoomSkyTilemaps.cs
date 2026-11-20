@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public sealed class RoomSkyTilemaps
 {
     /// <summary>The tiles of the seven selected sky pages, in scrolling order.</summary>
-    internal readonly BackgroundTile[] pages;
+    private readonly BackgroundTile[] pages;
 
     /// <summary>The land rows, built when first shown.</summary>
     private SkyTilemap? land;

@@ -11,7 +11,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Sbug];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new SbugEntity(occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SbugEntity(occupant, place, common));
 
     /// <summary>Initializes the Sbug.</summary>
     internal static void InitializeSbug(RoomEnemyOccupant occupant, RoomEnemyPlace place)
@@ -26,7 +26,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The leg along the Sbug's spawn heading, which its forward movement takes: the placement's speed along the heading
     /// (<see cref="EnemyMath.VelocityAlong"/>).
     /// </summary>
-    internal static SbugLeg ForwardLeg(RoomEnemyOccupant occupant)
+    private static SbugLeg ForwardLeg(RoomEnemyOccupant occupant)
     {
         SbugSpawnSettings settings = occupant.SpawnSettings<SbugSpawnSettings>();
         FixedVector<RoomPixels> velocity = EnemyMath.VelocityAlong(settings.InitialAngle.ToTrigonometryAngle(), settings.Speed);
@@ -46,7 +46,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs an Sbug for one update through all of its actions.</summary>
-    internal static void RunSbugMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus)
+    private static void RunSbugMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus)
     {
         SbugEnemyState state = place.RequireSpeciesState<SbugEnemyState>();
         switch (state.Action)
@@ -146,7 +146,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The side speed along one axis: the short circle product (<see cref="ShortCircleProduct"/>) of the angle turned by
     /// <paramref name="phase"/> at the Sbug's speed, every authored one below five.
     /// </summary>
-    internal static SignedSixteenSixteen CalculateSignedSbugComponent(TrigonometryAngle angle, int speed, TrigonometryAngle phase) =>
+    private static SignedSixteenSixteen CalculateSignedSbugComponent(TrigonometryAngle angle, int speed, TrigonometryAngle phase) =>
         EnemyMath.CircleSine(angle + phase, speed);
 
     /// <summary>Restarts the selected animation only when its facing animation differs from the one playing (#2145).</summary>
@@ -157,7 +157,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SbugAnimations.StartingWith(SbugMovement.FacingAnimation(facing)));
 
     /// <summary>Advances Sbug's typed animation.</summary>
-    internal static void AdvanceSbugTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceSbugTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, SbugAnimations.Segments,
             static (SbugEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Sbug's cue-free animation raised {cue}."));

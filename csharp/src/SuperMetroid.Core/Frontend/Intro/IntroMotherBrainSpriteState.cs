@@ -129,7 +129,7 @@ internal sealed class IntroMotherBrainSpriteState
     }
 
     /// <summary>Records the synchronous hit side effects after the projectile is killed.</summary>
-    public bool RecordMissileHit()
+    private bool RecordMissileHit()
     {
         hurtFlash.Restart(IntroMotherBrainDefinitions.HurtFlashUpdates);
         hitCount++;

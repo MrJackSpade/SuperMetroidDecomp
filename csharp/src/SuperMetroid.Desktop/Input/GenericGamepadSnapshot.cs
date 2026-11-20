@@ -12,7 +12,7 @@ namespace SuperMetroid.Desktop.Input;
 /// deterministic and testable without a physical controller or a native call.
 /// </remarks>
 /// <param name="Stick">Normalized analog-stick deflection on both axes.</param>
-/// <param name="PointOfView">POV hat angle in hundredths of a degree clockwise from north, or <see cref="GenericGamepadInput.CenteredPointOfView"/>.</param>
+/// <param name="PointOfView">POV hat angle in hundredths of a degree clockwise from north, or <c>CenteredPointOfView</c>.</param>
 /// <param name="Buttons">Host button bits, button one in bit zero.</param>
 internal readonly record struct GenericGamepadSnapshot(
     Offset16<GamepadStick> Stick,

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public static class PhantoonPath
 {
     /// <summary>The path's places in order, each the signed unit step he takes from it to the next place.</summary>
-    public static IReadOnlyList<Offset16<RoomPixels>> Places { get; } = [.. PhantoonPathDefinitions.Directions.Select(StepOf)];
+    private static IReadOnlyList<Offset16<RoomPixels>> Places { get; } = [.. PhantoonPathDefinitions.Directions.Select(StepOf)];
 
     /// <summary>The place <paramref name="place"/> of his path, counting from its start.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The path has no such place.</exception>

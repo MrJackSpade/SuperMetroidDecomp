@@ -35,7 +35,7 @@ public static class SamusSuitDamage
     /// The energy Samus keeps from <paramref name="energy"/> after a hit of <paramref name="damageBeforeSuit"/>, zero or
     /// more, that her suit divides: the energy less the divided damage, or zero when that damage takes all of it.
     /// </summary>
-    public static int EnergyAfterHit(int energy, int damageBeforeSuit, SamusEquipmentFlags equippedItems)
+    private static int EnergyAfterHit(int energy, int damageBeforeSuit, SamusEquipmentFlags equippedItems)
     {
         int damage = Reduce(damageBeforeSuit, equippedItems);
         return energy <= damage

@@ -51,7 +51,7 @@ internal static class SuperMissileDeathAnimationVerification
         if (enemy.Frame == EnemyFrameId.PointAtOrigin)
             enemy.Frame = enemyDefinition == EnemyDefinitionId.Dragon ? EnemyFrameId.DragonBodyFacingLeft : EnemyFrameId.SpinyCrawlerOnFloorSpinesTurned0;
         enemy.AnimationClock.HoldFor(0x7fff);
-        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(enemy.Position.Whole);
+        runtime.Enemies.PrepareEnemyProcessingList(enemy.Position.Whole);
 
         SamusProjectile shot = runtime.Projectiles.Shots[0];
         shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Right;

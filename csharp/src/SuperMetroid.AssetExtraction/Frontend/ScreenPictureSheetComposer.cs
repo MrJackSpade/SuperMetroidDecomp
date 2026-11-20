@@ -73,7 +73,7 @@ internal static class ScreenPictureSheetComposer
 
     /// <summary>Paints <paramref name="subjects"/> over <paramref name="characters"/> in <paramref name="palette"/>'s colours, packed onto shelves.</summary>
     /// <exception cref="InvalidDataException">Two subjects share a name, or the pictures need more than one sheet.</exception>
-    internal static PaintedScreen Paint(IReadOnlyList<ScreenPictureSubject> subjects, ScreenCharacters characters, ReadOnlySpan<RgbColor> palette)
+    private static PaintedScreen Paint(IReadOnlyList<ScreenPictureSubject> subjects, ScreenCharacters characters, ReadOnlySpan<RgbColor> palette)
     {
         Ensure.NotNull(subjects);
         Ensure.NotNull(characters);

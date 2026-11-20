@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>The Shutters species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEscapeShutterFlash
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -40,7 +40,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// each frame of the flash replaces the one before it. A destroyed shutter, and any enemy that took its place since,
     /// shows no flash.
     /// </summary>
-    internal void ShowEscapeShutterFlash(ColourEffectFrame frame)
+    public void ShowEscapeShutterFlash(ColourEffectFrame frame)
     {
         PictureShade flash = ColourEffectShades.Of(ColourEffectColours.TourianShutters, frame);
         foreach (DestroyableShutterEntity shutter in _destroyableShutters)
@@ -70,17 +70,17 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The growing shutter, a shootable vertical shutter, the Kamer that reuses it, or a destroyable vertical shutter (#2146, #2179).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Shutters definition.</exception>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.ShutterGrowing)
-            return new GrowingShutterEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new GrowingShutterEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.ShutterShootable)
-            return new ShootableShutterEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new ShootableShutterEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.Kamer)
-            return new KamerEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new KamerEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.ShutterDestroyable)
-            return new DestroyableShutterEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new DestroyableShutterEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The Shutters species creates no {occupant.DefinitionId}.");
     }
 
@@ -102,8 +102,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             ActivationTimer = UpdateCountdown.For(settings.ActivationWait + EnemyWaitDefinitions.RunOutUpdate),
         };
         place.SetSpeciesState(state);
-
-        state.GrowthLevel = 0;
 
         // The shutter's new clock shows no new frame until its animation's first step shows one.
         place.CollidesByFrameHitboxes = false;
@@ -148,7 +146,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Steps the timer-mode wait one update and reports whether it ran out on this update (#2281).</summary>
-    internal static bool AdvanceGrowingShutterTimer(GrowingShutterEnemyState state) => state.ActivationTimer.StepEnds();
+    private static bool AdvanceGrowingShutterTimer(GrowingShutterEnemyState state) => state.ActivationTimer.StepEnds();
 
     /// <summary>Switches a timed or proximity shutter into growth and queues audible activation on screen.</summary>
     private void ActivateGrowingShutter(
@@ -201,7 +199,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// The upward growth step: the growth speed, fraction included, reversed to move the shutter up.
     /// </summary>
-    internal static SignedSixteenSixteen UpwardGrowthVelocity(SignedSixteenSixteen growthSpeed) =>
+    private static SignedSixteenSixteen UpwardGrowthVelocity(SignedSixteenSixteen growthSpeed) =>
         SignedSixteenSixteen.Zero - growthSpeed;
 
     /// <summary>
@@ -326,7 +324,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances ShutterGrowing's typed animation.</summary>
-    internal static void AdvanceShutterGrowingTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceShutterGrowingTypedAnimation(RoomEnemyPlace place)
     {
         if (!place.AnimationClock.Expire())
             return;
@@ -335,7 +333,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances a vertical shutter's typed animation: a shootable or destroyable shutter's, or the Kamer's.</summary>
-    internal static void AdvanceVerticalShutterTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceVerticalShutterTypedAnimation(RoomEnemyPlace place)
     {
         if (!place.AnimationClock.Expire())
             return;
@@ -416,14 +414,13 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.UpperEndpointY = spawnY - settings.TravelDistance;
         }
 
-        state.ShotActivated = false;
         // The shutter's new clock shows no new frame until its animation's first step shows one.
         place.CollidesByFrameHitboxes = false;
         StartVerticalShutterAnimation(place, state, pose);
     }
 
     /// <summary>Runs the vertical shutter's main AI.</summary>
-    internal void RunVerticalShutterMain(
+    private void RunVerticalShutterMain(
         RoomEnemyOccupant occupant, RoomEnemyPlace place,
         VerticalShutterEnemyState state,
         SamusState samus,
@@ -492,7 +489,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Samus, activating on its first update, or standing still until a reaction. The trigger never changes, so
     /// initialization installs it once and the first update already runs it.
     /// </summary>
-    internal static VerticalShutterAction InitialAction(ShutterTriggerMode triggerMode) => triggerMode switch
+    private static VerticalShutterAction InitialAction(ShutterTriggerMode triggerMode) => triggerMode switch
     {
         ShutterTriggerMode.Timer => VerticalShutterAction.WaitForTimer,
         ShutterTriggerMode.HorizontalProximity => VerticalShutterAction.WaitForHorizontalProximity,

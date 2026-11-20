@@ -17,7 +17,7 @@ internal sealed class ProjectileTrails
     internal void Clear() => trails.Clear();
 
     /// <summary>Adds a trail already under way, as a restored game does; a spawned trail is added the same way.</summary>
-    internal void Add(SamusProjectileTrail trail) => trails.Add(Ensure.NotNull(trail));
+    private void Add(SamusProjectileTrail trail) => trails.Add(Ensure.NotNull(trail));
 
     /// <summary>
     /// Leaves a trail behind <paramref name="projectile"/>: selects both sparkles' animations from the shot's beams and
@@ -88,7 +88,7 @@ internal sealed class ProjectileTrails
     /// The frame a trail starts from <paramref name="projectile"/> at: the frame its animation last showed, or null before
     /// its animation has shown one.
     /// </summary>
-    internal static SamusProjectileFrameId? GetTrailFrame(SamusProjectile projectile) =>
+    private static SamusProjectileFrameId? GetTrailFrame(SamusProjectile projectile) =>
         (projectile.Animation ?? throw new InvalidOperationException("A trail read the frame of an inactive projectile.")).Shown;
 
     /// <summary>

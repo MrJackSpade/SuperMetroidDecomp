@@ -54,10 +54,10 @@ internal static class PhantoonSolidifyingCentreVerification
         shot.Animation = ProjectileFixturePlaybacks.Active();
         shot.Behavior = SamusShotBehaviors.Beam;
 
-        int hits = enemies.PhantoonBehavior.Combat.ResolvePhantoonProjectileHits(state, shots, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
+        enemies.PhantoonBehavior.Combat.ResolvePhantoonProjectileHits(state, shots, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
         AssertEqual(2500, body.Health, "the centre point hurts no one");
-        AssertEqual(hits == 1, shot.IsSpent, "only a beam that meets the centre is spent");
-        return hits;
+        // Only a beam that meets the centre is spent: the one projectile the pass resolves.
+        return shot.IsSpent ? 1 : 0;
     }
 
     /// <summary>Runs the Phantoon solidifying-centre check.</summary>

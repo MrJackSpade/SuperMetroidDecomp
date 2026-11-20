@@ -27,7 +27,7 @@ internal static class GoldenTorizoEggHatchVerification
         foreach (bool laidFacingRight in new[] { true, false })
         {
             EnemyProjectile egg = FamilyProjectileStarts.Spawn(enemies, 0, RoomEnemyProjectileKind.GoldenTorizoEgg, SpriteGraphics.SharedStandard);
-            egg.StartAnimation(new TorizoProjectileAnimation(laidFacingRight
+            egg.StartAnimation(new TorizoProjectileAnimation(enemies.TorizoBehavior.Attacks.Egg, laidFacingRight
                 ? TorizoProjectileSegment.EggBouncingRight
                 : TorizoProjectileSegment.EggBouncingLeft));
             // The egg has rolled into a wall and turned about; its hatch timer runs out this update.
@@ -36,9 +36,9 @@ internal static class GoldenTorizoEggHatchVerification
                 Facing = laidFacingRight ? HorizontalDirection.Left : HorizontalDirection.Right,
             };
             eggState.HatchTimer.LastFor(1);
-            egg.State = eggState;
+            enemies.TorizoBehavior.Attacks.Egg.Eggs.Start(egg, eggState);
 
-            TorizoAttacks.BounceEgg(egg, level);
+            TorizoAttacks.BounceEgg(enemies.TorizoBehavior.Attacks.Egg, egg, level);
 
             TorizoProjectileSegment hatching = laidFacingRight ? TorizoProjectileSegment.EggHatchingRight : TorizoProjectileSegment.EggHatchingLeft;
             AssertTrue(egg.Animation is TorizoProjectileAnimation { PlayingSegment: var shown } && shown == hatching,

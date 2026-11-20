@@ -20,13 +20,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A body of any colour, or its wings (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Ki-Hunter definition.</exception>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition is EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterRed or EnemyDefinitionId.KihunterYellow)
-            return new KiHunterBodyEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new KiHunterBodyEntity(this, occupant, place, common));
         if (definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterRedWings or EnemyDefinitionId.KihunterYellowWings)
-            return new KiHunterWingsEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new KiHunterWingsEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The Ki-Hunter species creates no {occupant.DefinitionId}.");
     }
 
@@ -488,7 +488,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Turns the detached wings back along their orbit by the coarse speed of their place on the speed curve
     /// (<see cref="DetachedWingTurn"/>).
     /// </summary>
-    internal static void RunDetachedKiHunterWingOrbit(RoomEnemyPlace wings, KiHunterWingState state)
+    private static void RunDetachedKiHunterWingOrbit(RoomEnemyPlace wings, KiHunterWingState state)
     {
         state.WingArcAngle = state.WingArcAngle.TurnedBy(DetachedWingTurn(
             state.DetachedSpeedCurvePlace,
@@ -625,7 +625,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The detached wing's turn along its orbit each update (#2439): one step for each pixel of its curve mark's coarse
     /// speed toward <paramref name="direction"/>; clockwise turns the orbit back.
     /// </summary>
-    internal static AngularSpeed DetachedWingTurn(QuadraticSpeedCurvePlace place, RotationDirection direction) =>
+    private static AngularSpeed DetachedWingTurn(QuadraticSpeedCurvePlace place, RotationDirection direction) =>
         place.Speed.TurnOfAStepAPixelToward(direction);
 
     /// <summary>Slows a detached wing by one speed step, landing on the slowest place on the curve when the step would go below its start.</summary>
@@ -728,14 +728,17 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Ki-Hunter acid, spat either way (#1760).</summary>
-    internal static readonly EnemyProjectileBehavior Acid = new AcidBehavior();
+    private AcidBehavior Acid { get; } = new();
 
     /// <summary>
     /// Ki-Hunter acid: it holds still in the Ki-Hunter's mouth until its animation launches it in its direction, then flies
     /// under gravity until it strikes the room, where its splash stops it.
     /// </summary>
-    private sealed class AcidBehavior : EnemyProjectileMotionBehavior<KiHunterAcidMotion>, IEnemyProjectileCues<KiHunterAcidSpitCue>
+    internal sealed class AcidBehavior : EnemyProjectileMotionBehavior<KiHunterAcidMotion>, IEnemyProjectileCues<KiHunterAcidSpitCue>
     {
+        /// <summary>The way each acid was spat, given as its Ki-Hunter spits it.</summary>
+        internal EnemyProjectileStates<KiHunterAcidState> Spits { get; } = new();
+
         /// <summary>Carries out one cue of the acid's animations: its launch either way, its stop on the floor, or its deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, KiHunterAcidSpitCue cue)
         {
@@ -744,10 +747,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 case KiHunterAcidSpitCue.Launch launch:
                     // The launch cue names the way the acid's animation spits it, which must be the way its Ki-Hunter spat it (#2338).
-                    HorizontalDirection spat = projectile.StateOf<KiHunterAcidState>().Spat;
+                    HorizontalDirection spat = Spits.Of(projectile).Spat;
                     if (launch.Direction != spat)
                         throw new InvalidOperationException($"Acid spat {spat} played the animation that launches it {launch.Direction}.");
-                    projectile.StartMotion(KiHunterAcidMotion.Launching);
+                    projectile.StartMotion(this, KiHunterAcidMotion.Launching);
                     break;
                 case KiHunterAcidSpitCue.Signal { Kind: KiHunterAcidSpitCueKind.StopMoving }:
                     projectile.HoldStill();
@@ -761,15 +764,15 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, KiHunterAcidMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, KiHunterAcidMotion motion)
         {
             switch (motion)
             {
                 case KiHunterAcidMotion.Falling:
-                    RunKiHunterAcidMovement(context.Projectile, context.Level);
+                    RunKiHunterAcidMovement(this, context.Projectile, context.Level);
                     break;
                 case KiHunterAcidMotion.Launching:
-                    StartKiHunterAcidMovement(context.Projectile);
+                    StartKiHunterAcidMovement(this, context.Projectile);
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(KiHunterAcidMotion)} {motion}.");
@@ -809,16 +812,16 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Spawns an acid spit from its definition and setup.
     /// The acid draws from the Ki-Hunter's spawned-object sheet in the colours the firing body shows.
     /// </summary>
-    internal void SpawnKiHunterAcidSpit(RoomEnemyOccupant occupant, RoomEnemyPlace body, HorizontalDirection direction)
+    private void SpawnKiHunterAcidSpit(RoomEnemyOccupant occupant, RoomEnemyPlace body, HorizontalDirection direction)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KiHunterAcidSpit, Acid, SpriteGraphics.SpawnedBy(occupant, body.Shading));
         if (projectile is null)
             return;
 
-        projectile.StartAnimation(new KiHunterAcidSpitAnimation(direction == HorizontalDirection.Right
+        projectile.StartAnimation(new KiHunterAcidSpitAnimation(Acid, direction == HorizontalDirection.Right
             ? KiHunterAcidSpitSegment.Right
             : KiHunterAcidSpitSegment.Left));
-        projectile.State = new KiHunterAcidState(direction);
+        Acid.Spits.Start(projectile, new KiHunterAcidState(direction));
 
         projectile.Velocity = projectile.Velocity.WithX(KiHunterMotionDefinitions.AcidHorizontalSpeed.Toward(direction));
         projectile.Position = projectile.Position.WithWholeX(body.Position.X.Whole +
@@ -831,10 +834,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs the acid's one-pass launch: its animation starts the launch after its opening frames, and the launch shifts the
     /// acid <see cref="KiHunterMotionDefinitions.AcidLaunchShift"/> pixels the way it was spat and sets it falling.
     /// </summary>
-    internal static void StartKiHunterAcidMovement(EnemyProjectile projectile)
+    internal static void StartKiHunterAcidMovement(AcidBehavior owner, EnemyProjectile projectile)
     {
-        HorizontalDirection direction = projectile.StateOf<KiHunterAcidState>().Spat;
-        projectile.StartMotion(KiHunterAcidMotion.Falling);
+        HorizontalDirection direction = owner.Spits.Of(projectile).Spat;
+        projectile.StartMotion(owner, KiHunterAcidMotion.Falling);
         projectile.Position = projectile.Position.WithWholeX(
             projectile.Position.X.Whole + (KiHunterMotionDefinitions.AcidLaunchShift.Toward(direction)));
     }
@@ -843,13 +846,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Moves the falling acid vertically, then horizontally, then speeds its fall up to its cap. Meeting the floor
     /// splashes it; meeting a wall only stops it moving sideways.
     /// </summary>
-    internal static void RunKiHunterAcidMovement(
+    private static void RunKiHunterAcidMovement(
+        AcidBehavior owner,
         EnemyProjectile projectile,
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
-            projectile.StartAnimation(new KiHunterAcidSpitAnimation(KiHunterAcidSpitSegment.HitFloor));
+            projectile.StartAnimation(new KiHunterAcidSpitAnimation(owner, KiHunterAcidSpitSegment.HitFloor));
             return;
         }
 

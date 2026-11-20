@@ -15,7 +15,7 @@ internal sealed class OumEntity(OumBehavior species, RoomEnemyOccupant occupant,
     public void RunMainAi(IEnemyAiFrame frame) => species.RunOumMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceOumTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceOumTypedAnimation(Place);
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => OumBehavior.FindHitboxReaction(Place, probe, out reaction);

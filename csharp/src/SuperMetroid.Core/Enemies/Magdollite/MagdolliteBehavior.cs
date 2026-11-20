@@ -9,19 +9,19 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>The Magdollite species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Magdollite];
 
     /// <summary>The Magdollite part the placement names: its head, rising body or tracking overlay (#2342, #2474).</summary>
     /// <exception cref="InvalidOperationException">The placement names no Magdollite part.</exception>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         occupant.SpawnSettings<MagdolliteSpawnSettings>() switch
         {
-            MagdolliteHeadSpawnSettings => new MagdolliteHeadEntity(this, occupant, place, common),
-            MagdolliteBodySpawnSettings => new MagdolliteBodyEntity(this, occupant, place, common),
-            MagdolliteOverlaySpawnSettings => new MagdolliteOverlayEntity(this, occupant, place, common),
+            MagdolliteHeadSpawnSettings => EnemyOccupant.FromSurroundings(new MagdolliteHeadEntity(this, occupant, place, common)),
+            MagdolliteBodySpawnSettings => EnemyOccupant.Of(new MagdolliteBodyEntity(this, occupant, place, common)),
+            MagdolliteOverlaySpawnSettings => EnemyOccupant.Of(new MagdolliteOverlayEntity(this, occupant, place, common)),
             var part => throw new InvalidOperationException($"Undefined Magdollite part {part}."),
         };
 
@@ -63,7 +63,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal bool GlowRuns { get; private set; }
 
     /// <summary>The lava glow every Magdollite in the room, and the lava they throw, shows now (#1512).</summary>
-    internal PictureShading Glow => PictureShading.Shaded(MagdolliteShades.Glow(_glow.Showing));
+    private PictureShading Glow => PictureShading.Shaded(MagdolliteShades.Glow(_glow.Showing));
 
     /// <summary>
     /// Finds the partners of a part <paramref name="placesAfterHead"/> places after its head. The room lists each
@@ -305,7 +305,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Rises using the preceding head's velocity, advances growth phases at their thresholds, and stops at the apex or above Samus.</summary>
-    internal void RunMagdolliteBodyRising(
+    private void RunMagdolliteBodyRising(
         RoomEnemyPlace body,
         MagdolliteBodyState state,
         SamusState samus)
@@ -340,7 +340,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Retraces the body's growth phases and, landing at its origin, lets the head emerge.</summary>
-    internal void RunMagdolliteBodyFalling(
+    private void RunMagdolliteBodyFalling(
         RoomEnemyPlace body,
         MagdolliteBodyState state)
     {
@@ -390,7 +390,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Positions the overlay over each rising body phase, then starts its Samus-facing throw at the apex.</summary>
-    internal void RunMagdolliteOverlayTrackingRise(
+    private void RunMagdolliteOverlayTrackingRise(
         RoomEnemyPlace overlay,
         MagdolliteOverlayState state,
         SamusState samus)
@@ -474,7 +474,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Counts down the room's lava glow once a Magdollite has started it, after the enemies' update; when the frame's
     /// time is up the glow steps to its next frame.
     /// </summary>
-    internal void StepGlow()
+    public void StepGlow()
     {
         if (!GlowRuns || _glow.StepToNewFrame() is null)
             return;
@@ -624,17 +624,19 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Magdollite's thrown lava (#1760).</summary>
-    internal EnemyProjectileBehavior Lava => field ??= new LavaBehavior(_deathsAndDrops);
+    private LavaBehavior Lava => field ??= new LavaBehavior(_deathsAndDrops);
 
     /// <summary>
     /// Thrown lava: it flies sideways until it leaves the view, handles its animations' cues, and a shot ball runs its
     /// typed shot animation, the animation its definition names.
     /// </summary>
     /// <param name="deathsAndDrops">The drops a shot ball leaves.</param>
-    private sealed class LavaBehavior(EnemyDeathsAndDrops deathsAndDrops) : SingleMotionProjectileBehavior(
-        context => FlyMagdolliteLava(context.Projectile, context.Camera),
-        shot: () => new MagdolliteLavaAnimation(MagdolliteLavaSegment.Shot)), IEnemyProjectileCues<MagdolliteLavaCue>
+    internal sealed class LavaBehavior(EnemyDeathsAndDrops deathsAndDrops) : SingleMotionProjectileBehavior(
+        context => FlyMagdolliteLava(context.Projectile, context.Camera)), IEnemyProjectileCues<MagdolliteLavaCue>
     {
+        /// <inheritdoc/>
+        internal override EnemyProjectileAnimation ShotAnimation() => new MagdolliteLavaAnimation(this, MagdolliteLavaSegment.Shot);
+
         /// <summary>Carries out one cue of the thrown lava's animations.</summary>
         public void RunCue(EnemyProjectileCueContext context, MagdolliteLavaCue cue)
         {
@@ -692,7 +694,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Position.X.Whole < part.Position.X.Whole ? HorizontalDirection.Left : HorizontalDirection.Right;
 
     /// <summary>Spawns and initializes a Magdollite lava ball thrown <paramref name="thrown"/>.</summary>
-    internal void SpawnMagdolliteLava(RoomEnemyOccupant occupant, RoomEnemyPlace source, HorizontalDirection thrown)
+    private void SpawnMagdolliteLava(RoomEnemyOccupant occupant, RoomEnemyPlace source, HorizontalDirection thrown)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.LavaThrownByMagdollite, Lava, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
@@ -705,7 +707,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = new(
             MagdolliteMotionDefinitions.LavaThrowSpeed.Toward(thrown),
             SignedEightEight.Zero);
-        projectile.InstallAnimation(new MagdolliteLavaAnimation(thrown == HorizontalDirection.Right ? MagdolliteLavaSegment.Right : MagdolliteLavaSegment.Left));
+        projectile.InstallAnimation(new MagdolliteLavaAnimation(Lava, thrown == HorizontalDirection.Right ? MagdolliteLavaSegment.Right : MagdolliteLavaSegment.Left));
     }
 
     /// <summary>Flies the lava one update: it flies sideways at its speed until it leaves the view.</summary>

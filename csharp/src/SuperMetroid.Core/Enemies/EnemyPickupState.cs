@@ -12,5 +12,5 @@ internal class EnemyPickupState(EnemyPickupKind kind, int lifetime) : EnemyDeath
     internal EnemyPickupKind Kind { get; } = kind;
 
     /// <summary>The updates the pickup remains collectible, counted once each update it is tended; it fades on the update this ends.</summary>
-    internal UpdateCountdown Lifetime { get; set; } = UpdateCountdown.For(lifetime);
+    internal UpdateCountdown Lifetime { get; } = UpdateCountdown.For(lifetime);
 }

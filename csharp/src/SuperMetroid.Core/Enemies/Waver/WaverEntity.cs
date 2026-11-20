@@ -15,5 +15,5 @@ internal sealed class WaverEntity(WaverBehavior species, RoomEnemyOccupant occup
     public void RunMainAi(IEnemyAiFrame frame) => species.RunWaverMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => WaverBehavior.AdvanceWaverTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => WaverBehavior.AdvanceWaverTypedAnimation(Place);
 }

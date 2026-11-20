@@ -17,7 +17,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Puyo];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new PuyoEntity(this, occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new PuyoEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared room RNG used when choosing Puyo hop type and bounce height.</summary>
     private readonly EnemyRoomBinding _room;
@@ -134,7 +134,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// nowhere is refused, and one that runs off the curve fails when its speed is read.
     /// </summary>
     /// <exception cref="InvalidDataException">The hop's search steps nowhere or runs off the curve.</exception>
-    internal static void CalculateInitialPuyoHopSpeed(PuyoEnemyState state)
+    private static void CalculateInitialPuyoHopSpeed(PuyoEnemyState state)
     {
         PuyoHopDefinition hop = Hop(state);
         if (hop.LaunchSearchStep <= QuadraticSpeedCurvePlace.Start)
@@ -292,7 +292,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The hop moves sideways by the whole pixels of its horizontal speed only, so the giant hop's one and a quarter
         // moves exactly one pixel each update.
-        SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(Hop(state).XSpeed.WholePixels.Toward(state.Direction));
+        SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(Hop(state).XPixels.Toward(state.Direction));
 
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
@@ -360,7 +360,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Puyo's typed animation.</summary>
-    internal static void AdvancePuyoTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvancePuyoTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, PuyoAnimations.Segments,
             static (PuyoEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Puyo's cue-free animation raised {cue}."));

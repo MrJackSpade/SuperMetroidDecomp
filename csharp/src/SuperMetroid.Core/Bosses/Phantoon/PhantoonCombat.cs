@@ -55,15 +55,15 @@ internal sealed class PhantoonCombat
     /// Phantoon's destroyable flame (#1760): its spawner starts its animation, and a shot one dies, leaves its drop and is
     /// deleted, the animation its definition names.
     /// </summary>
-    internal EnemyProjectileBehavior DestroyableFlame => field ??= new PhantoonFlameBehavior(_audio, _deathsAndDrops,
-        PhantoonFlameMotion.CasualFalling, () => new PhantoonFlameAnimation(PhantoonFlameSegment.Dying));
+    internal PhantoonFlameBehavior DestroyableFlame => field ??= new PhantoonFlameBehavior(_audio, _deathsAndDrops,
+        flames => flames.CasualFalling, PhantoonFlameSegment.Dying);
 
     /// <summary>
     /// One of Phantoon's intro flames (#1760): its spawner starts its animation, and a shot one burns as the destroyable
     /// flame idles, the animation its definition names.
     /// </summary>
-    internal EnemyProjectileBehavior StartingFlame => field ??= new PhantoonFlameBehavior(_audio, _deathsAndDrops,
-        PhantoonFlameMotion.IntroWaiting, () => new PhantoonFlameAnimation(PhantoonFlameSegment.Burning));
+    internal PhantoonFlameBehavior StartingFlame => field ??= new PhantoonFlameBehavior(_audio, _deathsAndDrops,
+        flames => flames.IntroWaiting, PhantoonFlameSegment.Burning);
 
     /// <summary>
     /// A Phantoon flame: every flame's motion, from the intro's wait and orbit to the rage and spiral, and the flame
@@ -71,49 +71,61 @@ internal sealed class PhantoonCombat
     /// </summary>
     /// <param name="audio">The enemy sound queue the rain flames' sounds join.</param>
     /// <param name="deathsAndDrops">The drops a shot destroyable flame leaves.</param>
-    /// <param name="initial">The motion the flame starts with.</param>
-    /// <param name="shot">The animation a destroying shot starts.</param>
-    private sealed class PhantoonFlameBehavior(
+    /// <param name="initial">Picks the behaviour's motion the flame starts with.</param>
+    /// <param name="shot">Where the animation a destroying shot starts begins.</param>
+    internal sealed class PhantoonFlameBehavior(
         EnemyAudioQueue audio,
         EnemyDeathsAndDrops deathsAndDrops,
-        PhantoonFlameMotion initial,
-        Func<EnemyProjectileAnimation> shot)
-        : EnemyProjectileMotionBehavior<PhantoonFlameMotion>(initial, shot), IEnemyProjectileCues<PhantoonFlameCue>
+        Func<PhantoonFlameBehavior, EnemyProjectileOwnedMotion> initial,
+        PhantoonFlameSegment shot)
+        : EnemyProjectileBehavior, IEnemyProjectileCues<PhantoonFlameCue>
     {
+        /// <summary>Each orbiting flame's Phantoon, angle, radius and turn, given as he sets it orbiting.</summary>
+        internal EnemyProjectileStates<PhantoonOrbitingFlameState> Orbits { get; } = new();
+
+        /// <summary>How long each rain flame hangs before it falls, given as he drops it.</summary>
+        internal EnemyProjectileStates<PhantoonRainFlameState> Rains { get; } = new();
+
+        /// <summary>Each casual flame's landing pause and bounces, given as it lands.</summary>
+        internal EnemyProjectileStates<PhantoonCasualFlameState> Casuals { get; } = new();
+
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, PhantoonFlameMotion motion)
-        {
-            EnemyProjectile flame = context.Projectile;
-            switch (motion)
-            {
-                case PhantoonFlameMotion.IntroWaiting:
-                    RunPhantoonStartingFlameWaiting(flame);
-                    break;
-                case PhantoonFlameMotion.IntroOrbiting:
-                    RunPhantoonStartingFlameOrbit(flame, context.FrameCounter);
-                    break;
-                case PhantoonFlameMotion.CasualFalling:
-                    RunPhantoonCasualFlameFalling(flame, context.Level);
-                    break;
-                case PhantoonFlameMotion.CasualLanding:
-                    RunPhantoonCasualFlameLandingPause(flame, context.FrameCounter);
-                    break;
-                case PhantoonFlameMotion.CasualBouncing:
-                    RunPhantoonCasualFlameBouncing(flame, context.Level);
-                    break;
-                case PhantoonFlameMotion.RageOrbiting:
-                    RunPhantoonEnragedFlame(flame);
-                    break;
-                case PhantoonFlameMotion.RainFalling:
-                    RunPhantoonRainFlame(flame, context.Level);
-                    break;
-                case PhantoonFlameMotion.SpiralOrbiting:
-                    RunPhantoonSpiralFlame(flame);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameMotion)} {motion}.");
-            }
-        }
+        internal override EnemyProjectileAnimation ShotAnimation() => new PhantoonFlameAnimation(this, shot);
+
+        /// <inheritdoc/>
+        internal override EnemyProjectileMotion? InitialMotion(RoomEnemyProjectileKind kind) => initial(this);
+
+        /// <summary>An intro flame waiting at its place around Phantoon until the intro flames begin to orbit.</summary>
+        internal EnemyProjectileOwnedMotion IntroWaiting => field ??= new(nameof(IntroWaiting),
+            context => RunPhantoonStartingFlameWaiting(context.Projectile));
+
+        /// <summary>An intro flame orbiting Phantoon's body as its orbit closes.</summary>
+        internal EnemyProjectileOwnedMotion IntroOrbiting => field ??= new(nameof(IntroOrbiting),
+            context => RunPhantoonStartingFlameOrbit(context.Projectile, context.FrameCounter));
+
+        /// <summary>A casual flame falling to the floor.</summary>
+        internal EnemyProjectileOwnedMotion CasualFalling => field ??= new(nameof(CasualFalling),
+            context => RunPhantoonCasualFlameFalling(this, context.Projectile, context.Level));
+
+        /// <summary>A casual flame pausing on the floor where it landed.</summary>
+        internal EnemyProjectileOwnedMotion CasualLanding => field ??= new(nameof(CasualLanding),
+            context => RunPhantoonCasualFlameLandingPause(this, context.Projectile, context.FrameCounter));
+
+        /// <summary>A casual flame bouncing across the floor after its pause.</summary>
+        internal EnemyProjectileOwnedMotion CasualBouncing => field ??= new(nameof(CasualBouncing),
+            context => RunPhantoonCasualFlameBouncing(this, context.Projectile, context.Level));
+
+        /// <summary>A rage flame spiralling out from Phantoon's body.</summary>
+        internal EnemyProjectileOwnedMotion RageOrbiting => field ??= new(nameof(RageOrbiting),
+            context => RunPhantoonEnragedFlame(context.Projectile));
+
+        /// <summary>A rain flame hanging, then falling to the floor.</summary>
+        internal EnemyProjectileOwnedMotion RainFalling => field ??= new(nameof(RainFalling),
+            context => RunPhantoonRainFlame(context.Projectile, context.Level));
+
+        /// <summary>A spiral flame turning out from Phantoon's body.</summary>
+        internal EnemyProjectileOwnedMotion SpiralOrbiting => field ??= new(nameof(SpiralOrbiting),
+            context => RunPhantoonSpiralFlame(context.Projectile));
 
         /// <summary>Carries out a flame animation's cue: the flame's drop, or its deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, PhantoonFlameCue cue)
@@ -133,20 +145,20 @@ internal sealed class PhantoonCombat
         }
 
         /// <summary>Holds an intro flame until its delayed orbit begins.</summary>
-        private static void RunPhantoonStartingFlameWaiting(EnemyProjectile flame)
+        private void RunPhantoonStartingFlameWaiting(EnemyProjectile flame)
         {
-            PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
+            PhantoonOrbitingFlameState orbit = Orbits.Of(flame);
             if (!orbit.Phantoon.StartingFlames.Orbiting)
                 return;
-            flame.StartMotion(PhantoonFlameMotion.IntroOrbiting);
+            flame.StartMotion(IntroOrbiting);
             orbit.FullRadiusHold.LastFor(PhantoonFlameMotionDefinitions.IntroCircleHoldUpdates);
             orbit.Radius = PhantoonFlameMotionDefinitions.IntroCircleRadius;
         }
 
         /// <summary>Advances an intro flame around Phantoon's body; <paramref name="frameCounter"/> times its orbit's closing.</summary>
-        private static void RunPhantoonStartingFlameOrbit(EnemyProjectile flame, int frameCounter)
+        private void RunPhantoonStartingFlameOrbit(EnemyProjectile flame, int frameCounter)
         {
-            PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
+            PhantoonOrbitingFlameState orbit = Orbits.Of(flame);
             PhantoonEnemyState state = orbit.Phantoon;
             // Once its hold at its full radius has run out, the orbit closes on every second update of the game's frame
             // counter.
@@ -156,7 +168,7 @@ internal sealed class PhantoonCombat
                 if (orbit.Radius == 0)
                 {
                     flame.Position = flame.Position.WithWhole(state.Body.Position.Whole + PhantoonArenaDefinitions.FlameCircleCentre);
-                    flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.Delete));
+                    flame.StartAnimation(new PhantoonFlameAnimation(this, PhantoonFlameSegment.Delete));
                     return;
                 }
             }
@@ -170,9 +182,9 @@ internal sealed class PhantoonCombat
         }
 
         /// <summary>Advances a rage-phase flame through its authored movement.</summary>
-        private static void RunPhantoonEnragedFlame(EnemyProjectile flame)
+        private void RunPhantoonEnragedFlame(EnemyProjectile flame)
         {
-            PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
+            PhantoonOrbitingFlameState orbit = Orbits.Of(flame);
             orbit.Radius += PhantoonFlameMotionDefinitions.RageRadiusStep;
             orbit.Angle += orbit.TurnPerUpdate;
             PositionPhantoonFlameAroundBody(
@@ -180,7 +192,7 @@ internal sealed class PhantoonCombat
                 orbit.Phantoon.Body,
                 orbit.Angle,
                 orbit.Radius);
-            DeletePhantoonFlameOutsideRoom(flame);
+            DeletePhantoonFlameOutsideRoom(this, flame);
         }
 
         /// <summary>Updates a delayed rain flame as it enters and falls through the room.</summary>
@@ -188,7 +200,7 @@ internal sealed class PhantoonCombat
             EnemyProjectile flame,
             RoomLevelData level)
         {
-            PhantoonRainFlameState rain = flame.StateOf<PhantoonRainFlameState>();
+            PhantoonRainFlameState rain = Rains.Of(flame);
             if (!rain.Falls)
             {
                 if (rain.HangWait.StepKeepsRunning())
@@ -201,16 +213,16 @@ internal sealed class PhantoonCombat
             flame.Velocity = flame.Velocity.WithY(flame.Velocity.Y + PhantoonFlameMotionDefinitions.FlameGravity);
             if (!EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Vertical))
                 return;
-            flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.RainImpact));
+            flame.StartAnimation(new PhantoonFlameAnimation(this, PhantoonFlameSegment.RainImpact));
             flame.Position = flame.Position.WithWholeY(flame.Position.Y.Whole + PhantoonArenaDefinitions.FlameLandingDrop);
             flame.HoldStill();
             audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundPriority);
         }
 
         /// <summary>Moves a spiral flame around Phantoon's body.</summary>
-        private static void RunPhantoonSpiralFlame(EnemyProjectile flame)
+        private void RunPhantoonSpiralFlame(EnemyProjectile flame)
         {
-            PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
+            PhantoonOrbitingFlameState orbit = Orbits.Of(flame);
             orbit.Radius += PhantoonFlameMotionDefinitions.SpiralRadiusStep;
             orbit.Angle += PhantoonFlameMotionDefinitions.SpiralTurnPerUpdate;
             PositionPhantoonFlameAroundBody(
@@ -218,7 +230,7 @@ internal sealed class PhantoonCombat
                 orbit.Phantoon.Body,
                 orbit.Angle,
                 orbit.Radius);
-            DeletePhantoonFlameOutsideRoom(flame);
+            DeletePhantoonFlameOutsideRoom(this, flame);
         }
 
         /// <summary>
@@ -235,7 +247,7 @@ internal sealed class PhantoonCombat
     /// Tests Samus's beams and missiles against the body of <paramref name="state"/>'s Phantoon, which his body's entity
     /// resolves, and runs the reaction of the hitbox the first one meets. One projectile resolves per pass.
     /// </summary>
-    public int ResolvePhantoonProjectileHits(
+    public void ResolvePhantoonProjectileHits(
         PhantoonEnemyState state,
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem samusBombs)
@@ -250,7 +262,7 @@ internal sealed class PhantoonCombat
             body.Presence.HasAny(EnemyPresence.Deleted) ||
             body.Contact.HasAny(EnemyContact.IgnoresSamus))
         {
-            return 0;
+            return;
         }
 
         foreach (SamusProjectile projectile in projectiles.Shots)
@@ -284,15 +296,16 @@ internal sealed class PhantoonCombat
             }
 
             if (hitboxShot == EnemyReaction.Ignore ||
-                state.Phase is PhantoonPhase.DyingFadeInOut or PhantoonPhase.DyingExplosions or
-                    PhantoonPhase.BeginFinalWavyDeath or PhantoonPhase.DyingFadeOut or PhantoonPhase.AlmostDead or
-                    PhantoonPhase.Dead or PhantoonPhase.WaitingOnEye)
+                state.Phase == PhantoonPhase.DyingFadeInOut || state.Phase == PhantoonPhase.DyingExplosions ||
+                    state.Phase == PhantoonPhase.BeginFinalWavyDeath || state.Phase == PhantoonPhase.DyingFadeOut ||
+                    state.Phase == PhantoonPhase.AlmostDead || state.Phase == PhantoonPhase.Dead ||
+                    state.Phase == PhantoonPhase.WaitingOnEye)
             {
                 projectiles.EnemyImpacts.TouchEnemyWithoutImpact(
                     projectile,
                     body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                         !projectile.Type.HasAnyBeam(SamusBeamFlags.Plasma));
-                return 1;
+                return;
             }
 
             if (hitboxShot != PhantoonReactions.Shot)
@@ -308,25 +321,21 @@ internal sealed class PhantoonCombat
                 body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.HasAnyBeam(SamusBeamFlags.Plasma));
 
-            int healthBefore = body.Health;
             // Phantoon's shot reaction runs common normal-shot damage (#2255), including its charged-beam override, a
             // zero-damage shot's dud, and no death of its own; his own stage follows it. A special attack's particles
             // count as a charged beam, so the Wave Beam's shield attack damages him.
-            _ = _collision.ApplyNormalShotDamage(body, projectile, projectileType, projectileDamage, _room.Area);
-            int appliedDamage = healthBefore - body.Health;
+            int appliedDamage = _collision.ApplyNormalShotDamage(body, projectile, projectileType, projectileDamage, _room.Area).HealthLost;
             ResolvePhantoonShotReaction(
                 body,
                 state,
                 projectileType,
                 appliedDamage);
-            return 1;
+            return;
         }
-
-        return 0;
     }
 
     /// <summary>Runs the boss-owned tail of Phantoon's hitbox reaction after common vulnerability damage.</summary>
-    internal void ResolvePhantoonShotReaction(
+    private void ResolvePhantoonShotReaction(
         RoomEnemyPlace body,
         PhantoonEnemyState state,
         SamusProjectileType projectileType,
@@ -347,9 +356,7 @@ internal sealed class PhantoonCombat
         _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);
         SamusProjectileFamily family = projectileType.Family;
         PhantoonPhase phase = state.Phase;
-        bool vulnerableWindow = phase is
-            PhantoonPhase.EyeTracksSamus or
-            PhantoonPhase.TrackSamusDuringFlameRain;
+        bool vulnerableWindow = phase == PhantoonPhase.EyeTracksSamus || phase == PhantoonPhase.TrackSamusDuringFlameRain;
         bool swooping = phase == PhantoonPhase.Swooping;
 
         if (vulnerableWindow || swooping)
@@ -379,7 +386,7 @@ internal sealed class PhantoonCombat
             {
                 // A vulnerable hit draws a random number whose only effect is to advance the shared random
                 // sequence.
-                _ = _room.Random.Generate();
+                _room.Random.Advance();
                 state.Round.RearmHurtFlash();
                 if (state.WindowEnd != PhantoonWindowEnd.Swoop)
                 {
@@ -416,9 +423,7 @@ internal sealed class PhantoonCombat
     private static void BeginPhantoonDeathSequence(
         PhantoonEnemyState state)
     {
-        state.Phase = state.Phase is
-            PhantoonPhase.Swooping or
-            PhantoonPhase.FadeOutWhileSwooping
+        state.Phase = state.Phase == PhantoonPhase.Swooping || state.Phase == PhantoonPhase.FadeOutWhileSwooping
                 ? PhantoonPhase.FinishFatalSwoop
                 : PhantoonPhase.DyingFadeInOut;
         state.FigureEight.Direction = PhantoonPathDirection.Forwards;
@@ -428,7 +433,11 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Moves a casual flame downward before floor contact.</summary>
+    /// <param name="owner">The flame's behaviour, which owns its motions and carries out its animations' events.</param>
+    /// <param name="flame">The falling flame.</param>
+    /// <param name="level">The room's blocks the flame falls onto.</param>
     internal static void RunPhantoonCasualFlameFalling(
+        PhantoonFlameBehavior owner,
         EnemyProjectile flame,
         RoomLevelData level)
     {
@@ -438,23 +447,27 @@ internal sealed class PhantoonCombat
 
         flame.CanDamageSamus = true;
         flame.BlocksSamusProjectiles = true;
-        flame.StartMotion(PhantoonFlameMotion.CasualLanding);
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualHitGround));
-        flame.State = new PhantoonCasualFlameState();
+        flame.StartMotion(owner.CasualLanding);
+        flame.StartAnimation(new PhantoonFlameAnimation(owner, PhantoonFlameSegment.CasualHitGround));
+        owner.Casuals.Start(flame, new PhantoonCasualFlameState());
         flame.Position = flame.Position.WithWholeY(flame.Position.Y.Whole + PhantoonArenaDefinitions.FlameLandingDrop);
     }
 
     /// <summary>Holds the flame briefly at the floor after impact.</summary>
+    /// <param name="owner">The flame's behaviour, which owns its motions and carries out its animations' events.</param>
+    /// <param name="flame">The landed flame.</param>
+    /// <param name="frameCounter">The game's frame counter, whose bit chooses the rising flame's drift.</param>
     internal static void RunPhantoonCasualFlameLandingPause(
+        PhantoonFlameBehavior owner,
         EnemyProjectile flame,
         int frameCounter)
     {
-        PhantoonCasualFlameState casual = flame.StateOf<PhantoonCasualFlameState>();
+        PhantoonCasualFlameState casual = owner.Casuals.Of(flame);
         if (!casual.LandingPause.StepRunsOut())
             return;
 
-        flame.StartMotion(PhantoonFlameMotion.CasualBouncing);
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.Burning));
+        flame.StartMotion(owner.CasualBouncing);
+        flame.StartAnimation(new PhantoonFlameAnimation(owner, PhantoonFlameSegment.Burning));
         flame.Position = flame.Position.WithWholeY(flame.Position.Y.Whole - PhantoonArenaDefinitions.FlameLandingDrop);
         flame.Velocity = flame.Velocity.WithY(PhantoonArenaDefinitions.CasualRiseSpeed);
         // The flame drifts left or right by the game's frame counter.
@@ -464,32 +477,36 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Advances the flame's post-impact bounce motion.</summary>
+    /// <param name="owner">The flame's behaviour, which carries out its animations' events.</param>
+    /// <param name="flame">The bouncing flame.</param>
+    /// <param name="level">The room's blocks the flame bounces on.</param>
     internal static void RunPhantoonCasualFlameBouncing(
+        PhantoonFlameBehavior owner,
         EnemyProjectile flame,
         RoomLevelData level)
     {
         flame.Velocity = flame.Velocity.WithY(flame.Velocity.Y + PhantoonFlameMotionDefinitions.FlameGravity);
         if (EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Vertical))
         {
-            PhantoonCasualFlameState casual = flame.StateOf<PhantoonCasualFlameState>();
+            PhantoonCasualFlameState casual = owner.Casuals.Of(flame);
             casual.Bounces++;
             if (casual.Bounces < PhantoonArenaDefinitions.CasualBounces)
             {
                 flame.Velocity = flame.Velocity.WithY(casual.Bounces == 1 ? PhantoonArenaDefinitions.CasualFirstBounceSpeed : PhantoonArenaDefinitions.CasualLaterBounceSpeed);
                 return;
             }
-            RestPhantoonCasualFlame(flame);
+            RestPhantoonCasualFlame(owner, flame);
             return;
         }
 
         if (EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Horizontal))
-            RestPhantoonCasualFlame(flame);
+            RestPhantoonCasualFlame(owner, flame);
     }
 
     /// <summary>Starts a flame's rest after its bounce ends.</summary>
-    private static void RestPhantoonCasualFlame(EnemyProjectile flame)
+    private static void RestPhantoonCasualFlame(PhantoonFlameBehavior owner, EnemyProjectile flame)
     {
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualResting));
+        flame.StartAnimation(new PhantoonFlameAnimation(owner, PhantoonFlameSegment.CasualResting));
         flame.HoldStill();
     }
 
@@ -513,18 +530,18 @@ internal sealed class PhantoonCombat
     /// </summary>
     /// <param name="angle">The flame's orbit angle.</param>
     /// <param name="radius">The orbit radius, zero or more; the product uses its place within 256 (<see cref="ShortCircleProduct"/>).</param>
-    internal static int ReadPhantoonFlameComponent(TrigonometryAngle angle, int radius) =>
+    private static int ReadPhantoonFlameComponent(TrigonometryAngle angle, int radius) =>
         UnitComponent.SineOf(angle).ReachOf(ShortCircleProduct.RadiusInUse(radius));
 
     /// <summary>
     /// Switches a flame to its delete animation after leaving the room bounds: a place before the room, counted back from
     /// the far end of the room's coordinates (<see cref="OffRoomPlaces"/>), lies past the room's far edges too.
     /// </summary>
-    private static void DeletePhantoonFlameOutsideRoom(EnemyProjectile flame)
+    private static void DeletePhantoonFlameOutsideRoom(PhantoonFlameBehavior owner, EnemyProjectile flame)
     {
         if (flame.Position.X.Whole >= PhantoonArenaDefinitions.RoomSize || flame.Position.Y.Whole >= PhantoonArenaDefinitions.RoomSize)
         {
-            flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.Delete));
+            flame.StartAnimation(new PhantoonFlameAnimation(owner, PhantoonFlameSegment.Delete));
         }
     }
 

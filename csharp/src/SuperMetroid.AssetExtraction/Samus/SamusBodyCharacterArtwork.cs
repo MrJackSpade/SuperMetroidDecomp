@@ -15,14 +15,14 @@ public sealed class SamusBodyCharacterArtwork
     /// <summary>Maximum planar-byte capacity of one definition slot.</summary>
     public const int BytesPerDefinitionSlot = TilesPerDefinition * 32;
     /// <summary>Characters in Samus's body artwork: two sixteen-wide rows.</summary>
-    public const int BodyCharacterCount = 2 * SpriteArtwork.CharactersPerRow;
+    private const int BodyCharacterCount = 2 * SpriteArtwork.CharactersPerRow;
     /// <summary>Characters in one half row, filled by one transfer.</summary>
     private const int HalfRowCharacters = SpriteArtwork.CharactersPerRow / 2;
 
     /// <summary>Upper-body tile definitions grouped by native pointer-table entry.</summary>
     internal readonly SamusBodyTileTransfer[][] top;
     /// <summary>Lower-body tile definitions grouped by native pointer-table entry.</summary>
-    internal readonly SamusBodyTileTransfer[][] bottom;
+    private readonly SamusBodyTileTransfer[][] bottom;
     /// <summary>Definition lookup by physical record, including cross-group selections.</summary>
     private readonly Dictionary<int, SamusBodyTileTransfer> definitionsByRecord = [];
     /// <summary>Owned ordinal of each definition in authored order (top sets, then bottom sets); the body artwork identity uses it.</summary>
@@ -38,7 +38,7 @@ public sealed class SamusBodyCharacterArtwork
     /// <param name="top">Upper-body tile definitions grouped by pointer table entry.</param>
     /// <param name="bottom">Lower-body tile definitions grouped by pointer table entry.</param>
     /// <exception cref="InvalidDataException">A group is missing, malformed or does not fill its set's records.</exception>
-    public SamusBodyCharacterArtwork(SamusBodySources body, SamusBodyTileTransfer[][] top, SamusBodyTileTransfer[][] bottom)
+    private SamusBodyCharacterArtwork(SamusBodySources body, SamusBodyTileTransfer[][] top, SamusBodyTileTransfer[][] bottom)
     {
         Body = Ensure.NotNull(body);
         Ensure.NotNull(top);

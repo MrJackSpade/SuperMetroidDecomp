@@ -22,7 +22,7 @@ internal abstract class OrbitingParticleState(SpecialAttackParticle part, Trigon
     /// steps back (a full circle less four) when a left-facing Samus starts the attack; for a Spazer particle its steps
     /// on when it turns clockwise, a full circle less them when it turns counterclockwise.
     /// </summary>
-    internal TrigonometryAngle TurnPerUpdate { get; set; } = turnPerUpdate;
+    internal TrigonometryAngle TurnPerUpdate { private get; set; } = turnPerUpdate;
 
     /// <summary>Turns the particle on round its circle by its turn per update.</summary>
     internal void Turn() => Angle += TurnPerUpdate;

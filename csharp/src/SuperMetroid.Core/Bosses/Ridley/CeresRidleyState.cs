@@ -29,7 +29,7 @@ public sealed class CeresRidleyState : RidleyEncounterState
             field = value;
             LiftOff();
         }
-    }
+    } = CeresRidleyPhase.LiftoffAccelerating;
 
     /// <summary>
     /// Gets the number of shots Ridley has taken, used for health-colour progression and the hundred-hit fake-retreat

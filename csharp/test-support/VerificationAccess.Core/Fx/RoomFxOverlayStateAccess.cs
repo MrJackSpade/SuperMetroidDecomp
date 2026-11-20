@@ -78,8 +78,8 @@ internal static class RoomFxOverlayStateAccess
         {
             SetPrivate(self, nameof(RoomFxOverlayState.MotionStart), SuperMetroid.Core.Compatibility.LiquidMotionStart.Begun);
             SetPrivate(self, nameof(RoomFxOverlayState.LiquidMotionStopped), stopped);
-            SetPrivate(self, nameof(RoomFxOverlayState.TidePhase), tidePhase);
-            SetPrivate(self, nameof(RoomFxOverlayState.TideOffset), tideOffset);
+            SetPrivate(self, "TidePhase", tidePhase);
+            SetPrivate(self, "TideOffset", tideOffset);
             SetPrivate(self, nameof(RoomFxOverlayState.BaseY), baseY);
             SetPrivate(self, nameof(RoomFxOverlayState.Surface), surface);
         }
@@ -88,8 +88,8 @@ internal static class RoomFxOverlayStateAccess
         internal void SetTideForCheck(RoomLiquid liquid, RotationAngle phase, SignedSixteenSixteen offset)
         {
             SetPrivate(self, nameof(RoomFxOverlayState.Liquid), liquid);
-            SetPrivate(self, nameof(RoomFxOverlayState.TidePhase), phase);
-            SetPrivate(self, nameof(RoomFxOverlayState.TideOffset), offset);
+            SetPrivate(self, "TidePhase", phase);
+            SetPrivate(self, "TideOffset", offset);
         }
 
         /// <summary>Runs one step of the liquid's tide alone, the step its motion pass takes after the rise.</summary>
@@ -99,7 +99,7 @@ internal static class RoomFxOverlayStateAccess
 
         /// <summary>Places the quake sounds at <paramref name="position"/> in their rhythm, for a check of the sound each position plays.</summary>
         internal void SetEarthquakeSoundRhythmPositionForCheck(int position) =>
-            SetPrivate(self, nameof(RoomFxOverlayState.EarthquakeSoundRhythm),
+            SetPrivate(self, "EarthquakeSoundRhythm",
                 CyclingSequence<int>.At(RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays, position));
 
         /// <summary>Returns the loaded room to its own effect, <paramref name="type"/>, which has no Fireflea darkness.</summary>

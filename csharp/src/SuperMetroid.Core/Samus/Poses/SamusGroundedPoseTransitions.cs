@@ -124,7 +124,7 @@ internal static class SamusGroundedPoseTransitions
     /// may be the current running pose after a killed-X-speed collision or the prospective
     /// running pose tested by the one-pixel arm-pump probe.
     /// </summary>
-    public static SamusPoseId SelectRanIntoWallPose(SamusPoseId sourcePose)
+    private static SamusPoseId SelectRanIntoWallPose(SamusPoseId sourcePose)
     {
         return SamusPoseMetadata.ReadAim(sourcePose) is SamusPoseAim.Aiming { Direction: var direction } &&
             SamusAimedPoseChoiceDefinitions.WallStops.TryGetValue(direction, out SamusPoseId wallStop)
@@ -149,11 +149,9 @@ internal static class SamusGroundedPoseTransitions
         RoomLevelData level,
         SamusPoseId? prospectivePose,
         bool currentXSpeedKilledByBlock,
-        out BlockMoveResult? onePixelProbe,
         ISamusRoomObjects roomObjects)
     {
         Ensure.NotNull(level);
-        onePixelProbe = null;
 
         if (currentXSpeedKilledByBlock && SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running)
             return SelectRanIntoWallPose(samus.Pose);
@@ -178,8 +176,8 @@ internal static class SamusGroundedPoseTransitions
         }
 
         SignedSixteenSixteen onePixelForward = SignedSixteenSixteen.OnePixel.Toward(facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
-        onePixelProbe = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
-        return onePixelProbe.Value.Collided
+        BlockMoveResult onePixelProbe = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
+        return onePixelProbe.Collided
             ? SelectRanIntoWallPose(target)
             : null;
     }

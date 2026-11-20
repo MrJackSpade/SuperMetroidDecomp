@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
@@ -31,38 +30,32 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
             : throw new InvalidOperationException($"Undefined {nameof(DraygonCannonOrientation)} {orientation}.");
         player = AnimationPlayer<DraygonCannonSegment, DraygonCannonDraw, NoAnimationCue>.Starting(
             DraygonCannonAnimationDefinitions.Segments, _look.Shield);
-        bool destroyed = start == DraygonCannonStart.Destroyed;
-        Phase = destroyed ? DraygonCannonPhase.StartingDestroyed : DraygonCannonPhase.StartingWhole;
-        // A cannon set up destroyed counts as having taken its destroying hits.
-        Hits = destroyed ? DraygonCannonDefinitions.HitsToDestroy : 0;
+        Phase = start == DraygonCannonStart.Destroyed ? DraygonCannonPhase.StartingDestroyed : DraygonCannonPhase.StartingWhole;
     }
 
     /// <summary>The room's cannons, through which a destroyed cannon stops Draygon's firing of its wall cannon (#2400).</summary>
     private readonly DraygonCannonObjects _cannons;
 
     /// <summary>The firing cannon Draygon stops when this one is destroyed.</summary>
-    internal DraygonWallCannon Cannon { get; }
+    private DraygonWallCannon Cannon { get; }
 
     /// <summary>What the cannon shows, by its facing.</summary>
     private readonly DraygonCannonLook _look;
 
     /// <summary>Where the cannon is in its course.</summary>
-    internal DraygonCannonPhase Phase { get; private set; }
+    private DraygonCannonPhase Phase { get; set; }
 
     /// <summary>
-    /// The hits the cannon has survived, 0 to 2; a cannon set up destroyed holds the destroying count. The hit that
-    /// destroys a cannon, a third missile or any Super Missile, is not added.
+    /// The hits the cannon has survived, 0 to 2; a cannon set up destroyed is never hit. The hit that destroys a cannon, a
+    /// third missile or any Super Missile, is not added.
     /// </summary>
-    internal int Hits { get; private set; }
+    private int Hits { get; set; }
 
     /// <summary>Whether a missile strike wakes the cannon: from its first update until a hit destroys it.</summary>
     internal bool WakeArmed { get; private set; }
 
     /// <summary>The strike on the cannon's block it has yet to take (#2562).</summary>
     private readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> _strike = new();
-
-    /// <summary>The strike on the cannon's block it has yet to take, or null for none.</summary>
-    internal ResidentObjectProjectileHit? AwaitingStrike => _strike.Awaiting;
 
     /// <summary>
     /// The play of what the cannon shows (#2401): its shield, its hit flash or its sparks, each picture with the updates it

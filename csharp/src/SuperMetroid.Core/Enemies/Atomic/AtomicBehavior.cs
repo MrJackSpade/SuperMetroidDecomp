@@ -12,7 +12,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Atomic];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new AtomicEntity(occupant, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new AtomicEntity(occupant, place, common));
 
 
     /// <summary>Initializes the Atomic.</summary>
@@ -31,7 +31,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Moves the Atomic one step toward Samus on each axis at its spawn settings' speed. It ignores terrain and chooses both
     /// directions again every update.
     /// </summary>
-    private static void RunAtomicMain(
+    internal static void MoveAtomicTowardSamus(
         RoomEnemyOccupant occupant, RoomEnemyPlace place,
         SamusState samus)
     {
@@ -46,14 +46,8 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Atomic's typed animation.</summary>
-    internal static void AdvanceAtomicTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceAtomicTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, AtomicAnimations.Segments,
             static (AtomicEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Atomic animation raised {cue}."));
-
-    /// <summary>Runs Atomic's main AI.</summary>
-    internal static void RunAtomicMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        RunAtomicMain(occupant, place, frame.Samus);
-    }
 }

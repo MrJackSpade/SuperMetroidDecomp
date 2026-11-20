@@ -44,14 +44,14 @@ internal sealed class GreyDoorObjects
     /// <exception cref="InvalidDataException">The cap waits for the Tourian statue in a room other than the statue room.</exception>
     private GreyDoorLock LockFor(GreyDoorCondition condition) => condition switch
     {
-        GreyDoorCondition.AreaBossDefeated => new GreyDoorLock.BossDefeated(condition, _system, _area, DefeatedBosses.AreaBoss),
-        GreyDoorCondition.AreaMiniBossDefeated => new GreyDoorLock.BossDefeated(condition, _system, _area, DefeatedBosses.AreaMiniBoss),
-        GreyDoorCondition.AreaTorizoDefeated => new GreyDoorLock.BossDefeated(condition, _system, _area, DefeatedBosses.AreaTorizo),
+        GreyDoorCondition.AreaBossDefeated => new GreyDoorLock.BossDefeated(_system, _area, DefeatedBosses.AreaBoss),
+        GreyDoorCondition.AreaMiniBossDefeated => new GreyDoorLock.BossDefeated(_system, _area, DefeatedBosses.AreaMiniBoss),
+        GreyDoorCondition.AreaTorizoDefeated => new GreyDoorLock.BossDefeated(_system, _area, DefeatedBosses.AreaTorizo),
         GreyDoorCondition.EnemyDeathQuota => new GreyDoorLock.EnemyDeathQuota(_system),
         GreyDoorCondition.Never => new GreyDoorLock.Never(),
         GreyDoorCondition.TourianStatueFinished => new GreyDoorLock.TourianStatueFinished(_tourianStatue ??
             throw new InvalidDataException("A grey door waits for the Tourian statue in a room other than the statue room.")),
-        GreyDoorCondition.CrittersEscaped => new GreyDoorLock.EventSet(condition, _system, StoryEvent.CrittersEscaped),
+        GreyDoorCondition.CrittersEscaped => new GreyDoorLock.EventSet(_system, StoryEvent.CrittersEscaped),
         _ => throw new InvalidDataException($"Undefined {nameof(GreyDoorCondition)} {condition}."),
     };
 

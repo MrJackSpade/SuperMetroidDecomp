@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -35,47 +34,7 @@ internal sealed class CeresRidleyBabyScene
     /// <summary>Keeps the Baby at Ridley's arm anchor, falls independently, then follows the grasp point on retrieval.</summary>
     /// <param name="place">Ridley's body, which carries the Baby.</param>
     /// <param name="baby">The Baby.</param>
-    internal static void TickCeresBaby(RoomEnemyPlace place, CeresBaby baby)
-    {
-        switch (baby.Action)
-        {
-            case CeresBabyAction.CarriedInArms:
-                // Until the fake retreat, Ridley carries the Baby at his left-hand anchor, so it is where he holds it
-                // when he lets it fall.
-                baby.Position = baby.Position.WithWhole(place.Position.Whole + CeresRidleyArenaDefinitions.BabyArmsAnchor);
-                return;
-
-            case CeresBabyAction.Drop:
-                baby.Position = baby.Position.WithFractionY(PixelFraction.None);
-                baby.VerticalVelocity = SignedEightEight.Zero;
-                baby.Action = CeresBabyAction.Dropped;
-                goto case CeresBabyAction.Dropped;
-
-            case CeresBabyAction.Dropped:
-                // The falling speed only grows from zero and the fall ends at the Baby's floor, so it stays a few pixels an
-                // update.
-                baby.VerticalVelocity += CeresRidleyArenaDefinitions.BabyFallGravity;
-                baby.Position = baby.Position.WithY(baby.Position.Y.MovedBy(baby.VerticalVelocity));
-                if (baby.Position.Y.Whole >= CeresRidleyArenaDefinitions.BabyFloorY)
-                {
-                    baby.Position = baby.Position.WithWholeY(CeresRidleyArenaDefinitions.BabyFloorY);
-                    baby.Action = CeresBabyAction.Idle;
-                }
-                return;
-
-            case CeresBabyAction.CarriedInFeet:
-                // Once the hand rectangles overlap, the Baby follows the grasp point for
-                // the real retreat and disappears with Ridley at the escape handoff.
-                baby.Position = baby.Position.WithWhole(place.Position.Whole + CeresRidleyArenaDefinitions.BabyFeetAnchor);
-                return;
-
-            case CeresBabyAction.Idle:
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresBabyAction)} {baby.Action}.");
-        }
-    }
+    internal static void TickCeresBaby(RoomEnemyPlace place, CeresBaby baby) => baby.Action.Move(place, baby);
 
     /// <summary>
     /// Runs the Baby's animation at the enemy pass's end while Ridley's movement and animation are off (#2573). Until his
@@ -133,7 +92,7 @@ internal sealed class CeresRidleyBabyScene
     /// duration, counted off one each update, and the next pose is then shown.
     /// </summary>
     /// <param name="ridley">Ceres Ridley's encounter, which holds the Baby and the colours its cues show.</param>
-    internal void AdvanceCeresBabyAnimation(CeresRidleyState ridley)
+    private void AdvanceCeresBabyAnimation(CeresRidleyState ridley)
     {
         CeresBaby baby = ridley.Baby;
         if (!baby.Clock.Expire())
@@ -157,10 +116,10 @@ internal sealed class CeresRidleyBabyScene
         pose is { } shown ? CeresBabyFrameDefinitions.ShownFrames.Of(shown) : null;
 
     /// <summary>The animation the Baby starts while it moves, where it reacts to its motion (#2167).</summary>
-    internal const CeresBabySegment MovingAnimation = CeresBabySegment.ExpressiveLoop;
+    private const CeresBabySegment MovingAnimation = CeresBabySegment.ExpressiveLoop;
 
     /// <summary>The animation the Baby starts when it rests silently instead of crying (#2167).</summary>
-    internal const CeresBabySegment SilentAnimation = CeresBabySegment.IdleSquish;
+    private const CeresBabySegment SilentAnimation = CeresBabySegment.IdleSquish;
 
     /// <summary>Carries out one cue of the Baby's animation, returning the segment whose animation its owner starts, or null to play on.</summary>
     private CeresBabySegment? ApplyCeresBabyCue(CeresRidleyState ridley, CeresBabyCue cue)

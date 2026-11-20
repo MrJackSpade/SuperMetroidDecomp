@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public sealed class InstalledProjectileSprites
 {
     /// <summary>Compiled OAM compositions keyed by composition.</summary>
-    internal readonly Dictionary<ProjectileSpriteId, SpriteComposition> frames;
+    private readonly Dictionary<ProjectileSpriteId, SpriteComposition> frames;
     /// <summary>Accepts the complete validated set of compositions.</summary>
     private InstalledProjectileSprites(Dictionary<ProjectileSpriteId, SpriteComposition> frames) => this.frames = frames;
 

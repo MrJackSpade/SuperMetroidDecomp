@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 /// The installed pictures of Crocomire's bridge and invisible-wall frames (#1557). The frames' terrain, animations and draw
 /// geometry stay the game's.
 /// </summary>
-public sealed class InstalledRoomObjectCrocomireVisuals
+public sealed class InstalledRoomObjectCrocomireVisuals : IRoomObjectFamilyPictures
 {
     /// <summary>Holds the pictures the import made of every arena frame.</summary>
     /// <param name="images">Every arena frame's picture, keyed by its draw.</param>
@@ -14,6 +14,10 @@ public sealed class InstalledRoomObjectCrocomireVisuals
 
     /// <summary>Every arena frame's picture, keyed by its draw.</summary>
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
+
+    /// <inheritdoc/>
+    IReadOnlyDictionary<RoomObjectDraw, RoomObjectFrameImage> IRoomObjectFamilyPictures.Pictures =>
+        Images.All;
 
     /// <summary>The picture <paramref name="draw"/> shows.</summary>
     /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>

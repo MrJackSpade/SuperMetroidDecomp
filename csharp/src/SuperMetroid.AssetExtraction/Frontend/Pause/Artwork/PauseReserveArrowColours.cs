@@ -41,11 +41,11 @@ public sealed class PauseReserveArrowColours
     }
 
     /// <summary>The arrow's two bevel colours while solid.</summary>
-    internal ReserveArrowColors Solid { get; }
+    private ReserveArrowColors Solid { get; }
 
     /// <summary>The arrow's two bevel colours at pulse phase <paramref name="frame"/>.</summary>
     /// <param name="frame">Pulse phase, masked to its low five bits; normally the accepted eight-bit frame counter.</param>
-    internal ReserveArrowColors Pulse(int frame) => pulse[frame & (PauseReserveArrowDefinitions.ArrowFrames - 1)];
+    private ReserveArrowColors Pulse(int frame) => pulse[frame & (PauseReserveArrowDefinitions.ArrowFrames - 1)];
 
     /// <summary>
     /// The shades the import pre-colours the arrow's pictures in (#1512): the solid colours, and each pulse phase's, over

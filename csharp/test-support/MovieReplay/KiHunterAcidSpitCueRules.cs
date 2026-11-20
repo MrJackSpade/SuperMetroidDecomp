@@ -24,7 +24,7 @@ internal static class KiHunterAcidSpitCueRules
                     VerificationAssertions.AssertEqual(EnemyProjectileMotionAccess.KiHunterAcidLaunch(launch.Direction), routine, $"{at}: pre-instruction");
                     break;
                 case KiHunterAcidSpitCue.Signal:
-                    VerificationAssertions.AssertEqual<Enum?>(null, EnemyProjectileMotionAccess.FromWord(routine), $"{at}: pre-instruction");
+                    VerificationAssertions.AssertTrue(EnemyProjectileMotionAccess.StandsForHoldingStill(routine), $"{at}: pre-instruction");
                     break;
                 default:
                     throw new InvalidOperationException($"{at}: undefined {nameof(KiHunterAcidSpitCue)} {cue}.");

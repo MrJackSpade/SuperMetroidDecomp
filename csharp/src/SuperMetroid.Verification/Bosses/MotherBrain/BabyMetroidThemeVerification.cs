@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFixtureHeadVerification;
@@ -18,8 +19,8 @@ internal static class BabyMetroidThemeVerification
         enemies.MotherBrainEncounter.BeginAsSetUp(state);
         var sequence = MotherBrainLateFightFixtures.NewSequence();
         var baby = sequence.Baby;
-        baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
-        baby.Health = 0;
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", (global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutscenePhase)(BabyMetroidCutscenePhase.FinalCharge));
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Health", (int)(0));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         Action<BabyMetroidCutsceneStepResult> apply = step => enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(state.Colours, step);
         var begin = new Action(enemies.BeginEnemySoundRequestFrame);

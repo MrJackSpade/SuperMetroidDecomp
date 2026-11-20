@@ -42,7 +42,7 @@ internal static class TorizoOwnershipVerification
         RoomEnemySystem enemies = NewEnemies();
         var frame = new ColourEffectFrame(ColourEffectId.BombTorizoBelly, 0);
         AssertThrows<InvalidOperationException>(
-            () => new ColourEffectSystem(new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()).Start(ColourEffectId.BombTorizoBelly, SamusEquipmentFlags.None),
+            () => global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { (global::SuperMetroid.Core.Fx.ColourEffectSessionState)(new ColourEffectSessionState()), (global::SuperMetroid.Core.Audio.GameplaySoundRequests)(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()) }).Start(ColourEffectId.BombTorizoBelly, SamusEquipmentFlags.None),
             "the belly glow never starts without the Torizo that shows it");
         RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[3];
         TorizoEnemyState state = torizo.BindTorizoFixtureState(0);
@@ -85,7 +85,7 @@ internal static class TorizoOwnershipVerification
         enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo.HeldOccupant(), torizo);
         EnemyProjectile beam = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         beam.HoldStill();
-        beam.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.EyeBeamFloorImpact));
+        beam.StartAnimation(new TorizoProjectileAnimation(enemies.TorizoBehavior.Attacks.TorizoProjectiles, TorizoProjectileSegment.EyeBeamFloorImpact));
 
         bool sparkedOn = false;
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();

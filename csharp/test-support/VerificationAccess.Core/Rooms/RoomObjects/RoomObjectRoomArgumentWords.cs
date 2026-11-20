@@ -218,17 +218,17 @@ internal static class RoomObjectRoomArgumentWords
         CollectibleObject item => ArgumentWord(new CollectibleIdentity(item.Location)),
         SaveStationObject station => ArgumentWord(new SaveStationPlace(station.SavedAt)),
         MetroidRoomClearanceObject watch => ArgumentWord(new WatchedMetroidRoom(watch.Cleared)),
-        TerrainChangeObject { Change: var change } when GateTriggerDrawing(change) is { } trigger =>
+        TerrainChangeObject terrain when GateTriggerDrawing(terrain) is { } trigger =>
             ArgumentWord(new GateShotTrigger(trigger)),
         _ => null,
     };
 
-    /// <summary>The gate trigger whose shot block <paramref name="change"/> draws, or null for any other terrain change.</summary>
-    private static DownwardGateTrigger? GateTriggerDrawing(TerrainChange change)
+    /// <summary>The gate trigger whose shot block <paramref name="terrain"/> draws, or null for any other terrain change.</summary>
+    private static DownwardGateTrigger? GateTriggerDrawing(TerrainChangeObject terrain)
     {
         foreach (DownwardGateTrigger trigger in GateTriggersInTableOrder)
         {
-            if (DownwardGateTriggerDefinitions.Triggers[trigger].Change == change)
+            if (terrain.Draws(DownwardGateTriggerDefinitions.Triggers[trigger].Change))
                 return trigger;
         }
         return null;
@@ -283,17 +283,28 @@ internal static class RoomObjectRoomArgumentWords
 
     /// <summary>
     /// The hit count the cartridge keeps in a cannon's or the glass's argument word: a typed cannon's count, or the word
-    /// the cartridge leaves once a counted hit destroyed it. A smoking cannon was shot down unless it was set up
-    /// destroyed, which alone holds the destroying count: the hit that destroys a cannon is not added to its count.
+    /// the cartridge leaves once a counted hit destroyed it. A cannon its placement sets up destroyed holds the destroying
+    /// count; a smoking cannon was otherwise shot down: the hit that destroys a cannon is not added to its count.
     /// </summary>
     private static int? HitWord(RoomObjectPlace place) => place.Behaviour switch
     {
-        DraygonCannonObject cannon => cannon.Phase == DraygonCannonPhase.Smoking && cannon.Hits != DraygonCannonDefinitions.HitsToDestroy
-            ? ushort.MaxValue
+        DraygonCannonObject cannon => SetUpDestroyed(cannon.Cannon) ? DraygonCannonDefinitions.HitsToDestroy
+            : cannon.Phase == DraygonCannonPhase.Smoking ? ushort.MaxValue
             : cannon.Hits,
         MotherBrainGlassObject glass => glass.Hits,
         _ => null,
     };
+
+    /// <summary>Whether the Draygon room's placement of <paramref name="cannon"/> sets it up destroyed.</summary>
+    private static bool SetUpDestroyed(DraygonWallCannon cannon)
+    {
+        foreach (RoomObjectPlacement placement in RoomObjectPopulationDefinitions.Draygon.Placements.Span)
+        {
+            if (placement.Setup is DraygonWallCannonSetup setup && setup.Cannon == cannon)
+                return setup.Start == DraygonCannonStart.Destroyed;
+        }
+        throw new InvalidOperationException($"The Draygon room places no {cannon} cannon.");
+    }
 
     /// <summary>The native room-argument word of a live place.</summary>
     extension(RoomObjectPlace place)

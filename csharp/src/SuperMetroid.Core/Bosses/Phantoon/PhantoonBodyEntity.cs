@@ -26,7 +26,7 @@ internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyOccu
     /// before this frame ticks it.
     /// </summary>
     public void ResolveBeforeOrdinaryHits(RoomEnemyFrame frame) =>
-        _ = Species.Combat.ResolvePhantoonProjectileHits(Encounter, Ensure.NotNull(frame).SamusProjectiles, frame.SamusBombs);
+        Species.Combat.ResolvePhantoonProjectileHits(Encounter, Ensure.NotNull(frame).SamusProjectiles, frame.SamusBombs);
 
     /// <inheritdoc/>
     public bool OwnsSamusTouch => false;

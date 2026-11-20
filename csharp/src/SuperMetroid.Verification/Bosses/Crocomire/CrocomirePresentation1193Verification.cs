@@ -59,7 +59,7 @@ internal static class CrocomirePresentation1193Verification
             "Actual Crocomire room selects native shaking callback");
         if (!spikes)
         {
-            (boss ?? throw new InvalidOperationException("Verification requires boss.")).DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.RumbleHiddenWall>();
+            global::SuperMetroid.Core.PrivateState.Set((boss ?? throw new InvalidOperationException("Verification requires boss.")), "DeathStage", (global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathStage>)(CrocomireDeathStages.Only<CrocomireDeathStage.RumbleHiddenWall>()));
             boss.Body.Presence = boss.Body.Presence.Without(EnemyPresence.Hidden);
             boss.RumbleOscillation = ListStep<CrocomireRumbleOscillation>.FirstOf(CrocomireRumbleDefinitions.Oscillations);
             boss.RumbleTowardExtreme = true;
@@ -111,12 +111,12 @@ internal static class CrocomirePresentation1193Verification
             // A room load builds the room's spikes afresh, with their first frame pending.
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Crocomire);
             PlaceSamusInArena();
-            PrivateState.Set(samus.Xray, nameof(SamusXrayState.SuspendedSubsystems), XraySuspendedSubsystems.BlockAnimations);
+            PrivateState.Set(samus.Xray, "SuspendedSubsystems", XraySuspendedSubsystems.BlockAnimations);
             game.Step(0);
             ArtworkAnimation spikeTiles = BlockAnimationFrames.Of(BlockAnimation.HorizontalSpikes);
             AssertEqual(false, runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out _),
                 "X-ray's animation-disable word suspends spikes at the actual runtime seam");
-            PrivateState.Set(samus.Xray, nameof(SamusXrayState.SuspendedSubsystems), XraySuspendedSubsystems.None);
+            PrivateState.Set(samus.Xray, "SuspendedSubsystems", XraySuspendedSubsystems.None);
             game.Step(0);
             AssertTrue(runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out ArtworkFrame resumed) &&
                     resumed == BlockAnimationLoops.Frames(BlockAnimation.HorizontalSpikes)[0].Frame,
@@ -153,7 +153,7 @@ internal static class CrocomirePresentation1193Verification
             CrocomireRoomShakingMain.Rumble(boss, runtime.BackgroundScroll);
             AssertEqual(100, scroll.ForegroundScroll.Y, "Invisible body suppresses the native room callback");
             boss.Body.Presence = boss.Body.Presence.Without(EnemyPresence.Hidden);
-            boss.DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.BreakSpikeWall>();
+            global::SuperMetroid.Core.PrivateState.Set(boss, "DeathStage", (global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathStage>)(CrocomireDeathStages.Only<CrocomireDeathStage.BreakSpikeWall>()));
             death.RumbleYOffset = 0x8080;
             scroll.CalculateLayerScrolls();
             CrocomireRoomShakingMain.Rumble(boss, runtime.BackgroundScroll);

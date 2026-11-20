@@ -22,7 +22,7 @@ internal sealed class EndingLogo
     /// <summary>Becomes true when the grey-out cue begins paired background and sprite changes.</summary>
     public bool CrossfadeStarted { get; private set; }
     /// <summary>The crossfade step the logo showed last, or null before its crossfade shows a step.</summary>
-    public EndingLogoCrossfadeStep? ShownCrossfade { get; private set; }
+    private EndingLogoCrossfadeStep? ShownCrossfade { get; set; }
     /// <summary>Whether the logo has shown its crossfade's last step and hands off to the percentage text.</summary>
     public bool Completed { get; private set; }
 

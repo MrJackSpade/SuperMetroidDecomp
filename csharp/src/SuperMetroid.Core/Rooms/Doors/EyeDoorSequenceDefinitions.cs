@@ -22,7 +22,7 @@ internal static class EyeDoorSequenceDefinitions
     internal const int HitThreshold = 3;
 
     /// <summary>How many times the destroyed eye flashes to the blue cap before it turns into it.</summary>
-    internal const int OpeningFlashes = 10;
+    private const int OpeningFlashes = 10;
 
     /// <summary>How near Samus must stand, across and up or down, to open the closed eye or keep it watching.</summary>
     internal static Extent16<RoomBlocks> WakeReach { get; } = new(6, 4);

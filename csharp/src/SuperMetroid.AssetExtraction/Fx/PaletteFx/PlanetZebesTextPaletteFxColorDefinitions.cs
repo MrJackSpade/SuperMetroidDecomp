@@ -17,7 +17,7 @@ public static class PlanetZebesTextPaletteFxColorDefinitions
 {
 
     /// <summary>Three text colors per record.</summary>
-    public const int ColorsPerFrame = 3;
+    private const int ColorsPerFrame = 3;
 
     /// <summary>The fade-in and fade-out programs in definition order without cached definition records.</summary>
     public static IReadOnlyList<PlanetZebesTextPaletteFxColorDefinition> All { get; } =

@@ -173,7 +173,7 @@ internal sealed class MotherBrainHead
     /// <param name="frame">The frame, where it lies and its shading.</param>
     /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
     /// <param name="corpseRows">The rows her rotting corpse shows, or none while she shows no rotting corpse.</param>
-    internal void DrawMotherBrainWorldFrame(
+    private void DrawMotherBrainWorldFrame(
         SpriteFrameBuffer sprites,
         SpriteSource source,
         MotherBrainWorldFrame frame,
@@ -406,12 +406,12 @@ internal sealed class MotherBrainHead
         if (bomb is null)
             return;
 
-        bomb.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.Bomb));
+        bomb.StartAnimation(new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.Bomb));
         RoomEnemyPlace head = state.Head;
         bomb.Position = bomb.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BombOffset);
         bomb.Position = bomb.Position.WithoutFractions();
         bomb.Velocity = new(MotherBrainBombBounceDefinitions.LaunchSpeedX, MotherBrainBombBounceDefinitions.LaunchSpeedY);
-        bomb.State = new MotherBrainBombState(state, MotherBrainBombBounceDefinitions.BounceSpeed, afterburnCount);
+        _projectileAttacks.Projectile.Bombs.Start(bomb, new MotherBrainBombState(state, MotherBrainBombBounceDefinitions.BounceSpeed, afterburnCount));
         state.RecordBombSpawned();
     }
 
@@ -419,7 +419,7 @@ internal sealed class MotherBrainHead
     /// Runs the head's onion-ring step and the ring's setup. The ring takes its enemy-projectile place after the twelve
     /// room turrets and all lingering drool have theirs, so no ring appears when every place is held.
     /// </summary>
-    internal void SpawnMotherBrainOnionRing(
+    private void SpawnMotherBrainOnionRing(
         MotherBrainEnemyState state,
         TrigonometryAngle angle)
     {
@@ -427,8 +427,8 @@ internal sealed class MotherBrainHead
         if (ring is null)
             return;
 
-        ring.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.OnionRing));
-        ring.State = new MotherBrainOnionRingState(state, MotherBrainOnionRingDefinitions.MouthWaitUpdates);
+        ring.StartAnimation(new MotherBrainEffectAnimation(_projectileAttacks.OnionRing, MotherBrainEffectSegment.OnionRing));
+        _projectileAttacks.OnionRing.OnionRings.Start(ring, new MotherBrainOnionRingState(state, MotherBrainOnionRingDefinitions.MouthWaitUpdates));
         ring.Velocity = ring.Velocity.WithX(EnemyMath.SineSpeed(MotherBrainOnionRingDefinitions.Speed, angle));
         ring.Velocity = ring.Velocity.WithY(EnemyMath.SineSpeed(
             MotherBrainOnionRingDefinitions.Speed,
@@ -440,7 +440,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>Runs the head's drool step and the drool's setup.</summary>
-    internal void SpawnMotherBrainDrool(MotherBrainEnemyState state)
+    private void SpawnMotherBrainDrool(MotherBrainEnemyState state)
     {
         if (!state.DroolGenerationEnabled)
             return;
@@ -459,12 +459,12 @@ internal sealed class MotherBrainHead
         if (drool is null)
             return;
 
-        drool.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.Drool));
-        drool.State = new MotherBrainDroolState(state, mouth);
+        drool.StartAnimation(new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.Drool));
+        _projectileAttacks.Projectile.Drools.Start(drool, new MotherBrainDroolState(state, mouth));
 
         // Spawning the drool attaches it to the head at once, so its position is already
         // right before the later projectile pass repeats the same attachment.
-        MotherBrainProjectiles.MotherBrainProjectileBehavior.HoldMotherBrainDroolAtMouth(drool);
+        _projectileAttacks.Projectile.HoldMotherBrainDroolAtMouth(drool);
     }
 
     /// <summary>Runs the head's big purple breath step and the breath's setup.</summary>
@@ -474,8 +474,8 @@ internal sealed class MotherBrainHead
         if (breath is null)
             return;
 
-        breath.State = new MotherBrainProjectileState(state);
-        breath.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathBig));
+        _projectileAttacks.Projectile.MotherBrains.Start(breath, new MotherBrainProjectileState(state));
+        breath.StartAnimation(new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.PurpleBreathBig));
         RoomEnemyPlace head = state.Head;
         breath.Position = breath.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BreathOffset);
     }
@@ -487,24 +487,24 @@ internal sealed class MotherBrainHead
         if (breath is null)
             return;
 
-        breath.State = new MotherBrainProjectileState(state);
-        breath.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathSmall));
+        _projectileAttacks.Projectile.MotherBrains.Start(breath, new MotherBrainProjectileState(state));
+        breath.StartAnimation(new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.PurpleBreathSmall));
         RoomEnemyPlace head = state.Head;
         breath.Position = breath.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BreathOffset);
         state.SmallPurpleBreathActive = true;
     }
 
     /// <summary>Spawns the rainbow beam's charge glow, pinned to her head in the update it spawns.</summary>
-    internal void SpawnMotherBrainRainbowChargingProjectile(MotherBrainEnemyState state)
+    private void SpawnMotherBrainRainbowChargingProjectile(MotherBrainEnemyState state)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return;
 
-        projectile.State = new MotherBrainProjectileState(state);
-        projectile.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.RainbowBeamCharging));
+        _projectileAttacks.Projectile.MotherBrains.Start(projectile, new MotherBrainProjectileState(state));
+        projectile.StartAnimation(new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.RainbowBeamCharging));
         projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
         projectile.Position = projectile.Position.WithoutFractions();
-        MotherBrainProjectiles.MotherBrainProjectileBehavior.PinMotherBrainRainbowCharge(projectile);
+        _projectileAttacks.Projectile.PinMotherBrainRainbowCharge(projectile);
     }
 }

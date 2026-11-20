@@ -80,6 +80,5 @@ internal static class EyeDoorDraws
     /// shared clear mirrored.
     /// </summary>
     internal static RoomObjectDrawFamily<Draw> Family { get; } =
-        RoomObjectDrawFamily<Draw>.Pictured<InstalledRoomObjectEyeDoorVisuals>("eye-door", frame => frame.Blocks,
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<Draw>("eye-door", frame => frame.Blocks);
 }

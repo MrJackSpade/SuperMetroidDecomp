@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
@@ -18,13 +17,13 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The mama turtle, or one of her babies (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no mama turtle definition.</exception>
-    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.MamaTurtle)
-            return new MamaTurtleEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new MamaTurtleEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.BabyTurtle)
-            return new BabyTurtleEntity(this, occupant, place, common);
+            return EnemyOccupant.Of(new BabyTurtleEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The mama turtle species creates no {occupant.DefinitionId}.");
     }
 
@@ -216,7 +215,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the dormant shell's height and carry step.</summary>
-    internal static void RunMamaTurtleAsleep(
+    private static void RunMamaTurtleAsleep(
         RoomEnemyPlace mama,
         SamusState samus)
     {
@@ -360,7 +359,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Adds the hover acceleration to the horizontal speed, a fraction past a whole pixel carrying into the whole pixels, and
     /// caps the whole speed using the old velocity's sign.
     /// </summary>
-    internal static void AddAndClampMamaTurtleHorizontalAcceleration(
+    private static void AddAndClampMamaTurtleHorizontalAcceleration(
         MamaTurtleEnemyState state)
     {
         SignedSixteenSixteen velocity = state.Velocity.X;
@@ -381,7 +380,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private static SignedSixteenSixteen WholePixelFall(SignedSixteenSixteen fall) => fall.WithoutFraction();
 
     /// <summary>Reverses the hovering turtle's horizontal velocity and acceleration at a wall (<see cref="MamaTurtleWallReversal"/>).</summary>
-    internal static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
+    private static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
     {
         SignedSixteenSixteen velocity = state.Velocity.X;
         state.Velocity = state.Velocity.WithX(MamaTurtleWallReversal.ReversedVelocity(velocity));
@@ -757,7 +756,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances MamaTurtle's typed animation.</summary>
-    internal void AdvanceMamaTurtleTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal void AdvanceMamaTurtleTypedAnimation(RoomEnemyPlace place)
     {
         if (!place.AnimationClock.Expire())
             return;

@@ -192,7 +192,7 @@ internal static class BoyonBehaviorVerification
         // Parameter two is the horizontal trigger range Samus must be within to start a bounce.
         place.SetSpawnParameter2(EnemyDefinitionId.Boyon, 64);
         place.Position = place.Position.WithWhole(new(256, 512));
-        BoyonBehavior.InitializeBoyon(place.HeldOccupant(), place);
+        BoyonBehavior.InitializeBoyon(place);
         return new BoyonBehaviorCreateResult(enemies, place, enemies.BoyonStates[0] ?? throw new InvalidOperationException("Boyon has no state."));
     }
 

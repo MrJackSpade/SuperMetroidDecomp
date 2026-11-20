@@ -324,7 +324,7 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>Chooses the grown foot's next walking target and direction on the last update of its thinking.</summary>
-    internal void RunKraidSecondPhaseThinking(
+    private void RunKraidSecondPhaseThinking(
         RoomEnemyPlace body,
         KraidFootState part)
     {

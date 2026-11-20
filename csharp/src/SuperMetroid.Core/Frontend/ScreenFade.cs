@@ -44,7 +44,7 @@ public sealed class ScreenFade
     public bool IsBlack => Level == 0;
 
     /// <summary>Whether the screen is fully lit.</summary>
-    public bool IsFullyLit => Level == DisplayBrightness.Full;
+    private bool IsFullyLit => Level == DisplayBrightness.Full;
 
     /// <summary>Shows the screen at <paramref name="level"/>, leaving the cadence as it is.</summary>
     /// <param name="level">The brightness, from black through <see cref="DisplayBrightness.Full"/>.</param>
@@ -96,10 +96,20 @@ public sealed class ScreenFade
     /// <param name="levels">The levels one step darkens by, one or more.</param>
     public bool Darken(int levels)
     {
+        StepDarker(levels);
+        return IsBlack;
+    }
+
+    /// <summary>One update of fading out by one level, for a scene that tests the fade's brightness itself.</summary>
+    public void StepDarker() => StepDarker(1);
+
+    /// <summary>One update of fading out by <paramref name="levels"/> levels a step.</summary>
+    /// <param name="levels">The levels one step darkens by, one or more.</param>
+    private void StepDarker(int levels)
+    {
         Ensure.BetweenInclusive(1, DisplayBrightness.Full, levels);
         if (!Waits())
             Level = Math.Max(0, Level - levels);
-        return IsBlack;
     }
 
     /// <summary>Counts one update of the wait: true while it only waits; otherwise reloads the wait for the next step.</summary>

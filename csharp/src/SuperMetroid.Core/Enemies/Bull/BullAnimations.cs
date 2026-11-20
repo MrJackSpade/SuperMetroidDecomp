@@ -19,7 +19,7 @@ internal static class BullAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<BullSegment, Animation<BullSegment>> StartingAt { get; } = new Dictionary<BullSegment, Animation<BullSegment>>
+    private static Dictionary<BullSegment, Animation<BullSegment>> StartingAt { get; } = new Dictionary<BullSegment, Animation<BullSegment>>
     {
         [P.Idle] = Animation<BullSegment>.Looping([Segments.Whole(P.Idle)]),
     };

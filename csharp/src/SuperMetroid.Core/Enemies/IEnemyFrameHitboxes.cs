@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>An enemy whose frame hitboxes are the ones the game defines rather than read from installed frames.</summary>
-internal interface IEnemyFrameHitboxes : IEnemyEntity
+internal interface IEnemyFrameHitboxes
 {
     /// <summary>
     /// The reaction of the first of the occupant's hitboxes the probe overlaps: true with the reaction, false when none

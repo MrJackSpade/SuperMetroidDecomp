@@ -24,4 +24,4 @@ internal sealed record SamusPoseDefinition(
     int VerticalRadius,
     SamusPoseAim Aim,
     int ProjectileHeight,
-    SamusNoTransitionSetup NoTransitionSetup = SamusNoTransitionSetup.None);
+    SamusNoTransitionSetup? NoTransitionSetup = null);

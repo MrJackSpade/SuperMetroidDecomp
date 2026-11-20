@@ -111,7 +111,7 @@ internal static class CeresElevatorArrivalVerification
         // The arrival draws the installed pictures, some of whose pixels the installed concealer's shade shows black.
         var frame = new SpriteFrameBuffer();
         frame.BeginFrame();
-        arrival.Draw(frame, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevatorDefault),
+        ((SuperMetroid.Core.Enemies.IActorInFrontOfSamus)arrival).DrawInFrontOfSamus(frame, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevatorDefault),
             Position16<RoomPixels>.Zero);
         frame.FinalizeFrame();
         VerificationAssertions.AssertTrue(frame.Draws.Length > 0, "the arrival draws while it runs");

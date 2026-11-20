@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>An enemy with contact work the shared pass runs at fixed points around its ordinary collision passes.</summary>
-internal interface IEnemyContactHooks : IEnemyEntity
+internal interface IEnemyContactHooks
 {
     /// <summary>Runs before the ordinary projectile, bomb and touch passes.</summary>
     /// <param name="frame">The enemy frame.</param>

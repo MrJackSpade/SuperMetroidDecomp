@@ -560,11 +560,8 @@ internal sealed class SuperMetroidRuntime
         // owner list; in particular, they must not scroll or animate while a message box
         // waits. Running this only once no message box waits keeps rain and fog
         // from advancing behind a station or item message.
-        if (room.Enemies.DisplaySources.Phantoon is { } waveBoss)
-        {
-            waveBoss.BodyWave.Step(waveBoss);
-            waveBoss.BodyVisibility.Step(waveBoss);
-        }
+        foreach (IStepWithRoomEffects effect in room.Enemies.DisplaySources.RoomEffectSteps)
+            effect.StepWithRoomEffects();
         room.FxOverlay.Step(room.ArtworkFrames, new RoomFxOverlayFrame { Camera = room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, FirefleaDarkness = room.Enemies.RoomStatus.FirefleaDarkness });
         // A lava or acid rise sustains the room's earthquake. Apply it before the ordinary earthquake step later in
         // this frame so its first displacement is visible immediately.
@@ -579,7 +576,7 @@ internal sealed class SuperMetroidRuntime
     {
         // Main gameplay begins by determining which enemies to process,
         // before colour effects and Samus. The grapple scan uses this list.
-        room.Enemies.ProcessingWindow.PrepareEnemyProcessingList(room.Camera.PixelPosition);
+        room.Enemies.PrepareEnemyProcessingList(room.Camera.PixelPosition);
     }
 
     /// <summary>Runs the room's colour effects and Hyper Beam's colour effect.</summary>
@@ -669,7 +666,7 @@ internal sealed class SuperMetroidRuntime
         // inside the ship, so the owners between the enemy phase and here have nothing to
         // act on; the box therefore opens at this shared suspension seam, and the
         // remainder resumes after the YES/NO/completion chain returns.
-        if (enemyPass is { } pass && pass.Reports(GunshipFrameEvent.SavePromptRequested))
+        if (enemyPass is { } pass && pass.Reports(new GunshipEvent(GunshipFrameEvent.SavePromptRequested)))
         {
             if (MessageBox.IsActive)
             {
@@ -840,7 +837,7 @@ internal sealed class SuperMetroidRuntime
     {
         if (startsTimeUp)
             return GameplayUpdateTransition.TimeUp;
-        if (EnemyFrameResults.LastEnemyFrame.Reports(GunshipFrameEvent.EscapeTakeoffCompleted))
+        if (EnemyFrameResults.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.EscapeTakeoffCompleted)))
             return GameplayUpdateTransition.LeavesZebes;
         // The map station's completion message pauses on the map as it closes, independently of Start or the station's
         // lock on Samus's input.
@@ -1140,13 +1137,13 @@ internal sealed class SuperMetroidRuntime
         // A frame is shown only from a loaded room, and every room loads with Samus introduced.
         RoomScope room = Room.LoadedScope;
         SamusState samus = Player.IntroducedSamus;
-        MotherBrainEnemyState? motherBrain = room.Enemies.DisplaySources.MotherBrain;
+        IEnemyDisplaySources enemyDisplays = room.Enemies.DisplaySources;
         var frameEnd = new GameplayFrameEndDisplayInputs(
             Room.DoorTransitionShownLayers,
             room.Sky?.State.Publish(room.Camera.PixelPosition),
-            room.Enemies.DisplaySources.CrocomireMelt,
-            motherBrain is { RisingFloorClipActive: true },
-            motherBrain?.RainbowBeam.RenderSnapshot,
+            enemyDisplays.BackgroundDistortion,
+            enemyDisplays.ClipsRisingFloor,
+            enemyDisplays.RainbowBeam,
             CeresHazeRenderSnapshot.Capture(room.CeresHaze),
             Artwork.ScreenContent.CeresHaze,
             PowerBombRenderSnapshot.Capture(room.BombProjectiles.PowerBombExplosion),

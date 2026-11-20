@@ -75,57 +75,32 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
         check.Delete();
     }
 
+    /// <summary>Creates the Lower Norfair statue's hand, which reports to these room objects.</summary>
+    internal LowerNorfairChozoHandObject CreateLowerNorfairHand() => new(this);
+
     /// <summary>
     /// Spawns the statue's room object <paramref name="request"/> names at its block, at the first free place in the
     /// update order, and runs its setup.
     /// </summary>
     /// <remarks>When the room is full nothing is spawned or changed (<see cref="Compatibility.RoomObjectPlaces"/>).</remarks>
-    /// <exception cref="ArgumentOutOfRangeException">The request names no statue room object.</exception>
     public void SpawnChozoStatueObject(RoomLevelData level, RoomObjectSpawnRequest<ChozoStatueRoomObject> request)
     {
         Ensure.NotNull(level);
-        RoomObjectBehaviour roomObject = request.RoomObject switch
-        {
-            ChozoStatueRoomObject.LowerNorfairHand => new LowerNorfairChozoHandObject(this),
-            ChozoStatueRoomObject.WreckedShipHand => new TerrainChangeObject(ChozoStatueObjectDefinitions.WreckedShipHand),
-            ChozoStatueRoomObject.SlopeAccessOpening => ChozoSlopeAccessObject.Clearing(),
-            ChozoStatueRoomObject.SlopeAccessClosing => ChozoSlopeAccessObject.Blocking(),
-            ChozoStatueRoomObject.PlugCrumbleAtHand or ChozoStatueRoomObject.PlugCrumbleUnderFootstep =>
-                new TerrainChangeObject(ChozoStatueObjectDefinitions.CrumblePlug),
-            _ => throw new ArgumentOutOfRangeException(nameof(request), request.RoomObject, "Not a Chozo statue's room object."),
-        };
-        Position16<RoomBlocks> block = level.GridBlock(request.Block);
+        var spawn = new ChozoStatueObjectSpawn(this, level, level.GridBlock(request.Block));
+        RoomObjectBehaviour roomObject = request.RoomObject.Create(spawn);
         if (_places.Spawn() is not { } place)
             return;
 
-        place.Block = block;
+        place.Block = spawn.Block;
         place.Become(roomObject);
-        switch (request.RoomObject)
-        {
-            case ChozoStatueRoomObject.WreckedShipHand:
-                WriteChozoBlock(level, block, RoomCollisionType.SpecialBlock, ChozoStatueRoomDefinitions.WreckedShipHandBehavior);
-                return;
-            case ChozoStatueRoomObject.PlugCrumbleAtHand:
-                // The plug's setup never chooses the picture it leaves: each of its two spawns leaves its own.
-                level.SetTerrain(block, CrumblePlugAir(CrumblePlugLeftBlock.Spawn.AtFixedBlock));
-                return;
-            case ChozoStatueRoomObject.PlugCrumbleUnderFootstep:
-                level.SetTerrain(block, CrumblePlugAir(CrumblePlugLeftBlock.Spawn.AtFoundBlock));
-                return;
-            case ChozoStatueRoomObject.LowerNorfairHand:
-            case ChozoStatueRoomObject.SlopeAccessOpening:
-            case ChozoStatueRoomObject.SlopeAccessClosing:
-                return;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(request), request.RoomObject, "Not a Chozo statue's room object.");
-        }
+        request.RoomObject.SetUp(spawn);
     }
 
     /// <summary>
     /// The air block a crumbling plug's setup leaves after <paramref name="spawn"/>, showing the picture that spawn left
     /// (<see cref="CrumblePlugLeftBlock"/>).
     /// </summary>
-    private static RoomTerrainBlock CrumblePlugAir(CrumblePlugLeftBlock.Spawn spawn)
+    internal static RoomTerrainBlock CrumblePlugAir(CrumblePlugLeftBlock.Spawn spawn)
     {
         CrumblePlugLeftBlock.Picture left = CrumblePlugLeftBlock.LeftBy(spawn);
         BlockMirroring mirroring = left.Mirrored switch

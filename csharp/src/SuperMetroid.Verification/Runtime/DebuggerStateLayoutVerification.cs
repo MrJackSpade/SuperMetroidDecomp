@@ -173,9 +173,9 @@ internal static class DebuggerStateLayoutVerification
     }
 
     /// <summary>
-    /// #2060: a state holding the room-object visuals captures and restores them. Their store finds each catalog by its
-    /// type, so the state holds those types: each is written as the identity of the type it names, and the restored store
-    /// finds every family's catalog under this build's type again, with its pictures (#2290).
+    /// #2060: a state holding the room-object visuals captures and restores them. Their store holds every family's pictures
+    /// under the draws that show them (#2571), so the restored store finds each draw's picture under this build's draw
+    /// again, and the bound setup-block pictures with it (#2290).
     /// </summary>
     internal static void VerifyDebuggerStateRestoresRoomObjectVisuals()
     {
@@ -185,14 +185,16 @@ internal static class DebuggerStateLayoutVerification
         {
             RoomObjectSetupBlocks = new InstalledRoomObjectSetupBlocks(new Dictionary<RoomObjectSetupBlock, RoomBlockAppearance> { [block] = shown }),
         });
+        RoomObjectDraw grapple = RoomObjectFixtures.Installed.RoomObjectGrappleBlockVisuals.Images.All.Keys.First();
 
         var restored = DeserializeDebuggerGraph<SuperMetroid.Core.World.RoomObjectVisuals>(SerializeDebuggerGraph(visuals));
         AssertTrue(!ReferenceEquals(visuals, restored), "the restore builds its own room-object visuals");
-        AssertTrue(restored.Catalog<InstalledRoomObjectSetupBlocks>().Shown(block) == shown,
-            "the restored visuals find the bound setup-block pictures by their type, showing what they showed");
-        AssertTrue(restored.Catalog<InstalledRoomObjectGrappleBlockVisuals>() is not null,
-            "the restored visuals find every other family's pictures too");
-        Console.WriteLine("Debugger state room-object visuals: the catalog store restores each catalog under its type.");
+        AssertTrue(restored.SetupBlock(block) == shown,
+            "the restored visuals show the bound setup-block pictures, showing what they showed");
+        AssertTrue(restored.Image(grapple).Cells.OrderBy(cell => (cell.Key.Y, cell.Key.X))
+                .SequenceEqual(visuals.Image(grapple).Cells.OrderBy(cell => (cell.Key.Y, cell.Key.X))),
+            "the restored visuals find every other family's pictures under their draws too");
+        Console.WriteLine("Debugger state room-object visuals: the picture store restores each draw's picture.");
     }
 
     /// <summary>

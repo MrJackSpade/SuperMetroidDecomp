@@ -321,7 +321,7 @@ internal sealed class DraygonParts
             RoomEnemyProjectileKind.DraygonGoop,
             _shots.Goop,
             graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
-        goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.Goop));
+        goop.StartAnimation(new DraygonProjectileAnimation(_shots.Goop, DraygonProjectileSegment.Goop));
         goop.Position = FixedPosition<RoomPixels>.FromWhole(state.Body.Position.Whole + (direction == HorizontalDirection.Right
             ? DraygonArenaDefinitions.GoopSpawnMovingRight : DraygonArenaDefinitions.GoopSpawnMovingLeft));
 
@@ -330,13 +330,14 @@ internal sealed class DraygonParts
         // turn when he moves right.
         TrigonometryAngle firstAngle = direction == HorizontalDirection.Right ? TrigonometryAngle.HalfTurn + TrigonometryAngle.QuarterTurn : TrigonometryAngle.HalfTurn;
         TrigonometryAngle angle = firstAngle + new TrigonometryAngle(DraygonRandomDefinitions.GoopAngleSpread.Of(random));
-        SetDraygonProjectileVelocity(goop, angle, DraygonProjectileSpeeds.Goop);
+        SetDraygonProjectileVelocity(_shots.Goop, goop, angle, DraygonProjectileSpeeds.Goop);
     }
 
-    /// <summary>Launches a Draygon projectile along <paramref name="angle"/> at <paramref name="speed"/>.</summary>
+    /// <summary>Launches a Draygon projectile, which <paramref name="owner"/> is bound to, along <paramref name="angle"/> at <paramref name="speed"/>.</summary>
     internal static void SetDraygonProjectileVelocity(
+        DraygonShots.DraygonShotBehavior owner,
         EnemyProjectile projectile,
         TrigonometryAngle angle,
         int speed) =>
-        projectile.State = AngledFlightState.Launch(angle, speed);
+        Ensure.NotNull(owner).Flights.Start(projectile, AngledFlightState.Launch(angle, speed));
 }

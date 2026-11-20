@@ -39,7 +39,7 @@ internal static class GoldNinjaDeathDropsVerification
         pirate.SpritemapPointer = normalShotFrame;
         pirate.AnimationClock.HoldFor(0x7fff);
         pirate.Health = 1;
-        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(pirate.Position.Whole);
+        runtime.Enemies.PrepareEnemyProcessingList(pirate.Position.Whole);
         MotherBrainRinkaDoorSpawnExpected target = new MotherBrainRinkaDoorSpawnExpected(pirate.Position.X.Whole, (ushort)(pirate.Position.Y.Whole + 15));
 
         var shot = runtime.Projectiles.Shots[0];

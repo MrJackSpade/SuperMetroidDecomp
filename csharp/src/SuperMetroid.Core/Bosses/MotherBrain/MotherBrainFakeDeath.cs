@@ -156,7 +156,7 @@ internal sealed class MotherBrainFakeDeath
         projectile.StartAnimation(new MotherBrainTopTubeAnimation(tube));
         projectile.Position = projectile.Position.WithWhole(position);
         projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
-        projectile.State = new MotherBrainTopTubeState();
+        _projectileAttacks.Projectile.TopTubes.Start(projectile, new MotherBrainTopTubeState());
     }
 
     /// <summary>Creates the falling tube enemy of <paramref name="piece"/>.</summary>
@@ -254,7 +254,7 @@ internal sealed class MotherBrainFakeDeath
         StopMotherBrainRoomFlash(state);
         _earthquake.Start(MotherBrainTubeCollapseDefinitions.LandingShake, MotherBrainTubeCollapseDefinitions.LandingShakeUpdates);
         // The fake death removes the room's liquid effects, and any X-ray cone, for the rest of the encounter.
-        _passEvents.Publish(new MotherBrainTubeLanded());
+        _passEvents.Publish(new LiquidSurfaceStilled());
         state.Head.Position = state.Head.Position.WithWholeY(MotherBrainFightDefinitions.BrainFloorY);
         state.Body.Position = state.Body.Position.WithWhole(MotherBrainFightDefinitions.StandingBodyPosition);
 

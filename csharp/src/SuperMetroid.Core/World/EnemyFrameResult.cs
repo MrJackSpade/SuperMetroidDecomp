@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Elevator;
-using SuperMetroid.Core.Enemies.Gunship;
 
 namespace SuperMetroid.Core.World;
 
@@ -18,9 +16,6 @@ public readonly record struct EnemyFrameResult(IReadOnlyList<EnemyPassEvent> Eve
     /// <summary>The pass's events of kind <typeparamref name="TEvent"/>, in publication order.</summary>
     public IEnumerable<TEvent> All<TEvent>() where TEvent : EnemyPassEvent => Events.OfType<TEvent>();
 
-    /// <summary>Whether the gunship took step <paramref name="step"/> in the pass.</summary>
-    public bool Reports(GunshipFrameEvent step) => All<GunshipEvent>().Any(gunship => gunship.Kind == step);
-
-    /// <summary>Whether the elevator's ride took step <paramref name="step"/> in the pass.</summary>
-    public bool Reports(ElevatorFrameEvent step) => All<ElevatorEvent>().Any(elevator => elevator.Kind == step);
+    /// <summary>Whether the pass published <paramref name="passEvent"/>, an event equal to it by value.</summary>
+    public bool Reports(EnemyPassEvent passEvent) => Events.Contains(passEvent);
 }

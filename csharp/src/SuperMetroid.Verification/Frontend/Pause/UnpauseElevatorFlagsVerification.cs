@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.Elevator;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

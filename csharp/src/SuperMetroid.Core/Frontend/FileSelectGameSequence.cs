@@ -145,7 +145,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
                     else
                     {
                         session.Show(CreateIntroCinematic(session.ActiveOptions.JapaneseText));
-                        session.Enter(SuperMetroidGameState.IntroCinematic);
+                        session.Enter(session.Phases.IntroCinematic);
                         session.display.PublishIntro(session.ActiveIntro);
                     }
                 }
@@ -177,7 +177,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
             else
             {
                 session.Show(CreateIntroCinematic(session.ActiveOptions.JapaneseText));
-                session.Enter(SuperMetroidGameState.IntroCinematic);
+                session.Enter(session.Phases.IntroCinematic);
                 session.display.PublishIntro(session.ActiveIntro);
             }
         }

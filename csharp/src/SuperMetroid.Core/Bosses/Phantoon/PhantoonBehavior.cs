@@ -18,17 +18,17 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Phantoon's body, eye, tentacles or mouth (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Phantoon definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.PhantoonBody)
-            return new PhantoonBodyEntity(this, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new PhantoonBodyEntity(this, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.PhantoonEye)
-            return new PhantoonEyeEntity(this, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new PhantoonEyeEntity(this, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.PhantoonTentacles)
-            return new PhantoonTentaclesEntity(this, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new PhantoonTentaclesEntity(this, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.PhantoonMouth)
-            return new PhantoonMouthEntity(this, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new PhantoonMouthEntity(this, place, common, _bossArtwork));
         throw new InvalidOperationException($"The Phantoon species creates no {place.DefinitionId}.");
     }
 
@@ -162,110 +162,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace body = state.Body;
         PhantoonPhase phase = state.Phase;
 
-        switch (phase)
-        {
-            case PhantoonPhase.SpawnStartingFlames:
-                Opening.RunPhantoonStartingFlameSpawner(state);
-                break;
-            case PhantoonPhase.WaitBeforeActivatingStartingFlames:
-                PhantoonOpening.RunPhantoonStartingFlamePause(state);
-                break;
-            case PhantoonPhase.WaitForStartingFlamesToDisappear:
-                Opening.RunPhantoonStartingFlameOrbitWait(state);
-                break;
-            case PhantoonPhase.WavyFadeIn:
-                Opening.RunPhantoonWavyFadeIn(body, state);
-                break;
-            case PhantoonPhase.PickFirstRoundPattern:
-                Patterns.RunPhantoonPickFirstRoundPattern(state);
-                break;
-            case PhantoonPhase.MoveInFigureEightThenOpenEye:
-                Patterns.RunPhantoonFirstRoundFigureEight(body, state);
-                break;
-            case PhantoonPhase.EyeTracksSamus:
-                PhantoonPatterns.RunPhantoonEyeTracking(body, state, samus);
-                break;
-            case PhantoonPhase.BecomeSolidAndSwoop:
-                PhantoonPatterns.BeginPhantoonVulnerableSwoop(body, state, samus);
-                break;
-            case PhantoonPhase.Swooping:
-                PhantoonPatterns.RunPhantoonSwoop(body, state, samus);
-                break;
-            case PhantoonPhase.FadeOutWhileSwooping:
-                Patterns.RunPhantoonFadeOutWhileSwooping(
-                    body,
-                    state,
-                    samus);
-                break;
-            case PhantoonPhase.WaitAfterFadeOut:
-                PhantoonPatterns.RunPhantoonHiddenWait(state);
-                break;
-            case PhantoonPhase.PickNextAppearance:
-                Patterns.PlacePhantoonForNextFigureEight(body, state);
-                break;
-            case PhantoonPhase.FadeInBeforeFigureEight:
-                Patterns.RunPhantoonFadeInBeforeFigureEight(body, state);
-                break;
-            case PhantoonPhase.BecomeSolidAfterFlameRain:
-                PhantoonPatterns.BeginPhantoonFlameRainVulnerableWindow(state);
-                break;
-            case PhantoonPhase.FadeInDuringFlameRain:
-                Patterns.RunPhantoonFlameRainFadeIn(body, state);
-                break;
-            case PhantoonPhase.TrackSamusDuringFlameRain:
-                PhantoonPatterns.RunPhantoonFlameRainVulnerableWindow(body, state);
-                break;
-            case PhantoonPhase.FadeOutDuringFlameRain:
-                Patterns.RunPhantoonFlameRainFadeOut(state);
-                break;
-            case PhantoonPhase.SpawnFlameRain:
-                Patterns.RunPhantoonHiddenFlameRain(body, state);
-                break;
-            case PhantoonPhase.FadeOutBeforeFirstFlameRain:
-                Patterns.RunPhantoonInitialFlameRain(body, state);
-                break;
-            case PhantoonPhase.FadeOutBeforeRage:
-                Patterns.RunPhantoonFadeOutBeforeRage(state);
-                break;
-            case PhantoonPhase.MoveToTopCenterForRage:
-                PhantoonPatterns.RunPhantoonRageHiddenWait(body, state);
-                break;
-            case PhantoonPhase.FadeInForRage:
-                Patterns.RunPhantoonRageFadeIn(body, state);
-                break;
-            case PhantoonPhase.Enraged:
-                Patterns.RunPhantoonRage(state);
-                break;
-            case PhantoonPhase.FadeOutAfterRage:
-                Patterns.RunPhantoonRageFadeOut(state);
-                break;
-            case PhantoonPhase.FinishFatalSwoop:
-                PhantoonDeath.RunPhantoonFatalSwoop(body, state, samus);
-                break;
-            case PhantoonPhase.DyingFadeInOut:
-                Death.RunPhantoonDyingFadeCycles(body, state);
-                break;
-            case PhantoonPhase.DyingExplosions:
-                Death.RunPhantoonDyingExplosions(body, state);
-                break;
-            case PhantoonPhase.BeginFinalWavyDeath:
-                Death.BeginPhantoonWavyPixelatedDeath(state);
-                break;
-            case PhantoonPhase.DyingFadeOut:
-                Death.RunPhantoonWavyPixelatedDeath(state);
-                break;
-            case PhantoonPhase.AlmostDead:
-                Death.ClearPhantoonDeathGraphics(state);
-                break;
-            case PhantoonPhase.Dead:
-                Death.ActivateWreckedShipAfterPhantoon(body, state, samus);
-                break;
-            case PhantoonPhase.WaitingOnEye:
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Phantoon has no behaviour for phase {state.Phase}.");
-        }
+        phase.Run(this, state, samus);
 
         // The three drawing parts follow the body to its new place, except on the update the almost-dead phase runs.
         if (phase == PhantoonPhase.AlmostDead)

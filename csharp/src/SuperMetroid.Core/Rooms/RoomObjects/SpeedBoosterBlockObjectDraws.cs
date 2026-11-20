@@ -5,8 +5,8 @@ internal static class SpeedBoosterBlockObjectDraws
 {
     /// <summary>The bombed Speed Booster block's reveal, pictured by its installed frame.</summary>
     internal static RoomObjectDrawFamily<SpeedBoosterBlockObjectDrawDefinitions.Draw> BombRevealFamily { get; } =
-        RoomObjectDrawFamily<SpeedBoosterBlockObjectDrawDefinitions.Draw>.Pictured<InstalledRoomObjectSpeedBoosterVisuals>("Speed Booster",
-            _ => SpeedBoosterBlockObjectDrawDefinitions.BombRevealShape, (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<SpeedBoosterBlockObjectDrawDefinitions.Draw>("Speed Booster",
+            _ => SpeedBoosterBlockObjectDrawDefinitions.BombRevealShape);
 
     /// <summary>A Speed Booster block showing <paramref name="stage"/> as it crumbles: the shared one-block breakup.</summary>
     internal static RoomObjectDraw Crumble(BlockBreakupStage stage) =>

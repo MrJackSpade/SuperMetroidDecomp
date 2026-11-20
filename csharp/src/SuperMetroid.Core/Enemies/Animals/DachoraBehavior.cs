@@ -16,10 +16,10 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dachora];
 
     /// <summary>A Dachora's body, or one of the speed-boost echoes its placement names (#2283).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(place).SpawnSettings<DachoraSpawnSettings>().Role == DachoraRole.SpeedBoostEcho
-            ? new DachoraEchoEntity(place, common)
-            : new DachoraEntity(this, place, common);
+            ? EnemyOccupant.Of(new DachoraEchoEntity(place, common))
+            : EnemyOccupant.Of(new DachoraEntity(this, place, common));
 
     /// <summary>Probes floors, walls, and ceiling during the run and shinespark arc.</summary>
     private readonly EnemyTerrain _terrain;

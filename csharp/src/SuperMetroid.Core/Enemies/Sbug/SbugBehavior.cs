@@ -11,7 +11,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Sbug];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new SbugEntity(place, common);
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SbugEntity(place, common));
 
     /// <summary>Initializes the Sbug.</summary>
     internal static void InitializeSbug(RoomEnemyPlace place)

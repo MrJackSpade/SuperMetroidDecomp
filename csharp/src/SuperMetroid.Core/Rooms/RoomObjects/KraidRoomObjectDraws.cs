@@ -9,15 +9,13 @@ internal static class KraidRoomObjectDraws
 {
     /// <summary>The room's backgrounds and clears, pictured by the installed Kraid room frames.</summary>
     internal static RoomObjectDrawFamily<KraidRoomDraw> Family { get; } =
-        RoomObjectDrawFamily<KraidRoomDraw>.Pictured<InstalledRoomObjectKraidVisuals>("Kraid room",
-            frame => RoomObjectDrawFamily<KraidRoomDraw>.Defined(KraidRoomObjectDrawDefinitions.Shapes, frame),
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<KraidRoomDraw>("Kraid room",
+            frame => RoomObjectDrawFamily<KraidRoomDraw>.Defined(KraidRoomObjectDrawDefinitions.Shapes, frame));
 
     /// <summary>A crumbling ceiling or spike block's breakup stages, pictured by the installed Kraid room frames.</summary>
     internal static RoomObjectDrawFamily<CrumbleDraw> CrumbleFamily { get; } =
-        RoomObjectDrawFamily<CrumbleDraw>.Pictured<InstalledRoomObjectKraidVisuals>("Kraid room crumble",
-            frame => RoomObjectDrawFamily<BlockBreakupStage>.Defined(KraidRoomObjectDrawDefinitions.CrumbleShapes, frame.Stage),
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<CrumbleDraw>("Kraid room crumble",
+            frame => RoomObjectDrawFamily<BlockBreakupStage>.Defined(KraidRoomObjectDrawDefinitions.CrumbleShapes, frame.Stage));
 
     /// <summary>A crumbling block showing <paramref name="stage"/> of its breakup.</summary>
     internal static RoomObjectFrameDraw<CrumbleDraw> Crumble(BlockBreakupStage stage) => CrumbleFamily.Of(new CrumbleDraw(stage));

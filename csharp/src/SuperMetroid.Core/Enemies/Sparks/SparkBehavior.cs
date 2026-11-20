@@ -19,13 +19,13 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Spark];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new SparkEntity(this, place, common);
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SparkEntity(this, place, common));
 
     /// <summary>Owner of the falling-spark projectile emitted by one spark action.</summary>
-    private readonly FallingSparksBehavior _fallingSparksBehavior;
+    internal FallingSparksBehavior FallingSparks { get; }
 
     /// <summary>Binds the spark species to its falling-spark producer.</summary>
-    internal SparkBehavior(FallingSparksBehavior fallingSparksBehavior) => _fallingSparksBehavior = fallingSparksBehavior;
+    internal SparkBehavior(FallingSparksBehavior fallingSparksBehavior) => FallingSparks = fallingSparksBehavior;
 
     /// <summary>Carries out one cue of Spark's animations.</summary>
     private static void ApplySparkCue(RoomEnemyPlace place, SparkCue cue)
@@ -91,7 +91,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!DecrementSparkTimerAndTestExpired(state))
                     return;
 
-                _fallingSparksBehavior.SpawnFallingSpark(place);
+                FallingSparks.SpawnFallingSpark(place);
                 SetSparkActionTimer(place, state, additionalTime: 0);
                 return;
 

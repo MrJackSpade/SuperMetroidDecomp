@@ -67,16 +67,16 @@ internal static class EyeDoorObjectsVerification
             "eye-door attack initializer applies cartridge PLM Y offset");
         for (int frame = 0; frame < 10; frame++)
             enemies.StepEnemyProjectiles(level, samus);
-        AssertEqual(new TrigonometryAngle(64), attack.StateOf<EyeDoorShotState>().Heading,
-            "direction opcode keeps the rightward heading");
+        // Zero points right in the one aim convention every enemy shares (#2555).
+        AssertEqual(TrigonometryAngle.Zero, enemies.EyeDoorBehavior.Shot.Shots.Of(attack).Heading,
+            "the aim at Samus level to the right keeps the rightward heading");
         AssertEqual((ushort)0x0100, attack.Velocity.X.RawValue,
             "direction opcode seeds rightward signed 8.8 X velocity");
         AssertEqual((ushort)0, attack.Velocity.Y.RawValue,
             "direction opcode seeds zero Y velocity for a level target");
         system.SetOpenedDoorBit(5);
         enemies.StepEnemyProjectiles(level, samus);
-        AssertEqual<Enum?>(null,
-            attack.Motion,
+        AssertTrue(attack.HoldsStill,
             "opened door impact executes its native clear-pre-instruction command");
 
         enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(

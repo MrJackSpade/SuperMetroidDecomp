@@ -104,8 +104,8 @@ internal sealed record RoomObjectArtwork
     /// <summary>The installed pictures of the blocks room-object setups and block reactions write of their own accord (#1580).</summary>
     public required InstalledRoomObjectSetupBlocks RoomObjectSetupBlocks { get; init; }
 
-    /// <summary>Every catalog, each under its own type, which names the one family it pictures.</summary>
-    internal IReadOnlyList<object> Catalogs =>
+    /// <summary>Every family's catalog, each listing its pictures under the draws that show them (#2571).</summary>
+    internal IReadOnlyList<IRoomObjectFamilyPictures> FamilyPictures =>
     [
         RoomObjectShotBlockVisuals,
         RoomObjectGrappleBlockVisuals,
@@ -135,6 +135,5 @@ internal sealed record RoomObjectArtwork
         RoomObjectMotherBrainFakeDeathVisuals,
         RoomObjectCollectibleVisuals,
         RoomObjectRevealAndWallVisuals,
-        RoomObjectSetupBlocks,
     ];
 }

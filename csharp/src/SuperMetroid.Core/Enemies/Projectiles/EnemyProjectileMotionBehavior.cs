@@ -18,6 +18,9 @@ internal abstract class EnemyProjectileMotionBehavior<TMotion> : EnemyProjectile
     /// </summary>
     private readonly IReadOnlyDictionary<RoomEnemyProjectileKind, TMotion?>? _startingMotions;
 
+    /// <summary>Each of this behaviour's motions a projectile has moved by, created once.</summary>
+    private readonly Dictionary<TMotion, EnemyProjectileFamilyMotion<TMotion>> _motions = [];
+
     /// <summary>A kind that starts in <paramref name="initial"/> and reacts to shots and touch by the factories' animations.</summary>
     /// <param name="initial">The motion the projectile starts with, or null when it starts holding still.</param>
     /// <param name="shot">The animation a destroying shot starts, or null for the shared delete animation.</param>
@@ -45,27 +48,31 @@ internal abstract class EnemyProjectileMotionBehavior<TMotion> : EnemyProjectile
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">This behaviour does not name the motion <paramref name="kind"/> starts with.</exception>
-    internal sealed override Enum? InitialMotion(RoomEnemyProjectileKind kind)
+    internal sealed override EnemyProjectileMotion? InitialMotion(RoomEnemyProjectileKind kind)
     {
         TMotion? motion = _startingMotions is null
             ? _initial
             : _startingMotions.TryGetValue(kind, out TMotion? starting)
                 ? starting
                 : throw new InvalidOperationException($"{GetType().Name} is not bound to enemy projectile {kind}.");
-        return motion is { } moving ? moving : null;
+        return motion is { } moving ? Moving(moving) : null;
     }
 
-    /// <inheritdoc/>
-    internal sealed override void RunMotion(EnemyProjectileMotionContext context)
+    /// <summary><paramref name="motion"/>, one of this behaviour's motions, held through this behaviour (#2571).</summary>
+    /// <param name="motion">The motion.</param>
+    /// <remarks>Each motion is created once, so a projectile that moves by it holds the same object every time.</remarks>
+    internal EnemyProjectileFamilyMotion<TMotion> Moving(TMotion motion)
     {
-        if (context.Projectile.Motion is TMotion motion)
-            Move(context, motion);
-        else
-            base.RunMotion(context);
+        if (!_motions.TryGetValue(motion, out EnemyProjectileFamilyMotion<TMotion>? moving))
+        {
+            moving = new EnemyProjectileFamilyMotion<TMotion>(this, motion);
+            _motions.Add(motion, moving);
+        }
+        return moving;
     }
 
     /// <summary>Moves the projectile one pass by <paramref name="motion"/>, which this behaviour owns.</summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>
     /// <param name="motion">The motion the projectile holds.</param>
-    private protected abstract void Move(EnemyProjectileMotionContext context, TMotion motion);
+    internal abstract void Move(EnemyProjectileMotionContext context, TMotion motion);
 }

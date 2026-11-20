@@ -18,12 +18,6 @@ internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehav
     public CeresEscapeStatus CeresStatus { get => encounter.CeresStatus; set => encounter.CeresStatus = value; }
 
     /// <inheritdoc/>
-    public bool RidleyPresent => encounter.RidleyPresent;
-
-    /// <inheritdoc/>
-    public int ExploredArenaMapRows => encounter.ExploredArenaMapRows;
-
-    /// <inheritdoc/>
     public int ResolveCeresRidleyProjectileHits(SamusProjectileSystem projectiles, SamusBombProjectileSystem samusBombs) =>
         ceresRidley.Hits.ResolveCeresRidleyProjectileHits(projectiles, samusBombs);
 

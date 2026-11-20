@@ -54,7 +54,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemyPlace, ushort> spawnStalk = (stalkBody, stalkIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(stalkBody, SporeSpawnProjectileDefinitions.StalkSegments[stalkIndex]);
         Action<RoomEnemyPlace, ushort> spawnSpawner = (spawnerBody, spawnerIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(spawnerBody, new SporeSpawnEnemyState(), SporeSpawnProjectileDefinitions.Emitters[spawnerIndex]);
-        Action<EnemyProjectile> move = SporeSpawnSporeBehavior.DriftSpore;
+        Action<EnemyProjectile> move = enemies.SporeSpawnBehavior.Spore.DriftSpore;
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Position = body.Position.WithWhole(new(0x1234, 0x0200));
         for (ushort index = 0; index < 4; index++)
@@ -84,7 +84,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
             int offset = step * 2;
             spore.Kind = RoomEnemyProjectileKind.SporeSpawnSpore;
             spore.Position = spore.Position.WithWhole(new(0x0200, 0x0200));
-            spore.State = new SporeSpawnSporeState(mirrored != 0 ? HorizontalDirection.Left : HorizontalDirection.Right) { PathStep = ListStep<Offset16<RoomPixels>>.At(SporeSpawnProjectileDefinitions.Drift, step) };
+            enemies.SporeSpawnBehavior.Spore.Drifts.Start(spore, new SporeSpawnSporeState(mirrored != 0 ? HorizontalDirection.Left : HorizontalDirection.Right) { PathStep = ListStep<Offset16<RoomPixels>>.At(SporeSpawnProjectileDefinitions.Drift, step) });
             int x = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + offset));
             int y = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + ((offset + 1) & 0xff)));
             move(spore);
@@ -92,7 +92,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
                 spore.Position.X.Whole, $"Spore Spawn production X {offset:X2}/{mirrored}");
             AssertEqual(unchecked((ushort)(0x0200 + y + y)), spore.Position.Y.Whole,
                 $"Spore Spawn production Y {offset:X2}/{mirrored}");
-            AssertEqual((step + 1) % 128, spore.StateOf<SporeSpawnSporeState>().PathStep.Place,
+            AssertEqual((step + 1) % 128, enemies.SporeSpawnBehavior.Spore.Drifts.Of(spore).PathStep.Place,
                 $"Spore Spawn production path step {offset:X2}/{mirrored}");
         }
 

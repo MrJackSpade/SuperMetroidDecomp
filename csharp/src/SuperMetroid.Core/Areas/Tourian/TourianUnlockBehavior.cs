@@ -67,7 +67,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
                 _statue.SceneGraphics);
             _statue.HoldSceneProjectile(projectile);
             projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustAnimations.TourianDescentDust));
-            projectile.State = new AnchoredProjectileState(TourianStatueSequenceDefinitions.DescentDustAnchor);
+            projectile.Anchor = TourianStatueSequenceDefinitions.DescentDustAnchor;
         }
     }
 
@@ -96,7 +96,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         if (projectile is null) return null;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Effects, _statue.SceneGraphics);
         _statue.HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
+        projectile.StartAnimation(new TourianStatueProjectileAnimation(this, start));
         projectile.Position = projectile.Position.WithWhole(eye.Position);
         return projectile;
     }
@@ -139,7 +139,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         if (projectile is null) return null;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Effects, _statue.SceneGraphics);
         _statue.HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
+        projectile.StartAnimation(new TourianStatueProjectileAnimation(this, start));
         projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
         return projectile;
     }
@@ -199,7 +199,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     /// <summary>Moves one of the unlock's effects: the splash's hold, the particle's fall and the soul's rise.</summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>
     /// <param name="motion">The effect's motion.</param>
-    private protected override void Move(EnemyProjectileMotionContext context, TourianStatueEffectMotion motion)
+    internal override void Move(EnemyProjectileMotionContext context, TourianStatueEffectMotion motion)
     {
         switch (motion)
         {

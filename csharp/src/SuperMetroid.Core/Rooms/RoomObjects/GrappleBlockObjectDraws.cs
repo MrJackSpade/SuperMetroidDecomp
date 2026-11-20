@@ -11,8 +11,8 @@ internal static class GrappleBlockObjectDraws
     /// collision whatever the art shows.
     /// </summary>
     internal static RoomObjectDrawFamily<GrappleBlockDraw> Family { get; } =
-        RoomObjectDrawFamily<GrappleBlockDraw>.Pictured<InstalledRoomObjectGrappleBlockVisuals>("Grapple-block",
-            frame => RoomBlockShapes.Block(Collision(frame)), (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<GrappleBlockDraw>("Grapple-block",
+            frame => RoomBlockShapes.Block(Collision(frame)));
 
     /// <summary>
     /// How the block a draw installs collides: the Grapple block, then the breaking and blank blocks as air.

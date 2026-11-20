@@ -24,30 +24,30 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
 
     /// <summary>The door or wall actor <paramref name="place"/>'s definition names, facing or standing where its placement says.</summary>
     /// <exception cref="InvalidDataException">The definition is no Ceres door or wall, or the placement names no facing or side.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId actor = Ensure.NotNull(place).DefinitionId;
         if (actor == EnemyDefinitionId.CeresDoor)
         {
-            return new CeresDoorEntity(_doors, place, common, place.SpawnSettings<CeresDoorSpawnSettings>().Facing switch
+            return EnemyOccupant.Of(new CeresDoorEntity(_doors, place, common, place.SpawnSettings<CeresDoorSpawnSettings>().Facing switch
             {
                 HorizontalDirection.Right => CeresDoorSegment.DoorFacingRight,
                 HorizontalDirection.Left => CeresDoorSegment.DoorFacingLeft,
                 var other => throw new InvalidDataException($"No Ceres door faces {other}."),
-            });
+            }));
         }
         if (actor == EnemyDefinitionId.CeresRidleyRoomDoor)
-            return new CeresRidleyRoomDoorEntity(_doors, place, common);
+            return EnemyOccupant.Of(new CeresRidleyRoomDoorEntity(_doors, place, common));
         if (actor == EnemyDefinitionId.CeresElevatorRoomWall)
-            return new CeresElevatorRoomWallEntity(_doors, place, common);
+            return EnemyOccupant.Of(new CeresElevatorRoomWallEntity(_doors, place, common));
         if (actor == EnemyDefinitionId.CeresGetawayChamberWall)
         {
-            return new CeresGetawayChamberWallEntity(_doors, place, common, place.SpawnSettings<CeresGetawayChamberWallSpawnSettings>().Side switch
+            return EnemyOccupant.Of(new CeresGetawayChamberWallEntity(_doors, place, common, place.SpawnSettings<CeresGetawayChamberWallSpawnSettings>().Side switch
             {
                 HorizontalDirection.Left => CeresDoorSegment.GetawayChamberLeftWall,
                 HorizontalDirection.Right => CeresDoorSegment.GetawayChamberRightWall,
                 var other => throw new InvalidDataException($"No getaway chamber wall stands on side {other}."),
-            });
+            }));
         }
         throw new InvalidDataException($"{actor} is no Ceres door or wall.");
     }

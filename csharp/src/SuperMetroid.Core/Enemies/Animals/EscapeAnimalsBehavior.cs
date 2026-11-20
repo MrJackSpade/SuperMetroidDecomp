@@ -16,13 +16,13 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>An escaping Etecoon, or the escaping Dachora (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no escape animals definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.EtecoonEscape)
-            return new EscapeEtecoonEntity(this, place, common);
+            return EnemyOccupant.Of(new EscapeEtecoonEntity(this, place, common));
         if (definition == EnemyDefinitionId.DachoraEscape)
-            return new EscapeDachoraEntity(this, place, common);
+            return EnemyOccupant.WithoutMainAi(new EscapeDachoraEntity(this, place, common));
         throw new InvalidOperationException($"The escape animals species creates no {place.DefinitionId}.");
     }
 

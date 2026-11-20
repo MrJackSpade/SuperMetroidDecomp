@@ -61,7 +61,13 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     private readonly EnemySpeciesRegistry _registry;
 
     /// <summary>The enemy occupying the place, bound with its identity; null while the place is empty.</summary>
-    internal IEnemyEntity? Entity { get; private set; }
+    internal IEnemyEntity? Entity => Occupant?.Entity;
+
+    /// <summary>
+    /// The occupant's entity with the setup and main AI it runs, as its factory named them (#2571); null while the place is
+    /// empty.
+    /// </summary>
+    internal EnemyOccupant? Occupant { get; private set; }
 
     /// <summary>
     /// The species states the current occupant owns (#1543). Its species installs them as it initializes, and the place
@@ -89,7 +95,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// nothing unless a neighbour wrote it (<see cref="FoundOrClearedState{T}"/>), or held none.
     /// </summary>
     internal T? FoundState<T>() where T : class =>
-        _leftovers.Found(Occupant)?.Find<T>();
+        _leftovers.Found(HeldStates)?.Find<T>();
 
     /// <summary>
     /// The <typeparamref name="T"/> a neighbour that writes to this place finds there, which it does without testing what
@@ -102,7 +108,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     {
         if (FoundState<T>() is { } found)
             return found;
-        if (_leftovers.ClearedByKill(Occupant) is not { } cleared)
+        if (_leftovers.ClearedByKill(HeldStates) is not { } cleared)
             return null;
         var emptied = new T();
         cleared.Install(emptied);
@@ -110,7 +116,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     }
 
     /// <summary>The species states of the enemy holding the place, or null while it holds none.</summary>
-    private EnemyOccupantStates? Occupant => DefinitionId == EnemyDefinitionId.None ? null : OccupantStates;
+    private EnemyOccupantStates? HeldStates => DefinitionId == EnemyDefinitionId.None ? null : OccupantStates;
 
     /// <summary>
     /// Installs a new occupant's identity and binds the entity its species creates. Every identity change goes through
@@ -126,7 +132,9 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
         AwaitsRespawn = false;
         OccupantStates = new();
         AnimationClock = new();
-        Entity = definitionId == EnemyDefinitionId.None ? null : _registry.Create(this);
+        if (definitionId == EnemyDefinitionId.None)
+            return;
+        Occupant = _registry.Create(this);
     }
 
     /// <summary>
@@ -136,7 +144,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     private void ReleaseEntity()
     {
         IEnemyEntity? leaving = Entity;
-        Entity = null;
+        Occupant = null;
         if (leaving is IEnemyDeparture departure)
             departure.Leave();
     }

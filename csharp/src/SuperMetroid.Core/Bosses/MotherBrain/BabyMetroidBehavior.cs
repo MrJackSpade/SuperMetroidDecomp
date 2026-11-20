@@ -26,7 +26,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroid];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new BabyMetroidEntity(this, place, common);
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new BabyMetroidEntity(this, place, common));
 
     /// <summary>Provides the room's enemy session, room scroll values, RNG, and installed encounter colors.</summary>
     private readonly EnemyRoomBinding _room;
@@ -316,7 +316,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Puts the camera at its arena's edge directly, then rescrolls the room's four screens as the wall entrance does: the second
         // and fourth are closed, the first and third keep the scroll they have. This is not ordinary camera
         // tracking.
-        _passEvents.Publish(new BabyMetroidCameraMove(BabyMetroidFightDefinitions.ArenaLeftX));
+        _passEvents.Publish(new EnemyCameraXWrite(BabyMetroidFightDefinitions.ArenaLeftX));
         SetBabyMetroidScrollPair(RoomScrollState.Closed);
         QueueBabyMetroidWallObjects(BabyMetroidWallMutation.Create);
         state.Action = BabyMetroidAction.BeginEntranceDelay;

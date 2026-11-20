@@ -13,15 +13,15 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A Brinstar Pipe Bug (Zeb or Zebbo), a Norfair one (Gamet) or a yellow one (Geega) (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Pipe Bugs definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition is EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo)
-            return new BrinstarPipeBugEntity(place, common);
+            return EnemyOccupant.Of(new BrinstarPipeBugEntity(place, common));
         if (definition == EnemyDefinitionId.Gamet)
-            return new NorfairPipeBugEntity(this, place, common);
+            return EnemyOccupant.Of(new NorfairPipeBugEntity(this, place, common));
         if (definition == EnemyDefinitionId.Geega)
-            return new YellowPipeBugEntity(place, common);
+            return EnemyOccupant.Of(new YellowPipeBugEntity(place, common));
         throw new InvalidOperationException($"The Pipe Bugs species creates no {place.DefinitionId}.");
     }
 

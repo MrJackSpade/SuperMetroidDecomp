@@ -12,9 +12,8 @@ internal abstract class EnemyProjectileAnimation
     /// then stops, as the cue that did so would. An animation that has shown a frame for good, or rests where its timeline
     /// holds, has stopped its hold and takes no step (#2380).
     /// </summary>
-    /// <param name="context">The projectile, Samus and the pass's camera, for cues that act on them.</param>
-    /// <param name="projectiles">The projectile engine, which carries out the shared cues.</param>
-    internal void Advance(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles)
+    /// <param name="context">The projectile, Samus, the pass's camera and the engine, for cues that act on them.</param>
+    internal void Advance(EnemyProjectileCueContext context)
     {
         EnemyProjectile projectile = context.Projectile;
         if (projectile.IsFrameHoldStopped)
@@ -23,7 +22,7 @@ internal abstract class EnemyProjectileAnimation
         projectile.FrameHold = frameStep.Remaining;
         if (!frameStep.IsZero)
             return;
-        EnemyProjectileFrameStep step = NextFrame(context, projectiles);
+        EnemyProjectileFrameStep step = NextFrame(context);
         if (projectile.Animation != this)
             return;
         switch (step)
@@ -49,7 +48,9 @@ internal abstract class EnemyProjectileAnimation
     }
 
     /// <summary>Advances the timeline to its next frame, a frame shown for good, or its rest.</summary>
-    /// <param name="context">The projectile the animation runs on, Samus and the pass's camera, for cues that act on them.</param>
-    /// <param name="projectiles">The projectile engine, which carries out the shared cues.</param>
-    private protected abstract EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles);
+    /// <param name="context">
+    /// The projectile the animation runs on, Samus, the pass's camera and the engine that carries out the shared cues, for
+    /// cues that act on them.
+    /// </param>
+    private protected abstract EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context);
 }

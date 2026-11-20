@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
@@ -162,5 +163,15 @@ internal sealed record RoomScope
             throw new InvalidOperationException("This room's Ceres elevator arrival has already begun.");
         CeresElevatorArrival = Ensure.NotNull(arrival);
     }
+
+    /// <summary>The room's actors that stand in front of Samus (#2571): the Ceres elevator arrival once it has begun.</summary>
+    internal IEnumerable<IActorInFrontOfSamus> ActorsInFrontOfSamus => CeresElevatorArrival is { } arrival ? [arrival] : [];
+
+    /// <summary>
+    /// The displayed states the accepted frame's boundary latches (#2571): the enemies' and, in the statue room, the
+    /// statues' descent.
+    /// </summary>
+    internal IEnumerable<IDisplayLatch> DisplayLatches =>
+        TourianStatues is { } statues ? [.. Enemies.DisplaySources.DisplayLatches, statues] : Enemies.DisplaySources.DisplayLatches;
 
 }

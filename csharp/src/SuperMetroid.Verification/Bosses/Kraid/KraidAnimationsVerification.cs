@@ -417,7 +417,7 @@ internal static class KraidAnimationsVerification
             enemies.VerificationServices().ReadRandom = () => 32;
             enemies.KraidBehavior.Head.SpawnKraidSpitRock(NewRockSource());
             EnemyProjectile rock = enemies.Projectiles.EnemyProjectiles.Single(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidSpitRock);
-            rock.StartAnimation(new KraidRockAnimation(program));
+            rock.StartAnimation(new KraidRockAnimation(enemies.KraidBehavior.Projectiles.SpitRock, program));
             var native = new NativeEnemyProjectileListReader(entry, rock.FrameHold.RawValue);
             for (int update = 0; update < 40 && !native.Deleted; update++)
             {
@@ -432,7 +432,7 @@ internal static class KraidAnimationsVerification
                 SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, rock, at);
                 AssertEqual(native.Operand, rock.PresentationOperandAddress, $"{at}: frame");
                 if (native.FrameBehavior is { } frameBehavior)
-                    AssertEqual(EnemyProjectileMotionAccess.FromWord(frameBehavior), rock.Motion, $"{at}: pre-instruction");
+                    AssertEqual(rock.MotionOfWord(frameBehavior), rock.Motion, $"{at}: pre-instruction");
             }
             AssertEqual(program == KraidRockSegment.SpitRockShot, native.Deleted, $"Kraid rock {program}: only the burst deletes its rock");
         }

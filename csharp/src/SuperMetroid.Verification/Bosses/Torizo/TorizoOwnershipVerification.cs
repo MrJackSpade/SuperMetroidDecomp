@@ -85,7 +85,7 @@ internal static class TorizoOwnershipVerification
         enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo);
         EnemyProjectile beam = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         beam.HoldStill();
-        beam.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.EyeBeamFloorImpact));
+        beam.StartAnimation(new TorizoProjectileAnimation(enemies.TorizoBehavior.Attacks.TorizoProjectiles, TorizoProjectileSegment.EyeBeamFloorImpact));
 
         bool sparkedOn = false;
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();

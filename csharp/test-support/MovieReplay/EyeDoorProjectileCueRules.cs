@@ -25,7 +25,7 @@ internal static class EyeDoorProjectileCueRules
         {
             VerificationAssertions.AssertEqual(Commands[(NativeEnemyProjectileInstruction)word].Kind, cue.Kind, $"{at}: cue");
             if (cue.Kind == EyeDoorProjectileCueKind.StartFlight)
-                VerificationAssertions.AssertEqual<Enum?>(EyeDoorProjectileMotion.ShotFlying, EnemyProjectileMotionAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction");
+                VerificationAssertions.AssertTrue(EnemyProjectileMotionAccess.StandsFor(LittleEndianBytes.Word(operands[0], operands[1]), EyeDoorProjectileMotion.ShotFlying), $"{at}: pre-instruction");
         },
         cue => cue.Kind == EyeDoorProjectileCueKind.Delete);
 }

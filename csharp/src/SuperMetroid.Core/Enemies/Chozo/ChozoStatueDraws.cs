@@ -12,7 +12,6 @@ internal static class ChozoStatueDraws
 {
     /// <summary>The statues' frames, pictured by the installed Chozo statue frames.</summary>
     internal static RoomObjectDrawFamily<ChozoStatueDraw> Family { get; } =
-        RoomObjectDrawFamily<ChozoStatueDraw>.Pictured<InstalledRoomObjectChozoStatueVisuals>("Chozo statue",
-            frame => RoomObjectDrawFamily<ChozoStatueDraw>.Defined(ChozoStatueObjectDrawDefinitions.Shapes, frame),
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<ChozoStatueDraw>("Chozo statue",
+            frame => RoomObjectDrawFamily<ChozoStatueDraw>.Defined(ChozoStatueObjectDrawDefinitions.Shapes, frame));
 }

@@ -237,7 +237,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         {
             // The brightening explicitly restores main gameplay on its final frame.
             session.screenFade.StepEvery(1);
-            session.Enter(SuperMetroidGameState.MainGameplay);
+            session.Enter(session.Phases.MainGameplay);
         }
     }
 }

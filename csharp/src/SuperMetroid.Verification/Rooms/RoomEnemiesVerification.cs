@@ -629,7 +629,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     EnemyProjectile ripperDeath = enemies.Projectiles.ProjectileInPlace(17);
     AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, ripperDeath.Kind,
         "Ripper zero health allocates the shared F345 death actor");
-    AssertEqual(definitionPointer, ripperDeath.StateOf<EnemyDeathExplosionState>().DropDefinitionId,
+    AssertEqual(definitionPointer, enemies.DeathsAndDrops.Explosions.Of(ripperDeath).DropDefinitionId,
         "Ripper death actor retains its header for EEAF drop selection");
     AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "Ripper death increments room kill count");
 
@@ -1088,11 +1088,10 @@ internal static void VerifyCeresRidleyRoomEntry()
             retreatBackgroundColor ??= RgbColor.FromWord(Shown()[0x51]);
         // Room main follows enemy AI, so the handoff frame also takes getaway step zero.
         enemies.CeresEscape.RunGetawayRoomMain(samus, ceresFloor, 0);
-        observedFakeRetreat |= state.Phase is
-            CeresRidleyPhase.FakeRetreatMoveToPosition or
-            CeresRidleyPhase.FakeRetreatRising or
-            CeresRidleyPhase.WaitBeforeRetrievingBaby or
-            CeresRidleyPhase.RetrieveBaby;
+        observedFakeRetreat |= state.Phase == CeresRidleyPhase.FakeRetreatMoveToPosition ||
+            state.Phase == CeresRidleyPhase.FakeRetreatRising ||
+            state.Phase == CeresRidleyPhase.WaitBeforeRetrievingBaby ||
+            state.Phase == CeresRidleyPhase.RetrieveBaby;
         retreatFrames++;
     }
     AssertTrue(observedFakeRetreat,

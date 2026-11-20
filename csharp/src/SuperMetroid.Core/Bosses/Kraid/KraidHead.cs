@@ -21,9 +21,14 @@ internal sealed class KraidHead
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     private readonly KraidBackground _background;
 
+    /// <summary>The rocks he spits, his encounter's own (#2571).</summary>
+    private readonly KraidProjectiles.RockBehavior _spitRock;
+
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidHead(EnemyRoomBinding room, EnemyProjectileEngine projectiles, KraidParts parts, KraidEncounterAccess access, KraidBackground background)
+    internal KraidHead(EnemyRoomBinding room, EnemyProjectileEngine projectiles, KraidParts parts, KraidEncounterAccess access, KraidBackground background,
+        KraidProjectiles.RockBehavior spitRock)
     {
+        _spitRock = Ensure.NotNull(spitRock);
         _room = room;
         _projectiles = projectiles;
         _parts = parts;
@@ -251,9 +256,9 @@ internal sealed class KraidHead
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             rock,
             RoomEnemyProjectileKind.KraidSpitRock,
-            KraidProjectiles.SpitRock,
+            _spitRock,
             graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
-        rock.StartAnimation(new KraidRockAnimation(KraidRockSegment.SharedPose));
+        rock.StartAnimation(new KraidRockAnimation(_spitRock, KraidRockSegment.SharedPose));
         int random = _access.ReadKraidRandomNumber();
         rock.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole + KraidArenaDefinitions.SpitRockOffset);
         rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.SpitLaunch.Choose(random));

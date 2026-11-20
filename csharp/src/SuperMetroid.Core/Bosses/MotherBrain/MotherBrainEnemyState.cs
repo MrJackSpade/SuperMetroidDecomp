@@ -18,6 +18,9 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <inheritdoc />
     bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => DeathHidesBodyLayer;
 
+    /// <inheritdoc/>
+    bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.HidesBackgroundLayer => DeathHidesBodyLayer;
+
     /// <summary>Starts the shared encounter state with her body and her head (#2298).</summary>
     /// <param name="body">Her body's place.</param>
     /// <param name="head">Her head's place, which her room lists right after her body.</param>

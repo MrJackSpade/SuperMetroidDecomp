@@ -11,12 +11,6 @@ internal interface ICeresEncounter
     /// <summary>How far Ceres's escape has progressed.</summary>
     CeresEscapeStatus CeresStatus { get; set; }
 
-    /// <summary>Whether a Ridley encounter is loaded.</summary>
-    bool RidleyPresent { get; }
-
-    /// <summary>The rows of the room's map, from its top, that the loaded Ridley encounter marks explored: none for Ceres Ridley's.</summary>
-    int ExploredArenaMapRows { get; }
-
     /// <summary>Resolves Samus's projectiles against Ceres Ridley before the enemy pass; returns the hits.</summary>
     int ResolveCeresRidleyProjectileHits(SamusProjectileSystem projectiles, SamusBombProjectileSystem samusBombs);
 

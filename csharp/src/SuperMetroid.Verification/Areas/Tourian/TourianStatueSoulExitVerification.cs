@@ -80,7 +80,7 @@ internal static class TourianStatueSoulExitVerification
             unlock.SpawnTourianSoul(statue.Eye);
             EnemyProjectile soul = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             unlock.RunCue(new EnemyProjectileCueContext(soul, MotionInputs.Value.Samus, Position16<RoomPixels>.Zero, ShortCounter: 0,
-                MotionInputs.Value.Bombs), new TourianStatueProjectileCue.Signal(TourianStatueProjectileCueKind.SpawnParticle));
+                MotionInputs.Value.Bombs, enemies.Projectiles), new TourianStatueProjectileCue.Signal(TourianStatueProjectileCueKind.SpawnParticle));
             EnemyProjectile particle = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
                 projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.TourianStatueParticle);
             bool aboveTop = false;

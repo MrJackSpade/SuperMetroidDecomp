@@ -10,13 +10,19 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// </summary>
 /// <param name="deathsAndDrops">The killed sound and the drop a shot spore leaves.</param>
 internal sealed class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops)
-    : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SporeShot)),
-        IEnemyProjectileCues<SporeSpawnProjectileCue>
+    : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving), IEnemyProjectileCues<SporeSpawnProjectileCue>
 {
+    /// <summary>The way each spore drifts and its step along its path, given as its spawner releases it.</summary>
+    internal EnemyProjectileStates<SporeSpawnSporeState> Drifts { get; } = new();
+
+    /// <inheritdoc/>
+    internal override EnemyProjectileAnimation ShotAnimation() =>
+        new SporeSpawnProjectileAnimation(this, SporeSpawnProjectileSegment.SporeShot);
+
     /// <summary>Drifts the spore one step along its path.</summary>
     /// <param name="context">The spore and what its pass hands every motion.</param>
     /// <param name="motion">The spore's one motion, its drift.</param>
-    private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) => DriftSpore(context.Projectile);
+    internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) => DriftSpore(context.Projectile);
 
     /// <summary>Carries out a cue of a shot spore's burst: its impact properties, the killed sound, its drop and its deletion.</summary>
     public void RunCue(EnemyProjectileCueContext context, SporeSpawnProjectileCue cue)
@@ -44,9 +50,9 @@ internal sealed class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops
     }
 
     /// <summary>Drifts a spore one step along its path, deleting it once it falls below the room.</summary>
-    internal static void DriftSpore(EnemyProjectile spore)
+    internal void DriftSpore(EnemyProjectile spore)
     {
-        SporeSpawnSporeState drift = Ensure.NotNull(spore).StateOf<SporeSpawnSporeState>();
+        SporeSpawnSporeState drift = Drifts.Of(Ensure.NotNull(spore));
         Offset16<RoomPixels> movement = drift.PathStep.Entry;
         int xDelta = movement.X;
         if (drift.Drift == HorizontalDirection.Left)

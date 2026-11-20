@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>Yapping Maw body link's typed animation.</summary>
 internal sealed class YappingMawBodyProjectileAnimation(YappingMawBodyProjectileSegment segment)
-    : EnemyProjectileFrameAnimation<YappingMawBodyProjectileSegment, EnemyProjectileCommonCue>(YappingMawBodyProjectileAnimations.StartingWith(segment))
+    : EnemyProjectileFrameAnimation<YappingMawBodyProjectileSegment, EnemyProjectileCommonCue>(YappingMawBodyProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunners.Common<YappingMawBodyProjectileSegment>())
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<YappingMawBodyProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => YappingMawBodyProjectileAnimations.Segments;

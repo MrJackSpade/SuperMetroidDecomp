@@ -61,7 +61,7 @@ internal static class RoomDefinitionIntegrationVerification
         ushort initialCameraY = actual.Room.LoadedCamera.PixelPosition.Y;
         int frames = 0;
         bool cameraMoved = false;
-        while (!actual.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.LandingCompleted) &&
+        while (!actual.Enemies.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.LandingCompleted)) &&
                frames < PostCeresLandingMaximumFrames)
         {
             expected.StepFrame(0);
@@ -87,7 +87,7 @@ internal static class RoomDefinitionIntegrationVerification
 
         AssertTrue(cameraMoved,
             "post-Ceres production trajectory moves the camera through Landing Site");
-        AssertTrue(actual.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.LandingCompleted),
+        AssertTrue(actual.Enemies.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.LandingCompleted)),
             "guarded post-Ceres production trajectory reaches landing completion");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production entry and camera trajectory perform no compiled-definition ROM reads");

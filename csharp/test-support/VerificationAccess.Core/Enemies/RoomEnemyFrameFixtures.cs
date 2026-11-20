@@ -115,7 +115,7 @@ internal static class RoomEnemyFrameFixtures
             Ensure.NotNull(frame);
             // A standalone frame is an update of its own: it begins the check's record of the requests the enemies join.
             self.Audio.Requests.BeginRecordedUpdate();
-            self.ProcessingWindow.PrepareEnemyProcessingList(frame.Camera);
+            self.PrepareEnemyProcessingList(frame.Camera);
             return self.StepFrame(frame);
         }
 

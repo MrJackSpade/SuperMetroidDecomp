@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>The work robot species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.WorkRobot, EnemyDefinitionId.UnpoweredWorkRobot];
@@ -20,13 +20,13 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// states once Phantoon is defeated, so it always has power (#2455).
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no work robot definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.WorkRobot)
-            return new PoweredWorkRobotEntity(this, place, common);
+            return EnemyOccupant.Of(new PoweredWorkRobotEntity(this, place, common));
         if (definition == EnemyDefinitionId.UnpoweredWorkRobot)
-            return new UnpoweredWorkRobotEntity(this, place, common);
+            return EnemyOccupant.Of(new UnpoweredWorkRobotEntity(this, place, common));
         throw new InvalidOperationException($"The work robot species creates no {place.DefinitionId}.");
     }
 
@@ -275,7 +275,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Plays the powered robots' glow on after the enemies' update unless it is stopped; when the step's time is up the
     /// glow shows its next step on every powered robot still in the place it set up and holds it for that step's hold.
     /// </summary>
-    internal void StepGlow()
+    public void StepGlow()
     {
         if (!GlowRuns)
             return;

@@ -30,29 +30,34 @@ internal sealed record EndingScreenLoads(EndingFloorSceneId? FloorScene, bool Fl
     /// once the shot has handed over to the white flash.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The phase is undefined.</exception>
-    internal static EndingScreenLoads Of(EndingCreditsPhase phase) => phase switch
+    internal static EndingScreenLoads Of(EndingCreditsPhase phase)
     {
-        EndingCreditsPhase.SetupEscapeFromZebes => None,
-        EndingCreditsPhase.WaitForEscapeMusic or EndingCreditsPhase.FadeInSideCloudEscape or EndingCreditsPhase.SideCloudEscape
-            or EndingCreditsPhase.FadeOutSideCloudEscape => None with { FloorScene = EndingFloorSceneId.SideCloudEscape },
-        EndingCreditsPhase.FadeInTopAndBottomCloudEscape or EndingCreditsPhase.TopAndBottomCloudEscape
-            or EndingCreditsPhase.FadeOutTopAndBottomCloudEscape => None with { FloorScene = EndingFloorSceneId.TopAndBottomCloudEscape },
-        EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionCrossfade
-            or EndingCreditsPhase.ZebesExplosionHold => None with { FloorScene = EndingFloorSceneId.PlanetExplosion, ExplosionMaps = true },
-        EndingCreditsPhase.ZebesExplosionAnimation or EndingCreditsPhase.WaitForPlanetEscapeMusic
-            or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue or EndingCreditsPhase.PlanetEscapeFast
-            or EndingCreditsPhase.PlanetEscapeSlow or EndingCreditsPhase.PlanetEscapeAccelerating
-            or EndingCreditsPhase.OperationSuccessfulText or EndingCreditsPhase.FadeOutToCredits =>
-            None with { FloorScene = EndingFloorSceneId.PlanetExplosion, FlyawayFloor = true, ExplosionMaps = true },
-        EndingCreditsPhase.Credits or EndingCreditsPhase.PostCreditsBlank or EndingCreditsPhase.PostCreditsFadeIn
-            or EndingCreditsPhase.PostCreditsShootingStars or EndingCreditsPhase.PostCreditsWaitingBackdrop
-            or EndingCreditsPhase.PostCreditsWaitingSamus or EndingCreditsPhase.PostCreditsReward
-            or EndingCreditsPhase.PostCreditsCopyright or EndingCreditsPhase.PostCreditsGesture
-            or EndingCreditsPhase.PostCreditsJump => None with { PostCreditsArt = true },
-        EndingCreditsPhase.PostCreditsShot => None with { PostCreditsArt = true, RewardIcon = true },
-        EndingCreditsPhase.PostCreditsWhiteFlash or EndingCreditsPhase.PostCreditsLogo or EndingCreditsPhase.ItemPercentage
-            or EndingCreditsPhase.ItemPercentageScrollDown or EndingCreditsPhase.SeeYouNextMission =>
-            None with { PostCreditsArt = true, RewardIcon = true, PostShotParts = PostShotPartCount },
-        _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, "Undefined ending phase."),
-    };
+        foreach ((EndingCreditsPhase[] phases, EndingScreenLoads loads) in Arms)
+        {
+            if (phases.Contains(phase))
+                return loads;
+        }
+        throw new ArgumentOutOfRangeException(nameof(phase), phase, "Undefined ending phase.");
+    }
+
+    /// <summary>The loads each stretch of phases has made.</summary>
+    private static (EndingCreditsPhase[] Phases, EndingScreenLoads Loads)[] Arms =>
+    [
+        ([EndingCreditsPhase.SetupEscapeFromZebes],
+            None),
+        ([EndingCreditsPhase.WaitForEscapeMusic, EndingCreditsPhase.FadeInSideCloudEscape, EndingCreditsPhase.SideCloudEscape, EndingCreditsPhase.FadeOutSideCloudEscape],
+            None with { FloorScene = EndingFloorSceneId.SideCloudEscape }),
+        ([EndingCreditsPhase.FadeInTopAndBottomCloudEscape, EndingCreditsPhase.TopAndBottomCloudEscape, EndingCreditsPhase.FadeOutTopAndBottomCloudEscape],
+            None with { FloorScene = EndingFloorSceneId.TopAndBottomCloudEscape }),
+        ([EndingCreditsPhase.FadeInZebesExplosion, EndingCreditsPhase.ZebesExplosionCrossfade, EndingCreditsPhase.ZebesExplosionHold],
+            None with { FloorScene = EndingFloorSceneId.PlanetExplosion, ExplosionMaps = true }),
+        ([EndingCreditsPhase.ZebesExplosionAnimation, EndingCreditsPhase.WaitForPlanetEscapeMusic, EndingCreditsPhase.WaitForPlanetEscapeMusicQueue, EndingCreditsPhase.PlanetEscapeFast, EndingCreditsPhase.PlanetEscapeSlow, EndingCreditsPhase.PlanetEscapeAccelerating, EndingCreditsPhase.OperationSuccessfulText, EndingCreditsPhase.FadeOutToCredits],
+            None with { FloorScene = EndingFloorSceneId.PlanetExplosion, FlyawayFloor = true, ExplosionMaps = true }),
+        ([EndingCreditsPhase.Credits, EndingCreditsPhase.PostCreditsBlank, EndingCreditsPhase.PostCreditsFadeIn, EndingCreditsPhase.PostCreditsShootingStars, EndingCreditsPhase.PostCreditsWaitingBackdrop, EndingCreditsPhase.PostCreditsWaitingSamus, EndingCreditsPhase.PostCreditsReward, EndingCreditsPhase.PostCreditsCopyright, EndingCreditsPhase.PostCreditsGesture, EndingCreditsPhase.PostCreditsJump],
+            None with { PostCreditsArt = true }),
+        ([EndingCreditsPhase.PostCreditsShot],
+            None with { PostCreditsArt = true, RewardIcon = true }),
+        ([EndingCreditsPhase.PostCreditsWhiteFlash, EndingCreditsPhase.PostCreditsLogo, EndingCreditsPhase.ItemPercentage, EndingCreditsPhase.ItemPercentageScrollDown, EndingCreditsPhase.SeeYouNextMission],
+            None with { PostCreditsArt = true, RewardIcon = true, PostShotParts = PostShotPartCount }),
+    ];
 }

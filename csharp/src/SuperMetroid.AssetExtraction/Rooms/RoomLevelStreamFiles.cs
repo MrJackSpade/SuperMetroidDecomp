@@ -123,7 +123,7 @@ public static class RoomLevelStreamFiles
         using var kinds = new FileStream(Path.Combine(directory, CollisionKindsFileName), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(kinds, new CollisionKindDocument(FormatVersion, [.. CollisionKinds.Select(RoomCollisionTypeKeys.Installed.Of)],
             Families.ToDictionary(family => BlockReactionFamilyKeys.Installed.Of(family),
-                family => BlockReactionFamilies.Reactions(family).Select(BlockReactionFamilies.KeyOf).ToArray()),
+                family => BlockReactionFamilies.Reactions(family).Select(reaction => reaction.Key).ToArray()),
             [.. SlopeShapes.Select(shape => shape.Name)]),
             JsonOptions);
     }
@@ -151,7 +151,7 @@ public static class RoomLevelStreamFiles
             throw new InvalidDataException(
                 $"Room-level collision kinds {kindsPath} have unsupported version {document.Version}.");
         RoomCollisionType[] kinds = ReadKinds(document.CollisionKinds, kindsPath);
-        Dictionary<BlockReactionFamily, Enum[]> reactions = ReadReactions(document.Reactions, kindsPath);
+        Dictionary<BlockReactionFamily, BlockReaction[]> reactions = ReadReactions(document.Reactions, kindsPath);
         SlopeShape[] shapes = ReadSlopeShapes(document.SlopeShapes, kindsPath);
 
         // The levels are the retail rooms' (#1693): no manifest lists them.
@@ -212,10 +212,10 @@ public static class RoomLevelStreamFiles
             {
                 BlockReactionFamily family = BlockReactionFamilies.Of(kind) ??
                     throw new InvalidOperationException($"Collision kind {kind} reads no reaction.");
-                Enum reaction = behavior.ReactionIn(family) ?? throw new InvalidDataException(
+                BlockReaction reaction = behavior.ReactionIn(family) ?? throw new InvalidDataException(
                     $"Room level {level} block {index} is {kind} with behaviour {behavior}, which gives its kind no reaction.");
                 writer.Write(checked((byte)IndexOf(BlockReactionFamilies.Reactions(family), reaction)));
-                rebuilt = RoomBlockBehavior.ReactingAs(reaction);
+                rebuilt = reaction.Behavior;
                 break;
             }
             case BehaviorReading.Slope:
@@ -241,18 +241,18 @@ public static class RoomLevelStreamFiles
     /// <summary>Reads a foreground block's behaviour written by <see cref="WriteBehavior"/>, rebuilding every reading.</summary>
     /// <exception cref="InvalidDataException">The reaction or mirroring code is unknown.</exception>
     private static RoomBlockBehavior ReadBehavior(BinaryReader reader, RoomCollisionType kind,
-        Dictionary<BlockReactionFamily, Enum[]> reactions, SlopeShape[] shapes)
+        Dictionary<BlockReactionFamily, BlockReaction[]> reactions, SlopeShape[] shapes)
     {
         switch (ReadingOf(kind))
         {
             case BehaviorReading.Reaction:
             {
-                Enum[] named = reactions[BlockReactionFamilies.Of(kind) ??
+                BlockReaction[] named = reactions[BlockReactionFamilies.Of(kind) ??
                     throw new InvalidOperationException($"Collision kind {kind} reads no reaction.")];
                 int reaction = reader.ReadByte();
                 if (reaction >= named.Length)
                     throw new InvalidDataException($"Reaction code {reaction} is not one of the {named.Length} reactions the {kind} family names.");
-                return RoomBlockBehavior.ReactingAs(named[reaction]);
+                return named[reaction].Behavior;
             }
             case BehaviorReading.Slope:
             {
@@ -320,7 +320,7 @@ public static class RoomLevelStreamFiles
     /// <summary>Reads one installed level file.</summary>
     /// <exception cref="InvalidDataException">The file is truncated, has trailing bytes, or holds an unknown kind, mirroring, block or reaction list, or a reading out of its range.</exception>
     private static InstalledRoomLevel Decode(byte[] file, RoomCollisionType[] kinds,
-        Dictionary<BlockReactionFamily, Enum[]> reactions, SlopeShape[] shapes, string path)
+        Dictionary<BlockReactionFamily, BlockReaction[]> reactions, SlopeShape[] shapes, string path)
     {
         try
         {
@@ -402,21 +402,21 @@ public static class RoomLevelStreamFiles
     /// Reads the document's reactions by name for every family, requiring each family's every reaction exactly once, in
     /// the order the level files write them by position.
     /// </summary>
-    private static Dictionary<BlockReactionFamily, Enum[]> ReadReactions(Dictionary<string, string[]>? names, string kindsPath)
+    private static Dictionary<BlockReactionFamily, BlockReaction[]> ReadReactions(Dictionary<string, string[]>? names, string kindsPath)
     {
         if (names is null || names.Count != Families.Length)
             throw new InvalidDataException($"Room-level collision kinds {kindsPath} do not name the reactions of the {Families.Length} reaction families.");
-        var reactions = new Dictionary<BlockReactionFamily, Enum[]>(Families.Length);
+        var reactions = new Dictionary<BlockReactionFamily, BlockReaction[]>(Families.Length);
         foreach (BlockReactionFamily family in Families)
         {
-            IReadOnlyList<Enum> all = BlockReactionFamilies.Reactions(family);
+            IReadOnlyList<BlockReaction> all = BlockReactionFamilies.Reactions(family);
             if (!names.TryGetValue(BlockReactionFamilyKeys.Installed.Of(family), out string[]? familyNames) || familyNames is null ||
                 familyNames.Length != all.Count)
                 throw new InvalidDataException($"Room-level collision kinds {kindsPath} do not name the {all.Count} {family} reactions.");
-            var named = new Enum[familyNames.Length];
+            var named = new BlockReaction[familyNames.Length];
             for (int index = 0; index < familyNames.Length; index++)
             {
-                named[index] = all.FirstOrDefault(reaction => string.Equals(BlockReactionFamilies.KeyOf(reaction), familyNames[index], StringComparison.Ordinal)) ??
+                named[index] = all.FirstOrDefault(reaction => string.Equals(reaction.Key, familyNames[index], StringComparison.Ordinal)) ??
                     throw new InvalidDataException($"Room-level collision kinds {kindsPath} name unknown {family} reaction '{familyNames[index]}'.");
             }
             if (named.Distinct().Count() != named.Length)

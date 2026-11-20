@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFixtureHeadVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus;

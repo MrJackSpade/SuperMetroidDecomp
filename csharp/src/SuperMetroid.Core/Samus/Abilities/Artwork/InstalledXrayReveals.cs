@@ -28,7 +28,7 @@ public sealed class InstalledXrayReveals
     {
         Ensure.NotNull(entries);
         Overlays = Ensure.NotNull(overlays);
-        foreach ((RoomCollisionType type, Enum? reaction, XrayRevealVisualBlocks visual) in entries)
+        foreach ((RoomCollisionType type, BlockReaction? reaction, XrayRevealVisualBlocks visual) in entries)
         {
             if (!IsReadingOf(type, reaction) || XrayReveals.Find(type, reaction) is not { } shape || !IsDrawable(shape))
                 throw new InvalidDataException(
@@ -43,7 +43,7 @@ public sealed class InstalledXrayReveals
         }
 
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
-        foreach (Enum? reaction in BlockReactionFamilies.ReadingsOf(type))
+        foreach (BlockReaction? reaction in BlockReactionFamilies.ReadingsOf(type))
         {
             bool drawable = XrayReveals.Find(type, reaction) is { } shape &&
                 IsDrawable(shape);
@@ -71,7 +71,7 @@ public sealed class InstalledXrayReveals
     }
 
     /// <summary>Whether <paramref name="reaction"/> is a reaction <paramref name="type"/> reads, or null for a kind that reads none.</summary>
-    private static bool IsReadingOf(RoomCollisionType type, Enum? reaction) => BlockReactionFamilies.ReadingsOf(type).Contains(reaction);
+    private static bool IsReadingOf(RoomCollisionType type, BlockReaction? reaction) => BlockReactionFamilies.ReadingsOf(type).Contains(reaction);
 
     /// <summary>Rejects a negative reveal block, as an appearance of it would; the tileset's sheet bounds the rest (#2100).</summary>
     private static void ValidateBlocks(XrayRevealVisualBlocks visual)

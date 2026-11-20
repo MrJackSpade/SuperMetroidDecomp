@@ -33,7 +33,7 @@ internal sealed class NativeEnemyProjectileAnimationFamily<TSegment, TFrame, TEv
     internal override Func<EnemyProjectileAnimation, ushort?> NativePointers(IImportCartridgeSource cartridge)
     {
         (Dictionary<TSegment, NativeEnemyList<TSegment>> lists, IReadOnlyList<NativeCountedStart<TSegment>> counted) = Walk(cartridge);
-        return animation => animation is EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> typed
+        return animation => animation is EnemyProjectileTimelineAnimation<TSegment, TFrame, TEvent> typed
             ? NativeEnemyAnimationOracle.PointerOf(lists, entries, startingAt, typed.Playback, counted)
             : null;
     }
@@ -41,7 +41,7 @@ internal sealed class NativeEnemyProjectileAnimationFamily<TSegment, TFrame, TEv
     /// <inheritdoc/>
     internal override bool TryResumeAt(IImportCartridgeSource cartridge, EnemyProjectileAnimation animation, ushort nativePointer, ushort nativeLoopCounter)
     {
-        if (animation is not EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> typed)
+        if (animation is not EnemyProjectileTimelineAnimation<TSegment, TFrame, TEvent> typed)
             return false;
         (Dictionary<TSegment, NativeEnemyList<TSegment>> lists, IReadOnlyList<NativeCountedStart<TSegment>> counted) = Walk(cartridge);
         typed.Playback = NativeEnemyAnimationOracle.WithNativePlaysLeft(

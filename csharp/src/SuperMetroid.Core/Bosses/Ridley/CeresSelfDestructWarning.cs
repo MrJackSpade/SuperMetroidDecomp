@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 public sealed class CeresSelfDestructWarning
 {
     /// <summary>Which step of the warning runs next; the getaway's end starts it.</summary>
-    internal CeresSelfDestructPhase Phase { get; set; }
+    internal CeresSelfDestructPhase Phase { get; set; } = CeresSelfDestructPhase.Start;
     /// <summary>
     /// The wait of the phase that has one (#2368, #2469): the waits for the escape timer and warning and for the EMERGENCY
     /// title, the title's hold, then, for Japanese text, the subtitle's wait. The typewriter keeps its own schedule.

@@ -15,11 +15,10 @@ internal static class SamusNoTransitionSetups
     /// <exception cref="ArgumentOutOfRangeException">The movement type has no definition.</exception>
     internal static SamusNoTransitionSetup For(SamusPoseId pose, SamusMovementType movementInForce)
     {
-        SamusNoTransitionSetup own = SamusPoseTraits.Of(pose).NoTransitionSetup;
-        if (own != SamusNoTransitionSetup.None)
+        if (SamusPoseTraits.Of(pose).NoTransitionSetup is { } own && own != SamusNoTransitionSetup.None)
             return own;
         return SamusMovementTypeDefinitions.Movements.TryGetValue(movementInForce, out SamusMovementTypeDefinition? movement)
-            ? movement.NoTransitionSetup
+            ? movement.NoTransitionSetup ?? SamusNoTransitionSetup.None
             : throw new ArgumentOutOfRangeException(nameof(movementInForce), movementInForce,
                 "Movement type names no setup for input that chooses no new pose.");
     }

@@ -339,10 +339,10 @@ internal static class DraygonAnimationsVerification
         EnemyProjectile goop = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.DraygonGoop);
         AssertTrue(goop.Animation is DraygonProjectileAnimation { PlayingSegment: DraygonProjectileSegment.Goop },
             "the real goop producer starts the typed goop loop");
-        goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.GoopTouch));
+        goop.StartAnimation(new DraygonProjectileAnimation(enemies.DraygonBehavior.Shots.Goop, DraygonProjectileSegment.GoopTouch));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         enemies.Projectiles.AdvanceEnemyProjectileAnimations(goop, samus, Position16<RoomPixels>.Zero, shortCounter: 0);
-        AssertEqual<Enum?>(DraygonShotMotion.GoopStuckToSamus, goop.Motion, "the goop touch sticks the goop to Samus");
+        AssertTrue(goop.IsMovingBy(enemies.DraygonBehavior.Shots.Goop.GoopStuckToSamus), "the goop touch sticks the goop to Samus");
         AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.DraygonGoopSpiky), goop.PresentationOperandAddress,
             "the goop touch shows the goop's first frame in the same update");
         AssertEqual((ushort)10, goop.FrameHold.RawValue, "the goop's first frame lasts ten updates");

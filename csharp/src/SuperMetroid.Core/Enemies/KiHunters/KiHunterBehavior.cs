@@ -737,10 +737,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         private static KiHunterAcidSpitCueReactions<RunCueContext> RunCueReactions { get; } = new(
             Launch: static (launch, context) =>
             {
-                // The launch cue names the way the acid's animation spits it, which must be the way its Ki-Hunter spat it (#2338).
-                HorizontalDirection spat = context.Owner.Spits.Of(context.Projectile).Spat;
-                if (launch.Direction != spat)
-                    throw new InvalidOperationException($"Acid spat {spat} played the animation that launches it {launch.Direction}.");
+                // The launch flies the way the acid's Ki-Hunter spat it, the one place the way is held (#2338, #2553); the
+                // animation it plays was chosen from that same way.
                 context.Projectile.StartMotion(context.Owner, KiHunterAcidMotion.Launching);
             },
             Signal: static (signal, context) =>

@@ -573,17 +573,15 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             FlyNinjaPirateClaw(this, context.Projectile, context.Camera);
 
         /// <inheritdoc/>
-        /// <exception cref="InvalidOperationException">
-        /// The cue is not a claw's throw, or throws the claw a way other than its thrower chose.
-        /// </exception>
+        /// <remarks>
+        /// The cue starts the claw's flight the way its thrower chose, the one place the way is held (#2553); a firing cue also
+        /// runs the flight's first update at once, as <see cref="SpacePirateProjectileCueKind.FireLaser"/> says.
+        /// </remarks>
         public void RunCue(EnemyProjectileCueContext context, SpacePirateProjectileCue cue)
         {
-            if (cue.Kind != SpacePirateProjectileCueKind.ThrowClaw)
-                throw new InvalidOperationException($"A claw's animation published {cue}.");
-            HorizontalDirection thrown = Claws.Of(context.Projectile).Thrown;
-            if (cue.Direction != thrown)
-                throw new InvalidOperationException($"A claw its pirate threw {thrown} played the animation that throws it {cue.Direction}.");
             context.Projectile.StartMotion(this, SingleMotion.Moving);
+            if (cue.Kind == SpacePirateProjectileCueKind.FireLaser)
+                FlyNinjaPirateClaw(this, context.Projectile, context.Camera);
         }
     }
 

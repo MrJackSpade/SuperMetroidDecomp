@@ -431,22 +431,17 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             FlyPirateLaser(this, context.Projectile, context.Camera);
 
         /// <inheritdoc/>
-        /// <exception cref="InvalidOperationException">
-        /// The cue is not a laser's firing, or fires the laser a way other than its firer chose.
-        /// </exception>
+        /// <remarks>
+        /// The cue starts the laser's flight the way its firer chose, the one place the way is held (#2553); a firing cue, the
+        /// laser's, also runs the flight's first update at once, so it moves on the update it fires and may leave the screen
+        /// then, as <see cref="SpacePirateProjectileCueKind.FireLaser"/> says.
+        /// </remarks>
         public void RunCue(EnemyProjectileCueContext context, SpacePirateProjectileCue cue)
         {
-            if (cue.Kind != SpacePirateProjectileCueKind.FireLaser)
-                throw new InvalidOperationException($"A laser's animation published {cue}.");
             EnemyProjectile projectile = context.Projectile;
-            HorizontalDirection chosen = Lasers.Of(projectile).Direction;
-            if (cue.Direction != chosen)
-                throw new InvalidOperationException($"A laser its firer aimed {chosen} played the animation that fires it {cue.Direction}.");
-
-            // The laser flies from now on, and its first flight runs at once, so it moves on the update it fires and may
-            // leave the screen then.
             projectile.StartMotion(this, SingleMotion.Moving);
-            FlyPirateLaser(this, projectile, context.Camera);
+            if (cue.Kind == SpacePirateProjectileCueKind.FireLaser)
+                FlyPirateLaser(this, projectile, context.Camera);
         }
     }
 

@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public enum ProjectileTrailSegment
 {
     /// <summary>
-    /// The program a side runs where its shot leaves no sparkle there (#2558): it ends on its first update without drawing,
-    /// as the cartridge's empty beam trail list does.
+    /// The animation a side runs where its shot leaves no sparkle there (#2558): it ends on its first update without
+    /// drawing.
     /// </summary>
     EndsWithoutSparkle,
 

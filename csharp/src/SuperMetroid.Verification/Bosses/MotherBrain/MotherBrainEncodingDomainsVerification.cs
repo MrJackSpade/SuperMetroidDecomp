@@ -214,8 +214,8 @@ internal static class MotherBrainEncodingDomainsVerification
     private static void VerifySnapshotPlacesBodyArea()
     {
         static MotherBrainEnemyState At(MotherBrainForm form) => new(
-            new SuperMetroid.Core.Enemies.RoomEnemyPlace(0, SuperMetroid.Core.Enemies.EnemyPlaceFixtures.Registry,
-                new SuperMetroid.Core.Compatibility.RemovedEnemyLeftovers<SuperMetroid.Core.Enemies.EnemyOccupantStates>()),
+            SuperMetroid.Core.Enemies.RoomEnemyPlaceOccupantAccess.BoundFor(new SuperMetroid.Core.Enemies.RoomEnemyPlace(0, SuperMetroid.Core.Enemies.EnemyPlaceFixtures.Registry,
+                new SuperMetroid.Core.Compatibility.RemovedEnemyLeftovers<SuperMetroid.Core.Enemies.EnemyOccupantStates>()), SuperMetroid.Core.Enemies.EnemyDefinitionId.MotherBrainBody),
             new SuperMetroid.Core.Enemies.RoomEnemyPlace(1, SuperMetroid.Core.Enemies.EnemyPlaceFixtures.Registry,
                 new SuperMetroid.Core.Compatibility.RemovedEnemyLeftovers<SuperMetroid.Core.Enemies.EnemyOccupantStates>()),
             new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { Form = form };

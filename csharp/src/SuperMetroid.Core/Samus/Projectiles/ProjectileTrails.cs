@@ -61,8 +61,8 @@ internal sealed class ProjectileTrails
             return;
 
         var trail = new SamusProjectileTrail(projectile.PicturedBeams, projectile.Position.Whole);
-        // Each side stands where the trail list places it and runs the program its selection names, a side where the shot
-        // leaves no sparkle running the program that ends without one, as the cartridge's sides do (#2558).
+        // Each side stands where the trail list places it and runs the animation its selection names; a side where the shot
+        // leaves no sparkle runs the one that ends without a sparkle (#2558).
         trail.Left.Offset = placement.Left;
         trail.Right.Offset = placement.Right;
         StartSide(trail.Left, animations.Left);

@@ -214,7 +214,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Emits a wall laser through the shared Pirate owner and queues sound only if allocation succeeds.</summary>
     private void FireWallSpacePirateLaser(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyOccupant occupant,
         HorizontalDirection direction)
     {
         // The laser setup queues the laser sound for every successful allocation. The later wall-jump cue
@@ -242,7 +242,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 PrepareWallSpacePirateJump(occupant, place, state, direction: jump.Direction);
                 return null;
             case WallSpacePirateCue.FireLaser laser:
-                FireWallSpacePirateLaser(occupant, place, direction: laser.Direction);
+                FireWallSpacePirateLaser(occupant, direction: laser.Direction);
                 return null;
             case WallSpacePirateCue.Begin begin:
                 state.Action = begin.Action;

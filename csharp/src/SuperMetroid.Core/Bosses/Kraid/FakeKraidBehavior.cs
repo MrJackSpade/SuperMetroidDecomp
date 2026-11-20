@@ -15,7 +15,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FakeKraid];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => EnemyOccupant.FromSurroundings(new FakeKraidEntity(this, occupant, place, common, setup));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new FakeKraidEntity(this, occupant, place, common, setup);
 
     /// <summary>Provides the existing random number sampled for Fake Kraid's action decisions.</summary>
     private readonly EnemyRoomBinding _room;
@@ -52,21 +52,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case FakeKraidCue.Spit spit:
                 SpawnFakeKraidSpitPair(occupant, place, spit.Direction);
                 return null;
-            case FakeKraidCue.Signal signal:
-                return ApplyFakeKraidSignal(place, state, signal.Kind, samus, level, camera);
-            default:
-                throw new InvalidOperationException($"Fake Kraid's animations have no {cue} cue.");
-        }
-    }
-
-    /// <summary>Carries out one signalling cue: the action choice continues at the step or spit animation it selects.</summary>
-    private FakeKraidSegment? ApplyFakeKraidSignal(RoomEnemyPlace place, FakeKraidEnemyState state, FakeKraidCueKind kind, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera)
-    {
-        switch (kind)
-        {
-            case FakeKraidCueKind.Move:
-                // Walk cue: advance one four-pixel step unless its random reversal
-                // clock expires, then turn to face Samus.
+            case FakeKraidCue.Move:
+                // Walk cue: advance one step unless its random reversal clock expires, then turn to face Samus.
                 ProcessFakeKraidWalkAnimation(place, state, samus, level);
                 return null;
             case FakeKraidCue.ChooseAction:
@@ -224,15 +211,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int xOffset,
         PixelVelocity<RoomPixels> velocity)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FakeKraidSpit, SpitAndSpikes, SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FakeKraidSpit, Spit, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.FakeKraidSpit,
-            Spit,
-            SpriteGraphics.SpawnedBy(source));
         projectile.StartAnimation(new FakeKraidProjectileAnimation(FakeKraidProjectilePose.Spit));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
             source.Position.Whole + new Offset16<RoomPixels>(xOffset, FakeKraidProjectileDefinitions.SpitYOffset));
@@ -246,15 +228,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         FakeKraidEnemyState state,
         FakeKraidSpikeRow row)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FakeKraidSpike, SpitAndSpikes, SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FakeKraidSpike, Spikes, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return false;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.FakeKraidSpike,
-            Spikes,
-            SpriteGraphics.SpawnedBy(source));
         bool left = state.Facing == HorizontalDirection.Left;
         projectile.StartAnimation(new FakeKraidProjectileAnimation(left
             ? FakeKraidProjectilePose.SpikeLeft

@@ -13,7 +13,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mochtroid];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => EnemyOccupant.Of(new MochtroidEntity(this, occupant, place, common));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new MochtroidEntity(this, occupant, place, common);
 
     /// <summary>Resolves axis movement against terrain in the order for each flight mode.</summary>
     private readonly EnemyTerrain _terrain;

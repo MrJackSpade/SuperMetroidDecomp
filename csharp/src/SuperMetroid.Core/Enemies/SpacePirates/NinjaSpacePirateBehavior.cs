@@ -17,11 +17,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">The place holds no ninja definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, NinjaSpacePirateSpawnSettings settings)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, NinjaSpacePirateSpawnSettings settings)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.PirateGoldNinja)
-            return EnemyOccupant.Of(new GoldNinjaSpacePirateEntity(this, occupant, place, common, settings));
+            return new GoldNinjaSpacePirateEntity(this, occupant, place, common, settings);
         if (definition == EnemyDefinitionId.PirateSilverNinja)
             return new NinjaSpacePirateEntity(this, place, common, settings);
         throw new InvalidOperationException($"The ninja Space Pirate species creates no {place.DefinitionId}.");
@@ -458,16 +458,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySettingsFa
         HorizontalDirection thrown,
         Offset16<RoomPixels> spawnOffset)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateClaw, Claw, SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        var claw = new ClawBehavior(new NinjaPirateClawState(SpacePirateMotionDefinitions.NinjaClawLaunchSpeed, thrown));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateClaw, claw, SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 
-        var claw = new ClawBehavior(new NinjaPirateClawState(SpacePirateMotionDefinitions.NinjaClawLaunchSpeed, thrown));
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.PirateClaw,
-            claw,
-            SpriteGraphics.SpawnedBy(source));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(source.Position.Whole + spawnOffset);
         projectile.StartAnimation(new SpacePirateClawAnimation(thrown == HorizontalDirection.Right
             ? SpacePirateClawSegment.ClawRight

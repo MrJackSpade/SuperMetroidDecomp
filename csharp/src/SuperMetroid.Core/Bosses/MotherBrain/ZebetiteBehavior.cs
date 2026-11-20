@@ -17,7 +17,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemySettingsFactory<Ze
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Zebetite];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ZebetiteSpawnSettings settings) => EnemyOccupant.Of(new ZebetiteEntity(this, occupant, place, common, setup, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ZebetiteSpawnSettings settings) => new ZebetiteEntity(this, occupant, place, common, setup, settings);
 
     /// <summary>Initializes newly spawned Zebetite places through the common enemy lifecycle.</summary>
     private readonly IEnemyLifecycle _lifecycle;

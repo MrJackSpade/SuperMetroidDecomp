@@ -13,7 +13,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Polyp];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => EnemyOccupant.Of(new PolypEntity(this, occupant, place, common));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new PolypEntity(this, occupant, place, common);
 
     /// <summary>Provides the shared room RNG and enemy state used by all Polyp actors.</summary>
     private readonly EnemyRoomBinding _room;
@@ -115,15 +115,10 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         QuadraticSpeedCurvePlace launchPlace,
         SignedEightEight xVelocity)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PolypRock, Rock, SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PolypRock, RockBehavior(new PolypRockState(launchPlace)), SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.PolypRock,
-            RockBehavior(new PolypRockState(launchPlace)),
-            SpriteGraphics.SpawnedBy(source));
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockSegment.LavaRock));
         projectile.Velocity = new(xVelocity, SignedEightEight.Zero);
         projectile.Position = source.Position;

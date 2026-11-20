@@ -12,7 +12,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemySettingsFactory<Drag
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dragon];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, DragonSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, DragonSpawnSettings settings) =>
         settings.Part == DragonPart.Wing
             ? new DragonWingEntity(this, place, common)
             : new DragonEntity(this, place, common);

@@ -552,16 +552,11 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySettingsGroupFactory
         // The spikes fire in their authored order, each taking the last free enemy-projectile place afresh.
         foreach (CompassDirection direction in PowampMotionDefinitions.SpikeFiringOrder)
         {
-            EnemyProjectile? spike = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PowampSpike, Spike, SpriteGraphics.SpawnedBy(occupant, body.Shading).In(look));
+            EnemyProjectile? spike = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PowampSpike, SpikeBehavior(new PowampSpikeState(direction)), SpriteGraphics.SpawnedBy(occupant, body.Shading).In(look));
             if (spike is null)
                 return null;
 
             // The spike starts as its definition has it, with its animation, size and damage, still, at the Powamp.
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                spike,
-                RoomEnemyProjectileKind.PowampSpike,
-                SpikeBehavior(new PowampSpikeState(direction)),
-                SpriteGraphics.SpawnedBy(body).In(look));
             spike.StartAnimation(new PowampSpikeAnimation(PowampSpikeSegment.Flying));
             spike.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
             spike.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);

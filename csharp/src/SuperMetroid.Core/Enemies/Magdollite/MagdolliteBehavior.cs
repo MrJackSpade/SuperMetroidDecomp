@@ -18,7 +18,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemySettingsFactory<
     /// The Magdollite part the placement names: its head, rising body or tracking overlay (#2342, #2474), each part's settings
     /// building their own part (#2554).
     /// </summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MagdolliteSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MagdolliteSpawnSettings settings) =>
         Ensure.NotNull(settings).Create(this, place, common, setup);
 
     /// <summary>Supplies the room's apex overreads.</summary>

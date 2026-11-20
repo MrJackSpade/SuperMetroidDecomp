@@ -322,13 +322,32 @@ internal sealed class EnemyProjectileEngine
     /// <param name="graphics">The sheet and shading the projectile draws with.</param>
     internal EnemyProjectile? AllocateEnemyProjectile(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics)
     {
+        Ensure.NotNull(behavior);
+        return AllocateEnemyProjectileFor(kind, _ => behavior, graphics)?.Projectile;
+    }
+
+    /// <summary>
+    /// Spawns a fresh projectile of <paramref name="kind"/> as <see cref="AllocateEnemyProjectile"/> does, bound to the
+    /// behaviour <paramref name="behaviorFor"/> creates for it: a behaviour whose state holds the projectile it shows, as a
+    /// Botwoon body segment's does. Returns the spawned projectile with its behaviour, or null when every place is held.
+    /// </summary>
+    /// <typeparam name="TBehavior">The behaviour's type, which the spawner reads its state through.</typeparam>
+    /// <param name="kind">What the projectile is, which names its definition.</param>
+    /// <param name="behaviorFor">Creates the behaviour for the spawned projectile.</param>
+    /// <param name="graphics">The sheet and shading the projectile draws with.</param>
+    internal EnemyProjectileSpawn<TBehavior>? AllocateEnemyProjectileFor<TBehavior>(
+        RoomEnemyProjectileKind kind, Func<EnemyProjectile, TBehavior> behaviorFor, SpriteGraphics graphics)
+        where TBehavior : EnemyProjectileBehavior
+    {
+        Ensure.NotNull(behaviorFor);
         for (int place = _places.Length - 1; place >= 0; place--)
         {
             if (_places[place].Occupant is not null)
                 continue;
-            EnemyProjectile projectile = _places[place].Take(kind, behavior);
-            InitializeEnemyProjectileFromDefinition(projectile, kind, behavior, graphics);
-            return projectile;
+            TBehavior? created = null;
+            EnemyProjectile projectile = _places[place].Take(kind, shown => created = behaviorFor(shown));
+            InitializeEnemyProjectileFromDefinition(projectile, kind, projectile.Behavior, graphics);
+            return new EnemyProjectileSpawn<TBehavior>(projectile, Ensure.NotNull(created));
         }
         return null;
     }

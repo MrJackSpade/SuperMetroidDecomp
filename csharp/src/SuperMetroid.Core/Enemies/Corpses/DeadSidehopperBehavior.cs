@@ -14,7 +14,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySettingsFact
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CorpseSidehopper];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, DeadSidehopperSpawnSettings settings) => EnemyOccupant.Of(new DeadSidehopperEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, DeadSidehopperSpawnSettings settings) => new DeadSidehopperEntity(this, occupant, place, common, settings);
 
     /// <summary>Provides installed artwork and the room random source for corpse decomposition.</summary>
     private readonly EnemyRoomBinding _room;

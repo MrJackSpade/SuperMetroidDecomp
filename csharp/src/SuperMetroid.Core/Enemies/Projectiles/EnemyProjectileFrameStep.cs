@@ -32,4 +32,8 @@ internal abstract record EnemyProjectileFrameStep
     /// </summary>
     /// <param name="Next">The animation the projectile plays on in.</param>
     internal sealed record HandOver(EnemyProjectileAnimation Next) : EnemyProjectileFrameStep;
+
+    /// <summary>The projectile shows no frame for <paramref name="Duration"/> updates.</summary>
+    /// <param name="Duration">The updates the projectile stays hidden.</param>
+    internal sealed record Hide(int Duration) : EnemyProjectileFrameStep;
 }

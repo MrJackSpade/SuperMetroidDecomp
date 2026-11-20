@@ -14,7 +14,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skree];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => EnemyOccupant.Of(new SkreeEntity(this, occupant, place, common));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new SkreeEntity(this, occupant, place, common);
 
     /// <summary>Queues the dive and floor-impact sound requests at their AI transitions.</summary>
     private readonly EnemyAudioQueue _audio;

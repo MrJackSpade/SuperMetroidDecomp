@@ -15,7 +15,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.EtecoonEscape, EnemyDefinitionId.DachoraEscape];
 
     /// <summary>An escaping Etecoon, in the role its placement names (#2146).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EscapeEtecoonSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EscapeEtecoonSpawnSettings settings) =>
         new EscapeEtecoonEntity(this, place, common, settings);
 
     /// <inheritdoc/>
@@ -28,11 +28,11 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>An escaping Etecoon, or the escaping Dachora (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no escape animals definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.DachoraEscape)
-            return EnemyOccupant.WithoutMainAi(new EscapeDachoraEntity(this, occupant, place, common));
+            return new EscapeDachoraEntity(this, occupant, place, common);
         throw new InvalidOperationException($"The escape animals species creates no {occupant.DefinitionId}.");
     }
 

@@ -13,7 +13,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySettingsFacto
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.NuclearWaffle];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, NuclearWaffleSpawnSettings settings) => EnemyOccupant.Of(new NuclearWaffleEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, NuclearWaffleSpawnSettings settings) => new NuclearWaffleEntity(this, occupant, place, common, settings);
 
     /// <summary>Allocates the collidable links in the articulated body.</summary>
     private readonly EnemyProjectileEngine _projectiles;

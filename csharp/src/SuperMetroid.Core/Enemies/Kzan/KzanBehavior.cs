@@ -11,7 +11,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.KzanBottom, EnemyDefinitionId.KzanTop];
 
     /// <summary>A Kzan's top, falling as its placement names (#2146).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, KzanSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, KzanSpawnSettings settings) =>
         new KzanTopEntity(this, place, common, settings);
 
     /// <inheritdoc/>
@@ -24,13 +24,13 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
 
     /// <summary>A Kzan's top, or the bottom that follows it (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Kzan definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.KzanBottom)
         {
             // The bottom follows the top listed before it as it is built (#2554).
-            var bottom = EnemyOccupant.Of(new KzanBottomEntity(this, occupant, place, common));
+            var bottom = new KzanBottomEntity(this, occupant, place, common);
             InitializeKzanBottom(place);
             return bottom;
         }

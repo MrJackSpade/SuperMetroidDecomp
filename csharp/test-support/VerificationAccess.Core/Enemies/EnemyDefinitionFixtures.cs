@@ -24,7 +24,7 @@ internal static class EnemyDefinitionFixtures
         HurtFlashFrames: 0,
         HurtSoundEffect: null,
         Boss: null,
-        GrappleResponse: GrappleEnemyReaction.Unreactive,
+        GrappleResponse: GrappleEnemyReaction.NamesNoReaction,
         HurtResponse: default,
         DeathExplosion: default,
         PowerBombReaction: EnemyReaction.CommonPowerBomb,

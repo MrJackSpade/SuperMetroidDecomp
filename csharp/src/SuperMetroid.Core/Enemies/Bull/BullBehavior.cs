@@ -11,7 +11,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySettingsFactory<BullSp
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Bull];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, BullSpawnSettings settings) => EnemyOccupant.Of(new BullEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, BullSpawnSettings settings) => new BullEntity(this, occupant, place, common, settings);
 
     /// <summary>Hands each new Bull the previous Bull in its place, whose shot-reaction guard it inherits.</summary>
     private readonly PlaceInheritance<BullEnemyState> _inheritance;

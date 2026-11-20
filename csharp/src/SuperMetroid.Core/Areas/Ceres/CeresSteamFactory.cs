@@ -26,5 +26,5 @@ internal sealed class CeresSteamFactory(CeresSteamBehavior vents, CeresSteamVent
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CeresSteam];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CeresSteamSpawnSettings settings) => EnemyOccupant.Of(new CeresSteamEntity(_vents, occupant, place, common, _motions, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CeresSteamSpawnSettings settings) => new CeresSteamEntity(_vents, occupant, place, common, _motions, settings);
 }

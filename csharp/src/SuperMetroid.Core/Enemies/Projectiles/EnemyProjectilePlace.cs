@@ -46,9 +46,9 @@ public sealed class EnemyProjectilePlace
     /// starting from what the place keeps.
     /// </summary>
     /// <param name="kind">What the projectile is.</param>
-    /// <param name="behavior">What the projectile's kind does, bound to it for its life.</param>
-    internal EnemyProjectile Take(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior) =>
-        _last = new EnemyProjectile(Number, Left, kind, behavior);
+    /// <param name="behaviorFor">Creates what the projectile's kind does for the projectile, bound to it for its life.</param>
+    internal EnemyProjectile Take(RoomEnemyProjectileKind kind, Func<EnemyProjectile, EnemyProjectileBehavior> behaviorFor) =>
+        _last = new EnemyProjectile(Number, Left, kind, behaviorFor);
 
     /// <summary>Frees the place for a new room: it keeps only what the room before left there.</summary>
     internal void StartRoom() => _last = null;

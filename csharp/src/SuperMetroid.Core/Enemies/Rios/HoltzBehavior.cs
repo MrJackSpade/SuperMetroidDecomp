@@ -13,7 +13,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemySettingsFactory<Enemy
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Holtz];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EnemyFollowerSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EnemyFollowerSpawnSettings settings) =>
         settings.Role == EnemyFollowerRole.Follower
             ? new HoltzFollowerEntity(this, place, common)
             : new HoltzEntity(this, place, common);

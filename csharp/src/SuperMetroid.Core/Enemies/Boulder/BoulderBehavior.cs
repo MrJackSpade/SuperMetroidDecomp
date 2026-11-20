@@ -14,7 +14,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemySettingsFactory<Bou
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Boulder];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, BoulderSpawnSettings settings) => EnemyOccupant.Of(new BoulderEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, BoulderSpawnSettings settings) => new BoulderEntity(this, occupant, place, common, settings);
 
     /// <summary>Moves the actor through room collision during fall and roll phases.</summary>
     private readonly EnemyTerrain _terrain;

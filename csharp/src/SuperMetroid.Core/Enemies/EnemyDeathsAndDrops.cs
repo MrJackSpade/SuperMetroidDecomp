@@ -106,19 +106,14 @@ internal sealed class EnemyDeathsAndDrops
     internal void RemoveKilledEnemy(RoomEnemyOccupant killed, EnemyDeathExplosion deathAnimation, bool respawns)
     {
         RoomEnemyPlace enemy = Ensure.NotNull(killed).Place;
-        EnemyProjectile? explosion = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathExplosion, ExplosionsAndPickups, graphics: SpriteGraphics.SharedStandard);
+        var behavior = Explosion(new EnemyDeathExplosionState(KilledEnemy.Of(enemy, respawns), enemy.DefinitionId));
+        EnemyProjectile? explosion = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathExplosion, behavior, graphics: SpriteGraphics.SharedStandard);
         Position16<RoomPixels> killedAt = enemy.Position.Whole;
         // A second death of an occupant already killed finds its place holding none, and its explosion drops nothing.
         RoomEnemyOccupant? dropper = enemy.Occupant;
         PopulatedEnemyPlace killedIn = killed.Kill(respawns);
         if (explosion is not null)
         {
-            var behavior = Explosion(new EnemyDeathExplosionState(KilledEnemy.Of(enemy, respawns), enemy.DefinitionId));
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                explosion,
-                RoomEnemyProjectileKind.EnemyDeathExplosion,
-                behavior,
-                graphics: default);
             explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
             explosion.StartAnimation(new EnemyDeathExplosionAnimation(EnemyDeathExplosions.Animation(deathAnimation), behavior));
         }
@@ -233,7 +228,7 @@ internal sealed class EnemyDeathsAndDrops
         EnemyDropChances dropChances,
         SamusState samus)
     {
-        EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathPickup, ExplosionsAndPickups, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathPickup, drop.Behavior, graphics: SpriteGraphics.SharedStandard);
         if (pickup is null)
             return null;
 
@@ -255,11 +250,6 @@ internal sealed class EnemyDeathsAndDrops
         DropBinding drop = kind == EnemyPickupKind.NoDrop
             ? DropBinding.Of(new DormantDropBehavior(this, KilledEnemy.None))
             : DropBinding.Of(Pickup(new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, KilledEnemy.None)));
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            pickup,
-            RoomEnemyProjectileKind.EnemyDeathPickup,
-            drop.Behavior,
-            graphics: default);
         pickup.Position = pickup.Position.WithWhole(position);
         pickup.StartAnimation(new EnemyDeathAndDropAnimation(kind == EnemyPickupKind.NoDrop
             ? ConfigureDormantPickup(pickup)
@@ -619,7 +609,7 @@ internal sealed class EnemyDeathsAndDrops
         public KilledEnemy KilledEnemy => pickup.KilledEnemy;
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
+        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
             drops.TendEnemyPickup(context.Projectile, pickup, context.Samus, this);
 
         /// <inheritdoc/>

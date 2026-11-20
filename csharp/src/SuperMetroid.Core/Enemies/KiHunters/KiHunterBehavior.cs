@@ -26,11 +26,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemySettingsFactory<Ki
     }
 
     /// <summary>A body of any colour, winged or not as its placement names (#2146).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, KiHunterSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, KiHunterSpawnSettings settings) =>
         new KiHunterBodyEntity(this, place, common, settings);
 
     /// <summary>A body's wings, detaching at the health their placement names (#2146).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, KiHunterWingsSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, KiHunterWingsSpawnSettings settings) =>
         new KiHunterWingsEntity(this, place, common, settings);
 
     /// <summary>Provides the active room state used by Ki-Hunter movement.</summary>
@@ -753,7 +753,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemySettingsFactory<Ki
                     HorizontalDirection spat = acid.Spat;
                     if (launch.Direction != spat)
                         throw new InvalidOperationException($"Acid spat {spat} played the animation that launches it {launch.Direction}.");
-                    StartMotion(projectile, KiHunterAcidMotion.Launching);
+                    projectile.StartMotion(this, KiHunterAcidMotion.Launching);
                     break;
                 case KiHunterAcidSpitCue.Signal { Kind: KiHunterAcidSpitCueKind.StopMoving }:
                     projectile.HoldStill();
@@ -818,16 +818,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemySettingsFactory<Ki
     /// </summary>
     private void SpawnKiHunterAcidSpit(RoomEnemyOccupant occupant, RoomEnemyPlace body, HorizontalDirection direction)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KiHunterAcidSpit, Acid, SpriteGraphics.SpawnedBy(occupant, body.Shading));
+        var acid = new AcidBehavior(new KiHunterAcidState(direction));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KiHunterAcidSpit, acid, SpriteGraphics.SpawnedBy(occupant, body.Shading));
         if (projectile is null)
             return;
 
-        var acid = new AcidBehavior(new KiHunterAcidState(direction));
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.KiHunterAcidSpit,
-            acid,
-            SpriteGraphics.SpawnedBy(body));
         projectile.StartAnimation(new KiHunterAcidSpitAnimation(direction == HorizontalDirection.Right
             ? KiHunterAcidSpitSegment.Right
             : KiHunterAcidSpitSegment.Left, acid));
@@ -850,7 +845,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemySettingsFactory<Ki
         EnemyProjectileMotionBehavior<KiHunterAcidMotion> motions)
     {
         HorizontalDirection direction = acid.Spat;
-        motions.StartMotion(projectile, KiHunterAcidMotion.Falling);
+        projectile.StartMotion(motions, KiHunterAcidMotion.Falling);
         projectile.Position = projectile.Position.WithWholeX(
             projectile.Position.X.Whole + (KiHunterMotionDefinitions.AcidLaunchShift.Toward(direction)));
     }

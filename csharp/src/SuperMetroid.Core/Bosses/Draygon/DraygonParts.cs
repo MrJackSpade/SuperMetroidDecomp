@@ -318,7 +318,8 @@ internal sealed class DraygonParts
     /// <summary>Spawns a goop as either of the body animation's two goop cues does.</summary>
     private void SpawnDraygonGoop(DraygonEnemyState state, HorizontalDirection direction)
     {
-        EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonGoop, _shots.Goop, graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
+        DraygonShots.FlyingShotBehavior goopBehavior = _shots.Goop(_shots.Goop, AngledFlightState.Launch(angle, DraygonProjectileSpeeds.Goop));
+        EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonGoop, goopBehavior, graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
         if (goop is null)
             return;
 
@@ -327,12 +328,6 @@ internal sealed class DraygonParts
         // turn when he moves right.
         TrigonometryAngle firstAngle = direction == HorizontalDirection.Right ? TrigonometryAngle.HalfTurn + TrigonometryAngle.QuarterTurn : TrigonometryAngle.HalfTurn;
         TrigonometryAngle angle = firstAngle + new TrigonometryAngle(DraygonRandomDefinitions.GoopAngleSpread.Of(random));
-        DraygonShots.FlyingShotBehavior goopBehavior = _shots.Goop(_shots.Goop, AngledFlightState.Launch(angle, DraygonProjectileSpeeds.Goop));
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            goop,
-            RoomEnemyProjectileKind.DraygonGoop,
-            goopBehavior,
-            graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.Goop, goopBehavior));
         goop.Position = FixedPosition<RoomPixels>.FromWhole(state.Body.Position.Whole + (direction == HorizontalDirection.Right
             ? DraygonArenaDefinitions.GoopSpawnMovingRight : DraygonArenaDefinitions.GoopSpawnMovingLeft));

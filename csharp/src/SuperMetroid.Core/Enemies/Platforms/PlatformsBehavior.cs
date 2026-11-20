@@ -15,7 +15,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySettingsFactory<P
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SuspensorPlatform, EnemyDefinitionId.Tripper];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, PlatformSpawnSettings settings) => EnemyOccupant.Of(new PlatformsEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, PlatformSpawnSettings settings) => new PlatformsEntity(this, occupant, place, common, settings);
 
     /// <summary>Clips the Tripper's and the suspensor platform's horizontal and vertical displacement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;

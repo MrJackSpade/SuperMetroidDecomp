@@ -13,7 +13,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Coven];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => EnemyOccupant.Of(new WreckedShipGhostEntity(occupant, place, common));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new WreckedShipGhostEntity(occupant, place, common);
 
     /// <summary>Initializes the Wrecked Ship ghost.</summary>
     internal static WreckedShipGhostEnemyState InitializeWreckedShipGhost(RoomEnemyPlace place)

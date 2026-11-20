@@ -25,11 +25,11 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
 
     /// <summary>The door or wall actor <paramref name="place"/>'s definition names, facing or standing where its placement says.</summary>
     /// <exception cref="InvalidDataException">The definition is no Ceres door or wall, or the placement names no facing or side.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId actor = Ensure.NotNull(place).DefinitionId;
         if (actor == EnemyDefinitionId.CeresRidleyRoomDoor)
-            return EnemyOccupant.Of(new CeresRidleyRoomDoorEntity(_doors, occupant, place, common));
+            return new CeresRidleyRoomDoorEntity(_doors, occupant, place, common);
         if (actor == EnemyDefinitionId.CeresElevatorRoomWall)
             return new CeresElevatorRoomWallEntity(_doors, place, common);
         throw new InvalidDataException($"{actor} is no Ceres door or wall told nothing.");
@@ -45,7 +45,7 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
     }
 
     /// <summary>A Ceres door, facing as its placement names.</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CeresDoorSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CeresDoorSpawnSettings settings) =>
         new CeresDoorEntity(_doors, place, common, Ensure.NotNull(settings).Facing switch
         {
             HorizontalDirection.Right => CeresDoorSegment.DoorFacingRight,
@@ -54,7 +54,7 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
         });
 
     /// <summary>A getaway chamber wall, standing on the side its placement names.</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CeresGetawayChamberWallSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CeresGetawayChamberWallSpawnSettings settings) =>
         new CeresGetawayChamberWallEntity(_doors, place, common, Ensure.NotNull(settings).Side switch
         {
             HorizontalDirection.Left => CeresDoorSegment.GetawayChamberLeftWall,

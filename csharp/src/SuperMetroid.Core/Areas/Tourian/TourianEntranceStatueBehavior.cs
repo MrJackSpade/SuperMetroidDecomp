@@ -20,9 +20,9 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySetti
 
     /// <inheritdoc/>
     /// <remarks>The placement joins the scene's occupants and spawns its decorations as it is built (#2554).</remarks>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, TourianEntranceStatueSpawnSettings settings)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, TourianEntranceStatueSpawnSettings settings)
     {
-        var occupant = EnemyOccupant.WithoutMainAi(new TourianEntranceStatueEntity(this, occupant, place, common));
+        var occupant = new TourianEntranceStatueEntity(this, occupant, place, common);
         InitializeTourianEntranceStatue(occupant, settings);
         return occupant;
     }
@@ -191,12 +191,11 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySetti
         Position16<RoomPixels> position,
         Func<Position16<RoomPixels>, DecorationBehavior> decorations)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, decorations, graphics: SceneGraphics);
+        DecorationBehavior decoration = decorations(position);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, decoration, graphics: SceneGraphics);
         if (projectile is null)
             return;
 
-        DecorationBehavior decoration = decorations(position);
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, decoration, graphics: SceneGraphics);
         HoldSceneProjectile(projectile);
         projectile.StartAnimation(new TourianStatueDecorationAnimation(decorations, start, decoration));
         projectile.Position = projectile.Position.WithWhole(position);
@@ -228,7 +227,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySetti
             switch (cue)
             {
                 case TourianStatueDecorationCue.FollowReveal:
-                    StartMotion(context.Projectile, TourianStatueDecorationMotion.FollowingReveal);
+                    context.Projectile.StartMotion(this, TourianStatueDecorationMotion.FollowingReveal);
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(TourianStatueDecorationCue)} {cue}.");

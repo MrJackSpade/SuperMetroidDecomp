@@ -31,7 +31,8 @@ internal sealed class FallingSparksBehavior
     /// <summary>Allocates and initializes a falling spark projectile.</summary>
     internal void SpawnFallingSpark(RoomEnemyOccupant occupant, RoomEnemyPlace source)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FallingSpark, Spark, SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        var spark = new FallingSparkState(launch);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FallingSpark, Spark(spark), SpriteGraphics.SpawnedBy(occupant, source.Shading));
         if (projectile is null)
             return;
 
@@ -40,15 +41,9 @@ internal sealed class FallingSparksBehavior
         Func<int> nextRandom = _room.Random.Generate;
         SignedSixteenSixteen launch = FallingSparkLaunchDefinitions.Launch.Choose(nextRandom())
             .DriftWith(() => _room.Session.Overreads.FallingSparkUnauthoredLaunch);
-        var spark = new FallingSparkState(launch);
 
         // The spark starts as its definition has it: blank at first, with its animation, size, damage and the way it
         // touches Samus. It then appears below its source, still, both ordinary velocities zero.
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.FallingSpark,
-            Spark(spark),
-            SpriteGraphics.SpawnedBy(source));
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.Falling));
         projectile.Position = source.Position.WithWholeY(source.Position.Y.Whole + FallingSparkMotionDefinitions.SpawnBelowSource);
         projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);

@@ -19,16 +19,19 @@ public sealed class EnemyProjectile
     /// <param name="place">The zero-based enemy-projectile place the projectile takes.</param>
     /// <param name="left">What the place's previous projectile left there.</param>
     /// <param name="kind">What the projectile is.</param>
-    /// <param name="behavior">What the projectile's kind does, bound to it for its life.</param>
-    internal EnemyProjectile(int place, EnemyProjectileHandOver left, RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior)
+    /// <param name="behaviorFor">
+    /// Creates what the projectile's kind does for the projectile, bound to it for its life: a behaviour whose state holds
+    /// the projectile it shows is created with it.
+    /// </param>
+    internal EnemyProjectile(int place, EnemyProjectileHandOver left, RoomEnemyProjectileKind kind, Func<EnemyProjectile, EnemyProjectileBehavior> behaviorFor)
     {
         Place = Ensure.BetweenInclusive(0, EnemyProjectileEngine.PlaceCount - 1, place);
         Position = FixedPosition<RoomPixels>.FromWhole(left.Position);
         Velocity = left.Velocity;
         Vacate();
         Kind = kind;
-        Behavior = Ensure.NotNull(behavior);
         IsActive = true;
+        Behavior = Ensure.NotNull(Ensure.NotNull(behaviorFor)(this));
     }
 
     /// <summary>

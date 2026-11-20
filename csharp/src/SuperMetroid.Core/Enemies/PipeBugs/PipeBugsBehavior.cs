@@ -21,15 +21,15 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemySettingsFactory<Br
     }
 
     /// <summary>A Brinstar Pipe Bug, Zeb or Zebbo (#2146).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, BrinstarPipeBugSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, BrinstarPipeBugSpawnSettings settings) =>
         new BrinstarPipeBugEntity(place, common, settings);
 
     /// <summary>A Norfair Pipe Bug, Gamet, leading its formation or following its leader (#2146).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, NorfairPipeBugSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, NorfairPipeBugSpawnSettings settings) =>
         new NorfairPipeBugEntity(this, place, common, settings);
 
     /// <summary>A yellow Pipe Bug, Geega (#2146).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, YellowPipeBugSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, YellowPipeBugSpawnSettings settings) =>
         new YellowPipeBugEntity(place, common, settings);
 
     /// <summary>The room's enemy places, where each Norfair formation leader finds its formation when it is placed.</summary>

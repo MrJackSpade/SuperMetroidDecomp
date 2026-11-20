@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 internal sealed record OwtchSpawnSettings(OwtchBehaviorState InitialBehavior, int UndergroundWait, SignedSixteenSixteen Speed, int TravelDistance) : EnemySpawnSettings
 {
     /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).Place(this, placing);
+    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacementRequest placing) => Ensure.NotNull(species).Place(this, placing);
 
     /// <inheritdoc/>
     internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);

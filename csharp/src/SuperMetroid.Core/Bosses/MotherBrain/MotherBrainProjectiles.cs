@@ -203,9 +203,6 @@ internal sealed class MotherBrainProjectiles
         /// <summary>Where each rainbow explosion sits from Samus, given as it goes off.</summary>
         internal EnemyProjectileStates<MotherBrainFollowingExplosionState> FollowingExplosions { get; } = new();
 
-        /// <inheritdoc/>
-        internal override EnemyProjectileAnimation? TouchAnimation() =>
-            touch is { } segment ? new MotherBrainEffectAnimation(this, segment) : null;
 
         /// <summary>The behaviour the glass sparkles and hand beams this spawns run: Mother Brain's own projectiles'.</summary>
         private protected MotherBrainProjectileBehavior Spawned => spawned ?? this;
@@ -267,7 +264,7 @@ internal sealed class MotherBrainProjectiles
                     projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole + MotherBrainFightDefinitions.DroolReleaseDrop);
                     break;
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.ReleaseDrool }:
-                    StartMotion(projectile, MotherBrainProjectileMotion.DroolFalling);
+                    projectile.StartMotion(this, MotherBrainProjectileMotion.DroolFalling);
                     break;
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.StopMoving }:
                     projectile.HoldStill();
@@ -461,16 +458,11 @@ internal sealed class MotherBrainProjectiles
         /// </summary>
         private protected void SpawnMotherBrainHandBeamFired(MotherBrainEnemyState state)
         {
-            EnemyProjectile? beam = dependencies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainHandBeamFired, Spawned, graphics: SpriteGraphics.SharedStandard);
+            var fired = new EncounterBehavior(dependencies, turretBullet, Spawned, new MotherBrainProjectileState(state));
+            EnemyProjectile? beam = dependencies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainHandBeamFired, fired, graphics: SpriteGraphics.SharedStandard);
             if (beam is null)
                 return;
 
-            var fired = new EncounterBehavior(dependencies, turretBullet, Spawned, new MotherBrainProjectileState(state));
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                beam,
-                RoomEnemyProjectileKind.MotherBrainHandBeamFired,
-                fired,
-                graphics: default);
             beam.Position = state.HandBeamNextPosition;
             beam.Velocity = state.HandBeamNextVelocity;
 
@@ -655,11 +647,6 @@ internal sealed class MotherBrainProjectiles
             if (bullet is null)
                 return;
 
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                bullet,
-                RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
-                turretBullet,
-                MotherBrainTurretDefinitions.Graphics);
             MotherBrainTurretDirection direction = turretState.Direction;
             MotherBrainTurretDirectionDefinition definition =
                 MotherBrainTurrets.ForDirection(direction);
@@ -778,7 +765,7 @@ internal sealed class MotherBrainProjectiles
         private sealed class Keeping(KeepingBehavior<TState> owner, MotherBrainKeptMotion kind) : KeptMotion(kind)
         {
             /// <inheritdoc/>
-            internal override void Run(EnemyProjectileMotionContext context) => owner.MoveKept(context);
+            internal override void Move(EnemyProjectileMotionContext context) => owner.MoveKept(context);
         }
     }
 
@@ -853,15 +840,10 @@ internal sealed class MotherBrainProjectiles
     /// </summary>
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request)
     {
-        EnemyProjectile? shard = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainGlassShard, Projectile, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? shard = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainGlassShard, GlassShards, graphics: SpriteGraphics.SharedStandard);
         if (shard is null)
             return; // The shard is lost when the room has no place left for an enemy projectile.
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            shard,
-            RoomEnemyProjectileKind.MotherBrainGlassShard,
-            GlassShards,
-            graphics: default);
 
         // The shard launches at a random angle, any step of the turn. It selects signed sine/cosine velocities and the
         // shard's spin animation.

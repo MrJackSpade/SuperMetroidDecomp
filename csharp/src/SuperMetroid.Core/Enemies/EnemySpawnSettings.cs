@@ -22,7 +22,7 @@ public record EnemySpawnSettings
     /// </summary>
     /// <param name="species">The room's species registry.</param>
     /// <param name="placing">The occupant being placed.</param>
-    internal virtual EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).PlaceUntold(placing);
+    internal virtual EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacementRequest placing) => Ensure.NotNull(species).PlaceUntold(placing);
 
     /// <summary>
     /// How many parts the entry carrying these settings for <paramref name="definition"/> heads, through the factory that

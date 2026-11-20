@@ -14,7 +14,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemySettingsFactory<Rinka
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Rinka];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, RinkaSpawnSettings settings) => EnemyOccupant.Of(new RinkaEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, RinkaSpawnSettings settings) => new RinkaEntity(this, occupant, place, common, settings);
 
     /// <summary>Applies normal Samus contact damage before the Rinka's own death.</summary>
     private readonly EnemyCollision _collision;

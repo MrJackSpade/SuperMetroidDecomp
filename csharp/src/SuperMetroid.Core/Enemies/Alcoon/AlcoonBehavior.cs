@@ -14,7 +14,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Alcoon];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => EnemyOccupant.FromSurroundings(new AlcoonEntity(this, occupant, place, common, setup));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new AlcoonEntity(this, occupant, place, common, setup);
 
     /// <summary>Provides RNG for the randomized post-volley walk count.</summary>
     private readonly EnemyRoomBinding _room;

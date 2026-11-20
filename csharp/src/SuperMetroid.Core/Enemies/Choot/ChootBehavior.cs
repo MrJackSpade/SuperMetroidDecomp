@@ -11,7 +11,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemySettingsFactory<Choot
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Choot];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ChootSpawnSettings settings) => EnemyOccupant.Of(new ChootEntity(occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ChootSpawnSettings settings) => new ChootEntity(occupant, place, common, settings);
 
     /// <summary>Initializes the Choot, selecting a falling pattern and calculating ascent speed from parameters.</summary>
     internal static ChootEnemyState InitializeChoot(RoomEnemyOccupant occupant, RoomEnemyPlace place, ChootSpawnSettings settings)

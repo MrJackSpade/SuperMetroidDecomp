@@ -17,7 +17,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySettingsFactory<PuyoSp
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Puyo];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, PuyoSpawnSettings settings) => EnemyOccupant.Of(new PuyoEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, PuyoSpawnSettings settings) => new PuyoEntity(this, occupant, place, common, settings);
 
     /// <summary>Supplies the shared room RNG used when choosing Puyo hop type and bounce height.</summary>
     private readonly EnemyRoomBinding _room;

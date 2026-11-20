@@ -17,7 +17,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroidCutscene];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => EnemyOccupant.Of(new BabyMetroidCutsceneEntity(this, occupant, place, common, setup));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BabyMetroidCutsceneEntity(this, occupant, place, common, setup);
 
     /// <summary>Initializes the dynamically allocated Baby through the ordinary enemy lifecycle.</summary>
     private readonly IEnemyLifecycle _lifecycle;

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 internal sealed record BoulderSpawnSettings(int TriggerHeight, int TriggerReach, BoulderStart Start, BoulderRoll Roll) : EnemySpawnSettings
 {
     /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).Place(this, placing);
+    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacementRequest placing) => Ensure.NotNull(species).Place(this, placing);
 
     /// <inheritdoc/>
     internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);

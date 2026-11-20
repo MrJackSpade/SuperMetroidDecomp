@@ -26,7 +26,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroid];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => EnemyOccupant.FromSurroundings(new BabyMetroidEntity(this, occupant, place, common, setup));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BabyMetroidEntity(this, occupant, place, common, setup);
 
     /// <summary>Provides the room's enemy session, room scroll values, RNG, and installed encounter colors.</summary>
     private readonly EnemyRoomBinding _room;

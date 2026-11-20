@@ -55,6 +55,12 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
     /// <summary>The projectile frame <paramref name="frame"/> shows.</summary>
     private protected abstract EnemyProjectileFrameId Present(TFrame frame);
 
+    /// <summary>
+    /// The animation a cue of the play just made handed the projectile over to, which the projectile plays on in (#2554);
+    /// none while no cue has handed it over, as for every animation whose cues cannot.
+    /// </summary>
+    private protected virtual EnemyProjectileAnimation? HandedOverTo => null;
+
     /// <summary>Plays the animation on to its next frame.</summary>
     private protected sealed override EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context)
     {
@@ -62,6 +68,8 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
         AnimationPlace place = Playback.Place;
         AnimationShown<TSegment, TFrame> shown = PlayToNextFrame(context, ref animation, ref place);
         Playback = new AnimationPlayback<TSegment>(animation, place);
+        if (HandedOverTo is { } next)
+            return new EnemyProjectileFrameStep.HandOver(next);
         switch (shown)
         {
             case AnimationShown<TSegment, TFrame>.Frame shownFrame:

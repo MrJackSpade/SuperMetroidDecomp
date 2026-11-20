@@ -12,7 +12,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemySettingsFactory<Cac
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Cacatac];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CacatacSpawnSettings settings) => EnemyOccupant.Of(new CacatacEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CacatacSpawnSettings settings) => new CacatacEntity(this, occupant, place, common, settings);
 
     /// <summary>Supplies shared room RNG for the spike attack gate (<see cref="CacatacAttackDefinitions.Attacks"/>).</summary>
     private readonly EnemyRoomBinding _room;

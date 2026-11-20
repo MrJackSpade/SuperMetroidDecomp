@@ -24,7 +24,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IEnemySettingsFacto
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.ShipBottomEntrance, EnemyDefinitionId.ShipTop];
 
     /// <summary>The gunship's bottom hull or its entrance pad, as its placement names (#2146).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, GunshipSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, GunshipSpawnSettings settings) =>
         new GunshipBottomEntity(this, place, common, setup, settings);
 
     /// <inheritdoc/>
@@ -37,7 +37,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IEnemySettingsFacto
 
     /// <summary>The gunship's top hull, which moves the ship, or its bottom hull with the entrance pad (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no gunship definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.ShipTop)

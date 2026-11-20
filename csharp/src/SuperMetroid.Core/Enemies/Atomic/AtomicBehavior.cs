@@ -12,7 +12,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemySettingsFactory<Atom
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Atomic];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, AtomicSpawnSettings settings) => EnemyOccupant.Of(new AtomicEntity(occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, AtomicSpawnSettings settings) => new AtomicEntity(occupant, place, common, settings);
 
 
     /// <summary>Initializes the Atomic.</summary>

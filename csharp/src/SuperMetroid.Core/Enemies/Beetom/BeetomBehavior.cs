@@ -14,7 +14,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Beetom];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => EnemyOccupant.FromSurroundings(new BeetomEntity(this, occupant, place, common, setup));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new BeetomEntity(this, occupant, place, common, setup);
 
     /// <summary>Supplies the shared RNG seed and generation used by Beetom action choice.</summary>
     private readonly EnemyRoomBinding _room;

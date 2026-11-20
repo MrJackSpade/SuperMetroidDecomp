@@ -75,12 +75,11 @@ internal sealed class EyeDoorBehavior
     public void SpawnEyeDoorAttack(EyeDoorAttackRequest request, SharedGameState system)
     {
         Ensure.NotNull(system);
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EyeDoorProjectile, Shot, graphics: SpriteGraphics.SharedStandard);
+        var shot = new ShotBehavior(new EyeDoorShotState(request.Door, system));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EyeDoorProjectile, shot, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return; // Spawning fails when the room has no place left for an enemy projectile.
 
-        var shot = new ShotBehavior(new EyeDoorShotState(request.Door, system));
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.EyeDoorProjectile, shot, graphics: default);
         projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Fired, shot));
         InitializeEyeDoorProjectile(projectile, request);
     }
@@ -103,7 +102,7 @@ internal sealed class EyeDoorBehavior
         internal override EnemyProjectileAnimation ShotAnimation() => new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Shot, this);
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
+        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
             FlyEyeDoorProjectile(context.Projectile, shot, context.Level, this);
 
         /// <inheritdoc/>
@@ -116,7 +115,7 @@ internal sealed class EyeDoorBehavior
                     AimEyeDoorProjectileAtSamus(projectile, shot, context.Samus.RoomView);
                     break;
                 case EyeDoorProjectileCueKind.StartFlight:
-                    StartMotion(projectile, SingleMotion.Moving);
+                    projectile.StartMotion(this, SingleMotion.Moving);
                     break;
                 case EyeDoorProjectileCueKind.StopMoving:
                     projectile.HoldStill();
@@ -135,7 +134,7 @@ internal sealed class EyeDoorBehavior
         : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving), IEnemyProjectileCues<EyeDoorSweatCue>
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
+        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
             DripEyeDoorSweat(this, context.Projectile, context.Level, this);
 
         /// <inheritdoc/>

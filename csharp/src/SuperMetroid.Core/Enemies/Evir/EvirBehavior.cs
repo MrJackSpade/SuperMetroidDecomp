@@ -12,7 +12,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Evir, EnemyDefinitionId.EvirProjectile];
 
     /// <summary>An Evir's body, or its arms, as its placement names (#2146).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EvirSpawnSettings settings)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EvirSpawnSettings settings)
     {
         _settingsOf.Place(Ensure.NotNull(place), Ensure.NotNull(settings));
         return settings.Part == EvirBodyPart.Arms
@@ -39,11 +39,11 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     /// body's definition; only their placement tells them apart.
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no Evir definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.EvirProjectile)
-            return EnemyOccupant.Of(new EvirSpitEntity(this, occupant, place, common));
+            return new EvirSpitEntity(this, occupant, place, common);
         throw new InvalidOperationException($"The Evir species creates no {occupant.DefinitionId}.");
     }
 

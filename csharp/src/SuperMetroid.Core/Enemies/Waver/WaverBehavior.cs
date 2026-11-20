@@ -12,7 +12,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemySettingsFactory<Waver
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Waver];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WaverSpawnSettings settings) => EnemyOccupant.Of(new WaverEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WaverSpawnSettings settings) => new WaverEntity(this, occupant, place, common, settings);
 
     /// <summary>Room collision service used to reflect horizontal motion and the sine wave on impact.</summary>
     private readonly EnemyTerrain _terrain;

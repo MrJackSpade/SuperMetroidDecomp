@@ -12,7 +12,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemySettingsFactory<Fi
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fireflea];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, FirefleaSpawnSettings settings) => EnemyOccupant.Of(new FirefleaEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, FirefleaSpawnSettings settings) => new FirefleaEntity(this, occupant, place, common, settings);
 
     /// <summary>Runs the common touch, after which the Fireflea always dies.</summary>
     private readonly EnemyCollision _collision;

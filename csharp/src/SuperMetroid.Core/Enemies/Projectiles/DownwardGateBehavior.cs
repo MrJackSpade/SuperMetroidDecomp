@@ -51,7 +51,8 @@ internal sealed class DownwardGateBehavior
             _ => throw new InvalidDataException($"Downward gate requested undefined projectile {request.Kind}."),
         };
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, Gate, graphics: SpriteGraphics.SharedStandard);
+        var behavior = new GateBehavior(gate);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, behavior, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return; // The projectile spawn's deliberate finite-pool failure.
 
@@ -59,8 +60,6 @@ internal sealed class DownwardGateBehavior
         // The gate's block ties the actor to its gate, which keeps it to wake it when the gate opens again.
         var gate = new DownwardGateState(request.RoomObjectBlock,
             closed ? DownwardGateProjectileAnimations.ClosedStage : DownwardGateProjectileAnimations.SlidingDownStage);
-        var behavior = new GateBehavior(gate);
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, behavior, graphics: default);
         projectile.StartAnimation(new DownwardGateProjectileAnimation(Gate, closed
             ? DownwardGateProjectileSegment.Closed
             : DownwardGateProjectileSegment.Moving, behavior));
@@ -136,7 +135,7 @@ internal sealed class DownwardGateBehavior
         internal void AdvanceStage(EnemyProjectile projectile) => AdvanceDownwardGateStage(projectile, gate, this);
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
+        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
             RunDownwardGateProjectileMovement(context.Projectile, gate, this);
 
         /// <inheritdoc/>
@@ -149,7 +148,7 @@ internal sealed class DownwardGateBehavior
                     projectile.Velocity = projectile.Velocity.WithY(setYVelocity.YVelocity);
                     break;
                 case DownwardGateProjectileCue.Signal { Kind: DownwardGateProjectileCueKind.StartSliding }:
-                    StartMotion(projectile, SingleMotion.Moving);
+                    projectile.StartMotion(this, SingleMotion.Moving);
                     break;
                 case DownwardGateProjectileCue.Signal { Kind: DownwardGateProjectileCueKind.StopSliding }:
                     projectile.HoldStill();

@@ -16,7 +16,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemySettingsFactory<El
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Elevator];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ElevatorSpawnSettings settings) => EnemyOccupant.FromSurroundings(new ElevatorEntity(this, occupant, place, common, setup, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ElevatorSpawnSettings settings) => new ElevatorEntity(this, occupant, place, common, setup, settings);
 
     /// <summary>The loaded room's bindings, whose game-state services set up Samus's elevator pose when the elevator departs.</summary>
     private readonly EnemyRoomBinding _room;

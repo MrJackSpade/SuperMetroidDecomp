@@ -16,7 +16,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemySettingsFactory<Ete
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Etecoon];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EtecoonSpawnSettings settings) => EnemyOccupant.Of(new EtecoonEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EtecoonSpawnSettings settings) => new EtecoonEntity(this, occupant, place, common, settings);
 
     /// <summary>Probes the floor, walls, and ceiling throughout the teaching route.</summary>
     private readonly EnemyTerrain _terrain;

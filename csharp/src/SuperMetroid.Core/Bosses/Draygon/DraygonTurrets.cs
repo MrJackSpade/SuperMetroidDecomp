@@ -58,7 +58,8 @@ internal sealed class DraygonTurrets
             _disabledCannons.Contains(cannon))
             return;
 
-        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonWallTurret, _shots.WallTurretShot, graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
+        DraygonShots.FlyingShotBehavior shot = _shots.WallTurretShot(AngledFlightState.Launch(flightAngle, DraygonProjectileSpeeds.WallTurret));
+        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonWallTurret, shot, graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
         if (turret is null)
             return;
 
@@ -67,12 +68,6 @@ internal sealed class DraygonTurrets
         Position16<RoomPixels> origin = DraygonCannonData.FiringOrigins[cannon];
         TrigonometryAngle flightAngle = EnemyMath.CalculateAimAngle(
             new(samus.Position.X.Whole - origin.X, samus.Position.Y.Whole - origin.Y));
-        DraygonShots.FlyingShotBehavior shot = _shots.WallTurretShot(AngledFlightState.Launch(flightAngle, DraygonProjectileSpeeds.WallTurret));
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            turret,
-            RoomEnemyProjectileKind.DraygonWallTurret,
-            shot,
-            graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
         turret.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.WallTurretBloom, shot));
         turret.Position = FixedPosition<RoomPixels>.FromWhole(origin);
 

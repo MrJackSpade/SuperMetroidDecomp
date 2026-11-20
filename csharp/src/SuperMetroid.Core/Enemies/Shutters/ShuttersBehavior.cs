@@ -76,18 +76,18 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemySettingsFactory<Gr
     }
 
     /// <summary>The growing shutter, growing as its placement names (#2146).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, GrowingShutterSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, GrowingShutterSpawnSettings settings) =>
         new GrowingShutterEntity(this, place, common, settings);
 
     /// <summary>A shootable vertical shutter, the Kamer that reuses it, or a destroyable vertical shutter (#2146, #2179).</summary>
     /// <exception cref="InvalidOperationException">The place holds no vertical shutter's definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ShutterSpawnSettings settings)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ShutterSpawnSettings settings)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.ShutterShootable)
-            return EnemyOccupant.Of(new ShootableShutterEntity(this, occupant, place, common, ShutterSegment.FullyGrown, settings));
+            return new ShootableShutterEntity(this, occupant, place, common, ShutterSegment.FullyGrown, settings);
         if (definition == EnemyDefinitionId.Kamer)
-            return EnemyOccupant.Of(new KamerEntity(this, occupant, place, common, settings));
+            return new KamerEntity(this, occupant, place, common, settings);
         if (definition == EnemyDefinitionId.ShutterDestroyable)
         {
             // A destroyable shutter is kept among the shutters the escape's flash shows on as it is built (#2380).

@@ -15,7 +15,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWalking, EnemyDefinitionId.PirateGreenWalking, EnemyDefinitionId.PirateGreyWalking, EnemyDefinitionId.PirateMagentaWalking, EnemyDefinitionId.PirateRedWalking, EnemyDefinitionId.PirateSilverWalking];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WalkingSpacePirateSpawnSettings settings) => EnemyOccupant.Of(new WalkingSpacePirateEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WalkingSpacePirateSpawnSettings settings) => new WalkingSpacePirateEntity(this, occupant, place, common, settings);
 
     /// <summary>Supplies solid-ground and ledge probes for the patrol AI.</summary>
     private readonly EnemyTerrain _terrain;
@@ -330,16 +330,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySettings
         HorizontalDirection direction,
         PirateLaserSpeed speed)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateMotherBrainLaser, Laser, graphics: SpriteGraphics.SharedStandard);
+        var laser = new LaserBehavior(new PirateLaserState(speed, direction));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateMotherBrainLaser, laser, graphics: SpriteGraphics.SharedStandard);
         if (projectile is null)
             return null;
 
-        var laser = new LaserBehavior(new PirateLaserState(speed, direction));
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.PirateMotherBrainLaser,
-            laser,
-            graphics: default);
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(muzzle);
         projectile.StartAnimation(new SpacePirateLaserAnimation(Laser, direction == HorizontalDirection.Right

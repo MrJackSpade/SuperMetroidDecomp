@@ -18,7 +18,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySettingsFactory<Boyon
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Boyon];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, BoyonSpawnSettings settings) => EnemyOccupant.Of(new BoyonEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, BoyonSpawnSettings settings) => new BoyonEntity(this, occupant, place, common, settings);
 
     /// <summary>Carries out one cue of Boyon's animations.</summary>
     private void ApplyBoyonCue(RoomEnemyPlace place, BoyonEnemyState state, BoyonCue cue)

@@ -109,17 +109,12 @@ internal sealed class PhantoonOpening
     private void SpawnPhantoonStartingFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
     {
         RoomEnemyPlace body = phantoon.Body;
-        EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PhantoonStartingFlame, _combat.StartingFlame, SpriteGraphics.SpawnedBy(phantoon.BodyOccupant, body.Shading));
+        PhantoonCombat.IPhantoonFlame behavior = _combat.StartingFlame(orbit);
+        EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PhantoonStartingFlame, behavior.Behavior, SpriteGraphics.SpawnedBy(phantoon.BodyOccupant, body.Shading));
         if (flame is null)
             return;
 
         var orbit = new PhantoonOrbitingFlameState(phantoon, start);
-        PhantoonCombat.IPhantoonFlame behavior = _combat.StartingFlame(orbit);
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            flame,
-            RoomEnemyProjectileKind.PhantoonStartingFlame,
-            behavior.Behavior,
-            SpriteGraphics.SpawnedBy(body));
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.StartingFlame, behavior));
         flame.Position = flame.Position.WithoutFractions();
         flame.Velocity = PixelVelocity<RoomPixels>.Zero;

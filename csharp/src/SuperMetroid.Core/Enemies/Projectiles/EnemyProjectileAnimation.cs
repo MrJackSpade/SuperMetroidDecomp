@@ -30,7 +30,7 @@ internal abstract class EnemyProjectileAnimation
         {
             playing = handOver.Next;
             projectile.InstallAnimation(playing);
-            step = playing.NextFrame(context, projectiles);
+            step = playing.NextFrame(context);
         }
         if (projectile.Animation != playing)
             return;

@@ -10,7 +10,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySettingsFactory<Owtch
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Owtch];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, OwtchSpawnSettings settings) => EnemyOccupant.Of(new OwtchEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, OwtchSpawnSettings settings) => new OwtchEntity(this, occupant, place, common, settings);
 
     /// <summary>Supplies the shared room random sequence used for burial and emergence.</summary>
     private readonly EnemyRoomBinding _room;

@@ -20,16 +20,16 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemySettingsFactory<Grap
     }
 
     /// <summary>The grapple Ripper, from the patrol its placement names (#2146).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, GrappleRipperSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, GrappleRipperSpawnSettings settings) =>
         new GrappleRipperEntity(this, place, common, settings);
 
     /// <summary>The ordinary Ripper or the jet Ripper, from the flight its placement names (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds neither Ripper's definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, RipperSpawnSettings settings)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, RipperSpawnSettings settings)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.JetRipper)
-            return EnemyOccupant.Of(new JetRipperEntity(this, occupant, place, common, settings));
+            return new JetRipperEntity(this, occupant, place, common, settings);
         if (definition == EnemyDefinitionId.Ripper)
             return new OrdinaryRipperEntity(this, place, common, settings);
         throw new InvalidOperationException($"The Ripper species flies no {place.DefinitionId}.");

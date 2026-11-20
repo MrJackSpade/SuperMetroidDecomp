@@ -20,7 +20,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySettingsFactory<Y
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Yard];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, YardSpawnSettings settings) => EnemyOccupant.Of(new YardEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, YardSpawnSettings settings) => new YardEntity(this, occupant, place, common, settings);
 
     /// <summary>Provides active room context for Yard initialization and main AI.</summary>
     private readonly EnemyRoomBinding _room;

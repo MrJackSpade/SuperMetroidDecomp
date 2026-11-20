@@ -129,7 +129,7 @@ internal sealed class CrocomireCombat
         internal override EnemyProjectileAnimation ShotAnimation() => new CrocomireProjectileAnimation(CrocomireProjectileSegment.Shot, this);
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, CrocomireProjectileMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, CrocomireProjectileMotion motion)
         {
             switch (motion)
             {
@@ -155,7 +155,7 @@ internal sealed class CrocomireCombat
             // The shot keeps the gradient its volley fires it along. The angle starts at up, not right: Y uses negative cosine.
             int gradient = shot.Gradient;
             projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateAimAngle(new(-CrocomireProjectileDefinitions.AimReachLeft, gradient)));
-            StartMotion(projectile, CrocomireProjectileMotion.ShotFlying);
+            projectile.StartMotion(this, CrocomireProjectileMotion.ShotFlying);
         }
     }
 
@@ -169,7 +169,7 @@ internal sealed class CrocomireCombat
         : CrocomireProjectileBehavior<SingleMotion>(projectiles, deathsAndDrops, access, SingleMotion.Moving)
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
+        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
             RunCrocomireSpikeWallPiece(context.Projectile);
 
         /// <summary>Runs the shard motion, exact to the 256th of a pixel, whose limits each piece takes from its place in the wall.</summary>
@@ -219,7 +219,7 @@ internal sealed class CrocomireCombat
         : CrocomireProjectileBehavior<SingleMotion>(projectiles, deathsAndDrops, access, SingleMotion.Moving)
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
+        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
             RunCrocomireBridgeFragment(context.Projectile, context.Level);
     }
 

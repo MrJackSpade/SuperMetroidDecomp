@@ -60,11 +60,7 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
         {
             var projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TourianStatueDescentDust, Effects, _statue.SceneGraphics);
             if (projectile is null) continue;
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                projectile,
-                RoomEnemyProjectileKind.TourianStatueDescentDust,
-                new AnchoredProjectileBehavior(TourianStatueSequenceDefinitions.DescentDustAnchor),
-                _statue.SceneGraphics);
+            projectile.Anchor = TourianStatueSequenceDefinitions.DescentDustAnchor;
             _statue.HoldSceneProjectile(projectile);
             projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustAnimations.TourianDescentDust));
         }
@@ -99,7 +95,7 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
         var projectile = _projectiles.AllocateEnemyProjectile(kind, Effects, _statue.SceneGraphics);
         if (projectile is null) return null;
         if (moves is { } motion)
-            StartMotion(projectile, motion);
+            projectile.StartMotion(this, motion);
         _statue.HoldSceneProjectile(projectile);
         projectile.StartAnimation(new TourianStatueProjectileAnimation(this, start, this));
         projectile.Position = projectile.Position.WithWhole(eye.Position);
@@ -148,7 +144,7 @@ internal sealed class TourianUnlockBehavior : EnemyProjectileMotionBehavior<Tour
         var projectile = _projectiles.AllocateEnemyProjectile(kind, Effects, _statue.SceneGraphics);
         if (projectile is null) return null;
         if (moves is { } motion)
-            StartMotion(projectile, motion);
+            projectile.StartMotion(this, motion);
         _statue.HoldSceneProjectile(projectile);
         projectile.StartAnimation(new TourianStatueProjectileAnimation(this, start, this));
         projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);

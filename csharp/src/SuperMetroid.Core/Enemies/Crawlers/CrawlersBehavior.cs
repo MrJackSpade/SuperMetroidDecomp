@@ -25,11 +25,11 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemySettingsFactory<Cr
     /// Zeela, Sova and both Zoomers in the shared family; or an orange Zoomer (#2146).
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no crawler definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CrawlerSpawnSettings settings)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, CrawlerSpawnSettings settings)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Sciser)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser, settings));
+            return new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser, settings);
         if (definition == EnemyDefinitionId.Zero)
             return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Zero, settings);
         if (definition is EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer)
@@ -38,12 +38,12 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemySettingsFactory<Cr
     }
 
     /// <summary>A Viola, starting on the block side its placement names, which is also the surface it crawls (#2146).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ViolaSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ViolaSpawnSettings settings) =>
         new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Viola,
             new CrawlerSpawnSettings(Orientation: Ensure.NotNull(settings).BlockSide, BlockSide: settings.BlockSide, CrawlSpeed: settings.CrawlSpeed));
 
     /// <summary>An orange Zoomer (#2146).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, OrangeZoomerSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, OrangeZoomerSpawnSettings settings) =>
         new OrangeZoomerEntity(this, place, common, settings);
 
     /// <inheritdoc/>

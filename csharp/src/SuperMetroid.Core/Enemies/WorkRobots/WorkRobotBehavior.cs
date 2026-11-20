@@ -20,11 +20,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySettingsFactory<W
     /// states once Phantoon is defeated, so it always has power (#2455).
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no work robot definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WorkRobotSpawnSettings settings)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WorkRobotSpawnSettings settings)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.WorkRobot)
-            return EnemyOccupant.Of(new PoweredWorkRobotEntity(this, occupant, place, common));
+            return new PoweredWorkRobotEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.UnpoweredWorkRobot)
             return new UnpoweredWorkRobotEntity(this, place, common, settings);
         throw new InvalidOperationException($"The work robot species creates no {place.DefinitionId}.");

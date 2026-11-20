@@ -9,7 +9,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySettingsFactory<Hib
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Hibashi];
 
     /// <summary>The Hibashi's flame, or the collision part its placement names (#2342).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, HibashiSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, HibashiSpawnSettings settings) =>
         Ensure.NotNull(settings).Part == HibashiPart.CollisionPart
             ? new HibashiCollisionPartEntity(place, common)
             : new HibashiEntity(this, place, common, settings);

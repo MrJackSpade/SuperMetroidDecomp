@@ -47,7 +47,7 @@ internal sealed class PrePhantoonRoomBehavior
         /// <summary>Counts the hold on each of the place's updates, from its spawn, and frees the place on the update after it.</summary>
         /// <param name="context">The held place and what its pass hands every motion.</param>
         /// <param name="motion">The place's one motion, its hold.</param>
-        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion)
         {
             if (heldPlace.FreesOnThisUpdate())
                 context.Projectile.Delete();

@@ -136,7 +136,7 @@ internal sealed class PhantoonCombat
         {
             if (!orbit.Phantoon.StartingFlames.Orbiting)
                 return;
-            circling.StartMotion(flame, IntroOrbiting);
+            flame.StartMotion(circling, IntroOrbiting);
             orbit.FullRadiusHold.LastFor(PhantoonFlameMotionDefinitions.IntroCircleHoldUpdates);
             orbit.Radius = PhantoonFlameMotionDefinitions.IntroCircleRadius;
         }
@@ -238,7 +238,7 @@ internal sealed class PhantoonCombat
         : PhantoonFlameBehavior<PhantoonFlameMotion>(deathsAndDrops, initial, shot)
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, PhantoonFlameMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, PhantoonFlameMotion motion)
         {
             EnemyProjectile flame = context.Projectile;
             switch (motion)
@@ -271,7 +271,7 @@ internal sealed class PhantoonCombat
         : PhantoonFlameBehavior<SingleMotion>(deathsAndDrops, SingleMotion.Moving, shot)
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
+        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
             RunPhantoonRainFlame(context.Projectile, rain, audio, context.Level, this);
     }
 
@@ -281,7 +281,7 @@ internal sealed class PhantoonCombat
         : PhantoonFlameBehavior<SingleMotion>(deathsAndDrops, SingleMotion.Moving, PhantoonFlameSegment.Dying)
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion)
         {
             if (RunPhantoonCasualFlameFalling(context.Projectile, context.Level, this))
                 context.Projectile.Rebind(new LandedCasualFlameBehavior(Drops, new PhantoonCasualFlameState()));
@@ -295,7 +295,7 @@ internal sealed class PhantoonCombat
         : PhantoonFlameBehavior<PhantoonLandedFlameMotion>(deathsAndDrops, PhantoonLandedFlameMotion.CasualLanding, PhantoonFlameSegment.Dying)
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, PhantoonLandedFlameMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, PhantoonLandedFlameMotion motion)
         {
             switch (motion)
             {

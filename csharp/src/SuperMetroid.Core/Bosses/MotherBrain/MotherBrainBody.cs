@@ -301,16 +301,11 @@ internal sealed class MotherBrainBody
         MotherBrainEnemyState state,
         SamusState samus)
     {
-        EnemyProjectile? beam = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainHandBeamCharging, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
+        var behavior = _projectileAttacks.WithEncounter(new MotherBrainProjectileState(state));
+        EnemyProjectile? beam = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainHandBeamCharging, behavior, graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         if (beam is null)
             return;
 
-        var behavior = _projectileAttacks.WithEncounter(new MotherBrainProjectileState(state));
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            beam,
-            RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
-            behavior,
-            graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         beam.Velocity = PixelVelocity<RoomPixels>.Zero;
         beam.Position = beam.Position.WithoutFractions();
         beam.Position = beam.Position.WithWhole(state.Body.Position.Whole + MotherBrainFightDefinitions.HandOffset);
@@ -356,17 +351,12 @@ internal sealed class MotherBrainBody
     /// <summary>Spawns one of Mother Brain's turrets, <paramref name="definition"/>.</summary>
     private void SpawnMotherBrainTurret(MotherBrainEnemyState state, MotherBrainTurretDefinition definition)
     {
-        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRoomTurret, _projectileAttacks.Projectile, MotherBrainTurretDefinitions.Graphics);
+        var behavior = _projectileAttacks.Turret(turretState);
+        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRoomTurret, behavior, MotherBrainTurretDefinitions.Graphics);
         if (turret is null)
             return;
 
         var turretState = new MotherBrainTurretState(state, definition);
-        var behavior = _projectileAttacks.Turret(turretState);
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            turret,
-            RoomEnemyProjectileKind.MotherBrainRoomTurret,
-            behavior,
-            MotherBrainTurretDefinitions.Graphics);
 
         turret.Position = turret.Position.WithWhole(definition.Position);
         turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(definition.InitialDirection), behavior));

@@ -19,8 +19,8 @@ internal sealed class StandaloneFixtureSpecies : IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.DraygonBody, EnemyPlaceFixtures.StandIn];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        EnemyOccupant.PlacedOnly(new Body());
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        new Body();
 
     /// <summary>An enemy that runs nothing of its own.</summary>
     private sealed class Body : IEnemyEntity

@@ -13,7 +13,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemySettingsFac
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWall, EnemyDefinitionId.PirateGreyWall, EnemyDefinitionId.PirateMagentaWall, EnemyDefinitionId.PirateSilverWall];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WallSpacePirateSpawnSettings settings) => EnemyOccupant.Of(new WallSpacePirateEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, WallSpacePirateSpawnSettings settings) => new WallSpacePirateEntity(this, occupant, place, common, settings);
 
     /// <summary>Advances the shared random source when a climbing cue chooses a new direction.</summary>
     private readonly EnemyRoomBinding _room;

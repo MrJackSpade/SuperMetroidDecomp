@@ -48,22 +48,6 @@ internal sealed class TorizoAttacks
     /// <param name="projectiles">The enemy projectiles, which scatter a projectile.</param>
     private static void RunSharedCue(EnemyProjectile projectile, TorizoProjectileCue cue, EnemyAudioQueue audio, EnemyProjectileEngine projectiles)
     {
-        /// <summary>The drop chances each Chozo orb rolls, given as its Torizo throws it.</summary>
-        internal EnemyProjectileStates<TorizoChozoOrbState> Orbs { get; } = new();
-
-        /// <summary>The side each Golden Torizo egg was laid facing, its facing as it rolls and its hatch timer.</summary>
-        internal EnemyProjectileStates<GoldenTorizoEggState> Eggs { get; } = new();
-
-        /// <summary>The Golden Torizo that holds or fires each super missile and eye beam.</summary>
-        internal EnemyProjectileStates<TorizoOwnedProjectileState> Held { get; } = new();
-
-        /// <summary>The fall acceleration of each breaking Bomb Torizo statue fragment.</summary>
-        internal EnemyProjectileStates<BombTorizoStatueFragmentState> StatueFragments { get; } = new();
-
-        /// <inheritdoc/>
-        internal override EnemyProjectileAnimation ShotAnimation() =>
-            shot is { } segment ? new TorizoProjectileAnimation(this, segment) : base.ShotAnimation();
-
         switch (cue)
         {
             case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopMoving }:
@@ -140,7 +124,7 @@ internal sealed class TorizoAttacks
                     break;
                 case TorizoProjectileMotion.SonicBoomFlying:
                     // A boom that strikes a wall stays where it struck while its impact plays.
-                    if (FlySonicBoom(this, projectile, context.Level))
+                    if (FlySonicBoom(projectile, context.Level))
                     {
                         var struck = new ExplosionBehavior(projectiles, audio, projectile.Position.Whole);
                         projectile.Rebind(struck);
@@ -165,10 +149,10 @@ internal sealed class TorizoAttacks
                     RunSharedCue(context.Projectile, shared.Cue, audio, projectiles);
                     return null;
                 case TorizoFamilyCue<TorizoFallCueKind>.Own { Kind: TorizoFallCueKind.StartDroolFall }:
-                    StartMotion(context.Projectile, TorizoProjectileMotion.DroolFalling);
+                    context.Projectile.StartMotion(this, TorizoProjectileMotion.DroolFalling);
                     return null;
                 case TorizoFamilyCue<TorizoFallCueKind>.Own { Kind: TorizoFallCueKind.StartFragmentFall }:
-                    StartMotion(context.Projectile, TorizoProjectileMotion.StatueFragmentFalling);
+                    context.Projectile.StartMotion(this, TorizoProjectileMotion.StatueFragmentFalling);
                     return null;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(TorizoFallCueKind)} {cue}.");
@@ -249,7 +233,7 @@ internal sealed class TorizoAttacks
         internal override EnemyProjectileAnimation ShotAnimation() => new TorizoChozoOrbAnimation(TorizoChozoOrbSegment.ChozoOrbShot, this);
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, TorizoChozoOrbMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, TorizoChozoOrbMotion motion)
         {
             switch (motion)
             {
@@ -297,7 +281,7 @@ internal sealed class TorizoAttacks
         internal override EnemyProjectileAnimation ShotAnimation() => new GoldenTorizoEggAnimation(GoldenTorizoEggSegment.Shot, this);
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, GoldenTorizoEggMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, GoldenTorizoEggMotion motion)
         {
             switch (motion)
             {
@@ -329,7 +313,7 @@ internal sealed class TorizoAttacks
                         ? GoldenTorizoEggSegment.EggHatchedRight
                         : GoldenTorizoEggSegment.EggHatchedLeft);
                 case TorizoFamilyCue<GoldenTorizoEggCueKind>.Own { Kind: GoldenTorizoEggCueKind.StartEggCharge }:
-                    StartMotion(context.Projectile, GoldenTorizoEggMotion.EggCharging);
+                    context.Projectile.StartMotion(this, GoldenTorizoEggMotion.EggCharging);
                     return null;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(GoldenTorizoEggCueKind)} {cue}.");
@@ -356,7 +340,7 @@ internal sealed class TorizoAttacks
             shotSegment is { } segment ? new GoldenTorizoWeaponAnimation(segment, this) : base.ShotAnimation();
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, GoldenTorizoWeaponMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, GoldenTorizoWeaponMotion motion)
         {
             switch (motion)
             {
@@ -391,7 +375,7 @@ internal sealed class TorizoAttacks
                         awayFromSamus: aim.Kind == GoldenTorizoWeaponCueKind.AimSuperMissileAwayFromSamus);
                     return null;
                 case TorizoFamilyCue<GoldenTorizoWeaponCueKind>.Own { Kind: GoldenTorizoWeaponCueKind.ThrowSuperMissile }:
-                    StartMotion(context.Projectile, GoldenTorizoWeaponMotion.SuperMissileThrown);
+                    context.Projectile.StartMotion(this, GoldenTorizoWeaponMotion.SuperMissileThrown);
                     return null;
                 // The floor impact waits while Golden Torizo's eye-beam explosions are disabled; once they are enabled, it
                 // bursts into flames.
@@ -418,12 +402,12 @@ internal sealed class TorizoAttacks
     /// Spawns the recurring low-health drool (#2410): its delay drawn at random, then a second random number that aims its
     /// launch.
     /// </summary>
-    internal void SpawnBombTorizoLowHealthDrool(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState state)
+    internal void SpawnBombTorizoLowHealthDrool(RoomEnemyPlace torizo, TorizoEnemyState state)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoLowHealthDrool, TorizoProjectiles, SpriteGraphics.SpawnedBy(occupant, torizo.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoLowHealthDrool, TorizoProjectiles, SpriteGraphics.SpawnedBy(torizo));
         if (projectile is null)
             return;
-        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectiles, TorizoRandomDefinitions.LowHealthDroolForm.Choose(_room.Random.Generate()), TorizoProjectiles));
+        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoRandomDefinitions.LowHealthDroolForm.Choose(_room.Random.Generate()), TorizoProjectiles));
         int random = _room.Random.Generate();
         Offset16<RoomPixels> drool = TorizoProjectilePlacementDefinitions.LowHealthDrool;
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (TorizoFacing.FacesRight(state) ? drool : drool.MirroredX()));
@@ -440,20 +424,19 @@ internal sealed class TorizoAttacks
     /// Spawns the drool a Torizo drips as it wakes and while its health is low (#2410): one random number jitters its
     /// height and fall speed, a second its side.
     /// </summary>
-    internal void SpawnTorizoInitialDrool(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState state)
+    internal void SpawnTorizoInitialDrool(RoomEnemyPlace torizo, TorizoEnemyState state)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TorizoInitialDrool, TorizoProjectiles, SpriteGraphics.SpawnedBy(occupant, torizo.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TorizoInitialDrool, TorizoProjectiles, SpriteGraphics.SpawnedBy(torizo));
         if (projectile is null)
             return;
-        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectiles, TorizoProjectileSegment.DroolNoDelay, TorizoProjectiles));
+        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.DroolNoDelay, TorizoProjectiles));
         int random = _room.Random.Generate();
         // Every vertical and horizontal move of a Torizo is tested against the room's terrain, solid past its edges,
-        // so a Torizo's centre lies at least its half-height below the room's top and its half-width
-        // inside either side: the lifted drool lies inside the room and its side offset never leaves it.
+        // so a Torizo's centre lies at least its half-height (41 pixels) below the room's top and its half-width
+        // (18 pixels) inside either side: the lifted drool lies inside the room and its side offset never leaves it.
         int jitteredY = TorizoRandomDefinitions.InitialDroolYJitter.Of(random) + torizo.Position.Y.Whole;
         projectile.Position = projectile.Position.WithWholeY(jitteredY - TorizoMotionDefinitions.InitialDroolLift);
-        // The jitter quickens the fall from its slowest (TorizoMotionDefinitions.InitialDroolSlowestFall) by a random
-        // amount (TorizoRandomDefinitions.InitialDroolFall).
+        // The jitter is one of thirty-two fall speeds from the slowest up.
         projectile.Velocity = projectile.Velocity.WithY(TorizoRandomDefinitions.InitialDroolFall.Of(random));
         // The drool has no sideways speed.
         int jitteredX = _room.Random.Next(TorizoRandomDefinitions.InitialDroolXJitter) + torizo.Position.X.Whole;
@@ -469,7 +452,7 @@ internal sealed class TorizoAttacks
     /// A facing Torizo's drool heading: its facing's heading turned by <paramref name="spread"/>, 0 through 15 steps, less
     /// the spread's centre, which keeps either facing's heading on the turn.
     /// </summary>
-    private static TrigonometryAngle DroolHeading(HorizontalDirection facing, int spread) =>
+    internal static TrigonometryAngle DroolHeading(HorizontalDirection facing, int spread) =>
         (facing == HorizontalDirection.Right ? TorizoMotionDefinitions.DroolHeadingFacingRight : TorizoMotionDefinitions.DroolHeadingFacingLeft)
             .TurnedBySteps(spread - TorizoMotionDefinitions.DroolSpreadCentre);
 
@@ -477,25 +460,26 @@ internal sealed class TorizoAttacks
     /// Golden Torizo's eye-beam heading: its facing's heading turned by <paramref name="spread"/>, 0 through 15 steps, less
     /// the spread's centre; the sum never leaves the turn.
     /// </summary>
-    private static TrigonometryAngle EyeBeamHeading(HorizontalDirection facing, int spread) =>
+    internal static TrigonometryAngle EyeBeamHeading(HorizontalDirection facing, int spread) =>
         (facing == HorizontalDirection.Right ? TorizoMotionDefinitions.EyeBeamHeadingFacingRight : TorizoMotionDefinitions.EyeBeamHeadingFacingLeft)
             .TurnedBySteps(spread - TorizoMotionDefinitions.EyeBeamSpreadCentre);
 
     /// <summary>
-    /// The velocity of <paramref name="speed"/> along <paramref name="heading"/>, which points up at zero: the speed
-    /// split between the horizontal and the vertical, never exceeding it.
+    /// The velocity of <paramref name="speed"/> along <paramref name="heading"/>, which points up at zero: the horizontal
+    /// speed its sine and the vertical speed its negative cosine, the sine a quarter turn back. The samples lie within one
+    /// unit either way, so the velocity never exceeds the speed.
     /// </summary>
-    private static PixelVelocity<RoomPixels> VelocityAlong(SignedEightEight speed, TrigonometryAngle heading) =>
+    internal static PixelVelocity<RoomPixels> VelocityAlong(SignedEightEight speed, TrigonometryAngle heading) =>
         new(SpeedAlongAngle.Along(speed, heading),
             SpeedAlongAngle.Along(speed, heading - TrigonometryAngle.QuarterTurn));
 
     /// <summary>Places a swipe explosion at the left-facing hand placement <paramref name="placement"/>, mirroring it for right-facing Torizo.</summary>
     internal void SpawnBombTorizoExplosiveSwipe(RoomEnemyPlace torizo, TorizoEnemyState state, Offset16<RoomPixels> placement)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoExplosiveSwipe, TorizoProjectiles, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoExplosiveSwipe, TorizoProjectiles, default);
         if (projectile is null)
             return;
-        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectiles, TorizoProjectileSegment.ExplosiveSwipe, TorizoProjectiles));
+        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.ExplosiveSwipe, TorizoProjectiles));
 
         // A right-facing Torizo mirrors the left-facing hand placement horizontally.
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole +
@@ -510,15 +494,10 @@ internal sealed class TorizoAttacks
                 site,
                 facing: state.Posture.Facing);
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoLowHealthExplosion, TorizoProjectiles, graphics: SpriteGraphics.SharedStandard);
+        var behavior = new ExplosionBehavior(_projectiles, _audio, torizo.Position.Whole + placement);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoLowHealthExplosion, behavior, default);
         if (projectile is null)
             return;
-        var behavior = new ExplosionBehavior(_projectiles, _audio, torizo.Position.Whole + placement);
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.BombTorizoLowHealthExplosion,
-            behavior,
-            graphics: default);
         projectile.StartAnimation(new TorizoExplosionAnimation(TorizoExplosionSegment.LowHealthExplosion, behavior));
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + placement);
     }
@@ -526,67 +505,51 @@ internal sealed class TorizoAttacks
     /// <summary>Starts a death explosion at the statue center and stores that center for its later animation frames.</summary>
     internal void SpawnDeathExplosion(RoomEnemyPlace torizo)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TorizoDeathExplosion, TorizoProjectiles, graphics: SpriteGraphics.SharedStandard);
+        var behavior = new ExplosionBehavior(_projectiles, _audio, torizo.Position.Whole);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TorizoDeathExplosion, behavior, default);
         if (projectile is null)
             return;
-        var behavior = new ExplosionBehavior(_projectiles, _audio, torizo.Position.Whole);
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.TorizoDeathExplosion,
-            behavior,
-            graphics: default);
         projectile.StartAnimation(new TorizoExplosionAnimation(TorizoExplosionSegment.DeathExplosion, behavior));
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole);
     }
 
     /// <summary>Allocates Bomb Torizo's Chozo orb with facing-dependent placement and randomized velocity.</summary>
-    internal void SpawnBombTorizoChozoOrb(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState state)
+    internal void SpawnBombTorizoChozoOrb(RoomEnemyPlace torizo, TorizoEnemyState state)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoChozoOrb, ChozoOrb, SpriteGraphics.SpawnedBy(occupant, torizo.Shading));
+        var behavior = ChozoOrb(new TorizoChozoOrbState(TorizoChozoOrbDefinitions.BombTorizoOrbDropChances), TorizoChozoOrbMotion.BombOrbFalling);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoChozoOrb, behavior, SpriteGraphics.SpawnedBy(torizo));
         if (projectile is null)
             return;
-        var behavior = ChozoOrb(new TorizoChozoOrbState(TorizoChozoOrbDefinitions.BombTorizoOrbDropChances), TorizoChozoOrbMotion.BombOrbFalling);
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.BombTorizoChozoOrb,
-            behavior,
-            SpriteGraphics.SpawnedBy(torizo));
 
         InitializeTorizoRandomizedProjectile(
-            ChozoOrb,
             projectile,
             torizo,
             TorizoRandomizedProjectileDefinitions.BombChozoOrb.Toward(state.Posture.Facing), segment => new TorizoChozoOrbAnimation(segment, behavior));
     }
 
     /// <summary>Starts Bomb Torizo's sonic-boom animation at one of two randomized body heights.</summary>
-    internal void SpawnBombTorizoSonicBoom(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState state)
+    internal void SpawnBombTorizoSonicBoom(RoomEnemyPlace torizo, TorizoEnemyState state)
         => SpawnTorizoSonicBoom(
-            occupant, torizo,
+            torizo,
             state,
             RoomEnemyProjectileKind.BombTorizoSonicBoom);
 
     /// <summary>Starts Golden Torizo's sonic-boom variant with the shared directional flight setup.</summary>
-    internal void SpawnGoldenTorizoSonicBoom(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState state)
+    internal void SpawnGoldenTorizoSonicBoom(RoomEnemyPlace torizo, TorizoEnemyState state)
         => SpawnTorizoSonicBoom(
-            occupant, torizo,
+            torizo,
             state,
             RoomEnemyProjectileKind.GoldenTorizoSonicBoom);
 
-    /// <summary>Places a sonic boom ahead of the Torizo and selects the fired-left or fired-right animation.</summary>
+    /// <summary>Places a sonic boom 32 pixels ahead and selects the fired-left or fired-right animation.</summary>
     private void SpawnTorizoSonicBoom(
-        RoomEnemyOccupant occupant, RoomEnemyPlace torizo,
+        RoomEnemyPlace torizo,
         TorizoEnemyState state,
         RoomEnemyProjectileKind kind)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, TorizoProjectiles, SpriteGraphics.SpawnedBy(occupant, torizo.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, TorizoSonicBooms, SpriteGraphics.SpawnedBy(torizo));
         if (projectile is null)
             return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            kind,
-            TorizoSonicBooms,
-            SpriteGraphics.SpawnedBy(torizo));
 
         Offset16<RoomPixels> placement = TorizoRandomDefinitions.SonicBoomFliesHigh.IsTakenBy(_room.Random.Generate())
             ? TorizoProjectilePlacementDefinitions.HighSonicBoom
@@ -595,53 +558,41 @@ internal sealed class TorizoAttacks
         {
             projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + placement);
             projectile.Velocity = projectile.Velocity.WithX(TorizoMotionDefinitions.SonicBoomLaunchSpeed);
-            projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectiles, TorizoProjectileSegment.SonicBoomFiredRight, TorizoSonicBooms));
+            projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.SonicBoomFiredRight, TorizoSonicBooms));
         }
         else
         {
             projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + placement.MirroredX());
             projectile.Velocity = projectile.Velocity.WithX(-TorizoMotionDefinitions.SonicBoomLaunchSpeed);
-            projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectiles, TorizoProjectileSegment.SonicBoomFiredLeft, TorizoSonicBooms));
+            projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.SonicBoomFiredLeft, TorizoSonicBooms));
         }
     }
 
     /// <summary>Allocates Golden Torizo's orb using the variant's facing-specific offset and randomized speed.</summary>
-    internal void SpawnGoldenTorizoChozoOrb(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState state)
+    internal void SpawnGoldenTorizoChozoOrb(RoomEnemyPlace torizo, TorizoEnemyState state)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.GoldenTorizoChozoOrb, ChozoOrb, SpriteGraphics.SpawnedBy(occupant, torizo.Shading));
+        var behavior = ChozoOrb(new TorizoChozoOrbState(TorizoChozoOrbDefinitions.GoldenTorizoOrbDropChances), TorizoChozoOrbMotion.GoldenOrbBouncing);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.GoldenTorizoChozoOrb, behavior, SpriteGraphics.SpawnedBy(torizo));
         if (projectile is null)
             return;
 
-        var behavior = ChozoOrb(new TorizoChozoOrbState(TorizoChozoOrbDefinitions.GoldenTorizoOrbDropChances), TorizoChozoOrbMotion.GoldenOrbBouncing);
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.GoldenTorizoChozoOrb,
-            behavior,
-            SpriteGraphics.SpawnedBy(torizo));
         InitializeTorizoRandomizedProjectile(
-            ChozoOrb,
             projectile,
             torizo,
             TorizoRandomizedProjectileDefinitions.GoldenChozoOrb.Toward(state.Posture.Facing), segment => new TorizoChozoOrbAnimation(segment, behavior));
     }
 
     /// <summary>Starts a Golden egg with the game's fixed hatch timer and randomized launch speed.</summary>
-    internal void SpawnGoldenTorizoEgg(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState state)
+    internal void SpawnGoldenTorizoEgg(RoomEnemyPlace torizo, TorizoEnemyState state)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.GoldenTorizoEgg, Egg, SpriteGraphics.SpawnedBy(occupant, torizo.Shading));
+        var behavior = Egg(new GoldenTorizoEggState(laidFacing: state.Posture.Facing));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.GoldenTorizoEgg, behavior, SpriteGraphics.SpawnedBy(torizo));
         if (projectile is null)
             return;
 
-        var behavior = Egg(new GoldenTorizoEggState(laidFacing: state.Posture.Facing));
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.GoldenTorizoEgg,
-            behavior,
-            SpriteGraphics.SpawnedBy(torizo));
 
         state.LaidEggs.Add(projectile);
         InitializeTorizoRandomizedProjectile(
-            Egg,
             projectile,
             torizo,
             TorizoRandomizedProjectileDefinitions.GoldenEgg.Toward(state.Posture.Facing), segment => new GoldenTorizoEggAnimation(segment, behavior));
@@ -665,46 +616,36 @@ internal sealed class TorizoAttacks
             GoldenTorizoWeaponMotion.SuperMissileHeld, GoldenTorizoWeaponSegment.SuperMissileImpact);
 
     /// <summary>Attaches a caught super missile above the active hand and selects its facing-dependent animation.</summary>
-    internal void SpawnGoldenTorizoSuperMissile(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState state)
+    internal void SpawnGoldenTorizoSuperMissile(RoomEnemyPlace torizo, TorizoEnemyState state)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.GoldenTorizoSuperMissile, SuperMissile, SpriteGraphics.SpawnedBy(occupant, torizo.Shading));
+        WeaponBehavior behavior = SuperMissile(torizo, state);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.GoldenTorizoSuperMissile, behavior, SpriteGraphics.SpawnedBy(torizo));
         if (projectile is null)
             return;
 
-        WeaponBehavior behavior = SuperMissile(torizo, state);
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.GoldenTorizoSuperMissile,
-            behavior,
-            SpriteGraphics.SpawnedBy(torizo));
         bool facingRight = TorizoFacing.FacesRight(state);
         Offset16<RoomPixels> caught = TorizoProjectilePlacementDefinitions.CaughtSuperMissile;
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (facingRight ? caught : caught.MirroredX()));
-        projectile.StartAnimation(new GoldenTorizoWeaponAnimation(SuperMissile, facingRight ? GoldenTorizoWeaponSegment.SuperMissileRight : GoldenTorizoWeaponSegment.SuperMissileLeft, behavior));
+        projectile.StartAnimation(new GoldenTorizoWeaponAnimation(facingRight ? GoldenTorizoWeaponSegment.SuperMissileRight : GoldenTorizoWeaponSegment.SuperMissileLeft, behavior));
     }
 
     /// <summary>Fires an eye beam from the facing-specific offset with room-RNG angular spread.</summary>
-    internal void SpawnGoldenTorizoEyeBeam(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState state)
+    internal void SpawnGoldenTorizoEyeBeam(RoomEnemyPlace torizo, TorizoEnemyState state)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.GoldenTorizoEyeBeam, TorizoProjectiles, SpriteGraphics.SpawnedBy(occupant, torizo.Shading));
+        var behavior = new WeaponBehavior(_projectiles, _audio, new TorizoOwnedProjectileState(torizo, state), GoldenTorizoWeaponMotion.EyeBeamFlying);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.GoldenTorizoEyeBeam, behavior, SpriteGraphics.SpawnedBy(torizo));
         if (projectile is null)
             return;
 
-        var behavior = new WeaponBehavior(_projectiles, _audio, new TorizoOwnedProjectileState(torizo, state), GoldenTorizoWeaponMotion.EyeBeamFlying);
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.GoldenTorizoEyeBeam,
-            behavior,
-            SpriteGraphics.SpawnedBy(torizo));
         HorizontalDirection facing = state.Posture.Facing;
         projectile.StartAnimation(new GoldenTorizoWeaponAnimation(GoldenTorizoWeaponSegment.EyeBeam, behavior));
         Offset16<RoomPixels> muzzle = TorizoProjectilePlacementDefinitions.EyeBeamMuzzle;
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (facing == HorizontalDirection.Right ? muzzle : muzzle.MirroredX()));
         // The beam's launch draws the velocity jitter every randomized launch draws; its aimed heading then sets its
         // velocity, so the jitter only advances the room's random numbers (#1945, #2335).
-        SkipVelocityJitter();
+        _ = DrawVelocityJitter();
 
-        // The beam's heading is its facing's, spread either way by its random spread.
+        // The beam's heading is its facing's spread by up to eight steps either way.
         TrigonometryAngle heading = EyeBeamHeading(facing, _room.Random.Next(TorizoRandomDefinitions.EyeBeamSpread));
         projectile.Velocity = VelocityAlong(TorizoMotionDefinitions.EyeBeamSpeed, heading);
     }
@@ -714,15 +655,14 @@ internal sealed class TorizoAttacks
     /// horizontal jitter before vertical jitter.
     /// </summary>
     /// <typeparam name="TSegment">The segments of the launched projectile's animation family.</typeparam>
-    private void InitializeTorizoRandomizedProjectile<TSegment>(
-        TorizoProjectileBehavior owner,
+    internal void InitializeTorizoRandomizedProjectile<TSegment>(
         EnemyProjectile projectile,
         RoomEnemyPlace torizo,
         TorizoRandomizedProjectileDefinition<TSegment> definition,
         Func<TSegment, EnemyProjectileAnimation> animation)
         where TSegment : struct
     {
-        projectile.StartAnimation(animation(owner, definition.Animation));
+        projectile.StartAnimation(animation(definition.Animation));
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + definition.Offset);
         projectile.Velocity = definition.BaseVelocity + DrawVelocityJitter();
     }
@@ -734,40 +674,29 @@ internal sealed class TorizoAttacks
         return new PixelVelocity<RoomPixels>(x, VelocityJitter(_room.Random.Generate()));
     }
 
-    /// <summary>
-    /// Advances the room's random numbers past a randomized launch's velocity jitter, its X draw and then its Y, for a
-    /// launch whose velocity the jitter does not set.
-    /// </summary>
-    private void SkipVelocityJitter()
-    {
-        _room.Random.Advance();
-        _room.Random.Advance();
-    }
-
-    /// <summary>A small random speed either way on one axis (TorizoRandomDefinitions.VelocityJitter).</summary>
+    /// <summary>A randomized projectile's jitter on one axis, either side of its base speed.</summary>
     private static SignedEightEight VelocityJitter(int random) => TorizoRandomDefinitions.VelocityJitter.Of(random);
 
-    /// <summary>Places a foot-specific dust effect below the statue after a landing step.</summary>
+    /// <summary>Places a foot-specific dust effect 48 pixels below the statue after a landing step.</summary>
     internal void SpawnLandingDust(RoomEnemyPlace torizo, HorizontalDirection foot)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TorizoLandingDust, TorizoProjectiles, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TorizoLandingDust, TorizoProjectiles, default);
         if (projectile is null)
             return;
-        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectiles, foot == HorizontalDirection.Right ? TorizoProjectileSegment.LandingDustRightFoot : TorizoProjectileSegment.LandingDustLeftFoot, TorizoProjectiles));
+        projectile.StartAnimation(new TorizoProjectileAnimation(foot == HorizontalDirection.Right ? TorizoProjectileSegment.LandingDustRightFoot : TorizoProjectileSegment.LandingDustLeftFoot, TorizoProjectiles));
         Offset16<RoomPixels> dust = TorizoProjectilePlacementDefinitions.RightFootDust;
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (foot == HorizontalDirection.Right ? dust : dust.MirroredX()));
     }
 
     /// <summary>Moves Bomb Torizo's orb through walls and floor, disabling damage on impact and adding gravity in flight.</summary>
     internal static void DropBombOrb(
-        TorizoProjectileBehavior owner,
         EnemyProjectile projectile,
         RoomLevelData level,
         OrbBehavior owner)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
-            projectile.StartAnimation(new TorizoChozoOrbAnimation(owner, TorizoChozoOrbSegment.ChozoOrbWallImpact, owner));
+            projectile.StartAnimation(new TorizoChozoOrbAnimation(TorizoChozoOrbSegment.ChozoOrbWallImpact, owner));
             projectile.CanDamageSamus = false;
             return;
         }
@@ -776,7 +705,7 @@ internal sealed class TorizoAttacks
         if (!projectile.Velocity.Y.IsNegative && verticalCollision)
         {
             projectile.Position = projectile.Position.WithWholeY(FloorBurstY(projectile));
-            projectile.StartAnimation(new TorizoChozoOrbAnimation(owner, TorizoChozoOrbSegment.ChozoOrbFloorImpact, owner));
+            projectile.StartAnimation(new TorizoChozoOrbAnimation(TorizoChozoOrbSegment.ChozoOrbFloorImpact, owner));
             projectile.CanDamageSamus = false;
             return;
         }
@@ -791,7 +720,6 @@ internal sealed class TorizoAttacks
     /// stays while its impact plays.
     /// </summary>
     internal static bool FlySonicBoom(
-        TorizoProjectileBehavior owner,
         EnemyProjectile projectile,
         RoomLevelData level)
     {
@@ -809,18 +737,17 @@ internal sealed class TorizoAttacks
 
     /// <summary>
     /// Drops the drool: Bomb Torizo's six gut-break droplets and its
-    /// low-health initial drool alike. A drool that its drag slows past zero is left drifting at <see cref="TorizoMotionDefinitions.DroolPastRestDrift"/>, whichever way
+    /// low-health initial drool alike. A drool that its drag slows past zero is left moving at plus three, whichever way
     /// it was moving.
     /// </summary>
     internal static void DropDrool(
-        TorizoProjectileBehavior owner,
         EnemyProjectile projectile,
         RoomLevelData level,
         TorizoProjectileBehavior owner)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
-            projectile.StartAnimation(new TorizoProjectileAnimation(owner, TorizoProjectileSegment.DroolWallImpact, owner));
+            projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.DroolWallImpact, owner));
             return;
         }
 
@@ -835,7 +762,7 @@ internal sealed class TorizoAttacks
         if (!projectile.Velocity.Y.IsNegative && verticalCollision)
         {
             projectile.Position = projectile.Position.WithWhole(projectile.Position.Whole + TorizoProjectilePlacementDefinitions.DroolSplashLift);
-            projectile.StartAnimation(new TorizoProjectileAnimation(owner, TorizoProjectileSegment.DroolFloorImpact, owner));
+            projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.DroolFloorImpact, owner));
             return;
         }
 
@@ -846,7 +773,6 @@ internal sealed class TorizoAttacks
 
     /// <summary>Bounces Golden Torizo's orb off walls and the floor, slowing horizontal motion until floor impact.</summary>
     internal static void BounceGoldenOrb(
-        TorizoProjectileBehavior owner,
         EnemyProjectile projectile,
         RoomLevelData level,
         OrbBehavior owner)
@@ -858,13 +784,12 @@ internal sealed class TorizoAttacks
         if (verticalCollision && !projectile.Velocity.Y.IsNegative)
         {
             projectile.Velocity = projectile.Velocity.WithX(projectile.Velocity.X.DraggedBy(TorizoMotionDefinitions.GoldenOrbBounceDrag));
-            // The orb is falling here, so it bounces back up at half its fall speed
-            // (SignedEightEight.DividedRoundingDown).
+            // The orb is falling here, so halving its speed in 256ths rounds toward zero before it reverses.
             projectile.Velocity = projectile.Velocity.WithY(-projectile.Velocity.Y.DividedRoundingDown(2));
             if (HasSettled(projectile.Velocity.Y))
             {
                 projectile.Position = projectile.Position.WithWholeY(FloorBurstY(projectile));
-                projectile.StartAnimation(new TorizoChozoOrbAnimation(owner, TorizoChozoOrbSegment.ChozoOrbFloorImpact, owner));
+                projectile.StartAnimation(new TorizoChozoOrbAnimation(TorizoChozoOrbSegment.ChozoOrbFloorImpact, owner));
                 projectile.CanDamageSamus = false;
                 return;
             }
@@ -874,8 +799,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Steps the egg's hatch timer while bouncing it off terrain with horizontal drag and gravity; it hatches as the timer runs out.</summary>
-    private static void BounceEgg(
-        TorizoProjectileBehavior owner,
+    internal static void BounceEgg(
         EnemyProjectile projectile,
         GoldenTorizoEggState egg,
         RoomLevelData level,
@@ -884,7 +808,7 @@ internal sealed class TorizoAttacks
         if (egg.HatchTimer.StepRunsOut())
         {
             // The rolling egg holds its picture until it hatches, showing the side it was laid facing.
-            projectile.StartAnimation(new GoldenTorizoEggAnimation(owner, egg.LaidFacing == HorizontalDirection.Right
+            projectile.StartAnimation(new GoldenTorizoEggAnimation(egg.LaidFacing == HorizontalDirection.Right
                 ? GoldenTorizoEggSegment.EggHatchingRight
                 : GoldenTorizoEggSegment.EggHatchingLeft, owner));
             projectile.Velocity = projectile.Velocity.WithX(TorizoMotionDefinitions.EggHatchingSpeed.Toward(egg.Facing));
@@ -911,7 +835,6 @@ internal sealed class TorizoAttacks
 
     /// <summary>Accelerates the hatched egg sideways and changes to its fall phase when it hits a wall.</summary>
     internal static void RunGoldenTorizoEggHorizontalCharge(
-        TorizoProjectileBehavior owner,
         EnemyProjectile projectile,
         GoldenTorizoEggState egg,
         RoomLevelData level,
@@ -919,7 +842,7 @@ internal sealed class TorizoAttacks
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
-            owner.StartMotion(owner, projectile, GoldenTorizoEggMotion.EggDropping);
+            projectile.StartMotion(owner, GoldenTorizoEggMotion.EggDropping);
             projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Zero);
             return;
         }
@@ -931,7 +854,6 @@ internal sealed class TorizoAttacks
 
     /// <summary>Accelerates the egg downward until floor contact selects the facing-specific break animation.</summary>
     internal static void RunGoldenTorizoEggFall(
-        TorizoProjectileBehavior owner,
         EnemyProjectile projectile,
         GoldenTorizoEggState egg,
         RoomLevelData level,
@@ -948,7 +870,6 @@ internal sealed class TorizoAttacks
 
     /// <summary>Moves the thrown super missile until wall or downward floor impact, applying gravity in flight.</summary>
     internal static void RunGoldenTorizoSuperMissileFlight(
-        TorizoProjectileBehavior owner,
         EnemyProjectile projectile,
         RoomLevelData level,
         WeaponBehavior owner)
@@ -962,7 +883,7 @@ internal sealed class TorizoAttacks
 
         if (impact)
         {
-            projectile.StartAnimation(new GoldenTorizoWeaponAnimation(owner, GoldenTorizoWeaponSegment.SuperMissileImpact, owner));
+            projectile.StartAnimation(new GoldenTorizoWeaponAnimation(GoldenTorizoWeaponSegment.SuperMissileImpact, owner));
             return;
         }
 
@@ -971,7 +892,7 @@ internal sealed class TorizoAttacks
             projectile.Delete();
     }
 
-    /// <summary>Throws the missile toward or away from Samus.</summary>
+    /// <summary>Aims the thrown missile toward or away from Samus using the up-zero angle convention.</summary>
     internal static void SetGoldenTorizoSuperMissileVelocity(
         EnemyProjectile projectile,
         SamusState samus,
@@ -988,21 +909,20 @@ internal sealed class TorizoAttacks
 
     /// <summary>Selects wall or floor impact artwork when the eye beam strikes terrain.</summary>
     internal static void FlyEyeBeam(
-        TorizoProjectileBehavior owner,
         EnemyProjectile projectile,
         RoomLevelData level,
         WeaponBehavior owner)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
-            projectile.StartAnimation(new GoldenTorizoWeaponAnimation(owner, GoldenTorizoWeaponSegment.EyeBeamWallImpact, owner));
+            projectile.StartAnimation(new GoldenTorizoWeaponAnimation(GoldenTorizoWeaponSegment.EyeBeamWallImpact, owner));
             return;
         }
 
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
             projectile.Position = projectile.Position.WithWholeY(FloorBurstY(projectile));
-            projectile.StartAnimation(new GoldenTorizoWeaponAnimation(owner, GoldenTorizoWeaponSegment.EyeBeamFloorImpact, owner));
+            projectile.StartAnimation(new GoldenTorizoWeaponAnimation(GoldenTorizoWeaponSegment.EyeBeamFloorImpact, owner));
         }
     }
 
@@ -1010,23 +930,18 @@ internal sealed class TorizoAttacks
     /// Spawns the piece of Bomb Torizo's breaking statue hand that the hand asks for, placed from the hand's block and
     /// falling as its definition says; nothing spawns when the room has no place left for an enemy projectile.
     /// </summary>
-    public void SpawnBombTorizoStatueBreakingProjectile(
+    public EnemyProjectile? SpawnBombTorizoStatueBreakingProjectile(
         BombTorizoStatueProjectileRequest request)
     {
         BombTorizoStatueFragmentDefinition definition = BombTorizoStatueFragmentDefinitions.Fragments[request.Fragment];
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoStatueBreaking, TorizoProjectiles, graphics: SpriteGraphics.SharedStandard);
-        if (projectile is null)
-            return; // Nothing spawns when the room has no place left for an enemy projectile.
-
         var behavior = new FragmentBehavior(_projectiles, _audio, new BombTorizoStatueFragmentState(definition.Acceleration));
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.BombTorizoStatueBreaking,
-            behavior,
-            graphics: default);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoStatueBreaking, behavior, default);
+        if (projectile is null)
+            return null; // Nothing spawns when the room has no place left for an enemy projectile.
 
-        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectiles, definition.Animation, behavior));
+
+        projectile.StartAnimation(new TorizoProjectileAnimation(definition.Animation, behavior));
         projectile.Position = projectile.Position.WithWhole(request.RoomObjectBlock.ToRoomPixels() + definition.Offset);
         projectile.Velocity = projectile.Velocity.WithY(definition.InitialFallSpeed);
         return projectile;
@@ -1036,7 +951,7 @@ internal sealed class TorizoAttacks
     private static bool IsRunaway(SignedEightEight speed) => speed >= TorizoMotionDefinitions.RunawaySpeed;
 
     /// <summary>
-    /// Whether a bounced Chozo orb's rebound has settled: an upward speed under <see cref="TorizoMotionDefinitions.SettledBounceSpeed"/>.
+    /// Whether a bounced Chozo orb's rebound has settled: an upward speed under half a pixel per frame.
     /// </summary>
     private static bool HasSettled(SignedEightEight speed) =>
         speed.IsNegative && speed >= -TorizoMotionDefinitions.SettledBounceSpeed;

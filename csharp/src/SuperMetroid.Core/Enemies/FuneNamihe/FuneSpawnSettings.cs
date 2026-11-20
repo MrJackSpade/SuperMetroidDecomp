@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 internal sealed record FuneSpawnSettings(HorizontalDirection Facing, int CooldownTime, SignedEightEight LaunchSpeed) : FuneNamiheSpawnSettings(Facing, LaunchSpeed)
 {
     /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).Place(this, placing);
+    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacementRequest placing) => Ensure.NotNull(species).Place(this, placing);
 
     /// <inheritdoc/>
     internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);

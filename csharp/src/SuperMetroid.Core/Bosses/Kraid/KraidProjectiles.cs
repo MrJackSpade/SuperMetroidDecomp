@@ -99,9 +99,6 @@ internal sealed class KraidProjectiles
     internal sealed class RockBehavior(KraidRockMotion initial, KraidRockSegment? shotBurst = null)
         : EnemyProjectileMotionBehavior<KraidRockMotion>(initial), IEnemyProjectileCues<KraidRockCue>
     {
-        /// <inheritdoc/>
-        internal override EnemyProjectileAnimation ShotAnimation() =>
-            shot is { } segment ? new KraidRockAnimation(this, segment) : base.ShotAnimation();
 
         /// <inheritdoc/>
         internal override EnemyProjectileAnimation ShotAnimation() =>

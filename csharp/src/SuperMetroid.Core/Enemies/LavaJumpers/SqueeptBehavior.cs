@@ -10,7 +10,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySettingsFactory<Ene
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Squeept];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EnemyFollowerSpawnSettings settings) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, EnemyFollowerSpawnSettings settings) =>
         settings.Role == EnemyFollowerRole.Follower
             ? new NorfairLavaJumperFollowerEntity(this, place, common)
             : new SqueeptEntity(this, place, common);

@@ -22,7 +22,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemySetti
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FaceBlock];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, FaceBlockSpawnSettings settings) => EnemyOccupant.FromSurroundings(new BlueBrinstarFaceBlockEntity(this, occupant, place, common, setup, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, FaceBlockSpawnSettings settings) => new BlueBrinstarFaceBlockEntity(this, occupant, place, common, setup, settings);
 
     /// <summary>The face blocks the room has set up, in the order they were placed; all show the room-wide glow (#2283).</summary>
     private readonly List<RoomEnemyPlace> _blocks = [];

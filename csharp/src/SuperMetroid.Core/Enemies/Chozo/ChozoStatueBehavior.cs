@@ -20,7 +20,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySettingsFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Chozo];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ChozoStatueSpawnSettings settings) => EnemyOccupant.Of(new ChozoStatueEntity(this, occupant, place, common, settings));
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, ChozoStatueSpawnSettings settings) => new ChozoStatueEntity(this, occupant, place, common, settings);
 
     /// <summary>Supplies room events, scroll grid and Samus-control service.</summary>
     private readonly EnemyRoomBinding _room;

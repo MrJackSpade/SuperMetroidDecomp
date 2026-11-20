@@ -107,7 +107,7 @@ internal static class GameplayAudioOrderVerification
         for (int frame = 0; frame < 128; frame++)
         {
             foreach (AudioRequest command in audio.AdvanceFrame(new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>(
-                [SoundEffectLibrary.Room], _ => SoundAcknowledgement<SoundEffectId>.Of(acknowledgement))))
+                [SoundEffectLibrary.Room], _ => SoundAcknowledgement<SoundEffectId>.Of(acknowledgement is null ? null : new RequestedSound<SoundEffectId>(acknowledgement)))))
             {
                 bool recognized = false;
                 foreach (SoundEffectId? value in new SoundEffectId?[] { null, RoomSound.SpeedBooster, RoomSound.HardLanding, RoomSound.Landing })

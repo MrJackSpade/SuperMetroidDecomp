@@ -38,7 +38,7 @@ internal static class SporeSpawnDeathDriftVerification
                 Movement = SporeSpawnMovement.SetupDeath,
                 MovementCenter = new(128, 624),
             };
-            state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(body, segment))];
+            state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(body, segment)).OfType<EnemyProjectile>()];
             body.SetSpeciesState(state);
 
             enemies.SporeSpawnBehavior.RunSporeSpawnMainAi(body, state);

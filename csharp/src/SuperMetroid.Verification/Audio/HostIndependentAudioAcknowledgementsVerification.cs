@@ -118,7 +118,8 @@ internal static class HostIndependentAudioAcknowledgementsVerification
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             runtime.MeetDoorBlock(block, runtime.Player.Samus.Pose.ForRoomCollision());
-            game.Session.Enter(DoorTransitionStep.EnteringDoor);
+            game.Session.EnterDoor(runtime.RoomObjects.DoorContacts.EnteredDoor
+                ?? throw new InvalidOperationException("Verification requires the door block Samus met to be entered."));
             return;
         }
         throw new InvalidDataException("Landing Site has no door block.");

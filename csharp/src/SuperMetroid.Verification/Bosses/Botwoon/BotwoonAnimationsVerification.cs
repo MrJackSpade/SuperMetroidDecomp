@@ -198,9 +198,9 @@ internal static class BotwoonAnimationsVerification
             segment.PresentationOperandAddress, "the restarted segment shows its first frame");
 
         // Landing hands the segment to the shared native big-explosion list.
-        Func<RoomEnemyPlace, int, BotwoonSegmentState> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
+        Func<RoomEnemyPlace, int, BotwoonSegmentState?> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
         Action<EnemyProjectile, int> runBody = enemies.BotwoonBehavior.MoveBotwoonBodySegment;
-        BotwoonSegmentState spawned = spawnBody(head, 1);
+        BotwoonSegmentState spawned = spawnBody(head, 1) ?? throw new InvalidOperationException("Verification spawns a segment into an empty pool.");
         EnemyProjectile body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
         AssertTrue(ReferenceEquals(spawned.Projectile, body), "the real body producer returns the segment it spawned");
         AssertEqual(BotwoonBodyAnimationSegment.Hidden, ((BotwoonSegmentAnimation)(body.Animation ?? throw new InvalidOperationException("Verification requires body.Animation."))).PlayingSegment,

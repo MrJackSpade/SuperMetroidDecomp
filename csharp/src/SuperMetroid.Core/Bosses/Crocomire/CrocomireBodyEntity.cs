@@ -18,17 +18,15 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : CrocomireEntity(species, occupant, place, common), IEnemyNormalBombAdmission, IBossBodyFrames
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.Fight.InitializeCrocomire(Occupant, Place);
 
     /// <summary>The encounter the body set up.</summary>
-    internal override CrocomireEnemyState Encounter => Place.RequireSpeciesState<CrocomireEnemyState>();
+    internal override CrocomireEnemyState Encounter { get; } = species.Fight.InitializeCrocomire(occupant, place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunCrocomireMainAi(Occupant, Occupant.Place.RequireSpeciesState<CrocomireEnemyState>(), frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunCrocomireMainAi(Occupant, Encounter, frame);
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceCrocomireTypedAnimation(Place, Place.RequireSpeciesState<CrocomireEnemyState>(), context);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceCrocomireTypedAnimation(Place, Encounter, context);
 
     /// <inheritdoc/>
     public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>

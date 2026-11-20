@@ -20,9 +20,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Crocomire)
-            return EnemyOccupant.Of(new CrocomireBodyEntity(this, occupant, place, common, _bossArtwork));
+            return EnemyOccupant.Running(new CrocomireBodyEntity(this, occupant, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.CrocomireTongue)
-            return EnemyOccupant.Of(new CrocomireTongueEntity(this, occupant, place, common));
+            return EnemyOccupant.Running(new CrocomireTongueEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The Crocomire species creates no {occupant.DefinitionId}.");
     }
 

@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal abstract class RidleyEntity(RidleyBody body, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation,
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation,
         IEnemyFrameHitboxes, IEnemyContactHooks, IEnemyAfterSamusContact, IEnemyDrawHooks, IEnemyPrivateShotReaction, IRidleyBodyOwner
 {
     /// <summary>The parts of Ridley's body both encounters run.</summary>
@@ -24,9 +24,6 @@ internal abstract class RidleyEntity(RidleyBody body, RoomEnemyOccupant occupant
     /// <summary>The encounter the body holds from its initialization (#2231).</summary>
     /// <exception cref="InvalidOperationException">The body has begun no encounter.</exception>
     internal abstract RidleyEncounterState Encounter { get; }
-
-    /// <inheritdoc/>
-    public abstract void Initialize();
 
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);

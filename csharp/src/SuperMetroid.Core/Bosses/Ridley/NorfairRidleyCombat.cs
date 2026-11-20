@@ -50,13 +50,14 @@ internal sealed class NorfairRidleyCombat
     /// (#2231). A defeated Ridley is deleted before his encounter or his colours begin, as every defeated boss is, and
     /// begins none; a live fight begins with Ridley below the visible arena.
     /// </summary>
-    internal void InitializeNorfairRidley(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal NorfairRidleyState InitializeNorfairRidley(RoomEnemyPlace place)
     {
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
             place.Presence = place.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
-            return;
+            return ridley;
         }
         place.CollidesByFrameHitboxes = true;
 
@@ -66,13 +67,13 @@ internal sealed class NorfairRidleyCombat
         place.Position = place.Position.WithWhole(NorfairRidleyArenaDefinitions.Spawn);
 
         var ridley = new NorfairRidleyState { MovementAnimationEnabled = true };
-        place.SetSpeciesState(ridley);
         _ridleyEncounter.BeginLowerNorfair();
         RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.Standing);
 
         // He arrives in his own colours, his body and tail hidden in black, and his arena hidden for its reveal.
         ridley.Colours.ShowNorfairArrival();
         _presentation.BossShadings.Show(BossShadingLayer.Ridley, ridley.Colours);
+        return ridley;
     }
 
     /// <summary>Lower Norfair Ridley's lift-off hands control to the fight: he flies into the arena.</summary>

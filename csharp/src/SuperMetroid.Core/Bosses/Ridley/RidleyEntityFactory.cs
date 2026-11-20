@@ -30,9 +30,9 @@ internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRi
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Ridley)
-            return EnemyOccupant.Of(new NorfairRidleyEntity(Norfair, occupant, place, common));
+            return EnemyOccupant.Running(new NorfairRidleyEntity(Norfair, occupant, place, common));
         if (definition == EnemyDefinitionId.RidleyCeres)
-            return EnemyOccupant.Of(new CeresRidleyEntity(Ceres, escape, occupant, place, common));
+            return EnemyOccupant.Running(new CeresRidleyEntity(Ceres, escape, occupant, place, common));
         if (definition == EnemyDefinitionId.RidleyBreakupPiece)
             return EnemyOccupant.Of(new RidleyBreakupPieceEntity(Norfair, occupant, place, common));
         throw new InvalidOperationException($"The Ridley factory creates no {occupant.DefinitionId}.");

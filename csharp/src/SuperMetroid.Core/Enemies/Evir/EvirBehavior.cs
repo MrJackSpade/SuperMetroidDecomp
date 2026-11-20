@@ -124,7 +124,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // A place that holds its enemy, or waits for its killed enemy's respawn, still reads that enemy's entry.
             PopulatedEnemyPlace { Occupancy: OccupiedEnemyPlace or AwaitingRespawnEnemyPlace } taken =>
-                taken.LastSpawn.SpawnSettingsOf<EvirSpawnSettings>().DirectionChangePeriod,
+                (taken.LastSpawn.SpawnSettings is EvirSpawnSettings settings
+                    ? settings
+                    : throw new InvalidDataException($"An Evir's population entry carries {taken.LastSpawn.SpawnSettings}.")).DirectionChangePeriod,
             _ => FreePlacePeriod,
         };
 

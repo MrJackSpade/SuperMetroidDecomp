@@ -41,9 +41,15 @@ public sealed class RoomEnemyOccupant
     /// <summary>The place the occupant was spawned in.</summary>
     public RoomEnemyPlace Place => History.Place;
 
-    /// <summary>The settings the occupant's population entry gives its species, as the <typeparamref name="T"/> it reads.</summary>
+    /// <summary>
+    /// The settings the occupant's population entry gives its species, as the <typeparamref name="T"/> it takes: checked
+    /// once, where the species' factory builds the enemy, which holds them typed from then on (#2554).
+    /// </summary>
     /// <exception cref="InvalidDataException">The entry carries other settings.</exception>
-    internal T SpawnSettings<T>() where T : EnemySpawnSettings => Spawn.SpawnSettingsOf<T>();
+    internal T SpawnSettings<T>() where T : EnemySpawnSettings =>
+        Spawn.SpawnSettings is T settings
+            ? settings
+            : throw new InvalidDataException($"Enemy {DefinitionId}'s population entry carries {Spawn.SpawnSettings}, not {typeof(T).Name}.");
 
     /// <summary>
     /// Empties the occupant's place when the occupant is killed (<see cref="RoomEnemyPlace.Clear"/>) and, for a respawning

@@ -13,7 +13,9 @@ public sealed class ZebetiteEnemyState
     /// </summary>
     internal ZebetiteEnemyState(RoomEnemyPlacement population)
     {
-        Half = population.SpawnSettingsOf<ZebetiteSpawnSettings>().Half;
+        Half = (population.SpawnSettings is ZebetiteSpawnSettings settings
+            ? settings
+            : throw new InvalidDataException($"A Zebetite's population entry carries {population.SpawnSettings}, not its half.")).Half;
         // A primary half first spawns its linked half, which itself waits out the door transition.
         Action = Half == ZebetiteHalf.Linked ? ZebetiteAction.WaitForDoorTransition : ZebetiteAction.SpawnLinkedHalf;
     }

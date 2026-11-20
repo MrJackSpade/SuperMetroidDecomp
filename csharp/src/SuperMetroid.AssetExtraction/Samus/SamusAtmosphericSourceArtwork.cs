@@ -57,7 +57,7 @@ public sealed class SamusAtmosphericSourceArtwork
     /// <returns>True for a frame the effect has; false otherwise.</returns>
     internal bool TryResolve(SamusAtmosphericPictures pictures, int frame, out SpritePart attributes)
     {
-        if (frame < 0 || frame >= SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount)
+        if (frame is < 0 or >= SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount)
         {
             attributes = default;
             return false;

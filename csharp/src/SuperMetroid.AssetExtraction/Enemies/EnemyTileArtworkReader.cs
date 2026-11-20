@@ -640,7 +640,7 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>Kraid's body and head layouts and room background, all import data (#1636, #1638).</summary>
     /// <exception cref="InvalidDataException">An extracted file is invalid.</exception>
-    internal KraidBackgroundArtwork KraidBackground(string importData)
+    internal static KraidBackgroundArtwork KraidBackground(string importData)
     {
         RoomBackgroundTilemapAtlas upperKraid = LoadKraidTilemap(importData,
             KraidBackgroundArtworkFormat.UpperFileName);

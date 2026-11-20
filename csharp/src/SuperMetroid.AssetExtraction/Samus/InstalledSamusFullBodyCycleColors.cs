@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public sealed class InstalledSamusFullBodyCycleColors
 {
     /// <summary>Every installed cycle palette's colours, by the shade they show.</summary>
-    private readonly IReadOnlyDictionary<SamusFullBodyCycleShade, RgbColor[]> palettes;
+    private readonly Dictionary<SamusFullBodyCycleShade, RgbColor[]> palettes;
 
     /// <summary>Keeps copies of the complete installed cycle palettes.</summary>
     /// <param name="palettes">All <see cref="SamusFullBodyCycleColorFormat.PaletteCount"/> palettes of <see cref="SamusFullBodyCycleColorFormat.ColorsPerPalette"/> colours, by shade.</param>

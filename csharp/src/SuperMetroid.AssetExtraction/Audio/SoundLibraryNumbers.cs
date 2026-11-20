@@ -20,10 +20,10 @@ internal static class SoundLibraryNumbers
         [SoundEffectLibrary.Room] = 3,
     }.ToFrozenDictionary();
 
-    /// <summary>Each number's library.</summary>
     /// <summary>The libraries in their number order, as the extracted sound catalog lists them.</summary>
     internal static IReadOnlyList<SoundEffectLibrary> InNumberOrder { get; } = [.. Numbers.OrderBy(entry => entry.Value).Select(entry => entry.Key)];
 
+    /// <summary>Each number's library.</summary>
     private static readonly FrozenDictionary<int, SoundEffectLibrary> Libraries = Numbers.ToFrozenDictionary(entry => entry.Value, entry => entry.Key);
 
     /// <summary>The library sound library <paramref name="number"/> is.</summary>

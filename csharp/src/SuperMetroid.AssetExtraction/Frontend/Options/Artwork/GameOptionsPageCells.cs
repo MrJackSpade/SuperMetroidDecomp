@@ -70,12 +70,13 @@ public static class GameOptionsPageCells
             GameOptionsLabelRow.Lower => 1,
             _ => throw new ArgumentOutOfRangeException(nameof(row), row, "Undefined label row."),
         };
-        (int labelsAbove, int byteCount) = language switch
+        int labelsAbove = language switch
         {
-            GameOptionsLabelLanguage.English => (0, LanguageRegions.EnglishByteCount),
-            GameOptionsLabelLanguage.Japanese => (1, LanguageRegions.JapaneseByteCount),
+            GameOptionsLabelLanguage.English => 0,
+            GameOptionsLabelLanguage.Japanese => 1,
             _ => throw new ArgumentOutOfRangeException(nameof(language), language, "Undefined label language."),
         };
+        int byteCount = language == GameOptionsLabelLanguage.Japanese ? LanguageRegions.JapaneseByteCount : LanguageRegions.EnglishByteCount;
         int rowBytes = GameOptionsPageDefinitions.MenuTilemapWidth * sizeof(ushort);
         return new(LanguageRegions.FirstByteOffset + rowBytes * (rowsBelowLabelTop + LanguageRegions.LanguageRowSpacing * labelsAbove),
             byteCount, HighlightWhenJapanese: language == GameOptionsLabelLanguage.Japanese);

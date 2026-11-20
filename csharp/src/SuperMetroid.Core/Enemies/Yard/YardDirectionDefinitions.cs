@@ -6,9 +6,8 @@ namespace SuperMetroid.Core.Enemies.Yard;
 internal static class YardDirectionDefinitions
 {
     /// <summary>
-    /// The direction a Yard holds before its first direction cue sets its live direction (#2556): its population entry
-    /// names only its starting animations and velocity signs, so a hide on its first update, which skips the cue, keeps
-    /// this one.
+    /// The direction a Yard holds before its first direction cue sets its live direction (#2556): a Yard starts with only
+    /// its animations and the signs of its velocity, so a hide on its first update, which skips the cue, keeps this one.
     /// </summary>
     internal static YardDirection BeforeFirstDirectionCue => YardDirection.OnLeftWallMovingUp;
 

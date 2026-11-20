@@ -40,7 +40,7 @@ public sealed class CeresEscapeTileArtwork
         out ReadOnlyMemory<byte> characters)
     {
         // The pages are held in their definitions' transfer order.
-        int held = CeresEscapeTileArtworkDefinitions.All.IndexOf(Ensure.NotNull(page));
+        int held = CeresEscapeTileArtworkDefinitions.All.IndexOf(page);
         if (held < 0)
             throw new ArgumentOutOfRangeException(nameof(page), page, "Not a Ceres escape tile page.");
         if (offset < 0 || byteCount <= 0 || offset > page.ByteCount - byteCount)

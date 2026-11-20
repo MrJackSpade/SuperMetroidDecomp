@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using System.Collections.Frozen;
 using SuperMetroid.Core;
 

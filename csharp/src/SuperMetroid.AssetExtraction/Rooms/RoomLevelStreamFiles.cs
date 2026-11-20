@@ -319,7 +319,7 @@ public static class RoomLevelStreamFiles
     }
 
     /// <summary>The byte a level file writes before an appearance for what it shows (#2556).</summary>
-    private static readonly IReadOnlyDictionary<Shown, byte> ShownCodes = new Dictionary<Shown, byte>
+    private static readonly Dictionary<Shown, byte> ShownCodes = new()
     {
         [Shown.Block] = 0,
         [Shown.Nothing] = 1,
@@ -377,7 +377,7 @@ public static class RoomLevelStreamFiles
     /// <exception cref="InvalidDataException">The appearance's code or its mirroring's code is unknown.</exception>
     private static RoomBlockAppearance ReadAppearance(BinaryReader reader)
     {
-        byte code = reader.ReadByte();
+        int code = reader.ReadByte();
         Shown shown = ShownCodes.Where(entry => entry.Value == code).Select(entry => (Shown?)entry.Key).SingleOrDefault()
             ?? throw new InvalidDataException($"Appearance code {code} names neither a block nor nothing.");
         RoomBlockAppearance appearance = shown switch

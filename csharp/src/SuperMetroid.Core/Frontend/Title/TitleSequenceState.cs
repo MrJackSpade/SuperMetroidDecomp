@@ -86,7 +86,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>The floor's zoom, animated from the close-up scene to the floor's own size.</summary>
     private FloorZoom Zoom { get; set; }
     /// <summary>The title's screen brightness and the cadence of its fades; the skip's and the fade-in's step every update.</summary>
-    private readonly ScreenFade fade = new(0);
+    private readonly ScreenFade fade = new(DisplayBrightness.Black);
     /// <summary>Current screen brightness applied after composing title layers.</summary>
     private DisplayBrightness Brightness => fade.Level;
     /// <summary>The Baby Metroid's pulse on the floor (#2359).</summary>
@@ -206,7 +206,7 @@ public sealed class TitleSequenceState : IFrontendScreen
             titleBackdrop,
             spriteSheets);
         title.EnterImmediateTitleScreen();
-        title.fade.Restart(0, 0);
+        title.fade.Restart(DisplayBrightness.Black, 0);
         title.Phase = TitleSequencePhase.TitleScreenFadeIn;
         return title;
     }

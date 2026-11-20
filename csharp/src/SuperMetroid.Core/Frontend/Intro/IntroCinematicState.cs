@@ -214,7 +214,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// How bright the narration screen is and the cadence of its fades at cinematic entry, between pages and at exit; the
     /// intro starts black.
     /// </summary>
-    private readonly ScreenFade fade = new(0);
+    private readonly ScreenFade fade = new(DisplayBrightness.Black);
     /// <summary>The running narration hold.</summary>
     private UpdateCountdown timer = UpdateCountdown.Ended();
 

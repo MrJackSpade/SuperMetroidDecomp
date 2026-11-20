@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core;

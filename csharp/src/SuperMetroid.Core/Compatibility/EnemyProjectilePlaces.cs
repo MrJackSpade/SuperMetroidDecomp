@@ -25,7 +25,7 @@ public sealed class EnemyProjectilePlaces
     private static readonly int[] RunOrder = [.. Enumerable.Range(0, Capacity).Reverse()];
 
     /// <summary>The places in the order spawns search them and every pass runs them: from the last down.</summary>
-    public IReadOnlyList<int> InRunOrder => RunOrder;
+    public static IReadOnlyList<int> InRunOrder => RunOrder;
 
     /// <summary>The place the room's latest spawn took, or null when it found every place held or none has run.</summary>
     public int? LatestSpawn { get; private set; }

@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// the looks up to it, in order, over the room's load.
 /// </summary>
 /// <param name="Encounter">The encounter.</param>
-/// <param name="Looks">What each look copies, by look in the order the encounter shows them; nothing for the room's load.</param>
+/// <param name="InOrder">Each look and what it copies, in the order the encounter shows them; nothing for the room's load.</param>
 internal sealed record EncounterLookSteps(ComposedEncounter Encounter, IReadOnlyList<EncounterLookStep> InOrder)
 {
     /// <summary>The encounter's looks, in the order the encounter takes them, the room's load first.</summary>

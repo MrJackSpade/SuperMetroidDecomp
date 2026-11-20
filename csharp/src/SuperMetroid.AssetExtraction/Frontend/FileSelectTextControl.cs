@@ -3,7 +3,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// <summary>
 /// The controls of a file-select text stream; every other word is a tilemap cell. The stream's words for them are
 /// <see cref="FileSelectTilemapFormat.End"/> and <see cref="FileSelectTilemapFormat.NextRow"/>, read only by
-/// <see cref="Of"/>.
+/// <see cref="FileSelectTextControls.Of"/>.
 /// </summary>
 internal enum FileSelectTextControl
 {

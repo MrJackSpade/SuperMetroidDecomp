@@ -408,18 +408,18 @@ public static class XrayRevealVisualFiles
             XrayRevealShape.CopyTall => new(Top: blocks.TopLeft.Block, Bottom: Required(blocks.BottomLeft, shape).Block),
             XrayRevealShape.CopySquare => new(TopLeft: blocks.TopLeft.Block, TopRight: Required(blocks.TopRight, shape).Block,
                 BottomLeft: Required(blocks.BottomLeft, shape).Block, BottomRight: Required(blocks.BottomRight, shape).Block),
-            _ => throw new ArgumentOutOfRangeException(nameof(shape), shape, "Only a copy shape shows blocks."),
+            XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension =>
+                throw new ArgumentOutOfRangeException(nameof(shape), shape, "An extension shape copies no blocks."),
+            _ => throw new ArgumentOutOfRangeException(nameof(shape), shape, $"Undefined {nameof(XrayRevealShape)}."),
         };
 
         /// <summary>Whether the document names exactly the places a <paramref name="shape"/> copy shows.</summary>
-        internal bool NamesExactlyThePlacesOf(XrayRevealShape shape) => shape switch
+        /// <exception cref="ArgumentOutOfRangeException">The shape copies no blocks.</exception>
+        internal bool NamesExactlyThePlacesOf(XrayRevealShape shape)
         {
-            XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar => Named() == (true, false, false, false, false, false, false, false, false),
-            XrayRevealShape.CopyWide => Named() == (false, true, true, false, false, false, false, false, false),
-            XrayRevealShape.CopyTall => Named() == (false, false, false, true, true, false, false, false, false),
-            XrayRevealShape.CopySquare => Named() == (false, false, false, false, false, true, true, true, true),
-            _ => false,
-        };
+            int?[] own = PlacesOf(shape);
+            return Named().Count(named => named is not null) == own.Length && own.All(named => named is not null);
+        }
 
         /// <summary>The blocks the document names for a <paramref name="shape"/> copy.</summary>
         /// <exception cref="InvalidDataException">The document does not name exactly the shape's places.</exception>
@@ -427,20 +427,25 @@ public static class XrayRevealVisualFiles
         {
             if (!NamesExactlyThePlacesOf(shape))
                 throw new InvalidDataException($"An X-ray {shape} reveal's blocks name other places than the shape copies.");
-            int?[] places = shape switch
-            {
-                XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar => [Block],
-                XrayRevealShape.CopyWide => [Left, Right],
-                XrayRevealShape.CopyTall => [Top, Bottom],
-                _ => [TopLeft, TopRight, BottomLeft, BottomRight],
-            };
-            return XrayRevealVisualBlocks.ForShape(shape, [.. places.Select(block => RoomCellPicture.OfBlock(block!.Value))]);
+            return XrayRevealVisualBlocks.ForShape(shape, [.. PlacesOf(shape).Select(block => RoomCellPicture.OfBlock(
+                block ?? throw new InvalidDataException($"An X-ray {shape} reveal is missing one of its blocks.")))]);
         }
 
-        /// <summary>Which places the document names.</summary>
-        private (bool, bool, bool, bool, bool, bool, bool, bool, bool) Named() =>
-            (Block is not null, Left is not null, Right is not null, Top is not null, Bottom is not null,
-                TopLeft is not null, TopRight is not null, BottomLeft is not null, BottomRight is not null);
+        /// <summary>The blocks of the places a <paramref name="shape"/> copy shows, in the copy's reading order.</summary>
+        /// <exception cref="ArgumentOutOfRangeException">The shape copies no blocks.</exception>
+        private int?[] PlacesOf(XrayRevealShape shape) => shape switch
+        {
+            XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar => [Block],
+            XrayRevealShape.CopyWide => [Left, Right],
+            XrayRevealShape.CopyTall => [Top, Bottom],
+            XrayRevealShape.CopySquare => [TopLeft, TopRight, BottomLeft, BottomRight],
+            XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension =>
+                throw new ArgumentOutOfRangeException(nameof(shape), shape, "An extension shape copies no blocks."),
+            _ => throw new ArgumentOutOfRangeException(nameof(shape), shape, $"Undefined {nameof(XrayRevealShape)}."),
+        };
+
+        /// <summary>The blocks of every place the document can name.</summary>
+        private int?[] Named() => [Block, Left, Right, Top, Bottom, TopLeft, TopRight, BottomLeft, BottomRight];
 
         /// <summary>The picture a shape's place holds, which its blocks always name.</summary>
         private static RoomCellPicture Required(RoomCellPicture? picture, XrayRevealShape shape) =>

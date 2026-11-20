@@ -60,7 +60,7 @@ internal sealed class EndingCreditsRoll
     {
         // The credits' end starts the post-credits scenes in their own colours and blanks the screen.
         _stage.LoadColours(EndingColourLoad.PostCredits);
-        _stage.Fade.Show(0);
+        _stage.Fade.Show(DisplayBrightness.Black);
     }
 
     /// <summary>Replaces the producer result rows with the copyright panel.</summary>

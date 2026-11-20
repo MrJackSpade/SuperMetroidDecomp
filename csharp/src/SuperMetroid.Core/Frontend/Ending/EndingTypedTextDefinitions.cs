@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The ending's typed texts' spellings and typing cadence (#1513, #2195).</summary>

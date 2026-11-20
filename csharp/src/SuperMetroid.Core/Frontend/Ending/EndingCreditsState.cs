@@ -227,7 +227,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         {
             Stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.Lava);
             Stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.Crust);
-            Stage.Fade.Show(0);
+            Stage.Fade.Show(DisplayBrightness.Black);
             Stage.StartFastFade();
             Enter(EndingCreditsPhase.FadeInSideCloudEscape);
         }

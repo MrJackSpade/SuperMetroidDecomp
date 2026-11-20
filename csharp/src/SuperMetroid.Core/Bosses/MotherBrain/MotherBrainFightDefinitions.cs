@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Earthquakes;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;

@@ -128,7 +128,7 @@ internal sealed class EnemyProjectileEngine
         Ensure.NotNull(projectiles);
         Ensure.NotNull(samusBombs);
 
-        foreach (int enemyProjectileIndex in Places.InRunOrder)
+        foreach (int enemyProjectileIndex in EnemyProjectilePlaces.InRunOrder)
         {
             if (_places[enemyProjectileIndex] is not { IsActive: true } enemyProjectile ||
                 !enemyProjectile.BlocksSamusProjectiles ||
@@ -196,7 +196,7 @@ internal sealed class EnemyProjectileEngine
         // snapshot. The distinction is observable whenever a motion or animation cue spawns another projectile:
         // spawns search from the last place down, so one spawned below the place being run is reached later in THIS
         // pass, and one spawned above it waits for the next.
-        foreach (int place in Places.InRunOrder)
+        foreach (int place in EnemyProjectilePlaces.InRunOrder)
         {
             if (_places[place] is not { IsActive: true } projectile)
                 continue;
@@ -226,7 +226,7 @@ internal sealed class EnemyProjectileEngine
             return;
 
         KnockbackHorizontalDirection? finalKnockbackXDirection = null;
-        foreach (int index in Places.InRunOrder)
+        foreach (int index in EnemyProjectilePlaces.InRunOrder)
         {
             if (_places[index] is { IsActive: true } projectile)
             {
@@ -299,7 +299,7 @@ internal sealed class EnemyProjectileEngine
         bool timeIsFrozen)
     {
         Offset16<RoomPixels> shake = _earthquake.GetEnemyProjectileShake(timeIsFrozen);
-        foreach (int place in Places.InRunOrder)
+        foreach (int place in EnemyProjectilePlaces.InRunOrder)
         {
             if (_places[place] is not { IsActive: true } projectile ||
                 BehaviorOf(projectile).IsHidden(projectile) ||
@@ -324,7 +324,7 @@ internal sealed class EnemyProjectileEngine
     /// </summary>
     internal EnemyProjectile? AllocateEnemyProjectile()
     {
-        foreach (int place in Places.InRunOrder)
+        foreach (int place in EnemyProjectilePlaces.InRunOrder)
         {
             EnemyProjectile? previous = _places[place];
             if (previous is not { IsActive: true })

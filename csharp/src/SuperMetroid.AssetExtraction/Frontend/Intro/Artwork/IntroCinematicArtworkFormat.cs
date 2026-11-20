@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Intro;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
@@ -47,7 +48,7 @@ public static class IntroCinematicArtworkFormat
 
     /// <summary>The installed JSON resource name of <paramref name="page"/>'s background.</summary>
     /// <exception cref="ArgumentException">The page is not a scene page.</exception>
-    public static string BackgroundPageFileName(IntroScenePage page) => Ensure.Listed(BackgroundPageFileNames, page);
+    internal static string BackgroundPageFileName(IntroScenePage page) => Ensure.Listed(BackgroundPageFileNames, page);
     /// <summary>$8000 bytes of 4-bpp BG data: 1024 eight-by-eight characters uploaded at VRAM byte $0000.</summary>
     public const int BackgroundByteCount = 1024 * 32;
     /// <summary>$2000 bytes of fixed-bank 4-bpp intro OBJ data: 256 characters uploaded at VRAM byte $C000.</summary>

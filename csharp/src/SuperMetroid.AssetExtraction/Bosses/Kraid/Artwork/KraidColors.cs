@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Compatibility;
@@ -28,9 +29,9 @@ internal static class KraidColors
     internal static KraidEyeColours Eyes(KraidColorCatalog colors)
     {
         // The installed health colours hold one colour group per shade, in the order KraidPalettes.HealthShades lists them.
-        Dictionary<PictureShade, RgbColor[]> byShade = KraidPalettes.HealthShades
-            .Select((shade, group) => (shade, group))
-            .ToDictionary(entry => entry.shade, entry => EyeSet(colors, entry.group));
+        var byShade = new Dictionary<PictureShade, RgbColor[]>();
+        foreach (PictureShade shade in KraidPalettes.HealthShades)
+            byShade.Add(shade, EyeSet(colors, byShade.Count));
         return new(byShade[KraidShades.HurtFlash],
             KraidHealthBandDefinitions.HighestFirst.ToDictionary(band => band, band => (IReadOnlyList<RgbColor>)byShade[KraidShades.Health(band)]));
     }

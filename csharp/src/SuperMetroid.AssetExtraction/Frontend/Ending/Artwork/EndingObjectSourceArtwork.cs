@@ -31,7 +31,7 @@ public class EndingObjectSourceArtwork
             parts.Fragments.Any(fragment => fragment is null || !IsWholeMap(fragment)))
             throw new InvalidDataException("Ending OBJ catalog has an incorrect native transfer length.");
         fragments = [.. parts.Fragments];
-        fragmentsById = EndingObjectArtworkFormat.ExplosionPictures.Zip(fragments).ToDictionary(pair => pair.First, pair => pair.Second);
+        fragmentsById = EndingObjectArtworkFormat.ExplosionPictures.Zip(fragments, KeyValuePair.Create).ToDictionary();
         CloudSprites = Ensure.NotNull(parts.CloudSprites);
         ExplosionSprites = Ensure.NotNull(parts.ExplosionSprites);
         CompletionTextSprites = Ensure.NotNull(parts.CompletionTextSprites);

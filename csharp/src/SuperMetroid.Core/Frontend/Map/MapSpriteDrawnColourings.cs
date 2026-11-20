@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend.Map.Artwork;
+
 namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>The colourings a map sprite is drawn in (#1513, #2556): its standard colouring and any others.</summary>

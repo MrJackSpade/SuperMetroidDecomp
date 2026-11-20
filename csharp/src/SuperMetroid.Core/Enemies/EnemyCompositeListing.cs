@@ -143,7 +143,7 @@ internal static class EnemyCompositeListing
     private static bool IsListed(RoomEnemyPlace self, int offset)
     {
         int place = Ensure.NotNull(self).Ordinal + offset;
-        return place >= 0 && place < EnemyPlaceOrder.Capacity;
+        return place is >= 0 and < EnemyPlaceOrder.Capacity;
     }
 
     /// <summary>Where the composite lists the one member that plays <paramref name="role"/>.</summary>

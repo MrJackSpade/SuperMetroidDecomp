@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using System.Text.Json;
 using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction.Cartridge;

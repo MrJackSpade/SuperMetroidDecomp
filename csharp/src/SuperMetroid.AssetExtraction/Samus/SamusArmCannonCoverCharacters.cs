@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.Core;

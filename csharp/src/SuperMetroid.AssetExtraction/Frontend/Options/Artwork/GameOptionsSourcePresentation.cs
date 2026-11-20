@@ -59,8 +59,8 @@ public sealed class GameOptionsSourcePresentation
         background = pages.Background;
         controllerLabels = pages.ControllerLabels;
         // The document lists the anchors in the order the controller page lists its actions.
-        controllerLabelAnchors = GameOptionsPageRows.ControllerActions.Zip(document.ControllerLabelAnchors)
-            .ToDictionary(pair => pair.First, pair => pair.Second);
+        controllerLabelAnchors = GameOptionsPageRows.ControllerActions.Zip(document.ControllerLabelAnchors, KeyValuePair.Create)
+            .ToDictionary();
         languageRegions = [.. document.LanguageRegions];
         specialToggles = GameOptionsPresentationFormat.Toggles.ToDictionary(
             toggle => toggle, toggle => document.SpecialToggles[GameOptionsNames.ToggleName(toggle)]);

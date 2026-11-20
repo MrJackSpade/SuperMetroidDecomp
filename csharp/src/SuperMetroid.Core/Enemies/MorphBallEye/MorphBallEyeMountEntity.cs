@@ -13,7 +13,7 @@ internal sealed class MorphBallEyeMountEntity(MorphBallEyeBehavior species, Room
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeMorphBallEyeMount(Occupant, Place);
+    public void Initialize() => species.InitializeMorphBallEyeMount(Occupant, Occupant.SpawnSettings<MorphBallEyeMountSpawnSettings>(), Place);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MorphBallEyeBehavior.AdvanceMorphBallEyeMountTypedAnimation(Place, Place.RequireSpeciesState<MorphBallEyeMountState>());

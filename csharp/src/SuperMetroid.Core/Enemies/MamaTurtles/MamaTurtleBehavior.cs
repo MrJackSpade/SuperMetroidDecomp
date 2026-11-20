@@ -123,12 +123,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Initializes the Baby Turtle, one of the four its Mama found when she was placed; the last of them completes the
     /// family, which is checked once then.
     /// </summary>
-    internal void InitializeBabyTurtle(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal void InitializeBabyTurtle(RoomEnemyOccupant occupant, BabyTurtleSpawnSettings babyTurtleSpawnSettings, RoomEnemyPlace place)
     {
         var state = new BabyTurtleEnemyState(BabyTurtleAction.CrawlingNotCarryingSamus)
         {
             SpawnTopCenter = new Position16<RoomPixels>(place.Position.X.Whole, place.Position.Y.Whole - place.Radius.Y),
-            Heading = occupant.SpawnSettings<BabyTurtleSpawnSettings>().Heading,
+            Heading = babyTurtleSpawnSettings.Heading,
             HorizontalSpeed = MamaTurtleMotionDefinitions.BabyCrawlSpeed,
         };
         place.SetSpeciesState(state);
@@ -766,26 +766,26 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances MamaTurtle's typed animation.</summary>
-    internal void AdvanceMamaTurtleTypedAnimation(RoomEnemyPlace place, MamaTurtleEnemyState mamaTurtleEnemyState, MamaTurtleEnemyState state)
+    internal void AdvanceMamaTurtleTypedAnimation(RoomEnemyPlace place, MamaTurtleEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<MamaTurtleSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, MamaTurtleAnimations.Segments, ref playback,
-            cue => ApplyMamaTurtleCue(place, mamaTurtleEnemyState, cue) is { } target
+            cue => ApplyMamaTurtleCue(place, state, cue) is { } target
                 ? new AnimationContinuation<MamaTurtleSegment>(MamaTurtleAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
     }
 
     /// <summary>Advances BabyTurtle's typed animation.</summary>
-    internal void AdvanceBabyTurtleTypedAnimation(RoomEnemyPlace place, BabyTurtleEnemyState babyTurtleEnemyState, BabyTurtleEnemyState state, EnemyAnimationCueContext context)
+    internal void AdvanceBabyTurtleTypedAnimation(RoomEnemyPlace place, BabyTurtleEnemyState state, EnemyAnimationCueContext context)
     {
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<BabyTurtleSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, BabyTurtleAnimations.Segments, ref playback,
-            cue => ApplyBabyTurtleCue(place, babyTurtleEnemyState, cue, context.Samus, context.Level) is { } target
+            cue => ApplyBabyTurtleCue(place, state, cue, context.Samus, context.Level) is { } target
                 ? new AnimationContinuation<BabyTurtleSegment>(BabyTurtleAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;

@@ -9,10 +9,10 @@ internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemyOccupa
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => PlatformsBehavior.InitializePlatform(Occupant, Place);
+    public void Initialize() => PlatformsBehavior.InitializePlatform(Occupant, Occupant.SpawnSettings<PlatformSpawnSettings>(), Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunPlatformsMainAi(Occupant, Place, Place.RequireSpeciesState<PlatformEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPlatformsMainAi(Occupant, Occupant.SpawnSettings<PlatformSpawnSettings>(), Place, Place.RequireSpeciesState<PlatformEnemyState>(), frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PlatformsBehavior.AdvancePlatformsTypedAnimation(Place, Place.RequireSpeciesState<PlatformEnemyState>());

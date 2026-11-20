@@ -12,7 +12,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The body's own shot reaction, built for this occupant.</summary>
-    private readonly EnemyShotReaction ownShot = species.PowampBodyShotReaction(occupant);
+    private readonly EnemyShotReaction ownShot = species.PowampBodyShotReaction(occupant, occupant.SpawnSettings<PowampSpawnSettings>());
 
     /// <inheritdoc/>
     public void Initialize() => species.InitializePowampBody(Place);
@@ -31,7 +31,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == PowampReactions.Touch)
-            species.ReactToPowampBodyTouch(Occupant, context, context.Place.RequireSpeciesState<PowampBodyState>());
+            species.ReactToPowampBodyTouch(Occupant, Occupant.SpawnSettings<PowampSpawnSettings>(), context, context.Place.RequireSpeciesState<PowampBodyState>());
         else
             base.ReactToTouch(context);
     }

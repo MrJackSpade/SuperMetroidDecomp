@@ -31,7 +31,7 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant o
     public abstract void RunMainAi(IEnemyAiFrame frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceTorizoTypedAnimation(Occupant, Place, Place.RequireSpeciesState<TorizoEnemyState>(), Place.RequireSpeciesState<TorizoEnemyState>(), Place.RequireSpeciesState<TorizoEnemyState>(), Place.RequireSpeciesState<TorizoEnemyState>(), Place.RequireSpeciesState<TorizoEnemyState>(), this, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceTorizoTypedAnimation(Occupant, Place, Place.RequireSpeciesState<TorizoEnemyState>(), this, context);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe)

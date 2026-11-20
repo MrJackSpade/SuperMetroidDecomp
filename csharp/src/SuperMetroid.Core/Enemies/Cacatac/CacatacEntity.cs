@@ -9,10 +9,10 @@ internal sealed class CacatacEntity(CacatacBehavior species, RoomEnemyOccupant o
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => CacatacBehavior.InitializeCacatac(Occupant, Place);
+    public void Initialize() => CacatacBehavior.InitializeCacatac(Occupant, Occupant.SpawnSettings<CacatacSpawnSettings>(), Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunCacatacMainAi(Occupant, Place, Place.RequireSpeciesState<CacatacEnemyState>());
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunCacatacMainAi(Occupant, Occupant.SpawnSettings<CacatacSpawnSettings>(), Place, Place.RequireSpeciesState<CacatacEnemyState>());
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceCacatacTypedAnimation(Occupant, Place, Place.RequireSpeciesState<CacatacEnemyState>());

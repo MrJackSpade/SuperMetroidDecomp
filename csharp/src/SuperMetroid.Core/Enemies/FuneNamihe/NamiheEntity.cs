@@ -9,12 +9,12 @@ internal sealed class NamiheEntity(FuneNamiheBehavior species, RoomEnemyOccupant
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => FuneNamiheBehavior.InitializeNamihe(Occupant, Place);
+    public void Initialize() => FuneNamiheBehavior.InitializeNamihe(Occupant, Occupant.SpawnSettings<FuneNamiheSpawnSettings>(), Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        FuneNamiheBehavior.RunNamiheMain(Occupant, Place, Place.RequireSpeciesState<NamiheEnemyState>(), Ensure.NotNull(frame).Samus);
+        FuneNamiheBehavior.RunNamiheMain(Occupant, Occupant.SpawnSettings<FuneNamiheSpawnSettings>(), Occupant.SpawnSettings<NamiheSpawnSettings>(), Place, Place.RequireSpeciesState<NamiheEnemyState>(), Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation<NamiheEnemyState>(Occupant, Place, Place.RequireSpeciesState<NamiheEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation<NamiheEnemyState>(Occupant, Occupant.SpawnSettings<FuneNamiheSpawnSettings>(), Place, Place.RequireSpeciesState<NamiheEnemyState>());
 }

@@ -9,10 +9,10 @@ internal sealed class ElevatorEntity(ElevatorBehavior species, RoomEnemyOccupant
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) => species.SetUpElevator(Occupant, Place, surroundings);
+    public void Initialize(EnemyPopulationSurroundings surroundings) => species.SetUpElevator(Occupant, Occupant.SpawnSettings<ElevatorSpawnSettings>(), Place, surroundings);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunElevatorMainAi(Occupant, Place, Place.RequireSpeciesState<ElevatorEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunElevatorMainAi(Occupant, Occupant.SpawnSettings<ElevatorSpawnSettings>(), Place, Place.RequireSpeciesState<ElevatorEnemyState>(), frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ElevatorBehavior.AdvanceElevatorTypedAnimation(Place, Place.RequireSpeciesState<ElevatorEnemyState>());

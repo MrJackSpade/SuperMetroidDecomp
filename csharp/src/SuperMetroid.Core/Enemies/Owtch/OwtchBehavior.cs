@@ -26,9 +26,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         SetOwtchMoving(state, cue.Direction == HorizontalDirection.Left ? OwtchBehaviorState.MovingLeft : OwtchBehaviorState.MovingRight);
 
     /// <summary>Initializes the Owtch.</summary>
-    internal static void InitializeOwtch(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal static void InitializeOwtch(RoomEnemyOccupant occupant, OwtchSpawnSettings settings, RoomEnemyPlace place)
     {
-        OwtchSpawnSettings settings = occupant.SpawnSettings<OwtchSpawnSettings>();
         var state = new OwtchEnemyState
         {
             Behavior = settings.InitialBehavior,
@@ -46,17 +45,17 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Owtch's current behaviour.</summary>
-    private void RunOwtchMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, OwtchEnemyState state)
+    private void RunOwtchMain(RoomEnemyOccupant occupant, OwtchSpawnSettings owtchSpawnSettings, RoomEnemyPlace place, OwtchEnemyState state)
     {
         switch (state.Behavior)
         {
             case OwtchBehaviorState.MovingLeft:
-                MoveOwtch(occupant, place, state, direction: HorizontalDirection.Left);
+                MoveOwtch(occupant, owtchSpawnSettings, place, state, direction: HorizontalDirection.Left);
                 MaybeMakeOwtchSink(place, state);
                 return;
 
             case OwtchBehaviorState.MovingRight:
-                MoveOwtch(occupant, place, state, direction: HorizontalDirection.Right);
+                MoveOwtch(occupant, owtchSpawnSettings, place, state, direction: HorizontalDirection.Right);
                 MaybeMakeOwtchSink(place, state);
                 return;
 
@@ -73,7 +72,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.Sink.Count())
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
-                    state.UndergroundTimer = UpdateCountdown.For(occupant.SpawnSettings<OwtchSpawnSettings>().UndergroundWait);
+                    state.UndergroundTimer = UpdateCountdown.For(owtchSpawnSettings.UndergroundWait);
                 }
                 return;
 
@@ -121,12 +120,12 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// the patrol turns it.
     /// </summary>
     private static void MoveOwtch(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, OwtchSpawnSettings owtchSpawnSettings, RoomEnemyPlace place,
         OwtchEnemyState state,
         HorizontalDirection direction)
     {
         // A fraction past a whole pixel carries into the whole pixels.
-        SignedSixteenSixteen speed = occupant.SpawnSettings<OwtchSpawnSettings>().Speed;
+        SignedSixteenSixteen speed = owtchSpawnSettings.Speed;
         place.Position = place.Position.AdvanceX(speed.Toward(direction));
 
         if (direction != HorizontalDirection.Right)
@@ -177,9 +176,9 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs Owtch's main AI.</summary>
-    internal void RunOwtchMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, OwtchEnemyState owtchEnemyState)
+    internal void RunOwtchMainAi(RoomEnemyOccupant occupant, OwtchSpawnSettings owtchSpawnSettings, RoomEnemyPlace place, OwtchEnemyState owtchEnemyState)
     {
-        RunOwtchMain(occupant, place, owtchEnemyState);
+        RunOwtchMain(occupant, owtchSpawnSettings, place, owtchEnemyState);
     }
 
     /// <summary>Advances Owtch's typed animation.</summary>

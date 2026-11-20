@@ -50,9 +50,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes either shipped statue.</summary>
-    internal void InitializeChozoStatue(RoomEnemyOccupant occupant, RoomEnemyPlace statue)
+    internal void InitializeChozoStatue(RoomEnemyOccupant occupant, ChozoStatueSpawnSettings chozoStatueSpawnSettings, RoomEnemyPlace statue)
     {
-        ChozoStatueSite site = occupant.SpawnSettings<ChozoStatueSpawnSettings>().Site;
+        ChozoStatueSite site = chozoStatueSpawnSettings.Site;
         if (!Enum.IsDefined(site))
             throw new InvalidOperationException($"Undefined {nameof(ChozoStatueSite)} {site}.");
 
@@ -116,12 +116,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Starts the statue's activation once Samus has triggered its hand while it waits for her; the Wrecked Ship's hand
     /// admits her only once Phantoon is defeated. The animation does the rest.
     /// </summary>
-    private static void RunChozoStatueMain(RoomEnemyOccupant occupant, RoomEnemyPlace statue, ChozoStatueState state)
+    private static void RunChozoStatueMain(RoomEnemyOccupant occupant, ChozoStatueSpawnSettings chozoStatueSpawnSettings, RoomEnemyPlace statue, ChozoStatueState state)
     {
         if (state.Phase != ChozoStatuePhase.HandTriggered)
             return;
 
-        state.Playback = new(ChozoStatueAnimations.StartingWith(occupant.SpawnSettings<ChozoStatueSpawnSettings>().Site == ChozoStatueSite.WreckedShip
+        state.Playback = new(ChozoStatueAnimations.StartingWith(chozoStatueSpawnSettings.Site == ChozoStatueSite.WreckedShip
             ? ChozoStatueSegment.WreckedShipActivated
             : ChozoStatueSegment.LowerNorfairActivated), AnimationPlace.StartOfAnimation);
         statue.AnimationClock.StepOnNextUpdate();
@@ -273,14 +273,14 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         _passEvents.Publish(new ChozoStatueObjectAsked(new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, roomObject)));
 
     /// <summary>Runs ChozoStatue's main AI.</summary>
-    internal static void RunChozoStatueMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, ChozoStatueState chozoStatueState)
+    internal static void RunChozoStatueMainAi(RoomEnemyOccupant occupant, ChozoStatueSpawnSettings chozoStatueSpawnSettings, RoomEnemyPlace place, ChozoStatueState chozoStatueState)
     {
-        RunChozoStatueMain(occupant, place, chozoStatueState);
+        RunChozoStatueMain(occupant, chozoStatueSpawnSettings, place, chozoStatueState);
     }
 
     /// <summary>Advances ChozoStatue's typed animation.</summary>
-    internal void AdvanceChozoStatueTypedAnimation(RoomEnemyPlace place, ChozoStatueState chozoStatueState2, ChozoStatueState chozoStatueState, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.AdvanceApplyingCues(place, chozoStatueState2, ChozoStatueAnimations.Segments,
+    internal void AdvanceChozoStatueTypedAnimation(RoomEnemyPlace place, ChozoStatueState chozoStatueState, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.AdvanceApplyingCues(place, chozoStatueState, ChozoStatueAnimations.Segments,
             static (ChozoStatueState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (ChozoStatueState _, ChozoStatueCue cue) => ApplyChozoStatueCue(place, chozoStatueState, cue, context.Samus, context.Level));
 }

@@ -9,10 +9,10 @@ internal sealed class NuclearWaffleEntity(NuclearWaffleBehavior species, RoomEne
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeNuclearWaffle(Occupant, Place);
+    public void Initialize() => species.InitializeNuclearWaffle(Occupant, Occupant.SpawnSettings<NuclearWaffleSpawnSettings>(), Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunNuclearWaffleMainAi(Occupant, Place, Place.RequireSpeciesState<NuclearWaffleEnemyState>());
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunNuclearWaffleMainAi(Occupant, Occupant.SpawnSettings<NuclearWaffleSpawnSettings>(), Place, Place.RequireSpeciesState<NuclearWaffleEnemyState>());
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => NuclearWaffleBehavior.AdvanceNuclearWaffleTypedAnimation(Place, Place.RequireSpeciesState<NuclearWaffleEnemyState>());

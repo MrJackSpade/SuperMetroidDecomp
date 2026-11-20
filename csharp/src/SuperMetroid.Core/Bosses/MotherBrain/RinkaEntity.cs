@@ -11,19 +11,19 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occup
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>Rinka's own shot reaction, built for this occupant.</summary>
-    private readonly EnemyShotReaction ownShot = species.RinkaShotReaction(occupant);
+    private readonly EnemyShotReaction ownShot = species.RinkaShotReaction(occupant, occupant.SpawnSettings<RinkaSpawnSettings>());
 
     /// <summary>Rinka's own stages around common bomb damage, built for this occupant.</summary>
-    private readonly EnemyBombReaction ownBomb = species.RinkaBombReaction(occupant);
+    private readonly EnemyBombReaction ownBomb = species.RinkaBombReaction(occupant, occupant.SpawnSettings<RinkaSpawnSettings>());
 
     /// <summary>Rinka's own Power Bomb reaction, built for this occupant.</summary>
-    private readonly EnemyPowerBombReaction ownPowerBomb = species.RinkaPowerBombReaction(occupant);
+    private readonly EnemyPowerBombReaction ownPowerBomb = species.RinkaPowerBombReaction(occupant, occupant.SpawnSettings<RinkaSpawnSettings>());
 
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeRinka(Occupant, Place);
+    public void Initialize() => species.InitializeRinka(Occupant, Occupant.SpawnSettings<RinkaSpawnSettings>(), Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunRinkaMainAi(Occupant, Place, Place.RequireSpeciesState<RinkaEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunRinkaMainAi(Occupant, Occupant.SpawnSettings<RinkaSpawnSettings>(), Place, Place.RequireSpeciesState<RinkaEnemyState>(), frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RinkaBehavior.AdvanceRinkaTypedAnimation(Place, Place.RequireSpeciesState<RinkaEnemyState>());
@@ -36,7 +36,7 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occup
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == RinkaReactions.Touch)
-            species.ReactToRinkaTouch(Occupant, context, context.Place.RequireSpeciesState<RinkaEnemyState>());
+            species.ReactToRinkaTouch(Occupant, Occupant.SpawnSettings<RinkaSpawnSettings>(), context, context.Place.RequireSpeciesState<RinkaEnemyState>());
         else
             base.ReactToTouch(context);
     }

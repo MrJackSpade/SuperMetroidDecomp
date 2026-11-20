@@ -8,10 +8,10 @@ internal sealed class AtomicEntity(RoomEnemyOccupant occupant, RoomEnemyPlace pl
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => AtomicBehavior.InitializeAtomic(Occupant, Place);
+    public void Initialize() => AtomicBehavior.InitializeAtomic(Occupant, Occupant.SpawnSettings<AtomicSpawnSettings>(), Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => AtomicBehavior.MoveAtomicTowardSamus(Occupant, Place, Ensure.NotNull(frame).Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => AtomicBehavior.MoveAtomicTowardSamus(Occupant, Occupant.SpawnSettings<AtomicSpawnSettings>(), Place, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => AtomicBehavior.AdvanceAtomicTypedAnimation(Place, Place.RequireSpeciesState<AtomicEnemyState>());

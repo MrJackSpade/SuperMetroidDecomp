@@ -103,11 +103,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     }
 
     /// <summary>Initializes an unpowered robot.</summary>
-    internal void InitializeUnpoweredWorkRobot(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal void InitializeUnpoweredWorkRobot(RoomEnemyOccupant occupant, WorkRobotSpawnSettings workRobotSpawnSettings, RoomEnemyPlace place)
     {
         // The placement names the unpowered pose the robot holds.
         var state = new UnpoweredWorkRobotEnemyState(
-            new(WorkRobotAnimations.StartingWith(occupant.SpawnSettings<WorkRobotSpawnSettings>().Pose), AnimationPlace.StartOfAnimation));
+            new(WorkRobotAnimations.StartingWith(workRobotSpawnSettings.Pose), AnimationPlace.StartOfAnimation));
         place.SetSpeciesState(state);
         place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
         place.AnimationClock.Restart();

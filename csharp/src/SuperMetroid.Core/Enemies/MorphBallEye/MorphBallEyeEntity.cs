@@ -12,11 +12,11 @@ internal sealed class MorphBallEyeEntity(MorphBallEyeBehavior species, RoomEnemy
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => MorphBallEyeBehavior.InitializeMorphBallEyeBody(Occupant, Place);
+    public void Initialize() => MorphBallEyeBehavior.InitializeMorphBallEyeBody(Occupant, Occupant.SpawnSettings<MorphBallEyeBodySpawnSettings>(), Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMorphBallEyeMainAi(Occupant, Place, Place.RequireSpeciesState<MorphBallEyeEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMorphBallEyeMainAi(Occupant, Occupant.SpawnSettings<MorphBallEyeBodySpawnSettings>(), Place, Place.RequireSpeciesState<MorphBallEyeEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MorphBallEyeBehavior.AdvanceMorphBallEyeTypedAnimation(Place, Place.RequireSpeciesState<MorphBallEyeEnemyState>(), Place.RequireSpeciesState<MorphBallEyeEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MorphBallEyeBehavior.AdvanceMorphBallEyeTypedAnimation(Place, Place.RequireSpeciesState<MorphBallEyeEnemyState>());
 }

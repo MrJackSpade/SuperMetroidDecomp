@@ -13,13 +13,13 @@ internal abstract class VerticalShutterEntity(ShuttersBehavior species, RoomEnem
     : ShuttersEntity(species, occupant, place, common)
 {
     /// <inheritdoc/>
-    public override void Initialize() => ShuttersBehavior.InitializeVerticalShutter(Occupant, Place, Pose);
+    public override void Initialize() => ShuttersBehavior.InitializeVerticalShutter(Occupant, Occupant.SpawnSettings<ShutterSpawnSettings>(), Place, Pose);
 
     /// <summary>The pose the shutter shows from its setup.</summary>
     protected abstract ShutterSegment Pose { get; }
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunVerticalShutterMainAi(Occupant, Place, Place.RequireSpeciesState<VerticalShutterEnemyState>(), Place.RequireSpeciesState<VerticalShutterEnemyState>(), frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunVerticalShutterMainAi(Occupant, Occupant.SpawnSettings<ShutterSpawnSettings>(), Place, Place.RequireSpeciesState<VerticalShutterEnemyState>(), frame);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceVerticalShutterTypedAnimation(Place, Place.RequireSpeciesState<VerticalShutterEnemyState>());

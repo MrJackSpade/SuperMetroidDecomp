@@ -39,11 +39,11 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Alcoon's animations: spitting a fireball, starting to walk, or taking a stride. Starting to
     /// walk always continues at the walk for the Alcoon's facing, and a stride that meets a wall turns it round to the other walk.
     /// </summary>
-    private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, AlcoonEnemyState alcoonEnemyState, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue)
+    private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue)
     {
         if (cue is AlcoonCue.Fire fire)
         {
-            SpawnAlcoonFireball(occupant, place, alcoonEnemyState, fire.Launch);
+            SpawnAlcoonFireball(occupant, place, state, fire.Launch);
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
             return null;
         }
@@ -382,7 +382,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AdvanceAlcoonTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, AlcoonEnemyState alcoonEnemyState, EnemyAnimationCueContext context) =>
         EnemyAnimationPlayback.Advance(place, alcoonEnemyState, AlcoonAnimations.Segments,
             static (AlcoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyAlcoonCue(occupant, place, alcoonEnemyState, state, context.Level, cue));
+            (state, cue) => ApplyAlcoonCue(occupant, place, state, context.Level, cue));
 
     /// <summary>Spits an Alcoon fireball with the vertical speed of <paramref name="launch"/>.</summary>
     private void SpawnAlcoonFireball(RoomEnemyOccupant occupant, RoomEnemyPlace alcoon, AlcoonEnemyState state, AlcoonFireballLaunch launch)

@@ -56,7 +56,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Runs the Kago's own response to a shot, after the common enemy shot reaction has hurt it.
     /// </summary>
-    private void ResolveKagoShotAfterCommon(RoomEnemyOccupant occupant, RoomEnemyPlace place, KagoEnemyState state)
+    private void ResolveKagoShotAfterCommon(RoomEnemyOccupant occupant, KagoSpawnSettings kagoSpawnSettings, RoomEnemyPlace place, KagoEnemyState state)
     {
         _earthquake.Start(KagoDefinitions.ShotQuake, KagoDefinitions.ShotQuakeDuration);
 
@@ -68,7 +68,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The shell withstands as many shots as its placement names and dies of the next (#2340).
-        if (++state.HitsTaken > occupant.SpawnSettings<KagoSpawnSettings>().HitCount)
+        if (++state.HitsTaken > kagoSpawnSettings.HitCount)
         {
             // The shot's damage may already have killed the shell, which counts its death once.
             if (!place.Presence.HasAny(EnemyPresence.Deleted))
@@ -86,9 +86,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs a bomb's common damage on Kago before its quake, its hit count and its bug spawn.</summary>
     /// <param name="kago">The Kago the reaction is built for, whose sheet the objects it spawns draw from.</param>
-    internal EnemyBombReaction KagoBombReaction(RoomEnemyOccupant kago) => new()
+    /// <param name="kagoSpawnSettings">What the enemy's population entry tells its species.</param>
+    internal EnemyBombReaction KagoBombReaction(RoomEnemyOccupant kago, KagoSpawnSettings kagoSpawnSettings) => new()
     {
-        AfterCommon = c => ResolveKagoShotAfterCommon(kago, c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
+        AfterCommon = c => ResolveKagoShotAfterCommon(kago, kagoSpawnSettings, c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
     };
 
     /// <summary>A Kago bug (#1760).</summary>
@@ -287,9 +288,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Applies Kago's shell response after the common projectile-shot reaction has resolved damage.</summary>
     /// <param name="kago">The Kago the reaction is built for, whose sheet the objects it spawns draw from.</param>
-    internal EnemyShotReaction KagoShotReaction(RoomEnemyOccupant kago) => new()
+    /// <param name="kagoSpawnSettings">What the enemy's population entry tells its species.</param>
+    internal EnemyShotReaction KagoShotReaction(RoomEnemyOccupant kago, KagoSpawnSettings kagoSpawnSettings) => new()
     {
-        AfterCommon = c => ResolveKagoShotAfterCommon(kago, c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
+        AfterCommon = c => ResolveKagoShotAfterCommon(kago, kagoSpawnSettings, c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
     };
 
     /// <summary>Spawns and initializes a Kago bug; with no projectile place free, none spawns.</summary>

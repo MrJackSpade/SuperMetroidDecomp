@@ -13,7 +13,7 @@ internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccup
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The balloon's own shot reaction, built for this occupant.</summary>
-    private readonly EnemyShotReaction ownShot = species.PowampBalloonShotReaction(occupant);
+    private readonly EnemyShotReaction ownShot = species.PowampBalloonShotReaction(occupant, occupant.SpawnSettings<PowampSpawnSettings>());
 
     /// <inheritdoc/>
     public void Initialize() => PowampBehavior.InitializePowampBalloon(Place);
@@ -29,7 +29,7 @@ internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccup
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == PowampReactions.Touch)
-            species.ReactToPowampBalloonTouch(Occupant, context);
+            species.ReactToPowampBalloonTouch(Occupant, Occupant.SpawnSettings<PowampSpawnSettings>(), context);
         else
             base.ReactToTouch(context);
     }

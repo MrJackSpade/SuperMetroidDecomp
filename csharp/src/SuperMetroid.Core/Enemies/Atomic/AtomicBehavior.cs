@@ -16,14 +16,12 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Initializes the Atomic.</summary>
-    internal static void InitializeAtomic(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal static void InitializeAtomic(RoomEnemyOccupant occupant, AtomicSpawnSettings settings, RoomEnemyPlace place)
     {
         var state = new AtomicEnemyState();
         place.SetSpeciesState(state);
 
         place.AnimationClock.Restart();
-
-        AtomicSpawnSettings settings = occupant.SpawnSettings<AtomicSpawnSettings>();
         state.Playback = new(AtomicAnimations.StartingWith(settings.Spin), AnimationPlace.StartOfAnimation);
     }
 
@@ -32,12 +30,12 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     /// directions again every update.
     /// </summary>
     internal static void MoveAtomicTowardSamus(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, AtomicSpawnSettings atomicSpawnSettings, RoomEnemyPlace place,
         SamusState samus)
     {
         // The Atomic moves towards Samus on each axis; being level with her counts as her being below or to the right, so
         // it moves down or right.
-        SignedSixteenSixteen speed = occupant.SpawnSettings<AtomicSpawnSettings>().Speed;
+        SignedSixteenSixteen speed = atomicSpawnSettings.Speed;
         SignedSixteenSixteen vertical = speed.Toward(samus.Position.Y.Whole < place.Position.Y.Whole ? VerticalDirection.Up : VerticalDirection.Down);
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(vertical));
 

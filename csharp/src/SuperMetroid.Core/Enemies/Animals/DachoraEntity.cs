@@ -9,7 +9,7 @@ internal sealed class DachoraEntity(DachoraBehavior species, RoomEnemyOccupant o
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeDachora(Occupant, Place);
+    public void Initialize() => species.InitializeDachora(Occupant, Occupant.SpawnSettings<DachoraSpawnSettings>(), Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunDachoraMainAi(Place, Place.RequireSpeciesState<DachoraEnemyState>(), frame);

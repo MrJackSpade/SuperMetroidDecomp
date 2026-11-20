@@ -59,9 +59,9 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Initializes the dead Sidehopper.</summary>
-    internal void InitializeDeadSidehopper(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal void InitializeDeadSidehopper(RoomEnemyOccupant occupant, DeadSidehopperSpawnSettings deadSidehopperSpawnSettings, RoomEnemyPlace place)
     {
-        DeadSidehopperLayout layout = occupant.SpawnSettings<DeadSidehopperSpawnSettings>().Layout;
+        DeadSidehopperLayout layout = deadSidehopperSpawnSettings.Layout;
         switch (layout)
         {
             case DeadSidehopperLayout.BabyMetroidVictim:
@@ -404,13 +404,13 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Advances the dead Sidehopper's typed animation.</summary>
-    internal static void AdvanceDeadSidehopperTypedAnimation(RoomEnemyPlace place, DeadSidehopperEnemyState deadSidehopperEnemyState, DeadSidehopperEnemyState state)
+    internal static void AdvanceDeadSidehopperTypedAnimation(RoomEnemyPlace place, DeadSidehopperEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<DeadTourianSegment> playback = state.Playback;
         EnemyAnimationPlayback.PlayApplyingCues(place, DeadTourianAnimations.Segments, ref playback,
-            (DeadTourianCue cue) => ApplyDeadSidehopperCue(place, deadSidehopperEnemyState, cue));
+            (DeadTourianCue cue) => ApplyDeadSidehopperCue(place, state, cue));
         state.Playback = playback;
     }
 

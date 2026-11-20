@@ -9,10 +9,10 @@ internal sealed class PuyoEntity(PuyoBehavior species, RoomEnemyOccupant occupan
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => PuyoBehavior.InitializePuyo(Occupant, Place);
+    public void Initialize() => PuyoBehavior.InitializePuyo(Occupant, Occupant.SpawnSettings<PuyoSpawnSettings>(), Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunPuyoMainAi(Occupant, Place, Place.RequireSpeciesState<PuyoEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPuyoMainAi(Occupant, Occupant.SpawnSettings<PuyoSpawnSettings>(), Place, Place.RequireSpeciesState<PuyoEnemyState>(), frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PuyoBehavior.AdvancePuyoTypedAnimation(Place, Place.RequireSpeciesState<PuyoEnemyState>());

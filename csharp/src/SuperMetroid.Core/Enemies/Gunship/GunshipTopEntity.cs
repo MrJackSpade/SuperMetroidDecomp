@@ -12,7 +12,7 @@ internal sealed class GunshipTopEntity(GunshipBehavior species, RoomEnemyOccupan
     public void Initialize(EnemyPopulationSurroundings surroundings) => species.InitializeGunshipTop(Place, surroundings.Samus);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunGunshipMainAi(Place, Place.RequireSpeciesState<GunshipPieces>(), Place.RequireSpeciesState<GunshipState>(), Place.RequireSpeciesState<GunshipPieces>(), Place.RequireSpeciesState<GunshipState>(), Place.RequireSpeciesState<GunshipPieces>(), Place.RequireSpeciesState<GunshipState>(), Place.RequireSpeciesState<GunshipPieces>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunGunshipMainAi(Place, Place.RequireSpeciesState<GunshipState>(), Place.RequireSpeciesState<GunshipPieces>(), frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GunshipBehavior.AdvanceGunshipAnimation(Place, Place.RequireSpeciesState<GunshipPieceState>());

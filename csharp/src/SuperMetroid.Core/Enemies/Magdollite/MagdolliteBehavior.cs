@@ -102,10 +102,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
     private void FinishPlacingMagdollitePart() => RestartGlow();
 
     /// <summary>How the Magdollite head in <paramref name="head"/> and its arm rise, from the head's spawn settings (#2474).</summary>
-    private static MagdolliteHeadSpawnSettings HeadRise(RoomEnemyOccupant head) => head.SpawnSettings<MagdolliteHeadSpawnSettings>();
+    private static MagdolliteHeadSpawnSettings HeadRise(RoomEnemyOccupant head, MagdolliteHeadSpawnSettings magdolliteHeadSpawnSettings) => magdolliteHeadSpawnSettings;
 
     /// <summary>The rise the head of the arm in <paramref name="body"/> names, which the arm reads as it rises and falls (#2474).</summary>
-    private MagdolliteHeadSpawnSettings PartnerHeadRise(RoomEnemyPlace body) => HeadRise(_partners.Of(body).Head);
+    private MagdolliteHeadSpawnSettings PartnerHeadRise(RoomEnemyPlace body) => HeadRise(_partners.Of(body).Head, (_partners.Of(body).Head).SpawnSettings<MagdolliteHeadSpawnSettings>());
 
     /// <summary>
     /// Restarts the room's lava glow at its first frame, which every Magdollite and its lava show at once, holding it
@@ -162,12 +162,12 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
     }
 
     /// <summary>Runs the head's current action.</summary>
-    internal void RunMagdolliteHead(RoomEnemyOccupant occupant, RoomEnemyPlace place, MagdolliteHeadState state, SamusState samus)
+    internal void RunMagdolliteHead(RoomEnemyOccupant occupant, MagdolliteHeadSpawnSettings magdolliteHeadSpawnSettings, RoomEnemyPlace place, MagdolliteHeadState state, SamusState samus)
     {
         switch (state.Action)
         {
             case MagdolliteHeadAction.Waiting:
-                RunMagdolliteHeadWaiting(occupant, place, state, samus);
+                RunMagdolliteHeadWaiting(occupant, magdolliteHeadSpawnSettings, place, state, samus);
                 return;
             case MagdolliteHeadAction.WaitingForAttackAnimation:
             case MagdolliteHeadAction.WaitingForBodyLanding:
@@ -241,7 +241,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
 
     /// <summary>Tracks Samus while idle and begins submerging when the overlay cooldown expires within the head's horizontal range.</summary>
     private void RunMagdolliteHeadWaiting(
-        RoomEnemyOccupant occupant, RoomEnemyPlace head,
+        RoomEnemyOccupant occupant, MagdolliteHeadSpawnSettings magdolliteHeadSpawnSettings, RoomEnemyPlace head,
         MagdolliteHeadState state,
         SamusState samus)
     {
@@ -254,7 +254,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
             return;
 
         overlayState.AttackCooldown = UpdateCountdown.For(MagdolliteMotionDefinitions.AttackPollWait);
-        int range = HeadRise(occupant).Range;
+        int range = HeadRise(occupant, magdolliteHeadSpawnSettings).Range;
         if (Math.Abs(head.Position.X.Whole - samus.Position.X.Whole) >= range)
             return;
 

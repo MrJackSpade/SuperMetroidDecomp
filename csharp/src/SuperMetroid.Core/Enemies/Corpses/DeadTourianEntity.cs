@@ -13,7 +13,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOc
     public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(Place, Place.RequireSpeciesState<DeadTourianCorpseEnemyState>());
 
     /// <inheritdoc/>
-    public void Initialize() => DeadTourianBehavior.InitializeDeadTourianCorpse(Place, Occupant);
+    public void Initialize() => DeadTourianBehavior.InitializeDeadTourianCorpse(Place, Occupant, Occupant.SpawnSettings<CorpseSpawnSettings>());
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTourianMainAi(Place, Place.RequireSpeciesState<DeadTourianCorpseEnemyState>(), frame);

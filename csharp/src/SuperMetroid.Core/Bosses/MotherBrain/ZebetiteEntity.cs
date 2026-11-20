@@ -14,7 +14,7 @@ internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemyOccupant
     public void Initialize() => species.InitializeZebetite(Occupant, Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunZebetiteMainAi(Occupant, Occupant.Place.RequireSpeciesState<ZebetiteEnemyState>(), Occupant.Place.RequireSpeciesState<ZebetiteEnemyState>(), Occupant.Place.RequireSpeciesState<ZebetiteEnemyState>(), Occupant.Place.RequireSpeciesState<ZebetiteEnemyState>());
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunZebetiteMainAi(Occupant, Occupant.Place.RequireSpeciesState<ZebetiteEnemyState>());
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ZebetiteBehavior.AdvanceZebetiteAnimation(Place, Place.RequireSpeciesState<ZebetiteEnemyState>());

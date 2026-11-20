@@ -9,7 +9,7 @@ internal sealed class EtecoonEntity(EtecoonBehavior species, RoomEnemyOccupant o
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => EtecoonBehavior.InitializeEtecoon(Occupant, Place);
+    public void Initialize() => EtecoonBehavior.InitializeEtecoon(Occupant, Occupant.SpawnSettings<EtecoonSpawnSettings>(), Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunEtecoonMainAi(Place, Place.RequireSpeciesState<EtecoonEnemyState>(), frame);

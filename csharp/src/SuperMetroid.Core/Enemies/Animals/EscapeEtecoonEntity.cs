@@ -9,7 +9,7 @@ internal sealed class EscapeEtecoonEntity(EscapeAnimalsBehavior species, RoomEne
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeEscapeEtecoon(Occupant, Place);
+    public void Initialize() => species.InitializeEscapeEtecoon(Occupant, Occupant.SpawnSettings<EscapeEtecoonSpawnSettings>(), Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunEscapeEtecoonMainAi(Place, Place.RequireSpeciesState<EscapeEtecoonEnemyState>(), frame);

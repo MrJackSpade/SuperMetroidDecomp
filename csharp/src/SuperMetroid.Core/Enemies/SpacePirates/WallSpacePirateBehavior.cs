@@ -32,9 +32,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Initializes the wall Space Pirate.</summary>
-    internal static void InitializeWallSpacePirate(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal static void InitializeWallSpacePirate(RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings settings, RoomEnemyPlace place)
     {
-        WallSpacePirateSpawnSettings settings = occupant.SpawnSettings<WallSpacePirateSpawnSettings>();
         // A slow jump and a fast jump each turn by their definition's steps, the fast one twice as quickly to endpoints
         // a little further round.
         WallSpacePirateJump jump = settings.JumpSpeed switch
@@ -56,7 +55,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Runs a wall Space Pirate's update: climbing its wall, attacking from it or jumping to the other.</summary>
     private static void RunWallSpacePirateMain(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place,
         WallSpacePirateEnemyState state,
         SamusState samus)
     {
@@ -80,7 +79,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 return;
 
             case WallSpacePirateAction.WallJumping:
-                StepWallSpacePirateJump(occupant, place, state, direction: state.Wall);
+                StepWallSpacePirateJump(occupant, wallSpacePirateSpawnSettings, place, state, direction: state.Wall);
                 return;
 
             default:
@@ -94,11 +93,11 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// the wall reached at that side's target angle.
     /// </summary>
     private static void StepWallSpacePirateJump(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place,
         WallSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
-        PositionWallSpacePirateOnArc(occupant, place, state);
+        PositionWallSpacePirateOnArc(occupant, wallSpacePirateSpawnSettings, place, state);
         state.WallJumpArcAngle = state.WallJumpArcAngle.TurnedBySteps(state.Jump.StepsPerUpdate.Toward(direction.Reversed()));
         if (state.WallJumpArcAngle != (direction == HorizontalDirection.Right ? state.Jump.RightTarget : state.Jump.LeftTarget))
             return;
@@ -112,12 +111,12 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Uses sine and cosine products to place the Pirate on a jump ellipse sized by its jump span.</summary>
     private static void PositionWallSpacePirateOnArc(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place,
         WallSpacePirateEnemyState state)
     {
         // The arc places the Pirate's whole pixels each update; its fractions carry over. The jump ellipse is the jump span wide and
         // a quarter of it tall.
-        int span = occupant.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan;
+        int span = wallSpacePirateSpawnSettings.JumpSpan;
         place.Position = place.Position.WithWholeX(
             state.WallJumpArcCenter.X +
             EnemyMath.CircleNegativeSinePixels(state.WallJumpArcAngle.ToTrigonometryAngle(), span / 2));
@@ -200,11 +199,11 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Captures the wall-to-wall destination, arc center, and starting angle from the jump span.</summary>
     private static void PrepareWallSpacePirateJump(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place,
         WallSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
-        int span = occupant.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan;
+        int span = wallSpacePirateSpawnSettings.JumpSpan;
         int signedHalfSpan = (span / 2).Toward(direction);
         state.WallJumpArcCenter = new Position16<RoomPixels>(
             place.Position.X.Whole + signedHalfSpan,
@@ -214,13 +213,13 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Emits a wall laser through the shared Pirate owner and queues sound only if allocation succeeds.</summary>
     private void FireWallSpacePirateLaser(
-        RoomEnemyOccupant occupant,
+        RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings,
         HorizontalDirection direction)
     {
         // The laser setup queues the laser sound for every successful allocation. The later wall-jump cue
         // independently queues the wall-jump sound; both are observable, distinct requests.
         if (Walking.SpawnSpacePirateLaser(occupant, direction, SpacePirateMotionDefinitions.WallLaserMuzzleAbove,
-            occupant.SpawnSettings<WallSpacePirateSpawnSettings>().LaserSpeed))
+            wallSpacePirateSpawnSettings.LaserSpeed))
             Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateLaserSound);
     }
 
@@ -229,7 +228,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// contact and a random direction choice always continues at the chosen climb, as the cues return those
     /// animations; every other cue runs on.
     /// </summary>
-    private WallSpacePirateSegment? ApplyWallSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, WallSpacePirateEnemyState state, WallSpacePirateCue cue, RoomLevelData level)
+    private WallSpacePirateSegment? ApplyWallSpacePirateCue(RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place, WallSpacePirateEnemyState state, WallSpacePirateCue cue, RoomLevelData level)
     {
         switch (cue)
         {
@@ -238,10 +237,10 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             case WallSpacePirateCue.ChooseClimb choose:
                 return RandomizeWallSpacePirateClimbDirection(state, wall: choose.Wall);
             case WallSpacePirateCue.PrepareJump jump:
-                PrepareWallSpacePirateJump(occupant, place, state, direction: jump.Direction);
+                PrepareWallSpacePirateJump(occupant, wallSpacePirateSpawnSettings, place, state, direction: jump.Direction);
                 return null;
             case WallSpacePirateCue.FireLaser laser:
-                FireWallSpacePirateLaser(occupant, direction: laser.Direction);
+                FireWallSpacePirateLaser(occupant, wallSpacePirateSpawnSettings, direction: laser.Direction);
                 return null;
             case WallSpacePirateCue.Begin begin:
                 state.Action = begin.Action;
@@ -259,19 +258,19 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Runs the wall Space Pirate's main AI.</summary>
-    internal static void RunWallSpacePirateMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, WallSpacePirateEnemyState wallSpacePirateEnemyState, IEnemyAiFrame frame)
+    internal static void RunWallSpacePirateMainAi(RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place, WallSpacePirateEnemyState wallSpacePirateEnemyState, IEnemyAiFrame frame)
     {
         RunWallSpacePirateMain(
-            occupant, place,
+            occupant, wallSpacePirateSpawnSettings, place,
             wallSpacePirateEnemyState,
             frame.Samus);
     }
 
     /// <summary>Advances the wall Space Pirate's typed animation.</summary>
-    internal void AdvanceWallSpacePirateTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, WallSpacePirateEnemyState wallSpacePirateEnemyState2, WallSpacePirateEnemyState wallSpacePirateEnemyState, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, wallSpacePirateEnemyState2, WallSpacePirateAnimations.Segments,
+    internal void AdvanceWallSpacePirateTypedAnimation(RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place, WallSpacePirateEnemyState wallSpacePirateEnemyState, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, wallSpacePirateEnemyState, WallSpacePirateAnimations.Segments,
             static (WallSpacePirateEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyWallSpacePirateCue(occupant, place, wallSpacePirateEnemyState, cue, context.Level) is { } continuesAt
+            (state, cue) => ApplyWallSpacePirateCue(occupant, wallSpacePirateSpawnSettings, place, wallSpacePirateEnemyState, cue, context.Level) is { } continuesAt
                 ? new AnimationContinuation<WallSpacePirateSegment>(WallSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
 }

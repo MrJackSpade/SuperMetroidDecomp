@@ -30,9 +30,8 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Fireflea from its flight and radius.</summary>
-    internal static void InitializeFireflea(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal static void InitializeFireflea(RoomEnemyOccupant occupant, FirefleaSpawnSettings settings, RoomEnemyPlace place)
     {
-        FirefleaSpawnSettings settings = occupant.SpawnSettings<FirefleaSpawnSettings>();
         FirefleaFlightState flight = settings.Flight switch
         {
             FirefleaFlight.Circling circling => StartCircling(place, circling, settings.Radius),
@@ -70,13 +69,13 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Fireflea's main AI, advancing circular angle or vertical travel.</summary>
-    private static void RunFirefleaMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, FirefleaEnemyState state)
+    private static void RunFirefleaMain(RoomEnemyOccupant occupant, FirefleaSpawnSettings firefleaSpawnSettings, RoomEnemyPlace place, FirefleaEnemyState state)
     {
         switch (state.Flight)
         {
             case CirclingFirefleaState circling:
                 place.Position = place.Position.WithWhole(circling.Center
-                    + EnemyMath.CircleOffset(circling.Angle.ToTrigonometryAngle(), occupant.SpawnSettings<FirefleaSpawnSettings>().Radius));
+                    + EnemyMath.CircleOffset(circling.Angle.ToTrigonometryAngle(), firefleaSpawnSettings.Radius));
                 circling.Angle = circling.Angle.TurnedBy(circling.Definition.TurnPerUpdate);
                 return;
 
@@ -144,9 +143,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"A cue-free Fireflea animation raised {cue}."));
 
     /// <summary>Runs Fireflea's main AI.</summary>
-    internal static void RunFirefleaMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, FirefleaEnemyState firefleaEnemyState)
+    internal static void RunFirefleaMainAi(RoomEnemyOccupant occupant, FirefleaSpawnSettings firefleaSpawnSettings, RoomEnemyPlace place, FirefleaEnemyState firefleaEnemyState)
     {
-        RunFirefleaMain(occupant, place, firefleaEnemyState);
+        RunFirefleaMain(occupant, firefleaSpawnSettings, place, firefleaEnemyState);
     }
 
     /// <summary>Advances darkness before a lethal common power-bomb death is finalized.</summary>

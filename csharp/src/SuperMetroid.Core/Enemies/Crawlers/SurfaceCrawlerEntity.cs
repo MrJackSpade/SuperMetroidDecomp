@@ -13,7 +13,7 @@ internal sealed class SurfaceCrawlerEntity(CrawlersBehavior species, RoomEnemyOc
     : CrawlerEntity(occupant, place, common)
 {
     /// <inheritdoc/>
-    public override void Initialize() => CrawlersBehavior.InitializeCrawler(Occupant, Place, family);
+    public override void Initialize() => CrawlersBehavior.InitializeCrawler(Occupant, Occupant.SpawnSettings<ViolaSpawnSettings>(), Occupant.SpawnSettings<CrawlerSpawnSettings>(), Place, family);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => species.RunCrawlerMainAi(Place, Place.RequireSpeciesState<CrawlerEnemyState>(), frame);

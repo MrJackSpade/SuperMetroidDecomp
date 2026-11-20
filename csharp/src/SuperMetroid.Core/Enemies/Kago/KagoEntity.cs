@@ -9,10 +9,10 @@ internal sealed class KagoEntity(KagoBehavior species, RoomEnemyOccupant occupan
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The Kago's own shot reaction, built for this occupant.</summary>
-    private readonly EnemyShotReaction ownShot = species.KagoShotReaction(occupant);
+    private readonly EnemyShotReaction ownShot = species.KagoShotReaction(occupant, occupant.SpawnSettings<KagoSpawnSettings>());
 
     /// <summary>The Kago's own stages around common bomb damage, built for this occupant.</summary>
-    private readonly EnemyBombReaction ownBomb = species.KagoBombReaction(occupant);
+    private readonly EnemyBombReaction ownBomb = species.KagoBombReaction(occupant, occupant.SpawnSettings<KagoSpawnSettings>());
 
     /// <inheritdoc/>
     public void Initialize() => KagoBehavior.InitializeKago(Place);

@@ -102,7 +102,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the main step.</summary>
-    private void RunZebetiteMain(RoomEnemyOccupant zebetite, ZebetiteEnemyState zebetiteEnemyState3, ZebetiteEnemyState zebetiteEnemyState2, ZebetiteEnemyState zebetiteEnemyState, ZebetiteEnemyState state)
+    private void RunZebetiteMain(RoomEnemyOccupant zebetite, ZebetiteEnemyState state)
     {
         RoomEnemyPlace place = zebetite.Place;
         if (!_earthquake.IsShaking)
@@ -111,13 +111,13 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case ZebetiteAction.SpawnLinkedHalf:
-                RunZebetiteSpawnLinkedHalf(zebetite, zebetiteEnemyState3, state);
+                RunZebetiteSpawnLinkedHalf(zebetite, state);
                 break;
             case ZebetiteAction.WaitForDoorTransition:
-                RunZebetiteWaitForDoorTransition(zebetite, zebetiteEnemyState2, state);
+                RunZebetiteWaitForDoorTransition(zebetite, state);
                 break;
             case ZebetiteAction.Active:
-                RunZebetiteActive(zebetite, zebetiteEnemyState, state);
+                RunZebetiteActive(zebetite, state);
                 break;
             default:
                 throw new InvalidDataException(
@@ -126,7 +126,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Creates a linked half when this generation requires one, then enters the door-transition wait.</summary>
-    private void RunZebetiteSpawnLinkedHalf(RoomEnemyOccupant zebetite, ZebetiteEnemyState zebetiteEnemyState, ZebetiteEnemyState state)
+    private void RunZebetiteSpawnLinkedHalf(RoomEnemyOccupant zebetite, ZebetiteEnemyState state)
     {
         RoomEnemyPlace place = zebetite.Place;
         if (state.Form == ZebetiteBarrierForm.SplitPair)
@@ -139,11 +139,11 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.Action = ZebetiteAction.WaitForDoorTransition;
-        RunZebetiteWaitForDoorTransition(zebetite, zebetiteEnemyState, state);
+        RunZebetiteWaitForDoorTransition(zebetite, state);
     }
 
     /// <summary>Starts active AI on the first update after Samus's passage through the door ends.</summary>
-    private void RunZebetiteWaitForDoorTransition(RoomEnemyOccupant zebetite, ZebetiteEnemyState zebetiteEnemyState, ZebetiteEnemyState state)
+    private void RunZebetiteWaitForDoorTransition(RoomEnemyOccupant zebetite, ZebetiteEnemyState state)
     {
         _ = zebetite.Place;
         // Ordinary doors and elevators alike hold the barrier inert during the passage, and it enters its
@@ -151,14 +151,14 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_doorPassage.IsUnderWay)
             return;
         state.Action = ZebetiteAction.Active;
-        RunZebetiteActive(zebetite, zebetiteEnemyState, state);
+        RunZebetiteActive(zebetite, state);
     }
 
     /// <summary>Regenerates living halves and advances the primary generation when its health reaches zero.</summary>
-    private void RunZebetiteActive(RoomEnemyOccupant zebetite, ZebetiteEnemyState zebetiteEnemyState, ZebetiteEnemyState state)
+    private void RunZebetiteActive(RoomEnemyOccupant zebetite, ZebetiteEnemyState state)
     {
         RoomEnemyPlace place = zebetite.Place;
-        CycleZebetiteColours(place, zebetiteEnemyState);
+        CycleZebetiteColours(place, state);
         // Every Zebetite shows the shared pulse; each primary half steps it as it runs (#1512).
         place.Shading = PulseShading;
         ChooseZebetiteHealthPicture(place, state);
@@ -281,10 +281,10 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs Zebetite's main AI.</summary>
-    internal void RunZebetiteMainAi(RoomEnemyOccupant zebetite, ZebetiteEnemyState zebetiteEnemyState4, ZebetiteEnemyState zebetiteEnemyState3, ZebetiteEnemyState zebetiteEnemyState2, ZebetiteEnemyState zebetiteEnemyState)
+    internal void RunZebetiteMainAi(RoomEnemyOccupant zebetite, ZebetiteEnemyState zebetiteEnemyState)
     {
         RoomEnemyPlace place = zebetite.Place;
-        RunZebetiteMain(zebetite, zebetiteEnemyState4, zebetiteEnemyState3, zebetiteEnemyState2, zebetiteEnemyState);
+        RunZebetiteMain(zebetite, zebetiteEnemyState);
     }
 
     /// <summary>Runs shot damage, then shares it across the linked Zebetites' health, with no generic death.</summary>

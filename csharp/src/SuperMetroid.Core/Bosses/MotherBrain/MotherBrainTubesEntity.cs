@@ -14,10 +14,10 @@ internal sealed class MotherBrainTubesEntity(MotherBrainBehavior species, RoomEn
     : MotherBrainEntity(species, occupant, place, common)
 {
     /// <inheritdoc/>
-    public override void Initialize() => MotherBrainFakeDeath.InitializeMotherBrainFallingTube(Occupant, Place);
+    public override void Initialize() => MotherBrainFakeDeath.InitializeMotherBrainFallingTube(Occupant, Occupant.SpawnSettings<MotherBrainTubeSpawnSettings>(), Place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.FakeDeath.RunMotherBrainFallingTubeMain(Place, Place.RequireSpeciesState<MotherBrainFallingTubeState>(), Place.RequireSpeciesState<MotherBrainEnemyState>(), Place.RequireSpeciesState<MotherBrainFallingTubeState>());
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.FakeDeath.RunMotherBrainFallingTubeMain(Place, Place.RequireSpeciesState<MotherBrainEnemyState>(), Place.RequireSpeciesState<MotherBrainFallingTubeState>());
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MotherBrainBody.AdvanceMotherBrainTubeAnimation(Place, Place.RequireSpeciesState<MotherBrainFallingTubeState>());

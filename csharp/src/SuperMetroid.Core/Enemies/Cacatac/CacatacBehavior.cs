@@ -50,9 +50,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Cacatac.</summary>
-    internal static void InitializeCacatac(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal static void InitializeCacatac(RoomEnemyOccupant occupant, CacatacSpawnSettings settings, RoomEnemyPlace place)
     {
-        CacatacSpawnSettings settings = occupant.SpawnSettings<CacatacSpawnSettings>();
         bool onFloor = settings.Mounting == CacatacMounting.Floor;
         place.Frame = EnemyFrameId.PointAtOrigin;
 
@@ -76,13 +75,13 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs a Cacatac for one update: its patrol, or it stays stopped.</summary>
-    private void RunCacatacMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, CacatacEnemyState state)
+    private void RunCacatacMain(RoomEnemyOccupant occupant, CacatacSpawnSettings cacatacSpawnSettings, RoomEnemyPlace place, CacatacEnemyState state)
     {
         switch (state.Action)
         {
             case CacatacAction.Patrolling:
-                MoveCacatac(occupant, place, state);
-                MaybeStartCacatacAttack(occupant, place, state);
+                MoveCacatac(occupant, cacatacSpawnSettings, place, state);
+                MaybeStartCacatacAttack(occupant, cacatacSpawnSettings, place, state);
                 return;
             case CacatacAction.Stopped:
                 return;
@@ -96,10 +95,10 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Moves the Cacatac along its patrol by its speed, then turns it once it passes the left limit or reaches or passes
     /// the right one.
     /// </summary>
-    private static void MoveCacatac(RoomEnemyOccupant occupant, RoomEnemyPlace place, CacatacEnemyState state)
+    private static void MoveCacatac(RoomEnemyOccupant occupant, CacatacSpawnSettings cacatacSpawnSettings, RoomEnemyPlace place, CacatacEnemyState state)
     {
         bool right = state.PatrolDirection == HorizontalDirection.Right;
-        SignedSixteenSixteen speed = occupant.SpawnSettings<CacatacSpawnSettings>().Speed;
+        SignedSixteenSixteen speed = cacatacSpawnSettings.Speed;
         place.Position = place.Position.AdvanceX(speed.Toward(state.PatrolDirection));
 
         if (!right)
@@ -114,13 +113,13 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The random attack gate (<see cref="CacatacAttackDefinitions.Attacks"/>).</summary>
-    private void MaybeStartCacatacAttack(RoomEnemyOccupant occupant, RoomEnemyPlace place, CacatacEnemyState state)
+    private void MaybeStartCacatacAttack(RoomEnemyOccupant occupant, CacatacSpawnSettings cacatacSpawnSettings, RoomEnemyPlace place, CacatacEnemyState state)
     {
         if (!CacatacAttackDefinitions.Attacks.IsTakenBy(_room.Random.Generate(), advancedBy: place.FrameCounter))
             return;
 
         state.Action = CacatacAction.Stopped;
-        SetCacatacAnimation(place, state, occupant.SpawnSettings<CacatacSpawnSettings>().Mounting == CacatacMounting.Floor ? CacatacSegment.OnFloorAttack : CacatacSegment.OnCeilingAttack);
+        SetCacatacAnimation(place, state, cacatacSpawnSettings.Mounting == CacatacMounting.Floor ? CacatacSegment.OnFloorAttack : CacatacSegment.OnCeilingAttack);
     }
 
     /// <summary>Animation cue: restore patrol the way it last patrolled.</summary>
@@ -141,9 +140,9 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyCacatacSpike(context.Projectile, context.Camera));
 
     /// <summary>Runs Cacatac's main AI.</summary>
-    internal void RunCacatacMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, CacatacEnemyState cacatacEnemyState)
+    internal void RunCacatacMainAi(RoomEnemyOccupant occupant, CacatacSpawnSettings cacatacSpawnSettings, RoomEnemyPlace place, CacatacEnemyState cacatacEnemyState)
     {
-        RunCacatacMain(occupant, place, cacatacEnemyState);
+        RunCacatacMain(occupant, cacatacSpawnSettings, place, cacatacEnemyState);
     }
 
     /// <summary>Advances Cacatac's typed animation.</summary>

@@ -43,10 +43,10 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Position.X.Whole >= EtecoonRouteDefinitions.AudibleFromSamusX;
 
     /// <summary>Initializes the Etecoon.</summary>
-    internal static void InitializeEtecoon(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal static void InitializeEtecoon(RoomEnemyOccupant occupant, EtecoonSpawnSettings etecoonSpawnSettings, RoomEnemyPlace place)
     {
         // The placement names the route, which the Etecoon keeps for when it takes it (#2531).
-        var state = new EtecoonEnemyState(EtecoonAction.Dormant, occupant.SpawnSettings<EtecoonSpawnSettings>().Route);
+        var state = new EtecoonEnemyState(EtecoonAction.Dormant, etecoonSpawnSettings.Route);
         place.SetSpeciesState(state);
 
         // The setup makes the Etecoon animate, whether or not its placement does.

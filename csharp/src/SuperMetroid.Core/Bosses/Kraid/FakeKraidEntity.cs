@@ -17,7 +17,7 @@ internal sealed class FakeKraidEntity(FakeKraidBehavior species, RoomEnemyOccupa
     public void RunMainAi(IEnemyAiFrame frame) => species.RunFakeKraidMainAi(Occupant, Place, Place.RequireSpeciesState<FakeKraidEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFakeKraidTypedAnimation(Occupant, Place, Place.RequireSpeciesState<FakeKraidEnemyState>(), Place.RequireSpeciesState<FakeKraidEnemyState>(), context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFakeKraidTypedAnimation(Occupant, Place, Place.RequireSpeciesState<FakeKraidEnemyState>(), context);
 
     /// <summary>Whether the fake Kraid's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == KraidReactions.FakeKraidTouch || base.ReactsToTouch;

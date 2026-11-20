@@ -9,10 +9,10 @@ internal sealed class HoppersEntity(HoppersBehavior species, RoomEnemyOccupant o
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeHopper(Place, Occupant);
+    public void Initialize() => species.InitializeHopper(Place, Occupant, Occupant.SpawnSettings<HopperSpawnSettings>());
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunHoppersMainAi(Occupant, Place, Place.RequireSpeciesState<HopperEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunHoppersMainAi(Occupant, Occupant.SpawnSettings<HopperSpawnSettings>(), Place, Place.RequireSpeciesState<HopperEnemyState>(), frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceHoppersTypedAnimation(Place, Place.RequireSpeciesState<HopperEnemyState>());

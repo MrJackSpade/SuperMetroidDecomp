@@ -9,10 +9,10 @@ internal sealed class MultiviolaEntity(MultiviolaBehavior species, RoomEnemyOccu
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => MultiviolaBehavior.InitializeMultiviola(Occupant, Place);
+    public void Initialize() => MultiviolaBehavior.InitializeMultiviola(Occupant, Occupant.SpawnSettings<MultiviolaSpawnSettings>(), Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMultiviolaMainAi(Occupant, Place, Place.RequireSpeciesState<MultiviolaEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMultiviolaMainAi(Occupant, Occupant.SpawnSettings<MultiviolaSpawnSettings>(), Place, Place.RequireSpeciesState<MultiviolaEnemyState>(), frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MultiviolaBehavior.AdvanceMultiviolaTypedAnimation(Place, Place.RequireSpeciesState<MultiviolaEnemyState>());

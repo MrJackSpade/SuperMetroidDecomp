@@ -74,7 +74,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Initializes a crawler of any species through the shared setup. Each species differs only by the family whose
     /// animations it shows on each surface and switches between at corners.
     /// </summary>
-    internal static void InitializeCrawler(RoomEnemyOccupant occupant, RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
+    internal static void InitializeCrawler(RoomEnemyOccupant occupant, ViolaSpawnSettings violaSpawnSettings, CrawlerSpawnSettings crawlerSpawnSettings, RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
     {
         // The placement names the starting surface; the Viola alone takes its block side instead, and a Viola's
         // placement names no surface.
@@ -83,14 +83,14 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedEightEight? crawlSpeed;
         if (animationFamily == CrawlerAnimationFamily.Viola)
         {
-            ViolaSpawnSettings viola = occupant.SpawnSettings<ViolaSpawnSettings>();
+            ViolaSpawnSettings viola = violaSpawnSettings;
             orientation = viola.BlockSide;
             blockSide = viola.BlockSide;
             crawlSpeed = viola.CrawlSpeed;
         }
         else
         {
-            CrawlerSpawnSettings settings = occupant.SpawnSettings<CrawlerSpawnSettings>();
+            CrawlerSpawnSettings settings = crawlerSpawnSettings;
             orientation = settings.Orientation;
             blockSide = settings.BlockSide;
             crawlSpeed = settings.CrawlSpeed;
@@ -138,9 +138,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         };
 
     /// <summary>Runs the separate orange-Zoomer setup.</summary>
-    internal static void InitializeOrangeZoomer(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal static void InitializeOrangeZoomer(RoomEnemyOccupant occupant, CrawlerSpawnSettings settings, RoomEnemyPlace place)
     {
-        CrawlerSpawnSettings settings = occupant.SpawnSettings<CrawlerSpawnSettings>();
         SignedEightEight crawlSpeed = settings.CrawlSpeed ??
             throw new InvalidDataException("An orange Zoomer's placement keeps its velocity, which its setup has no speed for.");
 

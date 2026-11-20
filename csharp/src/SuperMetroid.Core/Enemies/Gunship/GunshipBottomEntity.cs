@@ -12,7 +12,7 @@ internal sealed class GunshipBottomEntity(GunshipBehavior species, RoomEnemyOccu
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemySurroundingsInitialization, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) => species.InitializeGunshipBottom(Occupant, Place, surroundings.Samus);
+    public void Initialize(EnemyPopulationSurroundings surroundings) => species.InitializeGunshipBottom(Occupant, Occupant.SpawnSettings<GunshipSpawnSettings>(), Place, surroundings.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GunshipBehavior.AdvanceGunshipAnimation(Place, Place.RequireSpeciesState<GunshipPieceState>());

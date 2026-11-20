@@ -29,26 +29,26 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     public MorphBallEyeBeamState MorphBallEyeBeam { get; } = new();
 
     /// <summary>Initializes a closed eye body from its spawn facing.</summary>
-    internal static void InitializeMorphBallEyeBody(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal static void InitializeMorphBallEyeBody(RoomEnemyOccupant occupant, MorphBallEyeBodySpawnSettings morphBallEyeBodySpawnSettings, RoomEnemyPlace place)
     {
         var state = new MorphBallEyeEnemyState(MorphBallEyeAction.WaitForSamus);
         place.SetSpeciesState(state);
         ShowNothingUntilAnimated(place);
 
         // The placement's facing is fixed by its mounting, not a live facing test.
-        state.Playback = new(MorphBallEyeAnimations.StartingWith(occupant.SpawnSettings<MorphBallEyeBodySpawnSettings>().Facing == HorizontalDirection.Right
+        state.Playback = new(MorphBallEyeAnimations.StartingWith(morphBallEyeBodySpawnSettings.Facing == HorizontalDirection.Right
             ? MorphBallEyeSegment.FacingRightClosed
             : MorphBallEyeSegment.FacingLeftClosed), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Offsets a beam mount to its side of the eye, starts its pose and resets the room-global beam.</summary>
-    internal void InitializeMorphBallEyeMount(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal void InitializeMorphBallEyeMount(RoomEnemyOccupant occupant, MorphBallEyeMountSpawnSettings morphBallEyeMountSpawnSettings, RoomEnemyPlace place)
     {
         var state = new MorphBallEyeMountState();
         place.SetSpeciesState(state);
         ShowNothingUntilAnimated(place);
 
-        var mount = MorphBallEyeGeometry.Mount(occupant.SpawnSettings<MorphBallEyeMountSpawnSettings>().Side);
+        var mount = MorphBallEyeGeometry.Mount(morphBallEyeMountSpawnSettings.Side);
         place.Position += mount.Offset;
         state.Playback = new(MorphBallEyeAnimations.StartingWith(mount.Animation), AnimationPlace.StartOfAnimation);
 
@@ -70,7 +70,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the body state machine only after Morph Ball is collected, preserving activation and tracking independently of equipment selection.</summary>
     private void RunMorphBallEyeMain(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, MorphBallEyeBodySpawnSettings morphBallEyeBodySpawnSettings, RoomEnemyPlace place,
         MorphBallEyeEnemyState state,
         SamusState samus)
     {
@@ -82,13 +82,13 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case MorphBallEyeAction.WaitForSamus:
-                WaitForSamusNearMorphBallEye(occupant, place, state, samus);
+                WaitForSamusNearMorphBallEye(occupant, morphBallEyeBodySpawnSettings, place, state, samus);
                 return;
             case MorphBallEyeAction.Activating:
                 AdvanceMorphBallEyeActivation(place, state, samus);
                 return;
             case MorphBallEyeAction.Active:
-                TrackSamusWithMorphBallEye(occupant, place, state, samus);
+                TrackSamusWithMorphBallEye(occupant, morphBallEyeBodySpawnSettings, place, state, samus);
                 return;
             case MorphBallEyeAction.Deactivating:
                 AdvanceMorphBallEyeDeactivation(state);
@@ -101,7 +101,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Starts the eye's opening once Samus is closer than its opening reach on both axes.</summary>
     private static void WaitForSamusNearMorphBallEye(
-        RoomEnemyOccupant occupant, RoomEnemyPlace eye,
+        RoomEnemyOccupant occupant, MorphBallEyeBodySpawnSettings morphBallEyeBodySpawnSettings, RoomEnemyPlace eye,
         MorphBallEyeEnemyState state,
         SamusState samus)
     {
@@ -113,7 +113,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.ActionTimer = UpdateCountdown.For(MorphBallEyeWatchDefinitions.TransitionDuration);
         eye.AnimationClock.StepOnNextUpdate();
-        state.Playback = new(MorphBallEyeAnimations.StartingWith(occupant.SpawnSettings<MorphBallEyeBodySpawnSettings>().Facing == HorizontalDirection.Right
+        state.Playback = new(MorphBallEyeAnimations.StartingWith(morphBallEyeBodySpawnSettings.Facing == HorizontalDirection.Right
             ? MorphBallEyeSegment.FacingRightActivating
             : MorphBallEyeSegment.FacingLeftActivating), AnimationPlace.StartOfAnimation);
         state.Action = MorphBallEyeAction.Activating;
@@ -140,7 +140,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// once she leaves the wider reach on either axis.
     /// </summary>
     private void TrackSamusWithMorphBallEye(
-        RoomEnemyOccupant occupant, RoomEnemyPlace eye,
+        RoomEnemyOccupant occupant, MorphBallEyeBodySpawnSettings morphBallEyeBodySpawnSettings, RoomEnemyPlace eye,
         MorphBallEyeEnemyState state,
         SamusState samus)
     {
@@ -153,7 +153,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             state.IsActivated = false;
             state.ActionTimer = UpdateCountdown.For(MorphBallEyeWatchDefinitions.TransitionDuration);
             state.Aim = null;
-            state.Playback = new(MorphBallEyeAnimations.StartingWith(occupant.SpawnSettings<MorphBallEyeBodySpawnSettings>().Facing == HorizontalDirection.Right
+            state.Playback = new(MorphBallEyeAnimations.StartingWith(morphBallEyeBodySpawnSettings.Facing == HorizontalDirection.Right
                 ? MorphBallEyeSegment.FacingRightDeactivating
                 : MorphBallEyeSegment.FacingLeftDeactivating), AnimationPlace.StartOfAnimation);
             state.Action = MorphBallEyeAction.Deactivating;
@@ -297,7 +297,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Advances the eye body's typed animation: a tracking eye shows the pose its aim chose this update for good, until the
     /// next update's tracking chooses again; otherwise its eyelid animation plays.
     /// </summary>
-    internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemyPlace place, MorphBallEyeEnemyState morphBallEyeEnemyState2, MorphBallEyeEnemyState morphBallEyeEnemyState)
+    internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemyPlace place, MorphBallEyeEnemyState morphBallEyeEnemyState)
     {
         if (morphBallEyeEnemyState.Aim is { } aim)
         {
@@ -307,14 +307,14 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             place.AnimationClock.ShowForGood();
             return;
         }
-        EnemyAnimationPlayback.Advance(place, morphBallEyeEnemyState2, MorphBallEyeAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, morphBallEyeEnemyState, MorphBallEyeAnimations.Segments,
             static (MorphBallEyeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) => throw new InvalidOperationException($"The Morph Ball eye's cue-free animation raised {cue}."));
     }
 
     /// <summary>Runs MorphBallEye's main AI.</summary>
-    internal void RunMorphBallEyeMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, MorphBallEyeEnemyState morphBallEyeEnemyState, IEnemyAiFrame frame)
+    internal void RunMorphBallEyeMainAi(RoomEnemyOccupant occupant, MorphBallEyeBodySpawnSettings morphBallEyeBodySpawnSettings, RoomEnemyPlace place, MorphBallEyeEnemyState morphBallEyeEnemyState, IEnemyAiFrame frame)
     {
-        RunMorphBallEyeMain(occupant, place, morphBallEyeEnemyState, frame.Samus);
+        RunMorphBallEyeMain(occupant, morphBallEyeBodySpawnSettings, place, morphBallEyeEnemyState, frame.Samus);
     }
 }

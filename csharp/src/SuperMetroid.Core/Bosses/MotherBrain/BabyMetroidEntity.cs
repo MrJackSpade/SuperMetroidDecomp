@@ -14,7 +14,7 @@ internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyOc
     public void Initialize(EnemyPopulationSurroundings surroundings) => BabyMetroidBehavior.SetUpBabyMetroid(Place, surroundings);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunBabyMetroidMainAi(Place, Place.RequireSpeciesState<BabyMetroidEnemyState>(), Place.RequireSpeciesState<BabyMetroidEnemyState>(), Place.RequireSpeciesState<BabyMetroidEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBabyMetroidMainAi(Place, Place.RequireSpeciesState<BabyMetroidEnemyState>(), frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBabyMetroidAnimation(Place, Place.RequireSpeciesState<BabyMetroidEnemyState>());
@@ -27,7 +27,7 @@ internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyOc
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == BabyMetroidReactions.Touch)
-            BabyMetroidBehavior.ReactToBabyMetroidTouch(context, context.Place.RequireSpeciesState<BabyMetroidEnemyState>(), context.Place.RequireSpeciesState<BabyMetroidEnemyState>());
+            BabyMetroidBehavior.ReactToBabyMetroidTouch(context, context.Place.RequireSpeciesState<BabyMetroidEnemyState>());
         else
             base.ReactToTouch(context);
     }

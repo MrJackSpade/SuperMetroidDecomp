@@ -9,7 +9,7 @@ internal sealed class UnpoweredWorkRobotEntity(WorkRobotBehavior species, RoomEn
     : WorkRobotEntity(species, occupant, place, common)
 {
     /// <inheritdoc/>
-    public override void Initialize() => Species.InitializeUnpoweredWorkRobot(Occupant, Place);
+    public override void Initialize() => Species.InitializeUnpoweredWorkRobot(Occupant, Occupant.SpawnSettings<WorkRobotSpawnSettings>(), Place);
 
     /// <summary>Takes no action of its own.</summary>
     /// <param name="frame">The enemy frame.</param>

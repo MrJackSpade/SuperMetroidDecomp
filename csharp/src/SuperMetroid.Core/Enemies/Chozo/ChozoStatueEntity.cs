@@ -9,11 +9,11 @@ internal sealed class ChozoStatueEntity(ChozoStatueBehavior species, RoomEnemyOc
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeChozoStatue(Occupant, Place);
+    public void Initialize() => species.InitializeChozoStatue(Occupant, Occupant.SpawnSettings<ChozoStatueSpawnSettings>(), Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => ChozoStatueBehavior.RunChozoStatueMainAi(Occupant, Place, Place.RequireSpeciesState<ChozoStatueState>());
+    public void RunMainAi(IEnemyAiFrame frame) => ChozoStatueBehavior.RunChozoStatueMainAi(Occupant, Occupant.SpawnSettings<ChozoStatueSpawnSettings>(), Place, Place.RequireSpeciesState<ChozoStatueState>());
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceChozoStatueTypedAnimation(Place, Place.RequireSpeciesState<ChozoStatueState>(), Place.RequireSpeciesState<ChozoStatueState>(), context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceChozoStatueTypedAnimation(Place, Place.RequireSpeciesState<ChozoStatueState>(), context);
 }

@@ -146,7 +146,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// Initializes one of the statue scene's three placements (#2014): the first spawns the scene's decorations, and each
     /// shows the scene's entrance look until it leaves its place.
     /// </summary>
-    internal void InitializeTourianEntranceStatue(TourianEntranceStatueEntity occupant)
+    internal void InitializeTourianEntranceStatue(TourianEntranceStatueEntity occupant, TourianEntranceStatueSpawnSettings tourianEntranceStatueSpawnSettings)
     {
         Ensure.NotNull(occupant);
         _ = occupant.OccupiedPlace;
@@ -154,7 +154,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         if (!_occupants.Contains(occupant))
             _occupants.Add(occupant);
         // The base decoration, Ridley and Phantoon spawn in this order, which gives them their authored draw order.
-        if (occupant.Occupant.SpawnSettings<TourianEntranceStatueSpawnSettings>().Role == TourianEntranceStatueRole.SpawnsDecorations)
+        if (tourianEntranceStatueSpawnSettings.Role == TourianEntranceStatueRole.SpawnsDecorations)
         {
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatueBaseDecoration,

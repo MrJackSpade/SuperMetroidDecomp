@@ -9,13 +9,13 @@ internal sealed class WallSpacePirateEntity(WallSpacePirateBehavior species, Roo
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => WallSpacePirateBehavior.InitializeWallSpacePirate(Occupant, Place);
+    public void Initialize() => WallSpacePirateBehavior.InitializeWallSpacePirate(Occupant, Occupant.SpawnSettings<WallSpacePirateSpawnSettings>(), Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => WallSpacePirateBehavior.RunWallSpacePirateMainAi(Occupant, Place, Place.RequireSpeciesState<WallSpacePirateEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => WallSpacePirateBehavior.RunWallSpacePirateMainAi(Occupant, Occupant.SpawnSettings<WallSpacePirateSpawnSettings>(), Place, Place.RequireSpeciesState<WallSpacePirateEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWallSpacePirateTypedAnimation(Occupant, Place, Place.RequireSpeciesState<WallSpacePirateEnemyState>(), Place.RequireSpeciesState<WallSpacePirateEnemyState>(), context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWallSpacePirateTypedAnimation(Occupant, Occupant.SpawnSettings<WallSpacePirateSpawnSettings>(), Place, Place.RequireSpeciesState<WallSpacePirateEnemyState>(), context);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => SpacePirateHitboxes.Find(Place, probe);

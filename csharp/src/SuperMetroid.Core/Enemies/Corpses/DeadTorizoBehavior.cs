@@ -60,7 +60,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the dead Torizo's main AI.</summary>
-    private void RunDeadTorizoMain(RoomEnemyPlace place, DeadTorizoEnemyState deadTorizoEnemyState, DeadTorizoEnemyState state, SamusState samus)
+    private void RunDeadTorizoMain(RoomEnemyPlace place, DeadTorizoEnemyState state, SamusState samus)
     {
 
         // The custom detector remains enabled while the intact corpse is solid. Rotting
@@ -68,7 +68,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!place.Contact.HasAny(EnemyContact.IgnoresSamus) &&
             DeadTorizoCustomHitboxOverlaps(place, samus))
         {
-            TriggerDeadTorizoRotting(place, deadTorizoEnemyState);
+            TriggerDeadTorizoRotting(place, state);
         }
 
         switch (state.Phase)
@@ -213,9 +213,9 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the dead Torizo's main AI.</summary>
-    internal void RunDeadTorizoMainAi(RoomEnemyPlace place, DeadTorizoEnemyState deadTorizoEnemyState2, DeadTorizoEnemyState deadTorizoEnemyState, IEnemyAiFrame frame)
+    internal void RunDeadTorizoMainAi(RoomEnemyPlace place, DeadTorizoEnemyState deadTorizoEnemyState, IEnemyAiFrame frame)
     {
-        RunDeadTorizoMain(place, deadTorizoEnemyState2, deadTorizoEnemyState, frame.Samus);
+        RunDeadTorizoMain(place, deadTorizoEnemyState, frame.Samus);
     }
 
     /// <summary>Starts corpse rotting on a power bomb without common damage handling.</summary>

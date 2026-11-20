@@ -35,7 +35,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Puyo.</summary>
-    internal static void InitializePuyo(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal static void InitializePuyo(RoomEnemyOccupant occupant, PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place)
     {
         // The setup shows the common empty frame before starting the fast grounded animation.
         place.Frame = EnemyFrameId.PointAtOrigin;
@@ -43,7 +43,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new PuyoEnemyState(PuyoAction.Grounded)
         {
             YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start,
-            HopCooldownTimer = UpdateCountdown.For(occupant.SpawnSettings<PuyoSpawnSettings>().HopCooldown + EnemyWaitDefinitions.RunOutUpdate),
+            HopCooldownTimer = UpdateCountdown.For(puyoSpawnSettings.HopCooldown + EnemyWaitDefinitions.RunOutUpdate),
             CurrentHop = PuyoHopType.NormalSmall,
             HopType = PuyoHopType.NormalSmall,
             Direction = HorizontalDirection.Right,
@@ -56,7 +56,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs a Puyo for one update and its top-level actions.</summary>
     private void RunPuyoMain(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place,
         PuyoEnemyState state,
         SamusState samus,
         RoomLevelData level)
@@ -64,7 +64,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case PuyoAction.Grounded:
-                RunGroundedPuyo(occupant, place, state, samus);
+                RunGroundedPuyo(occupant, puyoSpawnSettings, place, state, samus);
                 return;
             case PuyoAction.Rising or PuyoAction.Falling:
                 RunAirbornePuyo(place, state, level);
@@ -76,7 +76,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the grounded Puyo.</summary>
-    private void RunGroundedPuyo(RoomEnemyOccupant occupant, RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
+    private void RunGroundedPuyo(RoomEnemyOccupant occupant, PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
     {
         // A placement's cooldown of N keeps the Puyo grounded for N updates and it hops on the next, so a zero cooldown hops
         // at once.
@@ -85,12 +85,12 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Every hop starts rising.
         state.Action = PuyoAction.Rising;
-        state.HopCooldownTimer = UpdateCountdown.For(occupant.SpawnSettings<PuyoSpawnSettings>().HopCooldown + EnemyWaitDefinitions.RunOutUpdate);
-        InitiatePuyoHop(occupant, place, state, samus);
+        state.HopCooldownTimer = UpdateCountdown.For(puyoSpawnSettings.HopCooldown + EnemyWaitDefinitions.RunOutUpdate);
+        InitiatePuyoHop(occupant, puyoSpawnSettings, place, state, samus);
     }
 
     /// <summary>Starts a hop: chooses the hop type and its random selection.</summary>
-    private void InitiatePuyoHop(RoomEnemyOccupant occupant, RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
+    private void InitiatePuyoHop(RoomEnemyOccupant occupant, PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
     {
         // Normal follow-up hops are promoted from the small hop to the big one when Samus is
         // strictly inside its horizontal hop distance. Giant/dropping/dropped types
@@ -98,7 +98,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (IsNormalHop(state.HopType))
         {
             int distance = Math.Abs(samus.Position.X.Whole - place.Position.X.Whole);
-            state.HopType = distance < occupant.SpawnSettings<PuyoSpawnSettings>().HopDistance
+            state.HopType = distance < puyoSpawnSettings.HopDistance
                 ? PuyoHopType.NormalBig
                 : PuyoHopType.NormalSmall;
         }
@@ -366,8 +366,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"Puyo's cue-free animation raised {cue}."));
 
     /// <summary>Runs Puyo's main AI.</summary>
-    internal void RunPuyoMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, PuyoEnemyState puyoEnemyState, IEnemyAiFrame frame)
+    internal void RunPuyoMainAi(RoomEnemyOccupant occupant, PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place, PuyoEnemyState puyoEnemyState, IEnemyAiFrame frame)
     {
-        RunPuyoMain(occupant, place, puyoEnemyState, frame.Samus, frame.Level);
+        RunPuyoMain(occupant, puyoSpawnSettings, place, puyoEnemyState, frame.Samus, frame.Level);
     }
 }

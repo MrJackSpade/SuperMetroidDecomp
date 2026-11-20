@@ -24,11 +24,11 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Multiviola.</summary>
-    internal static void InitializeMultiviola(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal static void InitializeMultiviola(RoomEnemyOccupant occupant, MultiviolaSpawnSettings multiviolaSpawnSettings, RoomEnemyPlace place)
     {
         var state = new MultiviolaEnemyState
         {
-            Heading = occupant.SpawnSettings<MultiviolaSpawnSettings>().Heading,
+            Heading = multiviolaSpawnSettings.Heading,
         };
         place.SetSpeciesState(state);
         state.Playback = new(MultiviolaAnimations.StartingWith(MultiviolaSegment.Flying), AnimationPlace.StartOfAnimation);
@@ -36,14 +36,14 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the Multiviola's main AI.</summary>
     private void RunMultiviolaMain(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, MultiviolaSpawnSettings multiviolaSpawnSettings, RoomEnemyPlace place,
         MultiviolaEnemyState state,
         RoomLevelData level)
     {
         // Each update takes the velocity afresh from the heading the bounces turn (#2531). It is not
         // EnemyMath.VelocityAlong: an axis the Multiviola heads left or up along moves at MultiviolaLeftOrUpSpeed, which is
         // not the speed's exact reverse and moves it a pixel an update even where the axis has no speed.
-        FixedVector<RoomPixels> velocity = MultiviolaLeftOrUpSpeed.VelocityAlong(state.Heading, occupant.SpawnSettings<MultiviolaSpawnSettings>().Speed);
+        FixedVector<RoomPixels> velocity = MultiviolaLeftOrUpSpeed.VelocityAlong(state.Heading, multiviolaSpawnSettings.Speed);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
@@ -68,8 +68,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"A cue-free Multiviola animation raised {cue}."));
 
     /// <summary>Runs Multiviola's main AI.</summary>
-    internal void RunMultiviolaMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, MultiviolaEnemyState multiviolaEnemyState, IEnemyAiFrame frame)
+    internal void RunMultiviolaMainAi(RoomEnemyOccupant occupant, MultiviolaSpawnSettings multiviolaSpawnSettings, RoomEnemyPlace place, MultiviolaEnemyState multiviolaEnemyState, IEnemyAiFrame frame)
     {
-        RunMultiviolaMain(occupant, place, multiviolaEnemyState, frame.Level);
+        RunMultiviolaMain(occupant, multiviolaSpawnSettings, place, multiviolaEnemyState, frame.Level);
     }
 }

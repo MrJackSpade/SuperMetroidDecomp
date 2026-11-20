@@ -8,10 +8,10 @@ internal sealed class YellowPipeBugEntity(RoomEnemyOccupant occupant, RoomEnemyP
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => PipeBugsBehavior.InitializeYellowPipeBug(Occupant, Place);
+    public void Initialize() => PipeBugsBehavior.InitializeYellowPipeBug(Occupant, Occupant.SpawnSettings<YellowPipeBugSpawnSettings>(), Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunYellowPipeBugMainAi(Occupant, Place, Place.RequireSpeciesState<YellowPipeBugState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunYellowPipeBugMainAi(Occupant, Occupant.SpawnSettings<YellowPipeBugSpawnSettings>(), Place, Place.RequireSpeciesState<YellowPipeBugState>(), frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PipeBugsBehavior.AdvanceYellowPipeBugTypedAnimation(Place, Place.RequireSpeciesState<YellowPipeBugState>());

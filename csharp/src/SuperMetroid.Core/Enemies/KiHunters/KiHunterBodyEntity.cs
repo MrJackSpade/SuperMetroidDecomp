@@ -12,13 +12,13 @@ internal sealed class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccu
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeKiHunter(Occupant, Place);
+    public void Initialize() => species.InitializeKiHunter(Occupant, Occupant.SpawnSettings<KiHunterSpawnSettings>(), Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterBodyMainAi(Place, Place.RequireSpeciesState<KiHunterBodyState>(), Place.RequireSpeciesState<KiHunterBodyState>(), Place.RequireSpeciesState<KiHunterBodyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterBodyMainAi(Place, Place.RequireSpeciesState<KiHunterBodyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceKiHunterBodyTypedAnimation(Occupant, Place, Place.RequireSpeciesState<KiHunterBodyState>(), Place.RequireSpeciesState<KiHunterBodyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceKiHunterBodyTypedAnimation(Occupant, Place, Place.RequireSpeciesState<KiHunterBodyState>());
 
     /// <summary>The Ki-Hunter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == KiHunterReactions.Shot ? species.KiHunterShotReaction : base.ShotReaction;

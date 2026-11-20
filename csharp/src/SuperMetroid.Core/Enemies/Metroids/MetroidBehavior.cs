@@ -64,7 +64,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Metroid.</summary>
-    internal void InitializeMetroid(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal void InitializeMetroid(RoomEnemyOccupant occupant, MetroidSpawnSettings metroidSpawnSettings, RoomEnemyPlace place)
     {
         SpriteGraphics graphics = SpriteGraphics.SpawnedBy(occupant, place.Shading);
         RoomEffectActor electricity = _effectActors.SpawnRoomEffectActor(
@@ -80,7 +80,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Drain = FractionalEnergyDrain.Start,
             Movement = MetroidMovement.Homing,
-            IceDamageToFreeze = occupant.SpawnSettings<MetroidSpawnSettings>().IceDamageToFreeze,
+            IceDamageToFreeze = metroidSpawnSettings.IceDamageToFreeze,
         };
         place.SetSpeciesState(state);
         state.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation);

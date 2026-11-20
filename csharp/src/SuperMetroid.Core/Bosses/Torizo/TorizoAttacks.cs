@@ -290,7 +290,7 @@ internal sealed class TorizoAttacks
     /// Spawns the recurring low-health drool (#2410): its delay drawn at random, then a second random number that aims its
     /// launch.
     /// </summary>
-    internal void SpawnBombTorizoLowHealthDrool(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState2, TorizoEnemyState torizoEnemyState)
+    internal void SpawnBombTorizoLowHealthDrool(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BombTorizoLowHealthDrool, TorizoProjectiles, SpriteGraphics.SpawnedBy(occupant, torizo.Shading));
         if (projectile is null)
@@ -298,7 +298,7 @@ internal sealed class TorizoAttacks
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectiles, TorizoRandomDefinitions.LowHealthDroolForm.Choose(_room.Random.Generate())));
         int random = _room.Random.Generate();
         Offset16<RoomPixels> drool = TorizoProjectilePlacementDefinitions.LowHealthDrool;
-        projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (TorizoFacing.FacesRight(torizo, torizoEnemyState2) ? drool : drool.MirroredX()));
+        projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (TorizoFacing.FacesRight(torizo, torizoEnemyState) ? drool : drool.MirroredX()));
 
         // The recurring low-health drool launches in a random direction: a turning Torizo's any of the turn's, a facing
         // one's spread about its facing's heading.
@@ -312,7 +312,7 @@ internal sealed class TorizoAttacks
     /// Spawns the drool a Torizo drips as it wakes and while its health is low (#2410): one random number jitters its
     /// height and fall speed, a second its side.
     /// </summary>
-    internal void SpawnTorizoInitialDrool(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState2, TorizoEnemyState torizoEnemyState)
+    internal void SpawnTorizoInitialDrool(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TorizoInitialDrool, TorizoProjectiles, SpriteGraphics.SpawnedBy(occupant, torizo.Shading));
         if (projectile is null)
@@ -331,7 +331,7 @@ internal sealed class TorizoAttacks
         int jitteredX = _room.Random.Next(TorizoRandomDefinitions.InitialDroolXJitter) + torizo.Position.X.Whole;
         projectile.Position = projectile.Position.WithWholeX(TorizoFacing.Posture(torizo, torizoEnemyState).IsTurning
             ? jitteredX
-            : TorizoFacing.FacesRight(torizo, torizoEnemyState2)
+            : TorizoFacing.FacesRight(torizo, torizoEnemyState)
                 ? jitteredX + TorizoMotionDefinitions.InitialDroolSideOffset
                 : jitteredX - TorizoMotionDefinitions.InitialDroolSideOffset);
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);

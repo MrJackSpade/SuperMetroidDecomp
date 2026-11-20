@@ -168,9 +168,8 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Initializes a falling tube.</summary>
-    internal static void InitializeMotherBrainFallingTube(RoomEnemyOccupant occupant, RoomEnemyPlace tube)
+    internal static void InitializeMotherBrainFallingTube(RoomEnemyOccupant occupant, MotherBrainTubeSpawnSettings settings, RoomEnemyPlace tube)
     {
-        MotherBrainTubeSpawnSettings settings = occupant.SpawnSettings<MotherBrainTubeSpawnSettings>();
         MotherBrainTubePiece piece = settings.Piece;
         MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(piece);
         tube.Radius = tubeBody.Radius;
@@ -186,22 +185,22 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Runs the actions of the falling tubes.</summary>
-    internal void RunMotherBrainFallingTubeMain(RoomEnemyPlace tube, MotherBrainFallingTubeState motherBrainFallingTubeState, MotherBrainEnemyState motherBrainEnemyState, MotherBrainFallingTubeState tubeState)
+    internal void RunMotherBrainFallingTubeMain(RoomEnemyPlace tube, MotherBrainEnemyState motherBrainEnemyState, MotherBrainFallingTubeState tubeState)
     {
         switch (tubeState.Action)
         {
             case MotherBrainTubeAction.NonMainTube:
-                FallMotherBrainSideTube(tube, motherBrainFallingTubeState);
+                FallMotherBrainSideTube(tube, tubeState);
                 return;
             case MotherBrainTubeAction.WaitingToFall:
                 // The main tube falls as its fall delay runs out.
                 if (tubeState.FallDelay.StepKeepsRunning())
                     return;
                 tubeState.Action = MotherBrainTubeAction.Falling;
-                FallMotherBrainMainTube(tube, motherBrainFallingTubeState, motherBrainEnemyState);
+                FallMotherBrainMainTube(tube, tubeState, motherBrainEnemyState);
                 return;
             case MotherBrainTubeAction.Falling:
-                FallMotherBrainMainTube(tube, motherBrainFallingTubeState, motherBrainEnemyState);
+                FallMotherBrainMainTube(tube, tubeState, motherBrainEnemyState);
                 return;
             default:
                 throw new InvalidDataException(

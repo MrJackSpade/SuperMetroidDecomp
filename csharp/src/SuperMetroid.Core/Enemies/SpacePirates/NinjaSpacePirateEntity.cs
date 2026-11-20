@@ -15,13 +15,13 @@ internal class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnem
     protected NinjaSpacePirateBehavior Species => species;
 
     /// <inheritdoc/>
-    public void Initialize() => NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(Occupant, Place);
+    public void Initialize() => NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(Occupant, Occupant.SpawnSettings<NinjaSpacePirateSpawnSettings>(), Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunNinjaSpacePirateMainAi(Place, Place.RequireSpeciesState<NinjaSpacePirateEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceNinjaSpacePirateTypedAnimation(Occupant, Place, Place.RequireSpeciesState<NinjaSpacePirateEnemyState>(), Place.RequireSpeciesState<NinjaSpacePirateEnemyState>(), context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceNinjaSpacePirateTypedAnimation(Occupant, Place, Place.RequireSpeciesState<NinjaSpacePirateEnemyState>(), context);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => SpacePirateHitboxes.Find(Place, probe);

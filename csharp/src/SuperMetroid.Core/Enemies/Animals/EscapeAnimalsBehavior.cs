@@ -39,10 +39,10 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the escape Etecoon.</summary>
-    internal void InitializeEscapeEtecoon(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal void InitializeEscapeEtecoon(RoomEnemyOccupant occupant, EscapeEtecoonSpawnSettings escapeEtecoonSpawnSettings, RoomEnemyPlace place)
     {
         EscapeEtecoonInitialization initialization =
-            EscapeEtecoons.Initialization(occupant.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
+            EscapeEtecoons.Initialization(escapeEtecoonSpawnSettings.Role);
         var state = new EscapeEtecoonEnemyState(initialization.Action);
         place.SetSpeciesState(state);
 

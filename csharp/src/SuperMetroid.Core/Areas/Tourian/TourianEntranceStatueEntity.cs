@@ -22,7 +22,7 @@ internal sealed class TourianEntranceStatueEntity(TourianEntranceStatueBehavior 
     internal RoomEnemyPlace OccupiedPlace => Place;
 
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeTourianEntranceStatue(this);
+    public void Initialize() => species.InitializeTourianEntranceStatue(this, this.Occupant.SpawnSettings<TourianEntranceStatueSpawnSettings>());
 
     /// <inheritdoc/>
     /// <remarks>The scene shows no later look on a place its placement has left (#2356).</remarks>

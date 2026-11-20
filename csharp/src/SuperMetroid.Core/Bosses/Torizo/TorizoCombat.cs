@@ -74,20 +74,20 @@ internal sealed class TorizoCombat
         TorizoBody.ShowLook(torizo, state, TorizoLook.GoldenHealth(GoldenTorizoHealthBand.Of(Ensure.AtLeastZero(health))));
 
     /// <summary>Runs Bomb Torizo's hurt behaviour (#2240): the low-health drool, then white or its own colours on alternating flash updates.</summary>
-    internal void ApplyBombTorizoHurt(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState3, TorizoEnemyState torizoEnemyState2, TorizoEnemyState torizoEnemyState) =>
-        ApplyHurt(occupant, torizo, torizoEnemyState3, torizoEnemyState2, torizoEnemyState, unflashed: state => TorizoBody.ShowLook(torizo, state, new TorizoLook(TorizoLookKind.Normal)));
+    internal void ApplyBombTorizoHurt(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState) =>
+        ApplyHurt(occupant, torizo, torizoEnemyState, unflashed: state => TorizoBody.ShowLook(torizo, state, new TorizoLook(TorizoLookKind.Normal)));
 
     /// <summary>Runs Golden Torizo's hurt behaviour (#2240): the low-health drool, then white or its health's colours on alternating flash updates.</summary>
-    internal void ApplyGoldenTorizoHurt(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState3, TorizoEnemyState torizoEnemyState2, TorizoEnemyState torizoEnemyState) =>
-        ApplyHurt(occupant, torizo, torizoEnemyState3, torizoEnemyState2, torizoEnemyState, unflashed: state => ShowGoldenTorizoHealthShade(torizo, state, torizo.Health));
+    internal void ApplyGoldenTorizoHurt(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState) =>
+        ApplyHurt(occupant, torizo, torizoEnemyState, unflashed: state => ShowGoldenTorizoHealthShade(torizo, state, torizo.Health));
 
     /// <summary>
     /// Runs a Torizo's hurt behaviour: the low-health drool, then on the flash's white updates white, and on the others the
     /// colours <paramref name="unflashed"/> shows.
     /// </summary>
-    private void ApplyHurt(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState2, TorizoEnemyState torizoEnemyState, TorizoEnemyState state, Action<TorizoEnemyState> unflashed)
+    private void ApplyHurt(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState state, Action<TorizoEnemyState> unflashed)
     {
-        _body.MaybeSpawnLowHealthDrool(occupant, torizo, torizoEnemyState2, torizoEnemyState);
+        _body.MaybeSpawnLowHealthDrool(occupant, torizo, state);
         if (!TorizoCadenceDefinitions.HurtWhiteShown.IsSetIn(torizo.HurtFlash.UpdatesLeft))
             unflashed(state);
         else

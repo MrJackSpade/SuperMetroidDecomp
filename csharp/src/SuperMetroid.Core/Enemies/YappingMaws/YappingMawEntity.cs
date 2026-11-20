@@ -9,10 +9,10 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemyOccu
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeYappingMaw(Occupant, Place);
+    public void Initialize() => species.InitializeYappingMaw(Occupant, Occupant.SpawnSettings<YappingMawSpawnSettings>(), Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunYappingMawMainAi(Occupant, Place, Place.RequireSpeciesState<YappingMawEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunYappingMawMainAi(Occupant, Occupant.SpawnSettings<YappingMawSpawnSettings>(), Place, Place.RequireSpeciesState<YappingMawEnemyState>(), frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYappingMawTypedAnimation(Place, Place.RequireSpeciesState<YappingMawEnemyState>());

@@ -36,12 +36,12 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the grapple Ripper.</summary>
-    internal static void InitializeGrappleRipper(RoomEnemyOccupant occupant, RoomEnemyPlace place, RipperEnemyState ripperEnemyState)
+    internal static void InitializeGrappleRipper(RoomEnemyOccupant occupant, GrappleRipperSpawnSettings grappleRipperSpawnSettings, RoomEnemyPlace place, RipperEnemyState ripperEnemyState)
     {
         var state = CreateRipperState(place);
 
         // The placement names the starting direction; the patrol speed and bounds are read where they are used.
-        state.Heading = occupant.SpawnSettings<GrappleRipperSpawnSettings>().Direction;
+        state.Heading = grappleRipperSpawnSettings.Direction;
         SetRipperAnimation(
             place, ripperEnemyState,
             state.Heading == HorizontalDirection.Left ? RipperSegment.GrappleRipperMovingLeft : RipperSegment.GrappleRipperMovingRight);
@@ -49,11 +49,10 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the grapple Ripper's main AI.</summary>
     private void RunGrappleRipperMain(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place, RipperEnemyState ripperEnemyState2, RipperEnemyState ripperEnemyState,
+        RoomEnemyOccupant occupant, GrappleRipperSpawnSettings settings, RoomEnemyPlace place,
         RipperEnemyState state,
         RoomLevelData level)
     {
-        GrappleRipperSpawnSettings settings = occupant.SpawnSettings<GrappleRipperSpawnSettings>();
         SignedSixteenSixteen displacement = FlyingVelocity(settings.Speed, state.Heading);
         bool reverse = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
@@ -72,36 +71,36 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         if (reverse)
         {
-            ReverseRipperVariant(place, ripperEnemyState2, ripperEnemyState);
+            ReverseRipperVariant(place, state);
         }
     }
 
     /// <summary>Initializes the jet Ripper.</summary>
-    internal static void InitializeJetRipper(RoomEnemyOccupant occupant, RoomEnemyPlace place, RipperEnemyState ripperEnemyState)
+    internal static void InitializeJetRipper(RoomEnemyOccupant occupant, RipperSpawnSettings ripperSpawnSettings, RoomEnemyPlace place, RipperEnemyState ripperEnemyState)
     {
         RipperEnemyState state = CreateRipperState(place);
 
         // The jet Ripper shows the grapple Ripper's animations, facing the way it flies (#1842).
-        state.Heading = occupant.SpawnSettings<RipperSpawnSettings>().Direction;
+        state.Heading = ripperSpawnSettings.Direction;
         SetRipperAnimation(place, ripperEnemyState, state.Heading == HorizontalDirection.Right ? RipperSegment.GrappleRipperMovingRight : RipperSegment.GrappleRipperMovingLeft);
     }
 
     /// <summary>Runs the jet Ripper's main AI.</summary>
-    private void RunJetRipperMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, RipperEnemyState ripperEnemyState2, RipperEnemyState ripperEnemyState, RipperEnemyState state, RoomLevelData level)
+    private void RunJetRipperMain(RoomEnemyOccupant occupant, RipperSpawnSettings ripperSpawnSettings, RoomEnemyPlace place, RipperEnemyState state, RoomLevelData level)
     {
-        SignedSixteenSixteen displacement = FlyingVelocity(occupant.SpawnSettings<RipperSpawnSettings>().Speed, state.Heading);
+        SignedSixteenSixteen displacement = FlyingVelocity(ripperSpawnSettings.Speed, state.Heading);
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             return;
 
-        ReverseRipperVariant(place, ripperEnemyState2, ripperEnemyState);
+        ReverseRipperVariant(place, state);
     }
 
     /// <summary>Initializes the Ripper.</summary>
-    internal static void InitializeRipper(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal static void InitializeRipper(RoomEnemyOccupant occupant, RipperSpawnSettings ripperSpawnSettings, RoomEnemyPlace place)
     {
         // The spawn's direction picks the way it flies and its facing animation, which starts on the placement's
         // timing.
-        HorizontalDirection heading = occupant.SpawnSettings<RipperSpawnSettings>().Direction;
+        HorizontalDirection heading = ripperSpawnSettings.Direction;
         RipperEnemyState state = CreateRipperState(place);
         state.Playback = new(RipperAnimations.StartingWith(
             heading == HorizontalDirection.Right ? RipperSegment.RipperMovingRight : RipperSegment.RipperMovingLeft), AnimationPlace.StartOfAnimation);
@@ -111,17 +110,17 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Ripper's main AI.</summary>
-    private void RunRipperMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, RipperEnemyState ripperEnemyState, RipperEnemyState state, RoomLevelData level)
+    private void RunRipperMain(RoomEnemyOccupant occupant, RipperSpawnSettings ripperSpawnSettings, RoomEnemyPlace place, RipperEnemyState state, RoomLevelData level)
     {
         // The horizontal mover moves the Ripper by its velocity. On collision the
         // mover aligns the actor flush with the wall before Ripper swaps direction
         // and animation.
-        SignedSixteenSixteen displacement = FlyingVelocity(occupant.SpawnSettings<RipperSpawnSettings>().Speed, state.Heading);
+        SignedSixteenSixteen displacement = FlyingVelocity(ripperSpawnSettings.Speed, state.Heading);
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             return;
 
         Reverse(state);
-        SetRipperAnimation(place, ripperEnemyState, state.Heading == HorizontalDirection.Right ? RipperSegment.RipperMovingRight : RipperSegment.RipperMovingLeft);
+        SetRipperAnimation(place, state, state.Heading == HorizontalDirection.Right ? RipperSegment.RipperMovingRight : RipperSegment.RipperMovingLeft);
     }
 
     /// <summary>
@@ -159,10 +158,10 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Turns a grapple Ripper or jet Ripper round and restarts the grapple Ripper's flying loop facing its new heading,
     /// which both show (#1842).
     /// </summary>
-    private static void ReverseRipperVariant(RoomEnemyPlace place, RipperEnemyState ripperEnemyState, RipperEnemyState state)
+    private static void ReverseRipperVariant(RoomEnemyPlace place, RipperEnemyState state)
     {
         Reverse(state);
-        SetRipperAnimation(place, ripperEnemyState, state.Heading == HorizontalDirection.Right ? RipperSegment.GrappleRipperMovingRight : RipperSegment.GrappleRipperMovingLeft);
+        SetRipperAnimation(place, state, state.Heading == HorizontalDirection.Right ? RipperSegment.GrappleRipperMovingRight : RipperSegment.GrappleRipperMovingLeft);
     }
 
     /// <summary>Starts a flying loop, shown from the next update.</summary>
@@ -190,21 +189,21 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs grapple Ripper's main AI.</summary>
-    internal void RunGrappleRipperMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, RipperEnemyState ripperEnemyState3, RipperEnemyState ripperEnemyState2, RipperEnemyState ripperEnemyState, IEnemyAiFrame frame)
+    internal void RunGrappleRipperMainAi(RoomEnemyOccupant occupant, GrappleRipperSpawnSettings grappleRipperSpawnSettings, RoomEnemyPlace place, RipperEnemyState ripperEnemyState, IEnemyAiFrame frame)
     {
-        RunGrappleRipperMain(occupant, place, ripperEnemyState3, ripperEnemyState2, ripperEnemyState, frame.Level);
+        RunGrappleRipperMain(occupant, grappleRipperSpawnSettings, place, ripperEnemyState, frame.Level);
     }
 
     /// <summary>Runs jet Ripper's main AI.</summary>
-    internal void RunJetRipperMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, RipperEnemyState ripperEnemyState3, RipperEnemyState ripperEnemyState2, RipperEnemyState ripperEnemyState, IEnemyAiFrame frame)
+    internal void RunJetRipperMainAi(RoomEnemyOccupant occupant, RipperSpawnSettings ripperSpawnSettings, RoomEnemyPlace place, RipperEnemyState ripperEnemyState, IEnemyAiFrame frame)
     {
-        RunJetRipperMain(occupant, place, ripperEnemyState3, ripperEnemyState2, ripperEnemyState, frame.Level);
+        RunJetRipperMain(occupant, ripperSpawnSettings, place, ripperEnemyState, frame.Level);
     }
 
     /// <summary>Runs Ripper's main AI.</summary>
-    internal void RunRipperMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, RipperEnemyState ripperEnemyState2, RipperEnemyState ripperEnemyState, IEnemyAiFrame frame)
+    internal void RunRipperMainAi(RoomEnemyOccupant occupant, RipperSpawnSettings ripperSpawnSettings, RoomEnemyPlace place, RipperEnemyState ripperEnemyState, IEnemyAiFrame frame)
     {
-        RunRipperMain(occupant, place, ripperEnemyState2, ripperEnemyState, frame.Level);
+        RunRipperMain(occupant, ripperSpawnSettings, place, ripperEnemyState, frame.Level);
     }
 
     /// <summary>Pins grapple Ripper and jet Ripper frozen visuals after accepted shot reactions.</summary>

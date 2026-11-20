@@ -16,7 +16,7 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyOccu
     public void Initialize() => species.InitializeDeadTorizo(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTorizoMainAi(Place, Place.RequireSpeciesState<DeadTorizoEnemyState>(), Place.RequireSpeciesState<DeadTorizoEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTorizoMainAi(Place, Place.RequireSpeciesState<DeadTorizoEnemyState>(), frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadTorizoBehavior.AdvanceDeadTorizoTypedAnimation(Place, Place.RequireSpeciesState<DeadTorizoEnemyState>());

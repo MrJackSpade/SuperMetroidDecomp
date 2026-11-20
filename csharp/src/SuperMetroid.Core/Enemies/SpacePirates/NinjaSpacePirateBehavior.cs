@@ -50,12 +50,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Initializes the Ninja Space Pirate.</summary>
-    internal static void InitializeNinjaSpacePirate(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal static void InitializeNinjaSpacePirate(RoomEnemyOccupant occupant, NinjaSpacePirateSpawnSettings settings, RoomEnemyPlace place)
     {
         var state = new NinjaSpacePirateEnemyState(NinjaSpacePirateAction.StandingStill);
         place.SetSpeciesState(state);
-
-        NinjaSpacePirateSpawnSettings settings = occupant.SpawnSettings<NinjaSpacePirateSpawnSettings>();
         bool startsAtLeft = settings.StartPost switch
         {
             NinjaSpacePirateStartPost.Left => true,
@@ -597,8 +595,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Advances the ninja Space Pirate's typed animation.</summary>
-    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, NinjaSpacePirateEnemyState ninjaSpacePirateEnemyState2, NinjaSpacePirateEnemyState ninjaSpacePirateEnemyState, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, ninjaSpacePirateEnemyState2, NinjaSpacePirateAnimations.Segments,
+    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, NinjaSpacePirateEnemyState ninjaSpacePirateEnemyState, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, ninjaSpacePirateEnemyState, NinjaSpacePirateAnimations.Segments,
             static (NinjaSpacePirateEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyNinjaSpacePirateCue(occupant, place, ninjaSpacePirateEnemyState, cue, context.Samus) is { } continuesAt
                 ? new AnimationContinuation<NinjaSpacePirateSegment>(NinjaSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)

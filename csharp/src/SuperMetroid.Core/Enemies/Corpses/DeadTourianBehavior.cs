@@ -47,10 +47,10 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             : throw new ArgumentOutOfRangeException(nameof(definitionId));
 
     /// <summary>Initializes a Tourian corpse, checking its corpse is one of its species' before registering state and starting its rot.</summary>
-    internal static void InitializeDeadTourianCorpse(RoomEnemyPlace place, RoomEnemyOccupant occupant)
+    internal static void InitializeDeadTourianCorpse(RoomEnemyPlace place, RoomEnemyOccupant occupant, CorpseSpawnSettings corpseSpawnSettings)
     {
         DeadTourianCorpseSpecies species = SpeciesOf(Ensure.NotNull(occupant).DefinitionId);
-        DeadTourianCorpseDefinition definition = occupant.SpawnSettings<CorpseSpawnSettings>().Corpse;
+        DeadTourianCorpseDefinition definition = corpseSpawnSettings.Corpse;
         if (definition.Species != species)
         {
             throw new InvalidDataException(

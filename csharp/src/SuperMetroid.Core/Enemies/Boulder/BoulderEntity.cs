@@ -9,10 +9,10 @@ internal sealed class BoulderEntity(BoulderBehavior species, RoomEnemyOccupant o
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => BoulderBehavior.InitializeBoulder(Occupant, Place);
+    public void Initialize() => BoulderBehavior.InitializeBoulder(Occupant, Occupant.SpawnSettings<BoulderSpawnSettings>(), Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunBoulderMainAi(Occupant, Place, Place.RequireSpeciesState<BoulderEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBoulderMainAi(Occupant, Occupant.SpawnSettings<BoulderSpawnSettings>(), Place, Place.RequireSpeciesState<BoulderEnemyState>(), frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BoulderBehavior.AdvanceBoulderTypedAnimation(Place, Place.RequireSpeciesState<BoulderEnemyState>());

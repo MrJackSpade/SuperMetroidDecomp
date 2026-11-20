@@ -15,10 +15,10 @@ internal sealed class GrowingShutterEntity(ShuttersBehavior species, RoomEnemyOc
     private readonly EnemyShotReaction ownShot = species.DestroyableShutterShotReaction(occupant);
 
     /// <inheritdoc/>
-    public override void Initialize() => ShuttersBehavior.InitializeGrowingShutter(Occupant, Place);
+    public override void Initialize() => ShuttersBehavior.InitializeGrowingShutter(Occupant, Occupant.SpawnSettings<GrowingShutterSpawnSettings>(), Place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunShutterGrowingMainAi(Occupant, Place, Place.RequireSpeciesState<GrowingShutterEnemyState>(), frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunShutterGrowingMainAi(Occupant, Occupant.SpawnSettings<GrowingShutterSpawnSettings>(), Place, Place.RequireSpeciesState<GrowingShutterEnemyState>(), frame);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceShutterGrowingTypedAnimation(Place, Place.RequireSpeciesState<GrowingShutterEnemyState>());

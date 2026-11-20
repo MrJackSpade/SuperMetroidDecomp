@@ -9,7 +9,7 @@ internal sealed class WaverEntity(WaverBehavior species, RoomEnemyOccupant occup
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => WaverBehavior.InitializeWaver(Occupant, Place);
+    public void Initialize() => WaverBehavior.InitializeWaver(Occupant, Occupant.SpawnSettings<WaverSpawnSettings>(), Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunWaverMainAi(Place, Place.RequireSpeciesState<WaverEnemyState>(), frame);

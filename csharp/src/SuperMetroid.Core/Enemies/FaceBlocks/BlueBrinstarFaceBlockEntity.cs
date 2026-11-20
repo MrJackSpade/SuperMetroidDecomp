@@ -12,7 +12,7 @@ internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior 
     public void Initialize(EnemyPopulationSurroundings surroundings) => species.SetUpBlueBrinstarFaceBlock(Place, surroundings);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunBlueBrinstarFaceBlockMainAi(Occupant, Place, Place.RequireSpeciesState<BlueBrinstarFaceBlockEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBlueBrinstarFaceBlockMainAi(Occupant, Occupant.SpawnSettings<FaceBlockSpawnSettings>(), Place, Place.RequireSpeciesState<BlueBrinstarFaceBlockEnemyState>(), frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BlueBrinstarFaceBlockBehavior.AdvanceBlueBrinstarFaceBlockTypedAnimation(Place, Place.RequireSpeciesState<BlueBrinstarFaceBlockEnemyState>());

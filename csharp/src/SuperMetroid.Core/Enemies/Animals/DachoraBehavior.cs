@@ -43,9 +43,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes a speed-boost echo: it faces the way the body does; each trail placement later gives it its life (<see cref="DachoraTimingDefinitions.EchoLifetime"/>).</summary>
-    internal static void InitializeDachoraEcho(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal static void InitializeDachoraEcho(RoomEnemyOccupant occupant, DachoraSpawnSettings settings, RoomEnemyPlace place)
     {
-        DachoraSpawnSettings settings = occupant.SpawnSettings<DachoraSpawnSettings>();
         var echo = new DachoraEchoState();
         place.SetSpeciesState(echo);
         PrepareDachoraPlace(place);
@@ -55,9 +54,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Dachora's body, which finds the echoes its room lists with it.</summary>
-    internal void InitializeDachora(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal void InitializeDachora(RoomEnemyOccupant occupant, DachoraSpawnSettings settings, RoomEnemyPlace place)
     {
-        DachoraSpawnSettings settings = occupant.SpawnSettings<DachoraSpawnSettings>();
         var state = new DachoraEnemyState(DachoraAction.WaitingForSamus)
         {
             Facing = settings.Facing,

@@ -9,13 +9,13 @@ internal sealed class BabyTurtleEntity(MamaTurtleBehavior species, RoomEnemyOccu
     : TurtleEntity(species, occupant, place, common)
 {
     /// <inheritdoc/>
-    public override void Initialize() => Species.InitializeBabyTurtle(Occupant, Place);
+    public override void Initialize() => Species.InitializeBabyTurtle(Occupant, Occupant.SpawnSettings<BabyTurtleSpawnSettings>(), Place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunBabyTurtleMainAi(Place, Place.RequireSpeciesState<BabyTurtleEnemyState>(), frame);
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceBabyTurtleTypedAnimation(Place, Place.RequireSpeciesState<BabyTurtleEnemyState>(), Place.RequireSpeciesState<BabyTurtleEnemyState>(), context);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceBabyTurtleTypedAnimation(Place, Place.RequireSpeciesState<BabyTurtleEnemyState>(), context);
 
     /// <inheritdoc/>
     protected override void ReactToOwnTouch(EnemyTouchContext context) => Species.ReactToBabyTurtleTouch(context, context.Place.RequireSpeciesState<BabyTurtleEnemyState>());

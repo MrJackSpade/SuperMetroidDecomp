@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <summary>
 /// Names a pre-coloured block picture (#1392, #1431, #1466, #1712, #1791): the block, by its number among those its room
 /// loads, then the values of the appearance inputs it depends on. Kraid's backdrop, an animation's frame or Ceres Ridley's
-/// look therefore names another picture of the same block, and extraction and the room resolve the same name. A collectible showing its own picture names its kind and look (#1538, #1994). A background image's 16x16 cell whose
+/// look therefore names another picture of the same block, and extraction and the room resolve the same name. A collectible showing its own picture names its kind and look (#1538, #1994). A background image's block-sized cell whose
 /// picture changes is named by the image and the cell's place in it (#1717); its pictures add the values of the inputs it
 /// depends on, and the image's manifest records the name, which the room reads.
 /// </summary>

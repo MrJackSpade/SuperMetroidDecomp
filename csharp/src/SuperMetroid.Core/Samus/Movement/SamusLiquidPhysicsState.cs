@@ -348,7 +348,7 @@ public sealed class SamusLiquidPhysicsState
             _periodicDamage.Accumulate(fxKind == RoomFxType.Lava
                 ? SamusLiquidDamageDefinitions.Lava
                 : SamusLiquidDamageDefinitions.Acid);
-            if (SamusCadenceDefinitions.LiquidDamageSoundEveryEighthUpdate.IsDue(frameCounter) &&
+            if (SamusCadenceDefinitions.LiquidDamageSound.IsDue(frameCounter) &&
                 samus.Health >= SamusLiquidDamageDefinitions.DamageSoundLeastEnergy)
                 QueueSound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
@@ -475,7 +475,7 @@ public sealed class SamusLiquidPhysicsState
         int secondX = firstX - pair.Separation;
         int y = bottom + pair.Right.Y;
 
-        // Both begin immediately on their first step, which shows for three updates.
+        // Both begin immediately on their first step, which shows for its start's updates.
         EffectWaits.HoldBubbles(SpawnParticle(kind, Position16<RoomPixels>.Of(firstX, y), SamusLiquidParticleDefinitions.AtOnce));
         _particles.Spawn(kind, Position16<RoomPixels>.Of(secondX, y), SamusLiquidParticleDefinitions.AtOnce);
     }
@@ -515,7 +515,7 @@ public sealed class SamusLiquidPhysicsState
         EffectWaits.ReleaseSpray();
     }
 
-    /// <summary>Creates a bubble every 128 frames only when Samus's mouth is underwater and nothing holds bubbles up.</summary>
+    /// <summary>Creates a bubble at the breath cadence only when Samus's mouth is underwater and nothing holds bubbles up.</summary>
     private void TrySpawnAirBubbles(
         SamusState samus,
         int frameCounter,
@@ -526,7 +526,7 @@ public sealed class SamusLiquidPhysicsState
         int top = TopLine(samus);
         int mouthY = top - SamusLiquidParticleDefinitions.BreathTestAboveTop;
         if (mouthY < AbsentWaterSurfaceLine.Read(WaterSurfaceY) ||
-            !SamusCadenceDefinitions.BreathBubbleEvery128thUpdate.IsDue(frameCounter) ||
+            !SamusCadenceDefinitions.BreathBubble.IsDue(frameCounter) ||
             !EffectWaits.BubbleCanForm)
         {
             return;
@@ -558,7 +558,7 @@ public sealed class SamusLiquidPhysicsState
         EffectWaits.HoldBubbles(SamusParticle.UpdatesUntilFinished(SamusParticleKind.LavaSpray, AnimationPlace.StartOfAnimation, SamusLiquidParticleDefinitions.OneUpdateLate));
         _particles.SpawnLavaSpray(new(x - SamusLiquidParticleDefinitions.LavaSprayOuterOffset, surface), SamusLiquidParticleDefinitions.AtOnce, -SamusLiquidParticleDefinitions.LavaSprayDrift);
 
-        if (SamusCadenceDefinitions.LavaSpraySoundEverySecondUpdate.IsDue(frameCounter))
+        if (SamusCadenceDefinitions.LavaSpraySound.IsDue(frameCounter))
             QueueSound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
     }
 

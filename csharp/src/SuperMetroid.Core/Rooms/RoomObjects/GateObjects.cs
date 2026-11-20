@@ -36,12 +36,12 @@ internal sealed class GateObjects
         return requests;
     }
 
-    /// <summary>Marks the gate's five vertical cells' behaviour and requests its initial closed projectile.</summary>
+    /// <summary>Marks the gate's vertical cells' behaviour and requests its initial closed projectile.</summary>
     internal void SetupDownwardGate(RoomLevelData level, RoomObjectPlace place)
     {
         place.Become(new DownwardGateObject(this));
 
-        // The setup writes the closed-gate behaviour to the five vertically adjacent gate cells without replacing their
+        // The setup writes the closed-gate behaviour to the vertically adjacent gate cells without replacing their
         // authored terrain.
         for (int row = 0; row < DownwardGateDefinitions.GateHeightInBlocks; row++)
         {
@@ -129,7 +129,7 @@ internal sealed class GateObjects
     internal void WakeGateProjectile(RoomObjectPlace place) =>
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileWake(place.Block));
 
-    /// <summary>Tests Samus's block position against the resident gate's five-cell vertical column.</summary>
+    /// <summary>Tests Samus's block position against the resident gate's vertical column.</summary>
     internal bool IsSamusInsideDownwardGateColumn(RoomObjectPlace place)
     {
         IRoomSamus samus = _samus.Current;

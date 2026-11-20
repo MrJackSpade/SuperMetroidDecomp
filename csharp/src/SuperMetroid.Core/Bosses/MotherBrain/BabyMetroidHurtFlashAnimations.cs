@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// The Baby Metroid's onion-ring hit flash (#2404) as a shade sequence played through the shared animation player: from
-/// the update after a hit, it blinks four times, the hurt-flash colours for two updates and its own for two, and then
+/// the update after a hit, it blinks (<see cref="Blinks"/>), the hurt-flash colours and then its own, each for
+/// <see cref="LookUpdates"/>, and then
 /// shows its own colours until the next hit.
 /// </summary>
 internal static class BabyMetroidHurtFlashAnimations
@@ -26,7 +27,7 @@ internal static class BabyMetroidHurtFlashAnimations
             ],
         });
 
-    /// <summary>One hit's flash: its four blinks, and then it is over.</summary>
+    /// <summary>One hit's flash: its blinks, and then it is over.</summary>
     internal static Animation<BabyMetroidHurtFlashSegment> Flash { get; } = new([Segments.Repeated(BabyMetroidHurtFlashSegment.Blink, Blinks)], AnimationEnd.Stops);
 
     /// <summary>A hit's flash, its first update showing the first blink's hurt-flash colours.</summary>

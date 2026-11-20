@@ -62,7 +62,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
 
         // The speed is scaled by the game's sine and cosine of the aim, the cosine being the sine a quarter turn on:
         // each takes the speed by the sine's size in 256ths and keeps the sine's direction, so neither part of the
-        // velocity ever exceeds the speed of five pixels an update.
+        // velocity ever exceeds the fireball's speed.
         state.FireballVelocity = new PixelVelocity<RoomPixels>(
             EnemyMath.SineSpeed(RidleyFireballDefinitions.FireballSpeed, angle),
             EnemyMath.SineSpeed(RidleyFireballDefinitions.FireballSpeed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));

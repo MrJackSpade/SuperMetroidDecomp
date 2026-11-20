@@ -9,7 +9,7 @@ internal enum TitleSkipStage
 {
     /// <summary>No skip is running; a new B, Start or A press read after an opening step starts one.</summary>
     NotSkipping,
-    /// <summary>The skip's fast fade-out lowers the brightness by two levels per update, after the running step has run.</summary>
+    /// <summary>The skip's fast fade-out lowers the brightness by its fast step each update, after the running step has run.</summary>
     FadingOut,
     /// <summary>
     /// The fade-out has reached black and stopped the running step; the next update rebuilds the title screen in its

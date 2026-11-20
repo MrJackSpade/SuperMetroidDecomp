@@ -18,7 +18,7 @@ public static class CeresRidleyShadeDefinitions
     public const int AlarmStepCount = 16;
 
     /// <summary>
-    /// The alarm steps each of the alarm's colourings shows for (#2409): one, as each step, every fourth update, shows the
+    /// The alarm steps each of the alarm's colourings shows for (#2409): each step, at the alarm's cadence, shows the
     /// next.
     /// </summary>
     public const int AlarmStepsPerColouring = 1;

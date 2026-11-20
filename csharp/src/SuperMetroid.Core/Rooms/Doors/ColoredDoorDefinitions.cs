@@ -25,10 +25,10 @@ internal static class ColoredDoorDefinitions
             DoorCapPaint.OfColor(ColoredDoorColor.Red)),
     };
 
-    /// <summary>The yellow downward cap's closed image as it starts to wait, for three updates.</summary>
+    /// <summary>The yellow downward cap's closed image as it starts to wait, for its segment's beat.</summary>
     private static readonly Animation<DoorCapSegment> YellowDownWaiting = DoorCapSequenceDefinitions.Once(S.YellowDownClosed);
 
-    /// <summary>A hit on a red cap short of opening: its sound, then the shared flash three times.</summary>
+    /// <summary>A hit on a red cap short of opening: its sound, then the shared flash (<see cref="DoorCapSequenceDefinitions.FlashesPerHit"/>).</summary>
     private static readonly Animation<DoorCapSegment> RedFlash = new(
         [
             DoorCapSequenceDefinitions.Segments.Whole(S.RedHitSounding),

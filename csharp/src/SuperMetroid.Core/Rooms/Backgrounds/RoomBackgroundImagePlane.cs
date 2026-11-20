@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
 /// A room's background image as the background shows it at one moment (#1392, #1403, #1555): the image's picture placed on
-/// the background by its rectangles, and the block picture each 16x16 cell shows in the image's place where the room bound
+/// the background by its rectangles, and the block picture each block-sized cell shows in the image's place where the room bound
 /// other artwork there after loading.
 /// </summary>
 public sealed class RoomBackgroundImagePlane
@@ -46,7 +46,7 @@ public sealed class RoomBackgroundImagePlane
     /// <summary>The image's width and height, which its cells divide row by row.</summary>
     public Extent16<ImagePixels> Size { get; }
 
-    /// <summary>The image's 16x16 cells, row by row across its picture.</summary>
+    /// <summary>The image's block-sized cells, row by row across its picture.</summary>
     public int CellCount => cells.Length;
 
     /// <summary>The picture cell <paramref name="cell"/> shows in place of the image, or null.</summary>

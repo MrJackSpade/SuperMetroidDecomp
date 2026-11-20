@@ -8,13 +8,12 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 /// </summary>
 internal static class CeresEscapeWarningPictures
 {
-    /// <summary>English EMERGENCY title, 88 pixels from the foreground's left and 48 down.</summary>
+    /// <summary>English EMERGENCY title, at the corner its picture holds.</summary>
     internal static readonly CeresEscapeWarningPicture Emergency =
         new("emergency", new Position16<PlanePixels>(88, 48));
 
     /// <summary>
-    /// The Japanese subtitle's first line, saying the self-destruct has started, 80 pixels from the foreground's left and
-    /// 160 down.
+    /// The Japanese subtitle's first line, saying the self-destruct has started, at the corner its picture holds.
     /// </summary>
     internal static readonly CeresEscapeWarningPicture JapaneseSelfDestructLine =
         new("japanese_self_destruct", new Position16<PlanePixels>(80, 160));

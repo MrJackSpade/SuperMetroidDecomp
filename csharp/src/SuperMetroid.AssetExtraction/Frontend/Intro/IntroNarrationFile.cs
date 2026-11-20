@@ -14,7 +14,7 @@ public static class IntroNarrationFile
     /// <summary>JSON presentation-resource filename containing named pages and their ordered UTF-8 text lines.</summary>
     public const string FileName = "intro-narration.json";
 
-    /// <summary>Last permitted text row in tile cells, sixteen, inclusive.</summary>
+    /// <summary>Last permitted text row in tile cells, inclusive: the lowest row a narration line may occupy.</summary>
     public const int LastTextRow = 16;
 
     /// <summary>Loads and validates the exact six-page opening-narration document.</summary>

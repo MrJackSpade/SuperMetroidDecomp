@@ -15,10 +15,10 @@ public enum BotwoonPhase
     SpitWhileHidden,
     /// <summary>Waits the head's pre-fall wait while the body segments begin their staggered death delays.</summary>
     DeathDelay,
-    /// <summary>Speeds the head's fall along the quadratic speed curve until it lands on the floor at Y 200, then hides it.</summary>
+    /// <summary>Speeds the head's fall along the quadratic speed curve until it lands on the floor (<see cref="BotwoonFightDefinitions.FloorY"/>), then hides it.</summary>
     HeadFalling,
     /// <summary>Waits for his tail segment to land before leaving his drops and crumbling the wall.</summary>
     WaitForBody,
-    /// <summary>Runs the 192-update wall-explosion phase, then deletes the head, records the mini-boss's defeat, and queues the elevator song.</summary>
+    /// <summary>Runs the wall-explosion phase (<see cref="BotwoonDeathDefinitions.WallExplosionDuration"/>), then deletes the head, records the mini-boss's defeat, and queues the elevator song.</summary>
     WallExplosions,
 }

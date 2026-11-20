@@ -7,7 +7,7 @@ internal enum BombSpreadAdmission
     NotApplicable,
     /// <summary>Held Down continued the spread charge timeout.</summary>
     Charging,
-    /// <summary>The completed charge installed all five spread bombs.</summary>
+    /// <summary>The completed charge installed every spread bomb.</summary>
     Spawned,
     /// <summary>Releasing Shoot canceled an existing beam flare.</summary>
     ChargeCancelled,

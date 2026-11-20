@@ -58,8 +58,8 @@ public sealed class EscapeTypewriterState
     /// complete. The update that types the final character is a typing update, not the completed one.
     /// </returns>
     /// <remarks>
-    /// The first two characters are typed on consecutive updates; each later character follows its predecessor after two
-    /// updates that type nothing (<see cref="EscapeTypewriterDefinitions.UndelayedOpeningCharacters"/>,
+    /// The opening characters are typed on consecutive updates; each later character follows its predecessor after its
+    /// delay's updates that type nothing (<see cref="EscapeTypewriterDefinitions.UndelayedOpeningCharacters"/>,
     /// <see cref="EscapeTypewriterDefinitions.CharacterDelayFrames"/>).
     /// </remarks>
     public EscapeTypewriterStep Step()
@@ -104,7 +104,7 @@ public sealed class EscapeTypewriterState
         {
             var glyph = new EscapeTypewriterGlyph(Corner, EscapeTypewriterGlyph.PictureOf(MessageId, character));
             _glyphsWritten++;
-            step = EscapeTypewriterDefinitions.ClickEverySecondGlyph.IsDue(_glyphsWritten)
+            step = EscapeTypewriterDefinitions.GlyphClick.IsDue(_glyphsWritten)
                 ? new EscapeTypewriterStep.TypedWithClick(glyph)
                 : new EscapeTypewriterStep.Typed(glyph);
         }

@@ -32,6 +32,6 @@ internal static class SbugMovementDefinitions
         [SbugActivationBehavior.MoveForwardThenWait] = SbugAction.ActivateMoveForwardThenWait,
     };
 
-    /// <summary>How long each forward-then-wait leg lasts, in updates: 33, the last the one the Sbug stops on.</summary>
+    /// <summary>How long each forward-then-wait leg lasts, in updates, the last the one the Sbug stops on.</summary>
     internal const int LegDuration = 33;
 }

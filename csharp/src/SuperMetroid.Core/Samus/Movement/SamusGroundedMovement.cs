@@ -148,7 +148,7 @@ public static class SamusGroundedMovement
         speed.SelectSpeedsFor(liquidMedium);
 
         // Running handles Dash before calculating base speed. With no Speed Booster equipped, Dash establishes momentum, adds
-        // exactly a sixteenth of a pixel per frame, and caps the extra component at two pixels. The flag retains that
+        // its acceleration each frame, and caps the extra component at its unboosted cap. The flag retains that
         // component after Dash is released.
         speed.HandleExtraRunSpeed(
             movementType: SamusMovementType.Running,

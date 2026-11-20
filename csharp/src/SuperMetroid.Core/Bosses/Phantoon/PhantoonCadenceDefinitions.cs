@@ -13,10 +13,10 @@ internal static class PhantoonCadenceDefinitions
     internal static readonly UpdateCounterField HurtFlashShown = new(1, 1);
 
     /// <summary>
-    /// The updates on which Phantoon's colours take a fade step, in or out: every second update of the frame counter, on
-    /// its even place.
+    /// The updates on which Phantoon's colours take a fade step, in or out, counted on the frame counter at the period's
+    /// even place.
     /// </summary>
-    internal static readonly UpdateCadence FadeStepEverySecondUpdate = new(2, 0);
+    internal static readonly UpdateCadence FadeStep = new(2, 0);
 
     /// <summary>
     /// The phase of the frame counter on which Phantoon, starting a new figure eight, reverses it: set on odd updates;
@@ -31,10 +31,10 @@ internal static class PhantoonCadenceDefinitions
     internal static readonly UpdateCounterField FirstEyeClosedChoice = new(1, 2);
 
     /// <summary>
-    /// The updates on which an orbiting flame, past its start delay, draws its orbit one pixel closer: every second update
-    /// of the enemy projectiles' update count, on its odd updates.
+    /// The updates on which an orbiting flame, past its start delay, draws its orbit one pixel closer, counted on the enemy
+    /// projectiles' update count at the period's odd place.
     /// </summary>
-    internal static readonly UpdateCadence OrbitClosesEverySecondUpdate = new(2, 1);
+    internal static readonly UpdateCadence OrbitCloses = new(2, 1);
 
     /// <summary>
     /// The phase of the frame counter on which a rising flame drifts left: set on odd updates; on even ones it drifts
@@ -43,16 +43,16 @@ internal static class PhantoonCadenceDefinitions
     internal static readonly UpdateCounterField RisingFlameDriftsLeft = new(0, 1);
 
     /// <summary>
-    /// The updates on which the death pixelation over the dying Phantoon grows one size: every sixteenth update of the frame
-    /// counter, on its first place.
+    /// The updates on which the death pixelation over the dying Phantoon grows one size, counted on the frame counter at
+    /// the period's first place.
     /// </summary>
-    internal static readonly UpdateCadence DeathPixelationGrowsEverySixteenthUpdate = new(16, 0);
+    internal static readonly UpdateCadence DeathPixelationGrows = new(16, 0);
 
     /// <summary>
-    /// The updates on which the Wrecked Ship's colours take a step back to powered once Phantoon is dead: every fourth
-    /// update of the frame counter, on its first place.
+    /// The updates on which the Wrecked Ship's colours take a step back to powered once Phantoon is dead, counted on the
+    /// frame counter at the period's first place.
     /// </summary>
-    internal static readonly UpdateCadence PowerReturnStepEveryFourthUpdate = new(4, 0);
+    internal static readonly UpdateCadence PowerReturnStep = new(4, 0);
 
     /// <summary>
     /// The phase of Phantoon's rage wave count on which a wave is an odd wave of eight flames (#1619): set on its odd

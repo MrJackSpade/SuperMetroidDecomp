@@ -6,12 +6,12 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 /// <param name="horizontalStep">The drift chosen at launch.</param>
 internal sealed class FallingSparkState(SignedSixteenSixteen horizontalStep) : EnemyProjectileState
 {
-    /// <summary>The sideways distance the spark moves each update; it quadruples when the spark hits the floor.</summary>
+    /// <summary>The sideways distance the spark moves each update; it grows by <see cref="FallingSparkMotionDefinitions.ImpactDriftScale"/> when the spark hits the floor.</summary>
     internal SignedSixteenSixteen HorizontalStep { get; set; } = horizontalStep;
 
     /// <summary>
-    /// The vertical distance the spark moves each update: it starts still, gains a quarter pixel each falling update
-    /// until its whole part would reach four, and is half a pixel upward once the spark has hit the floor.
+    /// The vertical distance the spark moves each update: it starts still, gains <see cref="FallingSparkMotionDefinitions.Gravity"/> each falling update
+    /// until its whole part would reach <see cref="FallingSparkMotionDefinitions.TerminalWholeSpeed"/>, and is <see cref="FallingSparkMotionDefinitions.ImpactBounce"/> once the spark has hit the floor.
     /// </summary>
     internal SignedSixteenSixteen VerticalSpeed { get; set; }
 }

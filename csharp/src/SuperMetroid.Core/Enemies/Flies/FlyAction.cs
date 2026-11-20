@@ -9,7 +9,7 @@ public enum FlyAction
     /// <summary>
     /// Circles the way <see cref="FlyEnemyState.Rotation"/> names (#2277), its flight angle increasing clockwise and
     /// decreasing counterclockwise, switching direction after a full turn or attacking when cooldown is zero and Samus is
-    /// within 112 horizontal pixels.
+    /// within its attack range across.
     /// </summary>
     Circling,
     /// <summary>Advances the sampled attack velocity until crossing the saved Samus Y, then reverses vertical velocity and retreats.</summary>

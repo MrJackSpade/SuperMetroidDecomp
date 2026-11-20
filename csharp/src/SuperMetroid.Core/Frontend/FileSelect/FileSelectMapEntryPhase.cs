@@ -5,7 +5,7 @@ public enum FileSelectMapEntryPhase
 {
     /// <summary>Holds the screen black before the reveal (<see cref="FileSelectMapDefinitions.EntryBlackHoldUpdates"/>).</summary>
     BlackHold,
-    /// <summary>Expands the reveal window by eight pixels per update.</summary>
+    /// <summary>Expands the reveal window by <see cref="FileSelectMapDefinitions.EntryWindowSpeed"/> each update.</summary>
     Revealing,
     /// <summary>Displays the complete area scene and permits normal map input.</summary>
     Complete

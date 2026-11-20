@@ -17,12 +17,12 @@ public sealed class DeadTourianCorpseEnemyState
 
     /// <summary>The phase main AI runs.</summary>
     public DeadTourianCorpsePhase Phase { get; internal set; }
-    /// <summary>The corpse's own rot schedule: the fall of each of its pixel rows, 16 for Zoomer and Ripper, 32 for Skree.</summary>
+    /// <summary>The corpse's own rot schedule: the fall of each of its pixel rows, as many as its definition gives it.</summary>
     internal CorpseRotSchedule Rot { get; }
     /// <summary>The corpse's own pixel rows as its rot has left them, which its frames are drawn through (#1539).</summary>
     internal RottingCorpseRows Rows { get; }
     /// <summary>
-    /// The wait before rotting, counted once each pre-rot AI update after solid Samus collision: the sixteenth switches to
+    /// The wait before rotting, counted once each pre-rot AI update after solid Samus collision: its last switches to
     /// rotting and the corpse never returns to the delay. Touch/shot reactions enter rotting directly.
     /// </summary>
     public UpdateCountdown PreRotDelay { get; } = UpdateCountdown.Lasting(CorpseRotScheduleDefinitions.PreRotDelayUpdates);

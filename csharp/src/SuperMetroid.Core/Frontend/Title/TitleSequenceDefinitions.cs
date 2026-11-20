@@ -11,7 +11,7 @@ public static class TitleSequenceDefinitions
     /// <summary>The console lights title setup and the skip path start.</summary>
     public static class ConsoleColourEffects
     {
-        /// <summary>The Baby Metroid tube's slow ten-update light.</summary>
+        /// <summary>The Baby Metroid tube's slow light.</summary>
         public const ColourEffectId SlowLights = ColourEffectId.TitleScreenBabyMetroidTubeLight;
 
         /// <summary>The flickering displays' alternating colours.</summary>
@@ -57,16 +57,16 @@ public static class TitleSequenceDefinitions
     /// <summary>The floor scenes' starting transforms, motion and completion thresholds.</summary>
     public static class Scenes
     {
-        /// <summary>The lower pan: zoom 72/256 at background offset (315, 225).</summary>
+        /// <summary>The lower pan, zoomed in on the lower part of the background.</summary>
         public static readonly TitleFloorSceneDefinition LowerPan =
             new(TitleSequencePhase.LowerPan, FloorZoom.FromFloorPixelsPerScreenPixel(9, 32), new(315, 225));
-        /// <summary>The upper pan: zoom 96/256 at background offset (44, -155).</summary>
+        /// <summary>The upper pan, over the upper part of the background.</summary>
         public static readonly TitleFloorSceneDefinition UpperPan =
             new(TitleSequencePhase.UpperPan, FloorZoom.FromFloorPixelsPerScreenPixel(3, 8), new(44, -155));
-        /// <summary>The downward pan: zoom 96/256 at background offset (-177, -160).</summary>
+        /// <summary>The downward pan, down across the background.</summary>
         public static readonly TitleFloorSceneDefinition DownwardPan =
             new(TitleSequencePhase.DownwardPan, FloorZoom.FromFloorPixelsPerScreenPixel(3, 8), new(-177, -160));
-        /// <summary>The final zoom: zoom 67/256 with no background offset.</summary>
+        /// <summary>The final zoom, with no background offset.</summary>
         public static readonly TitleFloorSceneDefinition FinalZoom =
             new(TitleSequencePhase.FinalZoom, FloorZoom.FromFloorPixelsPerScreenPixel(67, 256), new(0, 0));
         /// <summary>The pan speed, 1.5 pixels per update; the lower and upper pans go left, the downward pan down.</summary>
@@ -77,13 +77,13 @@ public static class TitleSequenceDefinitions
         public const int UpperPanEndX = -176;
         /// <summary>The downward pan's Y threshold, 163 pixels; reaching it starts the Metroid 3 card.</summary>
         public const int DownwardPanEndY = 163;
-        /// <summary>The final zoom's step every second update.</summary>
+        /// <summary>The final zoom's step, taken at the final zoom's cadence.</summary>
         public static FloorZoomStep FinalZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 256);
         /// <summary>
-        /// The updates of the final zoom on which the zoom grows one step (#1619): every second update of the phase's own
-        /// count, on its even place, from the first.
+        /// The updates of the final zoom on which the zoom grows one step (#1619), counted on the phase's own count at the
+        /// period's even place, from the first.
         /// </summary>
-        public static readonly UpdateCadence FinalZoomStepEverySecondUpdate = new(2, 0);
+        public static readonly UpdateCadence FinalZoomCadence = new(2, 0);
         /// <summary>The floor scenes' rotation: none; the scenes pan and zoom only.</summary>
         public static RotationAngle Rotation => RotationAngle.Zero;
         /// <summary>The floor point the floor scenes zoom about.</summary>
@@ -133,7 +133,7 @@ public static class TitleSequenceDefinitions
         public const int CopyrightHoldFrames = 32;
         /// <summary>The idle title screen's timeout in updates; expiring selects the demo before a confirmation that update.</summary>
         public const int TitleScreenIdleTimeoutFrames = 900;
-        /// <summary>Updates each step of the fade leaving the idle title screen takes: one level every second update.</summary>
+        /// <summary>Updates each step of the fade leaving the idle title screen takes.</summary>
         public const int TitleFadeUpdatesPerStep = 2;
         /// <summary>Updates the Baby Metroid holds each pose of its animation.</summary>
         public const int BabyFrameDuration = 10;

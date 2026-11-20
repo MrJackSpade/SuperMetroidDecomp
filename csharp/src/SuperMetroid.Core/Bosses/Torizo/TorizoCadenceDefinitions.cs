@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoCadenceDefinitions
 {
     /// <summary>
-    /// The phase of a Torizo attack choice's count on which it takes the first of its two attacks (#1619): set for eight
-    /// counts, then clear for eight. The count is the frame counter offset by Samus's X in two-pixel steps
-    /// (<see cref="TorizoChoices.InFirstAttackPhase"/>), so the choice alternates every eight updates and Samus moving
+    /// The phase of a Torizo attack choice's count on which it takes the first of its two attacks (#1619): set for half
+    /// its counts, then clear for the other half. The count is the frame counter offset by Samus's X in two-pixel steps
+    /// (<see cref="TorizoChoices.InFirstAttackPhase"/>), so the choice alternates with the field's half-period and Samus moving
     /// shifts it.
     /// </summary>
     internal static readonly UpdateCounterField FirstAttackPhase = new(3, 1);

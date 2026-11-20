@@ -5,8 +5,8 @@ internal static class IntroRinkaDefinitions
 {
     /// <summary>The intro Rinka's actor: the Rinka animation. The Rinka holds still until the animation starts it moving.</summary>
     /// <remarks>
-    /// The animation shows the Rinka's three pictures for ten updates each, then starts it moving, then loops the second,
-    /// first, second and third pictures for ten updates each. Its movement begins on the update after it starts moving,
+    /// The animation shows the Rinka's pictures in turn, then starts it moving, then loops the second, first, second and
+    /// third pictures. Its movement begins on the update after it starts moving,
     /// since the Rinka moves before its animation steps.
     /// </remarks>
     public static CinematicActorDefinition<IntroRinkaAnimation> RinkaActor =>

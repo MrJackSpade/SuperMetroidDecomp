@@ -120,7 +120,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         GunshipState ship;
         if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
         {
-            // Post-Ceres initialization attaches the top hull seventeen pixels above Samus and
+            // Post-Ceres initialization attaches the top hull above Samus and
             // enters the high-altitude descent used only after Ceres, which starts the ship above the room's top.
             place.Position = OffRoomPlaces.WithWholeY(place.Position, samus.Position.Y.Whole - GunshipMotionDefinitions.TopHullAboveSamus);
             ship = new GunshipState(GunshipPhase.DescendAfterCeres) { EngineSoundTimer = UpdateCountdown.For(GunshipHoverSoundDefinitions.FirstDelayAfterCeres) };
@@ -268,12 +268,12 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Carries Samus and all ship parts downward, slowing below Y=768 before the landing clamp.</summary>
+    /// <summary>Carries Samus and all ship parts downward, slowing below <see cref="GunshipMotionDefinitions.SlowDescentY"/> before the landing clamp.</summary>
     private static void DescendPostCeresGunship(RoomEnemyPlace top, SamusState samus)
     {
-        // The after-Ceres descent carries all four actors as a rigid body. Above Y=768 it moves
-        // 4.5 pixels an update; below that threshold it slows to 2.5 and clamps the
-        // top hull to 1119 before beginning its seventeen-frame landing bounce.
+        // The after-Ceres descent carries all the ship's actors as a rigid body. Above its slowing height it
+        // moves fast; below that threshold it slows and clamps the top hull to its landing height
+        // before beginning its landing bounce.
         // The clamp writes only whole positions; the fractions of a pixel keep this update's sum.
         SignedSixteenSixteen delta = top.Position.Y.Whole < GunshipMotionDefinitions.SlowDescentY ? GunshipMotionDefinitions.FastDescentSpeed : GunshipMotionDefinitions.SlowDescentSpeed;
         MoveGunshipAndSamusVertically(samus, top, delta);
@@ -289,7 +289,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         State(top).LandingBrake = GunshipLandingBrake.First;
     }
 
-    /// <summary>Applies seventeen authored brake offsets, then opens the pad and aligns Samus.</summary>
+    /// <summary>Applies the authored brake offsets, then opens the pad and aligns Samus.</summary>
     private void BouncePostCeresGunship(RoomEnemyPlace top, SamusState samus)
     {
         GunshipLandingBrake brake = State(top).LandingBrake;
@@ -486,7 +486,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         State(top).Phase = GunshipPhase.FireUpEngines;
     }
 
-    /// <summary>Runs the 128-frame engine-rumble phase.</summary>
+    /// <summary>Runs the engine-rumble phase (<see cref="GunshipTakeoffDefinitions.EngineRumbleFrames"/>).</summary>
     private void FireUpGunshipEngines(RoomEnemyPlace top, SamusState samus)
     {
         UpdateCountdown rumble = State(top).Rumble;
@@ -510,7 +510,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             State(top).Phase = GunshipPhase.SteadyLiftoff;
     }
 
-    /// <summary>Runs constant two-pixel liftoff.</summary>
+    /// <summary>Runs the constant-speed liftoff (<see cref="GunshipTakeoffDefinitions.SteadyLiftoffRise"/>).</summary>
     private static void LiftGunshipAtConstantSpeed(RoomEnemyPlace top, SamusState samus)
     {
         // The steady liftoff rises two pixels an update from the landed ship until the hull passes 896, deep inside the

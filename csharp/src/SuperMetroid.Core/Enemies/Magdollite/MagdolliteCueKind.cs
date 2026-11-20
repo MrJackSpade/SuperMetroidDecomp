@@ -14,12 +14,12 @@ internal enum MagdolliteCueKind
     FinishThrow,
     /// <summary>Returns the head and body to the origin height.</summary>
     RestoreOrigins,
-    /// <summary>Puts the head and body 24 pixels below the origin and shows the body and overlay.</summary>
+    /// <summary>Puts the head and body at their sunk depth (<see cref="MagdolliteMotionDefinitions.SunkDepth"/>) and shows the body and overlay.</summary>
     SinkAndShowParts,
     /// <summary>Throws a lava projectile.</summary>
     SpawnLava,
     /// <summary>Starts the attack cooldown (<see cref="MagdolliteMotionDefinitions.AttackCooldown"/>).</summary>
     StartCooldown,
-    /// <summary>Puts the head and body 4 pixels below the origin and hides the body and overlay.</summary>
+    /// <summary>Puts the head and body at their surfaced depth (<see cref="MagdolliteMotionDefinitions.SurfacedDepth"/>) and hides the body and overlay.</summary>
     SurfaceAndHideParts,
 }

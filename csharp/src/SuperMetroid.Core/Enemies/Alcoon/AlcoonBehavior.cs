@@ -217,7 +217,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        // This is a real two-pixel downward move, not merely a floor probe. On ordinary
+        // This is a real downward move, not merely a floor probe. On ordinary
         // floors it collides and keeps Alcoon aligned; if the floor vanishes it lets the
         // walking actor fall by the same amount before the remainder of main AI runs.
         _terrain.MoveEnemyVertically(level, place, AlcoonMotionDefinitions.FloorPress);
@@ -277,14 +277,14 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = AlcoonAction.WaitingForSamus;
     }
 
-    /// <summary>Resets the jump to a twelve-pixel upward velocity.</summary>
+    /// <summary>Resets the jump to its upward velocity (<see cref="AlcoonMotionDefinitions.EmergeJumpVelocity"/>).</summary>
     private static void SetupAlcoonJumpMovement(AlcoonEnemyState state)
     {
         state.WalkingDirection = null;
         state.VerticalVelocity = AlcoonMotionDefinitions.EmergeJumpVelocity;
     }
 
-    /// <summary>Adds the Alcoon's gravity, half a pixel an update downward, to its vertical velocity (#2432).</summary>
+    /// <summary>Adds the Alcoon's gravity (<see cref="AlcoonMotionDefinitions.Gravity"/>) to its vertical velocity (#2432).</summary>
     private static void AccelerateAlcoonY(AlcoonEnemyState state)
     {
         state.VerticalVelocity += AlcoonMotionDefinitions.Gravity;

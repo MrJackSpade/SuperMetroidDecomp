@@ -2,14 +2,14 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// A Power Bomb's radius, or the change of radius one update of its blast makes, in whole pixels and 256ths of a pixel:
-/// from nothing up to one 256th of a pixel short of 256 pixels. Lengths add, subtract and compare as plain numbers.
+/// from nothing up to one 256th of a pixel short of the length's whole range. Lengths add, subtract and compare as plain numbers.
 /// </summary>
 /// <remarks>
 /// No explosion leaves that range, so no wrap is kept and a length outside it is refused. The stages that grow a
-/// radius without testing the sum end long before it could pass 255 pixels: the white flash at 146 pixels, the yellow
-/// blast at 134 pixels and Crystal Flash's bubble at 32 pixels. The flash slows by half a pixel an update for at most
-/// four updates from 48 pixels an update, so its speed never drops below nothing. The one place the range's end is
-/// load-bearing is the growth the shape stages refuse when it would reach 256 pixels: the compatibility rule
+/// radius without testing the sum end long before it could pass the range: the white flash, the yellow blast and
+/// Crystal Flash's bubble each stop well short of it. The flash slows for only a few updates from its starting speed,
+/// so its speed never drops below nothing. The one place the range's end is load-bearing is the growth the shape
+/// stages refuse when it would pass the range: the compatibility rule
 /// <see cref="PowerBombGrowthHold"/>.
 /// </remarks>
 public readonly record struct PowerBombRadius : IComparable<PowerBombRadius>

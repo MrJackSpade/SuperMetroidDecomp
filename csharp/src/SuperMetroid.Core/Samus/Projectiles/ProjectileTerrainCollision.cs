@@ -99,7 +99,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // Wave collision deliberately discards whether terrain stopped it, after retaining every block and
-        // room-object side effect. The Wave beam's flight overwrites the temporary zero/-1 speeds immediately.
+        // room-object side effect. The Wave beam's flight overwrites the temporary scan speeds immediately.
         return false;
     }
 
@@ -368,7 +368,7 @@ internal sealed class ProjectileTerrainCollision
 
         // The four blue-door behaviours spawn the blue door's opening room objects. These are not
         // ordinary breakable blocks: setup changes the cap origin to a solid block and the
-        // door's animation opens all four blocks over eighteen frames. Keep this reaction
+        // door's animation opens all its blocks over its frames. Keep this reaction
         // beside the ordinary reactions so every beam/missile/bomb collision reaches the
         // same owner and power bombs retain the blue door setup's rejection behavior.
         if (block.Behavior.TryGetBlueDoorOrientation(out _))

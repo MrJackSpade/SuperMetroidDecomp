@@ -114,7 +114,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// The departing first echo's horizontal speed in whole pixels an update, negative leftward. Cancellation
-    /// sets eight leftward while facing left or eight rightward otherwise.
+    /// sets <see cref="SamusMovementDefinitions.SpeedEchoDepartureSpeed"/> leftward while facing left or rightward otherwise.
     /// </summary>
     private int FirstSpeedEchoHorizontalSpeed { get; set; }
 
@@ -126,8 +126,8 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// How slowed Samus is (#2286), 0 through <see cref="LargestSlowdownLevel"/>: total speed is halved this many times,
-    /// capped at four halvings, and the game's same level is her dry-ground animation delay. Each Draygon goop stuck to
-    /// Samus adds one, a sixth is refused, and the Baby Metroid's drain stores two, so the setter rejects any other value.
+    /// capped at <see cref="SamusHorizontalSpeedDefinitions.LargestSpeedHalvings"/>, and the game's same level is her dry-ground animation delay. Each Draygon goop stuck to
+    /// Samus adds one, one past the largest is refused, and the Baby Metroid's drain stores its own level, so the setter rejects any other value.
     /// </summary>
     public int SlowdownLevel
     {
@@ -167,8 +167,8 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Runs the dry-air portion of the extra run speed.
-    /// Both routes accelerate by a sixteenth of a pixel an update. Ordinary Dash is held at two pixels an update;
-    /// equipped Speed Booster is held at seven and starts its boost counter at its first stage. Their shared momentum
+    /// Both routes accelerate by the same step each update. Ordinary Dash is held at its unboosted cap;
+    /// equipped Speed Booster is held at its boosted cap and starts its boost counter at its first stage. Their shared momentum
     /// flag survives release and jumps.
     /// </summary>
     [IndependentFlag("Speed Booster equipment and liquid impedance are independent facts about Samus.")]
@@ -230,8 +230,8 @@ public sealed class SamusHorizontalSpeedState
         }
 
         // The cap test reads the whole pixels and the fraction each on their own (SamusSpeedMagnitude.ReadsAtCap). The
-        // cap has no fraction, so a normal progression reaches exactly two pixels and is held there on the following
-        // update before another sixteenth of a pixel can be added.
+        // cap has no fraction, so a normal progression reaches exactly the cap and is held there on the following
+        // update before another step can be added.
         if (SamusSpeedMagnitude.ReadsAtCap(ExtraRunSpeed, SamusHorizontalSpeedDefinitions.UnboostedExtraRunSpeedCap))
         {
             ExtraRunSpeed = SamusHorizontalSpeedDefinitions.UnboostedExtraRunSpeedCap;
@@ -434,7 +434,7 @@ public sealed class SamusHorizontalSpeedState
         Ensure.AtLeastZero(gameTimeFrames);
         if (!IsActivelySpeedBoosting ||
             SpeedEchoesDeparting ||
-            !SamusCadenceDefinitions.SpeedEchoCaptureEveryFourthUpdate.IsDue(gameTimeFrames))
+            !SamusCadenceDefinitions.SpeedEchoCapture.IsDue(gameTimeFrames))
         {
             return false;
         }
@@ -604,8 +604,8 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Advances one departing echo one update: Y approaches the live Samus center by two pixels, X advances by the signed
-    /// eight-pixel velocity, and the echo is gone on the exact update it crosses Samus. An echo already gone stays gone.
+    /// Advances one departing echo one update: Y approaches the live Samus center by its vertical approach, X advances by
+    /// the signed departure speed, and the echo is gone on the exact update it crosses Samus. An echo already gone stays gone.
     /// </summary>
     private void AdvanceDepartingSpeedEcho(
         SpeedEcho echo,
@@ -774,7 +774,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Calculates the non-collision portion of a displacement toward <paramref name="side"/> (#2569): the total speed's
-    /// velocity toward the side plus the extra displacement, within the ±15-pixel whole-pixel clamp, so a leftward move is
+    /// velocity toward the side plus the extra displacement, within the whole-pixel clamp (<see cref="SamusHorizontalSpeedDefinitions.LargestWholeDisplacement"/>), so a leftward move is
     /// the extra displacement less the total speed rather than the rightward result reversed.
     /// </summary>
     public SignedSixteenSixteen CalculateDisplacement(HorizontalDirection side, UnsignedSixteenSixteen baseSpeed, SignedSixteenSixteen extraDisplacement) =>
@@ -783,7 +783,7 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Whether Samus has any base speed: either its whole pixels or its fraction is nonzero.</summary>
     public bool HasBaseSpeed => BaseSpeed != default;
 
-    /// <summary>Clamps the whole-pixel part to plus or minus fifteen while preserving fractional displacement.</summary>
+    /// <summary>Clamps the whole-pixel part to <see cref="SamusHorizontalSpeedDefinitions.LargestWholeDisplacement"/> either way while preserving fractional displacement.</summary>
     private static SignedSixteenSixteen ClampDisplacement(SignedSixteenSixteen displacement) =>
         displacement.WithWholePixelsClamped(-SamusHorizontalSpeedDefinitions.LargestWholeDisplacement, SamusHorizontalSpeedDefinitions.LargestWholeDisplacement);
 }

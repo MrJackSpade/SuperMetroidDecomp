@@ -41,7 +41,7 @@ public enum FileSelectPhase
     EnterBlankScreenAfterFrameWait,
     /// <summary>Holds the blanked screen black (<see cref="FileSelectLayout.BlackHoldUpdates"/>) before the screen's setup.</summary>
     BlackHold,
-    /// <summary>Sets the fades to step every second update, then waits out one update.</summary>
+    /// <summary>Sets the fades to step at the menu's fade pace (<see cref="FileSelectLayout.FadeUpdatesPerStep"/>), then waits out one update.</summary>
     InitializeMain,
     /// <summary>Continuation of the screen setup after its frame wait; advance to the screen's fade-in without another per-update random advance.</summary>
     InitializeMainAfterFrameWait,

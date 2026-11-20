@@ -15,13 +15,13 @@ public abstract record SamusMissileIgnition
     /// <summary>Whether the missile has ignited since it was fired or reflected.</summary>
     public bool HasIgnited => this is Ignited;
 
-    /// <summary>Fired and not yet ignited; it ignites at one pixel per update.</summary>
+    /// <summary>Fired and not yet ignited; it ignites at <see cref="SamusProjectileMotionDefinitions.MissileIgnitionSpeed"/>.</summary>
     public sealed record Pending : SamusMissileIgnition;
 
     /// <summary>Reflected by an enemy and not yet re-ignited; it re-ignites with the reflection's head start.</summary>
     public sealed record PendingAfterReflection : SamusMissileIgnition;
 
     /// <summary>Ignited at <paramref name="Speed"/>.</summary>
-    /// <param name="Speed">The base speed it ignited at: one pixel an update, or more after a reflection's head start.</param>
+    /// <param name="Speed">The base speed it ignited at: <see cref="SamusProjectileMotionDefinitions.MissileIgnitionSpeed"/>, or <see cref="SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed"/> after a reflection's head start.</param>
     public sealed record Ignited(SignedEightEight Speed) : SamusMissileIgnition;
 }

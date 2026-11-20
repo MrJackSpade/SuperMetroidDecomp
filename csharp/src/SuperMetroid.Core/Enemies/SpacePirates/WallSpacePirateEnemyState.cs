@@ -46,9 +46,9 @@ public sealed class WallSpacePirateEnemyState
     public RotationAngle WallJumpArcAngle { get; internal set; }
 
     /// <summary>
-    /// The jump between the walls its placement chose (#2450), slow or fast: the endpoints, step 190 or 192 of the turn
-    /// rightward and 66 or 64 leftward, whose reaching installs that wall's landing, and the two or four steps (256ths of a
-    /// turn) its angle turns each update, subtracted jumping right and added jumping left.
+    /// The jump between the walls its placement chose (#2450), slow or fast: the endpoints rightward and leftward, whose
+    /// reaching installs that wall's landing, and the steps (256ths of a turn) its angle turns each update, subtracted
+    /// jumping right and added jumping left.
     /// </summary>
     internal WallSpacePirateJump Jump { get; }
 }

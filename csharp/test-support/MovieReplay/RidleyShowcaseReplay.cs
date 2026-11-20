@@ -789,8 +789,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 ushort callback =
                     behavior is null ? NativeSnapshotMemory.ProjectileEmptyCallback
                     : behavior == SamusShotBehaviors.Beam ? SamusBeamFrameBehaviorCodes.NoWave
-                    : behavior == SamusShotBehaviors.WaveBeamThreeUpdateTrail ? SamusBeamFrameBehaviorCodes.WaveThreeFrameTrail
-                    : behavior == SamusShotBehaviors.WaveBeamFourUpdateTrail ? SamusBeamFrameBehaviorCodes.WaveFourFrameTrail
+                    : behavior == SamusShotBehaviors.UnchargedWaveBeamTrail ? SamusBeamFrameBehaviorCodes.WaveThreeFrameTrail
+                    : behavior == SamusShotBehaviors.WaveBeamTrail ? SamusBeamFrameBehaviorCodes.WaveFourFrameTrail
                     : behavior == SamusShotBehaviors.Missile ? NativeSnapshotMemory.ProjectileMissileCallback
                     : behavior == SamusShotBehaviors.SuperMissile ? NativeSnapshotMemory.ProjectileSuperMissileCallback
                     : behavior == SamusShotBehaviors.SuperMissileLink ? NativeSnapshotMemory.ProjectileSuperMissileLinkCallback

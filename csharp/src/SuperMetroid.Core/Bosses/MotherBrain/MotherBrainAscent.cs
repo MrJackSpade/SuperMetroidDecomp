@@ -144,7 +144,7 @@ internal sealed class MotherBrainAscent
     {
         // The rise gates on the frame counter, not the separate 256-step frame counter; the
         // two advance together but are not aligned, so their places in the cadence differ.
-        if (!MotherBrainCadenceDefinitions.AscentStepEveryFourthUpdate.IsDue(_frameContext.FrameCounter))
+        if (!MotherBrainCadenceDefinitions.AscentStep.IsDue(_frameContext.FrameCounter))
             return;
 
         SpawnMotherBrainAscentDust(state);

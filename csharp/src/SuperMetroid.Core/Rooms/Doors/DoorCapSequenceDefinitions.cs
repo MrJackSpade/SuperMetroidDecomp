@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>
 /// The door caps' sounds and authored animations (#1554, #2480): every run of pictures and sounds a blue, grey or coloured
 /// cap plays, the closing every coloured and grey cap plays behind Samus, and the blue cap's opening, closing and closed
-/// image. A hit's flash is one shared run played three times; the red cap sounds before it.
+/// image. A hit's flash is one shared run played over (<see cref="FlashesPerHit"/>); the red cap sounds before it.
 /// </summary>
 internal static class DoorCapSequenceDefinitions
 {
@@ -46,7 +46,7 @@ internal static class DoorCapSequenceDefinitions
     /// <summary>A cap's closed image, for one update: a coloured cap waiting, a grey cap locked or a blue cap closed again.</summary>
     internal static Animation<DoorCapSegment> Closed { get; } = Once(S.Closed);
 
-    /// <summary>A hit short of opening a cap: the shared flash, three times.</summary>
+    /// <summary>A hit short of opening a cap: the shared flash, played over.</summary>
     internal static Animation<DoorCapSegment> Flash { get; } = new([Segments.Repeated(S.Flash, FlashesPerHit)], AnimationEnd.Stops);
 
     /// <summary>

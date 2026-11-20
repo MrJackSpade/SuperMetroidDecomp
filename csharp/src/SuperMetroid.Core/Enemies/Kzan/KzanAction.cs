@@ -12,6 +12,6 @@ public enum KzanAction
     Falling,
     /// <summary>Waits at the lower target until the post-landing countdown expires.</summary>
     WaitingToRise,
-    /// <summary>Returns upward at one-half pixel per actor update and resumes the top wait.</summary>
+    /// <summary>Returns upward at <see cref="KzanMotionDefinitions.RisingStep"/> and resumes the top wait.</summary>
     Rising,
 }

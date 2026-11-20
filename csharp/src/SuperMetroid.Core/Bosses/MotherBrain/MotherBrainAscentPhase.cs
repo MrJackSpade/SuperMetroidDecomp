@@ -30,7 +30,7 @@ public enum MotherBrainAscentPhase
     /// <summary>Reveals the crouched body, starts boss music and earthquake, and enables the rising neck motion.</summary>
     StartMusicAndEarthquake,
 
-    /// <summary>Every fourth frame raises her body two pixels with dust until she has risen, then ends the floor-clipping effect and starts her uncrouching.</summary>
+    /// <summary>Raises her body a step with dust at the ascent's cadence until she has risen, then ends the floor-clipping effect and starts her uncrouching.</summary>
     RaiseMotherBrain,
 
     /// <summary>Waits for the body animation to publish the standing pose before initializing grey-colour restoration.</summary>

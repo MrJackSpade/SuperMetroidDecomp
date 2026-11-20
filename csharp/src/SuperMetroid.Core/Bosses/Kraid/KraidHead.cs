@@ -119,10 +119,10 @@ internal sealed class KraidHead
             return;
         }
 
-        // Kraid spits a rock on every sixteenth update left of the open mouth's hold, including the update the open mouth
+        // Kraid spits a rock at his spit cadence's place in the open mouth's hold, including the update the open mouth
         // shows and starts it.
         if (state.DisplayedHeadFrame == KraidHeadFrame.Open &&
-            KraidCadenceDefinitions.SpitRockEverySixteenthMouthUpdate.IsDue(state.HeadHold.UpdatesLeft))
+            KraidCadenceDefinitions.MouthSpitRock.IsDue(state.HeadHold.UpdatesLeft))
         {
             SpawnKraidSpitRock(body);
             _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
@@ -265,7 +265,7 @@ internal sealed class KraidHead
         rock.Velocity = rock.Velocity.WithY(KraidArenaDefinitions.SpitRockRise);
     }
 
-    /// <summary>Derives a thinking delay of one or more 64-update steps from the room RNG; a roll of none takes two.</summary>
+    /// <summary>Derives a thinking delay of one or more steps (<see cref="KraidArenaDefinitions.ThinkingDelayStepUpdates"/>) from the room RNG; a roll of none takes the fewest steps above one.</summary>
     internal int ChooseKraidThinkingUpdates() =>
         KraidRandomDefinitions.ThinkingDelaySteps.Choose(_room.Random.Read()) * KraidArenaDefinitions.ThinkingDelayStepUpdates;
 }

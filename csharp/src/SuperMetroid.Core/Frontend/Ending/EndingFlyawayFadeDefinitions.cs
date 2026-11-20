@@ -7,6 +7,6 @@ internal static class EndingFlyawayFadeDefinitions
     public const int WhiteHoldFrames = 192;
     /// <summary>The white fade takes its first step of white off on its first update, once the hold is over.</summary>
     public const int FirstStepUpdate = 1;
-    /// <summary>The white fade takes one step of white off once every eight updates thereafter.</summary>
+    /// <summary>The updates the white fade waits between each step of white it takes off thereafter.</summary>
     public const int UpdatesPerStep = 8;
 }

@@ -13,7 +13,7 @@ internal sealed class CeresSteamEnemyState
 
     /// <summary>
     /// The updates the vent stays hidden after its dormant animation hides it, before its first plume, the one it appears
-    /// on included: 1 through 32, drawn as it initializes. Its owner holds its animation that long (#2480).
+    /// on included, drawn as it initializes. Its owner holds its animation that long (#2480).
     /// </summary>
     public int UpdatesToActivation { get; internal set; }
 

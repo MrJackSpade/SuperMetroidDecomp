@@ -8,7 +8,7 @@ internal static class KraidRandomDefinitions
     /// </summary>
     internal static readonly RandomSampleField FakeKraidStartDelay = new(0, 2);
 
-    /// <summary>The fewest updates Fake Kraid waits before its first walk turn and first spit decision: two.</summary>
+    /// <summary>The fewest updates Fake Kraid waits before its first walk turn and first spit decision.</summary>
     internal const int FakeKraidStartDelayBase = 2;
 
     /// <summary>
@@ -18,7 +18,7 @@ internal static class KraidRandomDefinitions
 
     /// <summary>
     /// The fewest of its clock's visits from a Fake Kraid spike row's spike to its next, the visit it next spikes on
-    /// included: seventeen.
+    /// included.
     /// </summary>
     internal const int FakeKraidSpikeReloadBase = 17;
 
@@ -28,7 +28,7 @@ internal static class KraidRandomDefinitions
     /// </summary>
     internal static readonly RandomSampleField FakeKraidWalkStepSpread = new(0, 2);
 
-    /// <summary>The fewest walk steps Fake Kraid takes one way before it turns round: seven.</summary>
+    /// <summary>The fewest walk steps Fake Kraid takes one way before it turns round.</summary>
     internal const int FakeKraidWalkStepBase = 7;
 
     /// <summary>
@@ -37,7 +37,7 @@ internal static class KraidRandomDefinitions
     /// </summary>
     internal static readonly RandomSampleField FakeKraidSpitDecisionSpread = new(0, 2);
 
-    /// <summary>The fewest walk steps Fake Kraid takes between one spit and the next: three.</summary>
+    /// <summary>The fewest walk steps Fake Kraid takes between one spit and the next.</summary>
     internal const int FakeKraidSpitDecisionBase = 3;
 
     /// <summary>The slowest a ceiling rock falls in Kraid's room: a quarter pixel an update.</summary>
@@ -84,8 +84,8 @@ internal static class KraidRandomDefinitions
     internal static readonly RandomChance RisingRockStartsOnRight = RandomChance.Highest(1, new RandomSampleField(0, 1));
 
     /// <summary>
-    /// How much further from Kraid's body a rising rock on the left starts than one on the right with the same offset:
-    /// one pixel, so a rock on the left starts 1 through 64 pixels from the body's X.
+    /// How much further from Kraid's body a rising rock on the left starts than one on the right with the same offset, so
+    /// a rock on the left never starts at the body's X itself.
     /// </summary>
     internal const int RisingRockLeftExtraPixels = 1;
 

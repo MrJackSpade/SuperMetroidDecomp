@@ -41,16 +41,16 @@ public static class ZebesEscapeDefinitions
     private static readonly RandomChance MediumShakeTurnsDiagonal = RandomChance.Lowest(384, RandomSampleField.Whole);
 
     /// <summary>
-    /// The updates on which an outdoor escape room sets off an explosion (#1619): every second update of the frame clock's
-    /// counter, on its even place.
+    /// The updates on which an outdoor escape room sets off an explosion (#1619), counted on the frame clock's counter at
+    /// the period's even place.
     /// </summary>
-    internal static readonly UpdateCadence OutdoorExplosionEverySecondUpdate = new(2, 0);
+    internal static readonly UpdateCadence OutdoorExplosion = new(2, 0);
 
     /// <summary>
-    /// The updates on which an indoor escape room sets off an explosion (#1619): every fourth update of the frame clock's
-    /// counter, on the period's first place.
+    /// The updates on which an indoor escape room sets off an explosion (#1619), counted on the frame clock's counter at
+    /// the period's first place.
     /// </summary>
-    internal static readonly UpdateCadence IndoorExplosionEveryFourthUpdate = new(4, 0);
+    internal static readonly UpdateCadence IndoorExplosion = new(4, 0);
 
     /// <summary>
     /// The random selection that places an explosion across the screen: its pixels right of the camera's left edge, 256

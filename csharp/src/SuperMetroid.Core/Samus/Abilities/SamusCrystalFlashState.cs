@@ -31,18 +31,18 @@ public sealed class SamusCrystalFlashState
 
     /// <summary>
     /// The rise's updates left, the one it finishes on included: <see cref="CrystalFlashDefinitions.RaiseUpdates"/> when
-    /// it starts, one for each two-pixel step.
+    /// it starts, one for each step (<see cref="CrystalFlashDefinitions.RaiseStep"/>).
     /// </summary>
     public UpdateCountdown RaiseUpdatesLeft { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The ammunition the drain is consuming: missiles at activation, then super missiles and power bombs as each
-    /// ten-decrement run expires. No other owner shares this selector.
+    /// kind's run expires. No other owner shares this selector.
     /// </summary>
     public CrystalFlashAmmoKind DrainingAmmo { get; private set; }
 
     /// <summary>
-    /// The updates until the next unit of ammunition drains, reloaded to ten between the three ammunition families, on the
+    /// The updates until the next unit of ammunition drains, reloaded between the ammunition families, on the
     /// count Draygon's escape and the suit pickup's stage share, so it counts on from whatever they last left.
     /// </summary>
     private readonly SharedEscapeAndDrainCount<SamusSuitPickupStage> _ammoCountdown;
@@ -72,20 +72,20 @@ public sealed class SamusCrystalFlashState
     internal void RelinquishSuitColouring() => Colouring = SpecialColouringStage.Showing;
 
     /// <summary>
-    /// The room line Samus's whole Y reached at the end of the complete 20-pixel rise: the finishing phase walks her down
-    /// one pixel an update while her whole Y differs from it.
+    /// The room line Samus's whole Y reached at the end of the complete rise: the finishing phase walks her down a pixel
+    /// at a time while her whole Y differs from it.
     /// </summary>
     private int RaisedHeight { get; set; }
 
     /// <summary>
-    /// The body's colour pulse (#2387), its ten shades of ten colouring updates each played over and over: activation
+    /// The body's colour pulse (#2387), its shades played over and over: activation
     /// starts it, and its first shade shows on the flash's first colouring update.
     /// </summary>
     private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> BodyPulse { get; } =
         SamusGlowPlay.Starting(SamusGlowSegment.CrystalFlashBody);
 
     /// <summary>
-    /// The bubble's colours turning (#2387), its six shades of five colouring updates each played over and over on their
+    /// The bubble's colours turning (#2387), its shades played over and over on their
     /// own count beside the body's: activation starts it, and its first shade shows on the flash's first colouring update.
     /// </summary>
     private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> BubbleTurn { get; } =
@@ -174,7 +174,7 @@ public sealed class SamusCrystalFlashState
 
     /// <summary>Runs one update of Crystal Flash's current phase in Samus's movement phase.</summary>
     /// <param name="samus">Live actor receiving movement, ammunition/energy, animation, and phase-completion writes.</param>
-    /// <param name="frameCounter">The frame counter; ammunition drains only on every eighth frame.</param>
+    /// <param name="frameCounter">The frame counter; ammunition drains only at its cadence (<see cref="SamusCadenceDefinitions.CrystalFlashDrain"/>).</param>
     /// <returns>A value snapshot of the entry phase and retained bubble-effect request, even when this update changes phase.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> is null.</exception>
     /// <exception cref="InvalidOperationException">Crystal Flash does not hold Samus's movement, or the phase/ammunition-family state is unsupported.</exception>
@@ -215,7 +215,7 @@ public sealed class SamusCrystalFlashState
             BubbleStarted: phaseAtStart == CrystalFlashPhase.Raising && Phase == CrystalFlashPhase.DrainingAmmo);
     }
 
-    /// <summary>Raises Samus two whole pixels for ten updates, then starts the drain phase and requests the bubble effect.</summary>
+    /// <summary>Raises Samus by <see cref="CrystalFlashDefinitions.RaiseStep"/> for <see cref="CrystalFlashDefinitions.RaiseUpdates"/>, then starts the drain phase and requests the bubble effect.</summary>
     private void StepRaising(SamusState samus)
     {
         // The raise changes only the whole pixels; where Samus lies within a pixel stays.
@@ -238,14 +238,14 @@ public sealed class SamusCrystalFlashState
     }
 
     /// <summary>
-    /// Consumes missiles, supers, then power bombs on each eighth frame and restores 50 energy for each one spent. Nothing
-    /// stops a count at zero, so a kind the activation check let through with fewer than ten drains below zero.
+    /// Consumes missiles, supers, then power bombs at the drain's cadence and restores <see cref="CrystalFlashDefinitions.EnergyPerAmmunition"/> for each one spent. Nothing
+    /// stops a count at zero, so a kind the activation check let through with fewer than its share drains below zero.
     /// </summary>
     private void StepAmmoDrain(SamusState samus, int frameCounter)
     {
-        // All three drains do nothing on seven of every eight frames of the frame counter;
+        // All three drains do nothing off their cadence's place in the frame counter;
         // Crystal Flash keeps no cadence of its own.
-        if (!SamusCadenceDefinitions.CrystalFlashDrainEveryEighthUpdate.IsDue(frameCounter))
+        if (!SamusCadenceDefinitions.CrystalFlashDrain.IsDue(frameCounter))
             return;
 
         switch (DrainingAmmo)
@@ -314,8 +314,8 @@ public sealed class SamusCrystalFlashState
     /// Runs Crystal Flash's suit colouring for one update.
     /// </summary>
     /// <remarks>
-    /// The beams' colours are split deliberately: the body's shade pulses through ten steps of ten updates each, while the
-    /// bubble's shade, laid over the beams' upper colours, rotates through six steps every five updates. The import
+    /// The beams' colours are split deliberately: the body's shade pulses slowly through its steps, while the bubble's
+    /// shade, laid over the beams' upper colours, rotates more quickly through its own. The import
     /// pre-colours Samus in every step of both (#1512); completion shows the beam shade of the currently equipped beam
     /// combination again.
     /// </remarks>

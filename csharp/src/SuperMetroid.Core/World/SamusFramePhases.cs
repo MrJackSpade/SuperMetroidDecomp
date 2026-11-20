@@ -271,7 +271,7 @@ internal sealed class SamusFramePhases
 
         // The input phase order is cooldown -> movement-type HUD projectile producer ->
         // projectile handling. The outer gameplay loop then runs overlap
-        // before movement. A newly placed bomb therefore counts 60 -> 59 and
+        // before movement. A newly placed bomb therefore counts its fuse down once and
         // shows its first frame in the placement frame itself.
         // The door fade's enemy and draw pass does not run the normal input phase.
         // In particular its draw-only zero input must not release a held charge.
@@ -1006,7 +1006,7 @@ internal sealed class SamusFramePhases
     private void AnimateAndSettleSamus(SamusControlFrame frame, SamusState samus, bool runsLowHealthCheck, RoomScope room)
     {
         // Samus's normal movement phase updates the speed echo after her movement owner has moved her
-        // and before animation/pose transitions. Every fourth gameplay frame at the full boost stage, it alternates
+        // and before animation/pose transitions. At its capture cadence at the full boost stage, it alternates
         // between two of her places in the room, so the echoes drawn after it stand where she has moved to.
         if (frame.Mode.Movement != SamusMovementMode.SuitPickup && frame.ShinesparkMovement is null)
         {

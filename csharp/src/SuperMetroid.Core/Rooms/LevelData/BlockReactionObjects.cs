@@ -94,7 +94,7 @@ internal sealed class BlockReactionObjects
     /// </summary>
     /// <remarks>
     /// Only downward collision activates it: the setup keeps the block's collision kind and mirroring with the crumble
-    /// parent's block as the restore block, makes the live block solid, and delays the change for four room-object
+    /// parent's block as the restore block, makes the live block solid, and delays the change for its delay's room-object
     /// passes. Crumble blocks that grow back reverse their animation and restore the parent; the others end on air. The
     /// collision check returns solid for the triggering frame on its own, whether or not the crumble took a place.
     /// </remarks>
@@ -268,7 +268,7 @@ internal sealed class BlockReactionObjects
                 return true;
 
             case ShotBlockReaction.RespawningBreak:
-                // The setup keeps the collision kind with the shot-block parent's appearance for the 384-frame
+                // The setup keeps the collision kind with the shot-block parent's appearance for the
                 // restoration, and deactivates the live block immediately.
                 RestoreAsParent(level, place, block, RoomObjectSetupBlock.ShotBlockParent,
                     BlockReactionChanges.RespawningShot(behavior.Shootable));
@@ -293,8 +293,8 @@ internal sealed class BlockReactionObjects
                 }
 
                 // A power bomb keeps the collision kind with the power-bomb parent's appearance, deactivates the live
-                // block, and runs its definition's change. The respawning block uses the ordinary four-frame breakup; the
-                // permanent one its shorter 3/2/1-frame counterpart.
+                // block, and runs its definition's change. The respawning block uses the ordinary breakup; the
+                // permanent one its shorter counterpart.
                 RestoreAsParent(level, place, block, RoomObjectSetupBlock.PowerBombBlockParent,
                     reaction == ShotBlockReaction.RespawningPowerBombBreak
                         ? BlockReactionChangeDefinitions.RespawningPowerBombBlock

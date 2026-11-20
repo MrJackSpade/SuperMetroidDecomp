@@ -49,7 +49,7 @@ internal static class DustExplosionProjectileDefinitionsVerification
             SmokePuffPlacements.Point,
             SmokePuffPlacementsConstants.CentredEightPixelSquare,
             SmokePuffPlacementsConstants.CentredSixteenPixelSquare,
-            SmokePuffPlacements.CentredSixteenByThirtyTwoBox,
+            SmokePuffPlacements.CentredBox,
             SmokePuffPlacementsConstants.CentredThirtyTwoBySixtyFourBox,
         ];
         for (int index = 0; index < placements.Length; index++)

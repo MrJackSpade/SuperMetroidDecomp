@@ -13,7 +13,7 @@ public sealed record MessageBoxLayer : DisplayLayer
 {
     /// <summary>Checks the picture fits the screen and the fully open window, and the reveal radius.</summary>
     /// <param name="picture">The picture of the message.</param>
-    /// <param name="radiusPixels">The centered reveal half-height in pixels, from zero through 24.</param>
+    /// <param name="radiusPixels">The centered reveal half-height in pixels, from none up to the fully open window's.</param>
     /// <exception cref="ArgumentException">The picture is empty, wider than the screen or taller than the open window.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The radius is out of range.</exception>
     private MessageBoxLayer(SpriteSheetFrame picture, int radiusPixels)
@@ -31,7 +31,7 @@ public sealed record MessageBoxLayer : DisplayLayer
     /// <summary>The picture of the message.</summary>
     public SpriteSheetFrame Picture { get; }
 
-    /// <summary>The current centered reveal half-height in pixels, from zero through 24.</summary>
+    /// <summary>The current centered reveal half-height in pixels, from none up to the fully open window's.</summary>
     public int RadiusPixels { get; }
 
     /// <summary>The screen pixel the picture's top-left corner lies on: the picture centred across the screen and on the window.</summary>

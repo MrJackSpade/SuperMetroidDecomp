@@ -12,7 +12,7 @@ internal sealed class EscapeRoomEffects
 {
     /// <summary>Suppresses explosion generation while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Paces the explosions on the escape's two- or four-update cadence.</summary>
+    /// <summary>Paces the explosions on the escape's outdoor or indoor cadence.</summary>
     private readonly FrameClock _clock;
     /// <summary>Supplies the game's random sequence and Zebes timebomb event.</summary>
     private readonly SharedGameState _system;

@@ -237,7 +237,7 @@ internal sealed class DraygonParts
         RoomEnemyPlace eye = state.Eye;
         // The eye breathes its bubble on its cadence whether or not its gaze turns,
         // as one of the room's dust and explosion effects.
-        if (DraygonCadenceDefinitions.EyeBreathBubbleEvery128thUpdate.IsDue(eye.FrameCounter))
+        if (DraygonCadenceDefinitions.EyeBreathBubble.IsDue(eye.FrameCounter))
             _projectiles.SpawnDustOrExplosion(
                 new(OffRoomPlaces.Place(eye.Position.X.Whole + (DraygonEyeEffects.HorizontalOffset.Toward(facing))), OffRoomPlaces.Place(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset)),
                 DraygonEyeEffects.DustVariant);
@@ -292,7 +292,7 @@ internal sealed class DraygonParts
         state.SwoopAcceleration = DraygonSwoopDefinitions.InitialAcceleration;
         SamusSuitDamage.Hurt(samus, state.Body.Definition.Damage);
 
-        // The tail hit also shakes the foreground strongly for 32 updates, so the camera shows the hit as well as the
+        // The tail hit also shakes the foreground strongly for its shake's updates, so the camera shows the hit as well as the
         // energy it costs.
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), DraygonArenaDefinitions.TailHitShakeUpdates);
 

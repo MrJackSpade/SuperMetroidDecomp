@@ -182,7 +182,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
         projectile.Position = source.Position;
 
-        // Namihe's mouth is four pixels lower than Fune's in the shared art.
+        // Namihe's mouth is lower than Fune's in the shared art.
         if (state.MouthDrop != 0)
             projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole + state.MouthDrop);
 

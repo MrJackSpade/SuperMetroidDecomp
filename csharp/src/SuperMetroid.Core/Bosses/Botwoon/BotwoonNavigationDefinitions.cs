@@ -37,8 +37,8 @@ internal static class BotwoonNavigationDefinitions
     };
 
     /// <summary>
-    /// The four room holes in the order the game tests the head against them, last first: left (centre 64,112), bottom
-    /// (128,176), top (160,96) and right (224,144).
+    /// The room holes in the order the game tests the head against them, last first: left, bottom, top and right, each at
+    /// the centre its definition holds.
     /// </summary>
     internal static readonly BotwoonHoleDefinition[] Holes =
     [

@@ -177,8 +177,8 @@ internal static class RidleyAnimations
     ];
 
     /// <summary>
-    /// One roar and four fireballs (#2331): the first with its afterburn, each shot with the mouth open for its five
-    /// updates, the last for the burst's tail, before the mouth half closes.
+    /// One roar and its fireballs (#2331): the first with its afterburn, each shot with the mouth open for its shot's
+    /// hold, the last for the burst's tail, before the mouth half closes.
     /// </summary>
     private static AnimationBeat<F, RidleyBodyCue>[] Burst(Side side) =>
     [

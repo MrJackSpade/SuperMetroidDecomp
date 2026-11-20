@@ -91,8 +91,8 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
                 MoveSqueeptVertically(place, state);
                 state.ApplyGravity(NorfairLavaJumpDefinitions.Gravity);
 
-                // The flip starts once the rise has slowed to four pixels an update. Jumps start rising at about eight,
-                // so the flip always comes before the top of the arc.
+                // The flip starts once the rise has slowed to its switch speed. Jumps start rising much faster, so the
+                // flip always comes before the top of the arc.
                 if (state.YVelocity.IsNegative && state.YVelocity >= NorfairLavaJumpDefinitions.AnimationSwitchVelocity)
                 {
                     StartSqueeptAnimation(place, state, NorfairLavaJumperSegment.Jump);

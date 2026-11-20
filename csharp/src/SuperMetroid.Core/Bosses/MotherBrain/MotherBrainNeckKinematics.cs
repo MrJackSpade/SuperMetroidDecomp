@@ -40,7 +40,7 @@ internal static class MotherBrainNeckKinematics
         {
             case MotherBrainNeckMovement.None:
                 break;
-            case MotherBrainNeckMovement.BobDown: // Bob down to five thirty-seconds of a turn, then reverse.
+            case MotherBrainNeckMovement.BobDown: // Bob down to the bob's floor, then reverse.
             {
                 RotationAngle candidate = lowerAngle - turn;
                 if (candidate.CompareTo(LowerBobFloor) < 0)
@@ -51,7 +51,7 @@ internal static class MotherBrainNeckKinematics
                 lowerAngle = candidate;
                 break;
             }
-            case MotherBrainNeckMovement.BobUp: // Bob up to nine sixteenths of a turn unless the brain is already above its highest bob.
+            case MotherBrainNeckMovement.BobUp: // Bob up to the lower neck's ceiling unless the brain is already above its highest bob.
                 if (brainY < MotherBrainNeckJointDefinitions.BobUpHighestBrainY)
                 {
                     lowerMovement = MotherBrainNeckMovement.BobDown;
@@ -117,7 +117,7 @@ internal static class MotherBrainNeckKinematics
                     upperAngle = candidate;
                 }
                 break;
-            case MotherBrainNeckMovement.BobUp: // Follow eight angle units above the newly updated lower segment.
+            case MotherBrainNeckMovement.BobUp: // Follow the upper neck's lead above the newly updated lower segment.
             {
                 RotationAngle target = lowerAngle + UpperLeadOverLower;
                 RotationAngle candidate = upperAngle + turn;
@@ -129,7 +129,7 @@ internal static class MotherBrainNeckKinematics
                 upperAngle = candidate;
                 break;
             }
-            case MotherBrainNeckMovement.Lower: // One-way lower to an eighth of a turn.
+            case MotherBrainNeckMovement.Lower: // One-way lower to the upper neck's floor.
             {
                 RotationAngle candidate = upperAngle - turn;
                 if (candidate.CompareTo(UpperFloor) < 0)
@@ -140,7 +140,7 @@ internal static class MotherBrainNeckKinematics
                 upperAngle = candidate;
                 break;
             }
-            case MotherBrainNeckMovement.Raise: // One-way raise to lower angle plus a thirty-second of a turn.
+            case MotherBrainNeckMovement.Raise: // One-way raise to the lower angle plus the upper neck's lead.
             {
                 RotationAngle target = lowerAngle + UpperLeadOverLower;
                 RotationAngle candidate = upperAngle + turn;

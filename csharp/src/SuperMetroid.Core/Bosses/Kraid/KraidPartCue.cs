@@ -9,9 +9,9 @@ internal enum KraidPartCue
     LowerBodyAndShake,
     /// <summary>Queues the footstep sound.</summary>
     StepSound,
-    /// <summary>Moves Kraid's body three pixels left.</summary>
+    /// <summary>Moves Kraid's body one step (<see cref="KraidArenaDefinitions.StepPixels"/>) left.</summary>
     StepLeft,
-    /// <summary>Moves Kraid's body three pixels right.</summary>
+    /// <summary>Moves Kraid's body one step (<see cref="KraidArenaDefinitions.StepPixels"/>) right.</summary>
     StepRight,
     /// <summary>Switches the arm to its slow swing once Kraid is below half health.</summary>
     SlowArmBelowHalfHealth,

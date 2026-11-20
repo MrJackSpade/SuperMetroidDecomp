@@ -59,7 +59,7 @@ internal static class EscapeEtecoonAnimations
 
     /// <summary>
     /// The animation that starts at each segment an owner can start or restart at (#2275): a low-tide or escape run raises
-    /// its own entry cue and then strides for good; a thanking Etecoon thanks Samus, steps left eight times, looks, and runs
+    /// its own entry cue and then strides for good; a thanking Etecoon thanks Samus, steps left (<see cref="ThankingStepRuns"/>), looks, and runs
     /// for the escape.
     /// </summary>
     private static Dictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>> StartingAt { get; } = new Dictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>>

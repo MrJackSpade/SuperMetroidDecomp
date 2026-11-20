@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
 /// One post-credits typed text (#1555): the item-percentage labels with their percentage and subtitle, or the final
-/// message. It types its installed characters with the four-frame typewriter cadence, its typing played by the shared
+/// message. It types its installed characters with the typewriter cadence (<see cref="EndingTypewriterDefinitions.CharacterDelayFrames"/>), its typing played by the shared
 /// animation player (<see cref="EndingTypewriterAnimations"/>, #2488), and shows what it has typed so far as glyph pictures
 /// at their screen places; nothing is written to a page.
 /// </summary>
@@ -61,7 +61,7 @@ internal sealed class EndingTypewriter
         typing.Rebind(rebound, EndingTypewriterAnimations.Typing(rebound, sequence));
     }
 
-    /// <summary>Runs the typing one update: the initial delay, four-frame character cadence, optional percentage hold, and completion handoff.</summary>
+    /// <summary>Runs the typing one update: the initial delay, character cadence, optional percentage hold, and completion handoff.</summary>
     public void Step() => typing.Step(CarryOut);
 
     /// <summary>Carries out <paramref name="cue"/> of the text's typing.</summary>

@@ -5,9 +5,9 @@ public enum GameplayMessageBoxPhase
 {
     /// <summary>No message owns gameplay or the message window; after restoration, any completed save-confirmation result remains available to the save station that asked for it.</summary>
     Inactive,
-    /// <summary>The window opens: its radius grows from zero through 24 pixels in two-pixel steps while gameplay remains suspended.</summary>
+    /// <summary>The window opens: its radius grows from none to the fully open window's a step at a time while gameplay remains suspended.</summary>
     Opening,
-    /// <summary>Fully opened ordinary message's mandatory authored wait: 360 updates for item descriptions or ten for station completion notices, without controller inspection.</summary>
+    /// <summary>Fully opened ordinary message's mandatory authored wait, long for item descriptions and short for station completion notices, without controller inspection.</summary>
     MinimumDisplay,
     /// <summary>Fully opened input wait: ordinary messages dismiss on any held button, while save confirmation polls newly pressed A/B and left/right/select at its read cadence (<see cref="SaveChoiceInputCadence"/>).</summary>
     AwaitingInput,

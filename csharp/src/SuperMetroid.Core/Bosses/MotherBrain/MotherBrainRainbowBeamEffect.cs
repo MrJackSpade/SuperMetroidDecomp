@@ -44,7 +44,7 @@ public sealed class MotherBrainRainbowBeamEffect
     public void Hide() => colours = null;
 
     /// <summary>One update that shows the beam, after the head's position and beam aim have been resolved.</summary>
-    /// <param name="head">Head enemy's whole-pixel room position. The mouth lies fourteen pixels right of it and five below.</param>
+    /// <param name="head">Head enemy's whole-pixel room position. The mouth lies right of it and below.</param>
     /// <param name="angle">Beam center aim; only its whole angle units are used when computing the two wrapping edge angles.</param>
     /// <param name="angularWidth">Angular width; its whole steps are halved with integer truncation to obtain each edge's displacement in steps.</param>
     /// <param name="installed">The installed colours the beam plays, which the host binds (#2261).</param>

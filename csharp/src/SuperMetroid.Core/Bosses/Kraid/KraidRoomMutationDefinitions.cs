@@ -35,7 +35,7 @@ internal static class KraidRoomMutationDefinitions
 
     /// <summary>
     /// The change each mutation makes: a ceiling block crumbles into its background; a platform variant only sets its
-    /// block to its background; the clears draw once; the spike crumble crumbles eleven pairs of columns left to right.
+    /// block to its background; the clears draw once; the spike crumble crumbles its pairs of columns (<see cref="SpikePassCount"/>) left to right.
     /// </summary>
     internal static readonly IReadOnlyDictionary<KraidRoomMutation, TerrainChange> Changes =
         new Dictionary<KraidRoomMutation, TerrainChange>

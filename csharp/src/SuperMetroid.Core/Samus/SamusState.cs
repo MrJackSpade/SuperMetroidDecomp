@@ -143,7 +143,7 @@ public sealed class SamusState
     public WrappingCountdown AnimationFrameTimer { get; internal set; }
 
     /// <summary>
-    /// The updates added to each frame of Samus's animation (#2286): two in water, three in lava or acid, and on dry ground
+    /// The updates added to each frame of Samus's animation (#2286): its liquid delay in water, lava or acid, and on dry ground
     /// her <see cref="SlowdownLevel"/>, so 0 through <see cref="SamusHorizontalSpeedState.LargestSlowdownLevel"/>; the
     /// setter rejects any other value.
     /// </summary>
@@ -285,7 +285,7 @@ public sealed class SamusState
         Health = health;
     }
 
-    /// <summary>Maximum normal energy; defaults to the initial 99.</summary>
+    /// <summary>Maximum normal energy; defaults to <see cref="SamusEnergyDefinitions.StartingEnergy"/>.</summary>
     public int MaxHealth { get; set; } = SamusEnergyDefinitions.StartingEnergy;
 
     /// <summary>Current reserve energy.</summary>
@@ -346,7 +346,7 @@ public sealed class SamusState
 
     /// <summary>
     /// The beam's charge (#1577): the session's one count, which the projectile pass advances and her movement, bombs,
-    /// sounds and colourings read; at least 60 is a full charge, which makes her spin and wall jump a pseudo Screw Attack.
+    /// sounds and colourings read; at least <see cref="BeamChargeDefinitions.FullyChargedCounter"/> is a full charge, which makes her spin and wall jump a pseudo Screw Attack.
     /// Every clear, hers or the projectiles', clears it for every reader.
     /// </summary>
     internal BeamChargeState BeamCharge { get; }
@@ -424,13 +424,13 @@ public sealed class SamusState
 
     /// <summary>
     /// The count her hurt flash runs on, which a knockback, a health loss and a moving shinespark write; the hurt flash's
-    /// shading advances it and clears it on reaching sixty (<see cref="SamusHurtFlashDefinitions.EndingUpdate"/>).
+    /// shading advances it and clears it on reaching its end (<see cref="SamusHurtFlashDefinitions.EndingUpdate"/>).
     /// </summary>
     public SharedHurtFlashCount HurtFlash { get; }
 
     /// <summary>
     /// Whether the charging-beam sound resumes on the next post-draw sound pass if Shoot is still held (#1682). Hurt-flash
-    /// recovery sets it at counter forty when a non-spinning Samus is still holding a sufficiently charged beam, and the
+    /// recovery sets it at its sound recovery count when a non-spinning Samus is still holding a sufficiently charged beam, and the
     /// post-draw sound check consumes it later in the same gameplay pass; a spin's end sets it for the next pass.
     /// </summary>
     public ChargingSoundResumption ChargingSound { get; } = new();
@@ -444,7 +444,7 @@ public sealed class SamusState
     public WrappingCountdown InvincibilityTimer { get; set; }
 
     /// <summary>
-    /// The knockback hold: started for five updates by enemy damage collision and counted once per gameplay update. The
+    /// The knockback hold: started for its knockback updates by enemy damage collision and counted once per gameplay update. The
     /// knockback holds her movement only while it runs.
     /// </summary>
     public UpdateCountdown KnockbackHold { get; set; } = UpdateCountdown.Ended();
@@ -497,7 +497,7 @@ public sealed class SamusState
     public SamusArtworkBinding Artwork { get; }
 
     /// <summary>
-    /// The room's visor shade cycle, advancing every five updates, used only by backdrop-blending rooms.
+    /// The room's visor shade cycle, advancing at its own pace, used only by backdrop-blending rooms.
     /// </summary>
     public SamusVisorShadeState VisorShades { get; } = new();
 
@@ -775,11 +775,11 @@ public sealed class SamusState
     /// changed-pose collision detection.
     /// </summary>
     /// <remarks>
-    /// A pose expansion of eight pixels or more is not tested only at its final leading
+    /// A pose expansion of <see cref="SamusPoseCollisionDefinitions.IntermediateProbeExpansion"/> or more is not tested only at its final leading
     /// boundary. The game first tests the signed displacement rounded to the intermediate
-    /// eight-pixel boundary and returns immediately if that scan collides, then tests the
+    /// boundary and returns immediately if that scan collides, then tests the
     /// complete displacement only when the intermediate scan was clear. That first scan is
-    /// observable on square half-blocks: an eleven-pixel compact-to-standing expansion can
+    /// observable on square half-blocks: a compact-to-standing expansion can
     /// cross from the solid lower quadrant into an air upper quadrant at its final boundary.
     /// A single final-boundary scan therefore misses the floor, expands Samus downward, and
     /// lets her fall through the platform. Each probe uses a separate kinematics copy because

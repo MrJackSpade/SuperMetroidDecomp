@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Fireflea;
 
 /// <summary>
-/// Fireflea's glow loop as a typed animation (#641, #2369): two wingbeats at its brightest, one at each glow down to its
+/// Fireflea's glow loop as a typed animation (#641, #2369): its wingbeats at its brightest (<see cref="BrightestWingbeats"/>), one at each glow down to its
 /// dimmest and one at each back up, each glow's wingbeat written once (#2477). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
@@ -29,7 +29,7 @@ internal static class FirefleaAnimations
     private const int BrightestWingbeats = 2;
 
     /// <summary>
-    /// The animation that starts at each segment an owner can start or restart at (#2369, #2477): its wings beat twice at its
+    /// The animation that starts at each segment an owner can start or restart at (#2369, #2477): its wings beat over at its
     /// brightest glow, once at each glow as it dims to its dimmest and once at each as it brightens back, repeating.
     /// </summary>
     private static Dictionary<FirefleaSegment, Animation<FirefleaSegment>> StartingAt { get; } = new Dictionary<FirefleaSegment, Animation<FirefleaSegment>>

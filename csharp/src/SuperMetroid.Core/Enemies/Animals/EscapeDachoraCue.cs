@@ -9,7 +9,7 @@ internal abstract record EscapeDachoraCue
     }
 
     /// <summary>
-    /// A low-tide lap ends (#2167): once the rising acid is above Y 206 the owner takes the Dachora on into the high-tide
+    /// A low-tide lap ends (#2167): once the rising acid is above its low surface (<see cref="EscapeAnimalMotionDefinitions.LowAcidSurfaceY"/>) the owner takes the Dachora on into the high-tide
     /// laps, counting on the laps it had left.
     /// </summary>
     /// <param name="Lap">The way the lap ran.</param>

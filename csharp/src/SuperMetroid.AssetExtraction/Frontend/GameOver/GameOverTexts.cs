@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver;
 /// <summary>The game-over page's five text elements and the cells they start on.</summary>
 /// <remarks>
 /// Independently reviewed for #1165: the menu's initialization loads the title, objective, prompt, Yes and No
-/// elements in this order. The elements start at screen columns/rows (11,5), (5,14), (10,16), (7,19) and (7,23).
+/// elements in this order, each from the screen cell <see cref="Get"/> gives it.
 /// Named screen-element cases select the text and its origin directly, without persistent record storage.
 /// </remarks>
 public static class GameOverTexts

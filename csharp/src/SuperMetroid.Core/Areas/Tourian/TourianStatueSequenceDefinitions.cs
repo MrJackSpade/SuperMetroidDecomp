@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 public static class TourianStatueSequenceDefinitions
 {
     /// <summary>
-    /// The updates the statue holds, after the last release ends, before it starts to lower: 301, the last the one that
+    /// The updates the statue holds, after the last release ends, before it starts to lower, the last the one that
     /// raises the descent's dust (#2281).
     /// </summary>
     public const int DescentDelay = 301;

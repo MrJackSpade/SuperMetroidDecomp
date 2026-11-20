@@ -6,6 +6,6 @@ internal enum HibashiStepWidth
     /// <summary>The collision part keeps the half-width it has.</summary>
     Kept,
 
-    /// <summary>The collision part gets its eight-pixel half-width back, as the eruption's first step does.</summary>
+    /// <summary>The collision part gets its half-width back (<see cref="HibashiDefinitions.RestoredHalfWidth"/>), as the eruption's first step does.</summary>
     Restored,
 }

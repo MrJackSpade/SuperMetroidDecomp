@@ -169,7 +169,7 @@ internal sealed class CrocomireCombat
             // pixel stays exactly as it was.
             projectile.Position = projectile.Position.WithX(projectile.Position.X.MovedBy(xVelocity));
 
-            // The piece falls by its speed, which gains three sixteenths of a pixel of gravity per update.
+            // The piece falls by its speed, which gains the piece's gravity each update.
             piece.FallSpeed += CrocomireSpikeMotionDefinitions.PieceGravity;
             projectile.Position = projectile.Position.AdvanceY(piece.FallSpeed);
 
@@ -286,7 +286,7 @@ internal sealed class CrocomireCombat
         body.Invincibility.End();
 
         // A hit while Crocomire's body is off screen skips choosing the projectile's family and still records the
-        // pending hit. The body is on screen while its left edge lies left of the camera's right edge, 256 pixels past
+        // pending hit. The body is on screen while its left edge lies left of the camera's right edge, its screen reach past
         // the camera.
         bool bodyLeftEdgeIsOnScreen = body.Position.X.Whole - body.Radius.X - CrocomireFightDefinitions.MouthShotScreenReach < camera.X;
         int stepCount = 0;

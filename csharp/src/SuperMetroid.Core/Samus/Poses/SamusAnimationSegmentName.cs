@@ -19,7 +19,7 @@ public enum SamusAnimationSegmentName
     Run,
 
     /// <summary>
-    /// The running animation's slower stride after the run, ten frames of four and three ticks that the run's own playback
+    /// The running animation's slower stride after the run, frames that the run's own playback
     /// never reaches: only a frame read past an earlier animation lands in it, and every frame such a read reaches shows the
     /// run's last stride.
     /// </summary>

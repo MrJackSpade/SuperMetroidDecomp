@@ -29,10 +29,10 @@ internal static class CeresFlightSceneDefinitions
 
     /// <summary>The song that starts with the flight.</summary>
     internal const MusicTrack FlightSong = MusicTrack.CeresFlight;
-    /// <summary>How long the flight's track waits on the music queue: fourteen passes.</summary>
+    /// <summary>How long the flight's track waits on the music queue, in passes.</summary>
     internal static MusicQueueDelay MusicDelay { get; } = new(14);
 
-    /// <summary>Updates each step of the flight's closing fade-out takes: one level every second update.</summary>
+    /// <summary>Updates each step of the flight's closing fade-out takes.</summary>
     internal const int FadeOutUpdatesPerStep = 2;
 
     /// <summary>

@@ -346,12 +346,12 @@ public sealed class IntroCinematicState : IFrontendScreen
             case IntroCinematicPhase.WaitForSecondMusicQueue:
                 if (MusicQueueFinished())
                 {
-                    Phase = IntroCinematicPhase.FourSecondHold;
-                    timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.FourSecondHold);
+                    Phase = IntroCinematicPhase.HoldFirstNarration;
+                    timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.PeaceLineHold);
                 }
                 break;
 
-            case IntroCinematicPhase.FourSecondHold:
+            case IntroCinematicPhase.HoldFirstNarration:
                 if (timer.Step())
                 {
                     Phase = IntroCinematicPhase.FadeOutFirstNarration;
@@ -370,8 +370,8 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.WaitForFirstPageMusicQueue:
-                // The scene song scheduled fourteen updates ahead is the longest request issued by
-                // the first page's setup, so HasQueuedMusic becomes clear after fourteen updates.
+                // The scene song scheduled its track delay ahead is the longest request issued by
+                // the first page's setup, so HasQueuedMusic becomes clear once that delay has passed.
                 if (MusicQueueFinished())
                 {
                     Narration.StartPage(Page);
@@ -452,7 +452,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                     // Ceres turning-floor scene. Give that scene its own display, colour, and
                     // brightness owner: the narration has just deliberately reached
                     // a blanked screen, while the approach restores full brightness only after
-                    // the fourteen-frame delayed music request has completed.
+                    // the delayed music request has completed.
                     CurrentCeresFlight = new IntroCeresFlightState(audio,
                         CharacterArtwork.CeresFlight,
                         SceneSheets, subtitles.Enabled);
@@ -599,7 +599,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         Phase = IntroCinematicPhase.MotherBrainCrossfade;
     }
 
-    /// <summary>Advances the thirty-two steps of the crossfade from the narration to the Mother Brain room, then shows the room.</summary>
+    /// <summary>Advances the steps of the crossfade from the narration to the Mother Brain room, then shows the room.</summary>
     private void StepMotherBrainCrossfade()
     {
         if (!AdvanceCrossfade())
@@ -673,7 +673,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         Narration.AcceptPageTurn();
 
         // The discovery setup shows the second authored room page, declares a
-        // 32x16 collision room, carries Samus into new egg/baby/demo owners, and reuses the same
+        // collision room, carries Samus into new egg/baby/demo owners, and reuses the same
         // text-to-gameplay colour crossfade as the Mother Brain scene.
         CurrentBabyDiscovery = new IntroBabyDiscoveryState(Random, CurrentFlashbackSamus
             ?? throw new InvalidOperationException("Discovery setup requires the preceding flashback Samus state."), shellFallPastCurve, audio);
@@ -716,7 +716,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         Narration.HideCaret();
         Narration.AcceptPageTurn();
 
-        // The delivery setup shows the laboratory page, starts it 32 pixels right with vertical scroll eight, and
+        // The delivery setup shows the laboratory page, starts it scrolled right and down, and
         // spawns the delivered baby before starting the crossfade into the laboratory. Its picture is already in the
         // intro's artwork.
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateDelivery();
@@ -760,7 +760,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         Narration.HideCaret();
         Narration.AcceptPageTurn();
 
-        // The examination setup shows the examination page, starts the page at Y=-24, and spawns the examined baby.
+        // The examination setup shows the examination page, starts the page scrolled up, and spawns the examined baby.
         // Its setup is otherwise the same scientist crossfade as delivery.
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateExamination();
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Laboratory);
@@ -831,7 +831,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (samus.KnockbackActive)
         {
             // The intro demo's movement phase runs the knockback movement that owns Samus. Its shared
-            // vertical calculation now carries the eleven-frame Rinka arc through its apex.
+            // vertical calculation now carries the Rinka knockback's arc through its apex.
             SamusKnockbackMovement.Step(level, samus, frameCounter, IntroCollisionRoomObjects.Instance);
         }
         else if (SamusPoseMetadata.IsKnockbackPose(samus.Pose))
@@ -1027,9 +1027,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Draws Samus in screen-relative coordinates as the demo brings her in from the right.</summary>
     private void DrawBabyDiscoverySamus(SpriteFrameBuffer sprites)
     {
-        // This cinematic deliberately keeps the camera's X at zero. Samus starts at X 376,
-        // outside the 256-pixel viewport, and the demo makes her enter from the right; the
-        // second room page shows different art, not a hidden camera coordinate of 256.
+        // This cinematic deliberately keeps the camera's X at zero. Samus starts right of
+        // the viewport, and the demo makes her enter from the right; the second room page
+        // shows different art, not a hidden camera coordinate a screen to the right.
         BabyDiscovery.Samus.Presentation.Draw(BabyDiscovery.Samus, sprites, cameraPosition: Position16<RoomPixels>.Zero, frameCounter);
     }
 
@@ -1136,7 +1136,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         else if (CurrentNarration is null)
         {
             // The first card is opaque and unscrolled and shows no sprites; later text is transparent
-            // and cropped eight pixels down. Do not conflate those two display setups.
+            // and cropped down by GameplayFlashbackVerticalScroll. Do not conflate those two display setups.
             return new(new FramePaint(Backdrop),
                 new DisplayLayer[] { new PicturedPlaneLayer(IntroNarrationPictures.FirstCardPlane(SceneSheets, crossfade.SceneShading), default) { DrawsOpaque = true } },
                 fade.Level);

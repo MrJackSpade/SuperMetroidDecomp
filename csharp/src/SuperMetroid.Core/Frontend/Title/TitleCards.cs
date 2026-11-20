@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 
 /// <summary>
 /// The title cards (#1979, #2359): each card's definition and its typing, played by the shared animation player as the
-/// ending's typed texts are: its blank opening when it has one, each letter typed for eight updates, the last held for the
+/// ending's typed texts are: its blank opening when it has one, each letter typed for <see cref="TitleCardDefinitions.LetterFrames"/>, the last held for the
 /// card's hold, then its ending cue and its removal.
 /// </summary>
 internal static class TitleCards
@@ -35,7 +35,7 @@ internal static class TitleCards
         [.. Enumerable.Range(1, Of(phase).Text.Length).Select(letters => new TitleCardTyping(phase, letters))];
 
     /// <summary>
-    /// The beats of <paramref name="card"/>: its blank opening when it has one, each letter typed for eight updates, the
+    /// The beats of <paramref name="card"/>: its blank opening when it has one, each letter typed for <see cref="TitleCardDefinitions.LetterFrames"/>, the
     /// last held for the card's hold, then its ending cue and its removal.
     /// </summary>
     private static AnimationBeat<TitleCardTyping, TitleCardCue>[] Typed(TitleCardDefinition card)

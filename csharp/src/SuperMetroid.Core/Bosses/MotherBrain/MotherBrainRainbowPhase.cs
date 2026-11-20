@@ -9,7 +9,7 @@ public enum MotherBrainRainbowPhase
     /// <summary>Waits out the extension, installs the charging head animation, and falls into backward-walk/neck retraction.</summary>
     StartCharging,
 
-    /// <summary>Requests really-slow backward walking toward X 40, then retracts the head and starts the charge wait.</summary>
+    /// <summary>Requests really-slow backward walking toward the back of the room (<see cref="MotherBrainFightDefinitions.BackOfRoomX"/>), then retracts the head and starts the charge wait.</summary>
     RetractNeck,
 
     /// <summary>Waits out the charge, queues the charge sound, and falls into downward neck extension.</summary>
@@ -33,7 +33,7 @@ public enum MotherBrainRainbowPhase
     /// <summary>Applies beam damage, ammunition drain, forced wall-centering movement, and effects until the drain runs out.</summary>
     DrainingSamus,
 
-    /// <summary>Narrows the beam past its narrowest, two steps of a turn, then stops the beam effect, sound and earthquake, gives Samus back her control and lets her fall.</summary>
+    /// <summary>Narrows the beam past its narrowest, then stops the beam effect, sound and earthquake, gives Samus back her control and lets her fall.</summary>
     FinishFiring,
 
     /// <summary>Puts Samus in her drained pose and movement and takes the first custom falling movement step at once.</summary>
@@ -45,6 +45,6 @@ public enum MotherBrainRainbowPhase
     /// <summary>Starts the pause before the next action.</summary>
     LowerHead,
 
-    /// <summary>After the pause runs out, repeats the beam at health 400 or above; otherwise begins the low-health finish-off cutscene.</summary>
+    /// <summary>After the pause runs out, repeats the beam while Samus's health is at least <see cref="MotherBrainLateFightDefinitions.FinishOffSamusHealth"/>; otherwise begins the low-health finish-off cutscene.</summary>
     DecideNextAction,
 }

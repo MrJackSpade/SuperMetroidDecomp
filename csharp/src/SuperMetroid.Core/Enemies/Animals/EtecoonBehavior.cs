@@ -62,7 +62,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        // An earthquake suspends the Etecoon for 128 updates; its route is kept.
+        // An earthquake suspends the Etecoon for its quake pause; its route is kept.
         if (state.QuakePauseFrames.IsRunning)
         {
             state.QuakePauseFrames.Count();
@@ -271,7 +271,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Head(side: HorizontalDirection.Right);
     }
 
-    /// <summary>Runs right until the 32-pixel solid lookahead arms the airborne wall-jump state.</summary>
+    /// <summary>Runs right until the solid lookahead arms the airborne wall-jump state.</summary>
     private void RunEtecoonRightToWall(
         RoomEnemyPlace place,
         EtecoonEnemyState state,
@@ -418,7 +418,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
     }
 
-    /// <summary>Runs to X=600 and launches the stronger rightward demonstration jump.</summary>
+    /// <summary>Runs to <see cref="EtecoonRouteDefinitions.RunStartX"/> and launches the stronger rightward demonstration jump.</summary>
     private void RunEtecoonRightToLongJump(
         RoomEnemyPlace place,
         EtecoonEnemyState state,
@@ -433,7 +433,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         StartEtecoonAnimation(place, state, EtecoonSegment.JumpingRight);
     }
 
-    /// <summary>Advances the long jump on both axes and returns to running art at X=680.</summary>
+    /// <summary>Advances the long jump on both axes and returns to running art at <see cref="EtecoonRouteDefinitions.LongJumpMidpointX"/>.</summary>
     private void RunEtecoonLongJump(
         RoomEnemyPlace place,
         EtecoonEnemyState state,
@@ -449,7 +449,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = EtecoonAction.RunRightAfterLongJump;
     }
 
-    /// <summary>Continues the long route to X=840 before installing its landing hop.</summary>
+    /// <summary>Continues the long route to <see cref="EtecoonRouteDefinitions.LongJumpEndX"/> before installing its landing hop.</summary>
     private void RunEtecoonRightAfterLongJump(
         RoomEnemyPlace place,
         EtecoonEnemyState state,

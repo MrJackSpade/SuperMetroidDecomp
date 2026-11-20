@@ -7,8 +7,7 @@ internal static class FakeKraidProjectileDefinitions
     internal static IReadOnlyList<FakeKraidSpit> SpitsInLaunchOrder { get; } = [FakeKraidSpit.Near, FakeKraidSpit.Far];
 
     /// <summary>
-    /// Each spit shot's horizontal speed toward the side Fake Kraid faces, in pixels an update: the near shot two, the far
-    /// shot four.
+    /// Each spit shot's horizontal speed toward the side Fake Kraid faces, in pixels an update: the far shot the faster.
     /// </summary>
     internal static IReadOnlyDictionary<FakeKraidSpit, int> SpitSpeedPixels { get; } = new Dictionary<FakeKraidSpit, int>
     {
@@ -28,22 +27,21 @@ internal static class FakeKraidProjectileDefinitions
     /// <summary>The pickups Fake Kraid's death scatters about where he stood.</summary>
     internal const int DeathDropCount = 4;
 
-    /// <summary>Both spit shots start upward at five pixels per frame.</summary>
+    /// <summary>The upward speed both spit shots start at.</summary>
     internal static readonly SignedEightEight SpitRise = SignedEightEight.FromPixels(-5);
 
-    /// <summary>The gravity Fake Kraid's spit gains each update: a quarter of a pixel an update.</summary>
+    /// <summary>The gravity Fake Kraid's spit gains each update.</summary>
     internal static readonly SignedEightEight SpitGravity = SignedEightEight.FromPixelFraction(1, 4);
 
-    /// <summary>The fastest Fake Kraid's spit falls: four pixels an update.</summary>
+    /// <summary>The fastest Fake Kraid's spit falls.</summary>
     internal static readonly SignedEightEight SpitMaximumFallSpeed = SignedEightEight.FromPixels(4);
 
-    /// <summary>The speed a body spike travels horizontally, toward the side Fake Kraid faces: two pixels an update.</summary>
+    /// <summary>The speed a body spike travels horizontally, toward the side Fake Kraid faces.</summary>
     internal static readonly SignedEightEight SpikeSpeed = SignedEightEight.FromPixels(2);
 
     /// <summary>
     /// The visits of each body port's clock, beyond his random starting delay, up to the one its first spike flies on,
-    /// that one included, in the order his setup starts their clocks: the top port's 65, the middle's 97 and the bottom's
-    /// 49.
+    /// that one included, in the order his setup starts their clocks: the top port's, the middle's and the bottom's.
     /// </summary>
     internal static IReadOnlyList<KeyValuePair<FakeKraidSpikeRow, int>> SpikeStartDelays { get; } =
     [
@@ -53,8 +51,8 @@ internal static class FakeKraidProjectileDefinitions
     ];
 
     /// <summary>
-    /// The fixed body launch offsets: the top, middle and bottom ports are 2 pixels above, 12 below
-    /// and 24 below body Y. This is port selection, not an interpolated motion curve.
+    /// The fixed body launch offsets from body Y: the top port just above it, the middle and bottom ports below.
+    /// This is port selection, not an interpolated motion curve.
     /// </summary>
     internal static readonly Dictionary<FakeKraidSpikeRow, int> SpikeYOffsets = new()
     {

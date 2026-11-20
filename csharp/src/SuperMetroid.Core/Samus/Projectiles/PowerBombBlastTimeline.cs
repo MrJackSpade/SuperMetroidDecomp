@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <remarks>
 /// One timeline runs the blast's stages and its glowing oval. Every phase transition and every radius update below follows
 /// the game's explosion stages exactly: the radii and their speed are plain lengths
-/// (<see cref="PowerBombRadius"/>), and the oval stages' growth holds short of 256 pixels
+/// (<see cref="PowerBombRadius"/>), and the oval stages' growth holds short of the radius's range
 /// (<see cref="PowerBombGrowthHold"/>). Crystal Flash's smaller blast burns through the same radii, speed and glow.
 /// </remarks>
 public sealed class PowerBombBlastTimeline
@@ -105,7 +105,7 @@ public sealed class PowerBombBlastTimeline
     }
 
     /// <summary>
-    /// Starts Crystal Flash's smaller blast and runs both its setups, after Crystal Flash completes its ten-step rise.
+    /// Starts Crystal Flash's smaller blast and runs both its setups, after Crystal Flash completes its rise.
     /// </summary>
     public void BeginCrystalFlash()
     {
@@ -237,7 +237,7 @@ public sealed class PowerBombBlastTimeline
     }
 
     /// <summary>
-    /// Grows a radius by the shared speed unless the growth would reach 256 pixels (<see cref="PowerBombGrowthHold"/>);
+    /// Grows a radius by the shared speed unless the growth would pass the radius's range (<see cref="PowerBombGrowthHold"/>);
     /// the test runs before either value changes, so a held update leaves the radius (and the blast's speed change) as
     /// they were.
     /// </summary>
@@ -267,7 +267,7 @@ public sealed class PowerBombBlastTimeline
         // the chosen one after the logic frame has completed.
         RenderedOvalRadius = ShowNextOval(out bool stageEnds);
 
-        // The hold is tested on the growth before either value changes: a growth that would reach 256 pixels leaves
+        // The hold is tested on the growth before either value changes: a growth that would pass the radius's range leaves
         // both the radius and its speed as they were for this frame.
         if (TryGrowRadius(PreExplosionRadius, out PowerBombRadius nextRadius))
         {
@@ -307,7 +307,7 @@ public sealed class PowerBombBlastTimeline
         Phase = PowerBombExplosionPhase.ExplosionWhite;
     }
 
-    /// <summary>Shows the seventeen white ovals and primes the afterglow that fades the glow.</summary>
+    /// <summary>Shows the white ovals (<see cref="PowerBombExplosionDefinitions.WhiteOvalRadii"/>) and primes the afterglow that fades the glow.</summary>
     private void StepExplosionWhite(InstalledPowerBombGlowColors colors)
     {
         RenderedExplosionRadius = ExplosionRadius;
@@ -395,9 +395,9 @@ public sealed class PowerBombBlastTimeline
     }
 
     /// <summary>
-    /// The pre-explosion colour a flash of <paramref name="radius"/> shows: its glow band, the sixteen colours repeating
-    /// from 128 pixels on. The repeat is load-bearing: the white flash ends at 146 pixels and its yellow updates grow it
-    /// toward 255, so its last colours are the sequence's first ones again.
+    /// The pre-explosion colour a flash of <paramref name="radius"/> shows: its glow band, the pre-explosion colours
+    /// repeating once the radius passes the last band. The repeat is load-bearing: the white flash ends past that band
+    /// and its yellow updates grow it further, so its last colours are the sequence's first ones again.
     /// </summary>
     private static int PreExplosionGlowStep(PowerBombRadius radius) =>
         radius.GlowColorBand % PowerBombGlowColorFormat.Count(PowerBombGlowSequence.PreExplosion);

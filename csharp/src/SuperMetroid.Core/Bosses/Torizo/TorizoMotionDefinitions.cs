@@ -4,9 +4,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoMotionDefinitions
 {
     /// <summary>
-    /// A speed of sixteen pixels per frame: a projectile that reaches it has run away (#1945). Each projectile tested
-    /// for it starts below it and gains at most three sixteenths of a pixel an update each update, so it is met within one
-    /// pixel of it.
+    /// A speed a projectile that reaches it has run away at (#1945). Each projectile tested for it starts below it and
+    /// gains at most <see cref="EggAcceleration"/> each update, so it is met within one pixel of it.
     /// </summary>
     internal static readonly SignedEightEight RunawaySpeed = SignedEightEight.FromPixels(16);
 

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="BodyPosition">His body's whole-pixel room position.</param>
 /// <param name="FirstColumn">
 /// The rain column of its first flame (#2471, <see cref="PhantoonFlameSpawnDefinitions.RainXs"/>): the column after the one his body
-/// stands in, the first after the last. The rain's eight flames take the columns from there on, the first following the
+/// stands in, the first after the last. The rain's flames take the columns from there on, the first following the
 /// last, so the one column left empty is his body's.
 /// </param>
 public sealed record PhantoonRainPattern(int PathPlace, Position16<RoomPixels> BodyPosition, ListStep<int> FirstColumn);

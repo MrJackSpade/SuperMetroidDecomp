@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// An eye door's body or bottom (#1554). On its first update the part looks
-/// at its door: one opened for good leaves the room. Otherwise it looks for Samus every eight updates, standing still
+/// at its door: one opened for good leaves the room. Otherwise it looks for Samus each time its still image ends, standing still
 /// (<see cref="EyeDoorSequenceDefinitions.Still"/>); once she is near (<see cref="EyeDoorSequenceDefinitions.PulseReach"/>)
 /// it waits for its door to open and pulses while she stays near. Once it waits, the update its door has been opened for
 /// good it leaves the room, before its images count down. The body (<see cref="EyeDoorBodyObject"/>) stands in the door

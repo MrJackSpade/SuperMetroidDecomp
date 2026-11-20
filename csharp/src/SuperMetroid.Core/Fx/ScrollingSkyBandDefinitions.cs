@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// The scrolling sky's bands (#1415, #1687): from the top of the room down, the rows each band covers and the drift it
-/// slides sideways with. Most bands alternate between the slow and the fast drift; the bands at rows 568 and 736 share
-/// the fastest drift, the band at row 1088 has the slowest, and the sky's bottom rows from 1168 stand still.
+/// slides sideways with. Most bands alternate between the slow and the fast drift; two bands share the fastest drift,
+/// one has the slowest, and the sky's bottom rows stand still.
 /// </summary>
 public static class ScrollingSkyBandDefinitions
 {

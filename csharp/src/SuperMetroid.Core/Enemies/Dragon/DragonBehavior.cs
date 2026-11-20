@@ -17,7 +17,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             ? EnemyOccupant.WithoutMainAi(new DragonWingEntity(this, place, common))
             : EnemyOccupant.Of(new DragonEntity(this, place, common));
 
-    /// <summary>Allocates Dragon's three-shot fireball volleys from the room projectile pool.</summary>
+    /// <summary>Allocates Dragon's fireball volleys from the room projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>The room's enemy places, where each part finds its partners when it is placed.</summary>
     private readonly EnemyPlaces _places;

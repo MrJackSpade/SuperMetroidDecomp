@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 /// <summary>Authored definitions of the elevator actor.</summary>
 public static class ElevatorActorDefinitions
 {
-    /// <summary>Samus's center is 26 pixels above the platform.</summary>
+    /// <summary>How far above the platform Samus's center rides.</summary>
     public const int SamusYOffset = 26;
 
     /// <summary>How far a travelling elevator moves each update: one and a half pixels.</summary>

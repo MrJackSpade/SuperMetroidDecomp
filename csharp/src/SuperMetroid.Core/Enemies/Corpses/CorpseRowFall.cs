@@ -13,7 +13,7 @@ internal sealed class CorpseRowFall
         Delay = UpdateCountdown.For(delayUpdates);
     }
 
-    /// <summary>The corpse pixel row, from the top, the row moves next; it falls two rows each rot step once its delay is over.</summary>
+    /// <summary>The corpse pixel row, from the top, the row moves next; it falls by <see cref="CorpseRotScheduleDefinitions.FallPixelsPerUpdate"/> each rot step once its delay is over.</summary>
     public int PixelRow { get; internal set; }
 
     /// <summary>The rot steps the row waits before it starts falling, counted once each rot step it waits.</summary>

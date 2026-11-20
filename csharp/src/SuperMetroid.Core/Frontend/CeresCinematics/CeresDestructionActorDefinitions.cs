@@ -35,7 +35,7 @@ internal static class CeresDestructionActorDefinitions
 
     /// <summary>
     /// The Japanese PLANET ZEBES subtitle, which the title spawns below itself as its first hold ends when Japanese text is
-    /// selected: no motion and its animation, which shows the subtitle for 192 updates and deletes it, in the
+    /// selected: no motion and its animation, which shows the subtitle a while and deletes it, in the
     /// title's sprite colours, so the caption's fades show on it too. It is deleted before the scene slides away.
     /// </summary>
     internal static CeresDestructionActorDefinition ZebesSubtitle =>

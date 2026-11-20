@@ -77,9 +77,9 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        // Each axis's speed moves toward Samus by a 256th of a pixel an update for every four
-        // pixels between them: a proportional attraction toward Samus, not a fixed-speed seek,
-        // and the speed's fraction shows before either whole part reaches three pixels.
+        // Each axis's speed moves toward Samus by an amount in proportion to the distance
+        // between them: a proportional attraction toward Samus, not a fixed-speed seek,
+        // and the speed's fraction shows before either whole part reaches its fastest flight.
         int yDifference = place.Position.Y.Whole - samus.Position.Y.Whole;
         SignedSixteenSixteen yVelocity = ClampMochtroidVelocity(state.Velocity.Y - EnemyMath.HomingPull(yDifference));
         StoreMochtroidYVelocity(state, yVelocity);
@@ -98,18 +98,18 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             place, state, MochtroidSegment.FreeFlight);
     }
 
-    /// <summary>Caps a velocity by its whole-pixel component at three pixels.</summary>
+    /// <summary>Caps a velocity by its whole-pixel component at <see cref="MochtroidBehaviorDefinitions.FastestFlight"/>.</summary>
     private static SignedSixteenSixteen ClampMochtroidVelocity(SignedSixteenSixteen velocity) => EnemyMath.LimitedEitherWay(velocity, MochtroidBehaviorDefinitions.FastestFlight);
 
-    /// <summary>Moves one pixel per axis toward Samus, resolving X before Y while attached.</summary>
+    /// <summary>Moves toward Samus at <see cref="MochtroidBehaviorDefinitions.AttachedSpeed"/> on each axis, resolving X before Y while attached.</summary>
     private void RunMochtroidAttachedFlight(
         RoomEnemyPlace place,
         MochtroidEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
-        // Attached mode discards proportional acceleration. It moves exactly one pixel per
-        // axis toward Samus, with X collision resolved before Y and ignored return values.
+        // Attached mode discards proportional acceleration. It moves exactly its attached speed
+        // on each axis toward Samus, with X collision resolved before Y and ignored return values.
         SignedSixteenSixteen xVelocity = place.Position.X.Whole == samus.Position.X.Whole
             ? SignedSixteenSixteen.Zero
             : MochtroidBehaviorDefinitions.AttachedSpeed.Toward(
@@ -160,7 +160,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!applyCommonTouch)
         {
             // Every attached Mochtroid queues its own drain sound, so a room full of them queues one each.
-            if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.EnemyPassCount) && samus.Health >= MetroidBehaviorDefinitions.DrainSoundLeastHealth)
+            if (MetroidCadenceDefinitions.DrainSound.IsDue(_frameContext.EnemyPassCount) && samus.Health >= MetroidBehaviorDefinitions.DrainSoundLeastHealth)
                 _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
             if (state.DrainPeriod.IsOver)
@@ -187,7 +187,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Unlike any other enemy, the Mochtroid cancels at once the invincibility and knockback its
         // touch's damage started: Samus stays attached rather than being knocked back with a grace
-        // period, so another 80-contact drain cycle can follow.
+        // period, so another drain cycle can follow.
         samus.ClearHurtTimers();
     }
 

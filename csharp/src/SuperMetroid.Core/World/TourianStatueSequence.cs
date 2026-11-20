@@ -48,7 +48,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
     private readonly SharedGameState _system;
     /// <summary>The open-statues assist skips the statue animation and starts the statue at its completed offset.</summary>
     private readonly ActiveAssists _assists;
-    /// <summary>Pauses quarter-pixel descent while gameplay time is frozen.</summary>
+    /// <summary>Pauses the descent while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
 
     /// <summary>Builds one room's statue sequence over the session services that run its statue and background descent animations.</summary>
@@ -299,7 +299,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
         if (_freeze.TimeIsFrozen) return;
         Room.Descent += TourianStatueSequenceDefinitions.DescentStep;
         // The statue's descent compares the whole position against its end value, which it first reaches
-        // three quarter-steps before a full 240 pixels.
+        // a few steps before the full descent distance.
         if (VerticalOffset == -TourianStatueSequenceDefinitions.DescentDistance)
         {
             roomObjects.Tourian.SpawnTourianAccess(_level, TourianAccessFloor.Crumble);

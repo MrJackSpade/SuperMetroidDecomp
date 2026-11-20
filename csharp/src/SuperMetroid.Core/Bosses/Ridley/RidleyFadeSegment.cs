@@ -13,12 +13,12 @@ internal enum RidleyFadeSegment
     EyesFadingIn,
 
     /// <summary>
-    /// Both Ridleys' bodies brought out of black: each body shade for two updates, ending on his own colours, which his
+    /// Both Ridleys' bodies brought out of black: each body shade for <see cref="RidleyShadeDefinitions.BodyFadeShadeUpdates"/>, ending on his own colours, which his
     /// fight then shows.
     /// </summary>
     BodyFadingIn,
 
-    /// <summary>Lower Norfair Ridley's arena brought out of black as he holds his roar: each of its colourings for three updates.</summary>
+    /// <summary>Lower Norfair Ridley's arena brought out of black as he holds his roar: each of its colourings for <see cref="NorfairRidleyRevealDefinitions.RevealStepUpdates"/>.</summary>
     ArenaRevealing,
 
     /// <summary>

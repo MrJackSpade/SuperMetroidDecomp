@@ -16,11 +16,11 @@ public static class EscapeTypewriterDefinitions
     /// The glyphs whose typing requests the key click (#1619): every second glyph of the count written, on its even place,
     /// from the second glyph on.
     /// </summary>
-    internal static readonly UpdateCadence ClickEverySecondGlyph = new(2, 0);
+    internal static readonly UpdateCadence GlyphClick = new(2, 0);
 
     /// <summary>
     /// The updates the typewriter waits after each character it types once the warning's opening characters are typed, so
-    /// those later characters are typed every third update.
+    /// those later characters are typed after that wait each.
     /// </summary>
     public const int CharacterDelayFrames = 2;
 

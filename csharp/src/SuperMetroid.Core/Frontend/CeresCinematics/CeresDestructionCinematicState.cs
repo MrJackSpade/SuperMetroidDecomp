@@ -115,14 +115,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private FloorZoom Zoom { get; set; } = FloorZoom.OwnSize;
     /// <summary>How far the scene has turned its floor clockwise.</summary>
     private RotationAngle angle;
-    /// <summary>The screen's brightness, black at first, and its slow fades, one level on every second update.</summary>
+    /// <summary>The screen's brightness, black at first, and its slow fades, one level at each fade step.</summary>
     private readonly ScreenFade fade = new(0, stepDelay: CeresDestructionSceneDefinitions.Timing.FirstFadeWaitBeforeEachStep,
         firstWait: CeresDestructionSceneDefinitions.Timing.FirstFadeWaitBeforeEachStep);
     /// <summary>The hold of the phase holding: after the explosion, then on close Zebes.</summary>
     private UpdateCountdown phaseHold = UpdateCountdown.Ended();
     /// <summary>
     /// The width of the square blocks the Zebes reveal draws its planet picture in (#1774), which also counts the reveal
-    /// down: every fourth update of the reveal's fade-in and of the removal that follows, the blocks narrow by one pixel,
+    /// down: at each place of its cadence in the reveal's fade-in and in the removal that follows, the blocks narrow by one pixel,
     /// and the removal ends on the step that leaves them one pixel wide, the picture unpixelated. A step from one-pixel
     /// blocks starts again from the coarsest (<see cref="CeresDestructionSceneDefinitions.RevealPixelation.CoarsestBlockWidth"/>).
     /// That restart is load-bearing: the fade-in clears the picture once before the removal's first step, so the reveal
@@ -497,13 +497,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
 
     /// <summary>
-    /// Narrows the Zebes reveal's pixelation blocks by one pixel every fourth cinematic frame, from one-pixel blocks
+    /// Narrows the Zebes reveal's pixelation blocks by one pixel at the reveal's cadence, from one-pixel blocks
     /// starting again from the coarsest (<see cref="revealBlockWidth"/>), and reports whether this step left the planet
     /// picture unpixelated.
     /// </summary>
     private bool StepRevealPixelation()
     {
-        if (!CeresCinematicCadenceDefinitions.RevealPixelationStepEveryFourthUpdate.IsDue(cinematicFrameCounter))
+        if (!CeresCinematicCadenceDefinitions.RevealPixelationStep.IsDue(cinematicFrameCounter))
             return false;
         revealBlockWidth = revealBlockWidth == 1
             ? CeresDestructionSceneDefinitions.RevealPixelation.CoarsestBlockWidth

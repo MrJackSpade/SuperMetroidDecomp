@@ -45,8 +45,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Playback = EnemyAnimationPlayback.Start(place, KzanAnimations.StartingWith(KzanSegment.Idle));
 
-        // The spawn settings name the speed the fall starts at. Placements include four pixels per update,
-        // the fastest the fall reaches.
+        // The spawn settings name the speed the fall starts at. Placements include the fastest the fall
+        // reaches.
         state.FallingSpeed = place.SpawnSettings<KzanSpawnSettings>().FallSpeed;
 
         // The spawn settings name the fall distance in pixels and the top's wait. A wait of zero does not run out at
@@ -57,7 +57,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FallWaitTimer = WrappingCountdown.Start(place.SpawnSettings<KzanSpawnSettings>().FallWait);
     }
 
-    /// <summary>Places the lower actor twelve pixels below the preceding top during setup.</summary>
+    /// <summary>Places the lower actor below the preceding top (<see cref="KzanMotionDefinitions.BottomBelowTop"/>) during setup.</summary>
     /// <exception cref="InvalidDataException">The enemy before the bottom is not a Kzan top.</exception>
     internal void InitializeKzanBottom(RoomEnemyPlace place)
     {
@@ -86,7 +86,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         bottom.Position = bottom.Position.WithWhole(new(top.Position.X.Whole, top.Position.Y.Whole + KzanMotionDefinitions.BottomBelowTop));
     }
 
-    /// <summary>Runs the top actor through fall wait, accelerated descent, rise wait, and half-pixel ascent.</summary>
+    /// <summary>Runs the top actor through fall wait, accelerated descent, rise wait, and slow ascent.</summary>
     private void RunKzanTopMain(
         RoomEnemyPlace place,
         KzanEnemyState state,
@@ -158,7 +158,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = KzanAction.Rising;
     }
 
-    /// <summary>Subtracts one-half pixel per update, stops at the spawn height, and carries Samus by the whole-pixel step.</summary>
+    /// <summary>Rises by <see cref="KzanMotionDefinitions.RisingStep"/> each update, stops at the spawn height, and carries Samus by the whole-pixel step.</summary>
     private static void RunKzanRising(
         RoomEnemyPlace place,
         KzanEnemyState state,
@@ -166,7 +166,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int previousY = place.Position.Y.Whole;
 
-        // The Kzan rises by exactly half a pixel per update.
+        // The Kzan rises by exactly its rising step each update.
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(KzanMotionDefinitions.RisingStep));
         if (place.Position.Y.Whole < state.RisingTargetY)
         {

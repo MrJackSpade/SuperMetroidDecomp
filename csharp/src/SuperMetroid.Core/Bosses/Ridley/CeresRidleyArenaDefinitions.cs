@@ -61,7 +61,7 @@ internal static class CeresRidleyArenaDefinitions
     internal const int SwoopStartLineY = 96;
 
     /// <summary>
-    /// The point his fake retreat flies toward after his hundredth hit; his fake retreat starts rising once he is at or
+    /// The point his fake retreat flies toward once his hits drive him off; his fake retreat starts rising once he is at or
     /// right of its X.
     /// </summary>
     internal static readonly Position16<RoomPixels> FakeRetreatPoint = new(192, 128);

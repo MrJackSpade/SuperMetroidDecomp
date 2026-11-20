@@ -185,7 +185,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
             state.Action = BoulderAction.Rebound;
 
-            // The third impact still restarts the bounce clock, at the curve's start, even though it enters rolling.
+            // The last impact still restarts the bounce clock, at the curve's start, even though it enters rolling.
             state.BounceCurvePlace = BoulderBounces.RestartPlace(state.ImpactsSoFar);
             if (++state.ImpactsSoFar == BoulderBounces.ImpactCount)
             {

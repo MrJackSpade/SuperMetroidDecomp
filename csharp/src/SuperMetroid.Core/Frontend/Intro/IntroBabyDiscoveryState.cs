@@ -66,8 +66,8 @@ internal sealed class IntroBabyDiscoveryState
         SamusPresentation.SetAnimationFrameIfPoseChanged(Samus);
         Samus.CommitPoseHistory();
 
-        // The discovery room is 32x16 blocks, of which the authored terrain fills twelve rows.
-        // The final four rows are empty, and no block has a behaviour.
+        // The discovery room's authored terrain fills its upper rows (IntroBabyDiscoveryCollisionDefinitions).
+        // The rows below are empty, and no block has a behaviour.
         Level = CreateLevel();
 
         demo.Clear();
@@ -78,7 +78,7 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>Samus' scene state, carried from the earlier intro when supplied.</summary>
     public SamusState Samus { get; }
 
-    /// <summary>The 32 by 16 discovery room's collision: its two authored strips and air elsewhere.</summary>
+    /// <summary>The discovery room's collision: its two authored strips and air elsewhere.</summary>
     private RoomLevelData Level { get; }
 
     /// <summary>Signals the outer cinematic owner to start the next page's colour transition.</summary>
@@ -302,8 +302,8 @@ internal sealed class IntroBabyDiscoveryState
     private UpdateCountdown BabyIdleTimer { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
-    /// The crying stretch of the baby's dance, its first 128 updates, counted once each: it cries as its age reaches 64 and
-    /// 128, and dances on silently once it is over.
+    /// The crying stretch of the baby's dance, counted once each update: it cries at its cry cadence's places, the last as
+    /// the stretch ends, and dances on silently once it is over.
     /// </summary>
     private UpdateCountdown BabyCryingDance { get; set; } = UpdateCountdown.Ended();
 
@@ -355,8 +355,8 @@ internal sealed class IntroBabyDiscoveryState
         if (BabyCryingDance.IsRunning)
         {
             BabyCryingDance.Count();
-            // The dancing baby cries when its count of frames danced reaches 64 and 128.
-            if (IntroCadenceDefinitions.BabyCriesEverySixtyFourthDanceUpdate.IsDue(BabyCryingDance.Age))
+            // The dancing baby cries when its count of frames danced reaches its cry cadence's places.
+            if (IntroCadenceDefinitions.BabyCriesInDance.IsDue(BabyCryingDance.Age))
                 audio.QueueSound(
                     IntroCinematicDefinitions.Sounds.BabyCry1,
                     priority: IntroCinematicDefinitions.Sounds.SoundPriority);

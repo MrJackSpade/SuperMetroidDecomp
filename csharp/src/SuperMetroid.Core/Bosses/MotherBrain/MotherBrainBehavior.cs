@@ -234,8 +234,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs one update of Mother Brain's room flash, while it runs: it plays on through its fourteen images, each shown two
-    /// updates, looping (<see cref="MotherBrainRoomFlashAnimations"/>), and her room shows the image it stands on.
+    /// Runs one update of Mother Brain's room flash, while it runs: it plays on through its images, looping
+    /// (<see cref="MotherBrainRoomFlashAnimations"/>), and her room shows the image it stands on.
     /// </summary>
     private static void RunMotherBrainRoomFlash(MotherBrainEnemyState state)
     {

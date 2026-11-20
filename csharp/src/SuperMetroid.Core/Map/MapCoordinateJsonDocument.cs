@@ -2,9 +2,9 @@ using System.Text.Json.Serialization;
 
 namespace SuperMetroid.Core.Map;
 
-/// <summary>A zero-based cell in an area's 64-by-32 map grid.</summary>
-/// <param name="X">Horizontal map-tile coordinate, from 0 through 63.</param>
-/// <param name="Y">Vertical map-tile coordinate, from 0 through 31.</param>
+/// <summary>A zero-based cell in an area's map grid (<see cref="Progression.AreaMapSize"/>).</summary>
+/// <param name="X">Horizontal map-tile coordinate, within the map's width.</param>
+/// <param name="Y">Vertical map-tile coordinate, within the map's height.</param>
 [SpatialComponents("External format: save JSON stores each explored map cell as x/y.")]
 public sealed record MapCoordinateJsonDocument(int X, int Y)
 {

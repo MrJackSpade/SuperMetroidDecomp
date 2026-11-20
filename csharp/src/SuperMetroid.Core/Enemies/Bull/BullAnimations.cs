@@ -27,7 +27,7 @@ internal static class BullAnimations
     /// <summary>How many quick cycles of its poses an immune shot sets off before its idle sway resumes.</summary>
     private const int ShotCycles = 5;
 
-    /// <summary>The reaction to an immune shot (#2061): five quick cycles of its poses, then its idle sway for good.</summary>
+    /// <summary>The reaction to an immune shot (#2061): quick cycles of its poses (<see cref="ShotCycles"/>), then its idle sway for good.</summary>
     internal static Animation<BullSegment> Shot { get; } = Animation<BullSegment>.LeadingInto([Segments.Repeated(P.Shot, ShotCycles)], [Segments.Whole(P.Idle)]);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

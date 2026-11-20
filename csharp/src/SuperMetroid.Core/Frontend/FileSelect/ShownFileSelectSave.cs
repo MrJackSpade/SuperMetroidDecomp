@@ -8,8 +8,8 @@ internal sealed record ShownFileSelectSave
     /// <summary>A value of its parts; only its own operations make one.</summary>
     /// <param name="health">The slot's health.</param>
     /// <param name="maxHealth">The slot's maximum health.</param>
-    /// <param name="hours">The slot's game-time hours, at most 99.</param>
-    /// <param name="minutes">The slot's game-time minutes, at most 99.</param>
+    /// <param name="hours">The slot's game-time hours, at most <see cref="FileSelectFieldDefinitions.MaximumTimePart"/>.</param>
+    /// <param name="minutes">The slot's game-time minutes, at most <see cref="FileSelectFieldDefinitions.MaximumTimePart"/>.</param>
     private ShownFileSelectSave(int health, int maxHealth, int hours, int minutes)
     {
         Health = health;

@@ -7,7 +7,7 @@
 internal enum YardCueKind
 {
     /// <summary>
-    /// An update of its closed shell has ended (#2180): while the Yard hides, or on a 50% chance once it no longer does, the
+    /// An update of its closed shell has ended (#2180): while the Yard hides, or by chance (<see cref="YardDecisions.HoldsShellClosedAgain"/>) once it no longer does, the
     /// shell shows closed for another update; otherwise the hide plays on.
     /// </summary>
     ShellClosedUpdateEnds,

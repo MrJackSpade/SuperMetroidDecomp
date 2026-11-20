@@ -28,7 +28,7 @@ internal static class DraygonArenaDefinitions
     /// </summary>
     internal const int OffscreenAboveY = -80;
 
-    /// <summary>How far right of the left-side reset place the right-side one lies: 672 pixels.</summary>
+    /// <summary>How far right of the left-side reset place the right-side one lies.</summary>
     internal const int RightSideResetDistance = 672;
 
     /// <summary>How near Samus Draygon's goop pass comes, horizontally, before he turns to whip his tail.</summary>

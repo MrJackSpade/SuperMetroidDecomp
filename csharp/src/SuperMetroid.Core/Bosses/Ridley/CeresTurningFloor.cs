@@ -21,12 +21,12 @@ public sealed class CeresTurningFloor
     /// <summary>Gets the floor point the getaway places at the screen's top-left before turning and zooming the floor.</summary>
     public Offset16<FloorPixels> Offset { get; internal set; }
     /// <summary>
-    /// Gets the getaway's zoom: eight floor pixels per screen pixel when the getaway starts, then its zoom curve's zoom
+    /// Gets the getaway's zoom: <see cref="CeresRidleyGetawayDefinitions.InitialZoom"/> when the getaway starts, then its zoom curve's zoom
     /// for each update. It also selects the floor's shade.
     /// </summary>
     public FloorZoom Zoom { get; internal set; }
     /// <summary>
-    /// Gets the floor point the getaway turns and zooms its floor about, from the floor's top-left (#2471): (64, 64) while it
+    /// Gets the floor point the getaway turns and zooms its floor about, from the floor's top-left (#2471): <see cref="CeresRidleyGetawayDefinitions.InitialFloorCentre"/> while it
     /// runs and cleared on completion.
     /// </summary>
     public Offset16<FloorPixels> Center { get; internal set; }

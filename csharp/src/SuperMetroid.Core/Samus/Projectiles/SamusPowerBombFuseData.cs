@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Constants used by the Power Bomb fuse.</summary>
 public static class SamusPowerBombFuseData
 {
-    /// <summary>A bomb's or Power Bomb's fuse switches to the fast animation when the decremented fuse reaches fifteen.</summary>
+    /// <summary>The fuse at which a bomb's or Power Bomb's fuse, counted down, switches to the fast animation.</summary>
     public const int FastAnimationTimer = 15;
     /// <summary>
     /// The fast-animation place each slow bomb and Power Bomb place switches to: the same frame in the fast segment.

@@ -60,8 +60,8 @@ public static class SamusShadeDefinitions
 
     /// <summary>Two independently timed colour cycles used by Crystal Flash.</summary>
     /// <remarks>
-    /// Samus's body brightens through six grey shades and dims back again, ten steps in all; the bubble around her cycles
-    /// its own six shades on a separate timer, wrapping independently of the body. Both cycles stay live while Crystal
+    /// Samus's body brightens through its grey shades and dims back again (<see cref="BodyStepCount"/>); the bubble around her cycles
+    /// its own shades (<see cref="BubbleShadeCount"/>) on a separate timer, wrapping independently of the body. Both cycles stay live while Crystal
     /// Flash runs. The shades themselves are installed colours (#625, #902, #903).
     /// </remarks>
     public static class CrystalFlash

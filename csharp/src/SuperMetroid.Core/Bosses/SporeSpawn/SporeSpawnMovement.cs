@@ -9,7 +9,7 @@ public enum SporeSpawnMovement
     /// <summary>Performs no main-AI movement while its animations control the idle or open phase.</summary>
     Idle,
     /// <summary>
-    /// Lowers the body one room pixel per AI update until it reaches the arena's centre height
+    /// Lowers the body by <see cref="SporeSpawnArenaDefinitions.DescentSpeed"/> each AI update until it reaches the arena's centre height
     /// (<see cref="SporeSpawnArenaDefinitions.CentreY"/>) and starts the fight-start animation.
     /// </summary>
     Descending,

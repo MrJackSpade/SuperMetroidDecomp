@@ -30,9 +30,8 @@ public static class SamusInsideBlockReactions
             // Feet/head contacts belong to the separate movement scans. Keeping
             // this center wake-up lets a lower trigger win after the torso clears
             // an upper trigger, without changing the room-object update order.
-            if (centerPoint && block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
-                !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.At))
-                throw new InvalidOperationException($"Inside scroll trigger block {block.Position} has no active room-object owner.");
+            if (centerPoint && block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger)
+                terrain.RoomObjects.Scrolls.NotifyScrollTouch(block.At);
             // The conveyors carry Samus the same in every area; the reactions the area gives meaning
             // own sand and plants. Both are visited in the same bottom/center/top order.
             if (block.Behavior.SpecialAir is { } conveyed && ConveyorBlockDefinitions.Conveyors.TryGetValue(conveyed, out ConveyorBlock conveyor))

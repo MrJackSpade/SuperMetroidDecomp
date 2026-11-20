@@ -275,10 +275,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (inflation.Sequence == PowampBalloonSequence.Sinking)
         {
             // A balloon sunk halfway restarts inflating from halfway, and one sunk deflated restarts inflating from
-            // deflated; one still full keeps sinking. A sinking balloon that has not shown its first pose is refused:
-            // it has no pose to restart from.
-            if (inflation.PosesShown == 0)
-                throw new InvalidDataException("Powamp death saw a sinking balloon that had shown none of its poses.");
+            // deflated; one still full keeps sinking.
             if (PowampMotionDefinitions.SunkBalloonRestarts.TryGetValue(inflation.Pose, out PowampBalloonStart? restart))
                 StartPowampBalloonAnimation(balloon.Place, balloon.State, restart);
         }
@@ -479,10 +476,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         PowampBalloonState balloon = place.RequireSpeciesState<PowampBalloonState>();
         AnimationPlayback<PowampSegment> playback = balloon.Playback;
-        // Every frame of the balloon's animations is one of its poses, so each frame shown records the next pose.
+        // Every frame of the balloon's animations is one of its poses, so each frame shown is the pose it stands at.
         EnemyAnimationPlayback.PlaySilently(place, PowampAnimations.Segments, ref playback, pose =>
         {
-            balloon.Inflation = balloon.Inflation.AfterShowingPose();
+            balloon.Inflation = balloon.Inflation.Showing(pose);
             return pose;
         });
         balloon.Playback = playback;

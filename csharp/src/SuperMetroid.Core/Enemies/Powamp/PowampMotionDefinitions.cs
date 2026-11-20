@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>Powamp balloon motion and clockwise spike acceleration.</summary>
@@ -9,11 +11,13 @@ internal static class PowampMotionDefinitions
     /// </summary>
     internal static readonly int[] WiggleOffsets = [0, 1, 2, 3, 2, 1, 0, -1, -2, -3, -2, -1];
 
-    /// <summary>The balloon's poses in the order it shows them while inflating.</summary>
-    internal static readonly IReadOnlyList<PowampBalloonPose> InflatingPoses = [PowampBalloonPose.Deflated, PowampBalloonPose.Halfway, PowampBalloonPose.Full];
-
-    /// <summary>The balloon's poses in the order it shows them while sinking.</summary>
-    internal static readonly IReadOnlyList<PowampBalloonPose> SinkingPoses = [PowampBalloonPose.Full, PowampBalloonPose.Halfway, PowampBalloonPose.Deflated];
+    /// <summary>The pose each of the balloon's frames shows it in.</summary>
+    internal static readonly IdentityTable<EnemyFrameId, PowampBalloonPose> PosesShownBy = new(new Dictionary<EnemyFrameId, PowampBalloonPose>
+    {
+        [EnemyFrameId.PowampBalloonSmall] = PowampBalloonPose.Deflated,
+        [EnemyFrameId.PowampBalloonHalfInflated] = PowampBalloonPose.Halfway,
+        [EnemyFrameId.PowampBalloonInflated] = PowampBalloonPose.Full,
+    });
 
     /// <summary>How far above the body the balloon sits in each pose: four pixels higher per pose it inflates.</summary>
     internal static readonly IdentityTable<PowampBalloonPose, int> BalloonHeights = new(new Dictionary<PowampBalloonPose, int>
@@ -28,19 +32,19 @@ internal static class PowampMotionDefinitions
     /// puts the balloon's sequence.
     /// </summary>
     internal static PowampBalloonStart InflatingFromDeflated { get; } =
-        new(PowampSegment.BalloonInflatingFromDeflated, new(PowampBalloonSequence.Inflating, PosesShown: 0));
+        new(PowampSegment.BalloonInflatingFromDeflated, new(PowampBalloonSequence.Inflating, PowampBalloonPose.Deflated));
 
-    /// <summary>The balloon inflating from halfway, the deflated pose counted as shown.</summary>
+    /// <summary>The balloon inflating from halfway, standing deflated until its halfway frame shows.</summary>
     internal static PowampBalloonStart InflatingFromHalfway { get; } =
-        new(PowampSegment.BalloonInflatingFromHalfway, new(PowampBalloonSequence.Inflating, PosesShown: 1));
+        new(PowampSegment.BalloonInflatingFromHalfway, new(PowampBalloonSequence.Inflating, PowampBalloonPose.Deflated));
 
     /// <summary>The balloon starting to sink from full.</summary>
     internal static PowampBalloonStart StartSinking { get; } =
-        new(PowampSegment.BalloonStartSinking, new(PowampBalloonSequence.Sinking, PosesShown: 0));
+        new(PowampSegment.BalloonStartSinking, new(PowampBalloonSequence.Sinking, PowampBalloonPose.Full));
 
-    /// <summary>The balloon resting deflated at the end of its sink, the full and halfway poses counted as shown.</summary>
+    /// <summary>The balloon resting deflated at the end of its sink, standing halfway until its deflated frame shows.</summary>
     internal static PowampBalloonStart Deflated { get; } =
-        new(PowampSegment.BalloonDeflated, new(PowampBalloonSequence.Sinking, PosesShown: 2));
+        new(PowampSegment.BalloonDeflated, new(PowampBalloonSequence.Sinking, PowampBalloonPose.Halfway));
 
     /// <summary>
     /// The order a burst fires its eight spikes in, anticlockwise from up and left round to straight up; each spike takes

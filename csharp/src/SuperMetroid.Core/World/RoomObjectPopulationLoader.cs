@@ -18,8 +18,11 @@ internal sealed class RoomObjectPopulationLoader
     /// placement takes its place before its setup runs, as the game's room-object spawn
     /// does. A setup may immediately delete its place;
     /// the next placement can consequently reuse that same place. Loading
-    /// requires installed placements; no population or definition is decoded during play.
+    /// requires installed placements; no population or definition is decoded during play. Once every setup has run, the
+    /// room's scroll-trigger blocks are bound to their triggers.
     /// </summary>
+    /// <exception cref="InvalidDataException">A placement lies outside its site, or a scroll-trigger block has no
+    /// trigger.</exception>
     public void LoadRoomPopulation(RoomObjectRoom room, RoomObjectPopulation population, RoomObjectServices services)
     {
         Ensure.NotNull(room);
@@ -70,6 +73,9 @@ internal sealed class RoomObjectPopulationLoader
                 Families = _families,
             }));
         }
+
+        // Every placement's setup has written its blocks; each scroll-trigger block is now bound to its trigger.
+        _families.Scrolls.BindTriggerBlocks(room.Level);
     }
 
     /// <summary>Takes the first free place in update order, which starts afresh, and gives it the placement's block

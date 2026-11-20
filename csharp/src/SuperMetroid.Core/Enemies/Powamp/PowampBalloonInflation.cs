@@ -1,28 +1,26 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
-/// Where a Powamp's balloon stands in its inflate or sink sequence (#1845): which way it goes, and how many of the
-/// sequence's three poses it has shown. The balloon's animation shows the poses; the balloon records each one as it shows,
-/// and the body reads this record to place the balloon and to restart a sinking one when it dies.
+/// Where a Powamp's balloon stands in its inflate or sink sequence (#1845): which way it goes, and the pose it stands at.
+/// The balloon's animation shows the poses; each frame it shows is the pose the balloon then stands at, and before a
+/// start's first frame shows, the balloon stands at the pose the start names. The body reads this record to place the
+/// balloon and to restart a sinking one when it dies.
 /// </summary>
 /// <param name="Sequence">Which way the balloon goes through its poses.</param>
-/// <param name="PosesShown">
-/// How many of the sequence's poses it has shown: its animation's place in the sequence, which shows each of the three at
-/// most once and then holds the last.
+/// <param name="Pose">
+/// The pose whose height the balloon sits at: the latest its animation has shown, or, before it shows one, the start's.
 /// </param>
-public readonly record struct PowampBalloonInflation(PowampBalloonSequence Sequence, int PosesShown)
+/// <remarks>
+/// The game keeps the balloon's place in its animation instead and reads the pose from it ($A8:C234, $A8:C57D); every place
+/// a played animation holds reads one of the three poses. A start's place before its first frame is not one the death
+/// reads: the balloon plays before its body in the enemy pass, so its first frame shows before the body's next update,
+/// a frozen balloon shares its body's freeze and thaws as the body's next update begins, and every Powamp is processed
+/// off screen (#2553).
+/// </remarks>
+public readonly record struct PowampBalloonInflation(PowampBalloonSequence Sequence, PowampBalloonPose Pose)
 {
-    /// <summary>
-    /// The pose whose height the balloon sits at: the latest it has shown, or the sequence's first before it shows one. As
-    /// the game reads the balloon's place in its animation, a place past the sequence's poses reads as its first.
-    /// </summary>
-    public PowampBalloonPose Pose => PosesShown >= 1 && PosesShown <= Poses.Count ? Poses[PosesShown - 1] : Poses[0];
-
-    /// <summary>The record once the balloon has shown its next pose.</summary>
-    internal PowampBalloonInflation AfterShowingPose() => this with { PosesShown = PosesShown + 1 };
-
-    /// <summary>The sequence's poses in the order the balloon shows them.</summary>
-    private IReadOnlyList<PowampBalloonPose> Poses => Sequence == PowampBalloonSequence.Sinking
-        ? PowampMotionDefinitions.SinkingPoses
-        : PowampMotionDefinitions.InflatingPoses;
+    /// <summary>The record once the balloon's animation shows <paramref name="frame"/>, the pose it then stands at.</summary>
+    internal PowampBalloonInflation Showing(EnemyFrameId frame) => this with { Pose = PowampMotionDefinitions.PosesShownBy[frame] };
 }

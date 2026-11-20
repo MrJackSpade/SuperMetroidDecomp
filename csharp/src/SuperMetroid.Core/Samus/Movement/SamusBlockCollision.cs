@@ -212,13 +212,8 @@ public static class SamusBlockCollision
                         // when reached through the horizontal step.
                         collided = SamusInsideBlockReactions.ReactCollision(new(state, BodyAttackOf(owner)), room, block, Axis.Horizontal,
                             ref acceptedDisplacement, out _, move.Observes) == SpecialAirCollisionOutcome.Blocks;
-                        if (block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
-                            !room.RoomObjects.Scrolls.TryNotifyScrollTouch(block.At))
-                        {
-                            throw new InvalidOperationException(
-                                $"Scroll trigger block {block.Position} has no active scroll room-object owner; " +
-                                $"live=[{string.Join(',', room.RoomObjects.Scrolls.TriggerBlocks)}].");
-                        }
+                        if (block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger)
+                            room.RoomObjects.Scrolls.NotifyScrollTouch(block.At);
                     }
                     else if ((standing.CollisionType == StandingCollisionType.SpecialBlock && block.Behavior.Special == SpecialBlockReaction.CollectibleTrigger))
                     {
@@ -539,13 +534,8 @@ public static class SamusBlockCollision
                     collided = SamusInsideBlockReactions.ReactCollision(new(state, BodyAttackOf(owner)), room, block, Axis.Vertical,
                         ref acceptedDisplacement, out bool touchedSand, move.Observes) == SpecialAirCollisionOutcome.Blocks;
                     sandContact |= touchedSand;
-                    if (block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
-                        !room.RoomObjects.Scrolls.TryNotifyScrollTouch(block.At))
-                    {
-                        throw new InvalidOperationException(
-                            $"Scroll trigger block {block.Position} has no active scroll room-object owner; " +
-                            $"live=[{string.Join(',', room.RoomObjects.Scrolls.TriggerBlocks)}].");
-                    }
+                    if (block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger)
+                        room.RoomObjects.Scrolls.NotifyScrollTouch(block.At);
                     // Scroll wake-up itself lets Samus pass; sand has a separate
                     // collision and contact contract handled above.
                 }

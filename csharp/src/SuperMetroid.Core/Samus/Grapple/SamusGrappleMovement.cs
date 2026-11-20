@@ -573,15 +573,7 @@ public static class SamusGrappleMovement
             if (special.Angle != grapple.Angle)
                 continue;
 
-            GrappleConnectionKind kind = special.Kind;
-            GrapplePhase phase = kind switch
-            {
-                GrappleConnectionKind.LockedInPlace => GrapplePhase.ConnectedLocked,
-                GrappleConnectionKind.WallGrab => GrapplePhase.WallGrab,
-                GrappleConnectionKind.Swinging => throw new InvalidDataException(
-                    $"Grapple special connection {special} names the swinging connection."),
-                _ => throw new InvalidOperationException($"The grapple has no connection {kind}."),
-            };
+            GrapplePhase phase = special.Phase;
 
             samus.Position = samus.Position.WithWhole(grapple.Anchor + special.SamusOffset);
             samus.ChangePose(special.Pose);

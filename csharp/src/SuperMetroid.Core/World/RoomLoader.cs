@@ -306,11 +306,6 @@ internal sealed class RoomLoader
         LoadStation station = LoadStationDefinitions.ZebesArrival;
         DoorDefinition door = station.Placement.Door;
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
-        if (room.Area != AreaId.Crateria)
-        {
-            throw new InvalidDataException(
-                $"Post-Ceres station {station} targets area {room.Area}, expected Crateria.");
-        }
 
         // The cinematic refilled health on the preceding frame; the Ceres start then seeds the
         // hurt check from it. The Ceres start's control setup locks the player out.
@@ -319,9 +314,9 @@ internal sealed class RoomLoader
         samus.Kinematics.Position = samus.Kinematics.Position.WithX(FixedCoordinate.FromWhole(station.Placement.SamusPosition.X)).WithY(FixedCoordinate.FromWhole(station.Placement.SamusPosition.Y));
         samus.Control.LockOutPlayer();
 
-        // The arrival moves the game to Crateria and loads the live explored map from
-        // Crateria's stored one before the room loads.
-        _system.StoredExploredMaps.LoadLiveMap(AreaId.Crateria);
+        // The arrival moves the game to its station's area, Crateria, and loads the live explored map from that area's
+        // stored one before the room loads.
+        _system.StoredExploredMaps.LoadLiveMap(station.Area);
 
         // Arriving on Zebes ends the Ceres room's objects and projectiles before Landing Site loads, the two of the Ceres
         // elevator's arrival among them, so the gunship alone carries Samus.

@@ -72,15 +72,8 @@ public sealed class InstalledProjectileTrails
     /// <returns>A new caller-owned UTF-8 JSON byte array with camel-case properties and indented formatting.</returns>
     public static byte[] Write(ProjectileTrailDocument document) =>
         JsonSerializer.SerializeToUtf8Bytes(document, Options);
-    /// <summary>Recursively rejects repeated object keys before deserialization could replace a trail frame.</summary>
-    private static void ValidateUnique(JsonElement element)
-    {
-        if (element.ValueKind != JsonValueKind.Object) return;
-        var names = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var property in element.EnumerateObject())
-        {
-            if (!names.Add(property.Name)) throw new InvalidDataException("Duplicate trail JSON property.");
-            ValidateUnique(property.Value);
-        }
-    }
+    /// <summary>Rejects repeated object keys before deserialization could replace a trail frame.</summary>
+    private static void ValidateUnique(JsonElement element) =>
+        JsonAssetDocument.RejectDuplicateProperties(element, StringComparer.Ordinal,
+            _ => new InvalidDataException("Duplicate trail JSON property."), DuplicatePropertyScope.OutsideArrays);
 }

@@ -361,7 +361,7 @@ internal static class WrittenPictureSheetComposer
     internal static SpriteSheetFrameDocument Frame(RoomTileCanvas canvas, Position16<ImagePixels> corner, Extent16<ImagePixels> size, SpriteImageColours kind)
     {
         Ensure.NotNull(canvas);
-        int rowColours = kind == SpriteImageColours.TwoBppBackground ? 4 : 16;
+        int rowColours = kind == SpriteImageColours.TwoBppBackground ? RoomTileCanvas.TwoBppRowColours : RoomTileCanvas.RowColours;
         ImageColourGroups coloured = ImageColourGroups.None;
         for (int y = 0; y < size.Y; y++)
         for (int x = 0; x < size.X; x++)

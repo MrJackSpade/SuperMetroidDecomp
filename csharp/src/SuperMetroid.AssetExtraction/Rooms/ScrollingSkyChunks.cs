@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class ScrollingSkyChunks
 {
     /// <summary>The chunks down the sky's span before the span repeats.</summary>
-    private const int ChunkCount = 8;
+    internal const int ChunkCount = 8;
 
     /// <summary>The land sky's own chunks, which show pages 0 through 4.</summary>
     private const int LandChunks = 5;

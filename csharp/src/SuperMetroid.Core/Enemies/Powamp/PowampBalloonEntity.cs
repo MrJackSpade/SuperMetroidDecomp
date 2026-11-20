@@ -10,14 +10,14 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// <param name="place">The place the balloon occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, PowampSpawnSettings settings)
+internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, PowampBalloonSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal PowampSpawnSettings Settings { get; } = settings;
+    internal PowampBalloonSpawnSettings Settings { get; } = settings;
 
     /// <summary>The balloon's own shot reaction, built for this occupant.</summary>
-    private readonly EnemyShotReaction ownShot = species.PowampBalloonShotReaction(occupant, occupant.SpawnSettings<PowampSpawnSettings>());
+    private readonly EnemyShotReaction ownShot = species.PowampBalloonShotReaction(occupant, settings);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal PowampBalloonState State { get; } = PowampBehavior.InitializePowampBalloon(place);
@@ -44,7 +44,7 @@ internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccup
     /// <summary>The Powamp's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == PowampReactions.Shot ? species.PowampBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == PowampReactions.Shot ? species.PowampBalloonBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The balloon's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
     public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? species.PowampBalloonPowerBombReaction : base.PowerBombReaction;

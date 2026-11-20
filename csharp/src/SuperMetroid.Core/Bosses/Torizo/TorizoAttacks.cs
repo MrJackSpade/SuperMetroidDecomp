@@ -202,7 +202,7 @@ internal sealed class TorizoAttacks
                 {
                     // The floor impact waits while Golden Torizo's eye-beam explosions are disabled; once they are enabled,
                     // it bursts into flames.
-                    TorizoEnemyState state = Held.Of(projectile).Owner.RequireSpeciesState<TorizoEnemyState>();
+                    TorizoEnemyState state = Held.Of(projectile).OwnerState;
                     return state.EyeBeamExplosionsEnabled ? TorizoProjectileAnimations.ContinueWith(TorizoProjectileSegment.EyeBeamFloorFlames) : null;
                 }
                 case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.MayTurnToSmoke }:
@@ -245,9 +245,10 @@ internal sealed class TorizoAttacks
         /// <summary>Keeps the held super missile beside the hand of the Golden Torizo that caught it.</summary>
         private void HoldSuperMissile(EnemyProjectile projectile)
         {
-            RoomEnemyPlace torizo = Held.Of(projectile).Owner;
+            TorizoOwnedProjectileState owned = Held.Of(projectile);
+            RoomEnemyPlace torizo = owned.Owner;
             Offset16<RoomPixels> held = TorizoProjectilePlacementDefinitions.HeldSuperMissile;
-            projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (TorizoFacing.FacesRight(torizo, torizo.RequireSpeciesState<TorizoEnemyState>()) ? held : held.MirroredX()));
+            projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (TorizoFacing.FacesRight(torizo, owned.OwnerState) ? held : held.MirroredX()));
         }
 
         /// <summary>
@@ -491,7 +492,7 @@ internal sealed class TorizoAttacks
         if (projectile is null)
             return;
 
-        SuperMissile.Held.Start(projectile, new TorizoOwnedProjectileState(torizo));
+        SuperMissile.Held.Start(projectile, new TorizoOwnedProjectileState(torizo, torizoEnemyState));
         bool facingRight = TorizoFacing.FacesRight(torizo, torizoEnemyState);
         Offset16<RoomPixels> caught = TorizoProjectilePlacementDefinitions.CaughtSuperMissile;
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (facingRight ? caught : caught.MirroredX()));
@@ -505,7 +506,7 @@ internal sealed class TorizoAttacks
         if (projectile is null)
             return;
 
-        TorizoProjectiles.Held.Start(projectile, new TorizoOwnedProjectileState(torizo));
+        TorizoProjectiles.Held.Start(projectile, new TorizoOwnedProjectileState(torizo, torizoEnemyState));
         HorizontalDirection facing = TorizoFacing.Posture(torizo, torizoEnemyState).Facing;
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectiles, TorizoProjectileSegment.EyeBeam));
         Offset16<RoomPixels> muzzle = TorizoProjectilePlacementDefinitions.EyeBeamMuzzle;

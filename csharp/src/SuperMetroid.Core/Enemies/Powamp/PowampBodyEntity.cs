@@ -9,17 +9,20 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, PowampSpawnSettings settings)
+internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, PowampBodySpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal PowampSpawnSettings Settings { get; } = settings;
-
-    /// <summary>The body's own shot reaction, built for this occupant.</summary>
-    private readonly EnemyShotReaction ownShot = species.PowampBodyShotReaction(occupant, occupant.SpawnSettings<PowampSpawnSettings>());
+    internal PowampBodySpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal PowampBodyState State { get; } = species.InitializePowampBody(place);
+
+    /// <summary>The body's own shot reaction, built for this occupant with its state.</summary>
+    private EnemyShotReaction OwnShot => field ??= species.PowampBodyShotReaction(Occupant, Settings, State);
+
+    /// <summary>The body's own bomb reaction, built for this occupant with its state.</summary>
+    private EnemyBombReaction OwnBomb => field ??= species.PowampBodyBombReaction(State);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Occupant, Place, State, frame.Level, frame.Samus);
@@ -41,12 +44,12 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant
     }
 
     /// <summary>The body's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == PowampReactions.Shot ? ownShot : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == PowampReactions.Shot ? OwnShot : base.ShotReaction;
 
     /// <summary>The Powamp's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == PowampReactions.Shot ? species.PowampBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == PowampReactions.Shot ? OwnBomb : base.CommonBombDamageReaction(context);
 
     /// <summary>The body's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
     public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? species.PowampBodyPowerBombReaction : base.PowerBombReaction;

@@ -5,14 +5,15 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class KagoEntity(KagoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells it: the hits it takes.</param>
+internal sealed class KagoEntity(KagoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KagoSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The Kago's own shot reaction, built for this occupant.</summary>
-    private EnemyShotReaction OwnShot => field ??= species.KagoShotReaction(Occupant, Occupant.SpawnSettings<KagoSpawnSettings>(), State);
+    private EnemyShotReaction OwnShot => field ??= species.KagoShotReaction(Occupant, settings, State);
 
     /// <summary>The Kago's own stages around common bomb damage, built for this occupant.</summary>
-    private EnemyBombReaction OwnBomb => field ??= species.KagoBombReaction(Occupant, Occupant.SpawnSettings<KagoSpawnSettings>(), State);
+    private EnemyBombReaction OwnBomb => field ??= species.KagoBombReaction(Occupant, settings, State);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal KagoEnemyState State { get; } = KagoBehavior.InitializeKago(place);

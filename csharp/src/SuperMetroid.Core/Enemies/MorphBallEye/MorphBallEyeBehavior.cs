@@ -136,7 +136,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<M
             return;
 
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeActivationSound, priority: SoundRequestPriority.Normal);
-        RequestMorphBallEyeBeam(eye);
+        RequestMorphBallEyeBeam(eye, state);
         state.Action = MorphBallEyeAction.Active;
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
     }
@@ -193,12 +193,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<M
     /// every room that places the eye places one beam mount and one eye, so the eye that opens is the eye the game's beam
     /// follows.
     /// </summary>
-    private void RequestMorphBallEyeBeam(RoomEnemyPlace eye)
-    {
-        MorphBallEyeBeam.Reset();
-        MorphBallEyeBeam.Body = eye;
-        MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.PendingInitialization;
-    }
+    private void RequestMorphBallEyeBeam(RoomEnemyPlace eye, MorphBallEyeEnemyState state) => MorphBallEyeBeam.Request(eye, state);
 
     /// <summary>
     /// Advances the beam before enemy AI, as the game advances it ahead of the enemies. A beam
@@ -206,25 +201,26 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<M
     /// </summary>
     internal void StepMorphBallEyeBeam()
     {
-        switch (MorphBallEyeBeam.Phase)
+        // No beam exists until an eye requests one.
+        if (MorphBallEyeBeam.Cast is not { } cast)
+            return;
+        switch (cast.Phase)
         {
-            case MorphBallEyeBeamPhase.Inactive:
-                return;
             case MorphBallEyeBeamPhase.PendingInitialization:
-                StartMorphBallEyeBeam();
+                StartMorphBallEyeBeam(cast);
                 return;
             case MorphBallEyeBeamPhase.Widening:
-                WidenMorphBallEyeBeam();
+                WidenMorphBallEyeBeam(cast);
                 return;
             case MorphBallEyeBeamPhase.Full:
-                StepFullMorphBallEyeBeam();
+                StepFullMorphBallEyeBeam(cast);
                 return;
             case MorphBallEyeBeamPhase.Deactivating:
                 FadeMorphBallEyeBeam();
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Unknown morph-ball eye beam phase {MorphBallEyeBeam.Phase}.");
+                    $"Unknown morph-ball eye beam phase {cast.Phase}.");
         }
     }
 
@@ -232,20 +228,18 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<M
     /// Seeds the beam's colour, then marks its body activated. The request a step earlier reset the beam to no width, no
     /// widening and its first colour (#2474), which nothing changes before this step.
     /// </summary>
-    private void StartMorphBallEyeBeam()
+    private void StartMorphBallEyeBeam(MorphBallEyeBeamCast cast)
     {
-        MorphBallEyeEnemyState state = BeamEyeState();
-
         MorphBallEyeBeam.Color = MorphBallEyeBeamDefinitions.InitialColor;
-        state.IsActivated = true;
-        MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Widening;
+        cast.Eye.IsActivated = true;
+        cast.Phase = MorphBallEyeBeamPhase.Widening;
     }
 
     /// <summary>
     /// Accelerates the beam's angular half-width by <see cref="MorphBallEyeBeamDefinitions.WidthGrowthStep"/> each update until its whole steps reach
     /// <see cref="MorphBallEyeBeamDefinitions.FullHalfWidth"/>; that update sets the whole steps to it, keeping the fraction, and the beam is full.
     /// </summary>
-    private void WidenMorphBallEyeBeam()
+    private void WidenMorphBallEyeBeam(MorphBallEyeBeamCast cast)
     {
         MorphBallEyeBeam.AngularHalfWidthGrowth += MorphBallEyeBeamDefinitions.WidthGrowthStep;
         MorphBallEyeBeam.AngularHalfWidth += MorphBallEyeBeam.AngularHalfWidthGrowth;
@@ -253,17 +247,16 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<M
         if (width >= MorphBallEyeBeamDefinitions.FullHalfWidth)
         {
             MorphBallEyeBeam.AngularHalfWidth = width.WithWholeStepsOf(MorphBallEyeBeamDefinitions.FullHalfWidth);
-            MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;
+            cast.Phase = MorphBallEyeBeamPhase.Full;
         }
     }
 
     /// <summary>Cycles the sixteen beam colors while the body stays activated, otherwise begins fading.</summary>
-    private void StepFullMorphBallEyeBeam()
+    private void StepFullMorphBallEyeBeam(MorphBallEyeBeamCast cast)
     {
-        MorphBallEyeEnemyState bodyState = BeamEyeState();
-        if (!bodyState.IsActivated)
+        if (!cast.Eye.IsActivated)
         {
-            MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Deactivating;
+            cast.Phase = MorphBallEyeBeamPhase.Deactivating;
             return;
         }
 
@@ -284,14 +277,6 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<M
 
         MorphBallEyeBeam.FadeOneStep();
     }
-
-    /// <summary>
-    /// The state of the eye that cast the live beam: the eye that opened, which its request names, so it is an eye body.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The beam steps without the eye that requested it.</exception>
-    private MorphBallEyeEnemyState BeamEyeState() =>
-        (MorphBallEyeBeam.Body ?? throw new InvalidOperationException("The Morph Ball eye beam steps without the eye that cast it."))
-            .RequireSpeciesState<MorphBallEyeEnemyState>();
 
     /// <summary>Advances a beam mount's typed animation: its mount pose, which raises no cue.</summary>
     internal static void AdvanceMorphBallEyeMountTypedAnimation(RoomEnemyPlace place, MorphBallEyeMountState morphBallEyeMountState) =>

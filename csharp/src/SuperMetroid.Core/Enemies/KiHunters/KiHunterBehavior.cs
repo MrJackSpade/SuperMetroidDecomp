@@ -87,7 +87,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemyPlace wings = _places.Member(body, KiHunterPartListingDefinitions.Listing, KiHunterMember.Body, KiHunterMember.Wings);
         _wingsOfBody.Place(body, wings);
-        _bodyOfWings.Place(wings, new KiHunterWingsBody(body, occupant));
+        _bodyOfWings.Place(wings, new KiHunterWingsBody(body, occupant, kiHunterSpawnSettings));
         var state = new KiHunterBodyState(KiHunterAction.FlyingPatrol);
 
         // Every Ki-Hunter animation is played by the shared enemy animation, which this property admits.
@@ -122,7 +122,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         wings.Processing = wings.Processing.With(EnemyProcessing.Animates);
         StartKiHunterAnimation(wings, state, KiHunterSegment.WingsLeft);
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
-        if (partner.Occupant.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
+        if (partner.Settings.Wings == KiHunterWings.Wingless)
             wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
         return state;
     }

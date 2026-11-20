@@ -121,18 +121,17 @@ public sealed class BotwoonEnemyState
     /// <summary>Ring index saved at a head hole crossing so delayed body samples toggle at the same position; null means no crossing remains pending.</summary>
     public int? SavedHoleRingIndex { get; internal set; }
 
-    /// <summary>Starts Botwoon's state with his <paramref name="body"/>, which his setup spawns.</summary>
-    /// <param name="body">
-    /// His body segments from the tail to the segment behind the head (#2178): all
-    /// <see cref="BotwoonFightDefinitions.BodySegments"/> of them, or none for a Botwoon already defeated, who spawns no body.
-    /// </param>
-    internal BotwoonEnemyState(IReadOnlyList<BotwoonSegmentState> body) => Body = Ensure.NotNull(body);
-
     /// <summary>
-    /// His body segments, from the tail (zero) to the segment behind the head: each segment's projectile, its phase and
-    /// whether it travels inside the wall are its own (<see cref="BotwoonSegmentState"/>).
+    /// His body segments, from the tail (zero) to the segment behind the head (#2178): each segment's projectile, its phase
+    /// and whether it travels inside the wall are its own (<see cref="BotwoonSegmentState"/>). He starts with none; his
+    /// setup spawns all <see cref="BotwoonFightDefinitions.BodySegments"/> of them, each holding this state, unless he is
+    /// already defeated, when he spawns no body (#2554).
     /// </summary>
-    internal IReadOnlyList<BotwoonSegmentState> Body { get; }
+    internal IReadOnlyList<BotwoonSegmentState> Body { get; private set; } = [];
+
+    /// <summary>Holds the <paramref name="body"/> his setup spawned.</summary>
+    /// <param name="body">His body segments from the tail to the segment behind the head.</param>
+    internal void HoldBody(IReadOnlyList<BotwoonSegmentState> body) => Body = Ensure.NotNull(body);
 
     /// <summary>The head's last moving positions, one for each of the trail ring's places (<see cref="BotwoonTrailRing"/>), all at the room's origin as he spawns.</summary>
     internal Position16<RoomPixels>[] History { get; } = new Position16<RoomPixels>[BotwoonTrailRing.Places];

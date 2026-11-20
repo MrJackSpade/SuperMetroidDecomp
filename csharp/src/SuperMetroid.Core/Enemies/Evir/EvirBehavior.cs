@@ -6,28 +6,23 @@ namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>The Evir species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class EvirBehavior : IEnemySpecies, IEnemySpawnFactory<EvirSpawnSettings>
+internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Evir, EnemyDefinitionId.EvirProjectile];
-
     /// <summary>
-    /// An Evir's body or arms, as the placement's settings name the part it is, or its spit (#2146). The arms share the
-    /// body's definition; only their placement tells them apart.
+    /// An Evir's body or arms, as the placement's settings name the part it is, which only the room's population load
+    /// places, the body facing the loading Samus; and its spit, built the same way wherever it is set up (#2146). The arms
+    /// share the body's definition; only their placement tells them apart.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The place holds no Evir definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, EvirSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void Register(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.Evir)
-        {
-            return settings.Part == EvirBodyPart.Arms
+        Ensure.NotNull(registrar).Loads<EvirSpawnSettings>([EnemyDefinitionId.Evir], (occupant, settings, place, common, surroundings) =>
+            settings.Part == EvirBodyPart.Arms
                 ? EnemyOccupant.Running(new EvirArmsEntity(this, occupant, place, common))
-                : EnemyOccupant.Running(new EvirBodyEntity(this, occupant, place, common, surroundings, settings));
-        }
-        if (definition == EnemyDefinitionId.EvirProjectile)
-            return EnemyOccupant.Running(new EvirSpitEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The Evir species creates no {occupant.DefinitionId}.");
+                : EnemyOccupant.Running(new EvirBodyEntity(this, occupant, place, common, surroundings, settings)));
+        registrar.Spawns<EnemySpawnSettings>([EnemyDefinitionId.EvirProjectile], (occupant, _, place, common) =>
+            EnemyOccupant.Running(new EvirSpitEntity(this, occupant, place, common)));
     }
 
     /// <summary>The room's enemy places, where each Evir part finds its partners when it is placed.</summary>

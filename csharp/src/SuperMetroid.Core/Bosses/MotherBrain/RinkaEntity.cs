@@ -15,13 +15,13 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occup
     internal RinkaSpawnSettings Settings { get; } = settings;
 
     /// <summary>Rinka's own shot reaction, built for this occupant.</summary>
-    private EnemyShotReaction OwnShot => field ??= species.RinkaShotReaction(Occupant, Occupant.SpawnSettings<RinkaSpawnSettings>(), State);
+    private EnemyShotReaction OwnShot => field ??= species.RinkaShotReaction(Occupant, Settings, State);
 
     /// <summary>Rinka's own stages around common bomb damage, built for this occupant.</summary>
-    private EnemyBombReaction OwnBomb => field ??= species.RinkaBombReaction(Occupant, Occupant.SpawnSettings<RinkaSpawnSettings>(), State);
+    private EnemyBombReaction OwnBomb => field ??= species.RinkaBombReaction(Occupant, Settings, State);
 
     /// <summary>Rinka's own Power Bomb reaction, built for this occupant.</summary>
-    private EnemyPowerBombReaction OwnPowerBomb => field ??= species.RinkaPowerBombReaction(Occupant, Occupant.SpawnSettings<RinkaSpawnSettings>(), State);
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= species.RinkaPowerBombReaction(Occupant, Settings, State);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal RinkaEnemyState State { get; } = species.InitializeRinka(occupant, settings, place);

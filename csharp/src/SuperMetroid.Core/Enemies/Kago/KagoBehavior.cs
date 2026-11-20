@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>The Kago species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
+internal sealed class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kago];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.PlacedOnly(new KagoEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, KagoSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.PlacedOnly(new KagoEntity(this, occupant, place, common, settings));
 
     /// <summary>Provides the room's random number sampled by bug spawns and jumps without advancing the generator.</summary>
     private readonly EnemyRoomBinding _room;

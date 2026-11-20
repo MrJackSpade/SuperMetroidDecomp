@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -111,20 +112,21 @@ internal sealed class SpcDefinitionUploads
     /// authored slots. The driver interpreter and lookup tables remain ordinary managed code.
     /// </summary>
     /// <param name="bank">The bank's decoded definitions, whose track routing must match the upload.</param>
+    /// <param name="dataSet">The music data set the bank uploads, which numbers its songs; none for the driver's own upload.</param>
     /// <param name="compiled">The bank's compiled bytes by APU RAM address, compiled once when the catalog loaded.</param>
-    public void ApplyMusicDefinitions(AudioBankMetadata bank, IReadOnlyDictionary<int, byte> compiled)
+    public void ApplyMusicDefinitions(AudioBankMetadata bank, MusicDataSet? dataSet, IReadOnlyDictionary<int, byte> compiled)
     {
         Ensure.NotNull(bank);
         Ensure.NotNull(compiled);
-        for (int track = 0; track < bank.MusicTracks.Count; track++)
+        foreach (AudioMusicTrackMetadata definition in bank.MusicTracks)
         {
-            int pointerAddress = SpcDriverDefinitions.Ram.DefaultMusicPointer + track * 2;
+            int slot = MusicTrackNumbers.Number(dataSet, definition.Song);
+            int pointerAddress = SpcDriverDefinitions.Ram.DefaultMusicPointer + slot * 2;
             int uploadedPointer = _voices.ReadWord(pointerAddress);
-            AudioMusicTrackMetadata definition = bank.MusicTracks[track];
-            if (uploadedPointer != definition.Address || bank.TrackPointers[track] != definition.Address)
+            if (uploadedPointer != definition.Address || bank.TrackPointers[slot] != definition.Address)
             {
                 throw new InvalidDataException(
-                    $"Music track '{definition.Id}' routes to uploaded ${uploadedPointer:X4}, " +
+                    $"Music track '{definition.Song}' routes to uploaded ${uploadedPointer:X4}, " +
                     $"not decoded address ${definition.Address:X4}.");
             }
         }

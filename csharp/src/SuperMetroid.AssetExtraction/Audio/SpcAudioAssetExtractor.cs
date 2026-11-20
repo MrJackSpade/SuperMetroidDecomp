@@ -135,6 +135,7 @@ public static class SpcAudioAssetExtractor
         }
         SpcMusicDefinitionBundle music = includeTrackPointers
             ? SpcMusicDefinitionCodec.DecodeBank(
+                definition.DataSet,
                 definition.DataIndex,
                 trackPointers,
                 ram,

@@ -8,17 +8,16 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the shutter occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal class ShootableShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : VerticalShutterEntity(species, occupant, place, common)
+/// <param name="settings">What the shutter's population entry tells its species.</param>
+/// <param name="pose">The pose the shutter shows: the fully grown shutter, or the Kamer's platform.</param>
+internal class ShootableShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    ShutterSpawnSettings settings, ShutterSegment pose)
+    : VerticalShutterEntity(species, occupant, place, common, settings, pose)
 {
-    /// <summary>The shutter's own shot reaction, built for this occupant.</summary>
-    private readonly EnemyShotReaction ownShot = species.ShootableShutterShotReaction(occupant);
-
-    /// <summary>A shootable shutter shows the fully grown shutter.</summary>
-    protected override ShutterSegment Pose => ShutterSegment.FullyGrown;
-
+    /// <summary>The shutter's own shot reaction, built once for this shutter.</summary>
+    private EnemyShotReaction OwnShot => field ??= Species.ShootableShutterShotReaction(Occupant, Settings, State);
     /// <summary>The shootable shutter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == ShutterReactions.Shot ? ownShot : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == ShutterReactions.Shot ? OwnShot : base.ShotReaction;
 
     /// <summary>
     /// Runs the shootable shutter's own reaction to a bomb that selects its own shot reaction, before the ignoring check.
@@ -28,7 +27,7 @@ internal class ShootableShutterEntity(ShuttersBehavior species, RoomEnemyOccupan
     {
         if (context.SelectedShot != ShutterReactions.Shot)
             return base.TryReactToBomb(context);
-        Species.ReactToShootableShutterBomb(Occupant, context, context.Enemy.RequireSpeciesState<VerticalShutterEnemyState>());
+        Species.ReactToShootableShutterBomb(Occupant, Settings, context, State);
         return true;
     }
 }

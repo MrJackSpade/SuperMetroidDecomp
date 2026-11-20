@@ -8,21 +8,23 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the shutter occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class GrowingShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the shutter's population entry tells its species.</param>
+internal sealed class GrowingShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    GrowingShutterSpawnSettings settings)
     : ShuttersEntity(species, occupant, place, common)
 {
-    /// <summary>The shutter's own shot reaction, built for this occupant.</summary>
-    private readonly EnemyShotReaction ownShot = species.DestroyableShutterShotReaction(occupant);
+    /// <summary>What the shutter's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal GrowingShutterSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The shutter's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal GrowingShutterEnemyState State { get; } = ShuttersBehavior.InitializeGrowingShutter(occupant, settings, place);
+
 
     /// <inheritdoc/>
-    public override void Initialize() => ShuttersBehavior.InitializeGrowingShutter(Occupant, Occupant.SpawnSettings<GrowingShutterSpawnSettings>(), Place);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunShutterGrowingMainAi(Occupant, Settings, Place, State, frame);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunShutterGrowingMainAi(Occupant, Occupant.SpawnSettings<GrowingShutterSpawnSettings>(), Place, Place.RequireSpeciesState<GrowingShutterEnemyState>(), frame);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceShutterGrowingTypedAnimation(Place, State);
 
-    /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceShutterGrowingTypedAnimation(Place, Place.RequireSpeciesState<GrowingShutterEnemyState>());
 
-    /// <summary>The destroyable shutter's shot reaction where the definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == ShutterReactions.Shot ? ownShot : base.ShotReaction;
 }

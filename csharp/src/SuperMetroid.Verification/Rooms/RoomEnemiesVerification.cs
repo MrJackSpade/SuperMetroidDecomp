@@ -186,8 +186,9 @@ internal static void VerifyRoomEnemyLoading()
     // The import decodes the +$0E cry byte to its library-two sound rather than retaining the word.
     AssertEqual<SoundEffectId?>(EnemySound.Squeaks, definition.HurtSoundEffect, "definition hurt cry offset $0E");
     AssertEqual(GrappleEnemyReaction.Cancel, definition.GrappleResponse, "definition grapple response offset $1A");
-    // Offset $28 names the species' own Power Bomb routine, which a definition leaves to the species (#1759).
-    AssertEqual<EnemyReaction?>(null, definition.PowerBombReaction,
+    // Offset $28 names the species' own Power Bomb routine, which a definition leaves to the species (#1759): it names the
+    // common Power Bomb reaction, the name that replaced the absent shared reaction (#2558, ffb4de5282).
+    AssertEqual(EnemyReaction.CommonPowerBomb, definition.PowerBombReaction,
         "definition power-bomb reaction offset $28 names no shared reaction");
     // The tile word is the import's to read (#1513): its low fifteen bits are the tile set's size, bit 15 set or not. The
     // fixture's identities are no members, so the headers are read at the pointers the fixture seeded them at.

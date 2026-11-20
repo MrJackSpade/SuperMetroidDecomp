@@ -38,7 +38,7 @@ public sealed class SamusPoseTransitionSetup
 
     /// <summary>A knockback pose's escape chord starts the damage boost the other way.</summary>
     internal static SamusPoseTransitionSetup StartDamageBoost { get; } = new(nameof(StartDamageBoost),
-        (_, frame, samus, targetPose, _) => SamusPoseSetupSteps.SetUpStartDamageBoost(frame, samus, targetPose));
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpStartDamageBoost(samus, targetPose));
 
     /// <summary>She leaves a damage boost for the neutral or forward normal jump.</summary>
     internal static SamusPoseTransitionSetup JumpFromDamageBoost { get; } = new(nameof(JumpFromDamageBoost),
@@ -46,7 +46,7 @@ public sealed class SamusPoseTransitionSetup
 
     /// <summary>A moonwalk reverses while Jump is held, starting the moonwalk turn that jumps.</summary>
     internal static SamusPoseTransitionSetup StartMoonwalkTurnJump { get; } = new(nameof(StartMoonwalkTurnJump),
-        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpStartMoonwalkTurnJump(samus, targetPose));
+        (_, _, samus, _, _) => SamusPoseSetupSteps.SetUpStartMoonwalkTurnJump(samus));
 
     /// <summary>She starts, aims or leaves a moonwalk, or turns instead when moonwalking is switched off.</summary>
     internal static SamusPoseTransitionSetup ChangeMoonwalkPose { get; } = new(nameof(ChangeMoonwalkPose),
@@ -90,7 +90,7 @@ public sealed class SamusPoseTransitionSetup
 
     /// <summary>She turns around in a normal jump or a fall.</summary>
     internal static SamusPoseTransitionSetup TurnInAir { get; } = new(nameof(TurnInAir),
-        (owner, _, samus, targetPose, terrain) => owner.SetUpTurnInAir(samus, targetPose, terrain));
+        (owner, _, samus, _, terrain) => owner.SetUpTurnInAir(samus, terrain));
 
     /// <summary>A spin or wall jump spins the other way, or keeps spinning.</summary>
     internal static SamusPoseTransitionSetup ChangeSpinDirection { get; } = new(nameof(ChangeSpinDirection),

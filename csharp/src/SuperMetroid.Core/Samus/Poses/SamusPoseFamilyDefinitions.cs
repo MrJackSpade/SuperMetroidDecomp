@@ -17,15 +17,13 @@ internal static class SamusPoseFamilyDefinitions
         SamusPoseId.ShinesparkDiagonalLeftPose,
     ];
 
-    /// <summary>
-    /// The two generic spin jumps, facing right and left, and the spins each becomes when Screw Attack or Space Jump is
-    /// equipped.
-    /// </summary>
-    internal static readonly Dictionary<SamusPoseId, SamusEquippedSpinPoses> EquippedSpinPoses = new()
-    {
-        [SamusPoseId.SpinJumpRightPose] = new(ScrewAttack: SamusPoseId.ScrewAttackRightPose, SpaceJump: SamusPoseId.SpaceJumpRightPose),
-        [SamusPoseId.SpinJumpLeftPose] = new(ScrewAttack: SamusPoseId.ScrewAttackLeftPose, SpaceJump: SamusPoseId.SpaceJumpLeftPose),
-    };
+    /// <summary>The generic spin jump facing right and the spins it becomes when Screw Attack or Space Jump is equipped.</summary>
+    internal static readonly SamusEquippedSpinPoses SpinPosesFacingRight =
+        new(Generic: SamusPoseId.SpinJumpRightPose, ScrewAttack: SamusPoseId.ScrewAttackRightPose, SpaceJump: SamusPoseId.SpaceJumpRightPose);
+
+    /// <summary>The generic spin jump facing left and the spins it becomes when Screw Attack or Space Jump is equipped.</summary>
+    internal static readonly SamusEquippedSpinPoses SpinPosesFacingLeft =
+        new(Generic: SamusPoseId.SpinJumpLeftPose, ScrewAttack: SamusPoseId.ScrewAttackLeftPose, SpaceJump: SamusPoseId.SpaceJumpLeftPose);
 
     /// <summary>
     /// The poses an elevator arms under: the power-suit front view and the standing poses facing right or left, normal or

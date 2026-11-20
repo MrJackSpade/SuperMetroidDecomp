@@ -17,24 +17,12 @@ internal static class SamusPoseTransitions
     public static void ApplyWalkedOffFloorTransition(
         SamusState samus,
         RoomLevelData level,
-        SamusPoseId targetPose,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
         Ensure.NotNull(level);
-        // A walk-off is chosen from the pose that moved, while this check reads the live pose. Beyond the walk-off
-        // sources it also accepts the moonwalk turn jumps, the grounded turn between a moonwalk and its jump.
-        bool supportedSource =
-            SamusPoseMetadata.WalksOffFloor(samus.Pose) ||
-            SamusPoseMetadata.IsMoonwalkTurnJumpPose(samus.Pose);
-        SamusPoseId expectedTarget = SelectFallingPoseForCurrentAim(samus);
-        if (!supportedSource || targetPose != expectedTarget)
-        {
-            // The target comes from this pose's metadata immediately
-            // before this runs. A mismatch is an inconsistent request, not missing logic.
-            throw new InvalidOperationException(
-                $"Walk-off transition {samus.Pose} -> {targetPose} does not match the pose's falling target {expectedTarget}.");
-        }
+        // The fall is the one her current aim selects.
+        SamusPoseId targetPose = SelectFallingPoseForCurrentAim(samus);
 
         // A crouched or compact source can grow when falling is selected. The game's
         // pose setup runs the same pose-expansion collision as an input-driven transition,
@@ -241,14 +229,12 @@ internal static class SamusPoseTransitions
         ISamusRoomObjects roomObjects)
     {
         Ensure.NotNull(level);
-        if (!SamusPoseMetadata.IsCompactAerialPose(samus.Pose))
-            throw new InvalidOperationException($"Compact landing requires a compact straight-down jumping or falling pose, not {samus.Pose}.");
 
+        // A compact pose aims straight down the way it faces, and lands in the normal landing facing that way.
         SamusPoseId sourcePose = samus.Pose;
-        SamusProjectileDirection? aim = SamusPoseMetadata.ReadAimDirection(samus);
-        SamusPoseId targetPose = aim == SamusProjectileDirection.DownFacingRight ? SamusPoseId.NormalLandingRightPose
-            : aim == SamusProjectileDirection.DownFacingLeft ? SamusPoseId.NormalLandingLeftPose
-            : throw new InvalidOperationException($"Compact pose {samus.Pose} has unexpected aim {SamusPoseMetadata.ReadAim(samus)}.");
+        SamusPoseId targetPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
+            ? SamusPoseId.NormalLandingLeftPose
+            : SamusPoseId.NormalLandingRightPose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
             level,
             targetPose,
@@ -289,14 +275,7 @@ internal static class SamusPoseTransitions
         // delay once more after installing the new animation.
         int cueExtraAnimationDelay = samus.ExtraAnimationDelay;
 
-        // Only a pose-transition cue of the current pose's own animation leaves a pose pending; anything else means the
-        // request named a target that was not read from that animation.
-        if (!SamusAnimationDelays.AnimationForPose(samus.Pose).Segments.Any(segment => segment.End is { } end && end.PublishedPoses.Contains(targetPose)))
-        {
-            throw new InvalidOperationException(
-                $"Animation transition {samus.Pose} -> {targetPose} is no pose-transition cue of the pose's animation.");
-        }
-
+        // Only a pose-transition cue of the current pose's own animation leaves a pose pending.
         bool startsMoonwalkJump = SamusPoseMetadata.IsMoonwalkTurnJumpPose(samus.Pose) &&
             targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose;
         SamusPoseId sourcePose = samus.Pose;
@@ -315,7 +294,7 @@ internal static class SamusPoseTransitions
             // through movement-type initialization, so equipment substitution occurs here
             // just as it does for an input-transition jump from ordinary running.
             SamusPoseId installedPose = startsMoonwalkJump
-                ? SamusAerialPoseTransitions.SelectEquippedSpinPose(samus, targetPose)
+                ? SamusAerialPoseTransitions.SelectEquippedSpinPose(samus, SamusPoseMetadata.ReadFacingDirection(targetPose))
                 : targetPose;
             // Animation-owned pose changes still run the target movement setup.
             // In particular an aerial turn must stop decelerating in the old direction
@@ -323,7 +302,7 @@ internal static class SamusPoseTransitions
             // the turn finish before base speed reached zero. Do not clear that speed.
             if (SamusPoseMetadata.ReadMovementType(installedPose) is SamusMovementType.NormalJumping or SamusMovementType.Falling)
                 SamusAerialPoseTransitions.InitializeOrdinaryAerialAcceleration(samus);
-            SamusGroundedPoseTransitions.ApplySimpleGroundedPoseChange(samus, sourcePose, installedPose, "Pose-transition cue",
+            SamusGroundedPoseTransitions.ApplySimpleGroundedPoseChange(samus, installedPose,
                 refreshRadius: !SamusPoseMetadata.IsAerialTurnPose(sourcePose));
         }
         if (SamusPoseMetadata.IsDrainedPose(sourcePose))

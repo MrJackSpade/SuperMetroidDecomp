@@ -865,7 +865,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         if (!animationTransitionApplied && hurtEndingProbe is { IsUnobstructedDownwardMovement: true })
         {
-            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, SamusPoseTransitions.SelectFallingPoseForCurrentAim(samus), frameCounter, IntroCollisionRoomObjects.Instance);
+            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, frameCounter, IntroCollisionRoomObjects.Instance);
             animationTransitionApplied = transitionAccepted = true;
         }
 

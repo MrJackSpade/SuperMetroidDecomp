@@ -224,20 +224,11 @@ public static class SamusKnockbackMovement
     /// </summary>
     public static void ApplyDamageBoostTransition(
         SamusState samus,
-        SamusPoseId sourcePose,
         SamusPoseId targetPose)
     {
         Ensure.NotNull(samus);
         // The input phase selects a prospective pose; it does not mutate the live movement type.
         // The owning transition step must resolve higher-priority expiry first.
-        bool valid = new SamusPoseChange(sourcePose, targetPose) is
-            (SamusPoseId.KnockbackRightPose, SamusPoseId.DamageBoostRightPose) or
-            (SamusPoseId.KnockbackLeftPose, SamusPoseId.DamageBoostLeftPose);
-        if (!valid)
-        {
-            throw new InvalidOperationException(
-                $"Damage boost {sourcePose} -> {targetPose} is not a transition.");
-        }
 
         // The damage boost returns only her movement to her pose. The conditional jump
         // reset in the pose handling does not run for a merely prospective type change.
@@ -258,16 +249,6 @@ public static class SamusKnockbackMovement
         GameplayAction controllerNewInput)
     {
         Ensure.NotNull(samus);
-        bool valid = new SamusPoseChange(samus.Pose, targetPose) is
-            (SamusPoseId.DamageBoostLeftPose,
-                SamusPoseId.NeutralJumpLeftPose or SamusPoseId.NormalJumpForwardLeftPose) or
-            (SamusPoseId.DamageBoostRightPose,
-                SamusPoseId.NeutralJumpRightPose or SamusPoseId.NormalJumpForwardRightPose);
-        if (!valid)
-        {
-            throw new InvalidOperationException(
-                $"Damage-boost exit {samus.Pose} -> {targetPose} is not one of the damage boost's input transitions.");
-        }
 
         // Both target families have the same radius. The pose change nevertheless runs
         // their ordinary setup: it preserves the live jump velocity,

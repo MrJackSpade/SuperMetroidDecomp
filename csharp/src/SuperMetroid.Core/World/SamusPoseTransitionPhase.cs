@@ -419,10 +419,9 @@ internal sealed class SamusPoseTransitionPhase
                 { Vertical.IsUnobstructedDownwardMovement: true } &&
             SamusPoseMetadata.WalksOffFloor(frame.PoseAtMovement))
         {
-            SamusPoseId fallingPose = SamusPoseTransitions.SelectFallingPoseForCurrentAim(samus);
             SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus,
                 terrain.Level,
-                fallingPose, _clock.Counter, terrain.RoomObjects);
+                _clock.Counter, terrain.RoomObjects);
             transitionApplied = true;
         }
 

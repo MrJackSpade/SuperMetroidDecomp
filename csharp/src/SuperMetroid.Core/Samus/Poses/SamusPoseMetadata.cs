@@ -260,32 +260,14 @@ internal static class SamusPoseMetadata
     /// Applies one ordinary Draygon-held transition. Every admitted pose stays within one facing, retains the standing radius, and restarts the
     /// target's animation at its start through the normal pose setup.
     /// </summary>
+    /// <remarks>
+    /// The left-facing grabbed poses' input transitions reach only left-facing grabbed poses, and the right-facing ones only
+    /// right-facing; Draygon's owner AI performs facing changes by re-entering its grabbed movement directly.
+    /// </remarks>
     public static void ApplyDraygonGrabbedPoseChange(SamusState samus, SamusPoseId targetPose)
     {
-        bool leftFamily = IsLeftFacingDraygonGrabbedPose(samus.Pose) &&
-            IsLeftFacingDraygonGrabbedPose(targetPose);
-        bool rightFamily = IsRightFacingDraygonGrabbedPose(samus.Pose) &&
-            IsRightFacingDraygonGrabbedPose(targetPose);
-        if (!leftFamily && !rightFamily)
-        {
-            // The left-facing grabbed poses' input transitions reach only left-facing grabbed poses, and the right-facing
-            // ones only right-facing: neither set crosses facing families. Draygon's owner AI
-            // performs facing changes by re-entering its grabbed movement directly, so a
-            // cross-family request to this input transition is a broken contract,
-            // not an omitted input transition.
-            throw new InvalidOperationException(
-                $"Draygon-grabbed input transition {samus.Pose} -> {targetPose} crosses owner-controlled facing families.");
-        }
-
-        int oldRadius = samus.Kinematics.Radius.Y;
         samus.Pose = targetPose;
         RefreshCollisionRadii(samus);
-        if (samus.Kinematics.Radius.Y != oldRadius)
-        {
-            throw new InvalidDataException(
-                $"Draygon pose {targetPose} unexpectedly changed radius {oldRadius} -> {samus.Kinematics.Radius.Y}.");
-        }
-
         SamusPresentation.InitializeAnimation(samus);
     }
 

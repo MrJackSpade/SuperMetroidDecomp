@@ -27,18 +27,8 @@ internal static class SamusPosturePoseTransitions
     {
         Ensure.NotNull(level);
 
-        bool rightRoute = SamusPoseMetadata.IsRightFacingCrouchingPose(samus.Pose) &&
-            targetPose == SamusPoseId.FacingRightNormalPose;
-        bool leftRoute = SamusPoseMetadata.IsLeftFacingCrouchingPose(samus.Pose) &&
-            targetPose == SamusPoseId.FacingLeftNormalPose;
-        if (!rightRoute && !leftRoute)
-        {
-            // This route is only the direct exit from crouching to normal standing.
-            // Animated stand-ups and cross-facing changes have separate setups.
-            throw new InvalidOperationException(
-                $"Direct crouch exit {samus.Pose} -> {targetPose} is not one of its input transitions.");
-        }
-
+        // This route is only the direct exit from crouching to normal standing.
+        // Animated stand-ups and cross-facing changes have separate setups.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
                 level,
@@ -82,18 +72,8 @@ internal static class SamusPosturePoseTransitions
     {
         Ensure.NotNull(level);
 
-        bool rightRoute = SamusPoseMetadata.IsRightFacingCrouchingPose(samus.Pose) &&
-            targetPose == SamusPoseId.NeutralJumpTransitionRightPose;
-        bool leftRoute = SamusPoseMetadata.IsLeftFacingCrouchingPose(samus.Pose) &&
-            targetPose == SamusPoseId.NeutralJumpTransitionLeftPose;
-        if (!rightRoute && !leftRoute)
-        {
-            // Only the two neutral jump-transition poses enter this transition; aimed
-            // crouches deliberately reuse the same facing-selected target.
-            throw new InvalidOperationException(
-                $"Crouch jump {samus.Pose} -> {targetPose} is not one of its input transitions.");
-        }
-
+        // Only the two neutral jump-transition poses enter this transition; aimed
+        // crouches deliberately reuse the same facing-selected target.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
                 level,
@@ -137,34 +117,9 @@ internal static class SamusPosturePoseTransitions
     {
         Ensure.NotNull(level);
 
-        SamusFacingDirection targetFacing = SamusPoseMetadata.ReadFacingDirection(targetPose);
-        bool targetFacesRight = targetFacing == SamusFacingDirection.Right;
-        bool targetFacesLeft = targetFacing == SamusFacingDirection.Left;
-        bool startsCrouchingRight =
-            (SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsRightFacingRunningPose(samus.Pose) ||
-             SamusPoseMetadata.IsMoonwalkingFacingRightPose(samus.Pose) ||
-             SamusPoseMetadata.IsRightFacingRanIntoWallPose(samus.Pose) ||
-             SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose)) &&
-            SamusPoseMetadata.IsCrouchingTransitionPose(targetPose) && targetFacesRight;
-        bool startsCrouchingLeft =
-            (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose) ||
-             SamusPoseMetadata.IsMoonwalkingFacingLeftPose(samus.Pose) ||
-             SamusPoseMetadata.IsLeftFacingRanIntoWallPose(samus.Pose) ||
-             SamusPoseMetadata.IsLeftFacingLandingPose(samus.Pose)) &&
-            SamusPoseMetadata.IsCrouchingTransitionPose(targetPose) && targetFacesLeft;
-        bool startsCrouching = startsCrouchingRight || startsCrouchingLeft;
-        bool startsStandingRight = SamusPoseMetadata.IsRightFacingCrouchingPose(samus.Pose) &&
-            SamusPoseMetadata.IsStandingTransitionPose(targetPose) && targetFacesRight;
-        bool startsStandingLeft = SamusPoseMetadata.IsLeftFacingCrouchingPose(samus.Pose) &&
-            SamusPoseMetadata.IsStandingTransitionPose(targetPose) && targetFacesLeft;
-        bool startsStanding = startsStandingRight || startsStandingLeft;
-        if (!startsCrouching && !startsStanding)
-        {
-            // Admit exactly the crouch/stand poses enumerated above.
-            throw new InvalidOperationException(
-                $"Posture transition {samus.Pose} -> {targetPose} is outside the crouch and stand transitions.");
-        }
-
+        // The crouching transitions start a crouch from standing, running, a moonwalk, a wall stop or a landing; the
+        // standing transitions start a stand from a crouch. Each keeps the source's facing.
+        bool startsCrouching = SamusPoseMetadata.IsCrouchingTransitionPose(targetPose);
         if (startsCrouching)
         {
             // The crouching transition samples the boost stage before later
@@ -253,29 +208,8 @@ internal static class SamusPosturePoseTransitions
         // The morph does not require the crouching movement type. Falling straight-down
         // and spin-jump input transitions can select the same morphing-transition setup. The literal
         // previous-movement-type test below even has a dedicated spin-jumping side effect.
-        // Validate only the facing-preserving relationship guaranteed by the input transitions.
-        SamusFacingDirection sourceFacing = SamusPoseMetadata.ReadFacingDirection(samus);
-        bool startsMorphingRight = sourceFacing == SamusFacingDirection.Right &&
-            targetPose == SamusPoseId.MorphingTransitionRightPose;
-        bool startsMorphingLeft = sourceFacing == SamusFacingDirection.Left &&
-            targetPose == SamusPoseId.MorphingTransitionLeftPose;
-        bool startsMorphing = startsMorphingRight || startsMorphingLeft;
-        // Unmorphing starts from a stable ball pose, ordinary or Spring Ball, and keeps that pose's own facing.
-        bool sourceIsStableBall = SamusPoseMetadata.IsStableBallPose(samus.Pose);
-        SamusFacingDirection sourcePoseFacing = SamusPoseMetadata.ReadFacingDirection(samus.Pose);
-        bool startsUnmorphingRight = sourceIsStableBall && sourcePoseFacing == SamusFacingDirection.Right &&
-            targetPose == SamusPoseId.UnmorphingTransitionRightPose;
-        bool startsUnmorphingLeft = sourceIsStableBall && sourcePoseFacing == SamusFacingDirection.Left &&
-            targetPose == SamusPoseId.UnmorphingTransitionLeftPose;
-        bool startsUnmorphing = startsUnmorphingRight || startsUnmorphingLeft;
-        if (!startsMorphing && !startsUnmorphing)
-        {
-            // Morph and unmorph keep their facing and take only these routes. Other ball pose
-            // changes are handled by ApplyMorphBallPoseChange and must not enter here.
-            throw new InvalidOperationException(
-                $"Morph transition {samus.Pose} -> {targetPose} is not one of its input transitions.");
-        }
-
+        // Morph and unmorph keep their facing; unmorphing starts from a stable ball pose, ordinary or Spring Ball.
+        bool startsMorphing = targetPose is SamusPoseId.MorphingTransitionRightPose or SamusPoseId.MorphingTransitionLeftPose;
         if (startsMorphing)
         {
             // The morphing-transition setup restores PreviousPose and
@@ -285,14 +219,8 @@ internal static class SamusPosturePoseTransitions
                 return;
 
             SamusMovementType previousMovementType = SamusPoseMetadata.ReadMovementType(samus);
-            int previousRadius = samus.Kinematics.Radius.Y;
             samus.Pose = targetPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            if (samus.Kinematics.Radius.Y > previousRadius)
-            {
-                throw new InvalidDataException(
-                    $"Morph entry {targetPose} expanded radius {previousRadius} -> {samus.Kinematics.Radius.Y}.");
-            }
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
                 level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDownwardPixels),
                 SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), targetPose, roomObjects);
@@ -373,11 +301,6 @@ internal static class SamusPosturePoseTransitions
         Ensure.NotNull(level);
 
         SamusPoseId sourcePose = samus.Pose;
-        if (sourcePose != SamusPoseId.DraygonHeldBallLeftPose || targetPose != SamusPoseId.DraygonHeldStandingUpLeftPose)
-        {
-            throw new InvalidOperationException(
-                $"Draygon-held stand-up {sourcePose} -> {targetPose} is not the ball's input transition.");
-        }
 
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
             level,
@@ -427,19 +350,8 @@ internal static class SamusPosturePoseTransitions
     {
         Ensure.NotNull(level);
 
+        // The unmorph's transition names the fall facing the unmorph body's way.
         SamusPoseId sourcePose = samus.Pose;
-        bool rightFacingRoute = sourcePose == SamusPoseId.UnmorphingTransitionRightPose &&
-            SamusPoseMetadata.IsRightFacingFallingPose(targetPose);
-        bool leftFacingRoute = sourcePose == SamusPoseId.UnmorphingTransitionLeftPose &&
-            SamusPoseMetadata.IsLeftFacingFallingPose(targetPose);
-        if (!rightFacingRoute && !leftFacingRoute)
-        {
-            // Expose only the falling family matching the active
-            // unmorph body's direction. Rejecting every other pairing keeps this step
-            // from silently becoming a catch-all for unrelated movement setups.
-            throw new InvalidOperationException(
-                $"Unmorph-to-falling transition {sourcePose} -> {targetPose} is not a same-facing route.");
-        }
 
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
             level,
@@ -472,28 +384,15 @@ internal static class SamusPosturePoseTransitions
     /// Installs a stable ordinary Morph-Ball pose while preserving the shared
     /// rolling animation exactly as the morph-ball pose setup requests.
     /// </summary>
+    /// <remarks>
+    /// Its callers change between stable ball poses, which all share one animation, so the change keeps the frame and timer
+    /// running.
+    /// </remarks>
     public static void ApplyMorphBallPoseChange(SamusState samus, SamusPoseId targetPose)
     {
-        bool sourceSupported = SamusPoseMetadata.IsStableBallPose(samus.Pose);
-        bool targetSupported = SamusPoseMetadata.IsStableBallPose(targetPose);
-        if (!sourceSupported || !targetSupported)
-        {
-            throw new InvalidOperationException(
-                $"Stable Morph-Ball transition {samus.Pose} -> {targetPose} requires stable ball endpoints.");
-        }
-
         SamusFacingDirection previousDirection = SamusPoseMetadata.ReadFacingDirection(samus);
-        SamusPoseId sourcePose = samus.Pose;
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-
-        // All ordinary ball poses share one animation, and the change keeps the frame and timer running.
-        // Assert the shared animation instead of depending on that fact silently.
-        if (!ReferenceEquals(SamusAnimationDelays.AnimationForPose(sourcePose), SamusAnimationDelays.AnimationForPose(targetPose)))
-        {
-            throw new InvalidDataException(
-                $"Morph-Ball transition {sourcePose} -> {targetPose} selected different animations.");
-        }
 
         SamusFacingDirection currentDirection = SamusPoseMetadata.ReadFacingDirection(samus);
         bool reversed = (previousDirection == SamusFacingDirection.Right && currentDirection == SamusFacingDirection.Left) ||
@@ -527,9 +426,6 @@ internal static class SamusPosturePoseTransitions
     /// </summary>
     public static void ApplyMorphBallLanding(SamusState samus)
     {
-        if (!SamusPoseMetadata.IsAirborneMorphBallPose(samus.Pose) && !SamusPoseMetadata.IsGroundedMorphBallPose(samus.Pose))
-            throw new InvalidOperationException($"Morph-Ball landing requires an airborne morph-ball pose, not {samus.Pose}.");
-
         // The speed is compared by whether its difference from the minimum is negative, so
         // Moonfall's negative velocity lands without a rebound.
         if (samus.MorphBallBounceState == SamusBallBounceState.None &&
@@ -566,9 +462,6 @@ internal static class SamusPosturePoseTransitions
     /// </summary>
     public static void ApplySpringBallLanding(SamusState samus, GameplayAction controllerInput)
     {
-        if (!SamusPoseMetadata.IsAirborneSpringBallPose(samus.Pose) && !SamusPoseMetadata.IsGroundedSpringBallPose(samus.Pose))
-            throw new InvalidOperationException($"Spring-Ball landing requires an airborne Spring Ball pose, not {samus.Pose}.");
-
         if ((controllerInput & GameplayAction.Jump) != GameplayAction.None)
         {
             samus.MorphBallBounceState = SamusBallBounceState.None;
@@ -615,11 +508,6 @@ internal static class SamusPosturePoseTransitions
     /// </summary>
     public static void ApplySpringBallJump(SamusState samus, SamusPoseId targetPose)
     {
-        bool validTarget = targetPose is SamusPoseId.SpringBallJumpRightPose or SamusPoseId.SpringBallJumpLeftPose;
-        if (!SamusPoseMetadata.IsGroundedSpringBallPose(samus.Pose) || !validTarget)
-            throw new InvalidOperationException(
-                $"Spring-Ball jump {samus.Pose} -> {targetPose} is outside the grounded-to-airborne Spring-Ball route.");
-
         ApplyMorphBallPoseChange(samus, targetPose);
         samus.MorphBallBounceState = SamusBallBounceState.None;
         SamusAerialMovement.InitializeJump(samus);
@@ -651,8 +539,6 @@ internal static class SamusPosturePoseTransitions
     public static void ApplyMorphBallWalkOff(SamusState samus)
     {
         bool springBall = SamusPoseMetadata.IsGroundedSpringBallPose(samus.Pose);
-        if (!SamusPoseMetadata.IsGroundedMorphBallPose(samus.Pose) && !springBall)
-            throw new InvalidOperationException($"Morph-Ball walk-off requires grounded pose, not {samus.Pose}.");
 
         SamusPoseId fallingPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
             ? springBall ? SamusPoseId.SpringBallFallingLeftPose : SamusPoseId.MorphBallFallingLeftPose

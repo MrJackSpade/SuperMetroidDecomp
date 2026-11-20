@@ -51,11 +51,11 @@ internal sealed class SamusPoseSetupSteps
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StartDamageBoost"/> setup.</summary>
-    internal static void SetUpStartDamageBoost(SamusControlFrame frame, SamusState samus, SamusPoseId targetPose)
+    internal static void SetUpStartDamageBoost(SamusState samus, SamusPoseId targetPose)
     {
         // The accepted pose restores normal movement while
         // preserving the hurt arc and remaining timer.
-        SamusKnockbackMovement.ApplyDamageBoostTransition(samus, frame.PoseAtFrameStart, targetPose);
+        SamusKnockbackMovement.ApplyDamageBoostTransition(samus, targetPose);
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.JumpFromDamageBoost"/> setup.</summary>
@@ -65,13 +65,13 @@ internal sealed class SamusPoseSetupSteps
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StartMoonwalkTurnJump"/> setup.</summary>
-    internal static void SetUpStartMoonwalkTurnJump(SamusState samus, SamusPoseId targetPose)
+    internal static void SetUpStartMoonwalkTurnJump(SamusState samus)
     {
         // The stable moonwalk poses' input transitions select a generic
         // reversal target. The reversal check validates it against the old
         // shot direction, folds momentum, and leaves the moonwalk turn-jump poses
         // grounded until either its input transitions or the turn transition starts the jump.
-        SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(samus, targetPose);
+        SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(samus);
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeMoonwalkPose"/> setup.</summary>
@@ -152,13 +152,13 @@ internal sealed class SamusPoseSetupSteps
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.TurnInAir"/> setup.</summary>
-    internal void SetUpTurnInAir(SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
+    internal void SetUpTurnInAir(SamusState samus, SamusTerrain terrain)
     {
         // The input transitions select the generic jumping and falling turns. The turn
         // reads the source pose's shot direction, chooses the exact
         // aimed aerial turn art when needed, folds momentum, and runs compact
         // pose-expansion collision before committing the turn.
-        SamusAerialPoseTransitions.ApplyAerialTurn(samus, terrain.Level, targetPose, _clock.Counter,
+        SamusAerialPoseTransitions.ApplyAerialTurn(samus, terrain.Level, _clock.Counter,
             terrain.RoomObjects);
     }
 
@@ -356,7 +356,7 @@ internal sealed class SamusPoseSetupSteps
         // response. The stop still cancels reverse acceleration,
         // for ground turns exactly as for aerial ones.
         if (frame.UsePoseDefinitionFallback && samus.Pose == source)
-            SamusGroundedPoseTransitions.TurnForNoTransition(samus, frame.MovementTypeAtFrameStart);
+            SamusGroundedPoseTransitions.TurnForNoTransition(samus);
     }
 
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.ContinueNormalJump"/> setup.</summary>

@@ -369,8 +369,10 @@ internal static class SaveSchemaTranslationVerification
             var byNumber = new SortedDictionary<int, string>();
             foreach (JsonNode? entry in progression.Required("events").AsArray())
             {
-                StoryEvent named = Enum.Parse<StoryEvent>(entry?.GetValue<string>() ?? "", ignoreCase: true);
-                byNumber.Add(named.Number(), named == StoryEvent.BabyMetroidEncounterMusicSkipped ? "Unused14" : named.ToString());
+                string key = entry?.GetValue<string>() ?? "";
+                if (!StoryEventKeys.Installed.TryParse(key, out StoryEvent named))
+                    throw new InvalidDataException($"The saved event {key} is no story event's key.");
+                byNumber.Add(named.Number(), named == StoryEvent.BabyMetroidEncounterMusicSkipped ? "Unused14" : StoryEventKeys.Installed.Of(named));
             }
             for (int bit = 0; bit < 3; bit++)
             {

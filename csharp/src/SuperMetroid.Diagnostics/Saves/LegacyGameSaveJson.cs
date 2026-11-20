@@ -539,6 +539,9 @@ public static class LegacyGameSaveJson
     /// <summary>The name schema four gave the event schema five names <see cref="StoryEvent.BabyMetroidEncounterMusicSkipped"/>.</summary>
     private const string BabyMetroidEncounterMusicSkippedSchemaFourName = "Unused14";
 
+    /// <summary>The name schema five and every later schema save the Baby Metroid's skipped encounter music by, its installed key.</summary>
+    private const string BabyMetroidEncounterMusicSkippedSavedName = "ShitroidEncounterMusicSkipped";
+
     /// <summary>
     /// Schema four to five (#1527): schema four listed the Zebetite count as the three events
     /// <c>ZebetiteDestroyedBit0</c> through <c>ZebetiteDestroyedBit2</c>, the bits of the cartridge's counter; they leave
@@ -569,7 +572,7 @@ public static class LegacyGameSaveJson
                 if (bit >= 0)
                     counter |= 1 << bit;
                 else if (string.Equals(name, BabyMetroidEncounterMusicSkippedSchemaFourName, StringComparison.OrdinalIgnoreCase))
-                    upgraded.Add(nameof(StoryEvent.BabyMetroidEncounterMusicSkipped));
+                    upgraded.Add(BabyMetroidEncounterMusicSkippedSavedName);
                 else
                     upgraded.Add(name);
             }

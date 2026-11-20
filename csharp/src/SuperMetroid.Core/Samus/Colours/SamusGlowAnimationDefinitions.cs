@@ -26,6 +26,10 @@ internal static class SamusGlowAnimationDefinitions
     /// <summary>The suits in the order their sequences are listed: Power, Varia, Gravity.</summary>
     private static readonly IReadOnlyList<S> Suits = Ensure.EveryMemberOnce<S>([S.Power, S.Varia, S.Gravity]);
 
+    /// <summary>The glows that differ by suit, each a sequence in every suit; every other glow is one sequence alike in every suit.</summary>
+    private static readonly W[] SuitGlows =
+        [W.ChargedBeamPulse, W.PseudoScrewPulse, W.StoredShine, W.ActiveShinespark, W.ScrewAttack, W.SpeedBoosterRising, W.SpeedBoosterBrightest];
+
     /// <summary>
     /// Every sequence's shades, each with the updates it shows for. A charged shot's flash paints its yellow anew on each
     /// of its updates, over any colouring laid on the suit after it on the update before, so it is a beat of one update for
@@ -44,7 +48,11 @@ internal static class SamusGlowAnimationDefinitions
                 [G.Of(W.XrayVisorWidening)] = Each(SamusShades.XrayWideningVisor.SkipLast(1), 5),
                 [G.Of(W.XrayVisorWidest)] = [Show(SamusShades.XrayWideningVisor[^1], 5)],
                 [G.Of(W.VisorCycle)] = Each(SamusShades.VisorCycle, 5),
-            }.Concat(Suits.SelectMany(InSuit))));
+            }.Concat(Suits.SelectMany(InSuit))), RequiredSegments);
+
+    /// <summary>Every sequence the glows require: each glow alike in every suit once, and each glow that differs by suit in every suit.</summary>
+    private static HashSet<G> RequiredSegments =>
+        Enum.GetValues<W>().Except(SuitGlows).Select(G.Of).Concat(Suits.SelectMany(suit => SuitGlows.Select(glow => G.In(glow, suit)))).ToHashSet();
 
     /// <summary>
     /// Each sequence's animation: a pulse, the Hyper Beam's cycle, the Crystal Flash's pulse and bubble, the rainbow, the

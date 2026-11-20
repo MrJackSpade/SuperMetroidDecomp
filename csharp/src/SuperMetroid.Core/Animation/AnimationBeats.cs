@@ -32,6 +32,7 @@ internal static class AnimationBeats<TFrame, TEvent>
         {
             AnimationBeat<TFrame, TEvent>.Frame frame => frame.Duration,
             AnimationBeat<TFrame, TEvent>.Pause pause => pause.Duration,
+            AnimationBeat<TFrame, TEvent>.Hidden hidden => hidden.Duration,
             AnimationBeat<TFrame, TEvent>.HeldFrame => throw new ArgumentException("A frame held for good never ends its run.", nameof(beats)),
             _ => 0,
         });

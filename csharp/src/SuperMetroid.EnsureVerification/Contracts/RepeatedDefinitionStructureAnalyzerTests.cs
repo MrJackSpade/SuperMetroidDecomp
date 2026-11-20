@@ -38,7 +38,7 @@ internal static class RepeatedDefinitionStructureAnalyzerTests
                 static readonly Door[] Again = [new(Side.Left,4),
                     new(Side.Right, 8)];
             }
-            """, "The catalog 'DoorDefinitions' writes out again the list of 2 entries it wrote at line 6" + Advice);
+            """, "The catalog 'DoorDefinitions' writes out again the list of 2 entries it wrote at line 5" + Advice);
         // An initializer repeats a collection expression's list too.
         Expect(Types + """
             static class DoorDefinitions

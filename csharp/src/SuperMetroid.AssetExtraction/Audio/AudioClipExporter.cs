@@ -147,7 +147,6 @@ internal static class AudioClipExporter
         Dictionary<string, SoundEffectProgramScan> scans,
         SoundEffectKey key)
     {
-        int libraryIndex = SoundLibraryNumbers.DriverIndex(key.Library);
         AudioSoundEffectMetadata effect = catalog.SoundLibraries
             .Single(library => library.Library == SoundLibraryNumbers.Number(key.Library))
             .Effects.Single(candidate => candidate.Command == key.Command);
@@ -157,7 +156,7 @@ internal static class AudioClipExporter
                 scans[program].UnmappedSources(catalog.GetInstrumentBank(bank), catalog.GetSampleBank(bank)).Any()))
             throw new InvalidDataException($"{sound} plays a sample the shared sounds do not hold.");
 
-        SoundEffectClipPolicy policy = Policy(libraryIndex, key.Command, effect.Configuration);
+        SoundEffectClipPolicy policy = Policy(key.Library, key.Command, effect.Configuration);
         bool loops = effect.ChannelPrograms.Any(program => scans[program].RepeatsForever);
         if (loops)
         {
@@ -180,8 +179,9 @@ internal static class AudioClipExporter
     /// configuration from each possible priority and low-health mode shows whether it sets them or
     /// keeps them, and the rejection rule shows which states it ignores.
     /// </summary>
-    internal static SoundEffectClipPolicy Policy(int libraryIndex, int command, int configuration)
+    internal static SoundEffectClipPolicy Policy(SoundEffectLibrary soundLibrary, int command, int configuration)
     {
+        int libraryIndex = SoundLibraryNumbers.DriverIndex(soundLibrary);
         ManagedSpcSoundLibrary Configure(int priority, int mode)
         {
             var library = new ManagedSpcSoundLibrary { Priority = priority, Mode = mode };
@@ -211,7 +211,7 @@ internal static class AudioClipExporter
             priority,
             mode,
             IgnoresPriority: !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 1, mode: 0),
-            IgnoresLowHealthMode: libraryIndex == 2 && !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 0, mode: SpcDriverDefinitions.SoundEffects.LowHealthMode));
+            IgnoresLowHealthMode: soundLibrary == SoundEffectLibrary.Room && !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 0, mode: SpcDriverDefinitions.SoundEffects.LowHealthMode));
     }
 
     /// <summary>

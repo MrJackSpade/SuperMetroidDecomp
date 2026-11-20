@@ -150,11 +150,8 @@ internal static class EndingLogoVerification
         }
         Suite(nameof(VerifyEndingLogoPaletteSources), () => VerifyEndingLogoPaletteSources(bus));
         AssertThrows<ArgumentOutOfRangeException>(
-            () => EndingPaletteSources.LogoCrossfadeSource(EndingLogoDefinitions.CrossfadeSteps, 0),
+            () => EndingPaletteSources.LogoCrossfadeSource(EndingLogoDefinitions.CrossfadeSteps, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingLogoLayer.Background),
             "logo palette step boundary");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => EndingPaletteSources.LogoCrossfadeSource(0, 2),
-            "logo palette selector boundary");
         Console.WriteLine(
             "  Logo definitions: twelve actor words and 32 palette pointers match the cartridge.");
     }

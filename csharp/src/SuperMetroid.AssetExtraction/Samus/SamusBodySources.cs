@@ -78,7 +78,7 @@ public sealed class SamusBodySources
     /// The half pictures <paramref name="pose"/>'s <paramref name="animationFrame"/> selects, when the pose has a record and
     /// the frame is decoded; false for any other pair.
     /// </summary>
-    public bool TryPictures(SamusPoseId pose, int animationFrame, out SamusBodyFramePictures pictures)
+    private bool TryPictures(SamusPoseId pose, int animationFrame, out SamusBodyFramePictures pictures)
     {
         pictures = default;
         if (!frames.TryGetValue(pose, out IReadOnlyDictionary<int, SamusBodyDecodedFrame>? decoded) ||

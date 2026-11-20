@@ -50,6 +50,20 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
     {
     }
 
+    /// <summary>
+    /// Starts <paramref name="animation"/> before its first play, its cues carried out by <paramref name="cues"/>, whose
+    /// reactions may hand the play over to another family's animation: the animation's own play is then over, and the
+    /// projectile plays on in the animation handed to within the same pass (#2554).
+    /// </summary>
+    /// <param name="animation">The animation.</param>
+    /// <param name="cues">The behaviour that owns the animation's cues.</param>
+    private protected EnemyProjectileTypedAnimation(Animation<TSegment> animation, IEnemyProjectileHandingOverCues<TEvent> cues)
+    {
+        Ensure.NotNull(cues);
+        Playback = new AnimationPlayback<TSegment>(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
+        _runCue = (context, _, cue, _) => cues.RunCue(context, cue) is { } next ? HandOverTo(next) : null;
+    }
+
     /// <summary>Starts <paramref name="animation"/> before its first play, its cues carried out by <paramref name="runCue"/>.</summary>
     /// <param name="animation">The animation.</param>
     /// <param name="runCue">Carries out each of the animation's cues.</param>
@@ -57,6 +71,19 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
     {
         Playback = new AnimationPlayback<TSegment>(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
         _runCue = Ensure.NotNull(runCue);
+    }
+
+    /// <summary>The animation a cue of this play handed the projectile over to, which the play's step goes on in; none before.</summary>
+    private EnemyProjectileAnimation? _handedOverTo;
+
+    /// <summary>An animation of no phase that is over at once: the play continues in it to end where a cue handed it over.</summary>
+    private static Animation<TSegment> PlayOver { get; } = new([], AnimationEnd.Stops);
+
+    /// <summary>Records <paramref name="next"/> as the animation the play goes on in, and ends this animation's own play.</summary>
+    private AnimationContinuation<TSegment> HandOverTo(EnemyProjectileAnimation next)
+    {
+        _handedOverTo = next;
+        return new AnimationContinuation<TSegment>(PlayOver, AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Runs each cue in <paramref name="cues"/>, the play running on past it.</summary>
@@ -105,6 +132,8 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
         AnimationShown<TSegment, TFrame> shown = Segments.PlayToNextFrame(ref animation, ref place,
             (raised, pastCue) => RunCue(context, projectiles, raised, pastCue));
         Playback = new AnimationPlayback<TSegment>(animation, place);
+        if (_handedOverTo is { } handedOverTo)
+            return new EnemyProjectileFrameStep.HandOver(handedOverTo);
         switch (shown)
         {
             case AnimationShown<TSegment, TFrame>.Frame shownFrame:

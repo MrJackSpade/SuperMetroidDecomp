@@ -31,6 +31,17 @@ internal abstract class EnemyProjectileFrameAnimation<TSegment, TEvent> : EnemyP
     {
     }
 
+    /// <summary>
+    /// Starts <paramref name="animation"/> before its first play, its cues carried out by <paramref name="cues"/>, whose
+    /// reactions may hand the play over to another family's animation.
+    /// </summary>
+    /// <param name="animation">The animation.</param>
+    /// <param name="cues">The behaviour that owns the animation's cues.</param>
+    private protected EnemyProjectileFrameAnimation(Animation<TSegment> animation, IEnemyProjectileHandingOverCues<TEvent> cues)
+        : base(animation, cues)
+    {
+    }
+
     /// <summary>Starts <paramref name="animation"/> before its first play, its cues carried out by <paramref name="runCue"/>.</summary>
     /// <param name="animation">The animation.</param>
     /// <param name="runCue">Carries out each of the animation's cues.</param>

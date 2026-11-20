@@ -8,8 +8,8 @@ internal static class EnemyDeathExplosions
 {
     /// <summary>The death animation <paramref name="explosion"/> starts.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="explosion"/> is no death explosion.</exception>
-    internal static Animation<EnemyDeathAndDropSegment> Animation(EnemyDeathExplosion explosion) =>
-        EnemyDeathAndDropAnimations.Explosions.TryGetValue(explosion, out Animation<EnemyDeathAndDropSegment>? animation)
+    internal static Animation<EnemyDeathExplosionSegment> Animation(EnemyDeathExplosion explosion) =>
+        EnemyDeathExplosionAnimations.Explosions.TryGetValue(explosion, out Animation<EnemyDeathExplosionSegment>? animation)
             ? animation
             : throw new ArgumentOutOfRangeException(nameof(explosion), explosion, "Undefined enemy death explosion.");
 

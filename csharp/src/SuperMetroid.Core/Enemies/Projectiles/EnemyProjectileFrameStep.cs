@@ -25,4 +25,11 @@ internal abstract record EnemyProjectileFrameStep
 
     /// <summary>The animation rests on the frame it shows.</summary>
     internal sealed record Rest : EnemyProjectileFrameStep;
+
+    /// <summary>
+    /// The animation's play is over: a cue handed the projectile over to <paramref name="Next"/>, which plays on from its
+    /// start within the same pass (#2554).
+    /// </summary>
+    /// <param name="Next">The animation the projectile plays on in.</param>
+    internal sealed record HandOver(EnemyProjectileAnimation Next) : EnemyProjectileFrameStep;
 }

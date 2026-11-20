@@ -54,8 +54,9 @@ internal static class ProjectileTrailCoordinatesVerification
         foreach ((SamusProjectileFrameId frame, ProjectileTrailPlacement placement) in placements)
         foreach (int record in SamusProjectileProgramAddresses.RecordAddresses(frame))
         {
-            // Every record that shows a frame places its trail where the frame's placement does (#2274).
-            int trailWord = TrailWord(bus, record);
+            // Every record that shows a frame places its trail where the frame's placement does (#2274), the down-left
+            // Spazer-Wave stages where the same stage shot downward does (#2573).
+            int trailWord = PlacementTrailWord(bus, frame, record);
             AssertTrue(trailWord < ProjectileTrailPlacementSources.OwnPlacementCounts[list], $"{list} places {frame} at $93:{record:X4} from one of its own placements");
             AssertEqual(NativePlacement(bus, starts[list] + trailWord * RecordByteCount), placement, $"{list} places {frame} at $93:{record:X4} where the cartridge does");
             records++;
@@ -123,7 +124,7 @@ internal static class ProjectileTrailCoordinatesVerification
         foreach (ushort origin in new ushort[] { 0, ushort.MaxValue })
         {
             ushort offsets = DirectionList(bus, type, direction);
-            int trailWord = TrailWord(bus, record);
+            int trailWord = PlacementTrailWord(bus, frame, record);
             ushort y = unchecked((ushort)(offsets + trailWord * 4));
             system.Reset();
             var shot = new SamusProjectile(0)
@@ -190,16 +191,45 @@ internal static class ProjectileTrailCoordinatesVerification
     }
 
     /// <summary>
-    /// How far from the shot at <paramref name="origin"/> on each axis native draws a trail's four coordinates from the
-    /// record at bank-$9B offset <paramref name="y"/>: each native coordinate, the origin plus the operand less four
-    /// wrapped to sixteen bits, measured back from the origin the short way.
+    /// How far from the shot at <paramref name="origin"/> on each axis native places a trail's two sparkles from the record
+    /// at bank-$9B offset <paramref name="y"/>. Native keeps each sparkle's picture corner: the origin plus the operand less
+    /// four, wrapped to sixteen bits. The port keeps the sparkle itself, four further on, whose picture's own anchor draws it
+    /// from that corner (#2573); each is measured back from the origin the short way.
     /// </summary>
     private static ProjectileTrailCoordinatesExpected NativeSpawnOffsets(ISnesAddressSpace bus, ushort origin, ushort y)
     {
         byte Read(ushort operand, ushort index) => LittleEndianBytes.HighByte(ReadNativeTrailOperandWord(bus, operand, index));
-        int Offset(byte operand) => unchecked((short)(unchecked((ushort)(origin + (sbyte)operand - 4)) - origin));
+        int Offset(byte operand) => unchecked((short)(unchecked((ushort)(origin + (sbyte)operand - SparklePictureHalf)) - origin)) + SparklePictureHalf;
         return new ProjectileTrailCoordinatesExpected(Offset(Read(0, unchecked((ushort)(y - 1)))), Offset(Read(0, y)), Offset(Read(1, y)), Offset(Read(2, y)));
     }
+
+    /// <summary>Half a sparkle's eight-pixel picture: how far up and left of its sparkle native draws the picture from.</summary>
+    private const int SparklePictureHalf = 4;
+
+    /// <summary>
+    /// The down-left Spazer-Wave frames that show a stage, each with the same stage's frame shot downward. Their own records
+    /// read their trail list one stage behind the picture, as the original's position-indexed table placed them; the port
+    /// gives each the placement of the stage it shows, as the other seven directions do (#2573).
+    /// </summary>
+    private static readonly FrozenDictionary<SamusProjectileFrameId, SamusProjectileFrameId> DownLeftStages =
+        new Dictionary<SamusProjectileFrameId, SamusProjectileFrameId>
+        {
+            [SamusProjectileFrameId.SpazerWaveDownLeftParting] = SamusProjectileFrameId.SpazerWaveDownParting,
+            [SamusProjectileFrameId.SpazerWaveDownLeftSpreading] = SamusProjectileFrameId.SpazerWaveDownSpreading,
+            [SamusProjectileFrameId.SpazerWaveDownLeftNearlySpread] = SamusProjectileFrameId.SpazerWaveDownNearlySpread,
+            [SamusProjectileFrameId.SpazerWaveDownLeftSpread] = SamusProjectileFrameId.SpazerWaveDownSpread,
+            [SamusProjectileFrameId.SpazerWaveDownLeftSpreadingWithoutDefaultTrail] = SamusProjectileFrameId.SpazerWaveDownSpreading,
+            [SamusProjectileFrameId.SpazerWaveDownLeftPartingWithoutDefaultTrail] = SamusProjectileFrameId.SpazerWaveDownPartingWithoutDefaultTrail,
+        }.ToFrozenDictionary();
+
+    /// <summary>
+    /// The trail word whose placement a shot past <paramref name="record"/>, which shows <paramref name="frame"/>, takes: the
+    /// record's own, or for a down-left Spazer-Wave stage that of the same stage's downward record (<see cref="DownLeftStages"/>).
+    /// </summary>
+    private static int PlacementTrailWord(ISnesAddressSpace bus, SamusProjectileFrameId frame, int record) =>
+        TrailWord(bus, DownLeftStages.TryGetValue(frame, out SamusProjectileFrameId stage)
+            ? SamusProjectileProgramAddresses.RecordAddresses(stage)[0]
+            : record);
 
     /// <summary>
     /// Whether a trail draws from trail word <paramref name="trailWord"/> of the list at bank-$9B offset <paramref name="list"/>:

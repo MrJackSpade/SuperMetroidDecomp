@@ -6,10 +6,21 @@ namespace SuperMetroid.Core.Assets;
 /// drawn whole at its one depth: the import decides it as it installs the frame, from where the game draws the frame as a
 /// whole, and the actor's draw shows the frame there.
 /// </summary>
+/// <remarks>
+/// The two depths behind the room differ only where a turning floor shows (#2583): one lies behind the floor and the other
+/// in front of it. In a room drawn from its background and foreground, both lie behind every part of the room, the room's
+/// effect overlay lies behind or in front of both alike, and the actors at the two depths are drawn together.
+/// </remarks>
 public enum ActorDepth
 {
-    /// <summary>Behind every tile of the room's background and foreground; only the backdrop lies behind it.</summary>
+    /// <summary>Behind every tile of the room's background and foreground, and behind a turning floor; only the backdrop lies behind it.</summary>
     BehindRoom,
+
+    /// <summary>
+    /// Behind every tile of the room's background and foreground, as <see cref="BehindRoom"/>, but in front of a turning
+    /// floor (#2583), where the budding Kraid lint, Draygon's goop and the Tourian statues' base decoration are drawn.
+    /// </summary>
+    BehindRoomInFrontOfFloor,
 
     /// <summary>In front of the room's back tiles and behind its front tiles: where Samus and most actors are drawn.</summary>
     BehindFrontParts,

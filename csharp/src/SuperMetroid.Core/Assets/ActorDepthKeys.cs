@@ -10,6 +10,7 @@ internal static class ActorDepthKeys
     internal static InstalledKeys<ActorDepth> Installed { get; } = new(new Dictionary<ActorDepth, string>
     {
         [ActorDepth.BehindRoom] = "BehindRoom",
+        [ActorDepth.BehindRoomInFrontOfFloor] = "BehindRoomInFrontOfFloor",
         [ActorDepth.BehindFrontParts] = "BehindFrontParts",
         [ActorDepth.InFront] = "InFront",
     });

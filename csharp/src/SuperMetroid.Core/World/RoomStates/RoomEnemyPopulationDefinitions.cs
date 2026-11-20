@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// <remarks>
 /// The populations and their placements are the ones the room states select, which the import's check of the game's data
 /// confirms. Placement order decides which place each linked enemy takes; each list states the kills that clear its room
-/// as its death quota.
+/// as its death quota when it places enemies; an empty list has none.
 /// </remarks>
 [NumberedIdentities("Each numbered member is the enemy population of a room whose own name carries the number (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); nothing indexes the populations by number.")]
 public static class RoomEnemyPopulationDefinitions

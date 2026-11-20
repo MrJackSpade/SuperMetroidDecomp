@@ -330,11 +330,14 @@ internal sealed class SpriteSheetLayout
 
     /// <summary>
     /// The depth a frame whose shown pixels hold <paramref name="shownDepths"/> (none for a pixel no part shows) is drawn
-    /// at (#1514): the depth most of its pixels show, the front one of a tie.
+    /// at (#1514): the place among the room's layers most of its pixels show, the front one of a tie. The two depths behind
+    /// the room are one place among the room's tiles, which only a turning floor splits (#2583): a frame lies behind the room
+    /// where most of its pixels lie at either, and then at whichever of the two more of them show, the one in front of the
+    /// floor on a tie.
     /// </summary>
     private static ActorDepth? DepthOf(ReadOnlySpan<ActorDepth?> shownDepths)
     {
-        int behindRoom = 0, behindFrontParts = 0, inFront = 0;
+        int behindFloor = 0, inFrontOfFloor = 0, behindFrontParts = 0, inFront = 0;
         foreach (ActorDepth? shown in shownDepths)
         {
             switch (shown)
@@ -342,7 +345,10 @@ internal sealed class SpriteSheetLayout
                 case null:
                     break;
                 case ActorDepth.BehindRoom:
-                    behindRoom++;
+                    behindFloor++;
+                    break;
+                case ActorDepth.BehindRoomInFrontOfFloor:
+                    inFrontOfFloor++;
                     break;
                 case ActorDepth.BehindFrontParts:
                     behindFrontParts++;
@@ -354,11 +360,14 @@ internal sealed class SpriteSheetLayout
                     throw new InvalidOperationException($"Undefined {nameof(ActorDepth)} {shown}.");
             }
         }
+        int behindRoom = behindFloor + inFrontOfFloor;
         if (inFront > 0 && inFront >= behindFrontParts && inFront >= behindRoom)
             return ActorDepth.InFront;
         if (behindFrontParts > 0 && behindFrontParts >= behindRoom)
             return ActorDepth.BehindFrontParts;
-        return behindRoom > 0 ? ActorDepth.BehindRoom : null;
+        if (behindRoom > 0)
+            return inFrontOfFloor >= behindFloor ? ActorDepth.BehindRoomInFrontOfFloor : ActorDepth.BehindRoom;
+        return null;
     }
 
     /// <summary>

@@ -204,7 +204,7 @@ internal static class EndingContentIdentityVerification
             var first = new SpriteVisualPart
             {
                 OffsetX = 0, OffsetY = 0, TileColumn = 0, TileRow = 0, Size = 8,
-                Depth = SuperMetroid.Core.Assets.ActorDepth.BehindRoom, Palette = null, FlipX = false, FlipY = false,
+                Depth = SuperMetroid.Core.Assets.ActorDepth.BehindRoomInFrontOfFloor, Palette = null, FlipX = false, FlipY = false,
             };
             var second = first with { OffsetX = 8, OffsetY = -8, TileColumn = 1, TileRow = 1, Palette = 3 };
             string[] keys = names.ToArray();

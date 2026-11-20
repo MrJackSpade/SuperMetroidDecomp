@@ -19,6 +19,7 @@ internal static class ObjSubscreenVerification
     {
         Suite(nameof(VerifyMode7ObjSubtraction), () => VerifyMode7ObjSubtraction());
         Suite(nameof(VerifyMode7Bg1Addition), () => VerifyMode7Bg1Addition());
+        Suite(nameof(VerifyTurningRoomActorsAroundFloor), () => VerifyTurningRoomActorsAroundFloor());
         Suite(nameof(VerifyBg4SubscreenAddition), () => VerifyBg4SubscreenAddition());
         Suite(nameof(VerifyObjFixedColor), () => VerifyObjFixedColor());
         byte[] vram = new byte[SnesVram.ByteCount];
@@ -38,9 +39,10 @@ internal static class ObjSubscreenVerification
     }
 
     /// <summary>
-    /// Checks a floor that adds its own colour: it shows over the sprites drawn behind the room and adds its colour to
-    /// itself and to the blending sprites in front of it (#1514). A sprite's depth is its frame's, which the import takes
-    /// from its priority: priorities zero and one draw behind the whole room, two and three in front of the floor.
+    /// Checks a floor that adds its own colour: it shows over the sprites drawn behind it and adds its colour to itself and
+    /// to the blending sprites in front of it (#1514). A sprite's depth is its frame's, which the import takes from its
+    /// priority: as on the cartridge's turning plane, only priority zero draws behind the floor, and priorities one, two and
+    /// three in front of it (#2583).
     /// </summary>
     private static void VerifyMode7Bg1Addition()
     {
@@ -68,13 +70,46 @@ internal static class ObjSubscreenVerification
                     var packet = new DisplayPacket(0, new LayeredScene(memory,
                         new DisplayLayer[] { new TurningFloorLayer(registers, floor, FloorColorBlend.AddForeground) }, DisplayBrightness.Full));
                     var pixels = DisplayRendering.Render(packet);
-                    bool behindFloor = opaqueBg && priority < 2;
+                    bool behindFloor = opaqueBg && priority == 0;
                     RgbaPixel expected = behindFloor ? new(0, 132, 0)
                         : opaqueBg && palette == 4 ? new(99, 66, 0) : new(99, 0, 0);
                     AssertEqual(expected, pixels[8 * 256 + 8], "a sprite behind the room lies under the floor; a blending sprite in front takes its colour");
                     AssertEqual(opaqueBg ? new RgbaPixel(0, 132, 0) : new RgbaPixel(0, 0, 24), pixels[0],
                         "BG1 doubles itself but transparent BG1 preserves unmodified backdrop");
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Checks a gameplay room shown as a turning floor (#2583): an actor whose part has priority zero lies behind the floor
+    /// and shows only where the floor is clear, and an actor at priority one, two or three draws in front of it, as the
+    /// cartridge's turning plane lies between priorities one and zero. An opaque floor's green shows over the priority-zero
+    /// sprite's red; the others' red shows over the floor.
+    /// </summary>
+    private static void VerifyTurningRoomActorsAroundFloor()
+    {
+        var registers = new FloorView(0, FloorView.OwnSize, new Offset16<FloorPixels>(0, 0), new Offset16<FloorPixels>(0, 0));
+        foreach (bool opaqueFloor in new[] { false, true })
+        {
+            byte[] vram = new byte[SnesVram.ByteCount];
+            if (opaqueFloor) for (int pixel = 0; pixel < 64; pixel++) vram[pixel * 2 + 1] = 1;
+            for (int row = 0; row < 8; row++) vram[0xc000 + row * 2] = 255;
+            ushort[] colors = new ushort[256];
+            colors[0] = 3 << 10; colors[1] = 8 << 5; colors[129] = 12;
+            var shownColours = ToColors(colors);
+            var floor = AffineFloorFixtures.Floor(vram, shownColours);
+            foreach (byte priority in new byte[] { 0, 1, 2, 3 })
+            {
+                byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
+                oam[0] = 8; oam[1] = 8; oam[3] = (byte)(priority * 16);
+                var memory = FramePaint.FromOamGameplay(vram, shownColours, oam, 1, 3);
+                var packet = new DisplayPacket(0, new LayeredScene(memory,
+                    new DisplayLayer[] { new TurningRoomLayer(registers, floor, 0) }, 15));
+                var pixels = DisplayRendering.Render(packet);
+                RgbaPixel expected = opaqueFloor && priority == 0 ? new(0, 66, 0) : new(99, 0, 0);
+                AssertEqual(expected, pixels[8 * 256 + 8],
+                    $"a priority-{priority} actor lies {(priority == 0 ? "behind" : "in front of")} the turning floor");
             }
         }
     }

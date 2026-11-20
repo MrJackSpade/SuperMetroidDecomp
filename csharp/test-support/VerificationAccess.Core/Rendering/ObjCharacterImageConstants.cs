@@ -16,7 +16,7 @@ internal static class ObjCharacterImageConstants
 
     /// <summary>The depth among a gameplay room's layers each record priority draws at, from priority zero up (#1514).</summary>
     private static readonly ActorDepth[] DepthOfPriority =
-        [ActorDepth.BehindRoom, ActorDepth.BehindRoom, ActorDepth.BehindFrontParts, ActorDepth.InFront];
+        [ActorDepth.BehindRoom, ActorDepth.BehindRoomInFrontOfFloor, ActorDepth.BehindFrontParts, ActorDepth.InFront];
 
     /// <summary>Images pictured from OAM so far, which keeps each one's name its own.</summary>
     private static int pictured;

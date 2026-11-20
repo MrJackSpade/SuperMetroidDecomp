@@ -11,13 +11,6 @@ public sealed class SolidColourScene : DisplayScene
     public SolidColourScene(RgbaPixel colour, DisplayBrightness brightness)
         : base(brightness) => Colour = colour;
 
-    /// <summary>Keeps the colour, shown undimmed.</summary>
-    /// <param name="colour">The colour filling the whole screen.</param>
-    public SolidColourScene(RgbaPixel colour)
-        : this(colour, DisplayBrightness.Full)
-    {
-    }
-
     /// <summary>The colour filling the whole screen before the brightness applies.</summary>
     public RgbaPixel Colour { get; }
 

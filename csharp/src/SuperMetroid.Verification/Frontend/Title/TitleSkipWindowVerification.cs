@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Input;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

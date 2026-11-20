@@ -24,12 +24,6 @@ internal static class SamusBeamCombinationTableOrder
     private static readonly FrozenDictionary<SamusBeamCombination, int> TablePosition =
         Enumerable.Range(0, TableOrder.Length).ToFrozenDictionary(index => TableOrder[index]);
 
-    /// <summary>The combination at a four-bit table index.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside $0-$F.</exception>
-    internal static SamusBeamCombination FromTableIndex(int index) => (uint)index < TableOrder.Length
-        ? TableOrder[index]
-        : throw new ArgumentOutOfRangeException(nameof(index), index, "Beam-combination table index is outside $0-$F.");
-
     /// <summary>Exposes the beam-table index of a beam combination.</summary>
     extension(SamusBeamCombination combination)
     {

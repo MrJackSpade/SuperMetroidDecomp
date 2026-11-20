@@ -8,6 +8,7 @@ global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlayT
 global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresFloorDrawingsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerDoorFadeShadesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerSheetComposerPrivateAccess;
+global using static SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterControlWordsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractorPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Tourian.Artwork.TourianStatuePalettesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Artwork.FloorSheetComposerPrivateAccess;
@@ -670,7 +671,6 @@ global using static SuperMetroid.Core.Samus.Abilities.SamusSuitPickupStatePrivat
 global using static SuperMetroid.Core.Samus.Abilities.SamusXrayStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.Abilities.ShinesparkCrashEchoPrivateAccess;
 global using static SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocksPrivateAccess;
-global using static SuperMetroid.Core.Samus.Artwork.InstalledSamusBodyArtworkPrivateAccess;
 global using static SuperMetroid.Core.Samus.Colours.SamusColouredDrawPrivateAccess;
 global using static SuperMetroid.Core.Samus.Colours.SamusColoursPrivateAccess;
 global using static SuperMetroid.Core.Samus.Colours.SamusVisorShadeStatePrivateAccess;

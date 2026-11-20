@@ -1,4 +1,4 @@
-namespace SuperMetroid.AssetExtraction.Rooms;
+﻿namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The operations a room's library-background list performs. Values are arbitrary identities (#1414); extraction

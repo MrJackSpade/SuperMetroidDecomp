@@ -13,8 +13,6 @@ public static class BeamTileAtlasDefinitions
     public const int ByteCount = 256;
     /// <summary>$90:C3B1 contains twelve legal beam-combination pointers before palette data.</summary>
     public const int SelectionCount = BeamPaletteFile.SelectionCount;
-    /// <summary>Twelve ordinary sheets plus the bounded Chainsaw and SpaceTime adjacent-table uploads.</summary>
-    public const int ArtworkCount = SelectionCount + 2;
     /// <summary>The twelve combinations Samus can equip, in the order the cartridge's beam tables list them.</summary>
     public static IReadOnlyList<SamusBeamCombination> Equippable { get; } =
     [

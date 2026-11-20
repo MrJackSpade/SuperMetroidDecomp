@@ -25,9 +25,9 @@ internal static class SpcSoundPoliciesVerification
         SuperMetroid.Core.Audio.SoundEffectLibrary soundLibrary = SuperMetroid.AssetExtraction.Audio.SoundLibraryNumbers.FromDriverIndex(library);
         byte NativeNumber(string key) => soundLibrary switch
         {
-            SuperMetroid.Core.Audio.SoundEffectLibrary.Samus => SpcSoundPolicyCodec.NativeNumber(SpcSoundPolicyCodec.Parse(SpcSoundPolicyCodec.Library1Keys, key, soundLibrary)),
-            SuperMetroid.Core.Audio.SoundEffectLibrary.Enemies => SpcSoundPolicyCodec.NativeNumber(SpcSoundPolicyCodec.Parse(SpcSoundPolicyCodec.Library2Keys, key, soundLibrary)),
-            SuperMetroid.Core.Audio.SoundEffectLibrary.Room => SpcSoundPolicyCodec.NativeNumber(SpcSoundPolicyCodec.Parse(SpcSoundPolicyCodec.Library3Keys, key, soundLibrary)),
+            SuperMetroid.Core.Audio.SoundEffectLibrary.Samus => SpcSoundPolicyCodecConstants.NativeNumber(SpcSoundPolicyCodec.Parse(SpcSoundPolicyCodec.Library1Keys, key, soundLibrary)),
+            SuperMetroid.Core.Audio.SoundEffectLibrary.Enemies => SpcSoundPolicyCodecConstants.NativeNumber(SpcSoundPolicyCodec.Parse(SpcSoundPolicyCodec.Library2Keys, key, soundLibrary)),
+            SuperMetroid.Core.Audio.SoundEffectLibrary.Room => SpcSoundPolicyCodecConstants.NativeNumber(SpcSoundPolicyCodec.Parse(SpcSoundPolicyCodec.Library3Keys, key, soundLibrary)),
             _ => throw new InvalidOperationException($"Undefined sound library {soundLibrary}."),
         };
         var checkedVoicePolicies = new HashSet<byte>();

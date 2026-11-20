@@ -1,7 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;

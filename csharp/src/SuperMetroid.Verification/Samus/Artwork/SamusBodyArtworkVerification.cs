@@ -399,7 +399,7 @@ internal static class SamusBodyArtworkVerification
                 armCannon.CoverAppearance(SuperMetroid.AssetExtraction.Samus.SamusProjectileDirectionCodec.FromAimIndex(direction)), $"arm-cannon direction {direction} cover character, palette row, priority and flips");
             int listAddress = SamusSourceDefinitions.TileListPointers.Value + direction * 2;
             int list = CartridgeImportSource.Require(bus).ReadCartridgeWord(listAddress);
-            for (int frame = 0; frame < SamusArmCannonArtworkFormat.FramesPerDirection; frame++)
+            for (int frame = 0; frame < SamusArmCannonArtworkFormatConstants.FramesPerDirection; frame++)
             {
                 int word = SamusSourceDefinitions.MovementBank.Value | (list + frame * 2);
                 AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(word),

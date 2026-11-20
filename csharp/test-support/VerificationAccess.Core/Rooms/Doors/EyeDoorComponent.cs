@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Doors;
+﻿namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The three independently authored room objects which together form one eye door.</summary>
 public enum EyeDoorComponent

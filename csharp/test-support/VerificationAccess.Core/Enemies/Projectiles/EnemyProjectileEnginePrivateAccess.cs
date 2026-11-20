@@ -39,4 +39,11 @@ internal static class EnemyProjectileEnginePrivateAccess
         internal static void InitializeEnemyProjectileFromDefinition(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind kind, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior behavior, global::SuperMetroid.Core.Enemies.SpriteGraphics graphics) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine), "InitializeEnemyProjectileFromDefinition", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind), typeof(global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior), typeof(global::SuperMetroid.Core.Enemies.SpriteGraphics)], new object?[] { projectile, kind, behavior, graphics });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine self)
+    {
+        /// <summary>The private field <c>_places</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.EnemyProjectile?[] _places => PrivateState.Field<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine, global::SuperMetroid.Core.Enemies.EnemyProjectile?[]>(self, "_places");
+    }
 }

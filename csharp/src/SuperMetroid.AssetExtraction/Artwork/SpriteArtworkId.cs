@@ -34,6 +34,3 @@ public readonly record struct SpriteArtworkId
     public SpriteArtworkId InKind(SpriteArtworkKind kind) =>
         Variant is { } variant ? new SpriteArtworkId(kind, variant) : new SpriteArtworkId(kind);
 }
-
-/// <summary>What distinguishes one sheet of a sprite artwork family from the family's others; each family derives its own.</summary>
-public abstract record SpriteArtworkVariant;

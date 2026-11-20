@@ -100,8 +100,8 @@ internal static class FxDefinitionMigrationVerification
             "first enemy-shaking earthquake");
         AssertEqual(0x0015, NativeEarthquakeTypes.TypeOf(RoomEarthquakeDefinitions.RisingLiquidShake), "rising liquid earthquake");
         AssertEqual(0x0020, RoomEarthquakeDefinitions.SustainedShakeFrames, "rising liquid timer bits");
-        AssertEqual(6, RoomEarthquakeDefinitions.SoundSuppressedRooms.Count, "silent quake rooms");
-        AssertEqual(RoomDefinitions.BombTorizo, RoomEarthquakeDefinitions.SoundSuppressedRooms[0], "first silent quake room");
+        AssertEqual(6, RoomDefinitions.All.Count(room => room.QuakesAreSilent), "silent quake rooms");
+        AssertTrue(RoomDefinitions.BombTorizo.QuakesAreSilent, "the Bomb Torizo room's quakes are silent");
 
         // RoomFxRomData's layer-three values, and the import's pages and blends.
         AssertEqual(0x184e, FxOverlayPlaneConstants.ClearedCell.PackedWord, "cleared effect cell");

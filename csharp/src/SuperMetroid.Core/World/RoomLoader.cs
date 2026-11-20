@@ -225,7 +225,7 @@ internal sealed class RoomLoader
         SamusPoseMetadata.ApplyZebesStartPoseSetup(_player.IntroducedSamus);
         SamusPresentation.SetAnimationFrameFromMovementOwner(_player.IntroducedSamus, SamusAnimationFrames.ZebesAppearance,
             timer: SavedGameAppearanceDefinitions.FirstFrameTimer);
-        _player.IntroducedSamus.Ground = SamusGround.Of(room.Definition);
+        _player.IntroducedSamus.Ground = room.Definition.Ground;
         ColourEffectId loadAppearance =
             _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
                 ? SavedGameAppearanceDefinitions.GravitySuitGlow
@@ -336,7 +336,7 @@ internal sealed class RoomLoader
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        samus.Ground = SamusGround.Of(room.Definition);
+        samus.Ground = room.Definition.Ground;
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(samus);
         _player.GroundedSamusMovementEnabled = false;
     }
@@ -693,7 +693,7 @@ internal sealed class RoomLoader
 
         // The door loader sets no Samus radius; the next unlocked input mode's radius update
         // does, so an elevator rider keeps the boarding pose's radius through the door.
-        samus.Ground = SamusGround.Of(room.Definition);
+        samus.Ground = room.Definition.Ground;
         _player.GroundedSamusMovementEnabled = true;
     }
 
@@ -1096,7 +1096,7 @@ internal sealed class RoomLoader
 
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
         SamusPresentation.InitializeAnimation(_player.Samus);
-        _player.Samus.Ground = SamusGround.Of(room.Definition);
+        _player.Samus.Ground = room.Definition.Ground;
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(_player.Samus);
 
         // The Ceres elevator's arrival owns its own state from the first draw, the concealer over the room's level drawn in

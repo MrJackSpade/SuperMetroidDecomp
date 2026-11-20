@@ -1,10 +1,9 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>How the room's earthquake shakes, how rising lava and acid rumble, and the rooms whose quakes are silent (#1415).</summary>
+/// <summary>How the room's earthquake shakes and how rising lava and acid rumble (#1415).</summary>
 public static class RoomEarthquakeDefinitions
 {
     /// <summary>
@@ -53,18 +52,4 @@ public static class RoomEarthquakeDefinitions
     /// sound's base delay: 0 through 3.
     /// </summary>
     internal static readonly RandomSampleField RisingLiquidSoundJitter = new(0, 2);
-
-    /// <summary>
-    /// The rooms whose quakes are silent: entering one silences quake sounds as its room effect loads, and every other
-    /// room keeps them.
-    /// </summary>
-    public static IReadOnlyList<RoomDefinition> SoundSuppressedRooms { get; } =
-    [
-        RoomDefinitions.BombTorizo,
-        RoomDefinitions.Climb,
-        RoomDefinitions.Ridley,
-        RoomDefinitions.Pillar,
-        RoomDefinitions.MotherBrain,
-        RoomDefinitions.TourianEscape4,
-    ];
 }

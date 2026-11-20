@@ -126,7 +126,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         CyclingSequence<int>.StartOf(RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays);
 
     /// <summary>
-    /// Whether the room's quakes are silent (<see cref="RoomEarthquakeDefinitions.SoundSuppressedRooms"/>): rising lava or
+    /// Whether the room's quakes are silent (<see cref="RoomDefinition.QuakesAreSilent"/>): rising lava or
     /// acid and the Tourian statues shake such a room without their quake sound.
     /// </summary>
     internal bool QuakeSoundsSilenced { get; private set; }
@@ -227,7 +227,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     private void SelectEffect(RoomFxLoadSource source)
     {
-        QuakeSoundsSilenced = source.Room is { } room && RoomEarthquakeDefinitions.SoundSuppressedRooms.Contains(room);
+        QuakeSoundsSilenced = source.Room is { QuakesAreSilent: true };
         if ((source.SuppliedDefinition ?? source.Fx?.Select(source.Door)) is not { } definition)
             return;
 

@@ -24,19 +24,19 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Zeela, Sova and both Zoomers in the shared family; or an orange Zoomer (#2146).
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no crawler definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.Sciser)
-            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Sciser);
+            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Sciser));
         if (definition == EnemyDefinitionId.Zero)
-            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Zero);
+            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Zero));
         if (definition == EnemyDefinitionId.Viola)
-            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Viola);
+            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Viola));
         if (definition is EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer)
-            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Shared);
+            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Shared));
         if (definition == EnemyDefinitionId.OrangeZoomer)
-            return new OrangeZoomerEntity(this, place, common);
+            return EnemyOccupant.Of(new OrangeZoomerEntity(this, place, common));
         throw new InvalidOperationException($"The crawler species creates no {place.DefinitionId}.");
     }
 

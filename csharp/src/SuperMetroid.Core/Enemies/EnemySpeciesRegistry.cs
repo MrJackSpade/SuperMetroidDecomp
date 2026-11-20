@@ -59,10 +59,10 @@ internal sealed class EnemySpeciesRegistry
         return registry;
     }
 
-    /// <summary>Creates the entity for the occupant <paramref name="place"/> now holds, through its species' factory.</summary>
+    /// <summary>Creates the entity for the occupant <paramref name="place"/> now holds, and its setup, through its species' factory.</summary>
     /// <param name="place">The place, already holding its new identity.</param>
     /// <exception cref="InvalidOperationException">No species owns the place's definition.</exception>
-    internal IEnemyEntity Create(RoomEnemyPlace place)
+    internal EnemyOccupant Create(RoomEnemyPlace place)
     {
         Ensure.NotNull(place);
         if (!Factories.TryGetValue(place.DefinitionId, out IEnemyEntityFactory? factory))

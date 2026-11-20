@@ -18,17 +18,17 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Phantoon's body, eye, tentacles or mouth (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Phantoon definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.PhantoonBody)
-            return new PhantoonBodyEntity(this, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new PhantoonBodyEntity(this, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.PhantoonEye)
-            return new PhantoonEyeEntity(this, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new PhantoonEyeEntity(this, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.PhantoonTentacles)
-            return new PhantoonTentaclesEntity(this, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new PhantoonTentaclesEntity(this, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.PhantoonMouth)
-            return new PhantoonMouthEntity(this, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new PhantoonMouthEntity(this, place, common, _bossArtwork));
         throw new InvalidOperationException($"The Phantoon species creates no {place.DefinitionId}.");
     }
 

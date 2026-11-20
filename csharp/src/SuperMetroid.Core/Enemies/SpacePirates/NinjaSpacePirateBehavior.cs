@@ -17,13 +17,13 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">The place holds no ninja definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.PirateGoldNinja)
-            return new GoldNinjaSpacePirateEntity(this, place, common);
+            return EnemyOccupant.Of(new GoldNinjaSpacePirateEntity(this, place, common));
         if (definition == EnemyDefinitionId.PirateSilverNinja)
-            return new NinjaSpacePirateEntity(this, place, common);
+            return EnemyOccupant.Of(new NinjaSpacePirateEntity(this, place, common));
         throw new InvalidOperationException($"The ninja Space Pirate species creates no {place.DefinitionId}.");
     }
 

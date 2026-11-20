@@ -17,17 +17,17 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Draygon's body, eye, tail or arms (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Draygon definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.DraygonBody)
-            return new DraygonBodyEntity(this, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new DraygonBodyEntity(this, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.DraygonEye)
-            return new DraygonEyeEntity(this, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new DraygonEyeEntity(this, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.DraygonTail)
-            return new DraygonTailEntity(this, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new DraygonTailEntity(this, place, common, _bossArtwork));
         if (definition == EnemyDefinitionId.DraygonArms)
-            return new DraygonArmsEntity(this, place, common, _bossArtwork);
+            return EnemyOccupant.Of(new DraygonArmsEntity(this, place, common, _bossArtwork));
         throw new InvalidOperationException($"The Draygon species creates no {place.DefinitionId}.");
     }
 

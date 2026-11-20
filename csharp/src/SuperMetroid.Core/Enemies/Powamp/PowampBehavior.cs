@@ -20,10 +20,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// A Powamp's body or balloon, as the placement's settings name the part it is (#2163). The balloon shares the body's
     /// definition; only its placement tells them apart.
     /// </summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(place).SpawnSettings<PowampSpawnSettings>().Part == PowampPart.Balloon
-            ? new PowampBalloonEntity(this, place, common)
-            : new PowampBodyEntity(this, place, common);
+            ? EnemyOccupant.Of(new PowampBalloonEntity(this, place, common))
+            : EnemyOccupant.Of(new PowampBodyEntity(this, place, common));
 
     /// <summary>Clips body rise and sink motion against room collision.</summary>
     private readonly EnemyTerrain _terrain;

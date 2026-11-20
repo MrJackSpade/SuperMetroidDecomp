@@ -18,13 +18,13 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The mama turtle, or one of her babies (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no mama turtle definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.MamaTurtle)
-            return new MamaTurtleEntity(this, place, common);
+            return EnemyOccupant.Of(new MamaTurtleEntity(this, place, common));
         if (definition == EnemyDefinitionId.BabyTurtle)
-            return new BabyTurtleEntity(this, place, common);
+            return EnemyOccupant.Of(new BabyTurtleEntity(this, place, common));
         throw new InvalidOperationException($"The mama turtle species creates no {place.DefinitionId}.");
     }
 

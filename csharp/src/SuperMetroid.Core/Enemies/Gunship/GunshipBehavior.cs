@@ -25,13 +25,13 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
     /// <summary>The gunship's top hull, which moves the ship, or its bottom hull with the entrance pad (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no gunship definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.ShipTop)
-            return new GunshipTopEntity(this, place, common);
+            return EnemyOccupant.Of(new GunshipTopEntity(this, place, common));
         if (definition == EnemyDefinitionId.ShipBottomEntrance)
-            return new GunshipBottomEntity(this, place, common);
+            return EnemyOccupant.Of(new GunshipBottomEntity(this, place, common));
         throw new InvalidOperationException($"The gunship species creates no {place.DefinitionId}.");
     }
 

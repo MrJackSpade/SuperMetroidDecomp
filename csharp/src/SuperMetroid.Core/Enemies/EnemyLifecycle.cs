@@ -54,29 +54,36 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         place.Shading = PictureShading.Standard;
     }
 
-    /// <summary>Runs the definition's initialization for a place the room's population load has just placed.</summary>
+    /// <summary>
+    /// Runs the setup of the enemy the room's population load has just placed, and nothing for an enemy that has none.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The place holds no entity.</exception>
     internal static void SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
         Ensure.NotNull(surroundings);
-        EntityOf(place).InitializeOccupant(place, surroundings);
+        SetupOf(place)?.Run(place, surroundings);
     }
 
     /// <summary>
-    /// Runs the definition's initialization for a place spawned on another enemy's behalf, or rebuilt by a respawn, which
-    /// has no population load's surroundings (#2455).
+    /// Runs the setup of an enemy spawned on another enemy's behalf, or rebuilt by a respawn, which has no population
+    /// load's surroundings (#2455), and nothing for an enemy that has none.
     /// </summary>
     /// <exception cref="InvalidDataException">
-    /// The place's enemy initializes from a population load's surroundings, which no such spawn has, or has no initialization.
+    /// The place holds no entity, or its enemy sets up from a population load's surroundings, which no such spawn has.
     /// </exception>
     internal static void SetUpSpawnedEnemy(RoomEnemyPlace place)
     {
-        EntityOf(place).InitializeOccupant(place, surroundings: null);
+        SetupOf(place)?.Run(place, surroundings: null);
     }
 
-    /// <summary>The entity <paramref name="place"/> holds.</summary>
-    /// <exception cref="InvalidDataException">The place holds no entity, so its enemy has no initialization behaviour.</exception>
-    private static IEnemyEntity EntityOf(RoomEnemyPlace place) =>
-        Ensure.NotNull(place).Entity ?? throw new InvalidDataException($"Enemy {place.DefinitionId} has no initialization behaviour.");
+    /// <summary>The setup of the entity <paramref name="place"/> holds, or null when the entity has none.</summary>
+    /// <exception cref="InvalidDataException">The place holds no entity.</exception>
+    private static EnemySetup? SetupOf(RoomEnemyPlace place)
+    {
+        if (Ensure.NotNull(place).Entity is null)
+            throw new InvalidDataException($"Enemy {place.DefinitionId} has no entity to set up.");
+        return place.Setup;
+    }
 
     /// <summary>Exposes setting up a listed enemy from its population entry to the enemy loader.</summary>
     void IEnemyLifecycle.InitializePlaceFromDefinition(

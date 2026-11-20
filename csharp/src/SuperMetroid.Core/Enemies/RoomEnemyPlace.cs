@@ -64,6 +64,12 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     internal IEnemyEntity? Entity { get; private set; }
 
     /// <summary>
+    /// The setup the occupant runs once its place is filled, as its factory named it; null while the place is empty or when
+    /// the occupant has no setup (#2571).
+    /// </summary>
+    internal EnemySetup? Setup { get; private set; }
+
+    /// <summary>
     /// The species states the current occupant owns (#1543). Its species installs them as it initializes, and the place
     /// starts an empty set whenever its occupant leaves: a new occupant is bound, or the occupant is deleted or killed. No
     /// state outlives its occupant; a reaction that runs on after a killing hit reaches the struck occupant's set through
@@ -126,7 +132,11 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
         AwaitsRespawn = false;
         OccupantStates = new();
         AnimationClock = new();
-        Entity = definitionId == EnemyDefinitionId.None ? null : _registry.Create(this);
+        if (definitionId == EnemyDefinitionId.None)
+            return;
+        EnemyOccupant occupant = _registry.Create(this);
+        Entity = occupant.Entity;
+        Setup = occupant.Setup;
     }
 
     /// <summary>
@@ -137,6 +147,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     {
         IEnemyEntity? leaving = Entity;
         Entity = null;
+        Setup = null;
         if (leaving is IEnemyDeparture departure)
             departure.Leave();
     }

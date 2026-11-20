@@ -4,11 +4,13 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// A projectile animation that plays a family's typed animations (#1600): frames with durations, frames held for good
-/// (#1607), events, repeated phases and a hold. Each event goes to the behaviour bound to the projectile (#1760), which
-/// carries out its family's events as <see cref="IEnemyProjectileCues{TCue}"/>, or as
+/// (#1607), events, repeated phases and a hold. Each event goes to the owner of the animation's cues, the behaviour that
+/// started it (#1760, #2554), which carries out its family's events as <see cref="IEnemyProjectileCues{TCue}"/>, or as
 /// <see cref="IEnemyProjectileBranchingCues{TSegment, TCue}"/> when its reaction continues the play elsewhere, as a
 /// conditional change to another animation or a conditional replay of the cue's run does; the engine carries out the shared
-/// <see cref="EnemyProjectileCommonCue"/> events. Repeated phases count their plays in the playback (#2006).
+/// <see cref="EnemyProjectileCommonCue"/> events of the families that publish only those
+/// (<see cref="EnemyProjectileCommonFrameAnimation{TSegment}"/>). A cue reaches only the owner the animation was started
+/// with. Repeated phases count their plays in the playback (#2006).
 /// </summary>
 /// <typeparam name="TSegment">The family's segment identity.</typeparam>
 /// <typeparam name="TFrame">The family's frame identity.</typeparam>
@@ -18,9 +20,55 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
     where TFrame : struct
     where TEvent : notnull
 {
-    /// <summary>Starts <paramref name="animation"/> before its first play.</summary>
-    private protected EnemyProjectileTypedAnimation(Animation<TSegment> animation) =>
+    /// <summary>Carries out one of the animation's cues and returns where the play continues, or null to run on.</summary>
+    /// <param name="context">The projectile, Samus and the camera of the pass running the animation.</param>
+    /// <param name="projectiles">The projectile engine, which carries out the shared cues.</param>
+    /// <param name="cue">The cue the animation published.</param>
+    /// <param name="pastCue">Where the play stands just past the cue.</param>
+    private protected delegate AnimationContinuation<TSegment>? CueRunner(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles,
+        TEvent cue, AnimationPlayback<TSegment> pastCue);
+
+    /// <summary>Carries out each of the animation's cues in the owner it was started with.</summary>
+    private readonly CueRunner _runCue;
+
+    /// <summary>Starts <paramref name="animation"/> before its first play, its cues carried out by <paramref name="cues"/>.</summary>
+    /// <param name="animation">The animation.</param>
+    /// <param name="cues">The behaviour that owns the animation's cues.</param>
+    private protected EnemyProjectileTypedAnimation(Animation<TSegment> animation, IEnemyProjectileCues<TEvent> cues)
+        : this(animation, Plain(Ensure.NotNull(cues)))
+    {
+    }
+
+    /// <summary>
+    /// Starts <paramref name="animation"/> before its first play, its cues carried out by <paramref name="cues"/>, whose
+    /// reactions may continue the play elsewhere.
+    /// </summary>
+    /// <param name="animation">The animation.</param>
+    /// <param name="cues">The behaviour that owns the animation's cues.</param>
+    private protected EnemyProjectileTypedAnimation(Animation<TSegment> animation, IEnemyProjectileBranchingCues<TSegment, TEvent> cues)
+        : this(animation, Branching(Ensure.NotNull(cues)))
+    {
+    }
+
+    /// <summary>Starts <paramref name="animation"/> before its first play, its cues carried out by <paramref name="runCue"/>.</summary>
+    /// <param name="animation">The animation.</param>
+    /// <param name="runCue">Carries out each of the animation's cues.</param>
+    private protected EnemyProjectileTypedAnimation(Animation<TSegment> animation, CueRunner runCue)
+    {
         Playback = new AnimationPlayback<TSegment>(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
+        _runCue = Ensure.NotNull(runCue);
+    }
+
+    /// <summary>Runs each cue in <paramref name="cues"/>, the play running on past it.</summary>
+    private static CueRunner Plain(IEnemyProjectileCues<TEvent> cues) => (context, _, cue, _) =>
+    {
+        cues.RunCue(context, cue);
+        return null;
+    };
+
+    /// <summary>Runs each cue in <paramref name="cues"/>, which says where the play continues.</summary>
+    private static CueRunner Branching(IEnemyProjectileBranchingCues<TSegment, TEvent> cues) =>
+        (context, _, cue, pastCue) => cues.RunCue(context, cue, pastCue);
 
     /// <summary>The animation playing and where it stands.</summary>
     internal AnimationPlayback<TSegment> Playback { get; set; }
@@ -73,29 +121,10 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
     }
 
     /// <summary>
-    /// Carries out <paramref name="cue"/>: a shared cue in the engine, any other in the behaviour bound to the projectile.
-    /// Returns where a branching cue continues the play from <paramref name="pastCue"/>, the place just past the cue, or null
-    /// to run on.
+    /// Carries out <paramref name="cue"/> in the owner the animation was started with. Returns where a branching cue
+    /// continues the play from <paramref name="pastCue"/>, the place just past the cue, or null to run on.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The projectile's behaviour does not handle the family's cues.</exception>
-    private static AnimationContinuation<TSegment>? RunCue(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles, TEvent cue,
-        AnimationPlayback<TSegment> pastCue)
-    {
-        if (cue is EnemyProjectileCommonCue common)
-        {
-            projectiles.ApplyCommonCue(context.Projectile, common);
-            return null;
-        }
-        switch (context.Projectile.Behavior)
-        {
-            case IEnemyProjectileBranchingCues<TSegment, TEvent> branching:
-                return branching.RunCue(context, cue, pastCue);
-            case IEnemyProjectileCues<TEvent> plain:
-                plain.RunCue(context, cue);
-                return null;
-            default:
-                throw new InvalidOperationException(
-                    $"Enemy projectile {context.Projectile.Kind} in place {context.Projectile.Place} has no behaviour that carries out {typeof(TEvent).Name}.{cue}.");
-        }
-    }
+    private AnimationContinuation<TSegment>? RunCue(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles, TEvent cue,
+        AnimationPlayback<TSegment> pastCue) =>
+        _runCue(context, projectiles, cue, pastCue);
 }

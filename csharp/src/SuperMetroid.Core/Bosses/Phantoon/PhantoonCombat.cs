@@ -59,7 +59,7 @@ internal sealed class PhantoonCombat
     /// <param name="flame">What the flame keeps: its orbit or its rain, or nothing for a casual flame until it lands.</param>
     internal EnemyProjectileBehavior DestroyableFlame(PhantoonFlameKeeps flame) => flame switch
     {
-        PhantoonFlameKeeps.Orbit orbit => new OrbitingFlameBehavior(_deathsAndDrops, PhantoonFlameMotion.CasualFalling, DestroyableShot, orbit.State),
+        PhantoonFlameKeeps.Orbit orbit => new OrbitingFlameBehavior(_deathsAndDrops, orbit.Circling, DestroyableShot, orbit.State),
         PhantoonFlameKeeps.Rain rain => new RainFlameBehavior(_audio, _deathsAndDrops, DestroyableShot, rain.State),
         PhantoonFlameKeeps.Casual => new FallingCasualFlameBehavior(_deathsAndDrops),
         _ => throw new InvalidOperationException($"A Phantoon flame keeps {flame}, which no case answers."),
@@ -83,11 +83,13 @@ internal sealed class PhantoonCombat
     /// <param name="deathsAndDrops">The drops a shot destroyable flame leaves.</param>
     /// <param name="initial">The motion the flame starts with.</param>
     /// <param name="shot">The animation a destroying shot starts.</param>
-    private abstract class PhantoonFlameBehavior(
+    /// <typeparam name="TMotion">The motions of the kind of flame.</typeparam>
+    private abstract class PhantoonFlameBehavior<TMotion>(
         EnemyDeathsAndDrops deathsAndDrops,
-        PhantoonFlameMotion initial,
+        TMotion initial,
         Func<EnemyProjectileAnimation> shot)
-        : EnemyProjectileMotionBehavior<PhantoonFlameMotion>(initial, shot), IEnemyProjectileCues<PhantoonFlameCue>
+        : EnemyProjectileMotionBehavior<TMotion>(initial, shot), IEnemyProjectileCues<PhantoonFlameCue>
+        where TMotion : struct, Enum
     {
 
         /// <summary>Carries out a flame animation's cue: the flame's drop, or its deletion.</summary>
@@ -111,11 +113,12 @@ internal sealed class PhantoonCombat
         private protected EnemyDeathsAndDrops Drops => deathsAndDrops;
 
         /// <summary>Holds an intro flame until its delayed orbit begins.</summary>
-        private protected static void RunPhantoonStartingFlameWaiting(EnemyProjectile flame, PhantoonOrbitingFlameState orbit)
+        private protected static void RunPhantoonStartingFlameWaiting(EnemyProjectile flame, PhantoonOrbitingFlameState orbit,
+            EnemyProjectileMotionBehavior<PhantoonFlameMotion> circling)
         {
             if (!orbit.Phantoon.StartingFlames.Orbiting)
                 return;
-            flame.StartMotion(PhantoonFlameMotion.IntroOrbiting);
+            circling.StartMotion(flame, PhantoonFlameMotion.IntroOrbiting);
             orbit.FullRadiusHold.LastFor(PhantoonFlameMotionDefinitions.IntroCircleHoldUpdates);
             orbit.Radius = PhantoonFlameMotionDefinitions.IntroCircleRadius;
         }
@@ -213,7 +216,7 @@ internal sealed class PhantoonCombat
     /// <param name="orbit">The flame's orbit, holding the encounter whose body it circles.</param>
     private sealed class OrbitingFlameBehavior(EnemyDeathsAndDrops deathsAndDrops, PhantoonFlameMotion initial,
         Func<EnemyProjectileAnimation> shot, PhantoonOrbitingFlameState orbit)
-        : PhantoonFlameBehavior(deathsAndDrops, initial, shot)
+        : PhantoonFlameBehavior<PhantoonFlameMotion>(deathsAndDrops, initial, shot)
     {
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileMotionContext context, PhantoonFlameMotion motion)
@@ -222,7 +225,7 @@ internal sealed class PhantoonCombat
             switch (motion)
             {
                 case PhantoonFlameMotion.IntroWaiting:
-                    RunPhantoonStartingFlameWaiting(flame, orbit);
+                    RunPhantoonStartingFlameWaiting(flame, orbit, this);
                     break;
                 case PhantoonFlameMotion.IntroOrbiting:
                     RunPhantoonStartingFlameOrbit(flame, orbit, context.FrameCounter);
@@ -233,11 +236,8 @@ internal sealed class PhantoonCombat
                 case PhantoonFlameMotion.SpiralOrbiting:
                     RunPhantoonSpiralFlame(flame, orbit);
                     break;
-                case PhantoonFlameMotion.CasualFalling or PhantoonFlameMotion.CasualLanding or PhantoonFlameMotion.CasualBouncing or
-                    PhantoonFlameMotion.RainFalling:
-                    throw new InvalidOperationException($"A circling Phantoon flame does not move by {nameof(PhantoonFlameMotion)} {motion}.");
                 default:
-                    throw new InvalidOperationException($"A circling Phantoon flame does not move by {nameof(PhantoonFlameMotion)} {motion}.");
+                    throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameMotion)} {motion}.");
             }
         }
     }
@@ -249,27 +249,21 @@ internal sealed class PhantoonCombat
     /// <param name="rain">What the flame keeps: its hang.</param>
     private sealed class RainFlameBehavior(EnemyAudioQueue audio, EnemyDeathsAndDrops deathsAndDrops, Func<EnemyProjectileAnimation> shot,
         PhantoonRainFlameState rain)
-        : PhantoonFlameBehavior(deathsAndDrops, PhantoonFlameMotion.CasualFalling, shot)
+        : PhantoonFlameBehavior<SingleMotion>(deathsAndDrops, SingleMotion.Moving, shot)
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, PhantoonFlameMotion motion)
-        {
-            if (motion != PhantoonFlameMotion.RainFalling)
-                throw new InvalidOperationException($"A rain flame does not move by {nameof(PhantoonFlameMotion)} {motion}.");
+        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
             RunPhantoonRainFlame(context.Projectile, rain, audio, context.Level);
-        }
     }
 
     /// <summary>A casual flame falling to the floor; on landing it keeps its landing pause and bounces.</summary>
     /// <param name="deathsAndDrops">The drops a shot flame leaves.</param>
     private sealed class FallingCasualFlameBehavior(EnemyDeathsAndDrops deathsAndDrops)
-        : PhantoonFlameBehavior(deathsAndDrops, PhantoonFlameMotion.CasualFalling, DestroyableShot)
+        : PhantoonFlameBehavior<SingleMotion>(deathsAndDrops, SingleMotion.Moving, DestroyableShot)
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, PhantoonFlameMotion motion)
+        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion)
         {
-            if (motion != PhantoonFlameMotion.CasualFalling)
-                throw new InvalidOperationException($"A falling casual flame does not move by {nameof(PhantoonFlameMotion)} {motion}.");
             if (RunPhantoonCasualFlameFalling(context.Projectile, context.Level))
                 context.Projectile.Rebind(new LandedCasualFlameBehavior(Drops, new PhantoonCasualFlameState()));
         }
@@ -279,24 +273,21 @@ internal sealed class PhantoonCombat
     /// <param name="deathsAndDrops">The drops a shot flame leaves.</param>
     /// <param name="casual">What the flame keeps: its landing pause and its bounces.</param>
     private sealed class LandedCasualFlameBehavior(EnemyDeathsAndDrops deathsAndDrops, PhantoonCasualFlameState casual)
-        : PhantoonFlameBehavior(deathsAndDrops, PhantoonFlameMotion.CasualFalling, DestroyableShot)
+        : PhantoonFlameBehavior<PhantoonLandedFlameMotion>(deathsAndDrops, PhantoonLandedFlameMotion.CasualLanding, DestroyableShot)
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, PhantoonFlameMotion motion)
+        private protected override void Move(EnemyProjectileMotionContext context, PhantoonLandedFlameMotion motion)
         {
             switch (motion)
             {
-                case PhantoonFlameMotion.CasualLanding:
-                    RunPhantoonCasualFlameLandingPause(context.Projectile, casual, context.FrameCounter);
+                case PhantoonLandedFlameMotion.CasualLanding:
+                    RunPhantoonCasualFlameLandingPause(context.Projectile, casual, context.FrameCounter, this);
                     break;
-                case PhantoonFlameMotion.CasualBouncing:
+                case PhantoonLandedFlameMotion.CasualBouncing:
                     RunPhantoonCasualFlameBouncing(context.Projectile, casual, context.Level);
                     break;
-                case PhantoonFlameMotion.IntroWaiting or PhantoonFlameMotion.IntroOrbiting or PhantoonFlameMotion.CasualFalling or
-                    PhantoonFlameMotion.RageOrbiting or PhantoonFlameMotion.RainFalling or PhantoonFlameMotion.SpiralOrbiting:
-                    throw new InvalidOperationException($"A landed casual flame does not move by {nameof(PhantoonFlameMotion)} {motion}.");
                 default:
-                    throw new InvalidOperationException($"A landed casual flame does not move by {nameof(PhantoonFlameMotion)} {motion}.");
+                    throw new InvalidOperationException($"Undefined {nameof(PhantoonLandedFlameMotion)} {motion}.");
             }
         }
     }
@@ -508,7 +499,6 @@ internal sealed class PhantoonCombat
 
         flame.CanDamageSamus = true;
         flame.BlocksSamusProjectiles = true;
-        flame.StartMotion(PhantoonFlameMotion.CasualLanding);
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualHitGround));
         flame.Position = flame.Position.WithWholeY(flame.Position.Y.Whole + PhantoonArenaDefinitions.FlameLandingDrop);
         return true;
@@ -518,12 +508,13 @@ internal sealed class PhantoonCombat
     internal static void RunPhantoonCasualFlameLandingPause(
         EnemyProjectile flame,
         PhantoonCasualFlameState casual,
-        int frameCounter)
+        int frameCounter,
+        EnemyProjectileMotionBehavior<PhantoonLandedFlameMotion> landed)
     {
         if (!casual.LandingPause.StepRunsOut())
             return;
 
-        flame.StartMotion(PhantoonFlameMotion.CasualBouncing);
+        landed.StartMotion(flame, PhantoonLandedFlameMotion.CasualBouncing);
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.Burning));
         flame.Position = flame.Position.WithWholeY(flame.Position.Y.Whole - PhantoonArenaDefinitions.FlameLandingDrop);
         flame.Velocity = flame.Velocity.WithY(PhantoonArenaDefinitions.CasualRiseSpeed);

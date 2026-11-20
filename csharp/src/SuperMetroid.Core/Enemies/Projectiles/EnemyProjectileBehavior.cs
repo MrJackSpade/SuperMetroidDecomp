@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <para>
 /// A behaviour of this class itself is a kind that never moves itself and whose animations publish only shared cues;
 /// families that move their projectiles derive from <see cref="EnemyProjectileMotionBehavior{TMotion}"/>, which owns their
-/// typed motions (#1843).
+/// typed motions (#1843); each motion reaches only the behaviour that started it (#2554).
 /// </para>
 /// </summary>
 internal class EnemyProjectileBehavior
@@ -55,22 +55,8 @@ internal class EnemyProjectileBehavior
     internal virtual bool IsHidden => false;
 
     /// <summary>
-    /// The motion a projectile of <paramref name="kind"/> starts with when its spawner binds this behaviour to it (#1843),
-    /// or null when it starts holding still. A kind of this class itself never moves itself.
+    /// The motion a projectile starts with when its spawner binds this behaviour to it (#1843), bound with the behaviour
+    /// that runs it, or null when it starts holding still. A kind of this class itself never moves itself.
     /// </summary>
-    /// <param name="kind">What the freshly spawned projectile is.</param>
-    internal virtual Enum? InitialMotion(RoomEnemyProjectileKind kind) => null;
-
-    /// <summary>
-    /// Moves the projectile one projectile pass by its motion, before its animation advances (#1843). A projectile that
-    /// holds still does not move itself: it holds still while its animation plays, or its owner positions it.
-    /// </summary>
-    /// <param name="context">The projectile and what its pass hands every motion.</param>
-    /// <exception cref="InvalidOperationException">The projectile moves by a motion this behaviour does not own.</exception>
-    internal virtual void RunMotion(EnemyProjectileMotionContext context)
-    {
-        if (context.Projectile.Motion is { } motion)
-            throw new InvalidOperationException(
-                $"Enemy projectile {context.Projectile.Kind} in place {context.Projectile.Place} moves by {motion.GetType().Name}.{motion}, which its behaviour does not run.");
-    }
+    internal virtual EnemyProjectileMotion? StartingMotion => null;
 }

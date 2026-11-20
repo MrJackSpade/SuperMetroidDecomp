@@ -12,9 +12,30 @@ internal abstract class EnemyProjectileFrameAnimation<TSegment, TEvent> : EnemyP
     where TSegment : struct
     where TEvent : notnull
 {
-    /// <summary>Starts <paramref name="animation"/> before its first play.</summary>
-    private protected EnemyProjectileFrameAnimation(Animation<TSegment> animation)
-        : base(animation)
+    /// <summary>Starts <paramref name="animation"/> before its first play, its cues carried out by <paramref name="cues"/>.</summary>
+    /// <param name="animation">The animation.</param>
+    /// <param name="cues">The behaviour that owns the animation's cues.</param>
+    private protected EnemyProjectileFrameAnimation(Animation<TSegment> animation, IEnemyProjectileCues<TEvent> cues)
+        : base(animation, cues)
+    {
+    }
+
+    /// <summary>
+    /// Starts <paramref name="animation"/> before its first play, its cues carried out by <paramref name="cues"/>, whose
+    /// reactions may continue the play elsewhere.
+    /// </summary>
+    /// <param name="animation">The animation.</param>
+    /// <param name="cues">The behaviour that owns the animation's cues.</param>
+    private protected EnemyProjectileFrameAnimation(Animation<TSegment> animation, IEnemyProjectileBranchingCues<TSegment, TEvent> cues)
+        : base(animation, cues)
+    {
+    }
+
+    /// <summary>Starts <paramref name="animation"/> before its first play, its cues carried out by <paramref name="runCue"/>.</summary>
+    /// <param name="animation">The animation.</param>
+    /// <param name="runCue">Carries out each of the animation's cues.</param>
+    private protected EnemyProjectileFrameAnimation(Animation<TSegment> animation, CueRunner runCue)
+        : base(animation, runCue)
     {
     }
 

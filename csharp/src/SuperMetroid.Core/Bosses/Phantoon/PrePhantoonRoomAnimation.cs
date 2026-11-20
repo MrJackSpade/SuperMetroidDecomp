@@ -8,7 +8,8 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// setup holds its projectile place; the hold itself is counted by the place (<see cref="PrePhantoonRoomHeldProjectilePlace"/>).
 /// </summary>
 internal sealed class PrePhantoonRoomAnimation()
-    : EnemyProjectileTypedAnimation<PrePhantoonRoomSegment, PrePhantoonRoomFrame, NoAnimationCue>(BlankHeld)
+    : EnemyProjectileTypedAnimation<PrePhantoonRoomSegment, PrePhantoonRoomFrame, NoAnimationCue>(BlankHeld,
+        static (_, _, cue, _) => EnemyProjectileCuelessAnimations.Undefined<PrePhantoonRoomSegment>(cue))
 {
     /// <summary>The blank frame.</summary>
     private static readonly AnimationSegments<PrePhantoonRoomSegment, PrePhantoonRoomFrame, NoAnimationCue> RoomSegments = new(

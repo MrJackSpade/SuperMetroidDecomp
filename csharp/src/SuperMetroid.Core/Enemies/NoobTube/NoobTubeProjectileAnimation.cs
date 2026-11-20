@@ -8,8 +8,9 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 /// A n00b tube piece's typed animation: the crack's or a bubble's, which start at their segments, or a glass shard's, which
 /// its spawn starts by the shard (<see cref="NoobTubeProjectileAnimations.ShardAnimations"/>, #2044).
 /// </summary>
-internal sealed class NoobTubeProjectileAnimation(Animation<NoobTubeProjectileSegment> animation)
-    : EnemyProjectileTypedAnimation<NoobTubeProjectileSegment, NoobTubeProjectileFrame, NoobTubeProjectileCue>(animation)
+/// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
+internal sealed class NoobTubeProjectileAnimation(Animation<NoobTubeProjectileSegment> animation, IEnemyProjectileCues<NoobTubeProjectileCue> cues)
+    : EnemyProjectileTypedAnimation<NoobTubeProjectileSegment, NoobTubeProjectileFrame, NoobTubeProjectileCue>(animation, cues)
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<NoobTubeProjectileSegment, NoobTubeProjectileFrame, NoobTubeProjectileCue> Segments => NoobTubeProjectileAnimations.Segments;

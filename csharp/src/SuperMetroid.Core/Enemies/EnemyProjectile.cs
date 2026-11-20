@@ -84,11 +84,11 @@ public sealed class EnemyProjectile
     /// <summary>The frame the projectile shows: the blank frame from its spawn until its animation shows one, none once it is gone.</summary>
     public EnemyProjectileFrameId? Frame { get; internal set; }
     /// <summary>
-    /// How the projectile moves itself on each pass, before its animation advances (#1843): one of the motions its
-    /// behaviour owns (<see cref="EnemyProjectileMotionBehavior{TMotion}"/>), or null while it holds still. Its behaviour starts
-    /// it at spawn and changes it; a shot that destroys the projectile stops it.
+    /// How the projectile moves itself on each pass, before its animation advances (#1843): one of the motions of the
+    /// behaviour that started it, bound with that behaviour (<see cref="EnemyProjectileMotion"/>), or null while it holds
+    /// still. Its behaviour starts it at spawn and changes it; a shot that destroys the projectile stops it.
     /// </summary>
-    internal Enum? Motion { get; set; }
+    internal EnemyProjectileMotion? Motion { get; private set; }
     /// <summary>
     /// What the projectile's kind does (#1760): it moves the projectile each update, carries out its animations'
     /// cues, names its shot and touch animations and holds what its family keeps on the projectile (#2554). The spawner
@@ -135,24 +135,28 @@ public sealed class EnemyProjectile
 
     /// <summary>
     /// Makes the projectile <paramref name="kind"/> with <paramref name="behavior"/> bound to it for its life (#1760), in
-    /// the motion the behaviour starts that kind with (#1843).
+    /// the motion the behaviour starts with (#1843).
     /// </summary>
     internal void Bind(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior)
     {
         Kind = kind;
         Behavior = Ensure.NotNull(behavior);
-        Motion = behavior.InitialMotion(kind);
+        Motion = behavior.StartingMotion;
     }
 
     /// <summary>
-    /// Hands the projectile, keeping its kind and motion, to <paramref name="behavior"/>: what its family keeps on it becomes
-    /// another of the family's states, as a death explosion that becomes its pickup (#2554).
+    /// Hands the projectile, keeping its kind, to <paramref name="behavior"/>, in the motion that behaviour starts with: what
+    /// its family keeps on it becomes another of the family's states, as a death explosion that becomes its pickup (#2554).
     /// </summary>
-    internal void Rebind(EnemyProjectileBehavior behavior) => Behavior = Ensure.NotNull(behavior);
+    internal void Rebind(EnemyProjectileBehavior behavior)
+    {
+        Behavior = Ensure.NotNull(behavior);
+        Motion = behavior.StartingMotion;
+    }
 
-    /// <summary>Moves the projectile by <paramref name="motion"/>, one of its behaviour's motions, from its next pass.</summary>
-    /// <typeparam name="TMotion">The behaviour's motions.</typeparam>
-    internal void StartMotion<TMotion>(TMotion motion) where TMotion : struct, Enum => Motion = motion;
+    /// <summary>Moves the projectile by <paramref name="motion"/>, bound with the behaviour that runs it, from its next pass.</summary>
+    /// <param name="motion">A motion its behaviour started (<see cref="EnemyProjectileMotionBehavior{TMotion}.StartMotion"/>).</param>
+    internal void StartMotion(EnemyProjectileMotion motion) => Motion = Ensure.NotNull(motion);
 
     /// <summary>Stops the projectile moving itself: it holds still while its animation plays, or its owner positions it.</summary>
     internal void HoldStill() => Motion = null;

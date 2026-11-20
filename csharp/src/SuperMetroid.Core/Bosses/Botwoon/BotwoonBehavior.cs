@@ -738,29 +738,21 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="botwoon">Botwoon, who moves the segment.</param>
     /// <param name="segment">What the segment keeps.</param>
     private sealed class SegmentBehavior(BotwoonBehavior botwoon, BotwoonSegmentState segment)
-        : EnemyProjectileMotionBehavior<BotwoonProjectileMotion>(BotwoonProjectileMotion.BodySegment)
+        : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving)
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, BotwoonProjectileMotion motion)
-        {
-            if (motion != BotwoonProjectileMotion.BodySegment)
-                throw new InvalidOperationException($"Botwoon's body segment does not move by {nameof(BotwoonProjectileMotion)} {motion}.");
+        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
             botwoon.MoveBotwoonBodySegment(segment, context.ShortCounter);
-        }
     }
 
     /// <summary>One of Botwoon's spits (#1760): it flies along its heading until it leaves the camera.</summary>
     /// <param name="flight">What the spit keeps: its heading's flight.</param>
     private sealed class SpitBehavior(AngledFlightState flight)
-        : EnemyProjectileMotionBehavior<BotwoonProjectileMotion>(BotwoonProjectileMotion.SpitFlying)
+        : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving)
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, BotwoonProjectileMotion motion)
-        {
-            if (motion != BotwoonProjectileMotion.SpitFlying)
-                throw new InvalidOperationException($"Botwoon's spit does not move by {nameof(BotwoonProjectileMotion)} {motion}.");
+        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
             FlyBotwoonSpit(context.Projectile, flight, context.Camera);
-        }
     }
 
     /// <summary>Runs Botwoon's main AI.</summary>

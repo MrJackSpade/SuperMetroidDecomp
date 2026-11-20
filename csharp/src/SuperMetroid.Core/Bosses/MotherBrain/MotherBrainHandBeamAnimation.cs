@@ -4,9 +4,10 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A hand beam's typed animation.</summary>
-internal sealed class MotherBrainHandBeamAnimation()
+/// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
+internal sealed class MotherBrainHandBeamAnimation(IEnemyProjectileCues<MotherBrainHandBeamCue> cues)
     : EnemyProjectileFrameAnimation<MotherBrainHandBeamSegment, MotherBrainHandBeamCue>(
-        MotherBrainHandBeamAnimations.StartingAt[MotherBrainHandBeamSegment.Stage])
+        MotherBrainHandBeamAnimations.StartingAt[MotherBrainHandBeamSegment.Stage], cues)
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<MotherBrainHandBeamSegment, EnemyProjectileFrameId, MotherBrainHandBeamCue> Segments =>

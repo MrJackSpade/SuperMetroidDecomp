@@ -5,8 +5,9 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Enemies.EyeDoor;
 
 /// <summary>The eye-door sweat drop's typed animation.</summary>
-internal sealed class EyeDoorSweatAnimation(EyeDoorSweatSegment segment)
-    : EnemyProjectileFrameAnimation<EyeDoorSweatSegment, EyeDoorProjectileCue>(EyeDoorSweatAnimations.StartingWith(segment))
+/// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
+internal sealed class EyeDoorSweatAnimation(EyeDoorSweatSegment segment, IEnemyProjectileCues<EyeDoorProjectileCue> cues)
+    : EnemyProjectileFrameAnimation<EyeDoorSweatSegment, EyeDoorProjectileCue>(EyeDoorSweatAnimations.StartingWith(segment), cues)
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<EyeDoorSweatSegment, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments => EyeDoorSweatAnimations.Segments;

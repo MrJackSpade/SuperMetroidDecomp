@@ -8,13 +8,14 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// drool's (#2411).
 /// </summary>
 /// <param name="animation">The animation the projectile plays from its start.</param>
-internal sealed class TorizoProjectileAnimation(Animation<TorizoProjectileSegment> animation)
-    : EnemyProjectileFrameAnimation<TorizoProjectileSegment, TorizoProjectileCue>(animation)
+/// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
+internal sealed class TorizoProjectileAnimation(Animation<TorizoProjectileSegment> animation, IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoProjectileCue> cues)
+    : EnemyProjectileFrameAnimation<TorizoProjectileSegment, TorizoProjectileCue>(animation, cues)
 {
     /// <summary>A projectile animation starting at <paramref name="segment"/>.</summary>
     /// <param name="segment">The segment the animation starts at.</param>
-    internal TorizoProjectileAnimation(TorizoProjectileSegment segment)
-        : this(TorizoProjectileAnimations.StartingWith(segment))
+    internal TorizoProjectileAnimation(TorizoProjectileSegment segment, IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoProjectileCue> cues)
+        : this(TorizoProjectileAnimations.StartingWith(segment), cues)
     {
     }
 

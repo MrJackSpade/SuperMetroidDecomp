@@ -662,7 +662,6 @@ internal sealed class PhantoonPatterns
         flame.Velocity = flame.Velocity.WithX(SignedEightEight.Zero);
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.MouthOffset);
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualFallingKindling));
-        flame.StartMotion(PhantoonFlameMotion.CasualFalling);
 
         // The falling flame's step changes the spawn definition's harmful, shootable properties to harmless ones.
         // The falling flame therefore cannot hurt Samus and cannot be shot until
@@ -681,11 +680,10 @@ internal sealed class PhantoonPatterns
         EnemyProjectile? flame = AllocateDestroyableFlame(body, new PhantoonFlameKeeps.Orbit(new PhantoonOrbitingFlameState(phantoon, start.Angle)
         {
             TurnPerUpdate = PhantoonFlameSpawns.RageTurnPerUpdate(start),
-        }));
+        }, PhantoonFlameMotion.RageOrbiting));
         if (flame is null)
             return false;
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.MouthOffset);
-        flame.StartMotion(PhantoonFlameMotion.RageOrbiting);
         return true;
     }
 
@@ -695,11 +693,10 @@ internal sealed class PhantoonPatterns
     internal bool SpawnPhantoonSpiralFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
     {
         RoomEnemyPlace body = phantoon.Body;
-        EnemyProjectile? flame = AllocateDestroyableFlame(body, new PhantoonFlameKeeps.Orbit(new PhantoonOrbitingFlameState(phantoon, start)));
+        EnemyProjectile? flame = AllocateDestroyableFlame(body, new PhantoonFlameKeeps.Orbit(new PhantoonOrbitingFlameState(phantoon, start), PhantoonFlameMotion.SpiralOrbiting));
         if (flame is null)
             return false;
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.FlameCircleCentre);
-        flame.StartMotion(PhantoonFlameMotion.SpiralOrbiting);
         return true;
     }
 
@@ -714,7 +711,6 @@ internal sealed class PhantoonPatterns
             return false;
         flame.Position = flame.Position.WithWholeX(columnX);
         flame.Position = flame.Position.WithWholeY(PhantoonArenaDefinitions.RainStartY);
-        flame.StartMotion(PhantoonFlameMotion.RainFalling);
         return true;
     }
 

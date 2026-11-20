@@ -4,8 +4,9 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>A Spore Spawn spore's, emitter's or stalk segment's typed animation.</summary>
-internal sealed class SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment segment)
-    : EnemyProjectileFrameAnimation<SporeSpawnProjectileSegment, SporeSpawnProjectileCue>(SporeSpawnProjectileAnimations.StartingWith(segment))
+/// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
+internal sealed class SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment segment, IEnemyProjectileCues<SporeSpawnProjectileCue> cues)
+    : EnemyProjectileFrameAnimation<SporeSpawnProjectileSegment, SporeSpawnProjectileCue>(SporeSpawnProjectileAnimations.StartingWith(segment), cues)
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<SporeSpawnProjectileSegment, EnemyProjectileFrameId, SporeSpawnProjectileCue> Segments => SporeSpawnProjectileAnimations.Segments;

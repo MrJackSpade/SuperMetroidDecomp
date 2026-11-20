@@ -7,8 +7,9 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
 /// <summary>The old Tourian escape-shaft fake-wall explosion's typed animation.</summary>
-internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSegment segment)
-    : EnemyProjectileTypedAnimation<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue>(AllAnimations[segment])
+/// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
+internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSegment segment, IEnemyProjectileCues<OldTourianWallExplosionCue> cues)
+    : EnemyProjectileTypedAnimation<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue>(AllAnimations[segment], cues)
 {
     /// <summary>
     /// The segments' beats: the setup that stops the movement, the burst that scatters, plays its sound and shows the six

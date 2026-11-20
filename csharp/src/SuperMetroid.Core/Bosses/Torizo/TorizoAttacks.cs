@@ -216,10 +216,10 @@ internal sealed class TorizoAttacks
             bool collided = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
             if (projectile.Velocity.Y.IsNegative || !collided)
             {
-                EnemyProjectile? firstPlace = projectiles.LatestInPlace(0);
+                EnemyProjectile? firstPlace = projectiles.OccupantOf(0);
                 SignedEightEight acceleration = FirstPlaceFallAcceleration.Of(
-                    firstPlace is { IsActive: true },
-                    firstPlace is { IsActive: true, Behavior: FragmentBehavior piece } ? piece.Acceleration : null);
+                    firstPlace is not null,
+                    firstPlace is { Behavior: FragmentBehavior piece } ? piece.Acceleration : null);
                 // A piece's speed stops at the runaway speed, so the acceleration never carries it out of range.
                 projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + acceleration);
                 if (IsRunaway(projectile.Velocity.Y))

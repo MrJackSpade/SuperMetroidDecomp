@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
 /// <summary>Fune/Namihe fireball's typed animation.</summary>
 internal sealed class FuneNamiheFireballAnimation(FuneNamiheFireballSegment segment)
-    : EnemyProjectileFrameAnimation<FuneNamiheFireballSegment, EnemyProjectileCommonCue>(FuneNamiheFireballAnimations.StartingWith(segment))
+    : EnemyProjectileCommonFrameAnimation<FuneNamiheFireballSegment>(FuneNamiheFireballAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<FuneNamiheFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FuneNamiheFireballAnimations.Segments;

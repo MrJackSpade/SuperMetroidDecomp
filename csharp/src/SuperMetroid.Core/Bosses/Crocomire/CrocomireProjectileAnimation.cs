@@ -5,8 +5,9 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>A Crocomire projectile's typed animation: its mouth projectile, bridge fragment, spike-wall piece or shot.</summary>
 /// <param name="segment">The animation to play.</param>
-internal sealed class CrocomireProjectileAnimation(CrocomireProjectileSegment segment)
-    : EnemyProjectileFrameAnimation<CrocomireProjectileSegment, CrocomireProjectileCue>(CrocomireAnimations.ProjectileStartingWith(segment))
+/// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
+internal sealed class CrocomireProjectileAnimation(CrocomireProjectileSegment segment, IEnemyProjectileCues<CrocomireProjectileCue> cues)
+    : EnemyProjectileFrameAnimation<CrocomireProjectileSegment, CrocomireProjectileCue>(CrocomireAnimations.ProjectileStartingWith(segment), cues)
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<CrocomireProjectileSegment, EnemyProjectileFrameId, CrocomireProjectileCue> Segments =>

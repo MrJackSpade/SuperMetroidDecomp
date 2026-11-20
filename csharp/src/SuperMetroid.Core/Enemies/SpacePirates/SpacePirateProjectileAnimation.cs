@@ -4,8 +4,9 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>A Pirate/Mother Brain laser's or Ninja Pirate claw's typed animation.</summary>
-internal sealed class SpacePirateProjectileAnimation(SpacePirateProjectileSegment segment)
-    : EnemyProjectileFrameAnimation<SpacePirateProjectileSegment, SpacePirateProjectileCue>(SpacePirateProjectileAnimations.StartingWith(segment))
+/// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
+internal sealed class SpacePirateProjectileAnimation(SpacePirateProjectileSegment segment, IEnemyProjectileCues<SpacePirateProjectileCue> cues)
+    : EnemyProjectileFrameAnimation<SpacePirateProjectileSegment, SpacePirateProjectileCue>(SpacePirateProjectileAnimations.StartingWith(segment), cues)
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<SpacePirateProjectileSegment, EnemyProjectileFrameId, SpacePirateProjectileCue> Segments => SpacePirateProjectileAnimations.Segments;

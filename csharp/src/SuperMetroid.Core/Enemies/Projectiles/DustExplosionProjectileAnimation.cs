@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Misc dust's typed animation.</summary>
 internal sealed class DustExplosionProjectileAnimation(DustExplosionAnimation animation)
-    : EnemyProjectileFrameAnimation<DustExplosionAnimation, EnemyProjectileCommonCue>(DustExplosionProjectileAnimations.StartingWith(animation))
+    : EnemyProjectileCommonFrameAnimation<DustExplosionAnimation>(DustExplosionProjectileAnimations.StartingWith(animation))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<DustExplosionAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => DustExplosionProjectileAnimations.Segments;

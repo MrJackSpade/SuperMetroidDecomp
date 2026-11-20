@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -74,8 +73,8 @@ internal static class EnemyProjectileMotionWords
         [0x8e0f] = DraygonShotMotion.GoopFlying,
         [0xdcee] = SingleMotion.Moving,
         [0xdd46] = SporeSpawnSpawnerMotion.Releasing,
-        [0xea80] = BotwoonProjectileMotion.BodySegment,
-        [0xec05] = BotwoonProjectileMotion.SpitFlying,
+        [0xea80] = SingleMotion.Moving,
+        [0xec05] = SingleMotion.Moving,
         [0xacad] = TorizoProjectileMotion.BombOrbFalling,
         [0xacfa] = TorizoProjectileMotion.GoldenOrbBouncing,
         [0xae6c] = TorizoProjectileMotion.SonicBoomFlying,
@@ -108,11 +107,11 @@ internal static class EnemyProjectileMotionWords
         [0x9da5] = null,
         [0x9b29] = PhantoonFlameMotion.IntroWaiting,
         [0x9b41] = PhantoonFlameMotion.IntroOrbiting,
-        [0x9981] = PhantoonFlameMotion.CasualFalling,
-        [0x99bf] = PhantoonFlameMotion.CasualLanding,
-        [0x9a01] = PhantoonFlameMotion.CasualBouncing,
+        [0x9981] = SingleMotion.Moving,
+        [0x99bf] = PhantoonLandedFlameMotion.CasualLanding,
+        [0x9a01] = PhantoonLandedFlameMotion.CasualBouncing,
         [0x9a45] = PhantoonFlameMotion.RageOrbiting,
-        [0x9a94] = PhantoonFlameMotion.RainFalling,
+        [0x9a94] = SingleMotion.Moving,
         [0x9ada] = PhantoonFlameMotion.SpiralOrbiting,
         [0x92ba] = CrocomireProjectileMotion.BridgeFragmentFalling,
         [0x9eff] = SingleMotion.Moving,

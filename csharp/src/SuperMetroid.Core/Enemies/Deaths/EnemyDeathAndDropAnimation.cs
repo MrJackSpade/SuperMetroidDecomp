@@ -7,12 +7,13 @@ namespace SuperMetroid.Core.Enemies.Deaths;
 /// Enemy death and drop's typed animation: a drop's or the respawn pause's, which start at their segments, or a death
 /// explosion's, started by the explosion (<see cref="EnemyDeathAndDropAnimations.Explosions"/>, #2061).
 /// </summary>
-internal sealed class EnemyDeathAndDropAnimation(Animation<EnemyDeathAndDropSegment> animation)
-    : EnemyProjectileFrameAnimation<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>(animation)
+/// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
+internal sealed class EnemyDeathAndDropAnimation(Animation<EnemyDeathAndDropSegment> animation, IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> cues)
+    : EnemyProjectileFrameAnimation<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>(animation, cues)
 {
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal EnemyDeathAndDropAnimation(EnemyDeathAndDropSegment segment)
-        : this(EnemyDeathAndDropAnimations.StartingWith(segment))
+    internal EnemyDeathAndDropAnimation(EnemyDeathAndDropSegment segment, IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> cues)
+        : this(EnemyDeathAndDropAnimations.StartingWith(segment), cues)
     {
     }
 

@@ -4,8 +4,9 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain effect's typed animation.</summary>
-internal sealed class MotherBrainEffectAnimation(MotherBrainEffectSegment segment)
-    : EnemyProjectileFrameAnimation<MotherBrainEffectSegment, MotherBrainEffectCue>(MotherBrainEffectAnimations.StartingWith(segment))
+/// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
+internal sealed class MotherBrainEffectAnimation(MotherBrainEffectSegment segment, IEnemyProjectileCues<MotherBrainEffectCue> cues)
+    : EnemyProjectileFrameAnimation<MotherBrainEffectSegment, MotherBrainEffectCue>(MotherBrainEffectAnimations.StartingWith(segment), cues)
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<MotherBrainEffectSegment, EnemyProjectileFrameId, MotherBrainEffectCue> Segments => MotherBrainEffectAnimations.Segments;

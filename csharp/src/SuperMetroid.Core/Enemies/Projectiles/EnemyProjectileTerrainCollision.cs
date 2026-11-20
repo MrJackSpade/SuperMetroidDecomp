@@ -21,22 +21,20 @@ internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockColl
     }
 
     /// <inheritdoc/>
-    protected override bool BlockStops(
+    protected override EnemyProjectileBlockReaction BlockReaction(
         RoomLevelData level,
         EnemyProjectileScannedMove move,
         Position16<RoomBlocks> block,
-        bool firstOfScan,
-        out int? alignedPosition)
+        bool firstOfScan)
     {
-        alignedPosition = null;
         if (!level.Size.Contains(block))
-            return true;
+            return EnemyProjectileBlockReaction.StopsAtFace;
 
         // Resolve horizontal- and vertical-extension links before reacting to the final block kind, just as
         // the projectile collision loop does. Air is open, while a door
         // remains a wall to an enemy projectile.
         if (EnemyTerrain.ResolveEnemyCollisionBlock(level, block) is not { } collisionBlock)
-            return true;
+            return EnemyProjectileBlockReaction.StopsAtFace;
 
         EnemyProjectile projectile = move.Projectile;
         Axis axis = move.Scan.Edge;
@@ -65,12 +63,11 @@ internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockColl
                 // The square-slope reaction places the projectile at an eight-pixel
                 // boundary before the collision's full-block clamp.
                 int radius = (axis == Axis.Horizontal) ? projectile.Radius.X : projectile.Radius.Y;
-                alignedPosition = move.MovingNegative
+                return new EnemyProjectileBlockReaction.StopsAligned(move.MovingNegative
                     ? TerrainScanEdges.Edge(RoomGridConversions.HalfBlockEnd(targetEdge) + radius + 1)
-                    : TerrainScanEdges.Edge(RoomGridConversions.HalfBlockStart(targetEdge) - radius);
-                return true;
+                    : TerrainScanEdges.Edge(RoomGridConversions.HalfBlockStart(targetEdge) - radius));
             }
-            return false;
+            return EnemyProjectileBlockReaction.Passes;
         }
 
         if (type == RoomCollisionType.Slope && collisionBlock.Behavior.Slope.IsNonSquare)
@@ -79,18 +76,18 @@ internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockColl
             // vertical pass owns their height profile. Treating one as a full wall can
             // consume every Kago falling frame before Y collision is ever attempted.
             if (axis == Axis.Horizontal)
-                return false;
+                return EnemyProjectileBlockReaction.Passes;
 
             // Vertical projectile collision uses the same 16-sample slope
             // profiles as Samus's. Only the column containing the projectile center owns
             // non-square geometry; neighboring columns touched by its radius do not turn
             // the slope into a full-height wall.
             if (block.X != RoomGridConversions.PixelToBlock(projectile.Position.X.Whole))
-                return false;
+                return EnemyProjectileBlockReaction.Passes;
 
             bool movingUp = move.MovingNegative;
             if (movingUp != collisionBlock.Behavior.Slope.FlipsVertically)
-                return false;
+                return EnemyProjectileBlockReaction.Passes;
 
             int height = EnemyTerrain.ReadNonSquareSlopeHeight(
                 collisionBlock.Behavior,
@@ -100,21 +97,20 @@ internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockColl
             if (movingUp)
             {
                 if (adjustment > 0)
-                    return false;
+                    return EnemyProjectileBlockReaction.Passes;
             }
             else if (height - edgeWithinBlock != 1 && adjustment >= 0)
             {
-                return false;
+                return EnemyProjectileBlockReaction.Passes;
             }
 
             int blockTop = block.ToRoomPixels().Y;
-            alignedPosition = movingUp
+            return new EnemyProjectileBlockReaction.StopsAligned(movingUp
                 ? TerrainScanEdges.Edge(RoomGridConversions.BlockEnd(blockTop) + 1 - height + projectile.Radius.Y)
-                : TerrainScanEdges.Edge(blockTop + height - projectile.Radius.Y);
-            return true;
+                : TerrainScanEdges.Edge(blockTop + height - projectile.Radius.Y));
         }
 
-        return IsWall(type);
+        return IsWall(type) ? EnemyProjectileBlockReaction.StopsAtFace : EnemyProjectileBlockReaction.Passes;
     }
 
     /// <summary>

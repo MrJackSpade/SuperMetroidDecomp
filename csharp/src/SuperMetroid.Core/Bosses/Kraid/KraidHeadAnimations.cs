@@ -147,22 +147,28 @@ internal static class KraidHeadAnimations
         AnimationPlayback<KraidHeadSegment> started = playback ?? throw new InvalidDataException(
             "Kraid's head animation has not started, so its mouth and growth reads have no pose to look at.");
         KraidHeadPlace place = PlaceOf(started);
-        KraidHeadFrame?[] steps = [.. started.Animation.Phases
+        KraidHeadFrame?[] shown = [.. started.Animation.Phases
             .SelectMany(phase => Segments.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))
             .Select(beat => beat.ShownFrame)];
-        if (place.Step < 0 || place.Step > steps.Length)
+        if (place.Step < 0 || place.Step > shown.Length)
             throw new InvalidOperationException($"Kraid head place {place} is outside its animation.");
+        // A step that shows no frame is the roar's or the dying cry's.
+        KraidMouthTrailsHead.HeadStep<KraidHeadFrame>[] steps = [.. shown.Select(frame => frame is { } pose
+            ? new KraidMouthTrailsHead.HeadStep<KraidHeadFrame>.Posed(pose)
+            : KraidMouthTrailsHead.HeadStep<KraidHeadFrame>.Cry)];
         KraidMouthTrailsHead.MouthShapes<KraidHeadFrame> shapes =
             KraidMouthTrailsHead.ShapesAt(steps, place.Step, PoseBeforeStart[place.Animation]);
-        return new(Read(shapes.Outer), Read(shapes.Inner), GrowthResumeBefore(place.Step < steps.Length ? steps[place.Step] : null));
+        return new(Read(shapes.Outer), Read(shapes.Inner), GrowthResumeBefore(place.Step < shown.Length ? shown[place.Step] : null));
     }
 
     /// <summary>What a mouth test finds: the shape it takes, the closed mouth's missing inner shape, or no pose.</summary>
-    private static KraidMouthShapeRead Read(KraidMouthTrailsHead.MouthShape<KraidHeadFrame> shape) => shape.Pose switch
+    private static KraidMouthShapeRead Read(KraidMouthTrailsHead.MouthShape<KraidHeadFrame> shape) => shape switch
     {
-        null => KraidMouthShapeRead.NoPose,
-        { } pose when shape.Shape == KraidMouthTrailsHead.PoseShape.Inner => KraidMouthShapeRead.InvulnerableOf(pose),
-        { } pose => KraidMouthShapeRead.VulnerableOf(pose),
+        KraidMouthTrailsHead.MouthShape<KraidHeadFrame>.OfPose { Shape: KraidMouthTrailsHead.PoseShape.Inner, Pose: var pose } =>
+            KraidMouthShapeRead.InvulnerableOf(pose),
+        KraidMouthTrailsHead.MouthShape<KraidHeadFrame>.OfPose { Pose: var pose } => KraidMouthShapeRead.VulnerableOf(pose),
+        _ when shape == KraidMouthTrailsHead.MouthShape<KraidHeadFrame>.NoPose => KraidMouthShapeRead.NoPose,
+        _ => throw new InvalidOperationException($"Undefined mouth shape {shape}."),
     };
 
     /// <summary>

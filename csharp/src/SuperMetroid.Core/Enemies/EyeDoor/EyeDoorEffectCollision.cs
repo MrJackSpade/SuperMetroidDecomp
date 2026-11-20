@@ -20,23 +20,21 @@ internal sealed class EyeDoorEffectCollision : EnemyProjectileBlockCollision
 
     /// <inheritdoc/>
     /// <exception cref="InvalidDataException">A later block of the scan lies past the room's last block.</exception>
-    protected override bool BlockStops(
+    protected override EnemyProjectileBlockReaction BlockReaction(
         RoomLevelData level,
         EnemyProjectileScannedMove move,
         Position16<RoomBlocks> block,
-        bool firstOfScan,
-        out int? alignedPosition)
+        bool firstOfScan)
     {
-        alignedPosition = null;
 
         // A first block outside the room is a wall, so every later block steps on from a block of the grid; one that runs
         // on past the room's last block reads terrain the room does not hold.
         if (!firstOfScan && !level.Size.Contains(block))
             throw new InvalidDataException("Enemy projectile block scan ran past the end of the room's level data.");
         if (EnemyTerrain.ResolveEnemyCollisionBlock(level, block) is not { } resolved)
-            return true;
+            return EnemyProjectileBlockReaction.StopsAtFace;
 
-        return resolved.CollisionType is not (
+        return resolved.CollisionType is (
             RoomCollisionType.Air or
             RoomCollisionType.SpikeAir or
             RoomCollisionType.SpecialAir or
@@ -45,6 +43,8 @@ internal sealed class EyeDoorEffectCollision : EnemyProjectileBlockCollision
             RoomCollisionType.BombableAir or
             RoomCollisionType.HorizontalExtension or
             RoomCollisionType.VerticalExtension or
-            RoomCollisionType.GrappleBlock);
+            RoomCollisionType.GrappleBlock)
+            ? EnemyProjectileBlockReaction.Passes
+            : EnemyProjectileBlockReaction.StopsAtFace;
     }
 }

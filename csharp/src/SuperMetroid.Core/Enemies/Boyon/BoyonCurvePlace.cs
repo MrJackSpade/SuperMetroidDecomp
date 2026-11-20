@@ -9,17 +9,21 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 /// </summary>
 public readonly record struct BoyonCurvePlace : IComparable<BoyonCurvePlace>
 {
-    /// <summary>The entry from the top, or one before the top entry for the place past the top.</summary>
+    /// <summary>The entry from the top; none past the top.</summary>
     private readonly int entry;
 
-    /// <summary>Keeps the place's entry.</summary>
-    internal BoyonCurvePlace(int entry) => this.entry = entry;
+    /// <summary>Keeps the place's entry, zero or more.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="entry"/> is negative.</exception>
+    internal BoyonCurvePlace(int entry) => this.entry = Ensure.AtLeastZero(entry);
+
+    /// <summary>The place past the top a rise leaves.</summary>
+    private BoyonCurvePlace(bool pastTheTop) => IsPastTheTop = pastTheTop;
 
     /// <summary>The top entry of the curve, where a Boyon moves slowest: the place a Boyon starts from.</summary>
     public static BoyonCurvePlace Top => default;
 
     /// <summary>Whether this is the place past the top a rise leaves.</summary>
-    public bool IsPastTheTop => entry < 0;
+    public bool IsPastTheTop { get; }
 
     /// <summary>The entry from the top whose sample the Boyon's multiplier scales here.</summary>
     /// <exception cref="InvalidOperationException">The place is past the top, where no entry is read.</exception>
@@ -29,16 +33,18 @@ public readonly record struct BoyonCurvePlace : IComparable<BoyonCurvePlace>
         : entry;
 
     /// <summary>The place one entry further down the curve, as a fall moves: from past the top, the top entry.</summary>
-    public BoyonCurvePlace Lower => new(checked(entry + 1));
+    public BoyonCurvePlace Lower => IsPastTheTop ? Top : new(checked(entry + 1));
 
     /// <summary>The place one entry further up the curve, as a rise moves: from the top entry, past the top.</summary>
     /// <exception cref="InvalidOperationException">The place is already past the top.</exception>
     public BoyonCurvePlace Higher => IsPastTheTop
         ? throw new InvalidOperationException("A Boyon past the top of its arc rises no further.")
-        : new(entry - 1);
+        : entry == 0 ? new BoyonCurvePlace(pastTheTop: true) : new(entry - 1);
 
     /// <summary>Orders places from the top down: past the top first, then each entry by its distance from the top.</summary>
-    public int CompareTo(BoyonCurvePlace other) => entry.CompareTo(other.entry);
+    public int CompareTo(BoyonCurvePlace other) => IsPastTheTop || other.IsPastTheTop
+        ? other.IsPastTheTop.CompareTo(IsPastTheTop)
+        : entry.CompareTo(other.entry);
 
     /// <summary>Whether <paramref name="left"/> lies above <paramref name="right"/> on the curve.</summary>
     public static bool operator <(BoyonCurvePlace left, BoyonCurvePlace right) => left.CompareTo(right) < 0;

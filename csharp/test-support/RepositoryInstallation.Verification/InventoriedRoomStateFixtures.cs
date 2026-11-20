@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;

@@ -2,11 +2,9 @@ using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Hardware;
 /// <summary>Uses cartridge spritemaps as a diagnostic oracle for installed enemy artwork.</summary>

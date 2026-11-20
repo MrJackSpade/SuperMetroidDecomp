@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
 

@@ -294,7 +294,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             // All excluded accepted upload NMIs in this movie occur while the door
             // IRQ repeatedly clears this byte. Its post-door phase therefore compares
             // directly, unlike the independently retained word counter above.
-            VerificationAssertions.AssertEqual((int)memory[NativeSnapshotMemory.NmiCounterByte], (int)runtime.Clock.ShortCounter,
+            VerificationAssertions.AssertEqual(memory[NativeSnapshotMemory.NmiCounterByte], (int)runtime.Clock.ShortCounter,
                 $"update {frame}: byte NMI counter including native door IRQ reset");
             Check("Game state", GameStateNumberCodec.Encode(game), NativeSnapshotMemory.GameState);
             Check("Enemy door gate", runtime.DoorTransition.Passage.IsUnderWay ? (ushort)1 : (ushort)0, NativeSnapshotMemory.EnemyDoorTransition);

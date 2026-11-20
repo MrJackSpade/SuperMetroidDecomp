@@ -134,8 +134,8 @@ public sealed class SpriteImage
         return KeyAt(decoded.Source, pixel);
     }
 
-    /// <summary>The place of <paramref name="key"/> among <see cref="ColourKeys"/>, or null where the image holds no pixel of it.</summary>
-    public int? PlaceOf(ColourKey key) => content.Value.Places.TryGetValue(key, out int place) ? place : null;
+    /// <summary>Whether the image holds a pixel of <paramref name="key"/>, and its <paramref name="place"/> among <see cref="ColourKeys"/>.</summary>
+    public bool TryPlaceOf(ColourKey key, out int place) => content.Value.Places.TryGetValue(key, out place);
 
     /// <summary>
     /// The colour the image's scene shows where nothing is drawn, as the key its shades recolour it by, for a room tileset's

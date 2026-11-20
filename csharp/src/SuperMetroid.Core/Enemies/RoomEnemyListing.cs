@@ -15,9 +15,15 @@ internal static class RoomEnemyListing
     /// <param name="part">The part looking for its partner.</param>
     /// <param name="distance">How many places after it the partner is listed, one or more.</param>
     /// <exception cref="InvalidDataException">No place is listed that far after <paramref name="part"/>.</exception>
-    internal static RoomEnemyPlace ListedAfter(this EnemyPlaces enemies, RoomEnemyPlace part, int distance) =>
-        enemies.ListedAfterOrNone(part, distance) ?? throw new InvalidDataException(
+    internal static RoomEnemyPlace ListedAfter(this EnemyPlaces enemies, RoomEnemyPlace part, int distance)
+    {
+        Ensure.NotNull(enemies);
+        Ensure.NotNull(part);
+        _ = Ensure.BetweenInclusive(1, EnemyPlaceOrder.Capacity - 1, distance);
+        int place = part.Ordinal + distance;
+        return place < EnemyPlaceOrder.Capacity ? enemies.InUpdateOrder[place] : throw new InvalidDataException(
             $"Enemy {part.Ordinal} ({part.DefinitionId}) has no place listed {distance} after it for its partner.");
+    }
 
     /// <summary>
     /// The place the population lists <paramref name="distance"/> places after <paramref name="part"/>, or null when
@@ -54,9 +60,15 @@ internal static class RoomEnemyListing
     /// <param name="part">The part looking for its partner.</param>
     /// <param name="distance">How many places before it the partner is listed, one or more.</param>
     /// <exception cref="InvalidDataException">No place is listed that far before <paramref name="part"/>.</exception>
-    internal static RoomEnemyPlace ListedBefore(this EnemyPlaces enemies, RoomEnemyPlace part, int distance) =>
-        enemies.ListedBeforeOrNone(part, distance) ?? throw new InvalidDataException(
+    internal static RoomEnemyPlace ListedBefore(this EnemyPlaces enemies, RoomEnemyPlace part, int distance)
+    {
+        Ensure.NotNull(enemies);
+        Ensure.NotNull(part);
+        _ = Ensure.BetweenInclusive(1, EnemyPlaceOrder.Capacity - 1, distance);
+        int place = part.Ordinal - distance;
+        return place >= 0 ? enemies.InUpdateOrder[place] : throw new InvalidDataException(
             $"Enemy {part.Ordinal} ({part.DefinitionId}) has no place listed {distance} before it for its partner.");
+    }
 
     /// <summary>
     /// The place the population lists <paramref name="distance"/> places before <paramref name="part"/>, or null when

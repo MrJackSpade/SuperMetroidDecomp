@@ -217,7 +217,8 @@ internal static class TitleColourFadesVerification
             RgbColor[] shown = drawn.With(ColourEffectShades.Of(records.Colours, new ColourEffectFrame(records.Animation, record))).KeyColours(picture);
             foreach (ColourKey key in keys)
             {
-                int place = picture.PlaceOf(key) ?? throw new InvalidOperationException($"{picture} holds no place for its own key {key}.");
+                if (!picture.TryPlaceOf(key, out int place))
+                    throw new InvalidOperationException($"{picture} holds no place for its own key {key}.");
                 int column = Array.IndexOf(lastRecord, finalColours[place]);
                 if (column < 0)
                 {

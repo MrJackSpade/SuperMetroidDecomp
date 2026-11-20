@@ -148,7 +148,8 @@ public sealed record PictureShading
     public RgbColor Shown(SpriteImage picture, ColourKey key)
     {
         Ensure.NotNull(picture);
-        int place = picture.PlaceOf(key) ?? throw new ArgumentException($"Picture {picture.Name} holds no colour key {key}.", nameof(key));
+        if (!picture.TryPlaceOf(key, out int place))
+            throw new ArgumentException($"Picture {picture.Name} holds no colour key {key}.", nameof(key));
         return KeyColours(picture)[place];
     }
 
@@ -157,7 +158,7 @@ public sealed record PictureShading
     {
         foreach (KeyedSubstitution substitution in recolouring.Substitutions)
         {
-            if (picture.PlaceOf(substitution.Replaced) is { } place)
+            if (picture.TryPlaceOf(substitution.Replaced, out int place))
                 shown[place] = substitution.Shown;
         }
     }

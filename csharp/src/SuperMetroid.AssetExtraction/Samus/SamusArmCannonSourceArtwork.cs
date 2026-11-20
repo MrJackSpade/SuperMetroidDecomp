@@ -115,7 +115,7 @@ public sealed class SamusArmCannonSourceArtwork
     /// <exception cref="InvalidDataException">The offset lies outside the extracted drawing window.</exception>
     private byte ReadDrawingByte(int offset) => Descriptors.ReadDrawingByte(offset);
 
-    /// <summary>Gets the installed cover's character, palette, priority, and mirroring for native direction 0–9.</summary>
+    /// <summary>Gets the installed cover's character, palette, depth, and mirroring for native direction 0–9.</summary>
     public SpritePart CoverAppearance(int direction) => (uint)direction < (uint)attributes.Length
         ? attributes[direction]
         : throw new ArgumentOutOfRangeException(nameof(direction));

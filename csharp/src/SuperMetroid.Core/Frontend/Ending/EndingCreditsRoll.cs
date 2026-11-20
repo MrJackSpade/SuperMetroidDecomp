@@ -112,7 +112,7 @@ internal sealed class EndingCreditsRoll
         return WhiteWash.FullWhite(EndingCadenceDefinitions.PostCreditsFlashUpdatesPerStep, EndingCadenceDefinitions.PostCreditsFlashFirstStepUpdate);
     }
 
-    /// <summary>Clears the landed Samus and installs the final logo actor.</summary>
+    /// <summary>Clears the landed Samus and adds the final logo actor.</summary>
     /// <returns>The logo's actor.</returns>
     internal EndingLogo FinishPostCreditsWhiteFlash()
     {

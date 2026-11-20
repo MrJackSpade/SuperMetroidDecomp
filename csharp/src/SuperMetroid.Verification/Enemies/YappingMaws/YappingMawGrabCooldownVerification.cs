@@ -35,7 +35,7 @@ internal static class YappingMawGrabCooldownVerification
         SamusState samus = NewSamus();
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
 
         samus.Position = samus.Position.WithWhole(OutOfReach);
         CountRounds(enemies, place, state, frame, startedAt: 0, "a newly placed Maw");

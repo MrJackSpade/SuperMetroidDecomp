@@ -67,7 +67,7 @@ public sealed class PhantoonPhase
     /// <summary>Materializes the next figure-eight appearance.</summary>
     public static PhantoonPhase FadeInBeforeFigureEight { get; } = new(nameof(FadeInBeforeFigureEight), turn => turn.Phantoon.Patterns.RunPhantoonFadeInBeforeFigureEight(turn.State.Body, turn.State));
 
-    /// <summary>The flame-rain show entry, installing the next visible/vulnerable-window setup.</summary>
+    /// <summary>The flame rain's show: he turns solid and his eye opens as the rain falls.</summary>
     public static PhantoonPhase BecomeSolidAfterFlameRain { get; } = new(nameof(BecomeSolidAfterFlameRain), turn => PhantoonPatterns.BeginPhantoonFlameRainVulnerableWindow(turn.State));
 
     /// <summary>Advances the flame-rain materialization before entering its vulnerability window.</summary>

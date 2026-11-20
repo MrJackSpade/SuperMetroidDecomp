@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using System.Buffers.Binary;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Progression;
@@ -77,7 +78,7 @@ internal static class RoomLevelStreamDecoder
         return new InstalledRoomLevel(
             new Extent16<RoomBlocks>(checked((ushort)widthInBlocks), checked((ushort)(blockCount / widthInBlocks))),
             foreground.MoveToImmutable(), behaviors.MoveToImmutable(), background.MoveToImmutable(),
-            following.ToImmutable(), space.Length - blockCount);
+            new LevelDataPastGrid<RoomTerrainBlock>(following.ToImmutable(), space.Length - blockCount));
     }
 
     /// <summary>

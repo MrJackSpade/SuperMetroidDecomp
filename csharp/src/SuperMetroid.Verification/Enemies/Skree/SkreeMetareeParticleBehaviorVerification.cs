@@ -49,7 +49,7 @@ internal static class SkreeMetareeParticleBehaviorVerification
                 ushort? heldOperand = null;
                 for (int update = 0; update < 40; update++)
                 {
-                    enemies.Projectiles.AdvanceEnemyProjectileAnimations(particle, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: 0);
+                    enemies.Projectiles.AdvanceEnemyProjectileAnimations(particle, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
                     native.Step(cartridge);
                     string at = $"{particle.Kind} update {update}";
                     AssertTrue(!native.Deleted && particle.IsActive, $"{at}: the particle lives");

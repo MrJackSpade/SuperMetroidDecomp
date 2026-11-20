@@ -41,7 +41,7 @@ internal static class BossDisplayBindingsDocumentsVerification
                 Oam.Frames[frame.Name] = EnemyExtendedFrameBounds.IsBg2Only(frame) ? [] :
                 [ new() { OffsetX = 0, OffsetY = 0,
                     Parts = [new() { OffsetX = 2, OffsetY = 3, Size = index % 2 == 0 ? 16 : 8,
-                        TileColumn = index % 16, TileRow = index / 16, Palette = 1, Priority = 2,
+                        TileColumn = index % 16, TileRow = index / 16, Palette = 1, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindFrontParts,
                         FlipX = false, FlipY = false }] } ];
             }
             Crocomire = Bg2(CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version);

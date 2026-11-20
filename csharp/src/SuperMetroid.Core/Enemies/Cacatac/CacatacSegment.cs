@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// Cacatac's upright and inverted idle and spike-attack animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// Cacatac's upright and inverted idle and spike-attack animations (#641).
 /// Their steps are <see cref="CacatacAnimations"/>.
 /// </summary>
 internal enum CacatacSegment

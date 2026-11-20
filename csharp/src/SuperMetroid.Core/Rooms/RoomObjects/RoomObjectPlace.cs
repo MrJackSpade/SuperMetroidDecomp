@@ -86,7 +86,6 @@ internal sealed class RoomObjectPlace
 
     /// <summary>
     /// Readies this place, which <see cref="RoomObjectPlaceList.Spawn"/> has just taken, for a new room object's setup.
-    /// Only the spawn calls it, which analyzer SME6303 enforces.
     /// </summary>
     /// <exception cref="InvalidOperationException">The place was not taken.</exception>
     internal void Claim()

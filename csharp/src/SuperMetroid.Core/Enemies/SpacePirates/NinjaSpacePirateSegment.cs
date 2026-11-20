@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The ninja Space Pirates' stance, kick, claw, spin-jump and divekick animations (#641): one segment per animation a spawn,
-/// branch or wake enters, and the loop each plays on into (#2276), in authored order.
+/// The ninja Space Pirates' stance, kick, claw, spin-jump and divekick animations (#641), and the loop each plays on
+/// into (#2276).
 /// Their steps are <see cref="NinjaSpacePirateAnimations"/>.
 /// </summary>
 internal enum NinjaSpacePirateSegment

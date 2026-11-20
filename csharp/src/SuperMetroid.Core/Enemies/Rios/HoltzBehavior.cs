@@ -62,7 +62,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs the Holtz's main AI and each action it runs.
-    /// The shared RNG advances before every parent and follower acts, exactly as the game does.
+    /// The shared random number advances before every parent and follower acts.
     /// </summary>
     private void RunHoltzMain(
         RoomEnemyPlace place,

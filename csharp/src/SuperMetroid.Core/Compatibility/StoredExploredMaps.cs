@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Evidence: the camera's scroll steps (<c>$80:A802</c>, <c>$80:A823</c>, <c>$80:A903</c>) index the scroll cells at
 /// <c>$7E:CD20</c> with a row times the room width plus a column, and the eight stored maps (<c>$7E:CD52..D551</c>)
 /// follow the fifty cells; the maps are written only by the store and load routines (<c>$80:858C</c>, <c>$80:85C6</c>,
-/// the door transition's <c>$82:DF99</c>/<c>$82:DFB6</c> for doors whose elevator properties carry <c>$40</c>), the
+/// the door transition's <c>$82:DF99</c>/<c>$82:DFB6</c> for doors that exchange maps), the
 /// save (<c>$81:8000</c>), the file load (<c>$81:82E4</c>), the new or cleared file (<c>$81:B3B9</c>) and the demo load
 /// (<c>$82:8679</c>); boot and soft reset clear all work memory (<c>$80:8482</c>). The map bits are laid out most
 /// significant bit first by <c>$90:A8A6</c>. The 100% movie reads past the cells at update 101214. The stored-map check

@@ -41,8 +41,8 @@ internal static class NativeEarthquakeTypes
     /// <summary>The reaches in the order the type numbers run through them.</summary>
     private static readonly EarthquakeReach[] Reaches =
     [
-        EarthquakeReach.Foreground, EarthquakeReach.ForegroundAndBackground,
-        EarthquakeReach.ForegroundBackgroundAndEnemies, EarthquakeReach.BackgroundAndEnemies,
+        EarthquakeReach.RoomBlocks, EarthquakeReach.RoomBlocksAndScenery,
+        EarthquakeReach.RoomBlocksSceneryAndEnemies, EarthquakeReach.SceneryAndEnemies,
     ];
 
     /// <summary>The strengths in the order the type numbers run through them.</summary>

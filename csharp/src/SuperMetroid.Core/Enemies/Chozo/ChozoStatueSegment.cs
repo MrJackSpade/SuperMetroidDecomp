@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
-/// The Lower Norfair and Wrecked Ship Chozo statues' idle and activation animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// The Lower Norfair and Wrecked Ship Chozo statues' idle and activation animations (#641).
 /// Their steps are <see cref="ChozoStatueAnimations"/>.
 /// </summary>
 internal enum ChozoStatueSegment

@@ -235,8 +235,8 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Carries out one cue of Bomb or Golden Torizo's body animation, returning where a decision, an interruption or the end
     /// of one continues the play, or null to play on. <paramref name="continuation"/> is where the play stands just past the
-    /// cue: the place in the walk an interruption keeps (#2028). <see cref="TorizoCueInputs.FrameCounter"/> is the frame
-    /// counter, which both attack choosers add; only whether it lies in the second half of each sixteen-frame cycle survives.
+    /// cue: the place in the walk an interruption keeps (#2028). The attack choice alternates with the time
+    /// (<see cref="TorizoCueInputs.FrameCounter"/>), as the attack phase's definition states.
     /// </summary>
     private AnimationContinuation<TorizoBodySegment>? ApplyTorizoCue(
         RoomEnemyOccupant occupant, RoomEnemyPlace torizo,

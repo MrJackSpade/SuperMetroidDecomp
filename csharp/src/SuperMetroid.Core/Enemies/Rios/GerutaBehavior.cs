@@ -212,7 +212,7 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
         follower.Position = follower.Position.WithWhole(parent.Position.Whole + new Offset16<RoomPixels>(0, parentState.FollowerYOffset));
     }
 
-    /// <summary>Reverses vertical travel, installs the ascent animation, and enters the return state.</summary>
+    /// <summary>Turns the Rio back upward and starts the climb's animation.</summary>
     private static void BeginGerutaReturn(
         RoomEnemyPlace place,
         GerutaEnemyState state)
@@ -264,7 +264,7 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The parent the follower found when it was placed, the enemy its room lists directly before it.</summary>
     private RoomEnemyPlace GetPrecedingGerutaPlace(RoomEnemyPlace follower) => _parents.Of(follower);
 
-    /// <summary>Requires a flame follower to directly follow a primary Geruta population entry.</summary>
+    /// <summary>Requires a flame follower to come right after its parent Rio among the room's enemies.</summary>
     private void ValidateGerutaParent(RoomEnemyPlace follower)
     {
         RoomEnemyPlace parent = GetPrecedingGerutaPlace(follower);

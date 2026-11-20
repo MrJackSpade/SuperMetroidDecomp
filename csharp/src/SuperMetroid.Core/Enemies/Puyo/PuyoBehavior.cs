@@ -103,8 +103,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
                 : PuyoHopType.NormalSmall;
         }
 
-        // Aim toward Samus unless the preceding terrain collision turned the Puyo back. Equality follows the game's
-        // non-negative path and therefore aims right.
+        // Aim toward Samus unless the terrain collision before turned the Puyo back; a Puyo level with Samus aims
+        // right.
         HorizontalDirection towardSamus = samus.Position.X.Whole < place.Position.X.Whole
             ? HorizontalDirection.Left
             : HorizontalDirection.Right;
@@ -353,7 +353,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         SetPuyoAnimation(place, state, segment);
     }
 
-    /// <summary>Starts a selected pose or hop animation with a one-tick frame countdown.</summary>
+    /// <summary>Starts a selected pose or hop animation on this update.</summary>
     private static void SetPuyoAnimation(RoomEnemyPlace place, PuyoEnemyState state, PuyoSegment segment)
     {
         state.Playback = EnemyAnimationPlayback.Start(place, PuyoAnimations.StartingWith(segment));

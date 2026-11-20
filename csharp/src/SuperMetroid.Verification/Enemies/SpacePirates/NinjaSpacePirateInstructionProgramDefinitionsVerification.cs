@@ -150,7 +150,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             state.DiveSpeed = new SignedEightEight(initialDiveSpeed);
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
-                new FrameCounters(0));
+                new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
             ushort nativeSpeed = initialDiveSpeed;
             int risingUpdates = 0;
             for (int update = 1; update <= 40; update++)

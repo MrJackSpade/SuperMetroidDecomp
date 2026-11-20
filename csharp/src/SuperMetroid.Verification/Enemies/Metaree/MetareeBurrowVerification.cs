@@ -37,7 +37,7 @@ internal static class MetareeBurrowVerification
                 TimeIsFrozen = false,
                 Samus = VerificationHelpersVerification.CreateSamus(SamusPoseId.FacingRightNormalPose, new(64, 140)),
             },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
 
         int diveUpdates = 0;
         while (state.Action == MetareeAction.LaunchedAttack)

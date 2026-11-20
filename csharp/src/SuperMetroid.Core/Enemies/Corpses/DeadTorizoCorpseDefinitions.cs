@@ -18,7 +18,7 @@ internal static class DeadTorizoCorpseDefinitions
     /// <summary>The speed the corpse falls at when it starts to rot: a thirty-second of a pixel an update.</summary>
     internal static SignedEightEight StartingFallSpeed { get; } = SignedEightEight.FromPixelFraction(1, 32);
 
-    /// <summary>How much the rotting corpse's fall speeds up each update: the finest change a speed keeps.</summary>
+    /// <summary>How much the rotting corpse's fall speeds up each update.</summary>
     internal static SignedEightEight RotGravity { get; } = SignedEightEight.FromPixelFraction(1, 256);
 
     /// <summary>The room point each fallen row's dust cloud is spread right from, whichever room the corpse lies in.</summary>

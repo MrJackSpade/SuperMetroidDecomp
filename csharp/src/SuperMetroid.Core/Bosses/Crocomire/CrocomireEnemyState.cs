@@ -107,9 +107,8 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     public CrocomirePhase Phase { get; internal set; } = CrocomirePhase.Dormant;
 
     /// <summary>
-    /// During combat: queued backward steps. Producers store an authored count of at most three or add at most three per
-    /// mouth hit while stepping back consumes them, so the count stays a few steps from none and never nears a wrap
-    /// (#1940).
+    /// During combat: his queued backward steps (#1940). A setup queues an authored count, each mouth hit adds to it
+    /// and stepping back consumes it.
     /// </summary>
     public int StepCounter
     {

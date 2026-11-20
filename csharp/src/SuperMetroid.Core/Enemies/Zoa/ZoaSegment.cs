@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Zoa;
 
 /// <summary>
-/// Zoa's shooting and rising animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// Zoa's shooting and rising animations (#641).
 /// Their steps are <see cref="ZoaAnimations"/>.
 /// </summary>
 public enum ZoaSegment

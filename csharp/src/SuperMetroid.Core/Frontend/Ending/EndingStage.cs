@@ -30,7 +30,7 @@ internal sealed class EndingStage
     /// <summary>The screen's brightness and the cadence of its fades, shared through scene and colour handoffs.</summary>
     internal ScreenFade Fade { get; } = new(0);
 
-    /// <summary>Master brightness during cinematic fades, from black through full.</summary>
+    /// <summary>The screen's brightness through the scene's fades, from black through full.</summary>
     internal int Brightness => Fade.Level;
 
     /// <summary>The turning floor's view, which the escape, the explosion and the planet escape share (#2541).</summary>
@@ -84,7 +84,7 @@ internal sealed class EndingStage
     private static int? SoleActorRank(EndingSpriteRole role) =>
         Array.IndexOf(EndingCastOrderDefinitions.SoleActorsLast, role) is int rank and >= 0 ? rank : null;
 
-    /// <summary>Installs a sprite from its authored position, attributes and animation.</summary>
+    /// <summary>Adds an actor from its definition's position, colouring and animation.</summary>
     internal void SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
         SpawnSprite(
             definition.Position,

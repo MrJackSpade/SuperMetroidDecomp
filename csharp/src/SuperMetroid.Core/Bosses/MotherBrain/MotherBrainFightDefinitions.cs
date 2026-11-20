@@ -144,21 +144,21 @@ internal static class MotherBrainFightDefinitions
 
     /// <summary>The shake each planted step of her walk starts.</summary>
     internal static readonly EarthquakeShake FootstepShake =
-        new(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground);
+        new(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks);
 
     /// <summary>The updates each footstep's shake lasts.</summary>
     internal const int FootstepShakeUpdates = 4;
 
     /// <summary>The shake her rise through the floor starts.</summary>
     internal static readonly EarthquakeShake RiseShake =
-        new(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
+        new(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.RoomBlocks);
 
     /// <summary>The updates her rise's shake is started for; it stops once she has risen.</summary>
     internal const int RiseShakeUpdates = 256;
 
     /// <summary>The shake an onion ring bursting against the arena's edge, or a hand beam leaving the arena, starts.</summary>
     internal static readonly EarthquakeShake ProjectileExplosionShake =
-        new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.RoomBlocks);
 
     /// <summary>The updates each such shake lasts.</summary>
     internal const int ProjectileExplosionShakeUpdates = 10;

@@ -89,7 +89,7 @@ internal static class KagoBugProjectileBehaviorVerification
         var shown = new HashSet<EnemyProjectileFrameId>();
         for (int update = 0; update < 20 && bug.IsActive; update++)
         {
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(bug, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(bug, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
             if (!bug.IsActive || bug.Frame is not { } frame)
                 break;
             shown.Add(frame);

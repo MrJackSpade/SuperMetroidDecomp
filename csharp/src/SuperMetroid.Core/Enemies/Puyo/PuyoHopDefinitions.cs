@@ -20,14 +20,12 @@ internal static class PuyoHopDefinitions
     };
 
     /// <summary>
-    /// The random field a Puyo's hop roll starts from. The roll adds the enemy's frame counter and
-    /// continues past the field's last value from zero.
+    /// The random field a Puyo's hop roll starts from: the roll and the enemy's update count together choose its hop.
     /// </summary>
     internal static readonly RandomSampleField HopRoll = new(0, 3);
 
     /// <summary>
-    /// The lowest bit of <see cref="HopRoll"/>: the part of the roll a choice between two outcomes reads, the same bit
-    /// whether the frame counter advances the whole roll or this part alone.
+    /// The part of <see cref="HopRoll"/> a choice between two outcomes reads, taking each one time in two.
     /// </summary>
     private static readonly RandomSampleField HopRollParity = new(0, 1);
 

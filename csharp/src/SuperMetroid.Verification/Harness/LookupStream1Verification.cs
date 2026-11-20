@@ -705,7 +705,7 @@ internal static class LookupStream1Verification
         // the marker's character, palette row, priority or mirroring, so distinct pointers give distinct markers.
         static SpritePart Marker(ushort pointer) =>
             SpritePart.Create(Offset16<ScreenPixels>.Of(unchecked((sbyte)pointer), unchecked((sbyte)(pointer >> 8))), (pointer & 1) != 0, pointer & 511,
-                (pointer >> 9) & 7, (pointer >> 12) & 3,
+                (pointer >> 9) & 7, SnesObjAttributeWord.Create(0, 0, (pointer >> 12) & 3).Depth,
                 ((pointer & 0x4000) != 0 ? PictureFlip.Horizontal : PictureFlip.None) | ((pointer & 0x8000) != 0 ? PictureFlip.Vertical : PictureFlip.None));
         SamusSpritemapDefinition[] definitions = [.. SamusSpritemapNative.Compositions(pointers)
             .Select(pointer => new SamusSpritemapDefinition([Marker(pointer)]))];
@@ -786,7 +786,7 @@ internal static class LookupStream1Verification
     {
         byte[] json = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.ArtworkFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
-            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new SamusPoseIdJsonConverter() } });
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
             SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))));
         var stock = Load(document);
@@ -797,7 +797,7 @@ internal static class LookupStream1Verification
             hash.Append("drawing data", value.DrawingData.Select(item => (byte)item).ToArray());
             foreach (SpriteVisualPart appearance in value.CoverAppearances)
                 AppendCanonicalSpritePart(hash, CannonCoverAppearance(appearance.TileRow, appearance.TileColumn,
-                    appearance.Palette ?? 0, appearance.Priority, appearance.FlipX, appearance.FlipY));
+                    appearance.Palette ?? 0, appearance.Depth, appearance.FlipX, appearance.FlipY));
             foreach (int[] direction in value.CoverTiles)
                 foreach (int tile in direction) hash.Append("cover tile", tile);
         });
@@ -1379,7 +1379,7 @@ internal static class LookupStream1Verification
             return SelectedPresentationHash.Create("samus-arm-cannon-v5", content =>
             {
                 System.Text.Json.JsonElement descriptors = root.GetProperty("poseDescriptors");
-                foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) content.Append("pose descriptor", descriptors.GetProperty(pose.ToString()).GetInt32());
+                foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) content.Append("pose descriptor", descriptors.GetProperty(SamusPoseIdKeys.Installed.Of(pose)).GetInt32());
                 content.Append("drawing data", root.GetProperty("drawingData").EnumerateArray().Select(value => (byte)value.GetInt32()).ToArray());
                 foreach (var appearance in root.GetProperty("coverAppearances").EnumerateArray())
                 {
@@ -1387,7 +1387,7 @@ internal static class LookupStream1Verification
                         ? paletteValue.GetInt32() : 0;
                     AppendCanonicalSpritePart(content, CannonCoverAppearance(
                         appearance.GetProperty("tileRow").GetInt32(), appearance.GetProperty("tileColumn").GetInt32(),
-                        palette, appearance.GetProperty("priority").GetInt32(),
+                        palette, Enum.Parse<SuperMetroid.Core.Assets.ActorDepth>(appearance.GetProperty("depth").GetString()!),
                         appearance.GetProperty("flipX").GetBoolean(), appearance.GetProperty("flipY").GetBoolean()));
                 }
                 foreach (var direction in root.GetProperty("coverTiles").EnumerateArray())
@@ -1422,19 +1422,19 @@ internal static class LookupStream1Verification
         content.Append("flip-horizontal", part.FlipsHorizontally ? 1 : 0);
         content.Append("flip-vertical", part.FlipsVertically ? 1 : 0);
         content.Append("palette", part.Palette);
-        content.Append("priority", part.Priority);
+        content.Append("depth", (int)part.Depth);
     }
 
     /// <summary>A cover appearance's single small piece at the origin, from its document fields.</summary>
-    private static SpritePart CannonCoverAppearance(int tileRow, int tileColumn, int palette, int priority, bool flipHorizontally, bool flipVertically) =>
-        SpritePart.Single(tileRow * SpriteArtwork.CharactersPerRow + tileColumn, palette, priority,
+    private static SpritePart CannonCoverAppearance(int tileRow, int tileColumn, int palette, SuperMetroid.Core.Assets.ActorDepth depth, bool flipHorizontally, bool flipVertically) =>
+        SpritePart.Single(tileRow * SpriteArtwork.CharactersPerRow + tileColumn, palette, depth,
             (flipHorizontally ? PictureFlip.Horizontal : PictureFlip.None) | (flipVertically ? PictureFlip.Vertical : PictureFlip.None));
     /// <summary>Checks arm-cannon drawing commands and extracted placement through native OAM results.</summary>
     internal static void VerifyLookupStream1CannonDrawingControls(ISnesAddressSpace rom)
     {
         byte[] json = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.ArtworkFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
-            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new SamusPoseIdJsonConverter() } });
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
             SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))));
         var stock = Load(document);
@@ -1847,7 +1847,7 @@ internal static class LookupStream1Verification
         SamusBodySources body = InstalledFixtures.SamusBody;
         byte[] json = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.ArtworkFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
-            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new SamusPoseIdJsonConverter() } });
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
             SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))));
         var stock = body.ArmCannon;

@@ -293,7 +293,7 @@ internal sealed class DraygonParts
 
         // The tail hit also shakes the foreground strongly for its shake's updates, so the camera shows the hit as well as the
         // energy it costs.
-        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), DraygonArenaDefinitions.TailHitShakeUpdates);
+        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), DraygonArenaDefinitions.TailHitShakeUpdates);
 
         _effectActors.SpawnRoomEffectActor(
             new(samus.Position.X.Whole, samus.Position.Y.Whole + DraygonArenaDefinitions.TailHitDustBelowSamus),

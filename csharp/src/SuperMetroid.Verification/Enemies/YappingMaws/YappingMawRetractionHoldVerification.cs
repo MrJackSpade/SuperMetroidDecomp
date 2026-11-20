@@ -43,7 +43,7 @@ internal static class YappingMawRetractionHoldVerification
             samus.Position = samus.Position.WithWhole(new(128 + 300, 128));
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
-                new FrameCounters(0));
+                new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
             enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant(), place, frame);
             enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant(), place, frame);
             AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, $"{context}: setup begins the extension");

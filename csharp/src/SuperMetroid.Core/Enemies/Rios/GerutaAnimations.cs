@@ -85,9 +85,8 @@ internal static class GerutaAnimations
     });
 
     /// <summary>
-    /// The animation that starts at each segment an owner can start or restart at. The dive and the climb place their flames
-    /// and hold their one pose (#2512): only those placements move the flames, so placing them again each time the pose
-    /// showed again would change nothing.
+    /// The animation that starts at each segment an owner can start or restart at. The dive and the climb place their
+    /// flames and hold their one pose (#2512).
     /// </summary>
     private static Dictionary<GerutaSegment, Animation<GerutaSegment>> StartingAt { get; } = new Dictionary<GerutaSegment, Animation<GerutaSegment>>
     {

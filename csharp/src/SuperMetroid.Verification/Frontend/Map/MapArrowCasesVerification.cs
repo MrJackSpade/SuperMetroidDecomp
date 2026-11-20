@@ -64,10 +64,10 @@ internal static class MapArrowCasesVerification
             int animation = ReadVerificationWord(rom, 0x81af36 + 10 * index);
             int variants = ReadVerificationWord(rom, 0x82c1e4 + 2 * (animation - 1));
             AssertEqual(ReadVerificationWord(rom, 0x820000 | variants),
-                MapSpriteOrdinals.Spritemaps.Word(Ensure.Listed(MapArrowDefinitions.Pictures, (MapScrollDirection)index)), "original direction shape selector");
+                MapSpriteOrdinals.Spritemaps.Word(Ensure.Listed(MapArrowDefinitions.ArrowPictures, (MapScrollDirection)index)), "original direction shape selector");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, 256, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => Ensure.Listed(MapArrowDefinitions.Pictures, (MapScrollDirection)invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => Ensure.Listed(MapArrowDefinitions.ArrowPictures, (MapScrollDirection)invalid),
                 "unsupported arrow shape direction");
     }
 }

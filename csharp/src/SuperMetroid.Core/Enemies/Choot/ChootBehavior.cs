@@ -31,7 +31,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.YSpeedCurvePlace = state.InitialYSpeedCurvePlace;
     }
 
-    /// <summary>Runs the Choot's main AI and its four wait, prepare, jump, and fall targets.</summary>
+    /// <summary>Runs the Choot's wait, preparation, jump or fall.</summary>
     private static void RunChootMain(
         RoomEnemyOccupant occupant, RoomEnemyPlace place,
         ChootEnemyState state,
@@ -113,8 +113,8 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             if (--state.FallingPatternLoopCounter > 0)
                 return;
 
-            // The last loop's end restores the exact spawn position, with no fraction of a pixel, reinstalls
-            // the idle animation, and rearms the same calculated ascent for the next activation.
+            // The last loop's end restores the exact spawn position, with no fraction of a pixel, restarts the idle
+            // animation, and rearms the same calculated ascent for the next activation.
             state.YSpeedCurvePlace = state.InitialYSpeedCurvePlace;
             place.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);
             SetChootAnimation(place, state, ChootSegment.Idle);

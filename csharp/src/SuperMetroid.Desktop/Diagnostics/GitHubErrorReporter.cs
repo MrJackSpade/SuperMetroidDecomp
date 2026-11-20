@@ -126,7 +126,7 @@ public sealed class GitHubErrorReporter : IDisposable
         AppendExceptionIdentity(identity, exception);
         // Unknown failures are conservatively room-scoped. An unmodeled behavior's identity names
         // the behavior, so room/block location does not change the bug.
-        if (exception is not UnmodeledBehaviorException && context is not null)
+        if (exception is not UnsupportedGameStateException && context is not null)
             identity.Append($"\nroom:{context.Room}/state:{context.RoomState}");
         byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes(identity.ToString()));
         return $"SMERR-{Convert.ToHexString(digest.AsSpan(0, 8))}";
@@ -135,7 +135,7 @@ public sealed class GitHubErrorReporter : IDisposable
     /// <summary>Uses a typed dispatch key or recursively records exception type, message, managed stack methods, and inner errors without source locations.</summary>
     private static void AppendExceptionIdentity(StringBuilder identity, Exception exception)
     {
-        if (exception is UnmodeledBehaviorException unmodeled)
+        if (exception is UnsupportedGameStateException unmodeled)
         {
             identity.Append(unmodeled.GetType().FullName).Append('\n').Append(unmodeled.BehaviorIdentity);
             return;
@@ -227,7 +227,7 @@ public sealed class GitHubErrorReporter : IDisposable
         GitHubErrorContext context)
     {
         var body = new StringBuilder();
-        body.AppendLine($"Core build ID: {typeof(UnmodeledBehaviorException).Module.ModuleVersionId}");
+        body.AppendLine($"Core build ID: {typeof(UnsupportedGameStateException).Module.ModuleVersionId}");
         body.AppendLine($"Host build ID: {typeof(GitHubErrorReporter).Module.ModuleVersionId}");
         body.Append("<!-- supermetroid-error-id:")
             .Append(fingerprint)

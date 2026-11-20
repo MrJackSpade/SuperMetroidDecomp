@@ -153,7 +153,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
 
         static ClockedEnemyAiFrame Frame(SamusState samus) => new(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
     }
 
     /// <summary>A Yapping Maw rooted at (128, 128) through the production initializer, with the given activation distance.</summary>

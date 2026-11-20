@@ -35,8 +35,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     internal static void InitializeWallSpacePirate(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         WallSpacePirateSpawnSettings settings = occupant.SpawnSettings<WallSpacePirateSpawnSettings>();
-        // Angles are 256ths of a turn. A slow jump turns fewer steps a frame for longer than a fast one, which ends a
-        // little further round.
+        // A slow jump and a fast jump each turn by their definition's steps, the fast one twice as quickly to endpoints
+        // a little further round.
         WallSpacePirateJump jump = settings.JumpSpeed switch
         {
             WallSpacePirateJumpSpeed.Slow => SpacePirateMotionDefinitions.SlowWallJump,

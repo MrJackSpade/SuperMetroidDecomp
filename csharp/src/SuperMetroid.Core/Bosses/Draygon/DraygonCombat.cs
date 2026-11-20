@@ -59,8 +59,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>
-    /// Updates Draygon while he is hurt. The body is drawn partly as a background layer and partly
-    /// as sprites, so a valid flash must update the colours of both surfaces.
+    /// Updates Draygon while he is hurt: the hurt flash shows on his body and his sprites alike.
     /// </summary>
     internal void ApplyDraygonHurt(
         RoomEnemyPlace body,

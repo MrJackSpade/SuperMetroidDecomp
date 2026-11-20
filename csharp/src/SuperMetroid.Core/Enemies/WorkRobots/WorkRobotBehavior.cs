@@ -227,7 +227,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
         return firingSegment;
     }
 
-    /// <summary>Counts a nonzero laser cooldown down without unsigned wraparound.</summary>
+    /// <summary>Counts the laser cooldown down, stopping at zero.</summary>
     private static void DecrementWorkRobotLaserCooldown(WorkRobotEnemyState state)
     {
         state.LaserCooldown = state.LaserCooldown.DecrementToZero();
@@ -356,11 +356,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
         if (projectile is null)
             return;
 
-        // The enemy-projectile spawn copies the complete definition before the family's own setup: the diagonal and
-        // horizontal lasers do not share radii or damage, and the projectile kind's definition also supplies the blank first frame and all three contact
-        // properties. The laser's pictures carry their own
-        // colours, so it draws from the room's shared sheet in its standard colours: no picture of it shows before its
-        // first pass, so the robot's graphics its spawn briefly held never draw.
+        // The laser takes its kind's radii, damage and contact (the diagonal and horizontal lasers differ), and draws
+        // from the room's shared sheet in its standard colours.
         projectile.StartAnimation(new WorkRobotLaserAnimation(WorkRobotLaserSegment.Flare));
         projectile.Velocity = projectile.Velocity.WithX(WorkRobotLaserDefinitions.Speed.Toward(state.Facing));
         projectile.Velocity = projectile.Velocity.WithY(laser switch

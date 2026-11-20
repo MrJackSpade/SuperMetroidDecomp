@@ -7,8 +7,8 @@ internal enum PhaseRandomStep
     Reseed,
 
     /// <summary>
-    /// The room liquid's wave and the Tourian statues' descent advance first (a lava or acid wave swaps the halves of the
-    /// random number), then the generator advances.
+    /// The room liquid's wave and the Tourian statues' descent advance first (a lava or acid wave stirs the random
+    /// number, <see cref="SharedRandom.SwapHalves"/>), then the generator advances.
     /// </summary>
     LiquidWaveAndStatueDescentThenAdvance,
 

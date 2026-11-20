@@ -18,7 +18,7 @@ internal static class EarthquakeOutOfHealthVerification
 {
     /// <summary>A shake that throws the foreground, the background and the enemies.</summary>
     private static readonly EarthquakeShake Shake =
-        new(EarthquakeStrength.Medium, EarthquakeDirection.Horizontal, EarthquakeReach.ForegroundBackgroundAndEnemies);
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Horizontal, EarthquakeReach.RoomBlocksSceneryAndEnemies);
 
     /// <summary>The frames the fixture's earthquake starts with.</summary>
     private const int QuakeFrames = 20;

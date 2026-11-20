@@ -40,7 +40,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = CreateRipperState(place);
 
-        // The population entry names the starting direction; the patrol speed and bounds are read where they are used.
+        // The placement names the starting direction; the patrol speed and bounds are read where they are used.
         state.Heading = occupant.SpawnSettings<GrappleRipperSpawnSettings>().Direction;
         SetRipperAnimation(
             place,
@@ -99,8 +99,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Ripper.</summary>
     internal static void InitializeRipper(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        // The spawn's direction chooses the positive speed and the right-facing animation, or the negative speed and the
-        // left-facing animation. Unlike a reversal, initialization keeps the population's frame timer.
+        // The spawn's direction picks the way it flies and its facing animation, which starts on the placement's
+        // timing.
         HorizontalDirection heading = occupant.SpawnSettings<RipperSpawnSettings>().Direction;
         RipperEnemyState state = CreateRipperState(place);
         state.Playback = new(RipperAnimations.StartingWith(
@@ -167,7 +167,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         SetRipperAnimation(place, state.Heading == HorizontalDirection.Right ? RipperSegment.GrappleRipperMovingRight : RipperSegment.GrappleRipperMovingLeft);
     }
 
-    /// <summary>Installs a flying loop from its first step on the next enemy frame.</summary>
+    /// <summary>Starts a flying loop, shown from the next update.</summary>
     private static void SetRipperAnimation(RoomEnemyPlace place, RipperSegment segment)
     {
         place.RequireSpeciesState<RipperEnemyState>().Playback = new(RipperAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);

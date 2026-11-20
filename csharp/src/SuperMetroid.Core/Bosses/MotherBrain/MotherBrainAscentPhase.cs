@@ -15,7 +15,7 @@ public enum MotherBrainAscentPhase
     /// <summary>Readies her brain and neck to be drawn, makes her body and brain tangible, gives her brain her second phase's health, and starts the suspense wait at once.</summary>
     SetupPhase2Brain,
 
-    /// <summary>Waits out the suspense, then starts the wait before rising and falls into it.</summary>
+    /// <summary>Waits out the suspense, then starts the wait before rising on the same update.</summary>
     PauseForSuspense,
 
     /// <summary>Starts the floor-clipping effect, starts the hidden head animation, and starts the wait before her pause.</summary>

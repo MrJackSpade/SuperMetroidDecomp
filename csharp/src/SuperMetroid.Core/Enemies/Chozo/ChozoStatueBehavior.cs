@@ -83,10 +83,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Represents the exact enemy-place side effect produced by the Chozo hand
-    /// trigger. Collision/pose/item admission and the hand block's terrain remain the room object's responsibility; once
-    /// admitted, both trigger setups advance the statue's wait (<see cref="ChozoStatueState.TriggerHand"/>) and disable
-    /// Samus controls.
+    /// Wakes the statue once Samus triggers its hand: the statue's wait moves on
+    /// (<see cref="ChozoStatueState.TriggerHand"/>), Samus's controls are taken and the site's room changes are made.
+    /// Which touches the hand admits and the hand block's collision are the room object's.
     /// </summary>
     /// <returns>The room objects the trigger asks its room for, in the order it asks, which the room spawns at once.</returns>
     public IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ActivateChozoStatueHandTrigger()
@@ -114,9 +113,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Starts the statue's activation once Samus has triggered its hand while it waits for her. The Wrecked Ship's hand
-    /// admits her only once Phantoon is defeated, which the game's wait tests again and always finds so. The animation does
-    /// the rest.
+    /// Starts the statue's activation once Samus has triggered its hand while it waits for her; the Wrecked Ship's hand
+    /// admits her only once Phantoon is defeated. The animation does the rest.
     /// </summary>
     private static void RunChozoStatueMain(RoomEnemyOccupant occupant, RoomEnemyPlace statue, ChozoStatueState state)
     {

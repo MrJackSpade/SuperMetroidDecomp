@@ -57,10 +57,8 @@ public sealed class SamusKinematicsState
     /// values of the enemies it lists.
     /// </summary>
     /// <remarks>
-    /// Movement owns this snapshot because every ordinary movement probes
-    /// solid/frozen enemies before reacting to room blocks. Empty remains the
-    /// correct default for rooms whose enemy actor loader has not run. Keeping the
-    /// list explicit prevents decorative render sprites from accidentally becoming physics.
+    /// The enemies Samus's movement collides with, solid or frozen, which every ordinary movement meets before room
+    /// blocks; a room whose enemies have not been placed has none.
     /// </remarks>
     public IReadOnlyList<SolidEnemyCollisionBody> InteractiveEnemies { get; set; } =
         Array.Empty<SolidEnemyCollisionBody>();

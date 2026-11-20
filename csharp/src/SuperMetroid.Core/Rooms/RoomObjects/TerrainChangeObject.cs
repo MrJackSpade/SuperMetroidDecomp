@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// A room object that changes the terrain at its block on an authored cadence and is then gone (#1554): a boss room's
 /// crumbling ceiling, wall, platform or spikes, a bridge or wall clear, a row of Mother Brain's mural. It waits its
 /// change's first delay, then draws each frame in turn for that frame's updates, moving its origin and requesting the
-/// frame's sound as it draws, and leaves the room on the update after its last frame. Each draw lands on the same
-/// update, and the object leaves on the same update, as the game's timed draws and its delete did. The change plays on
-/// the shared animation player (#2480).
+/// frame's sound as it draws, and leaves the room on the update after its last frame: each draw lands on the update its
+/// frame starts, and the object leaves on the update after the last. The change plays on the shared animation player
+/// (#2480).
 /// </summary>
 /// <param name="change">The change's authored timing.</param>
 internal class TerrainChangeObject(TerrainChange change) : RoomObjectBehaviour

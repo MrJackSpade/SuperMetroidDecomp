@@ -22,7 +22,7 @@ public static class GrappleSpriteExtractor
             {
                 TileColumn = attributes.TileNumber % ProjectileSpriteDefinitions.TileColumns,
                 TileRow = attributes.TileNumber / ProjectileSpriteDefinitions.TileColumns,
-                Palette = attributes.PaletteIndex, Priority = attributes.Priority,
+                Palette = attributes.PaletteIndex, Depth = attributes.Depth,
                 FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
             };
         }

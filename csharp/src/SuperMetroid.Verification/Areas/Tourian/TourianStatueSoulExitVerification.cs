@@ -42,7 +42,7 @@ internal static class TourianStatueSoulExitVerification
     /// <summary>Moves <paramref name="effect"/> one update by the motion its spawn gave it, as the projectile pass does (#2482).</summary>
     private static void Move(TourianUnlockBehavior unlock, EnemyProjectile effect) =>
         unlock.Effects.RunMotion(new EnemyProjectileMotionContext(effect, MotionInputs.Value.Room, MotionInputs.Value.Samus,
-            Position16<RoomPixels>.Zero, ShortCounter: 0, FrameCounter: 0, MotionInputs.Value.Bombs));
+            Position16<RoomPixels>.Zero, ShortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero, FrameCounter: 0, MotionInputs.Value.Bombs));
 
     /// <summary>Follows every soul and particle from the statues' eyes to its deletion.</summary>
     internal static void VerifyTourianStatueSoulExit()
@@ -79,7 +79,7 @@ internal static class TourianStatueSoulExitVerification
             TourianUnlockBehavior unlock = EnemySystemFixtures.UnlockEffects(enemies);
             unlock.SpawnTourianSoul(statue.Eye);
             EnemyProjectile soul = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
-            unlock.RunCue(new EnemyProjectileCueContext(soul, MotionInputs.Value.Samus, Position16<RoomPixels>.Zero, ShortCounter: 0,
+            unlock.RunCue(new EnemyProjectileCueContext(soul, MotionInputs.Value.Samus, Position16<RoomPixels>.Zero, ShortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero,
                 MotionInputs.Value.Bombs, enemies.Projectiles), new TourianStatueProjectileCue.Signal(TourianStatueProjectileCueKind.SpawnParticle));
             EnemyProjectile particle = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
                 projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.TourianStatueParticle);

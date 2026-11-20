@@ -99,9 +99,8 @@ internal sealed class ProjectileMotion
             return;
         }
 
-        // Hyper's update falls directly into the shared Wave movement. Hyper deliberately has
-        // no projectile-trail timer or trail spawn; its long beam picture
-        // and the separately counting muzzle flare provide the complete presentation.
+        // The Hyper Beam moves as the Wave Beam does, without trails: its long beam picture and its own muzzle flare
+        // show it.
         RunWaveBeamShared(level, held, cameraPosition, roomObjects);
     }
 
@@ -244,8 +243,8 @@ internal sealed class ProjectileMotion
     }
 
     /// <summary>
-    /// Adds one update's acceleration to the shot's velocity, the direction's entry for the shot's kind. The velocity
-    /// stays far inside its range, since a shot accelerating that long has left the movement window.
+    /// Adds one update's acceleration to the shot's velocity, the direction's entry for the shot's kind; a shot
+    /// accelerating long leaves the movement window.
     /// </summary>
     private static void Accelerate(SamusProjectileOccupant held, PixelVelocity<RoomPixels> acceleration)
     {

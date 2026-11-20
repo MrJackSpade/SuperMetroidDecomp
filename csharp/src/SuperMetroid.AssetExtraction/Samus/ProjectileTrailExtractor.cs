@@ -22,7 +22,7 @@ public static class ProjectileTrailExtractor
             {
                 TileColumn = a.TileNumber % ProjectileSpriteDefinitions.TileColumns,
                 TileRow = a.TileNumber / ProjectileSpriteDefinitions.TileColumns,
-                Palette = a.PaletteIndex, Priority = a.Priority, FlipX = a.FlipHorizontally, FlipY = a.FlipVertically,
+                Palette = a.PaletteIndex, Depth = a.Depth, FlipX = a.FlipHorizontally, FlipY = a.FlipVertically,
             });
         }
         return InstalledProjectileTrails.Write(new() { Version = ProjectileTrailVisualDefinitions.Version, Frames = frames });

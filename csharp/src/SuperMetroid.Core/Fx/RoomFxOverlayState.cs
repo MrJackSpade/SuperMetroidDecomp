@@ -182,8 +182,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// The live liquid surface's room line after rising and tide processing, or null while the liquid has no surface
-    /// (#1546). A tide can carry the surface above the room's top, to a negative line, which every reader treats as no
-    /// surface, as the game's below-zero check does.
+    /// (#1546). A tide can carry the surface above the room's top, to a negative line, where the room shows no liquid.
     /// </summary>
     public int? Surface { get; private set; }
 

@@ -14,9 +14,8 @@ internal sealed class IntroEggParticle
     private readonly IntroEggShellFragment fragment;
 
     /// <summary>
-    /// The fragment's fall, counted once each update it flies: its age is its step along the fall's gravity curve, then
-    /// past it (#1781). Every fragment reaches the floor within its curve or the installed steps past it, and a later step
-    /// throws.
+    /// The updates the piece has fallen (#1781): its age is its step along the fall's gravity curve, then past it.
+    /// Every piece reaches the floor within its curve or the installed steps past it.
     /// </summary>
     private readonly UpdateCountdown fall;
 

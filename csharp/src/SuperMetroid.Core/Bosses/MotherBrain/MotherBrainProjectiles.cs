@@ -365,10 +365,8 @@ internal sealed class MotherBrainProjectiles
             int afterburnCount = Bombs.Of(bomb).Afterburns;
             DeleteMotherBrainBomb(bomb, state);
 
-            // The bomb's explosion frees the bomb's place before both spawns. They therefore use
-            // the normal descending shared-pool competition, including legitimate same-place
-            // replacement that the outer scheduler will continue processing on this pass.
-            // Its afterburn pair flies left and right.
+            // The bomb is gone before its afterburns and explosion appear, so they can take its place among the room's
+            // projectiles this update. Its afterburn pair flies left and right.
             dependencies.RoomActors.SpawnAfterburnCenter(
                 Axis.Horizontal,
                 impact,
@@ -446,7 +444,7 @@ internal sealed class MotherBrainProjectiles
                 SpawnMotherBrainGlassSparkle(shard);
         }
 
-        /// <summary>Runs the sparkle setup using the spawning shard as parameter.</summary>
+        /// <summary>Makes a sparkle appear near the shard <paramref name="source"/>.</summary>
         private void SpawnMotherBrainGlassSparkle(EnemyProjectile source)
         {
             EnemyProjectile? sparkle = dependencies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainGlassSparkle, Spawned, graphics: SpriteGraphics.SharedStandard);
@@ -520,8 +518,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>
-        /// Moves the onion ring. A live Baby place is tested before Samus and the room,
-        /// matching the private projectile's cross-enemy collision order during phase three.
+        /// Moves the onion ring. During her third phase a ring meets the Baby before Samus and the room's edges.
         /// </summary>
         private void FlyMotherBrainOnionRing(
             EnemyProjectile ring,
@@ -865,7 +862,7 @@ internal sealed class MotherBrainProjectiles
         return place.X >= 0 && viewX >= 0 && viewX < MotherBrainTurretDefinitions.ViewWidth;
     }
 
-    /// <summary>Runs the bullet's property flicker, its movement and its point collision.</summary>
+    /// <summary>Moves the bullet: it blocks Samus's shots every other update and flies until it hits a wall.</summary>
     internal static void FlyMotherBrainTurretBullet(
         EnemyProjectile bullet,
         RoomLevelData level)

@@ -22,7 +22,7 @@ internal static class HopperHopArcVerification
         RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(8, 8));
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
         foreach ((bool falling, int start, int step, int expected, bool expectedFalling) in new VerifyHopperHopArcRecordCase[]
                  {
                      new VerifyHopperHopArcRecordCase(false, 2, 3, 0, true),

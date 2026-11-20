@@ -27,9 +27,8 @@ internal sealed class MotherBrainRoomObjects(RoomObjectPlaceList places)
         place.Become(new TerrainChangeObject(change));
         if (request is MotherBrainMutationRequest { Mutation: MotherBrainRoomMutation.EscapeDoor })
         {
-            // The escape door's setup installs the door block and its extensions at once, before the first draw changes
-            // their artwork. Each block is written once, so the order of the writes is unobservable. The setup rewrites only
-            // each block's type and parameter, so each keeps what it shows until that draw (#2496).
+            // The escape door's blocks become the door and its extensions at once, keeping their pictures until the
+            // first draw changes them (#2496).
             foreach (RoomBlockShapeCell cell in EscapeDoorSetup.Cells)
             {
                 Position16<RoomBlocks> block = place.Block + cell.Cell;

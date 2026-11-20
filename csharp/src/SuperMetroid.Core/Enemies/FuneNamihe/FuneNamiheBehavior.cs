@@ -131,8 +131,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Installs the animation the species, activity and facing select. Both
-    /// animation timers are reset together.
+    /// Starts, from its first frame, the animation the species, activity and facing select.
     /// </summary>
     private static void StartFuneNamiheAnimation(
         RoomEnemyOccupant occupant, RoomEnemyPlace place,

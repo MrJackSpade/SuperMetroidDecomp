@@ -180,9 +180,8 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Draygon body has no behaviour for phase {state.Phase}.");
         }
 
-        // These are four separate enemies, but Draygon's main behaviour makes the body coordinate
-        // authoritative after its phase runs. Copying here preserves that ordering for
-        // the eye AI and each part's later animation step in the same enemy frame.
+        // His arms, tail and eye are placed at his body once his phase has moved it, before the eye and each part's
+        // animation run this update.
         state.Arms.Position = state.Arms.Position.WithWholeX(body.Position.X.Whole);
         state.Tail.Position = state.Tail.Position.WithWholeX(body.Position.X.Whole);
         state.Eye.Position = state.Eye.Position.WithWholeX(body.Position.X.Whole);

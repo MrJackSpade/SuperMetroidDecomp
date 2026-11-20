@@ -45,7 +45,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
         int updates = 0;
         while (ProgramOf(dying) == EnemyDeathAndDropSegment.SmallExplosion)
         {
-            fixture.System.Projectiles.AdvanceEnemyProjectileAnimations(dying, samus, Position16<RoomPixels>.Zero, shortCounter: 0);
+            fixture.System.Projectiles.AdvanceEnemyProjectileAnimations(dying, samus, Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
             AssertTrue(++updates < 64, "the small explosion converts within its six frames");
         }
         AssertEqual(EnemyDeathAndDropSegment.SmallEnergy, ProgramOf(dying), "the conversion continues at the rolled small-energy drop");
@@ -56,7 +56,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
         fixture.System.DeathsAndDrops.TendEnemyPickup(dying, samus);
         AssertEqual(EnemyDeathAndDropSegment.RespawnPause, ProgramOf(dying), "an expired drop starts the respawn tail");
         for (int update = 0; update < 70 && dying.IsActive; update++)
-            fixture.System.Projectiles.AdvanceEnemyProjectileAnimations(dying, samus, Position16<RoomPixels>.Zero, shortCounter: 0);
+            fixture.System.Projectiles.AdvanceEnemyProjectileAnimations(dying, samus, Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
         AssertTrue(!dying.IsActive, "the respawn tail deletes the drop after its blank frame");
         Console.WriteLine("  Enemy death behavior: every variant's program, the same-pass drop conversion and the respawn tail pass.");
     }

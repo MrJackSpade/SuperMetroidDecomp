@@ -442,7 +442,7 @@ internal sealed class ProjectileTerrainCollision
         KillBeam(held);
     }
 
-    /// <summary>Moves a beam explosion to its directional leading edge and installs the explosion animation.</summary>
+    /// <summary>Moves a beam explosion to its directional leading edge and starts the explosion animation.</summary>
     internal static void KillBeam(SamusProjectileOccupant held)
     {
         SamusProjectile shot = held.Projectile;

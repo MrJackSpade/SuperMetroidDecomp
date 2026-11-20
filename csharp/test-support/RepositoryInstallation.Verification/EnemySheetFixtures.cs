@@ -32,7 +32,7 @@ internal static class EnemySheetFixtures
     {
         ArgumentNullException.ThrowIfNull(set);
         EnemySheetSource source = EnemySheetComposer.Sources(Inputs, set).Enemies.Single(sheet => sheet.Enemy == enemy);
-        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, 0);
+        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
         return SpriteSheetFileConstants.Load(sheet.Manifest, $"{enemy}-{set.Name}", sheet.Size, sheet.Pixels, sheet.PaletteIndices).Image;
     }
 
@@ -45,7 +45,7 @@ internal static class EnemySheetFixtures
     {
         ArgumentNullException.ThrowIfNull(set);
         SpawnedObjectSheetSource source = EnemySheetComposer.Sources(Inputs, set).Spawned.Single(sheet => sheet.Plan.Owner == owner);
-        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, 0);
+        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
         return SpriteSheetFileConstants.Load(sheet.Manifest, $"Spawned-{owner}-{set.Name}", sheet.Size, sheet.Pixels, sheet.PaletteIndices);
     }
 
@@ -58,7 +58,7 @@ internal static class EnemySheetFixtures
         ArgumentNullException.ThrowIfNull(set);
         foreach (SpawnedObjectSheetSource source in EnemySheetComposer.Sources(Inputs, set).Spawned)
         {
-            ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, 0);
+            ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
             yield return SpriteSheetFileConstants.Load(sheet.Manifest, $"Spawned-{source.Plan.Owner}-{set.Name}", sheet.Size, sheet.Pixels, sheet.PaletteIndices);
         }
     }
@@ -223,7 +223,7 @@ internal static class EnemySheetFixtures
         /// <summary>Composes, loads and registers one sheet under <paramref name="name"/>.</summary>
         private static SpriteSheet Load(SpriteSheetSources sources, string name)
         {
-            ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
+            ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
             SpriteSheet loaded = SpriteSheetFileConstants.Load(sheet.Manifest, name, sheet.Size,
                 sheet.Pixels, sheet.PaletteIndices);
             SheetFrameSources.Register(loaded, sources);

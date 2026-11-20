@@ -56,7 +56,7 @@ internal static class KzanBehaviorVerification
         AssertEqual(128, state.RisingTargetY, "the rising target is the spawn position");
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
 
         state.Action = KzanAction.Falling;
         enemies.KzanBehavior.RunKzanTopMainAi(place.HeldOccupant(), place, frame);

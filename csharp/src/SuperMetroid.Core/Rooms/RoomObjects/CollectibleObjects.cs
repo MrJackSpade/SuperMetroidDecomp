@@ -160,7 +160,8 @@ internal sealed class CollectibleObjects
 
         RoomTerrainBlock setup = original.Terrain.WithCollision(
             presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
-        // The setup rewrites only the block's type and parameter, so it keeps its picture and what it shows (#2502).
+        // The setup changes how the block collides and reacts, and the block keeps its picture and what it shows
+        // (#2502).
         level.SetCollision(place.Block, setup.Collision);
         level.SetBehavior(place.Block, RoomBlockBehavior.Reacting(ShootableReaction.CollectibleTrigger));
 

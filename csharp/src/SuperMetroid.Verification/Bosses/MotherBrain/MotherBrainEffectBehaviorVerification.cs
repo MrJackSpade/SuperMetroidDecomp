@@ -141,7 +141,7 @@ internal static class MotherBrainEffectBehaviorVerification
                     referenceOperand = (ushort)(referenceCursor + 2);
                     referenceCursor += 4;
                 }
-                handBeamEnemies.Projectiles.AdvanceEnemyProjectileAnimations(handBeam, handBeamTarget, Position16<RoomPixels>.Zero, shortCounter: 0);
+                handBeamEnemies.Projectiles.AdvanceEnemyProjectileAnimations(handBeam, handBeamTarget, Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
                 // Each stage draws the first stage's seven pictures from operands of its own (#2210).
                 AssertEqual<EnemyProjectileFrameId?>(EnemyProjectileProgramFrameOperands.Frame(referenceOperand, handBeam.Graphics.Owner), handBeam.Frame,
                     $"hand-beam frame {frame} shows the picture its native visual operand stores");

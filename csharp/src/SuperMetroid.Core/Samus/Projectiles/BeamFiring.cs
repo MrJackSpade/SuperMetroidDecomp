@@ -294,11 +294,9 @@ internal sealed class BeamFiring
             waveBeam: beamType.HasWave);
         if (!initialImpact)
         {
-            // The game starts the shot's behaviour only after muzzle collision. Do not infer it from the Wave component:
-            // each combination names its own, the Spazer and Plasma ones included. A Spazer and Plasma combination
-            // whose shots run the game's live state or an unconnected region instead of the game's code
-            // (UnauthoredBeamShotBehaviors) is refused here: only full memory and processor emulation could reproduce
-            // that, which is outside the emulation scope limit (#1500).
+            // The shot's behaviour starts only after muzzle collision, and each combination names its own, the Spazer
+            // and Plasma ones included, apart from the Wave component. A Spazer and Plasma combination whose shots'
+            // effect lies outside the emulation scope limit (UnauthoredBeamShotBehaviors) is refused here (#1500).
             SamusShotBehavior behavior = SamusBeamShotBehaviors.Resolve(charged, beamType);
             behavior.AdmitFiring();
             held.Install(behavior, kindState: null);
@@ -516,9 +514,8 @@ internal sealed class BeamFiring
     }
 
     /// <summary>
-    /// The launch velocity of a shot fired in <paramref name="direction"/> at <paramref name="baseSpeed"/>, in signed 1/256
-    /// pixels per update: the base speed along the direction plus the motion it inherits from Samus. Each axis wraps as
-    /// a velocity does, so an unauthored speed that passes the end of the range continues from the other end.
+    /// The launch velocity of a shot fired in <paramref name="direction"/> at <paramref name="baseSpeed"/>, in pixels
+    /// per update: the base speed along the direction plus the motion it inherits from Samus.
     /// </summary>
     private static PixelVelocity<RoomPixels> LaunchVelocity(
         ProjectileLaunchInheritance inheritance,

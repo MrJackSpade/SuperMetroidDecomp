@@ -139,7 +139,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = HopperAction.StartHop;
     }
 
-    /// <summary>Installs the jumping animation and starts the hop along the chosen heading.</summary>
+    /// <summary>Starts the jumping animation and the hop along the chosen heading.</summary>
     private static void StartHopperJump(RoomEnemyOccupant occupant, RoomEnemyPlace place, HopperEnemyState state)
     {
         SetHopperAnimation(place, state, ReadHopperAnimation(occupant, state, HopperPhase.Jumping));

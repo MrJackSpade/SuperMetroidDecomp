@@ -107,7 +107,7 @@ internal static class RoomStateSelectionDefinitionsVerification
                 var context = new RoomStateSelectionContext(storedEvents, ProgressionTableCodec.StoredBosses(bosses), morph, powerBombs);
                 AssertEqual(expected, RoomStateSelection.Select(RoomDefinitions.Get(room), context).Pointer,
                     $"Room {room:X4} native first-match/default selection");
-                AssertEqual(expected, SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(room), context).State.Pointer,
+                AssertEqual(expected, SelectedRoom.ForProgress(RoomDefinitions.Get(room), context).State.Pointer,
                     "Production room loading uses the selected compiled state without cartridge capability");
                 reached.Add(expected);
                 comparisons++;

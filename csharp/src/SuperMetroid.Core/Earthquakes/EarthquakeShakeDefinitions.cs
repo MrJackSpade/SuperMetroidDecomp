@@ -29,19 +29,19 @@ public static class EarthquakeShakeDefinitions
     };
 
     /// <summary>The reaches that shake the foreground layer.</summary>
-    public static IReadOnlySet<EarthquakeReach> ForegroundReaches { get; } = new HashSet<EarthquakeReach>
+    public static IReadOnlySet<EarthquakeReach> RoomBlockReaches { get; } = new HashSet<EarthquakeReach>
     {
-        EarthquakeReach.Foreground,
-        EarthquakeReach.ForegroundAndBackground,
-        EarthquakeReach.ForegroundBackgroundAndEnemies,
+        EarthquakeReach.RoomBlocks,
+        EarthquakeReach.RoomBlocksAndScenery,
+        EarthquakeReach.RoomBlocksSceneryAndEnemies,
     };
 
     /// <summary>The reaches that shake the background layer.</summary>
-    public static IReadOnlySet<EarthquakeReach> BackgroundReaches { get; } = new HashSet<EarthquakeReach>
+    public static IReadOnlySet<EarthquakeReach> SceneryReaches { get; } = new HashSet<EarthquakeReach>
     {
-        EarthquakeReach.ForegroundAndBackground,
-        EarthquakeReach.ForegroundBackgroundAndEnemies,
-        EarthquakeReach.BackgroundAndEnemies,
+        EarthquakeReach.RoomBlocksAndScenery,
+        EarthquakeReach.RoomBlocksSceneryAndEnemies,
+        EarthquakeReach.SceneryAndEnemies,
     };
 
     /// <summary>
@@ -51,7 +51,7 @@ public static class EarthquakeShakeDefinitions
     /// </summary>
     public static IReadOnlySet<EarthquakeReach> EnemyReaches { get; } = new HashSet<EarthquakeReach>
     {
-        EarthquakeReach.ForegroundBackgroundAndEnemies,
-        EarthquakeReach.BackgroundAndEnemies,
+        EarthquakeReach.RoomBlocksSceneryAndEnemies,
+        EarthquakeReach.SceneryAndEnemies,
     };
 }

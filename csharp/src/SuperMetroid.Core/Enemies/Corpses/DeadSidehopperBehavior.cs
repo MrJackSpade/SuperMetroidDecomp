@@ -78,8 +78,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Runs the Baby Metroid victim layout.</summary>
     private void InitializeBabyMetroidVictimSidehopper(RoomEnemyPlace place)
     {
-        // The victim stops being solid to Samus and is processed off screen; the other contact and processing
-        // properties the room's population gave it stay as they were, which is observable.
+        // The victim stops being solid to Samus and keeps updating off screen; everything else about its contact stays
+        // as the room gave it.
         place.Contact = place.Contact.Without(EnemyContact.SolidToSamus);
         place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
         // A Baby Metroid that has already fed on this Sidehopper leaves no victim.
@@ -294,9 +294,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>
-    /// The end-hop cue selects the post-landing state from whether Baby Metroid has begun draining the victim. It is
-    /// deliberately cue-driven: replacing it with a main-AI timer would make animation length and movement
-    /// cadence diverge.
+    /// The end of the landing animation selects what follows the landing, from whether the Baby Metroid has begun
+    /// draining the victim.
     /// </summary>
     private static void SelectDeadSidehopperPostAnimationState(RoomEnemyPlace place)
     {
@@ -425,8 +424,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     };
 
     /// <summary>Marks projectile collision while withholding damage until the transformed corpse can decay.</summary>
-    /// <remarks>The common projectile prelude always marks the shot, but the private reaction ignores it until the
-    /// victim is fully drained. Even then it starts rotting without vulnerability damage or impact.</remarks>
+    /// <remarks>The shot is marked as having hit, but the victim ignores it until it is fully drained; even then it
+    /// starts rotting without taking damage or an impact.</remarks>
     internal static EnemyShotReaction DeadSidehopperShotReaction { get; } = new()
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>

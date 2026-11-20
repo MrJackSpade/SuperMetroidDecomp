@@ -68,8 +68,8 @@ internal static class SamusProjectileSelectionDefinitions
     internal const SamusBeamCombination MurderBeam = SamusBeamCombination.SpazerPlasmaIceWave;
 
     /// <summary>
-    /// The animation the Murder Beam's shot runs in each direction whose read names one, or none fired left; the four
-    /// directions left out read a damage value as their animation.
+    /// The animation the Murder Beam's shot shows in each direction that shows one; fired left it shows none, and the
+    /// four directions left out are the compatibility rule's (MurderBeamDirectionAnimations).
     /// </summary>
     internal static readonly IReadOnlyDictionary<SamusProjectileDirection, SamusProjectileSegment?> MurderBeamDirectionAnimations =
         new Dictionary<SamusProjectileDirection, SamusProjectileSegment?>

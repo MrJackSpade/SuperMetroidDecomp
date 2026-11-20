@@ -115,7 +115,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private readonly AudioQueues audio;
     /// <summary>The narration text the intro shows across narration and flashback scenes (#1467).</summary>
     private readonly IntroNarrationText narrationText = new();
-    /// <summary>The cinematic actors' sprite entries over the intro sprite page (#1358).</summary>
+    /// <summary>The cinematic actors' sprites over the intro sprite page (#1358).</summary>
     internal readonly ScreenSprites screenSprites;
     /// <summary>Tracks the current physical button edges alongside scripted demo input.</summary>
     private readonly ControllerInputState controller = new();
@@ -207,8 +207,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// </summary>
     private IntroCrossfadeTick? crossfadeTick;
     /// <summary>
-    /// The shared Samus systems' frame counter: the updates the cinematic has run, counted from zero at its creation. The
-    /// intro reaches the title long before the game counter's 65536-update wrap, so it is a plain count.
+    /// The updates the cinematic has run, counted from zero at its creation, which Samus's systems read.
     /// </summary>
     private int frameCounter;
     /// <summary>
@@ -360,7 +359,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.FadeOutFirstNarration:
-                // The fade-out installs the first page's setup, which runs in the next update.
+                // The first page is set up on the update after the fade-out reaches black.
                 if (fade.Darken())
                     Phase = IntroCinematicPhase.SetupFirstPage;
                 break;
@@ -400,8 +399,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             case IntroCinematicPhase.MotherBrainFlashback:
                 if (CurrentFlashbackMotherBrain?.NextPageRequested == true)
                 {
-                    // The crossfade recolours every colour from the opening's own, so the fight lights' last record no
-                    // longer shows.
+                    // The crossfade recolours the room, so the fight lights' last colours stop showing.
                     ColourEffects = ColourEffectSystem.ForScreen();
                     StartPageCrossfade(IntroCrossfadeScene.Flashback);
                 }
@@ -498,9 +496,8 @@ public sealed class IntroCinematicState : IFrontendScreen
             StepMotherBrainFlashbackSamus();
         }
 
-        // The cinematic game state handles cinematic sprites after the active cinematic phase and
-        // after Samus/projectiles. Mother Brain can therefore consume a missile at its new
-        // position during this same frame, exactly as the game does.
+        // The cinematic's sprites update after the active cinematic phase and after Samus and her shots, so Mother
+        // Brain can take a missile at its new position this same update.
         if (CurrentFlashbackMotherBrain is not null)
         {
             CurrentFlashbackMotherBrain.RunBehavior(
@@ -530,8 +527,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentFlashbackMotherBrain?.Step();
         if (explosionsExistedBeforeThisFrame)
         {
-            // The eight explosions spawn after this update has passed their places in the list,
-            // so they first animate on the next update; the fourth hit comes on the update
+            // The eight explosions first animate on the update after they spawn; the fourth hit comes on the update
             // they spawn.
             FlashbackMotherBrainExplosions?.Step(CrossfadeFinishing);
         }
@@ -541,9 +537,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentBabyDiscovery?.Step(frameCounter, CrossfadeFinishing);
         CurrentScientistCutscene?.Step(crossfadeTick);
 
-        // The cinematic's game state runs the colour effects after its actors. The fight lights' own check ends
-        // them on the update Mother Brain starts page two, before their countdown runs: the record they showed stays on the
-        // room's colours until page two's crossfade recolours the room on the next update (#1733).
+        // The fight lights end on the update Mother Brain starts page two: their last colours stay until page two's
+        // crossfade recolours the room on the next update (#1733).
         if (Phase != IntroCinematicPhase.MotherBrainFlashback || CurrentFlashbackMotherBrain?.NextPageRequested != true)
             ColourEffects.StepScreen();
     }
@@ -666,7 +661,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         Phase = IntroCinematicPhase.PageCrossfade;
     }
 
-    /// <summary>Replaces Mother Brain actors with SR388 egg and baby owners and selects the second gameplay room page.</summary>
+    /// <summary>Replaces the Mother Brain flashback with the discovery scene: the SR388 egg and baby.</summary>
     private void SetupBabyDiscoveryCrossfade()
     {
         Narration.HideCaret();
@@ -933,11 +928,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (cue != DemoInputCue.EndIntroMotherBrainFlashback)
             throw new InvalidOperationException($"The Mother Brain flashback demo handles no {cue} cue.");
 
-        // The flashback's end locks Samus standing facing left, starts her pose and its animation afresh,
-        // disables demo publication, and then returns to the demo's animation. The next
-        // step is the shared delete, so the actor is removed on the same
-        // update. Freezing input after the exact pose change gives the remaining Mother Brain explosion
-        // frames the standing Samus the game shows in them once her demo stops driving her.
+        // The flashback's end stops the demo on this update, with Samus standing facing left and her pose and its
+        // animation started afresh; she shows standing through the rest of Mother Brain's explosions.
         FlashbackSamus.Pose = SamusPoseId.FacingLeftNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(FlashbackSamus);
         // A Samus already standing facing left keeps her running animation.

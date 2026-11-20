@@ -32,7 +32,7 @@ internal static class KzanRiseStepVerification
         KzanEnemyState state = place.RequireSpeciesState<KzanEnemyState>();
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
         foreach (int whole in new[] { 1, 16, 96, 300, 1368, 1500 })
         for (int fraction = 0; fraction < WordRange; fraction++)
         {

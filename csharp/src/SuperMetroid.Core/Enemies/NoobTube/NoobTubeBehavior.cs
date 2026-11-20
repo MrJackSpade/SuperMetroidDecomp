@@ -54,7 +54,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, TubePieces, graphics: TubePieceGraphics);
         if (projectile is null)
             return;
-        // The tube's pieces draw from the shared sheet in the crack colours the room's crack setup installs (#1512).
+        // The tube's pieces draw from the shared sheet in the tube's crack colours (#1512).
 
         Position16<RoomPixels> place = request.RoomObjectBlock.ToRoomPixels() + piece.Offset;
         projectile.StartAnimation(new NoobTubeProjectileAnimation(TubePieces, piece.Start switch
@@ -222,11 +222,11 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         /// Flickers the crack: alternate values of <paramref name="shortCounter"/> hide it and show it. The crack keeps
         /// whichever its flicker last chose once it falls.
         /// </summary>
-        private void FlickerNoobTubeCrack(EnemyProjectile projectile, int shortCounter) =>
+        private void FlickerNoobTubeCrack(EnemyProjectile projectile, Compatibility.ShortFrameCount shortCounter) =>
             Pieces.Of(projectile).IsHidden = NoobTubeCadenceDefinitions.CrackHidden.IsSetIn(shortCounter);
 
         /// <summary>Carries out one cue of the crack, shard and bubble animations; <paramref name="shortCounter"/> times the flicker.</summary>
-        private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, int shortCounter, NoobTubeProjectileCue cue, NoobTubeShardMirroring mirroring)
+        private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, Compatibility.ShortFrameCount shortCounter, NoobTubeProjectileCue cue, NoobTubeShardMirroring mirroring)
         {
             bool atOwnColumn = NoobTubeCadenceDefinitions.DebrisAtOwnColumn.IsSetIn(shortCounter);
             switch (cue.Kind)

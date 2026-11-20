@@ -69,8 +69,8 @@ internal sealed class CrocomireBodyLayer
         state.Death.MeltDistortion = CrocomireMeltDistortion.Level(state.Body.Position.Y.Whole);
 
     /// <summary>
-    /// Places the tongue at the body: a normal second enemy, it lies at its body-relative X offset, and every placement of
-    /// his body during the fight and his death moves it there, even while the body's bulk shows as his body's pictures.
+    /// Places the tongue at the body: his tongue part lies at its offset beside his body, and every placement of his
+    /// body during the fight and his death moves it there, even while the body's bulk shows as his body's pictures.
     /// The tongue's picture is drawn where the tongue lies until his steps move his body later in the update (#2031).
     /// </summary>
     internal static void PlaceCrocomireTongue(CrocomireEnemyState state)

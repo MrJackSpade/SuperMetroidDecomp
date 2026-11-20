@@ -11,7 +11,7 @@ public sealed class RoomObjectPopulation
 
     /// <summary>The population's name.</summary>
     public string Name { get; }
-    /// <summary>Validated placements in allocation order.</summary>
+    /// <summary>Validated placements in the order the room places them.</summary>
     public ReadOnlyMemory<RoomObjectPlacement> Placements => placements;
 
     /// <summary>Copies an ordered decoded population, rejecting an empty placement before any room object takes a place.</summary>

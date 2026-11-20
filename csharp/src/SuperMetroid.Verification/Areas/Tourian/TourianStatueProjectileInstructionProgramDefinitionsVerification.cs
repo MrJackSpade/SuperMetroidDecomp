@@ -95,7 +95,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         particle.Position = particle.Position.WithWholeY(216);
         particle.Velocity = particle.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(512));
         unlock.Effects.RunMotion(new EnemyProjectileMotionContext(particle, RoomLevelData.CollisionOnly(new(1, 1), [RoomCollisionType.Air]),
-            RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, ShortCounter: 0, FrameCounter: 0,
+            RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, ShortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero, FrameCounter: 0,
             InstalledFixtures.CreateBombSystem()));
         EnemyProjectile splash = Single(RoomEnemyProjectileKind.TourianStatueSplash);
         Run(splash, 4);
@@ -179,7 +179,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             for (int frame = 0; frame < frames; frame++)
             {
                 projectile.FrameHold = WrappingCountdown.Start(1);
-                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
                 // The shown frame's operand sits just before the instruction the native pointer stands on.
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands,
                     projectile.IsActive ? unchecked((ushort)(NativePointer(projectile) - 2)) : null);

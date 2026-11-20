@@ -60,8 +60,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Yapping Maw.</summary>
     internal void InitializeYappingMaw(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        // The body links are spawned mouth end first, link 3 down to link 0, so each takes the projectile place the pool
-        // gives it in that order; the Maw keeps them in root-to-mouth order.
+        // The body links are created mouth end first and kept root to mouth.
         var bodies = new EnemyProjectile[YappingMawAttackDefinitions.TongueLinks];
         for (int link = bodies.Length - 1; link >= 0; link--)
         {

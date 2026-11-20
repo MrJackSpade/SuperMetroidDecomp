@@ -50,8 +50,7 @@ internal static class NorfairRidleyHealthBandDefinitions
         [new(1800, NearlyDead), new(5400, BadlyWounded), new(9000, Wounded)];
 
     /// <summary>
-    /// One launch, each a speed an update: its rightward speed and upward speed, then its upward and downward
-    /// accelerations.
+    /// One launch: its rightward speed and upward speed, then its upward and downward accelerations.
     /// </summary>
     private static RidleyPogoDefinition Pogo(SignedEightEight rightward, SignedEightEight upwardSpeed, SignedEightEight upward, SignedEightEight downward) =>
         new(new PixelVelocity<RoomPixels>(rightward, -upwardSpeed), upward, downward);

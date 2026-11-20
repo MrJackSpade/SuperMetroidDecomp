@@ -1093,12 +1093,12 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.MoonwalkAimUpRightPose or
                 SamusPoseId.MoonwalkAimDownLeftPose or
                 SamusPoseId.MoonwalkAimDownRightPose or
-                SamusPoseId.MoonwalkTurnJumpLeftPose or
-                SamusPoseId.MoonwalkTurnJumpRightPose or
-                SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
-                SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
-                SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or
-                SamusPoseId.MoonwalkTurnJumpAimDownRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose or
                 SamusPoseId.ShinesparkWindupRightPose or
                 SamusPoseId.ShinesparkWindupLeftPose or
                 SamusPoseId.ShinesparkHorizontalRightPose or
@@ -1334,12 +1334,12 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.MoonwalkAimUpRightPose or
                 SamusPoseId.MoonwalkAimDownLeftPose or
                 SamusPoseId.MoonwalkAimDownRightPose or
-                SamusPoseId.MoonwalkTurnJumpLeftPose or
-                SamusPoseId.MoonwalkTurnJumpRightPose or
-                SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
-                SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
-                SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or
-                SamusPoseId.MoonwalkTurnJumpAimDownRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose or
                 SamusPoseId.ShinesparkWindupRightPose or
                 SamusPoseId.ShinesparkWindupLeftPose or
                 SamusPoseId.ShinesparkHorizontalRightPose or
@@ -1624,12 +1624,12 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
     // two-tick frames followed by `$F8,$1A/$19`, exactly `$91:B45B-$B478` for NTSC.
     SamusTerrainMovementTurn[] turns =
     [
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkFacingRightPose, SamusPoseId.MoonwalkTurnJumpLeftPose, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkFacingLeftPose, SamusPoseId.MoonwalkTurnJumpRightPose, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimUpRightPose, SamusPoseId.MoonwalkTurnJumpAimUpLeftPose, [0x04, 0x0e, 0xff, 0xfa, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimUpLeftPose, SamusPoseId.MoonwalkTurnJumpAimUpRightPose, [0x08, 0x0e, 0xff, 0xfa, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimDownRightPose, SamusPoseId.MoonwalkTurnJumpAimDownLeftPose, [0x04, 0x0e, 0xff, 0xfc, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimDownLeftPose, SamusPoseId.MoonwalkTurnJumpAimDownRightPose, [0x08, 0x0e, 0xff, 0xfc, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkFacingRightPose, SamusPoseId.MoonwalkTurnToSpinJumpLeftPose, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkFacingLeftPose, SamusPoseId.MoonwalkTurnToSpinJumpRightPose, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimUpRightPose, SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose, [0x04, 0x0e, 0xff, 0xfa, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimUpLeftPose, SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose, [0x08, 0x0e, 0xff, 0xfa, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimDownRightPose, SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose, [0x04, 0x0e, 0xff, 0xfc, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimDownLeftPose, SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose, [0x08, 0x0e, 0xff, 0xfc, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
     ];
     foreach ((_, SamusPoseId target, byte[] definition, SamusPoseId spinTarget) in turns)
     {
@@ -1643,7 +1643,7 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
     WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.SpinJumpLeftPose), [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
     WritePoseAnimationDelays(bus, SamusPoseId.SpinJumpRightPose, 0xc400, [2]);
     WritePoseAnimationDelays(bus, SamusPoseId.SpinJumpLeftPose, 0xc401, [2]);
-    SeedMoonwalkTurnJumpDryVerticalRows(bus);
+    SeedMoonwalkTurnToSpinJumpDryVerticalRows(bus);
 
     foreach ((SamusPoseId source, SamusPoseId target, _, _) in turns)
     {
@@ -1652,7 +1652,7 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
         turn.HorizontalSpeed.BaseSpeed = turn.HorizontalSpeed.BaseSpeed.WithWhole(1);
         turn.HorizontalSpeed.ExtraRunSpeed = turn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x4000);
         SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection? sourceMuzzleDirection = SamusPoseMetadata.ReadAimDirection(turn);
-        SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(turn, target);
+        SamusGroundedPoseTransitions.ApplyMoonwalkTurnToSpinJump(turn, target);
         AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { sourceMuzzleDirection
                 ?? throw new InvalidOperationException($"Moonwalk pose {source} names no aim.") }),
             turn.TransitionShot.Handed, "all six Moonwalk jump routes publish their original muzzle direction");
@@ -1666,7 +1666,7 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
     // Exercise the terminal command on one mirrored route. Six decrements consume three
     // two-tick art frames; applying `$F8,$1A` then creates the real 4.E000 upward launch.
     var animated = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MoonwalkFacingRightPose };
-    SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(animated, SamusPoseId.MoonwalkTurnJumpLeftPose);
+    SamusGroundedPoseTransitions.ApplyMoonwalkTurnToSpinJump(animated, SamusPoseId.MoonwalkTurnToSpinJumpLeftPose);
     for (int tick = 0; tick < 6; tick++)
         SamusPresentation.Animate(animated, new SamusAnimationStep { Random = new SharedRandom() });
     AssertEqual(SamusPoseId.SpinJumpLeftPose, (animated.CuePose.Named ?? throw new InvalidOperationException("Verification requires animated.CuePose.Named.")),
@@ -1896,7 +1896,7 @@ static void SeedCrouchedAimTurnSpeedRecord(TestAddressSpace bus)
 }
 
 /// <summary>Seeds the dry-air normal-jump launch and gravity words read after a Moonwalk turn-jump's `$F8`.</summary>
-static void SeedMoonwalkTurnJumpDryVerticalRows(TestAddressSpace bus)
+static void SeedMoonwalkTurnToSpinJumpDryVerticalRows(TestAddressSpace bus)
 {
     WriteTestWord(bus, 0x909eb9, 0x0004);
     WriteTestWord(bus, 0x909ebf, 0xe000);

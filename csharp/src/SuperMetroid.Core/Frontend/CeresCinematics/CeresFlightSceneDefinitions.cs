@@ -41,15 +41,15 @@ internal static class CeresFlightSceneDefinitions
     /// </summary>
     internal const ColourEffectId GunshipEngineFlicker = CeresDestructionSceneDefinitions.GunshipEngineFlicker;
 
-    /// <summary>The colour group the rear view's floor shows the engine flicker's records of (#1733).</summary>
+    /// <summary>The engine flicker whose current frame the rear view's floor shows (#1733).</summary>
     internal const ColourEffectColours EngineColours = ColourEffectColours.CutsceneGunshipEngine;
 
     /// <summary>The station's blinking navigation lights on its sprites, started as the rear view is set up (#1733).</summary>
     internal const ColourEffectId NavigationLights = ColourEffectId.CutsceneCeresNavigationLightsSprite;
 
     /// <summary>
-    /// The colour group of each actor colouring a colour effect animates (#1733): an actor drawn in the colouring shows the
-    /// record the effect last showed over its drawn colours.
+    /// The colour effect each actor colouring animates (#1733): an actor drawn in the colouring shows the frame the
+    /// effect last showed over its drawn colours.
     /// </summary>
     internal static IReadOnlyDictionary<CeresSpriteColouring, ColourEffectColours> LitColours { get; } =
         new Dictionary<CeresSpriteColouring, ColourEffectColours>

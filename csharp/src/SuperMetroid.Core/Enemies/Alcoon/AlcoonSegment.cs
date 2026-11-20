@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>
-/// The Alcoon's walking, fireball and airborne animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// The Alcoon's walking, fireball and airborne animations (#641).
 /// Their steps are <see cref="AlcoonAnimations"/>.
 /// </summary>
 internal enum AlcoonSegment

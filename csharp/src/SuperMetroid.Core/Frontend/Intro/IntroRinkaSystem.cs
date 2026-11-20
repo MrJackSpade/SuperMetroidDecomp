@@ -8,8 +8,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The Rinkas (the ring-shaped “Cheerios”) fired during the Mother Brain flashback.
 /// </summary>
 /// <remarks>
-/// The scene launches its Rinkas in two waves. Only the first Rinka launched is scripted to strike Samus; the others
-/// deliberately miss.
+/// The scene launches its Rinkas in two waves. Only the first Rinka launched strikes Samus; the others miss.
 /// The hit step does not subtract health in the cinematic. It publishes its invincibility and knockback
 /// (<see cref="IntroRinkaDefinitions.StrikeKnockbackUpdates"/>), which makes Samus flash and visibly react.
 /// The Rinkas are a list in spawn order with no cap (#1625): only the first one launched touches Samus, so the order the

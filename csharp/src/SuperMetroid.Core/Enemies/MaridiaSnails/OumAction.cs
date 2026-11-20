@@ -18,7 +18,7 @@ public enum OumAction
     /// <summary>Waits, without moving, for the attack animation to finish.</summary>
     Attacking,
     /// <summary>
-    /// Finished attacking, as the attack animation's cue says (#2439): the next update installs the rolling animation for
+    /// Finished attacking, as the attack animation's cue says (#2439): the next update starts the rolling animation for
     /// the way Oum faces and rolls on.
     /// </summary>
     AttackFinished,

@@ -4,9 +4,9 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// The block shape of each of the twelve reachable right- and left-facing Draygon wall-cannon frames (#1608): the 2x2
-/// square each frame covers around the cannon's core block, and how each cell collides. Unused diagonal orientations
-/// are not claimed. What each frame shows is its installed picture (#1557).
+/// The block shape of each of the twelve right- and left-facing Draygon wall-cannon frames (#1608): the 2x2 square each
+/// frame covers around the cannon's core block, and how each cell collides. What each frame shows is its installed
+/// picture (#1557).
 /// </summary>
 internal static class DraygonCannonObjectDrawDefinitions
 {

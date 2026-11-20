@@ -45,7 +45,7 @@ internal static class OumBounceVerification
             samus.Position = samus.Position.WithWhole(new(1000, 1000));
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
-                new FrameCounters(0));
+                new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
 
             enemies.OumBehavior.RunOumMainAi(place, frame);
 

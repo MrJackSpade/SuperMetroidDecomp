@@ -184,8 +184,8 @@ internal sealed class StationObjects
     }
 
     /// <summary>
-    /// Changes a station block's collision kind, and sets its optional behaviour, keeping its picture and what it shows, as
-    /// the stations' setups rewrite only each block's type, or type and parameter (#2502).
+    /// Changes a station block's collision kind, and sets its optional behaviour, keeping its picture and what it shows
+    /// (#2502).
     /// </summary>
     private static void WriteStationBlock(
         RoomLevelData level,

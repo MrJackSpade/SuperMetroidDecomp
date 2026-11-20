@@ -8,9 +8,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// The camera position constrained by Super Metroid's directional scroll-zone checks.
 /// </summary>
 /// <remarks>
-/// The four directional checks are the game's four scroll-boundary checks. Samus's horizontal and vertical
-/// tracking, run by the gameplay update's scrolling, supply the proposed position, ideal position and camera speed
-/// they read.
+/// Each direction's travel stops at a closed screen or the room's edge; Samus's horizontal and vertical tracking supply
+/// the proposed position, ideal position and camera speed they read.
 /// </remarks>
 [RoomLifetime]
 public sealed class ScrollBoundaryCamera
@@ -125,11 +124,9 @@ public sealed class ScrollBoundaryCamera
     /// Publishes the camera position the door-transition scroll owns, which may lie outside the room.
     /// </summary>
     /// <remarks>
-    /// The vertical transitions deliberately begin outside the destination room:
-    /// down starts at destination Y minus 224 (often 65312) and up starts at
-    /// destination Y plus 251. These are valid wrapped coordinates, not entry
-    /// positions to clamp. Every other placement of the camera is <see cref="SetPosition"/>'s, which keeps it within
-    /// the room's edges.
+    /// The vertical transitions begin a screen beyond the destination, outside the room: down starts a screen's height
+    /// above the destination, wrapping as <see cref="CoordinateAxis"/> states, and up starts just below it. Every other
+    /// placement of the camera is <see cref="SetPosition"/>'s, which keeps it within the room's edges.
     /// </remarks>
     public void SetDoorTransitionPosition(Position16<RoomPixels> position) =>
         // The door-transition setup and scroll write whole camera positions, leaving both fractions intact.
@@ -173,9 +170,8 @@ public sealed class ScrollBoundaryCamera
 
     /// <summary>
     /// Runs horizontal Samus tracking plus camera-speed calculation.
-    /// Integer movement follows the facing-dependent camera target;
-    /// an unchanged integer position goes on to autoscrolling exactly
-    /// as the game does (Samus moving within her pixel still affects speed).
+    /// Integer movement follows the facing-dependent camera target; an unchanged integer position goes on to
+    /// autoscrolling (Samus moving within her pixel still affects speed).
     /// </summary>
     public void TrackMovedSamusHorizontally(
         FixedPosition<RoomPixels> previous,
@@ -346,9 +342,9 @@ public sealed class ScrollBoundaryCamera
         if (Scrolls.ReadCameraState(RightOf(current)) != RoomScrollState.Closed)
             return;
 
-        // An open current screen with a closed screen to its right is the mirror case: drift left
-        // toward the current screen's left edge. If the candidate itself lands in a closed screen, round
-        // up to the next screen boundary. The comparison is signed.
+        // An open current screen with a closed screen to its right is the mirror case: drift left toward the current
+        // screen's left edge. If the candidate itself lands in a closed screen, round up to the next screen boundary;
+        // which way the distance lies (CoordinateAxis.Difference) decides the drift.
         int leftBoundary = ScreenStart(Position.X.Whole);
         int leftCandidate = CameraPastRoomEdge.At(proposed - Speed.X.WholePixels - SamusCameraDefinitions.ClosedScreenDrift);
         if (CameraPastRoomEdge.LiesBefore(leftCandidate, leftBoundary))
@@ -585,7 +581,8 @@ public sealed class ScrollBoundaryCamera
     /// <summary>The first pixel of the 256-pixel scroll screen holding <paramref name="pixel"/> (the 256-pixel alignment).</summary>
     private static int ScreenStart(int pixel) => RoomGridConversions.ScreenStart(pixel);
 
-    /// <summary>The first pixel of the following scroll screen, wrapping at 65536.</summary>
+    /// <summary>The first pixel of the following scroll screen, wrapping as <see cref="CoordinateAxis"/>
+    /// states.</summary>
     private static int NextScreenStart(int pixel) => CameraPastRoomEdge.At(ScreenStart(pixel) + 2 * SamusCameraDefinitions.HalfScreen);
 
     /// <summary>

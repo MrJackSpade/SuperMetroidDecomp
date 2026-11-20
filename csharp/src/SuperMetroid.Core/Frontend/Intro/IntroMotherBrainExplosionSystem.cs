@@ -8,9 +8,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The eight cinematic actors spawned by Mother Brain's fourth intro missile hit.
 /// </summary>
 /// <remarks>
-/// The large and small explosions: each explosion's authored placement sets where it stands and delays its first frame, and each runs its own
-/// typed animation (#641). Every object keeps its own timer and animation, which is what creates the staggered blast
-/// pattern.
+/// The large and small explosions: each explosion's authored placement sets where it stands and delays its first frame,
+/// and each keeps its own delay and animation (#641), which staggers the blast.
 /// </remarks>
 internal sealed class IntroMotherBrainExplosionSystem
 {

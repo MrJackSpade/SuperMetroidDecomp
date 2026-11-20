@@ -12,9 +12,9 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public static class XrayRevealOverlays
 {
     /// <summary>
-    /// Applies the item overlays in descending room object order, then room-authored record order. A tank shows its
-    /// installed reveal block; every other item shows its kind's own picture's first frame (#1538), whatever was set up
-    /// before it.
+    /// Applies the items last to first in the room's item list, then the room's overlay blocks in their listed order. A
+    /// tank shows its installed reveal block; every other item shows its kind's own picture's first frame (#1538),
+    /// whatever was set up before it.
     /// </summary>
     /// <param name="blocks">The revealed blocks, as <see cref="XrayRevealMap.Build"/> builds them.</param>
     /// <param name="items">The room's collectibles.</param>

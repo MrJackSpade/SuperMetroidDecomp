@@ -179,10 +179,10 @@ internal static class FileSelectRoomMapVerification
         var spriteDocument = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
         {
-            MapSpriteId id = Ensure.Listed(MapArrowDefinitions.Pictures, direction);
+            MapSpriteId id = Ensure.Listed(MapArrowDefinitions.ArrowPictures, direction);
             string name = MapSpriteArtwork.FrameNames.Single(frame => frame.Id == id).Name;
             spriteDocument.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
-                TileColumn = 0, TileRow = 1, Size = 8, Priority = 3, Palette = null, FlipX = false, FlipY = false }];
+                TileColumn = 0, TileRow = 1, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.InFront, Palette = null, FlipX = false, FlipY = false }];
         }
         var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(spriteDocument, options)),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
@@ -248,7 +248,7 @@ internal static class FileSelectRoomMapVerification
         {
             string name = MapSpriteArtwork.FrameNames.Single(frame => frame.Id == MapSpriteOrdinals.Spritemaps.Decode(id, "map spritemap ordinal")).Name;
             document.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
-                TileColumn = (id == 0x59 ? 0x50 : id) % 16, TileRow = (id == 0x59 ? 0x50 : id) / 16, Size = 8, Priority = 3,
+                TileColumn = (id == 0x59 ? 0x50 : id) % 16, TileRow = (id == 0x59 ? 0x50 : id) / 16, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.InFront,
                 Palette = null, FlipX = false, FlipY = false }];
         }
         var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
@@ -486,7 +486,7 @@ internal static class FileSelectRoomMapVerification
         {
             string name = MapSpriteArtwork.FrameNames.Single(frame => frame.Id == MapSpriteOrdinals.Spritemaps.Decode(id, "map spritemap ordinal")).Name;
             document.Frames[name] = [new SpriteVisualPart { OffsetX = -2, OffsetY = -3,
-                TileColumn = 1, TileRow = 0, Size = 8, Priority = 3, Palette = null,
+                TileColumn = 1, TileRow = 0, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.InFront, Palette = null,
                 FlipX = false, FlipY = false }];
         }
         var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),

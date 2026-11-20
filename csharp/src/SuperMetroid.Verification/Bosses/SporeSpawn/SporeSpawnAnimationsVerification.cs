@@ -153,7 +153,7 @@ internal static class SporeSpawnAnimationsVerification
             int drops = 0;
             for (int update = 0; update < 48 && !native.Deleted; update++, updates++)
             {
-                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: 0);
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
                 native.Step(cartridge);
                 drops += native.Callbacks.Count(callback => callback == NativeEnemyProjectileInstruction.Spores_SpawnEnemyDrops);
                 string at = $"Spore Spawn projectile {program} update {update}";

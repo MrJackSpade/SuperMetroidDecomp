@@ -15,9 +15,8 @@ internal sealed class EnemyBreakableTerrainObjects
         _places = places;
     }
     /// <summary>
-    /// Spawns the breakable block's break: take a place, clear the block's collision at once and keep its picture and what
-    /// it shows until the break draws, as the setup rewrites only the block's type (#2502). A full room skips the setup and
-    /// reports failure.
+    /// Spawns the breakable block's break: take a place, clear the block's collision at once and keep its picture and
+    /// what it shows until the break draws (#2502). A full room skips the setup and reports failure.
     /// </summary>
     public void SpawnEnemyBreakableBlock(RoomLevelData level, Position16<RoomBlocks> position)
     {

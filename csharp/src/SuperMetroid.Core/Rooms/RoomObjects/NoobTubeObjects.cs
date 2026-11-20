@@ -29,8 +29,8 @@ internal sealed class NoobTubeObjects
     }
 
     /// <summary>
-    /// Runs the tube's setup: its origin block becomes a solid block whose reaction is the tube's, keeping its picture and
-    /// what it shows (#1580, #2502), as the setup rewrites only the block's type and parameter.
+    /// Runs the tube's setup: its origin block becomes a solid block whose reaction is the tube's, keeping its picture
+    /// and what it shows (#1580, #2502).
     /// </summary>
     internal void SetupNoobTube(RoomLevelData level, RoomObjectPlace place)
     {

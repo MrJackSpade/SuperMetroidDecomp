@@ -42,7 +42,7 @@ internal static class InventoriedRoomStateFixtures
         IReadOnlyList<RoomTerrainReaction> blocks = terrain.Count == 0 ? [new(RoomCollisionType.SolidBlock, RoomBlockBehavior.None)] : terrain;
         var installed = new InstalledRoomLevel(new Extent16<RoomBlocks>(blocks.Count, 1),
             [.. blocks.Select(block => RoomTerrainBlock.Of(0, BlockMirroring.None, block.Collision))],
-            [.. blocks.Select(block => block.Behavior)], [.. new RoomBlockAppearance[blocks.Count]], [], 0);
+            [.. blocks.Select(block => block.Behavior)], [.. new RoomBlockAppearance[blocks.Count]], new LevelDataPastGrid<RoomTerrainBlock>([], 0));
         return InventoriedRoomState.Of(room, state, artwork, installed, straddledShots, []);
     }
 

@@ -163,7 +163,7 @@ internal static class PhantoonAnimationsVerification
             int drops = 0;
             for (int update = 0; update < 64 && !native.Deleted; update++)
             {
-                enemies.Projectiles.AdvanceEnemyProjectileAnimations(flame, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: 0);
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(flame, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
                 native.Step(cartridge);
                 drops += native.Callbacks.Count;
                 string at = $"Phantoon flame {program} update {update}";
@@ -245,8 +245,8 @@ internal static class PhantoonAnimationsVerification
         {
             enemies.PrePhantoonRoomBehavior.HoldingProjectile.RunMotion(new EnemyProjectileMotionContext(projectile,
                 RoomLevelData.CollisionOnly(new(1, 1), [RoomCollisionType.Air]), RoomEnemyFrameFixtures.StandaloneSamus(),
-                Position16<RoomPixels>.Zero, ShortCounter: 0, FrameCounter: 0, InstalledFixtures.CreateBombSystem()));
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+                Position16<RoomPixels>.Zero, ShortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero, FrameCounter: 0, InstalledFixtures.CreateBombSystem()));
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
             native.Step(cartridge);
             AssertEqual(!native.Deleted, projectile.IsActive, $"pre-Phantoon room update {update}: deletion");
             if (native.Deleted)

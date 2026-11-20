@@ -7,8 +7,7 @@ namespace SuperMetroid.Core.Audio;
 /// <remarks>
 /// A queue never holds more than <see cref="SoundQueueAdmission.MaximumOccupancy"/> requests: every request is admitted
 /// by <see cref="SoundQueueAdmission.For"/> from <see cref="Count"/>, and every priority turns a request away once that
-/// many wait. The game's own handling of a request arriving at a queue with no room is therefore never reached, and the
-/// queue fails loudly instead of reproducing it (<see cref="Add"/>).
+/// many wait, so a request always finds room (<see cref="Add"/>).
 /// </remarks>
 internal sealed class SoundQueue
 {

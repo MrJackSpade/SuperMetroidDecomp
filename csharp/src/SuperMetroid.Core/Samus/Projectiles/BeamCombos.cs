@@ -2,7 +2,8 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Beam combination attacks (charge plus special weapon): activation, and the ice, plasma, spazer and wave combo steps with the Spacetime shot's colour copy.</summary>
+/// <summary>Beam combination attacks (charge plus special weapon): activation, and the ice, plasma, spazer and wave
+/// combo steps with the Spacetime shot's change to saved progress.</summary>
 internal sealed class BeamCombos
 {
     /// <summary>Ends expired special attack particles through the same projectile lifecycle as ordinary beams.</summary>
@@ -13,7 +14,7 @@ internal sealed class BeamCombos
     private readonly SamusShotPool _pool;
     /// <summary>Spawns periodic Wave and other special attack trails from their live particles.</summary>
     private readonly ProjectileTrails _trails;
-    /// <summary>What the Spacetime shot's runaway colour copy overwrites in saved progression.</summary>
+    /// <summary>What the Spacetime shot changes in saved progress.</summary>
     private readonly SpaceTimeProgressionOverwrite<SamusProjectileSegmentBeat, ProgressionOverwrite> _spaceTimeOverwrite;
 
     /// <summary>Connects special beam activation and particle updates to shared projectile, charge, and trail owners.</summary>

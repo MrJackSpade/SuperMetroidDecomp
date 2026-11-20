@@ -20,7 +20,7 @@ internal static class OwtchPatrolStateVerification
     {
         _ = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
         (RoomEnemySystem enemies, RoomEnemyPlace place, _) = NewOwtch(OwtchBehaviorState.MovingRight);
         // The Owtch walks at its placement's speed (#2439).
         place.SetSpawnSettings(place.HeldOccupant().SpawnSettings<OwtchSpawnSettings>() with { Speed = SignedSixteenSixteen.FromParts(1, 32768) });

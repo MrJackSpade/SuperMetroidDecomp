@@ -31,7 +31,7 @@ public sealed record RoomStateSettings(
     /// <summary>The graphics set the state draws its rooms with.</summary>
     public RoomGraphicsSet GraphicsSet { get; init; } = GraphicsSet;
 
-    /// <summary>The music data set and track the room state selects.</summary>
+    /// <summary>The room's song, and the set of music it plays from.</summary>
     public RoomMusic Music { get; init; } = Music;
 
     /// <summary>

@@ -489,7 +489,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         return titleGradientPresentation.Resolve(Zoom);
     }
 
-    /// <summary>Places the active title frame and stage-dependent copyright as the frame's sprite entries.</summary>
+    /// <summary>Places the active title frame and stage-dependent copyright as the frame's sprites.</summary>
     private void PrepareRenderSprites()
     {
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.Title);

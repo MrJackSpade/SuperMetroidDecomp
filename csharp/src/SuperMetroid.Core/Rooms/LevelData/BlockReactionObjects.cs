@@ -79,8 +79,8 @@ internal sealed class BlockReactionObjects
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         place.Block = position;
 
-        // This is not the block's earlier appearance. The setup deliberately replaces the block and its mirroring with the
-        // bomb-block parent; multi-block restorations then add extension blocks around this parent.
+        // This is not the block's earlier appearance: the setup shows the bomb-block parent in place of the block and
+        // its mirroring, and multi-block restorations then add extension blocks around this parent.
         RoomBlockAppearance parent = _drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent);
         place.Become(new BlockReactionObject(BlockReactionChanges.CollisionBomb(behavior.Bombable),
             new RoomTerrainBlock(parent, block.CollisionType)));
@@ -275,9 +275,9 @@ internal sealed class BlockReactionObjects
                 return true;
 
             case ShotBlockReaction.PermanentBreak:
-                // The deactivating setup keeps no restore block: these breaks are permanent. The current block loses its
-                // shootable collision before the first animated breaking frame runs later in this pass, keeping what it
-                // shows until then, as the setup rewrites only the block's type (#2502).
+                // The deactivating setup keeps no restore block: these breaks are permanent. The current block loses
+                // its shootable collision before the first animated breaking frame runs later in this pass, keeping
+                // what it shows until then (#2502).
                 place.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(behavior.Shootable)));
                 level.SetCollision(position, block.Terrain.Deactivated().Collision);
                 return true;

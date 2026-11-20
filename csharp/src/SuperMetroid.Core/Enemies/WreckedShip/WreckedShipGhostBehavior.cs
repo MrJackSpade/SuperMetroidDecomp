@@ -87,8 +87,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>
-    /// Tracks Samus for the spawn. The one-pixel upper bound is exclusive in the game; this asymmetric
-    /// comparison is deliberately not replaced by an absolute-distance convenience test.
+    /// Tracks Samus for the spawn: she stays still while she lies within the box around where she was, from its lower
+    /// corner up to, but not including, its upper corner.
     /// </summary>
     private static void RunWreckedShipGhostTracking(
         RoomEnemyPlace place,
@@ -186,8 +186,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     {
         AdvanceWreckedShipGhostFlicker(place, state);
 
-        // The brightening gates only on red and does not saturate the others: a full green or blue carries into the
-        // next channel, as the fade value reproduces.
+        // The ghost brightens as WreckedShipGhostFade reproduces it.
         WreckedShipGhostFadeStep step = state.Fade.Brightened();
         state.Fade = step.Next;
         int colorsChanged = step.Changes;
@@ -196,7 +195,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             return;
 
         state.Action = WreckedShipGhostAction.FadingToGhostColours;
-        state.Fade = state.Fade.Materializing(WreckedShipGhostAppearance.Colours);
+        state.Fade = state.Fade.Materializing(WreckedShipGhostFade.GhostColours);
     }
 
     /// <summary>Fades to the ghost's own colours, with the simultaneous flicker and per-channel fade.</summary>

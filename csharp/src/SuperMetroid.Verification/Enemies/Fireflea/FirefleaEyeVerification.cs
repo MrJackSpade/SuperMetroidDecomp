@@ -43,9 +43,8 @@ internal static class FirefleaEyeVerification
         var memory = runtime.PublishDisplayFrame().Paint.WithShownDraws(sprites.Draws);
         var source = runtime.PublishDisplayFrame().OrdinaryBaseScene;
         var actualDarkness = (GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(BlendedLayers.Background | BlendedLayers.Backdrop, actualDarkness.Blend.Blended,
-            "reported room darkens the background and backdrop, not the sprites");
-        AssertEqual(BlendOperation.Subtract, actualDarkness.Blend.Operation, "reported room's darkness subtracts its shade");
+        AssertTrue(actualDarkness.Blend is FirefleaDarknessBlend,
+            "reported room shows Fireflea's darkness, which darkens the background and backdrop, not the sprites");
         var baseLayer = (GameplaySceneLayer)source.Layers[0];
         // Isolate the actual room OBJ pixels on a black backdrop, retaining the
         // retail graphics/palette and the production source-aware color-math kernel.
@@ -55,7 +54,7 @@ internal static class FirefleaEyeVerification
         foreach (byte darkness in new byte[] { 0, 6, 12, 18, 24, 25, 31 })
         {
             var closed = ScreenWindow.Closed;
-            var layer = new GameplayBlendLayer(objects, closed, false, actualDarkness.Blend with { Colour = new FadeLevelColour(darkness, darkness, darkness).ToColour() });
+            var layer = new GameplayBlendLayer(objects, closed, false, new FirefleaDarknessBlend(new FadeLevelColour(darkness, darkness, darkness).ToColour()));
             var pixels = DisplayRendering.Render(new LayeredScene(memory, new DisplayLayer[] { layer }, source.Brightness));
             bright ??= pixels;
             AssertTrue(pixels.SequenceEqual(bright), "native A2 darkness leaves retail eye OBJ colors unchanged");

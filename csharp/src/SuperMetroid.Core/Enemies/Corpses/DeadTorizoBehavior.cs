@@ -33,7 +33,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The places of the corpses the room has set up, in the order they were placed, whose sand heaps it draws (#2283).</summary>
     private readonly List<RoomEnemyPlace> _corpses = [];
 
-    /// <summary>Binds corpse rotting to room memory, frame timing, projectiles and presentation.</summary>
+    /// <summary>Gives the corpse's rot the room's random numbers, the enemy pass's count, projectiles, drawing and
+    /// audio.</summary>
     internal DeadTorizoBehavior(EnemyRoomBinding room, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyAudioQueue audio)
     {
         _audio = audio;
@@ -229,9 +230,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Marks projectile collision and starts rotting without impact animation or health loss.</summary>
     internal EnemyShotReaction DeadTorizoShotReaction => field ??= new()
     {
-        // The dead corpses and Baby Metroid receive the projectile prelude but never an impact or vulnerability.
-        // Its private reaction runs after the ordinary collision prelude but before common impact/vulnerability
-        // code. The shot is marked, not converted into an explosion, and the corpse never loses health.
+        // A shot is marked as having hit the corpse, deals no damage and makes no explosion, and starts the rot.
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);

@@ -61,7 +61,7 @@ internal static class MorphBallEyeBehaviorVerification
         eye.Position = eye.Position.WithWhole(new(128, 128));
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         samus.CollectedItems = SamusEquipmentFlags.MorphBall;
-        var frame = new ClockedEnemyAiFrame(RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Samus = samus }, new FrameCounters(0));
+        var frame = new ClockedEnemyAiFrame(RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Samus = samus }, new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
         IReadOnlyList<EnemyFrameId> aims = MorphBallEyeAnimations.AimFrames.InTurnOrder;
         for (int arc = 0; arc < aims.Count; arc++)
         {
@@ -160,7 +160,7 @@ internal static class MorphBallEyeBehaviorVerification
         samus.Position = eye.Position;
         state.Action = MorphBallEyeAction.Activating;
         state.ActionTimer = UpdateCountdown.For(1);
-        var frame = new ClockedEnemyAiFrame(RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Samus = samus }, new FrameCounters(0));
+        var frame = new ClockedEnemyAiFrame(RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Samus = samus }, new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
         enemies.MorphBallEyeBehavior.RunMorphBallEyeMainAi(eye.HeldOccupant(), eye, frame);
         AssertEqual(MorphBallEyeAction.Active, state.Action, "the eye has opened");
         AssertEqual(MorphBallEyeBeamPhase.PendingInitialization, enemies.MorphBallEyeBehavior.MorphBallEyeBeam.Phase, "the opened eye requests the beam");

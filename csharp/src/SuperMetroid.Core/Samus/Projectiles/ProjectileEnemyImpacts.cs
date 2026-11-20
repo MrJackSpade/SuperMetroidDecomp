@@ -3,7 +3,8 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Projectile hits on enemies: the collision prelude, reflection, the intro Mother Brain missile, and the start of the impact explosion.</summary>
+/// <summary>Projectile hits on enemies: marking a shot's hit, reflection, the intro Mother Brain missile, and the start
+/// of the impact explosion.</summary>
 [RoomLifetime]
 internal sealed class ProjectileEnemyImpacts
 {
@@ -11,7 +12,7 @@ internal sealed class ProjectileEnemyImpacts
     private readonly ProjectileAnimation _animation;
     /// <summary>Receives the Super Missile enemy-hit quake request.</summary>
     private readonly ProjectileEarthquakes _earthquakes;
-    /// <summary>Projectile records whose direction, damage, and animation change on enemy contact.</summary>
+    /// <summary>The shots in the pool, whose direction, damage, and animation change on enemy contact.</summary>
     private readonly SamusShotPool _pool;
     /// <summary>Converts missile hits to the same impact state as terrain collision.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
@@ -52,10 +53,9 @@ internal sealed class ProjectileEnemyImpacts
     }
 
     /// <summary>
-    /// Reflects the projectile after an enemy reaction has replaced
-    /// the projectile direction. Reflection preserves the projectile family/type and world
-    /// position, but reconstructs its damage, direction-specific animation, radii,
-    /// and the family's behaviour exactly as the game does.
+    /// Reflects the projectile after an enemy reaction has replaced the projectile direction. Reflection keeps the
+    /// projectile family, type and world position, and sets up its damage, direction-specific animation, radii and the
+    /// family's behaviour afresh.
     /// </summary>
     public void ReflectFromEnemy(SamusState samus, SamusProjectileOccupant held)
     {

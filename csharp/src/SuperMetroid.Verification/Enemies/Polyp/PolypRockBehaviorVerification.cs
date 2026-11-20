@@ -36,7 +36,7 @@ internal static class PolypRockBehaviorVerification
             NativeEnemyProjectileProgramOracle.EntryOf(PolypRockNativeListAddresses.Entries, PolypRockSegment.LavaRock), 5, "Polyp rock");
         AssertTrue(!deleted, "the rock holds its frame and sleeps");
         rock.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
-        enemies.Projectiles.AdvanceEnemyProjectileAnimations(rock, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+        enemies.Projectiles.AdvanceEnemyProjectileAnimations(rock, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
         AssertTrue(!rock.IsActive, "the shared shot list still deletes the rock");
         AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.PolypRock), out ushort selected),
             "the rock's frame has a selector");

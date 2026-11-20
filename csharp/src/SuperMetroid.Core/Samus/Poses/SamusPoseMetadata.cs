@@ -293,18 +293,18 @@ internal static class SamusPoseMetadata
     /// True for the moonwalk turn jumps, the six grounded turn frames selected only when Jump begins a
     /// direction reversal from moonwalking. The predicates below group them by the facing they turn to.
     /// </summary>
-    public static bool IsMoonwalkTurnJumpPose(SamusPoseId pose) => pose is
-        SamusPoseId.MoonwalkTurnJumpLeftPose or SamusPoseId.MoonwalkTurnJumpRightPose or
-        SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
-        SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or SamusPoseId.MoonwalkTurnJumpAimDownRightPose;
+    public static bool IsMoonwalkTurnToSpinJumpPose(SamusPoseId pose) => pose is
+        SamusPoseId.MoonwalkTurnToSpinJumpLeftPose or SamusPoseId.MoonwalkTurnToSpinJumpRightPose or
+        SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose or SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose or
+        SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose or SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose;
 
     /// <summary>True for the moonwalk turn-jump family whose input transitions lead to left.</summary>
-    public static bool IsMoonwalkTurnJumpLeftPose(SamusPoseId pose) => IsMoonwalkTurnJumpRightPose(SamusPoseMirror.Of(pose));
+    public static bool IsMoonwalkTurnToSpinJumpLeftPose(SamusPoseId pose) => IsMoonwalkTurnToSpinJumpRightPose(SamusPoseMirror.Of(pose));
 
     /// <summary>True for the moonwalk turn-jump family whose input transitions lead to right.</summary>
-    public static bool IsMoonwalkTurnJumpRightPose(SamusPoseId pose) => pose is
-        SamusPoseId.MoonwalkTurnJumpRightPose or SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
-        SamusPoseId.MoonwalkTurnJumpAimDownRightPose;
+    public static bool IsMoonwalkTurnToSpinJumpRightPose(SamusPoseId pose) => pose is
+        SamusPoseId.MoonwalkTurnToSpinJumpRightPose or SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose or
+        SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose;
 
     /// <summary>True for the right-facing poses that move as <see cref="SamusMovementType.RanIntoWall"/>.</summary>
     public static bool IsRightFacingRanIntoWallPose(SamusPoseId pose) =>

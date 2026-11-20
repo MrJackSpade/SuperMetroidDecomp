@@ -25,7 +25,7 @@ internal sealed class EnemyShotReaction
     /// <summary>Runs after the check for an ignoring hitbox or definition reaction, before the projectile impact.</summary>
     internal EnemyShotStage? BeforeImpact { get; init; }
 
-    /// <summary>Whether every family takes only the collision prelude instead of an impact.</summary>
+    /// <summary>Whether every family's shot only marks its hit, with no impact.</summary>
     internal bool EndsWithoutImpact { get; init; }
 
     /// <summary>Runs after the impact, before health is sampled.</summary>

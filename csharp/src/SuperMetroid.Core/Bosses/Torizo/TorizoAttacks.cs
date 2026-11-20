@@ -275,7 +275,7 @@ internal sealed class TorizoAttacks
                 SignedEightEight acceleration = FirstPlaceFallAcceleration.Of(
                     firstPlace is { IsActive: true },
                     firstPlace is { IsActive: true, Kind: RoomEnemyProjectileKind.BombTorizoStatueBreaking } ? StatueFragments.Of(firstPlace).Acceleration : null);
-                // A piece's speed stops at the runaway speed, so the acceleration never carries it out of range.
+                // A piece's fall speed is capped at the runaway speed.
                 projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + acceleration);
                 if (IsRunaway(projectile.Velocity.Y))
                     projectile.Velocity = projectile.Velocity.WithY(TorizoMotionDefinitions.RunawaySpeed);
@@ -324,7 +324,8 @@ internal sealed class TorizoAttacks
         // inside either side: the lifted drool lies inside the room and its side offset never leaves it.
         int jitteredY = TorizoRandomDefinitions.InitialDroolYJitter.Of(random) + torizo.Position.Y.Whole;
         projectile.Position = projectile.Position.WithWholeY(jitteredY - TorizoMotionDefinitions.InitialDroolLift);
-        // The jitter is one of thirty-two fall speeds from the slowest up.
+        // The jitter quickens the fall from its slowest (TorizoMotionDefinitions.InitialDroolSlowestFall) by a random
+        // amount (TorizoRandomDefinitions.InitialDroolFall).
         projectile.Velocity = projectile.Velocity.WithY(TorizoRandomDefinitions.InitialDroolFall.Of(random));
         // The drool has no sideways speed.
         int jitteredX = _room.Random.Next(TorizoRandomDefinitions.InitialDroolXJitter) + torizo.Position.X.Whole;
@@ -353,9 +354,8 @@ internal sealed class TorizoAttacks
             .TurnedBySteps(spread - TorizoMotionDefinitions.EyeBeamSpreadCentre);
 
     /// <summary>
-    /// The velocity of <paramref name="speed"/> along <paramref name="heading"/>, which points up at zero: the horizontal
-    /// speed its sine and the vertical speed its negative cosine, the sine a quarter turn back. The samples lie within one
-    /// unit either way, so the velocity never exceeds the speed.
+    /// The velocity of <paramref name="speed"/> along <paramref name="heading"/>, which points up at zero: the speed
+    /// split between the horizontal and the vertical, never exceeding it.
     /// </summary>
     private static PixelVelocity<RoomPixels> VelocityAlong(SignedEightEight speed, TrigonometryAngle heading) =>
         new(SpeedAlongAngle.Along(speed, heading),
@@ -551,7 +551,7 @@ internal sealed class TorizoAttacks
         _room.Random.Advance();
     }
 
-    /// <summary>A randomized projectile's jitter on one axis, either side of its base speed.</summary>
+    /// <summary>A small random speed either way on one axis (TorizoRandomDefinitions.VelocityJitter).</summary>
     private static SignedEightEight VelocityJitter(int random) => TorizoRandomDefinitions.VelocityJitter.Of(random);
 
     /// <summary>Places a foot-specific dust effect below the statue after a landing step.</summary>
@@ -660,7 +660,8 @@ internal sealed class TorizoAttacks
         if (verticalCollision && !projectile.Velocity.Y.IsNegative)
         {
             projectile.Velocity = projectile.Velocity.WithX(projectile.Velocity.X.DraggedBy(TorizoMotionDefinitions.GoldenOrbBounceDrag));
-            // The orb is falling here, so halving its speed in 256ths rounds toward zero before it reverses.
+            // The orb is falling here, so it bounces back up at half its fall speed
+            // (SignedEightEight.DividedRoundingDown).
             projectile.Velocity = projectile.Velocity.WithY(-projectile.Velocity.Y.DividedRoundingDown(2));
             if (HasSettled(projectile.Velocity.Y))
             {
@@ -766,7 +767,7 @@ internal sealed class TorizoAttacks
             projectile.Delete();
     }
 
-    /// <summary>Aims the thrown missile toward or away from Samus using the up-zero angle convention.</summary>
+    /// <summary>Throws the missile toward or away from Samus.</summary>
     internal static void SetGoldenTorizoSuperMissileVelocity(
         EnemyProjectile projectile,
         SamusState samus,

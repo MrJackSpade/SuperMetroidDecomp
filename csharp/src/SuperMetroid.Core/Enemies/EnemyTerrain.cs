@@ -99,8 +99,7 @@ internal sealed class EnemyTerrain
             return false;
         }
 
-        // Both directions compare against the pre-move position before accepting the aligned
-        // center. That prevents a large corrupt displacement from snapping through a wall.
+        // The enemy is aligned against the block only when that does not move it past where it started.
         if (movingLeft)
         {
             int aligned = TerrainScanEdges.Edge(RoomGridConversions.BlockEnd(targetEdge) + place.Radius.X + 1);
@@ -411,8 +410,7 @@ internal sealed class EnemyTerrain
     /// <summary>
     /// Resolves signed extension links exactly as the step repeats them: each link leads on in the room's reading
     /// order (<see cref="RoomReadingOrder"/>), so a horizontal link past a row's end continues on the next row.
-    /// A guard converts corrupt cyclic room data into a useful exception instead of a runaway
-    /// recursion failure; valid chains always terminate well before the room allocation size.
+    /// A chain that loops fails loudly; a valid chain ends within the room's blocks.
     /// </summary>
     /// <returns>The block the chain ends on, or null when the start or a link lies outside the room's grid.</returns>
     internal static RoomCollisionBlock? ResolveEnemyCollisionBlock(

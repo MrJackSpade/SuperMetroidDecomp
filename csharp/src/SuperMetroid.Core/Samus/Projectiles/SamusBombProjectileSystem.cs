@@ -727,8 +727,7 @@ public sealed class SamusBombProjectileSystem
         if (!block.Behavior.Slope.IsNonSquare)
             return true;
 
-        // Non-square slope collision mirrors X before indexing the slope-height row, then compares the
-        // resulting height with Y within the block. Equality counts as collision.
+        // The bomb collides where it lies at or below the slope's surface, the surface mirrored with the slope.
         int xWithinBlock = RoomGridConversions.OffsetWithinBlock(bomb.Position.X.Whole, mirrored: block.Behavior.Slope.FlipsHorizontally);
         int yWithinBlock = RoomGridConversions.OffsetWithinBlock(bomb.Position.Y.Whole, mirrored: block.Behavior.Slope.FlipsVertically);
         int height = block.Behavior.Slope.Shape.HeightAt(xWithinBlock);
@@ -765,10 +764,10 @@ public sealed class SamusBombProjectileSystem
         int horizontalRadius = explosionRadius.WholePixels;
         int verticalRadius = PowerBombBlastOval.VerticalRadius(horizontalRadius);
 
-        // The blast's reach is clipped to the room: before its first pixel and after its last block. A blast just left of
-        // or above the room holds a coordinate near 65535, and its far edge would pass 65535, which PixelToBlock rejects,
-        // so that edge is first held to the last room coordinate a block can be read at; the room's own clip then leaves
-        // that edge before the near one. A blast both left of and above the room so visits no edge at all.
+        // The blast's reach is clipped to the room: before its first pixel and after its last block. A blast just left
+        // of or above the room reaches past the room's edge (CoordinateAxis states the wrap), so its far edge is first
+        // held to the last room coordinate a block can be read at; the room's own clip then leaves that edge before the
+        // near one. A blast both left of and above the room so visits no edge at all.
         int left = RoomGridConversions.PixelToBlock(Math.Max(0, explosion.X - horizontalRadius));
         int right = Math.Min(
             level.Size.X - 1,
@@ -897,14 +896,13 @@ public sealed class SamusBombProjectileSystem
 
         if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)
         {
-            // Both bombable-air and bombable-solid reactions use the bomb-block reactions. An inert
-            // block returns early and therefore neither allocates a room object nor mutates terrain.
+            // Both bombable-air and bombable-solid reactions use the bomb-block reactions; an inert block neither
+            // spawns a room object nor changes the terrain.
             if (block.Behavior.Bombable == BombableReaction.Inert)
                 return;
             if (block.Behavior.Bombable is null)
             {
-                // A bombable block with no bomb reaction would make the game read unrelated data as a
-                // room-object definition; room data holds none, and the import refuses one.
+                // Every bombable block names its bomb reaction; the import refuses one that does not.
                 throw new InvalidDataException(
                     $"Bombable block {block.Position} has behaviour ({block.Behavior}) with no " +
                     "bomb-block reaction.");

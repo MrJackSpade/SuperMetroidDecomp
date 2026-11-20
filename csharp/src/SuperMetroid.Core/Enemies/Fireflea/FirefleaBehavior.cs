@@ -14,7 +14,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new FirefleaEntity(this, occupant, place, common));
 
-    /// <summary>Runs common touch handling before Fireflea's unconditional death call.</summary>
+    /// <summary>Runs the common touch, after which the Fireflea always dies.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Starts explosion and drop processing, including the second-death path.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;

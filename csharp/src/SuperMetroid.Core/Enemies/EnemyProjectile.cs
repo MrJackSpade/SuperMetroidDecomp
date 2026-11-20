@@ -48,9 +48,8 @@ public sealed class EnemyProjectile
     /// </summary>
     public bool IsActive { get; private set; }
     /// <summary>
-    /// Where the projectile is, in whole room pixels and fractions of a pixel, to which its motion adds in 256ths of a
-    /// pixel. Every projectile is placed in the room and drawn where its place lies on screen, the Mother Brain death
-    /// subtitle's fixed place included (#1851).
+    /// Where the projectile is in the room, which its motion moves by its velocity. Every projectile is placed in the
+    /// room and drawn where its place lies on screen, the Mother Brain death subtitle's fixed place included (#1851).
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>How far the projectile moves each update, for the shared movements and the families that move by it.</summary>
@@ -151,8 +150,8 @@ public sealed class EnemyProjectile
     public bool BlocksSamusProjectiles { get; internal set; }
     /// <summary>
     /// How Samus's shots that reach the projectile act on it: they play its shot animation, meet an indestructible dud, or are
-    /// not tested at all. This is deliberately separate from <see cref="BlocksSamusProjectiles"/>: Kago enables that
-    /// property only after its bug has moved far enough from the source shell, while still playing its shot animation.
+    /// not tested at all. It is apart from <see cref="BlocksSamusProjectiles"/>: Kago blocks Samus's shots only after
+    /// its bug has moved far enough from the source shell, while still playing its shot animation.
     /// </summary>
     public EnemyProjectileCollisionOption CollisionOption { get; internal set; }
 

@@ -39,6 +39,10 @@ public sealed class BossBodySheet
     /// <exception cref="InvalidDataException">The sheet has no such frame.</exception>
     public BossBodyFrame Frame(EnemyFrameId frame) => Frame(EnemyFrameSheetKeys.Of(frame));
 
+    /// <summary>The frame enemy frame <paramref name="frame"/> shows on the body, or null when the body shows no picture of it.</summary>
+    public BossBodyFrame? Find(EnemyFrameId frame) =>
+        frames.TryGetValue(EnemyFrameSheetKeys.Of(frame), out BossBodyFrame? found) ? found : null;
+
     /// <summary>The frame named <paramref name="name"/>.</summary>
     /// <exception cref="InvalidDataException">The sheet has no such frame.</exception>
     public BossBodyFrame Frame([InstalledKey] string name) =>

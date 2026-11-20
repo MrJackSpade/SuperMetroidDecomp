@@ -65,26 +65,25 @@ public enum SamusPoseId
     MoonwalkAimDownRightPose,
 
     /// <summary>
-    /// Right-facing moonwalk art turning/jumping toward the left. Despite its traditional
-    /// name, this is still grounded turning movement until its input transitions or its
-    /// animation's final step installs the actual spin jump.
+    /// Right-facing moonwalk art turning toward the left: a grounded turn that ends in a spin jump when its input
+    /// transitions or its animation's last step start the jump.
     /// </summary>
-    MoonwalkTurnJumpLeftPose,
+    MoonwalkTurnToSpinJumpLeftPose,
 
-    /// <summary>Left-facing mirror of <see cref="MoonwalkTurnJumpLeftPose"/>.</summary>
-    MoonwalkTurnJumpRightPose,
+    /// <summary>Left-facing mirror of <see cref="MoonwalkTurnToSpinJumpLeftPose"/>.</summary>
+    MoonwalkTurnToSpinJumpRightPose,
 
     /// <summary>Aimed-up moonwalk turn whose terminal jump faces left.</summary>
-    MoonwalkTurnJumpAimUpLeftPose,
+    MoonwalkTurnToSpinJumpAimUpLeftPose,
 
     /// <summary>Aimed-up moonwalk turn whose terminal jump faces right.</summary>
-    MoonwalkTurnJumpAimUpRightPose,
+    MoonwalkTurnToSpinJumpAimUpRightPose,
 
     /// <summary>Aimed-down moonwalk turn whose terminal jump faces left.</summary>
-    MoonwalkTurnJumpAimDownLeftPose,
+    MoonwalkTurnToSpinJumpAimDownLeftPose,
 
     /// <summary>Aimed-down moonwalk turn whose terminal jump faces right.</summary>
-    MoonwalkTurnJumpAimDownRightPose,
+    MoonwalkTurnToSpinJumpAimDownRightPose,
 
     /// <summary>Right-facing stored-shine windup body.</summary>
     ShinesparkWindupRightPose,

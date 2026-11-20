@@ -7,9 +7,9 @@ internal static class PhantoonFlameMotionDefinitions
     internal static readonly TrigonometryAngle RageTurnPerUpdate = new(2);
 
     /// <summary>
-    /// The gravity on a falling or bouncing casual flame and a falling rain flame, each update. A flame lands when its terrain probe finds a block, at the latest as it leaves the room, at most fifty
-    /// screens tall (<see cref="Rooms.Scrolling.RoomScrollGrid.KeptCellCount"/>), and a bounce restarts it at three
-    /// pixels an update upward, so its speed stays below 64 pixels an update.
+    /// The gravity on a falling or bouncing casual flame and a falling rain flame, each update. A flame lands when its
+    /// terrain probe finds a block, at the latest as it leaves the room, and a bounce restarts it at three pixels an
+    /// update upward.
     /// </summary>
     internal static readonly SignedEightEight FlameGravity = SignedEightEight.FromPixelFraction(1, 16);
     /// <summary>

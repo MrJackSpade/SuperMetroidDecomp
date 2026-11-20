@@ -11,7 +11,8 @@ internal sealed record RoomObjectSetupContext
     /// <summary>The room's level, progress and area.</summary>
     public required RoomObjectRoom Room { get; init; }
 
-    /// <summary>The area's boss flags, which the Bomb Torizo's hand reads without being able to set them.</summary>
+    /// <summary>The area's defeated bosses, which the Bomb Torizo's hand reads without being able to set
+    /// them.</summary>
     public required IDefeatedBossesReader Bosses { get; init; }
 
     /// <summary>The place the placement took, holding its block.</summary>

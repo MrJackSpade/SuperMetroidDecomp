@@ -86,9 +86,8 @@ internal sealed class DoorObjects
     /// <summary>Installs shootable-solid collision and the resident room-object projectile behaviour at a colored cap.</summary>
     private static void ApplyColoredDoorSetup(RoomLevelData level, Position16<RoomBlocks> block)
     {
-        // The colored-door setup installs shootable-solid collision and selects the resident room-object projectile trigger
-        // so subsequent projectiles find this resident room object. It rewrites only the block's type and parameter, so the
-        // block keeps its picture and what it shows (#2502).
+        // The coloured door's block becomes shootable and solid, and shots that meet it find this door; it keeps its
+        // picture and what it shows (#2502).
         level.SetObjectCollisionAndBehavior(block, RoomCollisionType.ShootableBlock,
             RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
     }

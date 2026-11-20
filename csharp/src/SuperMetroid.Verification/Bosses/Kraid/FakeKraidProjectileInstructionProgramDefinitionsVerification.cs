@@ -93,7 +93,7 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
             // again a countdown's whole range later, until the shot reaction below starts another animation.
             AssertTrue(projectile.IsFrameHoldStopped, $"{testCase.Kind} held pose stops its hold");
             for (int pass = 0; pass < 2; pass++)
-                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, restingSamus, Position16<RoomPixels>.Zero, shortCounter: 0);
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, restingSamus, Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
             AssertTrue(projectile.IsFrameHoldStopped && projectile.FrameHold.IsZero,
                 $"{testCase.Kind} held pose's hold counts nothing on later passes");
             AssertEqual(operand, projectile.PresentationOperandAddress, $"{testCase.Kind} held pose still shows on later passes");
@@ -117,7 +117,7 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
         void RunForcedTick(EnemyProjectile projectile)
         {
             projectile.FrameHold = WrappingCountdown.Start(1);
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: 0);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
         }
     }
 

@@ -41,7 +41,7 @@ internal static class FirefleaBehaviorVerification
     {
         _ = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
         foreach ((ushort y, VerticalDirection expectedDirection) in new VerifyFirefleaVerticalExtentsCase[] { new(100, VerticalDirection.Up), new(91, VerticalDirection.Down), new(108, VerticalDirection.Down) })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());

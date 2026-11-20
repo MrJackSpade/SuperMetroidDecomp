@@ -40,7 +40,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The destination's asset graph.</summary>
     public LoadedRoomAssets Assets { get; } = Ensure.NotNull(assets);
 
-    /// <summary>The load-station record whose load establishes this room; null for a room entered otherwise.</summary>
+    /// <summary>The load station whose load establishes this room; null for a room entered otherwise.</summary>
     public LoadStation? LoadStation { get; } = loadStation;
 
     /// <summary>The frame each of the room's animations shows (#1406), which the animations the load builds select into.</summary>

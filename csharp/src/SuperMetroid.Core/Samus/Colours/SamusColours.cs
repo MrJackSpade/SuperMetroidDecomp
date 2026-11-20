@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// The import pre-colours every one of her sheets in every shade; she never selects a colour herself.
 /// </summary>
 /// <remarks>
-/// A later colouring of the suit or the beams replaces everything laid over them, as a complete load of their colours did;
-/// a shade laid over them replaces an earlier shade of the same effect and covers the rest. Her colours are her own:
+/// A new colouring of the suit or the beams replaces everything laid over them; a shade laid over them replaces an
+/// earlier shade of the same effect and covers the rest. Her colours are her own:
 /// another owner's colours never show on her draws, and hers never show on theirs (#1512).
 /// </remarks>
 public sealed class SamusColours

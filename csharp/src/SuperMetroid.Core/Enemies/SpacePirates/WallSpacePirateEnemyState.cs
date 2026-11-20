@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The state of a wall Pirate; the jump its placement chose is the Pirate's own, which nothing else reads.
+/// The state of a wall Pirate: the jump its placement chose.
 /// </summary>
 public sealed class WallSpacePirateEnemyState
 {
@@ -47,8 +47,8 @@ public sealed class WallSpacePirateEnemyState
 
     /// <summary>
     /// The jump between the walls its placement chose (#2450), slow or fast: the endpoints rightward and leftward, whose
-    /// reaching installs that wall's landing, and the steps (256ths of a turn) its angle turns each update, subtracted
-    /// jumping right and added jumping left.
+    /// reaching starts that wall's landing, and the steps of the turn its angle turns each update, subtracted jumping
+    /// right and added jumping left.
     /// </summary>
     internal WallSpacePirateJump Jump { get; }
 }

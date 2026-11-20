@@ -22,16 +22,40 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
     /// <summary>
     /// The gunship's top hull, which moves the ship, and its bottom hull with the entrance pad (#2146): only the room's
-    /// population load places them, as each reads the load's surroundings.
+    /// population load places them, as each reads the load's surroundings. The top hull offers the pieces its room lists
+    /// after it the creation that gives the entrance pad the animation the hull opens and closes (#2554); a pad no top hull
+    /// was listed before plays its own, as the game's does.
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
     public void Register(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Loads<EnemySpawnSettings>([EnemyDefinitionId.ShipTop], (occupant, _, place, common, surroundings) =>
-            EnemyOccupant.Running(new GunshipTopEntity(this, occupant, place, common, surroundings)));
+        {
+            var top = new GunshipTopEntity(this, occupant, place, common, surroundings);
+            _partOffers.OfferLoaded<GunshipSpawnSettings>(EnemyDefinitionId.ShipBottomEntrance, (piece, settings, piecePlace, pieceCommon, pieceSurroundings) =>
+                CreateBottom(piece, settings, piecePlace, pieceCommon, pieceSurroundings, top.State.Pieces.EntrancePadPiece));
+            return EnemyOccupant.Running(top);
+        });
         registrar.Loads<GunshipSpawnSettings>([EnemyDefinitionId.ShipBottomEntrance], (occupant, settings, place, common, surroundings) =>
-            EnemyOccupant.PlacedOnly(new GunshipBottomEntity(this, occupant, place, common, surroundings, settings)));
+            CreateBottom(occupant, settings, place, common, surroundings, StartingEntrancePadPiece()));
     }
+
+    /// <summary>
+    /// The bottom hull, or the entrance pad playing <paramref name="padPiece"/>, the animation the top hull listed before it
+    /// made for it, or, with no top hull before it, its own.
+    /// </summary>
+    private EnemyOccupant CreateBottom(RoomEnemyOccupant occupant, GunshipSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings, GunshipPieceState padPiece) =>
+        EnemyOccupant.PlacedOnly(new GunshipBottomEntity(occupant, place, common, settings, Ensure.NotNull(settings).Part == GunshipBottomPiece.EntrancePad
+            ? InitializeGunshipEntrancePad(place, padPiece)
+            : InitializeGunshipBottomHull(place, Ensure.NotNull(surroundings).Samus)));
+
+    /// <summary>The entrance pad's animation as the top hull makes it, which starts as the pad's own setup starts its clock.</summary>
+    private static GunshipPieceState StartingEntrancePadPiece() =>
+        new(new AnimationPlayback<GunshipSegment>(GunshipAnimations.StartingWith(GunshipSegment.BottomEntrancePad), AnimationPlace.StartOfAnimation));
+
+    /// <summary>Where the top hull offers the pieces listed after it the creation that gives the pad its animation.</summary>
+    private readonly EnemyPartOffers _partOffers;
 
     /// <summary>Queues engine and entrance-pad sounds at the frame boundaries.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -44,22 +68,15 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private readonly EnemyRoomBinding _room;
     /// <summary>The room's enemy places, where the top hull finds the ship's other pieces when it is placed.</summary>
     private readonly EnemyPlaces _places;
-    /// <summary>
-    /// The top hull of the ship whose save prompt awaits its answer (<see cref="AnswerGunshipSavePrompt"/>), or null when
-    /// no prompt is pending.
-    /// </summary>
-    private GunshipTop? _topAwaitingSaveAnswer;
-
-    /// <summary>The entrance pad's animation, which the top hull listed before it made as it was set up, under the pad's place.</summary>
-    private readonly EnemyPartLinks<GunshipPieceState> _entrancePadPieces = new();
 
     /// <summary>The room's enemy presentation, which shows the takeoff look once the engines fire up.</summary>
     private readonly EnemyPresentation _presentation;
 
     /// <summary>Binds the frame, room, place and presentation owners used by the ship's three-part actor.</summary>
     internal GunshipBehavior(EnemyAudioQueue audio, EnemyProjectileEngine projectiles, EnemyRoomBinding room, EnemyPlaces places, EnemyPassEvents passEvents,
-        EnemyPresentation presentation)
+        EnemyPresentation presentation, EnemyPartOffers partOffers)
     {
+        _partOffers = partOffers;
         _presentation = presentation;
         _passEvents = passEvents;
         _audio = audio;
@@ -72,16 +89,13 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>Selects ordinary Landing Site placement or the high-altitude post-Ceres descent.</summary>
     private GunshipLoadScenario _gunshipLoadScenario;
     /// <summary>
-    /// Resumes the ship once the save message box has its answer. The ship plays the same exit animation for either
-    /// answer; the message box flow makes the save itself, as a save station's, when the answer is yes.
+    /// Resumes <paramref name="top"/>'s ship once its save message box has its answer (<see cref="GunshipSavePrompt"/>).
+    /// The ship plays the same exit animation for either answer; the message box flow makes the save itself, as a save
+    /// station's, when the answer is yes.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The system is not loaded or no gunship save prompt is awaiting a response.</exception>
-    public void AnswerGunshipSavePrompt()
+    internal static void AnswerGunshipSavePrompt(GunshipTop top)
     {
-        GunshipTop top = _topAwaitingSaveAnswer
-            ?? throw new InvalidOperationException("The gunship save prompt is not awaiting a response.");
-        RoomEnemyPlace pad = top.Pieces.EntrancePad;
-        _topAwaitingSaveAnswer = null;
+        RoomEnemyPlace pad = Ensure.NotNull(top).Pieces.EntrancePad;
         top.Ship.Phase = GunshipPhase.WaitForExitPadToOpen;
         StartGunshipAnimation(pad, top.Pieces.EntrancePadPiece, GunshipSegment.EntrancePadOpening);
         top.Ship.PhaseTimer = UpdateCountdown.For(GunshipBoardingDefinitions.PadMovementDuration);
@@ -117,8 +131,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         var pieces = new GunshipPieces(place,
             _places.Member(place, GunshipPartListingDefinitions.Listing, GunshipMember.TopHull, GunshipMember.BottomHull),
             _places.Member(place, GunshipPartListingDefinitions.Listing, GunshipMember.TopHull, GunshipMember.EntrancePad),
-            new GunshipPieceState(new AnimationPlayback<GunshipSegment>(GunshipAnimations.StartingWith(GunshipSegment.BottomEntrancePad), AnimationPlace.StartOfAnimation)));
-        _entrancePadPieces.Place(pieces.EntrancePad, pieces.EntrancePadPiece);
+            StartingEntrancePadPiece());
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
         var hull = new GunshipPieceState(EnemyAnimationPlayback.Start(place, GunshipAnimations.StartingWith(GunshipSegment.TopHull)));
@@ -144,42 +157,43 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         return new GunshipTop(pieces, hull, ship);
     }
 
-    /// <summary>
-    /// Initializes bottom hull or pad from the enemies its room lists before it; after Ceres the bottom hull is placed
-    /// against the loading <paramref name="samus"/>.
-    /// </summary>
-    /// <returns>The state the enemy holds from its setup.</returns>
-    internal GunshipPieceState InitializeGunshipBottom(RoomEnemyOccupant occupant, GunshipSpawnSettings gunshipSpawnSettings, RoomEnemyPlace place, SamusState samus)
+    /// <summary>Readies a bottom hull's or pad's place to animate, out of Samus's reach.</summary>
+    private static void PrepareGunshipBottomPlace(RoomEnemyPlace place)
     {
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-        // The pad holds the animation the top hull made for it, which starts as the pad's own setup starts its clock.
-        GunshipPieceState state;
-        if (gunshipSpawnSettings.Part == GunshipBottomPiece.EntrancePad)
-        {
-            place.AnimationClock.Restart();
-            state = _entrancePadPieces.Of(place);
-        }
-        else
-            state = new GunshipPieceState(EnemyAnimationPlayback.Start(place, GunshipAnimations.StartingWith(GunshipSegment.BottomHull)));
+    }
 
-        if (gunshipSpawnSettings.Part == GunshipBottomPiece.EntrancePad)
+    /// <summary>
+    /// Initializes the entrance pad, which plays <paramref name="piece"/>, the animation the top hull listed before it made
+    /// for it, from the height of the enemies its room lists before it.
+    /// </summary>
+    /// <returns>The state the enemy holds from its setup.</returns>
+    private GunshipPieceState InitializeGunshipEntrancePad(RoomEnemyPlace place, GunshipPieceState piece)
+    {
+        PrepareGunshipBottomPlace(place);
+        // The pad holds the animation the top hull made for it, which starts as the pad's own setup starts its clock.
+        place.AnimationClock.Restart();
+        // The hull the pad takes its height from can stand above the room's top, after Ceres.
+        Func<int, RoomEnemyPlace> listedBefore = _places.PlacesBefore(place);
+        place.Position = OffRoomPlaces.WithWholeY(place.Position, GunshipPadBorrowedHeight.Start(
+            distance => listedBefore(distance).Position.Y.Whole));
+        return Ensure.NotNull(piece);
+    }
+
+    /// <summary>Initializes the bottom hull; after Ceres it is placed against the loading <paramref name="samus"/>.</summary>
+    /// <returns>The state the enemy holds from its setup.</returns>
+    private GunshipPieceState InitializeGunshipBottomHull(RoomEnemyPlace place, SamusState samus)
+    {
+        PrepareGunshipBottomPlace(place);
+        var state = new GunshipPieceState(EnemyAnimationPlayback.Start(place, GunshipAnimations.StartingWith(GunshipSegment.BottomHull)));
+        if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
         {
-            // The hull the pad takes its height from can stand above the room's top, after Ceres.
-            Func<int, RoomEnemyPlace> listedBefore = _places.PlacesBefore(place);
-            place.Position = OffRoomPlaces.WithWholeY(place.Position, GunshipPadBorrowedHeight.Start(
-                distance => listedBefore(distance).Position.Y.Whole));
+            place.Position = OffRoomPlaces.WithWholeY(place.Position, samus.Position.Y.Whole + GunshipMotionDefinitions.BottomHullBelowSamus);
         }
         else
         {
-            if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
-            {
-                place.Position = OffRoomPlaces.WithWholeY(place.Position, samus.Position.Y.Whole + GunshipMotionDefinitions.BottomHullBelowSamus);
-            }
-            else
-            {
-                place.Position = place.Position.WithWholeY(place.Position.Y.Whole + GunshipMotionDefinitions.LandedBottomHullDrop);
-            }
+            place.Position = place.Position.WithWholeY(place.Position.Y.Whole + GunshipMotionDefinitions.LandedBottomHullDrop);
         }
         return state;
     }
@@ -246,8 +260,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                 RestoreSamusInGunship(top, gunshipState, samus);
                 return;
             case GunshipPhase.HandleSaveConfirmation:
-                _topAwaitingSaveAnswer = ship;
-                _passEvents.Publish(new GunshipEvent(GunshipFrameEvent.SavePromptRequested));
+                _passEvents.Publish(new GunshipSavePromptRequested(new GunshipSavePrompt(ship)));
                 return;
             case GunshipPhase.WaitForExitPadToOpen:
                 if (TickGunshipPhaseTimer(top, gunshipState))

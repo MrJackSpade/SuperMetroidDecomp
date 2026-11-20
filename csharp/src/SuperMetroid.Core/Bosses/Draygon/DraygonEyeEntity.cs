@@ -9,11 +9,13 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="place">The place the eye occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class DraygonEyeEntity(DraygonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+/// <param name="draygon">The encounter his body began, which the eye joins as it is built.</param>
+internal sealed class DraygonEyeEntity(DraygonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork,
+    DraygonEnemyState draygon)
     : DraygonEntity(species, occupant, place, common, bossArtwork)
 {
     /// <summary>The eye's part of the encounter it joined as it set up.</summary>
-    internal override DraygonPart Part { get; } = species.Parts.InitializeDraygonEye(place);
+    internal override DraygonPart Part { get; } = DraygonParts.InitializeDraygonEye(place, draygon);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.Parts.RunDraygonEyeMain(Encounter, Ensure.NotNull(frame).Samus);

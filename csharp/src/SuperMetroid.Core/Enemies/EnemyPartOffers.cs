@@ -27,6 +27,21 @@ internal sealed class EnemyPartOffers
             : throw new InvalidDataException($"Enemy {placement.DefinitionId}'s population entry carries {placement.SpawnSettings}, not {typeof(TSettings).Name}.");
     }
 
+    /// <summary>
+    /// Offers <paramref name="create"/> as how the entries of <paramref name="part"/> listed from here on are built, for a
+    /// part only the room's population load places, in the load's surroundings.
+    /// </summary>
+    /// <typeparam name="TSettings">The settings the creation takes.</typeparam>
+    /// <param name="part">The later part's definition.</param>
+    /// <param name="create">The creation, which carries what the part joins.</param>
+    internal void OfferLoaded<TSettings>(EnemyDefinitionId part, EnemyLoadedCreation<TSettings> create) where TSettings : EnemySpawnSettings
+    {
+        Ensure.NotNull(create);
+        _offered[part] = placement => placement.SpawnSettings is TSettings settings
+            ? new LoadedEnemySpawn<TSettings>(placement, settings, create)
+            : throw new InvalidDataException($"Enemy {placement.DefinitionId}'s population entry carries {placement.SpawnSettings}, not {typeof(TSettings).Name}.");
+    }
+
     /// <summary>Binds <paramref name="placement"/> through the offer its enemy has, when an earlier part made one.</summary>
     /// <param name="placement">The population entry.</param>
     /// <param name="spawn">The bound entry, when an offer stands for its enemy.</param>

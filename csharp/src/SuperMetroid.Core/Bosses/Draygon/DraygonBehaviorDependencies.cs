@@ -51,4 +51,7 @@ internal sealed record DraygonBehaviorDependencies
 
     /// <summary>The session's installed boss artwork.</summary>
     public required BossArtworkBinding BossArtwork { get; init; }
+
+    /// <summary>Where his body offers his eye, tail and arms the creation that builds each of them joining his encounter (#2554).</summary>
+    public required EnemyPartOffers PartOffers { get; init; }
 }

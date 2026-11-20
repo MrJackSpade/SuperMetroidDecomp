@@ -111,9 +111,12 @@ internal sealed class RoomEnemySpecies
         Ensure.NotNull(enemies);
         EnemySession session = enemies.Session;
         DoorPassage doorPassage = Ensure.NotNull(enemies.DoorPassage);
+        // Where a part already placed offers the parts its room lists after it the creation that builds each of them
+        // with what they join (#2554).
+        var partOffers = new EnemyPartOffers();
         var morphBallEyeBehavior = new MorphBallEyeBehavior(enemies.Audio);
         RidleyEncounter = new RidleyEncounter(session);
-        var gunshipBehavior = new GunshipBehavior(enemies.Audio, enemies.Projectiles, enemies.Room, enemies.Places, enemies.PassEvents, enemies.Presentation);
+        var gunshipBehavior = new GunshipBehavior(enemies.Audio, enemies.Projectiles, enemies.Room, enemies.Places, enemies.PassEvents, enemies.Presentation, partOffers);
         CorpseRowDust = new CorpseRowDust(enemies.Audio);
         MotherBrainEncounter = new MotherBrainEncounter(enemies.Audio, enemies.BossEncounters);
         RidleyTail = new RidleyTail(enemies.Projectiles, enemies.Room);
@@ -163,7 +166,7 @@ internal sealed class RoomEnemySpecies
         var polypBehavior = new PolypBehavior(enemies.Room, enemies.Projectiles);
         var platformsBehavior = new PlatformsBehavior(enemies.Terrain);
         var pipeBugsBehavior = new PipeBugsBehavior(enemies.Places);
-        var phantoonBehavior = new PhantoonBehavior(new PhantoonBehaviorDependencies { Room = enemies.Room, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, Presentation = enemies.Presentation, FrameContext = enemies.FrameContext, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops , BossArtwork = enemies.BossArtworkBinding, PassEvents = enemies.PassEvents, Encounters = enemies.BossEncounters, Places = enemies.Places });
+        var phantoonBehavior = new PhantoonBehavior(new PhantoonBehaviorDependencies { PartOffers = partOffers, Room = enemies.Room, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, Presentation = enemies.Presentation, FrameContext = enemies.FrameContext, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops , BossArtwork = enemies.BossArtworkBinding, PassEvents = enemies.PassEvents, Encounters = enemies.BossEncounters, Places = enemies.Places });
         var owtchBehavior = new OwtchBehavior(enemies.Room);
         var oldTourianEscapeShaftWallBehavior = new OldTourianEscapeShaftWallBehavior(enemies.Projectiles, enemies.Audio);
         var nuclearWaffleBehavior = new NuclearWaffleBehavior(enemies.Projectiles, enemies.EffectActors, enemies.Audio);
@@ -173,7 +176,6 @@ internal sealed class RoomEnemySpecies
         var ninjaSpacePirateBehavior = new NinjaSpacePirateBehavior(enemies.Room, enemies.Terrain, enemies.Projectiles, enemies.EffectActors, walkingSpacePirateBehavior);
         var multiviolaBehavior = new MultiviolaBehavior(enemies.Terrain);
         var babyMetroidCutsceneBehavior = new BabyMetroidCutsceneBehavior(new BabyMetroidCutsceneBehaviorDependencies { Lifecycle = enemies.Lifecycle, Room = enemies.Room, Audio = enemies.Audio, Places = enemies.Places, FrameContext = enemies.FrameContext, Projectiles = enemies.Projectiles, MotherBrainEncounter = MotherBrainEncounter });
-        var partOffers = new EnemyPartOffers();
         var motherBrainBehavior = new MotherBrainBehavior(new MotherBrainBehaviorDependencies { PartOffers = partOffers, PassEvents = enemies.PassEvents, Lifecycle = enemies.Lifecycle, Places = enemies.Places, Room = enemies.Room, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, Presentation = enemies.BossPresentation, FrameContext = enemies.FrameContext, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, MotherBrainEncounter = MotherBrainEncounter, RoomActors = new MotherBrainRoomActors(babyMetroidCutsceneBehavior, rinkaBehavior, walkingSpacePirateBehavior, RidleyProjectiles)  });
         var mochtroidBehavior = new MochtroidBehavior(enemies.Terrain, enemies.Audio, enemies.FrameContext, enemies.Collision);
         var metroidBehavior = new MetroidBehavior(enemies.Room, enemies.Terrain, enemies.Audio, enemies.EffectActors, enemies.FrameContext, enemies.DeathsAndDrops);
@@ -197,12 +199,12 @@ internal sealed class RoomEnemySpecies
         var etecoonBehavior = new EtecoonBehavior(enemies.Terrain, enemies.Earthquake, doorPassage, enemies.Audio);
         var escapeExplosionsBehavior = new EscapeExplosionsBehavior(enemies.Audio, enemies.EffectActors);
         var escapeAnimalsBehavior = new EscapeAnimalsBehavior(enemies.Room, enemies.Terrain);
-        var draygonBehavior = new DraygonBehavior(new DraygonBehaviorDependencies { PassEvents = enemies.PassEvents, Places = enemies.Places, Room = enemies.Room, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, EffectActors = enemies.EffectActors, Presentation = enemies.Presentation, FrameContext = enemies.FrameContext, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, ScrollCap = enemies.ScrollCap , BossArtwork = enemies.BossArtworkBinding });
-        var dragonBehavior = new DragonBehavior(enemies.Projectiles, enemies.Places, enemies.Collision, enemies.Audio);
+        var draygonBehavior = new DraygonBehavior(new DraygonBehaviorDependencies { PartOffers = partOffers, PassEvents = enemies.PassEvents, Places = enemies.Places, Room = enemies.Room, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, EffectActors = enemies.EffectActors, Presentation = enemies.Presentation, FrameContext = enemies.FrameContext, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, ScrollCap = enemies.ScrollCap , BossArtwork = enemies.BossArtworkBinding });
+        var dragonBehavior = new DragonBehavior(enemies.Projectiles, enemies.Places, enemies.Collision, enemies.Audio, partOffers);
         var downwardGateBehavior = new DownwardGateBehavior(enemies.Projectiles);
         var deadTourianBehavior = new DeadTourianBehavior(enemies.Room, enemies.FrameContext, enemies.Projectiles, CorpseRowDust);
         var deadTorizoBehavior = new DeadTorizoBehavior(enemies.Room, enemies.FrameContext, enemies.Projectiles, enemies.Presentation, enemies.Audio);
-        var dachoraBehavior = new DachoraBehavior(enemies.Terrain, enemies.Places, enemies.Audio);
+        var dachoraBehavior = new DachoraBehavior(enemies.Terrain, partOffers, enemies.Audio);
         var crocomireAccess = new CrocomireEncounterAccess(enemies.PassEvents, enemies.Room, enemies.Projectiles, enemies.Audio);
         var crocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { Access = crocomireAccess, Places = enemies.Places, BodyLayer = new CrocomireBodyLayer(enemies.EffectActors, enemies.BossPresentation.Surfaces, crocomireAccess, enemies.RoomFx), Room = enemies.Room, Terrain = enemies.Terrain, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Presentation = enemies.BossPresentation, FrameContext = enemies.FrameContext, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, CameraDistance = enemies.CameraDistance, RoomStatus = enemies.RoomStatus, Encounters = enemies.BossEncounters });
         var crawlersBehavior = new CrawlersBehavior(enemies.Terrain, enemies.Earthquake);
@@ -331,7 +333,6 @@ internal sealed class RoomEnemySpecies
         RoomEffectSteps = [new PhantoonBodyDisplaySteps(enemies.BossEncounters)];
         Shadings = [ceresDoorBehavior, .. Present<IGameplayShadingSource>(tourianEntranceStatueBehavior)];
         Elevator = elevatorBehavior;
-        Gunship = new GunshipSession(gunshipBehavior);
         LoaderHooks = new LoaderOperations(rinkaBehavior, prePhantoonRoomBehavior, RidleyEncounter);
         LoadPreparation = new RoomLoadPreparation(gunshipBehavior, rinkaBehavior);
         AttractDemoHooks = new AttractDemoOperations(enemies.Places);
@@ -398,9 +399,6 @@ internal sealed class RoomEnemySpecies
 
     /// <summary>The elevator journey the runtime reads and resets.</summary>
     internal IElevatorJourney Elevator { get; }
-
-    /// <summary>The gunship's save prompt and health check.</summary>
-    internal IGunshipSession Gunship { get; }
 
     /// <summary>The Ceres encounter's status and runtime operations.</summary>
     internal ICeresEncounter Ceres { get; }

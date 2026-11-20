@@ -13,7 +13,7 @@ internal sealed class DachoraEntity(DachoraBehavior species, RoomEnemyOccupant o
     internal DachoraSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal DachoraEnemyState State { get; } = species.InitializeDachora(occupant, settings, place);
+    internal DachoraEnemyState State { get; } = DachoraBehavior.InitializeDachora(occupant, settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunDachoraMainAi(Place, State, frame);

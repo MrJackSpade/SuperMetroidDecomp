@@ -9,8 +9,10 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="place">The place the mouth occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class PhantoonMouthEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : PhantoonEntity(species, occupant, place, common, bossArtwork, species.InitializePhantoonMouth(place))
+/// <param name="encounter">The encounter his body began, which the mouth joins as it is built.</param>
+internal sealed class PhantoonMouthEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork,
+    PhantoonEnemyState encounter)
+    : PhantoonEntity(species, occupant, place, common, bossArtwork, PhantoonBehavior.InitializePhantoonMouth(encounter))
 {
     /// <summary>Takes no action of its own: the mouth plays its own animation.</summary>
     /// <param name="frame">The enemy frame.</param>

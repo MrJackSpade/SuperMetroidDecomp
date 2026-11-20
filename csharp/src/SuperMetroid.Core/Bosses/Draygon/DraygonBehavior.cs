@@ -12,23 +12,41 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
 {
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-        [EnemyDefinitionId.DraygonArms, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.DraygonBody];
 
-    /// <summary>Draygon's body, eye, tail or arms (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Draygon definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// <summary>
+    /// Draygon's body, built the same way wherever it is set up; his eye, tail and arms join the encounter his body offers
+    /// them as it sets up (<see cref="BeginDraygon"/>).
+    /// </summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void Register(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.DraygonBody)
-            return EnemyOccupant.Running(new DraygonBodyEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.DraygonEye)
-            return EnemyOccupant.Running(new DraygonEyeEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.DraygonTail)
-            return EnemyOccupant.Running(new DraygonTailEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.DraygonArms)
-            return EnemyOccupant.Running(new DraygonArmsEntity(this, occupant, place, common, _bossArtwork));
-        throw new InvalidOperationException($"The Draygon species creates no {occupant.DefinitionId}.");
+        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>(Definitions, Create);
+        registrar.Joins([EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail, EnemyDefinitionId.DraygonArms]);
+    }
+
+    /// <summary>Draygon's body (#2146).</summary>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new DraygonBodyEntity(this, occupant, place, common, _bossArtwork));
+
+    /// <summary>Where his body offers his other parts the creation that builds each of them joining his encounter.</summary>
+    private readonly EnemyPartOffers _partOffers;
+
+    /// <summary>
+    /// Sets his body up, beginning the encounter, and offers his eye, tail and arms, which his room lists right after his
+    /// body (#2298), the creation that builds each of them joining that encounter (#2554).
+    /// </summary>
+    /// <returns>The encounter, which the body holds from its setup.</returns>
+    internal DraygonEnemyState BeginDraygon(RoomEnemyOccupant body)
+    {
+        DraygonEnemyState state = Parts.InitializeDraygonBody(body);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.DraygonEye, (occupant, _, place, common) =>
+            EnemyOccupant.Running(new DraygonEyeEntity(this, occupant, place, common, _bossArtwork, state)));
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.DraygonTail, (occupant, _, place, common) =>
+            EnemyOccupant.Running(new DraygonTailEntity(this, occupant, place, common, _bossArtwork, state)));
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.DraygonArms, (occupant, _, place, common) =>
+            EnemyOccupant.Running(new DraygonArmsEntity(this, occupant, place, common, _bossArtwork, state)));
+        return state;
     }
 
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
@@ -73,6 +91,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
     internal DraygonBehavior(DraygonBehaviorDependencies dependencies)
     {
         _bossArtwork = dependencies.BossArtwork;
+        _partOffers = dependencies.PartOffers;
         _room = dependencies.Room;
         _frameContext = dependencies.FrameContext;
         Shots = new DraygonShots(dependencies.DeathsAndDrops);

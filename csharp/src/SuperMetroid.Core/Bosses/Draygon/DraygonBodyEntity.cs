@@ -16,7 +16,7 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupa
     : DraygonEntity(species, occupant, place, common, bossArtwork), IEnemyPrivateShotReaction
 {
     /// <summary>The encounter his body began as it was built (#2554).</summary>
-    private DraygonEnemyState Draygon { get; } = species.Parts.InitializeDraygonBody(occupant);
+    private DraygonEnemyState Draygon { get; } = species.BeginDraygon(occupant);
 
     /// <summary>The body's part of the encounter it set up.</summary>
     internal override DraygonPart Part => Draygon.BodyPart;

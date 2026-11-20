@@ -27,11 +27,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The room's enemy places, where each Evir part finds its partners when it is placed.</summary>
     private readonly EnemyPlaces _places;
-    /// <summary>
-    /// The two enemies a body's or its arms' follow-up to a hit reaches (<see cref="FollowUpAfterStruckPart"/>), nearest
-    /// first, which each found when it was placed. The spit has no follow-up.
-    /// </summary>
-    private readonly EnemyPartLinks<IReadOnlyList<RoomEnemyPlace>> _followUpRecipients = new();
     /// <summary>Runs normal touch handling before Evir's follow-up to the hit.</summary>
     private readonly EnemyCollision _collision;
 
@@ -72,7 +67,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <returns>The state the enemy holds from its setup.</returns>
     internal EvirArmsState InitializeEvirArms(RoomEnemyPlace place)
     {
-        PlaceFollowUpRecipients(place);
         // The arms are not a second creature: they always read facing and position from their body.
         RoomEnemyPlace body = _places.Member(place, EvirPartListingDefinitions.Listing, EvirMember.Arms, EvirMember.Body);
         RequirePlacedBody(body, place, "arms");
@@ -83,18 +77,16 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Finds the two enemies a body's or its arms' follow-up to a hit reaches (<see cref="FollowUpAfterStruckPart"/>),
-    /// the ones the room lists after it.
+    /// The two enemies a body's or its arms' follow-up to a hit reaches (<see cref="FollowUpAfterStruckPart"/>), nearest
+    /// first: the ones the room lists after it, which the part finds as it is built. The spit has no follow-up.
     /// </summary>
-    private void PlaceFollowUpRecipients(RoomEnemyPlace place) =>
-        _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(_places.PlacesAfter(place), EvirPartListingDefinitions.FollowUpReach));
+    internal IReadOnlyList<RoomEnemyPlace> FollowUpRecipientsOf(RoomEnemyPlace place) =>
+        FollowUpAfterStruckPart.Recipients(_places.PlacesAfter(place), EvirPartListingDefinitions.FollowUpReach);
 
     /// <summary>Initializes an Evir's body, facing Samus.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
     internal EvirBodyState InitializeEvirBody(RoomEnemyOccupant occupant, EvirSpawnSettings settings, RoomEnemyPlace place, SamusState samus)
     {
-        PlaceFollowUpRecipients(place);
-
         var state = new EvirBodyState(spit: _places.Member(place, EvirPartListingDefinitions.Listing, EvirMember.Body, EvirMember.Spit));
         SetEvirBodyFacing(place, state, samus);
 
@@ -386,13 +378,13 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Finishes an Evir's reaction after common touch, shot or power-bomb damage, on the two enemies placed after whichever Evir
-    /// part was hit (<see cref="FollowUpAfterStruckPart"/>). Touches and shots reach only the body, whose followers are
-    /// its arms and spit; a power bomb also hits the intangible arms, whose followers are their spit and the next enemy.
+    /// Finishes an Evir's reaction after common touch, shot or power-bomb damage, on <paramref name="followers"/>, the two
+    /// enemies placed after whichever Evir part was hit (<see cref="FollowUpAfterStruckPart"/>). Touches and shots reach
+    /// only the body, whose followers are its arms and spit; a power bomb also hits the intangible arms, whose followers
+    /// are their spit and the next enemy.
     /// </summary>
-    private void ResolveEvirCombatAfterCommon(RoomEnemyPlace actor)
+    private static void ResolveEvirCombatAfterCommon(RoomEnemyPlace actor, IReadOnlyList<RoomEnemyPlace> followers)
     {
-        IReadOnlyList<RoomEnemyPlace> followers = _followUpRecipients.Of(actor);
         RoomEnemyPlace firstRelative = followers[0];
         RoomEnemyPlace secondRelative = followers[1];
 
@@ -420,10 +412,13 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Finishes a bomb's hit on an Evir as its other reactions do after the common damage.</summary>
-    internal EnemyBombReaction EvirBombReaction => field ??= new()
+    /// <summary>
+    /// Finishes a bomb's hit on an Evir part as its other reactions do after the common damage, on
+    /// <paramref name="followers"/>, the enemies its follow-up reaches.
+    /// </summary>
+    internal static EnemyBombReaction EvirBombReaction(IReadOnlyList<RoomEnemyPlace> followers) => new()
     {
-        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
+        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy, followers),
     };
 
     /// <summary>Runs an Evir body's main AI: it bobs and turns.</summary>
@@ -467,25 +462,29 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>A Power Bomb's hit on an Evir's body or arms, finished as its other reactions finish.</summary>
-    internal EnemyPowerBombReaction EvirPowerBombReaction => field ??= new()
+    /// <param name="followers">The enemies the struck part's follow-up reaches.</param>
+    internal static EnemyPowerBombReaction EvirPowerBombReaction(IReadOnlyList<RoomEnemyPlace> followers) => new()
     {
         // Touch and shot collision skip the arms, which are intangible, but a Power Bomb's blast does not. Both body and arms therefore finish with the same follow-up, which reaches the enemy after
         // them in the room's list.
-        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
+        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy, followers),
     };
 
     /// <summary>Copies accepted body-shot freeze state to arms and attached spit after common damage.</summary>
-    internal EnemyShotReaction EvirShotReaction => field ??= new()
+    /// <param name="followers">The enemies the struck body's follow-up reaches.</param>
+    internal static EnemyShotReaction EvirShotReaction(IReadOnlyList<RoomEnemyPlace> followers) => new()
     {
         // After every accepted shot's common damage, ice that froze the body included, the body passes its frozen
         // time to its arms and its attached (idle) spit.
-        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
+        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy, followers),
     };
 
     /// <summary>Runs common body contact and then Evir's own combat follow-up.</summary>
-    internal void ReactToEvirTouch(EnemyTouchContext context)
+    /// <param name="context">The touch.</param>
+    /// <param name="followers">The enemies the touched body's follow-up reaches.</param>
+    internal void ReactToEvirTouch(EnemyTouchContext context, IReadOnlyList<RoomEnemyPlace> followers)
     {
         _collision.ResolveOrdinaryTouch(context);
-        ResolveEvirCombatAfterCommon(context.Place);
+        ResolveEvirCombatAfterCommon(context.Place, followers);
     }
 }

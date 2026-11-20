@@ -19,6 +19,18 @@ internal sealed class EvirBodyEntity(EvirBehavior species, RoomEnemyOccupant occ
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal EvirBodyState State { get; } = species.InitializeEvirBody(occupant, settings, place, surroundings.Samus);
 
+    /// <summary>The two enemies the part's follow-up to a hit reaches, the ones its room lists after it, found as it is built.</summary>
+    private IReadOnlyList<RoomEnemyPlace> FollowUpRecipients { get; } = species.FollowUpRecipientsOf(place);
+
+    /// <summary>The part's own bomb stages, which carry its hit to the enemies its follow-up reaches.</summary>
+    private EnemyBombReaction OwnBomb => field ??= EvirBehavior.EvirBombReaction(FollowUpRecipients);
+
+    /// <summary>The part's own Power Bomb reaction, which carries its hit to the enemies its follow-up reaches.</summary>
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= EvirBehavior.EvirPowerBombReaction(FollowUpRecipients);
+
+    /// <summary>The body's own shot reaction, which carries its hit to the enemies its follow-up reaches.</summary>
+    private EnemyShotReaction OwnShot => field ??= EvirBehavior.EvirShotReaction(FollowUpRecipients);
+
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirBodyMainAi(Occupant, Settings, Place, State, frame);
 
@@ -33,21 +45,21 @@ internal sealed class EvirBodyEntity(EvirBehavior species, RoomEnemyOccupant occ
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == EvirReactions.Touch)
-            species.ReactToEvirTouch(context);
+            species.ReactToEvirTouch(context, FollowUpRecipients);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Evir's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == EvirReactions.Shot ? species.EvirShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == EvirReactions.Shot ? OwnShot : base.ShotReaction;
 
     /// <summary>The Evir's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == EvirReactions.Shot ? species.EvirBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == EvirReactions.Shot ? OwnBomb : base.CommonBombDamageReaction(context);
 
     /// <summary>The Evir's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? species.EvirPowerBombReaction : base.PowerBombReaction;
+    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? OwnPowerBomb : base.PowerBombReaction;
 
     /// <summary>The Evir's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

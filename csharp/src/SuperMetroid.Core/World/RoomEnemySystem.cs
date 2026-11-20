@@ -151,9 +151,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The elevator journey the runtime reads and resets.</summary>
     internal IElevatorJourney Elevator => SpeciesComposition.Elevator;
 
-    /// <summary>The gunship's save prompt and health check.</summary>
-    internal IGunshipSession Gunship => SpeciesComposition.Gunship;
-
     /// <summary>The Ceres encounter's status and runtime operations.</summary>
     internal ICeresEncounter Ceres => SpeciesComposition.Ceres;
 

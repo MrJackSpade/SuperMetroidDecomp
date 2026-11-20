@@ -34,9 +34,6 @@ internal sealed class DraygonParts
     /// <summary>The room's enemy places, among which each part finds the body listed before it.</summary>
     private readonly EnemyPlaces _places;
 
-    /// <summary>The encounter Draygon's body began, under each of his parts' places, which the body links as it is set up (#2554).</summary>
-    private readonly EnemyPartLinks<DraygonEnemyState> _encounters = new();
-
     /// <summary>Builds the component from the encounter's collaborators.</summary>
     internal DraygonParts(DraygonPartsDependencies dependencies)
     {
@@ -74,8 +71,6 @@ internal sealed class DraygonParts
         // his parts each hold the encounter from their own setup.
         _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Draygon, draygon));
         _presentation.BossShadings.Show(BossShadingLayer.Draygon, draygon.Colours);
-        foreach (EnemyDefinitionId part in (ReadOnlySpan<EnemyDefinitionId>)[EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail, EnemyDefinitionId.DraygonArms])
-            _encounters.Place(Partner(body, EnemyDefinitionId.DraygonBody, part), draygon);
         // His setup shows only his opening's colours (#2547). His health band is the one his health starts in (#2304), so a
         // hurt the grapple's shock starts before any hit shows it, but his body layer shows it only from his first hurt
         // update or from the reaction that moves his health into another band.
@@ -88,35 +83,34 @@ internal sealed class DraygonParts
         _places.Member(member, DraygonPartListingDefinitions.Listing, memberRole, role);
 
     /// <summary>
-    /// The part a part playing <paramref name="role"/> joins as it sets up, of the encounter his body began (#2298): the part
-    /// holds it as its species state, and its animation, the one the encounter began it with, steps on its next update.
+    /// The part of the encounter his body began that a part joins as it sets up in <paramref name="place"/> (#2298): the
+    /// part holds it from its setup, and its animation, the one the encounter began it with, steps on its next update.
     /// </summary>
-    private DraygonPart JoiningPart(RoomEnemyPlace place, EnemyDefinitionId role, Func<DraygonEnemyState, DraygonPart> part)
+    private static DraygonPart JoiningPart(RoomEnemyPlace place, DraygonPart joined)
     {
-        DraygonPart joined = part(_encounters.Of(place));
         place.AnimationClock.StepOnNextUpdate();
         return joined;
     }
 
     /// <summary>Sets Draygon's eye up, listed right after his body, inert until the body publishes facing AI.</summary>
-    /// <returns>The eye's part of the encounter, which it holds from its setup.</returns>
-    internal DraygonPart InitializeDraygonEye(RoomEnemyPlace eye) => JoiningPart(eye, EnemyDefinitionId.DraygonEye, draygon => draygon.EyePart);
+    /// <returns>The eye's part of <paramref name="draygon"/>, which it holds from its setup.</returns>
+    internal static DraygonPart InitializeDraygonEye(RoomEnemyPlace eye, DraygonEnemyState draygon) => JoiningPart(eye, Ensure.NotNull(draygon).EyePart);
 
     /// <summary>Sets Draygon's tail up, listed after his eye, starting with its fake whip.</summary>
-    /// <returns>The part of the encounter it holds from its setup.</returns>
-    internal DraygonPart InitializeDraygonTail(RoomEnemyPlace tail)
+    /// <returns>The tail's part of <paramref name="draygon"/>, which it holds from its setup.</returns>
+    internal static DraygonPart InitializeDraygonTail(RoomEnemyPlace tail, DraygonEnemyState draygon)
     {
-        DraygonPart joined = JoiningPart(tail, EnemyDefinitionId.DraygonTail, draygon => draygon.TailPart);
-        tail.Shading = joined.Draygon.Colours.Sprites;
+        DraygonPart joined = JoiningPart(tail, Ensure.NotNull(draygon).TailPart);
+        tail.Shading = draygon.Colours.Sprites;
         return joined;
     }
 
     /// <summary>Sets Draygon's arms up, listed after his tail, in their idle loop.</summary>
-    /// <returns>The part of the encounter it holds from its setup.</returns>
-    internal DraygonPart InitializeDraygonArms(RoomEnemyPlace arms)
+    /// <returns>The arms' part of <paramref name="draygon"/>, which they hold from their setup.</returns>
+    internal static DraygonPart InitializeDraygonArms(RoomEnemyPlace arms, DraygonEnemyState draygon)
     {
-        DraygonPart joined = JoiningPart(arms, EnemyDefinitionId.DraygonArms, draygon => draygon.ArmsPart);
-        arms.Shading = joined.Draygon.Colours.Sprites;
+        DraygonPart joined = JoiningPart(arms, Ensure.NotNull(draygon).ArmsPart);
+        arms.Shading = draygon.Colours.Sprites;
         return joined;
     }
 

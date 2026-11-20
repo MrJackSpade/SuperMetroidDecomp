@@ -45,4 +45,7 @@ internal sealed record PhantoonBehaviorDependencies
 
     /// <summary>The room's enemy places, among which his body finds his parts listed after it and each part his body before it (#2252).</summary>
     public required EnemyPlaces Places { get; init; }
+
+    /// <summary>Where his body offers his eye, tentacles and mouth the creation that builds each of them joining his encounter (#2554).</summary>
+    public required EnemyPartOffers PartOffers { get; init; }
 }

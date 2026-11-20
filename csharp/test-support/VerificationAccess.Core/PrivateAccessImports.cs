@@ -734,6 +734,7 @@ global using static SuperMetroid.Core.Samus.Projectiles.ChargedShotGlowPrivateAc
 global using static SuperMetroid.Core.Samus.Projectiles.HyperBeamColourEffectStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.PowerBombBlastTimelinePrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.PowerBombRadiusPrivateAccess;
+global using static SuperMetroid.Core.Samus.Projectiles.ProjectileAnimationPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.ProjectileMotionPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTerrainCollisionPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTrailSparkleAnimationsPrivateAccess;

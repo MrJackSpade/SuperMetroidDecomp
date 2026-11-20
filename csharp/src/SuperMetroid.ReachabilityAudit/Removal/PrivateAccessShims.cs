@@ -103,6 +103,8 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
             if (type.DeclaredAccessibility is Accessibility.Private or Accessibility.Protected or Accessibility.ProtectedAndInternal)
                 return "owner not visible to test-support";
         }
+        if (SignatureTypes(member).FirstOrDefault(Hidden) is { } hidden)
+            return $"a type in its signature test-support cannot see ({hidden.ToDisplayString()})";
         return member switch
         {
             IMethodSymbol { MethodKind: MethodKind.Constructor } => "constructor",
@@ -125,6 +127,35 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
             IMethodSymbol or IPropertySymbol or IFieldSymbol => null,
             _ => member.Kind.ToString(),
         };
+    }
+
+    /// <summary>The types a member's stand-in names: its type or return type and its parameters' types.</summary>
+    private static IEnumerable<ITypeSymbol> SignatureTypes(ISymbol member) => member switch
+    {
+        IMethodSymbol method => method.Parameters.Select(parameter => parameter.Type).Prepend(method.ReturnType),
+        IPropertySymbol property => property.Parameters.Select(parameter => parameter.Type).Prepend(property.Type),
+        IFieldSymbol field => [field.Type],
+        _ => [],
+    };
+
+    /// <summary>Whether test-support cannot name <paramref name="type"/>: it, a type containing it or a type argument is private or protected.</summary>
+    private static bool Hidden(ITypeSymbol type) => type switch
+    {
+        IArrayTypeSymbol array => Hidden(array.ElementType),
+        IPointerTypeSymbol pointer => Hidden(pointer.PointedAtType),
+        INamedTypeSymbol named => named.TypeArguments.Any(Hidden) || HiddenDeclaration(named),
+        _ => false,
+    };
+
+    /// <summary>Whether a named type, or a type containing it, is private or protected.</summary>
+    private static bool HiddenDeclaration(INamedTypeSymbol type)
+    {
+        for (INamedTypeSymbol? declared = type; declared is not null; declared = declared.ContainingType)
+        {
+            if (declared.DeclaredAccessibility is Accessibility.Private or Accessibility.Protected or Accessibility.ProtectedAndInternal)
+                return true;
+        }
+        return false;
     }
 
     /// <summary>Whether a method's signature holds a <c>ref struct</c>, which reflection cannot pass or return.</summary>
@@ -483,7 +514,7 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
         bool New(RenderedMember member)
         {
             string[] parts = member.Key.Split('|');
-            string key = parts[0] == "method" ? $"method|{parts[1]}|{(parts[2].Length == 0 ? 0 : parts[2].Split(',').Length)}" : member.Key;
+            string key = parts[0] == "method" ? $"method|{parts[1]}|{ParameterCount(parts[2])}" : member.Key;
             return !held.Contains(key);
         }
         var blocks = new List<string>();
@@ -503,6 +534,28 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
         foreach (var (receiver, members) in _receivers)
             Add($"/// <summary>The private extension methods checks call on their receiver.</summary>\nextension({receiver} self)", members);
         return blocks;
+    }
+
+    /// <summary>
+    /// The parameters a method key's signature lists: each is its passing and its type, and a generic type's own commas
+    /// lie inside its angle brackets.
+    /// </summary>
+    private static int ParameterCount(string signature)
+    {
+        if (signature.Length == 0)
+            return 0;
+        int depth = 0;
+        int count = 1;
+        foreach (char character in signature)
+        {
+            if (character == '<')
+                depth++;
+            else if (character == '>')
+                depth--;
+            else if (character == ',' && depth == 0)
+                count++;
+        }
+        return count;
     }
 
     /// <summary>The <c>where</c> clauses of a generic owner's type parameters, as its blocks repeat them.</summary>

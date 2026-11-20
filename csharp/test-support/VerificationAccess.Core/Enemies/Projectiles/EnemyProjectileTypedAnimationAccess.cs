@@ -14,8 +14,11 @@ internal static class EnemyProjectileTypedAnimationAccess
         where TFrame : struct
         where TEvent : notnull
     {
-        /// <summary>The animation playing and where it stands.</summary>
-        internal AnimationPlayback<TSegment> Playback =>
-            PrivateState.Get<EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent>, AnimationPlayback<TSegment>>(self, "Playback");
+        /// <summary>The animation playing and where it stands; a check sets it to start a projectile mid-animation.</summary>
+        internal AnimationPlayback<TSegment> Playback
+        {
+            get => PrivateState.Get<EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent>, AnimationPlayback<TSegment>>(self, "Playback");
+            set => PrivateState.Set(self, "Playback", value);
+        }
     }
 }

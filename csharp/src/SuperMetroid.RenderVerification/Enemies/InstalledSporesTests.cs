@@ -202,7 +202,7 @@ internal static class InstalledSporesTests
                 ScreenLayers.Sprites | ((enabled & 1) != 0 ? ScreenLayers.Foreground : 0) |
                     ((enabled & 2) != 0 ? ScreenLayers.Background : 0));
             ShownRoomEffectOverlay spores = FxOverlayFixtures.Overlay(
-                new(RoomFxType.Spores, RoomEffectOverlayLook.Atmosphere(RoomEffectBlendDefinitions.SporesBrightenBehind), Position16<OverlayPixels>.Zero, null),
+                new(RoomFxType.Spores, RoomEffectOverlayLook.Of(RoomFxType.Spores, RoomEffectBlendDefinitions.SporesBrightenBehind)!, Position16<OverlayPixels>.Zero, null),
                 FxOverlayFixtures.ArtworkFromVram(RoomFxType.Spores, vram.Bytes, colors, 0x4000));
             var layer = GameplayEffectCapture.CaptureEffectBlendingBehind(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors, new((ushort)(1 | (bg1High ? 0x2000 : 0))))),
                 spores, (OverlayBehindRoomBlend)spores.Blend);

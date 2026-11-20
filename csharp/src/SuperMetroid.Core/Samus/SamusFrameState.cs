@@ -30,14 +30,27 @@ internal sealed class SamusFrameState : IRoomSamusAccess
     internal bool AdvanceLoadAppearance() => LoadAppearance.StepEnds();
 
     /// <summary>
-    /// Normal-gameplay Samus rendering state. Null means the current scenario has not
-    /// explicitly introduced Samus; the Landing Site cinematic does not do so by itself.
+    /// Whether the scenario has introduced Samus (#2554): not until it explicitly does (the Landing Site cinematic does not
+    /// by itself), then the Samus it introduced.
     /// </summary>
-    public SamusState? Samus { get; internal set; }
+    internal SamusIntroduction Introduction { get; private set; } = SamusIntroduction.NotIntroduced.Instance;
+
+    /// <summary>Normal-gameplay Samus, for a reader that also runs before the scenario introduces her.</summary>
+    public SamusState? Samus
+    {
+        get => Introduction is SamusIntroduction.Introduced introduced ? introduced.Samus : null;
+        internal set => Introduction = new SamusIntroduction.Introduced(Ensure.NotNull(value));
+    }
 
     /// <summary>Samus once the scenario has introduced her; gameplay phases that move, draw or damage her require it.</summary>
-    public SamusState IntroducedSamus => Samus ??
-        throw new InvalidOperationException("Samus has not been introduced; this gameplay phase requires her actor.");
+    /// <exception cref="InvalidOperationException">The gameplay phase ran before the scenario introduced her.</exception>
+    public SamusState IntroducedSamus => Introduction switch
+    {
+        SamusIntroduction.Introduced introduced => introduced.Samus,
+        SamusIntroduction.NotIntroduced => throw new InvalidOperationException(
+            "Samus has not been introduced; this gameplay phase requires her actor."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(SamusIntroduction)} {Introduction}."),
+    };
 
     /// <summary>
     /// Samus as the room's colour effects see her each time one reads her (#2391); an effect reading her before the scenario

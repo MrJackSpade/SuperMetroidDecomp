@@ -288,9 +288,8 @@ internal sealed class RoomLoader
     /// </summary>
     public void InitializePostCeresZebesRoom()
     {
-        SamusState carried = _player.Samus
-            ?? throw new InvalidOperationException(
-                "The Ceres escape must retain its live Samus state through the cinematic.");
+        // The Ceres escape keeps its live Samus through the cinematic.
+        SamusState carried = _player.IntroducedSamus;
 
         // Initializing Samus clears all of her state, including the speeds and pose
         // state the escape left behind; only the inventory below it survives. The player is

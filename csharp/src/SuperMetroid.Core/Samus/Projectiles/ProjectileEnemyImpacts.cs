@@ -170,10 +170,10 @@ internal sealed class ProjectileEnemyImpacts
         },
         [SamusProjectileFamily.Missile] = (samusBombs, blocksPlasmaBeam, shot) => TryStartEnemyImpactForSamusProjectileFamilyMissile(samusBombs, blocksPlasmaBeam, shot),
         [SamusProjectileFamily.SuperMissile] = (samusBombs, blocksPlasmaBeam, shot) => TryStartEnemyImpactForSamusProjectileFamilyMissile(samusBombs, blocksPlasmaBeam, shot),
-        [SamusProjectileFamily.PowerBomb] = (samusBombs, blocksPlasmaBeam, shot) => false,
-        [SamusProjectileFamily.Bomb] = (samusBombs, blocksPlasmaBeam, shot) => false,
-        [SamusProjectileFamily.BeamExplosion] = (samusBombs, blocksPlasmaBeam, shot) => false,
-        [SamusProjectileFamily.MissileExplosion] = (samusBombs, blocksPlasmaBeam, shot) => false,
+        [SamusProjectileFamily.PowerBomb] = (samusBombs, blocksPlasmaBeam, shot) => TryStartEnemyImpactForSamusProjectileFamilyPowerBomb(samusBombs, blocksPlasmaBeam, shot),
+        [SamusProjectileFamily.Bomb] = (samusBombs, blocksPlasmaBeam, shot) => TryStartEnemyImpactForSamusProjectileFamilyPowerBomb(samusBombs, blocksPlasmaBeam, shot),
+        [SamusProjectileFamily.BeamExplosion] = (samusBombs, blocksPlasmaBeam, shot) => TryStartEnemyImpactForSamusProjectileFamilyPowerBomb(samusBombs, blocksPlasmaBeam, shot),
+        [SamusProjectileFamily.MissileExplosion] = (samusBombs, blocksPlasmaBeam, shot) => TryStartEnemyImpactForSamusProjectileFamilyPowerBomb(samusBombs, blocksPlasmaBeam, shot),
     });
 
     /// <summary>What <see cref="TryStartEnemyImpactForSamusProjectileFamily"/> does for <see cref="SamusProjectileFamily.Missile"/>, <see cref="SamusProjectileFamily.SuperMissile"/>.</summary>
@@ -181,6 +181,14 @@ internal sealed class ProjectileEnemyImpacts
     {
         _terrainCollision.KillMissile(shot, samusBombs);
         return true;
+    }
+
+    /// <summary>What <see cref="TryStartEnemyImpactForSamusProjectileFamily"/> does for <see cref="SamusProjectileFamily.PowerBomb"/>, <see cref="SamusProjectileFamily.Bomb"/>, <see cref="SamusProjectileFamily.BeamExplosion"/>, <see cref="SamusProjectileFamily.MissileExplosion"/>.</summary>
+    private bool TryStartEnemyImpactForSamusProjectileFamilyPowerBomb(SamusBombProjectileSystem samusBombs, bool blocksPlasmaBeam, SamusProjectile shot)
+    {
+        // Existing explosion, bomb, and unknown family shots cannot repeatedly
+        // increment an enemy hit counter merely because their art still overlaps.
+        return false;
     }
 
     /// <summary>

@@ -20,33 +20,38 @@ internal sealed class LowerNorfairChozoHandObject(ChozoStatueObjects statue) : R
     /// <summary>Where the hand is in its course.</summary>
     private LowerNorfairChozoHandPhase Phase { get; set; } = LowerNorfairChozoHandPhase.Starting;
 
+    /// <summary>What <c>Update</c> does for each <see cref="LowerNorfairChozoHandPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<LowerNorfairChozoHandPhase, Action<RoomObjectPlace, RoomObjectStepContext>> UpdateForLowerNorfairChozoHandPhase => field ??= new(new Dictionary<LowerNorfairChozoHandPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
+    {
+        [LowerNorfairChozoHandPhase.Starting] = (place, context) =>
+        {
+            if (_statue.HasLoweredLowerNorfairAcid)
+            {
+                _statue.SetLoweredAcidHeight();
+                context.Draw(place, ChozoStatueObjectDefinitions.LoweredHand);
+                Phase = LowerNorfairChozoHandPhase.Lowered;
+            }
+            else
+            {
+                Phase = LowerNorfairChozoHandPhase.Waiting;
+            }
+        },
+        [LowerNorfairChozoHandPhase.Waiting] = (place, context) =>
+        {
+            RoomLevelData level = context.Level;
+            Position16<RoomBlocks> trigger = level.GridBlock(new(ChozoStatueRoomDefinitions.LowerNorfairTriggerX, ChozoStatueRoomDefinitions.LowerNorfairTriggerY));
+            if (!context.RoomObjects.BlockReactions.IsBrokenOpen(trigger))
+                return;
+            ChozoStatueObjects.WriteChozoBlock(level, trigger, RoomCollisionType.SpecialBlock, ChozoStatueRoomDefinitions.LowerNorfairHandBehavior);
+            context.RoomObjects.DeleteObject(place);
+        },
+        [LowerNorfairChozoHandPhase.Lowered] = (place, context) => context.RoomObjects.DeleteObject(place),
+    });
+
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
-        switch (Phase)
-        {
-            case LowerNorfairChozoHandPhase.Starting when _statue.HasLoweredLowerNorfairAcid:
-                _statue.SetLoweredAcidHeight();
-                context.Draw(place, ChozoStatueObjectDefinitions.LoweredHand);
-                Phase = LowerNorfairChozoHandPhase.Lowered;
-                return;
-            case LowerNorfairChozoHandPhase.Starting:
-                Phase = LowerNorfairChozoHandPhase.Waiting;
-                return;
-            case LowerNorfairChozoHandPhase.Waiting:
-                RoomLevelData level = context.Level;
-                Position16<RoomBlocks> trigger = level.GridBlock(new(ChozoStatueRoomDefinitions.LowerNorfairTriggerX, ChozoStatueRoomDefinitions.LowerNorfairTriggerY));
-                if (!context.RoomObjects.BlockReactions.IsBrokenOpen(trigger))
-                    return;
-                ChozoStatueObjects.WriteChozoBlock(level, trigger, RoomCollisionType.SpecialBlock, ChozoStatueRoomDefinitions.LowerNorfairHandBehavior);
-                context.RoomObjects.DeleteObject(place);
-                return;
-            case LowerNorfairChozoHandPhase.Lowered:
-                context.RoomObjects.DeleteObject(place);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(LowerNorfairChozoHandPhase)} {Phase}.");
-        }
+        UpdateForLowerNorfairChozoHandPhase[Phase](place, context);
     }
 }

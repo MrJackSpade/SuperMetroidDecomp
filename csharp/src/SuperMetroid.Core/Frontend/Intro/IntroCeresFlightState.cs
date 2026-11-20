@@ -162,6 +162,7 @@ internal sealed class IntroCeresFlightState
         },
         [IntroCeresFlightPhase.Finished] = () =>
         {
+            // The flight has ended; its owner moves to the new-game setup state.
         },
     });
 

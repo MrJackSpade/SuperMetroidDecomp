@@ -256,7 +256,7 @@ internal sealed class BlockReactionObjects
     });
 
     /// <summary>What <see cref="TrySpawnProjectileShotBlockForShotBlockReaction"/> does for <see cref="ShotBlockReaction.RespawningPowerBombBreak"/>, <see cref="ShotBlockReaction.PermanentPowerBombBreak"/>.</summary>
-    private bool TrySpawnProjectileShotBlockForShotBlockReactionRespawningPowerBombBreak(RoomLevelData level, Position16<RoomBlocks> position, RoomBlockBehavior behavior, ShotBlockReaction reaction, SamusProjectileFamily projectileFamily, RoomObjectPlace? place, RoomCollisionBlock block)
+    private bool TrySpawnProjectileShotBlockForShotBlockReactionRespawningPowerBombBreak(RoomLevelData level, Position16<RoomBlocks> position, RoomBlockBehavior behavior, ShotBlockReaction reaction, SamusProjectileFamily projectileFamily, RoomObjectPlace place, RoomCollisionBlock block)
     {
         if (projectileFamily == SamusProjectileFamily.Bomb)
         {
@@ -277,7 +277,7 @@ internal sealed class BlockReactionObjects
     }
 
     /// <summary>What <see cref="TrySpawnProjectileShotBlockForShotBlockReaction"/> does for <see cref="ShotBlockReaction.RespawningSuperMissileBreak"/>, <see cref="ShotBlockReaction.PermanentSuperMissileBreak"/>.</summary>
-    private bool TrySpawnProjectileShotBlockForShotBlockReactionRespawningSuperMissileBreak(RoomLevelData level, Position16<RoomBlocks> position, RoomBlockBehavior behavior, ShotBlockReaction reaction, SamusProjectileFamily projectileFamily, RoomObjectPlace? place, RoomCollisionBlock block)
+    private bool TrySpawnProjectileShotBlockForShotBlockReactionRespawningSuperMissileBreak(RoomLevelData level, Position16<RoomBlocks> position, RoomBlockBehavior behavior, ShotBlockReaction reaction, SamusProjectileFamily projectileFamily, RoomObjectPlace place, RoomCollisionBlock block)
     {
         if (projectileFamily == SamusProjectileFamily.Bomb)
         {

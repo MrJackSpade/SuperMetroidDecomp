@@ -97,7 +97,11 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             StartFuneNamiheAnimation(place, state);
             state.Cooldown = CooldownOf(place);
         },
-        [FuneAction.Spitting] = static (place, state) => { },
+        [FuneAction.Spitting] = static (place, state) =>
+        {
+            // The active animation's finish step is the only owner allowed to leave
+            // the spit. Main AI does nothing until that step.
+        },
     });
 
     /// <summary>Starts the Fune's spit after its cooldown; the active animation owns the return to idle.</summary>
@@ -120,7 +124,11 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = NamiheAction.Spitting;
             StartFuneNamiheAnimation(place, state);
         },
-        [NamiheAction.Spitting] = static (place, state, samus) => { },
+        [NamiheAction.Spitting] = static (place, state, samus) =>
+        {
+            // The active animation's finish step is the only owner allowed to leave
+            // the spit. Main AI does nothing until that step.
+        },
     });
 
     /// <summary>Starts the Namihe's spit once Samus is vertically closer than its proximity; the spitting animation returns it to waiting.</summary>

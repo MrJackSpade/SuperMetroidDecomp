@@ -114,6 +114,25 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         state.LeftPostX = OffRoomPlaces.Place(place.Position.X.Whole - settings.PatrolReach);
     }
 
+    /// <summary>What <c>RunWalkingSpacePirateMain</c> does for each <see cref="WalkingSpacePirateAction"/> member, each member's own arm.</summary>
+    private IdentityTable<WalkingSpacePirateAction, Action<RoomEnemyPlace, WalkingSpacePirateEnemyState, SamusState, RoomLevelData>> RunWalkingSpacePirateMainForWalkingSpacePirateAction => field ??= new(new Dictionary<WalkingSpacePirateAction, Action<RoomEnemyPlace, WalkingSpacePirateEnemyState, SamusState, RoomLevelData>>
+    {
+        [WalkingSpacePirateAction.StandingStill] = (place, state, samus, level) =>
+        {
+        },
+        [WalkingSpacePirateAction.Walking] = (place, state, samus, level) =>
+        {
+            if (state.Heading == HorizontalDirection.Left)
+            {
+                RunWalkingSpacePirateLeft(place, state, samus, level);
+            }
+            else
+            {
+                RunWalkingSpacePirateRight(place, state, samus, level);
+            }
+        },
+    });
+
     /// <summary>Runs the walking Space Pirate's main AI.</summary>
     private void RunWalkingSpacePirateMain(
         RoomEnemyPlace place,
@@ -122,23 +141,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         RoomLevelData level,
         SamusProjectileSystem samusProjectiles)
     {
-        switch (state.Action)
-        {
-            case WalkingSpacePirateAction.StandingStill:
-                break;
-
-            case WalkingSpacePirateAction.Walking when state.Heading == HorizontalDirection.Left:
-                RunWalkingSpacePirateLeft(place, state, samus, level);
-                break;
-
-            case WalkingSpacePirateAction.Walking:
-                RunWalkingSpacePirateRight(place, state, samus, level);
-                break;
-
-            default:
-                throw new InvalidDataException(
-                    $"Walking Space Pirate has no behaviour for action {state.Action}.");
-        }
+        RunWalkingSpacePirateMainForWalkingSpacePirateAction[state.Action](place, state, samus, level);
 
         // A pirate placed to flinch looks for Samus's shots after its normal AI, and a flinch may replace an animation
         // selected just above.

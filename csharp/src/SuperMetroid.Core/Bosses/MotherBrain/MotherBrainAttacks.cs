@@ -42,7 +42,11 @@ internal sealed class MotherBrainAttacks
             MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.HandBeam);
             state.HandBeamPhase = MotherBrainHandBeamPhase.Firing;
         },
-        [MotherBrainHandBeamPhase.Firing] = static state => { },
+        [MotherBrainHandBeamPhase.Firing] = static state =>
+        {
+            // The charge-beam phase is intentionally empty. The body animation owns the
+            // charge effects, projectile emission, the beam's hold, and phase advance.
+        },
         [MotherBrainHandBeamPhase.Finish] = static state =>
         {
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2);
@@ -126,6 +130,31 @@ internal sealed class MotherBrainAttacks
         RunMotherBrainSecondPhaseTryAttackForMotherBrainAttackPhase[state.AttackPhase](state, samus);
     }
 
+    /// <summary>What <c>ChooseMotherBrainSecondPhaseAttack</c> does for each <see cref="MotherBrainSecondPhaseAttack"/> member, each member's own arm.</summary>
+    private IdentityTable<MotherBrainSecondPhaseAttack, Action<MotherBrainEnemyState, SamusState>> ChooseMotherBrainSecondPhaseAttackForMotherBrainSecondPhaseAttack => field ??= new(new Dictionary<MotherBrainSecondPhaseAttack, Action<MotherBrainEnemyState, SamusState>>
+    {
+        [MotherBrainSecondPhaseAttack.Neutral] = (state, samus) => MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2),
+        [MotherBrainSecondPhaseAttack.FourOnionRings] = (state, samus) => MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.FourOnionRingsPhase2),
+        [MotherBrainSecondPhaseAttack.Laser] = (state, samus) =>
+        {
+            state.Phase2FightPhase = MotherBrainPhase2FightPhase.LaserPositionHeadQuickly;
+            PositionMotherBrainHeadQuicklyForLaser(state, samus);
+        },
+        [MotherBrainSecondPhaseAttack.Bomb] = (state, samus) =>
+        {
+            if (state.BombCounter >= 1)
+            {
+                // A bomb attack with a bomb already alive does nothing, leaving the head's animation as it is. The body
+                // still spends the full cooldown in phase one.
+            }
+            else
+            {
+                state.Phase2FightPhase = MotherBrainPhase2FightPhase.BombDecideWalking;
+                DecideMotherBrainBombWalking(state);
+            }
+        },
+    });
+
     /// <summary>Chooses Mother Brain's second-phase attack, whose airborne branches end the whole choice at once.</summary>
     private void ChooseMotherBrainSecondPhaseAttack(
         MotherBrainEnemyState state,
@@ -169,29 +198,7 @@ internal sealed class MotherBrainAttacks
             ? MotherBrainRandomDefinitions.NearAttack
             : MotherBrainRandomDefinitions.FarAttack;
         MotherBrainSecondPhaseAttack attack = attacks.Choose(random);
-        switch (attack)
-        {
-            case MotherBrainSecondPhaseAttack.Neutral:
-                MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2);
-                return;
-            case MotherBrainSecondPhaseAttack.FourOnionRings:
-                MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.FourOnionRingsPhase2);
-                return;
-            case MotherBrainSecondPhaseAttack.Laser:
-                state.Phase2FightPhase = MotherBrainPhase2FightPhase.LaserPositionHeadQuickly;
-                PositionMotherBrainHeadQuicklyForLaser(state, samus);
-                return;
-            case MotherBrainSecondPhaseAttack.Bomb when state.BombCounter >= 1:
-                // A bomb attack with a bomb already alive does nothing, leaving the head's animation as it is. The body
-                // still spends the full cooldown in phase one.
-                return;
-            case MotherBrainSecondPhaseAttack.Bomb:
-                state.Phase2FightPhase = MotherBrainPhase2FightPhase.BombDecideWalking;
-                DecideMotherBrainBombWalking(state);
-                return;
-            default:
-                throw new InvalidOperationException($"Mother Brain's attack roll chose the undefined attack {attack}.");
-        }
+        ChooseMotherBrainSecondPhaseAttackForMotherBrainSecondPhaseAttack[attack](state, samus);
     }
 
     /// <summary>Identifies Samus movement types considered airborne by the attack chooser.</summary>

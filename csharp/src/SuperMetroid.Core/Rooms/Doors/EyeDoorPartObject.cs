@@ -73,32 +73,37 @@ internal abstract class EyeDoorPartObject
     private protected override void Show(EyeDoorPartPose frame, RoomObjectPlace place, RoomObjectStepContext context) =>
         context.Draw(place, EyeDoorDraws.Of(Part, frame));
 
+    /// <summary>What <c>SequenceEnded</c> does for each <see cref="EyeDoorPartPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<EyeDoorPartPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForEyeDoorPartPhase => field ??= new(new Dictionary<EyeDoorPartPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
+    {
+        [EyeDoorPartPhase.ClosingBehindSamus] = (place, context) => context.RoomObjects.DeleteObject(place),
+        [EyeDoorPartPhase.Placed] = (place, context) =>
+        {
+            if (context.RoomObjects.DoorObjects.IsDoorOpened(Door))
+            {
+                context.RoomObjects.DeleteObject(place);
+                return;
+            }
+            Look(place, context);
+        },
+        [EyeDoorPartPhase.Pulsing] = (place, context) =>
+        {
+            if (IsSamusNear(place, context))
+            {
+                Play(EyeDoorSequenceDefinitions.Pulse[Orientation], place, context);
+            }
+            else
+            {
+                Look(place, context);
+            }
+        },
+        [EyeDoorPartPhase.Still] = (place, context) => Look(place, context),
+    });
+
     /// <inheritdoc/>
     private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        switch (Phase)
-        {
-            case EyeDoorPartPhase.ClosingBehindSamus:
-                context.RoomObjects.DeleteObject(place);
-                return;
-            case EyeDoorPartPhase.Placed:
-                if (context.RoomObjects.DoorObjects.IsDoorOpened(Door))
-                {
-                    context.RoomObjects.DeleteObject(place);
-                    return;
-                }
-                Look(place, context);
-                return;
-            case EyeDoorPartPhase.Pulsing when IsSamusNear(place, context):
-                Play(EyeDoorSequenceDefinitions.Pulse[Orientation], place, context);
-                return;
-            case EyeDoorPartPhase.Pulsing:
-            case EyeDoorPartPhase.Still:
-                Look(place, context);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EyeDoorPartPhase)} {Phase}.");
-        }
+        SequenceEndedForEyeDoorPartPhase[Phase](place, context);
     }
 
     /// <summary>

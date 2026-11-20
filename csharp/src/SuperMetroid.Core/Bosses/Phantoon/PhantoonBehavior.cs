@@ -219,6 +219,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         [PhantoonPartCue.BeginEyeTracking] = state =>
         {
             BeginPhantoonEyeTracking(state);
+            // The advance resumes its own cursor after the cue, so the animation's hold overwrites the
+            // eye animation this installs, as a rest does; the body's animation survives.
         },
         [PhantoonPartCue.PickNewPattern] = state => Patterns.PickPhantoonSecondRoundPattern(state),
         [PhantoonPartCue.SpawnCasualFlame] = state =>

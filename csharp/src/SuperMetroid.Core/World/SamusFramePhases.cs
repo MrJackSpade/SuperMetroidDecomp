@@ -443,6 +443,7 @@ internal sealed class SamusFramePhases
         },
         [SamusMovementOwner.DraygonHold] = (frame, samus, room) =>
         {
+            // Deliberately empty: Draygon's actor owns coordinates.
         },
         [SamusMovementOwner.Xray] = (frame, samus, room) =>
         {

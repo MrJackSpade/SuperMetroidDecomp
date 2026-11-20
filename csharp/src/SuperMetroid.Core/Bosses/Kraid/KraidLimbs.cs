@@ -196,6 +196,49 @@ internal sealed class KraidLimbs
             arm.AnimationClock.Resume();
     }
 
+    /// <summary>What <c>RunKraidFootMain</c> does for each <see cref="KraidFootPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<KraidFootPhase, Action<RoomEnemyPlace, KraidFootState, KraidEnemyState, RoomEnemyPlace>> RunKraidFootMainForKraidFootPhase => field ??= new(new Dictionary<KraidFootPhase, Action<RoomEnemyPlace, KraidFootState, KraidEnemyState, RoomEnemyPlace>>
+    {
+        [KraidFootPhase.Resting] = (foot, part, state, body) => { },
+        [KraidFootPhase.FirstPhaseThinking] = (foot, part, state, body) =>
+        {
+            if (TryBeginKraidGrowth(body, state))
+                return;
+            if (part.PhaseWait.StepRunsOut())
+                part.Phase = KraidFootPhase.PrepareFirstPhaseLunge;
+        },
+        [KraidFootPhase.PrepareFirstPhaseLunge] = (foot, part, state, body) => PrepareKraidFirstPhaseLunge(body, part),
+        [KraidFootPhase.FirstPhaseLunge] = (foot, part, state, body) => RunKraidFirstPhaseLunge(body, foot, part),
+        [KraidFootPhase.WaitBeforeRetreat] = (foot, part, state, body) =>
+        {
+            if (part.PhaseWait.StepRunsOut())
+            {
+                part.Phase = KraidFootPhase.FirstPhaseRetreat;
+                state.FootState.StartAnimation(KraidPartSegment.FootWalkingBackward);
+            }
+        },
+        [KraidFootPhase.WaitBeforeSecondPhase] = (foot, part, state, body) =>
+        {
+            if (part.PhaseWait.StepRunsOut())
+                part.Phase = KraidFootPhase.SecondPhaseInitialize;
+        },
+        [KraidFootPhase.FirstPhaseRetreat] = (foot, part, state, body) => RunKraidFirstPhaseRetreat(body, part),
+        [KraidFootPhase.SecondPhaseWalkToStart] = (foot, part, state, body) => RunKraidSecondPhaseWalkToStart(body, part),
+        [KraidFootPhase.SecondPhaseInitialize] = (foot, part, state, body) => SetKraidWalking(part, targetX: KraidMovementChoices.StartingX, thinkUpdates: KraidArenaDefinitions.SecondPhaseFirstThinkUpdates, direction: HorizontalDirection.Right),
+        [KraidFootPhase.SecondPhaseThinking] = (foot, part, state, body) => RunKraidSecondPhaseThinking(body, part),
+        [KraidFootPhase.SecondPhaseWalking] = (foot, part, state, body) =>
+        {
+            if (part.WalkDirection == HorizontalDirection.Right)
+            {
+                RunKraidSecondPhaseWalkingRight(body, part);
+            }
+            else
+            {
+                RunKraidSecondPhaseWalkingLeft(body, part);
+            }
+        },
+    });
+
     /// <summary>Runs the foot's lunge, retreat, and grown-form walking phases.</summary>
     internal void RunKraidFootMain(RoomEnemyPlace foot, KraidFootState part, int cameraY)
     {
@@ -208,54 +251,7 @@ internal sealed class KraidLimbs
             ? foot.Presence.Without(EnemyPresence.Hidden)
             : foot.Presence.With(EnemyPresence.Hidden);
 
-        switch (part.Phase)
-        {
-            case KraidFootPhase.Resting:
-                return;
-            case KraidFootPhase.FirstPhaseThinking:
-                if (TryBeginKraidGrowth(body, state))
-                    return;
-                if (part.PhaseWait.StepRunsOut())
-                    part.Phase = KraidFootPhase.PrepareFirstPhaseLunge;
-                return;
-            case KraidFootPhase.PrepareFirstPhaseLunge:
-                PrepareKraidFirstPhaseLunge(body, part);
-                return;
-            case KraidFootPhase.FirstPhaseLunge:
-                RunKraidFirstPhaseLunge(body, foot, part);
-                return;
-            case KraidFootPhase.WaitBeforeRetreat:
-                if (part.PhaseWait.StepRunsOut())
-                {
-                    part.Phase = KraidFootPhase.FirstPhaseRetreat;
-                    state.FootState.StartAnimation(KraidPartSegment.FootWalkingBackward);
-                }
-                return;
-            case KraidFootPhase.WaitBeforeSecondPhase:
-                if (part.PhaseWait.StepRunsOut())
-                    part.Phase = KraidFootPhase.SecondPhaseInitialize;
-                return;
-            case KraidFootPhase.FirstPhaseRetreat:
-                RunKraidFirstPhaseRetreat(body, part);
-                return;
-            case KraidFootPhase.SecondPhaseWalkToStart:
-                RunKraidSecondPhaseWalkToStart(body, part);
-                return;
-            case KraidFootPhase.SecondPhaseInitialize:
-                SetKraidWalking(part, targetX: KraidMovementChoices.StartingX, thinkUpdates: KraidArenaDefinitions.SecondPhaseFirstThinkUpdates, direction: HorizontalDirection.Right);
-                return;
-            case KraidFootPhase.SecondPhaseThinking:
-                RunKraidSecondPhaseThinking(body, part);
-                return;
-            case KraidFootPhase.SecondPhaseWalking when part.WalkDirection == HorizontalDirection.Right:
-                RunKraidSecondPhaseWalkingRight(body, part);
-                return;
-            case KraidFootPhase.SecondPhaseWalking:
-                RunKraidSecondPhaseWalkingLeft(body, part);
-                return;
-            default:
-                throw new InvalidDataException($"Undefined {nameof(KraidFootPhase)} {part.Phase}.");
-        }
+        RunKraidFootMainForKraidFootPhase[part.Phase](foot, part, state, body);
     }
 
     /// <summary>Waits for the arm before starting the small-form foot lunge, or begins growth.</summary>

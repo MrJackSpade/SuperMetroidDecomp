@@ -6,16 +6,16 @@ namespace SuperMetroid.Core.Frontend.Map;
 public static class MapSpriteDefinitions
 {
     /// <summary>The world-map label of each Zebes area.</summary>
-    internal static readonly IReadOnlyDictionary<AreaId, MapSpriteId> WorldLabels =
-        new Dictionary<AreaId, MapSpriteId>
+    internal static readonly IdentityTable<ZebesArea, MapSpriteId> WorldLabels =
+        new(new Dictionary<ZebesArea, MapSpriteId>
         {
-            [AreaId.Crateria] = MapSpriteId.WorldCrateria,
-            [AreaId.Brinstar] = MapSpriteId.WorldBrinstar,
-            [AreaId.Norfair] = MapSpriteId.WorldNorfair,
-            [AreaId.WreckedShip] = MapSpriteId.WorldWreckedShip,
-            [AreaId.Maridia] = MapSpriteId.WorldMaridia,
-            [AreaId.Tourian] = MapSpriteId.WorldTourian,
-        };
+            [ZebesArea.Crateria] = MapSpriteId.WorldCrateria,
+            [ZebesArea.Brinstar] = MapSpriteId.WorldBrinstar,
+            [ZebesArea.Norfair] = MapSpriteId.WorldNorfair,
+            [ZebesArea.WreckedShip] = MapSpriteId.WorldWreckedShip,
+            [ZebesArea.Maridia] = MapSpriteId.WorldMaridia,
+            [ZebesArea.Tourian] = MapSpriteId.WorldTourian,
+        });
 
     /// <summary>Resolves the exact case-sensitive presentation key for a map sprite, preserving semantic roles such as <c>Indicator.Small</c> and <c>World.Crateria</c>.</summary>
     internal static readonly IdentityTable<MapSpriteId, string> Names =

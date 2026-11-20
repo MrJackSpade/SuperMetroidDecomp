@@ -95,17 +95,17 @@ public sealed class FileSelectAreaMapGraphics
         ScreenSprites entries = screen.Sprites;
         entries.BeginFrame();
         Draw(MapSpriteId.WorldTitle, FileSelectMapDefinitions.WorldTitlePosition, MapSpriteColouring.Labels);
-        foreach (AreaId area in FileSelectMapAreaOrder.Labels)
+        foreach (ZebesArea area in FileSelectMapAreaOrder.Labels)
         {
-            if (MapSaveMarkers.HasUsedMarker(area, progress.UsedStations))
+            if (MapSaveMarkers.HasUsedMarker(AreaIds.Area(area), progress.UsedStations))
                 DrawArea(area);
         }
         entries.FinishFrame();
 
-        void DrawArea(AreaId shown)
+        void DrawArea(ZebesArea shown)
         {
-            Draw(Ensure.Listed(MapSpriteDefinitions.WorldLabels, shown), labels.Get(shown),
-                shown == SelectedArea ? MapSpriteColouring.Labels : MapSpriteColouring.DimLabels);
+            Draw(MapSpriteDefinitions.WorldLabels[shown], labels.Get(shown),
+                AreaIds.Area(shown) == SelectedArea ? MapSpriteColouring.Labels : MapSpriteColouring.DimLabels);
         }
 
         void Draw(MapSpriteId id, Offset16<ScreenPixels> origin, MapSpriteColouring colouring)

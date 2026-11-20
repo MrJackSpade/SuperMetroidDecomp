@@ -200,7 +200,10 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// <summary>What <c>RunRidleysStep</c> does for each <see cref="CeresEscapeStage"/> member, each member's own arm.</summary>
     private IdentityTable<CeresEscapeStage, Action<int>> RunRidleysStepForCeresEscapeStage => field ??= new(new Dictionary<CeresEscapeStage, Action<int>>
     {
-        [CeresEscapeStage.Getaway] = ridleyFrameCounter => { },
+        [CeresEscapeStage.Getaway] = ridleyFrameCounter =>
+        {
+            // The room main owns the getaway; his step is empty.
+        },
         [CeresEscapeStage.SelfDestruct] = ridleyFrameCounter => TickSelfDestruct(ridleyFrameCounter),
         [CeresEscapeStage.AlarmOnly] = ridleyFrameCounter => StepAlarm(ridleyFrameCounter),
         [CeresEscapeStage.AwaitingGetaway] = ridleyFrameCounter =>

@@ -717,8 +717,18 @@ public static class SamusGrappleMovement
         },
         [RoomCollisionType.ShootableAir] = static (level, samus, roomObjects, block) => ReactAtEndpointForRoomCollisionTypeShootableAir(level, samus, roomObjects, block),
         [RoomCollisionType.ShootableBlock] = static (level, samus, roomObjects, block) => ReactAtEndpointForRoomCollisionTypeShootableAir(level, samus, roomObjects, block),
-        [RoomCollisionType.BombableAir] = static (level, samus, roomObjects, block) => GrappleBlockReaction.Passes,
-        [RoomCollisionType.BombableBlock] = static (level, samus, roomObjects, block) => GrappleBlockReaction.Solid,
+        [RoomCollisionType.BombableAir] = static (level, samus, roomObjects, block) =>
+        {
+            // The bombable-air setup immediately deletes its provisional
+            // room object, because the grapple is no projectile. The beam passes.
+            return GrappleBlockReaction.Passes;
+        },
+        [RoomCollisionType.BombableBlock] = static (level, samus, roomObjects, block) =>
+        {
+            // The solid twin performs the same rejected setup but independently
+            // reports the block solid to the beam from its collision reaction.
+            return GrappleBlockReaction.Solid;
+        },
         [RoomCollisionType.HorizontalExtension] = static (level, samus, roomObjects, block) => ReactAtEndpointForRoomCollisionTypeHorizontalExtension(level, samus, roomObjects, block),
         [RoomCollisionType.VerticalExtension] = static (level, samus, roomObjects, block) => ReactAtEndpointForRoomCollisionTypeHorizontalExtension(level, samus, roomObjects, block),
     });

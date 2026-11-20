@@ -98,6 +98,32 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
             GrowthRadius(state.GrowthLevel));
     }
 
+    /// <summary>What <c>RunGrowingShutterMain</c> does for each <see cref="GrowingShutterAction"/> member, each member's own arm.</summary>
+    private IdentityTable<GrowingShutterAction, Action<RoomEnemyPlace, GrowingShutterEnemyState, SamusState, Position16<RoomPixels>>> RunGrowingShutterMainForGrowingShutterAction => field ??= new(new Dictionary<GrowingShutterAction, Action<RoomEnemyPlace, GrowingShutterEnemyState, SamusState, Position16<RoomPixels>>>
+    {
+        [GrowingShutterAction.WaitForTimer] = (place, state, samus, camera) =>
+        {
+            if (AdvanceGrowingShutterTimer(state))
+                ActivateGrowingShutter(place, state, camera);
+        },
+        [GrowingShutterAction.WaitForProximity] = (place, state, samus, camera) =>
+        {
+            if (IsSamusWithinShutterHorizontalDistance(place, samus, place.SpawnSettings<GrowingShutterSpawnSettings>().ActivationDistance))
+                ActivateGrowingShutter(place, state, camera);
+        },
+        [GrowingShutterAction.Grow] = (place, state, samus, camera) =>
+        {
+            if (state.Growth == VerticalDirection.Up)
+            {
+                GrowShutterUp(place, state, samus);
+            }
+            else
+            {
+                GrowShutterDown(place, state);
+            }
+        },
+    });
+
     /// <summary>Runs the growing shutter's main AI.</summary>
     private void RunGrowingShutterMain(
         RoomEnemyPlace place,
@@ -105,30 +131,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         SamusState samus,
         Position16<RoomPixels> camera)
     {
-        switch (state.Action)
-        {
-            case GrowingShutterAction.WaitForTimer:
-                if (AdvanceGrowingShutterTimer(state))
-                    ActivateGrowingShutter(place, state, camera);
-                return;
-
-            case GrowingShutterAction.WaitForProximity:
-                if (IsSamusWithinShutterHorizontalDistance(place, samus, place.SpawnSettings<GrowingShutterSpawnSettings>().ActivationDistance))
-                    ActivateGrowingShutter(place, state, camera);
-                return;
-
-            case GrowingShutterAction.Grow when state.Growth == VerticalDirection.Up:
-                GrowShutterUp(place, state, samus);
-                return;
-
-            case GrowingShutterAction.Grow:
-                GrowShutterDown(place, state);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Growing shutter has no behaviour for action {state.Action}.");
-        }
+        RunGrowingShutterMainForGrowingShutterAction[state.Action](place, state, samus, camera);
     }
 
     /// <summary>Steps the timer-mode wait one update and reports whether it ran out on this update (#2281).</summary>

@@ -68,7 +68,10 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                         : WallSpacePirateSegment.FireAndJumpLeft);
             }
         },
-        [WallSpacePirateAction.Attacking] = static (place, state, samus) => { },
+        [WallSpacePirateAction.Attacking] = static (place, state, samus) =>
+        {
+            // The attack animation moves and times the pirate; its cues ready the jump.
+        },
         [WallSpacePirateAction.WallJumping] = static (place, state, samus) => StepWallSpacePirateJump(place, state, direction: state.Wall),
     });
 

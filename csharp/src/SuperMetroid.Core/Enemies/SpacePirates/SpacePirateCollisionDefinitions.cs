@@ -22,6 +22,15 @@ internal static class SpacePirateCollisionDefinitions
     /// <summary>A shot at a gold ninja where it cannot be hurt.</summary>
     private static readonly EnemyReaction GoldInvincibleShot = SpacePirateReactions.GoldNinjaInvincibleHitboxShot;
 
+    /// <summary>The one hitbox a ninja shows in every frame of its spin.</summary>
+    private static readonly EnemyCollisionHitbox[] SpinHitboxes = [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)];
+
+    /// <summary>The one hitbox a ninja shows in every frame of its ready stance.</summary>
+    private static readonly EnemyCollisionHitbox[] ReadyStanceHitboxes = [new(-7, -16, 6, 33, Touch, GoldInvincibleShot)];
+
+    /// <summary>The one hitbox a ninja shows tucked in its jump, in either facing.</summary>
+    private static readonly EnemyCollisionHitbox[] TuckedJumpHitboxes = [new(-7, -19, 6, 16, Touch, Shot)];
+
     /// <summary>The hitboxes a Pirate facing left shows while a leg passes the other: head and legs.</summary>
     private static readonly EnemyCollisionHitbox[] LeftLegPassingHitboxes =
     [
@@ -159,22 +168,22 @@ internal static class SpacePirateCollisionDefinitions
         { EnemyFrameId.WalkingPirateLookingAtViewerFacingRight, [new(-2, -31, 11, -12, Touch, Shot), new(-7, -16, 6, 3, Touch, Shot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
         { EnemyFrameId.WalkingPirateLookingAwayFacingRight, [new(-2, -30, 11, -11, Touch, Shot), new(-7, -16, 6, 3, Touch, Shot), new(-7, 3, 6, 33, Touch, GoldInvincibleShot)] },
         { EnemyFrameId.WalkingPirateFacingViewer, [new(-13, -18, 10, 31, Touch, Shot)] },
-        { EnemyFrameId.NinjaPirateSpinningFacingLeftTurned0, [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateSpinningFacingLeftTurned45, [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateSpinningFacingLeftTurned90, [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateSpinningFacingLeftTurned135, [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateSpinningFacingLeftTurned180, [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateSpinningFacingLeftTurned225, [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateSpinningFacingLeftTurned270, [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateSpinningFacingLeftTurned315, [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateSpinningFacingRightTurned0, [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateSpinningFacingRightTurned45, [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateSpinningFacingRightTurned90, [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateSpinningFacingRightTurned135, [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateSpinningFacingRightTurned180, [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateSpinningFacingRightTurned225, [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateSpinningFacingRightTurned270, [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateSpinningFacingRightTurned315, [new(-11, -13, 10, 10, Touch, GoldInvincibleShot)] },
+        { EnemyFrameId.NinjaPirateSpinningFacingLeftTurned0, SpinHitboxes },
+        { EnemyFrameId.NinjaPirateSpinningFacingLeftTurned45, SpinHitboxes },
+        { EnemyFrameId.NinjaPirateSpinningFacingLeftTurned90, SpinHitboxes },
+        { EnemyFrameId.NinjaPirateSpinningFacingLeftTurned135, SpinHitboxes },
+        { EnemyFrameId.NinjaPirateSpinningFacingLeftTurned180, SpinHitboxes },
+        { EnemyFrameId.NinjaPirateSpinningFacingLeftTurned225, SpinHitboxes },
+        { EnemyFrameId.NinjaPirateSpinningFacingLeftTurned270, SpinHitboxes },
+        { EnemyFrameId.NinjaPirateSpinningFacingLeftTurned315, SpinHitboxes },
+        { EnemyFrameId.NinjaPirateSpinningFacingRightTurned0, SpinHitboxes },
+        { EnemyFrameId.NinjaPirateSpinningFacingRightTurned45, SpinHitboxes },
+        { EnemyFrameId.NinjaPirateSpinningFacingRightTurned90, SpinHitboxes },
+        { EnemyFrameId.NinjaPirateSpinningFacingRightTurned135, SpinHitboxes },
+        { EnemyFrameId.NinjaPirateSpinningFacingRightTurned180, SpinHitboxes },
+        { EnemyFrameId.NinjaPirateSpinningFacingRightTurned225, SpinHitboxes },
+        { EnemyFrameId.NinjaPirateSpinningFacingRightTurned270, SpinHitboxes },
+        { EnemyFrameId.NinjaPirateSpinningFacingRightTurned315, SpinHitboxes },
         { EnemyFrameId.NinjaPirateRunningLeftFarLegBack, [new(-12, -18, 1, 1, Touch, GoldVulnerableShot), new(-7, -2, 6, 28, Touch, Shot)] },
         { EnemyFrameId.NinjaPirateRunningLeftFarLegLifting, [new(-12, -16, 1, 3, Touch, Shot), new(-8, 0, 5, 30, Touch, Shot)] },
         { EnemyFrameId.NinjaPirateRunningLeftFarLegPassing, [new(-12, -15, 1, 4, Touch, Shot), new(-7, 0, 6, 30, Touch, Shot)] },
@@ -191,19 +200,19 @@ internal static class SpacePirateCollisionDefinitions
         { EnemyFrameId.NinjaPirateRunningRightNearLegLifting, RightStrideHitboxes },
         { EnemyFrameId.NinjaPirateRunningRightNearLegPassing, RightLegPassingHitboxes },
         { EnemyFrameId.NinjaPirateRunningRightNearLegPlanting, [new(-2, -18, 11, 1, Touch, GoldVulnerableShot), new(-6, 0, 7, 30, Touch, Shot)] },
-        { EnemyFrameId.NinjaPirateReadyFacingLeftFeetClose, [new(-7, -16, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateReadyFacingLeftFeetApart, [new(-7, -16, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateReadyFacingLeftFeetWide, [new(-7, -16, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateReadyFacingRightFeetClose, [new(-7, -16, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateReadyFacingRightFeetApart, [new(-7, -16, 6, 33, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateReadyFacingRightFeetWide, [new(-7, -16, 6, 33, Touch, GoldInvincibleShot)] },
+        { EnemyFrameId.NinjaPirateReadyFacingLeftFeetClose, ReadyStanceHitboxes },
+        { EnemyFrameId.NinjaPirateReadyFacingLeftFeetApart, ReadyStanceHitboxes },
+        { EnemyFrameId.NinjaPirateReadyFacingLeftFeetWide, ReadyStanceHitboxes },
+        { EnemyFrameId.NinjaPirateReadyFacingRightFeetClose, ReadyStanceHitboxes },
+        { EnemyFrameId.NinjaPirateReadyFacingRightFeetApart, ReadyStanceHitboxes },
+        { EnemyFrameId.NinjaPirateReadyFacingRightFeetWide, ReadyStanceHitboxes },
         { EnemyFrameId.WalkingPirateFlinchLeft, [new(-7, -11, 6, 31, Touch, Shot), new(-18, -10, -7, 10, Touch, GoldVulnerableShot)] },
         { EnemyFrameId.NinjaPirateFlinchFacingLeft, [new(-7, -11, 6, 31, Touch, GoldInvincibleShot), new(-18, -10, -7, 10, Touch, GoldInvincibleShot)] },
         { EnemyFrameId.WalkingPirateFlinchRight, [new(-7, -11, 6, 31, Touch, Shot), new(6, -11, 17, 9, Touch, GoldVulnerableShot)] },
         { EnemyFrameId.NinjaPirateFlinchFacingRight, [new(-7, -11, 6, 31, Touch, GoldInvincibleShot), new(6, -11, 17, 9, Touch, GoldInvincibleShot)] },
-        { EnemyFrameId.NinjaPirateTuckedJumpFacingLeft, [new(-7, -19, 6, 16, Touch, Shot)] },
+        { EnemyFrameId.NinjaPirateTuckedJumpFacingLeft, TuckedJumpHitboxes },
         { EnemyFrameId.NinjaPirateDiveKickFacingLeft, [new(-7, -19, 6, 16, Touch, Shot), new(-33, 3, -7, 16, Touch, Shot)] },
-        { EnemyFrameId.NinjaPirateTuckedJumpFacingRight, [new(-7, -19, 6, 16, Touch, Shot)] },
+        { EnemyFrameId.NinjaPirateTuckedJumpFacingRight, TuckedJumpHitboxes },
         { EnemyFrameId.NinjaPirateDiveKickFacingRight, [new(-7, -19, 6, 16, Touch, Shot), new(6, 3, 31, 16, Touch, Shot)] },
         { EnemyFrameId.NinjaPirateKickChamberedFacingLeft, [new(-2, -19, 11, 30, Touch, GoldInvincibleShot)] },
         { EnemyFrameId.NinjaPirateKickExtendedFacingLeft, [new(-12, -18, 1, 31, Touch, GoldInvincibleShot), new(-39, -4, -2, 31, Touch, GoldInvincibleShot)] },

@@ -66,4 +66,7 @@ internal static class CrocomireFightDefinitions
 
     /// <summary>The speed his spit leaves at: two pixels an update left, and down as slowly as a speed can fall.</summary>
     internal static readonly PixelVelocity<RoomPixels> SpitVelocity = new(SignedEightEight.FromPixels(-2), SignedEightEight.FromPixelFraction(1, 256));
+
+    /// <summary>How many places after his body the room lists his tongue, the one part his body heads.</summary>
+    internal const int TonguePlacesAfterBody = 1;
 }

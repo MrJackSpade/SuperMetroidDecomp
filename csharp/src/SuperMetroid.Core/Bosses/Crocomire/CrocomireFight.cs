@@ -112,10 +112,10 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Sets a living room's Crocomire tongue up when the room spawns it.</summary>
-    internal CrocomireTongueState InitializeCrocomireTongue(RoomEnemyPlace place)
+    /// <param name="place">The tongue's place.</param>
+    /// <param name="state">The encounter his body began, which holds the tongue's values.</param>
+    internal CrocomireTongueState InitializeCrocomireTongue(RoomEnemyPlace place, CrocomireEnemyState state)
     {
-        // The room lists the tongue right after its body, which has set the encounter up and holds the tongue's values.
-        CrocomireEnemyState state = EnemyPartners.Listed<CrocomireBodyEntity>(_places.ListedBefore(place, 1)).State;
         CrocomireTongueState tongueState = state.TongueState;
         tongueState.BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset;
 

@@ -8,13 +8,18 @@ public sealed class BabyTurtleEnemyState
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     /// <param name="action">The baby's first action.</param>
     /// <param name="mama">The state of the Mama its room lists before it, which the baby holds from its setup.</param>
-    internal BabyTurtleEnemyState(BabyTurtleAction action, MamaTurtleEnemyState mama)
+    /// <param name="mamaPlace">Its Mama's place.</param>
+    internal BabyTurtleEnemyState(BabyTurtleAction action, MamaTurtleEnemyState mama, RoomEnemyPlace mamaPlace)
     {
+        MamaPlace = Ensure.NotNull(mamaPlace);
         Action = action;
         Mama = Ensure.NotNull(mama);
     }
 
     /// <summary>The Mama the baby found as it was placed (#2554), whom its touch and shots wake.</summary>
+    /// <summary>The place of the Mama that heads the baby.</summary>
+    internal RoomEnemyPlace MamaPlace { get; }
+
     internal MamaTurtleEnemyState Mama { get; }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>

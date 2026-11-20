@@ -7,7 +7,8 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// <param name="species">The Powamp species owner.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="balloon">The balloon that heads the body.</param>
+internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, PowampBalloon balloon)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
@@ -20,7 +21,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyPlace pl
     private EnemyPowerBombReaction OwnPowerBombReaction => field ??= PowampBehavior.PowampBodyPowerBombReactionOf(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal PowampBodyState State { get; } = species.InitializePowampBody(place);
+    internal PowampBodyState State { get; } = PowampBehavior.InitializePowampBody(place, balloon);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Place, State, frame.Level, frame.Samus);

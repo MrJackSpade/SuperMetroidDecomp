@@ -7,6 +7,13 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// </summary>
 public sealed class PowampBalloonState
 {
+    /// <summary>Creates the state of a balloon whose placement tells it <paramref name="settings"/>.</summary>
+    /// <param name="settings">How far the grapple pulls the balloon.</param>
+    internal PowampBalloonState(PowampSpawnSettings settings) => Settings = Ensure.NotNull(settings);
+
+    /// <summary>How far the grapple pulls the balloon, as its placement names (#2554).</summary>
+    internal PowampSpawnSettings Settings { get; }
+
     /// <summary>The balloon's inflate or sink animation and where it stands in it (#1600).</summary>
     internal AnimationPlayback<PowampSegment> Playback { get; set; }
 

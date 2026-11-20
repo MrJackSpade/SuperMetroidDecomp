@@ -9,11 +9,12 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// <param name="species">The Powamp species owner.</param>
 /// <param name="place">The place the balloon occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">How far the grapple pulls the balloon, as its placement names.</param>
+internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, PowampSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal PowampBalloonState State { get; } = PowampBehavior.InitializePowampBalloon(place);
+    internal PowampBalloonState State { get; } = PowampBehavior.InitializePowampBalloon(place, settings);
 
     /// <summary>Does nothing: the balloon has no AI of its own, its body moves it.</summary>
     /// <param name="frame">The enemy pass's frame.</param>

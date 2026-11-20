@@ -8,27 +8,35 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The Crocomire species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyGroupFactory
 {
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue];
 
-    /// <summary>Crocomire's body, or his tongue (#2146): a defeated room's tongue is deleted before any setup (#2554).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Crocomire definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    /// <inheritdoc/>
+    public EnemyDefinitionId Head => EnemyDefinitionId.Crocomire;
+
+    /// <inheritdoc/>
+    public int PartCount => CrocomireFightDefinitions.TonguePlacesAfterBody;
+
+    /// <summary>
+    /// Crocomire's body, which heads his tongue, the one part its room lists right after it (#2146, #2554): the tongue holds
+    /// his encounter from its setup; a defeated room's tongue is deleted before any setup.
+    /// </summary>
+    public EnemyPlaced CreateGroup(RoomEnemyPlace head, IReadOnlyList<RoomEnemyPlace> parts, EnemyCommonParticipation common, EnemySetup setup)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.Crocomire)
-            return new CrocomireBodyEntity(this, place, common, _bossArtwork);
-        if (definition == EnemyDefinitionId.CrocomireTongue)
-        {
-            if (!Fight.TongueIsDeletedAtOnce)
-                return new CrocomireTongueEntity(this, place, common);
-            CrocomireFight.DeleteDefeatedTongue(place);
-            return new DefeatedCrocomireTongueEntity(place, common);
-        }
-        throw new InvalidOperationException($"The Crocomire species creates no {place.DefinitionId}.");
+        var body = new CrocomireBodyEntity(this, head, common, _bossArtwork);
+        return new EnemyPlaced(body, [(tongue, tongueCommon, _) => Tongue(tongue, tongueCommon, body.State)]);
+    }
+
+    /// <summary>Crocomire's tongue, holding <paramref name="crocomire"/>; a defeated room's is deleted before any setup.</summary>
+    private IEnemyEntity Tongue(RoomEnemyPlace place, EnemyCommonParticipation common, CrocomireEnemyState crocomire)
+    {
+        if (!Fight.TongueIsDeletedAtOnce)
+            return new CrocomireTongueEntity(this, place, common, crocomire);
+        CrocomireFight.DeleteDefeatedTongue(place);
+        return new DefeatedCrocomireTongueEntity(place, common);
     }
 
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>

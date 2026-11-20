@@ -8,7 +8,7 @@ internal sealed class MamaTurtleEntity(MamaTurtleBehavior species, RoomEnemyPlac
     : TurtleEntity(species, place, common)
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal MamaTurtleEnemyState State { get; } = species.InitializeMamaTurtle(place);
+    internal MamaTurtleEnemyState State { get; } = MamaTurtleBehavior.InitializeMamaTurtle(place);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunMamaTurtleMainAi(Place, State, frame);

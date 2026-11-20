@@ -8,14 +8,15 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="species">The MotherBrain species owner.</param>
 /// <param name="place">The place the head occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="encounter">The encounter her body began, which the head joins.</param>
+internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, MotherBrainEnemyState encounter)
     : MotherBrainEntity(species, place, common), IEnemyPrivateShotReaction
 {
     /// <summary>Her head's own shot reaction, built over the encounter (#2554).</summary>
     private EnemyShotReaction OwnShotReaction => field ??= Species.Combat.HeadShotReactionOf(Encounter);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal MotherBrainEnemyState State { get; } = species.Head.InitializeMotherBrainHead(place);
+    internal MotherBrainEnemyState State { get; } = species.Head.InitializeMotherBrainHead(place, encounter);
 
     /// <inheritdoc/>
     internal override MotherBrainEnemyState Encounter => State;

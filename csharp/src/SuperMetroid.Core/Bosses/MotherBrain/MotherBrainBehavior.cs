@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Mother Brain species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemySettingsFactory<MotherBrainTubeSpawnSettings>
+internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyGroupFactory, IEnemySettingsFactory<MotherBrainTubeSpawnSettings>
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
@@ -25,21 +25,25 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory, 
     /// <inheritdoc/>
     void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
     {
-        IEnemyEntityFactory untold = this;
-        Ensure.NotNull(registry).Add(untold);
+        IEnemyGroupFactory group = this;
+        Ensure.NotNull(registry).Add(group);
         registry.Add<MotherBrainTubeSpawnSettings>(this);
     }
 
-    /// <summary>Mother Brain's body, her head, or a tube of her fake death (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Mother Brain definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup)
+    /// <inheritdoc/>
+    public EnemyDefinitionId Head => EnemyDefinitionId.MotherBrainBody;
+
+    /// <inheritdoc/>
+    public int PartCount => MotherBrainFightDefinitions.HeadPlacesAfterBody;
+
+    /// <summary>
+    /// Mother Brain's body, which heads her head, the one part its room lists right after it (#2146, #2554): the head holds
+    /// the encounter her body began from its setup (#2218).
+    /// </summary>
+    public EnemyPlaced CreateGroup(RoomEnemyPlace head, IReadOnlyList<RoomEnemyPlace> parts, EnemyCommonParticipation common, EnemySetup setup)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.MotherBrainBody)
-            return new MotherBrainBodyEntity(this, place, common, _bossArtwork);
-        if (definition == EnemyDefinitionId.MotherBrainHead)
-            return new MotherBrainHeadEntity(this, place, common);
-        throw new InvalidOperationException($"The Mother Brain species creates no {place.DefinitionId}.");
+        var body = new MotherBrainBodyEntity(this, head, common, _bossArtwork);
+        return new EnemyPlaced(body, [(brain, brainCommon, _) => new MotherBrainHeadEntity(this, brain, brainCommon, body.State)]);
     }
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;

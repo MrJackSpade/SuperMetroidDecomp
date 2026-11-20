@@ -9,11 +9,12 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="species">The Crocomire species owner.</param>
 /// <param name="place">The place the tongue occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="crocomire">The encounter his body began, which the tongue joins.</param>
+internal sealed class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, CrocomireEnemyState crocomire)
     : CrocomireEntity(species, place, common)
 {
     /// <summary>The tongue's state, which it builds joining the encounter as it is built (#2554).</summary>
-    internal CrocomireTongueState State { get; } = species.Fight.InitializeCrocomireTongue(place);
+    internal CrocomireTongueState State { get; } = species.Fight.InitializeCrocomireTongue(place, crocomire);
 
     /// <summary>The encounter the tongue joined as it set up.</summary>
     internal override CrocomireEnemyState Encounter => State.Crocomire;

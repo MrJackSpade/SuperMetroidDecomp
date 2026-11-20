@@ -181,4 +181,7 @@ internal static class MotherBrainFightDefinitions
 
     /// <summary>The updates each step of her turn to grey lasts.</summary>
     internal const int GreyStepUpdates = 17;
+
+    /// <summary>How many places after her body the room lists her head, the one part her body heads.</summary>
+    internal const int HeadPlacesAfterBody = 1;
 }

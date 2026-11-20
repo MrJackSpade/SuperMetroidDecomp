@@ -27,12 +27,12 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Mt. Everest room.</summary>
     internal static RoomEnemyPopulationDefinition MtEverest { get; } = new("MtEverest",
     [
-        new(EnemyDefinitionId.Powamp, new(512, 384), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampSpawnSettings(Part: PowampPart.Balloon, GrappleTravelDistance: 112, Contact: PowampContact.Refuses)),
-        new(EnemyDefinitionId.Powamp, new(512, 384), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampSpawnSettings(Part: PowampPart.Body, GrappleTravelDistance: 0, Contact: PowampContact.Accepts)),
-        new(EnemyDefinitionId.Powamp, new(776, 512), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampSpawnSettings(Part: PowampPart.Balloon, GrappleTravelDistance: 288, Contact: PowampContact.Refuses)),
-        new(EnemyDefinitionId.Powamp, new(776, 512), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampSpawnSettings(Part: PowampPart.Body, GrappleTravelDistance: 0, Contact: PowampContact.Accepts)),
-        new(EnemyDefinitionId.Powamp, new(1024, 560), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampSpawnSettings(Part: PowampPart.Balloon, GrappleTravelDistance: 48, Contact: PowampContact.Refuses)),
-        new(EnemyDefinitionId.Powamp, new(1024, 560), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampSpawnSettings(Part: PowampPart.Body, GrappleTravelDistance: 0, Contact: PowampContact.Accepts)),
+        new(EnemyDefinitionId.Powamp, new(512, 384), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampSpawnSettings(GrappleTravelDistance: 112)),
+        new(EnemyDefinitionId.Powamp, new(512, 384), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Powamp, new(776, 512), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampSpawnSettings(GrappleTravelDistance: 288)),
+        new(EnemyDefinitionId.Powamp, new(776, 512), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Powamp, new(1024, 560), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampSpawnSettings(GrappleTravelDistance: 48)),
+        new(EnemyDefinitionId.Powamp, new(1024, 560), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Sciser, new(752, 903), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnCeiling, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
         new(EnemyDefinitionId.Sciser, new(552, 15200), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnCeiling, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(5, 4))),
         new(EnemyDefinitionId.Sciser, new(360, 576), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnLeftWall, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
@@ -262,11 +262,11 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Mama Turtle room.</summary>
     internal static RoomEnemyPopulationDefinition MamaTurtle { get; } = new("MamaTurtle",
     [
-        new(EnemyDefinitionId.MamaTurtle, new(472, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.BabyTurtle, new(432, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BabyTurtleSpawnSettings(Heading: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.BabyTurtle, new(472, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BabyTurtleSpawnSettings(Heading: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.BabyTurtle, new(488, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BabyTurtleSpawnSettings(Heading: HorizontalDirection.Right)),
-        new(EnemyDefinitionId.BabyTurtle, new(536, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BabyTurtleSpawnSettings(Heading: HorizontalDirection.Right)),
+        new(EnemyDefinitionId.MamaTurtle, new(472, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MamaTurtleSpawnSettings(BabyHeadings: [HorizontalDirection.Left, HorizontalDirection.Left, HorizontalDirection.Right, HorizontalDirection.Right])),
+        new(EnemyDefinitionId.BabyTurtle, new(432, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.BabyTurtle, new(472, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.BabyTurtle, new(488, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.BabyTurtle, new(536, 973), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
     ], 1);
 
     /// <summary>The enemy population of the Crab Tunnel room.</summary>

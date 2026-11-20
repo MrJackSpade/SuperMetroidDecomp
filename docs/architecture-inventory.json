@@ -87849,6 +87849,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.EmptyRoomEnemyPopulationDefinition",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EmptyRoomEnemyPopulationDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.EnemyAiStates",
       "kind": "enum",
       "scope": "product",
@@ -99239,6 +99252,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/YellowPipeBugState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.PlacedRoomEnemyPopulationDefinition",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/PlacedRoomEnemyPopulationDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"

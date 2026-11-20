@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 
@@ -292,8 +291,7 @@ internal sealed class ProjectileMotion
         SamusProjectile owner,
         SuperMissileShotState ownerState)
     {
-        // Nothing is fired from a drained pose, the link no more than a shot.
-        if (_pool.FindFreePlace() is not { } place || SamusPoseTraits.Of(samus.Pose) is not SamusArmedPoseDefinition armed)
+        if (_pool.FindFreePlace() is not { } place)
             return;
 
         SamusProjectile link = _pool.OccupyAtRest(place);
@@ -306,7 +304,7 @@ internal sealed class ProjectileMotion
 
         // The link then takes the muzzle's position for Samus's pose as it is now, over the owner's coordinates; the two
         // differ when her pose's muzzle has moved since the owner was placed.
-        BeamFiring.InitializePosition(samus, armed, link);
+        BeamFiring.InitializePosition(samus, link);
         const SamusProjectileKind kind = SamusProjectileKind.SuperMissileLink;
         link.Damage = SamusProjectileDamage.Read(kind);
         link.Animation = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));

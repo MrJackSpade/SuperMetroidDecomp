@@ -232,10 +232,9 @@ internal sealed class BeamFiring
             ? transitionShot.Aim
             : SamusPoseMetadata.ReadAimDirection(samus);
 
-        if (direction is not { } aim || SamusPoseTraits.Of(samus.Pose) is not SamusArmedPoseDefinition armed)
+        if (direction is not { } aim)
         {
-            // A pose that cannot shoot fires nothing, and nothing is fired from a drained pose; a transition shot always
-            // names an aim (SamusTransitionShot.FromPose).
+            // A pose that cannot shoot fires nothing; a transition shot always names an aim (SamusTransitionShot.FromPose).
             _pool.ShotCount.TakeBackRefusedShot();
             return null;
         }
@@ -245,7 +244,7 @@ internal sealed class BeamFiring
         // held place it also starts from the Power Bomb fuse the shot there leaves (BeamFiredOverLastShot).
         SamusProjectile projectile = _pool.OccupyWithBeam(place);
         projectile.Direction = aim;
-        InitializePosition(samus, armed, projectile);
+        InitializePosition(samus, projectile);
         projectile.Trail = UpdateCountdown.Lasting(ProjectileTimingDefinitions.TrailInterval);
         projectile.Type = SamusProjectileType.Beam(SamusBeamCombinations.Of(samus.EquippedBeams), charged);
         projectile.PicturedBeams = projectile.Type.BeamCombination;
@@ -327,7 +326,7 @@ internal sealed class BeamFiring
         // As for ordinary beams, with every place held the shot takes the last place over the shot there (#2468).
         int place = _pool.PlaceForBeam();
 
-        if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim || SamusPoseTraits.Of(samus.Pose) is not SamusArmedPoseDefinition armed)
+        if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
         {
             _pool.ShotCount.TakeBackRefusedShot();
             return null;
@@ -338,7 +337,7 @@ internal sealed class BeamFiring
         SamusProjectile projectile = _pool.OccupyWithBeam(place);
         projectile.Direction = aim;
 
-        InitializePosition(samus, armed, projectile);
+        InitializePosition(samus, projectile);
         InteractionImmunity = UpdateCountdown.Lasting(ProjectileTimingDefinitions.BeamInteractionImmunity);
         // As for ordinary beams, the shot cancels a pending resume of the charging sound where it requests its own (#1689).
         samus.ChargingSound.Cancel();
@@ -410,12 +409,12 @@ internal sealed class BeamFiring
         if (_pool.FindFreePlace() is not { } place)
             return null;
 
-        if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim || SamusPoseTraits.Of(samus.Pose) is not SamusArmedPoseDefinition armed)
+        if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
             return null;
         SamusProjectile projectile = _pool.Occupy(place);
         projectile.Direction = aim;
 
-        InitializePosition(samus, armed, projectile);
+        InitializePosition(samus, projectile);
         _pool.ShotCount.CountShot();
         InteractionImmunity = UpdateCountdown.Lasting(ProjectileTimingDefinitions.MissileInteractionImmunity);
         // A count Crystal Flash drained below zero still fires, each shot taking it further below; only the 32768th shot
@@ -464,16 +463,12 @@ internal sealed class BeamFiring
             : SamusProjectileSoundRoutingDefinitions.MissileRequest);
     }
 
-    /// <summary>
-    /// Places the muzzle at the projectile height of <paramref name="pose"/>, Samus's current pose, which the firing gate
-    /// found armed, and the running or ordinary origin of its direction (<see cref="SamusMuzzleOrigins"/>).
-    /// </summary>
+    /// <summary>Places the muzzle at the pose's projectile height and the running or ordinary origin of its direction (<see cref="SamusMuzzleOrigins"/>).</summary>
     internal static void InitializePosition(
         SamusState samus,
-        SamusArmedPoseDefinition pose,
         SamusProjectile projectile)
     {
-        int poseYOffset = pose.ProjectileHeight;
+        int poseYOffset = SamusPoseTraits.Of(samus.Pose).ProjectileHeight;
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
 
         // Running and the two moonwalks aiming diagonally up take the running origins; every other pose takes the

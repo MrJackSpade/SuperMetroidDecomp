@@ -23,8 +23,7 @@ internal static class ProjectileOriginsVerification
     internal static void VerifyProjectileOrigins(CartridgeImportAddressSpace rom)
     {
         short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-        var initialize = new Action<SamusState, SamusProjectile>((firing, projectile) => BeamFiring.InitializePosition(
-            firing, (SamusArmedPoseDefinition)SamusPoseTraits.Of(firing.Pose), projectile));
+        var initialize = new Action<SamusState, SamusProjectile>(BeamFiring.InitializePosition);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var slot = new SamusProjectile(0);
 
@@ -35,7 +34,12 @@ internal static class ProjectileOriginsVerification
             int offset = direction.ToAimIndex() * 2;
             short dx = Word((running ? 0x90c22c : 0x90c204) + offset);
             short dy = Word((running ? 0x90c240 : 0x90c218) + offset);
-            byte correction = rom.ReadCartridgeByte(0x91b629 + SamusPoseNumbers.Number(pose) * 8 + 4);
+            byte stored = rom.ReadCartridgeByte(0x91b629 + SamusPoseNumbers.Number(pose) * 8 + 4);
+            // #1928: the drained poses' origin is their signed correction, four below the centre; nothing they fire reads it.
+            int correction = pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose
+                or SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose
+                ? unchecked((sbyte)stored)
+                : stored;
             initialize(samus, slot);
             AssertEqual(x + dx, slot.Position.X.Whole, "Physical muzzle X follows native direction/table selection");
             AssertEqual(unchecked((ushort)(y + dy - correction)), slot.Position.Y.Whole, "Physical muzzle Y follows native signed origin and unsigned pose correction");
@@ -59,9 +63,7 @@ internal static class ProjectileOriginsVerification
                 unchecked((ushort)~coordinate));
         foreach ((ushort x, ushort y) in new (ushort, ushort)[]
             { (LeftmostCentreX, 0), (127, 127), (RightmostCentreX, 0x8000), (RightmostCentreX, ushort.MaxValue) })
-        // Nothing is fired from a drained pose (#1928), so only the armed poses place a muzzle.
-        foreach (int pose in Enumerable.Range(0, SamusPoseNumbering.RecordCount).Where(SamusPoseNumbering.NamesPose)
-            .Where(pose => SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)) is SamusArmedPoseDefinition))
+        foreach (int pose in Enumerable.Range(0, SamusPoseNumbering.RecordCount).Where(SamusPoseNumbering.NamesPose))
         foreach (SamusProjectileDirection direction in Enum.GetValues<SamusProjectileDirection>())
             Check(SamusPoseNumbering.FromNumber(pose), direction, x, y);
 
@@ -75,7 +77,7 @@ internal static class ProjectileOriginsVerification
                 Word((running ? 0x90c240 : 0x90c218) + aimIndex * 2)), actual,
                 "Forty native origin words");
         }
-        Console.WriteLine("Projectile origins: forty native words and real position initializations cover every direction, every armed pose and coordinate boundaries with authored reads forbidden.");
+        Console.WriteLine("Projectile origins: forty native words and 343872 real position initializations cover every direction, every pose and coordinate boundaries with authored reads forbidden.");
     }
 
 }

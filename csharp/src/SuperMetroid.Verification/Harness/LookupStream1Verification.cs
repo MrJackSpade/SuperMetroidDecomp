@@ -559,12 +559,13 @@ internal static class LookupStream1Verification
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
             AssertEqual(native[pose], stock.Gameplay.ArtOrigin(SamusPoseNumbering.FromNumber(pose)), "Installed origin is the supplied placement");
             AssertEqual(native[pose], installed.Gameplay.ArtOrigin(SamusPoseNumbering.FromNumber(pose)), "The import installs the native real-pose byte as the pose's origin");
-            // The drained poses fire nothing, so they hold no projectile height (#1928).
-            int? expectedOrigin = SamusPoseNumbering.FromNumber(pose) is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose
+            // The drained poses' origin is their signed correction, four below the centre; the original's unsigned read of
+            // it, which nothing fired from those poses reaches, is gone (#1928).
+            int expectedOrigin = SamusPoseNumbering.FromNumber(pose) is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose
                 or SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose
-                ? null
+                ? native[pose]
                 : unchecked((byte)native[pose]);
-            AssertEqual(expectedOrigin, (SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)) as SamusArmedPoseDefinition)?.ProjectileHeight, "Physical projectile origin matches the native byte");
+            AssertEqual(expectedOrigin, SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)).ProjectileHeight, "Physical projectile origin matches the native byte");
         }
         Console.WriteLine("Body graphics origins:253 native installed origins and physical projectile origins pass.");
     }

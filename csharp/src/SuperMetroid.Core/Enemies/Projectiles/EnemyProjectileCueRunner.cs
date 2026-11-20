@@ -14,6 +14,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <typeparam name="TEvent">The family's events.</typeparam>
 internal abstract class EnemyProjectileCueRunner<TSegment, TEvent>
     where TSegment : struct
+    where TEvent : notnull
 {
     /// <summary>
     /// Plays <paramref name="animation"/> on from <paramref name="place"/> to its next frame through

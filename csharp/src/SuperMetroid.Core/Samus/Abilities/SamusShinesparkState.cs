@@ -482,6 +482,10 @@ public sealed class SamusShinesparkState
                     SecondCrashEchoAngle = RotationAngle.Zero;
                 }
                 break;
+
+            default:
+                throw new InvalidOperationException(
+                    $"Shinespark crash orbit stage {CrashOrbitStage} is undefined.");
         }
 
         // The copies stand the crash radius from Samus along their angles; placing them past the room's edge

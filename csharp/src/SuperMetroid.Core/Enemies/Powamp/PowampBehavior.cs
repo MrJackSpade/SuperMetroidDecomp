@@ -121,6 +121,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             case PowampAction.DeathSequence:
                 RunPowampDeathSequence(place, state, balloon, samus);
                 return;
+            default:
+                throw new InvalidDataException(
+                    $"Powamp body has no behaviour for action {state.Action}.");
         }
     }
 

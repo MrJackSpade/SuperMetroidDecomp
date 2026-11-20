@@ -85,6 +85,8 @@ internal sealed class EndingPostCreditsText
                 break;
             case EndingPostCreditsPanel.None:
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined post-credits panel {Panel}.");
         }
         foreach (EndingTypewriter text in typed)
         {

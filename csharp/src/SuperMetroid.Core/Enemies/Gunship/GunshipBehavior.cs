@@ -254,6 +254,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             case GunshipPhase.MoveAccelerating:
                 MoveEscapingGunship(top, samus);
                 return;
+            default:
+                throw new InvalidOperationException($"The gunship has no behaviour for phase {phase}.");
         }
     }
 

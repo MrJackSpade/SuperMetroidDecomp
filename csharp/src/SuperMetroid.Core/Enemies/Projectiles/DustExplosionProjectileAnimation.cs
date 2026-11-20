@@ -10,5 +10,5 @@ internal sealed class DustExplosionProjectileAnimation(DustExplosionAnimation an
     private protected override AnimationSegments<DustExplosionAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => DustExplosionProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<DustExplosionAnimation, Animation<DustExplosionAnimation>> StartingAt => DustExplosionProjectileAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<DustExplosionAnimation, Animation<DustExplosionAnimation>>> StartingAt => DustExplosionProjectileAnimations.StartingAt;
 }

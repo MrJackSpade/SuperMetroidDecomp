@@ -13,5 +13,5 @@ internal sealed class SporeSpawnProjectileAnimation(IEnemyProjectileCues<SporeSp
     private protected override AnimationSegments<SporeSpawnProjectileSegment, EnemyProjectileFrameId, SporeSpawnProjectileCue> Segments => SporeSpawnProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<SporeSpawnProjectileSegment, Animation<SporeSpawnProjectileSegment>> StartingAt => SporeSpawnProjectileAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<SporeSpawnProjectileSegment, Animation<SporeSpawnProjectileSegment>>> StartingAt => SporeSpawnProjectileAnimations.StartingAt;
 }

@@ -28,14 +28,14 @@ public sealed class TourianStatueAnimationDefinition
     /// The installed name of each statue picture's frame (#2511), written out so renaming a picture's identity never changes
     /// a name on disk.
     /// </summary>
-    private static readonly FrozenDictionary<TourianStatueBlockPicture, string> PictureKeys =
-        new Dictionary<TourianStatueBlockPicture, string>
+    private static readonly IdentityTable<TourianStatueBlockPicture, string> PictureKeys =
+        new(new Dictionary<TourianStatueBlockPicture, string>
         {
             [TourianStatueBlockPicture.EyesBright] = "EyesBright",
             [TourianStatueBlockPicture.EyesDim] = "EyesDim",
             [TourianStatueBlockPicture.EyesDark] = "EyesDark",
             [TourianStatueBlockPicture.Released] = "Released",
-        }.ToFrozenDictionary();
+        });
 
     /// <summary>Only the statue catalog creates definitions.</summary>
     internal TourianStatueAnimationDefinition()
@@ -80,5 +80,5 @@ public sealed class TourianStatueAnimationDefinition
 
     /// <summary>The frame of the statue's animation that shows <paramref name="picture"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The picture has no installed name.</exception>
-    public ArtworkFrame Picture(TourianStatueBlockPicture picture) => new(Animation, Ensure.Listed(PictureKeys, picture));
+    public ArtworkFrame Picture(TourianStatueBlockPicture picture) => new(Animation, PictureKeys[picture]);
 }

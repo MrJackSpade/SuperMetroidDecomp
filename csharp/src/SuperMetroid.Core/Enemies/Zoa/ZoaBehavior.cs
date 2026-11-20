@@ -70,6 +70,9 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             case ZoaAction.Shooting:
                 RunZoaShooting(place, state, camera);
                 return;
+            default:
+                throw new InvalidDataException(
+                    $"Zoa has no behaviour for action {state.Action}.");
         }
     }
 

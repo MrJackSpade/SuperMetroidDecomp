@@ -188,6 +188,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 if (screenFade.Darken())
                     Outcome = FileSelectMenuOutcome.Title;
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(FileSelectPhase)} {Phase}.");
         }
         return saveChange;
     }

@@ -8,12 +8,10 @@ internal abstract record CeresBabyCue
     {
     }
 
-    /// <summary>What the function for this case makes of the cue, whichever case it is.</summary>
+    /// <summary>What <paramref name="cases"/> makes of the cue, through the case it is.</summary>
     /// <typeparam name="TResult">What the cue is made into.</typeparam>
-    /// <param name="reactsToMotion">Makes a <see cref="ReactsToMotion"/> into the result.</param>
-    /// <param name="updateColors">Makes a <see cref="UpdateColors"/> into the result.</param>
-    /// <param name="cries">Makes a <see cref="Cries"/> into the result.</param>
-    internal abstract TResult Match<TResult>(Func<ReactsToMotion, TResult> reactsToMotion, Func<UpdateColors, TResult> updateColors, Func<Cries, TResult> cries);
+    /// <param name="cases">What each case of the cue is made into.</param>
+    internal abstract TResult Match<TResult>(CeresBabyCueCases<TResult> cases);
 
     /// <summary>
     /// The baby reacts to its motion (#2167): while its vertical velocity is nonzero its owner starts its expressive loop.
@@ -21,7 +19,7 @@ internal abstract record CeresBabyCue
     internal sealed record ReactsToMotion : CeresBabyCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<ReactsToMotion, TResult> reactsToMotion, Func<UpdateColors, TResult> updateColors, Func<Cries, TResult> cries) => Ensure.NotNull(reactsToMotion)(this);
+        internal override TResult Match<TResult>(CeresBabyCueCases<TResult> cases) => Ensure.NotNull(cases).ReactsToMotion(this);
     }
 
     /// <summary>Shows one of the Baby's shades.</summary>
@@ -29,7 +27,7 @@ internal abstract record CeresBabyCue
     internal sealed record UpdateColors(CeresBabyShade Shade) : CeresBabyCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<ReactsToMotion, TResult> reactsToMotion, Func<UpdateColors, TResult> updateColors, Func<Cries, TResult> cries) => Ensure.NotNull(updateColors)(this);
+        internal override TResult Match<TResult>(CeresBabyCueCases<TResult> cases) => Ensure.NotNull(cases).UpdateColors(this);
     }
 
     /// <summary>
@@ -39,6 +37,13 @@ internal abstract record CeresBabyCue
     internal sealed record Cries : CeresBabyCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<ReactsToMotion, TResult> reactsToMotion, Func<UpdateColors, TResult> updateColors, Func<Cries, TResult> cries) => Ensure.NotNull(cries)(this);
+        internal override TResult Match<TResult>(CeresBabyCueCases<TResult> cases) => Ensure.NotNull(cases).Cries(this);
     }
 }
+
+/// <summary>What each case of a <see cref="CeresBabyCue"/> is made into (#2553).</summary>
+/// <typeparam name="TResult">What the cue is made into.</typeparam>
+/// <param name="ReactsToMotion">Makes a <see cref="CeresBabyCue.ReactsToMotion"/> into the result.</param>
+/// <param name="UpdateColors">Makes a <see cref="CeresBabyCue.UpdateColors"/> into the result.</param>
+/// <param name="Cries">Makes a <see cref="CeresBabyCue.Cries"/> into the result.</param>
+internal sealed record CeresBabyCueCases<TResult>(Func<CeresBabyCue.ReactsToMotion, TResult> ReactsToMotion, Func<CeresBabyCue.UpdateColors, TResult> UpdateColors, Func<CeresBabyCue.Cries, TResult> Cries);

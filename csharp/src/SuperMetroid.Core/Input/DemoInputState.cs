@@ -119,6 +119,8 @@ public sealed class DemoInputState
                 case DemoRecordingEnd.Stop:
                     EndInput();
                     return;
+                default:
+                    throw new InvalidOperationException($"Demo recording {position.Recording} has undefined end {recording.End}.");
             }
         }
 

@@ -259,28 +259,25 @@ internal static class EnemyAnimationPlayback
     {
         Ensure.NotNull(enemy);
         Ensure.NotNull(showFrame);
-        switch (Ensure.NotNull(shown))
-        {
-            case AnimationShown<TSegment, TFrame>.Frame shownFrame:
+        Ensure.NotNull(shown).React(new AnimationShownReactions<TSegment, TFrame>(
+            Frame: shownFrame =>
+            {
                 showFrame(shownFrame.Shown);
                 enemy.AnimationClock.Show(shownFrame.Duration);
-                return;
-            case AnimationShown<TSegment, TFrame>.HeldFrame held:
+            },
+            HeldFrame: held =>
+            {
                 showFrame(held.Shown);
                 enemy.AnimationClock.ShowForGood();
-                return;
-            case AnimationShown<TSegment, TFrame>.Paused paused:
-                enemy.AnimationClock.Pause(paused.Duration);
-                return;
-            case AnimationShown<TSegment, TFrame>.Held:
-                enemy.AnimationClock.Stop();
-                return;
-            case AnimationShown<TSegment, TFrame>.Ended:
+            },
+            Paused: paused => enemy.AnimationClock.Pause(paused.Duration),
+            Held: _ => enemy.AnimationClock.Stop(),
+            Ended: _ =>
+            {
                 // The common end deletes the enemy, and its animation takes no further step (#2532).
                 enemy.Presence = enemy.Presence.With(EnemyPresence.Deleted);
                 enemy.AnimationClock.Stop();
-                return;
-        }
+            }));
     }
 
     /// <summary>

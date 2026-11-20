@@ -11,5 +11,5 @@ internal sealed class YappingMawBodyProjectileAnimation(YappingMawBodyProjectile
     private protected override AnimationSegments<YappingMawBodyProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => YappingMawBodyProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<YappingMawBodyProjectileSegment, Animation<YappingMawBodyProjectileSegment>> StartingAt => YappingMawBodyProjectileAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<YappingMawBodyProjectileSegment, Animation<YappingMawBodyProjectileSegment>>> StartingAt => YappingMawBodyProjectileAnimations.StartingAt;
 }

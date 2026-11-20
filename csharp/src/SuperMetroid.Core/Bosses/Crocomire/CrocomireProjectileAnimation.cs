@@ -14,6 +14,6 @@ internal sealed class CrocomireProjectileAnimation(IEnemyProjectileCues<Crocomir
         CrocomireAnimations.ProjectileSegments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<CrocomireProjectileSegment, Animation<CrocomireProjectileSegment>> StartingAt =>
+    private protected override IEnumerable<KeyValuePair<CrocomireProjectileSegment, Animation<CrocomireProjectileSegment>>> StartingAt =>
         CrocomireAnimations.ProjectileStartingAt;
 }

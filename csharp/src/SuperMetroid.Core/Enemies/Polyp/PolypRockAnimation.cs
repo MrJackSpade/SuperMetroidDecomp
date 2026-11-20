@@ -11,5 +11,5 @@ internal sealed class PolypRockAnimation(PolypRockSegment segment)
     private protected override AnimationSegments<PolypRockSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => PolypRockAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<PolypRockSegment, Animation<PolypRockSegment>> StartingAt => PolypRockAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<PolypRockSegment, Animation<PolypRockSegment>>> StartingAt => PolypRockAnimations.StartingAt;
 }

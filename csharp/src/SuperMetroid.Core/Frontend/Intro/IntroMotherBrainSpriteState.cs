@@ -153,6 +153,8 @@ internal sealed class IntroMotherBrainSpriteState
             case IntroMotherBrainCue.StartCrossFade:
                 phase = IntroMotherBrainPhase.CrossfadingToNextPage;
                 return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(IntroMotherBrainCue)} {cue}.");
         }
     });
 

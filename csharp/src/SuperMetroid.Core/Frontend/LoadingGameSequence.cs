@@ -66,6 +66,8 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IGamePhase
                 BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
                     GameLoadingCompletion.GameplayFadeIn);
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(GameDataLoadRoute)} {session.LoadingRoute}.");
         }
     }
 
@@ -105,6 +107,8 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IGamePhase
                 session.Enter(session.Phases.MainGameplay);
                 session.display.PublishGameplay(session.GameplayRuntime);
                 break;
+            default:
+                throw new InvalidDataException($"Invalid game-loading completion {session.GameLoading.Completion}.");
         }
     }
 }

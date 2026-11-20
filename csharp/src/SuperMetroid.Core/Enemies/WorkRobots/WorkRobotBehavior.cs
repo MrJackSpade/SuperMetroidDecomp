@@ -129,14 +129,14 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     /// the animation elsewhere, as the cues replace the segment.
     /// </summary>
     private WorkRobotSegment? ApplyWorkRobotCue(RoomEnemyPlace place, WorkRobotEnemyState state, EnemyAnimationCueContext context, WorkRobotCue cue) =>
-        cue.Match<WorkRobotSegment?>(
-            step: step => MoveWorkRobot(place, state, context.Samus, context.Level, step.Move),
-            tryLaser: laser => TryFireWorkRobotLaser(place, state, laser.Laser, laser.Firing, context.Camera),
-            signal: signal =>
+        cue.Match(new WorkRobotCueCases<WorkRobotSegment?>(
+            Step: step => MoveWorkRobot(place, state, context.Samus, context.Level, step.Move),
+            TryLaser: laser => TryFireWorkRobotLaser(place, state, laser.Laser, laser.Firing, context.Camera),
+            Signal: signal =>
             {
                 WorkRobotSignals[signal.Kind](place, state, context.Camera);
                 return null;
-            });
+            }));
 
     /// <summary>What each of the Work Robot's signals does; each runs on.</summary>
     private IdentityTable<WorkRobotCueKind, Action<RoomEnemyPlace, WorkRobotEnemyState, Position16<RoomPixels>>> WorkRobotSignals => field ??=

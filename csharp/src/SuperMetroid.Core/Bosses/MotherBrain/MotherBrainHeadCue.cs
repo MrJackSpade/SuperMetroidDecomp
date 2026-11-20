@@ -8,19 +8,17 @@ internal abstract record MotherBrainHeadCue
     {
     }
 
-    /// <summary>What the function for this case makes of the cue, whichever case it is.</summary>
+    /// <summary>What <paramref name="cases"/> makes of the cue, through the case it is.</summary>
     /// <typeparam name="TResult">What the cue is made into.</typeparam>
-    /// <param name="playSound">Makes a <see cref="PlaySound"/> into the result.</param>
-    /// <param name="spawnBomb">Makes a <see cref="SpawnBomb"/> into the result.</param>
-    /// <param name="signal">Makes a <see cref="Signal"/> into the result.</param>
-    internal abstract TResult Match<TResult>(Func<PlaySound, TResult> playSound, Func<SpawnBomb, TResult> spawnBomb, Func<Signal, TResult> signal);
+    /// <param name="cases">What each case of the cue is made into.</param>
+    internal abstract TResult Match<TResult>(MotherBrainHeadCueCases<TResult> cases);
 
     /// <summary>Requests a sound: a roar, an attack cry or the onion rings.</summary>
     /// <param name="Effect">The sound requested.</param>
     internal sealed record PlaySound(SoundEffectId Effect) : MotherBrainHeadCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<PlaySound, TResult> playSound, Func<SpawnBomb, TResult> spawnBomb, Func<Signal, TResult> signal) => Ensure.NotNull(playSound)(this);
+        internal override TResult Match<TResult>(MotherBrainHeadCueCases<TResult> cases) => Ensure.NotNull(cases).PlaySound(this);
     }
 
     /// <summary>Lobs a bomb with its afterburn count.</summary>
@@ -28,7 +26,7 @@ internal abstract record MotherBrainHeadCue
     internal sealed record SpawnBomb(int Afterburns) : MotherBrainHeadCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<PlaySound, TResult> playSound, Func<SpawnBomb, TResult> spawnBomb, Func<Signal, TResult> signal) => Ensure.NotNull(spawnBomb)(this);
+        internal override TResult Match<TResult>(MotherBrainHeadCueCases<TResult> cases) => Ensure.NotNull(cases).SpawnBomb(this);
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
@@ -36,7 +34,7 @@ internal abstract record MotherBrainHeadCue
     internal sealed record Signal(MotherBrainHeadCueKind Kind) : MotherBrainHeadCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<PlaySound, TResult> playSound, Func<SpawnBomb, TResult> spawnBomb, Func<Signal, TResult> signal) => Ensure.NotNull(signal)(this);
+        internal override TResult Match<TResult>(MotherBrainHeadCueCases<TResult> cases) => Ensure.NotNull(cases).Signal(this);
     }
 
     /// <summary>A cue that carries no values.</summary>
@@ -48,3 +46,10 @@ internal abstract record MotherBrainHeadCue
     /// <summary>Lobs a bomb with <paramref name="afterburns"/> afterburns.</summary>
     internal static MotherBrainHeadCue Bomb(int afterburns) => new SpawnBomb(afterburns);
 }
+
+/// <summary>What each case of a <see cref="MotherBrainHeadCue"/> is made into (#2553).</summary>
+/// <typeparam name="TResult">What the cue is made into.</typeparam>
+/// <param name="PlaySound">Makes a <see cref="MotherBrainHeadCue.PlaySound"/> into the result.</param>
+/// <param name="SpawnBomb">Makes a <see cref="MotherBrainHeadCue.SpawnBomb"/> into the result.</param>
+/// <param name="Signal">Makes a <see cref="MotherBrainHeadCue.Signal"/> into the result.</param>
+internal sealed record MotherBrainHeadCueCases<TResult>(Func<MotherBrainHeadCue.PlaySound, TResult> PlaySound, Func<MotherBrainHeadCue.SpawnBomb, TResult> SpawnBomb, Func<MotherBrainHeadCue.Signal, TResult> Signal);

@@ -124,6 +124,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
             case GrowingShutterAction.Grow:
                 GrowShutterDown(place, state);
                 return;
+
+            default:
+                throw new InvalidDataException(
+                    $"Growing shutter has no behaviour for action {state.Action}.");
         }
     }
 
@@ -444,6 +448,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
             case VerticalShutterAction.StoppedAfterMovingDown:
                 RunVerticalShutterStopped(place, state, camera, end: VerticalDirection.Down);
                 break;
+
+            default:
+                throw new InvalidDataException(
+                    $"Vertical shutter has no behaviour for action {state.Action}.");
         }
 
         // An idle shutter reacts when one of Samus's four solid-enemy collisions

@@ -11,5 +11,5 @@ internal sealed class WorkRobotLaserAnimation(WorkRobotLaserSegment segment)
     private protected override AnimationSegments<WorkRobotLaserSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => WorkRobotLaserAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<WorkRobotLaserSegment, Animation<WorkRobotLaserSegment>> StartingAt => WorkRobotLaserAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<WorkRobotLaserSegment, Animation<WorkRobotLaserSegment>>> StartingAt => WorkRobotLaserAnimations.StartingAt;
 }

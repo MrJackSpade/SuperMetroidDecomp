@@ -110,7 +110,7 @@ public static class SamusSolidEnemyCollision
         [SamusCollisionDirection.Up] = static (state, reach, target) => target.WithY(SolidEnemyProbeReach.TestedPixelBack(state.Position.Y, reach)),
         [SamusCollisionDirection.Down] = static (state, reach, target) => target.WithY(SolidEnemyProbeReach.TestedPixelForward(state.Position.Y, reach)),
         // The pose-observation probe targets Samus's current position.
-        [SamusCollisionDirection.NonDirectionalProbe] = static (state, reach, target) => target,,
+        [SamusCollisionDirection.NonDirectionalProbe] = static (state, reach, target) => target,
     });
 
     /// <summary>The whole-pixel centre the broad test checks: Samus's centre with the probe's axis moved to the pixel the reach tests.</summary>

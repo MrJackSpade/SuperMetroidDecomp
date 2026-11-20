@@ -80,6 +80,8 @@ internal sealed class EndingLogo
             case EndingLogoCue.GreyOut:
                 CrossfadeStarted = true;
                 return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(EndingLogoCue)} {cue}.");
         }
     }
 
@@ -118,7 +120,7 @@ internal sealed class EndingLogo
         {
             if (settled)
                 return;
-            int across = Direction == HorizontalDirection.Left ? -speed : speed;
+            int across = speed * AcrossSign[Direction];
             Offset16<ScreenPixels> moved = Actor.ScreenPlace + new Offset16<ScreenPixels>(across, -across);
             Actor.ScreenPlace = moved;
             // The half lands once it reaches or passes its landing point's X in its own direction.
@@ -132,4 +134,11 @@ internal sealed class EndingLogo
             else speed += EndingLogoDefinitions.Acceleration;
         }
     }
+
+    /// <summary>The sign the logo's way gives its speed across the screen.</summary>
+    private static IdentityTable<HorizontalDirection, int> AcrossSign => field ??= new(new Dictionary<HorizontalDirection, int>
+    {
+        [HorizontalDirection.Left] = -1,
+        [HorizontalDirection.Right] = 1,
+    });
 }

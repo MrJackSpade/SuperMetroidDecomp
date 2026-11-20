@@ -172,7 +172,7 @@ public sealed class AudioQueues
     /// Whether a room's track choice is queued: never for an inherited track, always for a
     /// silenced room, and for a played song or area theme when the data set changes or it is not playing.
     /// </summary>
-    private bool RoomTrackQueues(RoomMusicTrack track, bool dataSetDiffers) => track.Queues(dataSetDiffers, PlayingTrack, DataSet);
+    private bool RoomTrackQueues(RoomMusicTrack track, bool dataSetDiffers) => track.Queues(new RoomMusicEntry(dataSetDiffers, PlayingTrack, DataSet));
 
     /// <summary>
     /// Runs the shared permanent-item music sequence.
@@ -347,6 +347,9 @@ public sealed class AudioQueues
             case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Withdraw:
                 requests.Add(new AudioRequest.ClearSoundRequest(library));
                 break;
+
+            default:
+                throw new InvalidDataException($"Sound library {library}'s request cycle asked for unknown step {step}.");
         }
     }
 

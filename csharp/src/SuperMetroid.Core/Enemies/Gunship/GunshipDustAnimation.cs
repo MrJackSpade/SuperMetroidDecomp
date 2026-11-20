@@ -13,5 +13,5 @@ internal sealed class GunshipDustAnimation(IEnemyProjectileCues<GunshipDustCue> 
     private protected override AnimationSegments<GunshipDustSegment, EnemyProjectileFrameId, GunshipDustCue> Segments => GunshipDustAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<GunshipDustSegment, Animation<GunshipDustSegment>> StartingAt => GunshipDustAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<GunshipDustSegment, Animation<GunshipDustSegment>>> StartingAt => GunshipDustAnimations.StartingAt;
 }

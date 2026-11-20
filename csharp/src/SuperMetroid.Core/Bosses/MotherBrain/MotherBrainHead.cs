@@ -97,6 +97,9 @@ internal sealed class MotherBrainHead
                 head.Position = head.Position.WithWhole(state.Neck.BrainAnchor.Position + MotherBrainNeckJointDefinitions.BrainAboveAnchor);
                 state.BrainActionDrawn = MotherBrainBrainAction.ShowsBrainOnNeck;
                 return;
+            default:
+                throw new InvalidDataException(
+                    $"Mother Brain has no behaviour for brain action {state.BrainAction}.");
         }
     }
 
@@ -294,18 +297,18 @@ internal sealed class MotherBrainHead
     /// sounds, so its sounds go straight to the enemy audio queue at their limits (#1391).
     /// </remarks>
     private MotherBrainHeadSegment? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState samus, MotherBrainHeadCue cue) =>
-        cue.Match(
-            playSound: playSound =>
+        cue.Match(new MotherBrainHeadCueCases<MotherBrainHeadSegment?>(
+            PlaySound: playSound =>
             {
                 _audio.QueueEnemySound(playSound.Effect, priority: SoundRequestPriority.Normal);
                 return (MotherBrainHeadSegment?)null;
             },
-            spawnBomb: bomb =>
+            SpawnBomb: bomb =>
             {
                 SpawnMotherBrainBomb(state, bomb.Afterburns);
                 return null;
             },
-            signal: signal => HeadSignals[signal.Kind](state, samus));
+            Signal: signal => HeadSignals[signal.Kind](state, samus)));
 
     /// <summary>
     /// What each of her brain's signals does before her late fight, and the segment it continues at, or null to run on.

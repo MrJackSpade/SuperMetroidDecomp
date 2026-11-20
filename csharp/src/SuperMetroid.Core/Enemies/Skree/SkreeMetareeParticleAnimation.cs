@@ -11,5 +11,5 @@ internal sealed class SkreeMetareeParticleAnimation(SkreeMetareeParticleSegment 
     private protected override AnimationSegments<SkreeMetareeParticleSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => SkreeMetareeParticleAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<SkreeMetareeParticleSegment, Animation<SkreeMetareeParticleSegment>> StartingAt => SkreeMetareeParticleAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<SkreeMetareeParticleSegment, Animation<SkreeMetareeParticleSegment>>> StartingAt => SkreeMetareeParticleAnimations.StartingAt;
 }

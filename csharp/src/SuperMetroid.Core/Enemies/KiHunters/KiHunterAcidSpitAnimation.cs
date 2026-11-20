@@ -13,5 +13,5 @@ internal sealed class KiHunterAcidSpitAnimation(IEnemyProjectileCues<KiHunterAci
     private protected override AnimationSegments<KiHunterAcidSpitSegment, EnemyProjectileFrameId, KiHunterAcidSpitCue> Segments => KiHunterAcidSpitAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<KiHunterAcidSpitSegment, Animation<KiHunterAcidSpitSegment>> StartingAt => KiHunterAcidSpitAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<KiHunterAcidSpitSegment, Animation<KiHunterAcidSpitSegment>>> StartingAt => KiHunterAcidSpitAnimations.StartingAt;
 }

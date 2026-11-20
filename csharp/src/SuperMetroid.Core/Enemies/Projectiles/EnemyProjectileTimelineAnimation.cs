@@ -43,7 +43,7 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
         ref Animation<TSegment> animation, ref AnimationPlace place);
 
     /// <summary>The family's animations, by the segment each starts at.</summary>
-    private protected abstract IReadOnlyDictionary<TSegment, Animation<TSegment>> StartingAt { get; }
+    private protected abstract IEnumerable<KeyValuePair<TSegment, Animation<TSegment>>> StartingAt { get; }
 
     /// <summary>
     /// The segment <paramref name="started"/>, one of the family's animations, starts at: its key in <see cref="StartingAt"/>.

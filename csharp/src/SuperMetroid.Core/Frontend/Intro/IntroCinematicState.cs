@@ -463,6 +463,8 @@ public sealed class IntroCinematicState : IFrontendScreen
             case IntroCinematicPhase.CeresFlight:
                 CeresFlight.Step();
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(IntroCinematicPhase)} {Phase}.");
         }
 
         if (CurrentNarration is not null)
@@ -645,6 +647,8 @@ public sealed class IntroCinematicState : IFrontendScreen
             case null:
                 SetupFinalPage();
                 return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(IntroIllustration)} {next}.");
         }
     }
 

@@ -101,6 +101,10 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             case KzanAction.Rising:
                 RunKzanRising(place, state, samus);
                 return;
+
+            default:
+                throw new InvalidDataException(
+                    $"Kzan has no behaviour for action {state.Action}.");
         }
     }
 

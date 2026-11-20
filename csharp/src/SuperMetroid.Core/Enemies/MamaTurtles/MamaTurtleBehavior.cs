@@ -47,17 +47,17 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Carries out one cue of the Mama Turtle's animations; rising to hover continues at its spin.</summary>
     private MamaTurtleSegment? ApplyMamaTurtleCue(RoomEnemyPlace place, MamaTurtleCue cue) =>
-        cue.Match<MamaTurtleSegment?>(
-            riseToHover: rise =>
+        cue.Match(new MamaTurtleCueCases<MamaTurtleSegment?>(
+            RiseToHover: rise =>
             {
                 StartMamaTurtleRisingToHover(place.RequireSpeciesState<MamaTurtleEnemyState>(), direction: rise.Direction);
                 return MamaTurtleSegment.Spinning;
             },
-            signal: signal =>
+            Signal: signal =>
             {
                 MamaTurtleSignals[signal.Kind](place);
                 return null;
-            });
+            }));
 
     /// <summary>What each of the Mama Turtle's signals does; each runs on.</summary>
     private IdentityTable<MamaTurtleCueKind, Action<RoomEnemyPlace>> MamaTurtleSignals => field ??= new(new Dictionary<MamaTurtleCueKind, Action<RoomEnemyPlace>>
@@ -205,6 +205,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             case MamaTurtleAction.Falling:
                 RunMamaTurtleFalling(place, state, samus, pseudoScrew, level);
                 return;
+            default:
+                throw new InvalidDataException(
+                    $"Mama Turtle has no behaviour for action {state.Action}.");
         }
     }
 
@@ -527,6 +530,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!EnemyCollision.IsSamusStandingOn(baby, samus))
                     state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
                 return;
+
+            default:
+                throw new InvalidDataException(
+                    $"Baby Turtle has no behaviour for action {state.Action}.");
         }
     }
 

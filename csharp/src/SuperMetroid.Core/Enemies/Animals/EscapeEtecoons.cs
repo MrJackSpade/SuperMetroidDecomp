@@ -7,5 +7,5 @@ internal static class EscapeEtecoons
 {
     /// <summary>The initialization of <paramref name="role"/>.</summary>
     internal static EscapeEtecoonInitialization Initialization(EscapeEtecoonRole role) =>
-        Ensure.Listed(Initializations, role);
+        Initializations[role];
 }

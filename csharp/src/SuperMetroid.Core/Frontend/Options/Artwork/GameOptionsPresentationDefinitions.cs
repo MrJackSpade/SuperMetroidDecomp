@@ -20,13 +20,13 @@ public static class GameOptionsPresentationDefinitions
         };
 
     /// <summary>The JSON name of a menu layout's heading sprite.</summary>
-    internal static readonly IReadOnlyDictionary<GameOptionsPage, string> HeadingSpriteNames =
-        new Dictionary<GameOptionsPage, string>
+    internal static readonly IdentityTable<GameOptionsPage, string> HeadingSpriteNames =
+        new(new Dictionary<GameOptionsPage, string>
         {
             [GameOptionsPage.Primary] = "Heading.Primary",
             [GameOptionsPage.Controller] = "Heading.Controller",
             [GameOptionsPage.Special] = "Heading.Special",
-        };
+        });
 
 
     /// <summary>The JSON name of an assignable button's glyph.</summary>
@@ -43,8 +43,8 @@ public static class GameOptionsPresentationDefinitions
         };
 
     /// <summary>The name each controller action's label is pictured under.</summary>
-    internal static readonly IReadOnlyDictionary<ControllerAction, string> ControllerActionNames =
-        new Dictionary<ControllerAction, string>
+    internal static readonly IdentityTable<ControllerAction, string> ControllerActionNames =
+        new(new Dictionary<ControllerAction, string>
         {
             [ControllerAction.Shoot] = "Shoot",
             [ControllerAction.Jump] = "Jump",
@@ -53,14 +53,14 @@ public static class GameOptionsPresentationDefinitions
             [ControllerAction.ItemCancel] = "ItemCancel",
             [ControllerAction.AimUp] = "AimUp",
             [ControllerAction.AimDown] = "AimDown",
-        };
+        });
 
     /// <summary>The JSON name of a special setting's visual.</summary>
-    internal static readonly IReadOnlyDictionary<GameOptionsToggle, string> ToggleNames =
-        new Dictionary<GameOptionsToggle, string>
+    internal static readonly IdentityTable<GameOptionsToggle, string> ToggleNames =
+        new(new Dictionary<GameOptionsToggle, string>
         {
             [GameOptionsToggle.IconCancel] = "IconCancel",
             [GameOptionsToggle.Moonwalk] = "Moonwalk",
-        };
+        });
 
 }

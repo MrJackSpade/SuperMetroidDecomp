@@ -8,21 +8,17 @@ internal abstract record YardCue
     {
     }
 
-    /// <summary>What the function for this case makes of the cue, whichever case it is.</summary>
+    /// <summary>What <paramref name="cases"/> makes of the cue, through the case it is.</summary>
     /// <typeparam name="TResult">What the cue is made into.</typeparam>
-    /// <param name="moveBy">Makes a <see cref="MoveBy"/> into the result.</param>
-    /// <param name="setDirection">Makes a <see cref="SetDirection"/> into the result.</param>
-    /// <param name="setHidingAnimation">Makes a <see cref="SetHidingAnimation"/> into the result.</param>
-    /// <param name="beginCrawling">Makes a <see cref="BeginCrawling"/> into the result.</param>
-    /// <param name="signal">Makes a <see cref="Signal"/> into the result.</param>
-    internal abstract TResult Match<TResult>(Func<MoveBy, TResult> moveBy, Func<SetDirection, TResult> setDirection, Func<SetHidingAnimation, TResult> setHidingAnimation, Func<BeginCrawling, TResult> beginCrawling, Func<Signal, TResult> signal);
+    /// <param name="cases">What each case of the cue is made into.</param>
+    internal abstract TResult Match<TResult>(YardCueCases<TResult> cases);
 
     /// <summary>Moves the Yard by a signed pixel offset in X and Y.</summary>
     /// <param name="Offset">The cue's signed pixel offset, horizontal and vertical.</param>
     internal sealed record MoveBy(Offset16<RoomPixels> Offset) : YardCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<MoveBy, TResult> moveBy, Func<SetDirection, TResult> setDirection, Func<SetHidingAnimation, TResult> setHidingAnimation, Func<BeginCrawling, TResult> beginCrawling, Func<Signal, TResult> signal) => Ensure.NotNull(moveBy)(this);
+        internal override TResult Match<TResult>(YardCueCases<TResult> cases) => Ensure.NotNull(cases).MoveBy(this);
     }
 
     /// <summary>Sets the attachment direction and the airborne facing it implies.</summary>
@@ -30,7 +26,7 @@ internal abstract record YardCue
     internal sealed record SetDirection(YardDirection Direction) : YardCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<MoveBy, TResult> moveBy, Func<SetDirection, TResult> setDirection, Func<SetHidingAnimation, TResult> setHidingAnimation, Func<BeginCrawling, TResult> beginCrawling, Func<Signal, TResult> signal) => Ensure.NotNull(setDirection)(this);
+        internal override TResult Match<TResult>(YardCueCases<TResult> cases) => Ensure.NotNull(cases).SetDirection(this);
     }
 
     /// <summary>Names the animation the Yard hides with, or none.</summary>
@@ -38,7 +34,7 @@ internal abstract record YardCue
     internal sealed record SetHidingAnimation(YardSegment? OptionalTarget) : YardCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<MoveBy, TResult> moveBy, Func<SetDirection, TResult> setDirection, Func<SetHidingAnimation, TResult> setHidingAnimation, Func<BeginCrawling, TResult> beginCrawling, Func<Signal, TResult> signal) => Ensure.NotNull(setHidingAnimation)(this);
+        internal override TResult Match<TResult>(YardCueCases<TResult> cases) => Ensure.NotNull(cases).SetHidingAnimation(this);
     }
 
     /// <summary>The Yard begins crawling <paramref name="Crawl"/> along its surface, as its crawl animation starts.</summary>
@@ -46,7 +42,7 @@ internal abstract record YardCue
     internal sealed record BeginCrawling(YardDirection Crawl) : YardCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<MoveBy, TResult> moveBy, Func<SetDirection, TResult> setDirection, Func<SetHidingAnimation, TResult> setHidingAnimation, Func<BeginCrawling, TResult> beginCrawling, Func<Signal, TResult> signal) => Ensure.NotNull(beginCrawling)(this);
+        internal override TResult Match<TResult>(YardCueCases<TResult> cases) => Ensure.NotNull(cases).BeginCrawling(this);
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
@@ -54,6 +50,15 @@ internal abstract record YardCue
     internal sealed record Signal(YardCueKind Kind) : YardCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<MoveBy, TResult> moveBy, Func<SetDirection, TResult> setDirection, Func<SetHidingAnimation, TResult> setHidingAnimation, Func<BeginCrawling, TResult> beginCrawling, Func<Signal, TResult> signal) => Ensure.NotNull(signal)(this);
+        internal override TResult Match<TResult>(YardCueCases<TResult> cases) => Ensure.NotNull(cases).Signal(this);
     }
 }
+
+/// <summary>What each case of a <see cref="YardCue"/> is made into (#2553).</summary>
+/// <typeparam name="TResult">What the cue is made into.</typeparam>
+/// <param name="MoveBy">Makes a <see cref="YardCue.MoveBy"/> into the result.</param>
+/// <param name="SetDirection">Makes a <see cref="YardCue.SetDirection"/> into the result.</param>
+/// <param name="SetHidingAnimation">Makes a <see cref="YardCue.SetHidingAnimation"/> into the result.</param>
+/// <param name="BeginCrawling">Makes a <see cref="YardCue.BeginCrawling"/> into the result.</param>
+/// <param name="Signal">Makes a <see cref="YardCue.Signal"/> into the result.</param>
+internal sealed record YardCueCases<TResult>(Func<YardCue.MoveBy, TResult> MoveBy, Func<YardCue.SetDirection, TResult> SetDirection, Func<YardCue.SetHidingAnimation, TResult> SetHidingAnimation, Func<YardCue.BeginCrawling, TResult> BeginCrawling, Func<YardCue.Signal, TResult> Signal);

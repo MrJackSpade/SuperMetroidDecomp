@@ -48,27 +48,27 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
     private FakeKraidSegment? ApplyFakeKraidCue(RoomEnemyPlace place, FakeKraidCue cue, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera) =>
-        cue.Match<FakeKraidSegment?>(
-            spit: spit =>
+        cue.Match(new FakeKraidCueCases<FakeKraidSegment?>(
+            Spit: spit =>
             {
                 SpawnFakeKraidSpitPair(place, spit.Direction);
                 return null;
             },
-            chooseAction: _ => SelectFakeKraidAction(place.RequireSpeciesState<FakeKraidEnemyState>()),
-            move: _ =>
+            ChooseAction: _ => SelectFakeKraidAction(place.RequireSpeciesState<FakeKraidEnemyState>()),
+            Move: _ =>
             {
                 // Walk cue: advance one step unless its random reversal
                 // clock expires, then turn to face Samus.
                 ProcessFakeKraidWalkAnimation(place, place.RequireSpeciesState<FakeKraidEnemyState>(), samus, level);
                 return null;
             },
-            playCrySound: _ =>
+            PlayCrySound: _ =>
             {
                 // The spit step queues its sound only while Fake Kraid is in the view, its edges included.
                 if (EnemyView.Contains(place.Position.Whole, camera))
                     RequestFakeKraidSound(KraidSoundDefinitions.FakeKraidCry);
                 return null;
-            });
+            }));
 
     /// <summary>Queues one of Fake Kraid's sounds as it makes it, after the update's earlier requests.</summary>
     private void RequestFakeKraidSound(SoundEffectId sound) =>

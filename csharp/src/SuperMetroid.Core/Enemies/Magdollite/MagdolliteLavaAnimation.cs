@@ -13,5 +13,5 @@ internal sealed class MagdolliteLavaAnimation(IEnemyProjectileCues<MagdolliteLav
     private protected override AnimationSegments<MagdolliteLavaSegment, EnemyProjectileFrameId, MagdolliteLavaCue> Segments => MagdolliteLavaAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<MagdolliteLavaSegment, Animation<MagdolliteLavaSegment>> StartingAt => MagdolliteLavaAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<MagdolliteLavaSegment, Animation<MagdolliteLavaSegment>>> StartingAt => MagdolliteLavaAnimations.StartingAt;
 }

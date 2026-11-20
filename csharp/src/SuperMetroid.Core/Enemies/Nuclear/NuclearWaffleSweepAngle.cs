@@ -39,7 +39,14 @@ public readonly record struct NuclearWaffleSweepAngle : IComparable<NuclearWaffl
     /// toward larger angles for a forward sweep, back for a backward one, keeping its fraction (#2439).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The turned angle lies below zero.</exception>
-    internal NuclearWaffleSweepAngle TurnedAhead(int steps, NuclearWaffleSweepDirection direction) => TurnedBySteps(direction == NuclearWaffleSweepDirection.Forward ? steps : -steps);
+    internal NuclearWaffleSweepAngle TurnedAhead(int steps, NuclearWaffleSweepDirection direction) => TurnedBySteps(steps * StepSign[direction]);
+
+    /// <summary>The sign a sweep running each way turns its steps by: on toward larger angles forward, back backward.</summary>
+    private static IdentityTable<NuclearWaffleSweepDirection, int> StepSign => field ??= new(new Dictionary<NuclearWaffleSweepDirection, int>
+    {
+        [NuclearWaffleSweepDirection.Forward] = 1,
+        [NuclearWaffleSweepDirection.Backward] = -1,
+    });
 
     /// <summary>
     /// The angle turned <paramref name="steps"/> whole steps behind along a sweep running <paramref name="direction"/>,

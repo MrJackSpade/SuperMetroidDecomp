@@ -96,6 +96,10 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 // walking right.
                 SetOwtchAnimation(place, state, OwtchSegment.MovingRight);
                 return;
+
+            default:
+                throw new InvalidDataException(
+                    $"Owtch has no behaviour for state {state.Behavior}.");
         }
     }
 

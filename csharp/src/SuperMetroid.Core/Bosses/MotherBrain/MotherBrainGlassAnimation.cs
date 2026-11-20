@@ -14,6 +14,6 @@ internal sealed class MotherBrainGlassAnimation(IEnemyProjectileCues<MotherBrain
         MotherBrainGlassAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<MotherBrainGlassSegment, Animation<MotherBrainGlassSegment>> StartingAt =>
+    private protected override IEnumerable<KeyValuePair<MotherBrainGlassSegment, Animation<MotherBrainGlassSegment>>> StartingAt =>
         MotherBrainGlassAnimations.StartingAt;
 }

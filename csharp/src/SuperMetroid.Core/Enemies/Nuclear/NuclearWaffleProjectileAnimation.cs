@@ -11,5 +11,5 @@ internal sealed class NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSe
     private protected override AnimationSegments<NuclearWaffleProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => NuclearWaffleProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<NuclearWaffleProjectileSegment, Animation<NuclearWaffleProjectileSegment>> StartingAt => NuclearWaffleProjectileAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<NuclearWaffleProjectileSegment, Animation<NuclearWaffleProjectileSegment>>> StartingAt => NuclearWaffleProjectileAnimations.StartingAt;
 }

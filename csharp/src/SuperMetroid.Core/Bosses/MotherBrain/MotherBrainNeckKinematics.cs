@@ -89,6 +89,9 @@ internal static class MotherBrainNeckKinematics
                 lowerAngle = candidate;
                 break;
             }
+            default:
+                throw new InvalidOperationException(
+                    $"Unsupported lower-neck movement {lowerMovement}.");
         }
 
         // Runs the upper step after the lower step, so it observes the
@@ -149,6 +152,9 @@ internal static class MotherBrainNeckKinematics
                 upperAngle = candidate;
                 break;
             }
+            default:
+                throw new InvalidOperationException(
+                    $"Unsupported upper-neck movement {upperMovement}.");
         }
     }
 

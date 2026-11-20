@@ -54,6 +54,8 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The spit ends the activity whichever way the Fune faces.
                 state.FinishSpit();
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(FuneNamiheCueKind)} {kind}.");
         }
     }
 
@@ -98,6 +100,9 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The active animation's finish step is the only owner allowed to leave
                 // the spit. Main AI does nothing until that step.
                 return;
+
+            default:
+                throw new InvalidDataException($"Fune has no behaviour for action {state.Action}.");
         }
     }
 
@@ -121,6 +126,9 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The active animation's finish step is the only owner allowed to leave
                 // the spit. Main AI does nothing until that step.
                 return;
+
+            default:
+                throw new InvalidDataException($"Namihe has no behaviour for action {state.Action}.");
         }
     }
 

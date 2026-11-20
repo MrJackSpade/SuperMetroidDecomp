@@ -8,13 +8,10 @@ internal abstract record WalkingSpacePirateCue
     {
     }
 
-    /// <summary>What the function for this case makes of the cue, whichever case it is.</summary>
+    /// <summary>What <paramref name="cases"/> makes of the cue, through the case it is.</summary>
     /// <typeparam name="TResult">What the cue is made into.</typeparam>
-    /// <param name="fireLaser">Makes a <see cref="FireLaser"/> into the result.</param>
-    /// <param name="begin">Makes a <see cref="Begin"/> into the result.</param>
-    /// <param name="beginHeading">Makes a <see cref="BeginHeading"/> into the result.</param>
-    /// <param name="signal">Makes a <see cref="Signal"/> into the result.</param>
-    internal abstract TResult Match<TResult>(Func<FireLaser, TResult> fireLaser, Func<Begin, TResult> begin, Func<BeginHeading, TResult> beginHeading, Func<Signal, TResult> signal);
+    /// <param name="cases">What each case of the cue is made into.</param>
+    internal abstract TResult Match<TResult>(WalkingSpacePirateCueCases<TResult> cases);
 
     /// <summary>Fires a laser the cue's way from its height offset (#2151).</summary>
     /// <param name="Direction">The way the laser flies.</param>
@@ -22,7 +19,7 @@ internal abstract record WalkingSpacePirateCue
     internal sealed record FireLaser(HorizontalDirection Direction, int LaserHeight) : WalkingSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<FireLaser, TResult> fireLaser, Func<Begin, TResult> begin, Func<BeginHeading, TResult> beginHeading, Func<Signal, TResult> signal) => Ensure.NotNull(fireLaser)(this);
+        internal override TResult Match<TResult>(WalkingSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).FireLaser(this);
     }
 
     /// <summary>
@@ -32,7 +29,7 @@ internal abstract record WalkingSpacePirateCue
     internal sealed record Begin(WalkingSpacePirateAction Action) : WalkingSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<FireLaser, TResult> fireLaser, Func<Begin, TResult> begin, Func<BeginHeading, TResult> beginHeading, Func<Signal, TResult> signal) => Ensure.NotNull(begin)(this);
+        internal override TResult Match<TResult>(WalkingSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).Begin(this);
     }
 
     /// <summary>Begins the walk the Pirate's main AI then runs the cue's way, from the next update, as the animation runs on (#2165).</summary>
@@ -41,7 +38,7 @@ internal abstract record WalkingSpacePirateCue
     internal sealed record BeginHeading(WalkingSpacePirateAction Action, HorizontalDirection Heading) : WalkingSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<FireLaser, TResult> fireLaser, Func<Begin, TResult> begin, Func<BeginHeading, TResult> beginHeading, Func<Signal, TResult> signal) => Ensure.NotNull(beginHeading)(this);
+        internal override TResult Match<TResult>(WalkingSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).BeginHeading(this);
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
@@ -49,6 +46,14 @@ internal abstract record WalkingSpacePirateCue
     internal sealed record Signal(WalkingSpacePirateCueKind Kind) : WalkingSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<FireLaser, TResult> fireLaser, Func<Begin, TResult> begin, Func<BeginHeading, TResult> beginHeading, Func<Signal, TResult> signal) => Ensure.NotNull(signal)(this);
+        internal override TResult Match<TResult>(WalkingSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).Signal(this);
     }
 }
+
+/// <summary>What each case of a <see cref="WalkingSpacePirateCue"/> is made into (#2553).</summary>
+/// <typeparam name="TResult">What the cue is made into.</typeparam>
+/// <param name="FireLaser">Makes a <see cref="WalkingSpacePirateCue.FireLaser"/> into the result.</param>
+/// <param name="Begin">Makes a <see cref="WalkingSpacePirateCue.Begin"/> into the result.</param>
+/// <param name="BeginHeading">Makes a <see cref="WalkingSpacePirateCue.BeginHeading"/> into the result.</param>
+/// <param name="Signal">Makes a <see cref="WalkingSpacePirateCue.Signal"/> into the result.</param>
+internal sealed record WalkingSpacePirateCueCases<TResult>(Func<WalkingSpacePirateCue.FireLaser, TResult> FireLaser, Func<WalkingSpacePirateCue.Begin, TResult> Begin, Func<WalkingSpacePirateCue.BeginHeading, TResult> BeginHeading, Func<WalkingSpacePirateCue.Signal, TResult> Signal);

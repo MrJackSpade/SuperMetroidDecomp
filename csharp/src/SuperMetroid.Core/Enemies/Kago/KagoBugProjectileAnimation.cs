@@ -13,5 +13,5 @@ internal sealed class KagoBugProjectileAnimation(IEnemyProjectileCues<KagoBugPro
     private protected override AnimationSegments<KagoBugProjectileSegment, EnemyProjectileFrameId, KagoBugProjectileCue> Segments => KagoBugProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<KagoBugProjectileSegment, Animation<KagoBugProjectileSegment>> StartingAt => KagoBugProjectileAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<KagoBugProjectileSegment, Animation<KagoBugProjectileSegment>>> StartingAt => KagoBugProjectileAnimations.StartingAt;
 }

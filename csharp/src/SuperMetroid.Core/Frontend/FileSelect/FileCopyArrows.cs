@@ -14,18 +14,18 @@ internal static class FileCopyArrows
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The slots are the same slot.</exception>
     internal static FileCopyArrowPlacement Select(SaveSlot source, SaveSlot destination) => source != destination
-        ? Arrows[(source, destination)]
+        ? Arrows[new FileCopyRoute(source, destination)]
         : throw new ArgumentOutOfRangeException(nameof(destination), destination, "A copy's destination is its source.");
 
     /// <summary>The arrow between each pair of different slots, from the first to the second.</summary>
-    private static FrozenDictionary<(SaveSlot Source, SaveSlot Destination), FileCopyArrowPlacement> Arrows => field ??=
-        new Dictionary<(SaveSlot Source, SaveSlot Destination), FileCopyArrowPlacement>
+    private static FrozenDictionary<FileCopyRoute, FileCopyArrowPlacement> Arrows => field ??=
+        new Dictionary<FileCopyRoute, FileCopyArrowPlacement>
         {
-            [(SaveSlot.A, SaveSlot.B)] = new(FileCopyArrowShape.ShortDown, FileCopyArrowDefinitions.UpperShortArrowY),
-            [(SaveSlot.A, SaveSlot.C)] = new(FileCopyArrowShape.LongDown, FileCopyArrowDefinitions.LongArrowY),
-            [(SaveSlot.B, SaveSlot.A)] = new(FileCopyArrowShape.ShortUp, FileCopyArrowDefinitions.UpperShortArrowY),
-            [(SaveSlot.B, SaveSlot.C)] = new(FileCopyArrowShape.ShortDown, FileCopyArrowDefinitions.LowerShortArrowY),
-            [(SaveSlot.C, SaveSlot.A)] = new(FileCopyArrowShape.LongUp, FileCopyArrowDefinitions.LongArrowY),
-            [(SaveSlot.C, SaveSlot.B)] = new(FileCopyArrowShape.ShortUp, FileCopyArrowDefinitions.LowerShortArrowY),
+            [new(SaveSlot.A, SaveSlot.B)] = new(FileCopyArrowShape.ShortDown, FileCopyArrowDefinitions.UpperShortArrowY),
+            [new(SaveSlot.A, SaveSlot.C)] = new(FileCopyArrowShape.LongDown, FileCopyArrowDefinitions.LongArrowY),
+            [new(SaveSlot.B, SaveSlot.A)] = new(FileCopyArrowShape.ShortUp, FileCopyArrowDefinitions.UpperShortArrowY),
+            [new(SaveSlot.B, SaveSlot.C)] = new(FileCopyArrowShape.ShortDown, FileCopyArrowDefinitions.LowerShortArrowY),
+            [new(SaveSlot.C, SaveSlot.A)] = new(FileCopyArrowShape.LongUp, FileCopyArrowDefinitions.LongArrowY),
+            [new(SaveSlot.C, SaveSlot.B)] = new(FileCopyArrowShape.ShortUp, FileCopyArrowDefinitions.LowerShortArrowY),
         }.ToFrozenDictionary();
 }

@@ -8,16 +8,10 @@ internal abstract record WallSpacePirateCue
     {
     }
 
-    /// <summary>What the function for this case makes of the cue, whichever case it is.</summary>
+    /// <summary>What <paramref name="cases"/> makes of the cue, through the case it is.</summary>
     /// <typeparam name="TResult">What the cue is made into.</typeparam>
-    /// <param name="climb">Makes a <see cref="Climb"/> into the result.</param>
-    /// <param name="chooseClimb">Makes a <see cref="ChooseClimb"/> into the result.</param>
-    /// <param name="fireLaser">Makes a <see cref="FireLaser"/> into the result.</param>
-    /// <param name="prepareJump">Makes a <see cref="PrepareJump"/> into the result.</param>
-    /// <param name="begin">Makes a <see cref="Begin"/> into the result.</param>
-    /// <param name="beginOnWall">Makes a <see cref="BeginOnWall"/> into the result.</param>
-    /// <param name="signal">Makes a <see cref="Signal"/> into the result.</param>
-    internal abstract TResult Match<TResult>(Func<Climb, TResult> climb, Func<ChooseClimb, TResult> chooseClimb, Func<FireLaser, TResult> fireLaser, Func<PrepareJump, TResult> prepareJump, Func<Begin, TResult> begin, Func<BeginOnWall, TResult> beginOnWall, Func<Signal, TResult> signal);
+    /// <param name="cases">What each case of the cue is made into.</param>
+    internal abstract TResult Match<TResult>(WallSpacePirateCueCases<TResult> cases);
 
     /// <summary>Climbs the cue's pixels on the cue's wall, continuing at the opposite climb after terrain contact (#2151).</summary>
     /// <param name="Wall">The wall the Pirate climbs.</param>
@@ -25,7 +19,7 @@ internal abstract record WallSpacePirateCue
     internal sealed record Climb(HorizontalDirection Wall, int ClimbPixels) : WallSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<Climb, TResult> climb, Func<ChooseClimb, TResult> chooseClimb, Func<FireLaser, TResult> fireLaser, Func<PrepareJump, TResult> prepareJump, Func<Begin, TResult> begin, Func<BeginOnWall, TResult> beginOnWall, Func<Signal, TResult> signal) => Ensure.NotNull(climb)(this);
+        internal override TResult Match<TResult>(WallSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).Climb(this);
     }
 
     /// <summary>Picks a random climb direction and continues at that climb on the cue's wall (#2151).</summary>
@@ -33,7 +27,7 @@ internal abstract record WallSpacePirateCue
     internal sealed record ChooseClimb(HorizontalDirection Wall) : WallSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<Climb, TResult> climb, Func<ChooseClimb, TResult> chooseClimb, Func<FireLaser, TResult> fireLaser, Func<PrepareJump, TResult> prepareJump, Func<Begin, TResult> begin, Func<BeginOnWall, TResult> beginOnWall, Func<Signal, TResult> signal) => Ensure.NotNull(chooseClimb)(this);
+        internal override TResult Match<TResult>(WallSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).ChooseClimb(this);
     }
 
     /// <summary>Fires a laser the cue's way (#2151).</summary>
@@ -41,7 +35,7 @@ internal abstract record WallSpacePirateCue
     internal sealed record FireLaser(HorizontalDirection Direction) : WallSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<Climb, TResult> climb, Func<ChooseClimb, TResult> chooseClimb, Func<FireLaser, TResult> fireLaser, Func<PrepareJump, TResult> prepareJump, Func<Begin, TResult> begin, Func<BeginOnWall, TResult> beginOnWall, Func<Signal, TResult> signal) => Ensure.NotNull(fireLaser)(this);
+        internal override TResult Match<TResult>(WallSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).FireLaser(this);
     }
 
     /// <summary>Prepares the jump to the wall the cue's way (#2151).</summary>
@@ -49,7 +43,7 @@ internal abstract record WallSpacePirateCue
     internal sealed record PrepareJump(HorizontalDirection Direction) : WallSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<Climb, TResult> climb, Func<ChooseClimb, TResult> chooseClimb, Func<FireLaser, TResult> fireLaser, Func<PrepareJump, TResult> prepareJump, Func<Begin, TResult> begin, Func<BeginOnWall, TResult> beginOnWall, Func<Signal, TResult> signal) => Ensure.NotNull(prepareJump)(this);
+        internal override TResult Match<TResult>(WallSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).PrepareJump(this);
     }
 
     /// <summary>
@@ -60,7 +54,7 @@ internal abstract record WallSpacePirateCue
     internal sealed record Begin(WallSpacePirateAction Action) : WallSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<Climb, TResult> climb, Func<ChooseClimb, TResult> chooseClimb, Func<FireLaser, TResult> fireLaser, Func<PrepareJump, TResult> prepareJump, Func<Begin, TResult> begin, Func<BeginOnWall, TResult> beginOnWall, Func<Signal, TResult> signal) => Ensure.NotNull(begin)(this);
+        internal override TResult Match<TResult>(WallSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).Begin(this);
     }
 
     /// <summary>
@@ -72,7 +66,7 @@ internal abstract record WallSpacePirateCue
     internal sealed record BeginOnWall(WallSpacePirateAction Action, HorizontalDirection Wall) : WallSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<Climb, TResult> climb, Func<ChooseClimb, TResult> chooseClimb, Func<FireLaser, TResult> fireLaser, Func<PrepareJump, TResult> prepareJump, Func<Begin, TResult> begin, Func<BeginOnWall, TResult> beginOnWall, Func<Signal, TResult> signal) => Ensure.NotNull(beginOnWall)(this);
+        internal override TResult Match<TResult>(WallSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).BeginOnWall(this);
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
@@ -80,6 +74,17 @@ internal abstract record WallSpacePirateCue
     internal sealed record Signal(WallSpacePirateCueKind Kind) : WallSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<Climb, TResult> climb, Func<ChooseClimb, TResult> chooseClimb, Func<FireLaser, TResult> fireLaser, Func<PrepareJump, TResult> prepareJump, Func<Begin, TResult> begin, Func<BeginOnWall, TResult> beginOnWall, Func<Signal, TResult> signal) => Ensure.NotNull(signal)(this);
+        internal override TResult Match<TResult>(WallSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).Signal(this);
     }
 }
+
+/// <summary>What each case of a <see cref="WallSpacePirateCue"/> is made into (#2553).</summary>
+/// <typeparam name="TResult">What the cue is made into.</typeparam>
+/// <param name="Climb">Makes a <see cref="WallSpacePirateCue.Climb"/> into the result.</param>
+/// <param name="ChooseClimb">Makes a <see cref="WallSpacePirateCue.ChooseClimb"/> into the result.</param>
+/// <param name="FireLaser">Makes a <see cref="WallSpacePirateCue.FireLaser"/> into the result.</param>
+/// <param name="PrepareJump">Makes a <see cref="WallSpacePirateCue.PrepareJump"/> into the result.</param>
+/// <param name="Begin">Makes a <see cref="WallSpacePirateCue.Begin"/> into the result.</param>
+/// <param name="BeginOnWall">Makes a <see cref="WallSpacePirateCue.BeginOnWall"/> into the result.</param>
+/// <param name="Signal">Makes a <see cref="WallSpacePirateCue.Signal"/> into the result.</param>
+internal sealed record WallSpacePirateCueCases<TResult>(Func<WallSpacePirateCue.Climb, TResult> Climb, Func<WallSpacePirateCue.ChooseClimb, TResult> ChooseClimb, Func<WallSpacePirateCue.FireLaser, TResult> FireLaser, Func<WallSpacePirateCue.PrepareJump, TResult> PrepareJump, Func<WallSpacePirateCue.Begin, TResult> Begin, Func<WallSpacePirateCue.BeginOnWall, TResult> BeginOnWall, Func<WallSpacePirateCue.Signal, TResult> Signal);

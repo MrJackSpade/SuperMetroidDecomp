@@ -11,6 +11,6 @@ internal sealed class BotwoonSpitAnimation() : EnemyProjectileSilentFrameAnimati
         BotwoonAnimations.SpitSegments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<BotwoonSpitSegment, Animation<BotwoonSpitSegment>> StartingAt =>
+    private protected override IEnumerable<KeyValuePair<BotwoonSpitSegment, Animation<BotwoonSpitSegment>>> StartingAt =>
         BotwoonAnimations.SpitStartingAt;
 }

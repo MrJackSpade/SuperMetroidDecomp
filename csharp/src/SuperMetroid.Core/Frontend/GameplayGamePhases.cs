@@ -144,6 +144,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                 // remains this frame's image; the following update reaches the door from that publication.
                 session.Enter(DoorTransitionStep.EnteringDoor);
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(GameplayUpdateTransition)} {transition}.");
         }
     }
 

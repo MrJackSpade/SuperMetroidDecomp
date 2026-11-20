@@ -13,5 +13,5 @@ internal sealed class DownwardGateProjectileAnimation(IEnemyProjectileCues<Downw
     private protected override AnimationSegments<DownwardGateProjectileSegment, EnemyProjectileFrameId, DownwardGateProjectileCue> Segments => DownwardGateProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<DownwardGateProjectileSegment, Animation<DownwardGateProjectileSegment>> StartingAt => DownwardGateProjectileAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<DownwardGateProjectileSegment, Animation<DownwardGateProjectileSegment>>> StartingAt => DownwardGateProjectileAnimations.StartingAt;
 }

@@ -113,6 +113,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             case DachoraAction.Falling:
                 RunDachoraFalling(place, state, samus, level);
                 break;
+            default:
+                throw new InvalidDataException(
+                    $"Dachora has no behaviour for action {state.Action}.");
         }
     }
 

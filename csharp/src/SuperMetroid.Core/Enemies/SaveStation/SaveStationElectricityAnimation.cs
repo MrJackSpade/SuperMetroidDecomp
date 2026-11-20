@@ -16,5 +16,5 @@ internal sealed class SaveStationElectricityAnimation()
     private protected override AnimationSegments<SaveStationElectricitySegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => SaveStationElectricityAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<SaveStationElectricitySegment, Animation<SaveStationElectricitySegment>> StartingAt => SaveStationElectricityAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<SaveStationElectricitySegment, Animation<SaveStationElectricitySegment>>> StartingAt => SaveStationElectricityAnimations.StartingAt;
 }

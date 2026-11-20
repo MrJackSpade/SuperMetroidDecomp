@@ -11,5 +11,5 @@ internal sealed class FuneNamiheFireballAnimation(FuneNamiheFireballSegment segm
     private protected override AnimationSegments<FuneNamiheFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FuneNamiheFireballAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<FuneNamiheFireballSegment, Animation<FuneNamiheFireballSegment>> StartingAt => FuneNamiheFireballAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<FuneNamiheFireballSegment, Animation<FuneNamiheFireballSegment>>> StartingAt => FuneNamiheFireballAnimations.StartingAt;
 }

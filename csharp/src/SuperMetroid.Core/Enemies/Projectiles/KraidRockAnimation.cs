@@ -12,5 +12,5 @@ internal sealed class KraidRockAnimation(IEnemyProjectileCues<KraidRockCue> owne
     private protected override AnimationSegments<KraidRockSegment, EnemyProjectileFrameId, KraidRockCue> Segments => KraidRockAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<KraidRockSegment, Animation<KraidRockSegment>> StartingAt => KraidRockAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<KraidRockSegment, Animation<KraidRockSegment>>> StartingAt => KraidRockAnimations.StartingAt;
 }

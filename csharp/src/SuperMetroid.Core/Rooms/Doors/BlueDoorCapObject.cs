@@ -110,6 +110,8 @@ internal sealed class BlueDoorCapObject : DoorCapObject
             case BlueDoorCapPhase.Closed:
                 context.RoomObjects.DeleteObject(place);
                 return;
+            default:
+                throw new InvalidOperationException($"Undefined blue door cap phase {Phase}.");
         }
     }
 

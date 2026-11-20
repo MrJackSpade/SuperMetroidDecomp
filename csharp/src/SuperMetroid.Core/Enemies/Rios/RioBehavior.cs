@@ -170,6 +170,10 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     place,
                     state.Velocity.Y.ToSixteenSixteenDelta());
                 return;
+
+            default:
+                throw new InvalidDataException(
+                    $"Rio has no behaviour for action {state.Action}.");
         }
     }
 
@@ -181,6 +185,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
             case RioCueKind.AnimationFinished:
                 state.Finish.Raise();
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(RioCueKind)} {cue.Kind}.");
         }
     }
 

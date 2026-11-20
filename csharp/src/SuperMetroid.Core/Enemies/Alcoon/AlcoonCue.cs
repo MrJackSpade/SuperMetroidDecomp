@@ -8,18 +8,17 @@ internal abstract record AlcoonCue
     {
     }
 
-    /// <summary>What the function for this case makes of the cue, whichever case it is.</summary>
+    /// <summary>What <paramref name="cases"/> makes of the cue, through the case it is.</summary>
     /// <typeparam name="TResult">What the cue is made into.</typeparam>
-    /// <param name="fire">Makes a <see cref="Fire"/> into the result.</param>
-    /// <param name="signal">Makes a <see cref="Signal"/> into the result.</param>
-    internal abstract TResult Match<TResult>(Func<Fire, TResult> fire, Func<Signal, TResult> signal);
+    /// <param name="cases">What each case of the cue is made into.</param>
+    internal abstract TResult Match<TResult>(AlcoonCueCases<TResult> cases);
 
     /// <summary>Spits a fireball by the cue's launch and plays the fire sound (#2151).</summary>
     /// <param name="Launch">How the fireball leaves: down, straight ahead or up.</param>
     internal sealed record Fire(AlcoonFireballLaunch Launch) : AlcoonCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<Fire, TResult> fire, Func<Signal, TResult> signal) => Ensure.NotNull(fire)(this);
+        internal override TResult Match<TResult>(AlcoonCueCases<TResult> cases) => Ensure.NotNull(cases).Fire(this);
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
@@ -27,6 +26,12 @@ internal abstract record AlcoonCue
     internal sealed record Signal(AlcoonCueKind Kind) : AlcoonCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<Fire, TResult> fire, Func<Signal, TResult> signal) => Ensure.NotNull(signal)(this);
+        internal override TResult Match<TResult>(AlcoonCueCases<TResult> cases) => Ensure.NotNull(cases).Signal(this);
     }
 }
+
+/// <summary>What each case of a <see cref="AlcoonCue"/> is made into (#2553).</summary>
+/// <typeparam name="TResult">What the cue is made into.</typeparam>
+/// <param name="Fire">Makes a <see cref="AlcoonCue.Fire"/> into the result.</param>
+/// <param name="Signal">Makes a <see cref="AlcoonCue.Signal"/> into the result.</param>
+internal sealed record AlcoonCueCases<TResult>(Func<AlcoonCue.Fire, TResult> Fire, Func<AlcoonCue.Signal, TResult> Signal);

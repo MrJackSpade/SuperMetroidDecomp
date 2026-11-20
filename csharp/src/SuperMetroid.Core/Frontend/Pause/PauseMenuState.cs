@@ -630,6 +630,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                     }
                 }
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(PauseEquipmentCategory)} {SelectedControl.Category}.");
         }
     }
 

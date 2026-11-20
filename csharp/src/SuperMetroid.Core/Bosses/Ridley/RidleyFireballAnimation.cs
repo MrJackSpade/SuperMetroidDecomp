@@ -14,6 +14,6 @@ internal sealed class RidleyFireballAnimation(IEnemyProjectileCues<RidleyFirebal
         RidleyFireballAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<RidleyFireballSegment, Animation<RidleyFireballSegment>> StartingAt =>
+    private protected override IEnumerable<KeyValuePair<RidleyFireballSegment, Animation<RidleyFireballSegment>>> StartingAt =>
         RidleyFireballAnimations.StartingAt;
 }

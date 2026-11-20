@@ -12,5 +12,5 @@ public static class EscapeTimerComposition
     public static EscapeTimerGlyph DigitGlyph(int digit) => Ensure.Element(EscapeTimerPresentationDefinitions.DigitGlyphs, digit);
 
     /// <summary>The sheet frame name of a glyph: Label, or Digit.0 through Digit.9.</summary>
-    public static string FrameName(EscapeTimerGlyph glyph) => Ensure.Listed(EscapeTimerPresentationDefinitions.FrameNames, glyph);
+    public static string FrameName(EscapeTimerGlyph glyph) => EscapeTimerPresentationDefinitions.FrameNames[glyph];
 }

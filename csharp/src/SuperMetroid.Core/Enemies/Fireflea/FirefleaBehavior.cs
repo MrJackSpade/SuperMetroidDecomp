@@ -88,6 +88,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (crossedMinimum || reachedMaximum)
                     bobbing.Direction = bobbing.Direction.Reversed();
                 return;
+
+            default:
+                throw new InvalidOperationException($"Undefined Fireflea flight {state.Flight}.");
         }
     }
 

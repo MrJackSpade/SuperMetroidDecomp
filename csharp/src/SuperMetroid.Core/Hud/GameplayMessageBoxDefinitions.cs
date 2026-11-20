@@ -71,8 +71,8 @@ public static class GameplayMessageBoxDefinitions
     /// What each message asks the player to confirm (#2542): the save station's question asks whether to save, the gunship's
     /// asks the same and follows an accepted save with its own completion notice, and every other message asks nothing.
     /// </summary>
-    public static IReadOnlyDictionary<GameplayMessageId, GameplayMessageConfirmation> Confirmations { get; } =
-        new Dictionary<GameplayMessageId, GameplayMessageConfirmation>
+    public static IdentityTable<GameplayMessageId, GameplayMessageConfirmation> Confirmations { get; } =
+        new(new Dictionary<GameplayMessageId, GameplayMessageConfirmation>
     {
         [GameplayMessageId.EnergyTank] = GameplayMessageConfirmation.None,
         [GameplayMessageId.MissileTank] = GameplayMessageConfirmation.None,
@@ -101,7 +101,7 @@ public static class GameplayMessageBoxDefinitions
         [GameplayMessageId.ReserveTank] = GameplayMessageConfirmation.None,
         [GameplayMessageId.GravitySuit] = GameplayMessageConfirmation.None,
         [GameplayMessageId.GunshipSaveConfirmation] = GameplayMessageConfirmation.SaveThenCompletionNotice,
-    };
+    });
 
     /// <summary>Which button an item panel names for its action.</summary>
     public static class Buttons

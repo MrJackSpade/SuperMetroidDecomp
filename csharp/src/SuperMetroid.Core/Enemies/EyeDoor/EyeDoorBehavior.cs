@@ -63,6 +63,10 @@ internal sealed class EyeDoorBehavior
                 InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.CenteredSmokeAnimation,
                     EyeDoorEffectDefinitions.CenteredSmokePlacement, block);
                 return;
+
+            default:
+                throw new InvalidOperationException(
+                    $"Eye-door projectile definition {request.Definition} escaped its setup step.");
         }
     }
 

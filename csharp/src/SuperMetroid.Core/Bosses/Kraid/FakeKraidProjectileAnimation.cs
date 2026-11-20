@@ -13,7 +13,7 @@ internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
     private protected override AnimationSegments<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> Segments => PoseSegments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<FakeKraidProjectilePose, Animation<FakeKraidProjectilePose>> StartingAt => PoseAnimations;
+    private protected override IEnumerable<KeyValuePair<FakeKraidProjectilePose, Animation<FakeKraidProjectilePose>>> StartingAt => PoseAnimations;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(FakeKraidProjectilePose frame) =>

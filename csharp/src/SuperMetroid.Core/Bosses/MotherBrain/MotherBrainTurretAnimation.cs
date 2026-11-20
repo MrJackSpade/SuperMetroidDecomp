@@ -14,6 +14,6 @@ internal sealed class MotherBrainTurretAnimation(IEnemyProjectileCues<MotherBrai
         MotherBrainTurretAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<MotherBrainTurretPose, Animation<MotherBrainTurretPose>> StartingAt =>
+    private protected override IEnumerable<KeyValuePair<MotherBrainTurretPose, Animation<MotherBrainTurretPose>>> StartingAt =>
         MotherBrainTurretAnimations.StartingAt;
 }

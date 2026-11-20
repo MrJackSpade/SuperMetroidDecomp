@@ -8,40 +8,45 @@ internal abstract record FakeKraidCue
     {
     }
 
-    /// <summary>What the function for this case makes of the cue, whichever case it is.</summary>
+    /// <summary>What <paramref name="cases"/> makes of the cue, through the case it is.</summary>
     /// <typeparam name="TResult">What the cue is made into.</typeparam>
-    /// <param name="spit">Makes a <see cref="Spit"/> into the result.</param>
-    /// <param name="chooseAction">Makes a <see cref="ChooseAction"/> into the result.</param>
-    /// <param name="move">Makes a <see cref="Move"/> into the result.</param>
-    /// <param name="playCrySound">Makes a <see cref="PlayCrySound"/> into the result.</param>
-    internal abstract TResult Match<TResult>(Func<Spit, TResult> spit, Func<ChooseAction, TResult> chooseAction, Func<Move, TResult> move, Func<PlayCrySound, TResult> playCrySound);
+    /// <param name="cases">What each case of the cue is made into.</param>
+    internal abstract TResult Match<TResult>(FakeKraidCueCases<TResult> cases);
 
     /// <summary>Spits a pair of projectiles the cue's way (#2163).</summary>
     /// <param name="Direction">The way the spit flies.</param>
     internal sealed record Spit(HorizontalDirection Direction) : FakeKraidCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<Spit, TResult> spit, Func<ChooseAction, TResult> chooseAction, Func<Move, TResult> move, Func<PlayCrySound, TResult> playCrySound) => Ensure.NotNull(spit)(this);
+        internal override TResult Match<TResult>(FakeKraidCueCases<TResult> cases) => Ensure.NotNull(cases).Spit(this);
     }
 
     /// <summary>Continues at the step or spit animation his wait between spits and his facing select.</summary>
     internal sealed record ChooseAction : FakeKraidCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<Spit, TResult> spit, Func<ChooseAction, TResult> chooseAction, Func<Move, TResult> move, Func<PlayCrySound, TResult> playCrySound) => Ensure.NotNull(chooseAction)(this);
+        internal override TResult Match<TResult>(FakeKraidCueCases<TResult> cases) => Ensure.NotNull(cases).ChooseAction(this);
     }
 
     /// <summary>Walks one step (<see cref="FakeKraidProjectileDefinitions.StepPixels"/>) unless the walk's last step turns him round, then faces Samus.</summary>
     internal sealed record Move : FakeKraidCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<Spit, TResult> spit, Func<ChooseAction, TResult> chooseAction, Func<Move, TResult> move, Func<PlayCrySound, TResult> playCrySound) => Ensure.NotNull(move)(this);
+        internal override TResult Match<TResult>(FakeKraidCueCases<TResult> cases) => Ensure.NotNull(cases).Move(this);
     }
 
     /// <summary>Queues Fake Kraid's cry while he is on screen.</summary>
     internal sealed record PlayCrySound : FakeKraidCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<Spit, TResult> spit, Func<ChooseAction, TResult> chooseAction, Func<Move, TResult> move, Func<PlayCrySound, TResult> playCrySound) => Ensure.NotNull(playCrySound)(this);
+        internal override TResult Match<TResult>(FakeKraidCueCases<TResult> cases) => Ensure.NotNull(cases).PlayCrySound(this);
     }
 }
+
+/// <summary>What each case of a <see cref="FakeKraidCue"/> is made into (#2553).</summary>
+/// <typeparam name="TResult">What the cue is made into.</typeparam>
+/// <param name="Spit">Makes a <see cref="FakeKraidCue.Spit"/> into the result.</param>
+/// <param name="ChooseAction">Makes a <see cref="FakeKraidCue.ChooseAction"/> into the result.</param>
+/// <param name="Move">Makes a <see cref="FakeKraidCue.Move"/> into the result.</param>
+/// <param name="PlayCrySound">Makes a <see cref="FakeKraidCue.PlayCrySound"/> into the result.</param>
+internal sealed record FakeKraidCueCases<TResult>(Func<FakeKraidCue.Spit, TResult> Spit, Func<FakeKraidCue.ChooseAction, TResult> ChooseAction, Func<FakeKraidCue.Move, TResult> Move, Func<FakeKraidCue.PlayCrySound, TResult> PlayCrySound);

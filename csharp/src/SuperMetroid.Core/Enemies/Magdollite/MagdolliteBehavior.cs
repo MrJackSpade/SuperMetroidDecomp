@@ -165,6 +165,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
             case MagdolliteHeadAction.Surfaced:
                 IdleMagdolliteHead(place, state, samus);
                 return;
+            default:
+                throw new InvalidDataException(
+                    $"Magdollite head has no behaviour for action {state.Action}.");
         }
     }
 
@@ -186,6 +189,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
             case MagdolliteBodyAction.Falling:
                 RunMagdolliteBodyFalling(place, state);
                 return;
+            default:
+                throw new InvalidDataException(
+                    $"Magdollite body has no behaviour for action {state.Action}.");
         }
     }
 
@@ -210,6 +216,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
             case MagdolliteOverlayAction.TrackingFallingBody:
                 RunMagdolliteOverlayTrackingFall(place, state);
                 return;
+            default:
+                throw new InvalidDataException(
+                    $"Magdollite overlay has no behaviour for action {state.Action}.");
         }
     }
 
@@ -551,6 +560,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.StartCooldown }:
                 place.RequireSpeciesState<MagdolliteOverlayState>().AttackCooldown = UpdateCountdown.Lasting(MagdolliteMotionDefinitions.AttackCooldown);
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(MagdolliteCue)} {cue}.");
         }
     }
 
@@ -625,6 +636,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
                         EnemyDefinitionId.Magdollite,
                         context.Samus);
                     break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(MagdolliteLavaCueKind)} {cue.Kind}.");
             }
         }
     }

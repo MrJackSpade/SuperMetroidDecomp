@@ -12,6 +12,6 @@ internal sealed class MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment segm
         MotherBrainTopTubeAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<MotherBrainTopTubeSegment, Animation<MotherBrainTopTubeSegment>> StartingAt =>
+    private protected override IEnumerable<KeyValuePair<MotherBrainTopTubeSegment, Animation<MotherBrainTopTubeSegment>>> StartingAt =>
         MotherBrainTopTubeAnimations.StartingAt;
 }

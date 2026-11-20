@@ -135,6 +135,8 @@ internal sealed class IntroNarrationActors
                 // eye's next update.
                 eye.StartKeepingShown(IntroEyeAnimations.StartingWith(IntroEyeSegment.FinalPageClosing));
                 return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(IntroNarrationPageOpening)} {opening}.");
         }
     }
 
@@ -222,6 +224,8 @@ internal sealed class IntroNarrationActors
                 narrationAnimation = null;
                 narrationPage = null;
                 return;
+            default:
+                throw new InvalidOperationException($"Undefined narration typing cue {cue}.");
         }
     }
 

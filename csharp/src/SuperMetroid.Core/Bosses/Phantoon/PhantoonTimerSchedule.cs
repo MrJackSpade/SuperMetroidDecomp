@@ -43,7 +43,7 @@ public sealed class PhantoonTimerSchedule
         : throw new ArgumentException($"A Phantoon timer's draw reads {PickCount} values, not {field.Outcomes}.", nameof(field));
 
     /// <summary>The duration of each length.</summary>
-    private static IdentityTable<PhantoonTimerLength, int> DurationByLength => field ??= new(new Dictionary<PhantoonTimerLength, int>
+    private IdentityTable<PhantoonTimerLength, int> DurationByLength => field ??= new(new Dictionary<PhantoonTimerLength, int>
     {
         [PhantoonTimerLength.Short] = Durations.Short,
         [PhantoonTimerLength.Medium] = Durations.Medium,

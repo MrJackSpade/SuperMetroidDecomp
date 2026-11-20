@@ -181,6 +181,8 @@ public sealed class SamusSuitPickupState
             case SamusSuitPickupStage.Finish:
                 Finish(samus);
                 break;
+            default:
+                throw new InvalidDataException($"Unknown suit-pickup stage {Stage}.");
         }
         LeaveProgress(samus);
     }
@@ -206,6 +208,8 @@ public sealed class SamusSuitPickupState
             case SamusSuitPickupStage.Finish:
                 samus.SparkCarryover.LeaveEdges(Stage, _lightBeamLeft, _lightBeamRight);
                 break;
+            default:
+                throw new InvalidDataException($"Unknown suit-pickup stage {Stage}.");
         }
         samus.EscapeAndDrainCount.LeaveSuitPickupStage(Stage);
     }

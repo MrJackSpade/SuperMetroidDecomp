@@ -30,7 +30,7 @@ internal sealed class NoobTubeProjectileAnimation
     private protected override AnimationSegments<NoobTubeProjectileSegment, NoobTubeProjectileFrame, NoobTubeProjectileCue> Segments => NoobTubeProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<NoobTubeProjectileSegment, Animation<NoobTubeProjectileSegment>> StartingAt => NoobTubeProjectileAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<NoobTubeProjectileSegment, Animation<NoobTubeProjectileSegment>>> StartingAt => NoobTubeProjectileAnimations.StartingAt;
 
     /// <summary>The segment <paramref name="started"/> starts at: a shard's flight, or the segment the crack's or a bubble's is keyed by.</summary>
     private protected override NoobTubeProjectileSegment SegmentStartedAt(Animation<NoobTubeProjectileSegment> started) =>

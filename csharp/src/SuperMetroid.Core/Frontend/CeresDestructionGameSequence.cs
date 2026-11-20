@@ -44,6 +44,8 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session) : IG
             case CeresDestructionOutcome.SamusAboard:
                 StepWithSamusAboard(controllerInput);
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(CeresDestructionOutcome)} {session.CeresDestructionOutcome}.");
         }
     }
 

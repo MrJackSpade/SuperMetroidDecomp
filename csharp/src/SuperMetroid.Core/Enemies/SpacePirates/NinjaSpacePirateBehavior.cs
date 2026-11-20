@@ -123,6 +123,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             case NinjaSpacePirateAction.DivekickWalkToPost:
                 StepNinjaPirateWalkToPost(place, state, state.Heading);
                 return;
+            default:
+                throw new InvalidDataException(
+                    $"Ninja Space Pirate has no behaviour for action {state.Action}.");
         }
     }
 
@@ -490,37 +493,37 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemyPlace place, NinjaSpacePirateCue cue, SamusState samus)
     {
         NinjaSpacePirateEnemyState state = place.RequireSpeciesState<NinjaSpacePirateEnemyState>();
-        return cue.Match<NinjaSpacePirateSegment?>(
-            playSound: playSound =>
+        return cue.Match(new NinjaSpacePirateCueCases<NinjaSpacePirateSegment?>(
+            PlaySound: playSound =>
             {
                 Walking.RequestSpacePirateSound(playSound.Sound);
                 return null;
             },
-            setShading: setShading =>
+            SetShading: setShading =>
             {
                 place.Shading = setShading.Shading;
                 return null;
             },
-            throwClaw: throwClaw =>
+            ThrowClaw: throwClaw =>
             {
                 SpawnNinjaPirateClaw(place, throwClaw.Throw, throwClaw.Offset);
                 return null;
             },
-            begin: begin =>
+            Begin: begin =>
             {
                 // The animation does not jump to the move it begins: main AI runs it from the next update, as the
                 // animation runs on.
                 state.Action = begin.Action;
                 return null;
             },
-            beginHeading: begin =>
+            BeginHeading: begin =>
             {
                 // As a plain begin, main AI runs the move from the next update, the cue's way (#2165).
                 state.Action = begin.Action;
                 state.Heading = begin.Heading;
                 return null;
             },
-            signal: signal => NinjaSignals[signal.Kind](place, state, samus));
+            Signal: signal => NinjaSignals[signal.Kind](place, state, samus)));
     }
 
     /// <summary>What each of the ninja Space Pirates' signals does, and the animation it continues at, or null to run on.</summary>

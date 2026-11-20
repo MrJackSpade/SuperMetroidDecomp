@@ -130,6 +130,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             case ShaktoolSegmentMotion.DriveTailAndReverseAtWalls:
                 DriveShaktoolTail(place, state, level);
                 return;
+
+            default:
+                throw new InvalidDataException(
+                    $"Shaktool has no motion {state.Motion}.");
         }
     }
 
@@ -269,6 +273,9 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The chain curls again, and the next wall reverses its orbit (#2284).
                 chain.Motion = motion with { Phase = ShaktoolChainPhase.Curling, NextWall = ShaktoolWallResponse.ReverseOrbit };
                 break;
+
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(ShaktoolWallResponse)} {motion.NextWall}.");
         }
 
         state.ResetOrientation();
@@ -413,6 +420,9 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
                     RequireShaktoolState(segment.Place).Motion = segment.Definition.Motion;
                 break;
             }
+
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(ShaktoolCueKind)} {cue.Kind}.");
         }
     }
 

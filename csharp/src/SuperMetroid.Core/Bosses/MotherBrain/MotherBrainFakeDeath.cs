@@ -128,6 +128,8 @@ internal sealed class MotherBrainFakeDeath
                 case MotherBrainMainTubeDrop:
                     SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.Main);
                     break;
+                default:
+                    throw new InvalidOperationException($"Mother Brain's tube collapse cannot drop {drop}.");
             }
             state.TubeCollapse = new(tube, MotherBrainTubeDropStage.Fallen);
             return;
@@ -205,6 +207,9 @@ internal sealed class MotherBrainFakeDeath
             case MotherBrainTubeAction.Falling:
                 FallMotherBrainMainTube(tube);
                 return;
+            default:
+                throw new InvalidDataException(
+                    $"Mother Brain falling tube has no behaviour for action {tubeState.Action}.");
         }
     }
 

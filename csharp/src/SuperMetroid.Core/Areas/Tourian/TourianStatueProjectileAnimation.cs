@@ -13,5 +13,5 @@ internal sealed class TourianStatueProjectileAnimation(IEnemyProjectileCues<Tour
     private protected override AnimationSegments<TourianStatueProjectileSegment, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments => TourianStatueProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<TourianStatueProjectileSegment, Animation<TourianStatueProjectileSegment>> StartingAt => TourianStatueProjectileAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<TourianStatueProjectileSegment, Animation<TourianStatueProjectileSegment>>> StartingAt => TourianStatueProjectileAnimations.StartingAt;
 }

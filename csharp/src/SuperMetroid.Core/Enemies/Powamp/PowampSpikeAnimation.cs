@@ -11,5 +11,5 @@ internal sealed class PowampSpikeAnimation(PowampSpikeSegment segment)
     private protected override AnimationSegments<PowampSpikeSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => PowampSpikeAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<PowampSpikeSegment, Animation<PowampSpikeSegment>> StartingAt => PowampSpikeAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<PowampSpikeSegment, Animation<PowampSpikeSegment>>> StartingAt => PowampSpikeAnimations.StartingAt;
 }

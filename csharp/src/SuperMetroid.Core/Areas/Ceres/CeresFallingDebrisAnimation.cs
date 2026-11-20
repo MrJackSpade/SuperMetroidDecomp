@@ -12,7 +12,7 @@ internal sealed class CeresFallingDebrisAnimation(CeresFallingDebrisSegment segm
     private protected override AnimationSegments<CeresFallingDebrisSegment, CeresFallingDebrisLook, NoAnimationCue> Segments => CeresFallingDebrisAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<CeresFallingDebrisSegment, Animation<CeresFallingDebrisSegment>> StartingAt => CeresFallingDebrisAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<CeresFallingDebrisSegment, Animation<CeresFallingDebrisSegment>>> StartingAt => CeresFallingDebrisAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(CeresFallingDebrisLook frame) =>

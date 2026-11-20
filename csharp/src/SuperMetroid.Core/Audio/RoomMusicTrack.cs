@@ -11,20 +11,15 @@ public abstract record RoomMusicTrack
     {
     }
 
-    /// <summary>
-    /// Whether entering the room queues the choice, with <paramref name="playing"/> playing from <paramref name="loaded"/>
-    /// and <paramref name="dataSetDiffers"/> telling whether the room changes the data set.
-    /// </summary>
-    /// <param name="dataSetDiffers">Whether the room changes the music data set.</param>
-    /// <param name="playing">The track that plays, or null when none does.</param>
-    /// <param name="loaded">The music data set loaded, or null when none is.</param>
-    internal abstract bool Queues(bool dataSetDiffers, MusicTrack? playing, MusicDataSet? loaded);
+    /// <summary>Whether entering the room queues the choice, with the music standing as <paramref name="entry"/> finds it.</summary>
+    /// <param name="entry">The music as the room's entry finds it.</param>
+    internal abstract bool Queues(RoomMusicEntry entry);
 
     /// <summary>Keeps the track that plays, through every door into the room (the Ceres escape relies on it).</summary>
     public sealed record Inherit : RoomMusicTrack
     {
         /// <inheritdoc/>
-        internal override bool Queues(bool dataSetDiffers, MusicTrack? playing, MusicDataSet? loaded) => false;
+        internal override bool Queues(RoomMusicEntry entry) => false;
     }
 
     /// <summary>Plays <paramref name="Track"/>, queued only when it is not already playing or the room changes the data set.</summary>
@@ -32,7 +27,7 @@ public abstract record RoomMusicTrack
     public sealed record Play(MusicTrack Track) : RoomMusicTrack
     {
         /// <inheritdoc/>
-        internal override bool Queues(bool dataSetDiffers, MusicTrack? playing, MusicDataSet? loaded) => dataSetDiffers || Track != playing;
+        internal override bool Queues(RoomMusicEntry entry) => entry.DataSetDiffers || Track != entry.Playing;
     }
 
     /// <summary>
@@ -44,8 +39,8 @@ public abstract record RoomMusicTrack
     {
         /// <inheritdoc/>
         /// <remarks>With no data set loaded no area theme can play, so the choice is queued.</remarks>
-        internal override bool Queues(bool dataSetDiffers, MusicTrack? playing, MusicDataSet? loaded) =>
-            dataSetDiffers || loaded is not MusicDataSet set || AreaThemeDefinitions.Themes[set] != playing;
+        internal override bool Queues(RoomMusicEntry entry) =>
+            entry.DataSetDiffers || entry.Loaded is not MusicDataSet set || AreaThemeDefinitions.Themes[set] != entry.Playing;
     }
 
     /// <summary>
@@ -55,7 +50,7 @@ public abstract record RoomMusicTrack
     public sealed record Silence : RoomMusicTrack
     {
         /// <inheritdoc/>
-        internal override bool Queues(bool dataSetDiffers, MusicTrack? playing, MusicDataSet? loaded) => true;
+        internal override bool Queues(RoomMusicEntry entry) => true;
     }
 
     /// <summary>

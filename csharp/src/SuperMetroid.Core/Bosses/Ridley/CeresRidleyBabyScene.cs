@@ -105,25 +105,21 @@ internal sealed class CeresRidleyBabyScene
                 ? new AnimationContinuation<CeresBabySegment>(CeresBabyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         baby.Playback = new AnimationPlayback<CeresBabySegment>(animation, place);
-        switch (outcome)
-        {
-            case AnimationShown<CeresBabySegment, CeresBabyPose>.Frame shown:
+        outcome.React(new AnimationShownReactions<CeresBabySegment, CeresBabyPose>(
+            Frame: shown =>
+            {
                 baby.Clock.Show(shown.Duration);
                 baby.ShownPose = shown.Shown;
-                return;
-            case AnimationShown<CeresBabySegment, CeresBabyPose>.HeldFrame held:
+            },
+            HeldFrame: held =>
+            {
                 baby.ShownPose = held.Shown;
                 baby.Clock.ShowForGood();
-                return;
-            case AnimationShown<CeresBabySegment, CeresBabyPose>.Paused paused:
-                baby.Clock.Pause(paused.Duration);
-                return;
-            case AnimationShown<CeresBabySegment, CeresBabyPose>.Held:
-            case AnimationShown<CeresBabySegment, CeresBabyPose>.Ended:
-                // A rest or an end keeps the pose shown last; the animation takes no further step.
-                baby.Clock.Stop();
-                return;
-        }
+            },
+            Paused: paused => baby.Clock.Pause(paused.Duration),
+            // A rest or an end keeps the pose shown last; the animation takes no further step.
+            Held: _ => baby.Clock.Stop(),
+            Ended: _ => baby.Clock.Stop()));
     }
 
     /// <summary>The frame the Baby shows for <paramref name="pose"/>, or none before the Baby's first pose.</summary>
@@ -138,14 +134,14 @@ internal sealed class CeresRidleyBabyScene
 
     /// <summary>Carries out one cue of the Baby's animation, returning the segment whose animation its owner starts, or null to play on.</summary>
     private CeresBabySegment? ApplyCeresBabyCue(CeresRidleyState ridley, CeresBabyCue cue) =>
-        cue.Match<CeresBabySegment?>(
-            reactsToMotion: _ => !ridley.Baby.VerticalVelocity.IsZero ? MovingAnimation : null,
-            updateColors: updateColors =>
+        cue.Match(new CeresBabyCueCases<CeresBabySegment?>(
+            ReactsToMotion: _ => !ridley.Baby.VerticalVelocity.IsZero ? MovingAnimation : null,
+            UpdateColors: updateColors =>
             {
                 ridley.Colours.ShowBaby(updateColors.Shade);
                 return null;
             },
-            cries: _ =>
+            Cries: _ =>
             {
                 // While the Baby is falling it always cries and plays on. Otherwise the current random number, read without
                 // drawing a new one, makes it jump silently one time in two.
@@ -153,5 +149,5 @@ internal sealed class CeresRidleyBabyScene
                     return SilentAnimation;
                 _audio.QueueEnemySound(RoomSound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);
                 return null;
-            });
+            }));
 }

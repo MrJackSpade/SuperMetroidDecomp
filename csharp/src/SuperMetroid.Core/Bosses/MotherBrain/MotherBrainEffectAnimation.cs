@@ -13,5 +13,5 @@ internal sealed class MotherBrainEffectAnimation(IEnemyProjectileCues<MotherBrai
     private protected override AnimationSegments<MotherBrainEffectSegment, EnemyProjectileFrameId, MotherBrainEffectCue> Segments => MotherBrainEffectAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<MotherBrainEffectSegment, Animation<MotherBrainEffectSegment>> StartingAt => MotherBrainEffectAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<MotherBrainEffectSegment, Animation<MotherBrainEffectSegment>>> StartingAt => MotherBrainEffectAnimations.StartingAt;
 }

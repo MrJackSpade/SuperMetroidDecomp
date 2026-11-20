@@ -5,7 +5,7 @@ internal static class YardDirections
 {
     /// <summary>The orientation of <paramref name="direction"/>.</summary>
     internal static YardDirectionDefinition ForDirection(YardDirection direction) =>
-        Ensure.Listed(YardDirectionDefinitions.Directions, direction);
+        YardDirectionDefinitions.Directions[direction];
 
     /// <summary>The is on wall of each direction.</summary>
     private static IdentityTable<YardDirection, bool> IsOnWallByDirection => field ??= new(new Dictionary<YardDirection, bool>

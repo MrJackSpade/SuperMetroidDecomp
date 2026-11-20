@@ -493,7 +493,7 @@ internal sealed class RoomLoader
                 "Door-opening scroll lost the source room's view.");
         // The offsets derive from where the foreground stands before setup's first update.
         Position16<RoomPixels> openingForeground = _doorOpeningScroll.CameraPosition +
-            Ensure.Listed(DoorOpeningScrollDefinitions.OpeningForegroundOffsets, direction);
+            DoorOpeningScrollDefinitions.OpeningForegroundOffsets[direction];
         _backgroundScroll.BeginDoorOpeningViews(openingForeground);
         _sourceViewForDoorOpening = null;
         // The source screen stays where it was on the screen, lying where the destination's view begins, while the
@@ -598,6 +598,8 @@ internal sealed class RoomLoader
             case DoorDirection.Down:
             case DoorDirection.Up:
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined door direction {state.Direction}.");
         }
     }
 

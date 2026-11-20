@@ -51,6 +51,8 @@ internal sealed class EndingFlyawayStarsMotion(EndingStarsMotion? motion) : Endi
                 velocity -= EndingMotionDefinitions.StarsFlyawayDeceleration;
                 actor.Position = actor.Position.WithX(actor.Position.X + velocity);
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(EndingStarsMotion)} {Motion}.");
         }
         if (scene.Phase == EndingCreditsPhase.OperationSuccessfulText)
             actor.Delete();

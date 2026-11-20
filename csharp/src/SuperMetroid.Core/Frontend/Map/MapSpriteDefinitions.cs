@@ -18,8 +18,8 @@ public static class MapSpriteDefinitions
         };
 
     /// <summary>Resolves the exact case-sensitive presentation key for a map sprite, preserving semantic roles such as <c>Indicator.Small</c> and <c>World.Crateria</c>.</summary>
-    internal static readonly IReadOnlyDictionary<MapSpriteId, string> Names =
-        new Dictionary<MapSpriteId, string>
+    internal static readonly IdentityTable<MapSpriteId, string> Names =
+        new(new Dictionary<MapSpriteId, string>
         {
             [MapSpriteId.ArrowRight] = "Arrow.Right",
             [MapSpriteId.ArrowLeft] = "Arrow.Left",
@@ -47,5 +47,5 @@ public static class MapSpriteDefinitions
             [MapSpriteId.WorldWreckedShip] = "World.WreckedShip",
             [MapSpriteId.WorldMaridia] = "World.Maridia",
             [MapSpriteId.WorldTourian] = "World.Tourian",
-        };
+        });
 }

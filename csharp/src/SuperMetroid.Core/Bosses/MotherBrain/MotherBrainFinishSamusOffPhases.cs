@@ -178,7 +178,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         [MotherBrainFinishOffPhase.ChargeFinalBeam] = static (phases, samus, frame, requests) => phases.ChargeFinalBeam(),
         [MotherBrainFinishOffPhase.BringInBaby] = static (phases, samus, frame, requests) => phases.BringInBaby(requests),
         [MotherBrainFinishOffPhase.FireFinalBeam] = static (phases, samus, frame, requests) => phases.FireFinalBeam(requests),
-        [MotherBrainFinishOffPhase.FinalBeamHolding] = static (phases, samus, frame, requests) => phases.HoldFinalBeam(),
+        [MotherBrainFinishOffPhase.FinalBeamHolding] = static (phases, samus, frame, requests) => HoldFinalBeam(),
     });
 
     /// <summary>

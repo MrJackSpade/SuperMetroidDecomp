@@ -62,26 +62,20 @@ public sealed class MotherBrainBrainAnimation
         AnimationPlace place = playback.Place;
         AnimationShown<MotherBrainHeadSegment, EnemyFrameId> shown = MotherBrainAnimations.HeadSegments.PlayToNextFrame(ref animation, ref place, react);
         Playback = new AnimationPlayback<MotherBrainHeadSegment>(animation, place);
-        switch (shown)
-        {
-            case AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.Frame frame:
+        shown.React(new AnimationShownReactions<MotherBrainHeadSegment, EnemyFrameId>(
+            Frame: frame =>
+            {
                 ShownFrame = frame.Shown;
                 Clock.Show(frame.Duration);
-                return;
-            case AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.HeldFrame held:
+            },
+            HeldFrame: held =>
+            {
                 ShownFrame = held.Shown;
                 Clock.ShowForGood();
-                return;
-            case AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.Paused paused:
-                Clock.Pause(paused.Duration);
-                return;
-            case AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.Held:
-                Clock.Stop();
-                return;
-            case AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.Ended:
-                // An ended animation takes no further step; her brain keeps the picture it showed last.
-                Clock.Stop();
-                return;
-        }
+            },
+            Paused: paused => Clock.Pause(paused.Duration),
+            Held: _ => Clock.Stop(),
+            // An ended animation takes no further step; her brain keeps the picture it showed last.
+            Ended: _ => Clock.Stop()));
     }
 }

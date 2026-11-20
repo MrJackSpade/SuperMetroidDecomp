@@ -44,6 +44,8 @@ internal static class GunshipLiftoffDust
                 case GunshipDustCue.Delete:
                     context.Projectile.Delete();
                     return;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(GunshipDustCue)} {cue}.");
             }
         }
     }

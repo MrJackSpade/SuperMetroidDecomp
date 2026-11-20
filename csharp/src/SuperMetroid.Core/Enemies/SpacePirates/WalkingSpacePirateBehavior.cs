@@ -63,21 +63,21 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// animation it selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
     private WalkingSpacePirateSegment? ApplyWalkingSpacePirateCue(RoomEnemyPlace place, WalkingSpacePirateCue cue, SamusState samus) =>
-        cue.Match<WalkingSpacePirateSegment?>(
-            fireLaser: fireLaser =>
+        cue.Match(new WalkingSpacePirateCueCases<WalkingSpacePirateSegment?>(
+            FireLaser: fireLaser =>
             {
                 _ = SpawnSpacePirateLaser(place, fireLaser.Direction, fireLaser.LaserHeight,
                     place.SpawnSettings<WalkingSpacePirateSpawnSettings>().LaserSpeed);
                 return null;
             },
-            begin: begin =>
+            Begin: begin =>
             {
                 // The pirate animation does not jump to the stand or walk it begins: main AI runs it from the next
                 // frame, as the animation runs on.
                 RequireWalkingSpacePirateState(place).Action = begin.Action;
                 return null;
             },
-            beginHeading: begin =>
+            BeginHeading: begin =>
             {
                 // As a plain begin, main AI runs the walk from the next frame, the cue's way (#2165).
                 WalkingSpacePirateEnemyState walker = RequireWalkingSpacePirateState(place);
@@ -86,7 +86,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 return null;
             },
             // The walking pirates' one signal chooses their movement.
-            signal: _ => SelectWalkingSpacePirateMovement(place, samus));
+            Signal: _ => SelectWalkingSpacePirateMovement(place, samus)));
 
     /// <summary>
     /// Queues <paramref name="sound"/> as a space pirate makes it, after the update's earlier requests: walking, wall and
@@ -134,6 +134,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             case WalkingSpacePirateAction.Walking:
                 RunWalkingSpacePirateRight(place, state, samus, level);
                 break;
+
+            default:
+                throw new InvalidDataException(
+                    $"Walking Space Pirate has no behaviour for action {state.Action}.");
         }
 
         // A pirate placed to flinch looks for Samus's shots after its normal AI, and a flinch may replace an animation

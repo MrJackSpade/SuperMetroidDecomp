@@ -442,6 +442,10 @@ public sealed class SamusHorizontalSpeedState
                 SecondSpeedEchoPosition = position;
                 SpeedEchoPhase = SpeedEchoPhase.CapturingFirst;
                 break;
+            case SpeedEchoPhase.Departing:
+                throw new InvalidOperationException("Departing echoes are not captured.");
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(SpeedEchoPhase)} {SpeedEchoPhase}.");
         }
 
         return true;
@@ -656,7 +660,7 @@ public sealed class SamusHorizontalSpeedState
     private SamusHorizontalSpeeds Speeds(SamusMovementType movementType) =>
         SpeedMedium == SamusLiquidMedium.Air && _waterSpeedsInAir.TryRead(movementType, out SamusHorizontalSpeeds waterSpeeds)
             ? waterSpeeds
-            : Ensure.Listed(Ensure.Listed(SamusHorizontalSpeedDefinitions.ByMedium, SpeedMedium), movementType);
+            : Ensure.Listed(SamusHorizontalSpeedDefinitions.ByMedium[SpeedMedium], movementType);
 
     /// <summary>
     /// Calculates the horizontal base speed and returns its

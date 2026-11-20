@@ -14,6 +14,6 @@ internal sealed class PhantoonFlameAnimation(IEnemyProjectileCues<PhantoonFlameC
         PhantoonFlameAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>> StartingAt =>
+    private protected override IEnumerable<KeyValuePair<PhantoonFlameSegment, Animation<PhantoonFlameSegment>>> StartingAt =>
         PhantoonFlameAnimations.StartingAt;
 }

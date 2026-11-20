@@ -69,6 +69,9 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             case WreckedShipGhostAction.TrackingSamusForSpawn:
                 RunWreckedShipGhostTracking(place, state, samus);
                 break;
+            default:
+                throw new InvalidDataException(
+                    $"Wrecked Ship ghost has no behaviour for action {state.Action}.");
         }
     }
 

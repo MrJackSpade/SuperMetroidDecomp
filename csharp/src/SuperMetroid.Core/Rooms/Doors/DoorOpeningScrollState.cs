@@ -59,14 +59,14 @@ internal sealed class DoorOpeningScrollState
         DoorDirection direction = door.Orientation.Direction;
         FixedPosition<RoomPixels> samus = RebaseSamus(door, ApplySetupMovement(door, sourceSamus));
 
-        Offset16<BackgroundPixels> backgroundSetup = Ensure.Listed(DoorOpeningScrollDefinitions.SetupBackgroundOffsets, direction);
+        Offset16<BackgroundPixels> backgroundSetup = DoorOpeningScrollDefinitions.SetupBackgroundOffsets[direction];
 
         return new DoorOpeningScrollState(new DoorOpeningScrollSetup { Direction = direction, SamusScrollStep = GetSamusStep(door), ScrollUpdates = MovingScrollUpdates(direction), CameraPosition = GetSetupCamera(door), BackgroundPosition = finalBackground + backgroundSetup, SamusPosition = samus, FinalCameraPosition = finalCamera });
     }
 
     /// <summary>The scroll updates that remain after setup (<see cref="DoorOpeningScrollDefinitions.MovingScrollUpdates"/>).</summary>
     internal static int MovingScrollUpdates(DoorDirection direction) =>
-        Ensure.Listed(DoorOpeningScrollDefinitions.MovingScrollUpdates, direction);
+        DoorOpeningScrollDefinitions.MovingScrollUpdates[direction];
 
     /// <summary>The room-pixel origin of the door's destination screen.</summary>
     internal static Position16<RoomPixels> GetDestination(DoorDefinition door) =>
@@ -74,7 +74,7 @@ internal sealed class DoorOpeningScrollState
 
     /// <summary>Where the camera stands after the scroll setup's first update.</summary>
     internal static Position16<RoomPixels> GetSetupCamera(DoorDefinition door) =>
-        GetDestination(door) + Ensure.Listed(DoorOpeningScrollDefinitions.SetupCameraOffsets, door.Orientation.Direction);
+        GetDestination(door) + DoorOpeningScrollDefinitions.SetupCameraOffsets[door.Orientation.Direction];
 
     /// <summary>
     /// The door setup places Samus at the setup camera plus her place within the screen she stood in, on both axes,

@@ -199,6 +199,8 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                             return MessageBoxStep.NothingAsked.Instance;
                         case SaveChoiceInputCadence.Update.ReadsController:
                             break;
+                        default:
+                            throw new InvalidOperationException("Undefined save-choice update.");
                     }
                     _controller.Latch(controllerInput);
                     // A confirms the highlighted choice, then B cancels; only a press with
@@ -307,7 +309,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
 
     /// <summary>What <paramref name="messageId"/> asks the player to confirm.</summary>
     private static GameplayMessageConfirmation ConfirmationOf(GameplayMessageId messageId) =>
-        Ensure.Listed(GameplayMessageBoxDefinitions.Confirmations, messageId);
+        GameplayMessageBoxDefinitions.Confirmations[messageId];
 
     /// <summary>
     /// The button <paramref name="messageId"/>'s panel names: the configured Shoot or Run binding's, as the glyph shows it;

@@ -14,5 +14,5 @@ internal sealed class EyeDoorProjectileAnimation(IEnemyProjectileCues<EyeDoorPro
     private protected override AnimationSegments<EyeDoorProjectileSegment, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments => EyeDoorProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<EyeDoorProjectileSegment, Animation<EyeDoorProjectileSegment>> StartingAt => EyeDoorProjectileAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<EyeDoorProjectileSegment, Animation<EyeDoorProjectileSegment>>> StartingAt => EyeDoorProjectileAnimations.StartingAt;
 }

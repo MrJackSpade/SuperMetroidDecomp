@@ -11,5 +11,5 @@ internal sealed class DragonFireballAnimation(DragonFireballSegment segment)
     private protected override AnimationSegments<DragonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => DragonFireballAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<DragonFireballSegment, Animation<DragonFireballSegment>> StartingAt => DragonFireballAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<DragonFireballSegment, Animation<DragonFireballSegment>>> StartingAt => DragonFireballAnimations.StartingAt;
 }

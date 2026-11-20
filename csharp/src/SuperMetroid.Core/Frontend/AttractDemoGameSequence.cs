@@ -53,6 +53,8 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IGamePh
             case AttractDemoStep.Routing:
                 Route();
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(AttractDemoStep)} {session.AttractDemoStep}.");
         }
     }
 

@@ -10,11 +10,11 @@ public static class GameOptionsNames
 {
     /// <summary>The name the pictures of options page <paramref name="page"/> are filed under.</summary>
     public static string PageName(GameOptionsScreen page) =>
-        Ensure.Listed(GameOptionsPresentationDefinitions.PageNames, page);
+        GameOptionsPresentationDefinitions.PageNames[page];
 
     /// <summary>The JSON name of a menu layout's heading sprite.</summary>
     internal static string HeadingSpriteName(GameOptionsPage page) =>
-        Ensure.Listed(GameOptionsPresentationDefinitions.HeadingSpriteNames, page);
+        GameOptionsPresentationDefinitions.HeadingSpriteNames[page];
 
 
     /// <summary>The JSON name of an assignable button's glyph.</summary>
@@ -23,7 +23,7 @@ public static class GameOptionsNames
 
     /// <summary>The JSON name of a special setting's visual.</summary>
     public static string ToggleName(GameOptionsToggle toggle) =>
-        Ensure.Listed(GameOptionsPresentationDefinitions.ToggleNames, toggle);
+        GameOptionsPresentationDefinitions.ToggleNames[toggle];
 
 
     /// <summary>The menus' picture of the options screen's backdrop page (#1467).</summary>
@@ -40,7 +40,7 @@ public static class GameOptionsNames
 
     /// <summary>The menus' picture of controller action <paramref name="action"/>'s label naming <paramref name="button"/> (#1467, #1985).</summary>
     public static string ControllerLabelFrame(ControllerAction action, ControllerButton button) =>
-        $"Options.Controller.{Ensure.Listed(GameOptionsPresentationDefinitions.ControllerActionNames, action)}.{ControllerLabelName(button)}";
+        $"Options.Controller.{GameOptionsPresentationDefinitions.ControllerActionNames[action]}.{ControllerLabelName(button)}";
 
     /// <summary>
     /// The menus' picture of <paramref name="toggle"/>'s two choices on <paramref name="page"/>, the enabled one or the

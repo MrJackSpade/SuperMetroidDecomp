@@ -80,6 +80,10 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             case WallSpacePirateAction.WallJumping:
                 StepWallSpacePirateJump(place, state, direction: state.Wall);
                 return;
+
+            default:
+                throw new InvalidDataException(
+                    $"Wall Space Pirate has no behaviour for action {state.Action}.");
         }
     }
 
@@ -216,36 +220,36 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     private WallSpacePirateSegment? ApplyWallSpacePirateCue(RoomEnemyPlace place, WallSpacePirateCue cue, RoomLevelData level)
     {
         WallSpacePirateEnemyState state = place.RequireSpeciesState<WallSpacePirateEnemyState>();
-        return cue.Match<WallSpacePirateSegment?>(
-            climb: climb => MoveWallSpacePirateAndReverseOnCollision(place, state, level, climb.ClimbPixels, wall: climb.Wall),
-            chooseClimb: choose => RandomizeWallSpacePirateClimbDirection(state, wall: choose.Wall),
-            fireLaser: laser =>
+        return cue.Match(new WallSpacePirateCueCases<WallSpacePirateSegment?>(
+            Climb: climb => MoveWallSpacePirateAndReverseOnCollision(place, state, level, climb.ClimbPixels, wall: climb.Wall),
+            ChooseClimb: choose => RandomizeWallSpacePirateClimbDirection(state, wall: choose.Wall),
+            FireLaser: laser =>
             {
                 FireWallSpacePirateLaser(place, direction: laser.Direction);
                 return null;
             },
-            prepareJump: jump =>
+            PrepareJump: jump =>
             {
                 PrepareWallSpacePirateJump(place, state, direction: jump.Direction);
                 return null;
             },
-            begin: begin =>
+            Begin: begin =>
             {
                 state.Action = begin.Action;
                 return null;
             },
-            beginOnWall: begin =>
+            BeginOnWall: begin =>
             {
                 state.Action = begin.Action;
                 state.Wall = begin.Wall;
                 return null;
             },
             // The wall pirates' one signal plays their jump's sound.
-            signal: _ =>
+            Signal: _ =>
             {
                 Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateJumpSound);
                 return null;
-            });
+            }));
     }
 
     /// <summary>Runs the wall Space Pirate's main AI.</summary>

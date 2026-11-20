@@ -465,6 +465,9 @@ public sealed class SamusXrayState
                 if (TimeIsFrozen)
                     Finish(samus);
                 break;
+
+            default:
+                throw new InvalidOperationException($"Unknown active X-ray beam phase {BeamPhase}.");
         }
 
         return SnapshotBeamStep(

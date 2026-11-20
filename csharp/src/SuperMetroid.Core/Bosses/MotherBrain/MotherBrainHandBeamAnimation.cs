@@ -14,6 +14,6 @@ internal sealed class MotherBrainHandBeamAnimation(IEnemyProjectileCues<MotherBr
         MotherBrainHandBeamAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<MotherBrainHandBeamSegment, Animation<MotherBrainHandBeamSegment>> StartingAt =>
+    private protected override IEnumerable<KeyValuePair<MotherBrainHandBeamSegment, Animation<MotherBrainHandBeamSegment>>> StartingAt =>
         MotherBrainHandBeamAnimations.StartingAt;
 }

@@ -13,5 +13,5 @@ internal sealed class SpacePirateProjectileAnimation(IEnemyProjectileCues<SpaceP
     private protected override AnimationSegments<SpacePirateProjectileSegment, EnemyProjectileFrameId, SpacePirateProjectileCue> Segments => SpacePirateProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<SpacePirateProjectileSegment, Animation<SpacePirateProjectileSegment>> StartingAt => SpacePirateProjectileAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<SpacePirateProjectileSegment, Animation<SpacePirateProjectileSegment>>> StartingAt => SpacePirateProjectileAnimations.StartingAt;
 }

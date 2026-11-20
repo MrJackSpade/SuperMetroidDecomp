@@ -30,6 +30,6 @@ internal sealed class BotwoonSegmentAnimation : EnemyProjectileSilentFrameAnimat
         BotwoonAnimations.BodySegments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<BotwoonBodyAnimationSegment, Animation<BotwoonBodyAnimationSegment>> StartingAt =>
+    private protected override IEnumerable<KeyValuePair<BotwoonBodyAnimationSegment, Animation<BotwoonBodyAnimationSegment>>> StartingAt =>
         BotwoonAnimations.BodyStartingAt;
 }

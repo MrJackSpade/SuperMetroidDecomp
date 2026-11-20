@@ -111,6 +111,8 @@ internal sealed class RoomObjectFramePhase
                 case BombTorizoStatueProjectileRequest fragment:
                     room.Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(fragment);
                     break;
+                default:
+                    throw new InvalidDataException($"A room object threw the undefined projectile {thrown}.");
             }
         }
     }

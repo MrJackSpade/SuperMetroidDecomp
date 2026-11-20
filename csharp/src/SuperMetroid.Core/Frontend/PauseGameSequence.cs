@@ -99,6 +99,8 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
             case PauseStep.BrighteningGameplay:
                 BrightenGameplay(controllerInput);
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(PauseStep)} {session.PauseStep}.");
         }
     }
 

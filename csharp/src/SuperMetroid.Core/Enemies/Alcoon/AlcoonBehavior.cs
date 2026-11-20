@@ -42,14 +42,14 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// walk always continues at the walk for the Alcoon's facing, and a stride that meets a wall turns it round to the other walk.
     /// </summary>
     private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue) =>
-        cue.Match(
-            fire: fire =>
+        cue.Match(new AlcoonCueCases<AnimationContinuation<AlcoonSegment>?>(
+            Fire: fire =>
             {
                 SpawnAlcoonFireball(place, fire.Launch);
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
                 return (AnimationContinuation<AlcoonSegment>?)null;
             },
-            signal: signal => AlcoonSignals[signal.Kind](place, state, level));
+            Signal: signal => AlcoonSignals[signal.Kind](place, state, level)));
 
     /// <summary>What each of the Alcoon's signals does, and the animation it continues at, or null to run on.</summary>
     private IdentityTable<AlcoonCueKind, Func<RoomEnemyPlace, AlcoonEnemyState, RoomLevelData, AnimationContinuation<AlcoonSegment>?>> AlcoonSignals => field ??=
@@ -133,6 +133,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             case AlcoonAction.HidingFalling:
                 RunAlcoonHidingFall(place, state);
                 return;
+            default:
+                throw new InvalidDataException(
+                    $"Alcoon has no behaviour for action {state.Action}.");
         }
     }
 
@@ -322,6 +325,13 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             AnimationPlace.StartOfAnimation);
     }
 
+    /// <summary>The stride an Alcoon walking each way takes.</summary>
+    private static IdentityTable<HorizontalDirection, SignedSixteenSixteen> StrideToward => field ??= new(new Dictionary<HorizontalDirection, SignedSixteenSixteen>
+    {
+        [HorizontalDirection.Left] = -AlcoonWalkDefinitions.StrideDistance,
+        [HorizontalDirection.Right] = AlcoonWalkDefinitions.StrideDistance,
+    });
+
     /// <summary>
     /// Implements both movement cues: the animation runs on unless a wall turns the Alcoon
     /// round, when it continues at the other walk's first pose.
@@ -331,12 +341,10 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         AlcoonEnemyState state,
         RoomLevelData level)
     {
-        SignedSixteenSixteen displacement = state.WalkingDirection switch
-        {
-            null => SignedSixteenSixteen.Zero,
-            HorizontalDirection.Left => -AlcoonWalkDefinitions.StrideDistance,
-            _ => AlcoonWalkDefinitions.StrideDistance,
-        };
+        // An Alcoon walking no way moves nowhere; a walk strides its way.
+        SignedSixteenSixteen displacement = state.WalkingDirection is { } walking
+            ? StrideToward[walking]
+            : SignedSixteenSixteen.Zero;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
         {
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, place);

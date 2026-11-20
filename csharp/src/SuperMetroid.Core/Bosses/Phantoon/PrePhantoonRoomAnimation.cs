@@ -34,7 +34,7 @@ internal sealed class PrePhantoonRoomAnimation()
     private protected override AnimationSegments<PrePhantoonRoomSegment, PrePhantoonRoomFrame, NoAnimationCue> Segments => RoomSegments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<PrePhantoonRoomSegment, Animation<PrePhantoonRoomSegment>> StartingAt => RoomStartingAt;
+    private protected override IEnumerable<KeyValuePair<PrePhantoonRoomSegment, Animation<PrePhantoonRoomSegment>>> StartingAt => RoomStartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(PrePhantoonRoomFrame frame) =>

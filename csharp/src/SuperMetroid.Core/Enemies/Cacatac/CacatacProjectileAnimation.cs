@@ -11,5 +11,5 @@ internal sealed class CacatacProjectileAnimation(CacatacSpikeDirection direction
     private protected override AnimationSegments<CacatacSpikeDirection, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => CacatacProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<CacatacSpikeDirection, Animation<CacatacSpikeDirection>> StartingAt => CacatacProjectileAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<CacatacSpikeDirection, Animation<CacatacSpikeDirection>>> StartingAt => CacatacProjectileAnimations.StartingAt;
 }

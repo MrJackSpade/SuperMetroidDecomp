@@ -20,4 +20,18 @@ internal static class SilentAnimationSegments
         where TSegment : struct
         where TFrame : struct =>
         Ensure.NotNull(segments).PlayToNextFrame(animation, ref place, static (NoAnimationCue _) => { });
+
+    /// <summary>
+    /// Plays <paramref name="animation"/> on from <paramref name="place"/> to the next frame it shows, as the other overload
+    /// does, leaving in <paramref name="animation"/> the animation the play stands in.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// The animation passes every beat without showing a frame, or ends a play of a repeated phase it stands in with no
+    /// plays left.
+    /// </exception>
+    internal static AnimationShown<TSegment, TFrame> PlayToNextFrame<TSegment, TFrame>(
+        this AnimationSegments<TSegment, TFrame, NoAnimationCue> segments, ref Animation<TSegment> animation, ref AnimationPlace place)
+        where TSegment : struct
+        where TFrame : struct =>
+        Ensure.NotNull(segments).PlayToNextFrame(ref animation, ref place, static (NoAnimationCue _) => null);
 }

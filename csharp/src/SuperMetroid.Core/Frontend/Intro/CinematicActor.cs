@@ -119,29 +119,23 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
         AnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
             animation, ref place, cue => ApplyCue(cue, ownerCue));
         Playback = new AnimationPlayback<TAnimation>(animation, place);
-        switch (shown)
-        {
-            case AnimationShown<TAnimation, TFrame>.Frame frame:
+        shown.React(new AnimationShownReactions<TAnimation, TFrame>(
+            Frame: frame =>
+            {
                 frameHold.Restart(frame.Duration);
                 Shown = frame.Shown;
-                return;
-            case AnimationShown<TAnimation, TFrame>.HeldFrame rested:
+            },
+            HeldFrame: rested =>
+            {
                 // A held frame shows from now on: the animation plays on no further until its owner starts another.
                 Shown = rested.Shown;
                 held = true;
-                return;
-            case AnimationShown<TAnimation, TFrame>.Held:
-                // A held animation rests on its last frame for good: playing it on again would only hold again.
-                held = true;
-                return;
-            case AnimationShown<TAnimation, TFrame>.Paused paused:
-                // A pause holds the frame shown for its updates before the animation plays on.
-                frameHold.Restart(paused.Duration);
-                return;
-            case AnimationShown<TAnimation, TFrame>.Ended:
-                Delete();
-                return;
-        }
+            },
+            // A pause holds the frame shown for its updates before the animation plays on.
+            Paused: paused => frameHold.Restart(paused.Duration),
+            // A held animation rests on its last frame for good: playing it on again would only hold again.
+            Held: _ => held = true,
+            Ended: _ => Delete()));
     }
 
     /// <summary>Hands the cue to the actor's owner.</summary>

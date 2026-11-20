@@ -66,6 +66,9 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             case MochtroidMovementMode.TouchingSamus:
                 RunMochtroidAttachedFlight(place, state, samus, level);
                 return;
+            default:
+                throw new InvalidDataException(
+                    $"Mochtroid movement {selectedMode} is not one of its two movements.");
         }
     }
 

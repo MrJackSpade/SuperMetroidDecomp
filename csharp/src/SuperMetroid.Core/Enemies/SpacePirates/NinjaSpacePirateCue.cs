@@ -10,22 +10,17 @@ internal abstract record NinjaSpacePirateCue
     {
     }
 
-    /// <summary>What the function for this case makes of the cue, whichever case it is.</summary>
+    /// <summary>What <paramref name="cases"/> makes of the cue, through the case it is.</summary>
     /// <typeparam name="TResult">What the cue is made into.</typeparam>
-    /// <param name="playSound">Makes a <see cref="PlaySound"/> into the result.</param>
-    /// <param name="setShading">Makes a <see cref="SetShading"/> into the result.</param>
-    /// <param name="throwClaw">Makes a <see cref="ThrowClaw"/> into the result.</param>
-    /// <param name="begin">Makes a <see cref="Begin"/> into the result.</param>
-    /// <param name="beginHeading">Makes a <see cref="BeginHeading"/> into the result.</param>
-    /// <param name="signal">Makes a <see cref="Signal"/> into the result.</param>
-    internal abstract TResult Match<TResult>(Func<PlaySound, TResult> playSound, Func<SetShading, TResult> setShading, Func<ThrowClaw, TResult> throwClaw, Func<Begin, TResult> begin, Func<BeginHeading, TResult> beginHeading, Func<Signal, TResult> signal);
+    /// <param name="cases">What each case of the cue is made into.</param>
+    internal abstract TResult Match<TResult>(NinjaSpacePirateCueCases<TResult> cases);
 
     /// <summary>Plays the cue's enemy-library sound.</summary>
     /// <param name="Sound">The enemy-library sound it plays.</param>
     internal sealed record PlaySound(SoundEffectId Sound) : NinjaSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<PlaySound, TResult> playSound, Func<SetShading, TResult> setShading, Func<ThrowClaw, TResult> throwClaw, Func<Begin, TResult> begin, Func<BeginHeading, TResult> beginHeading, Func<Signal, TResult> signal) => Ensure.NotNull(playSound)(this);
+        internal override TResult Match<TResult>(NinjaSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).PlaySound(this);
     }
 
     /// <summary>Sets the look the Pirate draws in.</summary>
@@ -33,7 +28,7 @@ internal abstract record NinjaSpacePirateCue
     internal sealed record SetShading(PictureShading Shading) : NinjaSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<PlaySound, TResult> playSound, Func<SetShading, TResult> setShading, Func<ThrowClaw, TResult> throwClaw, Func<Begin, TResult> begin, Func<BeginHeading, TResult> beginHeading, Func<Signal, TResult> signal) => Ensure.NotNull(setShading)(this);
+        internal override TResult Match<TResult>(NinjaSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).SetShading(this);
     }
 
     /// <summary>Throws a claw in the cue's direction from the given offset.</summary>
@@ -42,7 +37,7 @@ internal abstract record NinjaSpacePirateCue
     internal sealed record ThrowClaw(HorizontalDirection Throw, Offset16<RoomPixels> Offset) : NinjaSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<PlaySound, TResult> playSound, Func<SetShading, TResult> setShading, Func<ThrowClaw, TResult> throwClaw, Func<Begin, TResult> begin, Func<BeginHeading, TResult> beginHeading, Func<Signal, TResult> signal) => Ensure.NotNull(throwClaw)(this);
+        internal override TResult Match<TResult>(NinjaSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).ThrowClaw(this);
     }
 
     /// <summary>
@@ -54,7 +49,7 @@ internal abstract record NinjaSpacePirateCue
     internal sealed record Begin(NinjaSpacePirateAction Action) : NinjaSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<PlaySound, TResult> playSound, Func<SetShading, TResult> setShading, Func<ThrowClaw, TResult> throwClaw, Func<Begin, TResult> begin, Func<BeginHeading, TResult> beginHeading, Func<Signal, TResult> signal) => Ensure.NotNull(begin)(this);
+        internal override TResult Match<TResult>(NinjaSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).Begin(this);
     }
 
     /// <summary>
@@ -66,7 +61,7 @@ internal abstract record NinjaSpacePirateCue
     internal sealed record BeginHeading(NinjaSpacePirateAction Action, HorizontalDirection Heading) : NinjaSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<PlaySound, TResult> playSound, Func<SetShading, TResult> setShading, Func<ThrowClaw, TResult> throwClaw, Func<Begin, TResult> begin, Func<BeginHeading, TResult> beginHeading, Func<Signal, TResult> signal) => Ensure.NotNull(beginHeading)(this);
+        internal override TResult Match<TResult>(NinjaSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).BeginHeading(this);
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
@@ -74,6 +69,16 @@ internal abstract record NinjaSpacePirateCue
     internal sealed record Signal(NinjaSpacePirateCueKind Kind) : NinjaSpacePirateCue
     {
         /// <inheritdoc/>
-        internal override TResult Match<TResult>(Func<PlaySound, TResult> playSound, Func<SetShading, TResult> setShading, Func<ThrowClaw, TResult> throwClaw, Func<Begin, TResult> begin, Func<BeginHeading, TResult> beginHeading, Func<Signal, TResult> signal) => Ensure.NotNull(signal)(this);
+        internal override TResult Match<TResult>(NinjaSpacePirateCueCases<TResult> cases) => Ensure.NotNull(cases).Signal(this);
     }
 }
+
+/// <summary>What each case of a <see cref="NinjaSpacePirateCue"/> is made into (#2553).</summary>
+/// <typeparam name="TResult">What the cue is made into.</typeparam>
+/// <param name="PlaySound">Makes a <see cref="NinjaSpacePirateCue.PlaySound"/> into the result.</param>
+/// <param name="SetShading">Makes a <see cref="NinjaSpacePirateCue.SetShading"/> into the result.</param>
+/// <param name="ThrowClaw">Makes a <see cref="NinjaSpacePirateCue.ThrowClaw"/> into the result.</param>
+/// <param name="Begin">Makes a <see cref="NinjaSpacePirateCue.Begin"/> into the result.</param>
+/// <param name="BeginHeading">Makes a <see cref="NinjaSpacePirateCue.BeginHeading"/> into the result.</param>
+/// <param name="Signal">Makes a <see cref="NinjaSpacePirateCue.Signal"/> into the result.</param>
+internal sealed record NinjaSpacePirateCueCases<TResult>(Func<NinjaSpacePirateCue.PlaySound, TResult> PlaySound, Func<NinjaSpacePirateCue.SetShading, TResult> SetShading, Func<NinjaSpacePirateCue.ThrowClaw, TResult> ThrowClaw, Func<NinjaSpacePirateCue.Begin, TResult> Begin, Func<NinjaSpacePirateCue.BeginHeading, TResult> BeginHeading, Func<NinjaSpacePirateCue.Signal, TResult> Signal);

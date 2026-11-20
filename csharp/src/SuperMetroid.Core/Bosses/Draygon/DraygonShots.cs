@@ -104,6 +104,8 @@ internal sealed class DraygonShots
                 case DraygonProjectileCue.Fire:
                     projectile.StartMotion(TurretShotFlying);
                     return;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(DraygonProjectileCue)} {cue}.");
             }
         }
 

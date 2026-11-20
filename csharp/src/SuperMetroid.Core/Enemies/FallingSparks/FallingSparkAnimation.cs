@@ -11,5 +11,5 @@ internal sealed class FallingSparkAnimation(FallingSparkSegment segment)
     private protected override AnimationSegments<FallingSparkSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FallingSparkAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<FallingSparkSegment, Animation<FallingSparkSegment>> StartingAt => FallingSparkAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<FallingSparkSegment, Animation<FallingSparkSegment>>> StartingAt => FallingSparkAnimations.StartingAt;
 }

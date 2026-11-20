@@ -18,5 +18,5 @@ internal sealed class ChozoTourianDustAnimation(Animation<ChozoTourianDustSegmen
     private protected override AnimationSegments<ChozoTourianDustSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => ChozoTourianDustAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<ChozoTourianDustSegment, Animation<ChozoTourianDustSegment>> StartingAt => ChozoTourianDustAnimations.StartingAt;
+    private protected override IEnumerable<KeyValuePair<ChozoTourianDustSegment, Animation<ChozoTourianDustSegment>>> StartingAt => ChozoTourianDustAnimations.StartingAt;
 }

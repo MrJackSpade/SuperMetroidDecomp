@@ -204,6 +204,9 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 if (fade.Darken())
                     Outcome = GameOverMenuOutcome.Title;
                 break;
+
+            default:
+                throw new InvalidOperationException($"Unknown game-over phase {Phase}.");
         }
     }
 

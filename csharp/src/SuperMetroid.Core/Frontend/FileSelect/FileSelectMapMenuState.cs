@@ -206,6 +206,8 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
             case FileSelectMapNavigationPhase.Room:
             case FileSelectMapNavigationPhase.EnteringArea:
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined file-select map phase {Phase}.");
         }
     }
 

@@ -14,6 +14,6 @@ internal sealed class DraygonProjectileAnimation(IEnemyProjectileCues<DraygonPro
         DraygonProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<DraygonProjectileSegment, Animation<DraygonProjectileSegment>> StartingAt =>
+    private protected override IEnumerable<KeyValuePair<DraygonProjectileSegment, Animation<DraygonProjectileSegment>>> StartingAt =>
         DraygonProjectileAnimations.StartingAt;
 }

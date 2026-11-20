@@ -529,7 +529,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Walks <paramref name="column"/> from the control at <paramref name="start"/> to its end in <paramref name="direction"/>.</summary>
     private bool TrySelectEquipmentFrom(ImmutableArray<PauseUpgradeControl> column, int start, ColumnSearch direction)
     {
-        if (column == PauseEquipmentControls.Beams && samus.HyperBeamEnabled)
+        PauseEquipmentCategory columnCategory = column[0].Category;
+        if (PauseEquipmentControls.HyperBeamClosedColumns.Contains(columnCategory) && samus.HyperBeamEnabled)
             return false;
         int step = direction switch
         {
@@ -544,7 +545,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 // The suit search down the column checks for its last control only AFTER an unsuccessful probe.
                 // Thus directly entering the final suit control can succeed, but searching down from an earlier
                 // missing upgrade must not discover it.
-                if (column == PauseEquipmentControls.Suits && direction == ColumnSearch.Down && place + step >= column.Length - 1)
+                if (PauseEquipmentControls.DirectOnlyLastControlColumns.Contains(columnCategory) && direction == ColumnSearch.Down &&
+                    place + step >= column.Length - 1)
                     return false;
                 continue;
             }

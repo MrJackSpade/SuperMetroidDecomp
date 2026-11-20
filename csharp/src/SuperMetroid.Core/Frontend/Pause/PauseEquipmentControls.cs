@@ -76,6 +76,15 @@ internal static class PauseEquipmentControls
     /// <summary>Every control the cursor can rest on: the reserve column, then the upgrades in page order.</summary>
     internal static readonly ImmutableArray<PauseEquipmentControl> All = [.. Reserves, .. Upgrades];
 
+    /// <summary>The columns Hyper Beam closes: while it is enabled no search selects any of their controls.</summary>
+    internal static readonly PauseEquipmentCategory[] HyperBeamClosedColumns = [PauseEquipmentCategory.Beams];
+
+    /// <summary>
+    /// The columns whose last control a downward search never reaches: the search checks for the column's last control
+    /// only after an unsuccessful probe, so the control is selected only by entering it directly.
+    /// </summary>
+    internal static readonly PauseEquipmentCategory[] DirectOnlyLastControlColumns = [PauseEquipmentCategory.Suits];
+
     /// <summary>Right from the beams without Up held searches the suit column from here, past the two suits.</summary>
     internal static readonly PauseUpgradeControl BeamsRightSuitEntry = MorphBall;
 }

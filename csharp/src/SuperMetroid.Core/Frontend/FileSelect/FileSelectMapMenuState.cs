@@ -139,15 +139,16 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         }
         FileSelectMapNavigationPhase before = Phase;
         lastUpdateBeganIn = before;
-        if (before == FileSelectMapNavigationPhase.Room) animations.StepArrows(Scroll.CanScroll);
+        bool beganOnRoomMap = FileSelectMapPhaseDefinitions.RoomMapPhases.Contains(before);
+        if (beganOnRoomMap) animations.StepArrows(Scroll.CanScroll);
         // The game draws/advances map icons before testing input, including the frame
         // that requests load/cancel and the following load fade.
-        if (before is FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested)
+        if (FileSelectMapPhaseDefinitions.IconAnimatingPhases.Contains(before))
         {
             if (animations.StepHighlight()) Queue(RoomSound.PauseBeep);
             marker.Step();
         }
-        if (before == FileSelectMapNavigationPhase.Room && Scroll.Step(input))
+        if (beganOnRoomMap && Scroll.Step(input))
             Queue(SamusSound.MapScroll);
         navigation.Step(input);
         if (Phase != before)
@@ -159,11 +160,9 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                     FileSelectMapDefinitions.LoadPreludeFrames + FileSelectMapDefinitions.LoadFadeFrames + FileSelectMapDefinitions.LoadBlackFrames);
             else
                 requestWait = UpdateCountdown.Ended();
-            if (Phase is FileSelectMapNavigationPhase.PreparingWindow or FileSelectMapNavigationPhase.LoadRequested)
-                Queue(SamusSound.MenuConfirm);
-            if (Phase == FileSelectMapNavigationPhase.ExpandingWindow) Queue(SamusSound.MapExpand);
-            if (Phase == FileSelectMapNavigationPhase.AreaReturnRequested) Queue(SamusSound.MapReturn);
-            if (Phase == FileSelectMapNavigationPhase.Room)
+            if (FileSelectMapPhaseDefinitions.EntrySounds.TryGetValue(Phase, out SoundEffectId entrySound))
+                Queue(entrySound);
+            if (FileSelectMapPhaseDefinitions.RoomMapPhases.Contains(Phase))
             {
                 Scroll = CreateScrollForCurrentContent();
                 marker = new FileSelectStationMarker(station, InstalledScreenContent.Maps.SaveMarkers);
@@ -222,7 +221,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     {
         LayeredScene Area(AreaMapBackgroundGlow glow = AreaMapBackgroundGlow.WholeScreen) => areaGraphics.ComposeScene(savedProgress, glow);
         LayeredScene Frame() => roomGraphics.ComposeScene(content: RoomMapContent.FrameOnly);
-        bool roomMapStepped = lastUpdateBeganIn == FileSelectMapNavigationPhase.Room;
+        bool roomMapStepped = FileSelectMapPhaseDefinitions.RoomMapPhases.Contains(lastUpdateBeganIn);
         LayeredScene Room(FileSelectStationMarker? shownMarker) => roomGraphics.ComposeScene(Scroll.Scroll,
             shownMarker, roomMapStepped ? animations : null);
         if (!entry.IsComplete)

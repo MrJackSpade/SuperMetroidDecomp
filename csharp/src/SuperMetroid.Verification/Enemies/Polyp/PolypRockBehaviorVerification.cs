@@ -26,7 +26,7 @@ internal static class PolypRockBehaviorVerification
         IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, PolypRockNativeListAddresses.Extent, "Polyp-rock");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
+        var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,

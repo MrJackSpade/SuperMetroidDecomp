@@ -441,7 +441,7 @@ internal static class KraidAnimationsVerification
     }
 
     /// <summary>A Kraid body position and art for the real rock producers.</summary>
-    private static RoomEnemyPlace NewRockSource() => new(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
+    private static RoomEnemyPlace NewRockSource() => new(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers())
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 224)),
         Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,

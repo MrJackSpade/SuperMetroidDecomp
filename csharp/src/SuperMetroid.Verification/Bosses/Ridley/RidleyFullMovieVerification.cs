@@ -486,7 +486,7 @@ internal static class RidleyFullMovieVerification
     /// <summary>Checks that Ridley enters his screen gate only after the prior Y position becomes visible.</summary>
     internal static void VerifyRidleyScreenGate()
     {
-        var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 253))};
+        var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers()) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 253))};
         var state = new NorfairRidleyState { FightMode = RidleyFightMode.Fighting, ReleaseIntangibility = BossCountdown.Lasting(3) };
         // Original source 3062/3063: pre-movement Y253 is outside camera Y287.
         RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>(0, 287));
@@ -619,7 +619,7 @@ internal static class RidleyFullMovieVerification
         var pointers = new RidleyBodyNativeInstructionPointers(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
         foreach (var sample in cases)
         {
-            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(sample.X, 0)) }
+            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers()) { Position = FixedPosition<RoomPixels>.FromWhole(new(sample.X, 0)) }
                 .WithAnimationClock(hold: 7);
             var state = new NorfairRidleyState { Flight = { FacingDirection = sample.Facing } };
             state.Flight.BodyPlayback = pointers.BodyPlaybackAt(NativeSnapshotMemory.RidleyRightFlyingSleep, state.Flight.FacingDirection);
@@ -632,7 +632,7 @@ internal static class RidleyFullMovieVerification
         }
         var hoverState = new NorfairRidleyState { Phase = NorfairRidleyPhase.Hover };
         hoverState.PhaseTimer.LastFor(1);
-        NorfairRidleyCombat.TickNorfairRidleyHover(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), hoverState);
+        NorfairRidleyCombat.TickNorfairRidleyHover(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers()), hoverState);
         AssertEqual(-1, hoverState.PhaseTimer.CartridgeCount, "native hover counts zero one update past it before selecting next attack");
         AssertEqual(NorfairRidleyPhase.SelectAttack, hoverState.Phase, "negative hover timer exits before movement");
         Console.WriteLine("Ridley center facing: movie trigger, both sides/directions, mid-turn and the arena's centre column agree.");

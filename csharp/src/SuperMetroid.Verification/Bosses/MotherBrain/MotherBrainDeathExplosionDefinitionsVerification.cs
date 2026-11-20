@@ -28,8 +28,8 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0200))};
-            MotherBrainEnemyState motherBrain = enemies.MotherBrainEncounter.BeginAsSetUp(new MotherBrainEnemyState(body, new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()));
+            var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0200))};
+            MotherBrainEnemyState motherBrain = enemies.MotherBrainEncounter.BeginAsSetUp(new MotherBrainEnemyState(body, new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()));
             var request = new MotherBrainDeathExplosionRequest(
                 Offset: new(-7, 9),
                 Animation: MotherBrainDeathExplosionNativeSelectors.Animations[parameter],

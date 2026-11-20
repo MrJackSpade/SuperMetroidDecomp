@@ -32,7 +32,7 @@ internal static class PowampBurstExplosionVerification
         // Occupy every place above the ninth and the first, so the eight spikes take the second through ninth places.
         foreach (EnemyProjectile occupied in pool.Where(slot => slot.Place is 0 or > 8))
             occupied.Kind = RoomEnemyProjectileKind.DustOrExplosion;
-        var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
+        var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
         };

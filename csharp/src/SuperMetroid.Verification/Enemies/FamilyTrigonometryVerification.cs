@@ -88,7 +88,7 @@ internal static class FamilyTrigonometryVerification
         {
             uint initial = bullOrigins[heading / 256];
             int angle = heading % 256;
-            var bull = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
+            var bull = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers());
             var bullState = new BullEnemyState(previous: null, BullAction.MovementDelay);
             for (int speed = 0; speed <= 2880; speed++)
             {

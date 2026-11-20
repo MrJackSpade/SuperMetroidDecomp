@@ -42,7 +42,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                     NativeEnemyAnimationOracle.EntryOf(PipeBugNativeListAddresses.Entries, selector),
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");
 
-                var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()).WithAnimationClock(hold: 0x2222);
+                var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers()).WithAnimationClock(hold: 0x2222);
                 place.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? 1 : 0);
                 PipeBugSegment playing = selector == PipeBugAnimationChoices.Rising(kind, HorizontalDirection.Left)
                     ? PipeBugAnimationChoices.Shooting(kind, HorizontalDirection.Left)

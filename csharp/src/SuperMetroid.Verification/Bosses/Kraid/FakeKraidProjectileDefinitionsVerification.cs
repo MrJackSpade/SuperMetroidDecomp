@@ -34,7 +34,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
         foreach (bool movingRight in new[] { false, true })
         {
             var enemies = NewFakeKraidProjectileSystem();
-            var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
+            var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
                 Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
@@ -69,7 +69,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
         foreach (FakeKraidSpikeRow row in Enum.GetValues<FakeKraidSpikeRow>())
         {
             var enemies = NewFakeKraidProjectileSystem();
-            var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
+            var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
                 Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,

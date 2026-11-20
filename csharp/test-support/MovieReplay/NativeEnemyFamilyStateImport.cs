@@ -832,7 +832,7 @@ internal static class NativeEnemyFamilyStateImport
             if (skulteraSpeed != enemy.SpawnSettings<SkulteraSpawnSettings>().Speed)
                 throw new InvalidDataException($"Recorded Skultera speed {skulteraSpeed} is not its placement's {enemy.SpawnSettings<SkulteraSpawnSettings>().Speed}.");
             // Only the angle word's low byte is ever read; movement discards its high byte.
-            skultera.Angle = RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.F));
+            global::SuperMetroid.Core.PrivateState.Set(skultera, "Angle", (global::SuperMetroid.Core.Spatial.RotationAngle)(RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.F))));
         }
         if (enemy.DefinitionId == EnemyDefinitionId.Coven && enemy.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
         {

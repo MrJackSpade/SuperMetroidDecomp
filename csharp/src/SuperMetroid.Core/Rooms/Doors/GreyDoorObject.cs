@@ -52,7 +52,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
     /// The shot at the cap's block it has yet to take (#2484, #2562). A shot that arrives before the cap waits for anything waits for
     /// it; a later shot before the cap takes it replaces it.
     /// </summary>
-    internal readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> strike = new();
+    private readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> strike = new();
 
     /// <inheritdoc/>
     public void Strike(ResidentObjectProjectileHit hit) => strike.Land(hit);

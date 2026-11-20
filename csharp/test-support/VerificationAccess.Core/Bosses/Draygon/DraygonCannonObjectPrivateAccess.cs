@@ -13,6 +13,12 @@ internal static class DraygonCannonObjectPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Bosses.Draygon.DraygonCannonObject self)
     {
+        /// <summary>The private property <c>Cannon</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Rooms.RoomObjects.DraygonWallCannon Cannon
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Draygon.DraygonCannonObject, global::SuperMetroid.Core.Rooms.RoomObjects.DraygonWallCannon>(self, "Cannon");
+        }
+
         /// <summary>The private property <c>Hits</c>, reached by name.</summary>
         internal int Hits
         {

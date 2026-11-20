@@ -18,5 +18,8 @@ internal static class NoobTubeObjectPrivateAccess
         {
             get => PrivateState.Get<global::SuperMetroid.Core.Rooms.RoomObjects.NoobTubeObject, global::SuperMetroid.Core.Rooms.RoomObjects.NoobTubePhase>(self, "Phase");
         }
+
+        /// <summary>The private field <c>strike</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Compatibility.StrikeAwaitingRoomObject<global::SuperMetroid.Core.Rooms.RoomObjects.ResidentObjectProjectileHit> strike => PrivateState.Field<global::SuperMetroid.Core.Rooms.RoomObjects.NoobTubeObject, global::SuperMetroid.Core.Compatibility.StrikeAwaitingRoomObject<global::SuperMetroid.Core.Rooms.RoomObjects.ResidentObjectProjectileHit>>(self, "strike");
     }
 }

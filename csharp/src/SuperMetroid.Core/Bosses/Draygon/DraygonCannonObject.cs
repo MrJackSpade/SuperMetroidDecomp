@@ -37,7 +37,7 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     private readonly DraygonCannonObjects _cannons;
 
     /// <summary>The firing cannon Draygon stops when this one is destroyed.</summary>
-    internal DraygonWallCannon Cannon { get; }
+    private DraygonWallCannon Cannon { get; }
 
     /// <summary>What the cannon shows, by its facing.</summary>
     private readonly DraygonCannonLook _look;

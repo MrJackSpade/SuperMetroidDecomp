@@ -23,7 +23,7 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SequencedRoomObjec
     private NoobTubePhase Phase { get; set; } = NoobTubePhase.Starting;
 
     /// <summary>The strike on the tube's block it has yet to take (#2562).</summary>
-    internal readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> strike = new();
+    private readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> strike = new();
 
     /// <inheritdoc/>
     public void Strike(ResidentObjectProjectileHit hit) => strike.Land(hit);

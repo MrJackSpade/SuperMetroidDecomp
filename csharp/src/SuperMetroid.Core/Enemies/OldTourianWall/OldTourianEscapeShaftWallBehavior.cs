@@ -36,13 +36,16 @@ internal sealed class OldTourianEscapeShaftWallBehavior
             RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion,
             WallExplosion,
             graphics: default);
-        projectile.StartAnimation(new OldTourianWallExplosionAnimation(OldTourianWallExplosionSegment.Start));
+        projectile.StartAnimation(new OldTourianWallExplosionAnimation(OldTourianWallExplosionSegment.Start, Explosion));
         projectile.Position = projectile.Position.WithWholeX(OldTourianEscapeShaftWallExplosionAnimationDefinitions.XPosition);
         projectile.Position = projectile.Position.WithWholeY(OldTourianEscapeShaftWallExplosionAnimationDefinitions.YPosition);
     }
 
     /// <summary>The fake wall's explosion (#1760): it holds still while its spawner's animation plays.</summary>
-    internal EnemyProjectileBehavior WallExplosion => field ??= new WallExplosionBehavior(_projectiles, _audio);
+    internal EnemyProjectileBehavior WallExplosion => Explosion;
+
+    /// <summary>The fake wall's explosion's behaviour, which owns its animation's cues.</summary>
+    private WallExplosionBehavior Explosion => field ??= new WallExplosionBehavior(_projectiles, _audio);
 
     /// <summary>
     /// The fake wall's explosion, which carries out its animation's cues: it scatters through the projectile engine and

@@ -334,16 +334,17 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         if (projectile is null)
             return null;
 
+        var laser = new LaserBehavior(new PirateLaserState(speed, direction));
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.PirateMotherBrainLaser,
-            new LaserBehavior(new PirateLaserState(speed, direction)),
+            laser,
             graphics: default);
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(muzzle);
-        projectile.StartAnimation(new SpacePirateProjectileAnimation(direction == HorizontalDirection.Right
+        projectile.StartAnimation(new SpacePirateLaserAnimation(direction == HorizontalDirection.Right
             ? SpacePirateProjectileSegment.LaserRight
-            : SpacePirateProjectileSegment.LaserLeft));
+            : SpacePirateProjectileSegment.LaserLeft, laser));
 
         // The laser holds still through its three two-frame muzzle frames until its animation fires it, running its flight
         // at once.
@@ -386,16 +387,12 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <param name="laser">What the laser keeps: its speed and the way it flies.</param>
     private sealed class LaserBehavior(PirateLaserState laser)
         : SingleMotionProjectileBehavior(context => FlyPirateLaser(context.Projectile, laser, context.Camera), initial: null),
-            IEnemyProjectileCues<SpacePirateProjectileCue>
+            IEnemyProjectileCues<SpacePirateLaserCue>
     {
         /// <inheritdoc/>
-        /// <exception cref="InvalidOperationException">
-        /// The cue is not a laser's firing, or fires the laser a way other than its firer chose.
-        /// </exception>
-        public void RunCue(EnemyProjectileCueContext context, SpacePirateProjectileCue cue)
+        /// <exception cref="InvalidOperationException">The cue fires the laser a way other than its firer chose.</exception>
+        public void RunCue(EnemyProjectileCueContext context, SpacePirateLaserCue cue)
         {
-            if (cue.Kind != SpacePirateProjectileCueKind.FireLaser)
-                throw new InvalidOperationException($"A laser's animation published {cue}.");
             EnemyProjectile projectile = context.Projectile;
             HorizontalDirection chosen = laser.Direction;
             if (cue.Direction != chosen)

@@ -48,7 +48,7 @@ internal sealed class EyeDoorBehavior
         {
             case EyeDoorProjectileDefinition.Sweat:
                 EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Sweat, graphics: default);
-                projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatSegment.Falling));
+                projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatSegment.Falling, SweatDrop));
                 InitializeEyeDoorSweat(projectile, request.Facing, block);
                 return;
 
@@ -81,53 +81,77 @@ internal sealed class EyeDoorBehavior
         if (projectile is null)
             return; // Spawning fails when the room has no place left for an enemy projectile.
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.EyeDoorProjectile,
-            new ShotBehavior(new EyeDoorShotState(request.Door, system)), graphics: default);
-        projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Fired));
+        var shot = new ShotBehavior(new EyeDoorShotState(request.Door, system));
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.EyeDoorProjectile, shot, graphics: default);
+        projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Fired, shot));
         InitializeEyeDoorProjectile(projectile, request);
     }
 
     /// <summary>A sweat drop (#1760): it falls from its spawn and splashes on the floor.</summary>
-    internal EnemyProjectileBehavior Sweat => field ??= new SweatBehavior();
+    internal EnemyProjectileBehavior Sweat => SweatDrop;
+
+    /// <summary>The sweat drop's behaviour, which owns its animations' cues.</summary>
+    private SweatBehavior SweatDrop => field ??= new SweatBehavior();
 
     /// <summary>An eye door's shot, holding its heading and the door it came from: it aims at Samus and flies until it hits.</summary>
     /// <param name="shot">What the shot keeps.</param>
     private sealed class ShotBehavior(EyeDoorShotState shot)
-        : EnemyProjectileMotionBehavior<EyeDoorProjectileMotion>(initial: null, shot: () => new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Shot)),
-            IEnemyProjectileCues<EyeDoorProjectileCue>
+        : EnemyProjectileMotionBehavior<SingleMotion>(initial: null), IEnemyProjectileCues<EyeDoorProjectileCue>
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, EyeDoorProjectileMotion motion)
-        {
-            if (motion != EyeDoorProjectileMotion.ShotFlying)
-                throw new InvalidOperationException($"An eye door's shot does not move by {nameof(EyeDoorProjectileMotion)} {motion}.");
-            FlyEyeDoorProjectile(context.Projectile, shot, context.Level);
-        }
+        internal override EnemyProjectileAnimation ShotAnimation() => new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Shot, this);
+
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
+            FlyEyeDoorProjectile(context.Projectile, shot, context.Level, this);
 
         /// <inheritdoc/>
         public void RunCue(EnemyProjectileCueContext context, EyeDoorProjectileCue cue)
         {
-            if (cue.Kind == EyeDoorProjectileCueKind.AimAtSamus)
-                AimEyeDoorProjectileAtSamus(context.Projectile, shot, context.Samus.RoomView);
-            else
-                ApplyEyeDoorProjectileCue(context.Projectile, cue);
+            EnemyProjectile projectile = context.Projectile;
+            switch (cue.Kind)
+            {
+                case EyeDoorProjectileCueKind.AimAtSamus:
+                    AimEyeDoorProjectileAtSamus(projectile, shot, context.Samus.RoomView);
+                    break;
+                case EyeDoorProjectileCueKind.StartFlight:
+                    StartMotion(projectile, SingleMotion.Moving);
+                    break;
+                case EyeDoorProjectileCueKind.StopMoving:
+                    projectile.HoldStill();
+                    break;
+                case EyeDoorProjectileCueKind.Delete:
+                    projectile.Delete();
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(EyeDoorProjectileCueKind)} {cue.Kind}.");
+            }
         }
     }
 
-    /// <summary>An eye door's sweat drop, which falls from the door.</summary>
+    /// <summary>An eye door's sweat drop, which falls from the door and splashes on the floor.</summary>
     private sealed class SweatBehavior()
-        : EnemyProjectileMotionBehavior<EyeDoorProjectileMotion>(EyeDoorProjectileMotion.SweatFalling), IEnemyProjectileCues<EyeDoorProjectileCue>
+        : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving), IEnemyProjectileCues<EyeDoorSweatCue>
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, EyeDoorProjectileMotion motion)
-        {
-            if (motion != EyeDoorProjectileMotion.SweatFalling)
-                throw new InvalidOperationException($"An eye door's sweat does not move by {nameof(EyeDoorProjectileMotion)} {motion}.");
-            DripEyeDoorSweat(context.Projectile, context.Level);
-        }
+        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
+            DripEyeDoorSweat(context.Projectile, context.Level, this);
 
         /// <inheritdoc/>
-        public void RunCue(EnemyProjectileCueContext context, EyeDoorProjectileCue cue) => ApplyEyeDoorProjectileCue(context.Projectile, cue);
+        public void RunCue(EnemyProjectileCueContext context, EyeDoorSweatCue cue)
+        {
+            switch (cue)
+            {
+                case EyeDoorSweatCue.StopMoving:
+                    context.Projectile.HoldStill();
+                    break;
+                case EyeDoorSweatCue.Delete:
+                    context.Projectile.Delete();
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(EyeDoorSweatCue)} {cue}.");
+            }
+        }
     }
 
     /// <summary>
@@ -188,12 +212,13 @@ internal sealed class EyeDoorBehavior
     internal static void FlyEyeDoorProjectile(
         EnemyProjectile projectile,
         EyeDoorShotState shot,
-        RoomLevelData level)
+        RoomLevelData level,
+        IEnemyProjectileCues<EyeDoorProjectileCue> cues)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Horizontal, EyeDoorEffectCollision.Rule) ||
             EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical, EyeDoorEffectCollision.Rule))
         {
-            StartEyeDoorProjectileImpact(projectile);
+            StartEyeDoorProjectileImpact(projectile, cues);
             return;
         }
 
@@ -202,13 +227,14 @@ internal sealed class EyeDoorBehavior
             ReadEyeDoorAcceleration(shot.Heading + TrigonometryAngle.HalfTurn));
 
         if (shot.Doors.HasOpenedDoor(shot.Door))
-            StartEyeDoorProjectileImpact(projectile);
+            StartEyeDoorProjectileImpact(projectile, cues);
     }
 
     /// <summary>Applies sweat gravity and starts the impact animation on a downward vertical collision.</summary>
     internal static void DripEyeDoorSweat(
         EnemyProjectile projectile,
-        RoomLevelData level)
+        RoomLevelData level,
+        IEnemyProjectileCues<EyeDoorSweatCue> sweat)
     {
         EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Horizontal, EyeDoorEffectCollision.Rule);
         bool collidedVertically = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical, EyeDoorEffectCollision.Rule);
@@ -217,7 +243,7 @@ internal sealed class EyeDoorBehavior
             projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole - EyeDoorEffectDefinitions.SweatSplashRise);
             // The floor splash stops the drop's movement, as the animation switch does.
             projectile.HoldStill();
-            projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatSegment.HitFloor));
+            projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatSegment.HitFloor, sweat));
             return;
         }
 
@@ -232,32 +258,10 @@ internal sealed class EyeDoorBehavior
         EnemyMath.SineVelocity(angle, 1).DividedRoundingDown(16);
 
     /// <summary>Sends an eye-door shot into its typed impact animation, stopping its movement as the animation switch does.</summary>
-    private static void StartEyeDoorProjectileImpact(EnemyProjectile projectile)
+    private static void StartEyeDoorProjectileImpact(EnemyProjectile projectile, IEnemyProjectileCues<EyeDoorProjectileCue> cues)
     {
         projectile.HoldStill();
-        projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Impact));
-    }
-
-    /// <summary>Carries out one cue of the eye-door shot's animations.</summary>
-    private static void ApplyEyeDoorProjectileCue(EnemyProjectile projectile, EyeDoorProjectileCue cue)
-    {
-        switch (cue.Kind)
-        {
-            // Only a shot aims (ShotBehavior); its sweat's and its shot's other cues act alike.
-            case EyeDoorProjectileCueKind.AimAtSamus:
-                throw new InvalidDataException($"An eye door's sweat reached the shot's aim cue, which only a shot runs.");
-            case EyeDoorProjectileCueKind.StartFlight:
-                projectile.StartMotion(EyeDoorProjectileMotion.ShotFlying);
-                break;
-            case EyeDoorProjectileCueKind.StopMoving:
-                projectile.HoldStill();
-                break;
-            case EyeDoorProjectileCueKind.Delete:
-                projectile.Delete();
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EyeDoorProjectileCueKind)} {cue.Kind}.");
-        }
+        projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Impact, cues));
     }
 
     /// <summary>

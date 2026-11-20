@@ -630,7 +630,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Magdollite's thrown lava (#1760).</summary>
-    internal EnemyProjectileBehavior Lava => field ??= new LavaBehavior(_deathsAndDrops);
+    internal EnemyProjectileBehavior Lava => ThrownLava;
+
+    /// <summary>The thrown lava's behaviour, which owns its animations' cues.</summary>
+    private LavaBehavior ThrownLava => field ??= new LavaBehavior(_deathsAndDrops);
 
     /// <summary>
     /// Thrown lava: it flies sideways until it leaves the view, handles its animations' cues, and a shot ball runs its
@@ -638,9 +641,11 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     /// <param name="deathsAndDrops">The drops a shot ball leaves.</param>
     private sealed class LavaBehavior(EnemyDeathsAndDrops deathsAndDrops) : SingleMotionProjectileBehavior(
-        context => FlyMagdolliteLava(context.Projectile, context.Camera),
-        shot: () => new MagdolliteLavaAnimation(MagdolliteLavaSegment.Shot)), IEnemyProjectileCues<MagdolliteLavaCue>
+        context => FlyMagdolliteLava(context.Projectile, context.Camera)), IEnemyProjectileCues<MagdolliteLavaCue>
     {
+        /// <inheritdoc/>
+        internal override EnemyProjectileAnimation ShotAnimation() => new MagdolliteLavaAnimation(MagdolliteLavaSegment.Shot, this);
+
         /// <summary>Carries out one cue of the thrown lava's animations.</summary>
         public void RunCue(EnemyProjectileCueContext context, MagdolliteLavaCue cue)
         {
@@ -715,7 +720,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = new(
             MagdolliteMotionDefinitions.LavaThrowSpeed.Toward(thrown),
             SignedEightEight.Zero);
-        projectile.InstallAnimation(new MagdolliteLavaAnimation(thrown == HorizontalDirection.Right ? MagdolliteLavaSegment.Right : MagdolliteLavaSegment.Left));
+        projectile.InstallAnimation(new MagdolliteLavaAnimation(thrown == HorizontalDirection.Right ? MagdolliteLavaSegment.Right : MagdolliteLavaSegment.Left, ThrownLava));
     }
 
     /// <summary>Flies the lava one update: it flies sideways at its speed until it leaves the view.</summary>

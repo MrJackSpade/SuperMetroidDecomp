@@ -463,15 +463,16 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         if (projectile is null)
             return;
 
+        var claw = new ClawBehavior(new NinjaPirateClawState(SpacePirateMotionDefinitions.NinjaClawLaunchSpeed, thrown));
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.PirateClaw,
-            new ClawBehavior(new NinjaPirateClawState(SpacePirateMotionDefinitions.NinjaClawLaunchSpeed, thrown)),
+            claw,
             SpriteGraphics.SpawnedBy(source));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(source.Position.Whole + spawnOffset);
-        projectile.StartAnimation(new SpacePirateProjectileAnimation(thrown == HorizontalDirection.Right
+        projectile.StartAnimation(new SpacePirateClawAnimation(thrown == HorizontalDirection.Right
             ? SpacePirateProjectileSegment.ClawRight
-            : SpacePirateProjectileSegment.ClawLeft));
+            : SpacePirateProjectileSegment.ClawLeft, claw));
     }
 
     /// <summary>Flies a claw out along its throw and back, with exact camera culling.</summary>
@@ -560,16 +561,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <param name="claw">What the claw keeps: the way it was thrown and how far along its throw it is.</param>
     private sealed class ClawBehavior(NinjaPirateClawState claw)
         : SingleMotionProjectileBehavior(context => FlyNinjaPirateClaw(context.Projectile, claw, context.Camera), initial: null),
-            IEnemyProjectileCues<SpacePirateProjectileCue>
+            IEnemyProjectileCues<SpacePirateClawCue>
     {
         /// <inheritdoc/>
-        /// <exception cref="InvalidOperationException">
-        /// The cue is not a claw's throw, or throws the claw a way other than its thrower chose.
-        /// </exception>
-        public void RunCue(EnemyProjectileCueContext context, SpacePirateProjectileCue cue)
+        /// <exception cref="InvalidOperationException">The cue throws the claw a way other than its thrower chose.</exception>
+        public void RunCue(EnemyProjectileCueContext context, SpacePirateClawCue cue)
         {
-            if (cue.Kind != SpacePirateProjectileCueKind.ThrowClaw)
-                throw new InvalidOperationException($"A claw's animation published {cue}.");
             HorizontalDirection thrown = claw.Thrown;
             if (cue.Direction != thrown)
                 throw new InvalidOperationException($"A claw its pirate threw {thrown} played the animation that throws it {cue.Direction}.");

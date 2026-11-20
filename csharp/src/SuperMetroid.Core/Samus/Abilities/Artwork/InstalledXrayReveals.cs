@@ -76,8 +76,8 @@ public sealed class InstalledXrayReveals
     /// <summary>Rejects a negative reveal block, as an appearance of it would; the tileset's sheet bounds the rest (#2100).</summary>
     private static void ValidateBlocks(XrayRevealVisualBlocks visual)
     {
-        foreach (int block in visual.InReadingOrder)
-            _ = RoomBlockAppearance.Of(block);
+        foreach (Rooms.Backgrounds.RoomCellPicture block in visual.InReadingOrder)
+            _ = RoomBlockAppearance.Of(block.Block);
     }
 
     /// <summary>Whether this reveal shape carries authored visual blocks.</summary>

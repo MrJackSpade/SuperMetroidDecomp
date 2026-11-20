@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -18,7 +19,7 @@ public static class XrayRevealExtensions
     /// <param name="level">The room whose extension chain is followed.</param>
     /// <param name="start">The extension block the chain starts at, in the room's columns.</param>
     /// <param name="visuals">The installed reveal blocks, which a terminal special-air block shows.</param>
-    public static int? Resolve(RoomLevelData level, Position16<RoomBlocks> start, InstalledXrayReveals visuals)
+    public static RoomCellPicture? Resolve(RoomLevelData level, Position16<RoomBlocks> start, InstalledXrayReveals visuals)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(visuals);

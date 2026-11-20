@@ -5,12 +5,10 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the orange Zoomer occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class OrangeZoomerEntity(CrawlersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CrawlerEntity(occupant, place, common)
+/// <param name="settings">What the orange Zoomer's population entry tells its species.</param>
+internal sealed class OrangeZoomerEntity(CrawlersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CrawlerSpawnSettings settings)
+    : CrawlerEntity(occupant, place, common, CrawlersBehavior.InitializeOrangeZoomer(occupant, settings, place))
 {
     /// <inheritdoc/>
-    public override void Initialize() => CrawlersBehavior.InitializeOrangeZoomer(Occupant, Occupant.SpawnSettings<CrawlerSpawnSettings>(), Place);
-
-    /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => species.RunOrangeZoomerMainAi(Place, Place.RequireSpeciesState<CrawlerEnemyState>(), frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => species.RunOrangeZoomerMainAi(Place, State, frame);
 }

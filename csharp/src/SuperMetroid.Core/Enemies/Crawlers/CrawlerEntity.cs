@@ -8,15 +8,16 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the crawler occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class CrawlerEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+/// <param name="state">The crawler's state, which its variant's setup built as the entity was built (#2554).</param>
+internal abstract class CrawlerEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CrawlerEnemyState state)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public abstract void Initialize();
+    /// <summary>The crawler's state, which it holds from its setup.</summary>
+    internal CrawlerEnemyState State { get; } = state;
 
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CrawlersBehavior.AdvanceCrawlerTypedAnimation(Place, Place.RequireSpeciesState<CrawlerEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CrawlersBehavior.AdvanceCrawlerTypedAnimation(Place, State);
 }

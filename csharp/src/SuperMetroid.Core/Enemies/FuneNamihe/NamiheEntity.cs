@@ -5,16 +5,20 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class NamiheEntity(FuneNamiheBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class NamiheEntity(FuneNamiheBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, NamiheSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => FuneNamiheBehavior.InitializeNamihe(Occupant, Occupant.SpawnSettings<FuneNamiheSpawnSettings>(), Place);
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal NamiheSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal NamiheEnemyState State { get; } = FuneNamiheBehavior.InitializeNamihe(occupant, settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        FuneNamiheBehavior.RunNamiheMain(Occupant, Occupant.SpawnSettings<FuneNamiheSpawnSettings>(), Occupant.SpawnSettings<NamiheSpawnSettings>(), Place, Place.RequireSpeciesState<NamiheEnemyState>(), Ensure.NotNull(frame).Samus);
+        FuneNamiheBehavior.RunNamiheMain(Occupant, Settings, Settings, Place, State, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation<NamiheEnemyState>(Occupant, Occupant.SpawnSettings<FuneNamiheSpawnSettings>(), Place, Place.RequireSpeciesState<NamiheEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation<NamiheEnemyState>(Occupant, Settings, Place, State);
 }

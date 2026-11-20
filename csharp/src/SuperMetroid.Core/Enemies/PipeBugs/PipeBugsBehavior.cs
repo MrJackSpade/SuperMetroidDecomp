@@ -19,7 +19,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (definition is EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo)
             return EnemyOccupant.Running(new BrinstarPipeBugEntity(occupant, place, common, occupant.SpawnSettings<BrinstarPipeBugSpawnSettings>()));
         if (definition == EnemyDefinitionId.Gamet)
-            return EnemyOccupant.Of(new NorfairPipeBugEntity(this, occupant, place, common));
+            return EnemyOccupant.Running(new NorfairPipeBugEntity(this, occupant, place, common, occupant.SpawnSettings<NorfairPipeBugSpawnSettings>()));
         if (definition == EnemyDefinitionId.Geega)
             return EnemyOccupant.Running(new YellowPipeBugEntity(occupant, place, common, occupant.SpawnSettings<YellowPipeBugSpawnSettings>()));
         throw new InvalidOperationException($"The Pipe Bugs species creates no {occupant.DefinitionId}.");
@@ -61,17 +61,18 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// last, completes the formation, which is checked once then.
     /// </summary>
     /// <exception cref="InvalidDataException">The formation's last member completes a formation whose members are not all Norfair Pipe Bugs.</exception>
-    internal void InitializeNorfairPipeBug(RoomEnemyOccupant occupant, NorfairPipeBugSpawnSettings norfairPipeBugSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal NorfairPipeBugState InitializeNorfairPipeBug(RoomEnemyOccupant occupant, NorfairPipeBugSpawnSettings norfairPipeBugSpawnSettings, RoomEnemyPlace place)
     {
         // Only the formation's leader has a trigger width; it leads the four its room lists after it.
         if (norfairPipeBugSpawnSettings is NorfairPipeBugLeaderSpawnSettings)
             _formations.Place(place, NorfairPipeBugFormation.LedBy(_places, place));
         CheckNorfairPipeBugFormationCompletedBy(place);
         var state = new NorfairPipeBugState(NorfairPipeBugAction.WaitForFormation);
-        place.SetSpeciesState(state);
         state.SpawnPosition = place.Position.Whole;
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
         state.Playback = EnemyAnimationPlayback.Start(place, PipeBugAnimations.StartingWith(PipeBugSegment.GametRisingLeft));
+        return state;
     }
 
     /// <summary>Initializes the yellow Brinstar Pipe Bug.</summary>
@@ -123,7 +124,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs a Norfair Pipe Bug's action.</summary>
     private void RunNorfairPipeBug(
-        RoomEnemyOccupant occupant, NorfairPipeBugLeaderSpawnSettings norfairPipeBugLeaderSpawnSettings, NorfairPipeBugSpawnSettings norfairPipeBugSpawnSettings, RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, NorfairPipeBugSpawnSettings norfairPipeBugSpawnSettings, RoomEnemyPlace place,
         NorfairPipeBugState state,
         SamusState samus,
         Position16<RoomPixels> camera)
@@ -135,7 +136,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 ResetNorfairPipeBugIfOffScreen(place, state, camera);
                 return;
             case NorfairPipeBugAction.WaitForSamus:
-                RunNorfairPipeBugSamusWait(occupant, norfairPipeBugLeaderSpawnSettings, place, state, samus);
+                // Only the formation's leader arms itself to wait for Samus.
+                RunNorfairPipeBugSamusWait(occupant, norfairPipeBugSpawnSettings is NorfairPipeBugLeaderSpawnSettings leaderSettings
+                    ? leaderSettings
+                    : throw new InvalidOperationException("Only a Norfair Pipe Bug formation's leader waits for Samus."), place, state, samus);
                 ResetNorfairPipeBugIfOffScreen(place, state, camera);
                 return;
             case NorfairPipeBugAction.Rise:
@@ -631,8 +635,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         RunBrinstarPipeBug(occupant, brinstarPipeBugSpawnSettings, place, brinstarPipeBugState, frame.Samus, frame.Camera);
 
     /// <summary>Runs a Norfair Pipe Bug's main AI.</summary>
-    internal void RunNorfairPipeBugMainAi(RoomEnemyOccupant occupant, NorfairPipeBugLeaderSpawnSettings norfairPipeBugLeaderSpawnSettings, NorfairPipeBugSpawnSettings norfairPipeBugSpawnSettings, RoomEnemyPlace place, NorfairPipeBugState norfairPipeBugState, IEnemyAiFrame frame) =>
-        RunNorfairPipeBug(occupant, norfairPipeBugLeaderSpawnSettings, norfairPipeBugSpawnSettings, place, norfairPipeBugState, frame.Samus, frame.Camera);
+    internal void RunNorfairPipeBugMainAi(RoomEnemyOccupant occupant, NorfairPipeBugSpawnSettings norfairPipeBugSpawnSettings, RoomEnemyPlace place, NorfairPipeBugState norfairPipeBugState, IEnemyAiFrame frame) =>
+        RunNorfairPipeBug(occupant, norfairPipeBugSpawnSettings, place, norfairPipeBugState, frame.Samus, frame.Camera);
 
     /// <summary>Runs a yellow Pipe Bug's main AI.</summary>
     internal static void RunYellowPipeBugMainAi(RoomEnemyOccupant occupant, YellowPipeBugSpawnSettings yellowPipeBugSpawnSettings, RoomEnemyPlace place, YellowPipeBugState yellowPipeBugState, IEnemyAiFrame frame) =>

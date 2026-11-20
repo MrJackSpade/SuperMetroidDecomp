@@ -17,8 +17,8 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(occupant).DefinitionId == EnemyDefinitionId.Namihe
-            ? EnemyOccupant.Of(new NamiheEntity(this, occupant, place, common))
-            : EnemyOccupant.Of(new FuneEntity(this, occupant, place, common));
+            ? EnemyOccupant.Running(new NamiheEntity(this, occupant, place, common, occupant.SpawnSettings<NamiheSpawnSettings>()))
+            : EnemyOccupant.Running(new FuneEntity(this, occupant, place, common, occupant.SpawnSettings<FuneSpawnSettings>()));
 
     /// <summary>Allocates the shared directional fireball fired by either species' animation.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -58,19 +58,21 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts the Fune waiting on its cooldown and its idle animation, facing as its spawn settings say.</summary>
-    internal static void InitializeFune(RoomEnemyOccupant occupant, FuneNamiheSpawnSettings funeNamiheSpawnSettings, FuneSpawnSettings funeSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static FuneEnemyState InitializeFune(RoomEnemyOccupant occupant, FuneNamiheSpawnSettings funeNamiheSpawnSettings, FuneSpawnSettings funeSpawnSettings, RoomEnemyPlace place)
     {
         var state = new FuneEnemyState(FuneAction.WaitForCooldown) { Cooldown = CooldownOf(occupant, funeSpawnSettings) };
-        place.SetSpeciesState(state);
         StartFuneNamiheAnimation(occupant, funeNamiheSpawnSettings, place, state);
+        return state;
     }
 
     /// <summary>Starts the Namihe waiting for Samus and its idle animation, facing as its spawn settings say.</summary>
-    internal static void InitializeNamihe(RoomEnemyOccupant occupant, FuneNamiheSpawnSettings funeNamiheSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static NamiheEnemyState InitializeNamihe(RoomEnemyOccupant occupant, FuneNamiheSpawnSettings funeNamiheSpawnSettings, RoomEnemyPlace place)
     {
         var state = new NamiheEnemyState(NamiheAction.WaitForSamus);
-        place.SetSpeciesState(state);
         StartFuneNamiheAnimation(occupant, funeNamiheSpawnSettings, place, state);
+        return state;
     }
 
     /// <summary>

@@ -9,12 +9,10 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// <param name="place">The place the crawler occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="family">The animation family the crawler's setup selects its surface animations from.</param>
-internal sealed class SurfaceCrawlerEntity(CrawlersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CrawlerAnimationFamily family)
-    : CrawlerEntity(occupant, place, common)
+/// <param name="settings">Where and how fast the crawler's population entry starts it crawling.</param>
+internal sealed class SurfaceCrawlerEntity(CrawlersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CrawlerAnimationFamily family, CrawlerSpawnSettings settings)
+    : CrawlerEntity(occupant, place, common, CrawlersBehavior.InitializeCrawler(occupant, settings, place, family))
 {
     /// <inheritdoc/>
-    public override void Initialize() => CrawlersBehavior.InitializeCrawler(Occupant, Occupant.SpawnSettings<ViolaSpawnSettings>(), Occupant.SpawnSettings<CrawlerSpawnSettings>(), Place, family);
-
-    /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => species.RunCrawlerMainAi(Place, Place.RequireSpeciesState<CrawlerEnemyState>(), frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => species.RunCrawlerMainAi(Place, State, frame);
 }

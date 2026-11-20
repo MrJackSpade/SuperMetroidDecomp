@@ -19,7 +19,8 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
 
     /// <summary>The door or wall actor <paramref name="place"/>'s definition names, facing or standing where its placement says.</summary>
-    /// <exception cref="KeyNotFoundException">The definition is no Ceres door or wall, or the placement names no facing or side.</exception>
+    /// <exception cref="KeyNotFoundException">The definition is no Ceres door or wall.</exception>
+    /// <exception cref="InvalidDataException">The placement names no facing or side.</exception>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
 

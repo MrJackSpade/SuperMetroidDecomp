@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
@@ -14,12 +13,12 @@ public sealed class SamusPoseTransitionSetup
     private readonly string _name;
 
     /// <summary>Runs the setup.</summary>
-    private readonly Action<SamusPoseTransitionPhase, SamusControlFrame, SamusState, SamusPoseId, SamusTerrain> _run;
+    private readonly Action<SamusPoseSetupSteps, SamusControlFrame, SamusState, SamusPoseId, SamusTerrain> _run;
 
     /// <summary>A setup named <paramref name="name"/> that runs <paramref name="run"/>.</summary>
     /// <param name="name">The setup's name, for diagnostics.</param>
     /// <param name="run">Runs the setup.</param>
-    private SamusPoseTransitionSetup(string name, Action<SamusPoseTransitionPhase, SamusControlFrame, SamusState, SamusPoseId, SamusTerrain> run)
+    private SamusPoseTransitionSetup(string name, Action<SamusPoseSetupSteps, SamusControlFrame, SamusState, SamusPoseId, SamusTerrain> run)
     {
         _name = name;
         _run = run;
@@ -38,7 +37,7 @@ public sealed class SamusPoseTransitionSetup
 
     /// <summary>A knockback pose's escape chord starts the damage boost the other way.</summary>
     internal static SamusPoseTransitionSetup StartDamageBoost { get; } = new(nameof(StartDamageBoost),
-        (_, frame, samus, targetPose, _) => SamusPoseTransitionPhase.SetUpStartDamageBoost(frame, samus, targetPose));
+        (_, frame, samus, targetPose, _) => SamusPoseSetupSteps.SetUpStartDamageBoost(frame, samus, targetPose));
 
     /// <summary>She leaves a damage boost for the neutral or forward normal jump.</summary>
     internal static SamusPoseTransitionSetup JumpFromDamageBoost { get; } = new(nameof(JumpFromDamageBoost),
@@ -46,7 +45,7 @@ public sealed class SamusPoseTransitionSetup
 
     /// <summary>A moonwalk reverses while Jump is held, starting the moonwalk turn that jumps.</summary>
     internal static SamusPoseTransitionSetup StartMoonwalkTurnJump { get; } = new(nameof(StartMoonwalkTurnJump),
-        (_, _, samus, targetPose, _) => SamusPoseTransitionPhase.SetUpStartMoonwalkTurnJump(samus, targetPose));
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpStartMoonwalkTurnJump(samus, targetPose));
 
     /// <summary>She starts, aims or leaves a moonwalk, or turns instead when moonwalking is switched off.</summary>
     internal static SamusPoseTransitionSetup ChangeMoonwalkPose { get; } = new(nameof(ChangeMoonwalkPose),
@@ -54,11 +53,11 @@ public sealed class SamusPoseTransitionSetup
 
     /// <summary>She starts running the way she faces from standing, a landing or a wall stop.</summary>
     internal static SamusPoseTransitionSetup StartRunning { get; } = new(nameof(StartRunning),
-        (_, _, samus, targetPose, _) => SamusPoseTransitionPhase.SetUpStartRunning(samus, targetPose));
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpStartRunning(samus, targetPose));
 
     /// <summary>She aims or fires differently on the ground, standing, running, at a wall or crouched.</summary>
     internal static SamusPoseTransitionSetup ChangeGroundedAim { get; } = new(nameof(ChangeGroundedAim),
-        (_, _, samus, targetPose, _) => SamusPoseTransitionPhase.SetUpChangeGroundedAim(samus, targetPose));
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpChangeGroundedAim(samus, targetPose));
 
     /// <summary>She turns around on the ground, standing, running, moonwalking, at a wall, crouched or facing forward.</summary>
     internal static SamusPoseTransitionSetup TurnOnGround { get; } = new(nameof(TurnOnGround),
@@ -78,11 +77,11 @@ public sealed class SamusPoseTransitionSetup
 
     /// <summary>The ball rolls, stops or turns without leaving its shared animation.</summary>
     internal static SamusPoseTransitionSetup ChangeBallPose { get; } = new(nameof(ChangeBallPose),
-        (_, _, samus, targetPose, _) => SamusPoseTransitionPhase.SetUpChangeBallPose(samus, targetPose));
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpChangeBallPose(samus, targetPose));
 
     /// <summary>The Spring Ball jumps from the ground.</summary>
     internal static SamusPoseTransitionSetup JumpSpringBall { get; } = new(nameof(JumpSpringBall),
-        (_, _, samus, targetPose, _) => SamusPoseTransitionPhase.SetUpJumpSpringBall(samus, targetPose));
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpJumpSpringBall(samus, targetPose));
 
     /// <summary>Unmorphing in the air gives way to a falling pose, keeping her fall.</summary>
     internal static SamusPoseTransitionSetup FallFromUnmorph { get; } = new(nameof(FallFromUnmorph),
@@ -94,7 +93,7 @@ public sealed class SamusPoseTransitionSetup
 
     /// <summary>A spin or wall jump spins the other way, or keeps spinning.</summary>
     internal static SamusPoseTransitionSetup ChangeSpinDirection { get; } = new(nameof(ChangeSpinDirection),
-        (_, _, samus, targetPose, _) => SamusPoseTransitionPhase.SetUpChangeSpinDirection(samus, targetPose));
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpChangeSpinDirection(samus, targetPose));
 
     /// <summary>Aiming or firing ends a spin or wall jump in a normal jump, keeping its arc.</summary>
     internal static SamusPoseTransitionSetup AimFromSpin { get; } = new(nameof(AimFromSpin),
@@ -102,7 +101,7 @@ public sealed class SamusPoseTransitionSetup
 
     /// <summary>She aims or fires differently in a normal jump or a fall, facing the same way.</summary>
     internal static SamusPoseTransitionSetup ChangeAerialAim { get; } = new(nameof(ChangeAerialAim),
-        (_, _, samus, targetPose, _) => SamusPoseTransitionPhase.SetUpChangeAerialAim(samus, targetPose));
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpChangeAerialAim(samus, targetPose));
 
     /// <summary>A change to or from the compact straight-down aim in the air, making room for the larger body.</summary>
     internal static SamusPoseTransitionSetup ChangeCompactAerialPose { get; } = new(nameof(ChangeCompactAerialPose),
@@ -110,11 +109,11 @@ public sealed class SamusPoseTransitionSetup
 
     /// <summary>A shinespark windup's direction launches the shinespark.</summary>
     internal static SamusPoseTransitionSetup AimShinespark { get; } = new(nameof(AimShinespark),
-        (_, _, samus, targetPose, _) => SamusPoseTransitionPhase.SetUpAimShinespark(samus, targetPose));
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpAimShinespark(samus, targetPose));
 
     /// <summary>She aims, fires or struggles differently while Draygon holds her.</summary>
     internal static SamusPoseTransitionSetup ChangeDraygonGrabbedPose { get; } = new(nameof(ChangeDraygonGrabbedPose),
-        (_, _, samus, targetPose, _) => SamusPoseTransitionPhase.SetUpChangeDraygonGrabbedPose(samus, targetPose));
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpChangeDraygonGrabbedPose(samus, targetPose));
 
     /// <summary>
     /// The stand-up Up chooses from the ball the Hyper Beam's freeze can leave in Draygon's hold (#2516): the game makes
@@ -125,12 +124,12 @@ public sealed class SamusPoseTransitionSetup
         (owner, _, samus, targetPose, terrain) => owner.SetUpStandUpFromDraygonHold(samus, targetPose, terrain));
 
     /// <summary>Installs the transition's target pose through the setup.</summary>
-    /// <param name="owner">The phase that runs the setup.</param>
+    /// <param name="owner">The steps the setup runs, which the pose phase hands it.</param>
     /// <param name="frame">The frame the setup reads.</param>
     /// <param name="samus">The samus the setup reads.</param>
     /// <param name="targetPose">The targetPose the setup reads.</param>
     /// <param name="terrain">The terrain the setup reads.</param>
-    internal void Apply(SamusPoseTransitionPhase owner, SamusControlFrame frame, SamusState samus, SamusPoseId targetPose, SamusTerrain terrain) => _run(owner, frame, samus, targetPose, terrain);
+    internal void Apply(SamusPoseSetupSteps owner, SamusControlFrame frame, SamusState samus, SamusPoseId targetPose, SamusTerrain terrain) => _run(owner, frame, samus, targetPose, terrain);
 
     /// <summary>Names the setup.</summary>
     public override string ToString() => _name;

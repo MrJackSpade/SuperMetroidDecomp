@@ -64,7 +64,7 @@ public sealed class EnemySession
 
     /// <summary>
     /// The kills that clear the room for its grey doors and clearance watches: the room population's own quota
-    /// (<see cref="RoomEnemyPopulationDefinition.DeathQuota"/>) when the room places enemies; a room that places none
+    /// (<see cref="PlacedRoomEnemyPopulationDefinition.DeathQuota"/>) when the room places enemies; a room that places none
     /// keeps the quota of the last room that did.
     /// </summary>
     internal int DeathQuota { get; set; }

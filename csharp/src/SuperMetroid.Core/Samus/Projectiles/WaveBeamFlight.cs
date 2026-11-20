@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal sealed class WaveBeamFlight(int trailInterval) : SamusShotBehavior
 {
     /// <summary>
-    /// The updates between the shot's trails after its first: three for an uncharged Wave or Ice and Wave shot, four for
-    /// every other Wave shot. Every shot leaves its first trail four updates after it is fired.
+    /// The updates between the shot's trails after its first: <see cref="ProjectileTimingDefinitions.UnchargedWaveTrailInterval"/> for an uncharged Wave or Ice and Wave shot,
+    /// <see cref="ProjectileTimingDefinitions.TrailInterval"/> for every other Wave shot. Every shot leaves its first trail <see cref="ProjectileTimingDefinitions.TrailInterval"/> after it is fired.
     /// </summary>
     internal int TrailInterval { get; } = Ensure.BetweenInclusive(1, int.MaxValue, trailInterval);
 

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// A beam's flight without the Wave Beam (#1923): it leaves a trail every four updates, accelerates, and stops at the
+/// A beam's flight without the Wave Beam (#1923): it leaves a trail every <see cref="ProjectileTimingDefinitions.TrailInterval"/>, accelerates, and stops at the
 /// first block it meets.
 /// </summary>
 internal sealed class BeamFlight : SamusShotBehavior

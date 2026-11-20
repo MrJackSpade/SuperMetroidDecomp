@@ -106,8 +106,8 @@ internal sealed class GameplayActorDrawing
             {
                 // The colour update always runs charge/post-shot handling before running the
                 // selected special Samus colouring. Ordinary charged shots paint all of Samus's visible colours
-                // white for three updates and restore the suit on the fourth; Hyper shots
-                // step ten complete shades on alternating updates before restore.
+                // white for the flash's updates and restore the suit on the next; Hyper shots
+                // step through their complete shades before restore.
                 // A restored suit from the beam-charge colour step bypasses the entire special
                 // colour step on glow expiry. In particular, stored shine must not tick
                 // or overwrite the restored suit on this frame.

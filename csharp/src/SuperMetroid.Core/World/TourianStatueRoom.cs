@@ -43,8 +43,8 @@ public sealed class TourianStatueRoom : ITourianStatueRoom, ITourianStatueProgre
 
     /// <inheritdoc/>
     /// <remarks>
-    /// The whole pixels of the statues' descent upward, which descends by a quarter pixel per frame. The upward distance's
-    /// whole pixels round toward negative infinity, so the first quarter-pixel step already reads -1. The descent stops at
+    /// The whole pixels of the statues' descent upward, which descends by <see cref="TourianStatueSequenceDefinitions.DescentStep"/> each frame. The upward distance's
+    /// whole pixels round toward negative infinity, so the first step already reads -1. The descent stops at
     /// its authored distance, so the offset stays between minus that distance and zero.
     /// </remarks>
     public int StatueOffset => (-Descent).WholePixels;

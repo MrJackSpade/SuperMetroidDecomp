@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// her input chooses no new pose from it.
 /// </summary>
 /// <remarks>
-/// The drained poses' shots would start four pixels below her centre (#1928); they cannot shoot or fire the Grapple, so
+/// The drained poses' shots would start below her centre (#1928); they cannot shoot or fire the Grapple, so
 /// nothing fired from them reads it.
 /// </remarks>
 internal static class SamusPoseDefinitions

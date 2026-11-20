@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Application-owned ordered enemy placements selected by all room states, grouped by the area of the rooms that load them.</summary>
 /// <remarks>
-/// The 301 populations and their 1,658 placements are the ones the 322 room states select. Placement order governs
+/// The populations and their placements (<see cref="ListCount"/>, <see cref="PlacementCount"/>) are the ones the room states select. Placement order governs
 /// linked place allocation; each list states the kills that clear its room as its death quota. This is gameplay data,
 /// not an editable visual asset.
 /// </remarks>

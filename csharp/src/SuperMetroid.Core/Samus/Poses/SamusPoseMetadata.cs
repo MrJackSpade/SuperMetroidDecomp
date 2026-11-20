@@ -257,7 +257,7 @@ internal static class SamusPoseMetadata
         SamusPoseId.DraygonGrabbedMovingRightPose;
 
     /// <summary>
-    /// Applies one ordinary Draygon-held transition. Every admitted pose stays within one facing, retains radius 21, and restarts the
+    /// Applies one ordinary Draygon-held transition. Every admitted pose stays within one facing, retains the standing radius, and restarts the
     /// target's animation at its start through the normal pose setup.
     /// </summary>
     public static void ApplyDraygonGrabbedPoseChange(SamusState samus, SamusPoseId targetPose)
@@ -357,16 +357,16 @@ internal static class SamusPoseMetadata
     public static bool IsLandingPose(SamusPoseId pose) => IsRightFacingLandingPose(pose) || IsLeftFacingLandingPose(pose);
 
     /// <summary>
-    /// True for the complete right-facing <see cref="SamusMovementType.Crouching"/> family. All four
-    /// poses use radius 16 and the shared input transitions.
+    /// True for the complete right-facing <see cref="SamusMovementType.Crouching"/> family. All its
+    /// poses use the crouching radius and the shared input transitions.
     /// </summary>
     public static bool IsRightFacingCrouchingPose(SamusPoseId pose) => pose is
         SamusPoseId.CrouchingRightPose or SamusPoseId.CrouchingAimUpRightPose or
         SamusPoseId.CrouchingAimDiagonalUpRightPose or SamusPoseId.CrouchingAimDiagonalDownRightPose;
 
     /// <summary>
-    /// True for the complete left-facing <see cref="SamusMovementType.Crouching"/> family. All four
-    /// poses use radius 16 and the mirrored input transitions.
+    /// True for the complete left-facing <see cref="SamusMovementType.Crouching"/> family. All its
+    /// poses use the crouching radius and the mirrored input transitions.
     /// </summary>
     public static bool IsLeftFacingCrouchingPose(SamusPoseId pose) => IsRightFacingCrouchingPose(SamusPoseMirror.Of(pose));
 
@@ -542,7 +542,7 @@ internal static class SamusPoseMetadata
         SamusPoseId.SpringBallFallingRightPose or SamusPoseId.SpringBallFallingLeftPose or
         SamusPoseId.SpringBallJumpRightPose or SamusPoseId.SpringBallJumpLeftPose;
 
-    /// <summary>True for every stable ordinary or Spring Ball pose using radius seven.</summary>
+    /// <summary>True for every stable ordinary or Spring Ball pose using the ball's radius.</summary>
     public static bool IsStableBallPose(SamusPoseId pose) =>
         IsGroundedMorphBallPose(pose) || IsAirborneMorphBallPose(pose) ||
         IsGroundedSpringBallPose(pose) || IsAirborneSpringBallPose(pose);
@@ -611,7 +611,7 @@ internal static class SamusPoseMetadata
 
                 // The pose update routes the special target through the same larger-radius
                 // expansion collision used by controller-selected pose changes. This is
-                // observable for a crouching bomb jump: radius 16 grows to 21 and may be
+                // observable for a crouching bomb jump: the crouching radius grows to the standing one and may be
                 // rejected by a low ceiling instead of clipping Samus into terrain.
                 LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
                     level,
@@ -758,7 +758,7 @@ internal static class SamusPoseMetadata
             (IsLeftFacingFallingPose(source) && IsLeftFacingFallingPose(target));
     }
 
-    /// <summary>True only for the four radius-ten straight-down aerial bodies.</summary>
+    /// <summary>True only for the compact straight-down aerial bodies.</summary>
     public static bool IsCompactAerialPose(SamusPoseId pose) => pose is
         SamusPoseId.NormalJumpAimDownRightPose or SamusPoseId.NormalJumpAimDownLeftPose or
         SamusPoseId.FallingAimDownRightPose or SamusPoseId.FallingAimDownLeftPose;

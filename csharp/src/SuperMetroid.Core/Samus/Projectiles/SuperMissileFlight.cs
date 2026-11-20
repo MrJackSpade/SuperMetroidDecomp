@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// A Super Missile's flight (#1923): it ignites on its first update with an invisible link that closes the gap a fast
-/// missile leaves between its positions, then accelerates and leaves a trail every two updates.
+/// missile leaves between its positions, then accelerates and leaves a trail more often than a missile does.
 /// </summary>
 internal sealed class SuperMissileFlight : SamusShotBehavior
 {

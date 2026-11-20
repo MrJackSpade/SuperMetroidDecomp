@@ -200,7 +200,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// </summary>
     internal PuyoCeilingTurnFromLastDraw PuyoCeilingTurn { get; }
 
-    /// <summary>The room's enemy projectiles: their eighteen places, their spawns, their motion and their touches on Samus.</summary>
+    /// <summary>The room's enemy projectiles: their places, their spawns, their motion and their touches on Samus.</summary>
     internal EnemyProjectileEngine Projectiles { get; }
 
     /// <summary>The sound and music requests the room's enemies queue, and the music their room starts when it loads.</summary>

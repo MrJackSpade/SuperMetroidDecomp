@@ -621,8 +621,8 @@ internal static class SamusAerialPoseTransitions
     /// jumping or falling pose, preserving live velocity while reproducing pose-change collision.
     /// </summary>
     /// <remarks>
-    /// Entering radius ten from radius nineteen requires no collision work in the larger-radius check.
-    /// Leaving it probes all nine newly occupied pixels above and below. If both initial
+    /// Entering the compact radius from the jump's larger one requires no collision work in the larger-radius check.
+    /// Leaving it probes every newly occupied pixel above and below. If both initial
     /// directions are blocked, the crouch selector selects ordinary crouch; if a compensating shift's
     /// second probe is blocked, the collision exit retains the source. Neither case installs the target.
     /// </remarks>

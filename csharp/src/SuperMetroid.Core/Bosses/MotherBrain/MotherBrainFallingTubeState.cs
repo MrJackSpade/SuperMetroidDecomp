@@ -4,8 +4,8 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The state of one of Mother Brain's falling tubes. Its setup makes it and begins its animation every time, so nothing
-/// it holds is inherited from an earlier occupant of its place (#1476, #2319).
+/// The state of one of Mother Brain's falling tubes: where it falls and its animation, which its setup starts afresh
+/// for each tube (#1476, #2319).
 /// </summary>
 internal sealed class MotherBrainFallingTubeState
 {

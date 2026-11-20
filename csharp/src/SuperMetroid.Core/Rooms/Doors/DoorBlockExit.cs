@@ -5,9 +5,8 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// (<see cref="ElevatorRide"/>).
 /// </summary>
 /// <remarks>
-/// The game tells them apart by the destination: the pseudo-door leads to no room, so collision treats the block as solid
-/// and arms the elevator instead of publishing a transition. Nothing else of the pseudo-door is ever read, so no definition
-/// is kept for it, and every elevator's door blocks lead to the same one.
+/// An elevator's door blocks stop Samus and arm the elevator; they lead to no room, and every elevator's door blocks
+/// lead to the same elevator ride.
 /// </remarks>
 public readonly record struct DoorBlockExit
 {

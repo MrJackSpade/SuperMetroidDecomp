@@ -10,9 +10,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// This movement belongs to Mother Brain, not to Samus's own movement: while the beam locks her, her own movement does
 /// not move her, and Mother Brain's attack moves her instead.
 ///
-/// Each move adds its velocity to Samus's position in 256ths of a pixel only: the finer part of her position is
-/// untouched, a fraction past a whole pixel carries into the whole pixels, and her current and previous positions both
-/// take the result.
+/// Each move pushes Samus by its speed: a fraction past a whole pixel carries into the whole pixels, and her current
+/// and previous positions both take the result.
 /// </remarks>
 public sealed class MotherBrainRainbowBeamSamusMovement
 {
@@ -40,7 +39,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         if (!reachedWall)
         {
-            // The vertical part is the push's speed times the cosine of the beam's angle, in 256ths of a pixel.
+            // The vertical part is the push's speed along the beam's angle.
             MoveVerticallyTowardCeilingOrFloor(samus, CalculateYVelocity(speed: MotherBrainRainbowBeamPushDefinitions.PushSpeed, RainbowBeamAngle));
 
             // The wall step reports only whether Samus reached the wall; the vertical clamp
@@ -83,8 +82,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     /// <summary>
-    /// Steps Samus's fall: ease horizontal speed toward zero, add the fall's gravity to her vertical speed, then move her within
-    /// the arena's bounds.
+    /// Steps Samus's fall: her horizontal speed eases toward rest and her fall speeds up, as the fall's definitions
+    /// give, and she moves within the arena's bounds.
     /// </summary>
     /// <param name="samus">Samus, falling from the beam.</param>
     public MotherBrainForcedSamusMovementResult StepFallingAfterRainbowBeam(SamusState samus)
@@ -109,14 +108,14 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             reachedBoundary: reachedVerticalBoundary);
     }
 
-    /// <summary>Projects the beam's speed onto the vertical axis using the quarter-turn sine lookup.</summary>
+    /// <summary>The beam's speed along its angle, vertically.</summary>
     /// <param name="speed">The beam's speed, whose size the sine scales.</param>
     /// <param name="angle">The live beam angle.</param>
     private static SignedEightEight CalculateYVelocity(
         SignedEightEight speed,
         RotationAngle angle)
     {
-        // The speed's size times the sine's size in 256ths, in the sine's direction.
+        // The vertical speed is the push's speed along the beam's angle.
         return SpeedAlongAngle.Along(
             speed, (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle());
     }
@@ -152,7 +151,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     private static bool MoveHorizontallyTowardWall(SamusState samus, SignedEightEight velocity)
     {
         FixedCoordinate moved = MoveByPushVelocity(samus.Position.X, velocity);
-        // Every store is hidden from the camera's horizontal record.
+        // The push's movement is hidden from the camera.
         samus.PreviousPositionCorrections.RainbowPush.HideCoarseHorizontalMovement(moved.FractionOfPixel);
 
         if (moved.Whole >= MotherBrainRainbowBeamPushDefinitions.WallX)
@@ -168,9 +167,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return false;
     }
 
-    /// <summary>Moves the position by the velocity in 256ths of a pixel, carrying into whole pixels, and keeps its finer precision unchanged.</summary>
+    /// <summary>Moves the position by the velocity.</summary>
     private static FixedCoordinate MoveByPushVelocity(FixedCoordinate position, SignedEightEight velocity) =>
-        // The push moves only in 256ths of a pixel; precision finer than that is never read or changed.
         position.MovedBy(velocity);
 
     /// <summary>Records Samus's position before a forced move changes it.</summary>

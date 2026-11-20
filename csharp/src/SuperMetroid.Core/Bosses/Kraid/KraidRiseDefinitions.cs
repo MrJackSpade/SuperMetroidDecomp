@@ -7,5 +7,5 @@ internal static class KraidRiseDefinitions
 {
     /// <summary>The medium diagonal foreground shake Kraid's setup gives the room for his rise.</summary>
     internal static readonly EarthquakeShake RiseShake =
-        new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.RoomBlocks);
 }

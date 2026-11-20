@@ -239,7 +239,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         if (chain.TargetAngle.WholeStep == state.OrbitAngle.WholeStep)
         {
             SynchronizeShaktoolOrbitTargets(place, chain.TargetAngle);
-            // The game keeps only the whole part of the restarted progress, which is already whole.
             state.CurlProgress = ShaktoolOrbitDefinitions.StraighteningStart;
             chain.Motion = chain.Motion with { NextWall = ShaktoolWallResponse.TurnEndForEnd };
         }

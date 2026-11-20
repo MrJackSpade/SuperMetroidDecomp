@@ -22,7 +22,7 @@ internal static class MenuSpriteExtractor
             var attributes = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), part + 3));
             parts[index] = new() { OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)bus.ReadCartridgeByte(part + 2)),
                 TileColumn = attributes.TileNumber % MapSpriteFormat.TileColumns, TileRow = attributes.TileNumber / MapSpriteFormat.TileColumns,
-                Size = x.IsLarge ? 16 : 8, Priority = attributes.Priority, FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
+                Size = x.IsLarge ? 16 : 8, Depth = attributes.Depth, FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
                 // $81:879F replaces source palette bits with its caller's live palette.
                 Palette = null };
         }

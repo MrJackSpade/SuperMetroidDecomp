@@ -25,7 +25,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
 
     /// <summary>Shared music and sound queue advanced by the menu scene.</summary>
     private readonly AudioQueues audio;
-    /// <summary>The menu screen game over draws: its artwork, pictures, colours and sprite entries.</summary>
+    /// <summary>The menu screen game over draws: its artwork, pictures, colours and sprites.</summary>
     private readonly MenuScreen screen;
     /// <summary>Detects newly pressed answer-navigation and confirmation buttons.</summary>
     private readonly ControllerInputState controller = new();
@@ -219,7 +219,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         return new(screen.Paint(), layers, fade.Level);
     }
 
-    /// <summary>Builds the scene's Baby, egg, and selected-answer cursor sprite entries from installed art.</summary>
+    /// <summary>Builds the scene's Baby, egg, and selected-answer cursor sprites from installed art.</summary>
     private void PrepareRenderSprites()
     {
         ScreenSprites sprites = screen.Sprites;

@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
-/// The Holtz's (Holtz's) idle, swoop and cooldown animations and its flames' animation as typed animations
-/// (#641): one segment per animation a spawn, branch or wake enters, and the wingbeat the idle loops after its entry cue
-/// (#2276), in authored order. Their steps are <see cref="HoltzAnimations"/>.
+/// The Holtz's idle, swoop and cooldown animations and its flames' animation (#641), and the wingbeat the idle loops
+/// after its entry cue (#2276). Their steps are <see cref="HoltzAnimations"/>.
 /// </summary>
 internal enum HoltzSegment
 {

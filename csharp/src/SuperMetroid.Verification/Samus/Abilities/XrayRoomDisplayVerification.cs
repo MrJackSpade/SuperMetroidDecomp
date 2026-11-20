@@ -38,25 +38,14 @@ internal static class XrayRoomDisplayVerification
                 XrayRoomDisplayRules.Select(RoomDefinitions.GlassTunnel, new LatchedFirefleaDarkness(RgbColor.Black), boss), "Fireflea mode takes precedence over exclusions");
         }
         AssertEqual(3171, XrayWindowRenderDefinitions.ActiveBackdrop, "native stage-eight backdrop");
-        const BlendedLayers revealLayers = BlendedLayers.Foreground | BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop;
-        const BlendedLayers excludedLayers = BlendedLayers.Foreground | BlendedLayers.Backdrop;
-        AssertEqual(revealLayers, XrayRoomBlendMode.RevealBlocks.Blended, "reveal blend");
-        AssertEqual(excludedLayers, XrayRoomBlendMode.PreserveBackgrounds.Blended, "excluded blend");
-        AssertEqual(revealLayers, XrayRoomBlendMode.Fireflea.Blended, "Fireflea blend");
-        AssertEqual(BlendOperation.Add, XrayRoomBlendMode.RevealBlocks.Operation(false), "reveal blend brightens");
-        AssertEqual(BlendOperation.Subtract, XrayRoomBlendMode.RevealBlocks.Operation(true), "a darkening room's reveal blend darkens");
-        AssertEqual(BlendOperation.Add, XrayRoomBlendMode.PreserveBackgrounds.Operation(false), "excluded blend brightens");
-        AssertEqual(BlendOperation.Subtract, XrayRoomBlendMode.PreserveBackgrounds.Operation(true), "a darkening room's excluded blend darkens");
-        AssertEqual(BlendOperation.Subtract, XrayRoomBlendMode.Fireflea.Operation(false), "Fireflea forces subtraction");
-        AssertTrue(XrayRoomBlendMode.RevealBlocks.Halves && XrayRoomBlendMode.PreserveBackgrounds.Halves
-            && !XrayRoomBlendMode.Fireflea.Halves, "every room but Fireflea's halves");
+        AssertTrue(!XrayRoomBlendMode.RevealBlocks.KeepsBackgrounds && XrayRoomBlendMode.PreserveBackgrounds.KeepsBackgrounds
+            && !XrayRoomBlendMode.Fireflea.KeepsBackgrounds, "only the excluded rooms keep their backgrounds");
         AssertTrue(XrayRoomBlendMode.RevealBlocks.RevealsBlocks && !XrayRoomBlendMode.PreserveBackgrounds.RevealsBlocks
             && !XrayRoomBlendMode.Fireflea.RevealsBlocks, "only the reveal blend reveals blocks");
         AssertTrue(!XrayRoomBlendMode.RevealBlocks.KeepsDarkness && !XrayRoomBlendMode.PreserveBackgrounds.KeepsDarkness
             && XrayRoomBlendMode.Fireflea.KeepsDarkness, "only Fireflea's blend keeps the room's darkness");
-        AssertEqual(new FadeLevelColour(7, 7, 7), XrayRoomBlendMode.RevealBlocks.Tint, "the reveal blend's grey tint");
-        AssertEqual(new FadeLevelColour(0, 0, 0), XrayRoomBlendMode.PreserveBackgrounds.Tint, "an excluded room takes no tint");
-        AssertEqual(XrayWindowRenderDefinitions.RevealTint, XrayRoomBlendMode.Fireflea.Tint, "Fireflea's tint is never lighter than the reveal's grey");
+        AssertTrue(XrayRoomBlendMode.RevealBlocks.WashesGrey && !XrayRoomBlendMode.PreserveBackgrounds.WashesGrey
+            && XrayRoomBlendMode.Fireflea.WashesGrey, "a reveal room and Fireflea's take the X-ray's grey; an excluded room takes no tint");
         foreach (RoomDefinition room in RetailRooms.All)
             AssertEqual(RoomDefinitions.PointerOf(room) is 0xCEFB, room.XrayHidesBackground, "only the Glass Tunnel hides its background under X-ray");
         Console.WriteLine("  X-ray room rules: all rooms, bosses and Fireflea precedence agree with native comparisons.");

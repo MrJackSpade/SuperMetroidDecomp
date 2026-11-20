@@ -5,8 +5,8 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The actors and input a room's enemy initialization reads: room terrain, Samus, the held controller mask and the
-/// camera.
+/// The actors and input a room's enemy initialization reads: room terrain, Samus, the gameplay actions the player holds
+/// and the camera.
 /// </summary>
 public interface IRoomEnemyActorContext
 {

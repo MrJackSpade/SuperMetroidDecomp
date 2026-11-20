@@ -20,8 +20,8 @@ internal sealed class MotherBrainThirdPhaseFight
 
     /// <summary>
     /// Mother Brain's phase-three walking.
-    /// This is deliberately separate from the visible body animation: the walking
-    /// decides what Mother Brain wants to do only while the animation-owned pose is standing.
+    /// Apart from the visible body animation, the walking decides what Mother Brain wants to do only while her animated
+    /// pose is standing.
     /// </summary>
     public MotherBrainPhase3WalkingPhase Phase3WalkingPhase { get; private set; } =
         MotherBrainPhase3WalkingPhase.Inactive;

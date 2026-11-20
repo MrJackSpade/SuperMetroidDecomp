@@ -3,9 +3,9 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
-/// A kept behaviour as some areas resolve it (#1805, #2556): the special-block and special-air readings those areas' own
-/// tables give it, with every other reading the behaviour's own. <see cref="RoomBlockBehavior.In"/> holds it in a room of
-/// one of those areas.
+/// A kept behaviour as some areas resolve it (#1805, #2556): the special-block and special-air reactions it has in those
+/// areas, with every other reading the behaviour's own. <see cref="RoomBlockBehavior.In"/> holds it in a room of one of
+/// those areas.
 /// </summary>
 /// <param name="Areas">The areas that resolve the behaviour so.</param>
 /// <param name="Unresolved">The behaviour the areas resolve, holding neither the special-block nor the special-air reading.</param>

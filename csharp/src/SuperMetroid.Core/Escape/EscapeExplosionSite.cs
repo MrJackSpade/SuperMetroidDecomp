@@ -8,8 +8,7 @@ namespace SuperMetroid.Core.Escape;
 /// Where an escape room's random explosions go off (#2287): a behaviour object (#2485) holding the cadence they go off at,
 /// whether they go off only over scenery, the kinds an explosion whose random draw leaves its kind open shows by its
 /// block's column, and what the room's quake does beside them. Outdoors they go off at the outdoor cadence and only over
-/// scenery, the room shaking on with them; indoors at the slower indoor cadence anywhere on the screen. It replaces the outdoors
-/// test the escape rooms' mains made.
+/// scenery, the room shaking on with them; indoors at the slower indoor cadence anywhere on the screen.
 /// </summary>
 public abstract class EscapeExplosionSite
 {

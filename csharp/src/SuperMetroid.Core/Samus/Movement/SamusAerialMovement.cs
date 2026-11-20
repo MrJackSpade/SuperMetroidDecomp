@@ -111,9 +111,8 @@ public static class SamusAerialMovement
             if (horizontal.Collided)
                 samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
-            // The transition's Y frame is not empty: it applies only the externally produced
-            // displacement. Zero returns before collision, positive values gain the
-            // downward +1.0 bias, and negative values move upward exactly as supplied.
+            // The transition's vertical move applies only the extra displacement: none moves nothing, a downward one
+            // moves Samus one more pixel, and an upward one moves her exactly as given.
             SignedSixteenSixteen? externalY = SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(
                 samus.Kinematics);
             BlockMoveResult? vertical = null;
@@ -199,7 +198,7 @@ public static class SamusAerialMovement
 
         // If acceleration did not overshoot the cap, spin jump retains motion only while
         // turning (SamusAccelerationMode.Turning) or while the input matching the pose's facing direction is held.
-        // A speed the maximum capped bypasses this test exactly as the game does.
+        // A speed the maximum capped bypasses this test.
         bool forwardHeld = IsForwardHeld(samus, controllerInput);
         bool allowHorizontal = calculation.ReachedMaximum ||
             speed.AccelerationMode == SamusAccelerationMode.Turning ||
@@ -368,9 +367,8 @@ public static class SamusAerialMovement
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
         }
 
-        // The vertical check-and-move selects the no-speed probe for no vertical direction even in
-        // airborne turn art. Moonfall therefore pauses gravity during its turn;
-        // this is the same branch used by grounded aimed crouching turns.
+        // The turn holds Samus still vertically, as the grounded aimed crouching turns do, so Moonfall pauses gravity
+        // during its turn.
         AerialMovementResult result;
         if (samus.Kinematics.VerticalVelocity.HasNoDirection)
         {
@@ -473,9 +471,8 @@ public static class SamusAerialMovement
             releasedFlightEnds = true;
         }
 
-        // The game selects SamusAccelerationMode.Decelerating every frame, so the speed calculation always takes its deceleration
-        // branch until it passes zero and resets to SamusAccelerationMode.Accelerating. Only then can an input-free frame
-        // clear base speed instead of calling the horizontal mover.
+        // The released flight always slows until its speed passes zero; only then can an update without input stop her
+        // base speed.
         speed.AccelerationMode = SamusAccelerationMode.Decelerating;
         // The release's speeds are the same in every medium, so the medium Samus is in does not choose them.
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(SamusHorizontalSpeedDefinitions.GrappleRelease);
@@ -710,9 +707,7 @@ public static class SamusAerialMovement
             return;
         }
 
-        // The window's bounds are whole 256ths of a pixel, and the full falling speed is compared with them. That is the
-        // game's comparison for every speed under 256 pixels an update, and a falling speed never reaches that: gravity
-        // adds under a pixel per update, so it would take over two thousand updates of falling, past any room's height.
+        // A fresh Jump restarts the spin while the fall's speed lies within the Space Jump window.
         UnsignedSixteenSixteen fallingSpeed = samus.Kinematics.VerticalVelocity.Speed;
         // The remembered medium is written by the preceding animation pass, not recomputed here. This
         // matters while crossing a surface: the top-boundary gate above and remembered

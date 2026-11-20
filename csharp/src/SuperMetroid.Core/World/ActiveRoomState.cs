@@ -26,7 +26,8 @@ internal sealed class ActiveRoomState
     /// <summary>The source room's foreground screen during a door's opening scroll, or null (#1346).</summary>
     internal RoomDoorBackground? DoorSourceBackground { get; set; }
 
-    /// <summary>The load-station record that established the loading or loaded room; null for a room entered otherwise.</summary>
+    /// <summary>The load station that established the loading or loaded room; null for a room entered
+    /// otherwise.</summary>
     public LoadStation? ActiveLoadStation => _construction is { } construction ? construction.LoadStation : Scope?.LoadStation;
 
     /// <summary>The completed scope of the loaded room, or null before the first load.</summary>

@@ -9,7 +9,7 @@ public static class IntroCinematicDefinitions
     /// <summary>The timing of the repeating crossfades between the narration and the flashback scenes.</summary>
     public static class Crossfade
     {
-        /// <summary>The updates a crossfade lasts, its last included.</summary>
+        /// <summary>The updates a crossfade lasts.</summary>
         public const int Updates = 128;
         /// <summary>
         /// The crossfaded scenes in the order their shades are listed and laid over each other (#2567): the narration's, the

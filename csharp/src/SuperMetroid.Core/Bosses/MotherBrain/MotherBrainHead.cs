@@ -82,7 +82,7 @@ internal sealed class MotherBrainHead
         place.AnimationClock.ShowForGood();
     }
 
-    /// <summary>Runs the head main/hurt entry and its brain action's choice of whether her brain and neck are drawn.</summary>
+    /// <summary>Chooses whether her brain and neck are drawn and places her head on her neck.</summary>
     internal static void RunMotherBrainHeadMain(RoomEnemyPlace head, MotherBrainEnemyState state, SamusState samus)
     {
         // Her brain's action decides whether her own draw shows her neck with her brain.
@@ -145,8 +145,7 @@ internal sealed class MotherBrainHead
         if (!state.DrawNeck || state.Body.Presence.HasAny(EnemyPresence.Hidden))
             return;
 
-        // The neck draw emits the joint nearest the brain first and the body-side joint
-        // last. Equal-priority overlap therefore follows the same drawing precedence.
+        // The joints are drawn from the brain down to her body, so the joints nearer her brain lie over the others.
         Offset16<RoomPixels> neckShake = MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.NeckShakeStep, head.HurtFlash.UpdatesLeft);
         foreach (MotherBrainNeckJoint joint in state.Neck.Joints.Reverse())
         {

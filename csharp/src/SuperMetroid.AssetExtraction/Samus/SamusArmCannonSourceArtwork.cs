@@ -115,7 +115,7 @@ public sealed class SamusArmCannonSourceArtwork
     /// <exception cref="InvalidDataException">The offset lies outside the extracted drawing window.</exception>
     private byte ReadDrawingByte(int offset) => Descriptors.ReadDrawingByte(offset);
 
-    /// <summary>Gets the installed cover's character, palette, priority, and mirroring for aim <paramref name="direction"/>.</summary>
+    /// <summary>Gets the installed cover's character, palette, depth, and mirroring for aim <paramref name="direction"/>.</summary>
     public SpritePart CoverAppearance(SamusProjectileDirection direction) => CoverAppearanceAt(direction.ToAimIndex());
 
     /// <summary>The installed cover appearance at the cartridge's aim row <paramref name="aimRow"/>, 0–9.</summary>

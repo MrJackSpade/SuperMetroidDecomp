@@ -19,7 +19,5 @@ internal static class FrameClockPrivateAccess
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Compatibility.FrameClock)
     {
-        /// <summary>The private field <c>ShortCounterPeriod</c>, reached by name.</summary>
-        internal static int ShortCounterPeriod => PrivateState.StaticField<int>(typeof(global::SuperMetroid.Core.Compatibility.FrameClock), "ShortCounterPeriod");
     }
 }

@@ -41,8 +41,8 @@ internal static class SamusContentIdentityVerification
         SamusSpritemapId?[] entries = [.. Enumerable.Repeat<SamusSpritemapId?>(new SamusSpritemapId(0), SamusSpritemapSources.EntryCount)];
         SamusSpritemapDefinition[] definitions =
         [
-            new([SpritePart.Create(offset: Offset16<ScreenPixels>.Of(0, 0), large: false, character: 0, palette: 0, priority: 0)]),
-            new([SpritePart.Create(offset: Offset16<ScreenPixels>.Of(1, 0), large: false, character: 1, palette: 0, priority: 0)]),
+            new([SpritePart.Create(offset: Offset16<ScreenPixels>.Of(0, 0), large: false, character: 0, palette: 0, depth: SuperMetroid.Core.Assets.ActorDepth.BehindRoom)]),
+            new([SpritePart.Create(offset: Offset16<ScreenPixels>.Of(1, 0), large: false, character: 1, palette: 0, depth: SuperMetroid.Core.Assets.ActorDepth.BehindRoom)]),
         ];
         var spritemaps = new SamusSpritemapSources(topBases, bottomBases, entries, definitions);
         var one = new SpritePart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount];

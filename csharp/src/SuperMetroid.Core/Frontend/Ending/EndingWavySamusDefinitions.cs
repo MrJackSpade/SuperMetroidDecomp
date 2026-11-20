@@ -11,8 +11,8 @@ internal static class EndingWavySamusDefinitions
     /// </summary>
     internal const int AngleStepPerFrame = 8;
     /// <summary>
-    /// The wavy-Samus setup: the wave's angle at screen line zero before its first advance, one step short of a whole turn,
-    /// so the first advance carries it past the turn's start (#1627: an angle on the turn, not a minus-one marker).
+    /// The wavy-Samus setup: the wave's angle at screen line zero before its first advance, one step short of a whole
+    /// turn, so the first advance carries it past the turn's start (#1627).
     /// </summary>
     internal static TrigonometryAngle InitialAngle { get; } = TrigonometryAngle.Wrapped(-1);
     /// <summary>

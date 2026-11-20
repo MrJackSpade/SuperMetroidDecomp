@@ -27,7 +27,7 @@ internal static class ExtendedEnemyCompositionResourceChecks
         OffsetX = x, OffsetY = -x,
         Parts = [new SpriteVisualPart
         {
-            OffsetX = 0, OffsetY = 0, Size = 8, Priority = 2, Palette = 0,
+            OffsetX = 0, OffsetY = 0, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindFrontParts, Palette = 0,
             TileColumn = 0, TileRow = 0, FlipX = false, FlipY = false,
         }],
     };

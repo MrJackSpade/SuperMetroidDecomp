@@ -48,7 +48,7 @@ internal static class SamusAtmosphereSheetComposer
         return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);
     }
 
-    /// <summary>A small sprite whose installed attributes name its character, palette, priority and flips.</summary>
+    /// <summary>A small sprite whose installed attributes name its character, palette, depth and flips.</summary>
     private static SheetFrameSource Direct(SamusSheetInputs inputs, SamusAtmosphericSourceArtwork atmosphere, string name,
         SamusAtmosphericPictures type, int frame)
     {

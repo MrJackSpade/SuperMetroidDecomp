@@ -50,7 +50,7 @@ public sealed class SamusAtmosphericSourceArtwork
     /// <summary>Immutable four-frame view of AtmosphericGraphics_SpriteTileNumberAttribute_4_6_7_LavaDust ($90:8C17), shared by types 4, 6, and 7.</summary>
     public IReadOnlyList<SpritePart> LavaAndDust { get; }
 
-    /// <summary>Resolves one single-piece appearance: character, palette, priority and mirroring.</summary>
+    /// <summary>Resolves one single-piece appearance: character, palette, depth and mirroring.</summary>
     /// <param name="pictures">The effect's pictures.</param>
     /// <param name="frame">The frame of the effect's four, from 0; it does not select an animation duration.</param>
     /// <param name="attributes">Selected appearance on success; the default piece on failure.</param>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>
-/// The Boulder's mirrored rolling loops (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// The Boulder's mirrored rolling loops (#641).
 /// Their steps are <see cref="BoulderAnimations"/>.
 /// </summary>
 internal enum BoulderSegment

@@ -584,10 +584,8 @@ internal sealed class EnemyDeathsAndDrops
         }
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(spawn.Population.DefinitionId);
-        // Unlike the room's enemy setup and an ordinary enemy spawn, a respawn
-        // never sets the frame: the actor keeps the empty frame its death left,
-        // or what its init AI set, until its first cue. An empty frame is also
-        // the contact gate, so the respawned actor cannot touch Samus before then.
+        // A respawned enemy keeps the empty frame its death left unless its setup chooses one, until its first cue. An
+        // empty frame also keeps the respawned enemy from touching Samus before then.
         _lifecycle.InitializePlaceFromDefinition(place, spawn.Population, definition);
         _lifecycle.SetUpSpawnedEnemy(place);
     }

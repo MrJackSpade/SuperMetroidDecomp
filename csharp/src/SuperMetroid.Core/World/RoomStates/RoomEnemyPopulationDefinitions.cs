@@ -2,11 +2,11 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>Application-owned ordered enemy placements selected by all room states, grouped by the area of the rooms that load them.</summary>
+/// <summary>Each room state's ordered enemy placements, grouped by the area of the rooms that load them.</summary>
 /// <remarks>
-/// The populations and their placements are the ones the room states select, which the import's check of the game's data confirms. Placement order governs
-/// linked place allocation; each list states the kills that clear its room as its death quota. This is gameplay data,
-/// not an editable visual asset.
+/// The populations and their placements are the ones the room states select, which the import's check of the game's data
+/// confirms. Placement order decides which place each linked enemy takes; each list states the kills that clear its room
+/// as its death quota.
 /// </remarks>
 [NumberedIdentities("Each numbered member is the enemy population of a room whose own name carries the number (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); nothing indexes the populations by number.")]
 public static class RoomEnemyPopulationDefinitions

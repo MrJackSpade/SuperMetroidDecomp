@@ -134,7 +134,7 @@ internal sealed class MotherBrainRainbowAndDeath
     {
         DustExplosionAnimation animation = MotherBrainDeathExplosionDefinitions.Animations[request.Animation];
         var projectile = _projectiles.AllocateEnemyProjectile();
-        if (projectile is null) return; // Shared-pool exhaustion drops the spawn.
+        if (projectile is null) return; // A room whose projectiles are all in flight spawns none.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion,
             _projectileAttacks.Projectile, graphics: default);
         projectile.StartAnimation(new DustExplosionProjectileAnimation(animation));
@@ -288,7 +288,7 @@ internal sealed class MotherBrainRainbowAndDeath
             state.Colours.ShowRainbow(MotherBrainRainbowImage.Drained);
             return;
         }
-        // The rainbow colours' handler steps them only on its phase of the body's update count.
+        // The rainbow's colours step only on their update of the body's cadence.
         if (!step.Starts(MotherBrainStepEffect.RainbowColours) || !MotherBrainCadenceDefinitions.RainbowColoursStep.IsSetIn(state.Body.FrameCounter))
             return;
 

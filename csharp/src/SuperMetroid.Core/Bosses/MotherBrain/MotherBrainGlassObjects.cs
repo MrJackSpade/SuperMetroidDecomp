@@ -29,11 +29,11 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>Whether the current room loaded the glass room object before head damage can update it.</summary>
     private bool MotherBrainGlassWasLoaded { get; set; }
 
-    /// <summary>Runs the glass setup against the place room population gave it.</summary>
+    /// <summary>Sets the glass up at its place in the room.</summary>
     internal void SetupMotherBrainGlass(RoomLevelData level, RoomObjectPlace place)
     {
         place.Become(new MotherBrainGlassObject(this));
-        // The setup rewrites only the block's type and parameter, so it keeps its picture and what it shows (#2502).
+        // The setup makes the glass's block solid and shootable and leaves its picture as it is (#2502).
         level.SetCollision(place.Block, RoomCollisionType.SolidBlock);
         level.SetBehavior(place.Block, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
 

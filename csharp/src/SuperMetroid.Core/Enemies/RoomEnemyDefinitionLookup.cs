@@ -21,7 +21,7 @@ public static class RoomEnemyDefinitionLookup
         return byId.ToFrozenDictionary();
     }
 
-    /// <summary>Gets an application-owned definition, rejecting an unreferenced identity.</summary>
+    /// <summary>Gets a definition by identity, rejecting an unreferenced identity.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="definitionId"/> is not referenced by a room state.</exception>
     public static RoomEnemyDefinition Get(EnemyDefinitionId definitionId) =>
         RoomEnemyDefinitionCatalog.ById.TryGetValue(definitionId, out RoomEnemyDefinition definition)

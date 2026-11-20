@@ -84,8 +84,8 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     }
 
     /// <summary>
-    /// Gives one of the rescue wall's blocks its collision kind and behaviour, as the wall's setup rewrites only a block's
-    /// type and behaviour: the block keeps its picture and what it shows.
+    /// Gives one of the rescue wall's blocks its collision kind and behaviour: the block keeps its picture and what it
+    /// shows.
     /// </summary>
     private static void WriteWallBlock(RoomLevelData level, Position16<RoomBlocks> block, RoomCollisionType collision,
         RoomBlockBehavior behavior)

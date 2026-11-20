@@ -57,7 +57,8 @@ internal sealed class CrocomireSkeleton
         }
     }
 
-    /// <summary>Waits with the skeleton behind the wall before its rumble and picture-load sequence.</summary>
+    /// <summary>Waits with the skeleton behind the wall until the wall rumbles and his skeleton is bared behind
+    /// it.</summary>
     internal void RunCrocomireWaitBehindWall(CrocomireEnemyState state, SamusState samus)
     {
         if (samus.Position.X.Whole >= CrocomireSkeletonDefinitions.WallApproachX)

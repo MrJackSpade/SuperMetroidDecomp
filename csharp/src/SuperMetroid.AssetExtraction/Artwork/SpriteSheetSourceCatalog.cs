@@ -63,8 +63,11 @@ internal sealed class SpriteSheetSourceCatalog
     /// <summary>Each painted sheet's composer (<see cref="PaintedSheets"/>).</summary>
     private readonly Dictionary<SpriteSheetId, Func<ComposedSpriteSheet>> _painted;
 
-    /// <summary>The OBJ palette row and priority of parts that choose neither, as the families' draws leave them.</summary>
-    private const int DefaultPalette = 0, DefaultPriority = 0;
+    /// <summary>The OBJ palette row of parts that do not choose their own, as the families' draws leave it.</summary>
+    private const int DefaultPalette = 0;
+
+    /// <summary>The depth of parts that do not choose their own, as the families' draws leave it.</summary>
+    private const ActorDepth DefaultDepth = ActorDepth.BehindRoom;
 
     /// <summary>
     /// Composes sheet <paramref name="sheet"/> with the composer bound to it: a painted sheet's own composer, or the sprite
@@ -72,7 +75,7 @@ internal sealed class SpriteSheetSourceCatalog
     /// </summary>
     internal ComposedSpriteSheet Compose(SpriteSheetId sheet) => _painted.TryGetValue(sheet, out Func<ComposedSpriteSheet>? paint)
         ? paint()
-        : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
+        : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultDepth);
 
     /// <summary>
     /// Each sheet painted from the menus' pages, the HUD's images, the screen floors and pictures, bound to its own

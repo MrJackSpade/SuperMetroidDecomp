@@ -37,7 +37,7 @@ public sealed class PauseReserveTankPresentation
     /// Draws one full, empty, partially filled, or end-cap reserve frame of the pause sheet at a strip position, in the
     /// strip's own colours (#1544).
     /// </summary>
-    /// <param name="entries">The screen's sprite entries.</param>
+    /// <param name="entries">The screen's sprites.</param>
     /// <param name="sheet">The pause sheet.</param>
     /// <param name="visual">The one of the ten reserve visuals to draw.</param>
     /// <param name="index">The slot's place in the strip: a tank's, counted from the first, or the one after her last tank for the trailing cap.</param>

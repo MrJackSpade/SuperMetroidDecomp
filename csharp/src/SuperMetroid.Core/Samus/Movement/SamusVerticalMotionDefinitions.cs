@@ -4,8 +4,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 internal static class SamusVerticalMotionDefinitions
 {
     /// <summary>
-    /// The upward speed of the Morph Ball's first rebound; the second rebound is one pixel per frame slower, and
-    /// both rebounds have zero fractional speed.
+    /// The upward speed of the Morph Ball's first rebound, a pixel an update; the second rebound does not rise.
     /// </summary>
     internal static UnsignedSixteenSixteen BallBounceSpeed { get; } = UnsignedSixteenSixteen.FromWholePixels(1);
 

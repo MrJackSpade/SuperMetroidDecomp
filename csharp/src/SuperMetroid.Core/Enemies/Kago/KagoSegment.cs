@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>
-/// Kago's slow and post-hit animation loops (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// Kago's slow and post-hit animation loops (#641).
 /// Their steps are <see cref="KagoAnimations"/>.
 /// </summary>
 internal enum KagoSegment

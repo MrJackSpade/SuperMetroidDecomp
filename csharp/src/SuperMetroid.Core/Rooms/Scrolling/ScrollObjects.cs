@@ -64,7 +64,8 @@ internal sealed class ScrollObjects
     {
         Ensure.NotNull(level);
         Ensure.NotNull(place);
-        // The setup rewrites only the block's type and parameter, so it keeps its picture and what it shows (#2502).
+        // The setup changes how the block collides and reacts, and the block keeps its picture and what it shows
+        // (#2502).
         (RoomCollisionType collision, int offset) = extension.TowardTrigger switch
         {
             ScrollExtensionDirection.Left => (RoomCollisionType.HorizontalExtension, -1),

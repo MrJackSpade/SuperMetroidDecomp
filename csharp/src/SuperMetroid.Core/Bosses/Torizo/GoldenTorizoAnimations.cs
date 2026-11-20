@@ -15,9 +15,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// and each segment names the side, the foot and the animations it continues in; where the facings differ, the difference
 /// is written where its segment is: facing left, Golden Torizo lowers its arm again before it throws a caught Super Missile,
 /// and facing right lifts it straight on; facing right on its left leg, it decides whether to jump back as its leg plants
-/// rather than as it reaches. A pose shown twice running, with nothing between, is one beat of both durations
-/// (#2331): a Torizo is no boss-body part, so nothing waits on a second showing of a picture, and no owner resumes a
-/// catch partway.
+/// rather than as it reaches. A pose shown twice running, with nothing between, is one beat of both durations (#2331).
 /// </summary>
 internal static class GoldenTorizoAnimations
 {

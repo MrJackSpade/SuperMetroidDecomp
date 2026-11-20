@@ -240,9 +240,8 @@ public sealed class AudioQueues
         if (!admission.Joins(new SoundSuppression(_gameplay.DoorTransitionDisablesSounds, _gameplay.AttractDemoPlaying, _gameplay.PowerBombExploding)))
             return admission;
 
-        // Every priority turns a request away once the queue holds its most (SoundQueueAdmission.MaximumOccupancy), so an
-        // admitted request always finds room: the game's handling of a request arriving at a queue with no room, which
-        // keeps the higher-priority of the two, is never reached.
+        // Every priority turns a request away once the queue holds its most (SoundQueueAdmission.MaximumOccupancy), so
+        // an admitted request always finds room.
         queue.Add(soundEffect);
         return admission;
     }

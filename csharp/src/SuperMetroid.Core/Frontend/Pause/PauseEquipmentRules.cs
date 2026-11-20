@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 
-/// <summary>Application-owned pause inventory and transfer rules, independent of authored menu visuals.</summary>
+/// <summary>The pause inventory and transfer rules, independent of authored menu visuals.</summary>
 internal static class PauseEquipmentRules
 {
     /// <summary>A reserve tank's manual transfer: one energy per selected manual-transfer tick.</summary>

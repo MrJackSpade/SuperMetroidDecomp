@@ -10,8 +10,8 @@ internal static class OwtchMovementDefinitions
     internal static readonly RandomChance SurfacesMovingRight = RandomChance.Highest(1, new RandomSampleField(8, 1));
 
     /// <summary>
-    /// The random field a walking Owtch's burial roll starts from: the sample's lowest 256-value field, 0 through 255. The roll adds the
-    /// enemy's frame counter and continues past the field's last value from zero.
+    /// The random field a walking Owtch's burial roll starts from: whether it sinks into the ground. The roll adds the
+    /// enemy's update count, so the updates it sinks on move on as the count advances.
     /// </summary>
     internal static readonly RandomSampleField SinkRoll = new(0, 8);
 

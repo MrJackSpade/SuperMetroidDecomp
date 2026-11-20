@@ -179,14 +179,14 @@ internal sealed class EnemyProjectileEngine
     /// <param name="level">The room's blocks, which moving projectiles collide with.</param>
     /// <param name="samus">Samus, for behaviours and cues that act on her.</param>
     /// <param name="camera">The camera, for behaviours and cues that test the screen.</param>
-    /// <param name="shortCounter">The game's short frame counter for this pass, 0 through 255, which cadences sample.</param>
+    /// <param name="shortCounter">The enemies' short update count for this pass, which cadences sample.</param>
     /// <param name="samusBombs">Samus's bombs, for behaviours that react to them.</param>
-    /// <param name="frameCounter">The game's long frame counter for this pass, 0 through 65535, which cadences sample.</param>
+    /// <param name="frameCounter">The game's update count for this pass, which cadences sample.</param>
     internal void RunPass(
         RoomLevelData level,
         SamusState samus,
         Position16<RoomPixels> camera,
-        int shortCounter,
+        Compatibility.ShortFrameCount shortCounter,
         SamusBombProjectileSystem samusBombs,
         int frameCounter)
     {
@@ -216,11 +216,10 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Publishes projectile hurt requests after room objects; the next Samus phase consumes them.</summary>
     public void ResolveEnemyProjectileSamusHits(SamusState samus)
     {
-        // Gameplay runs every projectile's update first, then enters the
-        // separate Samus-collision pass. That pass samples invincibility and
-        // contact-damage state once at entry; damage from one overlapping projectile does
-        // not abort the remaining descending scan of the places. This distinction is observable for
-        // Puromi/Nuclear Waffle, whose four persistent body links begin co-located.
+        // Gameplay runs every projectile's update first, then the Samus-collision pass. That pass reads Samus's
+        // invincibility and contact damage once as it starts, and damage from one overlapping projectile does not stop
+        // the others from meeting her; this shows on the Nuclear Waffle, whose four lasting body links begin in one
+        // place.
         Ensure.NotNull(samus);
         if (!samus.InvincibilityTimer.IsZero ||
             samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
@@ -435,9 +434,9 @@ internal sealed class EnemyProjectileEngine
             ? projectile.Radius.Y
             : projectile.Radius.X;
 
-        // The block scan checks every room block crossed by the projectile's perpendicular
-        // diameter (EnemyProjectileBlockScan). The positive edge is the radius's last pixel, hence radius - 1.
-        // The edge wraps past the room coordinates' 65535, as the probe's block bounds check expects.
+        // The block scan checks every room block crossed by the projectile's perpendicular diameter
+        // (EnemyProjectileBlockScan). The positive edge is the radius's last pixel, hence radius - 1. The edge wraps as
+        // CoordinateAxis states.
         int movementEdge = TerrainScanEdges.Edge(nextPosition +
             (movingNegative ? -movementRadius : movementRadius - 1));
         var scan = EnemyProjectileBlockScan.Across(
@@ -447,9 +446,8 @@ internal sealed class EnemyProjectileEngine
             axis);
         if (collision.Stops(level, new EnemyProjectileScannedMove(projectile, scan, movingNegative, movementEdge), out int? alignedPosition))
         {
-            // The horizontal and vertical block scans do not merely reject the
-            // attempted movement. They clear the fraction of a pixel and place the
-            // projectile flush against the 16-pixel block boundary it reached.
+            // The horizontal and vertical block scans stop the projectile flush against the block boundary it reached
+            // and clear its fraction of a pixel, so a fast downward projectile lands on the floor rather than above it.
             int snappedPosition = alignedPosition ?? (movingNegative
                 ? TerrainScanEdges.Edge(RoomGridConversions.BlockEnd(movementEdge) + movementRadius + 1)
                 : TerrainScanEdges.Edge(RoomGridConversions.BlockStart(movementEdge) - movementRadius));
@@ -545,13 +543,13 @@ internal sealed class EnemyProjectileEngine
     /// <param name="projectile">The projectile whose animation advances.</param>
     /// <param name="samus">Samus, for cues that act on her.</param>
     /// <param name="camera">The camera of the pass, for cues that test the screen.</param>
-    /// <param name="shortCounter">The game's short frame counter for the pass, 0 through 255, which cue cadences sample.</param>
+    /// <param name="shortCounter">The enemies' short update count for the pass, which cue cadences sample.</param>
     /// <param name="samusBombs">Samus's bombs, whose power bomb explosion a cue may test.</param>
     private void AdvanceEnemyProjectileAnimations(
         EnemyProjectile projectile,
         SamusState samus,
         Position16<RoomPixels> camera,
-        int shortCounter,
+        Compatibility.ShortFrameCount shortCounter,
         SamusBombProjectileSystem samusBombs)
     {
         if (projectile.Animation is { } animation)
@@ -585,10 +583,11 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Uses RNG rejection and random signs to reposition a projectile within <paramref name="scatter"/>'s fields.
-    /// Each axis rejects negative candidate offsets, while two independent bits from the first random sample choose
-    /// the eventual signs. This peculiar rejection loop is observable in Bomb Torizo's sonic-boom wall impact, so a
-    /// random-draw approximation would produce a visibly different debris cloud and desynchronize later randomness.
+    /// Moves a projectile to a random place within <paramref name="scatter"/>'s fields: each axis draws again until its
+    /// offset lands at or past the field's centre, and one chance in two for each sign
+    /// (<see cref="EnemyProjectileScatterDefinitions.XOffsetTurnsLeft"/>,
+    /// <see cref="EnemyProjectileScatterDefinitions.YOffsetTurnsUp"/>) turns it left or up. Bomb Torizo's sonic boom
+    /// striking a wall scatters its debris this way.
     /// </summary>
     internal void Scatter(EnemyProjectile projectile, EnemyProjectileScatter scatter)
     {
@@ -625,8 +624,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// <paramref name="field"/>, checked to read only within the sample's lowest 256-value field, the only range the
-    /// scatter authors.
+    /// <paramref name="field"/>, checked to read only the range of the random choice the scatter authors.
     /// </summary>
     private static RandomSampleField RequireLowHalfField(RandomSampleField field)
     {
@@ -634,7 +632,7 @@ internal sealed class EnemyProjectileEngine
         return field;
     }
 
-    /// <summary>The width of the sample's lowest 256-value field, the only part of the sample a scatter's range reads.</summary>
+    /// <summary>The width of the part of the sample a scatter's range reads.</summary>
     private const int LowHalfBits = 8;
 
     /// <summary>

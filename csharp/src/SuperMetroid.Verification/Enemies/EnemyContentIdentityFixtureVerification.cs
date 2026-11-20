@@ -336,12 +336,12 @@ internal static class EnemyContentIdentityFixtureVerification
         private SpriteVisualPart[] Parts(string family, bool mutate)
         {
             if (mutate)
-                foreach (string component in new[] { "x", "y", "size", "tile-column", "tile-row", "palette", "priority", "flip-x", "flip-y", "order", "count" })
+                foreach (string component in new[] { "x", "y", "size", "tile-column", "tile-row", "palette", "depth", "flip-x", "flip-y", "order", "count" })
                     Register(family + "-" + component);
             var first = new SpriteVisualPart
             {
                 OffsetX = 0, OffsetY = 0, Size = 8, TileColumn = 0, TileRow = 0,
-                Palette = 1, Priority = 1, FlipX = false, FlipY = false,
+                Palette = 1, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindRoom, FlipX = false, FlipY = false,
             };
             var second = first with { OffsetX = 1, TileColumn = 1, Palette = 2 };
             string? change = mutate && edit?.StartsWith(family + "-", StringComparison.Ordinal) == true
@@ -351,7 +351,7 @@ internal static class EnemyContentIdentityFixtureVerification
                 "x" => second with { OffsetX = 2 }, "y" => second with { OffsetY = 1 },
                 "size" => second with { Size = 16 }, "tile-column" => second with { TileColumn = 2 },
                 "tile-row" => second with { TileRow = 1 }, "palette" => second with { Palette = 3 },
-                "priority" => second with { Priority = 2 }, "flip-x" => second with { FlipX = true },
+                "depth" => second with { Depth = SuperMetroid.Core.Assets.ActorDepth.BehindFrontParts }, "flip-x" => second with { FlipX = true },
                 "flip-y" => second with { FlipY = true }, _ => second,
             };
             return change switch { "order" => [second, first], "count" => [first], _ => [first, second] };

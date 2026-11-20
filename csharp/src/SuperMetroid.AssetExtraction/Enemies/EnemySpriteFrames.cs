@@ -51,6 +51,8 @@ internal static class EnemySpriteFrames
         {
             SpritemapPart part = SpritemapPart.From(parts[index]);
             SnesObjAttributeWord attributes = part.Attributes.AddPackedTileBase(checked((ushort)baseTileIndex)).Or(palette);
+            if (attributes.Depth != parts[index].Depth)
+                throw new InvalidDataException($"Enemy composition part {index} drawn from character {baseTileIndex} reads past the characters into its depth.");
             framed[index] = SpritePartFrames.Part((part with { Attributes = attributes }).ToPart(), firstCharacter: 0);
         }
         // The frame is shared by every sheet frame that shows this composition, each of which names it for what it shows; its

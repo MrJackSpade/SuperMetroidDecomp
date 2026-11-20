@@ -392,7 +392,7 @@ internal static class RoomEnemySystemAccess
         {
             // A check that names no frame steps the system's own standalone clock, one frame a pass.
             int frame = frameCounterByte ?? self.NextStandaloneProjectileFrame();
-            self.AdvanceEnemyProjectileAnimations(level, samus, camera, frame, samusBombs ?? SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateBombSystem(), frameCounter: frame);
+            self.AdvanceEnemyProjectileAnimations(level, samus, camera, SuperMetroid.Core.Compatibility.ShortFrameCount.Zero.After(frame), samusBombs ?? SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateBombSystem(), frameCounter: frame);
             self.Projectiles.ResolveEnemyProjectileSamusHits(samus);
         }
 

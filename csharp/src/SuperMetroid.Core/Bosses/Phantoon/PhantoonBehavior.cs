@@ -238,8 +238,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case PhantoonPartCue.BeginEyeTracking:
                 BeginPhantoonEyeTracking(state);
-                // The advance resumes its own cursor after the cue, so the animation's hold overwrites the
-                // eye animation this installs, as a rest does; the body's animation survives.
+                // The eye shows its tracking animation from the next update; the body keeps its own animation.
                 return;
 
             case PhantoonPartCue.PickNewPattern:

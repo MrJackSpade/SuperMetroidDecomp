@@ -65,9 +65,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// </summary>
     internal bool RecoilFromBaby()
     {
-        // The taken-aback step is not executed by the Baby. It runs on Mother Brain's next
-        // actor turn, changes form/neck geometry, starts the regain-balance wait, and falls through so
-        // that this update is the wait's first.
+        // Her recoil from the Baby runs on her own turn: it changes her form and neck and starts the regain-balance
+        // wait on the same update.
         Encounter.Form = MotherBrainForm.DrainedByBabyMetroid;
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.Raise;

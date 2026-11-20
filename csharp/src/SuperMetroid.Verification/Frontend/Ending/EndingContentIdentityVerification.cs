@@ -100,7 +100,7 @@ internal static class EndingContentIdentityVerification
             "fragment-2", "fragment-3", "fragment-order", "post-fragment-b",
             "logo-map", "cloud-sprites", "explosion-sprites", "text-sprites",
             "reward-sprites", "logo-sprites", "part-x", "part-y", "part-column", "part-row",
-            "part-size", "part-priority", "part-palette", "part-flip-x", "part-flip-y",
+            "part-size", "part-depth", "part-palette", "part-flip-x", "part-flip-y",
             "part-order", "part-count", "map-column", "map-row", "map-palette", "map-priority",
             "map-flip-x", "map-flip-y",
         ];
@@ -204,7 +204,7 @@ internal static class EndingContentIdentityVerification
             var first = new SpriteVisualPart
             {
                 OffsetX = 0, OffsetY = 0, TileColumn = 0, TileRow = 0, Size = 8,
-                Priority = 1, Palette = null, FlipX = false, FlipY = false,
+                Depth = SuperMetroid.Core.Assets.ActorDepth.BehindRoom, Palette = null, FlipX = false, FlipY = false,
             };
             var second = first with { OffsetX = 8, OffsetY = -8, TileColumn = 1, TileRow = 1, Palette = 3 };
             string[] keys = names.ToArray();
@@ -222,7 +222,7 @@ internal static class EndingContentIdentityVerification
                         TileColumn = edit == "part-column" ? 1 : a.TileColumn,
                         TileRow = edit == "part-row" ? 1 : a.TileRow,
                         Size = edit == "part-size" ? 16 : a.Size,
-                        Priority = edit == "part-priority" ? 2 : a.Priority,
+                        Depth = edit == "part-depth" ? SuperMetroid.Core.Assets.ActorDepth.BehindFrontParts : a.Depth,
                         // Explicit zero and inherited zero have identical packed attributes but
                         // behave differently when the drawing owner's palette changes.
                         Palette = edit == "part-palette" ? 0 : a.Palette,

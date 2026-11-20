@@ -156,10 +156,9 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         ReplacesCommon = c => ResolveDeadTourianCorpsePowerBomb(c.Enemy),
     };
 
-    /// <summary>Shot handling that applies the collision prelude and starts decomposition without health damage.</summary>
-    /// <remarks>The species reactions run after the ordinary projectile prelude, set process-offscreen plus
-    /// intangibility, and select their species rot reaction. No vulnerability, health damage, or projectile impact
-    /// follows.</remarks>
+    /// <summary>Shot handling that marks the shot's hit and starts decomposition without health damage.</summary>
+    /// <remarks>A shot makes the corpse keep updating off screen and lets Samus pass through it, and starts its rot; it
+    /// deals no damage and makes no impact.</remarks>
     internal static EnemyShotReaction DeadTourianShotReaction { get; } = new()
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>

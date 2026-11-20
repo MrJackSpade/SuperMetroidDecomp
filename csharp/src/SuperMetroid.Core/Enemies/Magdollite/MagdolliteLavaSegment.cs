@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
-/// The Magdollite's thrown-lava animations (#641): one segment per animation a spawn, branch or family step enters, in authored order.
+/// The Magdollite's thrown-lava animations (#641).
 /// Their steps are <see cref="MagdolliteLavaAnimations"/>.
 /// </summary>
 internal enum MagdolliteLavaSegment

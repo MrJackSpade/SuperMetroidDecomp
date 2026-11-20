@@ -105,7 +105,7 @@ internal static class DustExplosionProjectileBehaviorVerification
     internal static void Process(ISnesAddressSpace rom, RoomEnemySystem enemies, EnemyProjectile projectile, SamusState samus)
     {
         bool selectsFrame = projectile.FrameHold.RawValue == 1;
-        enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, samus, Position16<RoomPixels>.Zero, shortCounter: 0);
+        enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, samus, Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
         if (!projectile.IsActive || !selectsFrame || projectile.FrameHold.IsZero || projectile.PresentationOperandAddress == 0)
             return;
         ushort operand = projectile.PresentationOperandAddress;

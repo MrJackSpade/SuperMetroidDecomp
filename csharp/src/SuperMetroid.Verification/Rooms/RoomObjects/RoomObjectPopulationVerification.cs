@@ -1276,7 +1276,7 @@ internal static class RoomObjectPopulationVerification
         var visible = new SpriteVisualPart
         {
             OffsetX = 0, OffsetY = 0, TileColumn = 1, TileRow = 0,
-            Size = 8, Priority = 1, Palette = 0, FlipX = false, FlipY = false,
+            Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindRoom, Palette = 0, FlipX = false, FlipY = false,
         };
         HashSet<EnemyProjectileFrameId> electricityFrames = [.. SaveStationElectricityAnimations.Segments.Frames];
         var artworkDocument = new EnemyProjectileSpritemapDocument

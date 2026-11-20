@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>The seven ways the X-ray scope reveals a block, as the X-ray reveal tables name them.</summary>
+/// <summary>The seven ways the X-ray scope reveals a block.</summary>
 public enum XrayRevealShape
 {
     /// <summary>A vertical extension: reveals as the block it extends does.</summary>

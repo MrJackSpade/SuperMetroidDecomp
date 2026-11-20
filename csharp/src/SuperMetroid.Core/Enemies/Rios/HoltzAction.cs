@@ -12,8 +12,8 @@ public enum HoltzAction
     WaitForTakeoffAnimation,
     /// <summary>Moves horizontally and downward, reverses X velocity on walls, and transitions to return on vertical collision or a negative vertical velocity.</summary>
     Dive,
-    /// <summary>Accelerates upward while retaining horizontal movement, switches ascent artwork on the animation signal, and enters landing wait on vertical collision rather than targeting a saved Y.</summary>
+    /// <summary>Climbs while keeping its horizontal movement until it meets the ceiling, then rests.</summary>
     ReturnToPerch,
-    /// <summary>Consumes the landing animation's signal, installs cooldown artwork, and resumes attack-opportunity waiting.</summary>
+    /// <summary>Once the landing animation ends, plays the cooldown animation and waits for Samus again.</summary>
     WaitForLandingAnimation,
 }

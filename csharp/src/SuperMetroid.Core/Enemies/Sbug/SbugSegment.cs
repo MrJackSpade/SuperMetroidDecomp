@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>
-/// Sbug's eight directional animation loops (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// Sbug's eight directional animation loops (#641).
 /// Their steps are <see cref="SbugAnimations"/>.
 /// </summary>
 internal enum SbugSegment

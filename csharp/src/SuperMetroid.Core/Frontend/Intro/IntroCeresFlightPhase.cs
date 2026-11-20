@@ -17,6 +17,6 @@ internal enum IntroCeresFlightPhase
     Finished,
     /// <summary>The display setup update that queues the flight's music.</summary>
     Initial,
-    /// <summary>The fade reached black and installed the handoff for the next update.</summary>
+    /// <summary>The fade has reached black; the Ceres game starts on the next update.</summary>
     StartGameAtCeres,
 }

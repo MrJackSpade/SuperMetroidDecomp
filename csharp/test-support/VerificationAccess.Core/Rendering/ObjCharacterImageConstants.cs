@@ -173,7 +173,7 @@ internal static class ObjCharacterImageConstants
                         new Offset16<ScreenPixels>(checked((short)(objectX + shownColumn * SpriteArtwork.CharacterPixels)),
                             checked((short)(objectY + shownRow * SpriteArtwork.CharacterPixels))),
                         new Extent16<ScreenPixels>(SpriteArtwork.CharacterPixels, SpriteArtwork.CharacterPixels),
-                        name, flip, entry.Palette, entry.Priority));
+                        name, flip, entry.Palette, SnesObjAttributeWord.Create(0, 0, entry.Priority).Depth));
                 }
             }
         }

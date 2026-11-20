@@ -334,8 +334,9 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[3] = unchecked((ushort)r.ForegroundScroll.X);
         data[4] = unchecked((ushort)r.ForegroundScroll.Y);
         data[8] = layer.RevealBlocks ? 1u : 0u;
-        data[9] = BlendWord(layer.Blend);
-        FadeLevelColour blendColour = ShaderLevels(layer.Blend.Colour);
+        ShaderBlend blend = ShaderBlendOf(layer);
+        data[9] = BlendWord(blend);
+        FadeLevelColour blendColour = ShaderLevels(blend.Colour);
         data[10] = (uint)blendColour.Red; data[11] = (uint)blendColour.Green; data[12] = (uint)blendColour.Blue;
         // The foreground is always the room's; the background stage draws a boss's body, or else what the room publishes for
         // its background (#1403, #2573).
@@ -407,9 +408,36 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>Xray.hlsli's bit for a blend subtracting what it combines.</summary>
     private const uint BlendSubtracts = 128;
 
+    /// <summary>
+    /// What the shader's blend changes and how, and the colour it combines with where nothing lies behind, for the effect
+    /// <paramref name="layer"/> shows.
+    /// </summary>
+    /// <param name="Blended">What the blend changes where it is frontmost.</param>
+    /// <param name="Operation">Whether the blend adds or subtracts what it combines with.</param>
+    /// <param name="Halved">Whether the combined colour is halved where something lies behind.</param>
+    /// <param name="Colour">The colour combined with where nothing lies behind.</param>
+    private readonly record struct ShaderBlend(BlendedLayers Blended, Core.Assets.BlendOperation Operation, bool Halved, RgbColor Colour);
+
+    /// <summary>The shader's blend drawing the effect <paramref name="layer"/> shows.</summary>
+    /// <exception cref="InvalidOperationException">The effect is not one the backend draws.</exception>
+    private static ShaderBlend ShaderBlendOf(GameplayBlendLayer layer) => layer.Blend switch
+    {
+        FirefleaDarknessBlend darkness => new(BlendedLayers.Background | BlendedLayers.Backdrop, Core.Assets.BlendOperation.Subtract,
+            false, darkness.Shade),
+        PhantoonTranslucenceBlend => new(BlendedLayers.Foreground | BlendedLayers.Actors | BlendedLayers.Backdrop,
+            Core.Assets.BlendOperation.Add, false, RgbColor.Black),
+        EffectBehindRoomBlend behind => new(behind.Effect.Blended, behind.Effect.Operation, false, RgbColor.Black),
+        XrayDimmingBlend dimming => new(
+            dimming.Mode.KeepsBackgrounds ? BlendedLayers.Foreground | BlendedLayers.Backdrop
+                : BlendedLayers.Foreground | BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop,
+            dimming.Mode.KeepsDarkness || dimming.RoomDarkens ? Core.Assets.BlendOperation.Subtract : Core.Assets.BlendOperation.Add,
+            !dimming.Mode.KeepsDarkness && layer.OverlayBehind is not null, dimming.Tint),
+        _ => throw new InvalidOperationException($"Undefined gameplay blend {layer.Blend}."),
+    };
+
     /// <summary>The bits Xray.hlsli tests for what a blend changes and how.</summary>
     /// <exception cref="InvalidOperationException">The blend's operation is not defined.</exception>
-    private static uint BlendWord(GameplayBlend blend) =>
+    private static uint BlendWord(ShaderBlend blend) =>
         ((blend.Blended & BlendedLayers.Foreground) != 0 ? BlendsForeground : 0)
         | ((blend.Blended & BlendedLayers.Background) != 0 ? BlendsBackground : 0)
         | ((blend.Blended & BlendedLayers.Actors) != 0 ? BlendsActors : 0)

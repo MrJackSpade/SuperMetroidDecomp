@@ -194,9 +194,9 @@ public sealed class SuperMetroidGame
         // The sound acceptance clock acts on this update's requests during the update's own
         // samples; its acknowledgements become visible to the next update's sound queues.
         AudioFrameEvents audio = new(Session.audioSession.Advance(audioRequests));
-        // The pause phases publish held input after they return, even though Samus's
-        // drawing step, which ends by publishing it, did not run. Publish only the held input;
-        // updating the press edge or auto-jump timer here would invent gameplay.
+        // The pause steps publish held input after they return, though Samus's drawing step, which ends by publishing
+        // it, did not run; only the held input is published, and the press edge and the auto-jump timer stay as they
+        // are.
         if (publishesHeldInputAfterPause)
             Session.GameplayRuntime.Player.IntroducedSamus.InputSnapshot.PublishHeldInput(Session.GameplayRuntime.PlayerActions.Current);
         return new(Session.GameState, PhaseName, FrameNumber, audio);
@@ -308,8 +308,8 @@ public sealed class SuperMetroidGame
                 Session.Random.Generate();
                 break;
             case PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance:
-                // The liquid wave and the statues' descent still advance on the update before the pause screen; a lava or
-                // acid wave swaps the halves of the random number.
+                // The liquid wave and the statues' descent still advance on the update before the pause screen; a lava
+                // or acid wave stirs the random number (SharedRandom.SwapHalves).
                 Session.GameplayRuntime.DoorTransition.AdvanceEffectsAndRandom(Session.GameplayRuntime.Room.LoadedScope, Session.GameplayRuntime.Player.IntroducedSamus);
                 break;
             case PhaseRandomStep.Advance:
@@ -321,7 +321,7 @@ public sealed class SuperMetroidGame
             default:
                 throw new InvalidOperationException($"Undefined {nameof(PhaseRandomStep)} {Session.RunningPhase.RandomStep}.");
         }
-        // Gameplay advances the generator itself after its liquid wave and statue descent. Do not
-        // advance here for gameplay updates or for an update that finishes a waiting step.
+        // Gameplay advances the generator itself after its liquid wave and statue descent, so neither a gameplay update
+        // nor an update that finishes a waiting step advances it here.
     }
 }

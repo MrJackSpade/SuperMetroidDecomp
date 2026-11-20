@@ -1,23 +1,24 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// How far a link of Ridley's tail turns, in 256ths of a turn and never negative (#2238): the step a swinging link turns
+/// How far a link of Ridley's tail turns, in steps of the turn and never negative (#2238): the step a swinging link
+/// turns
 /// each update, how far a link swings before it starts the next one, and how far apart the tail's links are kept. It counts
 /// without wrapping, as the swings it measures stay far inside a turn.
 /// </summary>
 public readonly record struct RidleyTailTurn : IComparable<RidleyTailTurn>
 {
-    /// <summary>A turn of <paramref name="steps"/> 256ths of a turn.</summary>
+    /// <summary>A turn of <paramref name="steps"/> steps of the turn.</summary>
     private RidleyTailTurn(int steps) => Steps = Ensure.AtLeastZero(steps);
 
-    /// <summary>The turn in 256ths of a turn, zero or more.</summary>
+    /// <summary>The turn in steps of the turn, zero or more.</summary>
     [IntegerQuantity("turn of a Ridley tail link in 256ths of a turn")]
     public int Steps { get; }
 
     /// <summary>No turn: a link given it does not swing.</summary>
     public static RidleyTailTurn None => default;
 
-    /// <summary>A turn of <paramref name="steps"/> 256ths of a turn, zero or more.</summary>
+    /// <summary>A turn of <paramref name="steps"/> steps of the turn, zero or more.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The turn is negative.</exception>
     public static RidleyTailTurn OfSteps(int steps) => new(steps);
 

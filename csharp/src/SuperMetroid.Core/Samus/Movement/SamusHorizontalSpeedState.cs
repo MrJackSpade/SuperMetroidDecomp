@@ -167,9 +167,9 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Runs the dry-air portion of the extra run speed.
-    /// Both routes accelerate by the same step each update. Ordinary Dash is held at its unboosted cap;
-    /// equipped Speed Booster is held at its boosted cap and starts its boost counter at its first stage. Their shared momentum
-    /// flag survives release and jumps.
+    /// Both routes accelerate by the same step each update. Ordinary Dash is held at its unboosted cap; equipped Speed
+    /// Booster is held at its boosted cap and starts its boost counter at its first stage. Their shared running
+    /// momentum survives release and jumps.
     /// </summary>
     [IndependentFlag("Speed Booster equipment and liquid impedance are independent facts about Samus.")]
     public void HandleExtraRunSpeed(
@@ -297,9 +297,8 @@ public sealed class SamusHorizontalSpeedState
 
         animationFrameTimer = WrappingCountdown.Start(extraAnimationDelay)
             .AddFrames(SamusRunningCadences.Delay(unauthoredBoostCadence, cadence, frame: 0)).RemainingFrames;
-        // Animation runs after movement. Stage advancement changes cadence
-        // and sound, not contact damage; the next move publishes that.
-        // Publishing it here would enable boost damage one frame before the game does.
+        // Animation runs after movement: the boost's stage changes its cadence and sound, and its contact damage starts
+        // on the next movement update.
         return true;
     }
 
@@ -499,9 +498,8 @@ public sealed class SamusHorizontalSpeedState
             SuitShade.Show();
         }
 
-        // This block is intentionally outside the momentum test. Every movement can
-        // enter echo-departure mode even when the momentum flag was already clear. Later updates while
-        // the echoes are departing must *not* reset the velocities or restart the two bodies.
+        // Every movement can send the echoes departing, whether or not she has running momentum; later updates while
+        // the echoes depart do not reset their velocities or restart the two bodies.
         if (!SpeedEchoesDeparting)
         {
             SpeedEchoPhase = SpeedEchoPhase.Departing;
@@ -513,10 +511,8 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Reconciles the speed/echo portion of the unpause equipment check after the equipment menu.
-    /// Unlike ordinary momentum cancellation, unequipping Speed Booster erases
-    /// the echoes outright and leaves the numeric run-speed pair until the next
-    /// movement update observes the cleared momentum flag.
+    /// Reconciles the speed and echoes after the equipment menu: unequipping the Speed Booster erases the echoes at
+    /// once, and the extra run speed stays until the next movement update clears it.
     /// </summary>
     public void ReconcilePauseSpeedBoosterState(bool speedBoosterEquipped)
     {

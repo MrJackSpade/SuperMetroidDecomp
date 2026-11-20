@@ -13,7 +13,7 @@ internal static class MamaTurtleMotionDefinitions
     internal static readonly SuperMetroid.Core.Earthquakes.EarthquakeShake WallQuake = new(
         SuperMetroid.Core.Earthquakes.EarthquakeStrength.Light,
         SuperMetroid.Core.Earthquakes.EarthquakeDirection.Horizontal,
-        SuperMetroid.Core.Earthquakes.EarthquakeReach.Foreground);
+        SuperMetroid.Core.Earthquakes.EarthquakeReach.RoomBlocks);
 
     /// <summary>The fastest the hovering Mama Turtle carries a landing Samus leftward: sixteen pixels an update.</summary>
     internal static readonly SignedSixteenSixteen LargestLeftwardCarry = SignedSixteenSixteen.FromWholePixels(16);

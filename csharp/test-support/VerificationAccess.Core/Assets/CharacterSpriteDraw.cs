@@ -72,6 +72,6 @@ internal sealed record CharacterSpriteDraw
         return new(new Offset16<ScreenPixels>(unchecked((short)x), unchecked((short)y)), part.Size, part.Character,
             flipX != ((part.Flip & PictureFlip.Horizontal) != 0),
             flipY != ((part.Flip & PictureFlip.Vertical) != 0),
-            part.Palette ?? Palette, part.Priority ?? Priority);
+            part.Palette ?? Palette, part.Depth is { } depth ? SnesObjAttributeWord.From(SpritePart.Single(0, 0, depth)).Raw >> 12 : Priority);
     }
 }

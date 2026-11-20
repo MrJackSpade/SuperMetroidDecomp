@@ -1964,5 +1964,5 @@ internal static class LookupStream5Verification
     /// <summary>An enemy update's frame for the Ceres elevator door's own update, which reads nothing of it.</summary>
     private static ClockedEnemyAiFrame CeresDoorAiFrame() => new(
         RoomEnemyFrameFixtures.Standalone(SuperMetroid.Core.Rooms.LevelData.RoomLevelData.CollisionOnly(new(1, 1),
-            [SuperMetroid.Core.Rooms.LevelData.RoomCollisionType.Air]), 0), new FrameCounters(0));
+            [SuperMetroid.Core.Rooms.LevelData.RoomCollisionType.Air]), 0), new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
 }

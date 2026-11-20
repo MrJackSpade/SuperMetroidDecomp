@@ -918,6 +918,31 @@ five pixels an update), that a position or a speed carries its fraction of a pix
 changes, which closing a door starts. A speed in 1/256 pixels, a 256th or one 65536th of a pixel, a fraction of a pixel,
 an original alone, the original game and a hardware owner stay English.
 
+SME6479 (#2550) widens SME6454's storage, original-program and port-narration vocabularies, under its own id, to every
+phrasing the #1423 review found in Core's documentation. Outside hardware owners, each comment is read with its markup
+removed and its line breaks joined, and a run of line comments, one under another, is read as one text for a phrase that
+runs from one line to the next. It reports a value told by its storage's range or a machine number (`the short frame
+counter, 0 through 255`, `the lowest 16384 of the 65536 samples`, `-32768 through 32767` on a screen coordinate, `its
+lowest bit`, `a sample divisible by four`); a unit of the original's storage (`in 256ths of a pixel`, `whole 256ths`,
+`24/256`, `128ths of the whole`, `fifteen nontransparent colours`, `the fraction's overflow`); reasoning about a value's
+storage range (`never nears a wrap`, `stays far inside its range`, `at most fifty screens`, `a few thousand units of
+rest`, `The comparison is signed`); the original's program flow (`falls directly into`, `returns early`, `main/hurt
+entry`, `the frame tail`, `is never reached`); its routines and engine parts (`the projectile prelude`, `the common
+mover`, `init AI`, `collision walks`, `the pose-definition fallback`); installed animations and loaded or copied colours
+(`installs the laser head animation`, `which his initialization loads`, `the runaway colour copy`, `the records of`,
+`master brightness`); the display hardware (`the low-priority frames`, `sprite entries`, `drawn partly as a background
+layer`, `the icon's cells`); storage named for what the original kept (`the animating flag`, `set bits`, `the
+load-station record`, `population entries`, `rewrites only the block's type and parameter`, `the held controller
+mask`); its tables, entries and allocation (`the area's own tables`, `past-the-end`, `allocation order`, `a normal second
+enemy`); the port's reasoning and history (`deliberately owns only`, `Models the`, `Without this`, `rather than a saved
+perch coordinate`, `Despite its traditional name`); and the animation segment template and the original's drawing
+history (`one segment per animation a spawn, branch or wake enters`, `the second showing`, `the game draws it for two
+updates`). Core says what the game does: one explosion in four bursts as smoke, the Baby moves by its velocity, the wait's
+first update is the setup's, the block keeps its picture, the statue joins the statues that are animating. A 256th of a
+pixel, the background, a fall through a bridge, the game's music, the installed artwork, a cycle of sixteen colours, a
+turn's steps and a hardware owner stay English. Other assemblies, the import pipeline among them, tell the cartridge's
+storage and are not read.
+
 SME6459 (#2309) reads the summary of every member of a Core `*Segment` enum, one run of an actor's animation, and rejects
 one that only restates the member's name: `The facing left shooting animation.`, `The idle.`, `The loop.`, and (#2465)
 any summary whose words are all the name's, the actor's the enum is named for, articles, possessives or `animation`,

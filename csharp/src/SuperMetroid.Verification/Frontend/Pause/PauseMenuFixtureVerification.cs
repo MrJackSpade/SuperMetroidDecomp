@@ -53,7 +53,7 @@ internal static class PauseMenuFixtureVerification
         Read(MapSourceDefinitions.Artwork.HudCharacters, HudTileAtlasFormat.CharacterByteCount).CopyTo(hud, 0);
 
         var singlePart = new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
-            TileColumn = 0, TileRow = 0, Size = 8, Priority = 0, Palette = null,
+            TileColumn = 0, TileRow = 0, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindRoom, Palette = null,
             FlipX = false, FlipY = false };
         // The map sprites' compositions are import data (#1638): the cartridge-derived extraction's.
         var sprites = JsonSerializer.Deserialize<MapSpriteDocument>(File.ReadAllBytes(Path.Combine(

@@ -73,7 +73,7 @@ internal static class EnemyCompositionResourceChecks
     /// <summary>Creates one distinguishable synthetic sprite part for a composition binding.</summary>
     private static SpriteVisualPart Part(int x) => new()
     {
-        OffsetX = x, OffsetY = 0, Size = 8, Priority = 2, Palette = 0,
+        OffsetX = x, OffsetY = 0, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindFrontParts, Palette = 0,
         TileColumn = 0, TileRow = 0, FlipX = false, FlipY = false,
     };
 

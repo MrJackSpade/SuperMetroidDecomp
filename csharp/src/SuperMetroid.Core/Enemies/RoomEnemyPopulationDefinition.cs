@@ -5,22 +5,14 @@ namespace SuperMetroid.Core.Enemies;
 /// states the kills that clear its room, or an <see cref="EmptyRoomEnemyPopulationDefinition"/>, which places none and has
 /// no quota.
 /// </summary>
-public abstract class RoomEnemyPopulationDefinition
+/// <param name="name">The list's name.</param>
+/// <param name="placements">The list's placements in order.</param>
+public abstract class RoomEnemyPopulationDefinition([InstalledKey] string name, RoomEnemyPlacement[] placements)
 {
     /// <summary>The placements in order.</summary>
-    private readonly RoomEnemyPlacement[] placements;
-
-    /// <summary>Names the list and holds its placements in order.</summary>
-    /// <param name="name">The list's name.</param>
-    /// <param name="placements">The list's placements in order.</param>
-    private protected RoomEnemyPopulationDefinition([InstalledKey] string name, RoomEnemyPlacement[] placements)
-    {
-        Name = Ensure.NotNull(name);
-        this.placements = Ensure.NotNull(placements);
-    }
-
+    private readonly RoomEnemyPlacement[] placements = Ensure.NotNull(placements);
     /// <summary>The list's name.</summary>
-    public string Name { get; }
+    public string Name { get; } = Ensure.NotNull(name);
     /// <summary>The placements in order; the order controls initialization and place allocation.</summary>
     public ReadOnlyMemory<RoomEnemyPlacement> Placements => placements;
 }

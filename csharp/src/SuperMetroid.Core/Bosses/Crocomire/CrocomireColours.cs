@@ -60,6 +60,10 @@ internal sealed class CrocomireColours : IGameplayShadingSource
             case CrocomireBodyColours.Fight:
                 frame.Shade(GameplayPictures.BossBody, CrocomireShades.FightBody);
                 break;
+            case CrocomireBodyColours.Room:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(CrocomireBodyColours)} {Body}.");
         }
     }
 }

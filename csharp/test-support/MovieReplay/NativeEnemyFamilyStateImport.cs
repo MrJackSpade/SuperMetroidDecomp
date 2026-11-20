@@ -277,10 +277,13 @@ internal static class NativeEnemyFamilyStateImport
             if (words.A != 0)
             {
                 (DraygonEyeAction eyeAction, HorizontalDirection? eyeFacing) = DraygonNativeWords.EyeActions.Decode(words.A, "recorded DraygonEyeAction");
-                draygonEyeRecord.Action = eyeAction;
-                // Only a tracking eye names the way it faces (#2165).
-                if (eyeFacing is { } facing)
-                    draygonEyeRecord.Facing = facing;
+                // Only a tracking eye names the way it faces (#2165); an inert eye faces no way (#2560).
+                draygonEyeRecord.TrackingFacing = eyeAction switch
+                {
+                    DraygonEyeAction.Inert => null,
+                    DraygonEyeAction.Tracking => eyeFacing ?? throw new InvalidDataException("A recorded tracking Draygon eye names no facing."),
+                    _ => throw new InvalidDataException($"Undefined {nameof(DraygonEyeAction)} {eyeAction}."),
+                };
             }
             // The game compares only the look angle's low byte, the bearing it stored.
             draygonEyeRecord.LookAngle = AimAngleConstants.FromClockwiseSteps(words.F & byte.MaxValue);
@@ -705,8 +708,8 @@ internal static class NativeEnemyFamilyStateImport
                 _ => throw new InvalidDataException($"Recorded Boulder roll {words.E} is not a roll."),
             };
             BoulderSpawnSettings placed = enemy.HeldOccupant().SpawnSettings<BoulderSpawnSettings>();
-            if (boulderRoll != (placed.Roll, placed.BreaksOnFirstImpact))
-                throw new InvalidDataException($"Recorded Boulder roll {boulderRoll} is not its placement's {(placed.Roll, placed.BreaksOnFirstImpact)}.");
+            if (boulderRoll != (placed.Roll, placed.FirstImpact == BoulderImpact.Breaks))
+                throw new InvalidDataException($"Recorded Boulder roll {boulderRoll} is not its placement's {(placed.Roll, placed.FirstImpact == BoulderImpact.Breaks)}.");
         }
         if (enemy.SpeciesState<RinkaEnemyState>() is { } rinkaRecord)
         {

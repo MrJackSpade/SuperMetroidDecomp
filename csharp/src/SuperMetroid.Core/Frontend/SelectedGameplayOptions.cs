@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Frontend;
@@ -18,5 +19,5 @@ internal sealed record SelectedGameplayOptions(
     /// The options a game starts with before the options menu first closes: English text, the default bindings, and
     /// moonwalking and icon cancelling off.
     /// </summary>
-    internal static SelectedGameplayOptions Default { get; } = new(false, ControllerBindings.Default, false, false);
+    internal static SelectedGameplayOptions Default { get; } = new(TextLanguage.English, ControllerBindings.Default, false, false);
 }

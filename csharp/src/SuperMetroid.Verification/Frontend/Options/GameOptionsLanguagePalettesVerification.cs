@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -79,9 +80,9 @@ internal static class GameOptionsLanguagePalettesVerification
         InstalledScreenContent installed = RetailPresentationFixture();
         AssertEqual(4, GameOptionsPageDefinitions.LanguageRegions.RowCount, "native language highlight has four regions");
         AssertEqual(GameOptionsPageDefinitions.LanguageRegions.RowCount, GameOptionsPageCells.LanguagePaletteRegions.Count, "one installed region per label row");
-        AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPageCells.LanguagePaletteRegion((GameOptionsPageCells.GameOptionsLabelLanguage)99, GameOptionsPageCells.GameOptionsLabelRow.Upper),
+        AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPageCells.LanguagePaletteRegion((SuperMetroid.Core.Progression.TextLanguage)99, GameOptionsPageCells.GameOptionsLabelRow.Upper),
             "unsupported label language");
-        AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPageCells.LanguagePaletteRegion(GameOptionsPageCells.GameOptionsLabelLanguage.English, (GameOptionsPageCells.GameOptionsLabelRow)99),
+        AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPageCells.LanguagePaletteRegion(SuperMetroid.Core.Progression.TextLanguage.English, (GameOptionsPageCells.GameOptionsLabelRow)99),
             "unsupported label row");
 
         // Set_Language_Text_Option_Highlight ($82:EDED) chooses palette zero for

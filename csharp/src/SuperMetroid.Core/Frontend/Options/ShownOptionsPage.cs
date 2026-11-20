@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Input;
 

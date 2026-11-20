@@ -4,6 +4,11 @@ namespace SuperMetroid.Core.Compatibility;
 /// What the first enemy projectile place holds as a falling statue piece reads it (#2560): a closed choice of a free place,
 /// a statue piece with its acceleration, and another projectile.
 /// </summary>
+/// <remarks>
+/// Read by <see cref="FirstPlaceFallAcceleration"/>. Evidence: the piece's update at <c>$86:A8EF</c> adds the acceleration
+/// word it reads without the place index, the first place's word, which a free place leaves at zero.
+/// </remarks>
+[CompatibilityService("what the first enemy projectile place holds decides a falling statue piece's acceleration")]
 public abstract record FirstPlaceHolding
 {
     /// <summary>The place holds nothing.</summary>

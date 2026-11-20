@@ -211,7 +211,8 @@ internal sealed class TorizoAttacks
                     SetGoldenTorizoSuperMissileVelocity(
                         projectile,
                         samus,
-                        awayFromSamus: cue is TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus });
+                        turn: cue is TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus }
+                            ? HorizontalDirection.Left : HorizontalDirection.Right);
                     return null;
                 case TorizoProjectileCue.SetRadius setRadius:
                     projectile.Radius = setRadius.Radius;
@@ -774,10 +775,10 @@ internal sealed class TorizoAttacks
     internal static void SetGoldenTorizoSuperMissileVelocity(
         EnemyProjectile projectile,
         SamusState samus,
-        bool awayFromSamus)
+        HorizontalDirection turn)
     {
         TrigonometryAngle aim = EnemyMath.CalculateAimAngle(samus.Position.Whole - projectile.Position.Whole);
-        TrigonometryAngle angle = aim.InHalfTurnToward(awayFromSamus ? HorizontalDirection.Left : HorizontalDirection.Right);
+        TrigonometryAngle angle = aim.InHalfTurnToward(turn);
 
         // The missile's X speed follows the angle's cosine and its Y speed its negative sine.
         projectile.Velocity = new(

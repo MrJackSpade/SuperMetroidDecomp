@@ -347,13 +347,19 @@ internal sealed class KraidLimbs
     {
         part.Kraid.WalkTargetX = targetX;
         part.ThinkWait.LastFor(thinkUpdates);
-        (part.Phase, KraidPartSegment walk) = direction switch
+        switch (direction)
         {
-            HorizontalDirection.Right => (KraidFootPhase.SecondPhaseWalkingRight, KraidPartSegment.FootWalkingBackward),
-            HorizontalDirection.Left => (KraidFootPhase.SecondPhaseWalkingLeft, KraidPartSegment.FootWalkingForward),
-            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined walk direction."),
-        };
-        part.StartAnimation(walk);
+            case HorizontalDirection.Right:
+                part.Phase = KraidFootPhase.SecondPhaseWalkingRight;
+                part.StartAnimation(KraidPartSegment.FootWalkingBackward);
+                break;
+            case HorizontalDirection.Left:
+                part.Phase = KraidFootPhase.SecondPhaseWalkingLeft;
+                part.StartAnimation(KraidPartSegment.FootWalkingForward);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined walk direction.");
+        }
     }
 
     /// <summary>Moves the body and foot toward the selected rightward target.</summary>

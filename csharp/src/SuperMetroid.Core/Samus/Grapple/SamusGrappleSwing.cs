@@ -17,7 +17,8 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple)
     {
         // A fast swing makes the camera scroll slowly.
-        grapple.FollowSwing(grapple.AngularVelocity.Magnitude >= GrappleSlowScrollDefinitions.FastSwingAngularSpeed);
+        grapple.FollowSwing(grapple.AngularVelocity.Magnitude >= GrappleSlowScrollDefinitions.FastSwingAngularSpeed
+            ? GrappleCameraScroll.Slow : GrappleCameraScroll.Ordinary);
         // The swing places the rope by the same collision point the terrain probes use. Besides scaling the
         // angle's signed sine and cosine, it applies the block-side endpoint bias documented in
         // CalculateCollisionPoint; using one point prevents visible art from disagreeing

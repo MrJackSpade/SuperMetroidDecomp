@@ -22,8 +22,8 @@ public static class GameSaveJsonCodec
         Enum.GetValues<DefeatedBosses>().Aggregate((left, right) => left | right);
 
     /// <summary>
-    /// The save's <c>japaneseText</c> field for each text language (#2560): the one map between a slot's language and the
-    /// field saves have always kept for it, read in both directions.
+    /// The save's Japanese-text field for each text language (#2560): the one map between a slot's language and the true or
+    /// false field saves have always kept for it, read in both directions.
     /// </summary>
     private static readonly FrozenDictionary<TextLanguage, bool> SavedJapaneseText = new Dictionary<TextLanguage, bool>
     {
@@ -31,7 +31,7 @@ public static class GameSaveJsonCodec
         [TextLanguage.Japanese] = true,
     }.ToFrozenDictionary();
 
-    /// <summary>The text language each value of a save's <c>japaneseText</c> field names: <see cref="SavedJapaneseText"/> read back.</summary>
+    /// <summary>The text language each value of a save's Japanese-text field names: <see cref="SavedJapaneseText"/> read back.</summary>
     private static readonly FrozenDictionary<bool, TextLanguage> SavedLanguages =
         SavedJapaneseText.ToFrozenDictionary(entry => entry.Value, entry => entry.Key);
 

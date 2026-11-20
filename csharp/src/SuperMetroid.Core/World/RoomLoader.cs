@@ -791,7 +791,7 @@ internal sealed class RoomLoader
             Scope = scope,
             System = _system,
             FxOverlay = roomFxOverlay,
-            DisplaysInitialViewport = viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport,
+            ViewportLoadMode = viewportLoadMode,
         });
         room.State.MainBehavior.Compose(scope);
         // Every room loads with Samus: a new game's Ceres start has initialized her before its first room loads.
@@ -938,7 +938,7 @@ internal sealed class RoomLoader
             ControllerInput = _playerActions.Current,
             Camera = destinationCamera.PixelPosition,
             GunshipScenario = entry.GunshipScenario,
-            DeferLoaderTimeCameraReads = viewportLoadMode == RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn,
+            ViewportLoadMode = viewportLoadMode,
         });
         // A main that acts on one of the room's enemies is composed with it now that the enemies have set up (#2486).
         if (room.State.MainBehavior is IRoomMainOverRoomEnemies overEnemies)

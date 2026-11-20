@@ -443,7 +443,7 @@ internal sealed class BeamCombos
         // The particle can lie left of the room's origin as its flight ends (PlaceSpazerParticle), and the step out moves it
         // its side step either way, so its place is one OffRoomPlaces gives it.
         shot.Position = OffRoomPlaces.WithWholeX(shot.Position, shot.Position.X.Whole +
-            BeamComboDefinitions.SpazerFallSideStep.Toward(spazer.Part.SpazerTrail ? HorizontalDirection.Left : HorizontalDirection.Right));
+            BeamComboDefinitions.SpazerFallSideStep.Toward(spazer.Part.FallSideStep));
         shot.Direction = SamusProjectileDirection.DownFacingLeft;
         shot.FlyOn();
         shot.Trail = UpdateCountdown.Lasting(ProjectileTimingDefinitions.TrailInterval);

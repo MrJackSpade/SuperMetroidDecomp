@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core;
 using System.Collections.Frozen;
 using System.Collections.ObjectModel;

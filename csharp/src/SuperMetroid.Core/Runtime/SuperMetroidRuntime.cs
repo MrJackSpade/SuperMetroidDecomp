@@ -710,7 +710,7 @@ internal sealed class SuperMetroidRuntime
         ResolveEnemyProjectileAndPowerBombHits(room, samus, deathOwnsSamus);
         StepCeresElevatorArrival(room, samus, deathOwnsSamus);
         RunMainScrolling(room, samus, tail.PreviousCameraPoint, deathOwnsSamus);
-        DrawGameplayActors(room, samus, tail, deathOwnsSamus);
+        DrawGameplayActors(room, samus, tail);
         bool startsTimeUp = RunEscapeTimer(tail, owner) || ReturnsToTimeUp(owner);
         Sprites.FinalizeFrame();
 
@@ -719,7 +719,7 @@ internal sealed class SuperMetroidRuntime
         // gameplay at room main only when main gameplay owns the update and none of them did, and only then can the Ceres
         // elevator take Samus (#2534).
         bool gameInMainGameplay = owner.IsMainGameplay &&
-            DecideTransition(start, owner, startsTimeUp, ceresDepartureRequested: false, samus) == GameplayUpdateTransition.None;
+            DecideTransition(start, owner, startsTimeUp, RoomMainOutcome.None, samus) == GameplayUpdateTransition.None;
         RoomMainOutcome roomMain = RunRoomMains(gameInMainGameplay, room, samus);
         // The out-of-health check follows room main, and the game-time step follows it: a death another game state
         // withholds returns before the step (#2509, #2517). Every step that moves the game to another state has run by
@@ -727,7 +727,7 @@ internal sealed class SuperMetroidRuntime
         // through her collision into the tube's door. The step advances the gameplay clock before shaking. Message-box
         // frames returned above, exactly as the suspended frame does, so item fanfare time is not counted here.
         GameplayUpdateTransition transition = DecideTransition(start, owner, startsTimeUp,
-            ceresDepartureRequested: roomMain == RoomMainOutcome.CeresElevatorTookSamus, samus);
+            roomMain, samus);
         SamusOutOfHealthRoute outOfHealth = CheckSamusOutOfHealth(samus, owner, transition, room);
         if (owner.CountsPlayTime && outOfHealth != SamusOutOfHealthRoute.DeathWithheld)
             GameTime.Step();
@@ -759,7 +759,7 @@ internal sealed class SuperMetroidRuntime
     {
         // Room main does not run on such an update, so the Ceres elevator takes no one on it.
         GameplayUpdateTransition transition = DecideTransition(start, owner, startsTimeUp: false,
-            ceresDepartureRequested: false, samus);
+            RoomMainOutcome.None, samus);
         SamusOutOfHealthRoute outOfHealth = MessageBox.IsActive
             ? SamusOutOfHealthRoute.NotChecked
             : CheckSamusOutOfHealth(samus, owner, transition, room);
@@ -828,14 +828,14 @@ internal sealed class SuperMetroidRuntime
     /// Whether this update started the time-up earlier: its countdown ran out, or it returned to the time-up the countdown
     /// started (#2518).
     /// </param>
-    /// <param name="ceresDepartureRequested">Whether the update's room main took Samus onto the Ceres elevator.</param>
+    /// <param name="roomMain">What the update's room main did: took Samus onto the Ceres elevator, or nothing the update follows.</param>
     /// <param name="samus">The update's Samus.</param>
     [IndependentFlag("independent update facts: whether the countdown started the time-up and whether room main took Samus onto the Ceres elevator")]
     private GameplayUpdateTransition DecideTransition(
         GameplayUpdateStart start,
         GameplayUpdateOwner owner,
         bool startsTimeUp,
-        bool ceresDepartureRequested,
+        RoomMainOutcome roomMain,
         SamusState samus)
     {
         if (startsTimeUp)
@@ -848,7 +848,7 @@ internal sealed class SuperMetroidRuntime
             return GameplayUpdateTransition.MapStationPause;
         if (PauseCheckAdmits(start, owner, samus))
             return GameplayUpdateTransition.Pause;
-        if (ceresDepartureRequested)
+        if (roomMain == RoomMainOutcome.CeresElevatorTookSamus)
             return GameplayUpdateTransition.CeresDeparture;
         // A message box opened later in the same update (a station's completion notice in the room objects' step)
         // suspends that update until it closes, so the door waits for the box's final update.
@@ -998,11 +998,11 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>Restores the attract demo's player input and draws Samus, enemies and projectiles.</summary>
-    private void DrawGameplayActors(RoomScope room, SamusState samus, SuspendedGameplayFrameTail tail, bool deathOwnsSamus)
+    private void DrawGameplayActors(RoomScope room, SamusState samus, SuspendedGameplayFrameTail tail)
     {
         AttractDemo.RestoreAttractPlayerInput();
 
-        ActorDrawing.DrawGameplayActors(room, samus, deathOwnsSamus ? SamusDrawOwner.DeathSequence : SamusDrawOwner.Gameplay,
+        ActorDrawing.DrawGameplayActors(room, samus, tail.Mode.Movement == SamusMovementMode.Fatal ? SamusDrawOwner.DeathSequence : SamusDrawOwner.Gameplay,
             // The stationary lock's movement mode does not run Samus's
             // colour effects. In particular, automatic Reserve recovery freezes a
             // stored shine instead of consuming it while Samus is stationary.

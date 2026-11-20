@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The game-completion facts the ending credits present (#633).</summary>

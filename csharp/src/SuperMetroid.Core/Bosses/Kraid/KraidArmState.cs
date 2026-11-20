@@ -44,11 +44,8 @@ public sealed class KraidArmState : KraidAnimatedPartState
     {
         // An animation starting with the normal swing has yet to reach the pause before its first frame shows; one starting
         // at the pause is past it, and every other one is away from the swing.
-        swing = segment switch
-        {
-            KraidPartSegment.ArmNormal => KraidArmSwing.BeforePause,
-            KraidPartSegment.ArmNormalPause => KraidArmSwing.PastPause,
-            _ => KraidArmSwing.Away,
-        };
+        swing = segment == KraidPartSegment.ArmNormal ? KraidArmSwing.BeforePause
+            : segment == KraidPartSegment.ArmNormalPause ? KraidArmSwing.PastPause
+            : KraidArmSwing.Away;
     }
 }

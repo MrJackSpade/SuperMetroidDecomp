@@ -249,7 +249,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         flashbackProjectiles = new SamusProjectileSystem(flashbackAudioRequests, new BeamChargeState(), samusOverreads,
             new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), samusArtwork, new RoomEarthquake());
 
-        subtitles = new IntroJapaneseSubtitles(language == TextLanguage.Japanese);
+        subtitles = new IntroJapaneseSubtitles(language);
         this.audio = Ensure.NotNull(audio);
         CharacterArtwork = Ensure.NotNull(characterArtwork);
 
@@ -453,7 +453,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                     // the delayed music request has completed.
                     CurrentCeresFlight = new IntroCeresFlightState(audio,
                         CharacterArtwork.CeresFlight,
-                        SceneSheets, subtitles.Enabled);
+                        SceneSheets, subtitles.Language);
                     Phase = IntroCinematicPhase.CeresFlight;
                 }
                 break;

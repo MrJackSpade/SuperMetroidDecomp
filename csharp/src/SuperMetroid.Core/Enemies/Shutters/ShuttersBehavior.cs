@@ -507,6 +507,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         ? near.Distance
         : throw new InvalidOperationException($"A shutter triggered by {settings.Trigger} waits for no one near.");
 
+    /// <summary>The action a shutter of <paramref name="triggerMode"/> starts in: the wait its trigger names.</summary>
     private static VerticalShutterAction InitialAction(ShutterTriggerMode triggerMode) => triggerMode switch
     {
         ShutterTriggerMode.Timer => VerticalShutterAction.WaitForTimer,

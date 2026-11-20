@@ -196,13 +196,11 @@ internal static class AudioClipExporter
             (0, 1) => SoundEffectPriorityEffect.Unchanged,
             _ => throw new InvalidDataException($"Policy {policyKey} sets priority {fromLow.Priority}/{fromHigh.Priority}."),
         };
-        LowHealthModeEffect mode = (fromLow.Mode, fromHigh.Mode) switch
-        {
-            (SoundLibraryMode.Normal, SoundLibraryMode.LowHealth) => LowHealthModeEffect.Unchanged,
-            (SoundLibraryMode.Normal, SoundLibraryMode.Normal) => LowHealthModeEffect.Clear,
-            (SoundLibraryMode.LowHealth, SoundLibraryMode.LowHealth) => LowHealthModeEffect.Enter,
-            _ => throw new InvalidDataException($"Policy {policyKey} sets low-health mode {fromLow.Mode}/{fromHigh.Mode}."),
-        };
+        LowHealthModeEffect mode =
+            fromLow.Mode == SoundLibraryMode.Normal && fromHigh.Mode == SoundLibraryMode.LowHealth ? LowHealthModeEffect.Unchanged
+            : fromLow.Mode == SoundLibraryMode.Normal && fromHigh.Mode == SoundLibraryMode.Normal ? LowHealthModeEffect.Clear
+            : fromLow.Mode == SoundLibraryMode.LowHealth && fromHigh.Mode == SoundLibraryMode.LowHealth ? LowHealthModeEffect.Enter
+            : throw new InvalidDataException($"Policy {policyKey} sets low-health mode {fromLow.Mode}/{fromHigh.Mode}.");
         // The voices the configuration sets up stay the driver's: the render plays them, and the clips carry the result
         // (#1749).
         return new SoundEffectClipPolicy(

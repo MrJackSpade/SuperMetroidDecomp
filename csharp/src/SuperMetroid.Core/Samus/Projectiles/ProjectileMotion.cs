@@ -529,6 +529,6 @@ internal sealed class ProjectileMotion
         // Square slope collision treats each square slope as four 8x8 quadrants: the missile centre's halves of the
         // block, mirrored by the block's reflections, select the quadrant whichever axis the missile moves along.
         return SquareSlopes.IsSolid(block.Behavior, SquareSlopeQuadrant.Showing(block.Behavior,
-            SquareSlopeQuadrant.ColumnFor(RoomGridConversions.InSecondHalfOfBlock(shot.Position.X.Whole)), SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(shot.Position.Y.Whole))));
+            SquareSlopeQuadrant.ColumnFor(shot.Position.X.Whole), SquareSlopeQuadrant.RowFor(shot.Position.Y.Whole)));
     }
 }

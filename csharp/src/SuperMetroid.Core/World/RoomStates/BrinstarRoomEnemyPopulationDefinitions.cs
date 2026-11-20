@@ -188,9 +188,9 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Blue Brinstar Boulders room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition BlueBrinstarBoulders { get; } = new("BlueBrinstarBoulders",
     [
-        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(344, 192)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Start: new BoulderStart.FallsFrom(160), Roll: HorizontalDirection.Left, BreaksOnFirstImpact: true)),
-        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(240, 192)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Start: new BoulderStart.FallsFrom(160), Roll: HorizontalDirection.Left, BreaksOnFirstImpact: true)),
-        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(144, 192)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Start: new BoulderStart.FallsFrom(160), Roll: HorizontalDirection.Left, BreaksOnFirstImpact: true)),
+        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(344, 192)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Start: new BoulderStart.FallsFrom(160), Roll: HorizontalDirection.Left, FirstImpact: BoulderImpact.Breaks)),
+        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(240, 192)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Start: new BoulderStart.FallsFrom(160), Roll: HorizontalDirection.Left, FirstImpact: BoulderImpact.Breaks)),
+        new(EnemyDefinitionId.Boulder, EnemyPlacing.At(new(144, 192)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Start: new BoulderStart.FallsFrom(160), Roll: HorizontalDirection.Left, FirstImpact: BoulderImpact.Breaks)),
     ], 0);
 
     /// <summary>The enemy population of the Billy Mays room.</summary>

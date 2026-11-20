@@ -228,7 +228,7 @@ internal sealed class ProjectileTerrainCollision
     /// solid block; unlike a non-square slope it does not end the span.
     /// </summary>
     private static bool SquareSlopeShotReaction(SamusProjectileOccupant held, RoomCollisionBlock block,
-        ShotSpan span, bool horizontalMovement)
+        ShotSpan span, Axis axis)
     {
         SamusProjectile shot = held.Projectile;
         if (held.Type.IsFamily(SamusProjectileFamily.Missile) ||
@@ -243,10 +243,10 @@ internal sealed class ProjectileTerrainCollision
         SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
         bool Solid(SquareSlopeQuadrant quadrant) => SquareSlopes.IsSolid(shape, quadrant);
 
-        if (horizontalMovement)
+        if ((axis == Axis.Horizontal))
         {
             // The leading edge picks the column half; the scan then tests top/bottom rows.
-            SquareSlopeQuadrant cell = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeQuadrant.ColumnFor(RoomGridConversions.InSecondHalfOfBlock(span.TargetBoundary)), SquareSlopeRowHalf.Top);
+            SquareSlopeQuadrant cell = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeQuadrant.ColumnFor(span.TargetBoundary), SquareSlopeRowHalf.Top);
             bool topEdgeInBottomHalf = RoomGridConversions.InSecondHalfOfBlock(shot.Position.Y.Whole - shot.Radius.Y);
             bool bottomEdgeInBottomHalf = RoomGridConversions.InSecondHalfOfBlock(shot.Position.Y.Whole + shot.Radius.Y - 1);
             return span.Place switch
@@ -260,7 +260,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // The leading edge picks the row half; the scan then tests left/right columns.
-        SquareSlopeQuadrant rowCell = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(span.TargetBoundary)));
+        SquareSlopeQuadrant rowCell = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(span.TargetBoundary));
         bool leftEdgeInRightHalf = RoomGridConversions.InSecondHalfOfBlock(shot.Position.X.Whole - shot.Radius.X);
         bool rightEdgeInRightHalf = RoomGridConversions.InSecondHalfOfBlock(shot.Position.X.Whole + shot.Radius.X - 1);
         return span.Place switch
@@ -291,7 +291,7 @@ internal sealed class ProjectileTerrainCollision
         if (!level.TryReachBlockStoodFor(ref block))
             return false;
         if (block.CollisionType == RoomCollisionType.Slope && !block.Behavior.Slope.IsNonSquare)
-            return SquareSlopeShotReaction(held, block, span, axis == Axis.Horizontal);
+            return SquareSlopeShotReaction(held, block, span, axis);
         if (block.CollisionType == RoomCollisionType.Slope && block.Behavior.Slope.IsNonSquare)
         {
             // Non-square slopes react through the projectile's

@@ -41,7 +41,7 @@ internal static class SaveSchemaTranslationVerification
         // A Zebetite count and the Baby Metroid-approach event, which schema four listed as counter events and by number (#1527).
         system.Progress.ZebetitesDestroyed = 3;
         system.SetEvent(StoryEvent.BabyMetroidEncounterMusicSkipped);
-        ram.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system, SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship) with { JapaneseText = true }));
+        ram.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system, SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship) with { Language = SuperMetroid.Core.Progression.TextLanguage.Japanese }));
         ram.CompleteGame();
         ram.SelectSlot(SaveSlot.A);
         string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(ram));
@@ -532,7 +532,7 @@ internal static class SaveSchemaTranslationVerification
         var text = SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextPresentation.TypewriterOf(
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(native));
         // The game binds the installed sheets with the ending, which draws its stars from them.
-        var ending = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, Inventory = default, JapaneseText = false, CrittersEscaped = false },
+        var ending = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, Inventory = default, Language = SuperMetroid.Core.Progression.TextLanguage.English, CrittersEscaped = false },
             text, InstalledFixtures.EndingBackdrops, InstalledFixtures.SpriteSheets);
         // The ending stands on the item percentage's last move-down update, below the final logo.
         _ = ending.CreditsRoll.StartItemPercentage();

@@ -31,8 +31,8 @@ internal static class MessagePresentationContractChecks
                     panels.Build(GameplayMessageId.MissileTank);
                     panels.Build(GameplayMessageId.EnergyTank);
                     notices.Build(GameplayMessageId.EnergyRechargeCompleted);
-                    notices.ApplySelection(GameplayMessageId.SaveConfirmation, cells, true);
-                    notices.ApplySelection(GameplayMessageId.EnergyRechargeCompleted, cells, true);
+                    notices.ApplySelection(GameplayMessageId.SaveConfirmation, cells, SuperMetroid.Core.Rooms.SaveChoice.Yes);
+                    notices.ApplySelection(GameplayMessageId.EnergyRechargeCompleted, cells, SuperMetroid.Core.Rooms.SaveChoice.Yes);
                     notices.Contains((GameplayMessageId)99);
                 }
             }

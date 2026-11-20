@@ -71,7 +71,7 @@ internal static class RidleyInteractions
     {
         if (!BodyOverlaps(enemy, probe))
             return EnemyHitboxContact.Missed;
-        return EnemyHitboxContact.Struck(probe.SelectsShot ? RidleyCollisionDefinitions.BodyShotReaction : RidleyCollisionDefinitions.BodyTouchReaction);
+        return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot ? RidleyCollisionDefinitions.BodyShotReaction : RidleyCollisionDefinitions.BodyTouchReaction);
     }
 
     /// <summary>Whether <paramref name="probe"/> overlaps a hitbox of the body frame Ridley shows (#2410).</summary>

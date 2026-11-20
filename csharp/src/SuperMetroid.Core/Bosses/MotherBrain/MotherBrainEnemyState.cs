@@ -393,6 +393,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     internal MotherBrainRainbowBeamAttackSequence LateFight =>
         RainbowBeamSequence ?? throw new InvalidOperationException($"Mother Brain's body runs her {Stage} stage before her late fight began.");
 
+    /// <summary>Begins her late fight (#2560): the rainbow beam's attack sequence, which runs every late-fight stage.</summary>
     internal MotherBrainRainbowBeamAttackSequence BeginLateFight() => RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(this);
 
     /// <summary>

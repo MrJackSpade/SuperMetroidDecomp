@@ -35,7 +35,7 @@ internal static class CrocomireMeltMaskVerification
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             BossBodyFrame image = sheet.Frame(CrocomireMeltingFrameNames.Of(pass));
-            SpriteSheetFrame picture = image.Picture
+            SpriteSheetFrame picture = image.Shown?.Picture
                 ?? throw new InvalidOperationException($"Verification failed: Crocomire's {pass} melt image shows no picture.");
             PictureDissolve dissolve = image.Dissolve
                 ?? throw new InvalidOperationException($"Verification failed: Crocomire's {pass} melt image has no dissolve.");

@@ -79,7 +79,7 @@ public sealed class CeresElevatorShaftRoomMainState
         // its escape status. In particular, the initial elevator descent stays level instead of prematurely consuming the
         // turn.
         if (!elevatorDoorDestroyed)
-            return new(Transform, TiltChanged: false, ElevatorTookSamus: false);
+            return new(Transform, TiltChanged: false, SuperMetroid.Core.World.RoomMainOutcome.None);
 
         bool elevatorTookSamus = allowDeparture && IsInsideDepartureTrigger(samus);
         if (elevatorTookSamus)
@@ -99,7 +99,7 @@ public sealed class CeresElevatorShaftRoomMainState
         if (Hold.IsRunning)
         {
             Hold.Count();
-            return new(Transform, TiltChanged: false, elevatorTookSamus);
+            return new(Transform, TiltChanged: false, elevatorTookSamus ? SuperMetroid.Core.World.RoomMainOutcome.CeresElevatorTookSamus : SuperMetroid.Core.World.RoomMainOutcome.None);
         }
 
         // Both sweeps show the current tilt.
@@ -129,7 +129,7 @@ public sealed class CeresElevatorShaftRoomMainState
         }
         LeaveTurnStep();
 
-        return new(Transform, TiltChanged: true, elevatorTookSamus);
+        return new(Transform, TiltChanged: true, elevatorTookSamus ? SuperMetroid.Core.World.RoomMainOutcome.CeresElevatorTookSamus : SuperMetroid.Core.World.RoomMainOutcome.None);
     }
 
     /// <summary>
@@ -148,8 +148,20 @@ public sealed class CeresElevatorShaftRoomMainState
     /// Leaves the shaft's turn for the following room's main: its tilt counted from the full anticlockwise tilt, and its
     /// sweep.
     /// </summary>
-    private void LeaveTurnStep() =>
-        _handOver.LeaveTurnStep(Tilt.StepsFromFullAnticlockwise, backward: Sweep == CeresShaftSweep.Backward);
+    private void LeaveTurnStep()
+    {
+        switch (Sweep)
+        {
+            case CeresShaftSweep.Forward:
+                _handOver.LeaveForwardTurnStep(Tilt.StepsFromFullAnticlockwise);
+                break;
+            case CeresShaftSweep.Backward:
+                _handOver.LeaveBackwardTurnStep(Tilt.StepsFromFullAnticlockwise);
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(CeresShaftSweep)} {Sweep}.");
+        }
+    }
 
     /// <summary>Starts the shaft level, as the elevator door's setup leaves it, about its fixed rotation center.</summary>
     private static TurningFloorTransform CreateInitialTransform() => TurningFloorTransform.Level(CeresShaftRotationDefinitions.RotationCenter);

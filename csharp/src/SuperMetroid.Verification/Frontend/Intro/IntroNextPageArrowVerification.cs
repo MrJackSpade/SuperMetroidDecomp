@@ -110,9 +110,9 @@ internal static class IntroNextPageArrowVerification
     /// <summary>A Japanese and an English narration over <paramref name="narration"/>, with the Japanese one's subtitles.</summary>
     private static NarrationPair Pair(IntroNarrationPresentation narration)
     {
-        var subtitles = new IntroJapaneseSubtitles(enabled: true);
+        var subtitles = new IntroJapaneseSubtitles(SuperMetroid.Core.Progression.TextLanguage.Japanese);
         return new(new IntroNarrationActors(new IntroNarrationText(), subtitles, AudioQueues.Standalone(), narrationPresentation: narration),
-            new IntroNarrationActors(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: narration),
+            new IntroNarrationActors(new IntroNarrationText(), new IntroJapaneseSubtitles(SuperMetroid.Core.Progression.TextLanguage.English), AudioQueues.Standalone(), narrationPresentation: narration),
             subtitles);
     }
 

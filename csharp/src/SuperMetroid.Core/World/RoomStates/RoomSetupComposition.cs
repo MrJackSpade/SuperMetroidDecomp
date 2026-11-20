@@ -21,5 +21,8 @@ internal sealed record RoomSetupComposition
     public required RoomFxOverlayState FxOverlay { get; init; }
 
     /// <summary>Whether the room's load shows its first view at once, rather than scrolling it in through a door.</summary>
-    public required bool DisplaysInitialViewport { get; init; }
+    public bool DisplaysInitialViewport => ViewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport;
+
+    /// <summary>How the room's load shows its viewport (#2560).</summary>
+    public required RoomViewportLoadMode ViewportLoadMode { get; init; }
 }

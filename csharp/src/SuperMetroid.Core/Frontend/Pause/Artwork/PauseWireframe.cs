@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 public readonly record struct PauseWireframe(PauseWireframeSuit Suit, PauseWireframeBoots Boots)
 {
     /// <summary>
-    /// Every wireframe, in the order the cartridge's wireframe table lists them: the Power Suit's with regular boots and
+    /// Every wireframe, in the order the game lists them: the Power Suit's with regular boots and
     /// with Hi-Jump Boots, then the Varia Suit's likewise.
     /// </summary>
     public static IReadOnlyList<PauseWireframe> All { get; } =

@@ -152,5 +152,7 @@ internal static class SpcDriverDefinitions
         internal const byte LowHealthMode = 2;
         /// <summary>The legato pitch-slide opcode, which the driver keeps as the channel's slide-form byte.</summary>
         internal const byte LegatoSlideOpcode = 0xf5;
+        /// <summary>The sound-effect instruction that starts a plain pitch slide.</summary>
+        internal const byte PlainSlideOpcode = 0xf8;
     }
 }

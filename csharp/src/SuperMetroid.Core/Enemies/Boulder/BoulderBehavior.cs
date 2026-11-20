@@ -172,7 +172,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(level, place, verticalDisplacement))
         {
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.BoulderImpactSound, priority: SoundRequestPriority.Normal);
-            if (occupant.SpawnSettings<BoulderSpawnSettings>().BreaksOnFirstImpact)
+            if (occupant.SpawnSettings<BoulderSpawnSettings>().FirstImpact == BoulderImpact.Breaks)
             {
                 place.Presence = place.Presence.With(EnemyPresence.Deleted);
                 _projectiles.SpawnDustOrExplosion(

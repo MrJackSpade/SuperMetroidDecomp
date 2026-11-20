@@ -581,9 +581,13 @@ public sealed class SamusHorizontalSpeedState
                 ExtraRunSpeed = default;
                 AccelerationMode = SamusAccelerationMode.Decelerating;
                 break;
-            case SamusMomentumResponse.Decelerate or SamusMomentumResponse.Stop:
+            case SamusMomentumResponse.Decelerate:
+            case SamusMomentumResponse.Stop:
                 AccelerationMode = SamusAccelerationMode.Accelerating;
                 break;
+            case SamusMomentumResponse.None:
+            case SamusMomentumResponse.KillXSpeed:
+            case SamusMomentumResponse.KillRunSpeed:
             default:
                 throw new ArgumentOutOfRangeException(nameof(response), response, "A no-transition fallback decelerates or stops.");
         }

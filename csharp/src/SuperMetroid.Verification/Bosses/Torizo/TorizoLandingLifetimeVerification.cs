@@ -29,7 +29,7 @@ internal static class TorizoLandingLifetimeVerification
         var state= body.RequireSpeciesState<TorizoEnemyState>();
         state.Phase=TorizoPhase.Active;state.Motion=TorizoBodyMotion.Leaping;state.Landing=TorizoAnimation.FacingLeftLanding;
         state.Velocity=new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1024));state.JumpAcceleration=SignedEightEight.FromTwoHundredFiftySixthsOfPixel(40);
-        body.Health=body.Definition.Health;state.Posture=TorizoPosture.Initial;state.CaughtSuperMissile=state.Stunned=state.Breakage=TorizoBreakage.Intact;
+        body.Health=body.Definition.Health;state.Posture=TorizoPosture.Initial;state.CaughtSuperMissile=state.Stunned=false;state.Breakage=TorizoBreakage.Intact;
         body.Contact = EnemyContact.None;
         body.Processing = EnemyProcessing.Animates;
         body.Presence = EnemyPresence.None;state.BodyPlayback=new AnimationPlayback<TorizoBodySegment>(TorizoAnimations.StartingWith(TorizoAnimation.FacingLeftFalling), AnimationPlace.Before(TorizoAnimations.StartingWith(TorizoAnimation.FacingLeftFalling).CyclePhase));body.AnimationClock.HoldFor(5);

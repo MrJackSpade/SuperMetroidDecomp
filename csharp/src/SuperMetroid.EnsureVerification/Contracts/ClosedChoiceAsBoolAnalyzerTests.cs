@@ -30,6 +30,7 @@ internal static class ClosedChoiceAsBoolAnalyzerTests
         Expect(Types + "class C { Side Of(bool left) => left ? Side.Left : Side.Right; }", "'left ? Side.Left : Side.Right'");
         Expect(Types + "class C { bool _left; Side Of() => _left ? Side.Left : Side.Right; }", Advice);
         Expect(Types + "class C { bool Left { get; set; } Side Of() => !Left ? Side.Right : Side.Left; }", Advice);
+        Expect(Types + "record Spec(bool Left) { Side Of() => Left ? Side.Left : Side.Right; }", Advice);
         // A comparison with a member stored into a bool field or property, initialized into one, or passed to a bool parameter.
         Expect(Types + "class C { bool _left; void Set(Side side) => _left = side == Side.Left; }", "'side == Side.Left'");
         Expect(Types + "class C { bool Left { get; set; } void Set(Side side) => Left = side != Side.Right; }", Advice);
@@ -46,6 +47,7 @@ internal static class ClosedChoiceAsBoolAnalyzerTests
         // A condition that is no stored bool, and a comparison that only answers a question, are not a stored choice.
         Expect(Types + "class C { static bool Lefty(int x) => x < 0; Side Of(int x) => Lefty(x) ? Side.Left : Side.Right; }", count: 0);
         Expect(Types + "class C { Side Of(int x) { bool left = x < 0; return left ? Side.Left : Side.Right; } }", count: 0);
+        Expect(Types + "class C { int _speed; bool IsNegative => _speed < 0; Side Heading() => IsNegative ? Side.Left : Side.Right; }", count: 0);
         Expect(Types + "class C { Side _side; bool IsLeft => _side == Side.Left; }", count: 0);
         Expect(Types + "class C { int Of(Side side) { bool left = side == Side.Left; return left ? 1 : 2; } }", count: 0);
         Expect(Types + "class C { bool _wide; void Set(Stage stage) => _wide = stage == Stage.Third; }", count: 0);

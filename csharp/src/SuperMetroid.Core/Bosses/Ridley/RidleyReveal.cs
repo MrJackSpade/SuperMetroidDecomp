@@ -101,7 +101,7 @@ internal sealed class RidleyReveal
             return;
 
         ridley.RevealPhase = RidleyRevealPhase.FadeInBody;
-        ridley.MovementAnimationEnabled = true;
+        ridley.Motion = RidleyMotion.Running;
     }
 
     /// <summary>

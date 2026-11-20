@@ -566,7 +566,6 @@ global using static SuperMetroid.Core.Frontend.Ending.EndingColoursPrivateAccess
 global using static SuperMetroid.Core.Frontend.Ending.EndingCreditsPresentationPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingCreditsRollScenePrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingFlyawayPrivateAccess;
-global using static SuperMetroid.Core.Frontend.Ending.EndingLogoPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingPictureSpritePrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingPostShotPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingRewardJumpPrivateAccess;

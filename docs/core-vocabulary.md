@@ -1032,14 +1032,15 @@ in listed order in the species' `EnemyComposite`) and keeps the place it finds; 
 itself is a compatibility service (`FollowUpAfterStruckPart`, `BabyMetroidVictim`); a place is handed on as itself.
 
 SME6485 (#2560) keeps one closed choice as one typed value, in Core and AssetExtraction. No conditional on a bool
-parameter, field or property chooses between the two members of a two-member enum (`left ? Side.Left : Side.Right`), and
+parameter, field or stored property chooses between the two members of a two-member enum (`left ? Side.Left : Side.Right`), and
 no comparison with a two-member enum's member is stored into a bool field or property or passed to a bool parameter
 (`_facingLeft = facing == HorizontalDirection.Left`, `Show(language == TextLanguage.Japanese)`): the code holds and passes
 the enum itself. Where several values stand for one choice the choice is one enum, or a closed record set whose cases
 carry their own data; `[Flags]` only where the game composes the bits; a value that must exist is not nullable, and
 absence belongs to the absent thing. A file format that keeps a bool for compatibility converts through one declared map
-at its codec (`GameSaveJsonCodec`'s `japaneseText`). A comparison that only answers a question, a query's result, a
-condition or a local, is not a stored choice.
+at its codec (`GameSaveJsonCodec`'s saved Japanese-text field). A comparison that only answers a question, a query's
+result, a condition or a local, is not a stored choice, and neither is a computed property asked of a value
+(`speed.IsNegative ? HorizontalDirection.Left : HorizontalDirection.Right`).
 
 SME6474 (#2566) keeps every result read and every parameter needed, in Core and AssetExtraction. A method outside the
 assembly's public surface whose result no caller in the assembly reads, each caller discarding it (`_ = Step();`) or

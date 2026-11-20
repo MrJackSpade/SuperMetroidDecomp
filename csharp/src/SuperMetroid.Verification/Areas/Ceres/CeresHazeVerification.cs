@@ -42,7 +42,7 @@ internal static class CeresHazeVerification
         foreach (bool dead in new[] { false, true })
         foreach (bool immediate in new[] { false, true })
         {
-            var haze = new CeresHazeState(dead, immediate);
+            var haze = new CeresHazeState(dead ? CeresHazeTint.AfterRidleyDies : CeresHazeTint.WhileRidleyLives, immediate);
             AssertEqual(immediate ? 15 : 0, haze.Strength.FadeSteps, "Load projects initial/completed fade state");
             if (!immediate)
             {
@@ -71,7 +71,7 @@ internal static class CeresHazeVerification
             haze.StepWhileRoomFadesIn();
             AssertEqual(1, haze.Strength.FadeSteps, "Zero counter retains final table without restarting");
             AssertEqual(dead ? CeresHazeTint.AfterRidleyDies : CeresHazeTint.WhileRidleyLives, haze.Tint, "Selected channel is room-owned throughout the trace");
-            haze = new CeresHazeState(!dead, immediate);
+            haze = new CeresHazeState(!dead ? CeresHazeTint.AfterRidleyDies : CeresHazeTint.WhileRidleyLives, immediate);
             AssertTrue(haze.Tint == (dead ? CeresHazeTint.WhileRidleyLives : CeresHazeTint.AfterRidleyDies), "Reload replaces the channel");
         }
     }

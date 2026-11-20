@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend.Menus;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -137,7 +138,7 @@ public sealed class GameOptionsSourcePresentation
         yield return ScreenPictureSubject.Page(GameOptionsNames.BackgroundFrame, background, width);
         foreach (GameOptionsScreen tilemap in GameOptionsPresentationFormat.Tilemaps)
             yield return ScreenPictureSubject.Page(GameOptionsNames.PageFrame(tilemap), pages[tilemap], width, DynamicCells(tilemap));
-        foreach (TextLanguage language in Enum.GetValues<TextLanguage>())
+        foreach (TextLanguage language in TextLanguageKeys.InListedOrder)
         {
             BackgroundTile[] primary = CreatePage(GameOptionsScreen.Primary);
             ApplyLanguage(primary, language);
@@ -154,7 +155,7 @@ public sealed class GameOptionsSourcePresentation
                     controller, width, cells);
             }
         }
-        foreach (GameOptionsScreen special in Enum.GetValues<TextLanguage>().Select(language => GameOptionsScreen.Settings(GameOptionsPage.Special, language)))
+        foreach (GameOptionsScreen special in TextLanguageKeys.InListedOrder.Select(language => GameOptionsScreen.Settings(GameOptionsPage.Special, language)))
         foreach (GameOptionsToggle toggle in GameOptionsPresentationFormat.Toggles)
         foreach (bool enabled in new[] { false, true })
         {
@@ -174,12 +175,12 @@ public sealed class GameOptionsSourcePresentation
         yield return GameOptionsNames.BackgroundFrame;
         foreach (GameOptionsScreen tilemap in GameOptionsPresentationFormat.Tilemaps)
             yield return GameOptionsNames.PageFrame(tilemap);
-        foreach (TextLanguage language in Enum.GetValues<TextLanguage>())
+        foreach (TextLanguage language in TextLanguageKeys.InListedOrder)
             yield return GameOptionsNames.LanguageFrame(language);
         for (int action = 0; action < GameOptionsPageRows.ControllerActions.Count; action++)
             foreach (ControllerButton button in GameOptionsPresentationDefinitions.ControllerLabelButtons)
                 yield return GameOptionsNames.ControllerLabelFrame(GameOptionsPageRows.ControllerActions[action], button);
-        foreach (GameOptionsScreen special in Enum.GetValues<TextLanguage>().Select(language => GameOptionsScreen.Settings(GameOptionsPage.Special, language)))
+        foreach (GameOptionsScreen special in TextLanguageKeys.InListedOrder.Select(language => GameOptionsScreen.Settings(GameOptionsPage.Special, language)))
         foreach (GameOptionsToggle toggle in GameOptionsPresentationFormat.Toggles)
         foreach (bool enabled in new[] { false, true })
             yield return GameOptionsNames.ToggleFrame(special, toggle, enabled);

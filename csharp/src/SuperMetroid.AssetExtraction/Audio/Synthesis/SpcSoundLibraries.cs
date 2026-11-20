@@ -337,9 +337,7 @@ internal sealed class SpcSoundLibraries
             }
             if (command is 0xf5 or 0xf8) // cartridge-encoding: allow(DomainDiscriminator) - SFX pitch-slide forms
             {
-                soundChannel.SlideForm = command == SpcDriverDefinitions.SoundEffects.LegatoSlideOpcode
-                    ? SoundEffectSlideForm.Legato
-                    : SoundEffectSlideForm.Plain;
+                soundChannel.SlideForm = SpcDriverSnapshot.SlideFormOf(command);
                 soundChannel.SubnoteDelta = ReadSoundByte(soundChannel);
                 soundChannel.TargetNote = ReadSoundByte(soundChannel);
                 if (soundChannel.Slide == SoundEffectSlide.Off)

@@ -15,8 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 public static class FirstPlaceFallAcceleration
 {
     /// <summary>The acceleration a falling piece adds this update.</summary>
-    /// <param name="firstPlaceActive">Whether the first enemy-projectile place holds a live projectile.</param>
-    /// <param name="firstPlacePieceAcceleration">The acceleration of the statue piece in the first place, or null when no piece is there.</param>
+    /// <param name="firstPlace">What the first enemy-projectile place holds: nothing, a statue piece with its acceleration, or another projectile.</param>
     /// <exception cref="InvalidOperationException">The first place holds a projectile that is not a statue piece.</exception>
     public static SignedEightEight Of(FirstPlaceHolding firstPlace) => firstPlace switch
     {

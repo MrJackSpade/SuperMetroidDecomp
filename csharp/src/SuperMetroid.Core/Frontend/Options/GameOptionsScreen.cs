@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Options;
 
 /// <summary>
@@ -37,6 +38,7 @@ public sealed record GameOptionsScreen
     public static GameOptionsScreen Settings(GameOptionsPage page, TextLanguage language) => page switch
     {
         GameOptionsPage.Controller or GameOptionsPage.Special => new(page, language),
+        GameOptionsPage.Primary => throw new ArgumentOutOfRangeException(nameof(page), page, "The primary page is no settings page."),
         _ => throw new ArgumentOutOfRangeException(nameof(page), page, "The primary page is no settings page."),
     };
 

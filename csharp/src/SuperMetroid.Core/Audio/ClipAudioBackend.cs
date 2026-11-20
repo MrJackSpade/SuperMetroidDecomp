@@ -188,6 +188,10 @@ public sealed class ClipAudioBackend
                 foreach (LoopingSoundEffectLayer layer in looping.Layers)
                     Release(layer.Clip, layer.LoopStart);
                 break;
+            case OneShotSoundEffectClip:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined sound effect shape {playback.Sound.Shape}.");
         }
 
         void Release(AudioClipFile clip, long? loopStart)

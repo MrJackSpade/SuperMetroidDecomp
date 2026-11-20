@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend.CeresCinematics;

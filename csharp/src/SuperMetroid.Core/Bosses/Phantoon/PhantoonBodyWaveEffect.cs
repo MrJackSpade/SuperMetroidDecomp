@@ -8,11 +8,10 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public sealed class PhantoonBodyWaveEffect
 {
     /// <summary>
-    /// The length the next update sets a requested wave up with, the introductory or final-death wave's (#2560); null when
-    /// no requested wave waits for its setup-only first update.
+    /// Where the wave stands (#2560): rippling, or ended keeping its length, as the last setup started it; or requested,
+    /// waiting for its setup-only first update with the introductory or final-death wave's length while the wave it
+    /// replaces stands as it was; null before any request.
     /// </summary>
-    private PhantoonWaveLength? _pendingSetup;
-    /// <summary>The wave the last setup started (#2560): rippling, or ended keeping its length; null before any setup.</summary>
     private WaveState? _wave;
     /// <summary>
     /// The phase and amplitude the wave last held (#1353, #1858, #2031): its last update, or the death fill as a flat
@@ -20,7 +19,10 @@ public sealed class PhantoonBodyWaveEffect
     /// </summary>
     private PhantoonWaveShape _built;
     /// <summary>Whether a setup has run and the wave has not since observed its length cleared; requesting it with Begin alone does not activate it.</summary>
-    private bool Active => _wave is RipplingWave;
+    private bool Active => SetUpWave is RipplingWave;
+
+    /// <summary>The wave the last setup started, which a requested wave leaves standing until its setup runs.</summary>
+    private WaveState? SetUpWave => _wave is RequestedWave requested ? requested.Replacing : _wave;
     /// <summary>
     /// The wave's phase (#2315): setup seeds <see cref="PhantoonWaveDefinitions.InitialPhase"/>, then each active update
     /// turns it by the wave's phase step. Its whole steps are the angle the wave ripples from.
@@ -33,7 +35,7 @@ public sealed class PhantoonBodyWaveEffect
     /// The wave as it now stands (#1468), or null before any setup: his body rippled down the whole screen by its amplitude
     /// at its phase's angle, over its length's period.
     /// </summary>
-    private PhantoonWave? CurrentWave => _wave is { } wave ? Describe(wave.Length, _built) : null;
+    private PhantoonWave? CurrentWave => SetUpWave is { } wave ? Describe(wave.Length, _built) : null;
 
     /// <summary>
     /// The wave <paramref name="shape"/> shows at <paramref name="length"/> (#1468): his body rippled down the whole screen
@@ -65,7 +67,7 @@ public sealed class PhantoonBodyWaveEffect
     /// <param name="length">The new wave's length. A new request replaces any pending length.</param>
     public void Begin(PhantoonWaveLength length)
     {
-        _pendingSetup = length;
+        _wave = new RequestedWave(length, SetUpWave);
     }
 
     /// <summary>Runs one update of the wave: a pending setup consumes the update; later active updates end the wave once it is ended or advance its phase and rebuild its shape.</summary>
@@ -73,12 +75,11 @@ public sealed class PhantoonBodyWaveEffect
     /// <remarks>Does not publish the wave. Ending it keeps its last shape, and a new setup does not clear it; LatchDisplay owns the displayed snapshot.</remarks>
     public void Step(PhantoonEnemyState boss)
     {
-        if (_pendingSetup is { } setup)
+        if (_wave is RequestedWave requested)
         {
-            boss.Wave.SetUp(setup);
-            _wave = new RipplingWave(setup);
+            boss.Wave.SetUp(requested.Length);
+            _wave = new RipplingWave(requested.Length);
             Phase = PhantoonWaveDefinitions.InitialPhase;
-            _pendingSetup = null;
             return; // The setup update does not also ripple.
         }
         if (_wave is not RipplingWave rippling) return;
@@ -107,4 +108,9 @@ public sealed class PhantoonBodyWaveEffect
     /// <summary>A wave that has ended, keeping its last shape and length.</summary>
     /// <param name="Length">The wave's length.</param>
     private sealed record EndedWave(PhantoonWaveLength Length) : WaveState(Length);
+
+    /// <summary>A requested wave, whose next update sets it up and does no more.</summary>
+    /// <param name="Length">The length its setup selects.</param>
+    /// <param name="Replacing">The wave the last setup started, which stands until this one's setup runs; null before any.</param>
+    private sealed record RequestedWave(PhantoonWaveLength Length, WaveState? Replacing) : WaveState(Length);
 }

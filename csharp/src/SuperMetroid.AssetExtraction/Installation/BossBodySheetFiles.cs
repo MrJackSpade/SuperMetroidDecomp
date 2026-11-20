@@ -139,7 +139,7 @@ public static class BossBodySheetFiles
         PictureDissolve? dissolve = document.Dissolve is null ? null
             : dissolves.TryGetValue(document.Dissolve, out PictureDissolve? map) ? map
             : throw new InvalidDataException($"Boss body manifest {manifestPath} frame {name} names dissolve map {document.Dissolve}, which the dissolve maps do not hold.");
-        BossBodyPicture? shown = document is { Picture: { } picture, Depth: { } shownDepth } ? new(sheet.Frame(picture), shownDepth) : null;
+        SuperMetroid.Core.Enemies.BossBodies.BossBodyPicture? shown = document is { Picture: { } picture, Depth: { } shownDepth } ? new(sheet.Frame(picture), shownDepth) : null;
         return new BossBodyFrame(name, shown, anchor, dissolve);
     }
 

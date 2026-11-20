@@ -836,7 +836,7 @@ public static class SamusBlockCollision
         // The leading X boundary's eight-pixel half selects the column; the scan starts in the top row and then
         // tests the row below it.
         SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
-        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeQuadrant.ColumnFor(RoomGridConversions.InSecondHalfOfBlock(leadingBoundary)), SquareSlopeRowHalf.Top);
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeQuadrant.ColumnFor(leadingBoundary), SquareSlopeRowHalf.Top);
         bool selectedSolid = SquareSlopes.IsSolid(shape, quadrant);
         bool collide;
 
@@ -891,7 +891,7 @@ public static class SamusBlockCollision
         // Vertical collision takes the row from the leading Y boundary's eight-pixel half. The horizontal counter is
         // the number of physical blocks left: left-to-right counts span..0 while right-to-left counts 0..span.
         SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
-        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(leadingBoundary)));
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(leadingBoundary));
         bool selectedSolid = SquareSlopes.IsSolid(shape, quadrant);
         bool collide;
 
@@ -1101,7 +1101,7 @@ public static class SamusBlockCollision
             else
             {
                 SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
-                SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(boundary)));
+                SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(boundary));
                 bool selected = SquareSlopes.IsSolid(shape, quadrant);
                 bool collides;
                 if (column == lastColumn)

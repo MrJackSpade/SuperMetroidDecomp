@@ -68,7 +68,7 @@ public static class SamusPoseInputTransitions
         GameplayAction newlyPressed = newlyPressedActions & ~StartAndItemSelect;
 
         SamusPoseInputMatch match = SamusPoseInputRules.Match(SamusPoseTraits.Of(currentPose).Inputs, held, newlyPressed);
-        if (match is not SamusPoseInputMatch.Matched { Transition: var transition })
+        if (match is not SamusPoseInputMatch.Matched { Choice: var transition })
             return match.HasConditions ? SamusPoseTransitionLookup.PoseDefinitionFallback : SamusPoseTransitionLookup.KeepsPose;
 
         // A match that keeps this pose keeps it, and its fallback is not consulted.

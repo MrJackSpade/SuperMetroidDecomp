@@ -245,7 +245,7 @@ internal sealed class TorizoCombat
             EnemyCollisionHitbox hitbox = rectangles[index];
             if (!probe.Overlaps(origin.X + hitbox.Left, origin.Y + hitbox.Top, origin.X + hitbox.Right, origin.Y + hitbox.Bottom))
                 continue;
-            return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
+            return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot ? hitbox.Shot : hitbox.Touch);
         }
         return EnemyHitboxContact.Missed;
     }

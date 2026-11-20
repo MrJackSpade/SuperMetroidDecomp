@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
@@ -141,7 +142,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     private int cinematicFrameCounter;
     /// <summary>The route when the escape timer expires while Samus remains aboard Ceres.</summary>
-    private bool WithSamus { get; }
+    private bool WithSamus => Outcome == CeresDestructionOutcome.SamusAboard;
+
+    /// <summary>How Ceres's destruction ends: with Samus aboard her gunship, or after she escaped (#2560).</summary>
+    private CeresDestructionOutcome Outcome { get; }
 
     /// <param name="audio">The shared music and sound queue, whose music the scene waits on.</param>
     /// <param name="glowColors">Installed Power Bomb glow colours for the station explosion.</param>
@@ -162,7 +166,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         this.language = language;
         BindSpriteSheets(Ensure.NotNull(spriteSheets));
-        WithSamus = outcome == CeresDestructionOutcome.SamusAboard;
+        Outcome = outcome;
         this.audio = Ensure.NotNull(audio);
         Artwork = Ensure.NotNull(artwork);
         stationExplosion = new CeresStationBlast();

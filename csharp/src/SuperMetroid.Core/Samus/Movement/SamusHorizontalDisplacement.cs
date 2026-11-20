@@ -41,11 +41,8 @@ public readonly record struct SamusHorizontalDisplacement(SignedSixteenSixteen D
     {
         SamusFacingDirection facing = SamusPoseMetadata.ReadFacingDirection(samus);
         bool reversePoseDirection = samus.HorizontalSpeed.AccelerationMode is not (SamusAccelerationMode.Accelerating or SamusAccelerationMode.Decelerating);
-        HorizontalDirection side = (reversePoseDirection, facing) switch
-        {
-            (false, SamusFacingDirection.Left) or (true, SamusFacingDirection.Right) => HorizontalDirection.Left,
-            _ => HorizontalDirection.Right,
-        };
+        HorizontalDirection side = facing == (reversePoseDirection ? SamusFacingDirection.Right : SamusFacingDirection.Left)
+            ? HorizontalDirection.Left : HorizontalDirection.Right;
         return Toward(side, samus, baseSpeed);
     }
 }

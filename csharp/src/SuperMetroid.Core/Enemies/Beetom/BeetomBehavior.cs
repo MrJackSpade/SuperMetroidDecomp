@@ -203,13 +203,19 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         BeetomHopLength length)
     {
         // The hop's length selects its climb, whose start place the hop rises from (#2560).
-        (state.YSpeedCurvePlace, BeetomAction rising) = length switch
+        switch (length)
         {
-            BeetomHopLength.Short => (BeetomLeapDefinitions.ShortLeap.StartPlace, BeetomAction.ShortHopRising),
-            BeetomHopLength.Long => (BeetomLeapDefinitions.LongLeap.StartPlace, BeetomAction.LongHopRising),
-            _ => throw new ArgumentOutOfRangeException(nameof(length), length, "Unknown Beetom hop."),
-        };
-        state.Begin(rising, direction);
+            case BeetomHopLength.Short:
+                state.YSpeedCurvePlace = BeetomLeapDefinitions.ShortLeap.StartPlace;
+                state.Begin(BeetomAction.ShortHopRising, direction);
+                break;
+            case BeetomHopLength.Long:
+                state.YSpeedCurvePlace = BeetomLeapDefinitions.LongLeap.StartPlace;
+                state.Begin(BeetomAction.LongHopRising, direction);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(length), length, "Unknown Beetom hop.");
+        }
         SetBeetomAnimation(
             place,
             state,

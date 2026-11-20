@@ -162,8 +162,8 @@ public sealed class SamusGrappleState
     /// <summary>The swing turns without colliding, or the grapple starts, connects or ends: it no longer rests.</summary>
     internal void SwingFreely() => RestsCloseToHand = false;
 
-    /// <summary>The swing's positioning makes the camera follow it slowly while <paramref name="fast"/>, ordinarily otherwise.</summary>
-    internal void FollowSwing(bool fast) => CameraScroll = fast ? GrappleCameraScroll.Slow : GrappleCameraScroll.Ordinary;
+    /// <summary>The swing's positioning makes the camera follow it with <paramref name="scroll"/>: slowly while it swings fast.</summary>
+    internal void FollowSwing(GrappleCameraScroll scroll) => CameraScroll = scroll;
 
     /// <summary>The grapple's firing, connection, release or end returns the camera to its ordinary scroll.</summary>
     internal void ScrollCameraOrdinarily() => CameraScroll = GrappleCameraScroll.Ordinary;

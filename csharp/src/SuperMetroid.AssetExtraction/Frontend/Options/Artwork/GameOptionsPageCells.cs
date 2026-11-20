@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Spatial;
@@ -53,7 +54,7 @@ public static class GameOptionsPageCells
     /// selected palette when Japanese is active.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The language or the row is undefined.</exception>
-    private static GameOptionsLanguagePaletteRegion LanguagePaletteRegion(GameOptionsLabelLanguage language, GameOptionsLabelRow row)
+    private static GameOptionsLanguagePaletteRegion LanguagePaletteRegion(TextLanguage language, GameOptionsLabelRow row)
     {
         int rowsBelowLabelTop = row switch
         {

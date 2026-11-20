@@ -225,7 +225,7 @@ internal static class BossBodyLayeredPartsVerification
         for (int pixel = 0; pixel < owners.Length; pixel++)
         {
             int x = pixel % area.X, y = pixel / area.X;
-            if (owners[pixel] is { Picture: { } picture } frame && (layer.ShownAbove is not { } shownAbove || y < shownAbove - areaFromBoss.Y)
+            if (owners[pixel] is { Shown.Picture: { } picture } frame && (layer.ShownAbove is not { } shownAbove || y < shownAbove - areaFromBoss.Y)
                 && KeyAt(picture, x - (frame.Anchor.X - areaFromBoss.X), y - (frame.Anchor.Y - areaFromBoss.Y)) is { } key)
                 shown[pixel] = new ShownPixel(key, depths[pixel]);
         }

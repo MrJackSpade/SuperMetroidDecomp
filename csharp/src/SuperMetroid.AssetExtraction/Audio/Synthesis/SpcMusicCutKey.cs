@@ -7,15 +7,17 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// </summary>
 internal readonly record struct SpcMusicCutKey
 {
-    private readonly byte _stored;
+    /// <summary>The value the driver stores, the effect's argument plus one wrapped to the driver's byte; zero while the cut is off.</summary>
+    private readonly int _stored;
 
-    private SpcMusicCutKey(byte stored) => _stored = stored;
+    /// <summary>A setting holding <paramref name="stored"/>, the driver's wrapped value.</summary>
+    private SpcMusicCutKey(int stored) => _stored = stored;
 
     /// <summary>The setting of a voice whose track has not run the effect: notes play.</summary>
     internal static SpcMusicCutKey Off => default;
 
     /// <summary>The setting the cut-key effect with <paramref name="argument"/> leaves.</summary>
-    internal static SpcMusicCutKey FromArgument(int argument) => new(unchecked((byte)(argument + 1)));
+    internal static SpcMusicCutKey FromArgument(int argument) => new(SpcDriverWrap.Byte(argument + 1));
 
     /// <summary>Whether the cut holds, suppressing the voice's notes.</summary>
     internal bool Holds => _stored != 0;

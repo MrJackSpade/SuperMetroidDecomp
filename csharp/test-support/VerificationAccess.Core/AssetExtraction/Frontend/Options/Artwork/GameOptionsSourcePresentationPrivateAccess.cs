@@ -14,7 +14,7 @@ internal static class GameOptionsSourcePresentationPrivateAccess
     private delegate void ApplyControllerLabelCall(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentation self, global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> page, global::SuperMetroid.Core.Input.ControllerAction action, global::SuperMetroid.Core.Input.ControllerButton button);
 
     /// <summary>The signature of <c>ApplyLanguage</c>, called directly: reflection cannot pass a ref struct.</summary>
-    private delegate void ApplyLanguageCall(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentation self, global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> primaryPage, global::SuperMetroid.Core.Frontend.TextLanguage language);
+    private delegate void ApplyLanguageCall(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentation self, global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> primaryPage, global::SuperMetroid.Core.Progression.TextLanguage language);
 
     /// <summary>The signature of <c>ApplySpecialToggle</c>, called directly: reflection cannot pass a ref struct.</summary>
     private delegate void ApplySpecialToggleCall(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentation self, global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> page, global::SuperMetroid.Core.Frontend.Options.GameOptionsToggle name, bool enabled);
@@ -27,8 +27,8 @@ internal static class GameOptionsSourcePresentationPrivateAccess
             PrivateState.MethodDelegate<ApplyControllerLabelCall>(typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentation), "ApplyControllerLabel", [typeof(global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile>), typeof(global::SuperMetroid.Core.Input.ControllerAction), typeof(global::SuperMetroid.Core.Input.ControllerButton)])(self, page, action >= 0 && action < global::SuperMetroid.Core.Frontend.Options.GameOptionsPageRows.ControllerActions.Count ? global::SuperMetroid.Core.Frontend.Options.GameOptionsPageRows.ControllerActions[action] : (global::SuperMetroid.Core.Input.ControllerAction)99, button);
 
         /// <summary>The private method <c>ApplyLanguage</c>, invoked by name.</summary>
-        internal void ApplyLanguage(global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> primaryPage, global::SuperMetroid.Core.Frontend.TextLanguage language) =>
-            PrivateState.MethodDelegate<ApplyLanguageCall>(typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentation), "ApplyLanguage", [typeof(global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile>), typeof(global::SuperMetroid.Core.Frontend.TextLanguage)])(self, primaryPage, language);
+        internal void ApplyLanguage(global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> primaryPage, global::SuperMetroid.Core.Progression.TextLanguage language) =>
+            PrivateState.MethodDelegate<ApplyLanguageCall>(typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentation), "ApplyLanguage", [typeof(global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile>), typeof(global::SuperMetroid.Core.Progression.TextLanguage)])(self, primaryPage, language);
 
         /// <summary>The private method <c>ApplySpecialToggle</c>, invoked by name.</summary>
         internal void ApplySpecialToggle(global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> page, global::SuperMetroid.Core.Frontend.Options.GameOptionsToggle name, bool enabled) =>

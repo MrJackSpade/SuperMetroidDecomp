@@ -33,6 +33,20 @@ internal static class SpcDriverSnapshot
         _ => throw new ArgumentOutOfRangeException(nameof(form), form, "Undefined slide form."),
     };
 
+    /// <summary>The form of slide instruction <paramref name="opcode"/> starts, the legato opcode's or the plain one's (#2560).</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The opcode starts no slide.</exception>
+    public static SoundEffectSlideForm SlideFormOf(int opcode) => SlideForms.TryGetValue(opcode, out SoundEffectSlideForm form)
+        ? form
+        : throw new ArgumentOutOfRangeException(nameof(opcode), opcode, "The opcode starts no slide.");
+
+    /// <summary>The form each slide instruction starts: the one declared map between the driver's opcodes and the forms.</summary>
+    private static readonly System.Collections.Frozen.FrozenDictionary<int, SoundEffectSlideForm> SlideForms =
+        System.Collections.Frozen.FrozenDictionary.ToFrozenDictionary(new Dictionary<int, SoundEffectSlideForm>
+        {
+            [SpcDriverDefinitions.SoundEffects.LegatoSlideOpcode] = SoundEffectSlideForm.Legato,
+            [SpcDriverDefinitions.SoundEffects.PlainSlideOpcode] = SoundEffectSlideForm.Plain,
+        });
+
     /// <summary>The driver's byte for library three's request mode (#2560).</summary>
     public static int Byte(SoundLibraryMode mode) => mode switch
     {

@@ -8,11 +8,13 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 
 /// <summary>
 /// A closed choice is one typed value, never a bool standing for it (SME6485, #2560): in <c>SuperMetroid.Core</c> and
-/// <c>SuperMetroid.AssetExtraction</c>, no conditional on a bool parameter, field or property chooses between the two
-/// members of a two-member enum (<c>left ? Side.Left : Side.Right</c>), and no comparison with a member of a two-member enum
-/// (<c>side == Side.Left</c>) is stored into a bool field or property or passed to a bool parameter. Either way a bool
+/// <c>SuperMetroid.AssetExtraction</c>, no conditional on a bool parameter, field or stored property chooses between the
+/// two members of a two-member enum (<c>left ? Side.Left : Side.Right</c>), and no comparison with a member of a two-member
+/// enum (<c>side == Side.Left</c>) is stored into a bool field or property or passed to a bool parameter. Either way a bool
 /// carries the choice the enum names, so the bool and the enum spell one choice twice; the code holds and passes the enum.
-/// A comparison that only answers a question (a query's result, a condition, a local) is not a stored choice.
+/// A comparison that only answers a question (a query's result, a condition, a local) is not a stored choice, and neither
+/// is a computed property, a question asked of a value (<c>speed.IsNegative</c>), whose answer a conditional may turn into a
+/// direction.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ClosedChoiceAsBoolAnalyzer : DiagnosticAnalyzer
@@ -105,10 +107,19 @@ public sealed class ClosedChoiceAsBoolAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    /// <summary>Whether the condition is a bool parameter, field or property read as it is.</summary>
+    /// <summary>Whether the condition is a bool parameter, field or stored property read as it is.</summary>
     private static bool IsStoredBool(IOperation condition) =>
-        condition is IParameterReferenceOperation or IFieldReferenceOperation or IPropertyReferenceOperation &&
-        condition.Type?.SpecialType == SpecialType.System_Boolean;
+        condition.Type?.SpecialType == SpecialType.System_Boolean && condition switch
+        {
+            IParameterReferenceOperation or IFieldReferenceOperation => true,
+            IPropertyReferenceOperation reference => IsStored(reference.Property),
+            _ => false,
+        };
+
+    /// <summary>Whether the property holds its value in a field of its own, as an automatic property does, rather than computing it.</summary>
+    private static bool IsStored(IPropertySymbol property) =>
+        property.ContainingType.GetMembers().OfType<IFieldSymbol>()
+            .Any(field => SymbolEqualityComparer.Default.Equals(field.AssociatedSymbol, property));
 
     /// <summary>The enum member the operation names, or null when it names none.</summary>
     private static IFieldSymbol? EnumMember(IOperation operation)

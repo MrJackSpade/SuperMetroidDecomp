@@ -24,6 +24,6 @@ internal sealed class CeresElevatorShaftMain(CeresElevatorShaftRoomMainState sha
             allowDeparture: update.AllowCeresElevatorDeparture);
         if (result.TiltChanged)
             update.Display.ActiveTurningFloor = result.Transform;
-        return result.ElevatorTookSamus ? RoomMainOutcome.CeresElevatorTookSamus : RoomMainOutcome.None;
+        return result.Outcome;
     }
 }

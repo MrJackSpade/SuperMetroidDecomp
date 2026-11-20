@@ -44,7 +44,7 @@ internal static class RoomEnemyFrameFixtures
             ControllerInput = GameplayAction.None,
             Camera = Position16<RoomPixels>.Zero,
             GunshipScenario = GunshipLoadScenario.Ordinary,
-            DeferLoaderTimeCameraReads = false,
+            ViewportLoadMode = SuperMetroid.Core.Rooms.RoomViewportLoadMode.DisplayInitialViewport,
         };
 
     /// <summary>

@@ -21,7 +21,7 @@ internal static class SamusEaterObjectDefinitions
     internal const int ReleaseDuration = 96;
 
     /// <summary>The Brinstar floor plant.</summary>
-    public static readonly SamusEaterObjectDefinition Floor = new(Ceiling: false, FloorChews,
+    public static readonly SamusEaterObjectDefinition Floor = new(Side: VerticalDirection.Down, FloorChews,
     [
         new(SamusEaterDraw.FloorTeethBared, ChewFrameDuration, SamusEaterBite.None),
         new(SamusEaterDraw.FloorTeethPeeking, ChewFrameDuration, SamusEaterBite.None),
@@ -34,7 +34,7 @@ internal static class SamusEaterObjectDefinitions
     ], SamusEaterDraw.FloorFangsOut, SamusEaterDraw.FloorIdle);
 
     /// <summary>The Brinstar ceiling plant.</summary>
-    public static readonly SamusEaterObjectDefinition Ceiling = new(Ceiling: true, CeilingChews,
+    public static readonly SamusEaterObjectDefinition Ceiling = new(Side: VerticalDirection.Up, CeilingChews,
     [
         new(SamusEaterDraw.CeilingTeethBared, ChewFrameDuration, SamusEaterBite.None),
         new(SamusEaterDraw.CeilingTeethPeeking, ChewFrameDuration, SamusEaterBite.None),

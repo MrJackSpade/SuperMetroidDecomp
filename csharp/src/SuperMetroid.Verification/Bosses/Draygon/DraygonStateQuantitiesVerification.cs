@@ -98,7 +98,7 @@ internal static class DraygonStateQuantitiesVerification
         // A centre on the spiral's upper limit ends the step at the lift check, before Samus is moved.
         state.SpiralCenter = DraygonRegrabSpiralLift.At(FixedPosition<RoomPixels>.FromWhole(new(256, 64)));
         Position16<RoomPixels> center = state.SpiralCenter.Center.Whole;
-        state.Phase = DraygonPhase.FlailWithSamus;
+        state.Phase = new DraygonPhase.FlailWithSamus();
 
         enemies.DraygonBehavior.Grab.CarrySamusInDraygonSpiral(state, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
 
@@ -113,7 +113,7 @@ internal static class DraygonStateQuantitiesVerification
         AssertEqual(nativeDelta, state.SpiralAngleDelta.RawValue, "the angular step slows by 1/256 unit");
         AssertEqual(unchecked((byte)(angle + EightEightOracle.UnsignedWhole(nativeDelta))), state.SpiralAngle.ToTrigonometryAngle().RawValue,
             "the angle advances by the step's whole units and wraps around the turn");
-        AssertEqual(DraygonPhase.FinalTailWhips, state.Phase, "the lifted centre past its limit ends the spiral");
+        AssertTrue((state.Phase) is DraygonPhase.FinalTailWhips, "the lifted centre past its limit ends the spiral");
     }
 
     /// <summary>

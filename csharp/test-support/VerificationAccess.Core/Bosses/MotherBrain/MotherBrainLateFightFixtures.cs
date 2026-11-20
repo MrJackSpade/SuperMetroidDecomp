@@ -16,21 +16,21 @@ internal static class MotherBrainLateFightFixtures
     /// <summary>A late-fight sequence as <see cref="NewSequence()"/> builds, whose encounter's bursts are <paramref name="bursts"/>.</summary>
     internal static MotherBrainRainbowBeamAttackSequence NewSequence(MotherBrainBurstCycle bursts)
     {
-        var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
-        var brain = new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Health = 3000 };
+        var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers());
+        var brain = new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers()) { Health = 3000 };
         var encounter = new MotherBrainEnemyState(body, brain, new MotherBrainWalkCounter(), bursts, new MotherBrainBrainAnimation()) { RainbowPhase = MotherBrainRainbowPhase.StartCharging, DroolGenerationEnabled = true, SmallPurpleBreathGenerationEnabled = true, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
         return new MotherBrainRainbowBeamAttackSequence(encounter);
     }
 
     /// <summary>
-    /// Gives <paramref name="baby"/> a standalone place that holds <paramref name="leftInPlace"/> from its previous occupant,
-    /// as the final beam's spawn does, and initializes the Baby there (#2572): its position and health live in the place.
+    /// Builds <paramref name="lateFight"/>'s Baby in a standalone place that holds <paramref name="leftInPlace"/> from its
+    /// previous occupant, as the final beam's spawn does (#2572): its position and health live in the place.
     /// </summary>
-    internal static RoomEnemyPlace Arrive(BabyMetroidCutsceneState baby, FixedPosition<RoomPixels> leftInPlace)
+    /// <returns>The arrived Baby.</returns>
+    internal static BabyMetroidCutsceneState Arrive(MotherBrainRainbowBeamAttackSequence lateFight, FixedPosition<RoomPixels> leftInPlace)
     {
-        var place = new RoomEnemyPlace(2, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = leftInPlace };
-        Ensure.NotNull(baby).Arrive(place);
-        return place;
+        var place = new RoomEnemyPlace(2, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers()) { Position = leftInPlace };
+        return Ensure.NotNull(lateFight).BabyArrives(place);
     }
 
     /// <summary>

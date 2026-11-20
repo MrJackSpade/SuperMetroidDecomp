@@ -32,7 +32,7 @@ internal static class MotherBrainHeadHitboxVerification
         RoomEnemyPlace head = state.Head;
         AssertEqual<MotherBrainHeadSegment?>(MotherBrainHeadSegment.WholeHeadMouthClosed, state.Brain.Playback?.PlayingSegment,
             "the brain program starts at InstList_MotherBrainHead_Initial");
-        AssertEqual<EnemyFrameId?>(EnemyFrameId.MotherBrainHeadEyeShut, state.Brain.ShownFrame,
+        AssertEqual<EnemyFrameId?>(EnemyFrameId.MotherBrainHeadEyeShut, (state.Brain.Shown is SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainShown.Picture shownPicture35 ? shownPicture35.Frame : (SuperMetroid.Core.Enemies.Artwork.EnemyFrameId?)null),
             "the brain's initial animation shows its closed eye from its start");
 
         EnemyAnimationPlayer.AdvanceAnimation(head, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);

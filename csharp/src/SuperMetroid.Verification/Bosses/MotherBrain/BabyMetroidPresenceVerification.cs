@@ -29,7 +29,7 @@ internal static class BabyMetroidPresenceVerification
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         MotherBrainRainbowBeamAttackSequence lateFight = state.BeginLateFight();
         runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
-        BabyMetroidCutsceneState baby = lateFight.Baby;
+        BabyMetroidCutsceneState baby = lateFight.Baby.Arrived();
         RoomEnemyPlace place = baby.Place
             ?? throw new InvalidOperationException("Verification requires the Baby's place.");
 

@@ -214,18 +214,18 @@ internal static class NativeSnapshotMotherBrainImport
         {
             case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame frame:
                 brain.Playback = playback with { Place = playback.Place with { Beat = playback.Place.Beat + 1 } };
-                brain.ShownFrame = frame.Shown;
+                brain.Shown = new SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainShown.Picture(frame.Shown);
                 // The frame moves on at the draw its count passes its list's duration: its updates less the draws shown.
                 brain.Clock.HoldFor(frame.Duration - drawsShown + 1);
                 return;
             case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.HeldFrame held:
                 brain.Playback = playback with { Place = AnimationPlace.HoldingIn(playback.Place.Phase, phase.BeatCount) };
-                brain.ShownFrame = held.Shown;
+                brain.Shown = new SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainShown.Picture(held.Shown);
                 brain.Clock.ShowForGood();
                 return;
             default:
                 brain.Playback = playback;
-                brain.ShownFrame = null;
+                brain.Shown = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainShown.Nothing;
                 brain.Clock.StepOnNextUpdate();
                 return;
         }

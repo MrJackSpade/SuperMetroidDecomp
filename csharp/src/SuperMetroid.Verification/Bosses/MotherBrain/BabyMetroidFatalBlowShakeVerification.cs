@@ -16,8 +16,7 @@ internal static class BabyMetroidFatalBlowShakeVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)) };
         var motherBrain = MotherBrainLateFightFixtures.NewSequence();
-        var baby = motherBrain.Baby;
-        MotherBrainLateFightFixtures.Arrive(baby, FixedPosition<RoomPixels>.Zero);
+        var baby = MotherBrainLateFightFixtures.Arrive(motherBrain, FixedPosition<RoomPixels>.Zero);
         baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
         baby.Position = FixedPosition<RoomPixels>.FromWhole(new(0x00c8, 0x0057)).WithFractionsOf(baby.Position);
         baby.Health = 0;

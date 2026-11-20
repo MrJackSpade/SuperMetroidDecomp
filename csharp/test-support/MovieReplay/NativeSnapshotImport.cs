@@ -399,9 +399,15 @@ internal static class NativeSnapshotImport
                 int extra = NativeSnapshotMemory.EnemyExtra + index * NativeSnapshotMemory.EnemyExtraBytes;
                 NativeEnemyFamilyStateImport.ImportExtraWords(enemy, words, offset => W(extra + offset));
             }
-            // A recorded swoop path's length is word C; before Draygon plans his first swoop it is zero and he has none.
-            if (W(address) != 0 && SuperMetroid.Core.Enemies.EnemyPartners.Listed<DraygonBodyEntity>(enemy).State is { } draygon && words.C != 0)
-                draygon.SwoopPath = SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.SwoopPathAt(W, words.C);
+            // A recorded swoop path's length is word C; before Draygon plans his first swoop it is zero and he has none. A swoop
+            // or goop phase is built with the path.
+            if (W(address) != 0 && SuperMetroid.Core.Enemies.EnemyPartners.Listed<DraygonBodyEntity>(enemy).State is { } draygon && words.A != 0 &&
+                SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.Phases.Decode(words.A, "recorded DraygonPhase") is (var draygonKind, _) &&
+                SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.CarriesSwoopPath(draygonKind))
+            {
+                draygon.Phase = SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.PhaseOf(draygonKind,
+                    words.C != 0 ? SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.SwoopPathAt(W, words.C) : null);
+            }
             // Kraid's head program is typed and kept in the encounter state; the recorded body word is its native cursor,
             // which only this import translates. Before the first attack the word names no head record and the head stays unstarted.
             if (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>(enemy).PartState is SuperMetroid.Core.Bosses.Kraid.KraidBodyState kraidBody)

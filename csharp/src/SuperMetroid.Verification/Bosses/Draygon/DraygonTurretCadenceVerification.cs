@@ -30,7 +30,7 @@ internal static class DraygonTurretCadenceVerification
         runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.Loaded);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));
         var boss = runtime.Enemies.Draygon;
-        AssertEqual(DraygonPhase.IntroInitialDelay, (boss ?? throw new InvalidOperationException("Verification requires boss.")).Phase, "fight intro waits before the dance");
+        AssertTrue(((boss ?? throw new InvalidOperationException("Verification requires boss.")).Phase) is DraygonPhase.IntroInitialDelay, "fight intro waits before the dance");
 
         RoomEnemyFrame? stepped = null;
         // The turret check fires a wall turret from a whole cannon at Samus, so a check is seen as a new turret in the pool.
@@ -90,9 +90,9 @@ internal static class DraygonTurretCadenceVerification
         // #1269: DraygonReaction_Common's dead branch ($A5:9618) has no "already dying"
         // test. A later hit on the zero-health body reinstalls the drift function.
         boss.Body.Health = 0;
-        boss.Phase = DraygonPhase.DyingWaitForEvirs;
+        boss.Phase = new DraygonPhase.DyingWaitForEvirs();
         runtime.Enemies.DraygonBehavior.Combat.ResolveDraygonReaction(boss.Body, runtime.Player.Samus);
-        AssertEqual(DraygonPhase.Dying, boss.Phase,
+        AssertTrue((boss.Phase) is DraygonPhase.Dying,
             "a hit on the dead body restarts the drift to the death spot");
         Console.WriteLine("Draygon turret cadence: $A5:87AA follows NMI_FrameCounter ($05B6), not $05B5; goop speed is two; power bombs delete goop; dead-body hits restart the death drift.");
     }

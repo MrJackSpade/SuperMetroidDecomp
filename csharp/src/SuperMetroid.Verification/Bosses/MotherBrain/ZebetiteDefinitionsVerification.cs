@@ -107,7 +107,7 @@ internal static class ZebetiteDefinitionsVerification
                 $"production Zebetite generation {generation} form");
             AssertEqual(expected.HalfHeight, place.Radius.Y,
                 $"production Zebetite generation {generation} radius");
-            AssertEqual<EnemyFrameId?>(NativePicture(rom, ZebetiteList(expected.Form, 1000)), state.Picture,
+            AssertEqual<EnemyFrameId?>(NativePicture(rom, ZebetiteList(expected.Form, 1000)), (state.Shown is SuperMetroid.Core.Bosses.MotherBrain.ZebetiteShown.Picture zebetitePicture110 ? zebetitePicture110.Frame : (SuperMetroid.Core.Enemies.Artwork.EnemyFrameId?)null),
                 $"production Zebetite generation {generation} picture");
             AssertEqual(expected.X, place.Position.X.Whole,
                 $"production Zebetite generation {generation} X");
@@ -122,7 +122,7 @@ internal static class ZebetiteDefinitionsVerification
                 int tier = health < 200 ? 4 : health < 400 ? 3 : health < 600 ? 2 : health < 800 ? 1 : 0;
                 ushort list = rom.ReadCartridgeWord(
                     (expected.Form == ZebetiteBarrierForm.SplitPair ? linkedHealthTable : bigHealthTable) + tier * 2);
-                AssertEqual<EnemyFrameId?>(NativePicture(rom, list), state.Picture,
+                AssertEqual<EnemyFrameId?>(NativePicture(rom, list), (state.Shown is SuperMetroid.Core.Bosses.MotherBrain.ZebetiteShown.Picture zebetitePicture125 ? zebetitePicture125.Frame : (SuperMetroid.Core.Enemies.Artwork.EnemyFrameId?)null),
                     $"production Zebetite generation {generation} health {health}");
             }
         }

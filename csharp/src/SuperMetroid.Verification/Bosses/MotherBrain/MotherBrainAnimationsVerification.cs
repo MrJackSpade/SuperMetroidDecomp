@@ -85,7 +85,7 @@ internal static class MotherBrainAnimationsVerification
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, program);
             var frames = MotherBrainAnimations.HeadSegments.Beats(program).OfType<AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame>().ToArray();
-            AssertEqual<EnemyFrameId?>(frames[0].Shown, state.Brain.ShownFrame, $"{program} shows its first frame from its start");
+            AssertEqual<EnemyFrameId?>(frames[0].Shown, (state.Brain.Shown is SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainShown.Picture shownPicture88 ? shownPicture88.Frame : (SuperMetroid.Core.Enemies.Artwork.EnemyFrameId?)null), $"{program} shows its first frame from its start");
             for (int draw = 1; draw < frames[0].Duration; draw++)
             {
                 AssertEqual((EnemyFrameId?)frames[0].Shown, enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
@@ -103,7 +103,7 @@ internal static class MotherBrainAnimationsVerification
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.StretchingPhase2);
             var opening = MotherBrainAnimations.HeadSegments.Beats(MotherBrainHeadSegment.StretchingPhase2).OfType<AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame>().First();
-            AssertEqual<EnemyFrameId?>(null, state.Brain.ShownFrame, "a stretch, which opens with a cue, shows nothing before its first draw");
+            AssertEqual<EnemyFrameId?>(null, (state.Brain.Shown is SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainShown.Picture shownPicture106 ? shownPicture106.Frame : (SuperMetroid.Core.Enemies.Artwork.EnemyFrameId?)null), "a stretch, which opens with a cue, shows nothing before its first draw");
             for (int draw = 0; draw < opening.Duration; draw++)
             {
                 AssertEqual((EnemyFrameId?)opening.Shown, enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
@@ -140,7 +140,7 @@ internal static class MotherBrainAnimationsVerification
             // The dying drool's loop shows its first frame, which the burst's last drool has just moved on to.
             var loopFrame = (AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame)MotherBrainAnimations.HeadSegments.Beats(MotherBrainHeadSegment.DyingDroolLoop)[0];
             state.Brain.Playback = new(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadSegment.DyingDrool), new AnimationPlace(2, 1));
-            state.Brain.ShownFrame = loopFrame.Shown;
+            state.Brain.Shown = new SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainShown.Picture(loopFrame.Shown);
             state.Brain.Clock.Show(loopFrame.Duration);
             for (int draw = 0; draw < loopFrame.Duration; draw++)
                 enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());

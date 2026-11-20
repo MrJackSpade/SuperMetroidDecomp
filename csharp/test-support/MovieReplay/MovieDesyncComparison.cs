@@ -119,7 +119,7 @@ internal static class MovieDesyncComparison
         if (game.RuntimeForVerification?.Enemies.BossEncounters.MotherBrain?.RainbowBeamSequence?.Baby is { Place: not null } baby)
         {
             // Baby Metroid cutscene actor: $0FA8+$40n function words; velocities at +2/+4.
-            Console.WriteLine($"  baby port   pos={baby.Position.X.Whole:X4}.{baby.Position.X.Fraction:X4}/{baby.Position.Y.Whole:X4}.{baby.Position.Y.Fraction:X4} v={baby.Velocity.X.RawValue:X4}/{baby.Velocity.Y.RawValue:X4}");
+            Console.WriteLine($"  baby port   pos={baby.Arrived().Position.X.Whole:X4}.{baby.Arrived().Position.X.Fraction:X4}/{baby.Arrived().Position.Y.Whole:X4}.{baby.Arrived().Position.Y.Fraction:X4} v={baby.Arrived().Velocity.X.RawValue:X4}/{baby.Arrived().Velocity.Y.RawValue:X4}");
             Console.WriteLine($"  baby native pos={Native(0x103a)}.{Native(0x103c)}/{Native(0x103e)}.{Native(0x1040)} v={Native(0x106a)}/{Native(0x106c)}");
         }
         if (game.RuntimeForVerification is { } ridleyRuntime && ridleyRuntime.Enemies.Ridley() is { } ridley)

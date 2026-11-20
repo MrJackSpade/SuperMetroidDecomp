@@ -58,7 +58,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
 
         enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
 
-        RoomEnemyPlace baby = lateFight.Baby.Place ??
+        RoomEnemyPlace baby = lateFight.Baby.Arrived().Place ??
             throw new InvalidDataException("Mother Brain Baby allocator produced no physical slot.");
         AssertEqual(1, baby.Ordinal, "Mother Brain Baby first free physical slot");
         AssertEqual(EnemyDefinitionId.BabyMetroidCutscene,

@@ -236,19 +236,22 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (SuperMetroid.Core.Enemies.EnemyPartners.Listed<DraygonBodyEntity>(enemy).State is { } draygonRecord)
         {
-            // A zero word is a fight that has not begun; the state keeps the phase it starts in.
+            // A zero word is a fight that has not begun; the state keeps the phase it starts in. A swoop or goop phase carries
+            // the swoop path, which the snapshot import reads with the memory it lies in and builds the phase with.
+            Type kind = draygonRecord.Phase.GetType();
             if (words.A != 0)
             {
-                (DraygonPhase phase, HorizontalDirection? pass) = DraygonNativeWords.Phases.Decode(words.A, "recorded DraygonPhase");
-                draygonRecord.Phase = phase;
+                (kind, HorizontalDirection? pass) = DraygonNativeWords.Phases.Decode(words.A, "recorded DraygonPhase");
+                if (!DraygonNativeWords.CarriesSwoopPath(kind))
+                    draygonRecord.Phase = DraygonNativeWords.PhaseOf(kind, path: null);
                 // Only a swoop or goop pass names the way it travels (#2165).
                 if (pass is { } passDirection)
                     draygonRecord.PassDirection = passDirection;
             }
-            switch (DraygonNativeWords.MeaningOfSharedValue(draygonRecord.Phase))
+            switch (DraygonNativeWords.MeaningOfSharedValue(kind))
             {
                 case DraygonNativeWords.SharedValue.IntroFrames:
-                    draygonRecord.IntroStage = UpdateCountdownAccess.AtAge(draygonRecord.Phase == DraygonPhase.IntroDance
+                    draygonRecord.IntroStage = UpdateCountdownAccess.AtAge(kind == typeof(DraygonPhase.IntroDance)
                         ? DraygonIntroDanceDefinitions.DurationFrames
                         : DraygonArenaDefinitions.IntroUpdates, words.B);
                     break;
@@ -258,12 +261,12 @@ internal static class NativeEnemyFamilyStateImport
                     break;
                 case DraygonNativeWords.SharedValue.SwoopEntry:
                     // The climb counts its entries up from the first; every other phase counts them down.
-                    draygonRecord.SwoopHalf = draygonRecord.Phase == DraygonPhase.SwoopAscending
+                    draygonRecord.SwoopHalf = kind == typeof(DraygonPhase.SwoopAscending)
                         ? UpdateCountdownAccess.AtAge(words.C / DraygonNativeWords.SwoopEntryBytes, words.B / DraygonNativeWords.SwoopEntryBytes)
                         : UpdateCountdown.For(words.B / DraygonNativeWords.SwoopEntryBytes);
                     break;
                 default:
-                    throw new InvalidOperationException($"Undefined Draygon shared value meaning for {draygonRecord.Phase}.");
+                    throw new InvalidOperationException($"Undefined Draygon shared value meaning for {kind.Name}.");
             }
             // The swoop path's length (word C) is read with the path's heights from the cartridge's table by the snapshot
             // import, which holds the memory the table lies in.

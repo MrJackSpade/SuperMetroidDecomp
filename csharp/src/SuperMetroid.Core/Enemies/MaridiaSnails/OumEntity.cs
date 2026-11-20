@@ -6,16 +6,16 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class OumEntity(OumBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => OumBehavior.InitializeOum(Place);
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal OumEnemyState State { get; } = OumBehavior.InitializeOum(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunOumMainAi(Place, Place.RequireSpeciesState<OumEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunOumMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceOumTypedAnimation(Place, Place.RequireSpeciesState<OumEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceOumTypedAnimation(Place, State);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => OumBehavior.FindHitboxReaction(Place, probe);

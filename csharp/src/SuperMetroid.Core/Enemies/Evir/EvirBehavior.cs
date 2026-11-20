@@ -22,11 +22,11 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         if (definition == EnemyDefinitionId.Evir)
         {
             return occupant.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
-                ? EnemyOccupant.Of(new EvirArmsEntity(this, occupant, place, common))
-                : EnemyOccupant.FromSurroundings(new EvirBodyEntity(this, occupant, place, common));
+                ? EnemyOccupant.Running(new EvirArmsEntity(this, occupant, place, common))
+                : EnemyOccupant.Running(new EvirBodyEntity(this, occupant, place, common, surroundings, occupant.SpawnSettings<EvirSpawnSettings>()));
         }
         if (definition == EnemyDefinitionId.EvirProjectile)
-            return EnemyOccupant.Of(new EvirSpitEntity(this, occupant, place, common));
+            return EnemyOccupant.Running(new EvirSpitEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The Evir species creates no {occupant.DefinitionId}.");
     }
 
@@ -74,16 +74,17 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes an Evir's arms.</summary>
-    internal void InitializeEvirArms(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal EvirArmsState InitializeEvirArms(RoomEnemyPlace place)
     {
         PlaceFollowUpRecipients(place);
         // The arms are not a second creature: they always read facing and position from their body.
         RoomEnemyPlace body = _places.Member(place, EvirPartListingDefinitions.Listing, EvirMember.Arms, EvirMember.Body);
         RequirePlacedBody(body, place, "arms");
         var arms = new EvirArmsState(body);
-        place.SetSpeciesState(arms);
         PositionEvirArms(place, arms);
         arms.ShowsSpawnAnimation = true;
+        return arms;
     }
 
     /// <summary>
@@ -94,18 +95,19 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(_places.PlacesAfter(place), EvirPartListingDefinitions.FollowUpReach));
 
     /// <summary>Initializes an Evir's body, facing Samus.</summary>
-    internal void InitializeEvirBody(RoomEnemyOccupant occupant, EvirSpawnSettings settings, RoomEnemyPlace place, SamusState samus)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal EvirBodyState InitializeEvirBody(RoomEnemyOccupant occupant, EvirSpawnSettings settings, RoomEnemyPlace place, SamusState samus)
     {
         PlaceFollowUpRecipients(place);
 
         var state = new EvirBodyState(spit: _places.Member(place, EvirPartListingDefinitions.Listing, EvirMember.Body, EvirMember.Spit));
-        place.SetSpeciesState(state);
         SetEvirBodyFacing(place, state, samus);
 
         // The body bobs down at its speed and up at the same speed.
         state.MovementTimer = UpdateCountdown.For(EvirBorrowedFirstHalfCycle.Of(settings.Speed, _places.InUpdateOrder, PlaceLender.Instance) + EnemyWaitDefinitions.RunOutUpdate);
         state.BobbingDirection = VerticalDirection.Up;
         state.ShowsSpawnAnimation = true;
+        return state;
     }
 
     /// <summary>What an Evir body's first half-cycle reads of a room's enemy place (<see cref="EvirBorrowedFirstHalfCycle"/>).</summary>
@@ -134,7 +136,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Evir's spit.</summary>
-    internal void InitializeEvirProjectile(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal EvirSpitState InitializeEvirProjectile(RoomEnemyPlace place)
     {
         RoomEnemyPlace body = _places.Member(place, EvirPartListingDefinitions.Listing, EvirMember.Spit, EvirMember.Body);
         RequirePlacedBody(body, place, "spit");
@@ -142,12 +145,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             RegenerationOffset = Offset16<RoomPixels>.Zero,
         };
-        place.SetSpeciesState(state);
         RequestEvirAnimation(place, state, EvirSegment.ProjectileIdle);
         ResetEvirProjectilePosition(place, state);
 
         // The spit's first request, at its first launch, starts its idle animation afresh, refreshing the frame timer once.
         state.ShowsSpawnAnimation = true;
+        return state;
     }
 
     /// <summary>

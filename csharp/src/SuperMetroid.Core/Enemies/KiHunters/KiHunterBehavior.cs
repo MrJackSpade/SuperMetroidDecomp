@@ -24,9 +24,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition is EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterRed or EnemyDefinitionId.KihunterYellow)
-            return EnemyOccupant.Of(new KiHunterBodyEntity(this, occupant, place, common));
+            return EnemyOccupant.Running(new KiHunterBodyEntity(this, occupant, place, common, occupant.SpawnSettings<KiHunterSpawnSettings>()));
         if (definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterRedWings or EnemyDefinitionId.KihunterYellowWings)
-            return EnemyOccupant.Of(new KiHunterWingsEntity(this, occupant, place, common));
+            return EnemyOccupant.Running(new KiHunterWingsEntity(this, occupant, place, common, occupant.SpawnSettings<KiHunterWingsSpawnSettings>()));
         throw new InvalidOperationException($"The Ki-Hunter species creates no {occupant.DefinitionId}.");
     }
 
@@ -89,13 +89,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Ki-Hunter body.</summary>
-    internal void InitializeKiHunter(RoomEnemyOccupant occupant, KiHunterSpawnSettings kiHunterSpawnSettings, RoomEnemyPlace body)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal KiHunterBodyState InitializeKiHunter(RoomEnemyOccupant occupant, KiHunterSpawnSettings kiHunterSpawnSettings, RoomEnemyPlace body)
     {
         RoomEnemyPlace wings = _places.Member(body, KiHunterPartListingDefinitions.Listing, KiHunterMember.Body, KiHunterMember.Wings);
         _wingsOfBody.Place(body, wings);
         _bodyOfWings.Place(wings, new KiHunterWingsBody(body, occupant));
         var state = new KiHunterBodyState(KiHunterAction.FlyingPatrol);
-        body.SetSpeciesState(state);
 
         // Every Ki-Hunter animation is played by the shared enemy animation, which this property admits.
         body.Processing = body.Processing.With(EnemyProcessing.Animates);
@@ -114,22 +114,24 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = KiHunterAction.FallingAfterWingLoss;
             state.VerticalVelocity = KiHunterMotionDefinitions.WinglessFallStartVelocity;
         }
+        return state;
     }
 
     /// <summary>Initializes the Ki-Hunter's wings, which the body listed right before them handed itself as it was placed.</summary>
-    internal void InitializeKiHunterWings(RoomEnemyOccupant occupant, KiHunterWingsSpawnSettings kiHunterWingsSpawnSettings, RoomEnemyPlace wings)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal KiHunterWingState InitializeKiHunterWings(RoomEnemyOccupant occupant, KiHunterWingsSpawnSettings kiHunterWingsSpawnSettings, RoomEnemyPlace wings)
     {
         KiHunterWingsBody partner = _bodyOfWings.Of(wings);
         RoomEnemyPlace body = partner.Place;
         _wingSettingsOfBody.Place(body, kiHunterWingsSpawnSettings);
         var state = new KiHunterWingState(KiHunterWingAction.FollowBody);
-        wings.SetSpeciesState(state);
 
         wings.Processing = wings.Processing.With(EnemyProcessing.Animates);
         StartKiHunterAnimation(wings, state, KiHunterSegment.WingsLeft);
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
         if (partner.Occupant.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
             wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
+        return state;
     }
 
     /// <summary>Runs the body's main behaviour.</summary>

@@ -6,20 +6,20 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
         IShowsCorpseRotRows
 {
     /// <inheritdoc/>
-    public CorpseRotRows ShownRotRows => DeadTorizoBehavior.ShownDeadTorizoRows(Place, Place.RequireSpeciesState<DeadTorizoEnemyState>());
+    public CorpseRotRows ShownRotRows => DeadTorizoBehavior.ShownDeadTorizoRows(Place, State);
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal DeadTorizoEnemyState State { get; } = species.InitializeDeadTorizo(place);
 
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeDeadTorizo(Place);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTorizoMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTorizoMainAi(Place, Place.RequireSpeciesState<DeadTorizoEnemyState>(), frame);
-
-    /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadTorizoBehavior.AdvanceDeadTorizoTypedAnimation(Place, Place.RequireSpeciesState<DeadTorizoEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadTorizoBehavior.AdvanceDeadTorizoTypedAnimation(Place, State);
 
     /// <summary>Whether the dead Torizo's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == CorpseReactions.Touch || base.ReactsToTouch;
@@ -29,7 +29,7 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyOccu
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == CorpseReactions.Touch)
-            DeadTorizoBehavior.ReactToDeadTorizoTouch(context, context.Place.RequireSpeciesState<DeadTorizoEnemyState>());
+            DeadTorizoBehavior.ReactToDeadTorizoTouch(context, context.State);
         else
             base.ReactToTouch(context);
     }

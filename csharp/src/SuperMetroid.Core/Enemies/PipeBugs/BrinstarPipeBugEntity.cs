@@ -4,15 +4,19 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the Pipe Bug occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class BrinstarPipeBugEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class BrinstarPipeBugEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BrinstarPipeBugSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => PipeBugsBehavior.InitializeBrinstarPipeBug(Occupant, Occupant.SpawnSettings<BrinstarPipeBugSpawnSettings>(), Place);
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal BrinstarPipeBugSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal BrinstarPipeBugState State { get; } = PipeBugsBehavior.InitializeBrinstarPipeBug(occupant, settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunBrinstarPipeBugMainAi(Occupant, Occupant.SpawnSettings<BrinstarPipeBugSpawnSettings>(), Place, Place.RequireSpeciesState<BrinstarPipeBugState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunBrinstarPipeBugMainAi(Occupant, Settings, Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PipeBugsBehavior.AdvanceBrinstarPipeBugTypedAnimation(Place, Place.RequireSpeciesState<BrinstarPipeBugState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PipeBugsBehavior.AdvanceBrinstarPipeBugTypedAnimation(Place, State);
 }

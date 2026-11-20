@@ -22,8 +22,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         occupant.SpawnSettings<PowampSpawnSettings>() is PowampBalloonSpawnSettings
-            ? EnemyOccupant.WithoutMainAi(new PowampBalloonEntity(this, occupant, place, common))
-            : EnemyOccupant.Of(new PowampBodyEntity(this, occupant, place, common));
+            ? EnemyOccupant.PlacedOnly(new PowampBalloonEntity(this, occupant, place, common, occupant.SpawnSettings<PowampSpawnSettings>()))
+            : EnemyOccupant.Running(new PowampBodyEntity(this, occupant, place, common, occupant.SpawnSettings<PowampSpawnSettings>()));
 
     /// <summary>Clips body rise and sink motion against room collision.</summary>
     private readonly EnemyTerrain _terrain;
@@ -59,28 +59,30 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes a Powamp's balloon with its own state (#1845), deflated at its spawn.</summary>
-    internal static void InitializePowampBalloon(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static PowampBalloonState InitializePowampBalloon(RoomEnemyPlace place)
     {
         PrepareToAnimate(place);
         var balloon = new PowampBalloonState
         {
             Spawn = place.Position.Whole,
         };
-        place.SetSpeciesState(balloon);
         StartPowampBalloonAnimation(place, balloon, PowampSegment.BalloonDeflated);
+        return balloon;
     }
 
     /// <summary>Initializes a Powamp's body with its own state (#1845), resting, joined to the balloon its room lists before it.</summary>
-    internal void InitializePowampBody(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal PowampBodyState InitializePowampBody(RoomEnemyPlace place)
     {
         PrepareToAnimate(place);
         var state = new PowampBodyState(PowampAction.DeflatedResting);
-        place.SetSpeciesState(state);
         // The body's balloon is placed before it and checked once as the body is placed.
         _balloons.Place(place, _places.Member(place, PowampPartListingDefinitions.Listing, PowampMember.Body, PowampMember.Balloon));
         CheckPowampBalloonPlaced(place);
         state.ActionTimer = UpdateCountdown.For(PowampMotionDefinitions.RestDuration);
         state.Playback = StartPowampAnimation(place, PowampSegment.BodySlow);
+        return state;
     }
 
     /// <summary>Runs every action of a Powamp's body; the balloon has none, its body moves it.</summary>

@@ -5,17 +5,21 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class WallSpacePirateEntity(WallSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class WallSpacePirateEntity(WallSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, WallSpacePirateSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => WallSpacePirateBehavior.InitializeWallSpacePirate(Occupant, Occupant.SpawnSettings<WallSpacePirateSpawnSettings>(), Place);
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal WallSpacePirateSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal WallSpacePirateEnemyState State { get; } = WallSpacePirateBehavior.InitializeWallSpacePirate(occupant, settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => WallSpacePirateBehavior.RunWallSpacePirateMainAi(Occupant, Occupant.SpawnSettings<WallSpacePirateSpawnSettings>(), Place, Place.RequireSpeciesState<WallSpacePirateEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => WallSpacePirateBehavior.RunWallSpacePirateMainAi(Occupant, Settings, Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWallSpacePirateTypedAnimation(Occupant, Occupant.SpawnSettings<WallSpacePirateSpawnSettings>(), Place, Place.RequireSpeciesState<WallSpacePirateEnemyState>(), context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWallSpacePirateTypedAnimation(Occupant, Settings, Place, State, context);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => SpacePirateHitboxes.Find(Place, probe);

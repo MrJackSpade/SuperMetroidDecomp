@@ -8,15 +8,19 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the eye occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MorphBallEyeEntity(MorphBallEyeBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class MorphBallEyeEntity(MorphBallEyeBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, MorphBallEyeBodySpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => MorphBallEyeBehavior.InitializeMorphBallEyeBody(Occupant, Occupant.SpawnSettings<MorphBallEyeBodySpawnSettings>(), Place);
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal MorphBallEyeBodySpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal MorphBallEyeEnemyState State { get; } = MorphBallEyeBehavior.InitializeMorphBallEyeBody(occupant, settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMorphBallEyeMainAi(Occupant, Occupant.SpawnSettings<MorphBallEyeBodySpawnSettings>(), Place, Place.RequireSpeciesState<MorphBallEyeEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMorphBallEyeMainAi(Occupant, Settings, Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MorphBallEyeBehavior.AdvanceMorphBallEyeTypedAnimation(Place, Place.RequireSpeciesState<MorphBallEyeEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MorphBallEyeBehavior.AdvanceMorphBallEyeTypedAnimation(Place, State);
 }

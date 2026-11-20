@@ -17,11 +17,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition is EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo)
-            return EnemyOccupant.Of(new BrinstarPipeBugEntity(occupant, place, common));
+            return EnemyOccupant.Running(new BrinstarPipeBugEntity(occupant, place, common, occupant.SpawnSettings<BrinstarPipeBugSpawnSettings>()));
         if (definition == EnemyDefinitionId.Gamet)
             return EnemyOccupant.Of(new NorfairPipeBugEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.Geega)
-            return EnemyOccupant.Of(new YellowPipeBugEntity(occupant, place, common));
+            return EnemyOccupant.Running(new YellowPipeBugEntity(occupant, place, common, occupant.SpawnSettings<YellowPipeBugSpawnSettings>()));
         throw new InvalidOperationException($"The Pipe Bugs species creates no {occupant.DefinitionId}.");
     }
 
@@ -40,15 +40,16 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Brinstar Pipe Bug.</summary>
-    internal static void InitializeBrinstarPipeBug(RoomEnemyOccupant occupant, BrinstarPipeBugSpawnSettings brinstarPipeBugSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static BrinstarPipeBugState InitializeBrinstarPipeBug(RoomEnemyOccupant occupant, BrinstarPipeBugSpawnSettings brinstarPipeBugSpawnSettings, RoomEnemyPlace place)
     {
         var state = new BrinstarPipeBugState(BrinstarPipeBugAction.WaitUntilOnScreen);
-        place.SetSpeciesState(state);
         state.SpawnPosition = place.Position.Whole;
         state.EmergenceTopY = state.SpawnPosition.Y - PipeBugDefinitions.BrinstarEmergenceHeight;
         state.RespawnDelay = UpdateCountdown.For(PipeBugDefinitions.BrinstarRespawnWait);
         state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(
             PipeBugAnimationChoices.Rising(KindOf(occupant, brinstarPipeBugSpawnSettings), HorizontalDirection.Left)), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>Which Brinstar Pipe Bug <paramref name="occupant"/> is: the ordinary Zeb or the strong Zebbo.</summary>
@@ -74,16 +75,17 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the yellow Brinstar Pipe Bug.</summary>
-    internal static void InitializeYellowPipeBug(RoomEnemyOccupant occupant, YellowPipeBugSpawnSettings yellowPipeBugSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static YellowPipeBugState InitializeYellowPipeBug(RoomEnemyOccupant occupant, YellowPipeBugSpawnSettings yellowPipeBugSpawnSettings, RoomEnemyPlace place)
     {
         var state = new YellowPipeBugState(YellowPipeBugAction.WaitForSamus);
-        place.SetSpeciesState(state);
         state.SpawnPosition = place.Position.Whole;
         place.Position = place.Position.WithoutFractions();
         state.Playback = EnemyAnimationPlayback.Start(place, PipeBugAnimations.StartingWith(
             yellowPipeBugSpawnSettings.Facing == HorizontalDirection.Left
                 ? PipeBugSegment.GeegaFlyingLeft
                 : PipeBugSegment.GeegaFlyingRight));
+        return state;
     }
 
     /// <summary>Runs a Brinstar Pipe Bug's action.</summary>

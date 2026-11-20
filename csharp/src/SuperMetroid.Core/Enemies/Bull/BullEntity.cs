@@ -8,18 +8,22 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the Bull occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class BullEntity(BullBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class BullEntity(BullBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BullSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializeBull(Occupant, Occupant.SpawnSettings<BullSpawnSettings>(), Place);
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal BullSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal BullEnemyState State { get; } = species.InitializeBull(occupant, settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        BullBehavior.RunBullMain(Occupant, Occupant.SpawnSettings<BullSpawnSettings>(), Place, Place.RequireSpeciesState<BullEnemyState>(), frame.Samus);
+        BullBehavior.RunBullMain(Occupant, Settings, Place, State, frame.Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BullBehavior.AdvanceBullAnimation(Place, Place.RequireSpeciesState<BullEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BullBehavior.AdvanceBullAnimation(Place, State);
 
     /// <summary>The Bull's own recoil reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == BullReactions.Shot ? species.ShotReaction : base.ShotReaction;

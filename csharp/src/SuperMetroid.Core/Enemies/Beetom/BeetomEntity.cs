@@ -5,18 +5,18 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+/// <param name="surroundings">The room, Samus, controller and camera the population load sets the enemy up in.</param>
+internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemyPopulationSurroundings surroundings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) =>
-        species.InitializeBeetom(Place, Ensure.NotNull(surroundings).Samus, surroundings.ControllerInput);
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal BeetomEnemyState State { get; } = species.InitializeBeetom(place, Ensure.NotNull(surroundings).Samus, surroundings.ControllerInput);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunBeetomMainAi(Place, Place.RequireSpeciesState<BeetomEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBeetomMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BeetomBehavior.AdvanceBeetomTypedAnimation(Place, Place.RequireSpeciesState<BeetomEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BeetomBehavior.AdvanceBeetomTypedAnimation(Place, State);
 
     /// <summary>Whether the Beetom's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == BeetomReactions.Touch || base.ReactsToTouch;
@@ -26,7 +26,7 @@ internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemyOccupant occ
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == BeetomReactions.Touch)
-            species.ReactToBeetomTouch(context, context.Place.RequireSpeciesState<BeetomEnemyState>());
+            species.ReactToBeetomTouch(context, context.State);
         else
             base.ReactToTouch(context);
     }

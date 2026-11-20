@@ -14,8 +14,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         occupant.SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing
-            ? EnemyOccupant.WithoutMainAi(new DragonWingEntity(this, occupant, place, common))
-            : EnemyOccupant.Of(new DragonEntity(this, occupant, place, common));
+            ? EnemyOccupant.PlacedOnly(new DragonWingEntity(this, occupant, place, common))
+            : EnemyOccupant.Running(new DragonEntity(this, occupant, place, common));
 
     /// <summary>Allocates Dragon's fireball volleys from the room projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -61,27 +61,31 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes a Dragon's wing: it begins on the left-facing wings animation and never runs body AI.</summary>
-    internal void InitializeDragonWing(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal DragonWingState InitializeDragonWing(RoomEnemyPlace place)
     {
         // Every part finds the enemy its follow-up to a hit reaches.
         PlaceFollowUpRecipient(place);
         // The cosmetic wing ignores Samus, so it is never touched or shot.
-        place.SetSpeciesState(new DragonWingState
+        var state = new DragonWingState
         {
             Playback = new(DragonAnimations.StartingWith(DragonSegment.WingsFacingLeft), AnimationPlace.StartOfAnimation),
-        });
+        };
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
+        return state;
     }
 
     /// <summary>Initializes a Dragon body, idle below the lava and waiting to rise.</summary>
-    internal void InitializeDragonBody(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal DragonEnemyState InitializeDragonBody(RoomEnemyPlace place)
     {
         PlaceFollowUpRecipient(place);
         // A body finds its wing, which its room lists with it.
-        place.SetSpeciesState(new DragonEnemyState(DragonAction.WaitToRise, wing: _places.Member(place, DragonPartListingDefinitions.Listing, DragonPart.Body, DragonPart.Wing))
+        var state = new DragonEnemyState(DragonAction.WaitToRise, wing: _places.Member(place, DragonPartListingDefinitions.Listing, DragonPart.Body, DragonPart.Wing))
         {
             Playback = new(DragonAnimations.StartingWith(DragonSegment.IdleFacingLeft), AnimationPlace.StartOfAnimation),
-        });
+        };
+        return state;
     }
 
     /// <summary>Records the enemy <paramref name="place"/>'s follow-up to a hit reaches: the enemy its room lists right after it.</summary>

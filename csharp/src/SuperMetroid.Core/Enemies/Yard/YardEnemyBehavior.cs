@@ -20,7 +20,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Yard];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new YardEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new YardEntity(this, occupant, place, common, occupant.SpawnSettings<YardSpawnSettings>()));
 
     /// <summary>Provides active room context for Yard initialization and main AI.</summary>
     private readonly EnemyRoomBinding _room;
@@ -103,7 +103,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         new(playing.Animation, AnimationPlace.StartOf(playing.Place.Phase));
 
     /// <summary>Initializes the Yard.</summary>
-    internal static void InitializeYard(RoomEnemyOccupant occupant, YardSpawnSettings settings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static YardEnemyState InitializeYard(RoomEnemyOccupant occupant, YardSpawnSettings settings, RoomEnemyPlace place)
     {
         YardDirection direction = settings.Direction;
 
@@ -113,7 +114,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             Behavior = YardBehavior.NormalCrawling,
             CrawlSpeed = settings.CrawlSpeed,
         };
-        place.SetSpeciesState(state);
 
         place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.StepOnNextUpdate();
@@ -124,6 +124,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HidingAnimation = definition.HidingAnimation;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(state, direction);
+        return state;
     }
 
     /// <summary>

@@ -20,7 +20,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Chozo];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ChozoStatueEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ChozoStatueEntity(this, occupant, place, common, occupant.SpawnSettings<ChozoStatueSpawnSettings>()));
 
     /// <summary>Supplies room events, scroll grid and Samus-control service.</summary>
     private readonly EnemyRoomBinding _room;
@@ -50,7 +50,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes either shipped statue.</summary>
-    internal void InitializeChozoStatue(RoomEnemyOccupant occupant, ChozoStatueSpawnSettings chozoStatueSpawnSettings, RoomEnemyPlace statue)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal ChozoStatueState InitializeChozoStatue(RoomEnemyOccupant occupant, ChozoStatueSpawnSettings chozoStatueSpawnSettings, RoomEnemyPlace statue)
     {
         ChozoStatueSite site = chozoStatueSpawnSettings.Site;
         if (!Enum.IsDefined(site))
@@ -66,7 +67,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         statue.Shading = PictureShading.Shaded(site == ChozoStatueSite.WreckedShip ? ChozoAndTubeShades.WreckedShipStatue : ChozoAndTubeShades.LowerNorfairStatue);
 
         var state = new ChozoStatueState { Phase = ChozoStatuePhase.Placed, Site = site };
-        statue.SetSpeciesState(state);
         _statue = statue;
 
         if (site == ChozoStatueSite.WreckedShip)
@@ -80,6 +80,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueSegment.LowerNorfairIdle), AnimationPlace.StartOfAnimation);
             RequestChozoObject(ChozoStatueRoomObject.LowerNorfairHand, ChozoStatueRoomDefinitions.LowerNorfairHandBlock);
         }
+        return state;
     }
 
     /// <summary>

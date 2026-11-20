@@ -12,7 +12,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Shaktool];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ShaktoolEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ShaktoolEntity(this, occupant, place, common, occupant.SpawnSettings<ShaktoolSpawnSettings>()));
 
     /// <summary>Checks terrain collisions along each segment's orbit and attack path.</summary>
     private readonly EnemyTerrain _terrain;

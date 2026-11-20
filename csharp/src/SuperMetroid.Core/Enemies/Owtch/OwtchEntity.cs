@@ -5,17 +5,21 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, OwtchSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => OwtchBehavior.InitializeOwtch(Occupant, Occupant.SpawnSettings<OwtchSpawnSettings>(), Place);
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal OwtchSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal OwtchEnemyState State { get; } = OwtchBehavior.InitializeOwtch(occupant, settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Occupant, Occupant.SpawnSettings<OwtchSpawnSettings>(), Place, Place.RequireSpeciesState<OwtchEnemyState>());
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Occupant, Settings, Place, State);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => OwtchBehavior.AdvanceOwtchTypedAnimation(Place, Place.RequireSpeciesState<OwtchEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => OwtchBehavior.AdvanceOwtchTypedAnimation(Place, State);
 
     /// <summary>The Owtch's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == OwtchReactions.Shot ? OwtchBehavior.OwtchShotReaction : base.ShotReaction;

@@ -6,16 +6,16 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class MochtroidEntity(MochtroidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => MochtroidBehavior.InitializeMochtroid(Place);
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal MochtroidEnemyState State { get; } = MochtroidBehavior.InitializeMochtroid(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMochtroidMainAi(Place, Place.RequireSpeciesState<MochtroidEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMochtroidMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MochtroidBehavior.AdvanceMochtroidTypedAnimation(Place, Place.RequireSpeciesState<MochtroidEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MochtroidBehavior.AdvanceMochtroidTypedAnimation(Place, State);
 
     /// <summary>Whether the Mochtroid's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == MochtroidReactions.Touch || base.ReactsToTouch;
@@ -25,7 +25,7 @@ internal sealed class MochtroidEntity(MochtroidBehavior species, RoomEnemyOccupa
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == MochtroidReactions.Touch)
-            species.ReactToMochtroidTouch(context, context.Place.RequireSpeciesState<MochtroidEnemyState>());
+            species.ReactToMochtroidTouch(context, context.State);
         else
             base.ReactToTouch(context);
     }

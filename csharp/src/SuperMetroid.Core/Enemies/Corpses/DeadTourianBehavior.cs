@@ -14,7 +14,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DeadTourianCorpseSpeciesDefinitions.Species.Keys];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new DeadTourianEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new DeadTourianEntity(this, occupant, place, common, occupant.SpawnSettings<CorpseSpawnSettings>()));
 
     /// <summary>Supplies the room RNG used during decomposition.</summary>
     private readonly EnemyRoomBinding _room;
@@ -47,7 +47,8 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             : throw new ArgumentOutOfRangeException(nameof(definitionId));
 
     /// <summary>Initializes a Tourian corpse, checking its corpse is one of its species' before registering state and starting its rot.</summary>
-    internal static void InitializeDeadTourianCorpse(RoomEnemyPlace place, RoomEnemyOccupant occupant, CorpseSpawnSettings corpseSpawnSettings)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static DeadTourianCorpseEnemyState InitializeDeadTourianCorpse(RoomEnemyPlace place, RoomEnemyOccupant occupant, CorpseSpawnSettings corpseSpawnSettings)
     {
         DeadTourianCorpseSpecies species = SpeciesOf(Ensure.NotNull(occupant).DefinitionId);
         DeadTourianCorpseDefinition definition = corpseSpawnSettings.Corpse;
@@ -57,10 +58,10 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Dead {species} placement names a corpse that is not one of its species'.");
         }
         var state = new DeadTourianCorpseEnemyState(new CorpseRotSchedule(definition.RowCount), DeadTourianCorpsePhase.Waiting);
-        place.SetSpeciesState(state);
 
         place.Shading = TourianCorpseShades.InDrainedColours;
         state.Playback = DeadSidehopperBehavior.StartDeadTourianAnimation(place, definition.InitialAnimation);
+        return state;
     }
 
     /// <summary>Runs the shared corpse behaviour: Samus touching it starts its wait before rotting (<see cref="CorpseRotScheduleDefinitions.PreRotDelayUpdates"/>), then the corpse rots until its last row has fallen.</summary>

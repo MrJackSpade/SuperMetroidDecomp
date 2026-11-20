@@ -16,7 +16,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Metaree];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MetareeEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MetareeEntity(this, occupant, place, common));
 
     /// <summary>Creates the debris burst during burrow and death reactions.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -32,13 +32,14 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts the idle animation directly and initializes the place's dive, burrow, and animation-change state.</summary>
-    internal static void InitializeMetaree(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static MetareeEnemyState InitializeMetaree(RoomEnemyPlace place)
     {
         var state = new MetareeEnemyState(MetareeAction.Idling);
-        place.SetSpeciesState(state);
 
         // The idle's first frame advances on the update the spawn's frame time runs out.
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.MetareeIdling), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>Runs the idle, attack preparation, airborne dive or burrow phase with required Samus and room data.</summary>

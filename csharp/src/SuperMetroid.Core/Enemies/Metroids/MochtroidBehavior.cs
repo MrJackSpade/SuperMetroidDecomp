@@ -13,7 +13,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mochtroid];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MochtroidEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MochtroidEntity(this, occupant, place, common));
 
     /// <summary>Resolves axis movement against terrain in the order for each flight mode.</summary>
     private readonly EnemyTerrain _terrain;
@@ -34,7 +34,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Mochtroid.</summary>
-    internal static void InitializeMochtroid(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static MochtroidEnemyState InitializeMochtroid(RoomEnemyPlace place)
     {
         // A new Mochtroid has started no animation, so its first request always starts one. Ordinary room loads
         // start every Mochtroid this way.
@@ -42,9 +43,9 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             MovementMode = MochtroidMovementMode.NotTouchingSamus,
         };
-        place.SetSpeciesState(state);
         SetMochtroidAnimation(
             place, state, MochtroidSegment.FreeFlight);
+        return state;
     }
 
     /// <summary>Runs a Mochtroid for one update, resetting its movement before it moves.</summary>

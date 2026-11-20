@@ -15,8 +15,8 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
-            ? EnemyOccupant.Of(new GerutaFollowerEntity(this, occupant, place, common))
-            : EnemyOccupant.Of(new GerutaEntity(this, occupant, place, common));
+            ? EnemyOccupant.Running(new GerutaFollowerEntity(this, occupant, place, common))
+            : EnemyOccupant.Running(new GerutaEntity(this, occupant, place, common));
 
     /// <summary>Provides the shared RNG advanced by every parent and flame follower.</summary>
     private readonly EnemyRoomBinding _room;
@@ -40,25 +40,29 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes a flame follower: it finds its parent, listed right before it, and starts its ascending flames.</summary>
-    internal void InitializeGerutaFollower(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal GerutaFollowerState InitializeGerutaFollower(RoomEnemyPlace place)
     {
         _parents.Place(place, _places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader));
         ValidateGerutaParent(place);
-        place.SetSpeciesState(new GerutaFollowerState
+        var state = new GerutaFollowerState
         {
             Playback = new(GerutaAnimations.StartingWith(GerutaSegment.FlamesAscending), AnimationPlace.StartOfAnimation),
-        });
+        };
+        return state;
     }
 
     /// <summary>Initializes a Geruta parent, idle and waiting for its chance to attack.</summary>
-    internal static void InitializeGeruta(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static GerutaEnemyState InitializeGeruta(RoomEnemyPlace place)
     {
-        place.SetSpeciesState(new GerutaEnemyState(GerutaAction.WaitForAttackOpportunity)
+        var state = new GerutaEnemyState(GerutaAction.WaitForAttackOpportunity)
         {
             FollowerYOffset = 0,
             Flames = GerutaFlames.Ascending,
             Playback = new(GerutaAnimations.StartingWith(GerutaSegment.Idle), AnimationPlace.StartOfAnimation),
-        });
+        };
+        return state;
     }
 
     /// <summary>

@@ -8,20 +8,24 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, PowampSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal PowampSpawnSettings Settings { get; } = settings;
+
     /// <summary>The body's own shot reaction, built for this occupant.</summary>
     private readonly EnemyShotReaction ownShot = species.PowampBodyShotReaction(occupant, occupant.SpawnSettings<PowampSpawnSettings>());
 
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializePowampBody(Place);
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal PowampBodyState State { get; } = species.InitializePowampBody(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Occupant, Place, Place.RequireSpeciesState<PowampBodyState>(), frame.Level, frame.Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Occupant, Place, State, frame.Level, frame.Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBodyTypedAnimation(Place, Place.RequireSpeciesState<PowampBodyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBodyTypedAnimation(Place, State);
 
     /// <summary>Whether the body's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == PowampReactions.Touch || base.ReactsToTouch;
@@ -31,7 +35,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == PowampReactions.Touch)
-            species.ReactToPowampBodyTouch(Occupant, Occupant.SpawnSettings<PowampSpawnSettings>(), context, context.Place.RequireSpeciesState<PowampBodyState>());
+            species.ReactToPowampBodyTouch(Occupant, Settings, context, context.State);
         else
             base.ReactToTouch(context);
     }

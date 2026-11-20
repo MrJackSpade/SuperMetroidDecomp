@@ -5,15 +5,19 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class NuclearWaffleEntity(NuclearWaffleBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class NuclearWaffleEntity(NuclearWaffleBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, NuclearWaffleSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializeNuclearWaffle(Occupant, Occupant.SpawnSettings<NuclearWaffleSpawnSettings>(), Place);
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal NuclearWaffleSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal NuclearWaffleEnemyState State { get; } = species.InitializeNuclearWaffle(occupant, settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunNuclearWaffleMainAi(Occupant, Occupant.SpawnSettings<NuclearWaffleSpawnSettings>(), Place, Place.RequireSpeciesState<NuclearWaffleEnemyState>());
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunNuclearWaffleMainAi(Occupant, Settings, Place, State);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => NuclearWaffleBehavior.AdvanceNuclearWaffleTypedAnimation(Place, Place.RequireSpeciesState<NuclearWaffleEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => NuclearWaffleBehavior.AdvanceNuclearWaffleTypedAnimation(Place, State);
 }

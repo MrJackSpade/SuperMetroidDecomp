@@ -9,17 +9,21 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the balloon occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, PowampSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal PowampSpawnSettings Settings { get; } = settings;
+
     /// <summary>The balloon's own shot reaction, built for this occupant.</summary>
     private readonly EnemyShotReaction ownShot = species.PowampBalloonShotReaction(occupant, occupant.SpawnSettings<PowampSpawnSettings>());
 
-    /// <inheritdoc/>
-    public void Initialize() => PowampBehavior.InitializePowampBalloon(Place);
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal PowampBalloonState State { get; } = PowampBehavior.InitializePowampBalloon(place);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBalloonTypedAnimation(Place, Place.RequireSpeciesState<PowampBalloonState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBalloonTypedAnimation(Place, State);
 
     /// <summary>Whether the balloon's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == PowampReactions.Touch || base.ReactsToTouch;
@@ -29,7 +33,7 @@ internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccup
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == PowampReactions.Touch)
-            species.ReactToPowampBalloonTouch(Occupant, Occupant.SpawnSettings<PowampSpawnSettings>(), context);
+            species.ReactToPowampBalloonTouch(Occupant, Settings, context);
         else
             base.ReactToTouch(context);
     }

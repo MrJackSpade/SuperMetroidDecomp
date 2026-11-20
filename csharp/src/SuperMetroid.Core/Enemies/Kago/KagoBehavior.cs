@@ -15,7 +15,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kago];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.WithoutMainAi(new KagoEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.PlacedOnly(new KagoEntity(this, occupant, place, common));
 
     /// <summary>Provides the room's random number sampled by bug spawns and jumps without advancing the generator.</summary>
     private readonly EnemyRoomBinding _room;
@@ -43,14 +43,15 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Kago.</summary>
-    internal static void InitializeKago(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static KagoEnemyState InitializeKago(RoomEnemyPlace place)
     {
         var state = new KagoEnemyState();
-        place.SetSpeciesState(state);
 
         // The setup makes Kago's shell animate; its placement says the rest.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         state.Playback = EnemyAnimationPlayback.Start(place, KagoAnimations.StartingWith(KagoSegment.Slow));
+        return state;
     }
 
     /// <summary>

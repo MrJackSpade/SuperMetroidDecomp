@@ -9,14 +9,14 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class SqueeptEntity(SqueeptBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => SqueeptBehavior.InitializeSqueept(Place);
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal SqueeptState State { get; } = SqueeptBehavior.InitializeSqueept(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunSqueeptMainAi(Place, Place.RequireSpeciesState<SqueeptState>());
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSqueeptMainAi(Place, State);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SqueeptBehavior.AdvanceSqueeptTypedAnimation(Place, Place.RequireSpeciesState<SqueeptState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SqueeptBehavior.AdvanceSqueeptTypedAnimation(Place, State);
 }

@@ -4,15 +4,19 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class AtomicEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class AtomicEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, AtomicSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => AtomicBehavior.InitializeAtomic(Occupant, Occupant.SpawnSettings<AtomicSpawnSettings>(), Place);
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal AtomicSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal AtomicEnemyState State { get; } = AtomicBehavior.InitializeAtomic(occupant, settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => AtomicBehavior.MoveAtomicTowardSamus(Occupant, Occupant.SpawnSettings<AtomicSpawnSettings>(), Place, Ensure.NotNull(frame).Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => AtomicBehavior.MoveAtomicTowardSamus(Occupant, Settings, Place, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => AtomicBehavior.AdvanceAtomicTypedAnimation(Place, Place.RequireSpeciesState<AtomicEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => AtomicBehavior.AdvanceAtomicTypedAnimation(Place, State);
 }

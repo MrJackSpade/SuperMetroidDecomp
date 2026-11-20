@@ -12,8 +12,8 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
-            ? EnemyOccupant.Of(new NorfairLavaJumperFollowerEntity(this, occupant, place, common))
-            : EnemyOccupant.Of(new SqueeptEntity(this, occupant, place, common));
+            ? EnemyOccupant.Running(new NorfairLavaJumperFollowerEntity(this, occupant, place, common))
+            : EnemyOccupant.Running(new SqueeptEntity(this, occupant, place, common));
 
     /// <summary>Supplies one random number per parent and follower AI frame.</summary>
     private readonly EnemyRoomBinding _room;
@@ -34,28 +34,31 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes a lava jumper's cosmetic follower.</summary>
-    internal void InitializeNorfairLavaJumperFollower(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal NorfairLavaJumperFollowerState InitializeNorfairLavaJumperFollower(RoomEnemyPlace place)
     {
         // Every room with it places this cosmetic second half immediately after its moving parent, which it
         // finds when it is placed and follows from then on; a population that places anything else there is refused.
-        place.SetSpeciesState(new NorfairLavaJumperFollowerState
+        var state = new NorfairLavaJumperFollowerState
         {
             Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation),
-        });
+        };
         _parents.Place(place, _places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader));
         ValidateSqueeptParent(place);
+        return state;
     }
 
     /// <summary>Initializes a jumping lava jumper, hidden in the lava at its population position.</summary>
-    internal static void InitializeSqueept(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static SqueeptState InitializeSqueept(RoomEnemyPlace place)
     {
         var state = new SqueeptState(SqueeptAction.BeginJump);
-        place.SetSpeciesState(state);
 
         // The jumping parent returns to exactly these whole population coordinates after every arc; where it lies
         // within a pixel carries over from one jump to the next.
         state.SpawnPosition = place.Position.Whole;
         state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Hidden), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>

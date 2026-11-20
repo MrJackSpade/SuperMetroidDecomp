@@ -12,7 +12,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Waver];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WaverEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new WaverEntity(this, occupant, place, common, occupant.SpawnSettings<WaverSpawnSettings>()));
 
     /// <summary>Room collision service used to reflect horizontal motion and the sine wave on impact.</summary>
     private readonly EnemyTerrain _terrain;
@@ -41,7 +41,8 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Waver.</summary>
-    internal static void InitializeWaver(RoomEnemyOccupant occupant, WaverSpawnSettings waverSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static WaverEnemyState InitializeWaver(RoomEnemyOccupant occupant, WaverSpawnSettings waverSpawnSettings, RoomEnemyPlace place)
     {
         HorizontalDirection facing = waverSpawnSettings.Facing;
         var state = new WaverEnemyState
@@ -50,12 +51,12 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             Angle = RotationAngle.Zero,
             Action = WaverAction.Gliding,
         };
-        place.SetSpeciesState(state);
 
         // A Waver starts with the left steady animation; a right-facing Waver then turns it to face right, while a
         // left-facing one keeps the animation already playing and its clock.
         state.Playback = new(WaverAnimations.StartingWith(WaverSegment.SteadyFacingLeft), AnimationPlace.StartOfAnimation);
         SetWaverAnimation(place, state, WaverAnimationChoices.Steady(state.Facing));
+        return state;
     }
 
     /// <summary>Runs the Waver's main AI.</summary>

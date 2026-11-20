@@ -14,7 +14,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Rinka];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new RinkaEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new RinkaEntity(this, occupant, place, common, occupant.SpawnSettings<RinkaSpawnSettings>()));
 
     /// <summary>Applies normal Samus contact damage before the Rinka's own death.</summary>
     private readonly EnemyCollision _collision;
@@ -68,10 +68,10 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Sets a Rinka up when the room spawns it.</summary>
-    internal void InitializeRinka(RoomEnemyOccupant occupant, RinkaSpawnSettings rinkaSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal RinkaEnemyState InitializeRinka(RoomEnemyOccupant occupant, RinkaSpawnSettings rinkaSpawnSettings, RoomEnemyPlace place)
     {
         var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, LifeAnimation(occupant, rinkaSpawnSettings), rinkaSpawnSettings);
-        place.SetSpeciesState(state);
 
         // Every Rinka starts animating and untouchable. Mother Brain's Rinkas also run off-screen and never respawn;
         // an ordinary room Rinka respawns: its death explosion brings it back in its place in the room's listing.
@@ -101,6 +101,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         // Rinkas draws them in: their variant's standard colours (#1512, #1599).
         place.Shading = PictureShading.Standard;
         InitializeRinkaLife(occupant, rinkaSpawnSettings, place, state);
+        return state;
     }
 
     /// <summary>Re-initializes a Rinka, covering both of its later setup paths.</summary>

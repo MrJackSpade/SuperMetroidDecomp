@@ -12,7 +12,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Cacatac];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new CacatacEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new CacatacEntity(this, occupant, place, common, occupant.SpawnSettings<CacatacSpawnSettings>()));
 
     /// <summary>Supplies shared room RNG for the spike attack gate (<see cref="CacatacAttackDefinitions.Attacks"/>).</summary>
     private readonly EnemyRoomBinding _room;
@@ -50,7 +50,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Cacatac.</summary>
-    internal static void InitializeCacatac(RoomEnemyOccupant occupant, CacatacSpawnSettings settings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static CacatacEnemyState InitializeCacatac(RoomEnemyOccupant occupant, CacatacSpawnSettings settings, RoomEnemyPlace place)
     {
         bool onFloor = settings.Mounting == CacatacMounting.Floor;
         place.Frame = EnemyFrameId.PointAtOrigin;
@@ -70,8 +71,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             RightPatrolX = spawnX + settings.TravelDistance,
             LeftPatrolX = spawnX - settings.TravelDistance,
         };
-        place.SetSpeciesState(state);
         SetCacatacAnimation(place, state, onFloor ? CacatacSegment.OnFloorIdle : CacatacSegment.OnCeilingIdle);
+        return state;
     }
 
     /// <summary>Runs a Cacatac for one update: its patrol, or it stays stopped.</summary>

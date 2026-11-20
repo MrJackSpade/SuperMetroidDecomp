@@ -5,11 +5,15 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class ShaktoolEntity(ShaktoolBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class ShaktoolEntity(ShaktoolBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, ShaktoolSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal ShaktoolSpawnSettings Settings { get; } = settings;
+
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeShaktool(Occupant, Occupant.SpawnSettings<ShaktoolSpawnSettings>(), Place);
+    public void Initialize() => species.InitializeShaktool(Occupant, Settings, Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunShaktoolMainAi(Place, frame);

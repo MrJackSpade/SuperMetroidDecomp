@@ -12,7 +12,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         occupant.SpawnSettings<HibashiSpawnSettings>() is HibashiCollisionPartSpawnSettings
             ? EnemyOccupant.WithoutMainAi(new HibashiCollisionPartEntity(occupant, place, common))
-            : EnemyOccupant.Of(new HibashiEntity(this, occupant, place, common));
+            : EnemyOccupant.Running(new HibashiEntity(this, occupant, place, common, occupant.SpawnSettings<HibashiFlameSpawnSettings>()));
 
     /// <summary>The room's enemy places, where each visible geyser finds its hitbox when it is placed.</summary>
     private readonly EnemyPlaces _places;
@@ -58,10 +58,10 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Initializes the flame: it sets up its first wait (<see cref="HibashiDefinitions.FirstWait"/>) and the collision part
     /// it finds, and starts the eruption animation, whose first step plays on its first update.
     /// </summary>
-    internal void InitializeHibashi(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal HibashiEnemyState InitializeHibashi(RoomEnemyPlace place)
     {
         var state = new HibashiEnemyState(HibashiAction.Inactive);
-        place.SetSpeciesState(state);
         _hitboxes.Place(place, _places.Member(place, HibashiPartListingDefinitions.Listing, HibashiMember.Flame, HibashiMember.Hitbox));
         state.InactiveTimer = UpdateCountdown.For(HibashiDefinitions.FirstWait);
         state.Playback = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Flame));
@@ -70,6 +70,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         // The visible part must never participate through its definition's radius: its width is a real zero, which the
         // overlap tests measure as they measure any width. Its following part receives the dynamic radius from animation cues.
         place.Radius = place.Radius.WithX(0);
+        return state;
     }
 
     /// <summary>Runs the Hibashi's main AI.</summary>

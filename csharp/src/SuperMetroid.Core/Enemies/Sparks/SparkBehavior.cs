@@ -19,7 +19,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Spark];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SparkEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SparkEntity(this, occupant, place, common, occupant.SpawnSettings<SparkSpawnSettings>()));
 
     /// <summary>Owner of the falling-spark projectile emitted by one spark action.</summary>
     private FallingSparksBehavior FallingSparks { get; }
@@ -47,18 +47,19 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Spark.</summary>
-    internal static void InitializeSpark(RoomEnemyOccupant occupant, SparkSpawnSettings sparkSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static SparkEnemyState InitializeSpark(RoomEnemyOccupant occupant, SparkSpawnSettings sparkSpawnSettings, RoomEnemyPlace place)
     {
         SparkMovementDefinition definition = sparkSpawnSettings.Start;
         var state = new SparkEnemyState(definition.Action,
             new(SparkAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation));
-        place.SetSpeciesState(state);
 
         SetSparkActionTimer(occupant, sparkSpawnSettings, state, additionalTime: 0);
 
         place.AnimationClock.StepOnNextUpdate();
         // Spark keeps its population properties: the setup's extra property change before Phantoon's
         // defeat is exempt under the emulation scope limits (owner decision on #1318).
+        return state;
     }
 
     /// <summary>Runs the main step.</summary>

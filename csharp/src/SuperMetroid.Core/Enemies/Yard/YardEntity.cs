@@ -5,17 +5,21 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, YardSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => YardEnemyBehavior.InitializeYard(Occupant, Occupant.SpawnSettings<YardSpawnSettings>(), Place);
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal YardSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal YardEnemyState State { get; } = YardEnemyBehavior.InitializeYard(occupant, settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunYardMainAi(Place, Place.RequireSpeciesState<YardEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunYardMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYardTypedAnimation(Place, Place.RequireSpeciesState<YardEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYardTypedAnimation(Place, State);
 
     /// <summary>Whether the Yard's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == YardReactions.Touch || base.ReactsToTouch;
@@ -25,7 +29,7 @@ internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant oc
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == YardReactions.Touch)
-            species.ReactToYardTouch(Occupant, Occupant.SpawnSettings<YardSpawnSettings>(), context, context.Place.RequireSpeciesState<YardEnemyState>());
+            species.ReactToYardTouch(Occupant, Settings, context, context.State);
         else
             base.ReactToTouch(context);
     }

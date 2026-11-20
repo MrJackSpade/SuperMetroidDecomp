@@ -12,7 +12,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Multiviola];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MultiviolaEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MultiviolaEntity(this, occupant, place, common, occupant.SpawnSettings<MultiviolaSpawnSettings>()));
 
     /// <summary>Room collision mover used after each attempted Multiviola velocity component.</summary>
     private readonly EnemyTerrain _terrain;
@@ -24,14 +24,15 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Multiviola.</summary>
-    internal static void InitializeMultiviola(RoomEnemyOccupant occupant, MultiviolaSpawnSettings multiviolaSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static MultiviolaEnemyState InitializeMultiviola(RoomEnemyOccupant occupant, MultiviolaSpawnSettings multiviolaSpawnSettings, RoomEnemyPlace place)
     {
         var state = new MultiviolaEnemyState
         {
             Heading = multiviolaSpawnSettings.Heading,
         };
-        place.SetSpeciesState(state);
         state.Playback = new(MultiviolaAnimations.StartingWith(MultiviolaSegment.Flying), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>Runs the Multiviola's main AI.</summary>

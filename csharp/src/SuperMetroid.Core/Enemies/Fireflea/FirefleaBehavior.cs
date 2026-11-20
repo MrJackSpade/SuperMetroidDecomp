@@ -12,7 +12,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fireflea];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new FirefleaEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new FirefleaEntity(this, occupant, place, common, occupant.SpawnSettings<FirefleaSpawnSettings>()));
 
     /// <summary>Runs the common touch, after which the Fireflea always dies.</summary>
     private readonly EnemyCollision _collision;
@@ -30,7 +30,8 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Fireflea from its flight and radius.</summary>
-    internal static void InitializeFireflea(RoomEnemyOccupant occupant, FirefleaSpawnSettings settings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static FirefleaEnemyState InitializeFireflea(RoomEnemyOccupant occupant, FirefleaSpawnSettings settings, RoomEnemyPlace place)
     {
         FirefleaFlightState flight = settings.Flight switch
         {
@@ -38,10 +39,11 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             FirefleaFlight.Bobbing bobbing => StartBobbing(place, bobbing, settings.Radius),
             _ => throw new InvalidOperationException($"Undefined {nameof(FirefleaFlight)} {settings.Flight}."),
         };
-        place.SetSpeciesState(new FirefleaEnemyState(flight)
+        var state = new FirefleaEnemyState(flight)
         {
             Playback = new(FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), AnimationPlace.StartOfAnimation),
-        });
+        };
+        return state;
     }
 
     /// <summary>Starts a circling Fireflea on its circle about where it spawned, at the circle's zero angle.</summary>

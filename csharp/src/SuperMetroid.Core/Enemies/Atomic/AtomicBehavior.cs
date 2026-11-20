@@ -12,17 +12,18 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Atomic];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new AtomicEntity(occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new AtomicEntity(occupant, place, common, occupant.SpawnSettings<AtomicSpawnSettings>()));
 
 
     /// <summary>Initializes the Atomic.</summary>
-    internal static void InitializeAtomic(RoomEnemyOccupant occupant, AtomicSpawnSettings settings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static AtomicEnemyState InitializeAtomic(RoomEnemyOccupant occupant, AtomicSpawnSettings settings, RoomEnemyPlace place)
     {
         var state = new AtomicEnemyState();
-        place.SetSpeciesState(state);
 
         place.AnimationClock.Restart();
         state.Playback = new(AtomicAnimations.StartingWith(settings.Spin), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>

@@ -8,17 +8,21 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="motions">The motions the room gives its vents, which give this vent the one its variant names.</param>
-internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CeresSteamVentMotions motions)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CeresSteamVentMotions motions, CeresSteamSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializeCeresSteam(Occupant, Occupant.SpawnSettings<CeresSteamSpawnSettings>(), Place, motions);
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal CeresSteamSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal CeresSteamEnemyState State { get; } = species.InitializeCeresSteam(occupant, settings, place, motions);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => CeresSteamBehavior.RunCeresSteamMainAi(Place, Place.RequireSpeciesState<CeresSteamEnemyState>());
+    public void RunMainAi(IEnemyAiFrame frame) => CeresSteamBehavior.RunCeresSteamMainAi(Place, State);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CeresSteamBehavior.AdvanceCeresSteamAnimation(Place, Place.RequireSpeciesState<CeresSteamEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CeresSteamBehavior.AdvanceCeresSteamAnimation(Place, State);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => CeresSteamBehavior.FindHitboxReaction(Place, probe);

@@ -13,10 +13,11 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Coven];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WreckedShipGhostEntity(occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new WreckedShipGhostEntity(occupant, place, common));
 
     /// <summary>Initializes the Wrecked Ship ghost.</summary>
-    internal static void InitializeWreckedShipGhost(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static WreckedShipGhostEnemyState InitializeWreckedShipGhost(RoomEnemyPlace place)
     {
         // The ghost starts animating, unseen and untouchable.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
@@ -34,7 +35,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         // (WreckedShipGhostAppearanceDefinitions.InitialDelay) expires, so the first white ramp begins from black rather than from the ghost's own colours.
         state.Fade = WreckedShipGhostFade.Dark;
         ShowFade(place, state);
-        place.SetSpeciesState(state);
+        return state;
     }
 
     /// <summary>Shows the ghost in the shade its fading colours are in (#1512).</summary>

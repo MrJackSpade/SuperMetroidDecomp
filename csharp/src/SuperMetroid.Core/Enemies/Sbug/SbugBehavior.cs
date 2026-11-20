@@ -11,15 +11,16 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Sbug];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SbugEntity(occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SbugEntity(occupant, place, common, occupant.SpawnSettings<SbugSpawnSettings>()));
 
     /// <summary>Initializes the Sbug.</summary>
-    internal static void InitializeSbug(RoomEnemyOccupant occupant, SbugSpawnSettings sbugSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static SbugEnemyState InitializeSbug(RoomEnemyOccupant occupant, SbugSpawnSettings sbugSpawnSettings, RoomEnemyPlace place)
     {
         // A new Sbug starts the loop of its spawn heading's facing as it initializes.
         var state = new SbugEnemyState(SbugAction.WaitForSamus);
-        place.SetSpeciesState(state);
         SetSbugFacing(place, state, ForwardLeg(occupant, sbugSpawnSettings).Facing);
+        return state;
     }
 
     /// <summary>

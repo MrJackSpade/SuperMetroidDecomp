@@ -14,7 +14,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Boulder];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BoulderEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new BoulderEntity(this, occupant, place, common, occupant.SpawnSettings<BoulderSpawnSettings>()));
 
     /// <summary>Moves the actor through room collision during fall and roll phases.</summary>
     private readonly EnemyTerrain _terrain;
@@ -33,10 +33,10 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Reads the spawn settings as direction, trigger windows and how it starts.</summary>
-    internal static void InitializeBoulder(RoomEnemyOccupant occupant, BoulderSpawnSettings settings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static BoulderEnemyState InitializeBoulder(RoomEnemyOccupant occupant, BoulderSpawnSettings settings, RoomEnemyPlace place)
     {
         var state = new BoulderEnemyState(BoulderAction.WaitingForSamus);
-        place.SetSpeciesState(state);
 
         state.RestingY = place.Position.Whole.Y;
         state.PreviousY = place.Position.Y;
@@ -69,6 +69,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidOperationException($"Undefined {nameof(BoulderRoll)} {settings.Roll}.");
         }
         state.VerticalCompensation = BoulderMotionDefinitions.RollingGroundReach;
+        return state;
     }
 
     /// <summary>Runs the wait, fall, rebound, roll or inert phase with required Samus and terrain state.</summary>

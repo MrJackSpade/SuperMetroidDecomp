@@ -17,7 +17,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Puyo];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new PuyoEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new PuyoEntity(this, occupant, place, common, occupant.SpawnSettings<PuyoSpawnSettings>()));
 
     /// <summary>Supplies the shared room RNG used when choosing Puyo hop type and bounce height.</summary>
     private readonly EnemyRoomBinding _room;
@@ -35,7 +35,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Puyo.</summary>
-    internal static void InitializePuyo(RoomEnemyOccupant occupant, PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static PuyoEnemyState InitializePuyo(RoomEnemyOccupant occupant, PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place)
     {
         // The setup shows the common empty frame before starting the fast grounded animation.
         place.Frame = EnemyFrameId.PointAtOrigin;
@@ -50,8 +51,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             InitialYSpeedCurvePlaceThreeQuarters = QuadraticSpeedCurvePlace.Start,
             InitialYSpeedCurvePlaceHalf = QuadraticSpeedCurvePlace.Start,
         };
-        place.SetSpeciesState(state);
         SetPuyoAnimation(place, state, PuyoSegment.GroundedFast);
+        return state;
     }
 
     /// <summary>Runs a Puyo for one update and its top-level actions.</summary>

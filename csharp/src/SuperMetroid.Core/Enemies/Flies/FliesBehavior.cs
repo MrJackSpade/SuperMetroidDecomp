@@ -13,7 +13,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mella, EnemyDefinitionId.Mellow, EnemyDefinitionId.MaridiaFly];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new FliesEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new FliesEntity(this, occupant, place, common));
 
     /// <summary>Provides the shared room RNG whose advance is part of each fly AI update.</summary>
     private readonly EnemyRoomBinding _room;
@@ -26,17 +26,18 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Starts a newly loaded fly at angle zero with its flight animation and clockwise motion.</summary>
-    internal static void InitializeFly(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static FlyEnemyState InitializeFly(RoomEnemyPlace place)
     {
         var state = new FlyEnemyState(FlyAction.Circling)
         {
             Angle = RotationAngle.Zero,
             Rotation = RotationDirection.Clockwise,
         };
-        place.SetSpeciesState(state);
         state.Playback = new(FlyAnimations.StartingWith(FlySegment.Flight), AnimationPlace.StartOfAnimation);
         place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.StepOnNextUpdate();
+        return state;
     }
 
     /// <summary>Advances room RNG and runs a fly's circle, attack or retreat phase.</summary>

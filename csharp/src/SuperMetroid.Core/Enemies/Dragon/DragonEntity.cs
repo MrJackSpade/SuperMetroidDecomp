@@ -9,16 +9,16 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class DragonEntity(DragonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializeDragonBody(Place);
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal DragonEnemyState State { get; } = species.InitializeDragonBody(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunDragonMain(Occupant, Place, Place.RequireSpeciesState<DragonEnemyState>(), (Place.RequireSpeciesState<DragonEnemyState>()).Wing.RequireSpeciesState<DragonWingState>(), frame.Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunDragonMain(Occupant, Place, State, State.Wing.RequireSpeciesState<DragonWingState>(), frame.Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DragonBehavior.AdvanceDragonBodyTypedAnimation(Place, Place.RequireSpeciesState<DragonEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DragonBehavior.AdvanceDragonBodyTypedAnimation(Place, State);
 
     /// <summary>Whether the Dragon's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == DragonReactions.Touch || base.ReactsToTouch;

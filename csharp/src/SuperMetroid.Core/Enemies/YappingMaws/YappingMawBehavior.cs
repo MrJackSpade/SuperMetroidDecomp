@@ -20,7 +20,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.YappingMaw];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new YappingMawEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new YappingMawEntity(this, occupant, place, common, occupant.SpawnSettings<YappingMawSpawnSettings>()));
 
     /// <summary>Creates the four auxiliary body-link projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -58,7 +58,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Yapping Maw.</summary>
-    internal void InitializeYappingMaw(RoomEnemyOccupant occupant, YappingMawSpawnSettings yappingMawSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal YappingMawEnemyState InitializeYappingMaw(RoomEnemyOccupant occupant, YappingMawSpawnSettings yappingMawSpawnSettings, RoomEnemyPlace place)
     {
         // The body links are created mouth end first and kept root to mouth.
         var bodies = new EnemyProjectile?[YappingMawAttackDefinitions.TongueLinks];
@@ -90,11 +91,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                     : RoomEffectActorKind.YappingMawBaseFacingUp,
                 SpriteGraphics.SpawnedBy(occupant, place.Shading)),
         };
-        place.SetSpeciesState(state);
 
         state.Playback = EnemyAnimationPlayback.Start(place, YappingMawAnimations.StartingWith(yappingMawSpawnSettings.Attack == VerticalDirection.Down
             ? YappingMawSegment.AttackingDown
             : YappingMawSegment.AttackingUp));
+        return state;
     }
 
     /// <summary>Runs the Maw's main behaviour, then places its four links.</summary>

@@ -11,14 +11,14 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Choot];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ChootEntity(occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ChootEntity(occupant, place, common, occupant.SpawnSettings<ChootSpawnSettings>()));
 
     /// <summary>Initializes the Choot, selecting a falling pattern and calculating ascent speed from parameters.</summary>
-    internal static void InitializeChoot(RoomEnemyOccupant occupant, ChootSpawnSettings chootSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static ChootEnemyState InitializeChoot(RoomEnemyOccupant occupant, ChootSpawnSettings chootSpawnSettings, RoomEnemyPlace place)
     {
         ChootFallingPath fallingPath = chootSpawnSettings.FallingPath;
         var state = new ChootEnemyState(ChootAction.WaitingForSamus);
-        place.SetSpeciesState(state);
 
         SetChootAnimation(place, state, ChootSegment.Idle);
         state.SpawnPosition = place.Position.Whole;
@@ -29,6 +29,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InitialYSpeedCurvePlace = CalculateInitialChootYSpeedCurvePlace(jumpHeight);
         state.InitialFallingPosition = state.SpawnPosition.WithY(state.SpawnPosition.Y - jumpHeight);
         state.YSpeedCurvePlace = state.InitialYSpeedCurvePlace;
+        return state;
     }
 
     /// <summary>Runs the Choot's wait, preparation, jump or fall.</summary>

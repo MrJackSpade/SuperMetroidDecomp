@@ -5,15 +5,19 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the top occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class KzanTopEntity(KzanBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class KzanTopEntity(KzanBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KzanSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => KzanBehavior.InitializeKzanTop(Occupant, Occupant.SpawnSettings<KzanSpawnSettings>(), Place);
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal KzanSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal KzanEnemyState State { get; } = KzanBehavior.InitializeKzanTop(occupant, settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunKzanTopMainAi(Occupant, Occupant.SpawnSettings<KzanSpawnSettings>(), Place, Place.RequireSpeciesState<KzanEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunKzanTopMainAi(Occupant, Settings, Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KzanBehavior.AdvanceKzanTypedAnimation(Place, Place.RequireSpeciesState<KzanEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KzanBehavior.AdvanceKzanTypedAnimation(Place, State);
 }

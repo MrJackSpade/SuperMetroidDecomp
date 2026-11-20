@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Metaree;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class MetareeEntity(MetareeBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The Metaree's own shot reaction, built for this occupant.</summary>
     private readonly EnemyShotReaction ownShot = species.MetareeShotReaction(occupant);
@@ -14,14 +14,14 @@ internal sealed class MetareeEntity(MetareeBehavior species, RoomEnemyOccupant o
     /// <summary>The Metaree's own stages around common bomb damage, built for this occupant.</summary>
     private readonly EnemyBombReaction ownBomb = species.MetareeBombReaction(occupant);
 
-    /// <inheritdoc/>
-    public void Initialize() => MetareeBehavior.InitializeMetaree(Place);
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal MetareeEnemyState State { get; } = MetareeBehavior.InitializeMetaree(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetareeMainAi(Occupant, Place, Place.RequireSpeciesState<MetareeEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetareeMainAi(Occupant, Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MetareeBehavior.AdvanceMetareeTypedAnimation(Place, Place.RequireSpeciesState<MetareeEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MetareeBehavior.AdvanceMetareeTypedAnimation(Place, State);
 
     /// <summary>The Metaree's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MetareeReactions.Shot ? ownShot : base.ShotReaction;

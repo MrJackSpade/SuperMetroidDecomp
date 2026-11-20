@@ -19,7 +19,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Metroid];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MetroidEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MetroidEntity(this, occupant, place, common, occupant.SpawnSettings<MetroidSpawnSettings>()));
 
     /// <summary>Supplies room RNG for the scattered death drops and idle cries.</summary>
     private readonly EnemyRoomBinding _room;
@@ -64,7 +64,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Metroid.</summary>
-    internal void InitializeMetroid(RoomEnemyOccupant occupant, MetroidSpawnSettings metroidSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal MetroidEnemyState InitializeMetroid(RoomEnemyOccupant occupant, MetroidSpawnSettings metroidSpawnSettings, RoomEnemyPlace place)
     {
         SpriteGraphics graphics = SpriteGraphics.SpawnedBy(occupant, place.Shading);
         RoomEffectActor electricity = _effectActors.SpawnRoomEffectActor(
@@ -82,8 +83,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             Movement = MetroidMovement.Homing,
             IceDamageToFreeze = metroidSpawnSettings.IceDamageToFreeze,
         };
-        place.SetSpeciesState(state);
         state.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>Runs a Metroid for one update and whichever of its four movements it is in.</summary>

@@ -16,7 +16,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CorpseTorizo];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new DeadTorizoEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new DeadTorizoEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared random seed.</summary>
     private readonly EnemyRoomBinding _room;
@@ -45,18 +45,20 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the dead Torizo, whose corpse keeps its own state on its place like the other corpses (#1808).</summary>
-    internal void InitializeDeadTorizo(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal DeadTorizoEnemyState InitializeDeadTorizo(RoomEnemyPlace place)
     {
         _corpses.Add(place);
         place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         AnimationPlayback<DeadTorizoSegment> playback = EnemyAnimationPlayback.Start(place, DeadTorizoAnimations.StartingWith(Corpses.DeadTorizoSegment.Stationary));
 
-        place.SetSpeciesState(new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount), DeadTorizoPhase.Wait)
+        var state = new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount), DeadTorizoPhase.Wait)
         {
             Playback = playback,
             FallSpeed = DeadTorizoCorpseDefinitions.StartingFallSpeed,
-        });
+        };
+        return state;
     }
 
     /// <summary>Runs the dead Torizo's main AI.</summary>

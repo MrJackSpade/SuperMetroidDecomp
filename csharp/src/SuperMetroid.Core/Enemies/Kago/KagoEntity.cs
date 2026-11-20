@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class KagoEntity(KagoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The Kago's own shot reaction, built for this occupant.</summary>
     private readonly EnemyShotReaction ownShot = species.KagoShotReaction(occupant, occupant.SpawnSettings<KagoSpawnSettings>());
@@ -14,11 +14,11 @@ internal sealed class KagoEntity(KagoBehavior species, RoomEnemyOccupant occupan
     /// <summary>The Kago's own stages around common bomb damage, built for this occupant.</summary>
     private readonly EnemyBombReaction ownBomb = species.KagoBombReaction(occupant, occupant.SpawnSettings<KagoSpawnSettings>());
 
-    /// <inheritdoc/>
-    public void Initialize() => KagoBehavior.InitializeKago(Place);
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal KagoEnemyState State { get; } = KagoBehavior.InitializeKago(place);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KagoBehavior.AdvanceKagoTypedAnimation(Place, Place.RequireSpeciesState<KagoEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KagoBehavior.AdvanceKagoTypedAnimation(Place, State);
 
     /// <summary>The Kago's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == KagoReactions.Shot ? ownShot : base.ShotReaction;

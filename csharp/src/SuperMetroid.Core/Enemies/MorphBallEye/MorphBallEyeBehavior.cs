@@ -22,30 +22,31 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         occupant.SpawnSettings<MorphBallEyeSpawnSettings>() is MorphBallEyeMountSpawnSettings
-            ? EnemyOccupant.WithoutMainAi(new MorphBallEyeMountEntity(this, occupant, place, common))
-            : EnemyOccupant.Of(new MorphBallEyeEntity(this, occupant, place, common));
+            ? EnemyOccupant.PlacedOnly(new MorphBallEyeMountEntity(this, occupant, place, common, occupant.SpawnSettings<MorphBallEyeMountSpawnSettings>()))
+            : EnemyOccupant.Running(new MorphBallEyeEntity(this, occupant, place, common, occupant.SpawnSettings<MorphBallEyeBodySpawnSettings>()));
 
     /// <summary>The room-global beam an eye body casts.</summary>
     public MorphBallEyeBeamState MorphBallEyeBeam { get; } = new();
 
     /// <summary>Initializes a closed eye body from its spawn facing.</summary>
-    internal static void InitializeMorphBallEyeBody(RoomEnemyOccupant occupant, MorphBallEyeBodySpawnSettings morphBallEyeBodySpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static MorphBallEyeEnemyState InitializeMorphBallEyeBody(RoomEnemyOccupant occupant, MorphBallEyeBodySpawnSettings morphBallEyeBodySpawnSettings, RoomEnemyPlace place)
     {
         var state = new MorphBallEyeEnemyState(MorphBallEyeAction.WaitForSamus);
-        place.SetSpeciesState(state);
         ShowNothingUntilAnimated(place);
 
         // The placement's facing is fixed by its mounting, not a live facing test.
         state.Playback = new(MorphBallEyeAnimations.StartingWith(morphBallEyeBodySpawnSettings.Facing == HorizontalDirection.Right
             ? MorphBallEyeSegment.FacingRightClosed
             : MorphBallEyeSegment.FacingLeftClosed), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>Offsets a beam mount to its side of the eye, starts its pose and resets the room-global beam.</summary>
-    internal void InitializeMorphBallEyeMount(RoomEnemyOccupant occupant, MorphBallEyeMountSpawnSettings morphBallEyeMountSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal MorphBallEyeMountState InitializeMorphBallEyeMount(RoomEnemyOccupant occupant, MorphBallEyeMountSpawnSettings morphBallEyeMountSpawnSettings, RoomEnemyPlace place)
     {
         var state = new MorphBallEyeMountState();
-        place.SetSpeciesState(state);
         ShowNothingUntilAnimated(place);
 
         var mount = MorphBallEyeGeometry.Mount(morphBallEyeMountSpawnSettings.Side);
@@ -55,6 +56,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         // A mount clears any beam when the room loads, so a prior room's reveal never
         // shows in this one.
         MorphBallEyeBeam.Reset();
+        return state;
     }
 
     /// <summary>

@@ -5,15 +5,19 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class CacatacEntity(CacatacBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class CacatacEntity(CacatacBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CacatacSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => CacatacBehavior.InitializeCacatac(Occupant, Occupant.SpawnSettings<CacatacSpawnSettings>(), Place);
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal CacatacSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal CacatacEnemyState State { get; } = CacatacBehavior.InitializeCacatac(occupant, settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunCacatacMainAi(Occupant, Occupant.SpawnSettings<CacatacSpawnSettings>(), Place, Place.RequireSpeciesState<CacatacEnemyState>());
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunCacatacMainAi(Occupant, Settings, Place, State);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceCacatacTypedAnimation(Occupant, Place, Place.RequireSpeciesState<CacatacEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceCacatacTypedAnimation(Occupant, Place, State);
 }

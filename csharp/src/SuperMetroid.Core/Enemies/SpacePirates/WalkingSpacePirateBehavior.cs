@@ -15,7 +15,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWalking, EnemyDefinitionId.PirateGreenWalking, EnemyDefinitionId.PirateGreyWalking, EnemyDefinitionId.PirateMagentaWalking, EnemyDefinitionId.PirateRedWalking, EnemyDefinitionId.PirateSilverWalking];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WalkingSpacePirateEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new WalkingSpacePirateEntity(this, occupant, place, common, occupant.SpawnSettings<WalkingSpacePirateSpawnSettings>()));
 
     /// <summary>Supplies solid-ground and ledge probes for the patrol AI.</summary>
     private readonly EnemyTerrain _terrain;
@@ -79,10 +79,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         _audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Initializes the walking Space Pirate.</summary>
-    internal static void InitializeWalkingSpacePirate(RoomEnemyOccupant occupant, WalkingSpacePirateSpawnSettings settings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static WalkingSpacePirateEnemyState InitializeWalkingSpacePirate(RoomEnemyOccupant occupant, WalkingSpacePirateSpawnSettings settings, RoomEnemyPlace place)
     {
         var state = new WalkingSpacePirateEnemyState(WalkingSpacePirateAction.StandingStill);
-        place.SetSpeciesState(state);
 
         // The placement's facing alone selects the first walk.
         state.Playback = new(WalkingSpacePirateAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
@@ -94,6 +94,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // sees each post on its own side of the pirate.
         state.RightPostX = OffRoomPlaces.Place(place.Position.X.Whole + settings.PatrolReach);
         state.LeftPostX = OffRoomPlaces.Place(place.Position.X.Whole - settings.PatrolReach);
+        return state;
     }
 
     /// <summary>Runs the walking Space Pirate's main AI.</summary>

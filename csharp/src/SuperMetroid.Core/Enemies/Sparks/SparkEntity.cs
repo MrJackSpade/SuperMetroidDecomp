@@ -5,17 +5,21 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class SparkEntity(SparkBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class SparkEntity(SparkBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, SparkSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => SparkBehavior.InitializeSpark(Occupant, Occupant.SpawnSettings<SparkSpawnSettings>(), Place);
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal SparkSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal SparkEnemyState State { get; } = SparkBehavior.InitializeSpark(occupant, settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunSparkMainAi(Occupant, Occupant.SpawnSettings<SparkSpawnSettings>(), Place, Place.RequireSpeciesState<SparkEnemyState>());
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSparkMainAi(Occupant, Settings, Place, State);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SparkBehavior.AdvanceSparkTypedAnimation(Place, Place.RequireSpeciesState<SparkEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SparkBehavior.AdvanceSparkTypedAnimation(Place, State);
 
     /// <summary>The pass-through shot reaction where the Spark's definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == SparkReactions.Shot ? SparkBehavior.PassThroughShot : base.ShotReaction;

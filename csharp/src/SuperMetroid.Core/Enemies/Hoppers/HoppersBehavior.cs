@@ -13,7 +13,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dessgeega, EnemyDefinitionId.DessgeegaLarge, EnemyDefinitionId.Sidehopper, EnemyDefinitionId.SidehopperLarge, EnemyDefinitionId.SidehopperTourian];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new HoppersEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new HoppersEntity(this, occupant, place, common, occupant.SpawnSettings<HopperSpawnSettings>()));
 
     /// <summary>Supplies the shared RNG seed consumed during Hopper initialization.</summary>
     private readonly EnemyRoomBinding _room;
@@ -54,7 +54,8 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Hopper.</summary>
-    internal void InitializeHopper(RoomEnemyPlace place, RoomEnemyOccupant occupant, HopperSpawnSettings hopperSpawnSettings)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal HopperEnemyState InitializeHopper(RoomEnemyPlace place, RoomEnemyOccupant occupant, HopperSpawnSettings hopperSpawnSettings)
     {
         HopperKind kind = HopperAnimationChoices.KindOf(Ensure.NotNull(occupant).DefinitionId);
         // The placement's reseed is followed by a draw it never reads, which later consumers observe.
@@ -65,9 +66,9 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Kind = kind,
         };
-        place.SetSpeciesState(state);
 
         SetHopperAnimation(place, state, ReadHopperAnimation(occupant, hopperSpawnSettings, state, HopperPhase.Landed));
+        return state;
     }
 
     /// <summary>Runs the Hopper's current action.</summary>

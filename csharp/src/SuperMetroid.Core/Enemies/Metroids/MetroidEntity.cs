@@ -5,28 +5,32 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, MetroidSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializeMetroid(Occupant, Occupant.SpawnSettings<MetroidSpawnSettings>(), Place);
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal MetroidSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal MetroidEnemyState State { get; } = species.InitializeMetroid(occupant, settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Occupant, Place, Place.RequireSpeciesState<MetroidEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Occupant, Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMetroidTypedAnimation(Place, Place.RequireSpeciesState<MetroidEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMetroidTypedAnimation(Place, State);
 
     /// <summary>The Metroid's own hurt behaviour, ahead of its frozen behaviour when it is both hurt and frozen; the animation still advances.</summary>
     /// <param name="frame">The enemy frame.</param>
     public override bool RunHurt(RoomEnemyFrame frame)
     {
-        MetroidBehavior.ApplyMetroidHurt(Place, Place.RequireSpeciesState<MetroidEnemyState>());
+        MetroidBehavior.ApplyMetroidHurt(Place, State);
         return true;
     }
 
     /// <summary>The frozen Metroid's behaviour, which retains its outer-body state.</summary>
-    public override void RunFrozen() => MetroidBehavior.RunMetroidFrozen(Place, Place.RequireSpeciesState<MetroidEnemyState>());
+    public override void RunFrozen() => MetroidBehavior.RunMetroidFrozen(Place, State);
 
     /// <summary>Whether the Metroid's own touch, its attachment and suit-dependent draining, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == MetroidReactions.Touch || base.ReactsToTouch;
@@ -36,7 +40,7 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant o
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == MetroidReactions.Touch)
-            species.ResolveMetroidTouch(context.Place, context.Place.RequireSpeciesState<MetroidEnemyState>(), context.Samus);
+            species.ResolveMetroidTouch(context.Place, context.State, context.Samus);
         else
             base.ReactToTouch(context);
     }

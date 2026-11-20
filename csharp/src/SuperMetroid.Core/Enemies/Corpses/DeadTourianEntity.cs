@@ -5,21 +5,25 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CorpseSpawnSettings settings)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
         IShowsCorpseRotRows
 {
-    /// <inheritdoc/>
-    public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(Place, Place.RequireSpeciesState<DeadTourianCorpseEnemyState>());
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal CorpseSpawnSettings Settings { get; } = settings;
 
     /// <inheritdoc/>
-    public void Initialize() => DeadTourianBehavior.InitializeDeadTourianCorpse(Place, Occupant, Occupant.SpawnSettings<CorpseSpawnSettings>());
+    public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(Place, State);
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal DeadTourianCorpseEnemyState State { get; } = DeadTourianBehavior.InitializeDeadTourianCorpse(place, occupant, settings);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTourianMainAi(Place, Place.RequireSpeciesState<DeadTourianCorpseEnemyState>(), frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTourianMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadTourianBehavior.AdvanceDeadTourianTypedAnimation(Place, Place.RequireSpeciesState<DeadTourianCorpseEnemyState>());
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadTourianBehavior.AdvanceDeadTourianTypedAnimation(Place, State);
 
     /// <summary>Whether the dead Tourian corpse's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == CorpseReactions.Touch || base.ReactsToTouch;
@@ -29,7 +33,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOc
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == CorpseReactions.Touch)
-            DeadTourianBehavior.ReactToDeadTourianTouch(context, context.Place.RequireSpeciesState<DeadTourianCorpseEnemyState>());
+            DeadTourianBehavior.ReactToDeadTourianTouch(context, context.State);
         else
             base.ReactToTouch(context);
     }

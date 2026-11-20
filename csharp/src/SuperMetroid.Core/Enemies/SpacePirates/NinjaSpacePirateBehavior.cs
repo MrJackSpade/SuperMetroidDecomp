@@ -23,7 +23,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         if (definition == EnemyDefinitionId.PirateGoldNinja)
             return EnemyOccupant.Of(new GoldNinjaSpacePirateEntity(this, occupant, place, common));
         if (definition == EnemyDefinitionId.PirateSilverNinja)
-            return EnemyOccupant.Of(new NinjaSpacePirateEntity(this, occupant, place, common));
+            return EnemyOccupant.Running(new NinjaSpacePirateEntity(this, occupant, place, common, occupant.SpawnSettings<NinjaSpacePirateSpawnSettings>()));
         throw new InvalidOperationException($"The ninja Space Pirate species creates no {occupant.DefinitionId}.");
     }
 
@@ -50,10 +50,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Initializes the Ninja Space Pirate.</summary>
-    internal static void InitializeNinjaSpacePirate(RoomEnemyOccupant occupant, NinjaSpacePirateSpawnSettings settings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static NinjaSpacePirateEnemyState InitializeNinjaSpacePirate(RoomEnemyOccupant occupant, NinjaSpacePirateSpawnSettings settings, RoomEnemyPlace place)
     {
         var state = new NinjaSpacePirateEnemyState(NinjaSpacePirateAction.StandingStill);
-        place.SetSpeciesState(state);
         bool startsAtLeft = settings.StartPost switch
         {
             NinjaSpacePirateStartPost.Left => true,
@@ -90,6 +90,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         state.LeftPostX = state.PostsMidpointX - adjustedHalfSpan;
         place.Position = place.Position.WithX(FixedCoordinate.FromWhole(startsAtLeft ? state.LeftPostX : state.RightPostX));
         state.SpawnPosition = place.Position.Whole;
+        return state;
     }
 
     /// <summary>Runs the Ninja Space Pirate's current behaviour.</summary>

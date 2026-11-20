@@ -14,7 +14,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Beetom];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new BeetomEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new BeetomEntity(this, occupant, place, common, surroundings));
 
     /// <summary>Supplies the shared RNG seed and generation used by Beetom action choice.</summary>
     private readonly EnemyRoomBinding _room;
@@ -59,10 +59,10 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Initializes the Beetom.</summary>
-    internal void InitializeBeetom(RoomEnemyPlace place, SamusState samus, GameplayAction controllerInput)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal BeetomEnemyState InitializeBeetom(RoomEnemyPlace place, SamusState samus, GameplayAction controllerInput)
     {
         BeetomEnemyState state = _inheritance.Inherit(place, static previous => new BeetomEnemyState(previous, BeetomAction.DecideAction));
-        place.SetSpeciesState(state);
 
         state.ButtonCounter = BeetomMotionDefinitions.MashCount;
         state.LastSeenPlayerActions = controllerInput;
@@ -77,6 +77,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Position.X.Whole < place.Position.X.Whole
                 ? BeetomSegment.CrawlingLeft
                 : BeetomSegment.CrawlingRight);
+        return state;
     }
 
     /// <summary>Runs a Beetom for one update through all of its actions.</summary>

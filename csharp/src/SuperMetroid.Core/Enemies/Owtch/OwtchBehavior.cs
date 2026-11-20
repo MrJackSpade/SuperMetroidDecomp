@@ -10,7 +10,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Owtch];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new OwtchEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new OwtchEntity(this, occupant, place, common, occupant.SpawnSettings<OwtchSpawnSettings>()));
 
     /// <summary>Supplies the shared room random sequence used for burial and emergence.</summary>
     private readonly EnemyRoomBinding _room;
@@ -26,7 +26,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         SetOwtchMoving(state, cue.Direction == HorizontalDirection.Left ? OwtchBehaviorState.MovingLeft : OwtchBehaviorState.MovingRight);
 
     /// <summary>Initializes the Owtch.</summary>
-    internal static void InitializeOwtch(RoomEnemyOccupant occupant, OwtchSpawnSettings settings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static OwtchEnemyState InitializeOwtch(RoomEnemyOccupant occupant, OwtchSpawnSettings settings, RoomEnemyPlace place)
     {
         var state = new OwtchEnemyState
         {
@@ -35,13 +36,13 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             MinimumX = place.Position.X.Whole - settings.TravelDistance,
             MaximumX = place.Position.X.Whole + settings.TravelDistance,
         };
-        place.SetSpeciesState(state);
         SetOwtchAnimation(place, state, InitialAnimation(settings.InitialBehavior));
 
         // An Owtch placed underground starts buried: it moves down by whole pixels only, to the same burial depth
         // sinking reaches.
         if (state.Behavior == OwtchBehaviorState.Underground)
             place.Position = place.Position.WithWholeY(place.Position.Y.Whole + OwtchMovementDefinitions.MaximumBurialDepth);
+        return state;
     }
 
     /// <summary>Runs the Owtch's current behaviour.</summary>

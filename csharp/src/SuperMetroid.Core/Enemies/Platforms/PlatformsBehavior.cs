@@ -15,7 +15,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SuspensorPlatform, EnemyDefinitionId.Tripper];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new PlatformsEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new PlatformsEntity(this, occupant, place, common, occupant.SpawnSettings<PlatformSpawnSettings>()));
 
     /// <summary>Clips the Tripper's and the suspensor platform's horizontal and vertical displacement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;
@@ -34,13 +34,13 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Sets up a Tripper or a suspensor platform: its direction and speed from its spawn settings, its first rise and the
     /// height it rests at below where it was placed.
     /// </summary>
-    internal static void InitializePlatform(RoomEnemyOccupant occupant, PlatformSpawnSettings settings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static PlatformEnemyState InitializePlatform(RoomEnemyOccupant occupant, PlatformSpawnSettings settings, RoomEnemyPlace place)
     {
         var state = new PlatformEnemyState
         {
             Kind = place.Holds(EnemyDefinitionId.SuspensorPlatform) ? PlatformKind.SuspensorPlatform : PlatformKind.Tripper,
         };
-        place.SetSpeciesState(state);
 
         // The platform moves left or right as its spawn settings say.
         state.XMovement = settings.Movement;
@@ -50,6 +50,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
         state.RestingY = place.Position.Y.Whole + PlatformMotionDefinitions.RestingDepthBelowPlacement;
+        return state;
     }
 
     /// <summary>Runs the Tripper's and the suspensor platform's main AI.</summary>

@@ -16,7 +16,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.KzanTop)
-            return EnemyOccupant.Of(new KzanTopEntity(this, occupant, place, common));
+            return EnemyOccupant.Running(new KzanTopEntity(this, occupant, place, common, occupant.SpawnSettings<KzanSpawnSettings>()));
         if (definition == EnemyDefinitionId.KzanBottom)
             return EnemyOccupant.Of(new KzanBottomEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The Kzan species creates no {occupant.DefinitionId}.");
@@ -38,10 +38,10 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the top's idle animation, fall speed, fall distance and wait timer from its spawn settings.</summary>
-    internal static void InitializeKzanTop(RoomEnemyOccupant occupant, KzanSpawnSettings kzanSpawnSettings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static KzanEnemyState InitializeKzanTop(RoomEnemyOccupant occupant, KzanSpawnSettings kzanSpawnSettings, RoomEnemyPlace place)
     {
         var state = new KzanEnemyState(KzanAction.WaitingToFall);
-        place.SetSpeciesState(state);
 
         state.Playback = EnemyAnimationPlayback.Start(place, KzanAnimations.StartingWith(KzanSegment.Idle));
 
@@ -55,6 +55,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FallingTargetY = spawnY + kzanSpawnSettings.FallDistance;
         state.RisingTargetY = spawnY;
         state.FallWaitTimer = WrappingCountdown.Start(kzanSpawnSettings.FallWait);
+        return state;
     }
 
     /// <summary>Places the lower actor below the preceding top (<see cref="KzanMotionDefinitions.BottomBelowTop"/>) during setup.</summary>

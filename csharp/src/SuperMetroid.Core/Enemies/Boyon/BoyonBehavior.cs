@@ -18,7 +18,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Boyon];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BoyonEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new BoyonEntity(this, occupant, place, common, occupant.SpawnSettings<BoyonSpawnSettings>()));
 
     /// <summary>Carries out one cue of Boyon's animations.</summary>
     private void ApplyBoyonCue(RoomEnemyPlace place, BoyonEnemyState state, BoyonCue cue)
@@ -40,7 +40,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Boyon.</summary>
-    internal static void InitializeBoyon(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static BoyonEnemyState InitializeBoyon(RoomEnemyPlace place)
     {
         // The Boyon shows nothing until its idle animation shows its first frame on its first update; the room's
         // enemy load leaves it showing nothing too.
@@ -52,8 +53,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             BaselineCurvePlace = BoyonCurvePlace.Top,
             Phase = BoyonPhase.DerivingArc,
         };
-        place.SetSpeciesState(state);
         SetBoyonAnimation(place, state, BoyonSegment.Idle);
+        return state;
     }
 
     /// <summary>Runs the Boyon's main AI.</summary>

@@ -13,7 +13,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWall, EnemyDefinitionId.PirateGreyWall, EnemyDefinitionId.PirateMagentaWall, EnemyDefinitionId.PirateSilverWall];
 
     /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WallSpacePirateEntity(this, occupant, place, common));
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new WallSpacePirateEntity(this, occupant, place, common, occupant.SpawnSettings<WallSpacePirateSpawnSettings>()));
 
     /// <summary>Advances the shared random source when a climbing cue chooses a new direction.</summary>
     private readonly EnemyRoomBinding _room;
@@ -32,7 +32,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Initializes the wall Space Pirate.</summary>
-    internal static void InitializeWallSpacePirate(RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings settings, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static WallSpacePirateEnemyState InitializeWallSpacePirate(RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings settings, RoomEnemyPlace place)
     {
         // A slow jump and a fast jump each turn by their definition's steps, the fast one twice as quickly to endpoints
         // a little further round.
@@ -43,7 +44,6 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             _ => throw new InvalidDataException($"Undefined {nameof(WallSpacePirateJumpSpeed)} {settings.JumpSpeed}."),
         };
         var state = new WallSpacePirateEnemyState(WallSpacePirateAction.Climbing, settings.Wall, jump);
-        place.SetSpeciesState(state);
 
         state.Playback = new(WallSpacePirateAnimations.StartingWith(settings.Wall == HorizontalDirection.Right
             ? WallSpacePirateSegment.MovingDownRightWall
@@ -51,6 +51,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         state.ClimbDirection = WallSpacePirateClimbDirection.Down;
 
         SnapWallSpacePirateXToWallGrid(place);
+        return state;
     }
 
     /// <summary>Runs a wall Space Pirate's update: climbing its wall, attacking from it or jumping to the other.</summary>

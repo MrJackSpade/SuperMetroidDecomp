@@ -15,8 +15,8 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
-            ? EnemyOccupant.Of(new HoltzFollowerEntity(this, occupant, place, common))
-            : EnemyOccupant.Of(new HoltzEntity(this, occupant, place, common));
+            ? EnemyOccupant.Running(new HoltzFollowerEntity(this, occupant, place, common))
+            : EnemyOccupant.Running(new HoltzEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared random draw taken before every parent's and follower's AI runs.</summary>
     private readonly EnemyRoomBinding _room;
@@ -40,24 +40,28 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes a flame follower: it finds its parent, listed right before it, and starts its looping flames.</summary>
-    internal void InitializeHoltzFollower(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal HoltzFollowerState InitializeHoltzFollower(RoomEnemyPlace place)
     {
         _parents.Place(place, _places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader));
         ValidateHoltzParent(place);
-        place.SetSpeciesState(new HoltzFollowerState
+        var state = new HoltzFollowerState
         {
             Playback = new(HoltzAnimations.StartingWith(HoltzSegment.Flames), AnimationPlace.StartOfAnimation),
-        });
+        };
+        return state;
     }
 
     /// <summary>Initializes a Holtz parent, idle with its flames hidden.</summary>
-    internal static void InitializeHoltz(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static HoltzEnemyState InitializeHoltz(RoomEnemyPlace place)
     {
-        place.SetSpeciesState(new HoltzEnemyState(HoltzAction.WaitForAttackOpportunity)
+        var state = new HoltzEnemyState(HoltzAction.WaitForAttackOpportunity)
         {
             FollowerVisible = false,
             Playback = new(HoltzAnimations.StartingWith(HoltzSegment.Idle), AnimationPlace.StartOfAnimation),
-        });
+        };
+        return state;
     }
 
     /// <summary>

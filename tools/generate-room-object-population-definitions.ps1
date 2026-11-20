@@ -431,7 +431,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                 continue
             }
             [string[]] $reach = @($runs | ForEach-Object { 'new({0}, {1})' -f $familyVariants[$_.Kind], $_.Blocks })
-            $lines.Add(('        .. RoomObjectPlacementDefinition.ScrollTrigger(new({0}, {1}), {2}, {3}),' -f $placed.X, $placed.Y, $placed.Program, ($reach -join ', ')))
+            $lines.Add(('        .. ScrollTriggerPlacements.Reaching(new({0}, {1}), {2}, {3}),' -f $placed.X, $placed.Y, $placed.Program, ($reach -join ', ')))
         }
         if ($reached -ne $extensionsByBlock.Count) { throw "Population $name places scroll extensions that no trigger's reach covers." }
         $recordTotal += $count

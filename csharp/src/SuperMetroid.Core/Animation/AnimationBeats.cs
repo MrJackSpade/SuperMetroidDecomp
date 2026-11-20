@@ -25,4 +25,12 @@ internal static class AnimationBeats<TFrame, TEvent>
     /// <param name="beats">The beats, in the order they play forwards.</param>
     internal static AnimationBeat<TFrame, TEvent>[] Backwards(IReadOnlyList<AnimationBeat<TFrame, TEvent>> beats) =>
         [.. Enumerable.Reverse(Ensure.NotNull(beats))];
+
+    /// <summary>
+    /// The looping cycle <paramref name="beats"/> turned the other way round from the same first beat: the first beat, then
+    /// the rest from the last back to the second, as a wheel turning the other way shows its spokes.
+    /// </summary>
+    /// <param name="beats">The cycle's beats, in the order they play turning one way.</param>
+    internal static AnimationBeat<TFrame, TEvent>[] OtherWayRound(IReadOnlyList<AnimationBeat<TFrame, TEvent>> beats) =>
+        [Ensure.NotNull(beats)[0], .. Enumerable.Reverse(beats.Skip(1))];
 }

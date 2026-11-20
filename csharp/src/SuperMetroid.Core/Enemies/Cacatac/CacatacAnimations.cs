@@ -3,6 +3,7 @@ using K = SuperMetroid.Core.Enemies.Cacatac.CacatacCueKind;
 using P = SuperMetroid.Core.Enemies.Cacatac.CacatacSegment;
 using D = SuperMetroid.Core.Enemies.Cacatac.CacatacSpikeDirection;
 using SuperMetroid.Core.Enemies.Artwork;
+using Beats = SuperMetroid.Core.Animation.AnimationBeats<SuperMetroid.Core.Enemies.Artwork.EnemyFrameId, SuperMetroid.Core.Enemies.Cacatac.CacatacCue>;
 
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
@@ -12,6 +13,9 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// </summary>
 internal static class CacatacAnimations
 {
+    /// <summary>The updates each of Cacatac's idle poses shows for.</summary>
+    private const int IdlePoseUpdates = 8;
+
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<CacatacSegment, EnemyFrameId, CacatacCue> Segments { get; } = new(
         new Dictionary<CacatacSegment, AnimationBeat<EnemyFrameId, CacatacCue>[]>
@@ -19,14 +23,11 @@ internal static class CacatacAnimations
         [P.OnFloorIdle] =
         [
             Cue(new CacatacCue.Signal(K.RestorePatrol)),
-            Show(EnemyFrameId.CacatacUprightSplayed, 8),
-            Show(EnemyFrameId.CacatacUprightDrawingIn, 8),
-            Show(EnemyFrameId.CacatacUprightDrawnIn, 8),
-            Show(EnemyFrameId.CacatacUprightCrouching, 8),
-            Show(EnemyFrameId.CacatacUprightGathered, 8),
-            Show(EnemyFrameId.CacatacUprightGatheredTall, 8),
-            Show(EnemyFrameId.CacatacUprightSpreading, 8),
-            Show(EnemyFrameId.CacatacUprightStretched, 8),
+            .. Beats.Steady(IdlePoseUpdates,
+                EnemyFrameId.CacatacUprightSplayed, EnemyFrameId.CacatacUprightDrawingIn,
+                EnemyFrameId.CacatacUprightDrawnIn, EnemyFrameId.CacatacUprightCrouching,
+                EnemyFrameId.CacatacUprightGathered, EnemyFrameId.CacatacUprightGatheredTall,
+                EnemyFrameId.CacatacUprightSpreading, EnemyFrameId.CacatacUprightStretched),
         ],
         [P.OnFloorAttack] =
         [
@@ -47,14 +48,11 @@ internal static class CacatacAnimations
         ],
         [P.OnCeilingIdlePoses] =
         [
-            Show(EnemyFrameId.CacatacOnCeilingSplayed, 8),
-            Show(EnemyFrameId.CacatacOnCeilingDrawingIn, 8),
-            Show(EnemyFrameId.CacatacOnCeilingDrawnIn, 8),
-            Show(EnemyFrameId.CacatacOnCeilingCrouching, 8),
-            Show(EnemyFrameId.CacatacOnCeilingGathered, 8),
-            Show(EnemyFrameId.CacatacOnCeilingGatheredTall, 8),
-            Show(EnemyFrameId.CacatacOnCeilingSpreading, 8),
-            Show(EnemyFrameId.CacatacOnCeilingStretched, 8),
+            .. Beats.Steady(IdlePoseUpdates,
+                EnemyFrameId.CacatacOnCeilingSplayed, EnemyFrameId.CacatacOnCeilingDrawingIn,
+                EnemyFrameId.CacatacOnCeilingDrawnIn, EnemyFrameId.CacatacOnCeilingCrouching,
+                EnemyFrameId.CacatacOnCeilingGathered, EnemyFrameId.CacatacOnCeilingGatheredTall,
+                EnemyFrameId.CacatacOnCeilingSpreading, EnemyFrameId.CacatacOnCeilingStretched),
         ],
         [P.OnCeilingAttack] =
         [

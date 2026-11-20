@@ -59,7 +59,7 @@ internal static class PlayableGameControlPrivateAccess
     extension(global::SuperMetroid.Desktop.Window.PlayableGameControl self)
     {
         /// <summary>The private method <c>InitializeRendererAsync</c>, invoked by name.</summary>
-        internal global::System.Threading.Tasks.Task InitializeRendererAsync(global::System.Func<nint, global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>, long, global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker> createWorker) =>
-            PrivateState.Invoke<global::SuperMetroid.Desktop.Window.PlayableGameControl, global::System.Threading.Tasks.Task>(self, "InitializeRendererAsync", [typeof(global::System.Func<nint, global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.DisplayPixels>, long, global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker>)], new object?[] { createWorker });
+        internal global::System.Threading.Tasks.Task InitializeRendererAsync(global::SuperMetroid.Desktop.Window.RenderWorkerFactory createWorker) =>
+            PrivateState.Invoke<global::SuperMetroid.Desktop.Window.PlayableGameControl, global::System.Threading.Tasks.Task>(self, "InitializeRendererAsync", [typeof(global::SuperMetroid.Desktop.Window.RenderWorkerFactory)], new object?[] { createWorker });
     }
 }

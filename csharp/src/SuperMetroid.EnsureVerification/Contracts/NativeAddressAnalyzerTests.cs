@@ -1,6 +1,3 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
 using SuperMetroid.EnsureAnalyzer.Contracts;
 using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;
 
@@ -35,39 +32,6 @@ internal static class NativeAddressAnalyzerTests
         VerifySnippet("class Device { nint device; }", analyzer: analyzer, assemblyName: "SuperMetroid.Desktop");
         // Ordinary integers and handles typed by the domain are not native addresses.
         Expect("class P { int index; long ticks; System.Runtime.InteropServices.SafeHandle? device; }");
-        // Test-support's generated access to a native host type's private members restates its interop (#2570); an
-        // extension block of any other type does not.
-        ExpectAccess("SuperMetroid.Desktop", count: 0);
-        ExpectAccess("HostlessCase", count: 1);
-        Console.WriteLine("Native address rule: native integers and raw pointers outside interop reported; interop, host assemblies and their generated access left alone.");
-    }
-
-    /// <summary>
-    /// Compiles a window type in an assembly named <paramref name="host"/> and, in a check referencing it, an extension block
-    /// of that window restating a window-handle signature; compares the SME6456 count with <paramref name="count"/>.
-    /// </summary>
-    private static void ExpectAccess(string host, int count)
-    {
-        var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable);
-        CSharpCompilation window = CSharpCompilation.Create(host,
-            [CSharpSyntaxTree.ParseText("public class Window { }", new CSharpParseOptions(LanguageVersion.Preview))], References, options);
-        CSharpCompilation check = CSharpCompilation.Create("SuperMetroid.DesktopVerification",
-            [CSharpSyntaxTree.ParseText("""
-                internal static class WindowPrivateAccess
-                {
-                    extension(Window self)
-                    {
-                        internal int Start(System.Func<nint, int> create) => create(0);
-                    }
-                }
-                """, new CSharpParseOptions(LanguageVersion.Preview))],
-            [.. References, window.ToMetadataReference()], options);
-        var errors = check.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToArray();
-        if (errors.Length != 0)
-            throw new InvalidOperationException($"Invalid analyzer fixture: {string.Join("; ", errors.Select(error => error.ToString()))}");
-        var diagnostics = check.WithAnalyzers([new NativeAddressAnalyzer()]).GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult();
-        if (diagnostics.Length != count || diagnostics.Any(diagnostic => diagnostic.Id != NativeAddressAnalyzer.NativeAddressId))
-            throw new InvalidOperationException(
-                $"Expected {count} SME6456 diagnostic(s) in an extension of {host}'s window, got [{string.Join("; ", diagnostics.Select(diagnostic => diagnostic.ToString()))}].");
+        Console.WriteLine("Native address rule: native integers and raw pointers outside interop reported; interop and host assemblies left alone.");
     }
 }

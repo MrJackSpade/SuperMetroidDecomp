@@ -106,6 +106,9 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
         }
         if (SignatureTypes(member).FirstOrDefault(type => Hidden(type, becomingVisible)) is { } hidden)
             return $"a type in its signature test-support cannot see ({hidden.ToDisplayString()})";
+        // Test-support is no native host: a native address in a stand-in's signature breaks SME6456 there.
+        if (SignatureTypes(member).FirstOrDefault(NativeAddress) is { } native)
+            return $"a native address in its signature, which test-support may not spell ({native.ToDisplayString()}): give the member a named type";
         return member switch
         {
             IMethodSymbol { MethodKind: MethodKind.Constructor } => "constructor",
@@ -145,6 +148,16 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
         IArrayTypeSymbol array => Hidden(array.ElementType, becomingVisible),
         IPointerTypeSymbol pointer => Hidden(pointer.PointedAtType, becomingVisible),
         INamedTypeSymbol named => named.TypeArguments.Any(argument => Hidden(argument, becomingVisible)) || HiddenDeclaration(named, becomingVisible),
+        _ => false,
+    };
+
+    /// <summary>Whether <paramref name="type"/> spells a native-sized integer or a pointer, itself or in a type argument or element.</summary>
+    private static bool NativeAddress(ITypeSymbol type) => type switch
+    {
+        IPointerTypeSymbol or IFunctionPointerTypeSymbol => true,
+        IArrayTypeSymbol array => NativeAddress(array.ElementType),
+        INamedTypeSymbol named => named.SpecialType is SpecialType.System_IntPtr or SpecialType.System_UIntPtr ||
+            named.TypeArguments.Any(NativeAddress),
         _ => false,
     };
 

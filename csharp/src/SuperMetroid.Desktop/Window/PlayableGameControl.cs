@@ -930,7 +930,7 @@ public sealed class PlayableGameControl : UserControl
         new D3D11RenderWorker(window, clientSize, generation, D3D11DeviceKind.Hardware));
 
     /// <summary>Verification seam for a worker that genuinely fails asynchronous device/window startup.</summary>
-    private async Task InitializeRendererAsync(Func<nint, Extent16<DisplayPixels>, long, D3D11RenderWorker> createWorker)
+    private async Task InitializeRendererAsync(RenderWorkerFactory createWorker)
     {
         Ensure.NotNull(createWorker);
         ObjectDisposedException.ThrowIf(IsDisposed, this);

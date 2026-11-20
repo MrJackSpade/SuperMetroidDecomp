@@ -40,7 +40,7 @@ public sealed class BabyMetroidCutsceneState
     /// The Baby's place in the room's enemy list, which the final beam's spawn gave it and which holds its position and
     /// health: the Baby is an enemy of its own, which Mother Brain's onion rings find there, not an effect her body draws.
     /// </summary>
-    public RoomEnemyPlace Place { get; }
+    private RoomEnemyPlace Place { get; }
 
     /// <summary>How far the Baby's hit area reaches to either side of its center: 36 room pixels.</summary>
     public const int XHitboxRadius = 36;

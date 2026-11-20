@@ -34,6 +34,12 @@ internal static class BabyMetroidCutsceneStatePrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutsceneState self)
     {
+        /// <summary>The private property <c>Place</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.RoomEnemyPlace Place
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutsceneState, global::SuperMetroid.Core.Enemies.RoomEnemyPlace>(self, "Place");
+        }
+
         /// <summary>The private property <c>PhaseTimer</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Bosses.BossCountdown PhaseTimer
         {

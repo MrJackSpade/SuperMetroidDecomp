@@ -68,8 +68,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     /// <summary>
     /// The Baby Metroid of her late fight (#2471), or null before the final beam's spawn makes it in its place in the
-    /// room's enemies (<see cref="BabyMetroidCutsceneState.Place"/>), from which on its own turn it latches on, drains,
-    /// heals Samus and dies; her brain's attacks on it aim at it.
+    /// room's enemies, from which on its own turn it latches on, drains, heals Samus and dies; her brain's attacks on it
+    /// aim at it.
     /// </summary>
     public BabyMetroidCutsceneState? Baby { get; private set; }
 

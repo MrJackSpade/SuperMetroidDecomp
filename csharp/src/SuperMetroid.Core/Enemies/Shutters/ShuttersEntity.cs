@@ -49,5 +49,6 @@ internal abstract class ShuttersEntity(ShuttersBehavior species, RoomEnemyOccupa
     /// The shootable and destroyable vertical shutters' shot reactions, which a normal bomb triggers as it does the common one.
     /// </summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == ShutterReactions.Shot;
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) =>
+        reaction == ShutterReactions.Shot && Occupant.Definition.Shot == ShutterReactions.Shot;
 }

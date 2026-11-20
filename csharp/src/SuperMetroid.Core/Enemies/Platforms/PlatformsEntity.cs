@@ -27,5 +27,6 @@ internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemyOccupa
 
     /// <summary>The Tripper's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == PlatformsReactions.TripperShot;
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) =>
+        reaction == PlatformsReactions.TripperShot && Occupant.Definition.Shot == PlatformsReactions.TripperShot;
 }

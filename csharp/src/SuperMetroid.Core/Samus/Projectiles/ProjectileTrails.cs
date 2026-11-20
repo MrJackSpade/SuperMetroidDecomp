@@ -61,28 +61,23 @@ internal sealed class ProjectileTrails
             return;
 
         var trail = new SamusProjectileTrail(projectile.PicturedBeams, projectile.Position.Whole);
-        // A side with no sparkle runs no animation: it has ended from the start.
+        // Each side stands where the trail list places it; a side with no sparkle runs no animation: it has ended from the
+        // start.
+        trail.Left.Offset = placement.Left;
+        trail.Right.Offset = placement.Right;
         foreach (ProjectileTrailSparkle sparkle in animations.Sparkles)
-        {
-            if (sparkle.Side == HorizontalDirection.Left)
-                StartSide(trail.Left, sparkle.Segment, placement.Left);
-            else
-                StartSide(trail.Right, sparkle.Segment, placement.Right);
-        }
+            StartSide(sparkle.Side == HorizontalDirection.Left ? trail.Left : trail.Right, sparkle.Segment);
         Add(trail);
     }
 
     /// <summary>
-    /// Starts <paramref name="side"/> on <paramref name="segment"/>, which it begins at its next update, placed
-    /// <paramref name="placement"/> from the shot; each trail frame's picture is placed about the sparkle by its own
-    /// anchor (#2573). The sparkle keeps its offset from the shot's place rather than a room position of its own, so a
-    /// sparkle beside a shot past the room's top or left edge simply lies beyond it.
+    /// Starts <paramref name="side"/> on <paramref name="segment"/>, which it begins at its next update where the trail
+    /// list placed it from the shot; each trail frame's picture is placed about the sparkle by its own anchor (#2573). The
+    /// sparkle keeps its offset from the shot's place rather than a room position of its own, so a sparkle beside a shot
+    /// past the room's top or left edge simply lies beyond it.
     /// </summary>
-    private static void StartSide(SamusProjectileTrailSide side, ProjectileTrailSegment segment, Offset16<RoomPixels> placement)
-    {
+    private static void StartSide(SamusProjectileTrailSide side, ProjectileTrailSegment segment) =>
         side.Animation = ProjectileTrailSparkleAnimations.Start(segment);
-        side.Offset = placement;
-    }
 
     /// <summary>
     /// The frame a trail starts from <paramref name="projectile"/> at: the frame its animation last showed, or null before

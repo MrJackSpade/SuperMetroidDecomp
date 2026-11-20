@@ -139,7 +139,7 @@ internal static class RoomBlockUploads
                 if (PicturedLibraryBackgrounds.TryProgramOf(state, out LibraryBackgroundProgram? library))
                 {
                     foreach (LibraryBackgroundPicture door in DoorVariants(library))
-                        uploads.AddBackground(Replay(inputs, room, tileset, library, door, StacksBackgroundPages(state)));
+                        uploads.AddBackground(Replay(inputs, tileset, library, door, StacksBackgroundPages(state)));
                 }
                 // BG3 shows the HUD over the layer-3 characters the room's load binds, and its effects' pages over their
                 // frames.
@@ -254,12 +254,12 @@ internal static class RoomBlockUploads
         [LibraryBackgroundPicture.Ordinary, .. program.Background.PictureDoors.Select(LibraryBackgroundPicture.Of)];
 
     /// <summary>
-    /// Replays <paramref name="program"/> as a room of <paramref name="tileset"/> entered through <paramref name="door"/>
+    /// Replays <paramref name="program"/> as a room of <paramref name="tileset"/> showing picture <paramref name="door"/>
     /// runs it: one period of the BG2 pages it leaves (<see cref="RoomBackgroundImageGeometry.OnePeriod"/>, #1651), the
     /// first page alone where both hold one tilemap, over the characters the room loads. Two different pages are laid out
     /// as the room shows them (#1617): one above the other where <paramref name="pagesStacked"/>, otherwise side by side.
     /// </summary>
-    private static RoomBackgroundMap Replay(RoomBlockSheetInputs inputs, RoomDefinition room, TilesetDefinition tileset,
+    private static RoomBackgroundMap Replay(RoomBlockSheetInputs inputs, TilesetDefinition tileset,
         LibraryBackgroundProgram program, LibraryBackgroundPicture door, bool pagesStacked)
     {
         BgArtworkBindings content = Loaded(inputs, tileset);

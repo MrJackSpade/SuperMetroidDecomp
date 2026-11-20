@@ -125,12 +125,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         public int DirectionChangePeriod(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).History switch
         {
             // A place that holds its enemy, or waits for its killed enemy's respawn, still reads that enemy's entry.
-            PopulatedEnemyPlace { Occupancy: OccupiedEnemyPlace or VacatedEnemyPlace { AwaitsRespawn: true } } taken =>
+            PopulatedEnemyPlace { Occupancy: OccupiedEnemyPlace or AwaitingRespawnEnemyPlace } taken =>
                 taken.LastSpawn.SpawnSettingsOf<EvirSpawnSettings>().DirectionChangePeriod,
             _ => FreePlacePeriod,
         };
 
-        /// <summary>The period a free place's cleared record reads.</summary>
+        /// <summary>The period an Evir body reads of a place that holds no enemy and awaits none.</summary>
         private const int FreePlacePeriod = 0;
 
         /// <inheritdoc/>

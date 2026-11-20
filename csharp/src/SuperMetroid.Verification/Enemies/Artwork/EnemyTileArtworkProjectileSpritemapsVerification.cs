@@ -175,8 +175,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < frames.Count; index++)
             {
                 EnemyProjectileFrameId programFrame = frames[index];
-                if (IsOnNoSheet(programFrame))
-                    continue;
                 OamBuffer native = DrawReferenceProgramFrame(stock, programFrame, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, programFrame,
                     NewEnemyProjectileVisualGuard(bus), kind);
@@ -210,8 +208,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < frames.Count; index++)
             {
                 EnemyProjectileFrameId programFrame = frames[index];
-                if (IsOnNoSheet(programFrame))
-                    continue;
                 OamBuffer native = DrawReferenceProgramFrame(stock, programFrame, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, programFrame,
                     NewEnemyProjectileVisualGuard(bus), kind);
@@ -230,8 +226,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < frames.Count; index++)
             {
                 EnemyProjectileFrameId programFrame = frames[index];
-                if (IsOnNoSheet(programFrame))
-                    continue;
                 OamBuffer native = DrawReferenceProgramFrame(stock, programFrame, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, programFrame,
                     NewEnemyProjectileVisualGuard(bus), kind);
@@ -259,8 +253,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < frames.Count; index++)
             {
                 EnemyProjectileFrameId programFrame = frames[index];
-                if (IsOnNoSheet(programFrame))
-                    continue;
                 OamBuffer native = DrawReferenceProgramFrame(stock, programFrame, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, programFrame,
                     NewEnemyProjectileVisualGuard(bus), kind);
@@ -281,8 +273,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < frames.Count; index++)
             {
                 EnemyProjectileFrameId programFrame = frames[index];
-                if (IsOnNoSheet(programFrame))
-                    continue;
                 OamBuffer native = DrawReferenceProgramFrame(stock, programFrame, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, programFrame, NewEnemyProjectileVisualGuard(bus), kind);
                 AssertTrue(InstalledStandsFor(native, extracted, stock, programFrame, kind),

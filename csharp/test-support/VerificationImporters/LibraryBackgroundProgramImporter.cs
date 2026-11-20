@@ -60,12 +60,12 @@ internal static class LibraryBackgroundProgramImporter
                     LibraryBackgroundSource read = LibraryBackgroundOperandDecoding.TransferredSource(Long(cursor));
                     LibraryBackgroundDestination written = LibraryBackgroundOperandDecoding.TransferDestination(Word((ushort)(cursor + 3)));
                     int count = Word((ushort)(cursor + 5));
-                    instructions.Add(command switch
-                    {
-                        LibraryBackgroundCommand.Transfer => new LibraryBackgroundInstruction.Transfer(read, written, count),
-                        LibraryBackgroundCommand.TransferForKraid => new LibraryBackgroundInstruction.TransferForKraid(read, written, count),
-                        _ => new LibraryBackgroundInstruction.TransferForDoor(DoorHeaderSources.Door(door), read, written, count),
-                    });
+                    if (command == LibraryBackgroundCommand.Transfer)
+                        instructions.Add(new LibraryBackgroundInstruction.Transfer(read, written, count));
+                    else if (command == LibraryBackgroundCommand.TransferForKraid)
+                        instructions.Add(new LibraryBackgroundInstruction.TransferForKraid(read, written, count));
+                    else
+                        instructions.Add(new LibraryBackgroundInstruction.TransferForDoor(DoorHeaderSources.Door(door), read, written, count));
                     cursor = (ushort)(cursor + 7);
                     break;
                 }

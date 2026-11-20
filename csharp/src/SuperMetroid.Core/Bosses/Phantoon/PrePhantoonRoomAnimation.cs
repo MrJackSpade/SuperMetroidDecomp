@@ -10,13 +10,16 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal sealed class PrePhantoonRoomAnimation()
     : EnemyProjectileTypedAnimation<PrePhantoonRoomSegment, EnemyProjectileFrameId, NoAnimationCue>(BlankHeld)
 {
+    /// <summary>The updates the projectile's one hidden beat lasts before the animation holds it hidden for good.</summary>
+    private const int HiddenUpdates = 1;
+
     /// <summary>The one update's hiding, after which the animation holds.</summary>
     private static readonly AnimationSegments<PrePhantoonRoomSegment, EnemyProjectileFrameId, NoAnimationCue> RoomSegments = new(
         new Dictionary<PrePhantoonRoomSegment, AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>[]>
         {
             [PrePhantoonRoomSegment.Blank] =
             [
-                new AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>.Hidden(1),
+                new AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>.Hidden(HiddenUpdates),
             ],
         });
 

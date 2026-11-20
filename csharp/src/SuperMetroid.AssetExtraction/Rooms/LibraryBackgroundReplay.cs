@@ -31,7 +31,7 @@ internal static class LibraryBackgroundReplay
 
     /// <summary>
     /// Replays the command list <paramref name="instructions"/>, named <paramref name="list"/> in diagnostics, as
-    /// <see cref="Execute(SnesVram, LibraryBackgroundProgram, DoorDefinition, LibraryBackgroundArtwork, ReadOnlyMemory{byte})"/>
+    /// <see cref="Execute(SnesVram, LibraryBackgroundProgram, LibraryBackgroundPicture, LibraryBackgroundArtwork, ReadOnlyMemory{byte})"/>
     /// replays a background's program: a list decoded for comparison builds no background of its own.
     /// </summary>
     /// <exception cref="InvalidDataException">

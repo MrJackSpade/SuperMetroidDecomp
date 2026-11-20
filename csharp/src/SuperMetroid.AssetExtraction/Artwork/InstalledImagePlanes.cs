@@ -101,13 +101,13 @@ internal readonly record struct InstalledImagePlanes(SpriteImagePixels Planes, E
         Ensure.NotNull(Planes);
         if (!rectangle.LiesInside(Size))
             throw new ArgumentException($"Picture rectangle {rectangle} reaches outside its {Size.X}x{Size.Y} image.", nameof(rectangle));
-        (int Left, int Right, int Top, int Bottom)? box = null;
+        ImageContentBox? box = null;
         for (int row = 0; row < rectangle.Size.Y; row++)
         {
             int line = ((rectangle.Corner.Y + row) * Size.X) + rectangle.Corner.X;
             if (HeldRun(line, rectangle.Size.X) is not { } run)
                 continue;
-            box = box is { } held ? (Math.Min(held.Left, run.First), Math.Max(held.Right, run.Last), held.Top, row) : (run.First, run.Last, row, row);
+            box = box is { } held ? held.Including(run, row) : ImageContentBox.OfRow(run, row);
         }
         if (box is not { } found)
             throw new InvalidOperationException($"Picture rectangle {rectangle} holds nothing, so it has no box of what it holds.");
@@ -191,26 +191,26 @@ internal readonly record struct InstalledImagePlanes(SpriteImagePixels Planes, E
     /// The first and last places of the <paramref name="width"/> entries from <paramref name="line"/> that some plane holds
     /// something other than the default at; null where no plane does.
     /// </summary>
-    private (int First, int Last)? HeldRun(int line, int width) =>
+    private ImageRowRun? HeldRun(int line, int width) =>
         Spanning(Spanning(HeldRun(Planes.Pixels, line, width), HeldRun(Planes.RecolourRegions, line, width)),
             HeldRun(Planes.Blending, line, width));
 
     /// <summary>The run spanning two runs of a row, either of which is null where its plane holds nothing there.</summary>
-    private static (int First, int Last)? Spanning((int First, int Last)? first, (int First, int Last)? second) =>
-        first is not { } one ? second : second is not { } other ? first : (Math.Min(one.First, other.First), Math.Max(one.Last, other.Last));
+    private static ImageRowRun? Spanning(ImageRowRun? first, ImageRowRun? second) =>
+        first is not { } one ? second : second is not { } other ? first : one.Spanning(other);
 
     /// <summary>
     /// The first and last places of the <paramref name="width"/> entries of <paramref name="plane"/> from <paramref name="line"/>
     /// that are not the default; null where none is, and for a missing plane.
     /// </summary>
-    private static (int First, int Last)? HeldRun<T>(T[]? plane, int line, int width)
+    private static ImageRowRun? HeldRun<T>(T[]? plane, int line, int width)
         where T : struct, IEquatable<T>
     {
         if (plane is null)
             return null;
         ReadOnlySpan<T> run = plane.AsSpan(line, width);
         int first = run.IndexOfAnyExcept(default(T));
-        return first < 0 ? null : (first, run.LastIndexOfAnyExcept(default(T)));
+        return first < 0 ? null : new ImageRowRun(first, run.LastIndexOfAnyExcept(default(T)));
     }
 
     /// <summary>Whether every entry of <paramref name="plane"/> in <paramref name="rectangle"/> is the default; a missing plane is.</summary>

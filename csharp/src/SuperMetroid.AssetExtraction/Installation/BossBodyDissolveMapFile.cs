@@ -103,15 +103,25 @@ internal static class BossBodyDissolveMapFile
         {
             int[][] runs = map.Rows[y] ?? throw new InvalidDataException($"Dissolve map {name} has no row {y}.");
             int x = 0;
-            foreach (int[]? run in runs)
+            foreach (int[]? listed in runs)
             {
-                (DissolvingPixel? pixel, int count) = run switch
+                int[] run = listed ?? throw new InvalidDataException($"Dissolve map {name} row {y} has no run at {x}.");
+                DissolvingPixel? pixel;
+                int count;
+                switch (run)
                 {
-                    [int kept] => ((DissolvingPixel?)null, kept),
-                    [int band, int steps, int erased] when band >= 0 && steps >= 1 => (new DissolvingPixel(band, steps), erased),
-                    _ => throw new InvalidDataException(
-                        $"Dissolve map {name} row {y} has run [{string.Join(", ", run ?? [])}] at {x}: not a kept run or a band and steps erasing it."),
-                };
+                    case [int kept]:
+                        pixel = null;
+                        count = kept;
+                        break;
+                    case [int band, int steps, int erased] when band >= 0 && steps >= 1:
+                        pixel = new DissolvingPixel(band, steps);
+                        count = erased;
+                        break;
+                    default:
+                        throw new InvalidDataException(
+                            $"Dissolve map {name} row {y} has run [{string.Join(", ", run)}] at {x}: not a kept run or a band and steps erasing it.");
+                }
                 if (count <= 0 || x + count > size.X)
                     throw new InvalidDataException($"Dissolve map {name} row {y} has a run of {count} pixels at {x}, outside its {size.X} pixels.");
                 pixels.AsSpan((y * size.X) + x, count).Fill(pixel);

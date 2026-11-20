@@ -30,13 +30,13 @@ public sealed class PopulatedEnemyPlace : EnemyPlaceHistory
     /// Whether the place holds no enemy but stays taken until the death explosion of the respawning enemy killed in it
     /// rebuilds that enemy (<see cref="RoomEnemyPlace.AwaitsRespawn"/>).
     /// </summary>
-    internal bool AwaitsRespawn => Occupancy is VacatedEnemyPlace { AwaitsRespawn: true };
+    internal bool AwaitsRespawn => Occupancy is AwaitingRespawnEnemyPlace;
 
     /// <summary>Records that <paramref name="occupant"/> now holds the place.</summary>
     internal void Occupy(RoomEnemyOccupant occupant) => Occupancy = new OccupiedEnemyPlace(occupant);
 
     /// <summary>Records that the place's occupant left it, keeping its entry, with no respawn pending.</summary>
-    internal void Vacate() => Occupancy = new VacatedEnemyPlace(LastSpawn, awaitsRespawn: false);
+    internal void Vacate() => Occupancy = new VacatedEnemyPlace(LastSpawn);
 
     /// <summary>Records that the place, already vacated, waits for its killed enemy's respawn.</summary>
     /// <exception cref="InvalidOperationException">The place still holds an enemy.</exception>
@@ -44,6 +44,6 @@ public sealed class PopulatedEnemyPlace : EnemyPlaceHistory
     {
         if (Occupancy is OccupiedEnemyPlace held)
             throw new InvalidOperationException($"Enemy place {Place.Ordinal} still holds {held.Occupant.DefinitionId}; only a killed enemy's place awaits its respawn.");
-        Occupancy = new VacatedEnemyPlace(LastSpawn, awaitsRespawn: true);
+        Occupancy = new AwaitingRespawnEnemyPlace(LastSpawn);
     }
 }

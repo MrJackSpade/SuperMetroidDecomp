@@ -1028,7 +1028,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     // death's pickup is its explosion's.
                     KilledEnemy? killed = projectile.State is IFromKilledEnemy dropped ? dropped.KilledEnemy : null;
                     Check(owner + " killed enemy index", projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup ? 0xffff
-                        : SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(killed?.Enemy.Ordinal ?? 0) | (killed is { Respawns: true } ? 0x8000 : 0),
+                        : SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(killed?.Enemy.Place.Ordinal ?? 0) | (killed is { Respawns: true } ? 0x8000 : 0),
                         NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);
                 }
                 ushort nativeDamage = (ushort)(W(NativeSnapshotMemory.EnemyProjectileProperties + index) & 0x0fff);

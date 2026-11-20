@@ -107,7 +107,12 @@ public sealed class SamusSpritemapSources
         foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) content.Append("top base", topBases[pose]);
         foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) content.Append("bottom base", bottomBases[pose]);
         foreach (SamusSpritemapId? entry in Entries)
-            content.Append("entry", entry?.Ordinal ?? -1);
+        {
+            if (entry is { } held)
+                content.Append("entry", held.Ordinal);
+            else
+                content.Append("empty entry", 0);
+        }
         foreach (SamusSpritemapDefinition definition in definitions)
         {
             content.Append("part count", definition.Parts.Length);

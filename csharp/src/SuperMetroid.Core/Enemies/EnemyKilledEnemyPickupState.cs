@@ -7,6 +7,4 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class EnemyKilledEnemyPickupState(EnemyPickupKind kind, int lifetime, KilledEnemy killedEnemy)
     : EnemyPickupState(kind, lifetime), IFromKilledEnemy
 {
-    /// <inheritdoc/>
-    public KilledEnemy KilledEnemy { get; } = Ensure.NotNull(killedEnemy);
 }

@@ -30,15 +30,12 @@ public sealed class FileSelectMapWindow
     /// <summary>Starts the area-to-room reveal at the installed label of <paramref name="area"/>, with the area's authored reveal motion; editable labels move the rectangle's start, not its motion.</summary>
     /// <param name="area">One of the six Zebes areas.</param>
     /// <param name="labels">The installed world-map label anchors.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The area has no supported transition.</exception>
-    public FileSelectMapWindow(AreaId area, WorldMapLabelPositions labels)
+    public FileSelectMapWindow(ZebesArea area, WorldMapLabelPositions labels)
         : this(area, FileSelectMapWindowMotions.Get(area), labels) { }
 
     /// <summary>Starts the area-to-room reveal of <paramref name="area"/> with <paramref name="motion"/>; the game uses the authored motions.</summary>
-    private FileSelectMapWindow(AreaId area, FileSelectMapWindowMotion motion, WorldMapLabelPositions labels)
+    private FileSelectMapWindow(ZebesArea area, FileSelectMapWindowMotion motion, WorldMapLabelPositions labels)
     {
-        if (!AreaIds.IsZebes(area))
-            throw new ArgumentOutOfRangeException(nameof(area), area, "Only the six Zebes areas have world-map transitions.");
         Offset16<ScreenPixels> label = Ensure.NotNull(labels).Get(area);
         this.motion = motion;
         left = right = SignedSixteenSixteen.FromWholePixels(label.X);
@@ -72,7 +69,7 @@ public sealed class FileSelectMapWindow
     /// each of the screen's edges and its edges move back inward by the area's speeds, for
     /// <see cref="FileSelectMapDefinitions.ReturnWindowTimerReduction"/> fewer updates than the opening.
     /// </summary>
-    public static FileSelectMapWindow CreateReturn(AreaId area, WorldMapLabelPositions labels)
+    public static FileSelectMapWindow CreateReturn(ZebesArea area, WorldMapLabelPositions labels)
     {
         var window = new FileSelectMapWindow(area, labels) { IsReturning = true };
         window.moves = UpdateCountdown.Lasting(window.moves.Length - FileSelectMapDefinitions.ReturnWindowTimerReduction);

@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Samus.Abilities.Artwork;
@@ -30,10 +31,10 @@ public sealed class InstalledXrayReveals
         Overlays = Ensure.NotNull(overlays);
         foreach ((RoomCollisionType type, BlockReaction? reaction, XrayRevealVisualBlocks visual) in entries)
         {
-            if (!IsReadingOf(type, reaction) || XrayReveals.Find(type, reaction) is not { } shape || !IsDrawable(shape))
+            if (!IsReadingOf(type, reaction) || XrayReveals.Find(type, reaction) is not { } shape || !IsDrawable(shape, out XrayRevealCopyShape copy))
                 throw new InvalidDataException(
                     $"X-ray visual {type}/reaction {reaction} has no drawable reveal rule.");
-            if (visual != XrayRevealVisualBlocks.ForShape(shape, visual.InReadingOrder))
+            if (visual != XrayRevealVisualBlocks.ForShape(copy, visual.InReadingOrder))
                 throw new InvalidDataException(
                     $"X-ray visual {type}/reaction {reaction} shows other blocks than its {shape} reveal copies.");
             ValidateBlocks(visual);
@@ -86,8 +87,18 @@ public sealed class InstalledXrayReveals
     /// blocks; the other two traverse vertical and horizontal extensions instead. A shape is drawable exactly when it is
     /// one of those five copy shapes.
     /// </remarks>
-    public static bool IsDrawable(XrayRevealShape shape) => shape is
-        XrayRevealShape.CopyOne or XrayRevealShape.CopyWide or
-        XrayRevealShape.CopyTall or XrayRevealShape.CopySquare or
-        XrayRevealShape.CopyBrinstar;
+    public static bool IsDrawable(XrayRevealShape shape) => IsDrawable(shape, out _);
+
+    /// <summary>Whether this reveal shape carries authored visual blocks, and the copy shape it is: <paramref name="copy"/>.</summary>
+    public static bool IsDrawable(XrayRevealShape shape, out XrayRevealCopyShape copy) => CopyShapes.TryGetValue(shape, out copy);
+
+    /// <summary>The copy shape each of the five copying reveal shapes is; the two extension shapes are none.</summary>
+    private static FrozenDictionary<XrayRevealShape, XrayRevealCopyShape> CopyShapes => field ??= new Dictionary<XrayRevealShape, XrayRevealCopyShape>
+    {
+        [XrayRevealShape.CopyOne] = XrayRevealCopyShape.CopyOne,
+        [XrayRevealShape.CopyBrinstar] = XrayRevealCopyShape.CopyBrinstar,
+        [XrayRevealShape.CopyWide] = XrayRevealCopyShape.CopyWide,
+        [XrayRevealShape.CopyTall] = XrayRevealCopyShape.CopyTall,
+        [XrayRevealShape.CopySquare] = XrayRevealCopyShape.CopySquare,
+    }.ToFrozenDictionary();
 }

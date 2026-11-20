@@ -22,4 +22,24 @@ public static class AreaIds
 
     /// <summary>Whether <paramref name="area"/> is one of the six Zebes areas.</summary>
     public static bool IsZebes(AreaId area) => area != AreaId.Ceres && All.Contains(area);
+
+    /// <summary>Whether <paramref name="area"/> is one of the six Zebes areas, and which: <paramref name="zebes"/>.</summary>
+    public static bool IsZebes(AreaId area, out ZebesArea zebes) => ZebesOf.TryGetValue(area, out zebes);
+
+    /// <summary>The area <paramref name="zebes"/> is.</summary>
+    public static AreaId Area(ZebesArea zebes) => ZebesAreas[zebes];
+
+    /// <summary>The area each Zebes area is.</summary>
+    private static IdentityTable<ZebesArea, AreaId> ZebesAreas => field ??= new(new Dictionary<ZebesArea, AreaId>
+    {
+        [ZebesArea.Crateria] = AreaId.Crateria,
+        [ZebesArea.Brinstar] = AreaId.Brinstar,
+        [ZebesArea.Norfair] = AreaId.Norfair,
+        [ZebesArea.WreckedShip] = AreaId.WreckedShip,
+        [ZebesArea.Maridia] = AreaId.Maridia,
+        [ZebesArea.Tourian] = AreaId.Tourian,
+    });
+
+    /// <summary>The Zebes area each of the six Zebes areas is; Ceres is none.</summary>
+    private static Dictionary<AreaId, ZebesArea> ZebesOf => field ??= ZebesAreas.ToDictionary(entry => entry.Value, entry => entry.Key);
 }

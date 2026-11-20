@@ -168,7 +168,7 @@ public static class XrayRevealVisualFiles
         var mappings = new List<XrayRevealVisualDefinition>();
         foreach (XrayRevealVisualEntry entry in document.Entries)
         {
-            var visual = XrayRevealVisualBlocks.ForShape(ShapeOf(entry), entry.Blocks);
+            var visual = XrayRevealVisualBlocks.ForShape(CopyShapeOf(entry), entry.Blocks);
             foreach (BlockReaction? reaction in ReadingsNamed(entry))
                 mappings.Add(new XrayRevealVisualDefinition(entry.CollisionType, reaction, visual));
         }
@@ -213,9 +213,9 @@ public static class XrayRevealVisualFiles
                     !ReactionsOf(entry.CollisionType).Any(reaction => string.Equals(reaction.Key, name, StringComparison.Ordinal))))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid reaction group.");
             if (XrayReveals.Find(entry.CollisionType, ReadingsNamed(entry)[0]) is not { } command ||
-                !InstalledXrayReveals.IsDrawable(command) || entry.Shape != NameOf(command))
+                !InstalledXrayReveals.IsDrawable(command, out XrayRevealCopyShape copy) || entry.Shape != NameOf(command))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid copy shape.");
-            if (entry.Blocks is null || entry.Blocks.Length != XrayRevealVisualBlocks.CountFor(command))
+            if (entry.Blocks is null || entry.Blocks.Length != XrayRevealVisualBlocks.CountFor(copy))
                 throw new InvalidDataException($"X-ray visuals {path} list other blocks than a {entry.Shape} reveal copies.");
         }
     }
@@ -265,9 +265,9 @@ public static class XrayRevealVisualFiles
                 XrayRevealShape command = SamusIdentityWords.XrayRevealShapes.Decode(
                     ReadWord(bus, pointer), "native X-ray reveal command");
                 // A copy command's blocks follow its word in reading order, as many as its shape copies.
-                return InstalledXrayReveals.IsDrawable(command)
-                    ? new(command, XrayRevealVisualBlocks.ForShape(command,
-                        [.. Enumerable.Range(1, XrayRevealVisualBlocks.CountFor(command)).Select(operand => (int)ReadWord(bus, pointer + operand * sizeof(ushort)))]))
+                return InstalledXrayReveals.IsDrawable(command, out XrayRevealCopyShape copy)
+                    ? new(command, XrayRevealVisualBlocks.ForShape(copy,
+                        [.. Enumerable.Range(1, XrayRevealVisualBlocks.CountFor(copy)).Select(operand => (int)ReadWord(bus, pointer + operand * sizeof(ushort)))]))
                     : new(command, null);
             }
         }
@@ -376,9 +376,10 @@ public static class XrayRevealVisualFiles
         string Shape, int[] Blocks);
 
     /// <summary>The compiled copy shape of an entry <see cref="ValidateStructure"/> has admitted.</summary>
-    private static XrayRevealShape ShapeOf(XrayRevealVisualEntry entry) =>
-        XrayReveals.Find(entry.CollisionType, ReadingsNamed(entry)[0])
-            ?? throw new InvalidOperationException($"Admitted X-ray visual {entry.CollisionType} has no reveal rule.");
+    private static XrayRevealCopyShape CopyShapeOf(XrayRevealVisualEntry entry) =>
+        XrayReveals.Find(entry.CollisionType, ReadingsNamed(entry)[0]) is { } shape && InstalledXrayReveals.IsDrawable(shape, out XrayRevealCopyShape copy)
+            ? copy
+            : throw new InvalidOperationException($"Admitted X-ray visual {entry.CollisionType} has no copying reveal rule.");
 
     /// <summary>A collision kind and the reaction it reads, for checking that each is revealed alike.</summary>
     /// <param name="Type">The collision kind.</param>

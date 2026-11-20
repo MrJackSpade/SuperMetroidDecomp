@@ -27,6 +27,9 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     private readonly AudioQueues audio;
     /// <summary>Saved Zebes area; Ceres bypasses this menu.</summary>
     private readonly AreaId area;
+
+    /// <summary>The saved area as the Zebes area it is, whose window and navigation the menu runs.</summary>
+    private readonly ZebesArea zebesArea;
     /// <summary>The selected save's progress: its used stations label the area map's areas.</summary>
     private readonly PersistentProgress savedProgress;
     /// <summary>Renders the six-area selection view during entry and area navigation.</summary>
@@ -76,7 +79,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     {
         this.audio = Ensure.NotNull(audio);
         Ensure.NotNull(slot);
-        if (!AreaIds.IsZebes(slot.Checkpoint.Area))
+        if (!AreaIds.IsZebes(slot.Checkpoint.Area, out zebesArea))
             throw new ArgumentOutOfRangeException(nameof(slot), "Ceres does not use the Zebes save-selection map.");
         area = slot.Checkpoint.Area;
         station = slot.Checkpoint;
@@ -90,7 +93,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         InstalledScreenContent = screenContent;
         Scroll = CreateScrollForCurrentContent();
         marker = new FileSelectStationMarker(station, screenContent.Maps.SaveMarkers);
-        navigation = new FileSelectMapNavigation(area, screenContent.Maps.Labels, initialHeldInput);
+        navigation = new FileSelectMapNavigation(zebesArea, screenContent.Maps.Labels, initialHeldInput);
         animations = new FileSelectMapAnimations(screenContent.Maps.Arrows, screenContent.Maps.HighlightCycle);
         entry = new FileSelectMapEntry();
     }
@@ -132,7 +135,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
             if (!requestWait.Step()) return;
             if (returnWindow is null)
             {
-                returnWindow = FileSelectMapWindow.CreateReturn(area, InstalledScreenContent.Maps.Labels);
+                returnWindow = FileSelectMapWindow.CreateReturn(zebesArea, InstalledScreenContent.Maps.Labels);
                 Queue(SamusSound.MapReturn);
             }
             else if (returnWindow.Step())

@@ -35,17 +35,17 @@ public sealed class WorldMapLabelPositions
     /// <remarks>The six area identities select layout roles,
     /// not numerical samples. Preserve each imported/custom point without deriving it
     /// from another area or storing a positional lookup. Only the six Zebes areas have labels.</remarks>
-    public Offset16<ScreenPixels> Get(AreaId area) => Ensure.Listed(Labels, area);
+    public Offset16<ScreenPixels> Get(ZebesArea area) => Labels[area];
 
     /// <summary>Where each of the six Zebes areas' labels lies; Ceres has none.</summary>
-    private FrozenDictionary<AreaId, Offset16<ScreenPixels>> Labels => field ??= new Dictionary<AreaId, Offset16<ScreenPixels>>
+    private IdentityTable<ZebesArea, Offset16<ScreenPixels>> Labels => field ??= new(new Dictionary<ZebesArea, Offset16<ScreenPixels>>
     {
-        [AreaId.Crateria] = crateria,
-        [AreaId.Brinstar] = brinstar,
-        [AreaId.Norfair] = norfair,
-        [AreaId.WreckedShip] = wreckedShip,
-        [AreaId.Maridia] = maridia,
-        [AreaId.Tourian] = tourian,
-    }.ToFrozenDictionary();
+        [ZebesArea.Crateria] = crateria,
+        [ZebesArea.Brinstar] = brinstar,
+        [ZebesArea.Norfair] = norfair,
+        [ZebesArea.WreckedShip] = wreckedShip,
+        [ZebesArea.Maridia] = maridia,
+        [ZebesArea.Tourian] = tourian,
+    });
 
 }

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 public sealed class FileSelectMapNavigation
 {
     /// <summary>The saved Zebes area, which the area map shows: without the game's debug mode its directions never change areas.</summary>
-    private readonly AreaId area;
+    private readonly ZebesArea area;
     /// <summary>The controller as the map last read it, whose newly pressed buttons confirm and cancel.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>The installed world-map label positions the room map's window opens from.</summary>
@@ -23,12 +23,10 @@ public sealed class FileSelectMapNavigation
     /// <param name="area">The saved area, one of the six Zebes areas.</param>
     /// <param name="labels">The installed world-map label positions the room map's window opens from.</param>
     /// <param name="initialHeldInput">Controller state to latch so already-held buttons do not create edges.</param>
-    public FileSelectMapNavigation(AreaId area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions labels,
+    public FileSelectMapNavigation(ZebesArea area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions labels,
         ControllerButton initialHeldInput)
     {
         this.labels = Ensure.NotNull(labels);
-        if (!AreaIds.IsZebes(area))
-            throw new ArgumentOutOfRangeException(nameof(area), area, "Only the six Zebes areas have world-map selections.");
         this.area = area;
         controller.Latch(initialHeldInput);
     }

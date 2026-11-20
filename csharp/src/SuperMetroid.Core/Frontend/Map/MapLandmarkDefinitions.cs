@@ -26,36 +26,36 @@ public static class MapLandmarkDefinitions
     /// <summary>Crateria's labels: three to Brinstar from west to east, then Wrecked Ship and Maridia.</summary>
     internal static readonly ImmutableArray<MapElevatorLabel> CrateriaElevators =
     [
-        new("Crateria.Elevator.ToBrinstarWest", AreaId.Brinstar),
-        new("Crateria.Elevator.ToBrinstarCentral", AreaId.Brinstar),
-        new("Crateria.Elevator.ToBrinstarEast", AreaId.Brinstar),
-        new("Crateria.Elevator.ToWreckedShip", AreaId.WreckedShip),
-        new("Crateria.Elevator.ToMaridia", AreaId.Maridia),
+        new("Crateria.Elevator.ToBrinstarWest", MapElevatorDestination.Brinstar),
+        new("Crateria.Elevator.ToBrinstarCentral", MapElevatorDestination.Brinstar),
+        new("Crateria.Elevator.ToBrinstarEast", MapElevatorDestination.Brinstar),
+        new("Crateria.Elevator.ToWreckedShip", MapElevatorDestination.WreckedShip),
+        new("Crateria.Elevator.ToMaridia", MapElevatorDestination.Maridia),
     ];
     /// <summary>Brinstar's labels: three to Crateria from west to east, then Maridia and Norfair.</summary>
     internal static readonly ImmutableArray<MapElevatorLabel> BrinstarElevators =
     [
-        new("Brinstar.Elevator.ToCrateriaWest", AreaId.Crateria),
-        new("Brinstar.Elevator.ToCrateriaCentral", AreaId.Crateria),
-        new("Brinstar.Elevator.ToCrateriaEast", AreaId.Crateria),
-        new("Brinstar.Elevator.ToMaridia", AreaId.Maridia),
-        new("Brinstar.Elevator.ToNorfair", AreaId.Norfair),
+        new("Brinstar.Elevator.ToCrateriaWest", MapElevatorDestination.Crateria),
+        new("Brinstar.Elevator.ToCrateriaCentral", MapElevatorDestination.Crateria),
+        new("Brinstar.Elevator.ToCrateriaEast", MapElevatorDestination.Crateria),
+        new("Brinstar.Elevator.ToMaridia", MapElevatorDestination.Maridia),
+        new("Brinstar.Elevator.ToNorfair", MapElevatorDestination.Norfair),
     ];
     /// <summary>Norfair's label to Brinstar.</summary>
-    internal static readonly ImmutableArray<MapElevatorLabel> NorfairElevators = [new("Norfair.Elevator.ToBrinstar", AreaId.Brinstar)];
+    internal static readonly ImmutableArray<MapElevatorLabel> NorfairElevators = [new("Norfair.Elevator.ToBrinstar", MapElevatorDestination.Brinstar)];
     /// <summary>Wrecked Ship's labels: two to Crateria, west then east.</summary>
     internal static readonly ImmutableArray<MapElevatorLabel> WreckedShipElevators =
     [
-        new("WreckedShip.Elevator.ToCrateriaWest", AreaId.Crateria),
-        new("WreckedShip.Elevator.ToCrateriaEast", AreaId.Crateria),
+        new("WreckedShip.Elevator.ToCrateriaWest", MapElevatorDestination.Crateria),
+        new("WreckedShip.Elevator.ToCrateriaEast", MapElevatorDestination.Crateria),
     ];
     /// <summary>Maridia's labels: Crateria, then two to Brinstar, west then east.</summary>
     internal static readonly ImmutableArray<MapElevatorLabel> MaridiaElevators =
     [
-        new("Maridia.Elevator.ToCrateria", AreaId.Crateria),
-        new("Maridia.Elevator.ToBrinstarWest", AreaId.Brinstar),
-        new("Maridia.Elevator.ToBrinstarEast", AreaId.Brinstar),
+        new("Maridia.Elevator.ToCrateria", MapElevatorDestination.Crateria),
+        new("Maridia.Elevator.ToBrinstarWest", MapElevatorDestination.Brinstar),
+        new("Maridia.Elevator.ToBrinstarEast", MapElevatorDestination.Brinstar),
     ];
     /// <summary>Tourian's label to Crateria.</summary>
-    internal static readonly ImmutableArray<MapElevatorLabel> TourianElevators = [new("Tourian.Elevator.ToCrateria", AreaId.Crateria)];
+    internal static readonly ImmutableArray<MapElevatorLabel> TourianElevators = [new("Tourian.Elevator.ToCrateria", MapElevatorDestination.Crateria)];
 }

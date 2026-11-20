@@ -88,9 +88,10 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area, MapS
     /// <summary>Destination lettering is visible only after downloading this area's map.</summary>
     public void DrawElevatorLabels(ScreenSprites entries, Offset16<MapPixels> scroll)
     {
-        if (!system.HasAreaMap(area)) return;
+        // Ceres has no elevators to label.
+        if (!AreaIds.IsZebes(area, out ZebesArea zebes) || !system.HasAreaMap(area)) return;
         var elevatorLayout = landmarks;
-        foreach (var label in MapLandmarks.Elevators(area))
+        foreach (var label in MapLandmarks.Elevators(zebes))
         {
             Add(entries, MapLandmarks.ElevatorPicture(label.Destination),
                 elevatorLayout.Get(label.Id), scroll, MapSpriteColouring.Labels);

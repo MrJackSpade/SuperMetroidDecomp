@@ -13,43 +13,29 @@ internal static class ChozoStatueObjectDrawDefinitions
     private static readonly RoomBlockShape LowerNorfairClearedHand = new([new(new(0, 0), RoomCollisionType.Air)]);
 
     /// <summary>
+    /// The Wrecked Ship slope access's blocks, each run along its row with how it collides opened and closed: the ledge's
+    /// thirteen blocks and its right end, the shelf below and its right end, and the shaft down from the shelf.
+    /// </summary>
+    private static readonly (Offset16<RoomBlocks> From, int Length, RoomCollisionType Opened, RoomCollisionType Closed)[] SlopeAccessRuns =
+    [
+        (new(0, 0), 13, RoomCollisionType.Air, RoomCollisionType.SpikeBlock), (new(13, 0), 1, RoomCollisionType.Slope, RoomCollisionType.SolidBlock),
+        (new(0, 5), 8, RoomCollisionType.Air, RoomCollisionType.SolidBlock), (new(8, 5), 1, RoomCollisionType.Slope, RoomCollisionType.SolidBlock),
+        (new(5, 6), 2, RoomCollisionType.Air, RoomCollisionType.SolidBlock), (new(5, 7), 1, RoomCollisionType.Air, RoomCollisionType.SolidBlock),
+        (new(5, 8), 1, RoomCollisionType.Slope, RoomCollisionType.SolidBlock),
+    ];
+
+    /// <summary>
     /// The Wrecked Ship slope access opened: a fourteen-block ledge from the object's block, open but for the slope at its
     /// right end; five rows below, a nine-block fill, open but for the slope at its right end; and below the fill's sixth
     /// block a two-block step, one open block and a slope.
     /// </summary>
-    private static readonly RoomBlockShape SlopeAccessOpened = new(
-    [
-        new(new(0, 0), RoomCollisionType.Air), new(new(1, 0), RoomCollisionType.Air), new(new(2, 0), RoomCollisionType.Air),
-        new(new(3, 0), RoomCollisionType.Air), new(new(4, 0), RoomCollisionType.Air), new(new(5, 0), RoomCollisionType.Air),
-        new(new(6, 0), RoomCollisionType.Air), new(new(7, 0), RoomCollisionType.Air), new(new(8, 0), RoomCollisionType.Air),
-        new(new(9, 0), RoomCollisionType.Air), new(new(10, 0), RoomCollisionType.Air), new(new(11, 0), RoomCollisionType.Air),
-        new(new(12, 0), RoomCollisionType.Air), new(new(13, 0), RoomCollisionType.Slope),
-        new(new(0, 5), RoomCollisionType.Air), new(new(1, 5), RoomCollisionType.Air), new(new(2, 5), RoomCollisionType.Air),
-        new(new(3, 5), RoomCollisionType.Air), new(new(4, 5), RoomCollisionType.Air), new(new(5, 5), RoomCollisionType.Air),
-        new(new(6, 5), RoomCollisionType.Air), new(new(7, 5), RoomCollisionType.Air), new(new(8, 5), RoomCollisionType.Slope),
-        new(new(5, 6), RoomCollisionType.Air), new(new(6, 6), RoomCollisionType.Air),
-        new(new(5, 7), RoomCollisionType.Air),
-        new(new(5, 8), RoomCollisionType.Slope),
-    ]);
+    private static readonly RoomBlockShape SlopeAccessOpened = SlopeAccess(run => run.Opened);
 
     /// <summary>
     /// The Wrecked Ship slope access closed, over the same blocks as <see cref="SlopeAccessOpened"/>: spikes across the
     /// ledge but for its solid right end, and every other block solid.
     /// </summary>
-    private static readonly RoomBlockShape SlopeAccessClosed = new(
-    [
-        new(new(0, 0), RoomCollisionType.SpikeBlock), new(new(1, 0), RoomCollisionType.SpikeBlock), new(new(2, 0), RoomCollisionType.SpikeBlock),
-        new(new(3, 0), RoomCollisionType.SpikeBlock), new(new(4, 0), RoomCollisionType.SpikeBlock), new(new(5, 0), RoomCollisionType.SpikeBlock),
-        new(new(6, 0), RoomCollisionType.SpikeBlock), new(new(7, 0), RoomCollisionType.SpikeBlock), new(new(8, 0), RoomCollisionType.SpikeBlock),
-        new(new(9, 0), RoomCollisionType.SpikeBlock), new(new(10, 0), RoomCollisionType.SpikeBlock), new(new(11, 0), RoomCollisionType.SpikeBlock),
-        new(new(12, 0), RoomCollisionType.SpikeBlock), new(new(13, 0), RoomCollisionType.SolidBlock),
-        new(new(0, 5), RoomCollisionType.SolidBlock), new(new(1, 5), RoomCollisionType.SolidBlock), new(new(2, 5), RoomCollisionType.SolidBlock),
-        new(new(3, 5), RoomCollisionType.SolidBlock), new(new(4, 5), RoomCollisionType.SolidBlock), new(new(5, 5), RoomCollisionType.SolidBlock),
-        new(new(6, 5), RoomCollisionType.SolidBlock), new(new(7, 5), RoomCollisionType.SolidBlock), new(new(8, 5), RoomCollisionType.SolidBlock),
-        new(new(5, 6), RoomCollisionType.SolidBlock), new(new(6, 6), RoomCollisionType.SolidBlock),
-        new(new(5, 7), RoomCollisionType.SolidBlock),
-        new(new(5, 8), RoomCollisionType.SolidBlock),
-    ]);
+    private static readonly RoomBlockShape SlopeAccessClosed = SlopeAccess(run => run.Closed);
 
     /// <summary>The block shape each Chozo statue room-object frame draws.</summary>
     internal static readonly Dictionary<ChozoStatueDraw, RoomBlockShape> Shapes = new()
@@ -58,4 +44,8 @@ internal static class ChozoStatueObjectDrawDefinitions
         [ChozoStatueDraw.ClearSlopeAccess] = SlopeAccessOpened,
         [ChozoStatueDraw.BlockSlopeAccess] = SlopeAccessClosed,
     };
+
+    /// <summary>The slope access's blocks, each run colliding as <paramref name="collision"/> picks from its two states.</summary>
+    private static RoomBlockShape SlopeAccess(Func<(Offset16<RoomBlocks> From, int Length, RoomCollisionType Opened, RoomCollisionType Closed), RoomCollisionType> collision) =>
+        RoomBlockShapes.Joined([.. SlopeAccessRuns.Select(run => RoomBlockShapes.Moved(RoomBlockShapes.Line(down: false, run.Length, collision(run)), run.From))]);
 }

@@ -1,7 +1,10 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>The phase a dead Zoomer, Ripper or Skree corpse's main AI runs.</summary>
-public enum DeadTourianCorpsePhase
+/// <summary>
+/// The phase a corpse that Samus stands on before it rots runs (#2557): the dead Torizo's, and the dead Zoomer's, Ripper's
+/// and Skree's. Its values are arbitrary.
+/// </summary>
+public enum CorpsePhase
 {
     /// <summary>Waits for Samus to collide with the solid corpse.</summary>
     Waiting,

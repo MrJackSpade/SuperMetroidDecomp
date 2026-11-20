@@ -66,7 +66,7 @@ internal static class OwtchMovementDefinitionsVerification
         for (byte index = 0; index < 8; index++)
         {
             int address = OwtchMovementDefinitions.DistanceReferenceAddress + index * 2;
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort native = rom.ReadCartridgeWord(address);
             AssertEqual(native, EnemySpawnSelectors.OwtchTravelDistance(index),
                 $"decoded Owtch travel distance {index}");
         }
@@ -82,7 +82,7 @@ internal static class OwtchMovementDefinitionsVerification
         for (byte index = 0; index < 6; index++)
         {
             int address = OwtchMovementDefinitions.TimerReferenceAddress + index * 2;
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort native = rom.ReadCartridgeWord(address);
             AssertEqual(native, EnemySpawnSelectors.OwtchUndergroundWait(index),
                 $"decoded Owtch underground wait {index}");
         }

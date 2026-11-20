@@ -46,7 +46,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         AssertEqual(9, CrocomireTongueCollisionDefinitionsConstants.FrameCount, "tongue frame count");
         for (int i = 0; i < operands.Length; i++)
         {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa40000 | operands[i]);
+            ushort expected = rom.ReadCartridgeWordFixedBank(0xa40000 | operands[i]);
             AssertEqual(expected, CrocomireTongueCollisionDefinitionsConstants.FramePointer(i), "tongue native selected frame identity");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireTongueCollisionDefinitionsConstants.FramePointer(-1), "negative tongue frame index");
@@ -62,10 +62,10 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         ushort[] frames = [0xc65e, 0xc668, 0xc672, 0xc67c, 0xcace, 0xcad8, 0xcae2, 0xcaec, 0xcaf6];
         foreach (ushort frame in frames)
         {
-            AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | frame)),
+            AssertEqual((ushort)1, rom.ReadCartridgeWord((0xa40000 | frame)),
                 $"Crocomire tongue $A4:{frame:X4} native one-component header");
-            ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | frame + 8));
-            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | list)), "tongue native empty hitboxes");
+            ushort list = rom.ReadCartridgeWord((0xa40000 | frame + 8));
+            AssertEqual((ushort)0, rom.ReadCartridgeWord((0xa40000 | list)), "tongue native empty hitboxes");
         }
         for (int frame = 0; frame <= ushort.MaxValue; frame++)
             AssertEqual(Array.IndexOf(frames, (ushort)frame) >= 0,

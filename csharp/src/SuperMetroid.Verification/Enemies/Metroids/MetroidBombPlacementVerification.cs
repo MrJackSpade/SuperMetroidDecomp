@@ -67,8 +67,8 @@ internal static class MetroidBombPlacementVerification
         for (int frame = 0; frame < 4; frame++)
         {
             int index = state.EscapeMovesLeft.UpdatesLeft & 3;
-            ushort expectedX = unchecked((ushort)(target.Position.X.Whole + SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3ea3f + index * 2)));
-            ushort expectedY = unchecked((ushort)(target.Position.Y.Whole + SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3ea3f + (index + 4) * 2)));
+            ushort expectedX = unchecked((ushort)(target.Position.X.Whole + SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(bus, 0xa3ea3f + index * 2)));
+            ushort expectedY = unchecked((ushort)(target.Position.Y.Whole + SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(bus, 0xa3ea3f + (index + 4) * 2)));
             // Move Samus away to prevent touch from immediately changing the returned
             // Homing state. The escape routine itself ignores her new position.
             samus.Position = samus.Position.WithWholeX(32);

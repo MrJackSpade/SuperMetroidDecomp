@@ -24,7 +24,7 @@ internal static class CeresFlightArtworkExtractor
             CeresFlightArtworkFileFormat.FloorByteCount, "Mode-7 characters");
         byte[] objectCharacters = Read(CeresCinematicSourceDefinitions.FlightObjectCharacters,
             CeresFlightArtworkFileFormat.ObjectByteCount, "OBJ characters");
-        byte[] decompressedMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresCinematicSourceDefinitions.CeresTilemaps,
+        byte[] decompressedMap = RomDataReader.Decompress(bus, CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: 4096);
         if (decompressedMap.Length < CeresFlightArtworkFileFormat.MapCellCount)
             throw new InvalidDataException("Ceres flight lacks its front and rear Mode-7 map slices.");
@@ -53,7 +53,7 @@ internal static class CeresFlightArtworkExtractor
                 .SelectToArray(value => (int)value),
         });
         byte[] mapFile = mapJson.ToArray();
-        byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] nativePalette = RomDataReader.ReadFixedBank(bus,
             CeresCinematicSourceDefinitions.FlightPalette, CgramPalettes.ByteCount);
         var colors = new PaletteRgb5[CgramPalettes.ColorCount];
         for (int index = 0; index < colors.Length; index++)
@@ -95,9 +95,9 @@ internal static class CeresFlightArtworkExtractor
             .. CeresCinematicSourceDefinitions.RearViewPlacements.Select(source => new CeresFlightActorPlacement
             {
                 Role = source.Role,
-                X = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                X = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(bus,
                     CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand)),
-                Y = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                Y = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(bus,
                     CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand)),
             }),
         ];
@@ -120,7 +120,7 @@ internal static class CeresFlightArtworkExtractor
 
         byte[] Read(int address, int expected, string name)
         {
-            byte[] decompressed = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address,
+            byte[] decompressed = RomDataReader.Decompress(bus, address,
                 maximumOutputBytes: expected);
             if (decompressed.Length != expected)
                 throw new InvalidDataException($"Ceres flight {name} has {decompressed.Length} bytes, expected {expected}.");

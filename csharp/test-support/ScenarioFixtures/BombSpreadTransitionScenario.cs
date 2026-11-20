@@ -111,7 +111,7 @@ internal sealed class BombSpreadTransitionScenario
     /// <summary>The projectile list layout, read once from the repository's cartridge, whose instruction pointers the rows print.</summary>
     private static readonly Lazy<SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout> lists = new(() =>
         SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListEntries.Read(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(
+            (
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))));
 
     /// <summary>The projectile list layout whose instruction pointers the rows print.</summary>

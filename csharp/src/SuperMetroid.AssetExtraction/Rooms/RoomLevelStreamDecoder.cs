@@ -150,8 +150,22 @@ internal static class RoomLevelStreamDecoder
             return RoomBlockBehavior.None;
         if (BlockReactionFamilies.Of(kind) is not { } family)
             return RoomBlockBehaviorCodec.Decode(value);
-        RoomBlockBehavior? installed = null;
-        foreach (AreaId area in areas)
+        // Every area the level lies in must give the block the same installed behaviour: the first area's.
+        AreaId[] inAreas = [.. areas];
+        if (inAreas.Length == 0)
+            throw new InvalidOperationException($"Room level {level} belongs to no area.");
+        RoomBlockBehavior installed = FirstBehaviorIn(inAreas[0]);
+        foreach (AreaId area in inAreas.Skip(1))
+        {
+            RoomBlockBehavior first = FirstBehaviorIn(area);
+            if (installed != first)
+                throw new InvalidDataException(
+                    $"Room level {level} block {index} is {kind} with a behaviour its areas give different reactions, {installed} and {first}.");
+        }
+        return installed;
+
+        // The first behaviour holding the reaction the block's kind reads in the area.
+        RoomBlockBehavior FirstBehaviorIn(AreaId area)
         {
             RoomBlockBehavior resolved = RoomBlockBehaviorCodec.Decode(area, value);
             BlockReaction reaction = resolved.ReactionIn(family) ?? throw new InvalidDataException(
@@ -160,12 +174,8 @@ internal static class RoomLevelStreamDecoder
             if (!GiveSameReactions(first.In(area), resolved))
                 throw new InvalidDataException(
                     $"Room level {level} block {index} is {kind} with behaviour {resolved}, whose reaction's first behaviour {first} reacts otherwise.");
-            if (installed is { } earlier && earlier != first)
-                throw new InvalidDataException(
-                    $"Room level {level} block {index} is {kind} with a behaviour its areas give different reactions, {earlier} and {first}.");
-            installed = first;
+            return first;
         }
-        return installed ?? throw new InvalidOperationException($"Room level {level} belongs to no area.");
     }
 
     /// <summary>Whether two behaviours give every reacting kind the same reaction.</summary>

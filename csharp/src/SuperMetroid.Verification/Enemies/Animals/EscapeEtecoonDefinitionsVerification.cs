@@ -29,17 +29,17 @@ internal static class EscapeEtecoonDefinitionsVerification
             ushort parameter = unchecked((ushort)(role * 2));
             EscapeEtecoonInitialization initialization =
                 EscapeEtecoons.Initialization(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.EscapeEtecoonRole(parameter));
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((xTable + parameter)), initialization.Position.X,
+            AssertEqual(rom.ReadCartridgeWord((xTable + parameter)), initialization.Position.X,
                 $"escape Etecoon role {role} X");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yTable + parameter)), initialization.Position.Y,
+            AssertEqual(rom.ReadCartridgeWord((yTable + parameter)), initialization.Position.Y,
                 $"escape Etecoon role {role} Y");
-            AssertEqual(AnimalsNativeWords.EscapeEtecoonActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord((frameBehaviorTable + parameter)), "escape Etecoon pre-instruction"),
+            AssertEqual(AnimalsNativeWords.EscapeEtecoonActions.Decode(rom.ReadCartridgeWord((frameBehaviorTable + parameter)), "escape Etecoon pre-instruction"),
                 initialization.Action,
                 $"escape Etecoon role {role} pre-instruction");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + parameter)),
+            AssertEqual(rom.ReadCartridgeWord((instructionTable + parameter)),
                 NativeEnemyAnimationOracle.EntryOf(EscapeEtecoonNativeListAddresses.Entries, initialization.Animation),
                 $"escape Etecoon role {role} instruction");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((speedTable + parameter)),
+            AssertEqual(rom.ReadCartridgeWord((speedTable + parameter)),
                 (initialization.Direction == HorizontalDirection.Left ? initialization.Speed.Negated() : initialization.Speed).RawValue,
                 $"escape Etecoon role {role} speed");
         }

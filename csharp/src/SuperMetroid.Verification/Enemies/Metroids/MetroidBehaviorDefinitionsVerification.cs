@@ -29,16 +29,16 @@ internal static class MetroidBehaviorDefinitionsVerification
             Offset16<RoomPixels> actual =
                 MetroidReactions.EscapeDisplacement(movesLeft);
             int entry = movesLeft & 3;
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ea3f + entry * 2))), actual.X,
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0xa3ea3f + entry * 2))), actual.X,
                 $"Metroid escape X displacement with {movesLeft} moves left");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ea47 + entry * 2))), actual.Y,
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0xa3ea47 + entry * 2))), actual.Y,
                 $"Metroid escape Y displacement with {movesLeft} moves left");
         }
 
         for (ushort index = 0; index < 8; index++)
         {
             SoundEffectId cry = MetroidBehaviorDefinitions.Cry.Choose(index);
-            AssertEqual(SoundEffectCommands.Decode(cry.Library, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ead6 + index * 2))),
+            AssertEqual(SoundEffectCommands.Decode(cry.Library, rom.ReadCartridgeWord((0xa3ead6 + index * 2))),
                 cry,
                 $"Metroid random cry {index}");
         }
@@ -144,7 +144,7 @@ internal static class MetroidBehaviorDefinitionsVerification
                 $"production Metroid random cry {random}");
             AssertEqual(16, place.AnimationClock.Hold,
                 $"production Metroid script timer {random}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa3e9d1), place.SpritemapPointer,
+            AssertEqual(rom.ReadCartridgeWord(0xa3e9d1), place.SpritemapPointer,
                 $"production Metroid script spritemap {random}");
             // The cue ends the pass; the loop shows its first pose and stands before its second, its four pulses all to come.
             AssertEqual(new AnimationPlayback<MetroidSegment>(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), new AnimationPlace(0, 1).WithPlaysLeft(4)),

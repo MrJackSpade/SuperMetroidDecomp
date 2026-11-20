@@ -128,7 +128,7 @@ internal static class AttractDemoSceneVerification
     /// </summary>
     private static void VerifySamusSetupRoutines(ISnesAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         SamusPoseId PoseLoadedAt(int immediate, string setup)
         {
             AssertEqual(LoadImmediateOpcode, cartridge.ReadCartridgeByte(immediate - 1), $"{setup}'s routine loads its pose as an immediate");

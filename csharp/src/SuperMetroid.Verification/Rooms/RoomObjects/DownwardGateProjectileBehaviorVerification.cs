@@ -22,7 +22,7 @@ internal static class DownwardGateProjectileBehaviorVerification
     /// </summary>
     internal static void VerifyDownwardGateProjectileBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, DownwardGateProjectileNativeListAddresses.Extent, "downward gate");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         EnemyProjectile gate = FamilyProjectileStarts.Spawn(enemies, 0, RoomEnemyProjectileKind.DownwardGateMoving,

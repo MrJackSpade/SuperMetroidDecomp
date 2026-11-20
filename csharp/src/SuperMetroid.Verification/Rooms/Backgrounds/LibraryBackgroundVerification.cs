@@ -58,7 +58,7 @@ internal static void VerifyLibraryBackgroundSourceInventory()
         .Where(source => source.Command == LibraryBackgroundCommand.Decompress)
         .Select(source => source.SourceAddress).Distinct())
         RoomBackgroundTilemapFormat.ValidatePageCount(
-            RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), source).Length);
+            RomDataReader.Decompress(bus, source).Length);
     VerifyKraidLibraryHudArtwork(bus, romTransfers);
     Console.WriteLine($"  Library BG inventory: {sources.Count} source operands, " +
         $"{listCount} source-bearing lists, {compressedCount} distinct compressed sources, " +
@@ -86,7 +86,7 @@ static void VerifyKraidLibraryHudArtwork(
     AssertEqual((ushort)HudTileAtlasFormat.CharacterByteCount, (transfer.TransferByteCount ?? throw new InvalidOperationException("Verification requires transfer.TransferByteCount.")),
         "Kraid HUD upload contains characters without the normal clearing half");
 
-    byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.HudCharacters,
+    byte[] planar = RomDataReader.ReadFixedBank(bus, MapSourceDefinitions.Artwork.HudCharacters,
         HudTileAtlasFormat.CharacterByteCount);
     byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 2, MapTileAtlasFormat.TileColumns,
         out Extent16<ImagePixels> size);

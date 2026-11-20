@@ -36,14 +36,14 @@ public static class RoomMetatileArtworkFiles
         string importData = ImportDataDirectory.Of(directory);
         Directory.CreateDirectory(importData);
         IReadOnlyDictionary<string, byte[]> files = RoomMetatileExtractor.Extract(bus);
-        RoomTilesetSourceMap tilesets = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
+        RoomTilesetSourceMap tilesets = RoomTilesetSources.Read(bus);
         var entries = new Dictionary<string, RoomMetatileFileEntry>();
         foreach ((string name, RoomBlockSource source) in ExpectedSources())
         {
             SnesAddress address = source is RoomBlockSource.OfSet(RoomBlockSet set) ? tilesets.Blocks[set]
                 : RoomTilesetSourceDefinitions.CreBlocks;
             byte[] json = files[name];
-            int nativeLength = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address).Length;
+            int nativeLength = RomDataReader.Decompress(bus, address).Length;
             RoomMetatileFormat.ValidateBlockCount(nativeLength);
             using (var output = new FileStream(Path.Combine(importData, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(json);
@@ -73,9 +73,16 @@ public static class RoomMetatileArtworkFiles
             sources.Keys.Any(name => !manifest.Entries.ContainsKey(name)))
             throw new InvalidDataException($"Room metatile manifest {manifestPath} does not describe this import.");
 
-        RoomMetatileAtlas? cre = null;
         var selected = new Dictionary<RoomBlockSet, RoomMetatileAtlas>();
         foreach ((string name, RoomBlockSource source) in sources)
+        {
+            if (source is RoomBlockSource.OfSet(RoomBlockSet set))
+                selected.Add(set, Atlas(name));
+        }
+        return new RoomMetatileCatalog(Atlas(RoomMetatileFormat.CreFileName), selected);
+
+        // The block definitions the manifest lists as name, decoded.
+        RoomMetatileAtlas Atlas(string name)
         {
             RoomMetatileFileEntry entry = manifest.Entries[name];
             RoomMetatileFormat.ValidateBlockCount(entry.NativeByteCount);
@@ -91,11 +98,8 @@ public static class RoomMetatileArtworkFiles
             {
                 throw new InvalidDataException($"Invalid room metatile JSON {stockPath}: {error.Message}", error);
             }
-            if (source is RoomBlockSource.OfSet(RoomBlockSet set)) selected.Add(set, atlas);
-            else cre = atlas;
+            return atlas;
         }
-        return new RoomMetatileCatalog(
-            cre ?? throw new InvalidDataException("Room metatile manifest has no CRE resource."), selected);
     }
 
     /// <summary>Collects the CRE source and each distinct room tileset block-definition source by asset filename.</summary>

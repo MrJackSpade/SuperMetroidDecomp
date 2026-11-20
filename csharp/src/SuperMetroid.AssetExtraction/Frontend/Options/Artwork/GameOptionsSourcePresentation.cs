@@ -214,8 +214,7 @@ public sealed class GameOptionsSourcePresentation
         try
         {
             document = JsonAssetDocument.Read<GameOptionsPresentationDocument>(
-                bytes, ArtworkJson.Options) ??
-                throw new InvalidDataException("Options presentation document is null.");
+                bytes, ArtworkJson.Options);
         }
         catch (JsonException error)
         {
@@ -322,8 +321,8 @@ public sealed class GameOptionsSourcePresentation
         var tiles = new BackgroundTile[cells.Length];
         for (int index = 0; index < cells.Length; index++)
         {
-            tiles[index] = cells[index]?.Placement(MapTileAtlasFormat.TileColumns, GameOptionsPageDefinitions.CharacterRows)
-                ?? throw new InvalidDataException($"{owner} cell {index} has an invalid atlas coordinate or palette.");
+            tiles[index] = cells[index].Placement(MapTileAtlasFormat.TileColumns, GameOptionsPageDefinitions.CharacterRows,
+                $"{owner} cell {index}");
         }
         return tiles;
     }

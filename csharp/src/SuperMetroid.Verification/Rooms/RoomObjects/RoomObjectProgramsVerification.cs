@@ -28,7 +28,7 @@ internal static class RoomObjectProgramsVerification
     /// </summary>
     internal static void VerifyNoobTubePrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
         void AssertShown(int cursor, TerrainChangeFrame frame, string at)
@@ -83,7 +83,7 @@ internal static class RoomObjectProgramsVerification
     /// </summary>
     internal static void VerifySpeedBoosterEscapePrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         SpeedBoosterEscapePhase[] waits =
             [SpeedBoosterEscapePhase.WaitingForSpeedBooster, SpeedBoosterEscapePhase.WaitingForSamusLeft, SpeedBoosterEscapePhase.AdvancingLava];
         for (int index = 0; index < waits.Length; index++)
@@ -105,7 +105,7 @@ internal static class RoomObjectProgramsVerification
     /// </summary>
     internal static void VerifyBlockReactionPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int frames = 0;
         foreach ((BlockReactionChange change, ushort entry) in BlockReactionEntries)
             frames += CompareBlockReaction(cartridge, change, entry, change == BlockReactionChangeDefinitions.RespawningBreakableGrappleBlock);
@@ -115,7 +115,7 @@ internal static class RoomObjectProgramsVerification
     /// <summary>The Speed Booster blocks' crumbles play as their native lists do; both restore instructions restore the saved block.</summary>
     internal static void VerifySpeedBoosterBlockPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int frames = 0;
         foreach ((BlockReactionChange change, ushort entry) in SpeedBoosterBlockEntries)
             frames += CompareBlockReaction(cartridge, change, entry, restoresGrappleBehaviour: false);
@@ -211,7 +211,7 @@ internal static class RoomObjectProgramsVerification
     /// </summary>
     private static void VerifyScriptedTerrainChanges(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var changes = new Dictionary<string, TerrainChange>
         {
             [nameof(ScriptedTerrainChangeDefinitions.MaridiaElevatube)] = ScriptedTerrainChangeDefinitions.MaridiaElevatube,
@@ -302,7 +302,7 @@ internal static class RoomObjectProgramsVerification
     /// </summary>
     private static Dictionary<GateState, ushort> DownwardGateAddresses(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
         void AssertShown(int cursor, DownwardGateImage image, string at)
@@ -384,7 +384,7 @@ internal static class RoomObjectProgramsVerification
     /// <summary>The Tourian elevator access changes play as their native lists do.</summary>
     internal static void VerifyTourianAccessPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<TourianAccessFloor>().Length, TourianAccessEntries.Count, "every Tourian access floor has a native list");
         int frames = 0;
         foreach ((TourianAccessFloor floor, ushort entry) in TourianAccessEntries)
@@ -406,7 +406,7 @@ internal static class RoomObjectProgramsVerification
     /// </summary>
     internal static void VerifyWreckedShipAtticPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(RoomObjectInstruction.InstallFrameBehavior, InstructionAt<RoomObjectInstruction>(cartridge, WreckedShipAtticList), "attic installs its routine");
         AssertEqual(WreckedShipAtticObjectRomData.NoOpCallback, cartridge.ReadCartridgeWord(ProgramBank | (WreckedShipAtticList + 2)), "attic pre-instruction");
         AssertEqual(RoomObjectInstruction.Sleep, InstructionAt<RoomObjectInstruction>(cartridge, WreckedShipAtticList + 4), "attic sleeps for good");
@@ -416,28 +416,28 @@ internal static class RoomObjectProgramsVerification
     /// <summary>The blue caps play as their native lists do (#1554).</summary>
     internal static void VerifyBlueDoorPrograms(ISnesAddressSpace rom)
     {
-        int images = DoorObjectNativeProgramOracle.CompareBlueCaps(CartridgeImportSource.Require(rom));
+        int images = DoorObjectNativeProgramOracle.CompareBlueCaps(rom);
         Console.WriteLine($"  Blue door caps: {images} typed images match bank $84.");
     }
 
     /// <summary>Every coloured cap plays, counts its hits and takes its shot as its native lists do (#1554).</summary>
     internal static void VerifyColoredDoorPrograms(ISnesAddressSpace rom)
     {
-        int images = DoorObjectNativeProgramOracle.CompareColoredCaps(CartridgeImportSource.Require(rom));
+        int images = DoorObjectNativeProgramOracle.CompareColoredCaps(rom);
         Console.WriteLine($"  Coloured door caps: {images} typed images match bank $84.");
     }
 
     /// <summary>Every grey cap, Bomb Torizo's included, plays and counts its hit as its native lists do (#1554).</summary>
     internal static void VerifyGreyDoorPrograms(ISnesAddressSpace rom)
     {
-        int images = DoorObjectNativeProgramOracle.CompareGreyCaps(CartridgeImportSource.Require(rom));
+        int images = DoorObjectNativeProgramOracle.CompareGreyCaps(rom);
         Console.WriteLine($"  Grey door caps: {images} typed images match bank $84.");
     }
 
     /// <summary>Every eye door's eye, body and bottom, both facings, play as their native lists do (#1554).</summary>
     internal static void VerifyEyeDoorPrograms(ISnesAddressSpace rom)
     {
-        int images = DoorObjectNativeProgramOracle.CompareEyeDoors(CartridgeImportSource.Require(rom));
+        int images = DoorObjectNativeProgramOracle.CompareEyeDoors(rom);
         Console.WriteLine($"  Eye doors: {images} typed images match bank $84.");
     }
 
@@ -450,7 +450,7 @@ internal static class RoomObjectProgramsVerification
     internal static void VerifySamusEaterList(ISnesAddressSpace rom, int list, SamusEaterObjectDefinition plant)
     {
         ArgumentNullException.ThrowIfNull(plant);
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
         void AssertShown(int cursor, SamusEaterDraw image, int updates, string at)

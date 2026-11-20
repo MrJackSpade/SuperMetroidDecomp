@@ -24,7 +24,7 @@ internal static class CompiledProjectileMathVerification
         for (int i = 0; i < native.Length; i++)
         {
             int address = EnemyMathReferenceData.SignedNegativeCosine + i * 2;
-            native[i] = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
+            native[i] = unchecked((short)rom.ReadCartridgeWord(address));
         }
         var enemy = new Func<ushort, byte, int>((speed, angle) => EnemyMath.SineSpeed(new SignedEightEight(speed), new TrigonometryAngle(angle)).RawValue);
         var baby = new Func<ushort, byte, int>((babySpeed, babyAngle) => SpeedAlongAngle.Along(new SignedEightEight(babySpeed), new TrigonometryAngle(babyAngle)).RawValue);

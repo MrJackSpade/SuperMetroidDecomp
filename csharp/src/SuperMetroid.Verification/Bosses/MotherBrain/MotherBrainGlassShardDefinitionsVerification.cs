@@ -101,7 +101,7 @@ internal static class MotherBrainGlassShardDefinitionsVerification
     internal static ushort ReadMotherBrainGlassShardWord(
         CartridgeImportAddressSpace bus,
         int address) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+        bus.ReadCartridgeWord(address);
 
     /// <summary>Forbids live reads of the compiled selector and placement region.</summary>
     private static CartridgeReadGuard NewMotherBrainGlassShardReadGuard(ISnesAddressSpace source) =>

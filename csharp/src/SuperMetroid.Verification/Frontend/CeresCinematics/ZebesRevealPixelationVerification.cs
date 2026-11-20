@@ -34,7 +34,7 @@ internal static class ZebesRevealPixelationVerification
     /// </summary>
     internal static void VerifyZebesRevealPixelation(CartridgeImportAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         byte startingSetting = cartridge.ReadCartridgeByte(StartingSettingOperand);
         ushort fadeInCadence = cartridge.ReadCartridgeWord(FadeInCadenceOperand);
         byte fadeInStep = cartridge.ReadCartridgeByte(FadeInStepOperand);

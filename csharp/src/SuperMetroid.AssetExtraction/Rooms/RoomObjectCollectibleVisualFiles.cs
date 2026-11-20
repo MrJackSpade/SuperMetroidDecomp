@@ -116,7 +116,7 @@ public static class RoomObjectCollectibleVisualFiles
             int table = look == CollectibleLook.Primary
                 ? RoomObjectDrawSourceDefinitions.CollectibleDynamicFrame0Table.Offset
                 : RoomObjectDrawSourceDefinitions.CollectibleDynamicFrame1Table.Offset;
-            int native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(table + selector * 2)))));
+            int native = bus.ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(table + selector * 2)))));
             int compiled = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.BlockPairFrame(
                 CollectibleBlockPairs.InTurn[selector], look));
             if (native != compiled)
@@ -128,9 +128,9 @@ public static class RoomObjectCollectibleVisualFiles
             int address = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.Family.Of(frame.Draw));
             RoomTerrainBlock terrain = CollectibleObjectDraws.BlockPairTerrain(frame.Draw)
                 ?? throw new InvalidOperationException($"Collectible draw {frame.Id} lies under the item's own picture but writes no block pair's terrain.");
-            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, address)) != 1 ||
-                RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 2)))))) != RoomLevelWordCodec.AsStored(terrain) ||
-                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 4))))) != 0)
+            if (bus.ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, address)) != 1 ||
+                RoomLevelWordCodec.Decode(bus.ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 2)))))) != RoomLevelWordCodec.AsStored(terrain) ||
+                bus.ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 4))))) != 0)
                 throw new InvalidDataException(
                     $"Collectible draw {frame.Id} at $84:{address:X4} differs from compiled geometry or level word.");
         }

@@ -21,7 +21,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
         for (int index = 0; index <= CeresRidleyGetawayCurve.Duration; index++)
         {
             int offset = index * 2;
-            ushort nativeZoom = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6ae4d + offset);
+            ushort nativeZoom = rom.ReadCartridgeWord(0xa6ae4d + offset);
             if (index == CeresRidleyGetawayCurve.Duration)
             {
                 AssertEqual(ushort.MaxValue, nativeZoom, "Ceres getaway native terminator follows the last update");
@@ -30,8 +30,8 @@ internal static class CeresRidleyGetawayDefinitionsVerification
             AssertTrue(nativeZoom != ushort.MaxValue, "Ceres getaway native table holds no terminator before the last update");
             AssertEqual(FloorZoomConstants.FromTwoHundredFiftySixths(nativeZoom), CeresRidleyGetawayCurve.ZoomAt(index), "Ceres getaway exact native zoom");
             Offset16<FloorPixels> drift = CeresRidleyGetawayCurve.DriftAt(index);
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6af2f + offset))), drift.Y, "Ceres getaway exact native Y increment");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b00f + offset))), drift.X, "Ceres getaway exact native X subtraction");
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0xa6af2f + offset))), drift.Y, "Ceres getaway exact native Y increment");
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0xa6b00f + offset))), drift.X, "Ceres getaway exact native X subtraction");
         }
         foreach (int invalid in new[] { -1, 112, int.MaxValue })
         {
@@ -56,9 +56,9 @@ internal static class CeresRidleyGetawayDefinitionsVerification
             while (rom.ReadCartridgeByte(cursor) != 0)
             {
                 AssertEqual((byte)0x80, rom.ReadCartridgeByte(cursor), "Ceres floor native transfer control");
-                int source = CartridgeImportSource.Require(rom).ReadCartridgeLong(cursor + 1);
-                ushort size = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 4);
-                ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 6);
+                int source = rom.ReadCartridgeLong(cursor + 1);
+                ushort size = rom.ReadCartridgeWord(cursor + 4);
+                ushort destination = rom.ReadCartridgeWord(cursor + 6);
                 AssertEqual((byte)0, rom.ReadCartridgeByte(cursor + 8), "Ceres floor native VRAM increment mode");
                 for (int index = 0; index < size; index++)
                     expected[destination + index] = rom.ReadCartridgeByte(source + index);

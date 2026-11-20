@@ -77,16 +77,16 @@ internal static class FileSelectRoomMapVerification
                 AssertEqual(explored, system.IsMapTileExplored(area, new(checked((ushort)x), checked((ushort)y))), "map projection does not mark exploration");
             }
             AssertTrue(original.SequenceEqual(map.RawTilemapBytes), "map projection preserves cartridge map");
-            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.AreaLabelPointers + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
+            ushort label = RomDataReader.ReadWordFixedBank(bus, MapSourceDefinitions.FileSelectMap.AreaLabelPointers + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
             for (int word = 0; word < 1024; word++)
             {
                 ushort expected = word < 800
-                    ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.RoomFrame + word * 2)
+                    ? RomDataReader.ReadWordFixedBank(bus, MapSourceDefinitions.FileSelectMap.RoomFrame + word * 2)
                     : word < 960
-                        ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.RoomFrameFooter + (word - 799) * 2)
+                        ? RomDataReader.ReadWordFixedBank(bus, MapSourceDefinitions.FileSelectMap.RoomFrameFooter + (word - 799) * 2)
                         : (ushort)0x2801;
                 if (word is >= 170 and < 182)
-                    expected = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (label + (word - 170) * 2)) & 0xefff);
+                    expected = (ushort)(RomDataReader.ReadWordFixedBank(bus, 0x820000 | (label + (word - 170) * 2)) & 0xefff);
                 AssertEqual(expected, shownRoomMap.ReadWord((ushort)(0x5800 + word)), "native room-select frame and area label");
             }
             RgbaPixel[] pixels = graphics.RenderBackgrounds(new Offset16<MapPixels>(0, -40));

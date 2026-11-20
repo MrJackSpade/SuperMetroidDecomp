@@ -65,7 +65,7 @@ internal static class InstalledFixtures
 
     /// <summary>The import's analysis of the frames Samus's body can show, decided from the retail cartridge's layout of her animations, made once.</summary>
     private static readonly Lazy<SamusShownFrameAnalysis> samusShownFrameAnalysis = Shared<SamusShownFrameAnalysis>("Samus shown frames", () =>
-        new SamusShownFrameAnalysis(SamusAnimationLayout.Read(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(
+        new SamusShownFrameAnalysis(SamusAnimationLayout.Read((
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))))));
 
     /// <summary>The import's analysis of the frames Samus's body can show, decided from the retail cartridge's layout of her animations.</summary>

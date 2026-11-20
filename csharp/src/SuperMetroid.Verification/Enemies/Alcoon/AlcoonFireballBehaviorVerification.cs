@@ -22,7 +22,7 @@ internal static class AlcoonFireballBehaviorVerification
     /// </summary>
     internal static void VerifyAlcoonFireballBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, AlcoonFireballNativeListAddresses.Extent, "Alcoon-fireball");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];

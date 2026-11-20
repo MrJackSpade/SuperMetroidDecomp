@@ -24,7 +24,7 @@ internal static class ProjectileSpriteLocations
     /// <returns>The frames that draw a composition, each with it; a frame whose records select the empty record draws none and is left out.</returns>
     internal static Dictionary<SamusProjectileFrameId, ProjectileSpriteId> RecordSprites(ISnesAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
         Dictionary<int, ProjectileSpriteId> stored = StoredProjectiles().ToDictionary(entry => entry.Key, entry => entry.Value);
         int AddressAt(int record) => RomDataReader.ReadWordFixedBank(cartridge,

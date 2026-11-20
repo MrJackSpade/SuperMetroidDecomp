@@ -61,7 +61,7 @@ internal static class PhantoonAnimationsVerification
     /// </summary>
     internal static void VerifyPhantoonPartAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertTrue(PartEntriesAscend, "native Phantoon part entries ascend");
 
         int stepCount = NativeEnemyAnimationOracle.CompareAll(cartridge, PartBankNumber, PartEntries, PhantoonAnimations.Segments,
@@ -150,7 +150,7 @@ internal static class PhantoonAnimationsVerification
     /// </summary>
     internal static void VerifyPhantoonFlameAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         VerifyFlameProducers();
         // A resting flame and a rain impact run on into the dying flame's poses (#2166), and their plays match its native
         // list; the shot flame's animation dies, drops and deletes from its own (#2405).

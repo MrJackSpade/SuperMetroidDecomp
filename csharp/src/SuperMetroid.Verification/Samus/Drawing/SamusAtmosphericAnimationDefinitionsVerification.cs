@@ -24,36 +24,36 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
         CartridgeImportAddressSpace rom)
     {
 
-        AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x908b93), "inactive atmospheric timer pointer");
-        AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x908ba3), "trailing atmospheric timer pointer");
-        AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x908bef), "inactive atmospheric frame count");
+        AssertEqual(0, rom.ReadCartridgeWord(0x908b93), "inactive atmospheric timer pointer");
+        AssertEqual(0, rom.ReadCartridgeWord(0x908ba3), "trailing atmospheric timer pointer");
+        AssertEqual(0, rom.ReadCartridgeWord(0x908bef), "inactive atmospheric frame count");
 
         // Type two, which no producer starts, has no particle kind; types six and seven are both dust, so both are
         // compared with the one dust cadence.
         foreach (int type in StartedEffectNumbers)
         {
             SamusParticleKind kind = KindNumbered(type);
-            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x908b93 + type * 2));
-            int frameCount = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x908bef + type * 2));
+            ushort pointer = rom.ReadCartridgeWord((0x908b93 + type * 2));
+            int frameCount = rom.ReadCartridgeWord((0x908bef + type * 2));
             AssertEqual(frameCount, PictureCount(kind), $"atmospheric type {type} frame count");
 
             // Each picture shows for the native timer of the step before it, the first for its own (#2388); the last step's
             // own timer is never shown.
             for (int frame = 0; frame < frameCount; frame++)
             {
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x900000 | (pointer + Math.Max(frame - 1, 0) * 2))),
+                AssertEqual(rom.ReadCartridgeWord((0x900000 | (pointer + Math.Max(frame - 1, 0) * 2))),
                     PictureUpdates(kind, frame),
                     $"atmospheric type {type} picture {frame} shows for its handed-on timer");
             }
         }
 
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x909e8b), SamusLiquidDamageDefinitions.Lava.Fraction,
+        AssertEqual(rom.ReadCartridgeWord(0x909e8b), SamusLiquidDamageDefinitions.Lava.Fraction,
             "lava fractional damage rate");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x909e8d), SamusLiquidDamageDefinitions.Lava.Whole,
+        AssertEqual(rom.ReadCartridgeWord(0x909e8d), SamusLiquidDamageDefinitions.Lava.Whole,
             "lava whole damage rate");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x909e8f), SamusLiquidDamageDefinitions.Acid.Fraction,
+        AssertEqual(rom.ReadCartridgeWord(0x909e8f), SamusLiquidDamageDefinitions.Acid.Fraction,
             "acid fractional damage rate");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x909e91), SamusLiquidDamageDefinitions.Acid.Whole,
+        AssertEqual(rom.ReadCartridgeWord(0x909e91), SamusLiquidDamageDefinitions.Acid.Whole,
             "acid whole damage rate");
 
         var guarded = NewSamusAtmosphericAnimationReadGuard(rom);

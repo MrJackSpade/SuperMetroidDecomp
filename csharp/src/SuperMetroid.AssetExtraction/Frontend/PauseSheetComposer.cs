@@ -32,7 +32,7 @@ internal static class PauseSheetComposer
         Ensure.NotNull(selectors);
         Ensure.NotNull(tanks);
         Ensure.NotNull(maps);
-        SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
+        SpriteArtwork page = maps.Sprites.Page;
         List<SheetFrameSource> frames = [.. selectors.FrameNames.Select(frame =>
         {
             string name = PauseSelectorAnchors.SheetFrameName(frame);

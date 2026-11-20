@@ -111,7 +111,7 @@ internal static class SamusSuitColorsVerification
         SamusSuit[] offsets = [SamusSuit.Power, SamusSuit.Varia, SamusSuit.Gravity];
         for (int suit = 0; suit < offsets.Length; suit++)
         for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
-            AssertEqual(ReadNativeSuitColor(CartridgeImportSource.Require(bus), sourceAddresses[suit], color),
+            AssertEqual(ReadNativeSuitColor(bus, sourceAddresses[suit], color),
                 decoded.Resolve(offsets[suit], color),
                 $"extracted normal suit {suit} color {color} agrees with cartridge");
 

@@ -30,7 +30,7 @@ internal static class HudAtlasVerification
         InstalledScreenContent original,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
-        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), NativeHudCharacters, HudTileAtlasFormat.ByteCount);
+        byte[] source = RomDataReader.ReadFixedBank(bus, NativeHudCharacters, HudTileAtlasFormat.ByteCount);
         AssertTrue(source.SequenceEqual(InstalledFixtures.ImportOf(original).Characters.Hud.Bytes.Span), "HUD PNG and compiled padding match all native bytes");
         var native = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay);
         native.Artwork.ScreenContent = original;

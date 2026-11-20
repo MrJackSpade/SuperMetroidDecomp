@@ -67,7 +67,7 @@ internal static class PhantoonDoorObjectsVerification
     /// </summary>
     private static void VerifyPhantoonDoorSpawnCalls(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         (int Call, ushort Header, PhantoonDoorChange Change)[] spawns =
             [(0xa7d4e5, 0xb781, PhantoonDoorChange.FightDoor), (0xa7db89, 0xb78b, PhantoonDoorChange.RestoredDoor)];
         foreach ((int call, ushort header, PhantoonDoorChange change) in spawns)
@@ -171,7 +171,7 @@ internal static class PhantoonDoorObjectsVerification
     private static void VerifyChange(CartridgeImportAddressSpace rom, RoomLevelData level, PhantoonDoorChange change,
         Dictionary<Offset16<RoomBlocks>, RoomTerrainBlock> before, ushort drawList, ushort priorList)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         Position16<RoomBlocks> top = PhantoonDoorChangeDefinitions.Block;
         RoomBlockBehavior[] behaviors = [.. before.Keys.Select(cell => level.GetCollisionBlock(top + cell).Behavior)];
         RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();

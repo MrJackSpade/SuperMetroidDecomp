@@ -29,7 +29,7 @@ internal static class GunshipDustAnimationsVerification
     /// <summary>Every dust program matches its native list.</summary>
     internal static void VerifyGunshipDustAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int updates = 0;
         for (int cloud = 0; cloud < GunshipDustDefinitions.LiftoffClouds.Count; cloud++)
         {

@@ -134,7 +134,7 @@ internal static class ShutterBehaviorVerification
 
     /// <summary>Reads a native bank-$A2 shutter word for the oracles above.</summary>
     private static ushort ReadShutterWord(CartridgeImportAddressSpace bus, SnesAddress address) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWord(address.Value);
+        bus.ReadCartridgeWord(address.Value);
 
     /// <summary>
     /// The growing shutter's timer-mode wait holds its true duration (#2281): a placement's wait of two activates on the

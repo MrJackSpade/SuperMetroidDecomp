@@ -41,17 +41,17 @@ internal static class SoundEffectCommands
 
     /// <summary>The sound <paramref name="library"/>'s request <paramref name="command"/> names.</summary>
     /// <exception cref="InvalidDataException">The library has no such request.</exception>
-    internal static SoundEffectId Decode(SoundEffectLibrary library, int command)
+    internal static SoundEffectId Decode(SoundEffectLibrary library, int command) => library switch
     {
-        SoundEffectId? sound = library switch
-        {
-            SoundEffectLibrary.Samus => Library1Sounds.TryGetValue(command, out SamusSound one) ? (SoundEffectId)one : null,
-            SoundEffectLibrary.Enemies => Library2Sounds.TryGetValue(command, out EnemySound two) ? (SoundEffectId)two : null,
-            SoundEffectLibrary.Room => Library3Sounds.TryGetValue(command, out RoomSound three) ? (SoundEffectId)three : null,
-            _ => throw new InvalidDataException($"Unknown sound-effect library {library}."),
-        };
-        return sound ?? throw new InvalidDataException($"{library} has no sound request ${command:X2}.");
-    }
+        SoundEffectLibrary.Samus => Library1Sounds.TryGetValue(command, out SamusSound one) ? (SoundEffectId)one : throw NoRequest(library, command),
+        SoundEffectLibrary.Enemies => Library2Sounds.TryGetValue(command, out EnemySound two) ? (SoundEffectId)two : throw NoRequest(library, command),
+        SoundEffectLibrary.Room => Library3Sounds.TryGetValue(command, out RoomSound three) ? (SoundEffectId)three : throw NoRequest(library, command),
+        _ => throw new InvalidDataException($"Unknown sound-effect library {library}."),
+    };
+
+    /// <summary>The failure of a request <paramref name="library"/> does not name.</summary>
+    private static InvalidDataException NoRequest(SoundEffectLibrary library, int command) =>
+        new($"{library} has no sound request ${command:X2}.");
 
     /// <summary>Indexes a library's sounds by request number, proving every request is distinct and nonzero.</summary>
     private static FrozenDictionary<int, TSound> Invert<TSound>(FrozenDictionary<TSound, byte> commands)

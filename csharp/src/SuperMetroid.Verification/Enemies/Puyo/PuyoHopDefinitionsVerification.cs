@@ -21,28 +21,28 @@ internal static class PuyoHopDefinitionsVerification
         {
             int index = PuyoNativeWords.HopRecordOffsets.Word(hopType);
             var hop = PuyoHopDefinitions.Hops[hopType];
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a07 + index)), hop.JumpHeight, "Puyo native hop height");
+            AssertEqual(rom.ReadCartridgeWord((0xa29a07 + index)), hop.JumpHeight, "Puyo native hop height");
             // The record's second value is both the horizontal speed in 256ths of a pixel and, in 256ths of a mark, the
             // step the launch's search takes along the speed curve (#2065).
             // The hop moves by the speed's whole pixels only; its fraction is never read.
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a09 + index)) >> 8, hop.XPixels, "Puyo native horizontal whole pixels");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a09 + index)), hop.LaunchSearchStep.InTwoHundredFiftySixthsOfMark, "Puyo native launch search step");
+            AssertEqual(rom.ReadCartridgeWord((0xa29a09 + index)) >> 8, hop.XPixels, "Puyo native horizontal whole pixels");
+            AssertEqual(rom.ReadCartridgeWord((0xa29a09 + index)), hop.LaunchSearchStep.InTwoHundredFiftySixthsOfMark, "Puyo native launch search step");
             // The record's third value is both the hop's curve step and, in 256ths of a pixel, the speed its drop falls at
             // when the hop is cut short (#1820); the drop itself takes no curve step.
-            int third = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa29a0b + index);
+            int third = rom.ReadCartridgeWord(0xa29a0b + index);
             AssertEqual(third * 256, hop.DropSpeed.RawValue, "Puyo native drop speed");
             if (hop.Movement != PuyoAirborneMovement.Dropping)
                 AssertEqual(third, hop.CurveStep.InTwoHundredFiftySixthsOfMark, "Puyo native curve step");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a0d + index)), PuyoNativeWords.PuyoAirborneMovements.Word(hop.Movement), "Puyo native airborne callback");
+            AssertEqual(rom.ReadCartridgeWord((0xa29a0d + index)), PuyoNativeWords.PuyoAirborneMovements.Word(hop.Movement), "Puyo native airborne callback");
             if (hop.Movement == PuyoAirborneMovement.Dropping)
                 continue; // Dropping bypasses hop initialization and uses constant speed.
             ushort time = 0, distance = 0;
-            ushort height = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a07 + index));
+            ushort height = rom.ReadCartridgeWord((0xa29a07 + index));
             ushort target = unchecked((ushort)((height << 8) | (LittleEndianBytes.HighByte(height))));
             do
             {
-                time = unchecked((ushort)(time + CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a09 + index))));
-                distance = unchecked((ushort)(distance + CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08390 + (LittleEndianBytes.HighByte(time)) * 8))));
+                time = unchecked((ushort)(time + rom.ReadCartridgeWord((0xa29a09 + index))));
+                distance = unchecked((ushort)(distance + rom.ReadCartridgeWord((0xa08390 + (LittleEndianBytes.HighByte(time)) * 8))));
             } while (unchecked((short)(target - distance)) >= 0);
             state.CurrentHop = hopType;
             calculate(state);
@@ -64,7 +64,7 @@ internal static class PuyoHopDefinitionsVerification
         const int onePixel = 65536;
         foreach (PuyoHopType cut in Enum.GetValues<PuyoHopType>())
         {
-            int nativeDrop = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa29a0b + PuyoNativeWords.HopRecordOffsets.Word(cut));
+            int nativeDrop = rom.ReadCartridgeWord(0xa29a0b + PuyoNativeWords.HopRecordOffsets.Word(cut));
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.Puyo, place.KeptDefinition);

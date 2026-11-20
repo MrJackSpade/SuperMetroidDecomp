@@ -20,7 +20,7 @@ internal static class RidleyFlightTailVerification
     private static short ReadRetailSwoopSine(ISnesAddressSpace rom, int angle)
     {
         int address = 0xa0b443 + unchecked((byte)angle) * 2;
-        return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
+        return unchecked((short)rom.ReadCartridgeWord(address));
     }
 
     /// <summary>Compares retail swoop sine motion and production tail transitions, coordinates, and RNG use.</summary>

@@ -93,7 +93,7 @@ internal static class SporeSpawnCeilingObjectsVerification
             for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
             {
                 RoomObjectDrawLists.Run run = draw.Runs.Span[runIndex];
-                AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
+                AssertRunHeader(rom.ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"Spore Spawn draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} run header at +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)}");
                 cursor += 2;
                 foreach (RoomCollisionType cell in run.Collisions.Span)
@@ -112,7 +112,7 @@ internal static class SporeSpawnCeilingObjectsVerification
 
             void AssertDrawCollision(RoomCollisionType expected)
             {
-                AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
+                AssertEqual(RoomLevelWordCodec.Decode(rom.ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
                     expected,
                     $"Spore Spawn draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} block +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)}");
                 cursor += 2;

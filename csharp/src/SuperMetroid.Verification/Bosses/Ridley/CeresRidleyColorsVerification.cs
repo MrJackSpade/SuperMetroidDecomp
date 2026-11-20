@@ -250,5 +250,5 @@ internal static class CeresRidleyColorsVerification
 
     /// <summary>Reads one BGR555 word from the pinned retail palette oracle.</summary>
     private static ushort ReadNativeCeresRidleyColor(ISnesAddressSpace rom, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
+        RomDataReader.ReadWordFixedBank(rom, address);
 }

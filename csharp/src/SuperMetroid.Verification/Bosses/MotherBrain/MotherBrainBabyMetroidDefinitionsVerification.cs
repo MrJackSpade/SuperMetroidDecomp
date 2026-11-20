@@ -39,7 +39,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
         {
             if (word == initializationParameterWord)
                 continue;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((populationAddress + word * 2)), actual[word],
+            AssertEqual(rom.ReadCartridgeWord((populationAddress + word * 2)), actual[word],
                 $"Mother Brain Baby population word {word}");
         }
         AssertEqual(EnemySpawnSettings.None, population.SpawnSettings,

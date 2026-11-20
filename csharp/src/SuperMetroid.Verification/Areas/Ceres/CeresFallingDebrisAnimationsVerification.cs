@@ -21,7 +21,7 @@ internal static class CeresFallingDebrisAnimationsVerification
     /// <summary>Both tile programs match their native lists.</summary>
     internal static void VerifyCeresFallingDebrisAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int updates = 0;
         foreach ((CeresFallingDebrisSegment program, RoomEnemyProjectileKind kind, ushort entry) in Entries)
         {

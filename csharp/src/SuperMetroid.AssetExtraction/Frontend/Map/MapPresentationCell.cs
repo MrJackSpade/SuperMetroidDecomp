@@ -24,12 +24,16 @@ public sealed record MapPresentationCell
 
     /// <summary>
     /// The tile this cell places from a character sheet <paramref name="columns"/> characters wide and <paramref name="rows"/>
-    /// high, or null when its character lies off the sheet or its colour variant is none.
+    /// high.
     /// </summary>
-    internal BackgroundTile? Placement(int columns, int rows) =>
+    /// <param name="columns">The character sheet's width in characters.</param>
+    /// <param name="rows">The character sheet's height in characters.</param>
+    /// <param name="cell">Names the cell in a failure.</param>
+    /// <exception cref="InvalidDataException">The cell's character lies off the sheet or its colour variant is none.</exception>
+    internal BackgroundTile Placement(int columns, int rows, string cell) =>
         (uint)TileColumn < (uint)columns && (uint)TileRow < (uint)rows && (uint)Palette < BackgroundTile.ColourVariants
             ? new BackgroundTile(TileRow * columns + TileColumn, Palette, FlipX, FlipY, Priority)
-            : null;
+            : throw new InvalidDataException($"{cell} has an invalid atlas coordinate or palette.");
 
     /// <summary>Zero-based 8-pixel character column from 0 through 31 in <c>map-tiles.png</c>; combined with the atlas row to form the character index.</summary>
     public required int TileColumn { get; init; }

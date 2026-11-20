@@ -75,16 +75,16 @@ internal static class EnemyDefinitionBoundaryVerification
                     drawnRow = place.PaletteRowIn(system);
                 });
             var expected = new OamBuffer();
-            int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | frame));
+            int count = source.ReadCartridgeWordFixedBank((0xaa0000 | frame));
             for (int index = 0; index < count; index++)
             {
                 int component = 0xaa0000 | (frame + 2 + index * 8);
-                ushort cx = unchecked((ushort)(x + (short)CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(component)));
-                ushort cy = unchecked((ushort)(y + (short)CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 2))));
+                ushort cx = unchecked((ushort)(x + (short)source.ReadCartridgeWordFixedBank(component)));
+                ushort cy = unchecked((ushort)(y + (short)source.ReadCartridgeWordFixedBank((component + 2))));
                 // The cartridge's extended clip drops parts beyond its range and parks wrapped parts at Y=$F0; the port draws
                 // the whole frame at its true position (#1308, #1513), so neither presentation quirk is kept and the reference
                 // places every part at its wrapped coordinates, as the whole-frame draw's sprite entries do.
-                DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = TorizoFrameDefinitionsConstants.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = NativeSpriteGraphicsWords.PaletteBits(drawnRow), BaseTileIndex = drawnBase });
+                DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = TorizoFrameDefinitionsConstants.Bank, Pointer = source.ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = NativeSpriteGraphicsWords.PaletteBits(drawnRow), BaseTileIndex = drawnBase });
             }
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, $"Torizo composed OAM count, frame ${frame:X4} at ({x}, {y}): {OamDifference(expected, actual)}");
             AssertTrue(expected.ImageEquals(actual),
@@ -106,7 +106,7 @@ internal static class EnemyDefinitionBoundaryVerification
     private static void VerifyCompleteTorizoDefinitions(ISnesAddressSpace source)
     {
         // The lists themselves are typed programs (#1289); VerifyTorizoAnimations matches them to the native lists.
-        IImportCartridgeSource rom = CartridgeImportSource.Require(source);
+        IImportCartridgeSource rom = source;
         int bank = TorizoCollisionDefinitions.Bank << 16;
         AssertEqual(106, TorizoCollisionDefinitions.FrameCount, "complete Torizo physical frame count");
         var seenLists = new Dictionary<int, TorizoHitboxList>();
@@ -169,23 +169,23 @@ internal static class EnemyDefinitionBoundaryVerification
                 var record = records[i];
                 int[] words = [record.SizeInBytes, CorpseRowSources.BankWord, CorpseRowSources.Of(kind, i), record.DestinationWord];
                 for (int w = 0; w < words.Length; w++)
-                    AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa90000 | (pointer + i * 8 + w * 2))), words[w], "corpse transfer descriptor");
+                    AssertEqual(source.ReadCartridgeWordFixedBank((0xa90000 | (pointer + i * 8 + w * 2))), words[w], "corpse transfer descriptor");
             }
-            AssertEqual((ushort)0, CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa90000 | (pointer + records.Length * 8))), "corpse descriptor terminator");
+            AssertEqual((ushort)0, source.ReadCartridgeWordFixedBank((0xa90000 | (pointer + records.Length * 8))), "corpse descriptor terminator");
         }
         var boxes = DeadTorizoTouchDefinitions.TouchHitboxes;
-        AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa9d77c), boxes.Length, "dead Torizo asymmetric rectangle count");
+        AssertEqual(source.ReadCartridgeWordFixedBank(0xa9d77c), boxes.Length, "dead Torizo asymmetric rectangle count");
         for (int i = 0; i < boxes.Length; i++)
         {
             ushort[] words = [unchecked((ushort)boxes[i].Left), unchecked((ushort)boxes[i].Top),
                 unchecked((ushort)boxes[i].Right), unchecked((ushort)boxes[i].Bottom)];
             for (int w = 0; w < words.Length; w++)
-                AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa9d77e + i * 8 + w * 2)), words[w], "dead Torizo asymmetric word");
+                AssertEqual(source.ReadCartridgeWordFixedBank((0xa9d77e + i * 8 + w * 2)), words[w], "dead Torizo asymmetric word");
         }
         for (ushort i = 0; i < 16; i++)
         {
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa9d67c + i * 2)), CorpseStagingGeometryDefinitions.SandDestination(i), "corpse sand destination");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa9d69c + i * 2)), CorpseStagingGeometryDefinitions.SandSource(i), "corpse sand source");
+            AssertEqual(source.ReadCartridgeWordFixedBank((0xa9d67c + i * 2)), CorpseStagingGeometryDefinitions.SandDestination(i), "corpse sand destination");
+            AssertEqual(source.ReadCartridgeWordFixedBank((0xa9d69c + i * 2)), CorpseStagingGeometryDefinitions.SandSource(i), "corpse sand source");
         }
     }
 
@@ -197,10 +197,10 @@ internal static class EnemyDefinitionBoundaryVerification
         {
             EnemyFrameId frame = CrocomireBodyFramesTooling.BodyOrder[index];
             CrocomireBodyAnimation expected = CrocomireBodyAnimation.PowerBombReactionMouthNotOpen;
-            int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | CrocomireBodyFramesTooling.Spritemap(frame)));
+            int count = source.ReadCartridgeWordFixedBank((0xa40000 | CrocomireBodyFramesTooling.Spritemap(frame)));
             for (int i = 0; i < count; i++)
             {
-                ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | (CrocomireBodyFramesTooling.Spritemap(frame) + 6 + i * 8)));
+                ushort sprite = source.ReadCartridgeWordFixedBank((0xa40000 | (CrocomireBodyFramesTooling.Spritemap(frame) + 6 + i * 8)));
                 if (sprite == 0xd600) { expected = CrocomireBodyAnimation.PowerBombReactionMouthFullyOpen; break; }
                 if (sprite == 0xd51c) { expected = CrocomireBodyAnimation.PowerBombReactionMouthPartiallyOpen; break; }
             }
@@ -220,7 +220,7 @@ internal static class EnemyDefinitionBoundaryVerification
         foreach (var definition in EnemyAuxiliaryColorDefinitions.All)
             for (int frame = 0; frame < definition.FrameCount; frame++)
                 for (int color = 0; color < definition.ColorCount; color++)
-                    AssertEqual((ushort)(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((
+                    AssertEqual((ushort)(source.ReadCartridgeWordFixedBank((
                         EnemySourceDefinitions.AuxiliaryPalettes[definition.Id].FirstRow.Value +
                         (frame * EnemySourceDefinitions.AuxiliaryPalettes[definition.Id].RowStrideColors + color) * 2)) & 0x7fff),
                         catalog.Resolve(definition.Id, frame, color), "installed auxiliary RGB5 color");

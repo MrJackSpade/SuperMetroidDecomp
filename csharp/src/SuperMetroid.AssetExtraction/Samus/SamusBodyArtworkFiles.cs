@@ -86,7 +86,7 @@ public static class SamusBodyArtworkFiles
         Directory.CreateDirectory(importData);
         // The import decides once which frames her body can show and which body frames the sheet pictures, from the frames
         // her animation shows as the game's layout of the programs reads them; the tables are decoded for those frames.
-        SamusShownFrames shown = new SamusShownFrameAnalysis(SamusAnimationLayout.Read(CartridgeImportSource.Require(bus))).Installed();
+        SamusShownFrames shown = new SamusShownFrameAnalysis(SamusAnimationLayout.Read(bus)).Installed();
         SamusBodyDecoded decoded = SamusBodyTableDecoding.Decode(bus, shown, out IReadOnlyDictionary<SamusBodyPicture, SamusBodyTileTransfer> transfers);
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
         var pictures = new Dictionary<string, PictureEntry>(StringComparer.Ordinal);
@@ -330,7 +330,7 @@ public static class SamusBodyArtworkFiles
         Dictionary<SamusPoseId, int> ArtOrigins,
         Dictionary<SamusPoseId, Dictionary<string, FrameEntry>> Poses,
         Dictionary<string, PictureEntry> Pictures,
-        Dictionary<string, SpriteVisualPart[]> Compositions,
+        Dictionary<string, SpriteVisualPiece[]> Compositions,
         Dictionary<string, string?> Explosion,
         Dictionary<string, string?> Atmosphere,
         Dictionary<string, string> Hashes);

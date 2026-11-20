@@ -51,8 +51,8 @@ internal static class EnemyExtendedFrameArtworkVerification
             AssertTrue(Enumerable.Range(0, count).Any(component =>
             {
                 ushort record = unchecked((ushort)(pointer + 2 + component * 8 + 4));
-                ushort sprite = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa50000 | record);
-                return CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa50000 | sprite)
+                ushort sprite = rom.ReadCartridgeWordFixedBank(0xa50000 | record);
+                return rom.ReadCartridgeWordFixedBank(0xa50000 | sprite)
                     == 0xfffe;
             }), $"unextracted Draygon frame $A5:{pointer:X4} is a BG2 command");
         }
@@ -343,7 +343,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         for (int index = 0; index < count; index++)
         {
             ushort component = unchecked((ushort)(pointer + 2 + index * 8));
-            ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(component + 4)))));
+            ushort sprite = source.ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(component + 4)))));
             int spriteAddress = ((int)new SnesAddress(bank, sprite));
             int parts = LittleEndianBytes.Word(source.ReadCartridgeByte(spriteAddress), source.ReadCartridgeByte((int)new SnesAddress(bank, unchecked((ushort)(sprite + 1)))));
             if (parts == EnemyBg2FrameLayoutConstants.StreamMarker)
@@ -355,14 +355,14 @@ internal static class EnemyExtendedFrameArtworkVerification
                      command < EnemyBg2FrameLayout.MaximumCommandsPerStream;
                      command++)
                 {
-                    ushort destination = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, cursor)));
+                    ushort destination = source.ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, cursor)));
                     if (destination == 0xffff)
                     {
                         Block(bank, cursor, 2);
                         terminated = true;
                         break;
                     }
-                    ushort wordCount = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(cursor + 2)))));
+                    ushort wordCount = source.ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(cursor + 2)))));
                     int length = 4 + wordCount * 2;
                     Block(bank, cursor, length);
                     cursor = unchecked((ushort)(cursor + length));

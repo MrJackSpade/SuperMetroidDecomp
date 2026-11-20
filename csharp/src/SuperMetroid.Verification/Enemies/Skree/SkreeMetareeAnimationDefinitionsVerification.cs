@@ -23,11 +23,11 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         for (int index = 0; index < 3; index++)
         {
             SkreeMetareeSegment metaree = SkreeNativeWords.MetareeAnimationPhases.Decode(index, "Metaree animation phase");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + index * 2)),
+            AssertEqual(rom.ReadCartridgeWord((0xa3894e + index * 2)),
                 NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, metaree),
                 $"Metaree animation phase {index}");
             SkreeMetareeSegment skree = SkreeNativeWords.SkreeAnimationPhases.Decode(index, "Skree animation phase");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3c69c + index * 2)),
+            AssertEqual(rom.ReadCartridgeWord((0xa3c69c + index * 2)),
                 NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, skree),
                 $"Skree animation phase {index}");
         }

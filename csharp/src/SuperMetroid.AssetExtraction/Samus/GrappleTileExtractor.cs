@@ -17,7 +17,7 @@ public static class GrappleTileExtractor
     {
         using var planar = new MemoryStream();
         foreach (var transfer in GrappleTileDefinitions.Transfers)
-            planar.Write(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), transfer.SourceAddress, transfer.ByteCount));
+            planar.Write(RomDataReader.ReadFixedBank(bus, transfer.SourceAddress, transfer.ByteCount));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar.ToArray(), 4, GrappleTileDefinitions.Width / 8, out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));

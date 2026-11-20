@@ -27,7 +27,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
     internal static void VerifyTourianEntranceStatueInstructionProgramDefinitions(
         CartridgeImportAddressSpace rom)
     {
-        var cartridge = CartridgeImportSource.Require(rom);
+        var cartridge = rom;
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
             ushort entry = cartridge.ReadCartridgeWord(EnemyRomTablePointers.TourianStatue.AnimationScriptWords + parameter);

@@ -44,8 +44,7 @@ public sealed class RoomFxLayer3Pages
             var tiles = new BackgroundTile[RoomFxLayer3TilemapFormat.CellsPerPage];
             for (int cell = 0; cell < cells.Length; cell++)
             {
-                tiles[cell] = cells[cell]?.Placement() ?? throw new InvalidDataException(
-                    $"Room-FX BG3 {type} cell {cell} has an invalid tile or palette.");
+                tiles[cell] = cells[cell].Placement($"Room-FX BG3 {type} cell {cell}");
             }
             return tiles;
         }

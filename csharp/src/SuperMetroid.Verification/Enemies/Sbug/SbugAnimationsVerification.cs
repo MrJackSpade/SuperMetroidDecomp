@@ -13,7 +13,7 @@ internal static class SbugAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifySbugAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
             SbugAnimations.Segments, SbugAnimations.StartingAt, SbugFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<NoAnimationCue>(
                 word => null,

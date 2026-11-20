@@ -94,7 +94,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             // Mother Brain's onion ring starts a typed touch program too (#1292).
             if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.MotherBrainOnionRing))
-                VerifySharedDelete(CartridgeImportSource.Require(rom).ReadCartridgeWord(
+                VerifySharedDelete(rom.ReadCartridgeWord(
                     NativeEnemyProjectileListDefinitions.ProjectileBank | (definitionWord + TouchListOffset)), "touch");
             if (kind is not (RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.DraygonGoop or
                 RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
@@ -108,7 +108,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.KagoBug or RoomEnemyProjectileKind.EyeDoorProjectile or
                 // A shot Draygon wall turret runs the typed misc-dust small explosion (#1292).
                 RoomEnemyProjectileKind.DraygonWallTurret))
-                VerifySharedDelete(CartridgeImportSource.Require(rom).ReadCartridgeWord(
+                VerifySharedDelete(rom.ReadCartridgeWord(
                     NativeEnemyProjectileListDefinitions.ProjectileBank | (definitionWord + ShotListOffset)), "shot");
             }
 
@@ -118,7 +118,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 if (address == 0)
                     return;
                 AssertEqual((ushort)NativeEnemyProjectileInstruction.Delete,
-                    CartridgeImportSource.Require(rom).ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | address),
+                    rom.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | address),
                     $"Projectile {kind} {role} list $86:{address:X4} is the shared delete");
                 entryCount++;
                 reactionCount++;

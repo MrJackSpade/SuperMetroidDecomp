@@ -115,7 +115,7 @@ internal static class RoomSkyTilemapsVerification
 
     /// <summary>Reads original bank-relative sky page bytes for the independent VRAM comparison.</summary>
     private static byte[] ReadRetailSkyBytes(ISnesAddressSpace bus, int address, int count) =>
-        RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), address, count);
+        RomDataReader.ReadFixedBank(bus, address, count);
 
     /// <summary>Rejects installed sky page reads.</summary>
     private static MutableCartridgeReadGuard NewSkyPageReadGuard(ISnesAddressSpace source)

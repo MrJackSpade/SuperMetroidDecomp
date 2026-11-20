@@ -37,8 +37,8 @@ internal static class ProjectileTrailDefinitionsVerification
             // An empty trail family (programs, direction list or coordinates outside the compiled data) draws no trail (#1318).
             if (projectiles.LiveTrails.SingleOrDefault() is not { } trail)
                 continue;
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects the left table's trail");
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn selects the right table's trail");
+            AssertEqual(RomDataReader.ReadWordFixedBank(bus, start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects the left table's trail");
+            AssertEqual(RomDataReader.ReadWordFixedBank(bus, SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn selects the right table's trail");
             AssertEqual(1, trail.Left.FrameHold, "Selector extraction leaves allocation timer unchanged");
             AssertSelectedTrailStandsOnShot(projectiles, trail, ShotColumn);
         }

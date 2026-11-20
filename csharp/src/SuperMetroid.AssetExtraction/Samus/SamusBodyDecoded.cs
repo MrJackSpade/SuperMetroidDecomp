@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal sealed record SamusBodyDecoded(
     IReadOnlyDictionary<SamusPoseId, int> ArtOrigins,
     IReadOnlyDictionary<SamusPoseId, IReadOnlyDictionary<int, SamusBodyDecodedFrame>> Frames,
-    IReadOnlyDictionary<SamusSpritemapId, SpriteVisualPart[]> Compositions,
+    IReadOnlyDictionary<SamusSpritemapId, SpriteVisualPiece[]> Compositions,
     IReadOnlyDictionary<string, SamusSpritemapId?> Explosion,
     IReadOnlyDictionary<string, SamusSpritemapId?> Atmosphere)
 {

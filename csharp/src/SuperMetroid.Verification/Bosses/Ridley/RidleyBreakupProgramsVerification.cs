@@ -62,7 +62,7 @@ internal static class RidleyBreakupProgramsVerification
         foreach (EnemyFrameId frame in RidleyNativeListAddresses.BreakupEntries.Select(entry => entry.Frame))
         {
             ushort operand = (ushort)(RidleyNativeProgramOracle.BreakupList(frame) + 2);
-            ushort expectedPointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(RidleyNativeListAddresses.BodyBankNumber << 16 | operand);
+            ushort expectedPointer = rom.ReadCartridgeWordFixedBank(RidleyNativeListAddresses.BodyBankNumber << 16 | operand);
             var fragment = fragments[0];
             RidleyExplosionFragmentState spawned = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
             var copied = new RidleyExplosionFragmentState { Velocity = spawned.Velocity, Picture = frame };

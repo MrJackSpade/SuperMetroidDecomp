@@ -54,8 +54,7 @@ public sealed class MapSpriteArtwork : MapSpriteCompositions
     private static Dictionary<MapSpriteId, SpriteComposition> Compile(Stream json)
     {
         MapSpriteDocument document;
-        try { document = JsonAssetDocument.Read<MapSpriteDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Map sprite document is null."); }
+        try { document = JsonAssetDocument.Read<MapSpriteDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map sprite JSON.", error); }
         if (document.Version != MapSpriteFormat.Version || document.Frames is null || document.Frames.Count != MapSpriteFormat.FrameCount)
             throw new InvalidDataException("Map sprite content requires version 1 and all 26 named frames.");
@@ -76,9 +75,4 @@ public sealed class MapSpriteArtwork : MapSpriteCompositions
 
     /// <summary>The map sprite sheet's frames, one per named role.</summary>
     public static IEnumerable<string> SheetFrames => FrameNames.Select(frame => frame.Name);
-
-    /// <summary>The artwork <paramref name="catalog"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The catalog was not read from installed artwork.</exception>
-    public static MapSpriteArtwork Of(MapSpriteCompositions catalog) => catalog as MapSpriteArtwork
-        ?? throw new InvalidDataException("The map sprites were not read from installed artwork.");
 }

@@ -145,7 +145,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         {
             forbidden.Add(address);
             forbidden.Add(address + 1);
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), expected,
+            AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), expected,
                 $"Tourian statue palette source ${address:X6}");
         }
 

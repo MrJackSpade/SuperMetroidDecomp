@@ -83,7 +83,7 @@ internal static class CeresElevatorArrivalVerification
     /// </summary>
     private static void VerifyConcealerShade(ISnesAddressSpace rom, CeresElevatorArrivalState arrival)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         VerificationAssertions.AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0x82812d), "the new-game clear loads an immediate colour");
         VerificationAssertions.AssertEqual((ushort)0, cartridge.ReadCartridgeWord(0x82812e), "the new-game clear's colour is black");
         VerificationAssertions.AssertEqual((byte)0x8f, rom.ReadCartridgeByte(0x828130), "the new-game clear stores a long address");
@@ -156,7 +156,7 @@ internal static class CeresElevatorArrivalVerification
     /// <summary>Matches the arrival actors' typed programs (#641) to the retail bank-$86 projectile definitions and lists the cartridge runs them as.</summary>
     private static void VerifyCompiledDefinitions(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         foreach ((CeresElevatorArrivalSegment animation, ushort definitionPointer) in new[]
         {
             new VerifyCompiledDefinitionsCase(CeresElevatorArrivalSegment.Pad, 0xa387),

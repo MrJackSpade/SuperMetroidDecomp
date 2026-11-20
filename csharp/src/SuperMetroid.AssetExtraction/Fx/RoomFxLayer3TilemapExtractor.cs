@@ -24,14 +24,14 @@ public static class RoomFxLayer3TilemapExtractor
         foreach (RoomFxType type in RoomFxLayer3TilemapFormat.Types)
         {
             int source = RoomFxLayer3TilemapSources.Page(type).Value;
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            int pointer = RomDataReader.ReadWordFixedBank(bus,
                 RoomFxLayer3SourceDefinitions.Layer3TilemapPointers.AddWithinBank(RoomFxRecordWords.Types.Word(type)));
             if ((RoomFxBankSourceDefinitions.Tilemaps | pointer) != source)
                 throw new InvalidDataException(
                     $"Room-FX {type} tilemap pointer ${pointer:X4} does not select ${source:X6}.");
             byte[] native = type is RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water
                 ? RoomFxLiquidTilemapDefinitions.ComposePage(type)
-                : RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source,
+                : RomDataReader.ReadFixedBank(bus, source,
                     RoomFxLayer3TilemapFormat.PageByteCount);
             var cells = new RoomBackgroundTilemapCell[RoomFxLayer3TilemapFormat.CellsPerPage];
             for (int index = 0; index < cells.Length; index++)

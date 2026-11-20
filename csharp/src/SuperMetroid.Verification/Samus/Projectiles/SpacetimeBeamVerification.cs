@@ -140,7 +140,7 @@ internal static class SpacetimeBeamVerification
     private static void VerifySpacetimeOverwritesAgainstRetailRom(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         var service = InstalledFixtures.SamusOverreads.Projectiles.SpaceTimeOverwrite;
         int reaching = 0;
         int situations = 0;

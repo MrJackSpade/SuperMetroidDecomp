@@ -19,8 +19,7 @@ public static class PauseSelectorLayoutFile
     /// <exception cref="InvalidDataException">The artwork document does not decode.</exception>
     internal static byte[] Extract(byte[] artwork)
     {
-        PauseSelectorDocument document = JsonAssetDocument.Read<PauseSelectorDocument>(artwork, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Pause selector document is null.");
+        PauseSelectorDocument document = JsonAssetDocument.Read<PauseSelectorDocument>(artwork, ArtworkJson.Options);
         return JsonSerializer.SerializeToUtf8Bytes(new PauseSelectorLayoutDocument
         {
             Version = Version, InitialDurationTicks = document.InitialDurationTicks, Anchors = document.Anchors, Animation = document.Animation,
@@ -32,8 +31,7 @@ public static class PauseSelectorLayoutFile
     public static PauseSelectorPresentation Read(Stream json)
     {
         PauseSelectorLayoutDocument document;
-        try { document = JsonAssetDocument.Read<PauseSelectorLayoutDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Pause selector layout is null."); }
+        try { document = JsonAssetDocument.Read<PauseSelectorLayoutDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause selector layout JSON.", error); }
         if (document.Version != Version)
             throw new InvalidDataException($"Pause selector layout requires version {Version}.");

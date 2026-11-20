@@ -46,7 +46,7 @@ internal static class PauseEquipmentRulesVerification
     {
         for (int item = 0; item < column.Length; item++)
         {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(PauseMaskTableAddress(column[0].Category) + item * 2);
+            ushort expected = rom.ReadCartridgeWord(PauseMaskTableAddress(column[0].Category) + item * 2);
             AssertEqual(expected, column[item].Upgrade.ToNativeWord(), "original native upgrade flag case");
         }
     }
@@ -56,10 +56,10 @@ internal static class PauseEquipmentRulesVerification
     {
         AssertEqual((byte)0x29, rom.ReadCartridgeByte(0x82b212), "native AND immediate opcode");
         AssertEqual((byte)0xdd, rom.ReadCartridgeByte(0x82b218), "native CMP absolute-X opcode");
-        AssertEqual((ushort)0xb257, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x82b219), "native comparison table operand");
-        ushort nativeMask = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x82b213);
+        AssertEqual((ushort)0xb257, rom.ReadCartridgeWord(0x82b219), "native comparison table operand");
+        ushort nativeMask = rom.ReadCartridgeWord(0x82b213);
         ushort[] original = new ushort[4];
-        for (int index = 0; index < original.Length; index++) original[index] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82b257 + index * 2));
+        for (int index = 0; index < original.Length; index++) original[index] = rom.ReadCartridgeWord((0x82b257 + index * 2));
         // The native table lists the wireframes for neither, Hi-Jump, Varia, then both.
         PauseWireframeKind[] nativeOrder =
         [
@@ -120,23 +120,23 @@ internal static class PauseEquipmentRulesVerification
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.SpeedBooster, startAndA.SelectedControl, "the Speed Booster is selected");
         AssertTrue(startAndA.Step(ControllerButton.Start, ControllerButton.A), "Start unpauses");
         AssertEqual(SamusEquipmentFlags.None, unpausing.EquippedItems, "the same frame's A still unequips the Speed Booster");
-        ushort[] wireframeMasks = Enumerable.Range(0, 4).Select(index => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+        ushort[] wireframeMasks = Enumerable.Range(0, 4).Select(index => RomDataReader.ReadWordFixedBank(bus,
             EquipmentSetTable + index * 2)).ToArray();
         Suite(nameof(VerifyPauseWireframeSelection), () => VerifyPauseWireframeSelection(bus));
         foreach (ushort items in wireframeMasks.SelectMany(mask => new[] { mask, (ushort)(mask | SamusEquipmentFlags.GravitySuit.ToEquipmentWord()) }))
         {
             var pause = Create(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(items), CollectedItems = SamusEquipmentWordCodec.FromEquipmentWord(items) }); EnterPauseEquipment(pause);
             int variant = Array.IndexOf(wireframeMasks, (ushort)(items & 0x0101));
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), (int)PauseMenuSourceDefinitions.PauseWireframePointers + variant * 2);
+            int pointer = RomDataReader.ReadWordFixedBank(bus, (int)PauseMenuSourceDefinitions.PauseWireframePointers + variant * 2);
             var memory = pause.ComposeScene().Paint;
             byte[] vram = pause.ShownVram(catalog);
             for (int row = 0; row < 17; row++)
             for (int column = 0; column < 8; column++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (pointer + (row * 8 + column) * 2)),
+                AssertEqual(RomDataReader.ReadWordFixedBank(bus, 0x820000 | (pointer + (row * 8 + column) * 2)),
                     BinaryPrimitives.ReadUInt16LittleEndian(vram.AsSpan(PauseMenuLayoutConstants.Bg1TilemapWord * 2 + 472 + row * 64 + column * 2)),
                     "selected native wireframe artwork reaches the actual equipment tilemap");
         }
-        ushort nativeAmount = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), ReserveTransferAmount);
+        ushort nativeAmount = RomDataReader.ReadWordFixedBank(bus, ReserveTransferAmount);
         AssertEqual(nativeAmount, PauseEquipmentRules.ReserveEnergyPerFrame, "manual reserve rate matches native word");
         foreach (var scenario in new[] { new VerifyCompiledPauseEquipmentRulesCase(Health:20, Reserve:10), new VerifyCompiledPauseEquipmentRulesCase(Health:98, Reserve:10), new VerifyCompiledPauseEquipmentRulesCase(Health:99, Reserve:1) })
         {

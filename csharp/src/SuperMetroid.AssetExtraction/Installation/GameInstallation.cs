@@ -55,7 +55,7 @@ public sealed record GameInstallation(string Root)
     /// <exception cref="InvalidDataException">The extracted content is incomplete or was extracted for another format.</exception>
     public void RequireExtractedContent()
     {
-        if (GameAssetInstaller.TryOpenExtractedContent(Root) is null)
+        if (!GameAssetInstaller.HoldsCurrentExtractedContent(Root))
             throw new InvalidDataException(
                 "Extracted game content is incomplete or invalid.");
     }

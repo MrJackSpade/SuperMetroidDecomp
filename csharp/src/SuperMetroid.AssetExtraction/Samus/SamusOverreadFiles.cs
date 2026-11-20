@@ -24,7 +24,7 @@ public static class SamusOverreadFiles
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         Directory.CreateDirectory(directory);
         SamusOverreadDocument document = SamusOverreadDecoding.Decode(cartridge);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, SamusOverreadFormat.JsonOptions);

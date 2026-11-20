@@ -31,7 +31,7 @@ internal static class BlueBrinstarFaceBlockGlowVerification
     /// </summary>
     internal static void VerifyBlueBrinstarFaceBlockGlow(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         IReadOnlyList<FaceBlockGlowLevel> cycle = FaceBlockGlowAnimations.Cycle;
         ushort[][] records = [.. Enumerable.Range(0, cycle.Count).Select(step => Enumerable.Range(0, RecordColours)
             .Select(colour => cartridge.ReadCartridgeWord(GlowColourRecords + 2 * (RecordColours * step + colour))).ToArray())];

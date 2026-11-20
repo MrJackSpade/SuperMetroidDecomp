@@ -98,17 +98,17 @@ public static class SamusAtmosphericArtworkFiles
     }
 
     /// <summary>The stored single small pieces of one list, each at the sprite origin.</summary>
-    private static SpritePart[] Pieces(SpriteVisualPart[] parts, string source) =>
+    private static SpritePart[] Pieces(SpriteVisualPiece[] parts, string source) =>
         [.. parts.Select(part => part is { OffsetX: 0, OffsetY: 0, Size: 8 }
             ? part.ToSpritePart(SpriteArtwork.CharactersPerRow)
             : throw new InvalidDataException($"Samus atmospheric artwork {source} has a part that is not one small piece at the origin."))];
 
     /// <summary>Imports one native atmospheric list, decoding its four attribute words into single small pieces.</summary>
-    private static SpriteVisualPart[] ReadList(ISnesAddressSpace bus, int pointer)
+    private static SpriteVisualPiece[] ReadList(ISnesAddressSpace bus, int pointer)
     {
-        var parts = new SpriteVisualPart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount];
+        var parts = new SpriteVisualPiece[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount];
         for (int frame = 0; frame < parts.Length; frame++)
-            parts[frame] = SpriteVisualPart.FromSpritePart(new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(
+            parts[frame] = SpriteVisualPiece.FromSpritePart(new SnesObjAttributeWord(bus.ReadCartridgeWord(
                 SamusSourceDefinitions.MovementBank.Value | pointer + frame * 2)).ToSinglePart(), SpriteArtwork.CharactersPerRow);
         return parts;
     }
@@ -116,14 +116,14 @@ public static class SamusAtmosphericArtworkFiles
     /// <summary>Checks that each atmospheric type still selects its expected authored or zero list pointer.</summary>
     private static void AssertPointer(ISnesAddressSpace bus, int table, int type, int expected)
     {
-        int actual = CartridgeImportSource.Require(bus).ReadCartridgeWord((table + type * 2));
+        int actual = bus.ReadCartridgeWord((table + type * 2));
         if (actual != expected)
             throw new InvalidDataException(
                 $"Atmospheric type {type} points to ${actual:X4}, expected ${expected:X4}.");
     }
 
     /// <summary>The extracted single small pieces for footsteps and the shared lava/dust effect.</summary>
-    private sealed record ArtworkDocument(int Version, SpriteVisualPart[] FootstepSplash, SpriteVisualPart[] LavaAndDust);
+    private sealed record ArtworkDocument(int Version, SpriteVisualPiece[] FootstepSplash, SpriteVisualPiece[] LavaAndDust);
     /// <summary>The extracted artwork's source revision.</summary>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256);
 }

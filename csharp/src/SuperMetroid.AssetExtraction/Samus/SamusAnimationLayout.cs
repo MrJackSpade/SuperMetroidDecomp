@@ -192,22 +192,31 @@ internal sealed class SamusAnimationLayout
     /// The step at <paramref name="offset"/> frames into the game's layout of <paramref name="animation"/>, reading a cue's
     /// value or past the animation's end as the game does; null where the game's animation fails.
     /// </summary>
-    internal StepRead? Read(SamusPoseAnimation animation, int offset)
+    internal StepRead? Read(SamusPoseAnimation animation, int offset) =>
+        TryRead(animation, offset, out StepRead read) ? read : null;
+
+    /// <summary>
+    /// Reads the step at <paramref name="offset"/> frames into the game's layout of <paramref name="animation"/>, as
+    /// <see cref="Read"/> does, into <paramref name="read"/>; false where the game's animation fails.
+    /// </summary>
+    internal bool TryRead(SamusPoseAnimation animation, int offset, out StepRead read)
     {
-        SamusPoseAnimation read = animation;
+        read = default;
+        SamusPoseAnimation reading = animation;
         int frame = offset;
         int shift = 0;
-        SamusPoseAnimationStep? step = StepOf(read, frame);
+        SamusPoseAnimationStep? step = StepOf(reading, frame);
         while (step is null)
         {
-            if (successors[read] is not { } next || frame < next.Shift)
-                return null;
-            read = next.Animation;
+            if (successors[reading] is not { } next || frame < next.Shift)
+                return false;
+            reading = next.Animation;
             frame -= next.Shift;
             shift += next.Shift;
-            step = StepOf(read, frame);
+            step = StepOf(reading, frame);
         }
-        return new StepRead(step, read, frame, shift);
+        read = new StepRead(step, reading, frame, shift);
+        return true;
     }
 
     /// <summary>
@@ -218,8 +227,9 @@ internal sealed class SamusAnimationLayout
     /// <exception cref="InvalidDataException">The frame reads no step.</exception>
     internal int TargetOffset(SamusPoseAnimation animation, int offset, SamusAnimationFrame target)
     {
-        StepRead read = Read(animation, offset) ?? throw new InvalidDataException(
-            $"Samus animation frame {offset} of the {animation.Name} animation reads no step whose cue could name a frame.");
+        if (!TryRead(animation, offset, out StepRead read))
+            throw new InvalidDataException(
+                $"Samus animation frame {offset} of the {animation.Name} animation reads no step whose cue could name a frame.");
         return Offset(read.Animation, read.Animation.Require(target)) + read.Shift;
     }
 

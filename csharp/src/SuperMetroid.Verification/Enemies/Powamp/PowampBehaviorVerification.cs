@@ -41,7 +41,7 @@ internal static class PowampBehaviorVerification
         // The ROM oracle holds every balloon beat to a four-byte native frame record, so the native pointer at a place
         // is its segment's entry plus four bytes per beat passed, the list's closing control at its end included; the
         // native record there is the pose's own.
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         PowampBalloonState balloonState = balloon.RequireSpeciesState<PowampBalloonState>();
         object?[] arguments = [balloon, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         foreach (PowampSegment start in new[] { PowampSegment.BalloonInflatingFromDeflated, PowampSegment.BalloonInflatingFromHalfway, PowampSegment.BalloonStartSinking, PowampSegment.BalloonDeflated })

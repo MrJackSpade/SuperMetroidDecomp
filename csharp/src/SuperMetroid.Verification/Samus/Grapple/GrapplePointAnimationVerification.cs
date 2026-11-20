@@ -17,8 +17,8 @@ internal static class GrapplePointAnimationVerification
     internal static void VerifyGrapplePointAnimation(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyGrappleRopeGeometry), () => VerifyGrappleRopeGeometry(bus));
-        ushort begin = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleBeamDefinitions.Rendering.PointTilePointers);
-        ushort end = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleBeamDefinitions.Rendering.PointTilePointers + 2);
+        ushort begin = RomDataReader.ReadWordFixedBank(bus, GrappleBeamDefinitions.Rendering.PointTilePointers);
+        ushort end = RomDataReader.ReadWordFixedBank(bus, GrappleBeamDefinitions.Rendering.PointTilePointers + 2);
         var grapple = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Phase = GrapplePhase.Firing };
         ushort expectedTimer = 5, expectedPointer = begin;
         for (int tick = 0; tick < 48; tick++)

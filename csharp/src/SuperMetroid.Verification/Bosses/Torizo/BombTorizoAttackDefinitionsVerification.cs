@@ -23,8 +23,8 @@ internal static class BombTorizoAttackDefinitionsVerification
         // Each swipe cue carries its hand placement, which the animation oracle compares with these tables
         // (--torizo-animations); every native placement spawns where the cartridge put it, mirrored when facing right.
         Offset16<RoomPixels>[] swipes = [.. Enumerable.Range(0, 11).Select(index => new Offset16<RoomPixels>(
-            unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(swipeXAddress + index * 2)),
-            unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(swipeYAddress + index * 2))))];
+            unchecked((short)rom.ReadCartridgeWord(swipeXAddress + index * 2)),
+            unchecked((short)rom.ReadCartridgeWord(swipeYAddress + index * 2))))];
 
         // The cartridge's explosion rows: for each site an unused centred row, then the right- and left-facing rows.
         foreach (BombTorizoExplosionSite site in Enum.GetValues<BombTorizoExplosionSite>())
@@ -32,10 +32,10 @@ internal static class BombTorizoAttackDefinitionsVerification
         {
             int row = (site == BombTorizoExplosionSite.Gut ? 0 : 3) + (facingRight ? 1 : 2);
             Offset16<RoomPixels> definition = BombTorizoAttacks.LowHealthExplosion(site, facingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((explosionXAddress + row * 2))),
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((explosionXAddress + row * 2))),
                 definition.X,
                 $"Bomb Torizo explosion site {site} facing right {facingRight} X offset");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((explosionYAddress + row * 2))),
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((explosionYAddress + row * 2))),
                 definition.Y,
                 $"Bomb Torizo explosion site {site} facing right {facingRight} Y offset");
         }

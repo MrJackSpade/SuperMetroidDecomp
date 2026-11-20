@@ -42,7 +42,7 @@ internal static class HopperAnimationDefinitionsVerification
                  })
         {
             int header = SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(hopper);
-            AssertEqual(HoppersNativeWords.HopperKinds.Decode(RoomEnemyDefinitionImporter.ReadWord(CartridgeImportSource.Require(rom), header, 42), "hopper variant"),
+            AssertEqual(HoppersNativeWords.HopperKinds.Decode(RoomEnemyDefinitionImporter.ReadWord(rom, header, 42), "hopper variant"),
                 HopperAnimationChoices.KindOf(hopper), $"{hopper}'s header names its kind");
         }
         AssertThrows<InvalidDataException>(() => HopperAnimationChoices.KindOf(EnemyDefinitionId.Zoa), "a Zoa is no hopper");
@@ -131,7 +131,7 @@ internal static class HopperAnimationDefinitionsVerification
 
     /// <summary>Reads a native hopper word for independent bank-A3 definition comparisons.</summary>
     internal static ushort ReadHopperAnimationWord(CartridgeImportAddressSpace source, int address) =>
-        CartridgeImportSource.Require(source).ReadCartridgeWord(address);
+        source.ReadCartridgeWord(address);
 
     /// <summary>Runs the hopper animation checks and the program oracle through the verification dispatcher.</summary>
     [VerificationCommand("--hopper-instruction-program-definitions")]

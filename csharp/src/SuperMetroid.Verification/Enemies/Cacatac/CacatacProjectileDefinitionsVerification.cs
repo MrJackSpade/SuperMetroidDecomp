@@ -29,7 +29,7 @@ internal static class CacatacProjectileDefinitionsVerification
                 projectile.Delete();
 
             ushort raw = CacatacNativeWords.SpikeDirections.Word(direction);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + raw);
+            ushort native = rom.ReadCartridgeWord(instructionTable + raw);
             bool diagonal = raw >= CacatacNativeWords.SpikeDirections.Word(CacatacSpikeDirection.UpLeft);
             AssertEqual(native, CacatacProjectileNativeListAddresses.Entry(direction),
                 $"compiled Cacatac spike instruction {direction}");

@@ -20,7 +20,7 @@ internal static class PauseHudLocationVerification
     internal static void VerifyPauseHudLocation()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var cart = CartridgeImportSource.Require(bus);
+        var cart = bus;
         var maps = RetailPresentationFixture();
         foreach (byte phase in new byte[] { 0, 8 })
         {

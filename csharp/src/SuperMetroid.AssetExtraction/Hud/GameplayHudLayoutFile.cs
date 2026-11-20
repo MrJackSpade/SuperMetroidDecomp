@@ -57,8 +57,7 @@ public static class GameplayHudLayoutFile
         GameplayHudLayoutDocument document;
         try
         {
-            document = JsonAssetDocument.Read<GameplayHudLayoutDocument>(source, ArtworkJson.Options) ??
-                throw new InvalidDataException("Gameplay HUD layout document is null.");
+            document = JsonAssetDocument.Read<GameplayHudLayoutDocument>(source, ArtworkJson.Options);
         }
         catch (JsonException error)
         {

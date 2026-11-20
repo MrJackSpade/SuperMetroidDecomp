@@ -31,7 +31,7 @@ public static class GameOptionsPresentationExtractor
         var pages = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationFormat.BackgroundPageName] = Cells(
-                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.Background,
+                RomDataReader.ReadFixedBank(bus, MapSourceDefinitions.Menu.Background,
                     GameOptionsSourceDefinitions.TilemapByteCount)),
             [GameOptionsNames.PageName(GameOptionsScreen.Primary)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Primary]),
             [GameOptionsNames.PageName(GameOptionsScreen.ControllerEnglish)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerEnglish]),
@@ -44,7 +44,7 @@ public static class GameOptionsPresentationExtractor
         for (int index = 0; index < GameOptionsPresentationDefinitions.ControllerLabelButtons.Count; index++)
         {
             labels.Add(GameOptionsNames.ControllerLabelName(GameOptionsPresentationDefinitions.ControllerLabelButtons[index]), Cells(
-                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                RomDataReader.ReadFixedBank(bus,
                     GameOptionsSourceDefinitions.MenuBank | GameOptionsSourceDefinitions.ControllerLabelSources[index],
                     GameOptionsPageDefinitions.ControllerLabelCellCount * sizeof(ushort))));
         }
@@ -118,7 +118,7 @@ public static class GameOptionsPresentationExtractor
 
         MapPresentationCell[] Page(GameOptionsPageResource resource)
         {
-            byte[] bytes = RomDataReader.Decompress(CartridgeImportSource.Require(bus), resource.Address,
+            byte[] bytes = RomDataReader.Decompress(bus, resource.Address,
                 maximumOutputBytes: GameOptionsSourceDefinitions.TilemapByteCount);
             if (bytes.Length != GameOptionsSourceDefinitions.TilemapByteCount)
             {
@@ -129,7 +129,7 @@ public static class GameOptionsPresentationExtractor
             return Cells(bytes);
         }
 
-        int Word(int address) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+        int Word(int address) => RomDataReader.ReadWordFixedBank(bus, address);
 
         Offset16<ScreenPixels> Heading(GameOptionsPage page) =>
             Offset16<ScreenPixels>.Of(Word(GameOptionsSourceDefinitions.HeadingColumnOperands[page]), headingRow);

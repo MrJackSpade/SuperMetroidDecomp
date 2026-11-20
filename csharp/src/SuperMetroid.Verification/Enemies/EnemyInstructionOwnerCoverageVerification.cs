@@ -297,10 +297,10 @@ internal static class EnemyInstructionOwnerCoverageVerification
                  recordIndex < EnemyPlaceOrder.Capacity;
                  recordIndex++, cursor += 16)
             {
-                ushort definitionPointerWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor);
+                ushort definitionPointerWord = rom.ReadCartridgeWord(cursor);
                 if (definitionPointerWord == 0xffff)
                     break;
-                int Word(int offset) => CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + offset);
+                int Word(int offset) => rom.ReadCartridgeWord(cursor + offset);
                 // A header several actors share places the one its first parameter selects (#1989).
                 EnemyDefinitionId definitionPointer = EnemySpawnSettingsCodec.PlacedActor(definitionPointerWord, Word(12));
 

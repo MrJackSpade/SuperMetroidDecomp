@@ -13,9 +13,15 @@ internal sealed record EncounterLookSteps(ComposedEncounter Encounter, IReadOnly
 
     /// <summary>What <paramref name="look"/> copies, in the order its copies land: nothing for the room's load.</summary>
     /// <exception cref="InvalidDataException">The look is none of the encounter's.</exception>
-    internal IReadOnlyList<EncounterArtworkUpload> CopiesOf(ComposedLook look) =>
-        InOrder.FirstOrDefault(step => step.Look == look)?.Copies
-            ?? throw new InvalidDataException($"{Encounter} has no look {look}.");
+    internal IReadOnlyList<EncounterArtworkUpload> CopiesOf(ComposedLook look)
+    {
+        foreach (EncounterLookStep step in InOrder)
+        {
+            if (step.Look == look)
+                return step.Copies;
+        }
+        throw new InvalidDataException($"{Encounter} has no look {look}.");
+    }
 
     /// <summary>What every look up to and including <paramref name="look"/> copies, in the order the copies land.</summary>
     /// <exception cref="InvalidDataException">The look is none of the encounter's.</exception>

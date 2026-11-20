@@ -20,8 +20,7 @@ public static class GameOptionsLayoutFile
     /// <exception cref="InvalidDataException">The artwork document does not decode.</exception>
     internal static byte[] Extract(byte[] artwork)
     {
-        GameOptionsPresentationDocument document = JsonAssetDocument.Read<GameOptionsPresentationDocument>(artwork, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Options presentation document is null.");
+        GameOptionsPresentationDocument document = JsonAssetDocument.Read<GameOptionsPresentationDocument>(artwork, ArtworkJson.Options);
         return JsonSerializer.SerializeToUtf8Bytes(new GameOptionsPlacementDocument
         {
             Version = Version, HeadingAnchors = document.HeadingAnchors, CursorAnchors = document.CursorAnchors,
@@ -34,8 +33,7 @@ public static class GameOptionsLayoutFile
     public static GameOptionsPresentation Read(Stream json)
     {
         GameOptionsPlacementDocument document;
-        try { document = JsonAssetDocument.Read<GameOptionsPlacementDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Options layout is null."); }
+        try { document = JsonAssetDocument.Read<GameOptionsPlacementDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid options layout JSON.", error); }
         if (document.Version != Version)
             throw new InvalidDataException($"Options layout version must be {Version}.");

@@ -23,7 +23,7 @@ internal static class FuneNamiheFireballBehaviorVerification
     /// </summary>
     internal static void VerifyFuneNamiheFireballBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, FuneNamiheFireballNativeListAddresses.Extent, "Fune/Namihe fireball");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];

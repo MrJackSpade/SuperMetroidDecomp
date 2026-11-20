@@ -22,7 +22,7 @@ internal static class IntroEggMotionDefinitionsVerification
     /// </summary>
     internal static void VerifyShellFragmentFallPastCurve(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ShellFragmentFallPastCurve installed = InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve;
         const int stepsPastCurve = 3;
         for (int past = 0; past < stepsPastCurve; past++)

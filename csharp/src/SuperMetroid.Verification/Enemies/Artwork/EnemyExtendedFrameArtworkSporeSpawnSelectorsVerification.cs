@@ -35,7 +35,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         int framesCompared = 0;
         var allNativeSelectors = new HashSet<ushort>();
         // Spore Spawn's body runs typed programs (#1288); its cursor is compared as the native pointer it stands for.
-        var steps = BodyLists(CartridgeImportSource.Require(rom));
+        var steps = BodyLists(rom);
         foreach ((SporeSpawnBodySegment program, int frames) in programs)
         {
             ushort pointer = SporeSpawnNativeListAddresses.BodyEntry(program);

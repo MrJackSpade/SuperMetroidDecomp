@@ -101,18 +101,31 @@ internal readonly record struct InstalledImagePlanes(SpriteImagePixels Planes, E
         Ensure.NotNull(Planes);
         if (!rectangle.LiesInside(Size))
             throw new ArgumentException($"Picture rectangle {rectangle} reaches outside its {Size.X}x{Size.Y} image.", nameof(rectangle));
-        ImageContentBox? box = null;
+        // The box starts at the first row that holds something and takes in every later row that does.
         for (int row = 0; row < rectangle.Size.Y; row++)
         {
-            int line = ((rectangle.Corner.Y + row) * Size.X) + rectangle.Corner.X;
-            if (HeldRun(line, rectangle.Size.X) is not { } run)
-                continue;
-            box = box is { } held ? held.Including(run, row) : ImageContentBox.OfRow(run, row);
+            if (HeldRun(LineOf(rectangle, row), rectangle.Size.X) is { } run)
+                return BoxFrom(rectangle, ImageContentBox.OfRow(run, row), row + 1);
         }
-        if (box is not { } found)
-            throw new InvalidOperationException($"Picture rectangle {rectangle} holds nothing, so it has no box of what it holds.");
-        return new FrameRectangle(Position16<ImagePixels>.Of(rectangle.Corner.X + found.Left, rectangle.Corner.Y + found.Top),
-            new Extent16<ImagePixels>(found.Right - found.Left + 1, found.Bottom - found.Top + 1));
+        throw new InvalidOperationException($"Picture rectangle {rectangle} holds nothing, so it has no box of what it holds.");
+    }
+
+    /// <summary>The start of <paramref name="row"/> of <paramref name="rectangle"/> in the image's pixels.</summary>
+    private int LineOf(FrameRectangle rectangle, int row) => ((rectangle.Corner.Y + row) * Size.X) + rectangle.Corner.X;
+
+    /// <summary>
+    /// The box of what <paramref name="rectangle"/> holds, from <paramref name="box"/>, the box of its rows before
+    /// <paramref name="from"/>, taking in every row from there that holds something.
+    /// </summary>
+    private FrameRectangle BoxFrom(FrameRectangle rectangle, ImageContentBox box, int from)
+    {
+        for (int row = from; row < rectangle.Size.Y; row++)
+        {
+            if (HeldRun(LineOf(rectangle, row), rectangle.Size.X) is { } run)
+                box = box.Including(run, row);
+        }
+        return new FrameRectangle(Position16<ImagePixels>.Of(rectangle.Corner.X + box.Left, rectangle.Corner.Y + box.Top),
+            new Extent16<ImagePixels>(box.Right - box.Left + 1, box.Bottom - box.Top + 1));
     }
 
     /// <summary>

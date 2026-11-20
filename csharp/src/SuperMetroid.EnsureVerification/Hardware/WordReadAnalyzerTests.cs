@@ -14,10 +14,9 @@ internal static class WordReadAnalyzerTests
         const string api =
             "namespace SuperMetroid.AssetExtraction.Cartridge { " +
             "public interface IImportCartridgeSource { byte ReadCartridgeByte(int cpuAddress); } " +
-            "public interface ISnesAddressSpace { } " +
+            "public interface ISnesAddressSpace : IImportCartridgeSource { } " +
             "public interface ISnesMutableMemory { byte ReadWorkRamByte(int cpuAddress); } " +
             "public static class SnesAddressMath { public static int AddWithinBank(int address, int delta) => address; } " +
-            "public static class SnesCartridgeImportExtensions { public static byte ReadCartridgeByte(this ISnesAddressSpace bus, int a) => 0; } " +
             "public static class SnesAddressMath2 { } } " +
             "namespace Game { using SuperMetroid.AssetExtraction.Cartridge; ";
         const string end = " }";
@@ -26,7 +25,7 @@ internal static class WordReadAnalyzerTests
         Expect(api + "class C { ushort M(IImportCartridgeSource rom, int a) => (ushort)(rom.ReadCartridgeByte(a) | rom.ReadCartridgeByte(a + 1) << 8); }" + end,
             WordReadAnalyzer.ReconstructedWordId, "Use rom.ReadCartridgeWord(a)");
         Expect(api + "class C { ushort M(ISnesAddressSpace bus, int a) => unchecked((ushort)(bus.ReadCartridgeByte(a) | bus.ReadCartridgeByte(a + 1) << 8)); }" + end,
-            WordReadAnalyzer.ReconstructedWordId, "Use CartridgeImportSource.Require(bus).ReadCartridgeWord(a)");
+            WordReadAnalyzer.ReconstructedWordId, "Use bus.ReadCartridgeWord(a)");
         Expect(api + "class C { ushort M(ISnesMutableMemory ram, int a) => (ushort)(ram.ReadWorkRamByte(a) | ram.ReadWorkRamByte(SnesAddressMath.AddWithinBank(a, 1)) << 8); }" + end,
             WordReadAnalyzer.ReconstructedWordId, "Use ram.ReadWorkRamWordFixedBank(a)");
         Expect(api + "class C { ushort M(IImportCartridgeSource rom, int p) => (ushort)(rom.ReadCartridgeByte(0x840000 | p) | rom.ReadCartridgeByte(0x840000 | unchecked((ushort)(p + 1))) << 8); }" + end,

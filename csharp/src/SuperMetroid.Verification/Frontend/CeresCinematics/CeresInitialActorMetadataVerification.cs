@@ -25,7 +25,7 @@ internal static class CeresInitialActorMetadataVerification
             CeresDestructionActorDefinition actor = CeresDestructionActors.InitialActor(role);
             AssertEqual((byte)0xa0, retail.ReadCartridgeByte(spawnOperands[index] - 1), "native destruction spawn LDY");
             // The spawn operand names the native definition this compiled actor must match.
-            VerifyActor(retail, CartridgeImportSource.Require(retail).ReadCartridgeWord(spawnOperands[index]), actor, role,
+            VerifyActor(retail, retail.ReadCartridgeWord(spawnOperands[index]), actor, role,
                 preservesDefinitionCallback: role != CeresDestructionActorRole.Vortex, $"destruction {role}");
             AssertTrue(actor.SlideAcceleration is null, "destruction actor does not slide");
             AssertEqual(false, actor.CompletesScene, "destruction actor does not own Zebes completion");
@@ -34,13 +34,13 @@ internal static class CeresInitialActorMetadataVerification
         Suite(nameof(VerifyWrappedActor), () => VerifyWrappedActor(retail, CeresDestructionActors.InitialActor(CeresDestructionActorRole.SmallAsteroids), new WrappedActorRomFields(0x8bbf77, 0x8bbf7d, 0x8bbf83, 0x8bbf8e, 0x8bbf9a), "destruction small asteroids"));
         CeresDestructionActorDefinition vortex =
             CeresDestructionActors.InitialActor(CeresDestructionActorRole.Vortex);
-        PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), CeresSheetInks.SpriteSet(vortex.Colouring),
+        PaletteRowWords.AssertSelectsOnlyPaletteRow(retail.ReadCartridgeWord(0x8bbfc0), CeresSheetInks.SpriteSet(vortex.Colouring),
             "destruction vortex attributes");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfac), CinematicActorNativeMotions.CeresDestruction[CeresDestructionActorRole.Vortex],
+        AssertEqual(retail.ReadCartridgeWord(0x8bbfac), CinematicActorNativeMotions.CeresDestruction[CeresDestructionActorRole.Vortex],
             "destruction vortex routine override: it holds still");
 
         AssertEqual((byte)0xa9, retail.ReadCartridgeByte(0x8bc292), "stationary vortex parameter opcode");
-        AssertEqual((ushort)0, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc293), "stationary vortex parameter zero");
+        AssertEqual((ushort)0, retail.ReadCartridgeWord(0x8bc293), "stationary vortex parameter zero");
         AssertEqual((byte)0x60, retail.ReadCartridgeByte(0x8b0000 | CinematicActorNativeMotions.CeresDestruction[CeresDestructionActorRole.Vortex]), "stationary vortex RTS");
         AssertEqual(SignedSixteenSixteen.Zero, vortex.HorizontalDelta, "stationary vortex has no displacement");
         AssertEqual(false, vortex.DriftsRoundLoop, "stationary vortex does not drift round the loop");
@@ -60,9 +60,9 @@ internal static class CeresInitialActorMetadataVerification
             // The asteroid initializers keep the definition's pre-instruction; only the
             // vortex's parameter-zero initializer replaces it with the no-op override.
             if (preservesDefinitionCallback)
-                AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), CinematicActorNativeMotions.CeresDestruction[role],
+                AssertEqual(source.ReadCartridgeWord((address + 2)), CinematicActorNativeMotions.CeresDestruction[role],
                     $"{name} initializer preserves the definition's routine, the role's drift");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actor.Animation),
+            AssertEqual(source.ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actor.Animation),
                 $"{name} instruction list");
         }
 
@@ -72,11 +72,11 @@ internal static class CeresInitialActorMetadataVerification
             WrappedActorRomFields fields,
             string name)
         {
-            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.AttributeWord), CeresSheetInks.SpriteSet(actor.Colouring),
+            PaletteRowWords.AssertSelectsOnlyPaletteRow(source.ReadCartridgeWord(fields.AttributeWord), CeresSheetInks.SpriteSet(actor.Colouring),
                 $"{name} attributes");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.DeltaWord), actor.HorizontalDelta.Fraction,
+            AssertEqual(source.ReadCartridgeWord(fields.DeltaWord), actor.HorizontalDelta.Fraction,
                 $"{name} speed");
-            AssertEqual((ushort)0x01ff, CartridgeImportSource.Require(source).ReadCartridgeWord(fields.MaskWord), $"{name} wrap mask");
+            AssertEqual((ushort)0x01ff, source.ReadCartridgeWord(fields.MaskWord), $"{name} wrap mask");
             AssertTrue(actor.DriftsRoundLoop, $"{name} drifts round the Ceres scenes' loop");
         }
     }

@@ -24,7 +24,7 @@ internal static class CacatacMovementDefinitionsVerification
             for (byte distanceIndex = 0; distanceIndex < 6; distanceIndex++)
             {
                 int address = distanceTable + distanceIndex * 2;
-                ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+                ushort native = rom.ReadCartridgeWord(address);
                 place.SetSpawnParameter1(EnemyDefinitionId.Cacatac, 0);
                 place.SetSpawnParameter2(EnemyDefinitionId.Cacatac, distanceIndex);
                 AssertEqual(native, place.HeldOccupant().SpawnSettings<CacatacSpawnSettings>().TravelDistance,

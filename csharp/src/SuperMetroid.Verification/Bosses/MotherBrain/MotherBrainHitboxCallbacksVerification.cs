@@ -25,7 +25,7 @@ internal static class MotherBrainHitboxCallbacksVerification
     /// </summary>
     internal static void VerifyMotherBrainHitboxCallbacks(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int rectangles = 0;
         IEnumerable<(string Name, ushort Pointer, EnemyCollisionComponent[] Components)> roots = Enumerable
             .Range(0, MotherBrainBodyFrameDefinitions.FrameCount)

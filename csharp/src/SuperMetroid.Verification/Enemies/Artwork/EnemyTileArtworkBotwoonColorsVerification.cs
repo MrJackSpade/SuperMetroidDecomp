@@ -31,7 +31,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
             throw new InvalidDataException("Installed enemy art has no Botwoon colors.");
         for (int band = 0; band < BotwoonColorFormat.HealthBandCount; band++)
         for (int color = 0; color < BotwoonColorFormat.ColorsPerPalette; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+            AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     BotwoonSourceDefinitions.HealthColors +
                     (band * BotwoonColorFormat.ColorsPerPalette + color) * 2),
                 native.HealthColor(BotwoonHealthBandDefinitions.InOrderShown[band], color),
@@ -55,7 +55,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         IReadOnlyList<BotwoonHealthBand> bands = BotwoonHealthBandDefinitions.InOrderShown;
         for (int band = 0; band < bands.Count; band++)
         {
-            ushort threshold = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+            ushort threshold = RomDataReader.ReadWordFixedBank(rom,
                 BotwoonHealthBandDefinitions.NativeThresholdAddress + band * sizeof(ushort));
             state.HealthBand = band == 0 ? null : bands[band - 1];
             head.Health = threshold - 1;

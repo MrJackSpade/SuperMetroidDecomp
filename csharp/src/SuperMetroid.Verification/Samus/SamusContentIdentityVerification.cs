@@ -83,7 +83,7 @@ internal static class SamusContentIdentityVerification
             PoseDescriptors = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, _ => 0),
             DrawingData = new int[SamusArmCannonArtworkFormat.DrawingDataByteCount],
             CoverAppearances = SamusProjectileDirectionCodec.InAimOrder.ToDictionary(direction => direction,
-                _ => SpriteVisualPart.FromSpritePart(SpritePart.Single(0, 0, 0), SpriteArtwork.CharactersPerRow)),
+                _ => SpriteVisualPiece.FromSpritePart(SpritePart.Single(0, 0, 0), SpriteArtwork.CharactersPerRow)),
             CoverOrientations = SamusProjectileDirectionCodec.InAimOrder.ToDictionary(direction => direction,
                 _ => SamusArmCannonCoverOrientation.Vertical),
         };

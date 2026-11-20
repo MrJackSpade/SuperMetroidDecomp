@@ -57,9 +57,9 @@ internal static class CeresEscapeOverlayTilemapsVerification
             if (transfer.Pointer >= CeresEscapeVramTransferDefinitions.TimerSprites)
                 break;
             int descriptor = 0xa60000 | transfer.Pointer;
-            WriteNativeWords(CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2),
-                CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor),
-                CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor + 5));
+            WriteNativeWords(rom.ReadCartridgeLong(descriptor + 2),
+                rom.ReadCartridgeWord(descriptor),
+                rom.ReadCartridgeWord(descriptor + 5));
             nativeTransfers++;
         }
         AssertEqual(5, nativeTransfers, "the cartridge writes the English title and four Japanese subtitle rows");
@@ -70,7 +70,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         {
             int first = destinationWord - GameplayVramLayout.Bg1TilemapWord;
             for (int index = 0; index < byteCount / sizeof(ushort); index++)
-                native[first + index] = CartridgeImportSource.Require(rom).ReadCartridgeWord(source + index * sizeof(ushort));
+                native[first + index] = rom.ReadCartridgeWord(source + index * sizeof(ushort));
         }
 
         AssertTrue(stockOverlay.TryResolve(title, out ReadOnlyMemory<BackgroundTile> _),

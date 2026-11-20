@@ -245,7 +245,7 @@ internal static class ProjectileInheritanceProbeVerification
     /// <summary>The two retail speed words the uncharged power beam adds to inherited launch velocity.</summary>
     private static int ReadPowerBeamLaunchSpeedSum(ISnesAddressSpace rom)
     {
-        return CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90c2d1) + CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90c357);
+        return rom.ReadCartridgeWord(0x90c2d1) + rom.ReadCartridgeWord(0x90c357);
     }
 
     /// <summary>Runs the projectile velocity inheritance verification command.</summary>

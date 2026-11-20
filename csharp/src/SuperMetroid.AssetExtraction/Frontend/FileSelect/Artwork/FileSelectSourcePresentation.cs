@@ -185,8 +185,7 @@ public sealed class FileSelectSourcePresentation
         FileSelectArtworkDocument document;
         try
         {
-            document = JsonAssetDocument.Read<FileSelectArtworkDocument>(artworkBytes, ArtworkJson.Options) ??
-                throw new InvalidDataException("File-select artwork document is null.");
+            document = JsonAssetDocument.Read<FileSelectArtworkDocument>(artworkBytes, ArtworkJson.Options);
         }
         catch (JsonException error)
         {
@@ -278,8 +277,7 @@ public sealed class FileSelectSourcePresentation
         FileSelectLayoutDocument document;
         try
         {
-            document = JsonAssetDocument.Read<FileSelectLayoutDocument>(bytes, ArtworkJson.Options) ??
-                throw new InvalidDataException("File-select presentation document is null.");
+            document = JsonAssetDocument.Read<FileSelectLayoutDocument>(bytes, ArtworkJson.Options);
         }
         catch (JsonException error)
         {
@@ -374,11 +372,8 @@ public sealed class FileSelectSourcePresentation
     }
 
     /// <summary>Validates an authored cell's tile coordinates and palette and places its tile.</summary>
-    private static BackgroundTile CompileCell(MapPresentationCell? cell, string owner)
-    {
-        return cell?.Placement(FileSelectPresentationFormat.CharacterColumns, FileSelectPresentationFormat.CharacterRows)
-            ?? throw new InvalidDataException($"{owner} has an invalid character or palette.");
-    }
+    private static BackgroundTile CompileCell(MapPresentationCell cell, string owner) =>
+        cell.Placement(FileSelectPresentationFormat.CharacterColumns, FileSelectPresentationFormat.CharacterRows, owner);
 
     /// <summary>Requires every save-slot field anchor to remain within a menu page.</summary>
     private static void ValidateSlot([NotNull] FileSelectSlotFieldDocument? slot)

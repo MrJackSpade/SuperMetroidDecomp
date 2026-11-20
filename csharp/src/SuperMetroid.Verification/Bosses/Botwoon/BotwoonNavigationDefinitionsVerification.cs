@@ -98,7 +98,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         Suite(nameof(VerifyBotwoonPathStartMapping), () => VerifyBotwoonPathStartMapping(rom));
         Suite(nameof(VerifyBotwoonPathDirectionMapping), () => VerifyBotwoonPathDirectionMapping(rom));
         Suite(nameof(VerifyBotwoonPathDestinationMapping), () => VerifyBotwoonPathDestinationMapping(rom));
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         for (int offset = 0; offset < DescriptorCount * RecordBytes; offset += RecordBytes)
         {
             var state = new BotwoonEnemyState(body: []) { Movement = BotwoonMovement.Finished };
@@ -123,7 +123,7 @@ internal static class BotwoonNavigationDefinitionsVerification
     /// </summary>
     private static void VerifyBotwoonPathStartMapping(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort[] boundaries = [0xa058,0xa328,0xa6ba,0xaa22,0xadfc,0xb168,0xb554,0xb954,
             0xbc84,0xc084,0xc28e,0xc68e,0xc9ca,0xcdca,0xd13e,0xd4a0,0xd87e,
             0xda00,0xdb9a,0xdd40,0xde7c,0xdfde,0xe14e];
@@ -173,7 +173,7 @@ internal static class BotwoonNavigationDefinitionsVerification
     /// </summary>
     private static void VerifyBotwoonLeaveHoleChance(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort followsPath = cartridge.ReadCartridgeWord(LeaveHoleActionTable);
         int taken = 0;
         for (int sample = 0; sample <= ushort.MaxValue; sample++)
@@ -197,7 +197,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         Suite(nameof(VerifyBotwoonHoleRightBounds), () => VerifyBotwoonHoleRightBounds(rom));
         Suite(nameof(VerifyBotwoonHoleBottomBounds), () => VerifyBotwoonHoleBottomBounds(rom));
         Suite(nameof(VerifyBotwoonLeaveHoleChance), () => VerifyBotwoonLeaveHoleChance(rom));
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
 
         BotwoonHoleDefinition[] holes = BotwoonNavigationDefinitions.Holes;
         for (int holeIndex = 0; holeIndex < holes.Length; holeIndex++)

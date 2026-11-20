@@ -64,7 +64,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         void VerifyBand(int source, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     source + color * sizeof(ushort)), resolve(color),
                     $"installed {name} color {color} preserves native RGB5");
         }

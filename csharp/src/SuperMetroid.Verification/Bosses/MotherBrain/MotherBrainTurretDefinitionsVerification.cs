@@ -27,15 +27,15 @@ internal static class MotherBrainTurretDefinitionsVerification
             int wordOffset = parameter * 2;
             // $86:BEF9: each turret's eight allowed-direction bytes follow the previous turret's.
             ushort policyRow = (ushort)(0xbef9 + parameter * 8);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86be89 + wordOffset)), definition.Position.X,
+            AssertEqual(rom.ReadCartridgeWord((0x86be89 + wordOffset)), definition.Position.X,
                 $"Mother Brain turret X {parameter}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bea1 + wordOffset)), definition.Position.Y,
+            AssertEqual(rom.ReadCartridgeWord((0x86bea1 + wordOffset)), definition.Position.Y,
                 $"Mother Brain turret Y {parameter}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bec9 + wordOffset)),
+            AssertEqual(rom.ReadCartridgeWord((0x86bec9 + wordOffset)),
                 policyRow,
                 $"Mother Brain turret rotation pointer {parameter}");
             // The cartridge numbers a turret's directions by their place on the turret ring.
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bee1 + wordOffset)),
+            AssertEqual(rom.ReadCartridgeWord((0x86bee1 + wordOffset)),
                 (ushort)MotherBrainTurretDefinitions.Ring.PositionOf(definition.InitialDirection),
                 $"Mother Brain turret initial direction {parameter}");
 
@@ -113,20 +113,20 @@ internal static class MotherBrainTurretDefinitionsVerification
             int wordOffset = direction * 2;
             // Both native pose tables select the list the typed turret pose matches (--mother-brain-projectile-animations).
             ushort pose = MotherBrainNativeListAddresses.TurretEntries[direction].TurretPose;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86beb9 + wordOffset)), pose,
+            AssertEqual(rom.ReadCartridgeWord((0x86beb9 + wordOffset)), pose,
                 $"Mother Brain turret initial pose {direction}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c040 + wordOffset)), pose,
+            AssertEqual(rom.ReadCartridgeWord((0x86c040 + wordOffset)), pose,
                 $"Mother Brain turret runtime pose {direction}");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bf9f + wordOffset))),
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0x86bf9f + wordOffset))),
                 definition.BulletOffset.X,
                 $"Mother Brain turret bullet X offset {direction}");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bfaf + wordOffset))),
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0x86bfaf + wordOffset))),
                 definition.BulletOffset.Y,
                 $"Mother Brain turret bullet Y offset {direction}");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bfbf + wordOffset))),
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0x86bfbf + wordOffset))),
                 definition.BulletVelocity.X.InTwoHundredFiftySixthsOfPixel,
                 $"Mother Brain turret bullet X velocity {direction}");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bfcf + wordOffset))),
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0x86bfcf + wordOffset))),
                 definition.BulletVelocity.Y.InTwoHundredFiftySixthsOfPixel,
                 $"Mother Brain turret bullet Y velocity {direction}");
 

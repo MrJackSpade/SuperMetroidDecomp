@@ -20,7 +20,7 @@ internal static class PoseProjectileOriginVerification
     /// <summary>Compares every pose and direction across signed graphics-offset classes for beams and Grapple.</summary>
     internal static void VerifyPoseProjectileOrigin(CartridgeImportAddressSpace rom)
     {
-        short Word(int a) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(a));
+        short Word(int a) => unchecked((short)rom.ReadCartridgeWord(a));
         var initialize = new Action<SamusState, SamusProjectile>(BeamFiring.InitializePosition);
         var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringOrigins);
         SamusPoseId guardedPose = default;

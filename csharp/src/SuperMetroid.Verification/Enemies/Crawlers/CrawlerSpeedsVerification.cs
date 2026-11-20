@@ -20,8 +20,8 @@ internal static class CrawlerSpeedsVerification
         SignedEightEight? crawlSpeed;
         for (ushort parameter = 0; parameter < 32; parameter++)
         {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e5f0 + parameter * 2));
-            AssertEqual(expected, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3cca2 + parameter * 2)), "Yard/crawler native speed mirror");
+            ushort expected = rom.ReadCartridgeWord((0xa3e5f0 + parameter * 2));
+            AssertEqual(expected, rom.ReadCartridgeWord((0xa3cca2 + parameter * 2)), "Yard/crawler native speed mirror");
             AssertEqual(expected, CrawlerSpeeds.ForParameter(parameter), "Compiled crawling speed");
             crawlSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.CrawlSpeed(parameter);
             AssertEqual<SignedEightEight?>(new SignedEightEight(expected), crawlSpeed, "Imported crawling speed");
@@ -37,8 +37,8 @@ internal static class CrawlerSpeedsVerification
             {
                 setYard(yard, SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction));
                 int address = 0xa3cd82 + direction * 8;
-                AssertEqual(unchecked((ushort)((expected ^ CartridgeImportSource.Require(rom).ReadCartridgeWord(address)) + CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)))), yard.CrawlingVelocity.X.RawValue, "Real Yard X reset without bus");
-                AssertEqual(unchecked((ushort)((expected ^ CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))) + CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)))), yard.CrawlingVelocity.Y.RawValue, "Real Yard Y reset without bus");
+                AssertEqual(unchecked((ushort)((expected ^ rom.ReadCartridgeWord(address)) + rom.ReadCartridgeWord((address + 2)))), yard.CrawlingVelocity.X.RawValue, "Real Yard X reset without bus");
+                AssertEqual(unchecked((ushort)((expected ^ rom.ReadCartridgeWord((address + 4))) + rom.ReadCartridgeWord((address + 6)))), yard.CrawlingVelocity.Y.RawValue, "Real Yard Y reset without bus");
             }
         }
         // The preserve selector imports as no crawl speed, which skips the table, not the subsequent native sign application.
@@ -62,13 +62,13 @@ internal static class CrawlerSpeedsVerification
             {
                 int address = 0xa3cd82 + direction * 8;
                 var actual = YardCrawlVelocity.Apply(new SignedEightEight(magnitude), SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction));
-                AssertEqual(unchecked((ushort)((magnitude ^ CartridgeImportSource.Require(rom).ReadCartridgeWord(address)) + CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)))), actual.X.RawValue, "Yard exhaustive native X sign");
-                AssertEqual(unchecked((ushort)((magnitude ^ CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))) + CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)))), actual.Y.RawValue, "Yard exhaustive native Y sign");
+                AssertEqual(unchecked((ushort)((magnitude ^ rom.ReadCartridgeWord(address)) + rom.ReadCartridgeWord((address + 2)))), actual.X.RawValue, "Yard exhaustive native X sign");
+                AssertEqual(unchecked((ushort)((magnitude ^ rom.ReadCartridgeWord((address + 4))) + rom.ReadCartridgeWord((address + 6)))), actual.Y.RawValue, "Yard exhaustive native Y sign");
             }
         }
         AssertThrows<InvalidDataException>(() => CrawlerSpeeds.ForParameter(32), "Crawler invalid speed");
         AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.CrawlSpeed(32), "Crawler import rejects the speed past its records");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa3e5f0 + 8 * 2), YardVelocityDefinitions.AggressiveCrawlSpeed.RawValue,
+        AssertEqual(rom.ReadCartridgeWord(0xa3e5f0 + 8 * 2), YardVelocityDefinitions.AggressiveCrawlSpeed.RawValue,
             "a landed kicked Yard crawls at the ninth crawling speed");
 
         Console.WriteLine("Compiled crawling speeds: both 32-word copies, 384 real resets, and every sentinel reset and Yard sign pair of a reversible velocity match native values without a bus.");

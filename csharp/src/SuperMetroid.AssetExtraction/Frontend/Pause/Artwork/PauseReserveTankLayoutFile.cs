@@ -17,8 +17,7 @@ public static class PauseReserveTankLayoutFile
     /// <exception cref="InvalidDataException">The artwork document does not decode.</exception>
     internal static byte[] Extract(byte[] artwork)
     {
-        PauseReserveTankDocument document = JsonAssetDocument.Read<PauseReserveTankDocument>(artwork, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Reserve tank document is null.");
+        PauseReserveTankDocument document = JsonAssetDocument.Read<PauseReserveTankDocument>(artwork, ArtworkJson.Options);
         return JsonSerializer.SerializeToUtf8Bytes(new PauseReserveTankLayoutDocument { Version = Version, Anchors = document.Anchors },
             ArtworkJson.Options);
     }
@@ -28,8 +27,7 @@ public static class PauseReserveTankLayoutFile
     public static PauseReserveTankPresentation Read(Stream json)
     {
         PauseReserveTankLayoutDocument document;
-        try { document = JsonAssetDocument.Read<PauseReserveTankLayoutDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Reserve tank layout is null."); }
+        try { document = JsonAssetDocument.Read<PauseReserveTankLayoutDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid reserve tank layout JSON.", error); }
         if (document.Version != Version)
             throw new InvalidDataException($"Reserve tank layout requires version {Version}.");

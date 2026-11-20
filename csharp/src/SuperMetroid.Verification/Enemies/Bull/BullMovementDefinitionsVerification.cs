@@ -26,10 +26,10 @@ internal static class BullMovementDefinitionsVerification
             initialize(place); // No loaded cartridge bus; exercises the real initializer.
             var state = enemies.BullStates[0] ?? throw new InvalidOperationException("Verification requires state.");
             BullSpeedIntervals intervals = place.HeldOccupant().SpawnSettings<BullSpawnSettings>().Intervals;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d895 + interval * 4)), intervals.Acceleration, "Bull compiled acceleration");
+            AssertEqual(rom.ReadCartridgeWord((0xa8d895 + interval * 4)), intervals.Acceleration, "Bull compiled acceleration");
             AssertEqual(intervals.Acceleration, state.AccelerationIntervalTimer.UpdatesLeft, "Bull live timer initialization");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d897 + interval * 4)), intervals.Deceleration, "Bull compiled deceleration");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d885 + speed * 2)), place.HeldOccupant().SpawnSettings<BullSpawnSettings>().MaximumSpeed.InTwoHundredFiftySixthsOfPixel, "Bull compiled speed");
+            AssertEqual(rom.ReadCartridgeWord((0xa8d897 + interval * 4)), intervals.Deceleration, "Bull compiled deceleration");
+            AssertEqual(rom.ReadCartridgeWord((0xa8d885 + speed * 2)), place.HeldOccupant().SpawnSettings<BullSpawnSettings>().MaximumSpeed.InTwoHundredFiftySixthsOfPixel, "Bull compiled speed");
             AssertEqual(BullAction.MovementDelay, state.Action, "Bull initial function");
             AssertEqual(16, state.ActivationTimer.UpdatesLeft, "Bull native activation delay");
             AssertEqual(1, place.AnimationClock.Hold, "Bull instruction timer");

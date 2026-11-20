@@ -63,7 +63,7 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
         {
             var expected = OriginalMotherBrainFrames[i];
             AssertEqual(expected, MotherBrainBodyVisualDefinitionsConstants.Frame(i), "Mother Brain published OAM identity/name");
-            ushort count = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa90000 | expected.Pointer);
+            ushort count = rom.ReadCartridgeWordFixedBank(0xa90000 | expected.Pointer);
             int expectedCount = i is >= 1 and <= 3 ? 10 : i == 9 ? 7 : 9;
             AssertEqual((ushort)expectedCount, count, "Mother Brain native frame stride geometry");
         }

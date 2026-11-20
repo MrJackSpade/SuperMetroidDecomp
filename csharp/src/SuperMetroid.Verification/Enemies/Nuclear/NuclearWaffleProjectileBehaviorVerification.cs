@@ -15,7 +15,7 @@ internal static class NuclearWaffleProjectileBehaviorVerification
     /// <summary>The initializer's four body links start the typed loop, which matches the native list update for update.</summary>
     internal static void VerifyNuclearWaffleProjectileBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, NuclearWaffleProjectileNativeListAddresses.Extent, "Nuclear Waffle body");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace owner = enemies.Places.InUpdateOrder[0];

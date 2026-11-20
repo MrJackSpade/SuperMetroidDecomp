@@ -38,7 +38,7 @@ internal static class PowerBombCallbackDefinitionsVerification
                 continue;
             int address = Convert.ToInt32(match.Groups[1].Value, 16);
             byte bank = rom.ReadCartridgeByte(address + 12);
-            ushort callback = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 40);
+            ushort callback = rom.ReadCartridgeWord(address + 40);
             bool expected = callback != 0 && rom.ReadCartridgeByte(((int)new SnesAddress(bank, callback))) == 0x6b;
             AssertEqual(expected, EnemyInteractionCallbacks.DecodePowerBomb(bank, callback) == EnemyReaction.Ignore,
                 $"header {address:X6} native Power Bomb classification");

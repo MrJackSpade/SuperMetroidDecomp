@@ -22,11 +22,11 @@ internal static class ChootPatternDefinitionsVerification
         {
             ChootFallingPath fallingPath = DecodedFallingPath(patternIndex);
             int loopYDistance = ChootFalls.LoopYDistance(fallingPath);
-            ushort nativePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df5e + patternIndex * 2));
-            ushort distancePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df6a + patternIndex * 2));
+            ushort nativePointer = rom.ReadCartridgeWord((0xa2df5e + patternIndex * 2));
+            ushort distancePointer = rom.ReadCartridgeWord((0xa2df6a + patternIndex * 2));
             AssertEqual(nativePointer, ChootNativeWords.ChootFallingPaths.Word(fallingPath),
                 $"Choot pattern pointer {patternIndex}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | distancePointer)),
+            AssertEqual(rom.ReadCartridgeWord((0xa20000 | distancePointer)),
                 loopYDistance,
                 $"Choot pattern distance {patternIndex}");
 
@@ -36,19 +36,19 @@ internal static class ChootPatternDefinitionsVerification
                 Offset16<RoomPixels> point = ChootFalls.At(
                     fallingPath,
                     frameIndex) ?? throw new InvalidDataException($"Choot path {patternIndex} ends early at {frameIndex}.");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + frameIndex * 4)),
+                AssertEqual(rom.ReadCartridgeWord((pathAddress + frameIndex * 4)),
                     unchecked((ushort)point.X),
                     $"Choot path X {patternIndex}/{frameIndex}");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + frameIndex * 4 + 2)),
+                AssertEqual(rom.ReadCartridgeWord((pathAddress + frameIndex * 4 + 2)),
                     unchecked((ushort)point.Y),
                     $"Choot path Y {patternIndex}/{frameIndex}");
             }
 
             // The native path ends each loop with a (-32768, -32768) pair; the port's path ends at that frame.
             int endFrame = frameCounts[patternIndex] - 1;
-            AssertEqual((ushort)0x8000, CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + endFrame * 4)),
+            AssertEqual((ushort)0x8000, rom.ReadCartridgeWord((pathAddress + endFrame * 4)),
                 $"Choot path {patternIndex} native loop end X");
-            AssertEqual((ushort)0x8000, CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + endFrame * 4 + 2)),
+            AssertEqual((ushort)0x8000, rom.ReadCartridgeWord((pathAddress + endFrame * 4 + 2)),
                 $"Choot path {patternIndex} native loop end Y");
             AssertTrue(ChootFalls.At(fallingPath, endFrame) is null, $"Choot path {patternIndex} ends its loop at the native end frame");
 

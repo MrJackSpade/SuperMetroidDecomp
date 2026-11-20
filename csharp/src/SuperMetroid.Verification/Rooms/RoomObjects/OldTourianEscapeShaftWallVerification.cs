@@ -68,7 +68,7 @@ internal static class OldTourianEscapeShaftWallVerification
     /// </summary>
     private static void VerifyWallExplosionProgramAgainstRom(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
         var segments = OldTourianWallExplosionAnimation.AllSegments;
         Animation<OldTourianWallExplosionSegment> animation = OldTourianWallExplosionAnimation.AllAnimations[OldTourianWallExplosionSegment.Start];
@@ -126,7 +126,7 @@ internal static class OldTourianEscapeShaftWallVerification
     /// </summary>
     private static void VerifyWallListAgainstRom(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(0x840000 | address);
         RoomObjectInstruction InstructionWord(int address) => (RoomObjectInstruction)Word(address);
         ushort entry = Word(NativeWallHeader + 2);

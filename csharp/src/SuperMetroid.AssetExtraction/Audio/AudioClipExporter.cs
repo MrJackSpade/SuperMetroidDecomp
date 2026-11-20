@@ -28,7 +28,8 @@ internal static class AudioClipExporter
     /// <summary>One music track to export.</summary>
     /// <param name="Bank">The track's bank.</param>
     /// <param name="Track">The track number.</param>
-    internal sealed record MusicKey(AudioBank Bank, int Track);
+    /// <param name="DataSet">The music data set the bank holds.</param>
+    internal sealed record MusicKey(AudioBank Bank, MusicDataSet DataSet, int Track);
 
     /// <summary>One sound effect to export, rendered from the common upload alone.</summary>
     /// <param name="Library">The effect's library.</param>
@@ -57,10 +58,11 @@ internal static class AudioClipExporter
         foreach (AudioUploadAssetDefinition bank in AudioAssetCatalogDefinitions.Music)
         {
             IReadOnlyList<ushort> pointers = catalog.GetMusicBank(bank.AudioSet).TrackPointers;
+            MusicDataSet dataSet = Enum.GetValues<MusicDataSet>().Single(set => AudioAssetCatalogDefinitions.Get(set) == bank);
             for (int track = 1; track < pointers.Count; track++)
             {
                 if (pointers[track] != 0)
-                    keys.Add(new MusicKey(bank.AudioSet, track));
+                    keys.Add(new MusicKey(bank.AudioSet, dataSet, track));
             }
         }
         return keys;
@@ -124,8 +126,7 @@ internal static class AudioClipExporter
             if (sample - start < clipFrames)
                 segments.Add(new SongTempo(sample - start, DriverTempoBeats.LengthAt(tempo)));
         }
-        MusicDataSet dataSet = AudioAssetCatalogDefinitions.Get(key.Bank).DataSet
-            ?? throw new InvalidDataException($"{key.Bank} holds no music data set, so it has no tracks to export.");
+        MusicDataSet dataSet = key.DataSet;
         return new MusicClipEntry(
             dataSet,
             // The data set and its track number decode into the song (#1748).

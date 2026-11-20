@@ -34,7 +34,7 @@ internal static class EnemyTileArtworkBabyMetroidColorsVerification
             throw new InvalidDataException("Installed enemy art has no Shitroid colors.");
         for (int frame = 0; frame < BabyMetroidColorDefinitions.NormalFrameCount; frame++)
         for (int color = 0; color < BabyMetroidColorDefinitions.NormalColorsPerFrame; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+            AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     MotherBrainSourceDefinitions.BabyMetroidEnemy.NormalCycle +
                     (frame * BabyMetroidColorDefinitions.NormalColorsPerFrame + color) * 2),
                 native.NormalColor(frame, color),
@@ -96,7 +96,7 @@ internal static class EnemyTileArtworkBabyMetroidColorsVerification
         void VerifyTarget(BabyMetroidColorTarget target, int source)
         {
             for (int color = 0; color < BabyMetroidColorDefinitions.TargetColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source + color * 2),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom, source + color * 2),
                     native.TargetColor(target, color),
                     $"installed Shitroid {target} target color {color}");
         }

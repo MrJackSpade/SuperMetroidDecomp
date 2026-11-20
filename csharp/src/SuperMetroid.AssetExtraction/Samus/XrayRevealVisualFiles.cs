@@ -279,10 +279,10 @@ public static class XrayRevealVisualFiles
     /// <exception cref="InvalidDataException">The draw pointer is invalid.</exception>
     private static RoomBlockAppearance ItemDrawAppearance(ISnesAddressSpace bus, int index)
     {
-        int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.ItemDrawPointers.Value + index * sizeof(ushort)));
+        int pointer = bus.ReadCartridgeWord((SamusSourceDefinitions.ItemDrawPointers.Value + index * sizeof(ushort)));
         if (pointer is < SnesBusLayout.RomWindowStart or > ushort.MaxValue - 3)
             throw new InvalidDataException($"X-ray item draw pointer ${pointer:X4} is invalid.");
-        return RoomLevelWordCodec.DecodeAppearance(CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2))));
+        return RoomLevelWordCodec.DecodeAppearance(bus.ReadCartridgeWord((SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2))));
     }
 
     /// <summary>Reads one fixed-bank $91 word only after rejecting addresses outside the native table bank.</summary>
@@ -290,7 +290,7 @@ public static class XrayRevealVisualFiles
     {
         if (pointer is < SnesBusLayout.RomWindowStart or >= ushort.MaxValue)
             throw new InvalidDataException($"X-ray reveal table crossed bank $91 at ${pointer:X}.");
-        return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(SamusSourceDefinitions.XrayRevealTableBank.Value | pointer);
+        return bus.ReadCartridgeWordFixedBank(SamusSourceDefinitions.XrayRevealTableBank.Value | pointer);
     }
 
     /// <summary>The marker words of the reveal tables, beside the block types and BTS values they hold.</summary>
@@ -313,14 +313,14 @@ public static class XrayRevealVisualFiles
         var tiles = new List<XrayRoomOverlayTileDocument>();
         for (int cursor = pointer; cursor <= ushort.MaxValue - 3; cursor += 4)
         {
-            int coordinate = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | cursor));
+            int coordinate = bus.ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | cursor));
             if (coordinate == 0)
             {
                 if (tiles.Count == 0)
                     throw new InvalidDataException($"X-ray room overlay ${pointer:X4} is empty.");
                 return new XrayRoomOverlayEntry(overlay.Name, tiles.ToArray());
             }
-            int word = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | (cursor + 2)));
+            int word = bus.ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | (cursor + 2)));
             RoomTerrainBlock decoded = RoomLevelWordCodec.Decode(checked((ushort)word));
             if (decoded.Collision != RoomCollisionType.Air)
                 throw new InvalidDataException(
@@ -402,13 +402,16 @@ public static class XrayRevealVisualFiles
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? BottomRight = null)
     {
         /// <summary>The document of the blocks <paramref name="blocks"/> a <paramref name="shape"/> copy shows.</summary>
-        internal static RevealBlocksDocument Of(XrayRevealShape shape, XrayRevealVisualBlocks blocks) => shape switch
+        internal static RevealBlocksDocument Of(XrayRevealShape shape, XrayRevealVisualBlocks blocks) => Of(shape, blocks.InReadingOrder);
+
+        /// <summary>The document naming <paramref name="read"/>, a <paramref name="shape"/> copy's blocks in its reading order.</summary>
+        private static RevealBlocksDocument Of(XrayRevealShape shape, IReadOnlyList<RoomCellPicture> read) => shape switch
         {
-            XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar => new(Block: blocks.TopLeft.Block),
-            XrayRevealShape.CopyWide => new(Left: blocks.TopLeft.Block, Right: Required(blocks.TopRight, shape).Block),
-            XrayRevealShape.CopyTall => new(Top: blocks.TopLeft.Block, Bottom: Required(blocks.BottomLeft, shape).Block),
-            XrayRevealShape.CopySquare => new(TopLeft: blocks.TopLeft.Block, TopRight: Required(blocks.TopRight, shape).Block,
-                BottomLeft: Required(blocks.BottomLeft, shape).Block, BottomRight: Required(blocks.BottomRight, shape).Block),
+            XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar => new(Block: read[0].Block),
+            XrayRevealShape.CopyWide => new(Left: read[0].Block, Right: read[1].Block),
+            XrayRevealShape.CopyTall => new(Top: read[0].Block, Bottom: read[1].Block),
+            XrayRevealShape.CopySquare => new(TopLeft: read[0].Block, TopRight: read[1].Block,
+                BottomLeft: read[2].Block, BottomRight: read[3].Block),
             XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension =>
                 throw new ArgumentOutOfRangeException(nameof(shape), shape, "An extension shape copies no blocks."),
             _ => throw new ArgumentOutOfRangeException(nameof(shape), shape, $"Undefined {nameof(XrayRevealShape)}."),
@@ -428,8 +431,8 @@ public static class XrayRevealVisualFiles
         {
             if (!NamesExactlyThePlacesOf(shape))
                 throw new InvalidDataException($"An X-ray {shape} reveal's blocks name other places than the shape copies.");
-            return XrayRevealVisualBlocks.ForShape(shape, [.. PlacesOf(shape).Select(block => RoomCellPicture.OfBlock(
-                block ?? throw new InvalidDataException($"An X-ray {shape} reveal is missing one of its blocks.")))]);
+            // The check above found every place of the shape named.
+            return XrayRevealVisualBlocks.ForShape(shape, [.. PlacesOf(shape).OfType<int>().Select(RoomCellPicture.OfBlock)]);
         }
 
         /// <summary>The blocks of the places a <paramref name="shape"/> copy shows, in the copy's reading order.</summary>
@@ -448,9 +451,6 @@ public static class XrayRevealVisualFiles
         /// <summary>The blocks of every place the document can name.</summary>
         private int?[] Named() => [Block, Left, Right, Top, Bottom, TopLeft, TopRight, BottomLeft, BottomRight];
 
-        /// <summary>The picture a shape's place holds, which its blocks always name.</summary>
-        private static RoomCellPicture Required(RoomCellPicture? picture, XrayRevealShape shape) =>
-            picture ?? throw new InvalidOperationException($"An X-ray {shape} reveal is missing one of its blocks.");
     }
 
     /// <summary>The compiled copy shape of an entry <see cref="ValidateStructure"/> has admitted.</summary>

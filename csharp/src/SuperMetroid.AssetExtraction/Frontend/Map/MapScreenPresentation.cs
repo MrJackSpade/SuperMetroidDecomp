@@ -22,8 +22,7 @@ public sealed class MapScreenPresentation
     public static MapScreenPresentation Load(Stream json)
     {
         MapScreenDocument document;
-        try { document = JsonAssetDocument.Read<MapScreenDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Map-screen document is null."); }
+        try { document = JsonAssetDocument.Read<MapScreenDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map-screen JSON.", error); }
         if (document.Version != MapScreenDefinitions.Version || document.Pages is null || document.Pages.Count != MapScreenDefinitions.PageCount)
             throw new InvalidDataException("Map screens require version 1 and all thirteen named pages.");
@@ -35,8 +34,8 @@ public sealed class MapScreenPresentation
             var tiles = new BackgroundTile[MapScreenDefinitions.PageCells];
             for (int index = 0; index < cells.Length; index++)
             {
-                tiles[index] = cells[index]?.Placement(definition.TileColumns, definition.TileCount / definition.TileColumns)
-                    ?? throw new InvalidDataException($"Map-screen {definition.Id.Name} cell {index} has an invalid atlas coordinate or palette.");
+                tiles[index] = cells[index].Placement(definition.TileColumns, definition.TileCount / definition.TileColumns,
+                    $"Map-screen {definition.Id.Name} cell {index}");
             }
             pages.Add(definition.Id, tiles);
         }

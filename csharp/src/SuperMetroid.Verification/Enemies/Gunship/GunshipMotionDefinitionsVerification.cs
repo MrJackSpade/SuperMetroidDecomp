@@ -24,7 +24,7 @@ internal static class GunshipMotionDefinitionsVerification
 
         for (ushort frame = 0; frame < 17; frame++)
         {
-            short expected = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2a622 + frame * 2)));
+            short expected = unchecked((short)rom.ReadCartridgeWord((0xa2a622 + frame * 2)));
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new GunshipMotionFixtureGuard(rom));
             var applyBrake = new Action<RoomEnemyPlace, SamusState>(enemies.GunshipBehavior.BouncePostCeresGunship);
@@ -106,7 +106,7 @@ internal static class GunshipMotionDefinitionsVerification
         for (ushort frame = 0; frame < 17; frame++)
         {
             GunshipLandingBrake current = brake ?? throw new InvalidOperationException($"The landing brakes end before update {frame}.");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((GunshipMotionDefinitions.BrakeReferenceAddress + 2 * frame))),
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((GunshipMotionDefinitions.BrakeReferenceAddress + 2 * frame))),
                 current.YDelta, $"Original gunship brake {frame}");
             brake = current.Next;
         }

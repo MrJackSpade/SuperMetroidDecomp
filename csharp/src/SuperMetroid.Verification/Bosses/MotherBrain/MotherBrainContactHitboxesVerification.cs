@@ -29,20 +29,20 @@ internal static class MotherBrainContactHitboxesVerification
         {
             int address = MotherBrainContactHitboxDefinitions.GetSourceAddress(part);
             IReadOnlyList<EnemyHitboxRectangle> hitboxes = MotherBrainContacts.Get(part);
-            AssertEqual(hitboxes.Count, CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
+            AssertEqual(hitboxes.Count, rom.ReadCartridgeWord(address),
                 $"Mother Brain {part} hitbox count");
 
             for (int index = 0; index < hitboxes.Count; index++)
             {
                 int record = address + 2 + index * 8;
                 EnemyHitboxRectangle hitbox = hitboxes[index];
-                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(record)), hitbox.Left,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord(record)), hitbox.Left,
                     $"Mother Brain {part} hitbox {index} left");
-                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2))), hitbox.Top,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), hitbox.Top,
                     $"Mother Brain {part} hitbox {index} top");
-                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4))), hitbox.Right,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 4))), hitbox.Right,
                     $"Mother Brain {part} hitbox {index} right");
-                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6))), hitbox.Bottom,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 6))), hitbox.Bottom,
                     $"Mother Brain {part} hitbox {index} bottom");
                 comparedWords += 4;
             }

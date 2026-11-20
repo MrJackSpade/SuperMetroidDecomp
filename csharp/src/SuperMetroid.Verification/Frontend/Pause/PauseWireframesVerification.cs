@@ -29,9 +29,9 @@ internal static class PauseWireframesVerification
             // Every page cell starts as a sentinel tile, so the cells the patch leaves alone must keep it.
             var sentinel = new BackgroundTile(0x25a, 6, FlipHorizontally: true, FlipVertically: false, HighPriority: false);
             BackgroundTile[] expected = Enumerable.Repeat(sentinel, PauseWireframeDefinitions.PageTiles).ToArray();
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82b25f + (int)kind * 2);
+            ushort pointer = RomDataReader.ReadWordFixedBank(bus, 0x82b25f + (int)kind * 2);
             for (int row = 0; row < 17; row++)
-                BackgroundTileWordBytes.Tiles(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (pointer + row * 16), 16))
+                BackgroundTileWordBytes.Tiles(RomDataReader.ReadFixedBank(bus, 0x820000 | (pointer + row * 16), 16))
                     .CopyTo(expected, PauseWireframeDefinitions.FirstPageTile + row * PauseWireframeDefinitions.PageColumns);
             BackgroundTile[] actual = Enumerable.Repeat(sentinel, PauseWireframeDefinitions.PageTiles).ToArray();
             InstalledFixtures.ImportOf(original).Pause.Wireframes.ApplyTo(actual, kind);
@@ -98,7 +98,7 @@ internal static class PauseWireframesVerification
         var blocked = new HashSet<int>();
         for (int kind = 0; kind < 4; kind++)
         {
-            int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82b25f + kind * 2);
+            int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(source, 0x82b25f + kind * 2);
             for (int i = 0; i < 272; i++) blocked.Add(pointer + i);
         }
         for (int i = 0; i < 8; i++) blocked.Add(0x82b25f + i);

@@ -19,7 +19,7 @@ public static class EnemyAuxiliaryColorFiles
     public static byte[] Extract(ISnesAddressSpace source)
     {
         var palettes = new Dictionary<EnemyAuxiliaryPalette, PaletteRgb5[][]>();
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);
+        IImportCartridgeSource cartridge = source;
         foreach (EnemyAuxiliaryPaletteDefinition definition in EnemyAuxiliaryColorDefinitions.All)
         {
             EnemyAuxiliaryPaletteSource stored = EnemySourceDefinitions.AuxiliaryPalettes[definition.Id];

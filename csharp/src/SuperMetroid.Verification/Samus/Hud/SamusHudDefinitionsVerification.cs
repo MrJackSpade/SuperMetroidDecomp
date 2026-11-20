@@ -144,7 +144,7 @@ internal static class SamusHudDefinitionsVerification
     /// <exception cref="InvalidDataException">The table names a handler the identity table does not know.</exception>
     private static SamusHudSelectionMode HandlerOf(CartridgeImportAddressSpace rom, int movement)
     {
-        ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusCartridgeTablesConstants.HudMovementHandlers + movement * 2);
+        ushort word = rom.ReadCartridgeWord(SamusCartridgeTablesConstants.HudMovementHandlers + movement * 2);
         return HandlerAt.TryGetValue(word, out SamusHudSelectionMode handler) ? handler
             : throw new InvalidDataException($"Movement type {movement} names unknown HUD handler ${word:X4}.");
     }

@@ -53,9 +53,7 @@ public sealed class WordReadCodeFixProvider : CodeFixProvider
     {
         if (match.CanonicalMethod is not { } method)
             return null;
-        ExpressionSyntax receiver = match.ViaAddressSpace
-            ? SyntaxFactory.ParseExpression($"CartridgeImportSource.Require({match.Receiver.WithoutTrivia()})")
-            : match.Receiver.WithoutTrivia();
+        ExpressionSyntax receiver = match.Receiver.WithoutTrivia();
         ExpressionSyntax word = SyntaxFactory.InvocationExpression(
             SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
                 receiver, SyntaxFactory.IdentifierName(method)),

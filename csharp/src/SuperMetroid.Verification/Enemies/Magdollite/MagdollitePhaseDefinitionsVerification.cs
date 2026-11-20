@@ -121,6 +121,6 @@ internal static class MagdollitePhaseDefinitionsVerification
 
     /// <summary>Reads one native threshold, instruction, or overlay word for the independent oracle.</summary>
     internal static ushort ReadMagdolliteWord(CartridgeImportAddressSpace bus, int address) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+        bus.ReadCartridgeWord(address);
 
 }

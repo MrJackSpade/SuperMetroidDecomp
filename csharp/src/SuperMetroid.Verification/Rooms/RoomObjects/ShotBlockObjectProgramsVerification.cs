@@ -90,7 +90,7 @@ internal static class ShotBlockObjectProgramsVerification
         {
             AssertTrue(RoomObjectShotBlockProgramDefinitions.TryReadMechanicsWord(address, out ushort value),
                 $"shot-block control word ${address:X4} is compiled");
-            ushort sourceWord = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | address);
+            ushort sourceWord = rom.ReadCartridgeWordFixedBank(0x840000 | address);
             AssertEqual(sourceWord, value,
                 $"shot-block control word ${address:X4} matches pinned cartridge");
             forbidden.Add(0x840000 | address);
@@ -137,7 +137,7 @@ internal static class ShotBlockObjectProgramsVerification
                 AssertEqual(run.Direction == RoomObjectRunDirection.Vertical,
                     layout == BlockArrangement.Vertical, "shot-block arrangement's direction");
                 int blockIndex = 0;
-                AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
+                AssertRunHeader(rom.ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} direction/count");
                 forbidden.Add(0x840000 | cursor++);
                 forbidden.Add(0x840000 | cursor++);
@@ -145,7 +145,7 @@ internal static class ShotBlockObjectProgramsVerification
                 foreach (RoomCollisionType collision in run.Collisions.Span)
                 {
                     AssertEqual(collision, blocks.CollisionAt(run.CellAt(blockIndex++)), "shot-block block shape and exported collision agree");
-                    AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
+                    AssertEqual(RoomLevelWordCodec.Decode(rom.ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
                         collision,
                         $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} collision decoded from the level word at ${cursor:X4}");
                     forbidden.Add(0x840000 | cursor++);

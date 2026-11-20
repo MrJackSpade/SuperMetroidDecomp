@@ -873,9 +873,9 @@ internal static class LookupStream5Verification
                 // The star has no packed record: the native five-byte record is decoded by the import pipeline's codec
                 // and compared by offset, size, character, priority and mirroring, its palette row cleared because the
                 // scene replaces it.
-                var nativeStar = new SpritemapPart(new SnesSpritemapXWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(source)),
+                var nativeStar = new SpritemapPart(new SnesSpritemapXWord(rom.ReadCartridgeWord(source)),
                     new SnesSpritemapYByte(rom.ReadCartridgeByte(source + 2)),
-                    new SnesObjAttributeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(source + 3)).WithPaletteIndex(0)).ToPart();
+                    new SnesObjAttributeWord(rom.ReadCartridgeWord(source + 3)).WithPaletteIndex(0)).ToPart();
                 AssertEqual(nativeStar, actual.Part, "Native star offset, size, character, priority and mirroring excluding replaced source palette");
                 total++;
             }
@@ -1057,8 +1057,8 @@ internal static class LookupStream5Verification
         {
             YappingMawAim aim = YappingMawAnimationDefinitions.Aims.At(direction);
             var offset = YappingMawAttackGeometry.HeldSamusOffset(aim);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8a0a7 + direction * 4)), unchecked((ushort)offset.X), $"Native held X aiming {aim}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8a0a9 + direction * 4)), unchecked((ushort)offset.Y), $"Native held Y aiming {aim}");
+            AssertEqual(rom.ReadCartridgeWord((0xa8a0a7 + direction * 4)), unchecked((ushort)offset.X), $"Native held X aiming {aim}");
+            AssertEqual(rom.ReadCartridgeWord((0xa8a0a9 + direction * 4)), unchecked((ushort)offset.Y), $"Native held Y aiming {aim}");
             set(state, aim);
             Check(direction, "Actual held-offset callback");
         }
@@ -1076,8 +1076,8 @@ internal static class LookupStream5Verification
 
         void Check(int direction, string context)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8a0a7 + direction * 4)), unchecked((ushort)state.HeldSamusOffset.X), context);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8a0a9 + direction * 4)), unchecked((ushort)state.HeldSamusOffset.Y), context);
+            AssertEqual(rom.ReadCartridgeWord((0xa8a0a7 + direction * 4)), unchecked((ushort)state.HeldSamusOffset.X), context);
+            AssertEqual(rom.ReadCartridgeWord((0xa8a0a9 + direction * 4)), unchecked((ushort)state.HeldSamusOffset.Y), context);
         }
     }
 
@@ -1261,10 +1261,10 @@ internal static class LookupStream5Verification
         for (int i = 0; i < 8; i++)
         {
             PhantoonRainPattern placement = PhantoonRainPatternDefinitions.LaterRain.Choose(i);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + i * 8)), placement.PathPlace, "Native rain figure-eight cursor");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + i * 8)), placement.BodyPosition.X, "Native rain body X");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.BodyPosition.Y, "Native rain body Y");
-            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb3 + i * 8)), "Native unused rain record word");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cdad + i * 8)), placement.PathPlace, "Native rain figure-eight cursor");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cdaf + i * 8)), placement.BodyPosition.X, "Native rain body X");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.BodyPosition.Y, "Native rain body Y");
+            AssertEqual((ushort)0, rom.ReadCartridgeWord((0xa7cdb3 + i * 8)), "Native unused rain record word");
             AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), placement.FirstColumn.Place, "Native first rain column");
         }
         for (int high = 0; high < 1; high++)
@@ -1281,9 +1281,9 @@ internal static class LookupStream5Verification
             state.PhaseWait.LastFor(1);
             state.FigureEight.Direction = PhantoonPathDirection.Backwards;
             enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain(body.HeldOccupant(), body, state);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), state.FigureEight.PathPlace.Place, "Real rain cursor handoff");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + pattern * 8)), body.Position.X.Whole, "Real rain body placement X");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + pattern * 8)), body.Position.Y.Whole, "Real rain body placement Y");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cdad + pattern * 8)), state.FigureEight.PathPlace.Place, "Real rain cursor handoff");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cdaf + pattern * 8)), body.Position.X.Whole, "Real rain body placement X");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cdb1 + pattern * 8)), body.Position.Y.Whole, "Real rain body placement Y");
             AssertEqual(PhantoonPathDirection.Forwards, state.FigureEight.Direction, "Real rain direction reset");
             AssertEqual(PhantoonPhase.BecomeSolidAfterFlameRain, state.Phase, "Real rain phase handoff");
             AssertEqual(1, calls, "Rain consumes one RNG word");
@@ -1300,7 +1300,7 @@ internal static class LookupStream5Verification
         }
 
         EyeTarget[] eyeTargets = PhantoonEyeTargets.All;
-        PhantoonEyeTargets.VerifyGazeProgramsAgainstCartridge(CartridgeImportSource.Require(rom));
+        PhantoonEyeTargets.VerifyGazeProgramsAgainstCartridge(rom);
         var eyeEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemyPlace, PhantoonEnemyState, SamusState> pointEye = PhantoonPatterns.PointPhantoonEyeAtSamus;
         RoomEnemyPlace eyeBody = eyeEnemies.Places.InUpdateOrder[0];
@@ -1614,7 +1614,7 @@ internal static class LookupStream5Verification
             door.Position = door.Position.WithWholeX(x); enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(29), phase);
             var actual = new OamBuffer(); actual.BeginFrame();
             actual.AppendDrawn(frame => enemies.CeresDoorBehavior.PublishRidleyRoomDoorOverlay(frame, new(camera, 0))); actual.FinalizeFrame();
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6a321 + phase * 2);
+            ushort native = rom.ReadCartridgeWord(0xa6a321 + phase * 2);
             AssertEqual(unchecked((short)native), CeresDoorQuake.XOffset(phase),
                 "Quake offset is the authored word of its phase");
             var expected = new OamBuffer(); expected.BeginFrame();

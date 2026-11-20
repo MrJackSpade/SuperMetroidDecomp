@@ -126,7 +126,7 @@ public sealed class SamusArmCannonSourceArtwork
                 : throw new ArgumentOutOfRangeException(nameof(direction), direction, "No cover is drawn for the aim.");
 
     /// <summary>Requires an authored cover appearance to be one small piece at the cover's origin.</summary>
-    private static SpritePart RequireAppearance(SpriteVisualPart? value, string name) =>
+    private static SpritePart RequireAppearance(SpriteVisualPiece? value, string name) =>
         value is { OffsetX: 0, OffsetY: 0, Size: 8 }
             ? value.ToSpritePart(SpriteArtwork.CharactersPerRow)
             : throw new InvalidDataException($"Arm-cannon {name} is not one small piece at the origin.");

@@ -54,7 +54,7 @@ internal static class CinematicSpriteAnimationsVerification
     /// <summary>Every family's animations play as their native lists do, and every native start is an animation an actor starts.</summary>
     internal static void VerifyCinematicSpriteAnimations(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var compared = new List<Enum>();
         int updates = 0;
         updates += CompareFamily(cartridge, IntroMotherBrainAnimations.MotherBrain, MotherBrainCues, Pictures, compared);

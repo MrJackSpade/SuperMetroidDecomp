@@ -28,7 +28,7 @@ internal static class BoulderBounceDefinitionsVerification
             // The cartridge's table is indexed by the bounces left, two for the first impact and zero for the last.
             int bouncesLeft = BoulderBounces.ImpactCount - 1 - impactsSoFar;
             int address = 0xa686f1 + (bouncesLeft - 1) * 2;
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort expected = rom.ReadCartridgeWord(address);
             AssertEqual(expected, BoulderBounces.RestartPlace(impactsSoFar).InTwoHundredFiftySixthsOfMark, "Boulder native leading-zero/bounce word");
             actor.Position = actor.Position.WithY(new(55, 0));
             state.ImpactsSoFar = impactsSoFar;

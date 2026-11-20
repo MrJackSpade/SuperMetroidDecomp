@@ -118,7 +118,7 @@ internal static class SamusChargeColorsVerification
         {
             forbidden.Add(address);
             forbidden.Add(address + 1);
-            return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
+            return RomDataReader.ReadWordFixedBank(rom, address);
         }
     }
 

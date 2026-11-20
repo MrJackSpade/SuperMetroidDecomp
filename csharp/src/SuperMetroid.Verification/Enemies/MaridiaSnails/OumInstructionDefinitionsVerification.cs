@@ -26,7 +26,7 @@ internal static class OumInstructionDefinitionsVerification
         {
             OumSegment animation = MaridiaSnailsNativeWords.OumAnimations.Decode(animationIndex, "Oum animation index");
             OumSegment program = animation;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(OumNativeValues.SelectorTable + animationIndex * 2),
+            AssertEqual(rom.ReadCartridgeWord(OumNativeValues.SelectorTable + animationIndex * 2),
                 NativeEnemyAnimationOracle.EntryOf(OumNativeListAddresses.Entries, program),
                 $"Oum selector {animationIndex}");
             var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());

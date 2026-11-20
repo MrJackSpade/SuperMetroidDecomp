@@ -16,7 +16,7 @@ internal static class CacatacProjectileBehaviorVerification
     /// <summary>Every launch direction spawns a spike on that direction's program, which matches its native list update for update.</summary>
     internal static void VerifyCacatacProjectileBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, CacatacProjectileNativeListAddresses.Extent, "Cacatac spike");
         foreach (CacatacSpikeDirection direction in Enum.GetValues<CacatacSpikeDirection>())
         {

@@ -13,7 +13,7 @@ internal static class KzanAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyKzanAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
             KzanAnimations.Segments, KzanAnimations.StartingAt, KzanFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<NoAnimationCue>(
                 word => null,

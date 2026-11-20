@@ -75,7 +75,7 @@ internal static class KraidNailContourMappingsVerification
     /// </summary>
     internal static void VerifyKraidNailPastLedges(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(address);
         KraidNailPastLedges installed = InstalledFixtures.BossAndIntroOverreads.KraidNailPastLedges;
         int pastLedges = KraidNailContourDefinitions.Ledges.Count;

@@ -32,7 +32,7 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
         InstalledRoomObjectColoredDoorVisuals stock = InstalledRoomObjectColoredDoorVisuals.Stock();
         AssertEqual("green-left-closed", RoomObjectColoredDoorVisualFiles.VisualId(NativeObjectDraws.At<ColoredDoorCaps.Draw>(0xa827)),
             "the green left cap's first frame is the draw the cartridge stores at $A827");
-        AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x840000 | (0xa827 + 2))).Appearance,
+        AssertEqual(RoomLevelWordCodec.Decode(rom.ReadCartridgeWord(0x840000 | (0xa827 + 2))).Appearance,
             stock.Image(NativeObjectDraws.At<ColoredDoorCaps.Draw>(0xa827)).At(Offset16<RoomBlocks>.Zero),
             "stock colored-door visual retains native tile choice");
         Suite(nameof(VerifyColoredCapGeometry), () => VerifyColoredCapGeometry(rom));
@@ -77,8 +77,8 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
             var system = new SharedGameState(new SharedRandom());
             var guarded = NewColoredDoorDrawReadGuard(bus, lists);
             RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, system, AreaId.Crateria), RoomObjectPopulationImporter.Read(guarded, population), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
-            ushort initial = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (RoomObjectNativeWords.Word(header) + 2)));
-            ushort firstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (initial + 14)));
+            ushort initial = rom.ReadCartridgeWord((0x840000 | (RoomObjectNativeWords.Word(header) + 2)));
+            ushort firstDraw = rom.ReadCartridgeWord((0x840000 | (initial + 14)));
             AssertTrue(RoomObjectColoredDoorVisualFiles.TryGet(NativeObjectDraws.At<ColoredDoorCaps.Draw>(firstDraw), out var selected),
                 $"resident colored-door header {header} selects compiled art");
             roomObjects.Step(level);

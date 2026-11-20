@@ -12,7 +12,7 @@ internal static class HibashiAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyHibashiAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int beats = NativeEnemyAnimationOracle.CompareAll(cartridge, Bank, Entries,
             HibashiAnimations.Segments, HibashiAnimations.StartingAt, HibashiFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<HibashiCue>(

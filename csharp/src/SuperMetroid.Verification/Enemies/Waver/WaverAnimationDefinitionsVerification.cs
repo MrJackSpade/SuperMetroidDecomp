@@ -18,7 +18,7 @@ internal static class WaverAnimationDefinitionsVerification
         for (int index = 0; index < 4; index++)
         {
             WaverSegment selector = WaverNativeWords.Animations.Decode(index, "Waver animation index");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa386db + index * 2)),
+            AssertEqual(rom.ReadCartridgeWord((0xa386db + index * 2)),
                 NativeEnemyAnimationOracle.EntryOf(WaverNativeListAddresses.Entries, selector),
                 $"Waver animation selector {selector}");
         }

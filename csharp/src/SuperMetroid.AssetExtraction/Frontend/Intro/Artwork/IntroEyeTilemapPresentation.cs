@@ -42,8 +42,7 @@ public sealed class IntroEyeTilemapPresentation
             frames.Add(frame, tiles);
             for (int cellIndex = 0; cellIndex < tiles.Length; cellIndex++)
             {
-                tiles[cellIndex] = source.Cells[cellIndex]?.Placement() ?? throw new InvalidDataException(
-                    $"Opening eye frame {frame} cell {cellIndex} has an invalid tile or palette.");
+                tiles[cellIndex] = source.Cells[cellIndex].Placement($"Opening eye frame {frame} cell {cellIndex}");
             }
         }
         return new IntroEyeTilemapPresentation(frames);

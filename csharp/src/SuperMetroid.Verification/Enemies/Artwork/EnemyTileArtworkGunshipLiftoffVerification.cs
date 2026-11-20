@@ -33,9 +33,9 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         for (int index = 0; index < transfers.Length; index++)
         {
             GunshipLiftoffTransferDefinition transfer = transfers[index];
-            ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            ushort source = RomDataReader.ReadWordFixedBank(bus,
                 EnemyRomTablePointersGunship.LiftoffGraphicsSourceWords + index * 2);
-            ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            ushort destination = RomDataReader.ReadWordFixedBank(bus,
                 EnemyRomTablePointersGunship.LiftoffVramDestinationWords + index * 2);
             AssertEqual(0x940000 | source, EnemySourceDefinitions.GunshipLiftoffPageSource(index),
                 $"gunship frame {index}'s import source matches the cartridge's takeoff list");

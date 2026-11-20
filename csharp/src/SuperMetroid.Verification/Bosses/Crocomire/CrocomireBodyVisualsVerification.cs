@@ -35,7 +35,7 @@ internal static class CrocomireBodyVisualsVerification
         {
             AssertEqual(expected[index], CrocomireBodyVisualToolingDefinitions.FramePointer(index), "body native frame address order");
             AssertEqual(expected[index], CrocomireBodyVisualDefinitionsConstants.Frames[index], "body indexed sequence");
-            ushort count = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa40000 | expected[index]);
+            ushort count = rom.ReadCartridgeWordFixedBank(0xa40000 | expected[index]);
             AssertEqual((ushort)(index >= 42 ? 1 : index is < 12 or >= 18 and < 24 ? 6 : 7), count,
                 "native component count supporting each frame stride");
         }
@@ -119,13 +119,13 @@ internal static class CrocomireBodyVisualsVerification
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"Crocomire BG2 half $A4:{frame.Pointer:X4} is installed");
             var native = new List<CrocomireBodyVisualsNative>();
-            int componentCount = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 | frame.Pointer));
+            int componentCount = rom.ReadCartridgeWordFixedBank((0xa40000 | frame.Pointer));
             for (int component = 0; component < componentCount; component++)
             {
                 int record = 0xa40000 | unchecked((ushort)(
                     frame.Pointer + 2 + component * 8));
-                ushort stream = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((record + 4));
-                if (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 | stream)) != EnemyBg2FrameLayoutConstants.StreamMarker)
+                ushort stream = rom.ReadCartridgeWordFixedBank((record + 4));
+                if (rom.ReadCartridgeWordFixedBank((0xa40000 | stream)) != EnemyBg2FrameLayoutConstants.StreamMarker)
                     continue;
                 ushort cursor = unchecked((ushort)(stream + 2));
                 bool terminated = false;
@@ -133,17 +133,17 @@ internal static class CrocomireBodyVisualsVerification
                      command < EnemyBg2FrameLayout.MaximumCommandsPerStream;
                      command++)
                 {
-                    ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 | cursor));
+                    ushort destination = rom.ReadCartridgeWordFixedBank((0xa40000 | cursor));
                     if (destination == 0xffff)
                     {
                         terminated = true;
                         break;
                     }
-                    ushort count = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 |
+                    ushort count = rom.ReadCartridgeWordFixedBank((0xa40000 |
                         unchecked((ushort)(cursor + 2))));
                     var tiles = new ushort[count];
                     for (int tile = 0; tile < tiles.Length; tile++)
-                        tiles[tile] = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 |
+                        tiles[tile] = rom.ReadCartridgeWordFixedBank((0xa40000 |
                             unchecked((ushort)(cursor + 4 + tile * 2))));
                     native.Add(new CrocomireBodyVisualsNative(unchecked((ushort)((destination -
                         EnemyBg2FrameLayoutConstants.WorkingRamBase) >> 1)), tiles));

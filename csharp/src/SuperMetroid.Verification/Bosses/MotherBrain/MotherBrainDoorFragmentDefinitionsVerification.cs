@@ -22,13 +22,13 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
         {
             int byteOffset = parameter * 4;
             MotherBrainDoorFragmentDefinition definition = MotherBrainDoorFragmentDefinitions.Fragments[parameter];
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c992 + byteOffset))),
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0x86c992 + byteOffset))),
                 definition.Offset.X, $"Mother Brain door fragment X offset {parameter}");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c994 + byteOffset))),
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0x86c994 + byteOffset))),
                 definition.Offset.Y, $"Mother Brain door fragment Y offset {parameter}");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c9b2 + byteOffset))),
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0x86c9b2 + byteOffset))),
                 definition.Velocity.X.InTwoHundredFiftySixthsOfPixel, $"Mother Brain door fragment X velocity {parameter}");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c9b4 + byteOffset))),
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0x86c9b4 + byteOffset))),
                 definition.Velocity.Y.InTwoHundredFiftySixthsOfPixel, $"Mother Brain door fragment Y velocity {parameter}");
         }
 

@@ -25,15 +25,15 @@ public static class MapSaveMarkerExtractor
         var points = new Dictionary<string, Position16<MapPixels>>();
         foreach (AreaId typedArea in AreaIds.Zebes)
         {
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FrontendSourceDefinitions.SavePointMapPointers.AddWithinBank(AreaNumberCodec.Encode(typedArea) * 2));
+            int pointer = RomDataReader.ReadWordFixedBank(bus, FrontendSourceDefinitions.SavePointMapPointers.AddWithinBank(AreaNumberCodec.Encode(typedArea) * 2));
             for (int index = 0; index < SlotsPerArea; index++)
             {
                 int address = MapSourceDefinitions.Menu.ObjectBank | (pointer + index * 4);
-                int x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+                int x = RomDataReader.ReadWordFixedBank(bus, address);
                 if (LoadStationNumberCodec.Find(typedArea, index) is { } station && MapSaveMarkers.IsMarked(station))
                 {
                     if (x >= ushort.MaxValue - 1) throw new InvalidDataException($"Missing save marker {station}.");
-                    points.Add(MapSaveMarkers.Id(station), Position16<MapPixels>.Of(x, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
+                    points.Add(MapSaveMarkers.Id(station), Position16<MapPixels>.Of(x, RomDataReader.ReadWordFixedBank(bus, address + 2)));
                 }
                 else if (x != ushort.MaxValue - 1) throw new InvalidDataException($"Expected unused save marker {typedArea}/{index}.");
             }

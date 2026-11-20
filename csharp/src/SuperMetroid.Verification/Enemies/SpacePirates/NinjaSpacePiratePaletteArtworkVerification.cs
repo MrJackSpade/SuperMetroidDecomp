@@ -30,7 +30,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         // Keep the oracle independent of the installed catalog and runtime callback.
         var native = new ushort[16];
         for (int color = 0; color < native.Length; color++)
-            native[color] = CartridgeImportSource.Require(bus).ReadCartridgeWord(0xb28727 + color * 2);
+            native[color] = bus.ReadCartridgeWord(0xb28727 + color * 2);
         // Native initialization for x=$100, span=$80, facing left: midpoint=$C0;
         // 32 acceleration steps sum to $4200, so the adjusted right post is $102.
         const ushort nativeX = 0x0102;

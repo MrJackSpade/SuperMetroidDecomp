@@ -70,7 +70,7 @@ internal static class PhantoonDeathExplosionsVerification
                         AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadCartridgeByte(0xa7da1e + current * 4))), explosion.Position.Y.Whole, "Real death explosion wrapped world Y");
                         int listAddress = 0x86e42c + type * 2;
                         AssertTrue(explosion.Animation is DustExplosionProjectileAnimation { PlayingSegment: var explosionProgram } &&
-                                DustExplosionProjectileNativeListAddresses.Entry(explosionProgram) == CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress),
+                                DustExplosionProjectileNativeListAddresses.Entry(explosionProgram) == rom.ReadCartridgeWord(listAddress),
                             "Real explosion animation selection");
                     }
                 }

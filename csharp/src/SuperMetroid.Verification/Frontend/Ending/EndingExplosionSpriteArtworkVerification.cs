@@ -36,9 +36,9 @@ internal static class EndingExplosionSpriteArtworkVerification
         for (int i = 0; i < operands.Length; i++)
         {
             int address = 0x8b0000 | operands[i];
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+            ushort pointer = bus.ReadCartridgeWord(address);
             int header = 0x8c0000 | pointer;
-            int parts = CartridgeImportSource.Require(bus).ReadCartridgeWord(header);
+            int parts = bus.ReadCartridgeWord(header);
             AssertEqual(pointer, CinematicSpritemapSources.Of(frames[i].Pose), $"explosion catalog native pointer {i}");
             AssertEqual(parts, frames[i].StockPartCount, $"explosion catalog native part count {i}");
             AssertEqual(names[i], frames[i].Name, $"explosion catalog asset key {i}");
@@ -55,13 +55,13 @@ internal static class EndingExplosionSpriteArtworkVerification
             ushort pointer = pose < 10 ? (ushort)(0xa396 + pose * 22) : pose == 10 ? (ushort)0xa472 : pose == 11 ? (ushort)0xa4b0 : pose == 12 ? (ushort)0xa516 : pose == 13 ? (ushort)0xa28b : pose == 14 ? (ushort)0xa5e2 : (ushort)0xa57c;
             AssertTrue(EndingExplosionSpriteDefinitions.Frames.Count(frame => CinematicSpritemapSources.Of(frame.Pose) == pointer) == 1,
                 "each native explosion map is one catalog frame");
-            int count = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x8c0000 | pointer);
+            int count = bus.ReadCartridgeWordFixedBank(0x8c0000 | pointer);
             var visual = new SpriteVisualPart[count];
             for (int index = 0; index < count; index++)
             {
                 int address = 0x8c0000 + pointer + 2 + index * 5;
-                var x = new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(address));
-                var attributes = new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 3));
+                var x = new SnesSpritemapXWord(bus.ReadCartridgeWord(address));
+                var attributes = new SnesObjAttributeWord(bus.ReadCartridgeWord(address + 3));
                 visual[index] = new SpriteVisualPart
                 {
                     OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)bus.ReadCartridgeByte(address + 2)),

@@ -609,7 +609,7 @@ internal static class LookupStream1Verification
         {
             foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) hash.Append("pose descriptor", value.PoseDescriptors[pose]);
             hash.Append("drawing data", value.DrawingData.Select(item => (byte)item).ToArray());
-            foreach (SpriteVisualPart appearance in SamusProjectileDirectionCodec.InAimOrder.Select(direction => value.CoverAppearances[direction]))
+            foreach (SpriteVisualPiece appearance in SamusProjectileDirectionCodec.InAimOrder.Select(direction => value.CoverAppearances[direction]))
                 AppendCanonicalSpritePart(hash, CannonCoverAppearance(appearance.TileRow, appearance.TileColumn,
                     appearance.Palette ?? 0, appearance.Depth, appearance.FlipX, appearance.FlipY));
             foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)

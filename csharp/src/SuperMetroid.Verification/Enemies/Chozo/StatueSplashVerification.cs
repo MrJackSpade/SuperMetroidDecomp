@@ -96,7 +96,7 @@ internal static class StatueSplashVerification
 
     /// <summary>Reads one native launch-table word for the independent trajectory reference.</summary>
     private static ushort ReadNativeStatueParticleWord(ISnesAddressSpace bus, int index) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + index * 2);
+        RomDataReader.ReadWordFixedBank(bus, 0xa0b3c3 + index * 2);
 
     /// <summary>Runs the retail Tourian statue particle and splash check.</summary>
     [VerificationCommand("--statue-splash")]

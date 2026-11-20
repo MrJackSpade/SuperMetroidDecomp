@@ -9,7 +9,7 @@ internal static class DragonFireballAnimationsVerification
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyDragonFireballAnimations(CartridgeImportAddressSpace rom)
     {
-        int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
+        int steps = Family.CompareAll(rom);
         Console.WriteLine($"  Dragon fireball programs: {Entries.Length} programs ({steps} steps) match bank $86.");
     }
 }

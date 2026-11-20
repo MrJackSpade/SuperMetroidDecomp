@@ -51,6 +51,7 @@ internal static class SpawnedObjectSheetSharing
         }
         // Each common picture joins the first common sheet whose colouring agrees with its own, or starts the next.
         var common = new List<PictureSheetPlan>();
+        var commonSheetOf = new Dictionary<HeldPicture, int>(ReferenceEqualityComparer.Instance);
         foreach (HeldPicture picture in pictures.Where(picture => picture.IsCommon))
         {
             int sheet = common.FindIndex(plan => plan.TryTake(picture));
@@ -59,7 +60,7 @@ internal static class SpawnedObjectSheetSharing
                 sheet = common.Count;
                 common.Add(new PictureSheetPlan(picture, $"Spawned-Common {sheet}"));
             }
-            picture.CommonSheet = sheet;
+            commonSheetOf.Add(picture, sheet);
         }
         // Each sheet keeps the pictures no other sheet holds, in its own colouring.
         var own = new PictureSheetPlan?[painted.Length];
@@ -88,8 +89,7 @@ internal static class SpawnedObjectSheetSharing
         {
             shares[sheet] = new SpawnedSheetShare(own[sheet] is { } plan ? installedOf[plan] : null,
                 held[sheet].Where(frame => frame.Value.IsCommon)
-                    .ToDictionary(frame => frame.Key, frame => frame.Value.CommonSheet ?? throw new InvalidOperationException(
-                        $"Common picture {frame.Key} was given no common sheet."), StringComparer.Ordinal));
+                    .ToDictionary(frame => frame.Key, frame => commonSheetOf[frame.Value], StringComparer.Ordinal));
         }
         return new SharedSpawnedSheets([.. common.Select(plan => installedOf[plan])], shares);
     }
@@ -131,9 +131,6 @@ internal static class SpawnedObjectSheetSharing
 
         /// <summary>Whether two or more sheets hold the picture, so it is held once on a common sheet.</summary>
         internal bool IsCommon => holders.Count > 1;
-
-        /// <summary>The common sheet the picture is held on, by its place among the common sheets; null until one holds it.</summary>
-        internal int? CommonSheet { get; set; }
 
         /// <summary>
         /// Records that sheet <paramref name="sheet"/>, coloured as <paramref name="colouring"/>, shows the picture as frame

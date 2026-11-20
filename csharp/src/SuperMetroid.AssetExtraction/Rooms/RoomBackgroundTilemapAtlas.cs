@@ -45,8 +45,7 @@ public sealed class RoomBackgroundTilemapAtlas
                     $"{RoomBackgroundTilemapFormat.CellsPerPage} ordered cells.");
             for (int cell = 0; cell < cells.Length; cell++)
             {
-                tiles[page * RoomBackgroundTilemapFormat.CellsPerPage + cell] = cells[cell]?.Placement() ?? throw new InvalidDataException(
-                    $"Room background page {page} cell {cell} has an invalid tile or palette.");
+                tiles[page * RoomBackgroundTilemapFormat.CellsPerPage + cell] = cells[cell].Placement($"Room background page {page} cell {cell}");
             }
         }
         return new RoomBackgroundTilemapAtlas(tiles);

@@ -24,10 +24,10 @@ internal static class InstalledDocumentElements
     {
         if (typeInfo.Kind != JsonTypeInfoKind.Object) return;
         var context = new NullabilityInfoContext();
-        var members = new List<(JsonPropertyInfo Property, NullabilityInfo Elements)>();
+        var members = new List<CheckedMember>();
         foreach (JsonPropertyInfo property in typeInfo.Properties)
         {
-            if (property.Get is null) continue;
+            if (property.Get is not { } get) continue;
             NullabilityInfo? declared = property.AttributeProvider switch
             {
                 PropertyInfo member => context.Create(member),
@@ -35,19 +35,25 @@ internal static class InstalledDocumentElements
                 _ => null,
             };
             if (declared is not null && Elements(declared) is { } elements && NeedsCheck(elements))
-                members.Add((property, elements));
+                members.Add(new CheckedMember(property.Name, get, elements));
         }
         if (members.Count == 0) return;
         string document = typeInfo.Type.Name;
         Action<object>? deserialized = typeInfo.OnDeserialized;
         typeInfo.OnDeserialized = value =>
         {
-            foreach ((JsonPropertyInfo property, NullabilityInfo elements) in members)
-                if (property.Get!(value) is IEnumerable collection)
-                    Check(document, property.Name, collection, elements);
+            foreach (CheckedMember member in members)
+                if (member.Get(value) is IEnumerable collection)
+                    Check(document, member.Name, collection, member.Elements);
             deserialized?.Invoke(value);
         };
     }
+
+    /// <summary>A document member holding a collection whose elements the document declares present.</summary>
+    /// <param name="Name">The member's name in the document.</param>
+    /// <param name="Get">Reads the member from a read document.</param>
+    /// <param name="Elements">The declared nullability of the collection's elements.</param>
+    private sealed record CheckedMember(string Name, Func<object, object?> Get, NullabilityInfo Elements);
 
     /// <summary>
     /// The declared nullability of a collection's elements: an array's element, or a generic collection's last type

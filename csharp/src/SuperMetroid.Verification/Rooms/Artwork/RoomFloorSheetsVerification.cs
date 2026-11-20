@@ -137,7 +137,7 @@ internal static class RoomFloorSheetsVerification
         TilesetDefinition tileset = runtime.Room.LoadedScope.Assets.Tileset;
         SpriteSheetFrame image = (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ceres Ridley's arena binds no turning floor."))
             .Sheet.Floor.Image;
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(
+        IImportCartridgeSource cartridge = (
             CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
         byte[] memory = RomDataReader.Decompress(cartridge, RoomTilesetSources.Read(cartridge).Characters[tileset.Characters]);
         AssertTrue(memory.Length >= FloorMemoryBytes, $"the cartridge's {tileset} characters fill the floor's memory ({memory.Length} bytes)");

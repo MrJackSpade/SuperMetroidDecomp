@@ -27,7 +27,7 @@ internal static class EndingTextPresentationVerification
             new MemoryStream(extracted, writable: false));
         byte[] fontPng = SuperMetroid.AssetExtraction.Frontend.Ending.EndingFontAtlasExtractor.Extract(nativeBus);
         EndingFontCharacters font = EndingFontCharacters.Read(new MemoryStream(fontPng, writable: false));
-        byte[] nativeFont = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(nativeBus),
+        byte[] nativeFont = RomDataReader.Decompress(nativeBus,
             EndingSourceDefinitions.Artwork.FontCharacters,
             EndingArtworkExtentDefinitions.FloorBytes);
         AssertTrue(font.Characters.Span.SequenceEqual(
@@ -82,7 +82,7 @@ internal static class EndingTextPresentationVerification
         var result = new ushort[count];
         int address = (int)new SnesAddress(EndingSourceDefinitions.EndingBank, pointer);
         for (int index = 0; index < count; index++)
-            result[index] = CartridgeImportSource.Require(bus).ReadCartridgeWord(address + index * 2);
+            result[index] = bus.ReadCartridgeWord(address + index * 2);
         return result;
     }
 

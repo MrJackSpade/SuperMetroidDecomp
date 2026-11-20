@@ -32,7 +32,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         {
             InstructionMechanicsWord definition =
                 MotherBrainTopTubeInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
+            ushort native = rom.ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
             AssertEqual(definition.Value, native,
                 $"Mother Brain ceiling-tube mechanics word $86:{definition.Address:X4}");
         }
@@ -42,7 +42,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         var executedOperands = new HashSet<ushort>();
         var guard = NewMotherBrainTopTubeInstructionReadGuard(rom);
         Func<EnemyProjectileAnimation, ushort?> nativePointers =
-            MotherBrainTopTubeNativeListAddresses.Family.NativePointers(CartridgeImportSource.Require(rom));
+            MotherBrainTopTubeNativeListAddresses.Family.NativePointers(rom);
 
         foreach (TopTubeLaunchCase item in
                  new TopTubeLaunchCase[]

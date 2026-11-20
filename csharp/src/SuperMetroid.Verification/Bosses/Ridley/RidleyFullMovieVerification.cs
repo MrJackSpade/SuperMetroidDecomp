@@ -47,7 +47,7 @@ internal static class RidleyFullMovieVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
-        var pointers = new RidleyBodyNativeInstructionPointers(CartridgeImportSource.Require(bus));
+        var pointers = new RidleyBodyNativeInstructionPointers(bus);
         var body = runtime.Enemies.Places.InUpdateOrder[0]; var state = runtime.Enemies.NorfairRidley(); var samus = runtime.Player.IntroducedSamus;
         foreach (var sample in new[] { new VerifyRidleySpinFireballCase(0x7f, false, RidleyFacing.Right, false), new VerifyRidleySpinFireballCase(0x80, false, RidleyFacing.Right, true),
             new VerifyRidleySpinFireballCase(0xff, true, RidleyFacing.Right, false), new VerifyRidleySpinFireballCase(0xff, false, RidleyFacing.Turning, false), new VerifyRidleySpinFireballCase(0x180, false, RidleyFacing.Left, true) })
@@ -605,7 +605,7 @@ internal static class RidleyFullMovieVerification
             // The arena's centre column: his movement box keeps him between X 64 and 224, inside one screen.
             new RidleyFullMovieCase(0x004a, RidleyFacing.Turning, false), new RidleyFullMovieCase(0x007f, RidleyFacing.Right, false), new RidleyFullMovieCase(0x0080, RidleyFacing.Right, true),
         ];
-        var pointers = new RidleyBodyNativeInstructionPointers(CartridgeImportSource.Require(
+        var pointers = new RidleyBodyNativeInstructionPointers((
             CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         foreach (var sample in cases)
         {
@@ -765,7 +765,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(DoorTransitionPhase.FadeOutSourceRoom, game.DoorTransitionPhaseForVerification, "source fade begins after sound drain");
         var actor = runtime.Enemies.Places.InUpdateOrder[6];
         AssertEqual(EnemyDefinitionId.Zebbo, actor.Occupant?.DefinitionId, "native source-room pipe bug");
-        var pipeBugPointers = new PipeBugNativeInstructionPointers(CartridgeImportSource.Require(bus));
+        var pipeBugPointers = new PipeBugNativeInstructionPointers(bus);
         BrinstarPipeBugState pipeBug = runtime.Enemies.BrinstarPipeBugStates[6] ?? throw new InvalidOperationException("The source-room pipe bug has no state.");
         pipeBug.Playback = pipeBugPointers.PlaybackAt(NativeSnapshotMemory.PipeBugBeforeFadeInstruction);
         actor.AnimationClock.StepOnNextUpdate();
@@ -851,7 +851,7 @@ internal static class RidleyFullMovieVerification
         int nmiBeforeNudge = runtime.Clock.Counter;
         int samusAnimation = samus.AnimationNumber;
         var ridley = runtime.Enemies.Places.InUpdateOrder[0];
-        var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
+        var pointers = new RidleyNativeInstructionPointers(bus);
         ushort bodyInstruction = pointers.Enemy(runtime.Enemies, ridley);
         game.Step(0);
         AssertEqual(DoorTransitionPhase.DrawFirstDestinationFrame, game.DoorTransitionPhaseForVerification, "final nudge returns before first fade");
@@ -888,19 +888,19 @@ internal static class RidleyFullMovieVerification
     private static ushort[] ReadRetailBeamPalette(ISnesAddressSpace bus, ushort equippedBeams)
     {
         int pointerAddress = NativeSnapshotMemory.BeamPalettePointers + (equippedBeams & 0x0fff) * 2;
-        ushort palettePointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAddress);
+        ushort palettePointer = bus.ReadCartridgeWord(pointerAddress);
         var colors = new ushort[16];
         for (int color = 0; color < colors.Length; color++)
         {
             int address = NativeSnapshotMemory.CannonDefinitionBank | (palettePointer + color * 2);
-            colors[color] = (ushort)(CartridgeImportSource.Require(bus).ReadCartridgeWord(address) & 0x7fff);
+            colors[color] = (ushort)(bus.ReadCartridgeWord(address) & 0x7fff);
         }
         return colors;
     }
 
     /// <summary>A native little-endian PLM program word at a bank-$84 CPU address.</summary>
     internal static ushort ReadRetailObjectProgramWord(ISnesAddressSpace bus, int address) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+        bus.ReadCartridgeWord(address);
 
     /// <summary>
     /// Replays the complete supplied Ridley movie through production gameplay and compares accepted update state with

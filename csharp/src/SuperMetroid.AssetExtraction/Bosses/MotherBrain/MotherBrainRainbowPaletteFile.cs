@@ -59,17 +59,15 @@ public static class MotherBrainRainbowPaletteFile
     }
 
     /// <summary>Validates palette geometry and converts each frame's body and rear-leg colours.</summary>
-    private static InstalledMotherBrainRainbowPalette.PaletteFrame[] CompileFrames(MotherBrainRainbowPaletteFrameDocument[]? source,
+    private static InstalledMotherBrainRainbowPalette.PaletteFrame[] CompileFrames(MotherBrainRainbowPaletteFrameDocument[] source,
         int count, int bodyCount, int legCount, string name)
     {
-        if (source is null || source.Length != count)
+        if (source.Length != count)
             throw new InvalidDataException($"Mother Brain {name} requires {count} frames.");
         var frames = new InstalledMotherBrainRainbowPalette.PaletteFrame[count];
         for (int frame = 0; frame < count; frame++)
         {
-            MotherBrainRainbowPaletteFrameDocument? item = source[frame];
-            if (item is null)
-                throw new InvalidDataException($"Mother Brain {name} frame {frame} is absent.");
+            MotherBrainRainbowPaletteFrameDocument item = source[frame];
             frames[frame] = new InstalledMotherBrainRainbowPalette.PaletteFrame(
                 CompileColors(item.Body, bodyCount, $"{name} frame {frame} body"),
                 CompileColors(item.BackLegs, legCount, $"{name} frame {frame} back legs"));
@@ -78,9 +76,9 @@ public static class MotherBrainRainbowPaletteFile
     }
 
     /// <summary>Checks an authored row's exact length before converting its RGB5 colors.</summary>
-    private static RgbColor[] CompileColors(PaletteRgb5[]? source, int count, string name)
+    private static RgbColor[] CompileColors(PaletteRgb5[] source, int count, string name)
     {
-        if (source is null || source.Length != count)
+        if (source.Length != count)
             throw new InvalidDataException($"Mother Brain {name} requires {count} colors.");
         var colors = new RgbColor[count];
         for (int color = 0; color < count; color++)

@@ -28,12 +28,12 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         {
             int address = WorkRobotGlowDefinitions.NativeFirstTimerAddress +
                 glowStep * WorkRobotGlowDefinitions.RecordByteCount;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
+            AssertEqual(rom.ReadCartridgeWord(address),
                 holds[glowStep],
                 $"Work Robot glow step {WorkRobotGlowAnimations.Cycle[glowStep]} hold");
         }
         AssertEqual((ushort)0xffff,
-            CartridgeImportSource.Require(rom).ReadCartridgeWord(WorkRobotGlowDefinitions.NativeTerminatorAddress),
+            rom.ReadCartridgeWord(WorkRobotGlowDefinitions.NativeTerminatorAddress),
             "Work Robot palette native terminator restarts the cycle after the sixth step");
 
         byte[] extracted = WorkRobotPaletteCycleExtractor.Extract(rom);
@@ -47,7 +47,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
                 color * sizeof(ushort);
             // Each record is the colouring of the place its step shows, so the way back passes the places between the ends
             // again in the same colours and the glow installs four shades (#2393).
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source), stock.GlowColours(WorkRobotGlowAnimations.Cycle[record])[color],
+            AssertEqual(rom.ReadCartridgeWord(source), stock.GlowColours(WorkRobotGlowAnimations.Cycle[record])[color],
                 $"Work Robot color record {record} slot {color} preserves ROM RGB5 as the colouring of the place it shows");
         }
         AssertEqual(4, WorkRobotGlowAnimations.Places.Count, "the Work Robot glow shows four places, one shade each");

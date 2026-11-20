@@ -44,6 +44,6 @@ internal static class RoomBackgroundTilemapCellWords
     {
         /// <summary>The packed tilemap entry of the tile this cell places.</summary>
         /// <exception cref="InvalidDataException">The cell's tile or palette lies outside the schema.</exception>
-        internal ushort PackedWord => (cell.Placement() ?? throw new InvalidDataException("The cell places no tile.")).PackedWord;
+        internal ushort PackedWord => cell.Placement("The cell").PackedWord;
     }
 }

@@ -37,8 +37,8 @@ internal static class GrappleFlarePlacementVerification
             var offset = stock.Resolve(running, new SamusFlareAim.AtMuzzle(direction));
             int x = running ? SamusSourceDefinitions.GrappleRunningFlareX.Value : SamusSourceDefinitions.GrappleDefaultFlareX.Value;
             int y = running ? SamusSourceDefinitions.GrappleRunningFlareY.Value : SamusSourceDefinitions.GrappleDefaultFlareY.Value;
-            AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), x + direction.ToAimIndex() * 2)), offset.X, "Extracted Grapple flare X including adjacent rows");
-            AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), y + direction.ToAimIndex() * 2)), offset.Y, "Extracted Grapple flare Y including adjacent rows");
+            AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(rom, x + direction.ToAimIndex() * 2)), offset.X, "Extracted Grapple flare X including adjacent rows");
+            AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(rom, y + direction.ToAimIndex() * 2)), offset.Y, "Extracted Grapple flare Y including adjacent rows");
         }
         var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringOrigins);
         Func<SamusState, SamusGrappleState, Position16<RoomPixels>, GrappleAnchorKind, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;

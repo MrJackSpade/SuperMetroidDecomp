@@ -58,7 +58,7 @@ public static class CreditsPresentationExtractor
     private static ushort[][] ReadNativeRows(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        byte[] source = RomDataReader.Decompress(CartridgeImportSource.Require(bus), EndingSourceDefinitions.Credits.Tilemap);
+        byte[] source = RomDataReader.Decompress(bus, EndingSourceDefinitions.Credits.Tilemap);
         if (source.Length < EndingSourceDefinitions.Credits.TilemapBytes)
         {
             throw new InvalidDataException(
@@ -204,7 +204,7 @@ public static class CreditsPresentationExtractor
     /// <summary>Reads one instruction word from the credits program's native bank.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, int pointer) =>
         RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
+            bus,
             SnesAddress.InBank(EndingSourceDefinitions.Credits.InstructionBank, pointer));
 
     /// <summary>Advances a bank-local credits instruction pointer with native 16-bit wrapping.</summary>

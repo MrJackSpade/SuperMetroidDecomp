@@ -21,7 +21,7 @@ internal static class KiHunterAcidSpitBehaviorVerification
     /// </summary>
     internal static void VerifyKiHunterAcidSpitBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, KiHunterAcidSpitNativeListAddresses.Extent, "Ki-Hunter acid");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];

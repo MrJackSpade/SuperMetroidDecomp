@@ -83,7 +83,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             int pointerAddress = RoomFxNativeSources.AreaPaletteFxObjectListPointers + area * 2;
             forbidden.Add(pointerAddress);
             forbidden.Add(pointerAddress + 1);
-            ushort nativeList = CartridgeImportSource.Require(rom).ReadCartridgeWord(pointerAddress);
+            ushort nativeList = rom.ReadCartridgeWord(pointerAddress);
             for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
             {
                 int entryAddress = RoomFxRomDataBanksTooling.RoomDefinitions |

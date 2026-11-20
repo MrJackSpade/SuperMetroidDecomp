@@ -23,8 +23,7 @@ public static class MapStationLayoutFile
     public static MapStationPositions Read(Stream json)
     {
         MapStationLayoutDocument document;
-        try { document = JsonAssetDocument.Read<MapStationLayoutDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Map station layout is null."); }
+        try { document = JsonAssetDocument.Read<MapStationLayoutDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map station layout JSON.", error); }
         var rules = Markers.ToArray();
         if (document.Version != MapStationLayoutFormat.Version || document.Markers is null || document.Markers.Count != rules.Length)

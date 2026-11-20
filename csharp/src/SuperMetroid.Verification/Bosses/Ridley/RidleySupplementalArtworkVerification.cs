@@ -35,7 +35,7 @@ internal static class RidleySupplementalArtworkVerification
         for (int index = 0; index < RidleySupplementalVisualDefinitionsConstants.WingPointerCount;
              index++)
         {
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ceres.WingSpritemapPointers + index * 2));
+            ushort native = rom.ReadCartridgeWord((EnemyRomTablePointers.Ceres.WingSpritemapPointers + index * 2));
             AssertEqual(native, RidleySupplementalVisualDefinitionsConstants.WingFrameAt(index),
                 $"Ridley wing animation table entry {index} matches the pinned ROM");
 
@@ -53,7 +53,7 @@ internal static class RidleySupplementalArtworkVerification
              direction < RidleySupplementalVisualDefinitionsConstants.TailTipPointerCount;
              direction++)
         {
-            ushort nativeTip = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ceres.TailTipSpritemapPointers + direction * 2));
+            ushort nativeTip = rom.ReadCartridgeWord((EnemyRomTablePointers.Ceres.TailTipSpritemapPointers + direction * 2));
             AssertEqual(nativeTip, RidleySupplementalVisualDefinitionsConstants.TailTipFrameAt(direction),
                 $"Ridley tail-tip direction {direction} matches the pinned ROM");
             OamBuffer actual = DrawInstalledRidleySupplement(

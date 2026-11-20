@@ -31,7 +31,7 @@ internal static class IntroNarrationPresentationVerification
         byte[] fontPng = SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(nativeBus);
         IntroFontCharacters font = IntroFontCharacters.Read(new MemoryStream(fontPng, writable: false));
         byte[] nativeFont = RomDataReader.Decompress(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(nativeBus),
+            nativeBus,
             IntroCinematicSourceDefinitions.FontOne,
             maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
         AssertTrue(font.Characters.Span.SequenceEqual(

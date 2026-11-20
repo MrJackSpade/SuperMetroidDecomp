@@ -101,7 +101,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         void VerifyBand(int source, int count, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < count; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     source + color * sizeof(ushort)), resolve(color),
                     $"installed Crocomire {name} color {color} preserves native RGB5");
         }

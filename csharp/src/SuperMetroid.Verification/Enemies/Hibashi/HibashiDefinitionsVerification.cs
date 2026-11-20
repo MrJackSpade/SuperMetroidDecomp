@@ -40,9 +40,9 @@ internal static class HibashiDefinitionsVerification
         for (int frameIndex = 0; frameIndex < steps.Length; frameIndex++)
         {
             HibashiEruptionStep frame = steps[frameIndex];
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yOffsetTable + frameIndex * 2)), frame.YOffset,
+            AssertEqual(rom.ReadCartridgeWord((yOffsetTable + frameIndex * 2)), frame.YOffset,
                 $"Hibashi Y offset {frameIndex}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yRadiusTable + frameIndex * 2)), frame.YRadius,
+            AssertEqual(rom.ReadCartridgeWord((yRadiusTable + frameIndex * 2)), frame.YRadius,
                 $"Hibashi Y radius {frameIndex}");
 
             hitbox.Radius = hitbox.Radius.WithX(0);

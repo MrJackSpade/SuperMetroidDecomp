@@ -28,23 +28,23 @@ internal static class NuclearWaffleDefinitionsVerification
             int offset = direction * 4;
             var settings = (NuclearWaffleSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.NuclearWaffle, PopulationWords.Parameters(0x2001, 0x2000 | direction));
             NuclearWaffleSweepDefinition definition = settings.Sweep;
-            AssertEqual(NuclearWaffleSweepAngle.FromSteps(CartridgeImportSource.Require(rom).ReadCartridgeWord((endpointTable + offset))), definition.StartAngle,
+            AssertEqual(NuclearWaffleSweepAngle.FromSteps(rom.ReadCartridgeWord((endpointTable + offset))), definition.StartAngle,
                 $"Nuclear Waffle start angle {direction}");
-            AssertEqual(NuclearWaffleSweepAngle.FromSteps(CartridgeImportSource.Require(rom).ReadCartridgeWord((endpointTable + offset + 2))), definition.EndAngle,
+            AssertEqual(NuclearWaffleSweepAngle.FromSteps(rom.ReadCartridgeWord((endpointTable + offset + 2))), definition.EndAngle,
                 $"Nuclear Waffle end angle {direction}");
             // The cartridge stores the spacing and the stagger signed by the way the sweep runs; the definition's are the
             // steps the links trail and stagger, applied toward its direction (#2439).
             int towardSweep = settings.Direction == NuclearWaffleSweepDirection.Forward ? 1 : -1;
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((spacingTable + offset))),
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((spacingTable + offset))),
                 towardSweep * definition.SegmentSpacing,
                 $"Nuclear Waffle segment spacing {direction}");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((spacingTable + offset + 2))),
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((spacingTable + offset + 2))),
                 towardSweep * definition.InterleavedSegmentOffset,
                 $"Nuclear Waffle interleaved offset {direction}");
-            AssertEqual(NuclearWaffleSweepAngle.FromSteps(CartridgeImportSource.Require(rom).ReadCartridgeWord((thresholdTable + offset))),
+            AssertEqual(NuclearWaffleSweepAngle.FromSteps(rom.ReadCartridgeWord((thresholdTable + offset))),
                 definition.RisingTurnThreshold,
                 $"Nuclear Waffle second turn threshold {direction}");
-            AssertEqual(NuclearWaffleSweepAngle.FromSteps(CartridgeImportSource.Require(rom).ReadCartridgeWord((thresholdTable + offset + 2))),
+            AssertEqual(NuclearWaffleSweepAngle.FromSteps(rom.ReadCartridgeWord((thresholdTable + offset + 2))),
                 definition.FallingTurnThreshold,
                 $"Nuclear Waffle first turn threshold {direction}");
 

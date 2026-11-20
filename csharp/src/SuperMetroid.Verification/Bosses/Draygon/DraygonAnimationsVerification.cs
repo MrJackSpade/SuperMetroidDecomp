@@ -31,7 +31,7 @@ internal static class DraygonAnimationsVerification
     /// </summary>
     internal static void VerifyDraygonAnimations(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<DraygonSegment>().Length, Entries.Length, "every typed Draygon program has a native entry");
         for (int index = 0; index < Entries.Length; index++)
             AssertEqual((DraygonSegment)index, Entries[index].Program, "the Draygon programs are declared in authored order");
@@ -327,7 +327,7 @@ internal static class DraygonAnimationsVerification
     /// </summary>
     internal static void VerifyDraygonProjectileAnimations(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<DraygonProjectileSegment>().Length, ProjectileEntries.Length, "every projectile segment has a native entry");
         Dictionary<DraygonProjectileSegment, NativeEnemyList<DraygonProjectileSegment>> projectileLists =
             ProjectileEntries.ToDictionary(item => item.Program, item => ReadProjectileList(cartridge, item.Program, item.Entry));

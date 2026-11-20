@@ -88,8 +88,8 @@ public static class StraddledTerrainFiles
     internal static StraddledTerrainDocument Decode()
     {
         var leadOf = new Dictionary<RoomTerrainBlock, int>();
-        // Each block's tail, null until a level word stores it.
-        var storedTail = new int?[BlockCount];
+        // Each block's tail, once a level word stores it.
+        var storedTail = new Dictionary<int, int>();
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             RoomTerrainBlock terrain = RoomLevelWordCodec.Decode((ushort)value);
@@ -97,13 +97,13 @@ public static class StraddledTerrainFiles
                 throw new InvalidOperationException($"Two level words decode to {terrain}.");
             int block = RoomLevelWordCodec.BlockNumberOf(terrain.Appearance);
             int tail = RoomLevelWordCodec.FirstStoredHalf((ushort)value);
-            if (storedTail[block] is int known && known != tail)
+            if (storedTail.TryGetValue(block, out int known) && known != tail)
                 throw new InvalidOperationException($"The start of block {block} depends on more than its number.");
             storedTail[block] = tail;
         }
-        if (leadOf.Count != Kinds.Count * Mirrorings.Count * BlockCount)
+        if (leadOf.Count != Kinds.Count * Mirrorings.Count * BlockCount || storedTail.Count != BlockCount)
             throw new InvalidOperationException("A terrain block is stored as no level word.");
-        int[] tailOf = [.. storedTail.Select(tail => tail ?? throw new InvalidOperationException("A terrain block is stored as no level word."))];
+        int[] tailOf = [.. Enumerable.Range(0, BlockCount).Select(block => storedTail[block])];
 
         // Each class is listed by what it holds, in the order of the first block it holds.
         int[][] tailClasses = [.. Enumerable.Range(0, BlockCount)
@@ -149,27 +149,28 @@ public static class StraddledTerrainFiles
         Ensure.NotNull(document);
         if (document.Version != StraddledTerrainFormat.Version)
             throw new InvalidDataException("Straddled-terrain file has an unsupported version.");
-        IReadOnlyList<StraddledTerrainDocument.Tail?> tailClasses = Require(document.Tails, "tails");
-        // Each block's tail class, null until a class claims it.
-        var claimedBy = new int?[BlockCount];
+        IReadOnlyList<StraddledTerrainDocument.Tail> tailClasses = document.Tails;
+        // Each block's tail class, once a class claims it.
+        var claimedBy = new Dictionary<int, int>();
         for (int tail = 0; tail < tailClasses.Count; tail++)
         {
-            foreach (int block in Blocks(Require(tailClasses[tail], $"tail class {tail}").Blocks, $"tail class {tail}"))
+            foreach (int block in Blocks(tailClasses[tail].Blocks, $"tail class {tail}"))
             {
-                if (claimedBy[block] is not null)
+                if (!claimedBy.TryAdd(block, tail))
                     throw new InvalidDataException($"Straddled-terrain block {block} lies in two tail classes.");
-                claimedBy[block] = tail;
             }
         }
-        int[] tailOf = [.. claimedBy.Select(tail => tail ?? throw new InvalidDataException("Straddled-terrain tail classes must hold every block number."))];
+        if (claimedBy.Count != BlockCount)
+            throw new InvalidDataException("Straddled-terrain tail classes must hold every block number.");
+        int[] tailOf = [.. Enumerable.Range(0, BlockCount).Select(block => claimedBy[block])];
 
-        IReadOnlyList<StraddledTerrainDocument.Lead?> leadClasses = Require(document.Leads, "leads");
+        IReadOnlyList<StraddledTerrainDocument.Lead> leadClasses = document.Leads;
         var leads = new Dictionary<RoomTerrainBlock, int>();
         var tails = new Dictionary<RoomTerrainBlock, int>();
         var outcomes = new IReadOnlyList<RoomTerrainBlock>[leadClasses.Count];
         for (int lead = 0; lead < leadClasses.Count; lead++)
         {
-            StraddledTerrainDocument.Lead leadClass = Require(leadClasses[lead], $"lead class {lead}");
+            StraddledTerrainDocument.Lead leadClass = leadClasses[lead];
             RoomCollisionType kind = Named(KindsByName, leadClass.Collision);
             BlockMirroring mirroring = Named(MirroringsByName, leadClass.Mirroring);
             foreach (int block in Blocks(leadClass.Blocks, $"lead class {lead}"))
@@ -180,14 +181,14 @@ public static class StraddledTerrainFiles
                 // The start of a block contributes the same whatever its mirroring and kind.
                 tails.Add(terrain, tailOf[block]);
             }
-            IReadOnlyList<StraddledTerrainDocument.Outcome?> straddles = Require(leadClass.Straddles, $"straddles of lead class {lead}");
+            IReadOnlyList<StraddledTerrainDocument.Outcome> straddles = leadClass.Straddles;
             if (straddles.Count != tailClasses.Count)
                 throw new InvalidDataException($"Straddled-terrain lead class {lead} makes terrain with {straddles.Count} tail classes, not {tailClasses.Count}.");
             outcomes[lead] = [.. straddles.Select(Terrain)];
         }
         if (leads.Count != Kinds.Count * Mirrorings.Count * BlockCount)
             throw new InvalidDataException("Straddled-terrain lead classes must hold every block of every mirroring and collision kind.");
-        AddCollectibleBlocks(Require(document.CollectibleBlocks, "collectible blocks"), tailOf, leads, tails);
+        AddCollectibleBlocks(document.CollectibleBlocks, tailOf, leads, tails);
         try
         {
             return new StraddledTerrain<RoomTerrainBlock>(leads, tails, outcomes);
@@ -205,13 +206,12 @@ public static class StraddledTerrainFiles
     /// <exception cref="InvalidDataException">
     /// A collectible's block is named twice or not at all, or an entry names a block pair, look or block the game does not have.
     /// </exception>
-    private static void AddCollectibleBlocks(IReadOnlyList<StraddledTerrainDocument.CollectibleBlock?> entries, int[] tailOf,
+    private static void AddCollectibleBlocks(IReadOnlyList<StraddledTerrainDocument.CollectibleBlock> entries, int[] tailOf,
         Dictionary<RoomTerrainBlock, int> leads, Dictionary<RoomTerrainBlock, int> tails)
     {
         var named = new HashSet<CollectiblePairBlock>();
-        foreach (StraddledTerrainDocument.CollectibleBlock? entry in entries)
+        foreach (StraddledTerrainDocument.CollectibleBlock block in entries)
         {
-            StraddledTerrainDocument.CollectibleBlock block = Require(entry, "collectible block entry");
             var pairBlock = new CollectiblePairBlock(Named(PairsByName, block.Pair), Named(LooksByName, block.Look));
             if (!named.Add(pairBlock))
                 throw new InvalidDataException($"Straddled-terrain file names the {pairBlock} twice.");
@@ -248,13 +248,13 @@ public static class StraddledTerrainFiles
 
     /// <summary>Every block number a class's runs hold.</summary>
     /// <exception cref="InvalidDataException">The class holds no runs, or a run is empty or names a block no block set holds.</exception>
-    private static IEnumerable<int> Blocks(IReadOnlyList<StraddledTerrainDocument.BlockRun?>? runs, string what)
+    private static IEnumerable<int> Blocks(IReadOnlyList<StraddledTerrainDocument.BlockRun> runs, string what)
     {
-        if (runs is null || runs.Count == 0)
+        if (runs.Count == 0)
             throw new InvalidDataException($"Straddled-terrain {what} holds no blocks.");
-        foreach (StraddledTerrainDocument.BlockRun? run in runs)
+        foreach (StraddledTerrainDocument.BlockRun run in runs)
         {
-            if (run is null || run.First < 0 || run.Last < run.First || run.Last >= BlockCount)
+            if (run.First < 0 || run.Last < run.First || run.Last >= BlockCount)
                 throw new InvalidDataException($"Straddled-terrain {what} holds a run of blocks no block set holds.");
             for (int block = run.First; block <= run.Last; block++)
                 yield return block;
@@ -268,10 +268,8 @@ public static class StraddledTerrainFiles
 
     /// <summary>The terrain block an outcome names.</summary>
     /// <exception cref="InvalidDataException">The outcome names a block, mirroring or collision kind the game does not have.</exception>
-    private static RoomTerrainBlock Terrain(StraddledTerrainDocument.Outcome? outcome)
+    private static RoomTerrainBlock Terrain(StraddledTerrainDocument.Outcome outcome)
     {
-        if (outcome is null)
-            throw new InvalidDataException("Straddled-terrain file has an empty outcome.");
         if (outcome.Block is < 0 or >= BlockCount)
             throw new InvalidDataException($"Straddled-terrain outcome names block {outcome.Block}, which no block set holds.");
         return new RoomTerrainBlock(RoomLevelWordCodec.AppearanceOf(outcome.Block, Named(MirroringsByName, outcome.Mirroring)),
@@ -280,13 +278,9 @@ public static class StraddledTerrainFiles
 
     /// <summary>The value <paramref name="name"/> names exactly.</summary>
     /// <exception cref="InvalidDataException">No value has that name.</exception>
-    private static T Named<T>(Dictionary<string, T> byName, string? name) where T : struct, Enum =>
-        name is not null && byName.TryGetValue(name, out T value)
+    private static T Named<T>(Dictionary<string, T> byName, string name) where T : struct, Enum =>
+        byName.TryGetValue(name, out T value)
             ? value
             : throw new InvalidDataException($"Straddled-terrain file names {typeof(T).Name} '{name}', which the game does not have.");
 
-    /// <summary>Requires a document member the file must hold.</summary>
-    /// <exception cref="InvalidDataException">The file holds no such member.</exception>
-    private static T Require<T>(T? value, string name) where T : class =>
-        value ?? throw new InvalidDataException($"Straddled-terrain file has no {name}.");
 }

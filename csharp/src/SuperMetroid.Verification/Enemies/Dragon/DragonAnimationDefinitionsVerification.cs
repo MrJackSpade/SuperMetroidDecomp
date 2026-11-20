@@ -22,7 +22,7 @@ internal static class DragonAnimationDefinitionsVerification
         {
             // The cartridge pairs its six ordinals as facing left (even) and right (odd) within each phase.
             DragonSegment selector = Selector(index);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2e5ef + index * 2)),
+            AssertEqual(rom.ReadCartridgeWord((0xa2e5ef + index * 2)),
                 NativeEnemyAnimationOracle.EntryOf(DragonNativeListAddresses.Entries, selector),
                 $"Dragon animation selector {selector}");
         }

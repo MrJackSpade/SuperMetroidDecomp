@@ -78,9 +78,9 @@ internal static class IntroEggEffectDefinitionsVerification
         // The six-byte header's first word (initialization callback) has no compiled owner.
         int address = IntroEggEffectDefinitions.NativeDefinitionBank | definitionPointer;
         ushort routine = actual.Animation == IntroEggEffectAnimation.SlimeDrop ? CinematicActorNativeMotions.EggSlimeDrop : CinematicActorNativeMotions.EggShellFragment;
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), routine,
+        AssertEqual(retail.ReadCartridgeWord((address + 2)), routine,
             $"{name} routine: a slime drop's or a shell fragment's flight");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
+        AssertEqual(retail.ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
             $"{name} instruction list");
     }
 

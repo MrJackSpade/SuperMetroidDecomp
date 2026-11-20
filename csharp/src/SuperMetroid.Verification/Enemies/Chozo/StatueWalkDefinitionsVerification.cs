@@ -37,10 +37,10 @@ internal static class StatueWalkDefinitionsVerification
         for (int step = 0; step < GoldenWalkSteps; step++)
         {
             int offset = step * 2;
-            short velocity = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(GoldenWalkTable + offset));
+            short velocity = unchecked((short)rom.ReadCartridgeWord(GoldenWalkTable + offset));
             place.Position = place.Position.WithWholeY(256).WithWholeX(256).WithFractionX(123);
             AnimationContinuation<TorizoBodySegment>? next = walk(place, torizo, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), level, velocity);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(GoldenWalkTable + offset), torizo.Velocity.X.RawValue, "Torizo actual walking velocity without bus");
+            AssertEqual(rom.ReadCartridgeWord(GoldenWalkTable + offset), torizo.Velocity.X.RawValue, "Torizo actual walking velocity without bus");
             AssertEqual(unchecked((ushort)(256 + velocity)), place.Position.X.Whole, "Torizo real whole-pixel movement");
             AssertEqual((ushort)123, place.Position.X.Fraction, "Torizo preserves subpixel state");
             AssertTrue(next is null, "Torizo walking step runs on without a wall");
@@ -54,9 +54,9 @@ internal static class StatueWalkDefinitionsVerification
             ChozoCarryStep step = ChozoNativeWords.CarryStep(record);
             var data = ChozoCarry.Read(step);
             carrySteps++;
-            short velocity = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaae630 + offset)));
-            short xOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaae670 + offset)));
-            short yOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaae6b0 + offset)));
+            short velocity = unchecked((short)rom.ReadCartridgeWord((0xaae630 + offset)));
+            short xOffset = unchecked((short)rom.ReadCartridgeWord((0xaae670 + offset)));
+            short yOffset = unchecked((short)rom.ReadCartridgeWord((0xaae6b0 + offset)));
             AssertEqual(velocity, data.Velocity.InTwoHundredFiftySixthsOfPixel, "Chozo native movement velocity");
             AssertEqual(xOffset, data.SamusOffset.X, "Chozo native hand X");
             AssertEqual(yOffset, data.SamusOffset.Y, "Chozo native hand Y");

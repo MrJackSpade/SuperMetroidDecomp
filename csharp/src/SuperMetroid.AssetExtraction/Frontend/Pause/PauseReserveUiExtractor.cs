@@ -39,8 +39,8 @@ public static class PauseReserveUiExtractor
         for (int frame = 0; frame < frames.Length; frame++)
             frames[frame] = new()
             {
-                Shade = Rgb(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveArrowFirstColours + frame * 2)),
-                Light = Rgb(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveArrowSecondColours + frame * 2)),
+                Shade = Rgb(RomDataReader.ReadWordFixedBank(bus, PauseMenuSourceDefinitions.ReserveArrowFirstColours + frame * 2)),
+                Light = Rgb(RomDataReader.ReadWordFixedBank(bus, PauseMenuSourceDefinitions.ReserveArrowSecondColours + frame * 2)),
             };
         using var output = new MemoryStream();
         PauseReserveUiFile.Write(output, new()
@@ -62,16 +62,16 @@ public static class PauseReserveUiExtractor
 
         PauseReserveLabelVisual Label(int index, int words)
         {
-            int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveLabelPlacements.AddWithinBank(index * 2)) -
+            int destination = RomDataReader.ReadWordFixedBank(bus, PauseMenuSourceDefinitions.ReserveLabelPlacements.AddWithinBank(index * 2)) -
                 PauseMenuSourceDefinitions.EquipmentTilemapBase;
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveLabelSources.AddWithinBank(index * 2));
+            int pointer = RomDataReader.ReadWordFixedBank(bus, PauseMenuSourceDefinitions.ReserveLabelSources.AddWithinBank(index * 2));
             return DirectLabel(CartridgeBankWindow.At(PauseMenuSourceDefinitions.MenuBank, pointer), destination / 2, words);
         }
         PauseReserveLabelVisual DirectLabel(int address, int cell, int words) => new()
         {
             Anchor = Point(cell),
             Cells = Enumerable.Range(0, words).Select(index => PauseTileWords.FromWord(
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + index * 2), $"Reserve label {address:X6}.{index}")).ToArray(),
+                RomDataReader.ReadWordFixedBank(bus, address + index * 2), $"Reserve label {address:X6}.{index}")).ToArray(),
         };
         static PauseGridPoint Point(int cell) => new()
         {

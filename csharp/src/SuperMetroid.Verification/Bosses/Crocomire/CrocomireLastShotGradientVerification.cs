@@ -22,7 +22,7 @@ internal static class CrocomireLastShotGradientVerification
     /// </summary>
     internal static void VerifyCrocomireLastShotGradient(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         CrocomireLastShotGradient installed = InstalledFixtures.BossAndIntroOverreads.CrocomireLastShotGradient;
         for (int shotsSpat = 0; shotsSpat < CrocomireProjectileDefinitions.VolleyShotCount; shotsSpat++)
         {

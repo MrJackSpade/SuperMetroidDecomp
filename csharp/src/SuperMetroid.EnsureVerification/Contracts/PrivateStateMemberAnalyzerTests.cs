@@ -44,6 +44,7 @@ internal static class PrivateStateMemberAnalyzerTests
         Expect(Call("PrivateState.Field<Generic<int>, int>(generic, \"held\");"), count: 0);
         // A property's accessor, a classic extension method, and the methods a static class's extension block compiles to.
         Expect(Call("PrivateState.InvokeStatic<int>(typeof(Owner), \"get_Limit\", [], []);"), count: 0);
+        Expect(Call("PrivateState.Invoke<Owner, int>(owner, \"add_Changed\", [], []);"), count: 0);
         Expect(Call("PrivateState.InvokeStatic<int>(typeof(Helpers), \"Plain\", [], []);"), count: 0);
         Expect(Call("PrivateState.InvokeStatic<int>(typeof(Helpers), \"Twice\", [], []);"), count: 0);
         Expect(Call("PrivateState.InvokeStatic<int>(typeof(Helpers), \"get_Doubled\", [], []);"), count: 0);
@@ -89,6 +90,8 @@ internal static class PrivateStateMemberAnalyzerTests
                 private static int Limit => 3;
                 private int Step() => count + Count;
                 private static int Make() => Limit;
+                private event System.Action? Changed;
+                internal void Raise() => Changed?.Invoke();
             }
             internal static class Helpers
             {

@@ -85,7 +85,7 @@ public sealed class PrivateStateMemberAnalyzer : DiagnosticAnalyzer
     /// <summary>
     /// Whether the owner has a member of the kind and name, as reflection over its declared and inherited members finds
     /// it: any member the owner declares, or a non-private instance member of a base type. A method is an ordinary method
-    /// or a property's accessor; a static class's extension blocks compile to methods of the class itself, a method of a
+    /// or a property's or an event's accessor; a static class's extension blocks compile to methods of the class itself, a method of a
     /// block taking its own name and a property's accessors theirs.
     /// </summary>
     private static bool Has(INamedTypeSymbol owner, string kind, string name)
@@ -105,7 +105,10 @@ public sealed class PrivateStateMemberAnalyzer : DiagnosticAnalyzer
                 {
                     "field" => member is IFieldSymbol { IsImplicitlyDeclared: false },
                     "property" => member is IPropertySymbol { IsIndexer: false },
-                    _ => member is IMethodSymbol { MethodKind: MethodKind.Ordinary or MethodKind.PropertyGet or MethodKind.PropertySet },
+                    _ => member is IMethodSymbol
+                    {
+                        MethodKind: MethodKind.Ordinary or MethodKind.PropertyGet or MethodKind.PropertySet or MethodKind.EventAdd or MethodKind.EventRemove,
+                    },
                 };
                 if (matches)
                     return true;

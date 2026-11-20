@@ -14,33 +14,33 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class GameplayGamePhases(FrontendSession session)
 {
     /// <summary>Runs one update of <see cref="SuperMetroidGameState.GameplayFadeIn"/>.</summary>
-    internal void RunGameplayFadeIn(ControllerButton controllerInput)
+    internal void RunGameplayFadeIn(ControllerButton controllerInput, LoadedGameplay live)
     {
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.FadeIn });
-        session.display.PublishGameplay(session.GameplayRuntime);
+        live.Runtime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.FadeIn }, live.Room);
+        session.display.PublishGameplay(live);
         session.SetDisplayBrightness(session.GameplayFadeIn.Level);
-        session.HandleGunshipLandingSave();
+        session.HandleGunshipLandingSave(live);
         if (session.GameplayFadeIn.Brighten())
             session.FinishGameplayFadeIn();
     }
 
     /// <summary>Runs one update of <see cref="SuperMetroidGameState.MainGameplay"/>.</summary>
-    internal void RunMainGameplay(ControllerButton controllerInput)
+    internal void RunMainGameplay(ControllerButton controllerInput, LoadedGameplay live)
     {
-        RunMainGameplayUpdate(controllerInput, GameplayUpdateOwner.MainGameplay);
+        RunMainGameplayUpdate(controllerInput, GameplayUpdateOwner.MainGameplay, live);
     }
 
     /// <summary>Runs one update of <see cref="SuperMetroidGameState.ReserveTankRefill"/>.</summary>
-    internal void RunReserveTankRefill(ControllerButton controllerInput)
+    internal void RunReserveTankRefill(ControllerButton controllerInput, LoadedGameplay live)
     {
         // The refill begins from main gameplay, whose updates all run with Samus, and no update replaces her (#2503).
-        SamusState samus = session.GameplayRuntime.Player.Samus;
+        SamusState samus = live.Runtime.Player.Samus;
         SamusReserveAutoRecoveryStep reserveStep = default;
-        RuntimeFrameOutcome outcome = session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.ReserveRefill, AfterFrameBoundary = refillOwner =>
+        RuntimeFrameOutcome outcome = live.Runtime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.ReserveRefill, AfterFrameBoundary = refillOwner =>
             {
                 reserveStep = session.reserveRecovery.StepAfterFrame(
                     samus,
-                    session.GameplayRuntime.Clock.Counter);
+                    live.Runtime.Clock.Counter);
                 if (reserveStep.RefillSoundRequested)
                     session.audio.QueueSound(RoomSound.IncrementalEnergy, SoundRequestPriority.Low);
                 if (!reserveStep.Completed)
@@ -48,17 +48,17 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                 // The reserve refill's end unfreezes the game and returns to main gameplay before the update's gameplay,
                 // so Samus, her projectiles and the enemies resume on the same update, which is main gameplay's own: its
                 // pause check, the Ceres elevator and Samus's death see the game in main gameplay (#2526).
-                session.GameplayRuntime.Freeze.GameplayTimeFrozen = false;
+                live.Runtime.Freeze.GameplayTimeFrozen = false;
                 session.Enter(session.Phases.MainGameplay);
                 return GameplayUpdateOwner.MainGameplay;
-            } });
-        session.WriteCompletedSave(outcome);
-        session.display.PublishGameplay(session.GameplayRuntime);
+            } }, live.Room);
+        session.WriteCompletedSave(outcome, live.Runtime);
+        session.display.PublishGameplay(live);
         // The reserve refill invokes the external low-health check even while the
         // locked Samus movement mode omits it, after the update's gameplay, whose sounds are
         // already queued; the queue occupancy they leave decides whether this final
         // normal-priority request joins.
-        samus.HealthWarning.Update(samus.Health, session.GameplayRuntime.AudioRequests);
+        samus.HealthWarning.Update(samus.Health, live.Runtime.AudioRequests);
         // Damage on the completion update, whose gameplay runs unfrozen, can empty Samus again; with the reserves spent
         // her death begins on that update (#2517). The update's own out-of-health check sending Samus to the refill keeps
         // the update in it.
@@ -69,14 +69,14 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // timer (#2504), so only that update counts it.
         if (reserveStep.Completed)
         {
-            EnterUpdateTransition(outcome.Transition);
+            EnterUpdateTransition(outcome.Transition, live);
             return;
         }
         // The refill's own updates, frozen with Samus locked, start nothing but the time-up: once the Zebes time bomb is
         // set, a refill that took an update from the time-up returns to it on its next update, the refill unfinished, with
         // Samus locked and gameplay frozen (#2518).
         if (outcome.StartsTimeUp)
-            session.BeginTimeUp();
+            session.BeginTimeUp(live.Runtime);
     }
 
     /// <summary>
@@ -88,24 +88,24 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// Main gameplay, the pause's brightening or the time-up's white-out, whichever runs the update; the update enters the
     /// refill or the death its out-of-health check sends Samus to whichever it is (#2519).
     /// </param>
-    internal void RunMainGameplayUpdate(ControllerButton controllerInput, GameplayUpdateOwner owner)
+    internal void RunMainGameplayUpdate(ControllerButton controllerInput, GameplayUpdateOwner owner, LoadedGameplay live)
     {
         // Every gameplay update runs with Samus, and no update replaces her (#2503).
-        SamusState samus = session.GameplayRuntime.Player.Samus;
-        RuntimeFrameOutcome outcome = session.GameplayRuntime.StepFrame(controllerInput,
-            new RuntimeFrameRequest { Owner = owner });
-        session.WriteCompletedSave(outcome);
-        session.display.PublishGameplay(session.GameplayRuntime);
-        session.HandleGunshipLandingSave();
+        SamusState samus = live.Runtime.Player.Samus;
+        RuntimeFrameOutcome outcome = live.Runtime.StepFrame(controllerInput,
+            new RuntimeFrameRequest { Owner = owner }, live.Room);
+        session.WriteCompletedSave(outcome, live.Runtime);
+        session.display.PublishGameplay(live);
+        session.HandleGunshipLandingSave(live);
         // The death begins only on an update none of whose steps started another game state, and the AUTO reserves'
         // refill takes the update from whatever its steps started (#2517).
         if (RouteOutOfHealth(samus, outcome.OutOfHealth))
             return;
-        EnterUpdateTransition(outcome.Transition);
+        EnterUpdateTransition(outcome.Transition, live);
     }
 
     /// <summary>Enters the game state a main-gameplay update's steps moved the game to (#2517).</summary>
-    private void EnterUpdateTransition(GameplayUpdateTransition transition)
+    private void EnterUpdateTransition(GameplayUpdateTransition transition, LoadedGameplay live)
     {
         switch (transition)
         {
@@ -115,7 +115,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                 // The escape countdown started the time-up during Samus's update, after her movement's door hits and
                 // before pause-check, which then sees the game no longer in main gameplay. Once the Zebes time bomb is
                 // set, Samus's draw returns the game to the time-up a run-out countdown started (#2518).
-                session.BeginTimeUp();
+                session.BeginTimeUp(live.Runtime);
                 break;
             case GameplayUpdateTransition.LeavesZebes:
                 session.BeginZebesEscapeFade();

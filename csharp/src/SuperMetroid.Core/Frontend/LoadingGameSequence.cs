@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend;
@@ -8,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 /// screen holds for the load's waits.
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class LoadingGameSequence(FrontendSession session) : IGamePhase
+internal sealed class LoadingGameSequence(FrontendSession session) : IFrontendPhase, IRuntimePhase, IGameplayPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.LoadingGame;
@@ -32,13 +33,31 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IGamePhase
     public bool IsWaitingOutDisplayFrame => session.ResumesGameLoadingWait;
 
     /// <inheritdoc/>
+    public PhaseGameplayNeed Need => session.ResumesGameLoadingWait ? PhaseGameplayNeed.LoadedRoom
+        : session.LoadingRoute == GameDataLoadRoute.ZebesLanding ? PhaseGameplayNeed.Runtime
+        : PhaseGameplayNeed.Nothing;
+
+    /// <inheritdoc/>
+    /// <remarks>The load's waits hold the room it loaded.</remarks>
+    public void Step(ControllerButton controllerInput, LoadedGameplay live) => StepGameLoadingWait(controllerInput, live);
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// The Zebes landing, followed by its waits. The update's own frame counts in the gameplay owner kept from Ceres, in the
+    /// runtime Ceres left.
+    /// </remarks>
+    public void Step(ControllerButton controllerInput, SuperMetroidRuntime runtime)
+    {
+        Ensure.NotNull(runtime);
+        runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
+        runtime.RoomLoader.InitializePostCeresZebesRoom();
+        BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
+            GameLoadingCompletion.GameplayFadeIn);
+    }
+
+    /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        if (session.ResumesGameLoadingWait)
-        {
-            StepGameLoadingWait(controllerInput);
-            return;
-        }
         switch (session.LoadingRoute)
         {
             case GameDataLoadRoute.SelectedGame:
@@ -54,14 +73,6 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IGamePhase
                 if (session.SetupSelectedGame())
                     throw new InvalidOperationException("A save continued from the area map cannot use the Ceres arrival.");
                 BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits,
-                    GameLoadingCompletion.GameplayFadeIn);
-                break;
-            case GameDataLoadRoute.ZebesLanding:
-                // The Zebes landing, followed by its waits. The update's
-                // own frame counts in the gameplay owner kept from Ceres.
-                session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-                session.GameplayRuntime.RoomLoader.InitializePostCeresZebesRoom();
-                BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
                     GameLoadingCompletion.GameplayFadeIn);
                 break;
             default:
@@ -83,9 +94,9 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IGamePhase
     /// One loading wait: the controller is read and the display
     /// updated; nothing else runs. The last wait enters what the load completes into.
     /// </summary>
-    private void StepGameLoadingWait(ControllerButton controllerInput)
+    private void StepGameLoadingWait(ControllerButton controllerInput, LoadedGameplay live)
     {
-        session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
+        live.Runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         if (!session.GameLoading.CountWait())
         {
             session.display.PublishBlack();
@@ -103,7 +114,7 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IGamePhase
                 break;
             case GameLoadingCompletion.MainGameplay:
                 session.Enter(session.Phases.MainGameplay);
-                session.display.PublishGameplay(session.GameplayRuntime);
+                session.display.PublishGameplay(live);
                 break;
             default:
                 throw new InvalidDataException($"Invalid game-loading completion {session.GameLoading.Completion}.");

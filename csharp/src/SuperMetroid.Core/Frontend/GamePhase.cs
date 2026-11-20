@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class GamePhase(
     SuperMetroidGameState state,
     PhaseRandomStep randomStep,
-    Action<ControllerButton> step,
-    Func<string> name) : IGamePhase
+    Action<ControllerButton, LoadedGameplay> step,
+    Func<string> name) : IGameplayPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State { get; } = state;
@@ -33,5 +33,5 @@ internal sealed class GamePhase(
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <inheritdoc/>
-    public void Step(ControllerButton controllerInput) => step(controllerInput);
+    public void Step(ControllerButton controllerInput, LoadedGameplay live) => step(controllerInput, live);
 }

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Choosing a game: the save slots, the selected game's options and a saved game's area map.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePhase
+internal sealed class FileSelectGameSequence(FrontendSession session) : IFrontendPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.FileSelect;
@@ -246,15 +246,15 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
     /// </summary>
     private void StartSavedCeresDestruction(SuperMetroidSaveSlot slot)
     {
-        session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
-        session.GameplayRuntime.RoomLoader.RestoreSavedPlayerState(slot);
+        SuperMetroidRuntime created = session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
+        created.RoomLoader.RestoreSavedPlayerState(slot);
         // Unlike an ongoing escape, a file-select resume has a fresh gameplay
         // owner. Construct its ordinary HUD now so the cinematic's later room
         // handoff retains initialized HUD state and standard graphics.
-        session.InitializeSelectedGameHud(slot);
-        session.GameplayRuntime.FrameBoundary.PublishWhileLoading();
-        session.ApplySelectedGameOptions();
-        session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped);
+        session.InitializeSelectedGameHud(slot, created);
+        created.FrameBoundary.PublishWhileLoading();
+        session.ApplySelectedGameOptions(created);
+        session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped, created);
         session.display.PublishBlack();
     }
 

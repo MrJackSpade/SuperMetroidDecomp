@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The title sequence: power-on or a soft reset starts it, then the title runs until a file select or an idle demo.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class TitleGameSequence(FrontendSession session) : IGamePhase
+internal sealed class TitleGameSequence(FrontendSession session) : IFrontendPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.Title;

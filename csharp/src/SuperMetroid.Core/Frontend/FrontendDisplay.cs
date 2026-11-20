@@ -108,9 +108,10 @@ internal sealed class FrontendDisplay
     /// Publishes a gameplay update through the session's gameplay-frame policy. A policy that keeps the composed frame
     /// keeps the brightness set on it as well.
     /// </summary>
-    internal void PublishGameplay(SuperMetroidRuntime activeRuntime)
+    internal void PublishGameplay(LoadedGameplay live)
     {
-        DisplayPacket next = gameplayFrames.Publish(activeRuntime, composedDisplay, frameNumber);
+        Ensure.NotNull(live);
+        DisplayPacket next = gameplayFrames.Publish(live.Runtime, live.Room, composedDisplay, frameNumber);
         if (!ReferenceEquals(next, composedDisplay)) Compose(next);
     }
 

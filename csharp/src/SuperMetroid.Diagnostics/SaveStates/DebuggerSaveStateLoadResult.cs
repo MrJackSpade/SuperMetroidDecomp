@@ -11,8 +11,7 @@ internal readonly record struct DebuggerSaveStateLoadResult(
 {
     /// <summary>
     /// Binds the restored game to the installed content and save storage a debugger state omits, as every host must
-    /// before it steps or shows the game (<see cref="GameSessionComposer.Bind"/>). The clips bind first, so a state
-    /// whose session never bound them is rejected before the live game is replaced.
+    /// before it steps or shows the game (<see cref="GameSessionComposer.Bind"/>).
     /// </summary>
     /// <param name="content">The installed content the host runs.</param>
     /// <param name="storage">Where the restored session's saves are kept.</param>

@@ -28,10 +28,13 @@ internal sealed class FrontendSession
     /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
     /// <param name="hostServices">The compatibility services and display policy the session runs against for its whole lifetime.</param>
     /// <param name="random">The session's random number generator, which the frontend and every gameplay runtime share.</param>
+    /// <param name="audioOutput">What the session's audio produces for its host.</param>
+    /// <param name="artwork">The installed catalogs every screen and gameplay runtime draws from until a host binds others.</param>
     internal FrontendSession(SaveSlotStore saves, GameplayAssists? assists,
-        SuperMetroidGameHostServices hostServices, SharedRandom random)
+        SuperMetroidGameHostServices hostServices, SharedRandom random, GameAudioOutput audioOutput, GameArtwork artwork)
     {
         HostServices = Ensure.NotNull(hostServices);
+        Artwork = Ensure.NotNull(artwork);
         Random = Ensure.NotNull(random);
         Assists = assists ?? GameplayAssists.None;
         display = new FrontendDisplay(hostServices.GameplayFrames);
@@ -40,7 +43,7 @@ internal sealed class FrontendSession
         // is tested against the live runtime's demo and power bomb as it is made.
         audio = new AudioQueues(new SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder),
             new SessionGameplaySoundState(this));
-        audioSession = new AudioSession(soundClock);
+        audioSession = new AudioSession(soundClock, audioOutput);
         this.saves = Ensure.NotNull(saves);
         SelectedSaveSlot = saves.ReadSelectedSlot();
         // Construction is power-on: boot evaluates the saves once before entering the main game loop.
@@ -72,22 +75,10 @@ internal sealed class FrontendSession
     /// <summary>The session's frame counters: every runtime it creates counts on them.</summary>
     internal readonly FrameClock frameClock = new();
     /// <summary>
-    /// The installed catalogs the host bound (#2224), which every screen and gameplay runtime draws from: a host binds them
-    /// before the session's first update (<see cref="GameSessionComposer"/>), and a rebinding replaces them with other
-    /// installed catalogs, never with none.
+    /// The installed catalogs (#2224) every screen and gameplay runtime draws from: those the session was built with, until
+    /// a host binds others (<see cref="SuperMetroidGame.BindArtwork"/>).
     /// </summary>
-    /// <exception cref="InvalidOperationException">Read before a host first bound the session's installed artwork.</exception>
-    public GameArtwork Artwork
-    {
-        get => boundArtwork ?? throw new InvalidOperationException("The session's installed artwork has not been bound.");
-        internal set => boundArtwork = Ensure.NotNull(value);
-    }
-
-    /// <summary>Whether a host has bound the session's installed artwork: from its first binding on.</summary>
-    internal bool ArtworkBound => boundArtwork is not null;
-
-    /// <summary>The installed catalogs the host bound; none only between the session's construction and its first binding.</summary>
-    private GameArtwork? boundArtwork;
+    public GameArtwork Artwork { get; internal set; }
     /// <summary>The session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway leaves for the rest of the session.</summary>
     internal readonly UnauthoredBoostCadence unauthoredBoostCadence = new();
     /// <summary>When an open save confirmation reads the controller; every runtime's message box consults it.</summary>
@@ -631,8 +622,8 @@ internal sealed class FrontendSession
             // just as ordinary room loading does; a set's own songs belong to that data set.
             audio.QueueRoomMusicData(loadedState.Music.DataSet);
             audio.ScheduleMusic(MusicRequest.SelectTrack(MusicTrack.SamusFanfare), SavedGameAppearanceMusicDefinitions.FanfareDelay);
-            audio.ScheduleMusic(
-                loadedState.Music.Track.Request,
+            audio.ScheduleRoomTrack(
+                loadedState.Music.Track,
                 SavedGameAppearanceMusicDefinitions.RoomTrackDelay);
             LastAudioRoomState = loadedState;
             return false;

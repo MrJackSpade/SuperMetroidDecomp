@@ -135,9 +135,6 @@ public sealed class IntroCinematicState : IFrontendScreen
     private readonly GameplaySoundRequests flashbackAudioRequests;
     /// <summary>Persistent narration actor and the caret that moves along the text of illustrated pages.</summary>
     private IntroNarrationActors? CurrentNarration { get; set; }
-    /// <summary>The intro's narration actors, which exist from the first text page onward.</summary>
-    private IntroNarrationActors Narration => CurrentNarration ??
-        throw new InvalidOperationException("The intro's narration actors have not been created; the text pages create them.");
     /// <summary>Applies the selected Japanese subtitle treatment to narration pages.</summary>
     private readonly IntroJapaneseSubtitles subtitles;
     /// <summary>
@@ -230,11 +227,14 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // The loads above are invisible: the intro stays black until its fade.
         // The setup update itself runs as the next update's cinematic phase.
-        Phase = IntroCinematicPhase.Initial;
+        step = new IntroCinematicStep.Initial();
     }
 
+    /// <summary>The cinematic's step, carrying what its phase runs on.</summary>
+    private IntroCinematicStep step;
+
     /// <summary>Gets the current opening-cinematic state-machine phase.</summary>
-    public IntroCinematicPhase Phase { get; private set; }
+    public IntroCinematicPhase Phase => step.Phase;
 
     /// <summary>
     /// The narration page the intro has reached (#2489): the page <see cref="IntroCinematicPhase.PageText"/>,
@@ -258,43 +258,43 @@ public sealed class IntroCinematicState : IFrontendScreen
         bool explosionsExistedBeforeThisFrame = MotherBrainFlashback?.Explosions is not null;
         frameCounter++;
         crossfadeTick = null;
-        switch (Phase)
+        switch (step)
         {
-            case IntroCinematicPhase.Initial:
+            case IntroCinematicStep.Initial:
                 // Stop the music, then load the opening music data.
                 audio.QueueMusic(MusicRequest.Stop);
                 audio.QueueMusic(
                     MusicRequest.LoadDataSet(MusicDataSet.LastMetroidInCaptivity));
-                Phase = IntroCinematicPhase.WaitForInitialMusicQueue;
+                step = new IntroCinematicStep.WaitForInitialMusicQueue();
                 break;
 
-            case IntroCinematicPhase.WaitForInitialMusicQueue:
+            case IntroCinematicStep.WaitForInitialMusicQueue:
                 // A request queued with the shortest delay waits out that delay before HasQueuedMusic clears.
                 if (MusicQueueFinished())
                 {
-                    Phase = IntroCinematicPhase.FadeInFirstNarration;
+                    step = new IntroCinematicStep.FadeInFirstNarration();
                     fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
                 }
                 break;
 
-            case IntroCinematicPhase.FadeInFirstNarration:
+            case IntroCinematicStep.FadeInFirstNarration:
                 if (fade.Brighten())
                 {
-                    Phase = IntroCinematicPhase.LastMetroidIsInCaptivity;
+                    step = new IntroCinematicStep.LastMetroidIsInCaptivity();
                     timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.FirstLineHold);
                 }
                 break;
 
-            case IntroCinematicPhase.LastMetroidIsInCaptivity:
+            case IntroCinematicStep.LastMetroidIsInCaptivity:
                 if (timer.Step())
                 {
                     audio.QueueMusic(MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.CaptivityLineSong));
-                    Phase = IntroCinematicPhase.GalaxyIsAtPeace;
+                    step = new IntroCinematicStep.GalaxyIsAtPeace();
                     timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.CaptivityLineHold);
                 }
                 break;
 
-            case IntroCinematicPhase.GalaxyIsAtPeace:
+            case IntroCinematicStep.GalaxyIsAtPeace:
                 if (timer.Step())
                 {
                     // The next music requests wait on the music queue before the
@@ -305,111 +305,117 @@ public sealed class IntroCinematicState : IFrontendScreen
                     audio.ScheduleMusic(
                         MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.PeaceLineSong),
                         IntroCinematicDefinitions.Music.SceneTrackDelay);
-                    Phase = IntroCinematicPhase.WaitForSecondMusicQueue;
+                    step = new IntroCinematicStep.WaitForSecondMusicQueue();
                 }
                 break;
 
-            case IntroCinematicPhase.WaitForSecondMusicQueue:
+            case IntroCinematicStep.WaitForSecondMusicQueue:
                 if (MusicQueueFinished())
                 {
-                    Phase = IntroCinematicPhase.HoldFirstNarration;
+                    step = new IntroCinematicStep.HoldFirstNarration();
                     timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.PeaceLineHold);
                 }
                 break;
 
-            case IntroCinematicPhase.HoldFirstNarration:
+            case IntroCinematicStep.HoldFirstNarration:
                 if (timer.Step())
                 {
-                    Phase = IntroCinematicPhase.FadeOutFirstNarration;
+                    step = new IntroCinematicStep.FadeOutFirstNarration();
                     fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
                 }
                 break;
 
-            case IntroCinematicPhase.FadeOutFirstNarration:
+            case IntroCinematicStep.FadeOutFirstNarration:
                 // The first page is set up on the update after the fade-out reaches black.
                 if (fade.Darken())
-                    Phase = IntroCinematicPhase.SetupFirstPage;
+                    step = new IntroCinematicStep.SetupFirstPage();
                 break;
 
-            case IntroCinematicPhase.SetupFirstPage:
+            case IntroCinematicStep.SetupFirstPage:
                 SetupFirstIllustratedPage();
                 break;
 
-            case IntroCinematicPhase.WaitForFirstPageMusicQueue:
+            case IntroCinematicStep.WaitForFirstPageMusicQueue waiting:
                 // The scene song scheduled its track delay ahead is the longest request issued by
                 // the first page's setup, so HasQueuedMusic becomes clear once that delay has passed.
                 if (MusicQueueFinished())
                 {
-                    Narration.StartPage(Page);
-                    Phase = IntroCinematicPhase.FadeInFirstPage;
+                    waiting.Narration.StartPage(Page);
+                    step = new IntroCinematicStep.FadeInFirstPage(waiting.Narration);
                     fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
                 }
                 break;
 
-            case IntroCinematicPhase.FadeInFirstPage:
+            case IntroCinematicStep.FadeInFirstPage fadingIn:
                 if (fade.Brighten())
-                    Phase = IntroCinematicPhase.PageText;
+                    step = new IntroCinematicStep.PageText(fadingIn.Narration);
                 break;
 
-            case IntroCinematicPhase.PageText:
+            case IntroCinematicStep.PageText:
                 break;
 
-            case IntroCinematicPhase.PageAwaitingInput:
+            case IntroCinematicStep.PageAwaitingInput awaiting:
                 if (!subtitles.HoldInputWait() && controller.NewlyPressed != ControllerButton.None)
-                    TurnPage();
+                    TurnPage(awaiting.Narration);
                 break;
 
-            case IntroCinematicPhase.MotherBrainCrossfade:
-                StepMotherBrainCrossfade();
+            case IntroCinematicStep.MotherBrainCrossfade flashbackCrossfade:
+                StepMotherBrainCrossfade(flashbackCrossfade.Narration);
                 break;
 
-            case IntroCinematicPhase.MotherBrainFlashback:
+            case IntroCinematicStep.MotherBrainFlashback flashbackPage:
                 if (MotherBrainFlashback?.MotherBrain.NextPageRequested == true)
                 {
                     // The crossfade recolours the room, so the fight lights' last colours stop showing.
                     ColourEffects = ColourEffectSystem.ForScreen();
-                    StartPageCrossfade(IntroCrossfadeScene.Flashback);
+                    StartPageCrossfade(flashbackPage.Narration, IntroCrossfadeScene.Flashback, IntroIllustration.MotherBrainFlashback);
                 }
                 break;
 
-            case IntroCinematicPhase.PageCrossfade:
+            case IntroCinematicStep.PageCrossfade pageCrossfade:
                 // The reverse crossfade undoes the one into the illustration exactly: the narration and the portrait fade in
                 // while the illustration, its projectiles and its sprites fade out, which keep running beneath it.
                 if (AdvanceCrossfade())
                 {
                     illustration = null;
-                    Phase = IntroCinematicPhase.PageText;
+                    step = new IntroCinematicStep.PageText(pageCrossfade.Narration);
                 }
                 break;
 
-            case IntroCinematicPhase.BabyDiscoveryCrossfade when CurrentBabyDiscovery is { } discovery:
-                StepBabyDiscoveryCrossfade(discovery);
+            case IntroCinematicStep.BabyDiscoveryCrossfade discoveryCrossfade:
+                StepBabyDiscoveryCrossfade(discoveryCrossfade.Narration, discoveryCrossfade.Discovery);
                 break;
 
-            case IntroCinematicPhase.BabyDiscovery:
+            case IntroCinematicStep.BabyDiscovery discoveryPage:
                 if (CurrentBabyDiscovery?.NextPageRequested == true)
-                    StartPageCrossfade(IntroCrossfadeScene.Flashback);
+                    StartPageCrossfade(discoveryPage.Narration, IntroCrossfadeScene.Flashback, IntroIllustration.BabyDiscovery);
                 break;
 
-            case IntroCinematicPhase.BabyMetroidDeliveryCrossfade:
-                StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidDelivery);
+            case IntroCinematicStep.BabyMetroidDeliveryCrossfade deliveryCrossfade:
+                if (StepTextToScientistCrossfade())
+                    step = new IntroCinematicStep.BabyMetroidDelivery(deliveryCrossfade.Narration);
                 break;
 
-            case IntroCinematicPhase.BabyMetroidDelivery:
-            case IntroCinematicPhase.BabyMetroidExamination:
+            case IntroCinematicStep.BabyMetroidDelivery delivery:
                 if (CurrentScientistCutscene?.NextPageRequested == true)
-                    StartPageCrossfade(IntroCrossfadeScene.Laboratory);
+                    StartPageCrossfade(delivery.Narration, IntroCrossfadeScene.Laboratory, IntroIllustration.BabyDelivery);
                 break;
 
-            case IntroCinematicPhase.BabyMetroidExaminationCrossfade:
-                StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidExamination);
+            case IntroCinematicStep.BabyMetroidExamination examination:
+                if (CurrentScientistCutscene?.NextPageRequested == true)
+                    StartPageCrossfade(examination.Narration, IntroCrossfadeScene.Laboratory, IntroIllustration.BabyExamination);
                 break;
 
-            case IntroCinematicPhase.StartFinalPage:
-                StartFinalPage();
+            case IntroCinematicStep.BabyMetroidExaminationCrossfade examinationCrossfade:
+                if (StepTextToScientistCrossfade())
+                    step = new IntroCinematicStep.BabyMetroidExamination(examinationCrossfade.Narration);
                 break;
 
-            case IntroCinematicPhase.IntroFadeOut:
+            case IntroCinematicStep.StartFinalPage finalPage:
+                StartFinalPage(finalPage.Narration);
+                break;
+
+            case IntroCinematicStep.IntroFadeOut fadingOut:
                 // The intro's end fades out and finishes once the screen is black.
                 if (fade.Darken())
                 {
@@ -421,29 +427,29 @@ public sealed class IntroCinematicState : IFrontendScreen
                     CurrentCeresFlight = new IntroCeresFlightState(audio,
                         CharacterArtwork.CeresFlight,
                         SceneSheets, subtitles.Enabled);
-                    Phase = IntroCinematicPhase.CeresFlight;
+                    step = new IntroCinematicStep.CeresFlight(CurrentCeresFlight);
                 }
                 break;
 
-            case IntroCinematicPhase.CeresFlight when CurrentCeresFlight is { } flight:
-                flight.Step();
+            case IntroCinematicStep.CeresFlight flight:
+                flight.Flight.Step();
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroCinematicPhase)} {Phase}.");
+                throw new InvalidOperationException($"Undefined intro step {step}.");
         }
 
         if (CurrentNarration is not null)
         {
             CurrentNarration.Step(controller.NewlyPressed);
             // The page's text phase becomes its input wait once the narration's wait for that page starts.
-            if (Phase == IntroCinematicPhase.PageText && CurrentNarration.AwaitingInputPage == Page)
-                Phase = IntroCinematicPhase.PageAwaitingInput;
-            if (CurrentNarration.FinalHoldEnded && Phase == IntroCinematicPhase.PageText)
+            if (step is IntroCinematicStep.PageText typing && CurrentNarration.AwaitingInputPage == Page)
+                step = new IntroCinematicStep.PageAwaitingInput(typing.Narration);
+            if (CurrentNarration.FinalHoldEnded && step is IntroCinematicStep.PageText lastPage)
             {
                 // The last page starts the final fade-out; the screen on this request frame is still the full-brightness
                 // last page.
                 fade.StepEvery(IntroCinematicDefinitions.Fade.FinishUpdatesPerStep);
-                Phase = IntroCinematicPhase.IntroFadeOut;
+                step = new IntroCinematicStep.IntroFadeOut(lastPage.Narration);
             }
         }
 
@@ -520,13 +526,15 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>Installs Mother Brain room collision, actors, Samus demo state, and the incoming gameplay colours.</summary>
-    private void SetupMotherBrainFlashback()
+    /// <param name="narration">The narration actors the pages run with.</param>
+    private void SetupMotherBrainFlashback(IntroNarrationActors narration)
     {
+        Ensure.NotNull(narration);
         // The shared scene setup places the persistent narration caret off screen.
         // It remains alive and will be restored by the next text-page setup. Starting the cross-fade turns the page,
         // which deletes the Japanese text's next-page arrow.
-        Narration.HideCaret();
-        Narration.AcceptPageTurn();
+        narration.HideCaret();
+        narration.AcceptPageTurn();
 
         // The discovery shows the Mother Brain room's installed page picture; the room's blocks below are its terrain,
         // which Samus collides with, not what the room shows.
@@ -567,11 +575,12 @@ public sealed class IntroCinematicState : IFrontendScreen
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback);
         illustration = IntroIllustration.MotherBrainFlashback;
 
-        Phase = IntroCinematicPhase.MotherBrainCrossfade;
+        step = new IntroCinematicStep.MotherBrainCrossfade(narration);
     }
 
     /// <summary>Advances the steps of the crossfade from the narration to the Mother Brain room, then shows the room.</summary>
-    private void StepMotherBrainCrossfade()
+    /// <param name="narration">The narration actors the pages run with.</param>
+    private void StepMotherBrainCrossfade(IntroNarrationActors narration)
     {
         if (!AdvanceCrossfade())
             return;
@@ -580,7 +589,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // ornamental top and bottom rows survive.
         ClearVisibleNarrationText();
         StartFightLightsIfSamusDrawsFirst(flashbackSamusDisplay);
-        Phase = IntroCinematicPhase.MotherBrainFlashback;
+        step = new IntroCinematicStep.MotherBrainFlashback(narration);
     }
 
     /// <summary>
@@ -598,27 +607,28 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// Turns the page whose input wait accepted a press (#2489): it starts the illustration the page turns to, or the next
     /// page at once when it turns to none.
     /// </summary>
-    private void TurnPage()
+    /// <param name="narration">The narration actors the pages run with.</param>
+    private void TurnPage(IntroNarrationActors narration)
     {
         IntroIllustration? next = IntroNarrationPageDefinitions.Pages[Page].TurnsTo;
         switch (next)
         {
             case IntroIllustration.MotherBrainFlashback:
-                SetupMotherBrainFlashback();
+                SetupMotherBrainFlashback(narration);
                 return;
             case IntroIllustration.BabyDiscovery when MotherBrainFlashback is { } flashback:
-                SetupBabyDiscoveryCrossfade(flashback);
+                SetupBabyDiscoveryCrossfade(narration, flashback);
                 return;
             case IntroIllustration.BabyDiscovery:
                 throw new InvalidOperationException("The discovery follows the Mother Brain flashback, whose Samus it carries on.");
             case IntroIllustration.BabyDelivery:
-                SetupBabyMetroidDelivery();
+                SetupBabyMetroidDelivery(narration);
                 return;
             case IntroIllustration.BabyExamination:
-                SetupBabyMetroidExamination();
+                SetupBabyMetroidExamination(narration);
                 return;
             case null:
-                SetupFinalPage();
+                SetupFinalPage(narration);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(IntroIllustration)} {next}.");
@@ -626,31 +636,36 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// Starts the page the shown illustration leads into (#2489): its narration spawns and restores the caret, and the
-    /// crossfade from <paramref name="from"/> back to the narration starts while the illustration's actors keep running
-    /// beneath it.
+    /// Starts the page <paramref name="shown"/>, the illustration showing, leads into (#2489): its narration spawns and
+    /// restores the caret, and the crossfade from <paramref name="from"/> back to the narration starts while the
+    /// illustration's actors keep running beneath it.
     /// </summary>
-    private void StartPageCrossfade(IntroCrossfadeScene from)
+    /// <param name="narration">The narration actors the pages run with.</param>
+    /// <param name="from">The scene the crossfade leaves.</param>
+    /// <param name="shown">The illustration showing, whose actor asked for the next page.</param>
+    private void StartPageCrossfade(IntroNarrationActors narration, IntroCrossfadeScene from, IntroIllustration shown)
     {
-        Page = IntroNarrationPageDefinitions.PageAfter[illustration
-            ?? throw new InvalidOperationException("A page crossfade started with no illustration showing.")];
-        Narration.StartPage(Page);
+        Page = IntroNarrationPageDefinitions.PageAfter[shown];
+        narration.StartPage(Page);
         crossfade = new IntroCrossfade(from, IntroCrossfadeScene.Narration);
-        Phase = IntroCinematicPhase.PageCrossfade;
+        step = new IntroCinematicStep.PageCrossfade(narration);
     }
 
     /// <summary>Replaces the Mother Brain flashback with the discovery scene: the SR388 egg and baby.</summary>
+    /// <param name="narration">The narration actors the pages run with.</param>
     /// <param name="flashback">The Mother Brain flashback the discovery replaces, whose Samus it carries on.</param>
-    private void SetupBabyDiscoveryCrossfade(IntroMotherBrainFlashback flashback)
+    private void SetupBabyDiscoveryCrossfade(IntroNarrationActors narration, IntroMotherBrainFlashback flashback)
     {
+        Ensure.NotNull(narration);
         Ensure.NotNull(flashback);
-        Narration.HideCaret();
-        Narration.AcceptPageTurn();
+        narration.HideCaret();
+        narration.AcceptPageTurn();
 
         // The discovery setup shows the second authored room page, declares a
         // collision room, carries Samus into new egg/baby/demo owners, and reuses the same
         // text-to-gameplay colour crossfade as the Mother Brain scene.
-        CurrentBabyDiscovery = new IntroBabyDiscoveryState(Random, flashback.Samus, shellFallPastCurve, audio);
+        var discovery = new IntroBabyDiscoveryState(Random, flashback.Samus, shellFallPastCurve, audio);
+        CurrentBabyDiscovery = discovery;
 
         // The old gameplay actors have reached their delete animations. Releasing the scoped
         // references prevents their projectile and collision steps from running behind the
@@ -660,12 +675,13 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback);
         illustration = IntroIllustration.BabyDiscovery;
-        Phase = IntroCinematicPhase.BabyDiscoveryCrossfade;
+        step = new IntroCinematicStep.BabyDiscoveryCrossfade(narration, discovery);
     }
 
     /// <summary>Reuses the text-to-gameplay fade before showing the SR388 discovery room alone.</summary>
+    /// <param name="narration">The narration actors the pages run with.</param>
     /// <param name="discovery">The discovery scene the crossfade shows.</param>
-    private void StepBabyDiscoveryCrossfade(IntroBabyDiscoveryState discovery)
+    private void StepBabyDiscoveryCrossfade(IntroNarrationActors narration, IntroBabyDiscoveryState discovery)
     {
         if (!AdvanceCrossfade())
             return;
@@ -674,16 +690,18 @@ public sealed class IntroCinematicState : IFrontendScreen
         // second room page is already shown, so the SR388 room becomes the sole room page.
         ClearVisibleNarrationText();
         StartFightLightsIfSamusDrawsFirst(discovery.SamusDisplay);
-        Phase = IntroCinematicPhase.BabyDiscovery;
+        step = new IntroCinematicStep.BabyDiscovery(narration);
     }
 
     /// <summary>Starts the first laboratory scene with its rightward page pan and separate scientist fade timer.</summary>
-    internal void SetupBabyMetroidDelivery()
+    /// <param name="narration">The narration actors the pages run with.</param>
+    internal void SetupBabyMetroidDelivery(IntroNarrationActors narration)
     {
+        Ensure.NotNull(narration);
         // Scientist crossfades use the sibling setup, which performs
         // the same off-screen caret move before changing the visible layer configuration.
-        Narration.HideCaret();
-        Narration.AcceptPageTurn();
+        narration.HideCaret();
+        narration.AcceptPageTurn();
 
         // The delivery setup shows the laboratory page, starts it scrolled right and down, and
         // spawns the delivered baby before starting the crossfade into the laboratory. Its picture is already in the
@@ -693,20 +711,20 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Laboratory);
         illustration = IntroIllustration.BabyDelivery;
-        Phase = IntroCinematicPhase.BabyMetroidDeliveryCrossfade;
+        step = new IntroCinematicStep.BabyMetroidDeliveryCrossfade(narration);
     }
 
     /// <summary>
     /// Advances the crossfade from the narration into the laboratory: the narration fades away while the laboratory and its
-    /// scientists come in.
+    /// scientists come in. True once it has ended, which clears the narration's text.
     /// </summary>
-    private void StepTextToScientistCrossfade(IntroCinematicPhase completedPhase)
+    private bool StepTextToScientistCrossfade()
     {
         if (!AdvanceCrossfade())
-            return;
+            return false;
 
         ClearVisibleNarrationText();
-        Phase = completedPhase;
+        return true;
     }
 
     /// <summary>
@@ -724,40 +742,43 @@ public sealed class IntroCinematicState : IFrontendScreen
     private bool CrossfadeFinishing => crossfadeTick?.Finishing == true;
 
     /// <summary>Starts the second laboratory scene on its vertically offset page.</summary>
-    private void SetupBabyMetroidExamination()
+    /// <param name="narration">The narration actors the pages run with.</param>
+    private void SetupBabyMetroidExamination(IntroNarrationActors narration)
     {
-        Narration.HideCaret();
-        Narration.AcceptPageTurn();
+        narration.HideCaret();
+        narration.AcceptPageTurn();
 
         // The examination setup shows the examination page, starts the page scrolled up, and spawns the examined baby.
         // Its setup is otherwise the same scientist crossfade as delivery.
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateExamination();
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Laboratory);
         illustration = IntroIllustration.BabyExamination;
-        Phase = IntroCinematicPhase.BabyMetroidExaminationCrossfade;
+        step = new IntroCinematicStep.BabyMetroidExaminationCrossfade(narration);
     }
 
     /// <summary>Seeds the last narration page's timer, preserving the English and Japanese pages' difference in timing.</summary>
-    private void SetupFinalPage()
+    /// <param name="narration">The narration actors the pages run with.</param>
+    private void SetupFinalPage(IntroNarrationActors narration)
     {
         // The last page's setup turns the page before it, which deletes the Japanese text's next-page arrow. English
         // starts the last page in this same update; Japanese text starts it on the next update.
-        Narration.AcceptPageTurn();
+        narration.AcceptPageTurn();
         if (subtitles.Enabled)
-            Phase = IntroCinematicPhase.StartFinalPage;
+            step = new IntroCinematicStep.StartFinalPage(narration);
         else
-            StartFinalPage();
+            StartFinalPage(narration);
     }
 
     /// <summary>Replaces the page text, caret, and eye animation without a colour transition.</summary>
-    private void StartFinalPage()
+    /// <param name="narration">The narration actors the pages run with.</param>
+    private void StartFinalPage(IntroNarrationActors narration)
     {
         // The last page has no colour transition. Only the English text region, caret, eye
         // animation, and final page are replaced.
         Page = IntroNarrationPageDefinitions.FinalPage;
-        Narration.StartPage(Page);
+        narration.StartPage(Page);
         CurrentScientistCutscene = null;
-        Phase = IntroCinematicPhase.PageText;
+        step = new IntroCinematicStep.PageText(narration);
     }
 
     /// <summary>Runs the scripted Samus gameplay, projectiles, collisions, and colour updates for the Mother Brain flashback.</summary>
@@ -1022,22 +1043,24 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>Collects the persistent caret, the Japanese text's next-page arrow and illustrated-page cinematic actors in display order.</summary>
-    private SpriteFrameBuffer PrepareIllustratedPageSprites()
+    /// <param name="narration">The narration actors the pages run with.</param>
+    private SpriteFrameBuffer PrepareIllustratedPageSprites(IntroNarrationActors narration)
     {
+        Ensure.NotNull(narration);
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         screenSprites.BeginFrame();
         // The caret blinks off by hiding, showing no pose.
-        if (Narration.CaretPose is { } caretPose)
+        if (narration.CaretPose is { } caretPose)
         {
             // The persistent caret begins at its narration place, goes off screen during illustrated
             // crossfades, and is restored when the next narration page starts.
             IntroSprites(CinematicSpriteFamily.IntroCaret).Draw(
-                caretPose, screenSprites, Narration.Caret,
+                caretPose, screenSprites, narration.Caret,
                 IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors));
         }
         // The Japanese text's next-page arrow is drawn after the caret, which comes first (#1655).
-        Narration.NextPageArrow?.Draw(screenSprites, installedArt: IntroSprites(CinematicSpriteFamily.IntroNextPageArrow));
+        narration.NextPageArrow?.Draw(screenSprites, installedArt: IntroSprites(CinematicSpriteFamily.IntroNextPageArrow));
         screenSprites.FinishFrame();
         foreach (SpriteDraw draw in screenSprites.Draws)
             sprites.Add(draw);
@@ -1052,18 +1075,19 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         // The pages show blank text rows over the installed final line, drawn with the Japanese glyphs blanked (#1467).
         narrationText.ClearText();
-        CurrentNarration = new IntroNarrationActors(
+        var narration = new IntroNarrationActors(
             narrationText,
             subtitles,
             audio,
             NarrationPresentation);
+        CurrentNarration = narration;
         audio.QueueMusic(MusicRequest.Stop);
         audio.QueueMusic(
             MusicRequest.LoadDataSet(MusicDataSet.Intro));
         audio.ScheduleMusic(
             MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.IntroductionSong),
             IntroCinematicDefinitions.Music.SceneTrackDelay);
-        Phase = IntroCinematicPhase.WaitForFirstPageMusicQueue;
+        step = new IntroCinematicStep.WaitForFirstPageMusicQueue(narration);
     }
 
     /// <summary>Whether the music queue has sent every request the cinematic queued.</summary>
@@ -1085,8 +1109,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Prepares the current display once, holding everything the display needs to draw it.</summary>
     internal LayeredScene ComposeScene()
     {
-        if (CurrentCeresFlight is not null && Phase == IntroCinematicPhase.CeresFlight)
-            return CurrentCeresFlight.ComposeScene();
+        if (step is IntroCinematicStep.CeresFlight flight)
+            return flight.Flight.ComposeScene();
 
         SpriteFrameBuffer sprites;
         PicturedPlaneLayer room;
@@ -1106,18 +1130,18 @@ public sealed class IntroCinematicState : IFrontendScreen
             sprites = PrepareScientistSprites(cutscene);
             room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePages.Laboratory(cutscene.Scene), crossfade.SceneShading), cutscene.Background);
         }
-        else if (CurrentNarration is null)
+        else if (CurrentNarration is { } narration)
+        {
+            sprites = PrepareIllustratedPageSprites(narration);
+            room = Plane(IntroScenePictures.PortraitPlane(SceneSheets, narration.EyeFrame, crossfade.SceneShading), new(0, GameplayFlashbackVerticalScroll));
+        }
+        else
         {
             // The first card is opaque and unscrolled and shows no sprites; later text is transparent
             // and cropped down by GameplayFlashbackVerticalScroll. Do not conflate those two display setups.
             return new(new FramePaint(Backdrop),
                 new DisplayLayer[] { new PicturedPlaneLayer(IntroNarrationPictures.FirstCardPlane(SceneSheets, crossfade.SceneShading), default) { DrawsOpaque = true } },
                 fade.Level);
-        }
-        else
-        {
-            sprites = PrepareIllustratedPageSprites();
-            room = Plane(IntroScenePictures.PortraitPlane(SceneSheets, CurrentNarration.EyeFrame, crossfade.SceneShading), new(0, GameplayFlashbackVerticalScroll));
         }
 
         var text = new PicturedPlaneLayer(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText, crossfade.SceneShading, crossfade.NarrationShading), default);

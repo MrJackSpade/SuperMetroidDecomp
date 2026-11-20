@@ -146,12 +146,13 @@ public sealed class ClipAudioBackend
         if (State.Song is MusicClipEntry playing)
             State.Beat.Hold(BeatLengthAt(playing, now - State.SongStart));
         ReleaseMusic(now);
-        if (change is not SongChange.Play { Track: var track })
+        // A stop plays no song, and neither does a song asked of the shared sounds alone: the clip library holds every song
+        // in a data set's clip set, and the shared sounds are none.
+        if (change is not SongChange.Play { Track: var track } || State.ClipSet is not MusicDataSet clipSet)
         {
             State.StopSong();
             return;
         }
-        MusicDataSet clipSet = State.ClipSet ?? throw new InvalidDataException($"Song {track} was requested with no clip set loaded.");
         State.PlaySong(catalog.GetMusic(clipSet, track), now);
     }
 

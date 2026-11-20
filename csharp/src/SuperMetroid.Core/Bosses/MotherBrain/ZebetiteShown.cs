@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>

@@ -28,38 +28,38 @@ public abstract record DraygonPhase
     /// rightward swoop planned: aims horizontal velocity at Samus and faces Draygon left.
     /// </summary>
     /// <param name="Path">The swoop path the last rightward swoop planned.</param>
-    public sealed record LeftSwoopSetup(DraygonSwoopPath Path) : DraygonPhase;
+    internal sealed record LeftSwoopSetup(DraygonSwoopPath Path) : DraygonPhase;
 
     /// <summary>Follows the swoop's path down, from its last height to its first, while moving its pass's way toward the bottom of the swoop.</summary>
     /// <param name="Path">The swoop path the last rightward swoop planned, which the swoop flies and a pass hands on to the next leftward swoop.</param>
-    public sealed record SwoopDescending(DraygonSwoopPath Path) : DraygonPhase;
+    internal sealed record SwoopDescending(DraygonSwoopPath Path) : DraygonPhase;
 
     /// <summary>Recalculates horizontal velocity for the ascending half: toward the right exit, or the left reset position.</summary>
     /// <param name="Path">The swoop path the last rightward swoop planned, which the swoop flies and a pass hands on to the next leftward swoop.</param>
-    public sealed record SwoopApex(DraygonSwoopPath Path) : DraygonPhase;
+    internal sealed record SwoopApex(DraygonSwoopPath Path) : DraygonPhase;
 
     /// <summary>
     /// Follows the swoop's path back up and selects a swoop or goop pass the other way from the current random number; the
     /// leftward ascent first resets X.
     /// </summary>
     /// <param name="Path">The swoop path the last rightward swoop planned, which the swoop flies and a pass hands on to the next leftward swoop.</param>
-    public sealed record SwoopAscending(DraygonSwoopPath Path) : DraygonPhase;
+    internal sealed record SwoopAscending(DraygonSwoopPath Path) : DraygonPhase;
 
     /// <summary>Starts the one-pixel-per-frame goop path its pass's way: rightward at X=-80, leftward at the right reset X, at Y=384.</summary>
     /// <param name="Path">The swoop path the last rightward swoop planned, which the swoop flies and a pass hands on to the next leftward swoop.</param>
-    public sealed record GoopSetup(DraygonSwoopPath Path) : DraygonPhase;
+    internal sealed record GoopSetup(DraygonSwoopPath Path) : DraygonPhase;
 
     /// <summary>Follows the oscillating path until horizontal separation from Samus is below 208 pixels.</summary>
     /// <param name="Path">The swoop path the last rightward swoop planned, which the swoop flies and a pass hands on to the next leftward swoop.</param>
-    public sealed record GoopApproach(DraygonSwoopPath Path) : DraygonPhase;
+    internal sealed record GoopApproach(DraygonSwoopPath Path) : DraygonPhase;
 
     /// <summary>Requests goop animations facing its pass's way from RNG samples and begins chasing when goop slows Samus.</summary>
     /// <param name="Path">The swoop path the last rightward swoop planned, which the swoop flies and a pass hands on to the next leftward swoop.</param>
-    public sealed record GoopTail(DraygonSwoopPath Path) : DraygonPhase;
+    internal sealed record GoopTail(DraygonSwoopPath Path) : DraygonPhase;
 
     /// <summary>Finishes the oscillating exit without firing goop; leftward, attached goop can still trigger a chase.</summary>
     /// <param name="Path">The swoop path the last rightward swoop planned, which the swoop flies and a pass hands on to the next leftward swoop.</param>
-    public sealed record GoopRecovery(DraygonSwoopPath Path) : DraygonPhase;
+    internal sealed record GoopRecovery(DraygonSwoopPath Path) : DraygonPhase;
 
     /// <summary>Moves toward goop-slowed Samus at two pixels per frame and checks the eight-pixel claw window.</summary>
     public sealed record TryGrabSamus : DraygonPhase;

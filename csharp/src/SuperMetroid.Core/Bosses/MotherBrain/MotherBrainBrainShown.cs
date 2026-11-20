@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
@@ -17,8 +19,8 @@ public abstract record MotherBrainBrainShown
 
     /// <summary>
     /// The animation has shown no picture yet: it opens with a cue, which its first draw plays before its first picture.
-    /// Drawn with time frozen in this state, the game reads the word after the opening cue as the brain's picture, which is
-    /// none of the brain's pictures; the brain shows nothing then (a presentation quirk the port does not reproduce).
+    /// Drawn with time frozen in this state, the brain shows nothing: the game takes the word after the opening cue for
+    /// the brain's picture, which is none of the brain's pictures.
     /// </summary>
     public sealed record NotYetShown : MotherBrainBrainShown;
 

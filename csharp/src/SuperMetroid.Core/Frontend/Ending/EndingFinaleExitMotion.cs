@@ -12,7 +12,7 @@ internal sealed class EndingFinaleExitMotion : EndingActorMotion
     internal override void Step(ICinematicActor<EndingSceneCue> actor, IEndingActorScene scene)
     {
         Ensure.NotNull(actor);
-        if (Ensure.NotNull(scene).Phase == EndingCreditsPhase.OperationSuccessfulText)
+        if (EndingCreditsPhaseGroups.CompletionText.Contains(Ensure.NotNull(scene).Phase))
             actor.Delete();
     }
 }

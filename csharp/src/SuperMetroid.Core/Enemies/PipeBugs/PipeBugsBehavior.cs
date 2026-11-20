@@ -127,15 +127,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         },
         [NorfairPipeBugAction.LeaderStagger] = (_, place, state, samus, camera) =>
         {
-            state.CountFormationTick();
-            state.Action = NorfairPipeBugAction.WaitForStagger;
+            state.Role.RunStagger(place, state);
             ResetNorfairPipeBugIfOffScreen(place, state, camera);
         },
         [NorfairPipeBugAction.Stagger] = (_, place, state, samus, camera) =>
         {
-            RunNorfairPipeBugVerticalStagger(place, state, state.Role is NorfairPipeBugRole.Follower { Stagger: var stagger }
-                ? stagger
-                : throw new InvalidOperationException("A Norfair Pipe Bug staggers in a role that holds its height."));
+            state.Role.RunStagger(place, state);
             ResetNorfairPipeBugIfOffScreen(place, state, camera);
         },
         [NorfairPipeBugAction.WaitForStagger] = (_, place, state, samus, camera) =>
@@ -324,8 +321,15 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 : PipeBugSegment.GametRisingLeft);
     }
 
+    /// <summary>The leader's stagger: it holds its height and only counts, then waits for its flight.</summary>
+    internal static void RunNorfairPipeBugLeaderStagger(NorfairPipeBugState state)
+    {
+        state.CountFormationTick();
+        state.Action = NorfairPipeBugAction.WaitForStagger;
+    }
+
     /// <summary>Moves a risen Norfair member to its place in the formation before its timed flight wait (#2473).</summary>
-    private static void RunNorfairPipeBugVerticalStagger(
+    internal static void RunNorfairPipeBugVerticalStagger(
         RoomEnemyPlace place,
         NorfairPipeBugState state,
         NorfairPipeBugStagger stagger)

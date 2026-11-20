@@ -42,10 +42,9 @@ internal sealed class GrappleBehavior : IGrappleTargets
 
             // Grappling replaces any hurt or frozen state the enemy had, so its next update runs its grappled
             // reaction.
-            enemy.AiStates = EnemyAiStates.Grappled;
-            GrappleEnemyReaction reaction = grappled.Definition.GrappleResponse;
-            if (reaction == GrappleEnemyReaction.Unreactive)
+            if (grappled.Definition.GrappleResponse is not EnemyGrappleResponse.Reacting { Reaction: var reaction })
                 throw new InvalidDataException($"Enemy {grappled.DefinitionId} has no reaction to the grapple beam.");
+            enemy.AiStates = EnemyAiStates.Grappled;
             return new GrappleEnemyCollision(
                 reaction,
                 enemy.Position.Whole,
@@ -119,10 +118,6 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
             },
-            // The elevator names no reaction to the grapple beam (#2558): its definition never meets the beam, and reaching
-            // it fails.
-            [GrappleEnemyReaction.Unreactive] = (_, enemy, _) =>
-                throw new InvalidDataException($"Enemy {enemy.Occupant?.DefinitionId} has no reaction to the grapple beam."),
         });
 
     /// <summary>
@@ -135,6 +130,9 @@ internal sealed class GrappleBehavior : IGrappleTargets
         if ((enemy.AiStates & EnemyAiStates.Grappled) == EnemyAiStates.None)
             return false;
 
-        return GrappleReactions[grappled.Definition.GrappleResponse](grappled, enemy, frame);
+        // Only a reacting enemy is ever grappled: the beam's meeting with an unreactive one fails before it holds it, and an
+        // unreactive enemy's own behaviour carries on.
+        return grappled.Definition.GrappleResponse is EnemyGrappleResponse.Reacting { Reaction: var reaction } &&
+            GrappleReactions[reaction](grappled, enemy, frame);
     }
 }

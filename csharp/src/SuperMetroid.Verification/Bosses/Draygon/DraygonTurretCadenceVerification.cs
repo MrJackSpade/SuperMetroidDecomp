@@ -80,7 +80,7 @@ internal static class DraygonTurretCadenceVerification
         runtime.Player.IntroducedSamus.SlowdownLevel = 3;
         ushort bombedX = bombed.Position.X.Whole;
         runtime.Enemies.AdvanceEnemyProjectileAnimations(runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus,
-            new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), runtime.Enemies.NextStandaloneProjectileFrame(),
+            new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), new SuperMetroid.Core.Compatibility.ShortFrameCount(runtime.Enemies.NextStandaloneProjectileFrame()),
             samusBombs: runtime.BombProjectiles, frameCounter: runtime.Enemies.FrameContext.EnemyPassCount);
         AssertTrue(!bombed.IsActive, "a power-bombed goop loses its projectile ID");
         AssertEqual(0, runtime.Player.IntroducedSamus.SlowdownLevel, "$86:8D93 clears Samus's X speed divisor");

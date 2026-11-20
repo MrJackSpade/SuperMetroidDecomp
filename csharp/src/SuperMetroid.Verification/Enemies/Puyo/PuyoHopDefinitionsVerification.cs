@@ -84,7 +84,7 @@ internal static class PuyoHopDefinitionsVerification
                     TimeIsFrozen = false,
                     Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(600, 128)) },
                 },
-                new FrameCounters(0)));
+                new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero)));
             AssertEqual(SixteenSixteenWords.ToCoordinate(checked((uint)(128 * onePixel + nativeDrop * 256))), place.Position.Y,
                 $"a Puyo dropping after its {cut} hop was cut short falls {nativeDrop}/256 pixels in one update");
         }

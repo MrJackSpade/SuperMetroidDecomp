@@ -44,7 +44,7 @@ internal static class BabyMetroidPresenceVerification
             place.FrameCounter = enemyFrame;
             runtime.Enemies.BabyMetroidCutsceneBehavior.RunBabyMetroidCutsceneMainAi(place, new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), enemyFrame) with { Samus = runtime.Player.IntroducedSamus },
-                new FrameCounters(enemyFrame)));
+                new FrameCounters(new SuperMetroid.Core.Compatibility.ShortFrameCount(enemyFrame % SuperMetroid.Core.Compatibility.ShortFrameCount.Period))));
             AssertEqual(contact, place.Contact, $"enemy frame {enemyFrame}: the Baby's contact stands");
             AssertEqual(processing, place.Processing, $"enemy frame {enemyFrame}: the Baby's processing stands");
         }

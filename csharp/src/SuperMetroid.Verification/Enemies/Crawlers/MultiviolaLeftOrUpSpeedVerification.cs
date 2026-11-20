@@ -43,7 +43,7 @@ internal static class MultiviolaLeftOrUpSpeedVerification
         place.Radius = definition.Radius;
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
         foreach (int speed in placements.Select(placement => placement.Speed).Distinct().Order())
         for (int heading = 0; heading < HeadingCount; heading++)
         {

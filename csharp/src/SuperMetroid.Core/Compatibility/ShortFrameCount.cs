@@ -5,7 +5,12 @@ namespace SuperMetroid.Core.Compatibility;
 /// the game shows, returns to zero after <see cref="Period"/> frames, and a door's scroll restarts it. Enemy cadences, the
 /// pause screen's animations and the minimap's blink read where it stands, so its return to zero is gameplay-observable.
 /// </summary>
-internal readonly record struct ShortFrameCount
+/// <remarks>
+/// Evidence: the original counts the short count on every shown frame and returns it to zero after its period; the
+/// Ridley full-movie check reads it on every update of a door transition, and the SMV replays' enemy cadences sample it.
+/// </remarks>
+[CompatibilityService("the short frame count, which returns to zero at the end of its period and which a door's scroll restarts")]
+public readonly record struct ShortFrameCount
 {
     /// <summary>How many frames the count counts before it returns to zero.</summary>
     internal const int Period = 256;

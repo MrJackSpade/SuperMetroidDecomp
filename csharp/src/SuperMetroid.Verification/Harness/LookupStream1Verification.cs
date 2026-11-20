@@ -704,7 +704,7 @@ internal static class LookupStream1Verification
         // the marker's character, palette row, priority or mirroring, so distinct pointers give distinct markers.
         static SpritePart Marker(ushort pointer) =>
             SpritePart.Create(Offset16<ScreenPixels>.Of(unchecked((sbyte)pointer), unchecked((sbyte)(pointer >> 8))), (pointer & 1) != 0, pointer & 511,
-                (pointer >> 9) & 7, (pointer >> 12) & 3,
+                (pointer >> 9) & 7, SnesObjAttributeWord.Create(0, 0, (pointer >> 12) & 3).Depth,
                 ((pointer & 0x4000) != 0 ? PictureFlip.Horizontal : PictureFlip.None) | ((pointer & 0x8000) != 0 ? PictureFlip.Vertical : PictureFlip.None));
         SamusSpritemapDefinition[] definitions = [.. SamusSpritemapNative.Compositions(pointers)
             .Select(pointer => new SamusSpritemapDefinition([Marker(pointer)]))];
@@ -1384,7 +1384,7 @@ internal static class LookupStream1Verification
                         ? paletteValue.GetInt32() : 0;
                     AppendCanonicalSpritePart(content, CannonCoverAppearance(
                         appearance.GetProperty("tileRow").GetInt32(), appearance.GetProperty("tileColumn").GetInt32(),
-                        palette, appearance.GetProperty("priority").GetInt32(),
+                        palette, Enum.Parse<SuperMetroid.Core.Assets.ActorDepth>(appearance.GetProperty("depth").GetString()!),
                         appearance.GetProperty("flipX").GetBoolean(), appearance.GetProperty("flipY").GetBoolean()));
                 }
                 foreach (var direction in root.GetProperty("coverTiles").EnumerateArray())

@@ -148,7 +148,7 @@ internal static class NoobTubeProjectileBehaviorVerification
             for (int tick = 1; tick <= maximumTicks; tick++)
             {
                 projectile.FrameHold = WrappingCountdown.Start(1);
-                Process(system, projectile, unchecked((byte)tick));
+                Process(system, projectile, new SuperMetroid.Core.Compatibility.ShortFrameCount(unchecked((byte)tick)));
                 if (!projectile.IsActive)
                     return tick;
             }

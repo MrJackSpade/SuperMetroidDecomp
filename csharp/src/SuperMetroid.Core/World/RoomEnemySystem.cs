@@ -576,7 +576,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         RoomLevelData level,
         SamusState samus,
         Position16<RoomPixels> camera,
-        int shortFrameCounter,
+        Compatibility.ShortFrameCount shortFrameCounter,
         SamusBombProjectileSystem samusBombs,
         int frameCounter)
     {

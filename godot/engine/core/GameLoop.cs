@@ -29,6 +29,8 @@ public partial class GameLoop : Node
     {
         if (_session is not null)
             throw new InvalidOperationException("The game loop has already been started.");
+        ArgumentNullException.ThrowIfNull(definition);
+        definition.CheckRememberedNames();
         _input = new InputSampler(source);
         _session = new GameSession(definition, this, content, saves, options);
     }

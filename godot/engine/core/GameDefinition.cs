@@ -49,6 +49,31 @@ public partial class GameDefinition : Resource
     [Export]
     public string FirstEntryPoint { get; set; } = "";
 
+    /// <summary>
+    /// The scene of every room in the game. As the game loads, the names their placed things are remembered by are
+    /// checked across all of them.
+    /// </summary>
+    [Export(PropertyHint.File, "*.tscn")]
+    public string[] Rooms { get; set; } = [];
+
+    /// <summary>
+    /// Checks the names things are remembered by across every room in <see cref="Rooms"/>: none is shared, and nothing
+    /// that must be remembered is without one.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A name is shared, or something that must be remembered has none.</exception>
+    public void CheckRememberedNames()
+    {
+        var names = new RememberedNames();
+        foreach (string scene in Rooms)
+        {
+            Room room = CreateRoom(scene);
+            names.Add(scene, room);
+            room.Free();
+        }
+
+        names.Require();
+    }
+
     /// <summary>How many save slots the game has.</summary>
     [Export]
     public int SaveSlots { get; set; } = 3;

@@ -10,8 +10,11 @@ namespace Engine.World;
 /// its settings, and manages its own reaction to the player, to hits and to progress. It changes nothing else except
 /// through that thing's own methods.
 /// </summary>
-public abstract partial class RoomObject : Node2D, IRoomEntity, IPlaced, IHasValues
+public abstract partial class RoomObject : Node2D, IRoomEntity, IPlaced, IHasValues, IRemembered
 {
+    /// <inheritdoc/>
+    public virtual bool MustBeRemembered => false;
+
     /// <inheritdoc/>
     [Export(PropertyHint.File)]
     public string DataFile { get; set; } = "";

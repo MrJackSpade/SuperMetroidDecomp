@@ -38,6 +38,9 @@ public partial class BossEncounter : RoomObject
     public PixelRect Area => new(Position.X.Whole, Position.Y.Whole, Size.X, Size.Y);
 
     /// <inheritdoc/>
+    public override bool MustBeRemembered => true;
+
+    /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
         if (RememberedAs.Length == 0)

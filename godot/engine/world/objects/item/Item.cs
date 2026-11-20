@@ -33,6 +33,9 @@ public partial class Item : RoomObject
     public bool IsCovered => Room.Terrain.IsSolidIn(Area, SlopeTreatment.Wall);
 
     /// <inheritdoc/>
+    public override bool MustBeRemembered => true;
+
+    /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
         if (TypeFile.Length == 0)

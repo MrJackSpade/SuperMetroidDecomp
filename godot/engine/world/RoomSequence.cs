@@ -7,8 +7,11 @@ namespace Engine.World;
 /// objects, terrain, effects and camera what to do through their own methods. It holds no behaviour that belongs to
 /// something in the room. It can be told to "start".
 /// </summary>
-public abstract partial class RoomSequence : Node, IPlaced, ITriggerTarget
+public abstract partial class RoomSequence : Node, IPlaced, ITriggerTarget, IRemembered
 {
+    /// <inheritdoc/>
+    public bool MustBeRemembered => false;
+
     /// <summary>The condition under which the sequence starts by itself as the room is set up; null when it waits to be told.</summary>
     [Export]
     public Condition? StartsWhen { get; set; }

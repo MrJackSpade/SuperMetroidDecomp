@@ -350,7 +350,11 @@ The only things that survive are facts in `Progress`.
 - Anything that must survive has a setting, "remembered as", holding a name. An item collected, a boss defeated, a
   barrier opened for good, a story event: each is a name in `Progress`.
 - The name is given where the thing is placed. It is unique across the whole game, and the game is checked for
-  duplicates and for a remembered thing with no name when it loads.
+  duplicates and for a remembered thing with no name when it loads. The `GameDefinition` lists every room's scene;
+  as the game loop starts, `RememberedNames` looks at everything placed in each and the game does not start if any
+  name is shared or anything that must be remembered (an item, a boss encounter) has none. Every mistake is
+  reported at once, with its room and its thing. A new kind of thing that must be remembered says so itself
+  (`MustBeRemembered`).
 - A thing asks `Progress` about its own name when its room is set up and sets itself up accordingly. Nothing else
   restores it.
 

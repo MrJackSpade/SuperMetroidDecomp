@@ -238,9 +238,8 @@ public sealed class SamusBombProjectileSystem
 
             bool wasNormalBomb = placed.Kind == SamusBombKind.Bomb;
             bool bombExplosionStarted = AdvanceBomb(
-                terrain.Level,
+                terrain,
                 placed,
-                terrain.RoomObjects,
                 samus.Kinematics);
             if (bombExplosionStarted && wasNormalBomb)
             {
@@ -562,9 +561,8 @@ public sealed class SamusBombProjectileSystem
 
     /// <summary>Advances one bomb fuse or spread trajectory, starts explosions and visits terrain on the trigger frame.</summary>
     private bool AdvanceBomb(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusBombOccupant placed,
-        ISamusRoomObjects roomObjects,
         SamusKinematicsState samusKinematics)
     {
         SamusBomb bomb = placed.Bomb;
@@ -617,7 +615,7 @@ public sealed class SamusBombProjectileSystem
         // game still runs the spread's collision test on it, but with the fuse out that test sets off the explosion's
         // cross below and reports no collision, so the wall turn never moves it.
         if (bomb.SpreadFlight is { } flight && !bomb.HasBurnedOut)
-            MoveBombSpread(level, bomb, flight, samusKinematics);
+            MoveBombSpread(terrain.Level, bomb, flight, samusKinematics);
 
         if (kind == SamusBombKind.Bomb &&
             bomb.HasBurnedOut &&
@@ -626,7 +624,7 @@ public sealed class SamusBombProjectileSystem
             // As soon as a normal bomb's fuse reads zero its explosion reacts with the
             // five-block cross around it, exactly once.
             bomb.HasReactedToTerrain = true;
-            ReactToBombExplosionCross(level, placed, roomObjects);
+            ReactToBombExplosionCross(terrain, placed);
         }
         else if (kind == SamusBombKind.PowerBomb)
         {
@@ -635,10 +633,9 @@ public sealed class SamusBombProjectileSystem
             if (powerBombBoundaryReacts && PowerBombExplosion.IsArmed)
             {
                 ReactToPowerBombBoundary(
-                    level,
+                    terrain,
                     PowerBombExplosion.Position,
                     PowerBombExplosion.Blast.ExplosionRadius,
-                    roomObjects,
                     placed.Type);
             }
 
@@ -731,14 +728,13 @@ public sealed class SamusBombProjectileSystem
     /// the calling bomb.
     /// </summary>
     internal static void ReactToPowerBombBoundary(
-        RoomLevelData level,
+        SamusTerrain terrain,
         Position16<RoomPixels> explosion,
         PowerBombRadius explosionRadius,
-        ISamusRoomObjects roomObjects,
         SamusProjectileType projectileType)
     {
-        foreach (Position16<RoomBlocks> block in PowerBombBoundaryBlocks(level, explosion, explosionRadius))
-            ReactToBombedBlock(level, block, roomObjects, projectileType);
+        foreach (Position16<RoomBlocks> block in PowerBombBoundaryBlocks(terrain.Level, explosion, explosionRadius))
+            ReactToBombedBlock(terrain, block, projectileType);
     }
 
     /// <summary>
@@ -785,9 +781,8 @@ public sealed class SamusBombProjectileSystem
 
     /// <summary>Visits the normal bomb's five-block cross in order when its fuse reaches zero.</summary>
     private static void ReactToBombExplosionCross(
-        RoomLevelData level,
-        SamusBombOccupant placed,
-        ISamusRoomObjects roomObjects)
+        SamusTerrain terrain,
+        SamusBombOccupant placed)
     {
         SamusBomb bomb = placed.Bomb;
         int centerX = RoomGridConversions.PixelToBlock(bomb.Position.X.Whole);
@@ -796,7 +791,7 @@ public sealed class SamusBombProjectileSystem
         {
             int x = centerX + member.X;
             int y = centerY + member.Y;
-            if (x < 0 || x >= level.Size.X || y < 0 || y >= level.Size.Y)
+            if (x < 0 || x >= terrain.Level.Size.X || y < 0 || y >= terrain.Level.Size.Y)
             {
                 // The bomb collision first admits the bomb centre through the room's scroll bounds,
                 // and valid rooms surround reachable bomb centres with an edge wall. An
@@ -807,30 +802,41 @@ public sealed class SamusBombProjectileSystem
             }
 
             ReactToBombedBlock(
-                level,
+                terrain,
                 new Position16<RoomBlocks>(x, y),
-                roomObjects,
                 placed.Type);
         }
     }
 
     /// <summary>
-    /// Reacts to the block a bombed cell stands for (<see cref="ContinuedBlocks"/>): its item, door, special-block or ordinary
-    /// reaction, including synchronous room-object changes.
+    /// Reacts to a bombed cell: on a room's terrain, the block it stands for reacts; a plain terrain's air, solid blocks
+    /// and slopes do nothing when bombed.
     /// </summary>
     private static void ReactToBombedBlock(
-        RoomLevelData level,
+        SamusTerrain terrain,
         Position16<RoomBlocks> bombedBlock,
-        ISamusRoomObjects roomObjects,
+        SamusProjectileType projectileType)
+    {
+        if (terrain is RoomTerrain room)
+            ReactToBombedRoomBlock(room, bombedBlock, projectileType);
+    }
+
+    /// <summary>
+    /// Reacts to the block a bombed cell of a room stands for (<see cref="ContinuedBlocks"/>): its item, door,
+    /// special-block or ordinary reaction, including synchronous room-object changes.
+    /// </summary>
+    private static void ReactToBombedRoomBlock(
+        RoomTerrain terrain,
+        Position16<RoomBlocks> bombedBlock,
         SamusProjectileType projectileType)
     {
         int x = bombedBlock.X;
         int y = bombedBlock.Y;
-        RoomCollisionBlock visitedBlock = level.GetCollisionBlock(bombedBlock);
+        RoomCollisionBlock visitedBlock = terrain.Level.GetCollisionBlock(bombedBlock);
 
         // A bombed cell reacts as the block it stands for, at that block; one that stands for nothing is air.
         RoomCollisionBlock block = visitedBlock;
-        if (!level.TryReachBlockStoodFor(ref block))
+        if (!terrain.Level.TryReachBlockStoodFor(ref block))
             return;
 
         // A bombed item block, special or shootable, tells the item room object at it of the hit, and no other reaction
@@ -838,7 +844,7 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType == RoomCollisionType.SpecialBlock && block.Behavior.Special == SpecialBlockReaction.CollectibleTrigger ||
             block.CollisionType == RoomCollisionType.ShootableBlock && block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
         {
-            roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
+            terrain.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
             return;
         }
 
@@ -848,7 +854,7 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType is RoomCollisionType.SolidBlock or RoomCollisionType.ShootableBlock &&
             block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
-            if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType)))
+            if (!terrain.RoomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType)))
             {
                 throw new InvalidOperationException(
                     $"Bombed resident-trigger block {block.Position} has no active room-object owner.");
@@ -862,8 +868,8 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetBlueDoorOrientation(out _))
         {
-            roomObjects.DoorObjects.SpawnBlueDoorOpening(
-                level,
+            terrain.RoomObjects.DoorObjects.SpawnBlueDoorOpening(
+                terrain.Level,
                 block.At,
                 block.Behavior,
                 BlockStrike.By(projectileType));
@@ -900,8 +906,8 @@ public sealed class SamusBombProjectileSystem
             }
             // Spawn is synchronous: an accepted bomb-block reaction applies its temporary solid-block
             // or air collision before the bomb proceeds to its next border/cross member.
-            roomObjects.BlockReactions.SpawnBombReactionBlock(
-                level,
+            terrain.RoomObjects.BlockReactions.SpawnBombReactionBlock(
+                terrain.Level,
                 block.At,
                 block.Behavior,
                 projectileType);
@@ -915,8 +921,8 @@ public sealed class SamusBombProjectileSystem
             if (block.CollisionType == RoomCollisionType.ShootableBlock &&
                 block.Behavior.TryGetDownwardGateTrigger(out _))
             {
-                roomObjects.Gates.SpawnDownwardGateTrigger(
-                    level,
+                terrain.RoomObjects.Gates.SpawnDownwardGateTrigger(
+                    terrain.Level,
                     block.At,
                     block.Behavior,
                     BlockStrike.By(projectileType));
@@ -937,8 +943,8 @@ public sealed class SamusBombProjectileSystem
                     $"Shootable block {block.Position} has behaviour ({block.Behavior}) with no " +
                     "reaction a bomb sets off.");
             }
-            roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
-                level,
+            terrain.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(
+                terrain.Level,
                 block.At,
                 block.Behavior,
                 BlockStrike.By(projectileType),
@@ -948,8 +954,8 @@ public sealed class SamusBombProjectileSystem
 
         if (block.CollisionType == RoomCollisionType.SpecialBlock)
         {
-            roomObjects.BlockReactions.SpawnBombedSpecialBlock(
-                level,
+            terrain.RoomObjects.BlockReactions.SpawnBombedSpecialBlock(
+                terrain.Level,
                 block.At,
                 block.Behavior,
                 projectileType);

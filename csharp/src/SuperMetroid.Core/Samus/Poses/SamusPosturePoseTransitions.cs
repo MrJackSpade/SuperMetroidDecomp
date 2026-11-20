@@ -11,30 +11,27 @@ internal static class SamusPosturePoseTransitions
 {
     /// <summary>Applies the crouch input transitions' direct same-facing exits (right-facing crouches to right-facing standing, or left-facing to left-facing) after larger-pose collision admits the standing body.</summary>
     /// <param name="samus">The Samus this reads.</param>
-    /// <param name="level">Live room block geometry used by the shared pose-expansion resolver.</param>
+    /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
     /// <param name="targetPose">Final normal standing-right or standing-left pose matching the current crouch facing; animated stand-up and cross-facing routes are not accepted.</param>
     /// <param name="frameCounter">The frame counter supplied to changed-pose block reactions.</param>
-    /// <param name="roomObjects">The room's room objects, receiving those collision reactions.</param>
     /// <remarks>These input transitions bypass the animated aimed stand-up poses. Accepted expansion applies the whole-pixel Y adjustment but retains the crouching radius until Samus's next input phase, matching the larger-radius check's previous-pose radius publication.</remarks>
-    /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="terrain"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source and target are not a same-facing route from a crouch to a final standing pose.</exception>
     public static void ApplyDirectCrouchToStandingTransition(
         SamusState samus,
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusPoseId targetPose,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
 
         // This route is only the direct exit from crouching to normal standing.
         // Animated stand-ups and cross-facing changes have separate setups.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-                level,
+                terrain,
                 targetPose,
                 frameCounter,
-                roomObjects,
                 out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
@@ -65,21 +62,19 @@ internal static class SamusPosturePoseTransitions
     /// </remarks>
     public static void ApplyCrouchJumpTransition(
         SamusState samus,
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusPoseId targetPose,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
 
         // Only the two neutral jump-transition poses enter this transition; aimed
         // crouches deliberately reuse the same facing-selected target.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-                level,
+                terrain,
                 targetPose,
                 frameCounter,
-                roomObjects,
                 out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
@@ -110,12 +105,11 @@ internal static class SamusPosturePoseTransitions
     /// </summary>
     public static void ApplyPostureTransition(
         SamusState samus,
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusPoseId targetPose,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
 
         // The crouching transitions start a crouch from standing, running, a moonwalk, a wall stop or a landing; the
         // standing transitions start a stand from a crouch. Each keeps the source's facing.
@@ -144,8 +138,8 @@ internal static class SamusPosturePoseTransitions
             // ground the bottom boundary is unchanged; descending a slope, the probe meets
             // the surface first and the shorter clipped distance is what moves center Y.
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
-                level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryDownwardPixels),
-                SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), targetPose, roomObjects);
+                terrain, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryDownwardPixels),
+                SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), targetPose);
             // The crouching body lies inside the standing one, which was clear, so the probe moves her down by at most
             // its downward entry distance, clear of the terrain that bounds the room: she stays in it.
             samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(
@@ -162,10 +156,9 @@ internal static class SamusPosturePoseTransitions
         // definition rather than assuming the ordinary standing radius.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-                level,
+                terrain,
                 targetPose,
                 frameCounter,
-                roomObjects,
                 out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
@@ -198,12 +191,11 @@ internal static class SamusPosturePoseTransitions
     /// </remarks>
     public static void ApplyMorphTransition(
         SamusState samus,
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusPoseId targetPose,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
 
         // The morph does not require the crouching movement type. Falling straight-down
         // and spin-jump input transitions can select the same morphing-transition setup. The literal
@@ -222,8 +214,8 @@ internal static class SamusPosturePoseTransitions
             samus.Pose = targetPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
-                level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDownwardPixels),
-                SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), targetPose, roomObjects);
+                terrain, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDownwardPixels),
+                SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), targetPose);
             // The ball lies inside the body it shrank from, which was clear, so the probe moves her down by at most its
             // downward entry distance, clear of the terrain that bounds the room: she stays in it.
             samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(
@@ -250,10 +242,9 @@ internal static class SamusPosturePoseTransitions
 
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level,
+            terrain,
             targetPose,
             frameCounter,
-            roomObjects,
             out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
@@ -281,32 +272,29 @@ internal static class SamusPosturePoseTransitions
     /// makes room for the larger body through the larger-pose collision and starts the stand-up's animation.
     /// </summary>
     /// <param name="samus">The Samus this changes.</param>
-    /// <param name="level">Live room block geometry used by the shared pose-expansion resolver.</param>
+    /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
     /// <param name="targetPose">The Draygon-held stand-up, the only pose the ball's input transitions choose.</param>
     /// <param name="frameCounter">The frame counter supplied to changed-pose block reactions.</param>
-    /// <param name="roomObjects">The room's room objects, receiving those collision reactions.</param>
     /// <remarks>
     /// As for the stand transitions, the collision radius stays the ball's until the input phase publishes the stand-up's
     /// at the start of the next frame.
     /// </remarks>
-    /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="terrain"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source and target are not the Draygon-held ball and its stand-up.</exception>
     public static void ApplyDraygonHoldStandUp(
         SamusState samus,
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusPoseId targetPose,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
 
         SamusPoseId sourcePose = samus.Pose;
 
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level,
+            terrain,
             targetPose,
             frameCounter,
-            roomObjects,
             out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
@@ -343,21 +331,19 @@ internal static class SamusPosturePoseTransitions
     /// </remarks>
     public static void ApplyUnmorphToFallingTransition(
         SamusState samus,
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusPoseId targetPose,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
 
         // The unmorph's transition names the fall facing the unmorph body's way.
         SamusPoseId sourcePose = samus.Pose;
 
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level,
+            terrain,
             targetPose,
             frameCounter,
-            roomObjects,
             out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
@@ -541,10 +527,9 @@ internal static class SamusPosturePoseTransitions
     {
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            terrain.Level,
+            terrain,
             fall,
             frameCounter,
-            terrain.RoomObjects,
             out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {

@@ -41,22 +41,20 @@ internal static class SamusAerialPoseTransitions
     /// </remarks>
     public static void ApplySpinOrWallJumpToNormalJumpTransition(
         SamusState samus,
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusPoseId targetPose,
         int frameCounter,
-        GameplayAction controllerNewInput,
-        ISamusRoomObjects roomObjects)
+        GameplayAction controllerNewInput)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
 
         // The spin, Space Jump, Screw Attack and wall-jump input transitions emit only same-facing
         // normal-jump poses when aim or Shoot cancels rotation.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level,
+            terrain,
             targetPose,
             frameCounter,
-            roomObjects,
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.RetainSource)
             return;
@@ -102,11 +100,10 @@ internal static class SamusAerialPoseTransitions
 
     /// <summary>Applies a normal-jump or falling turn, selecting the turn that keeps her aim (<see cref="SamusAimedPoseChoiceDefinitions.JumpingTurns"/>, <see cref="SamusAimedPoseChoiceDefinitions.FallingTurns"/>) after the shared larger-pose collision pass.</summary>
     /// <param name="samus">The Samus this reads.</param>
-    /// <param name="level">Live room geometry used to admit the selected turn body's expansion.</param>
+    /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
     /// <param name="frameCounter">The frame counter supplied to changed-pose block reactions.</param>
-    /// <param name="roomObjects">The room's room objects, receiving those collision reactions.</param>
     /// <remarks>An accepted turn folds extra run speed into base turn momentum, preserves vertical velocity, adjusts the whole-pixel Y center if required, and initializes animation while retaining the source collision radius until Samus's next input phase.</remarks>
-    /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="terrain"/> is null.</exception>
     /// <exception cref="InvalidDataException">The source pose aims in no shot direction.</exception>
     /// <remarks>
     /// The jumping and falling input transitions name the generic turn of their family; the turn installed is the one the
@@ -114,11 +111,10 @@ internal static class SamusAerialPoseTransitions
     /// </remarks>
     public static void ApplyAerialTurn(
         SamusState samus,
-        RoomLevelData level,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        SamusTerrain terrain,
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
 
         SamusPoseId sourcePose = samus.Pose;
         SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
@@ -135,10 +131,9 @@ internal static class SamusAerialPoseTransitions
                 $"{(jumping ? "Jump" : "Fall")} pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(samus)}).");
 
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level,
+            terrain,
             selectedTurnPose,
             frameCounter,
-            roomObjects,
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.RetainSource)
             return;
@@ -194,14 +189,12 @@ internal static class SamusAerialPoseTransitions
     /// wall test succeeds. The launch takes the dry-air speeds.
     /// </summary>
     /// <param name="samus">The Samus this reads.</param>
-    /// <param name="level">The room's collision geometry the larger wall-jump pose is tested against.</param>
+    /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
     /// <param name="frameCounter">The frame counter passed to the changed-pose collision resolver.</param>
-    /// <param name="roomObjects">The room's room objects, receiving changed-pose block reactions.</param>
     public static void ApplyWallJumpTrigger(
         SamusState samus,
-        RoomLevelData level,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        SamusTerrain terrain,
+        int frameCounter)
     {
         // Only the spin-jumping mover reports the wall-jump check's trigger. The cached movement type, not the
         // live pose, runs that mover: a drained pose stored without the pose setup keeps
@@ -211,7 +204,7 @@ internal static class SamusAerialPoseTransitions
         // collision check. Expanding a compact spin body beneath a ceiling can
         // move the center away from it, reject the expansion, or select crouch.
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
+            terrain, targetPose, frameCounter, out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.RetainSource)
             return;
         if (collision == LargerPoseCollisionOutcome.CrouchFallback)
@@ -290,12 +283,11 @@ internal static class SamusAerialPoseTransitions
     /// </summary>
     public static void ApplyGrappleDropTransition(
         SamusState samus,
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusPoseId targetPose,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
 
         // The standing and crouching poses, unaimed and aimed, are every pose a grapple drop
         // takes. Other releases take the grapple's wall jump or the swing release instead.
@@ -305,10 +297,9 @@ internal static class SamusAerialPoseTransitions
         // only its output domain is restricted, not the source to connected-grapple art.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level,
+            terrain,
             targetPose,
             frameCounter,
-            roomObjects,
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.Allowed)
         {
@@ -527,21 +518,19 @@ internal static class SamusAerialPoseTransitions
     /// </remarks>
     public static void ApplyCompactAerialTransition(
         SamusState samus,
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusPoseId targetPose,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
 
         // The input transitions that name this setup change within one facing's normal jumps or falls.
         SamusPoseId sourcePose = samus.Pose;
         SamusMovementType previousMovementType = SamusPoseMetadata.ReadMovementType(sourcePose);
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-                level,
+                terrain,
                 targetPose,
                 frameCounter,
-                roomObjects,
                 out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {

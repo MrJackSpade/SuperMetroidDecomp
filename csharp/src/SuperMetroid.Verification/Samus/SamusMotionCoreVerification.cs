@@ -493,10 +493,10 @@ internal static void VerifySamusExtraDisplacement()
     standing.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromStoredParts(1, 0x8000, 2, 0x4000);
     GroundedMovementResult positive = SamusGroundedMovement.StepStanding(
 
-        level,
+        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
         standing,
         frameCounter: 0,
-        controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        controllerInput: 0);
     AssertEqual(0x00018000, positive.Horizontal.AcceptedDisplacement.RawValue,
         "standing external +X bypasses zero base speed");
     AssertEqual(0x00034000, positive.Vertical.AcceptedDisplacement.RawValue,
@@ -515,10 +515,10 @@ internal static void VerifySamusExtraDisplacement()
     negative.Kinematics.ExtraDisplacement = negative.Kinematics.ExtraDisplacement.WithWholeY(-2).WithFractionY(0x8000);
     GroundedMovementResult upward = SamusGroundedMovement.StepStanding(
 
-        level,
+        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
         negative,
         frameCounter: 1,
-        controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        controllerInput: 0);
     AssertEqual(unchecked((int)0xfffe8000), upward.Vertical.AcceptedDisplacement.RawValue,
         "negative no-speed external Y has no downward bias");
 
@@ -533,10 +533,10 @@ internal static void VerifySamusExtraDisplacement()
     FixedCoordinate transitionYBefore = transition.Kinematics.Position.Y;
     SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, 
 
-        level,
+        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
         transition,
         GameplayAction.Jump,
-        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        frameCounter: 0);
     AssertEqual(SixteenSixteenWords.ToDisplacement(unchecked((int)0xffff8000)), transition.Kinematics.Position.X - transitionXBefore,
         "jump transition applies signed external X with zero base speed");
     AssertEqual(SixteenSixteenWords.ToDisplacement(0x00014000), transition.Kinematics.Position.Y - transitionYBefore,
@@ -553,10 +553,10 @@ internal static void VerifySamusExtraDisplacement()
     FixedCoordinate risingYBefore = rising.Kinematics.Position.Y;
     SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, 
 
-        level,
+        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
         rising,
         GameplayAction.Jump,
-        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        frameCounter: 0);
     AssertEqual(SixteenSixteenWords.ToDisplacement(0x00008000), rising.Kinematics.Position.Y - risingYBefore,
         "gravity path adds external Y directly and may reverse actual direction");
     AssertEqual(SamusVerticalDirection.Up, rising.Kinematics.VerticalVelocity.Direction,

@@ -16,11 +16,10 @@ internal static class SamusPoseTransitions
     /// </summary>
     public static void ApplyWalkedOffFloorTransition(
         SamusState samus,
-        RoomLevelData level,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        SamusTerrain terrain,
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         // The fall is the one her current aim selects.
         SamusPoseId targetPose = SelectFallingPoseForCurrentAim(samus);
 
@@ -30,7 +29,7 @@ internal static class SamusPoseTransitions
         // floor after a near-ground unmorph. Rejection also skips starting the fall.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
+            terrain, targetPose, frameCounter, out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
@@ -110,30 +109,27 @@ internal static class SamusPoseTransitions
     /// </summary>
     /// <param name="samus">Samus, landing.</param>
     /// <param name="sourceAim">The aim the pose she lands from holds.</param>
-    /// <param name="level">The room's blocks the landing body is tested against.</param>
+    /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
     /// <param name="wasSpinning">Whether she lands from a spin.</param>
     /// <param name="controllerInput">The actions held as she lands.</param>
     /// <param name="frameCounter">The frame counter the collision reads.</param>
-    /// <param name="roomObjects">The room's objects the collision reads.</param>
     public static void ApplyAerialLandingInRoom(
         SamusState samus,
         SamusPoseAim.ISteady sourceAim,
-        RoomLevelData level,
+        SamusTerrain terrain,
         bool wasSpinning,
         GameplayAction controllerInput,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
 
         SamusPoseId sourcePose = samus.Pose;
         bool leavingScrewAttack = SamusPoseMetadata.IsScrewAttackPose(sourcePose);
         SamusPoseId targetPose = SelectAerialLandingPose(samus, sourceAim, wasSpinning, controllerInput);
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level,
+            terrain,
             targetPose,
             frameCounter,
-            roomObjects,
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.Allowed)
         {
@@ -223,11 +219,10 @@ internal static class SamusPoseTransitions
     /// </summary>
     public static void ApplyCompactAerialLanding(
         SamusState samus,
-        RoomLevelData level,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        SamusTerrain terrain,
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
 
         // A compact pose aims straight down the way it faces, and lands in the normal landing facing that way.
         SamusPoseId sourcePose = samus.Pose;
@@ -235,10 +230,9 @@ internal static class SamusPoseTransitions
             ? SamusPoseId.NormalLandingLeftPose
             : SamusPoseId.NormalLandingRightPose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level,
+            terrain,
             targetPose,
             frameCounter,
-            roomObjects,
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.Allowed)
         {

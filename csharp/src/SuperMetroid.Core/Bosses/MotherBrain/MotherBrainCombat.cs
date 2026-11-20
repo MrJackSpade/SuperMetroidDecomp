@@ -50,18 +50,19 @@ internal sealed class MotherBrainCombat
     internal void ReactToMotherBrainHeadBomb(EnemyBombContext c) =>
         ResolveMotherBrainHeadNormalBomb(c.Occupant, c.PlacedBomb);
 
-    /// <summary>The body's shot response for each combat phase.</summary>
+    /// <summary>
+    /// The body's shot response for each combat phase: the struck rectangle's own reaction, as the cartridge runs the
+    /// rectangle's shot routine for the body. Her brain's rectangle, which the body shows before its first animation
+    /// (#2220), runs the head's reaction on the body; every body rectangle's is the dud shot.
+    /// </summary>
     internal EnemyShotReaction BodyShotReaction => field ??= new()
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            // Every body rectangle's shot reaction is exactly the dud shot; only her brain's rectangle, which her body
-            // shows before its first animation (#2220), could select anything else.
-            if (c.HitboxShot != MotherBrainReactions.BodyShot)
+            if (c.HitboxShot == MotherBrainReactions.HeadShot)
             {
-                throw new InvalidDataException(
-                    $"Mother Brain's body selected the shot reaction {c.HitboxShot} from " +
-                    $"frame {c.Enemy.Frame}; every body rectangle's shot reaction is the dud shot.");
+                ResolveMotherBrainHeadShot(c.Occupant, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
+                return true;
             }
             // A Super Missile still shakes the room first.
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);

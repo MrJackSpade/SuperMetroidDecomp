@@ -1028,9 +1028,9 @@ internal static void VerifyCeresRidleyRoomEntry()
         // and first-frame motion. The public producer exercises allocation/type/radii
         // before this focused extended-hitbox/shot-AI test resolves the impact.
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ridley.Position.X.Whole + 8)), ridley.Position.Y.Whole));
-        samusBombs.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
+        samusBombs.StepFrame(SamusTerrain.InRoom(openRoom, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeFire = projectiles.ObserveSlots();
-        projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
+        projectiles.StepFrame(SamusTerrain.InRoom(openRoom, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
         AssertEqual(0, slotsBeforeFire.FiredSlot(projectiles),
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
         AssertTrue(projectiles.Shots[0].Position.X.Whole - projectiles.Shots[0].Radius.X > ridley.Position.X.Whole + 8,
@@ -1051,8 +1051,8 @@ internal static void VerifyCeresRidleyRoomEntry()
         // plus initialization, returning the same slot without shortening the program.
         for (int explosionFrame = 0; explosionFrame < nativeExplosionFrames; explosionFrame++)
         {
-            samusBombs.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
-            projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
+            samusBombs.StepFrame(SamusTerrain.InRoom(openRoom, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
+            projectiles.StepFrame(SamusTerrain.InRoom(openRoom, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
         }
 
         // This focused hit-counter test used to patch the cartridge cooldown to one.
@@ -1060,8 +1060,8 @@ internal static void VerifyCeresRidleyRoomEntry()
         // or speed up the separately stepped enemy phase/timer fixture.
         for (int cooldownFrame = 0; cooldownFrame < 15 && samusBombs.CooldownTimer != 0; cooldownFrame++)
         {
-            samusBombs.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
-            projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
+            samusBombs.StepFrame(SamusTerrain.InRoom(openRoom, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
+            projectiles.StepFrame(SamusTerrain.InRoom(openRoom, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), samusBombs, progression);
         }
         AssertEqual(0, samusBombs.CooldownTimer, "Native cooldown expires before the next Ceres shot");
 

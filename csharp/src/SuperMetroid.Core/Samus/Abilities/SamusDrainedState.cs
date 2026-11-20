@@ -269,13 +269,12 @@ public sealed class SamusDrainedState
     /// </summary>
     /// <returns>Whether she was falling and the fall stepped.</returns>
     internal bool TryStepFalling(
-        RoomLevelData level,
-        ISamusRoomObjects roomObjects,
+        SamusTerrain terrain,
         SamusState samus,
         int frameCounter,
         out DrainedSamusMovementResult result)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
         if (Phase != DrainedSamusPhase.Falling)
         {
@@ -283,7 +282,7 @@ public sealed class SamusDrainedState
             return false;
         }
 
-        BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, frameCounter, out _, out bool downwardDisplacement);
+        BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(terrain, samus, frameCounter, out _, out bool downwardDisplacement);
 
         // Generic Y movement has already applied gravity when it reports the collision.
         // Capture the exact velocity before the landing erases its speed for on-floor art.

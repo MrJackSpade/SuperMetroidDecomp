@@ -66,8 +66,8 @@ internal static class WrapShotEnemiesVerification
             for (int frame = 0; frame <= (left ? 3 : 4); frame++)
             {
                 GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
-                bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
-                shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)(left ? 0 : 768), 0), bombs, new SharedGameState(new SharedRandom()));
+                bombs.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, input, input);
+                shots.StepFrame(SamusTerrain.InRoom(level, roomObjects), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)(left ? 0 : 768), 0), bombs, new SharedGameState(new SharedRandom()));
                 runtime.Enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, runtime.Room.LoadedRoom.Area, runtime.Player.IntroducedSamus);
             }
             AssertEqual(RoomTerrainBlock.Of(0x052, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlockByIndex(target).Terrain, "Same shot actually triggers the remote tile");

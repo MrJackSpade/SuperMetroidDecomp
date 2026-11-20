@@ -120,7 +120,7 @@ internal static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(24, 21)),
         Radius = new(5, 5),
     };
-    BlockMoveResult slopeMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, slopeBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
+    BlockMoveResult slopeMove = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()), slopeBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
     AssertEqual(0x0000c000, slopeMove.AcceptedDisplacement.RawValue, "horizontal scan applies BTS $12 multiplier");
     AssertEqual(24, slopeBody.Position.X.Whole, "subpixel slope move preserves whole X");
     AssertEqual(0xc000, slopeBody.Position.X.Fraction, "subpixel slope move updates X fraction");
@@ -134,7 +134,7 @@ internal static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(24, 19)),
         Radius = new(5, 5),
     };
-    BlockMoveResult groundProbe = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, groundedBody, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true });
+    BlockMoveResult groundProbe = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()), groundedBody, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true });
     AssertTrue(groundProbe.Collided, "vertical non-square grounding probe collides");
     AssertEqual(0, groundProbe.AcceptedDisplacement.RawValue, "vertical non-square grounding probe clips to zero");
     AssertEqual(19, groundedBody.Position.Y.Whole, "grounding collision preserves resting center Y");
@@ -148,7 +148,7 @@ internal static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(26, 24)),
         Radius = new(5, 5),
     };
-    BlockMoveResult wallMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, wallBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
+    BlockMoveResult wallMove = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()), wallBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
     AssertTrue(wallMove.Collided, "horizontal type-8 solid collision flag");
     AssertEqual(0x00010000, wallMove.AcceptedDisplacement.RawValue, "horizontal type-8 solid clipped amount");
     AssertEqual(27, wallBody.Position.X.Whole, "horizontal type-8 solid whole X");
@@ -161,7 +161,7 @@ internal static void VerifySamusBlockCollision()
         Position = new(new(56, 0), new(19, 0x4000)),
         Radius = new(5, 5),
     };
-    BlockMoveResult airMove = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, airBody, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(0, 32768), ScanLeftToRight = false });
+    BlockMoveResult airMove = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()), airBody, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(0, 32768), ScanLeftToRight = false });
     AssertTrue(!airMove.Collided, "vertical type-0 air has no collision");
     AssertEqual(19, airBody.Position.Y.Whole, "vertical air fractional move whole Y");
     AssertEqual(0xc000, airBody.Position.Y.Fraction, "vertical air fractional move subposition");
@@ -182,7 +182,7 @@ internal static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(26, 24)),
         Radius = new(5, 5),
     };
-    BlockMoveResult squareWall = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = squareLevel, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, squareWallBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
+    BlockMoveResult squareWall = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(squareLevel, SamusRoomObjectFixtures.WithQuicksand()), squareWallBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
     AssertTrue(squareWall.Collided, "horizontal fully-solid square slope collision");
     AssertEqual(0x00010000, squareWall.AcceptedDisplacement.RawValue, "horizontal square-slope 8-pixel clipping");
     AssertEqual(0xffff, squareWallBody.Position.X.Fraction, "horizontal square slope writes right-wall fraction");
@@ -192,7 +192,7 @@ internal static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(16, 26)),
         Radius = new(5, 5),
     };
-    BlockMoveResult squareFloor = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = squareLevel, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, squareFloorBody, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
+    BlockMoveResult squareFloor = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(squareLevel, SamusRoomObjectFixtures.WithQuicksand()), squareFloorBody, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
     AssertTrue(squareFloor.Collided, "vertical fully-solid square slope collision");
     AssertEqual(0x00010000, squareFloor.AcceptedDisplacement.RawValue, "vertical square-slope 8-pixel clipping");
     AssertTrue(squareFloorBody.PositionAdjustedBySlope, "downward square slope sets adjusted flag");
@@ -216,7 +216,7 @@ internal static void VerifySamusBlockCollision()
         Radius = new(5, 5),
     };
     ISamusRoomObjects doorRoomObjects = SamusRoomObjectFixtures.WithQuicksand();
-    BlockMoveResult normalDoorMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = doorLevel, RoomObjects = doorRoomObjects }, doorBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
+    BlockMoveResult normalDoorMove = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(doorLevel, doorRoomObjects), doorBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
     AssertTrue(!normalDoorMove.Collided, "normal type-$9 door returns carry clear");
     AssertEqual(0x00020000, normalDoorMove.AcceptedDisplacement.RawValue,
         "normal type-$9 door accepts full horizontal displacement");
@@ -234,7 +234,7 @@ internal static void VerifySamusBlockCollision()
         [new RoomDoorBlock(new(2, 1), DoorDefinitions.Resolve(doorListPointer, 2))]);
     doorBody.Position = doorBody.Position.WithWholeX(26).WithFractionX(0);
     ISamusRoomObjects elevatorDoorRoomObjects = SamusRoomObjectFixtures.WithQuicksand();
-    BlockMoveResult elevatorDoorMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = elevatorDoorLevel, RoomObjects = elevatorDoorRoomObjects }, doorBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
+    BlockMoveResult elevatorDoorMove = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(elevatorDoorLevel, elevatorDoorRoomObjects), doorBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
     AssertTrue(elevatorDoorMove.Collided, "elevator ride remains solid");
     AssertEqual(0x00010000, elevatorDoorMove.AcceptedDisplacement.RawValue,
         "elevator ride uses ordinary solid clipping");
@@ -249,7 +249,7 @@ internal static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(58, 24)),
         Radius = new(5, 5),
     };
-    BlockMoveResult rightEdgeMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, rightEdgeBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
+    BlockMoveResult rightEdgeMove = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()), rightEdgeBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
     AssertTrue(rightEdgeMove.Collided, "prefilled right room edge is solid");
     AssertEqual(0x00010000, rightEdgeMove.AcceptedDisplacement.RawValue,
         "prefilled right room edge clips at logical boundary");
@@ -261,7 +261,7 @@ internal static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(56, 58)),
         Radius = new(5, 5),
     };
-    BlockMoveResult bottomEdgeMove = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, bottomEdgeBody, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
+    BlockMoveResult bottomEdgeMove = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()), bottomEdgeBody, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
     AssertTrue(bottomEdgeMove.Collided, "prefilled bottom room edge is solid");
     AssertEqual(0x00010000, bottomEdgeMove.AcceptedDisplacement.RawValue,
         "prefilled bottom room edge clips at logical boundary");
@@ -303,7 +303,7 @@ internal static void VerifySamusBlockCollision()
             Position = FixedPosition<RoomPixels>.FromWhole(new(26, 24)),
             Radius = new(5, 5),
         };
-        BlockMoveResult dispatcherMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = dispatcherLevel, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, dispatcherBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
+        BlockMoveResult dispatcherMove = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(dispatcherLevel, SamusRoomObjectFixtures.WithQuicksand()), dispatcherBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
 
         AssertEqual(expectedCollision, dispatcherMove.Collided,
             $"body dispatcher {collisionKind} collision topology");
@@ -341,7 +341,7 @@ internal static void VerifySamusBlockCollision()
             AreaId.Norfair,
             areaBossDefeated: false);
 
-        BlockMoveResult spikeFloor = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = spikeLevel, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, spikeSamus.Kinematics, spikeSamus, spikeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
+        BlockMoveResult spikeFloor = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(spikeLevel, SamusRoomObjectFixtures.WithQuicksand()), spikeSamus.Kinematics, spikeSamus, spikeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
         AssertTrue(spikeFloor.Collided,
             $"spike-block BTS ${spikeBehavior:X2} retains solid collision");
         AssertEqual(expectedDamage, spikeSamus.PeriodicDamage.Pending.Whole,
@@ -380,7 +380,7 @@ internal static void VerifySamusBlockCollision()
             spikeSamus,
             AreaId.WreckedShip,
             bossDefeated);
-        _ = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = wreckedShipSpikes, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, spikeSamus.Kinematics, spikeSamus, spikeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
+        _ = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(wreckedShipSpikes, SamusRoomObjectFixtures.WithQuicksand()), spikeSamus.Kinematics, spikeSamus, spikeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
         AssertEqual(expectedDamage, spikeSamus.PeriodicDamage.Pending.Whole,
             $"Wrecked Ship BTS-zero spike boss gate {bossDefeated}");
     }
@@ -464,9 +464,9 @@ internal static void VerifySamusGroundedMovement()
     running.Kinematics.Radius = new(5, 5);
     GroundedMovementResult first = SamusGroundedMovement.StepRunning(
 
-        level,
+        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()),
         running,
-        frameCounter: 0, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 0, controllerInput: GameplayAction.None);
 
     AssertEqual(0x0000, running.HorizontalSpeed.BaseSpeed.Whole, "running first acceleration whole speed");
     AssertEqual(0x3000, running.HorizontalSpeed.BaseSpeed.Fraction, "running first acceleration fractional speed");
@@ -479,9 +479,9 @@ internal static void VerifySamusGroundedMovement()
     // produces the same single-surface result in this deliberately symmetric fixture.
     GroundedMovementResult second = SamusGroundedMovement.StepRunning(
 
-        level,
+        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()),
         running,
-        frameCounter: 1, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 1, controllerInput: GameplayAction.None);
     AssertEqual(0x6000, running.HorizontalSpeed.BaseSpeed.Fraction, "running second acceleration accumulates");
     AssertEqual(0x00004800, second.Horizontal.AcceptedDisplacement.RawValue, "second running slope multiplier");
     AssertEqual(0x6c00, running.Kinematics.Position.X.Fraction, "second running displacement accumulates");
@@ -493,9 +493,9 @@ internal static void VerifySamusGroundedMovement()
     running.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
     GroundedMovementResult decelerated = SamusGroundedMovement.StepRunning(
 
-        level,
+        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()),
         running,
-        frameCounter: 0, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 0, controllerInput: GameplayAction.None);
     AssertEqual(0, running.HorizontalSpeed.BaseSpeed.Whole, "running deceleration underflow clears whole speed");
     AssertEqual(0, running.HorizontalSpeed.BaseSpeed.Fraction, "running deceleration underflow clears fraction");
     AssertEqual(SamusAccelerationMode.Accelerating, running.HorizontalSpeed.AccelerationMode, "running deceleration underflow restores acceleration mode");
@@ -509,10 +509,10 @@ internal static void VerifySamusGroundedMovement()
     standing.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0xc000);
     GroundedMovementResult idle = SamusGroundedMovement.StepStanding(
 
-        level,
+        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()),
         standing,
         frameCounter: 0,
-        controllerInput: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        controllerInput: 0);
     AssertEqual(0, idle.Horizontal.AcceptedDisplacement.RawValue, "standing no-base horizontal amount");
     AssertTrue(idle.Vertical.Collided, "standing one-pixel grounding probe collides");
     AssertEqual(0, standing.HorizontalSpeed.BaseSpeed.Whole, "standing clears base speed whole");
@@ -530,9 +530,9 @@ internal static void VerifySamusGroundedMovement()
     forward.HorizontalSpeed.ExtraRunSpeed = forward.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
     SamusGroundedMovement.StepFacingForward(
 
-        level,
+        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()),
         forward,
-        frameCounter: 0, elevatorIsMoving: false, roomObjects: SamusRoomObjectFixtures.WithQuicksand(), doorBlocks: DoorBlockMeeting.Contacts);
+        frameCounter: 0, elevatorIsMoving: false, doorBlocks: DoorBlockMeeting.Contacts);
     // Zero elevator status skips the vertical scan: Samus stays where she stood.
     AssertEqual(SamusVerticalCollisionResult.None, forward.SolidVerticalCollisionResult, "forward movement clears vertical collision result");
     AssertEqual(0x1234, forward.Position.X.Whole, "forward movement does not scan or move X");
@@ -560,10 +560,10 @@ internal static void VerifySamusGroundedMovement()
     global::SuperMetroid.Core.PrivateState.Set(forward, "SolidVerticalCollisionResult", SamusVerticalCollisionResult.HitCeiling);
     SamusGroundedMovement.StepFacingForward(
 
-        elevatorLevel,
+        SamusTerrain.InRoom(elevatorLevel, SamusRoomObjectFixtures.WithQuicksand()),
         forward,
         frameCounter: 1,
-        elevatorIsMoving: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand(), doorBlocks: DoorBlockMeeting.Contacts);
+        elevatorIsMoving: true, doorBlocks: DoorBlockMeeting.Contacts);
     // The elevator's `$94:9763` scan skips the solid enemy one pixel below and accepts the whole one-pixel move.
     AssertEqual(101, forward.Position.Y.Whole, "elevator moves forward-facing Samus down one pixel past the solid enemy");
     AssertEqual(0x5678, forward.Kinematics.Position.Y.Fraction,
@@ -611,9 +611,9 @@ internal static void VerifySamusGroundedReversal()
     movingLeft.Kinematics.Radius = new(5, 5);
     GroundedMovementResult leftFrame = SamusGroundedMovement.StepRunning(
 
-        level,
+        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()),
         movingLeft,
-        frameCounter: 0, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 0, controllerInput: GameplayAction.None);
     AssertEqual(-0x00003000, leftFrame.Horizontal.AcceptedDisplacement.RawValue, "running-left signed displacement");
     AssertEqual(63, movingLeft.Position.X.Whole, "running-left borrows into whole X");
     AssertEqual(0xd000, movingLeft.Kinematics.Position.X.Fraction, "running-left fractional X");
@@ -630,9 +630,9 @@ internal static void VerifySamusGroundedReversal()
     reversedRunningRight.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
     GroundedMovementResult reversedRightFrame = SamusGroundedMovement.StepRunning(
 
-        level,
+        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()),
         reversedRunningRight,
-        frameCounter: 0, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 0, controllerInput: GameplayAction.None);
     AssertEqual(-0x00008000, reversedRightFrame.Horizontal.AcceptedDisplacement.RawValue,
         "mode-one running-right carries leftward momentum");
 
@@ -643,9 +643,9 @@ internal static void VerifySamusGroundedReversal()
     reversedRunningLeft.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
     GroundedMovementResult reversedLeftFrame = SamusGroundedMovement.StepRunning(
 
-        level,
+        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()),
         reversedRunningLeft,
-        frameCounter: 0, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 0, controllerInput: GameplayAction.None);
     AssertEqual(0x00008000, reversedLeftFrame.Horizontal.AcceptedDisplacement.RawValue,
         "mode-one running-left carries rightward momentum");
 
@@ -970,9 +970,9 @@ internal static void VerifySamusGroundedReversal()
             FixedCoordinate airborneYBefore = airborneCrouchedTurn.Kinematics.Position.Y;
             SamusAerialMovement.StepTurningInAir(SuperMetroid.Core.Samus.Movement.SamusMovement.TurningRisingOrAimedCrouched, 
 
-                aimedLevel,
+                SamusTerrain.InRoom(aimedLevel, SamusRoomObjectFixtures.WithQuicksand()),
                 airborneCrouchedTurn,
-                frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+                frameCounter: 0);
             AssertTrue(airborneCrouchedTurn.Kinematics.Position.Y != airborneYBefore,
                 "airborne crouched type-$17 turn executes simple Y movement");
         }
@@ -1578,7 +1578,7 @@ internal static void VerifySamusMoonwalking()
         var walker = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(80, 11)) };
         walker.Kinematics.Radius = new(5, 5);
         GroundedMovementResult movement = SamusGroundedMovement.StepMoonwalking(SuperMetroid.Core.Samus.Movement.SamusMovement.Moonwalking, 
-floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.WithQuicksand()), walker, frameCounter: 0);
         AssertEqual(direction * 0x8000, movement.Horizontal.AcceptedDisplacement.RawValue,
             $"moonwalk ${(int)SamusPoseNumbers.Number(pose):X2} uses literal reversed direction");
         AssertTrue(movement.Vertical.Collided, $"moonwalk ${(int)SamusPoseNumbers.Number(pose):X2} probes floor");
@@ -1597,9 +1597,9 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
     momentumMoonwalk.HorizontalSpeed.ExtraRunSpeed = momentumMoonwalk.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
     GroundedMovementResult momentumMoonwalkFrame = SamusGroundedMovement.StepMoonwalking(SuperMetroid.Core.Samus.Movement.SamusMovement.Moonwalking, 
 
-        floor,
+        SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.WithQuicksand()),
         momentumMoonwalk,
-        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 0);
     AssertEqual(0x00018000, momentumMoonwalkFrame.Horizontal.AcceptedDisplacement.RawValue,
         "moonwalk preserves owned extra run speed");
 
@@ -1612,9 +1612,9 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
     unownedMoonwalk.HorizontalSpeed.ExtraRunSpeed = unownedMoonwalk.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
     GroundedMovementResult unownedMoonwalkFrame = SamusGroundedMovement.StepMoonwalking(SuperMetroid.Core.Samus.Movement.SamusMovement.Moonwalking, 
 
-        floor,
+        SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.WithQuicksand()),
         unownedMoonwalk,
-        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 0);
     AssertEqual(0x00008000, unownedMoonwalkFrame.Horizontal.AcceptedDisplacement.RawValue,
         "moonwalk clears unowned extra run speed");
     AssertEqual(0, unownedMoonwalk.HorizontalSpeed.ExtraRunSpeed.Whole,
@@ -1775,10 +1775,9 @@ internal static void VerifySamusRanIntoWall()
     armPump.Kinematics.Radius = new(5, 5);
     SamusPoseId? clearResult = SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(armPump, 
 
-        openFloor,
+        SamusTerrain.InRoom(openFloor, SamusRoomObjectFixtures.WithQuicksand()),
         SamusPoseId.MovingRightNormalPose,
-        currentXSpeedKilledByBlock: false,
-        roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        currentXSpeedKilledByBlock: false);
     AssertTrue(clearResult is null, "clear arm-pump probe keeps prospective run");
     AssertEqual(81, armPump.Position.X.Whole, "clear arm-pump probe retains one-pixel move");
 
@@ -1796,10 +1795,9 @@ internal static void VerifySamusRanIntoWall()
     blocked.Kinematics.Radius = new(5, 5);
     SamusPoseId? blockedResult = SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(blocked, 
 
-        blockedFloor,
+        SamusTerrain.InRoom(blockedFloor, SamusRoomObjectFixtures.WithQuicksand()),
         SamusPoseId.MovingRightNormalPose,
-        currentXSpeedKilledByBlock: false,
-        roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        currentXSpeedKilledByBlock: false);
     AssertEqual<SamusPoseId?>(SamusPoseId.RanIntoWallRightPose, blockedResult,
         "blocked prospective run selects $89");
     AssertEqual(91, blocked.Position.X.Whole, "blocked arm-pump probe retains last-safe X");
@@ -1820,10 +1818,9 @@ internal static void VerifySamusRanIntoWall()
     ];
     SamusPoseId? enemyResult = SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(enemyAhead, 
 
-        openFloor,
+        SamusTerrain.InRoom(openFloor, SamusRoomObjectFixtures.WithQuicksand()),
         SamusPoseId.MovingRightNormalPose,
-        currentXSpeedKilledByBlock: false,
-        roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        currentXSpeedKilledByBlock: false);
     AssertEqual<SamusPoseId?>(SamusPoseId.RanIntoWallRightPose, enemyResult,
         "solid enemy ahead selects $89");
     AssertEqual(80, enemyAhead.Position.X.Whole, "solid enemy ahead leaves Samus in place");
@@ -1832,10 +1829,9 @@ internal static void VerifySamusRanIntoWall()
     var killed = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MovingRightNormalPose };
     SamusPoseId? killedResult = SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(killed, 
 
-        openFloor,
+        SamusTerrain.InRoom(openFloor, SamusRoomObjectFixtures.WithQuicksand()),
         prospectivePose: null,
-        currentXSpeedKilledByBlock: true,
-        roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        currentXSpeedKilledByBlock: true);
     AssertEqual<SamusPoseId?>(SamusPoseId.RanIntoWallRightPose, killedResult,
         "killed running speed selects current wall pose");
 
@@ -1848,9 +1844,9 @@ internal static void VerifySamusRanIntoWall()
         stopped.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x4000);
         GroundedMovementResult movement = SamusGroundedMovement.StepRanIntoWall(
 
-            openFloor,
+            SamusTerrain.InRoom(openFloor, SamusRoomObjectFixtures.WithQuicksand()),
             stopped,
-            frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+            frameCounter: 0);
         AssertTrue(movement.Vertical.Collided, $"wall pose ${(int)SamusPoseNumbers.Number(pose):X2} remains grounded");
         AssertEqual(0u, stopped.HorizontalSpeed.BaseSpeed.RawValue,
             $"wall pose ${(int)SamusPoseNumbers.Number(pose):X2} clears base speed");

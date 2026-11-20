@@ -192,9 +192,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal DemoInputState FlashbackDemoInput => CurrentFlashbackDemoInput ??
         throw new InvalidOperationException("The Mother Brain flashback is not running.");
     /// <summary>Collision data for the gameplay-style flashback room.</summary>
-    private RoomLevelData? CurrentFlashbackLevel { get; set; }
+    private PlainTerrain? CurrentFlashbackTerrain { get; set; }
     /// <summary>The flashback room's collision, which exists while the flashback runs.</summary>
-    internal RoomLevelData FlashbackLevel => CurrentFlashbackLevel ??
+    internal PlainTerrain FlashbackTerrain => CurrentFlashbackTerrain ??
         throw new InvalidOperationException("The Mother Brain flashback room is not loaded.");
     /// <summary>The Mother Brain flashback's own progression, which its shots act on; the demo's shots never change it.</summary>
     private SharedGameState? CurrentFlashbackProgression { get; set; }
@@ -560,7 +560,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // The flashback's collision room is built from its own terrain blocks, so the
         // visual room page never stands in for the collision contract.
-        CurrentFlashbackLevel = CreateMotherBrainLevel();
+        CurrentFlashbackTerrain = CreateMotherBrainTerrain();
         CurrentFlashbackProgression = new SharedGameState(Random);
         flashbackProjectiles.Reset();
         CurrentFlashbackDemoInput = new DemoInputState();
@@ -658,7 +658,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         FlashbackMotherBrainExplosions = null;
         FlashbackRinkas = null;
         CurrentFlashbackDemoInput = null;
-        CurrentFlashbackLevel = null;
+        CurrentFlashbackTerrain = null;
         CurrentFlashbackProgression = null;
         flashbackProjectiles.Reset();
 
@@ -771,9 +771,9 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The HUD and projectile step counts down the shared firing cooldown before
         // Samus's shots update. Standing facing left she cannot place bombs, but the cooldown
         // still decides when a missile may fire.
-        flashbackBombProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
+        flashbackBombProjectiles.StepFrame(FlashbackTerrain, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
         // A missile's firing sound joins the frontend's queues as the shot fires.
-        flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, samusBombs: flashbackBombProjectiles, progression: FlashbackProgression);
+        flashbackProjectiles.StepFrame(FlashbackTerrain, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, samusBombs: flashbackBombProjectiles, progression: FlashbackProgression);
 
         // Both the demo and locked movement modes end by resetting the
         // movement and pose-change state, so a later missile inherits only the
@@ -789,7 +789,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void StepMotherBrainFlashbackSamus()
     {
         SamusState samus = FlashbackSamus;
-        RoomLevelData level = FlashbackLevel;
+        PlainTerrain terrain = FlashbackTerrain;
         GameplayAction demoInput = CurrentFlashbackDemoInput?.Held ?? GameplayAction.None;
 
         // Each frame shows the definitions selected by the previous Samus draw. This
@@ -804,31 +804,31 @@ public sealed class IntroCinematicState : IFrontendScreen
         {
             // The intro demo's movement phase runs the knockback movement that owns Samus. Its shared
             // vertical calculation now carries the Rinka knockback's arc through its apex.
-            SamusKnockbackMovement.Step(level, samus, knockback, frameCounter, IntroCollisionRoomObjects.Instance);
+            SamusKnockbackMovement.Step(terrain, samus, knockback, frameCounter);
         }
         else if (SamusPoseMetadata.IsKnockbackPose(samus.Pose))
         {
             hurtEndingProbe = SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(
-                level, samus, frameCounter, IntroCollisionRoomObjects.Instance);
+                terrain, samus, frameCounter);
         }
         else if (CurrentFlashbackDemoInput?.Enabled == true &&
             (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose)))
         {
             // The demo's later run/jump records use the same input/movement order as the
             // discovery scene. This coordinator already animates and commits its pose.
-            IntroSamusDemoMovement.StepGroundedLeft(level, samus, demoInput,
+            IntroSamusDemoMovement.StepGroundedLeft(terrain, samus, demoInput,
                 CurrentFlashbackDemoInput.NewlyPressed, frameCounter, Random);
             groundedDemoStepped = true;
         }
         else if (samus.Pose == SamusPoseId.SpinJumpLeftPose)
         {
-            fallingMovement = SamusAerialMovement.StepSpinJump(SamusMovement.SpinJumping, level, samus,
-                demoInput, frameCounter, CurrentFlashbackDemoInput?.NewlyPressed ?? GameplayAction.None, IntroCollisionRoomObjects.Instance);
+            fallingMovement = SamusAerialMovement.StepSpinJump(SamusMovement.SpinJumping, terrain, samus,
+                demoInput, frameCounter, CurrentFlashbackDemoInput?.NewlyPressed ?? GameplayAction.None);
         }
         else if (SamusPoseMetadata.IsLeftFacingNormalJumpPose(samus.Pose))
         {
-            fallingMovement = SamusAerialMovement.StepNormalJump(SamusMovement.NormalJumping, level, samus,
-                demoInput, frameCounter, IntroCollisionRoomObjects.Instance);
+            fallingMovement = SamusAerialMovement.StepNormalJump(SamusMovement.NormalJumping, terrain, samus,
+                demoInput, frameCounter);
         }
         else if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose)
         {
@@ -837,11 +837,10 @@ public sealed class IntroCinematicState : IFrontendScreen
             // collision reports the laboratory floor.
             fallingMovement = SamusAerialMovement.StepFalling(SamusMovement.Falling,
 
-                level,
+                terrain,
                 samus,
                 demoInput,
-                frameCounter,
-                IntroCollisionRoomObjects.Instance);
+                frameCounter);
         }
 
         // Intro-demo state is not an animation shortcut. The intro demo's movement phase advances the same
@@ -859,7 +858,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         if (!animationTransitionApplied && hurtEndingProbe is { IsUnobstructedDownwardMovement: true })
         {
-            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, frameCounter, IntroCollisionRoomObjects.Instance);
+            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, terrain, frameCounter);
             animationTransitionApplied = transitionAccepted = true;
         }
 
@@ -912,8 +911,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         FlashbackDemoInput.Disable();
     }
 
-    /// <summary>Builds the flashback's room: collision only, which the flashback's own pictures show.</summary>
-    private static RoomLevelData CreateMotherBrainLevel() => RoomLevelData.CollisionOnly(
+    /// <summary>Builds the flashback's room: a plain terrain, which the flashback's own pictures show.</summary>
+    private static PlainTerrain CreateMotherBrainTerrain() => new(
         new Extent16<RoomBlocks>(IntroMotherBrainCollisionDefinitions.Columns, IntroMotherBrainCollisionDefinitions.RoomRows),
         IntroMotherBrainCollision.CreateCollision());
 

@@ -161,11 +161,11 @@ internal static class RidleyFullMovieVerification
         AssertTrue(samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked, "native grab installs command-zero alpha/beta pair");
         var bombs = CreateBombFixture();
         bombs.SetSharedCooldown(10);
-        bombs.StepFrame(new SamusTerrain { Level = runtime.Room.LoadedLevelData, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0, explosion: PowerBombExplosionStep.Skip);
+        bombs.StepFrame(SamusTerrain.InRoom(runtime.Room.LoadedLevelData, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0, explosion: PowerBombExplosionStep.Skip);
         AssertEqual(10, bombs.CooldownTimer, "native locked alpha preserves cooldown");
         NorfairRidleyDeath.ReleaseNorfairRidleyGrab(state, samus);
         AssertTrue(!samus.Control.InputLocked && samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked, "native release restores ordinary control");
-        bombs.StepFrame(new SamusTerrain { Level = runtime.Room.LoadedLevelData, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0, explosion: PowerBombExplosionStep.Skip);
+        bombs.StepFrame(SamusTerrain.InRoom(runtime.Room.LoadedLevelData, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0, explosion: PowerBombExplosionStep.Skip);
         AssertEqual(9, bombs.CooldownTimer, "native unlocked alpha resumes cooldown");
         // Native source8395: a descending lunge grabs standing Samus. Ground attacks
         // have their own reversal; this entry must negate after its lunge acceleration.
@@ -259,13 +259,13 @@ internal static class RidleyFullMovieVerification
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
             samus.HorizontalSpeed.CalculateTotalSpeed(UnsignedSixteenSixteen.FromRaw(0x00054321));
             samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(branch == 3 ? (ushort)0 : (ushort)5);
-            if (branch == 0) SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, room, samus, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
-            else if (branch == 1) SamusAerialMovement.StepFalling(SuperMetroid.Core.Samus.Movement.SamusMovement.Falling, room, samus, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            if (branch == 0) SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
+            else if (branch == 1) SamusAerialMovement.StepFalling(SuperMetroid.Core.Samus.Movement.SamusMovement.Falling, SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
             else if (branch == 2) SamusMorphBallMovement.StepSpringBallInAir(room, samus, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             else
             {
                 samus.Grapple.ReleasedMovementActive = true;
-                SamusAerialMovement.StepReleasedFromGrapple(room, samus, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+                SamusAerialMovement.StepReleasedFromGrapple(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
             }
             AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, $"branch {branch} clears base speed");
             AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Fraction, $"branch {branch} clears base fraction");
@@ -346,8 +346,8 @@ internal static class RidleyFullMovieVerification
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x97ff);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             var previous = FixedPosition<RoomPixels>.FromStoredParts(128, 0, 401, 0xb7ff);
-            SamusPosturePoseTransitions.ApplyMorphTransition(samus, level,
-                left ? SamusPoseId.MorphingTransitionLeftPose : SamusPoseId.MorphingTransitionRightPose, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            SamusPosturePoseTransitions.ApplyMorphTransition(samus, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
+                left ? SamusPoseId.MorphingTransitionLeftPose : SamusPoseId.MorphingTransitionRightPose, 0);
             AssertEqual((ushort)411, samus.Position.Y.Whole, "native morph center alignment");
             AssertEqual((ushort)0x97ff, samus.Kinematics.Position.Y.Fraction, "morph preserves current fraction");
             AssertEqual(previous.WithY(previous.Y.WithWhole(411)), samus.ApplyPreviousPositionWrites(previous),
@@ -356,8 +356,8 @@ internal static class RidleyFullMovieVerification
 
             samus.Pose = left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusPosturePoseTransitions.ApplyMorphTransition(samus, level,
-                left ? SamusPoseId.UnmorphingTransitionLeftPose : SamusPoseId.UnmorphingTransitionRightPose, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            SamusPosturePoseTransitions.ApplyMorphTransition(samus, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
+                left ? SamusPoseId.UnmorphingTransitionLeftPose : SamusPoseId.UnmorphingTransitionRightPose, 0);
             AssertEqual(previous.WithY(previous.Y.WithWhole(samus.Position.Y.Whole)), samus.ApplyPreviousPositionWrites(previous),
                 "zero alignment entry still replaces previous whole Y");
         }

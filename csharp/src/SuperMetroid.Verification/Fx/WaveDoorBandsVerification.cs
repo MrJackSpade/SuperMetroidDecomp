@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms.Doors;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -37,7 +38,7 @@ internal static class WaveDoorBandsVerification
                 behaviors[target - 16] = behaviors[target];
                 level = CreateRoom(new(16, 32), words, behaviors);
             }
-            ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, shot, roomObjects,
+            ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(SamusTerrain.InRoom(level, roomObjects), shot,
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusOverreads.StraddledTerrain);
             AssertEqual(inside ? ((y & 15) == 0 && y > 0 ? 2 : 1) : 0, roomObjects.Places.ActiveCount,
                 $"Wave door reaction at Y={y}, left={left}: XBA tests the original high byte");

@@ -631,10 +631,9 @@ public sealed class SamusState
     /// probe restores the source pose; simultaneous initial hits select stable crouch.
     /// </remarks>
     internal LargerPoseCollisionOutcome ResolveLargerPoseCollision(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusPoseId targetPose,
         int frameCounter,
-        ISamusRoomObjects roomObjects,
         out int centerAdjustment)
     {
         int targetRadius = SamusPoseMetadata.ReadPoseYRadius(targetPose);
@@ -669,15 +668,15 @@ public sealed class SamusState
 
         // Both probes test the room from where her body stands now, on copies of it; neither moves her.
         BlockMoveResult upward = ProbeChangedPoseVertical(
-            level,
+            terrain,
             displacement: SignedSixteenSixteen.FromWholePixels(-radiusDifference),
             scanLeftToRight: SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter),
-            targetPose, roomObjects);
+            targetPose);
         BlockMoveResult downward = ProbeChangedPoseVertical(
-            level,
+            terrain,
             displacement: SignedSixteenSixteen.FromWholePixels(radiusDifference),
             scanLeftToRight: SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter),
-            targetPose, roomObjects);
+            targetPose);
 
         if (upward.Collided && downward.Collided)
         {
@@ -699,10 +698,10 @@ public sealed class SamusState
             // The move up is tested against the ceiling. A hit keeps her previous pose; she does not crouch, since only one
             // side blocked her at first.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
-                level,
+                terrain,
                 displacement: SignedSixteenSixteen.FromWholePixels(centerAdjustment),
                 scanLeftToRight: SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter),
-                targetPose, roomObjects: roomObjects);
+                targetPose);
             if (opposite.Collided)
                 return LargerPoseCollisionOutcome.RetainSource;
             if (enemyUp.Collided)
@@ -716,10 +715,10 @@ public sealed class SamusState
 
             // The move down is tested against the floor, as the move up is against the ceiling.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
-                level,
+                terrain,
                 displacement: SignedSixteenSixteen.FromWholePixels(centerAdjustment),
                 scanLeftToRight: SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter),
-                targetPose, roomObjects: roomObjects);
+                targetPose);
             if (opposite.Collided)
                 return LargerPoseCollisionOutcome.RetainSource;
             if (enemyDown.Collided)
@@ -770,11 +769,10 @@ public sealed class SamusState
     /// the elevator ride's standing-pose gate tests it.
     /// </remarks>
     internal BlockMoveResult ProbeChangedPoseVertical(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SignedSixteenSixteen displacement,
         bool scanLeftToRight,
-        SamusPoseId targetPose,
-        ISamusRoomObjects roomObjects)
+        SamusPoseId targetPose)
     {
         int wholePixels = displacement.WholePixels;
         if (Math.Abs(wholePixels) >= SamusPoseCollisionDefinitions.IntermediateProbeExpansion)
@@ -792,7 +790,7 @@ public sealed class SamusState
         {
             SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
             BlockMoveResult result = SamusBlockCollision.ProbeChangedPoseVertical(
-                level, probe, this, targetPose, amount, scanLeftToRight, roomObjects);
+                terrain, probe, this, targetPose, amount, scanLeftToRight);
             // Submerging sand clears speed/gravity even during an observation.
             // Those reactions take hold without the probe's position becoming hers.
             Kinematics.VerticalVelocity = Kinematics.VerticalVelocity.WithSpeed(probe.VerticalVelocity.Speed);

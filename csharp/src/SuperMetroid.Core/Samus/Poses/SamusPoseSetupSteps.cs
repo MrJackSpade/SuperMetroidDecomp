@@ -46,8 +46,7 @@ internal sealed class SamusPoseSetupSteps
     {
         // The crouched aim poses use the ordinary neutral-jump transition
         // art for every crouched aim direction, keeping the crouching-turn poses' ten-pixel adjustment.
-        SamusPosturePoseTransitions.ApplyCrouchJumpTransition(samus, terrain.Level, targetPose, _clock.Counter,
-            terrain.RoomObjects);
+        SamusPosturePoseTransitions.ApplyCrouchJumpTransition(samus, terrain, targetPose, _clock.Counter);
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StartDamageBoost"/> setup.</summary>
@@ -104,8 +103,7 @@ internal sealed class SamusPoseSetupSteps
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.CrouchOrStand"/> setup.</summary>
     internal void SetUpCrouchOrStand(SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
     {
-        SamusPosturePoseTransitions.ApplyPostureTransition(samus, terrain.Level, targetPose, _clock.Counter,
-            terrain.RoomObjects);
+        SamusPosturePoseTransitions.ApplyPostureTransition(samus, terrain, targetPose, _clock.Counter);
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StandFromCrouch"/> setup.</summary>
@@ -114,15 +112,14 @@ internal sealed class SamusPoseSetupSteps
         // These direct facing-normal poses bypass the animated
         // aimed standing-transition family, but still run pose-expansion
         // collision before installing the final standing body.
-        SamusPosturePoseTransitions.ApplyDirectCrouchToStandingTransition(samus, terrain.Level, targetPose,
-            _clock.Counter, terrain.RoomObjects);
+        SamusPosturePoseTransitions.ApplyDirectCrouchToStandingTransition(samus, terrain, targetPose,
+            _clock.Counter);
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.MorphOrUnmorph"/> setup.</summary>
     internal void SetUpMorphOrUnmorph(SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
     {
-        SamusPosturePoseTransitions.ApplyMorphTransition(samus, terrain.Level, targetPose, _clock.Counter,
-            terrain.RoomObjects);
+        SamusPosturePoseTransitions.ApplyMorphTransition(samus, terrain, targetPose, _clock.Counter);
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeBallPose"/> setup.</summary>
@@ -145,8 +142,8 @@ internal sealed class SamusPoseSetupSteps
     {
         // An animation- or collision-selected falling body unmorphs through ordinary expansion collision and keeps
         // falling; posture transitions have no input transitions.
-        SamusPosturePoseTransitions.ApplyUnmorphToFallingTransition(samus, terrain.Level, targetPose,
-            _clock.Counter, terrain.RoomObjects);
+        SamusPosturePoseTransitions.ApplyUnmorphToFallingTransition(samus, terrain, targetPose,
+            _clock.Counter);
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.TurnInAir"/> setup.</summary>
@@ -156,8 +153,7 @@ internal sealed class SamusPoseSetupSteps
         // reads the source pose's shot direction, chooses the exact
         // aimed aerial turn art when needed, folds momentum, and runs compact
         // pose-expansion collision before committing the turn.
-        SamusAerialPoseTransitions.ApplyAerialTurn(samus, terrain.Level, _clock.Counter,
-            terrain.RoomObjects);
+        SamusAerialPoseTransitions.ApplyAerialTurn(samus, terrain, _clock.Counter);
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeSpinDirection"/> setup.</summary>
@@ -175,8 +171,8 @@ internal sealed class SamusPoseSetupSteps
         // directly from the right wall jump to the right gun-extended normal jump. The jump's start performs
         // changed-pose collision for every radius expansion; a rejected
         // body leaves the compact source pose installed.
-        SamusAerialPoseTransitions.ApplySpinOrWallJumpToNormalJumpTransition(samus, terrain.Level, targetPose,
-            _clock.Counter, _playerActions.NewlyPressed, terrain.RoomObjects);
+        SamusAerialPoseTransitions.ApplySpinOrWallJumpToNormalJumpTransition(samus, terrain, targetPose,
+            _clock.Counter, _playerActions.NewlyPressed);
     }
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeAerialAim"/> setup.</summary>
@@ -188,8 +184,7 @@ internal sealed class SamusPoseSetupSteps
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeCompactAerialPose"/> setup.</summary>
     internal void SetUpChangeCompactAerialPose(SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
     {
-        SamusAerialPoseTransitions.ApplyCompactAerialTransition(samus, terrain.Level, targetPose, _clock.Counter,
-            terrain.RoomObjects);
+        SamusAerialPoseTransitions.ApplyCompactAerialTransition(samus, terrain, targetPose, _clock.Counter);
     }
 
     /// <summary>Runs a shinespark windup's direction setup, launching the spark <paramref name="direction"/> names the way the target faces.</summary>
@@ -212,8 +207,7 @@ internal sealed class SamusPoseSetupSteps
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StandUpFromDraygonHold"/> setup.</summary>
     internal void SetUpStandUpFromDraygonHold(SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
     {
-        SamusPosturePoseTransitions.ApplyDraygonHoldStandUp(samus, terrain.Level, targetPose, _clock.Counter,
-            terrain.RoomObjects);
+        SamusPosturePoseTransitions.ApplyDraygonHoldStandUp(samus, terrain, targetPose, _clock.Counter);
     }
 
     /// <summary>Runs the <see cref="SamusNoTransitionSetup.StopKnockback"/> setup.</summary>

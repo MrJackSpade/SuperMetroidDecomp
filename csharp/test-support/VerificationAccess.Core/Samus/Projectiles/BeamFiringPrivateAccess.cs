@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Movement;
+
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
@@ -12,12 +14,12 @@ internal static class BeamFiringPrivateAccess
     extension(global::SuperMetroid.Core.Samus.Projectiles.BeamFiring self)
     {
         /// <summary>The private method <c>TryFireBeam</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Samus.Projectiles.BeamShot? TryFireBeam(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Input.GameplayAction controllerNewInput, global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem samusBombs, global::SuperMetroid.Core.Samus.ISamusRoomObjects roomObjects, bool charged) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Samus.Projectiles.BeamFiring, global::SuperMetroid.Core.Samus.Projectiles.BeamShot?>(self, "TryFireBeam", [typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Input.GameplayAction), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem), typeof(global::SuperMetroid.Core.Samus.ISamusRoomObjects), typeof(bool)], new object?[] { level, samus, controllerNewInput, samusBombs, roomObjects, charged });
+        internal global::SuperMetroid.Core.Samus.Projectiles.BeamShot? TryFireBeam(SamusTerrain terrain, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Input.GameplayAction controllerNewInput, global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem samusBombs, bool charged) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Samus.Projectiles.BeamFiring, global::SuperMetroid.Core.Samus.Projectiles.BeamShot?>(self, "TryFireBeam", [typeof(global::SuperMetroid.Core.Samus.Movement.SamusTerrain), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Input.GameplayAction), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem), typeof(bool)], new object?[] { terrain, samus, controllerNewInput, samusBombs, charged });
 
         /// <summary>The private method <c>TryFireHyperBeam</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Samus.Projectiles.BeamShot? TryFireHyperBeam(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem samusBombs, global::SuperMetroid.Core.Samus.ISamusRoomObjects roomObjects) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Samus.Projectiles.BeamFiring, global::SuperMetroid.Core.Samus.Projectiles.BeamShot?>(self, "TryFireHyperBeam", [typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem), typeof(global::SuperMetroid.Core.Samus.ISamusRoomObjects)], new object?[] { level, samus, samusBombs, roomObjects });
+        internal global::SuperMetroid.Core.Samus.Projectiles.BeamShot? TryFireHyperBeam(SamusTerrain terrain, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem samusBombs) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Samus.Projectiles.BeamFiring, global::SuperMetroid.Core.Samus.Projectiles.BeamShot?>(self, "TryFireHyperBeam", [typeof(global::SuperMetroid.Core.Samus.Movement.SamusTerrain), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem)], new object?[] { terrain, samus, samusBombs });
     }
 
     /// <summary>The private static members checks name.</summary>

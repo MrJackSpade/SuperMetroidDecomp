@@ -50,13 +50,12 @@ public sealed class SamusCeresRidleyEjectionState
 
     /// <summary>Runs one update of the shove.</summary>
     internal void Step(
-        RoomLevelData level,
-        ISamusRoomObjects roomObjects,
+        SamusTerrain terrain,
         SamusState samus,
         int cameraX,
         int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
         if (!IsActive)
             throw new InvalidOperationException("Ceres Ridley ejection is not active.");
@@ -104,7 +103,7 @@ public sealed class SamusCeresRidleyEjectionState
             SamusPoseMetadata.ReadMovementType(samus));
         var requestedX = SamusHorizontalDisplacement.Toward(
             PushDirection ?? throw new InvalidOperationException("Ceres Ridley's shove moves Samus toward no wall."), samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
 
         if (horizontal.Collided)
         {
@@ -128,6 +127,6 @@ public sealed class SamusCeresRidleyEjectionState
         UnsignedSixteenSixteen fallSpeed = samus.Kinematics.VerticalVelocity.Speed;
         if (fallSpeed.IsSlowerThan(SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed))
             samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(fallSpeed + samus.Kinematics.YAcceleration);
-        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SamusVerticalVelocity.Falling(samus.Kinematics.VerticalVelocity.Speed).Displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+        SamusBlockCollision.MoveVertical(terrain, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SamusVerticalVelocity.Falling(samus.Kinematics.VerticalVelocity.Speed).Displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
     }
 }

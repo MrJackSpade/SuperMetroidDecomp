@@ -73,7 +73,7 @@ internal static class ScrollObjectsVerification
         {
             var insideSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(72, centerY)) };
             insideSamus.Kinematics.Radius = insideSamus.Kinematics.Radius.WithY(radius);
-            SamusInsideBlockReactions.PrepareFrame(level, insideSamus, roomHasPower: true, roomObjects: roomObjects);
+            SamusInsideBlockReactions.PrepareFrame(SamusTerrain.InRoom(level, roomObjects), insideSamus, roomHasPower: true);
             AssertEqual(shouldWake, roomObjects.ScrollObjectTriggered(origin),
                 "inside scroll reaction admits only a separately visited center, not feet/head");
             roomObjects.Step(level, scrolls);
@@ -100,7 +100,7 @@ internal static class ScrollObjectsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
             Radius = new(8, 7),
         };
-        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, body, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
+        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, roomObjects), body, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
         AssertTrue(!movement.Collided,
             "scroll extension remains traversable special air");
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),
@@ -157,10 +157,9 @@ internal static class ScrollObjectsVerification
         bombJump.Kinematics.VerticalVelocity = bombJump.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(1, 0));
         SamusBombJumpMovement.Step(
 
-            level,
+            SamusTerrain.InRoom(level, roomObjects),
             bombJump,
-            frameCounter: 0,
-            roomObjects);
+            frameCounter: 0);
         AssertTrue(bombJump.BombJumpActive,
             "unobstructed scroll extension does not terminate bomb-jump ascent");
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),

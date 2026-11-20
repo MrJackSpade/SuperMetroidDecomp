@@ -65,9 +65,9 @@ internal static class HeroShotsVerification
                         cameraX = unchecked((ushort)(SixteenSixteenWords.WholeOf(next) - (cameraMode == 2 ? 319u : 320u)));
                     }
                 }
-                shared.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
+                shared.StepFrame(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, input, input);
                 SamusProjectileSlotObservation beforeStep = projectiles.ObserveSlots();
-                projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new(cameraX, cameraY), shared, new SharedGameState(new SharedRandom()));
+                projectiles.StepFrame(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new(cameraX, cameraY), shared, new SharedGameState(new SharedRandom()));
                 // A shot fired this pass is a new projectile in the place.
                 shot = projectiles.Shots[0];
                 if (native is not null)

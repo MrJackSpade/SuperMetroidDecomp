@@ -121,8 +121,8 @@ internal static class GModeGateGlitchVerification
             }
 
             GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
-            bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
-            shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, cameraPosition: new(0, 224), samusBombs: bombs, progression: new SharedGameState(new SharedRandom()));
+            bombs.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, input, input);
+            shots.StepFrame(SamusTerrain.InRoom(level, roomObjects), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, cameraPosition: new(0, 224), samusBombs: bombs, progression: new SharedGameState(new SharedRandom()));
 
             SamusProjectile shot = shots.Shots[0];
             if (shot.IsOccupied && shot.Position.X.Whole < 112 && passedGateFrame < 0)
@@ -197,10 +197,9 @@ internal static class GModeGateGlitchVerification
             samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(4);
             samus.HorizontalSpeed.HasRunningMomentum = true;
             SamusInsideBlockReactions.PrepareFrame(
-                level,
+                SamusTerrain.InRoom(level, roomObjects),
                 samus,
-                roomHasPower: true,
-                roomObjects: roomObjects);
+                roomHasPower: true);
             AssertTrue(roomObjects.Places.ActiveCount > before && roomObjects.Places.ActiveCount <= before + 3,
                 $"G-Mode sand contact {contact} consumes its bottom/center/top suspended PLM slots");
             AssertTrue(samus.Kinematics.ExtraDisplacement.Y.RawValue != 0,
@@ -213,10 +212,9 @@ internal static class GModeGateGlitchVerification
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(4);
         samus.HorizontalSpeed.HasRunningMomentum = true;
         SamusInsideBlockReactions.PrepareFrame(
-            level,
+            SamusTerrain.InRoom(level, roomObjects),
             samus,
-            roomHasPower: true,
-            roomObjects: roomObjects);
+            roomHasPower: true);
         AssertEqual(40, roomObjects.Places.ActiveCount,
             "forty-first G-Mode sand contact cannot exceed the cartridge PLM pool");
         AssertEqual(0, samus.Kinematics.ExtraDisplacement.Y.RawValue,
@@ -335,7 +333,7 @@ internal static class GModeGateGlitchVerification
             RoomLevelData controlLevel = CreateLevel();
             var controlObjects = RoomObjectFixtures.Unbound();
             SamusState controlSamus = CreateSamus();
-            BlockMoveResult control = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = controlLevel, RoomObjects = controlObjects }, controlSamus.Kinematics, controlSamus, controlSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
+            BlockMoveResult control = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(controlLevel, controlObjects), controlSamus.Kinematics, controlSamus, controlSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
             AssertTrue(control.Collided,
                 $"available PLM allocation retains ordinary solid contact for {description}");
 
@@ -344,7 +342,7 @@ internal static class GModeGateGlitchVerification
             FillSuspendedObjectPool(roomObjects);
             SamusState samus = CreateSamus();
 
-            BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
+            BlockMoveResult result = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(level, roomObjects), samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
             AssertEqual(expectedPass, !result.Collided,
                 $"full PLM pool gives cartridge default collision for {description}");
             AssertEqual(collisionType,

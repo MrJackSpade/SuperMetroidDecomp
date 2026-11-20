@@ -165,7 +165,7 @@ internal static class ResumeChargingSoundCancelVerification
         internal void Fire(ProjectileButtonInput buttons)
         {
             slotsBeforeFire = Projectiles.ObserveSlots();
-            Projectiles.FireFromHud(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, Samus, buttons, Bombs, projectileProducerEnabled: true);
+            Projectiles.FireFromHud(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), Samus, buttons, Bombs, projectileProducerEnabled: true);
         }
 
         /// <summary>Runs the post-draw sound pass with <paramref name="held"/> held, Samus's movement unchanged.</summary>

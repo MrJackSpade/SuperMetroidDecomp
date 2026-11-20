@@ -91,7 +91,7 @@ public static class SamusKnockbackMovement
             // input poses before the knockback start initializes knockback. Scripted cinematic
             // scenes without room terrain retain their explicitly positioned behavior.
             if (poseCollision is { } collision && !SamusGroundedPoseTransitions.TryResolveKnockbackPoseCollision(samus,
-                    collision.Terrain.Level, targetPose, collision.FrameCounter, collision.Terrain.RoomObjects))
+                    collision.Terrain, targetPose, collision.FrameCounter))
                 return false;
             samus.Pose = targetPose;
             // The interrupted pose commits after movement. The input phase publishes its radius
@@ -160,13 +160,12 @@ public static class SamusKnockbackMovement
 
     /// <summary>Runs one frame of the movement of <paramref name="knockback"/>, the knockback that moves Samus.</summary>
     internal static KnockbackMovementResult Step(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
         SamusKnockback.Moving knockback,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
         Ensure.NotNull(knockback);
 
@@ -180,15 +179,15 @@ public static class SamusKnockbackMovement
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(SamusPoseMetadata.ReadMovementType(samus));
         var requestedX = SamusHorizontalDisplacement.Toward(
             samus.KnockbackXDirection == KnockbackHorizontalDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
         // Knockback moves Samus as her ordinary sideways movement does: hitting a wall ends her horizontal momentum
         // before the vertical pass, so the next frame does not carry her on from the wall.
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
         BlockMoveResult vertical = knockback.Direction is SamusKnockbackDirection.UpLeft or SamusKnockbackDirection.UpRight
-            ? MoveWithSharedVerticalSpeedCalculation(level, samus, frameCounter, roomObjects)
-            : MoveDownWithoutSpeedCalculation(level, samus, frameCounter, roomObjects);
+            ? MoveWithSharedVerticalSpeedCalculation(terrain, samus, frameCounter)
+            : MoveDownWithoutSpeedCalculation(terrain, samus, frameCounter);
 
         // A downward knockback's landing is read here, before the landing clears these values. The result keeps the
         // impact so the runtime can run the shared landing presentation at the same point of the update.
@@ -317,28 +316,26 @@ public static class SamusKnockbackMovement
 
     /// <summary>Uses ordinary aerial vertical speed calculations during rising knockback, including the direction reversal.</summary>
     private static BlockMoveResult MoveWithSharedVerticalSpeedCalculation(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
         // Knockback runs the same vertical step as ordinary aerial movement, its reversal from rising to falling
         // included. The Rinka's hurt timer expires while Samus is still rising, and ordinary falling takes over after it.
-        return SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, frameCounter, out _, out _);
+        return SamusAerialMovement.StepVerticalWithSpeedCalculations(terrain, samus, frameCounter, out _, out _);
     }
 
     /// <summary>Applies externally supplied downward displacement through the shared vertical collision path without accelerating it.</summary>
     private static BlockMoveResult MoveDownWithoutSpeedCalculation(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
         // Any external Y displacement takes priority over the normal total-X-plus-one
         // slope-following probe, as in every no-speed vertical move; a downward knockback takes the exact same step.
         SignedSixteenSixteen requested = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
             samus.HorizontalSpeed);
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = requested, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+        return SamusBlockCollision.MoveVertical(terrain, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = requested, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
     }
 }

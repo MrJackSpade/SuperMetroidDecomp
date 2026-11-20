@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -14,11 +14,11 @@ internal static class IntroMotherBrainCollisionDefinitions
     /// <summary>The room's height in blocks; the rows under the floor are open air.</summary>
     internal const int RoomRows = 16;
     /// <summary>A solid block.</summary>
-    internal const RoomCollisionType Solid = RoomCollisionType.SolidBlock;
+    internal const PlainTerrainBlock Solid = PlainTerrainBlock.Solid;
     /// <summary>A slope block: the pillar's and the ledge's tops.</summary>
-    internal const RoomCollisionType PlatformTop = RoomCollisionType.Slope;
+    internal const PlainTerrainBlock PlatformTop = PlainTerrainBlock.Slope;
     /// <summary>An air block: every block the terrain leaves open.</summary>
-    internal const RoomCollisionType Empty = RoomCollisionType.Air;
+    internal const PlainTerrainBlock Empty = PlainTerrainBlock.Air;
     /// <summary>The rows of the full-width ceiling and the full-width floor.</summary>
     internal const int CeilingRow = 1, FloorRow = 13;
     /// <summary>

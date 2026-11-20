@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
@@ -34,7 +35,7 @@ internal static class WallJumpDustVerification
             var earlier = SamusParticle.AtStep(SamusParticleKind.SurfaceSplash, 1, SamusParticleStart.Shown(9), new(55, 66), Offset16<RoomPixels>.Zero);
             samus.Presentation.Particles.Add(earlier);
             if (grapple) SamusAerialPoseTransitions.ApplyGrappleWallJump(samus);
-            else SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus, SuperMetroid.Verification.Harness.VerificationHelpersVerification.CreateEmptyRoom(new(64, 64)), 0, SamusRoomObjectFixtures.Uninstalled);
+            else SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus, SamusTerrain.InRoom(SuperMetroid.Verification.Harness.VerificationHelpersVerification.CreateEmptyRoom(new(64, 64)), SamusRoomObjectFixtures.Uninstalled), 0);
 
             bool suppressed = medium is 1 or 2;
             IReadOnlyList<SamusParticle> particles = samus.Presentation.Particles.All;

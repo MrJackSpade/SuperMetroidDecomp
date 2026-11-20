@@ -100,8 +100,8 @@ internal static class NoobTubeObjectVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(blockX * 16 + 8, blockY * 16 + 8)),
         };
         SeedStationaryGrappleCollisionProbe(grappleSamus);
-        var grappleHit = SamusGrappleMovement.StepFiringAndCommit(level, grappleSamus,
-            GameplayAction.Shoot, roomObjects, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+        var grappleHit = SamusGrappleMovement.StepFiringAndCommit(SamusTerrain.InRoom(level, roomObjects), grappleSamus,
+            GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "solid resident trigger cancels the grapple endpoint");
         AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.Beam), PendingTubeHit(roomObjects),
@@ -132,9 +132,8 @@ internal static class NoobTubeObjectVerification
             (int)level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "intact n00b-tube draw installs live type-$C collision");
         SamusBombProjectileSystem.ReactToBombedBlock(
-            level,
+            SamusTerrain.InRoom(level, roomObjects),
             new(blockX, blockY),
-            roomObjects,
             SamusBombProjectileSystem.PowerBombType);
         AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "Power Bomb observes the intact tube's type-$C collision");

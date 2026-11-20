@@ -83,11 +83,11 @@ internal static class SamusGrappleMovementAccess
     {
         /// <summary>Commits the step's pending pose through the production commit the frame's pose update calls.</summary>
         /// <returns>The camera's previous position a connection pose snaps to, or none when the step left no connection.</returns>
-        internal Position16<RoomPixels>? CommitPendingPose(SamusState samus, RoomLevelData level, int frameCounter, ISamusRoomObjects roomObjects)
+        internal Position16<RoomPixels>? CommitPendingPose(SamusState samus, SamusTerrain terrain, int frameCounter)
         {
             if (self.PendingDropPose is { } dropPose)
             {
-                SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus, level, dropPose, frameCounter, roomObjects);
+                SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus, terrain, dropPose, frameCounter);
                 return null;
             }
             if (self.PendingReleasePose is { } releasePose)
@@ -109,14 +109,13 @@ internal static class SamusGrappleMovementAccess
         /// frame whose pose update nothing outranks does.
         /// </summary>
         internal static GrappleMovementResult StepFiringAndCommit(
-            RoomLevelData level,
+            SamusTerrain terrain,
             SamusState samus,
             GameplayAction controllerInput,
-            ISamusRoomObjects roomObjects,
             Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
         {
-            GrappleMovementResult step = SamusGrappleMovement.StepFiring(level, samus, controllerInput, roomObjects, enemyCollision);
-            step.CommitPendingPose(samus, level, frameCounter: 0, roomObjects);
+            GrappleMovementResult step = SamusGrappleMovement.StepFiring(terrain, samus, controllerInput, enemyCollision);
+            step.CommitPendingPose(samus, terrain, frameCounter: 0);
             return step;
         }
 
@@ -133,7 +132,7 @@ internal static class SamusGrappleMovementAccess
             Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
         {
             GrappleMovementResult step = SamusGrappleMovement.Step(terrain, samus, controllerInput, newlyPressedInput, enemyCollision);
-            step.CommitPendingPose(samus, terrain.Level, frameCounter, terrain.RoomObjects);
+            step.CommitPendingPose(samus, terrain, frameCounter);
             return step;
         }
     }

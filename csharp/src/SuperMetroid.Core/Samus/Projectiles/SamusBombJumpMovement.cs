@@ -35,14 +35,12 @@ public static class SamusBombJumpMovement
 
     /// <summary>Runs one bomb-jump frame.</summary>
     internal static BombJumpMovementResult Step(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
-        Ensure.NotNull(roomObjects);
         if (!samus.BombJumpActive)
             throw new InvalidOperationException("Bomb-jump movement requires an active jump.");
 
@@ -59,7 +57,7 @@ public static class SamusBombJumpMovement
                 SamusHorizontalSpeedDefinitions.DiagonalBombJump);
             var displacement = SamusHorizontalDisplacement.Toward(
                 direction == SamusBombJumpDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right, samus, baseSpeed);
-            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
+            horizontal = SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
             // A wall stops her horizontal acceleration but does not end the rise.
             if (horizontal.Value.Collided)
                 samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
@@ -87,10 +85,9 @@ public static class SamusBombJumpMovement
             return End(samus, null);
 
         (BlockMoveResult vertical, bool movedDown) = MoveUpWithGravity(
-            level,
+            terrain,
             samus,
-            frameCounter,
-            roomObjects);
+            frameCounter);
         // Only a ceiling ends the rise; a shaft wall does not, and she stays in the bomb jump.
         if (vertical.Collided)
             return End(samus, vertical);
@@ -102,10 +99,9 @@ public static class SamusBombJumpMovement
 
     /// <summary>Applies bomb-jump gravity and vertical block collision, reporting whether she has passed the apex and moved down.</summary>
     private static BombJumpRise MoveUpWithGravity(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
         // The rise moves by its OLD velocity before gravity slows it; it never falls here, so the terminal speed takes no
         // part.
@@ -113,7 +109,7 @@ public static class SamusBombJumpMovement
         SignedSixteenSixteen rise = state.VerticalVelocity.Displacement;
         state.VerticalVelocity = state.VerticalVelocity.AfterGravity(state.YAcceleration, SamusVerticalMotionDefinitions.TerminalFallWholeSpeed);
         SignedSixteenSixteen displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(state, rise);
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(terrain, state, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
         if (result.Collided)
         {
             state.VerticalVelocity = SamusVerticalVelocity.FallFromRest;

@@ -346,12 +346,12 @@ public sealed class SamusShinesparkState
         // Each axis ends by capping how far the camera's previous position trails Samus.
         if (Phase is ShinesparkPhase.Horizontal or ShinesparkPhase.Diagonal)
         {
-            horizontal = MoveX(terrain.Level, samus, terrain.RoomObjects);
+            horizontal = MoveX(terrain, samus);
             CapPreviousX(samus, frame.PreviousCheckpoint);
         }
         if (Phase is ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal)
         {
-            vertical = MoveY(terrain.Level, samus, frame.FrameCounter, terrain.RoomObjects);
+            vertical = MoveY(terrain, samus, frame.FrameCounter);
             CapPreviousY(samus, frame.PreviousCheckpoint);
         }
 
@@ -644,9 +644,8 @@ public sealed class SamusShinesparkState
 
     /// <summary>Accelerates horizontal spark speed up to <see cref="ShinesparkDefinitions.MostRunSpeed"/> and probes breakable room blocks.</summary>
     private BlockMoveResult MoveX(
-        RoomLevelData level,
-        SamusState samus,
-        ISamusRoomObjects roomObjects)
+        SamusTerrain terrain,
+        SamusState samus)
     {
         ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.SparkShadeFrames);
         samus.HorizontalSpeed.ExtraRunSpeed += samus.Kinematics.YAcceleration;
@@ -656,15 +655,14 @@ public sealed class SamusShinesparkState
         }
 
         var displacement = SamusHorizontalDisplacement.TowardFacing(samus, baseSpeed: default);
-        return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
+        return SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
     }
 
     /// <summary>Accumulates upward spark acceleration while capping only the temporary collision displacement and probing solid enemies first.</summary>
     private BlockMoveResult MoveY(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
         ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.SparkShadeFrames);
         _acceleration.Accelerate(samus.Kinematics.YAcceleration.AsDisplacement());
@@ -693,7 +691,7 @@ public sealed class SamusShinesparkState
         if (enemy.Collided)
             return new BlockMoveResult(SignedSixteenSixteen.Zero, true, EnemyCollision: enemy);
 
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), CanBreakBombBlocks = true, IncludeSolidEnemies = false });
+        return SamusBlockCollision.MoveVertical(terrain, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), CanBreakBombBlocks = true, IncludeSolidEnemies = false });
     }
 
     /// <summary>The spark's hold on Samus's movement (<see cref="Movement"/>): from the windup, through the launch and the crash.</summary>

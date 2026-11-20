@@ -55,7 +55,7 @@ internal static class BeamCallbackTablesVerification
             var shared = CreateBombFixture();
             if (initializeOnly)
             {
-                projectiles.Firing.TryFireBeam(room, samus, GameplayAction.Shoot, shared, SamusRoomObjectFixtures.Uninstalled, charged);
+                projectiles.Firing.TryFireBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, shared, charged);
                 AssertTrue(projectiles.Shots[0].IsOccupied || projectiles.Shots[0].InstructionPointer != 0,
                     $"charged={charged} beam {beamType:X1} initializes");
                 AssertEqual(SamusBeamShotBehaviors.Resolve(charged, SamusBeamCombinationTableOrder.FromTableIndex(beamType)),
@@ -67,11 +67,11 @@ internal static class BeamCallbackTablesVerification
             {
                 for (int frame = 0; frame < 60; frame++)
                 {
-                    shared.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
-                    projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+                    shared.StepFrame(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
+                    projectiles.StepFrame(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
                 }
             }
-            SoundRequest? firingSound = projectiles.StepFrameFiringSound(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = charged ? 0 : GameplayAction.Shoot, ControllerNewInput = charged ? 0 : GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+            SoundRequest? firingSound = projectiles.StepFrameFiringSound(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = charged ? 0 : GameplayAction.Shoot, ControllerNewInput = charged ? 0 : GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
             AssertTrue(firingSound is not null,
                 $"charged={charged} beam {beamType:X1} fires");
             // The fixture starts with every ordinary slot empty, so the fired shot is the

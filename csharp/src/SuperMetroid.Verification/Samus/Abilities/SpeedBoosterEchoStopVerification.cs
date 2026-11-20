@@ -45,7 +45,7 @@ internal static class SpeedBoosterEchoStopVerification
         {
             samus.LiquidPhysics.BeginFrameSoundRequests();
             if (frame == 40)
-                SamusGroundedMovement.StepRanIntoWall(level, samus, 40, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+                SamusGroundedMovement.StepRanIntoWall(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, 40);
             SamusPostDrawAudio.Step(samus, SamusMovementType.RanIntoWall, 0);
             foreach (var request in samus.LiquidPhysics.SoundRequests)
             {
@@ -127,7 +127,7 @@ internal static class SpeedBoosterEchoStopVerification
         samus.LiquidPhysics.BeginFrameSoundRequests();
         var sand = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80), 16).ToArray(), new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid(), []);
         // The sand room's quicksand consults its room's places, so the check installs the quicksand objects that room has.
-        SamusInsideBlockReactions.PrepareFrame(sand, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        SamusInsideBlockReactions.PrepareFrame(SamusTerrain.InRoom(sand, SamusRoomObjectFixtures.WithQuicksand()), samus, roomHasPower: true);
         AssertTrue(!speed.EchoSoundPlaying, "quicksand silently ends the echo sound");
         SamusPostDrawAudio.Step(samus, SamusMovementType.Standing, 0);
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count, "quicksand silently suppresses the post-draw stop");

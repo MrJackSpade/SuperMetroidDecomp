@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
@@ -30,10 +31,9 @@ internal sealed class ChainsawFuse
 
     /// <summary>Runs the Power Bomb fuse over the shot, then the Power Bomb's block reactions.</summary>
     internal void RunPowerBombFuse(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusProjectile shot,
-        SamusBombProjectileSystem samusBombs,
-        ISamusRoomObjects roomObjects)
+        SamusBombProjectileSystem samusBombs)
     {
         PowerBombFuseStep fuse = SamusPowerBombFuse.Step(shot.BeamFuse, samusBombs.PowerBombExplosion.IsArmed);
         // On a beam the fuse's switch to the fast animation moves the beam's own animation as far as a bomb's fast
@@ -53,10 +53,9 @@ internal sealed class ChainsawFuse
         if (fuse.BoundaryReacts)
         {
             SamusBombProjectileSystem.ReactToPowerBombBoundary(
-                level,
+                terrain,
                 samusBombs.PowerBombExplosion.Position,
                 samusBombs.PowerBombExplosion.Blast.ExplosionRadius,
-                roomObjects,
                 shot.StrikingType);
         }
     }

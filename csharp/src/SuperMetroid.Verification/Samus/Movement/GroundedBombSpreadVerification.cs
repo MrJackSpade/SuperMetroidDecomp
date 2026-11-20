@@ -32,12 +32,12 @@ internal static class GroundedBombSpreadVerification
             GameplayAction shootDown = (GameplayAction.Shoot | GameplayAction.Down);
             for (int tick = 0; tick < hold; tick++)
             {
-                bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, shootDown, 0);
+                bombs.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, shootDown, 0);
                 AssertTrue(bombs.Bombs.All(slot => !slot.IsActive) && bombs.BombCounter == 0, "Down+Shoot postpones grounded spread");
                 AssertEqual(BeamChargeDefinitions.FullyChargedCounter, samus.BeamCharge.UpdatesHeld, "retained spread charge is not consumed while holding Down");
                 AssertEqual((ushort)(tick + 1), samus.BombSpreadCharge.Age, "grounded spread hold counter advances once per tick");
             }
-            bool releasedCharge = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, keepDown ? shootDown : GameplayAction.Shoot, 0);
+            bool releasedCharge = bombs.StepFrameConsumingCharge(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, keepDown ? shootDown : GameplayAction.Shoot, 0);
             AssertTrue(bombs.Bombs.All(slot => slot.IsActive && slot.IsBombSpread) && releasedCharge, "release or timeout creates spread and consumes charge");
             AssertEqual(5, bombs.BombCounter, "spread fills all five bomb slots");
             AssertEqual(0, samus.BeamCharge.UpdatesHeld, "spawn clears actual flare counter");
@@ -46,7 +46,7 @@ internal static class GroundedBombSpreadVerification
             // acceleration precedes integration, including the spawning alpha call.
             for (int tick = 1; tick <= 60; tick++)
             {
-                if (tick != 1) bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, GameplayAction.Shoot, 0);
+                if (tick != 1) bombs.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, 0);
                 for (int slotIndex = 0; slotIndex < bombs.Bombs.Count; slotIndex++)
                 {
                     var slot = bombs.Bombs[slotIndex];

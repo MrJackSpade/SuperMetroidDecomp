@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Rooms;
 
@@ -14,7 +15,7 @@ internal sealed class MaridiaElevatubeMain(MaridiaElevatubeRoomMainState tube) :
     /// <inheritdoc/>
     public RoomMainOutcome Run(RoomMainUpdate update)
     {
-        tube.Step(update.Room.LevelData, update.Player.IntroducedSamus, update.FrameCounter, update.Room.RoomObjects);
+        tube.Step(update.Room.SamusTerrain, update.Player.IntroducedSamus, update.FrameCounter);
         return RoomMainOutcome.None;
     }
 }

@@ -29,7 +29,7 @@ internal static class BombJumpWallVerification
         samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x4000);
         samus.RequestMorphedBombJump(SamusBombJumpDirection.Right);
         SamusBombJumpMovement.Start(samus);
-        var result = SamusBombJumpMovement.Step(level, samus, 0, RoomObjectFixtures.Unbound());
+        var result = SamusBombJumpMovement.Step(SamusTerrain.InRoom(level, RoomObjectFixtures.Unbound()), samus, 0);
         // Only the X mover's wall hit clears the base speed the bomb-jump calculator just accelerated.
         AssertTrue(samus.HorizontalSpeed.BaseSpeed.RawValue == 0, $"diagonal bomb jump hits the shaft wall (X={samus.Kinematics.Position.X.Whole:X4}{samus.Kinematics.Position.X.Fraction:X4}, radius={samus.Kinematics.Radius.X})");
         AssertTrue(result.Vertical is { Collided: false }, "shaft wall leaves vertical travel clear");
@@ -75,18 +75,18 @@ internal static class BombJumpWallVerification
         SamusPoseMetadata.RefreshCollisionRadii(hurt);
         SamusPresentation.InitializeAnimation(hurt);
         SamusPoseMetadata.PublishBombJumpDirection(hurt, SamusBombJumpDirection.Straight);
-        AssertTrue(SamusPoseMetadata.TrySetupPublishedBombJump(hurt, level, false, 0, controllerNewInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled), "hurt pose admits bomb start");
+        AssertTrue(SamusPoseMetadata.TrySetupPublishedBombJump(hurt, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), false, 0, controllerNewInput: 0), "hurt pose admits bomb start");
         SamusBombJumpMovement.Start(hurt);
         hurt.Kinematics.VerticalVelocity = hurt.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(1, 0));
         hurt.Kinematics.YAcceleration = hurt.Kinematics.YAcceleration.WithFraction(0x4000);
-        SamusBombJumpMovement.Step(level, hurt, 0, RoomObjectFixtures.Unbound());
+        SamusBombJumpMovement.Step(SamusTerrain.InRoom(level, RoomObjectFixtures.Unbound()), hurt, 0);
         AssertTrue(hurt.BombJumpPoseInputLocked, "one-pixel speed keeps input locked despite crossing threshold this frame");
-        SamusBombJumpMovement.Step(level, hurt, 1, RoomObjectFixtures.Unbound());
+        SamusBombJumpMovement.Step(SamusTerrain.InRoom(level, RoomObjectFixtures.Unbound()), hurt, 1);
         AssertTrue(!hurt.BombJumpPoseInputLocked, "fractional upward speed restores next frame's input");
         AssertTrue(hurt.BombJumpActive, "restoring input does not prematurely end upward movement");
         AssertEqual(SamusPoseId.KnockbackRightPose, hurt.Pose, "restoring input retains damaged pose until an actual transition");
         SamusPoseMetadata.PublishBombJumpDirection(hurt, SamusBombJumpDirection.Straight);
-        AssertTrue(SamusPoseMetadata.TrySetupPublishedBombJump(hurt, level, false, 0, controllerNewInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled), "fresh bomb command rearms retained hurt pose");
+        AssertTrue(SamusPoseMetadata.TrySetupPublishedBombJump(hurt, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), false, 0, controllerNewInput: 0), "fresh bomb command rearms retained hurt pose");
         AssertTrue(hurt.BombJumpPoseInputLocked, "fresh bomb command locks input again");
 
         // Damage may interrupt a humanoid bomb start before its first moving frame.

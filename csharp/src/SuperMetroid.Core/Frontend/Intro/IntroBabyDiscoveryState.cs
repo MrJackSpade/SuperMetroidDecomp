@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -68,7 +69,7 @@ internal sealed class IntroBabyDiscoveryState
 
         // The discovery room's authored terrain fills its upper rows (IntroBabyDiscoveryCollisionDefinitions).
         // The rows below are empty, and no block has a behaviour.
-        Level = CreateLevel();
+        Terrain = CreateTerrain();
 
         demo.Clear();
         demo.Enable();
@@ -79,7 +80,7 @@ internal sealed class IntroBabyDiscoveryState
     public SamusState Samus { get; }
 
     /// <summary>The discovery room's collision: its two authored strips and air elsewhere.</summary>
-    private RoomLevelData Level { get; }
+    private PlainTerrain Terrain { get; }
 
     /// <summary>Signals the outer cinematic owner to start the next page's colour transition.</summary>
     /// <remarks>
@@ -128,8 +129,7 @@ internal sealed class IntroBabyDiscoveryState
                 // before input/movement, rather than requiring pose setters to publish early.
                 SamusPoseMetadata.RefreshCollisionRadii(Samus);
                 IntroSamusDemoMovement.StepGroundedLeft(
-
-                    Level,
+                    Terrain,
                     Samus,
                     demo.Held,
                     demo.NewlyPressed,
@@ -398,8 +398,8 @@ internal sealed class IntroBabyDiscoveryState
     private static CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroDiscoveryCue> CreateActor(IntroBabyActorDefinition definition) =>
         new(definition.Position, IntroShades.Drawn(definition.Colouring), IntroBabyAnimations.Discovery, definition.Animation);
 
-    /// <summary>Creates the discovery room: collision only, which the scene's own pictures show.</summary>
-    private static RoomLevelData CreateLevel() => RoomLevelData.CollisionOnly(
+    /// <summary>Creates the discovery room: a plain terrain, which the scene's own pictures show.</summary>
+    private static PlainTerrain CreateTerrain() => new(
         new Extent16<RoomBlocks>(IntroBabyDiscoveryCollisionDefinitions.Columns, IntroBabyDiscoveryCollisionDefinitions.RoomRows),
         IntroBabyDiscoveryCollision.CreateCollision());
 }

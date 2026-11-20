@@ -36,6 +36,9 @@ internal sealed record RoomScope
     /// <summary>The room's foreground, block behaviours and background, shared by rendering and collision.</summary>
     public required RoomLevelData LevelData { get; init; }
 
+    /// <summary>The room's terrain Samus meets (#2553): its level, whose reacting blocks reach its room objects.</summary>
+    internal RoomTerrain SamusTerrain => new(LevelData, RoomObjects);
+
     /// <summary>The room's foreground scroll-boundary camera.</summary>
     public required ScrollBoundaryCamera Camera { get; init; }
 

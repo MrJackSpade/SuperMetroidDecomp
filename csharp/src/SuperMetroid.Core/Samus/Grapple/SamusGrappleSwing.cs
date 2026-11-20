@@ -488,7 +488,7 @@ public static class SamusGrappleSwing
 
 /// <summary>Rechecks the stored endpoint through the firing step and retains the connection while the block there stops the beam.</summary>
     internal static bool IsStillConnectedToSupportedBlock(
-        SamusTerrain terrain,
+        RoomTerrain terrain,
         SamusState samus,
         SamusGrappleState grapple)
     {
@@ -496,10 +496,9 @@ public static class SamusGrappleSwing
         // only whether the block stops the beam. A persistent anchor, revealed or unrevealed by the X-ray scope, therefore stays connected; replacing
         // it with air disconnects. Room-object-producing dynamic blocks retain their explicit stop.
         GrappleBlockReaction reaction = SamusGrappleMovement.ReactAtEndpoint(
-            terrain.Level,
+            terrain,
             samus,
-            grapple.Anchor,
-            terrain.RoomObjects);
+            grapple.Anchor);
         return reaction.Collides();
     }
 

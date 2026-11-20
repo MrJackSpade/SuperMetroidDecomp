@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -107,7 +108,7 @@ internal static class GrappleFiringDefinitionsVerification
             SamusGrappleMovement.BeginFiring(samus, SuperMetroid.Core.Input.GameplayAction.None);
             for (int frame = 1; frame <= 10; frame++)
             {
-                SamusGrappleMovement.StepFiringAndCommit(empty, samus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+                SamusGrappleMovement.StepFiringAndCommit(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
                 int dx = Word(0x9bc0db + direction * 2) * 256 * frame;
                 int dy = Word(0x9bc0ef + direction * 2) * 256 * frame;
                 AssertEqual(dx, grapple.EndpointOffset.X.RawValue, "Native extension X trajectory");

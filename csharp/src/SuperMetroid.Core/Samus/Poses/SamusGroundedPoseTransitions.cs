@@ -102,12 +102,11 @@ internal static class SamusGroundedPoseTransitions
     /// </remarks>
     public static SamusPoseId? CheckProspectiveRunningPoseForWall(
         SamusState samus,
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusPoseId? prospectivePose,
-        bool currentXSpeedKilledByBlock,
-        ISamusRoomObjects roomObjects)
+        bool currentXSpeedKilledByBlock)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
 
         if (currentXSpeedKilledByBlock && SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running)
             return SelectRanIntoWallPose(samus.Pose);
@@ -132,7 +131,7 @@ internal static class SamusGroundedPoseTransitions
         }
 
         SignedSixteenSixteen onePixelForward = SignedSixteenSixteen.OnePixel.Toward(facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
-        BlockMoveResult onePixelProbe = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
+        BlockMoveResult onePixelProbe = SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
         return onePixelProbe.Collided
             ? SelectRanIntoWallPose(target)
             : null;
@@ -315,14 +314,13 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     internal static bool TryResolveKnockbackPoseCollision(
         SamusState samus,
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusPoseId targetPose,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome outcome = samus.ResolveLargerPoseCollision(
-            level, targetPose, frameCounter, roomObjects, out int adjustment);
+            terrain, targetPose, frameCounter, out int adjustment);
         if (outcome != LargerPoseCollisionOutcome.Allowed)
         {
             if (outcome == LargerPoseCollisionOutcome.CrouchFallback)

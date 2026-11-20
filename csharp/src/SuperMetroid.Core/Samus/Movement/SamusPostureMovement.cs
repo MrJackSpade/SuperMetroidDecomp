@@ -19,24 +19,21 @@ public static class SamusPostureMovement
     /// X-ray scope's crouching poses alike: as the game's crouching movement does, it reads only the way the pose faces.
     /// </summary>
     /// <param name="movement">The crouch the movement dispatch selected.</param>
-    /// <param name="level">The room's level data the crouch collides with.</param>
+    /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
     /// <param name="samus">Samus, crouching.</param>
     /// <param name="frameCounter">The update's frame counter, whose parity picks the scan's column order.</param>
-    /// <param name="roomObjects">The room's room objects her scans reach.</param>
     internal static GroundedMovementResult StepCrouching(
         SamusMovement.CrouchingMovement movement,
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
         Ensure.NotNull(movement);
-        Validate(level, samus);
+        Validate(terrain.Level, samus);
         GroundedMovementResult result = MoveWithZeroBaseSpeed(
-            level,
+            terrain,
             samus,
-            frameCounter,
-            roomObjects);
+            frameCounter);
 
         // The posture's cleanup runs after both collision passes, whether or not she is stationary; each cleared value is
         // observable.
@@ -51,24 +48,22 @@ public static class SamusPostureMovement
     /// standing transitions, unaimed or aimed. It reads only the way the pose faces.
     /// </summary>
     internal static GroundedMovementResult StepCrouchStandTransition(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Validate(level, samus);
+        Validate(terrain.Level, samus);
 
         // Unlike crouching movement, the four crouch and stand transitions keep Samus's base momentum after moving,
         // although ordinary standing and crouching input brings her here at zero speed.
-        return MoveWithZeroBaseSpeed(level, samus, frameCounter, roomObjects);
+        return MoveWithZeroBaseSpeed(terrain, samus, frameCounter);
     }
 
     /// <summary>Runs horizontal collision with zero base displacement, then the coupled downward grounding probe.</summary>
     private static GroundedMovementResult MoveWithZeroBaseSpeed(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
@@ -76,7 +71,7 @@ public static class SamusPostureMovement
         // A run at its full boost stage therefore keeps sliding through the crouch transition into a crouch, and
         // her pose handling stores the shine before ordinary crouching stops that momentum.
         var requestedHorizontal = SamusHorizontalDisplacement.TowardFacing(samus, baseSpeed: default);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
@@ -85,7 +80,7 @@ public static class SamusPostureMovement
         // this matters for a Speed-Booster slide through the crouching transition.
         SignedSixteenSixteen verticalDisplacement = SamusExtraDisplacement
             .CalculateNoSpeedVerticalDisplacement(samus.Kinematics, speed);
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = verticalDisplacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(terrain, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = verticalDisplacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
         return new GroundedMovementResult(horizontal, vertical);
     }
 

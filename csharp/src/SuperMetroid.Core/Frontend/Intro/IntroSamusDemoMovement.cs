@@ -21,7 +21,7 @@ internal static class IntroSamusDemoMovement
     /// <summary>Runs the left-facing intro demo's input and movement phases, then animation and prospective-pose commit in gameplay order.</summary>
     public static void StepGroundedLeft(
 
-        RoomLevelData level,
+        PlainTerrain terrain,
         SamusState samus,
         GameplayAction heldInput,
         GameplayAction newlyPressedInput,
@@ -58,18 +58,17 @@ internal static class IntroSamusDemoMovement
         {
             movement = SamusGroundedMovement.StepRunning(
 
-                level,
+                terrain,
                 samus,
                 frameCounter,
-                heldInput,
-                IntroCollisionRoomObjects.Instance);
+                heldInput);
         }
         else if (SamusPoseMetadata.IsLeftFacingStandingPose(poseAtFrameStart))
         {
             // The demo's input phase has written its held buttons into the controller input that
             // the standing animation tests, so a held shot holds the standing animation here too.
-            movement = SamusGroundedMovement.StepStanding(level, samus, frameCounter,
-                heldInput, IntroCollisionRoomObjects.Instance);
+            movement = SamusGroundedMovement.StepStanding(terrain, samus, frameCounter,
+                heldInput);
         }
         else
         {
@@ -86,8 +85,8 @@ internal static class IntroSamusDemoMovement
         SamusPoseId? candidate = prospective is { } proposed
             ? proposed.ProspectivePose
             : fallback;
-        SamusPoseId? wallPose = SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(samus, level, candidate,
-            movement.Horizontal.Collided, IntroCollisionRoomObjects.Instance);
+        SamusPoseId? wallPose = SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(samus, terrain, candidate,
+            movement.Horizontal.Collided);
         if (wallPose is { } stoppedPose)
         {
             SamusGroundedPoseTransitions.ApplyRanIntoWallPoseChange(samus, stoppedPose);

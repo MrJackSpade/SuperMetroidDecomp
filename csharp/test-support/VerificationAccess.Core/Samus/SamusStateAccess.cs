@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Core.Samus;
@@ -24,11 +25,10 @@ internal static class SamusStateAccess
         /// existing focused tests readable while all input-table exits share one native handler.
         /// </summary>
         internal void ApplySpinToNormalJumpFireTransition(
-            RoomLevelData level,
+            SamusTerrain terrain,
             SamusPoseId targetPose,
             int frameCounter,
-            GameplayAction controllerNewInput,
-            ISamusRoomObjects? roomObjects = null)
+            GameplayAction controllerNewInput)
         {
             if (targetPose is not (SamusPoseId.NormalJumpGunExtendedRightPose or SamusPoseId.NormalJumpGunExtendedLeftPose))
             {
@@ -37,11 +37,10 @@ internal static class SamusStateAccess
             }
             SamusAerialPoseTransitions.ApplySpinOrWallJumpToNormalJumpTransition(self, 
 
-                level,
+                SamusTerrain.InRoom(level, roomObjects ?? SamusRoomObjectFixtures.Uninstalled),
                 targetPose,
                 frameCounter,
-                controllerNewInput,
-                roomObjects ?? SamusRoomObjectFixtures.Uninstalled);
+                controllerNewInput);
         }
 
         /// <summary>

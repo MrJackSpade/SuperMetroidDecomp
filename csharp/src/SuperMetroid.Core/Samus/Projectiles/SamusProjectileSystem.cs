@@ -283,13 +283,12 @@ public sealed class SamusProjectileSystem
             if (samus.SelectedHudItem is HudItem.Beam or HudItem.PowerBomb || xrayBeamFallback)
             {
                 (queuedSound, queuedSoundPriority) = Firing.HandleBeamInput(
-                    terrain.Level,
+                    terrain,
                     samus,
                     buttons.ControllerInput,
                     // Uncharged firing tests both current and prior new-input latches.
                     buttons.ControllerNewInput | buttons.ControllerPreviousNewInput,
-                    samusBombs,
-                    terrain.RoomObjects);
+                    samusBombs);
             }
             else if (samus.SelectedHudItem is HudItem.Missile or HudItem.SuperMissile)
             {

@@ -110,19 +110,18 @@ public static class SamusGrappleMovement
     /// Advances the extending grapple beam: its test against enemies, then its block collision.
     /// </summary>
     internal static GrappleMovementResult StepFiring(
-        RoomLevelData level,
+        RoomTerrain terrain,
         SamusState samus,
         GameplayAction controllerInput,
-        ISamusRoomObjects roomObjects,
         Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
         SamusGrappleState grapple = samus.Grapple;
         if (grapple.Phase != GrapplePhase.Firing)
             throw new InvalidOperationException("Grapple firing is not active.");
 
-        if (HandleFiringPoseChange(level, samus, controllerInput) is { } poseChange)
+        if (HandleFiringPoseChange(terrain.Level, samus, controllerInput) is { } poseChange)
             return poseChange;
 
         // Finishing the connection clamps the camera's previous position after
@@ -179,10 +178,9 @@ public static class SamusGrappleMovement
             PublishFiringGeometry(samus, grapple);
 
             GrappleBlockReaction reaction = ReactAtEndpoint(
-                level,
+                terrain,
                 samus,
-                grapple.Anchor,
-                roomObjects);
+                grapple.Anchor);
             finalReaction = reaction;
             if (reaction != GrappleBlockReaction.Connects)
                 continue;
@@ -236,7 +234,7 @@ public static class SamusGrappleMovement
     /// a fresh press of Up or Down adjusts the rope's length.
     /// A release or drop leaves its pose for the frame's pose update to commit.
     /// </summary>
-    internal static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction newlyPressedInput, Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
+    internal static GrappleMovementResult Step(RoomTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction newlyPressedInput, Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
@@ -339,7 +337,7 @@ public static class SamusGrappleMovement
 
     /// <summary>Holds the connected pose while Shoot and the stored block or enemy support the endpoint; otherwise queues cancellation.</summary>
     private static GrappleMovementResult StepLocked(
-        SamusTerrain terrain,
+        RoomTerrain terrain,
         SamusState samus,
         GameplayAction controllerInput,
         Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
@@ -372,7 +370,7 @@ public static class SamusGrappleMovement
     /// (<see cref="SamusGrappleState.ValidatedAnchor"/>): an enemy anchor is lost, a block anchor holds while a grapple
     /// block still stops the beam, and an anchor nothing checks always holds.
     /// </summary>
-    private static bool IsValidatedAnchorHeld(SamusTerrain terrain, SamusState samus, SamusGrappleState grapple) =>
+    private static bool IsValidatedAnchorHeld(RoomTerrain terrain, SamusState samus, SamusGrappleState grapple) =>
         grapple.ValidatedAnchor switch
         {
             null => true,
@@ -425,7 +423,7 @@ public static class SamusGrappleMovement
 
     /// <summary>Keeps the wall-contact pose attached until Shoot or anchor support ends, then opens the wall-jump window.</summary>
     private static GrappleMovementResult StepWallGrab(
-        SamusTerrain terrain,
+        RoomTerrain terrain,
         SamusState samus,
         GameplayAction controllerInput,
         Func<Position16<RoomPixels>, GrappleEnemyCollision?> enemyCollision)
@@ -450,7 +448,7 @@ public static class SamusGrappleMovement
 
     /// <summary>During the release window, accepts a fresh Jump only when the wall-jump probe finds a wall or solid enemy.</summary>
     private static GrappleMovementResult StepWallGrabRelease(
-        SamusTerrain terrain,
+        RoomTerrain terrain,
         SamusState samus,
         GameplayAction newlyPressedInput)
     {
@@ -477,10 +475,9 @@ public static class SamusGrappleMovement
             SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? HorizontalDirection.Left : HorizontalDirection.Right));
         // A bomb block the probe breaks starts its reaction through the room's objects, as any other contact does (#1582).
         BlockMoveResult wall = SamusBlockCollision.ProbeWallHorizontal(
-            terrain.Level,
+            terrain,
             samus.Kinematics, samus, samus.Pose,
-            signedProbe,
-            terrain.RoomObjects);
+            signedProbe);
         bool jumpNew = (newlyPressedInput & GameplayAction.Jump) != GameplayAction.None;
         if (wall.Collided && jumpNew)
         {
@@ -649,20 +646,20 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>What <c>ReactAtEndpoint</c> comes to for each <see cref="RoomCollisionType"/> member, each member's own arm.</summary>
-    private static IdentityTable<RoomCollisionType, Func<RoomLevelData, SamusState, ISamusRoomObjects, RoomCollisionBlock, GrappleBlockReaction>> ReactAtEndpointForRoomCollisionType => field ??= new(new Dictionary<RoomCollisionType, Func<RoomLevelData, SamusState, ISamusRoomObjects, RoomCollisionBlock, GrappleBlockReaction>>
+    private static IdentityTable<RoomCollisionType, Func<RoomTerrain, SamusState, RoomCollisionBlock, GrappleBlockReaction>> ReactAtEndpointForRoomCollisionType => field ??= new(new Dictionary<RoomCollisionType, Func<RoomTerrain, SamusState, RoomCollisionBlock, GrappleBlockReaction>>
     {
         // These four block kinds let the beam pass: it remains live.
-        [RoomCollisionType.Air] = static (level, samus, roomObjects, block) => GrappleBlockReaction.Passes,
-        [RoomCollisionType.SpikeAir] = static (level, samus, roomObjects, block) => GrappleBlockReaction.Passes,
-        [RoomCollisionType.SpecialAir] = static (level, samus, roomObjects, block) => GrappleBlockReaction.Passes,
-        [RoomCollisionType.UnrevealedAir] = static (level, samus, roomObjects, block) => GrappleBlockReaction.Passes,
+        [RoomCollisionType.Air] = static (terrain, samus, block) => GrappleBlockReaction.Passes,
+        [RoomCollisionType.SpikeAir] = static (terrain, samus, block) => GrappleBlockReaction.Passes,
+        [RoomCollisionType.SpecialAir] = static (terrain, samus, block) => GrappleBlockReaction.Passes,
+        [RoomCollisionType.UnrevealedAir] = static (terrain, samus, block) => GrappleBlockReaction.Passes,
         // Slopes and these solid kinds stop the beam without connecting,
         // which makes the firing step queue cancellation rather than establish a rope.
-        [RoomCollisionType.Slope] = static (level, samus, roomObjects, block) => GrappleBlockReaction.Solid,
-        [RoomCollisionType.SolidBlock] = static (level, samus, roomObjects, block) => GrappleBlockReaction.Solid,
-        [RoomCollisionType.DoorBlock] = static (level, samus, roomObjects, block) => GrappleBlockReaction.Solid,
-        [RoomCollisionType.SpecialBlock] = static (level, samus, roomObjects, block) => GrappleBlockReaction.Solid,
-        [RoomCollisionType.SpikeBlock] = static (level, samus, roomObjects, block) =>
+        [RoomCollisionType.Slope] = static (terrain, samus, block) => GrappleBlockReaction.Solid,
+        [RoomCollisionType.SolidBlock] = static (terrain, samus, block) => GrappleBlockReaction.Solid,
+        [RoomCollisionType.DoorBlock] = static (terrain, samus, block) => GrappleBlockReaction.Solid,
+        [RoomCollisionType.SpecialBlock] = static (terrain, samus, block) => GrappleBlockReaction.Solid,
+        [RoomCollisionType.SpikeBlock] = static (terrain, samus, block) =>
         {
             // The spike's reaction selects a grapple-reaction room object. A spike that lets the
             // beam through rejects it. Every other spike uses the empty reaction, which stops the
@@ -680,7 +677,7 @@ public static class SamusGrappleMovement
 
             return GrappleBlockReaction.Solid;
         },
-        [RoomCollisionType.GrappleBlock] = static (level, samus, roomObjects, block) =>
+        [RoomCollisionType.GrappleBlock] = static (terrain, samus, block) =>
         {
             // A rejecting reaction lets the beam through. The anchors spawn the persistent grapple
             // room object, whose setup connects the beam.
@@ -695,7 +692,7 @@ public static class SamusGrappleMovement
             // runs its first timed step later in this same gameplay frame.
             if (block.Behavior.Grapple is GrappleReaction.RespawningBreakableAnchor or GrappleReaction.PermanentBreakableAnchor)
             {
-                if (!roomObjects.BlockReactions.TrySpawnBreakableGrappleBlock(level, block.At, block.Behavior))
+                if (!terrain.RoomObjects.BlockReactions.TrySpawnBreakableGrappleBlock(terrain.Level, block.At, block.Behavior))
                 {
                     throw new InvalidOperationException(
                         "Every room object is in use during grapple acquisition.");
@@ -709,26 +706,26 @@ public static class SamusGrappleMovement
             throw new InvalidDataException(
                 $"Invalid grapple block behaviour ({block.Behavior}) at {block.Position}.");
         },
-        [RoomCollisionType.ShootableAir] = static (level, samus, roomObjects, block) => ReactAtEndpointForRoomCollisionTypeShootableAir(level, samus, roomObjects, block),
-        [RoomCollisionType.ShootableBlock] = static (level, samus, roomObjects, block) => ReactAtEndpointForRoomCollisionTypeShootableAir(level, samus, roomObjects, block),
-        [RoomCollisionType.BombableAir] = static (level, samus, roomObjects, block) =>
+        [RoomCollisionType.ShootableAir] = static (terrain, samus, block) => ReactAtEndpointForRoomCollisionTypeShootableAir(terrain, samus, block),
+        [RoomCollisionType.ShootableBlock] = static (terrain, samus, block) => ReactAtEndpointForRoomCollisionTypeShootableAir(terrain, samus, block),
+        [RoomCollisionType.BombableAir] = static (terrain, samus, block) =>
         {
             // The bombable-air setup immediately deletes its provisional
             // room object, because the grapple is no projectile. The beam passes.
             return GrappleBlockReaction.Passes;
         },
-        [RoomCollisionType.BombableBlock] = static (level, samus, roomObjects, block) =>
+        [RoomCollisionType.BombableBlock] = static (terrain, samus, block) =>
         {
             // The solid twin performs the same rejected setup but independently
             // reports the block solid to the beam from its collision reaction.
             return GrappleBlockReaction.Solid;
         },
-        [RoomCollisionType.HorizontalExtension] = static (level, samus, roomObjects, block) => ReactAtEndpointForRoomCollisionTypeHorizontalExtension(level, samus, roomObjects, block),
-        [RoomCollisionType.VerticalExtension] = static (level, samus, roomObjects, block) => ReactAtEndpointForRoomCollisionTypeHorizontalExtension(level, samus, roomObjects, block),
+        [RoomCollisionType.HorizontalExtension] = static (terrain, samus, block) => ReactAtEndpointForRoomCollisionTypeHorizontalExtension(terrain, samus, block),
+        [RoomCollisionType.VerticalExtension] = static (terrain, samus, block) => ReactAtEndpointForRoomCollisionTypeHorizontalExtension(terrain, samus, block),
     });
 
     /// <summary>What <see cref="ReactAtEndpointForRoomCollisionType"/> does for <see cref="RoomCollisionType.ShootableAir"/>, <see cref="RoomCollisionType.ShootableBlock"/>.</summary>
-    private static GrappleBlockReaction ReactAtEndpointForRoomCollisionTypeShootableAir(RoomLevelData level, SamusState samus, ISamusRoomObjects roomObjects, RoomCollisionBlock block)
+    private static GrappleBlockReaction ReactAtEndpointForRoomCollisionTypeShootableAir(RoomTerrain terrain, SamusState samus, RoomCollisionBlock block)
     {
         // The shootable block reactions are the same as ordinary
         // projectiles'. Grapple owns no projectile family, so weapon-gated
@@ -740,25 +737,25 @@ public static class SamusGrappleMovement
         // blue door setup's power-bomb rejection; the ordinary opening owner
         // supplies all four cap blocks, timing, collision changes, and sound.
         if (block.Behavior.TryGetDownwardGateTrigger(out _))
-            roomObjects.Gates.SpawnDownwardGateTrigger(level, block.At, block.Behavior, BlockStrike.GrappleTouch.Instance);
+            terrain.RoomObjects.Gates.SpawnDownwardGateTrigger(terrain.Level, block.At, block.Behavior, BlockStrike.GrappleTouch.Instance);
         else if (block.Behavior.TryGetBlueDoorOrientation(out _))
-            roomObjects.DoorObjects.SpawnBlueDoorOpening(level, block.At, block.Behavior, BlockStrike.GrappleTouch.Instance);
+            terrain.RoomObjects.DoorObjects.SpawnBlueDoorOpening(terrain.Level, block.At, block.Behavior, BlockStrike.GrappleTouch.Instance);
         else if (block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
             // A shot-triggered block also reacts to the grapple: its resident actor hears of a hit with no
             // weapon, and decides itself whether to refuse the hit or wake up.
-            if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.GrappleTouch.Instance))
+            if (!terrain.RoomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.GrappleTouch.Instance))
                 throw new InvalidOperationException(
                     $"Grapple trigger block {block.Position} has no resident room-object owner.");
         }
         else if (block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
-            roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
+            terrain.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
         else
         {
             try
             {
-                roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
-                    level,
+                terrain.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(
+                    terrain.Level,
                     block.At,
                     block.Behavior,
                     BlockStrike.GrappleTouch.Instance,
@@ -779,7 +776,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>What <see cref="ReactAtEndpointForRoomCollisionType"/> does for <see cref="RoomCollisionType.HorizontalExtension"/>, <see cref="RoomCollisionType.VerticalExtension"/>.</summary>
-    private static GrappleBlockReaction ReactAtEndpointForRoomCollisionTypeHorizontalExtension(RoomLevelData level, SamusState samus, ISamusRoomObjects roomObjects, RoomCollisionBlock block)
+    private static GrappleBlockReaction ReactAtEndpointForRoomCollisionTypeHorizontalExtension(RoomTerrain terrain, SamusState samus, RoomCollisionBlock block)
     {
         throw new InvalidOperationException($"Continuing block {block.Position} reached the grapple's endpoint in place of the block it stands for.");
     }
@@ -789,12 +786,11 @@ public static class SamusGrappleMovement
     /// lets it pass, stops it, or connects it.
     /// </summary>
     internal static GrappleBlockReaction ReactAtEndpoint(
-        RoomLevelData level,
+        RoomTerrain terrain,
         SamusState samus,
-        Position16<RoomPixels> endpoint,
-        ISamusRoomObjects roomObjects)
+        Position16<RoomPixels> endpoint)
     {
-        RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(endpoint.ToRoomBlock());
+        RoomCollisionBlock block = terrain.Level.GetCollisionBlockOrEdgeSolid(endpoint.ToRoomBlock());
         if (block.Position is null)
         {
             // The edge-solid block outside the room reacts as an ordinary solid endpoint: it stops
@@ -804,10 +800,10 @@ public static class SamusGrappleMovement
 
         // The block an extension stands for reacts in its stead, and one that leads outside the grid reads the edge-solid
         // block (ContinuedBlocks); an extension that ends its chain behaves as air, which lets the beam pass.
-        if (level.GrappleBlockStoodFor(block) is not { } stoodFor)
+        if (terrain.Level.GrappleBlockStoodFor(block) is not { } stoodFor)
             return GrappleBlockReaction.Passes;
         block = stoodFor;
-        return ReactAtEndpointForRoomCollisionType[block.CollisionType](level, samus, roomObjects, block);
+        return ReactAtEndpointForRoomCollisionType[block.CollisionType](terrain, samus, block);
     }
 
     /// <summary>

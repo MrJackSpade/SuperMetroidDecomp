@@ -8,15 +8,13 @@ namespace SuperMetroid.Core.Samus.Movement;
 public static class SamusInsideBlockReactions
 {
     /// <summary>Samples bottom, center, and top in order.</summary>
-    /// <param name="level">The room's terrain.</param>
+    /// <param name="terrain">The room's terrain: its level and the room objects its scroll, sand and plant blocks reach.</param>
     /// <param name="samus">Samus, whose body the reactions sample and move.</param>
     /// <param name="roomHasPower">Whether the room has the power its on-foot conveyors need to run, as the room supplies it.</param>
-    /// <param name="roomObjects">The room's objects the reactions wake.</param>
     internal static void PrepareFrame(
-        RoomLevelData level,
+        RoomTerrain terrain,
         SamusState samus,
-        bool roomHasPower,
-        ISamusRoomObjects roomObjects)
+        bool roomHasPower)
     {
         var body = samus.Kinematics;
         SamusInsideBlockSamplePoints.Visit(body.Position.Y.Whole, body.Radius.Y, (y, point) =>
@@ -24,8 +22,8 @@ public static class SamusInsideBlockReactions
 
         void Visit(int y, bool bottomPoint, bool centerPoint)
         {
-            var block = level.GetCollisionBlockOrEdgeSolid(new(RoomGridConversions.PixelToBlock(body.Position.X.Whole), RoomGridConversions.PixelToBlock(y)));
-            if (block.Position is null || !level.TryReachBlockStoodFor(ref block) ||
+            var block = terrain.Level.GetCollisionBlockOrEdgeSolid(new(RoomGridConversions.PixelToBlock(body.Position.X.Whole), RoomGridConversions.PixelToBlock(y)));
+            if (block.Position is null || !terrain.Level.TryReachBlockStoodFor(ref block) ||
                 block.CollisionType != RoomCollisionType.SpecialAir)
                 return;
             // A scroll trigger wakes only from the inside-block sample at Samus's centre.
@@ -33,7 +31,7 @@ public static class SamusInsideBlockReactions
             // this center wake-up lets a lower trigger win after the torso clears
             // an upper trigger, without changing the room-object update order.
             if (centerPoint && block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
-                !roomObjects.Scrolls.TryNotifyScrollTouch(block.At))
+                !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.At))
                 throw new InvalidOperationException($"Inside scroll trigger block {block.Position} has no active room-object owner.");
             // The conveyors carry Samus the same in every area; the reactions the area gives meaning
             // own sand and plants. Both are visited in the same bottom/center/top order.
@@ -45,12 +43,12 @@ public static class SamusInsideBlockReactions
             SpecialAirInsideReaction reaction = SpecialAirReactions.InsideOf(block.Behavior.SpecialAir);
             // A sand reaction takes a room-object place before it acts; with every place taken it does nothing.
             if (QuicksandReactions.PlacesObject(reaction) &&
-                !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))
+                !terrain.RoomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))
             {
                 return;
             }
             if (reaction.Plant is { } plant)
-                roomObjects.SamusEater.TrySpawnSamusEater(level, block, plant, samus.RoomView);
+                terrain.RoomObjects.SamusEater.TrySpawnSamusEater(terrain.Level, block, plant, samus.RoomView);
             else if (reaction.IsQuicksandSurface)
             {
                 // The game's setup cancels running momentum even for center/top samples,
@@ -119,7 +117,7 @@ public static class SamusInsideBlockReactions
     /// <param name="observes">Whether the scan only observes, so the surface sees no direction of travel.</param>
     internal static SpecialAirCollisionOutcome ReactCollision(
         SamusCollisionContact contact,
-        SamusTerrain terrain,
+        RoomTerrain terrain,
         RoomCollisionBlock block,
         Axis axis,
         ref SignedSixteenSixteen displacement,

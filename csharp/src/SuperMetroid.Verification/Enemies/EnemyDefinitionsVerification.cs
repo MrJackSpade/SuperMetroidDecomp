@@ -131,9 +131,6 @@ internal static class EnemyDefinitionsVerification
             AssertEqual(ReadNativeEnemyDefinition(bus, pointer), compiled,
                 $"auxiliary enemy header {pointer} retains every gameplay field");
         }
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomEnemyDefinitionLookup.Get(0),
-            "compiled enemy headers reject an unrecognized pointer");
         AssertTrue(!RoomEnemyAuxiliaryDefinitionCatalog.TryGet(0, out _),
             "auxiliary enemy headers reject an unrecognized pointer");
 

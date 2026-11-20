@@ -40,6 +40,6 @@ public sealed class AttractDemoInput
             _continuation = null;
             Script.Load(continuation);
         }
-        Script.Step(static () => throw new InvalidOperationException("Title demonstrations handle no end signal."));
+        Script.Step();
     }
 }

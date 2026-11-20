@@ -566,7 +566,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentFlashbackDemoInput = new DemoInputState();
         CurrentFlashbackDemoInput.Clear();
         CurrentFlashbackDemoInput.Enable();
-        CurrentFlashbackDemoInput.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
+        CurrentFlashbackDemoInput.Load(DemoSignallingRecordingId.IntroMotherBrainFlashback, HandleMotherBrainDemoCue);
         // Samus is processed, and drawn ahead of the cinematic actors.
         flashbackSamusDisplay = IntroSamusDisplay.InFrontOfActors;
 
@@ -766,7 +766,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Runs the scripted Samus gameplay, projectiles, collisions, and colour updates for the Mother Brain flashback.</summary>
     private void StepMotherBrainDemo()
     {
-        FlashbackDemoInput.Step(HandleMotherBrainDemoCue);
+        FlashbackDemoInput.Step();
 
         // The HUD and projectile step counts down the shared firing cooldown before
         // Samus's shots update. Standing facing left she cannot place bombs, but the cooldown
@@ -898,7 +898,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>Runs the Mother Brain demo's end step, freezing input after its prescribed Samus pose change.</summary>
-    /// <remarks>The flashback demo plays only its own recording, whose signal names this routine (<see cref="DemoInputCue.EndIntroMotherBrainFlashback"/>).</remarks>
+    /// <remarks>The flashback's recording runs it as its signal (<see cref="DemoInputCue.EndIntroMotherBrainFlashback"/>).</remarks>
     private void HandleMotherBrainDemoCue()
     {
         // The flashback's end stops the demo on this update, with Samus standing facing left and her pose and its

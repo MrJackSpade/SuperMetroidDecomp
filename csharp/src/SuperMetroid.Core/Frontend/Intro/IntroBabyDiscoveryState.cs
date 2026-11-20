@@ -115,7 +115,7 @@ internal sealed class IntroBabyDiscoveryState
             // input phase, ahead of her pose input and movement.
             if (demo.IsPlaying)
                 CheckDemoPhase(crossfadeFinishing);
-            demo.Step(HandleDemoCue);
+            demo.Step();
             // The input phase ends by resetting the movement and pose-change state,
             // before this update's movement records new distances.
             SamusAerialPoseTransitions.DropTransitionShot(Samus);
@@ -199,7 +199,7 @@ internal sealed class IntroBabyDiscoveryState
             if (crossfadeFinishing)
             {
                 DemoPhase = IntroBabyDiscoveryDemoPhase.Ending;
-                demo.Load(DemoInputRecordingId.IntroBabyDiscoveryEnd);
+                demo.Load(DemoSignallingRecordingId.IntroBabyDiscoveryEnd, HandleDemoCue);
             }
         },
         [IntroBabyDiscoveryDemoPhase.Ending] = crossfadeFinishing => { },
@@ -215,7 +215,7 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Runs the discovery demo recording's end cue, disabling input and both phases of Samus's frame for the frames that follow.</summary>
-    /// <remarks>The discovery demo plays only its own recording, whose signal names this routine (<see cref="DemoInputCue.EndIntroBabyDiscovery"/>).</remarks>
+    /// <remarks>The discovery demo's end recording runs it as its signal (<see cref="DemoInputCue.EndIntroBabyDiscovery"/>).</remarks>
     private void HandleDemoCue()
     {
         // The scene's end stops Samus moving and animating for the rest of the scene and stops the demo's input.

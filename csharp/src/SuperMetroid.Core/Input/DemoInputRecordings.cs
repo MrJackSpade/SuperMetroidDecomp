@@ -882,9 +882,6 @@ public static class DemoInputRecordings
         [
             new(A.None, A.None, 405),
         ], DemoRecordingEnd.Stops),
-        [N.IntroBabyDiscoveryEnd] = new(
-        [
-        ], DemoRecordingEnd.SignalsThenStops(DemoInputCue.EndIntroBabyDiscovery)),
         [N.IntroBabyDiscoveryRunningLeft] = new(
         [
             new(A.None, A.None, 90),
@@ -900,7 +897,15 @@ public static class DemoInputRecordings
             new(A.Left, A.Left, 1),
             new(A.Left, A.None, 1),
         ], DemoRecordingEnd.LoopsFrom(5)),
-        [N.IntroMotherBrainFlashback] = new(
+    };
+
+    /// <summary>Every signalling recording.</summary>
+    internal static IReadOnlyDictionary<DemoSignallingRecordingId, DemoSignallingRecording> Signalling { get; } = new Dictionary<DemoSignallingRecordingId, DemoSignallingRecording>
+    {
+        [DemoSignallingRecordingId.IntroBabyDiscoveryEnd] = new(
+        [
+        ], DemoInputCue.EndIntroBabyDiscovery),
+        [DemoSignallingRecordingId.IntroMotherBrainFlashback] = new(
         [
             new(A.None, A.None, 90),
             new(A.Shoot, A.Shoot, 1),
@@ -919,9 +924,12 @@ public static class DemoInputRecordings
             new(A.Shoot, A.None, 40),
             new(A.Shoot, A.Shoot, 1),
             new(A.Shoot, A.None, 19),
-        ], DemoRecordingEnd.SignalsThenStops(DemoInputCue.EndIntroMotherBrainFlashback)),
+        ], DemoInputCue.EndIntroMotherBrainFlashback),
     };
 
     /// <summary>The recording <paramref name="id"/> names.</summary>
     internal static DemoRecording Of(DemoInputRecordingId id) => All[id];
+
+    /// <summary>The signalling recording <paramref name="id"/> names.</summary>
+    internal static DemoSignallingRecording Of(DemoSignallingRecordingId id) => Signalling[id];
 }

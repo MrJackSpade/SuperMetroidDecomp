@@ -266,7 +266,7 @@ internal sealed class SamusFramePhases
         // has power.
         if (!_freeze.TimeIsFrozen && !frame.InputHandlingLocked(samus))
             SamusInsideBlockReactions.PrepareFrame(room.LevelData, samus,
-                room.Room.Area != AreaId.WreckedShip || _system.HasDefeatedAnyOf(room.Room.Area, DefeatedBosses.AreaBoss),
+                AreaIds.HasPower(room.Room.Area, _system.HasDefeatedAnyOf(room.Room.Area, DefeatedBosses.AreaBoss)),
                 room.RoomObjects);
 
         // The input phase order is cooldown -> movement-type HUD projectile producer ->

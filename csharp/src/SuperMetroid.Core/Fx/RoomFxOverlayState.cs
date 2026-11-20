@@ -176,9 +176,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private bool IsRenderable => ShowsOnOverlay(Type);
 
     /// <summary>Whether a room of effect <paramref name="type"/> shows the effect's liquid or atmosphere on the effect overlay.</summary>
-    public static bool ShowsOnOverlay(RoomFxType type) => type is
-        RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water or RoomFxType.TourianEntranceStatue or
-        RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
+    public static bool ShowsOnOverlay(RoomFxType type) => RoomFxTypes.Of(type).Overlay != RoomFxOverlayMotion.None;
 
     /// <summary>
     /// The live liquid surface's room line after rising and tide processing, or null while the liquid has no surface
@@ -247,7 +245,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         effectOverlayAnimation = BlockAnimationLoops.OnEffectOverlay(Type) is { } overlayAnimation ? BlockAnimationLoops.Start(overlayAnimation) : null;
         Tint = definition.Tint;
 
-        if (Type == RoomFxType.Fireflea)
+        if (RoomFxTypes.Of(Type).DarkensWithFirefleas)
             Fireflea = new FirefleaFxState();
         if (!IsRenderable)
             return;
@@ -258,13 +256,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             waterOverlayWave = WaveCycle.StartingAt(0);
             waterBackgroundWave = WaveCycle.StartingAt(0);
         }
-        else if (Type is RoomFxType.Lava or RoomFxType.Acid)
+        else if (RoomFxTypes.IsLavaOrAcid(Type))
         {
             // Lava and acid start their heat haze where the room's load leaves it: the game's first haze step set its
             // first phase and started its wait, so the first phase moves on sooner than the later ones.
             lavaAcidHaze = LavaAcidWaveDefinitions.HazeStart;
         }
-        else if (Type == RoomFxType.Rain)
+        else if (RoomFxTypes.Of(Type).Overlay == RoomFxOverlayMotion.Rain)
         {
             rainWind = new(AtmosphereDrift.RainHorizontalVelocity(AtmosphereDriftDefinitions.RainWindDraw.Choose(source.RandomNumber)),
                 SignedEightEight.Zero);
@@ -275,8 +273,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// True for the liquids whose surface motion step moves the surface: lava and
     /// acid and water. That motion belongs to the liquid's motion pass.
     /// </summary>
-    public bool HasMovingLiquid =>
-        Type is RoomFxType.Lava or RoomFxType.Acid || RoomFxTypes.UsesWater(Type);
+    public bool HasMovingLiquid => RoomFxTypes.ShowsLiquid(Type);
 
     /// <summary>
     /// Loads the effect's liquid level and target: a named surface keeps the fraction the surface had, or a room load's half
@@ -324,7 +321,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Ensure.NotNull(system);
         if (!HasMovingLiquid || LiquidMotionStopped)
             return;
-        bool lavaOrAcid = Type is RoomFxType.Lava or RoomFxType.Acid;
+        bool lavaOrAcid = RoomFxTypes.IsLavaOrAcid(Type);
         SustainedEarthquake = null;
         if (!MotionStart.HasBegun)
         {
@@ -354,7 +351,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     private void QueueLavaAmbientSound(int random)
     {
-        if (Type != RoomFxType.Lava || Surface is not >= 0)
+        if (!RoomFxTypes.Of(Type).BubblesAmbiently || Surface is not >= 0)
             return;
         lavaBubbling = lavaBubbling.Run(out bool bubbles);
         if (bubbles)
@@ -385,7 +382,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (LiquidMotionStopped && HasMovingLiquid)
             return;
 
-        if (Type is RoomFxType.Lava or RoomFxType.Acid)
+        if (RoomFxTypes.IsLavaOrAcid(Type))
         {
             StepLavaAcid(frame.Camera);
             return;
@@ -397,7 +394,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
         }
 
-        if (Type == RoomFxType.Rain)
+        if (RoomFxTypes.Of(Type).Overlay == RoomFxOverlayMotion.Rain)
         {
             Offset16<OverlayPixels> cameraDelta = previousCamera.AsOverlayScroll() - frame.Camera.AsOverlayScroll();
             Scroll = Position16<OverlayPixels>.Zero + cameraDelta + drift.Whole;
@@ -407,7 +404,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
         }
 
-        if (Type == RoomFxType.Spores)
+        if (RoomFxTypes.Of(Type).Overlay == RoomFxOverlayMotion.Spores)
         {
             // Spores sample each signed running sum before adding its velocity.
             // Unlike rain, spores are anchored to the current camera, not its delta.
@@ -585,7 +582,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
         // The Tourian entrance statue's FX starts only the water surface's motion. Its second motion moves
         // the statue vertically instead of installing the ordinary background X wave.
-        if (Type != RoomFxType.Water || Liquid is not RoomWater { BackgroundWave: true })
+        if (!RoomFxTypes.Of(Type).WavesBackground || Liquid is not RoomWater { BackgroundWave: true })
             return;
         waterBackgroundWave = waterBackgroundWave.Advanced(WaterWaveDefinitions.BackgroundWavePhaseDuration,
             WaterWaveDefinitions.BackgroundWaveform.Length);
@@ -677,7 +674,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     {
         // Water's phases only wait/move. Lava and acid's
         // parallel phases additionally request sound and a global earthquake.
-        if (Type is not (RoomFxType.Lava or RoomFxType.Acid))
+        if (!RoomFxTypes.IsLavaOrAcid(Type))
             return;
         HandleEarthquakeSoundEffect(randomNumber, earthquakeSoundDelay);
         SustainedEarthquake = RoomEarthquakeDefinitions.RisingLiquidShake;

@@ -150,10 +150,13 @@ internal static class KraidSuperMissileDamageVerification
             state.HeadPlayback = RoarPastOpenPose;
             global::SuperMetroid.Core.PrivateState.Set(state, "DisplayedHeadFrame", (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(FullyOpenRoarFrame()));
         }
-        void Place(int index)
+        void Place(int index) => PlaceShot(index, SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300);
+        // Each case fires a new shot into the place, ending the one an earlier case left there.
+        void PlaceShot(int index, SamusProjectileType type, int damage)
         {
             var shot = projectiles.Shots[index];
-            shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300);
+            shot.End();
+            shot.Occupy(type, damage);
             shot.Position = shot.Position.WithWhole(new(176, 486));
             shot.Radius = new(8, 8);
             // Intentionally inactive: this native private pass has no sentinel check.
@@ -179,12 +182,8 @@ internal static class KraidSuperMissileDamageVerification
             "The inclusive count slot, not only count minus one, receives the collision");
 
         Prepare(1);
-        Place(1);
-        Place(0);
-        foreach (var shot in projectiles.Shots.Take(2))
-        {
-            shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true), 60);
-        }
+        PlaceShot(1, SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true), 60);
+        PlaceShot(0, SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true), 60);
         runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);
         // A charged beam's hit lets later shots reach the mouth only from a row far below the room (#1470, #2507).
         AssertEqual(940, body.Health,
@@ -196,10 +195,7 @@ internal static class KraidSuperMissileDamageVerification
         {
             Prepare(1);
             foreach (int place in places)
-            {
-                Place(place);
-                projectiles.Shots[place].Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), 100);
-            }
+                PlaceShot(place, SamusProjectileType.Of(SamusProjectileFamily.Missile), 100);
             runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);
             return body.Health;
         }

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Audio;
-
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Verification access to <see cref="SamusProjectileSystem"/> members production does not use.</summary>

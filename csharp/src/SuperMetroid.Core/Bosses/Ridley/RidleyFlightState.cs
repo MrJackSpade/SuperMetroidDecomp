@@ -39,7 +39,7 @@ public sealed class RidleyFlightState
     /// too.
     /// </summary>
     public bool HitRoomBoundary { get; internal set; }
-    /// <summary>Gets Ridley's velocity, each axis held unchanged.</summary>
+    /// <summary>Ridley's flight speed on each axis, in pixels an update.</summary>
     public PixelVelocity<RoomPixels> Velocity { get; internal set; }
     /// <summary>His wing beat: the pose his wings show and the countdown to the next, paced by his flight speed (#2329).</summary>
     public RidleyWingBeat Wings { get; }

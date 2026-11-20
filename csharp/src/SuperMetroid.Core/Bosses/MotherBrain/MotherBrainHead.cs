@@ -403,9 +403,9 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Aims the onion rings at a target. Both target selectors subtract the same mouth offsets,
-    /// take the angle from those offsets, rotate by a half turn, and clamp the launch arc to
-    /// <see cref="MotherBrainOnionRingDefinitions.LowestAim"/> through <see cref="MotherBrainOnionRingDefinitions.HighestAim"/>; only the source coordinate differs.
+    /// Aims the onion rings from her mouth at a target: the angle from her mouth to the target, a quarter turn on,
+    /// clamped to <see cref="MotherBrainOnionRingDefinitions.LowestAim"/> through
+    /// <see cref="MotherBrainOnionRingDefinitions.HighestAim"/>.
     /// </summary>
     private static void AimMotherBrainOnionRingsAt(
         MotherBrainEnemyState state,

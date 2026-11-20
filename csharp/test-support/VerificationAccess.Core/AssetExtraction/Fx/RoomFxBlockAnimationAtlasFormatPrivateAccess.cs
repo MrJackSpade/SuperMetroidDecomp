@@ -13,7 +13,7 @@ internal static class RoomFxBlockAnimationAtlasFormatPrivateAccess
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.AssetExtraction.Fx.RoomFxBlockAnimationAtlasFormat)
     {
-        /// <summary>The private field <c>PreSporesTileCount</c>, reached by name.</summary>
-        internal static int PreSporesTileCount => PrivateState.StaticField<int>(typeof(global::SuperMetroid.AssetExtraction.Fx.RoomFxBlockAnimationAtlasFormat), "PreSporesTileCount");
+        /// <summary>The private field <c>SporesFirstTile</c>, reached by name.</summary>
+        internal static int SporesFirstTile => PrivateState.StaticField<int>(typeof(global::SuperMetroid.AssetExtraction.Fx.RoomFxBlockAnimationAtlasFormat), "SporesFirstTile");
     }
 }

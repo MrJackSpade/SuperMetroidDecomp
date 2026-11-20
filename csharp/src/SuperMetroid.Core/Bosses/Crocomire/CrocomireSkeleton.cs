@@ -263,8 +263,8 @@ internal sealed class CrocomireSkeleton
 
     /// <summary>
     /// Spawns the wall's pieces, bottom piece first, and runs the spike-wall piece setup on each. Each piece carries
-    /// its definition, which sets how far below the wall's top it stands. The melt empties the enemy projectiles just
-    /// before, so every piece is spawned.
+    /// its definition, which sets how far below the wall's top it stands. The wall break deletes every enemy projectile
+    /// just before, so every piece is spawned.
     /// </summary>
     private void SpawnCrocomireSpikeWallPieces(CrocomireEnemyState state)
     {

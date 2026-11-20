@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Samus's phases of a gameplay frame: grounded movement, animation transitions, uninitialized-pose movement,
-/// the grapple beam, X-ray from the HUD, load appearance and beam picture loading.
+/// the grapple beam, X-ray from the HUD, load appearance and showing the equipped beams' colours.
 /// </summary>
 internal sealed class SamusFramePhases
 {
@@ -299,7 +299,7 @@ internal sealed class SamusFramePhases
                 SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
             }
 
-            // The selected scope uses held Run, not Fire. Setup installs its
+            // The selected scope uses held Dash, not Shoot. Setup installs its
             // own pose and movement, superseding the input phase's ordinary pending pose.
             if (!frame.InputHandlingLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
                 samus.SelectedHudItem == HudItem.XRay &&
@@ -910,8 +910,8 @@ internal sealed class SamusFramePhases
                 _playerActions.Current));
         }
 
-        // Preserve movement on either side of the frame boundary. A new camera uses
-        // the fallback sampled before enemy-owned motion and her movement.
+        // The camera point is the room camera's previous Samus point or, for a new camera, the point sampled at the
+        // frame's start, before enemy-owned motion and her movement.
         frame.SampleCameraPoint(room.Camera.PreviousSamusPoint ?? cameraPointAtFrameStart);
 
         // Retain the frame-start pose because the turn-transition animation cue can replace Samus.Pose during
@@ -1111,7 +1111,7 @@ internal sealed class SamusFramePhases
         if (!_player.AdvanceLoadAppearance())
             return;
 
-        // The item fanfare publishes its same-pose history shift only on the
+        // The saved game's appearance fanfare publishes its same-pose history shift only on the
         // update it ends, before her ordinary input and movement modes regain control.
         samus.CommitPoseHistory();
         samus.Control.Unlock();

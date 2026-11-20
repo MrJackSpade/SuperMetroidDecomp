@@ -96,25 +96,25 @@ internal static class TilemapJsonContractsEnvironmentVerification
                 eyeJson.Replace("\"id\":", "\"id\":\"unused\",\"id\":", StringComparison.Ordinal) }))
             Reject("opening eyes", corrupt, text => IntroEyeTilemapPresentation.Load(TilemapContractStream(text)));
 
-        byte[] dividerWords = TilemapContractWords(IntroFinalLineTilemapFormat.CellCount);
-        var divider = new IntroFinalLineTilemapDocument { Version = IntroFinalLineTilemapFormat.Version,
+        byte[] finalLineWords = TilemapContractWords(IntroFinalLineTilemapFormat.CellCount);
+        var finalLine = new IntroFinalLineTilemapDocument { Version = IntroFinalLineTilemapFormat.Version,
             Cells = Enumerable.Range(0, IntroFinalLineTilemapFormat.CellCount).Select(index => TilemapContractCell(
-                BinaryPrimitives.ReadUInt16LittleEndian(dividerWords.AsSpan(index * 2)))).ToArray() };
-        using var dividerEncoded = new MemoryStream();
-        IntroFinalLineTilemap.Write(dividerEncoded, divider);
-        string dividerJson = Encoding.UTF8.GetString(dividerEncoded.ToArray());
-        void LoadDivider(string text)
+                BinaryPrimitives.ReadUInt16LittleEndian(finalLineWords.AsSpan(index * 2)))).ToArray() };
+        using var finalLineEncoded = new MemoryStream();
+        IntroFinalLineTilemap.Write(finalLineEncoded, finalLine);
+        string finalLineJson = Encoding.UTF8.GetString(finalLineEncoded.ToArray());
+        void LoadFinalLine(string text)
         {
             ushort[] actual = BackgroundTileWordBytes.Words(IntroFinalLineTilemap.Load(TilemapContractStream(text)).Tiles.Span);
             for (int index = 0; index < actual.Length; index++)
-                AssertEqual(BinaryPrimitives.ReadUInt16LittleEndian(dividerWords.AsSpan(index * 2)), actual[index],
-                    "opening divider retains every native word, encoded through the codec");
+                AssertEqual(BinaryPrimitives.ReadUInt16LittleEndian(finalLineWords.AsSpan(index * 2)), actual[index],
+                    "final-line map retains every native word, encoded through the codec");
         }
-        LoadDivider(dividerJson);
-        Reject("opening divider (case-sensitive)", TilemapContractHistoricalCasing(dividerJson),
+        LoadFinalLine(finalLineJson);
+        Reject("final-line map (case-sensitive)", TilemapContractHistoricalCasing(finalLineJson),
             text => IntroFinalLineTilemap.Load(TilemapContractStream(text)));
-        foreach (string corrupt in TilemapContractCorruptions(dividerJson, root => (JsonObject)root.Required("cells").Required(0)))
-            Reject("opening divider", corrupt, text => IntroFinalLineTilemap.Load(TilemapContractStream(text)));
+        foreach (string corrupt in TilemapContractCorruptions(finalLineJson, root => (JsonObject)root.Required("cells").Required(0)))
+            Reject("final-line map", corrupt, text => IntroFinalLineTilemap.Load(TilemapContractStream(text)));
 
         var overlayWords = CeresEscapeOverlayPages.All.ToDictionary(page => page.Name,
             page => Enumerable.Range(0, page.WordCount).Select(index => unchecked((ushort)(index * 197 + 23))).ToArray());

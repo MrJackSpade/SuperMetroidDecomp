@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 /// <summary>
 /// Lays out the options pages' dynamic cells as the cartridge does (<see cref="GameOptionsPageDefinitions"/>, #1467): each
 /// controller label's box, the language-label rows and the toggle choice boxes the cartridge recolours, which the import
-/// writes into the installed presentation. The game never addresses a page cell.
+/// pictures from its import data; the installation holds the pictures. The game never addresses a page cell.
 /// </summary>
 public static class GameOptionsPageCells
 {

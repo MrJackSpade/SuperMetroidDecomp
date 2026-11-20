@@ -2,12 +2,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>Immutable mechanics for the old-Tourian railing and panel flash loops.</summary>
-/// <remarks>
-/// The two definitions use identical fifteen-record timing.
-/// Their 90 BGR555 words remain live presentation data; this catalog owns palette
-/// placement, timing, waits, and loop control.
-/// </remarks>
+/// <summary>The records of the old-Tourian railings' and panels' flashes and the colours each writes, for the import.</summary>
 public static class OldTourianEscapeAccentPaletteFxColorDefinitions
 {
 

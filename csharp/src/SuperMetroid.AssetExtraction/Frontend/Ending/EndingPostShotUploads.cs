@@ -7,9 +7,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// </summary>
 internal static class EndingPostShotUploads
 {
-    /// <summary>Subtitle, four consecutive2048-byte logo chunks, then tilemap.
-    /// Source byte offsets advance by chunk length. Native8B:E45A..E489 independently confirms all six records for #1165.
-    /// The subtitle/map are semantic transfer cases, not interpolated chunk addresses.</summary>
+    /// <summary>The post-shot upload at <paramref name="index"/>: the subtitle, the logo's four consecutive chunks of
+    /// equal length, then the tilemap. The chunks' source offsets advance by the chunk length; the subtitle and the map
+    /// are their own transfer cases, not offsets between the chunks.</summary>
     public static EndingPostShotUploadDefinition Get(int index)
     {
         if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));

@@ -211,11 +211,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, statue);
 
         // The hand offset belongs to the same carry step as the velocity.
-        // Writing Samus after collision reproduces the cutscene's absolute ownership.
+        // Samus is placed at the hold from the statue's position after its terrain movement.
         samus.Position = samus.Position.WithWhole(new(statue.Position.X.Whole + motion.SamusOffset.X, statue.Position.Y.Whole + motion.SamusOffset.Y));
     }
 
-    /// <summary>Spawns a plug-crumble room object and spike-footstep only when the offset floor block has the special type.</summary>
+    /// <summary>Spawns the plug crumble and the spike-footstep dust when the block below the footstep is a spike block.</summary>
     private void ProcessChozoStatueFootstep(
         RoomEnemyPlace statue,
         RoomLevelData level,

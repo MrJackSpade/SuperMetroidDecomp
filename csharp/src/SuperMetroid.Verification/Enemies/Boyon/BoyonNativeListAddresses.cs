@@ -27,7 +27,7 @@ internal static class BoyonNativeListAddresses
     {
         [0x8173] = new BoyonNativeListAddressesInstruction(BoyonCueKind.ProcessOffScreen, ""),
         [0x817d] = new BoyonNativeListAddressesInstruction(BoyonCueKind.StopProcessingOffScreen, ""),
-        [0x88c6] = new BoyonNativeListAddressesInstruction(BoyonCueKind.StartBounce, ""),
+        [0x88c6] = new BoyonNativeListAddressesInstruction(BoyonCueKind.PlayBounceSound, ""),
     };
 
     /// <summary>

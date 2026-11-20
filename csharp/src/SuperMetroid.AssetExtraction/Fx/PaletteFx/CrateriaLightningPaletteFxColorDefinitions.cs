@@ -2,11 +2,8 @@
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>
-/// Immutable control words and byte operands for the Landing Site's lightning program.
+/// The records of the Landing Site's lightning and the colours each writes, for the import.
 /// </summary>
-/// <remarks>
-/// Its colour words remain presentation data; timer setup, timing, branches, and targets are compiled.
-/// </remarks>
 public static class CrateriaLightningPaletteFxColorDefinitions
 {
     /// <summary>The Landing Site program whose flash colors light eight of the background's colours.</summary>

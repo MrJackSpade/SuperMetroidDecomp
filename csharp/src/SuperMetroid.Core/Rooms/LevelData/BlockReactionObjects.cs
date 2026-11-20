@@ -127,8 +127,8 @@ internal sealed class BlockReactionObjects
     /// The setup accepts boost-counter stage four and all six directional shinespark poses. On acceptance it preserves
     /// the collision kind in the eventual restore block, substitutes the Speed Booster parent's block, and makes the
     /// live block air before the
-    /// room objects' step draws the first crumble frame. Rejected contact deletes the temporary
-    /// place synchronously and the block stays solid to the bomb.
+    /// room objects' step draws the first crumble frame. Rejected contact takes no place and leaves the block solid to
+    /// the bomb.
     /// </remarks>
     /// <returns>True when contact passes: accepted setup, or an exhausted room-object pool.</returns>
     public bool TrySpawnSamusSpeedBoosterBlock(

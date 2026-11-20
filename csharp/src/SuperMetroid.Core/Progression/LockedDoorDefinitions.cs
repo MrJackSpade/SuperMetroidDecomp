@@ -383,7 +383,7 @@ public static class LockedDoorDefinitions
     /// <summary>The green door facing left at column 110, row 22 of the Colosseum room: once opened, it stays open for good.</summary>
     public static LockedDoor ColosseumGreenDoorFacingLeftAt110x22 { get; } = new("ColosseumGreenDoorFacingLeftAt110x22");
 
-    /// <summary>The eye door facing right at column 1, row 38 of the The Precious room: once opened, it stays open for good.</summary>
+    /// <summary>The eye door facing right at column 1, row 38 of the Precious room: once opened, it stays open for good.</summary>
     public static LockedDoor ThePreciousEyeDoorFacingRight { get; } = new("ThePreciousEyeDoorFacingRight");
 
     /// <summary>The grey door facing right at column 1, row 22 of the Halfie Climb room: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>

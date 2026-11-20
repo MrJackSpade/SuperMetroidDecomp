@@ -10,7 +10,7 @@ public sealed class BullEnemyState
 {
     /// <summary>Starts one Bull with the shot-reaction guard the previous Bull in its place left, or none for the place's first.</summary>
     /// <remarks>
-    /// The Bull's setup writes only the speed and interval settings. The guard flag and its countdown are
+    /// The Bull's setup writes only the speed and interval settings. The guard's countdown is
     /// read by the Bull's first main-AI update, which counts the inherited countdown down: a Bull set up while its
     /// predecessor's guard (<see cref="BullMovementDefinitions.ShotReactionGuardDuration"/>) was still running ignores no-damage kicks until that guard runs out. The angles
     /// are always written by targeting or a kick before they are read, so they are the Bull's own.

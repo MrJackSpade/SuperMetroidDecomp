@@ -158,7 +158,7 @@ internal sealed class DraygonShots
             SamusState samus,
             SamusPowerBombExplosionState powerBomb)
         {
-            // The power-bomb catch does not stop the goop's flight on this update.
+            // A power bomb frees the goop's place, and the goop still follows Samus on this update.
             FreePlaceIfPowerBombed(goop, samus, powerBomb);
             if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
             {

@@ -18,7 +18,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Sbug.</summary>
     internal static void InitializeSbug(RoomEnemyPlace place)
     {
-        // A new Sbug plays no animation until it selects its first direction.
+        // A new Sbug starts the loop of its spawn heading's facing as it initializes.
         var state = new SbugEnemyState(SbugAction.WaitForSamus);
         place.SetSpeciesState(state);
         SetSbugFacing(place, state, ForwardLeg(place).Facing);

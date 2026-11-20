@@ -146,8 +146,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         // The cinematic runs its colour effects after actors; the ending's colours show the frame each shows (#1512, #1597).
         // The screen binds no audio requests, so an effect that made a sound would fail loudly (#2057).
         Stage.ColourEffects.StepScreen();
-        // The ending follows cinematic actors even while a text-only screen hides sprites.
-        // The credits' end enables the already-started colour effects when the credits finish.
+        // The shooting stars fly on every post-credits update, after the colour effects.
         if (EndingCreditsPhaseGroups.PostCredits.Contains(Phase))
             CreditsRoll.ShootingStars.Step();
         cinematicFrame++;
@@ -701,8 +700,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
 
     /// <summary>
     /// A one-screen plane showing the whole-screen picture <paramref name="picture"/>, which is <paramref name="scenery"/>, in
-    /// its own of the ending's colours (#1467, #1512, #1544): the phase that shows it shows it whole, never gated by whether
-    /// whether its picture has loaded (#1515).
+    /// its own of the ending's colours (#1467, #1512, #1544): the phase that shows it shows it whole (#1515).
     /// </summary>
     internal PicturedPlane ScreenPicture(SpriteSheetId sheet, string picture, EndingScenery scenery) =>
         new([new PlacedPlanePicture(Picture(sheet, picture), Offset16<PlanePixels>.Zero, screen.Colours.SceneryShading(scenery))]);

@@ -34,7 +34,7 @@ public sealed class PuyoEnemyState
     /// </summary>
     public PuyoHopType CurrentHop { get; internal set; }
 
-    /// <summary>The mark selected for the next hop.</summary>
+    /// <summary>The hop selected for the next launch.</summary>
     public PuyoHopType HopType { get; internal set; }
 
     /// <summary>The direction of the current hop.</summary>

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The Tourian Baby Metroid's animations, order.</summary>
+/// <summary>The Tourian Baby Metroid's animation runs.</summary>
 public enum BabyMetroidSegment
 {
     /// <summary>A long wide-open hold, then calm.</summary>

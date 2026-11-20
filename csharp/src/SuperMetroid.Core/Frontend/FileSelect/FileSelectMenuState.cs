@@ -61,7 +61,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private ShownFileSelectPage ShownPage { get; set; } = new(FileSelectPage.MainEmpty,
         SaveSlots.All.ToImmutableDictionary(slot => slot, _ => (ShownFileSelectSave?)null), SaveSlot.A, SaveSlot.A);
 
-    /// <summary>Performs the menu's first three steps, including every artwork load.</summary>
+    /// <summary>Reads the saves and readies the menu to open from black.</summary>
     public FileSelectMenuState(SaveSlotStore saves, AudioQueues audio,
         InstalledScreenContent screenContent, InstalledSpriteSheets spriteSheets)
     {
@@ -218,9 +218,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         IReadOnlyList<SaveSlot> helmetSlots = mainPage ? SaveSlots.All : [];
         foreach (SaveSlot slot in helmetSlots)
         {
-            // The menu fades out with the completed (or Start-shortened) helmet turn
-            // still drawn. Resetting to the first frame during the fade produces
-            // a one-frame-visible head snap immediately before loading.
+            // The selected helmet keeps its last turned picture, the completed (or Start-shortened) turn, through the
+            // fade out.
             FileSelectHelmetFrame frame = FileSelectItemRows.ForSaveSlot(slot) == SelectedItem && Phase is
                     FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
                 ? HelmetAnimationFrame

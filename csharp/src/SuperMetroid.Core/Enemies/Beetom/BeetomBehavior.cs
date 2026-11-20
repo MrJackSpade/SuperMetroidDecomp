@@ -219,7 +219,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 : BeetomSegment.HopRight);
     }
 
-    /// <summary>Aims the lunge toward Samus using the signed horizontal difference.</summary>
+    /// <summary>Aims the lunge toward the side Samus is on.</summary>
     private static void StartBeetomLunge(RoomEnemyPlace place, BeetomEnemyState state, SamusState samus)
     {
         HorizontalDirection towardSamus = samus.Position.X.Whole < place.Position.X.Whole
@@ -236,7 +236,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 : BeetomSegment.HopRight);
     }
 
-    /// <summary>Starts the attached blood-drain animation for the current facing.</summary>
+    /// <summary>Starts the attached blood-drain animation on <paramref name="side"/> of Samus.</summary>
     private static void StartBeetomDrain(RoomEnemyPlace place, BeetomEnemyState state, HorizontalDirection side)
     {
         SetBeetomAnimation(
@@ -467,8 +467,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Beetom's reaction to a bomb: after the common damage, it lets go of Samus.</summary>
-    /// <remarks>Common damage can kill the Beetom before it lets go, so the identity is matched before the
-    /// reaction runs.</remarks>
+    /// <remarks>Common damage can kill the Beetom before it lets go; a Beetom it kills has nothing left to let go of.</remarks>
     internal static EnemyBombReaction BeetomBombReaction { get; } = new()
     {
         AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),

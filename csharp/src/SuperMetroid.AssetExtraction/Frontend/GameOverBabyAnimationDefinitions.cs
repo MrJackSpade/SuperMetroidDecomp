@@ -20,13 +20,8 @@ internal static class GameOverBabyAnimationDefinitions
 
     /// <summary>Each frame's native menu-spritemap identity, used only for extraction parity.</summary>
     /// <remarks>
-    /// Issues #625 and #971: for semantic frame f=0..2 (Closed, Middle,
-    /// Open), native spritemap ID is $65+f. A pinned NTSC J/U v1.0 ROM walk of
-    /// the complete $82:BC27..BD95 Baby instruction stream found 60 positive
-    /// frame records, using IDs $65/$66/$67 exactly 15/30/15 times, with three
-    /// separate cry words. Menu spritemap pointer-table entries $82:C633,
-    /// C635, and C637 resolve to $82:CFF6, CFFD, and D004 as bank_82.asm says.
-    /// The table holds only these three frames.
+    /// The Closed, Middle and Open frames draw the menu spritemaps that follow one another in the menu spritemap table,
+    /// in that order. The table holds only these three frames.
     /// </remarks>
     internal static readonly NativeWordIdentities<GameOverBabyFrame> Spritemaps = new(new Dictionary<GameOverBabyFrame, ushort>
     {
@@ -37,13 +32,8 @@ internal static class GameOverBabyAnimationDefinitions
 
     /// <summary>Each colouring's native bank-$82 palette pointer, used only for extraction parity.</summary>
     /// <remarks>
-    /// Issues #625 and #972: for semantic palette phase p=0..3 (Idle,
-    /// ClosedCry, MiddleCry, OpenCry), native source is $82:BD97+$20*p.
-    /// Each contiguous block has 16 little-endian color words; four blocks
-    /// occupy $82:BD97..BE16. A pinned NTSC J/U v1.0 ROM walk of all 60
-    /// positive Baby frame records found phase counts 36, 6, 12, and 6,
-    /// with no pointer outside these four sources. bank_82.asm names the same
-    /// blocks. The table holds only these four sources.
+    /// The Idle, ClosedCry, MiddleCry and OpenCry colourings lie in consecutive blocks of sixteen colours, in that order.
+    /// The table holds only these four sources.
     /// </remarks>
     internal static readonly NativeWordIdentities<GameOverBabyColouring> PalettePointers = new(new Dictionary<GameOverBabyColouring, ushort>
     {
@@ -54,12 +44,8 @@ internal static class GameOverBabyAnimationDefinitions
     });
 
     /// <summary>
-    /// The bank-$82 cry callback each cry marker names (#1416: the Core enum that held these words is deleted):
-    /// <c>Instruction_Queue_BabyMetroid_Cry1_SoundEffect</c> to <c>Cry3</c> at $82:BC0C, BC15 and BC1E, which queue
-    /// library-three sounds $23, $26 and $27.
+    /// The cry callback word each cry marker names: the first, second and third cry each queue their own sound.
     /// </summary>
-    /// <remarks>Issues #625 and #970: their effect IDs and stream references were checked against pinned NTSC J/U v1.0
-    /// ROM.</remarks>
     internal static readonly NativeWordIdentities<GameOverBabySound> CryCallbacks = new(new Dictionary<GameOverBabySound, ushort>
     {
         [GameOverBabySound.FirstCry] = 0xbc0c,

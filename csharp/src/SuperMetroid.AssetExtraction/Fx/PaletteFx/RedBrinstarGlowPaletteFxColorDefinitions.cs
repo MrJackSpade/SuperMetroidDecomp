@@ -2,12 +2,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>Immutable control words for Red Brinstar's background-glow palette loop.</summary>
-/// <remarks>
-/// The palette-FX definition owns fourteen timed records.
-/// Its 112 BGR555 colors remain live presentation data; this catalog owns only color-index
-/// setup, durations, waits, and loop control.
-/// </remarks>
+/// <summary>The records of Red Brinstar's background glow and the colours each writes, for the import.</summary>
 public static class RedBrinstarGlowPaletteFxColorDefinitions
 {
 

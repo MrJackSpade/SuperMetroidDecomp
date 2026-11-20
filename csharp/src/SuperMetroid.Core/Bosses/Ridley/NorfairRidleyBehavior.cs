@@ -77,7 +77,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
             RidleyFlight.TickWingAnimation(state.Flight);
             Body.Tail.TickRidleyTail(place, state, samus, samusProjectiles);
             Body.Tail.ResolveRidleyTailProjectileHits(place, state.Tail, samusProjectiles);
-            // Main places carried Samus after body/tail movement.
+            // The grabbed Samus is placed after his body and tail move this update.
             if (state.GrabState != RidleyGrabState.Released)
                 NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus(place, state, samus);
         }

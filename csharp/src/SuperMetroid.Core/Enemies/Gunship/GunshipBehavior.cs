@@ -463,8 +463,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Waits one update for the engines to fire up: on the wait's last update the gunship shows its takeoff look from this
-    /// update's frame on, and the engines fire up.
+    /// Waits for the engines to fire up: when the <see cref="GunshipTakeoffDefinitions.EngineStartUpdates"/> wait runs out the
+    /// gunship shows its takeoff look from this update's frame on, and the engines fire up.
     /// </summary>
     private void WaitForGunshipEngines(RoomEnemyPlace top)
     {

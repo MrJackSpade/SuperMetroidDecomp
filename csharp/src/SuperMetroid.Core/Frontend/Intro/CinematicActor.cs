@@ -4,8 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// A cinematic actor: its position and colouring, playing one of its family's typed animations (#641, #1600, #2197)
-/// where every cinematic sprite's update ran its animation.
+/// A cinematic actor: its position and colouring, playing one of its family's typed animations (#641, #1600, #2197).
 /// </summary>
 /// <remarks>
 /// The actor's motion belongs to the owner that steps it (#1903): every cue goes to that owner, and an owner-less cue

@@ -4,8 +4,9 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusPoseMirrorDefinitions
 {
     /// <summary>
-    /// Each facing pose and its mirror, right-facing (or right-to-left) first. A pose absent from this list has no facing,
-    /// as the front-view poses, and is its own mirror.
+    /// Each facing pose and its mirror, right-facing (or right-to-left) first. A pose absent from this list is its own
+    /// mirror: the front-view poses, which face no way, and Draygon's left-only hold poses, which have no right-facing
+    /// counterpart.
     /// </summary>
     internal static readonly SamusPoseMirrorPair[] Pairs =
     [

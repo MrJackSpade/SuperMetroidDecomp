@@ -109,8 +109,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         RoomEnemyPlace place,
         WallSpacePirateEnemyState state)
     {
-        // Math rewrites both whole positions every frame and leaves
-        // the fractions untouched. The jump ellipse is the jump span wide and
+        // The arc places the Pirate's whole pixels each update; its fractions carry over. The jump ellipse is the jump span wide and
         // a quarter of it tall.
         int span = place.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan;
         place.Position = place.Position.WithWholeX(

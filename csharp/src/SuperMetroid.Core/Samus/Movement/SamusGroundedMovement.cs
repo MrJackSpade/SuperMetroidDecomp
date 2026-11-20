@@ -207,15 +207,15 @@ public static class SamusGroundedMovement
         }
 
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
-        if (movementType is not (SamusMovementType.TurningOnGround or SamusMovementType.TurningWhileJumping))
+        if (movementType is not (SamusMovementType.TurningOnGround or SamusMovementType.TurningRisingOrAimedCrouched))
             throw new InvalidOperationException(
                 $"Grounded turn pose {samus.Pose} has movement type {movementType}.");
-        if (movementType == SamusMovementType.TurningWhileJumping && !SamusPoseMetadata.IsAimedCrouchingTurnPose(samus.Pose))
-            throw new InvalidOperationException($"Grounded turning-while-jumping admission requires an aimed crouched turn, not {samus.Pose}.");
-        if (movementType == SamusMovementType.TurningWhileJumping && !samus.Kinematics.VerticalVelocity.HasNoDirection)
+        if (movementType == SamusMovementType.TurningRisingOrAimedCrouched && !SamusPoseMetadata.IsAimedCrouchingTurnPose(samus.Pose))
+            throw new InvalidOperationException($"A grounded rising-or-aimed-crouched turn requires an aimed crouched turn, not {samus.Pose}.");
+        if (movementType == SamusMovementType.TurningRisingOrAimedCrouched && !samus.Kinematics.VerticalVelocity.HasNoDirection)
         {
             throw new InvalidOperationException(
-                $"Airborne turning-while-jumping pose {samus.Pose} must execute through SamusAerialMovement.StepTurningInAir.");
+                $"Airborne rising-or-aimed-crouched turn pose {samus.Pose} must execute through SamusAerialMovement.StepTurningInAir.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -233,7 +233,7 @@ public static class SamusGroundedMovement
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
-        // The turning-on-ground or turning-while-jumping speeds supply the
+        // The turning-on-ground or rising-or-aimed-crouched turn speeds supply the
         // deceleration. If it takes the speed below zero, the speed stops and the
         // acceleration mode returns to accelerating before the direction is chosen.
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType);

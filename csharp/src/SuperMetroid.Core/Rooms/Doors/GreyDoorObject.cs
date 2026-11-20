@@ -79,7 +79,10 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
             base.Update(place, context);
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// What the cap's wait does this update: waiting on its condition, a shot before it holds only plays the dud sound and
+    /// once it holds the cap starts flashing; waiting on a shot, a shot opens it. Returns whether the wait acted.
+    /// </summary>
     private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
         GreyDoorObjects doors = context.RoomObjects.GreyDoors;

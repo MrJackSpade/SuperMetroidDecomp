@@ -38,7 +38,7 @@ internal abstract record FakeKraidCue
         internal override TResult Match<TResult>(Func<Spit, TResult> spit, Func<ChooseAction, TResult> chooseAction, Func<Move, TResult> move, Func<PlayCrySound, TResult> playCrySound) => Ensure.NotNull(move)(this);
     }
 
-    /// <summary>Records the cry sound while Fake Kraid is on screen.</summary>
+    /// <summary>Queues Fake Kraid's cry while he is on screen.</summary>
     internal sealed record PlayCrySound : FakeKraidCue
     {
         /// <inheritdoc/>

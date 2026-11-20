@@ -38,7 +38,7 @@ internal sealed class SamusPoseMovement
     internal static SamusPoseMovement TurningOnGround { get; } = new(nameof(TurningOnGround), steps => steps.StepTurningOnGround());
 
     /// <summary>The jumping turns: an aimed crouched turn with no vertical direction turns on the ground, every other one in the air.</summary>
-    internal static SamusPoseMovement TurningWhileJumping { get; } = new(nameof(TurningWhileJumping), steps => steps.StepTurningWhileJumping());
+    internal static SamusPoseMovement TurningRisingOrAimedCrouched { get; } = new(nameof(TurningRisingOrAimedCrouched), steps => steps.StepTurningWhileJumping());
 
     /// <summary>The turn in the air.</summary>
     internal static SamusPoseMovement TurningInAir { get; } = new(nameof(TurningInAir), steps => steps.StepTurningInAir());

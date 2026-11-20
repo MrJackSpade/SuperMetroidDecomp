@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// The enemy-side state that outlives each room, as the game keeps it across enemy loading (#1329): the
 /// elevator journey, Ceres's escape progress, the critical-energy drop bias, the language
-/// flag, the random enemy counter, the death quota an empty population keeps and how far the
+/// flag, the count of enemy passes, the death quota an empty population keeps and how far the
 /// room's encounters have played their artwork; and what it receives when it is built: the compatibility services its
 /// enemies consult (the installation's enemy and boss over-read services and the runtime's rainbow-beam camera checkpoint)
 /// and the installed enemy sheets and enemy frame displays every room's enemies draw from (#1616).

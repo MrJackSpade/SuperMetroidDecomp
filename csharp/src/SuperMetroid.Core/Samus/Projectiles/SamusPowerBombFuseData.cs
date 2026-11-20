@@ -2,7 +2,7 @@ using System.Collections.Frozen;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Constants used by the Power Bomb fuse.</summary>
+/// <summary>The definitions both bombs' and Power Bombs' fuses use.</summary>
 public static class SamusPowerBombFuseData
 {
     /// <summary>The fuse at which a bomb's or Power Bomb's fuse, counted down, switches to the fast animation.</summary>

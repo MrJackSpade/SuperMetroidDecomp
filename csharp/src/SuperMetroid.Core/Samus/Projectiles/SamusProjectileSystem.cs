@@ -163,9 +163,8 @@ public sealed class SamusProjectileSystem
     /// Samus's suit shade.
     /// </summary>
     /// <remarks>
-    /// This belongs to Samus's suit colouring, not charge-flare drawing. It changes
-    /// Samus's colours, which the next displayed frame shows, so the same colours
-    /// are written at this phase.
+    /// This belongs to Samus's suit colouring, not charge-flare drawing: the charge colours are written at this phase of
+    /// the update, and the next displayed frame shows them.
     /// The runtime shows the special Speed Booster, Screw Attack, Shinespark, Crystal Flash and X-ray colouring afterward,
     /// except on the update the glow ends and restores the suit: that update shows no special colouring.
     /// </remarks>

@@ -96,8 +96,8 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Flies the grabbed pair toward the authored spiral center, then
-    /// install the facing-specific roar before the expanding orbit begins.
+    /// Flies Draygon and the grabbed Samus toward the authored spiral centre, then roars facing his way before the
+    /// expanding orbit begins.
     /// </summary>
     internal void CarrySamusToDraygonSpiral(DraygonEnemyState state, SamusState samus)
     {

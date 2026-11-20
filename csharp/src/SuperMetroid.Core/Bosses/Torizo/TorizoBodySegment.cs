@@ -16,7 +16,7 @@ internal enum TorizoBodySegment
     BombTorizoFaceBlowingUp,
     /// <summary>A dying Torizo goes idle and locks its animation.</summary>
     Dying,
-    /// <summary>A dying Torizo's death explosion and the wait after it, the explosion's own and the next together.</summary>
+    /// <summary>A dying Torizo bursts in a death explosion and waits before the next one.</summary>
     DyingExplosions,
     /// <summary>A dying Torizo starts its fade to black.</summary>
     DyingFadeToBlack,

@@ -27,7 +27,7 @@ public sealed class IntroEggEffectSpritePresentation : ICinematicSpriteFrames
 
     /// <summary>Validates and compiles all eleven named egg-effect frames from editable JSON into independently owned visual compositions.</summary>
     /// <param name="json">Readable JSON stream at its current position; the caller retains ownership and it is left open.</param>
-    /// <returns>Installed artwork keyed by the original bank-$8C frame identities; later document edits cannot change its compiled parts.</returns>
+    /// <returns>Installed artwork, its compositions keyed by the poses that show them; later document edits cannot change its compiled parts.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">JSON is malformed, contains duplicate properties, has an unsupported version or frame set, or has invalid OAM visual fields.</exception>
     public static IntroEggEffectSpritePresentation Load(Stream json)

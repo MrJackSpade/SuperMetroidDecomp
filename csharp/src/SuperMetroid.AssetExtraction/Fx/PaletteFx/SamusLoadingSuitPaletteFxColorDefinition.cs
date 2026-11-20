@@ -1,6 +1,6 @@
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>One complete Samus-loading palette control program.</summary>
+/// <summary>One suit's loading records and the colours each writes.</summary>
 public sealed class SamusLoadingSuitPaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions.</summary>

@@ -681,9 +681,8 @@ internal sealed class RoomLoader
         // The elevator's initialization sees the arrival, moves the platform to its arrival height, and then pins
         // Samus to it, so the door's placement comes first and never moves her off the platform.
         samus.Position = placement.SamusPosition;
-        // The door's scroll moves Samus at its own speed. Ordinary jump velocity survives
-        // room loading and the final nudge; clearing it here restarts a fall
-        // at its apex and lets horizontal momentum carry Samus too far after exit.
+        // The door's scroll moves Samus at its own speed. The door clears the external displacement enemies added; her
+        // own velocity, an ordinary jump's included, survives room loading and the final nudge.
         samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.Zero;
 
         LoadRoom(

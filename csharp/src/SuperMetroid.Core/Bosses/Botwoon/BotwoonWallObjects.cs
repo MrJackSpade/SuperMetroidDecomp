@@ -17,7 +17,7 @@ internal sealed class BotwoonWallObjects(RoomObjectPlaceList places)
     /// The clear has an empty setup and clears an already-defeated room on the next update. The crumble's setup holds
     /// it for its setup hold (<see cref="BotwoonWallMutationDefinitions.CrumbleSetupHold"/>); it then crumbles nine rows of four four-update images, moving one block down between rows.
     /// </remarks>
-    public void TrySpawn(RoomLevelData level, BotwoonWallMutation mutation)
+    public void Spawn(RoomLevelData level, BotwoonWallMutation mutation)
     {
         Ensure.NotNull(level);
         RoomObjectBehaviour wall = mutation switch

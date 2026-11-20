@@ -104,13 +104,13 @@ internal static void VerifySamusMorphBallMovement()
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     SamusPresentation.InitializeAnimation(samus);
 
-    SamusPosturePoseTransitions.TryApplyMorphTransition(samus, 
+    SamusPosturePoseTransitions.ApplyMorphTransition(samus, 
 floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusPoseId.CrouchingRightPose, samus.Pose, "rejected morph retains crouch");
     AssertEqual(48, samus.Position.Y.Whole, "rejected morph retains center Y");
 
     samus.EquippedItems = SamusEquipmentFlags.MorphBall;
-    SamusPosturePoseTransitions.TryApplyMorphTransition(samus, 
+    SamusPosturePoseTransitions.ApplyMorphTransition(samus, 
 floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(7, samus.Kinematics.Radius.Y, "morph transition radius from ROM");
     AssertEqual(57, samus.Position.Y.Whole, "command seven moves center down nine");
@@ -129,7 +129,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0, roomObjects: Sa
     }.WithBeamChargeCount(0x003c);
     SamusPoseMetadata.RefreshCollisionRadii(fallingMorph);
     fallingMorph.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
-    SamusPosturePoseTransitions.TryApplyMorphTransition(fallingMorph, 
+    SamusPosturePoseTransitions.ApplyMorphTransition(fallingMorph, 
 floor, SamusPoseId.MorphingTransitionLeftPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(49, fallingMorph.Position.Y.Whole,
         "compact falling morph uses command-seven table displacement, not radius difference");
@@ -139,7 +139,7 @@ floor, SamusPoseId.MorphingTransitionLeftPose, frameCounter: 1, roomObjects: Sam
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 54)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(clippedMorph);
-    SamusPosturePoseTransitions.TryApplyMorphTransition(clippedMorph, floor,
+    SamusPosturePoseTransitions.ApplyMorphTransition(clippedMorph, floor,
         SamusPoseId.MorphingTransitionLeftPose, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(57, clippedMorph.Position.Y.Whole,
         "command-seven nine-pixel request clips to three pixels at the floor");
@@ -157,7 +157,7 @@ floor, SamusPoseId.MorphingTransitionLeftPose, frameCounter: 1, roomObjects: Sam
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 40)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(spinMorph);
-    SamusPosturePoseTransitions.TryApplyMorphTransition(spinMorph, 
+    SamusPosturePoseTransitions.ApplyMorphTransition(spinMorph, 
 floor, SamusPoseId.MorphingTransitionLeftPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusAccelerationMode.Decelerating, spinMorph.HorizontalSpeed.AccelerationMode,
         "spin-source morph forces native aerial deceleration mode two");
@@ -406,7 +406,7 @@ floor, samus, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObjectF
     // target body's bottom boundary. The live radius changes in the next alpha pass.
     // A ceiling in row two makes both initial expansion probes collide;
     // radius-seven `$91:FFA7` must retain the ball instead of selecting crouch.
-    SamusPosturePoseTransitions.TryApplyMorphTransition(samus, 
+    SamusPosturePoseTransitions.ApplyMorphTransition(samus, 
 floor, SamusPoseId.UnmorphingTransitionLeftPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(7, samus.Kinematics.Radius.Y, "unmorph retains old live radius through beta");
     AssertEqual(48, samus.Position.Y.Whole, "unmorph expansion keeps bottom boundary");
@@ -425,7 +425,7 @@ floor, SamusPoseId.UnmorphingTransitionLeftPose, frameCounter: 0, roomObjects: S
     };
     SamusPoseMetadata.RefreshCollisionRadii(boxedBall);
     SamusPresentation.InitializeAnimation(boxedBall);
-    SamusPosturePoseTransitions.TryApplyMorphTransition(boxedBall, 
+    SamusPosturePoseTransitions.ApplyMorphTransition(boxedBall, 
 tunnel, SamusPoseId.UnmorphingTransitionRightPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, boxedBall.Pose, "boxed unmorph retains ball pose");
     AssertEqual(7, boxedBall.Kinematics.Radius.Y, "boxed unmorph retains ball radius");
@@ -451,7 +451,7 @@ tunnel, SamusPoseId.UnmorphingTransitionRightPose, frameCounter: 1, roomObjects:
         fallingUnmorph.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x3456);
         fallingUnmorph.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(2, 0x8000), SamusVerticalDirection.Down);
 
-        SamusPosturePoseTransitions.TryApplyUnmorphToFallingTransition(fallingUnmorph, 
+        SamusPosturePoseTransitions.ApplyUnmorphToFallingTransition(fallingUnmorph, 
 empty, targetPose, frameCounter: 3, roomObjects: SamusRoomObjectFixtures.Uninstalled);
         AssertEqual(targetPose, fallingUnmorph.Pose,
             $"unmorph ${(int)SamusPoseNumbers.Number(sourcePose):X2} installs falling target");
@@ -479,7 +479,7 @@ empty, targetPose, frameCounter: 3, roomObjects: SamusRoomObjectFixtures.Uninsta
     };
     SamusPoseMetadata.RefreshCollisionRadii(airborneEntry);
     SamusPresentation.InitializeAnimation(airborneEntry);
-    SamusPosturePoseTransitions.TryApplyMorphTransition(airborneEntry, 
+    SamusPosturePoseTransitions.ApplyMorphTransition(airborneEntry, 
 floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     airborneEntry.Kinematics.VerticalVelocity = airborneEntry.Kinematics.VerticalVelocity.WithSpeed(airborneEntry.Kinematics.VerticalVelocity.Speed.WithFraction(1));
     for (int tick = 0; tick < 6; tick++)
@@ -500,7 +500,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0, roomObjects: Sa
     };
     SamusPoseMetadata.RefreshCollisionRadii(spring);
     SamusPresentation.InitializeAnimation(spring);
-    SamusPosturePoseTransitions.TryApplyMorphTransition(spring, 
+    SamusPosturePoseTransitions.ApplyMorphTransition(spring, 
 floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     for (int tick = 0; tick < 6; tick++)
     {
@@ -1149,7 +1149,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
 
     RoomLevelData powerBombDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(bombDoorWords, bombDoorBts, new RoomBlockAppearance[bombDoorWords.Length]), RoomLevelData.NothingBeyondGrid(), []);
     var powerBombDoorObjects = RoomObjectFixtures.Unbound();
-    powerBombDoorObjects.DoorObjects.TrySpawnBlueDoorOpening(
+    powerBombDoorObjects.DoorObjects.SpawnBlueDoorOpening(
             powerBombDoorLevel,
             powerBombDoorLevel.BlockAt(bombDoorIndex),
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
@@ -1474,15 +1474,15 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     }
         var specialObjects = RoomObjectFixtures.Unbound();
     AssertTrue(
-        specialObjects.TrySpawnBombedSpecialBlock(
+        specialObjects.SpawnBombedSpecialBlock(
             specialLevel, specialLevel.BlockAt(crumbleIndex), 3, AreaId.Crateria, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
         "normal bomb allocates two-by-two crumble reveal");
     AssertTrue(
-        specialObjects.TrySpawnBombedSpecialBlock(
+        specialObjects.SpawnBombedSpecialBlock(
             specialLevel, specialLevel.BlockAt(speedIndex), 0x82, AreaId.Brinstar, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
         "Brinstar negative BTS two allocates speed-block reveal");
     AssertTrue(
-        !specialObjects.TrySpawnBombedSpecialBlock(
+        !specialObjects.SpawnBombedSpecialBlock(
             specialLevel, specialLevel.BlockAt(crumbleIndex), 3, AreaId.Crateria, SamusProjectileType.Of(SamusProjectileFamily.PowerBomb)),
         "Power Bomb visits special block but CFA0 synchronously clears its PLM header");
     AssertEqual(2, specialObjects.Places.ActiveCount,

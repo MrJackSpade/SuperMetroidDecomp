@@ -13,7 +13,7 @@ internal sealed class ShitroidWallObjects(RoomObjectPlaceList places)
     /// gives each block of the mutation's shape on the wall column the shape's collision, keeping every block's picture and
     /// what it shows (#2502), and the object leaves the room on its first update.
     /// </summary>
-    public void TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<ShitroidWallMutation> request)
+    public void Spawn(RoomLevelData level, RoomObjectSpawnRequest<ShitroidWallMutation> request)
     {
         Ensure.NotNull(level);
         RoomBlockShape shape = Ensure.Listed(Shapes, request.RoomObject);

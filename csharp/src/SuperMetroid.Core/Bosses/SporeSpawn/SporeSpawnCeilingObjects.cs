@@ -12,7 +12,7 @@ internal sealed class SporeSpawnCeilingObjects(RoomObjectPlaceList places)
     /// Spawns the ceiling room object performing <paramref name="mutation"/> at the ceiling's block. The crumble animates three
     /// crumble frames and then runs on into the clear; the clear starts directly at the clear for an already-defeated room.
     /// </summary>
-    public void TrySpawn(RoomLevelData level, SporeSpawnCeilingMutation mutation)
+    public void Spawn(RoomLevelData level, SporeSpawnCeilingMutation mutation)
     {
         Ensure.NotNull(level);
         TerrainChange change = Ensure.Listed(SporeSpawnCeilingMutationDefinitions.Changes, mutation);

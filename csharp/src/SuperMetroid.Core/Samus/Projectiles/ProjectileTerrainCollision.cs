@@ -307,7 +307,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
         {
-            roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
+            roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
             return true;
         }
 
@@ -353,7 +353,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetDownwardGateTrigger(out _))
         {
-            roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.At, block.Behavior, shot.Type);
+            roomObjects.Gates.SpawnDownwardGateTrigger(level, block.At, block.Behavior, shot.Type);
             return;
         }
 
@@ -373,7 +373,7 @@ internal sealed class ProjectileTerrainCollision
         // same owner and power bombs retain the blue door setup's rejection behavior.
         if (block.Behavior.TryGetBlueDoorOrientation(out _))
         {
-            roomObjects.DoorObjects.TrySpawnBlueDoorOpening(
+            roomObjects.DoorObjects.SpawnBlueDoorOpening(
                 level,
                 block.At,
                 block.Behavior,

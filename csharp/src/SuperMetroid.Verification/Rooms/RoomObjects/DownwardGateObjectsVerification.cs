@@ -188,7 +188,7 @@ internal static class DownwardGateObjectsVerification
                 DownwardGateObject { Phase: DownwardGatePhase.RestingClosed, Resting: true } restingGate &&
                 restingGate.Animation.Shown == DownwardGateMovementDefinitions.Closed,
             "a gate that has not moved rests on its closed image, not on an image of a movement (#1627)");
-        roomObjects.Gates.TrySpawnDownwardGateTrigger(
+        roomObjects.Gates.SpawnDownwardGateTrigger(
                 level,
                 level.BlockAt(gateBlockIndex - 1),
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
@@ -222,7 +222,7 @@ internal static class DownwardGateObjectsVerification
         AssertTrue(openedGate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingOpen },
             "open gate rests, waiting only for a trigger");
 
-        roomObjects.Gates.TrySpawnDownwardGateTrigger(
+        roomObjects.Gates.SpawnDownwardGateTrigger(
                 level,
                 level.BlockAt(gateBlockIndex - 1),
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
@@ -256,7 +256,7 @@ internal static class DownwardGateObjectsVerification
             ? gateBlockIndex - 1
             : gateBlockIndex + 1;
         RoomBlockBehavior bts = level.GetCollisionBlockByIndex(triggerBlockIndex).Behavior;
-        roomObjects.Gates.TrySpawnDownwardGateTrigger(level, level.BlockAt(triggerBlockIndex), bts, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectile));
+        roomObjects.Gates.SpawnDownwardGateTrigger(level, level.BlockAt(triggerBlockIndex), bts, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectile));
         RoomObjectPlaceSnapshot gate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
         AssertEqual(accepted, gate.Behaviour is DownwardGateObject { Triggered: true },

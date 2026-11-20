@@ -478,7 +478,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     };
     spinFire.HorizontalSpeed.ExtraRunSpeed = spinFire.HorizontalSpeed.ExtraRunSpeed.WithFraction(1);
     // The spin Fire body expansion fits the empty room: the pose below shows it taken.
-    spinFire.TryApplySpinToNormalJumpFireTransition(
+    spinFire.ApplySpinToNormalJumpFireTransition(
         empty,
         SamusPoseId.NormalJumpGunExtendedRightPose,
         frameCounter: 0,
@@ -516,7 +516,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
             VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(4, 0x2345), SamusVerticalDirection.Up),
         },
     };
-    SamusAerialPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(wallFire, 
+    SamusAerialPoseTransitions.ApplySpinOrWallJumpToNormalJumpTransition(wallFire, 
 
         empty,
         SamusPoseId.NormalJumpGunExtendedRightPose,
@@ -548,7 +548,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
             VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(2, 0x3456), SamusVerticalDirection.Up),
         },
     };
-    SamusAerialPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(spinAimDown, 
+    SamusAerialPoseTransitions.ApplySpinOrWallJumpToNormalJumpTransition(spinAimDown, 
 
         empty,
         SamusPoseId.NormalJumpAimDownLeftPose,

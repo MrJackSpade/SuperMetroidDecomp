@@ -66,7 +66,7 @@ public static class SamusGrappleMovement
         var flare = ReadFlareOrigin(grapple, direction, useRunOffsets);
         int artOrigin = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingArtOrigin : SamusPoseMetadata.ReadArtOrigin(samus);
         int physicalYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingArtOrigin :
-            SamusPoseTraits.Of(samus.Pose).ProjectileHeight ?? throw new InvalidOperationException($"Nothing is fired from pose {samus.Pose}.");
+            SamusPoseTraits.Armed(samus.Pose).ProjectileHeight;
 
         // The hand and flare offsets and the pose's offsets are a few pixels each, so their differences are ordinary.
         grapple.OriginOffset = new(origin.X, origin.Y - physicalYOffset);
@@ -752,9 +752,9 @@ public static class SamusGrappleMovement
                 // blue door setup's power-bomb rejection; the ordinary opening owner
                 // supplies all four cap blocks, timing, collision changes, and sound.
                 if (block.Behavior.TryGetDownwardGateTrigger(out _))
-                    roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
+                    roomObjects.Gates.SpawnDownwardGateTrigger(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
                 else if (block.Behavior.TryGetBlueDoorOrientation(out _))
-                    roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
+                    roomObjects.DoorObjects.SpawnBlueDoorOpening(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
                 else if (block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
                 {
                     // A shot-triggered block also reacts to the grapple: its resident actor hears of a hit with no
@@ -764,7 +764,7 @@ public static class SamusGrappleMovement
                             $"Grapple trigger block {block.Position} has no resident room-object owner.");
                 }
                 else if (block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
-                    roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
+                    roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
                 else
                 {
                     try
@@ -964,8 +964,7 @@ public static class SamusGrappleMovement
         var origin = GrappleFiring.Origin(grapple.FireDirection, useRunOffsets);
         var flare = ReadFlareOrigin(grapple, grapple.FireDirection, useRunOffsets);
         int artOrigin = SamusPoseMetadata.ReadArtOrigin(samus);
-        int physicalYOffset = SamusPoseTraits.Of(samus.Pose).ProjectileHeight ??
-            throw new InvalidOperationException($"Nothing is fired from pose {samus.Pose}.");
+        int physicalYOffset = SamusPoseTraits.Armed(samus.Pose).ProjectileHeight;
 
         // Recompute from the final pose/position, not cached launch offsets. The rope start and the flare remain separate
         // coordinate pairs.

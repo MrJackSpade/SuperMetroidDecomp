@@ -41,7 +41,7 @@ internal sealed class DoorObjects
     /// from its next update. With no door there, or one that stays open, the door's closing behaviour may place a blue cap
     /// closing toward the travel direction or the escape gate closing, in the first free place, like any other room object.
     /// </remarks>
-    public void TrySpawnDoorClosingObject(RoomLevelData level, DoorDefinition door)
+    public void SpawnDoorClosingObject(RoomLevelData level, DoorDefinition door)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(door);
@@ -132,7 +132,7 @@ internal sealed class DoorObjects
     /// (<see cref="BlueDoorCapObject"/>). A Power Bomb is the one projectile that does not open it. A full room loses the
     /// request, as the game's block-spawned objects do.
     /// </remarks>
-    public void TrySpawnBlueDoorOpening(
+    public void SpawnBlueDoorOpening(
         RoomLevelData level,
         Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,

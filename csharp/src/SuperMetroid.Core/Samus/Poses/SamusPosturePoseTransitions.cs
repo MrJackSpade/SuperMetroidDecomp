@@ -18,7 +18,7 @@ internal static class SamusPosturePoseTransitions
     /// <remarks>These input transitions bypass the animated aimed stand-up poses. Accepted expansion applies the whole-pixel Y adjustment but retains the crouching radius until Samus's next input phase, matching the larger-radius check's previous-pose radius publication.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source and target are not a same-facing route from a crouch to a final standing pose.</exception>
-    public static void TryApplyDirectCrouchToStandingTransition(
+    public static void ApplyDirectCrouchToStandingTransition(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
@@ -73,7 +73,7 @@ internal static class SamusPosturePoseTransitions
     /// only ordinary crouching subtracts ten extra pixels; aimed crouches still
     /// jump, but retain only the collision resolver's bottom-alignment adjustment.
     /// </remarks>
-    public static void TryApplyCrouchJumpTransition(
+    public static void ApplyCrouchJumpTransition(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
@@ -128,7 +128,7 @@ internal static class SamusPosturePoseTransitions
     /// of the pose-change collision. The admitted target set is exactly
     /// the unaimed and aimed crouching and standing transitions.
     /// </summary>
-    public static void TryApplyPostureTransition(
+    public static void ApplyPostureTransition(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
@@ -241,7 +241,7 @@ internal static class SamusPosturePoseTransitions
     /// the larger-radius check; floor collision normally moves center up nine. If both sides constrain a
     /// radius-seven body, the crouch selector rejects the target and keeps Samus morphed.
     /// </remarks>
-    public static void TryApplyMorphTransition(
+    public static void ApplyMorphTransition(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
@@ -363,7 +363,7 @@ internal static class SamusPosturePoseTransitions
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source and target are not the Draygon-held ball and its stand-up.</exception>
-    public static void TryApplyDraygonHoldStandUp(
+    public static void ApplyDraygonHoldStandUp(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
@@ -418,7 +418,7 @@ internal static class SamusPosturePoseTransitions
     /// changed-pose setup, makes room for the target body's potentially larger radius,
     /// and preserves the existing horizontal and vertical speeds that describe Samus's current fall.
     /// </remarks>
-    public static void TryApplyUnmorphToFallingTransition(
+    public static void ApplyUnmorphToFallingTransition(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,

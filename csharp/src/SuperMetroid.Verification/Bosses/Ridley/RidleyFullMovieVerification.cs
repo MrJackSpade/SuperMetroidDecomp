@@ -346,7 +346,7 @@ internal static class RidleyFullMovieVerification
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x97ff);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             var previous = FixedPosition<RoomPixels>.FromStoredParts(128, 0, 401, 0xb7ff);
-            SamusPosturePoseTransitions.TryApplyMorphTransition(samus, level,
+            SamusPosturePoseTransitions.ApplyMorphTransition(samus, level,
                 left ? SamusPoseId.MorphingTransitionLeftPose : SamusPoseId.MorphingTransitionRightPose, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             AssertEqual((ushort)411, samus.Position.Y.Whole, "native morph center alignment");
             AssertEqual((ushort)0x97ff, samus.Kinematics.Position.Y.Fraction, "morph preserves current fraction");
@@ -356,7 +356,7 @@ internal static class RidleyFullMovieVerification
 
             samus.Pose = left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusPosturePoseTransitions.TryApplyMorphTransition(samus, level,
+            SamusPosturePoseTransitions.ApplyMorphTransition(samus, level,
                 left ? SamusPoseId.UnmorphingTransitionLeftPose : SamusPoseId.UnmorphingTransitionRightPose, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             AssertEqual(previous.WithY(previous.Y.WithWhole(samus.Position.Y.Whole)), samus.ApplyPreviousPositionWrites(previous),
                 "zero alignment entry still replaces previous whole Y");
@@ -372,7 +372,7 @@ internal static class RidleyFullMovieVerification
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusPoseTransitions.TryApplyAerialLanding(samus, level, false, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            SamusPoseTransitions.ApplyAerialLandingInRoom(samus, level, false, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             AssertEqual(1, samus.AnimationNumber, "native standing initializer skips raised-gun frame");
             AssertEqual((ushort)2, samus.AnimationFrameTimer.RawValue, "native source3604 landing delay");
             samus.Pose = pose;

@@ -282,7 +282,7 @@ level, samus, GameplayAction.Jump, frameCounter: 0, roomObjects: SamusRoomObject
     AssertThrows<InvalidOperationException>(
         () => SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, SamusPoseId.NormalJumpAimDownRightPose),
         "compact aim requires room-aware collision route");
-    SamusAerialPoseTransitions.TryApplyCompactAerialTransition(samus, 
+    SamusAerialPoseTransitions.ApplyCompactAerialTransition(samus, 
 level, SamusPoseId.NormalJumpAimDownRightPose, frameCounter: 4, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusPoseId.NormalJumpAimDownRightPose, samus.Pose, "compact jump pose");
     AssertEqual(19, samus.Kinematics.Radius.Y, "compact jump commit retains old live radius");
@@ -291,7 +291,7 @@ level, SamusPoseId.NormalJumpAimDownRightPose, frameCounter: 4, roomObjects: Sam
     AssertEqual(compactCenterY, samus.Position.Y.Whole, "shrinking compact jump preserves center");
     AssertEqual(compactVelocity, samus.Kinematics.VerticalVelocity.Speed.RawValue, "compact entry preserves 16.16 velocity");
     AssertEqual(compactDirection, samus.Kinematics.VerticalVelocity.Direction, "compact entry preserves vertical direction");
-    SamusAerialPoseTransitions.TryApplyCompactAerialTransition(samus, 
+    SamusAerialPoseTransitions.ApplyCompactAerialTransition(samus, 
 level, SamusPoseId.NormalJumpAimDiagonalDownRightPose, frameCounter: 5, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(10, samus.Kinematics.Radius.Y, "compact expansion commit retains old live radius");
     SamusPoseMetadata.RefreshCollisionRadii(samus); // Next alpha publishes expanded geometry.
@@ -338,7 +338,7 @@ level, samus, GameplayAction.Jump, unchecked((ushort)index), roomObjects: SamusR
         compactFallFrame = SamusAerialMovement.StepFalling(level, compactFall, 0, index, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertTrue(compactFallFrame.Landed, "compact falling pose reaches floor");
     ushort compactBottom = unchecked((ushort)(compactFall.Position.Y.Whole + compactFall.Kinematics.Radius.Y));
-    SamusPoseTransitions.TryApplyCompactAerialLanding(compactFall, level, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusPoseTransitions.ApplyCompactAerialLanding(compactFall, level, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusPoseId.NormalLandingRightPose, compactFall.Pose, "shot direction four selects A4 landing");
     // $91:FDAE leaves $0B00 at the compact body until alpha's SetSamusRadius, so enemy and
     // projectile collision later in the landing frame still use radius ten.
@@ -376,7 +376,7 @@ level, samus, GameplayAction.Jump, unchecked((ushort)index), roomObjects: SamusR
     SamusPresentation.InitializeAnimation(capturedCompactLanding);
     AssertEqual(0x00c8, capturedCompactLanding.Kinematics.BottomBoundary,
         "captured compact body begins on half-platform surface");
-    SamusPoseTransitions.TryApplyCompactAerialLanding(capturedCompactLanding, 
+    SamusPoseTransitions.ApplyCompactAerialLanding(capturedCompactLanding, 
 halfPlatform, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(0x00b3, capturedCompactLanding.Position.Y.Whole,
         "captured half-platform landing shifts center up eleven pixels");
@@ -393,7 +393,7 @@ halfPlatform, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     };
     SamusPoseMetadata.RefreshCollisionRadii(compactLeft);
     SamusPresentation.InitializeAnimation(compactLeft);
-    SamusAerialPoseTransitions.TryApplyCompactAerialTransition(compactLeft, 
+    SamusAerialPoseTransitions.ApplyCompactAerialTransition(compactLeft, 
 level, SamusPoseId.NormalJumpAimDiagonalDownLeftPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusPoseId.NormalJumpAimDiagonalDownLeftPose, compactLeft.Pose, "mirrored compact jump target");
     AssertEqual(10, compactLeft.Kinematics.Radius.Y, "mirrored expansion retains old radius until alpha");
@@ -418,7 +418,7 @@ level, compactLeftLanding, 0, index, roomObjects: SamusRoomObjectFixtures.Uninst
     AssertTrue(compactLeftFallFrame.Landed, "mirrored compact falling pose reaches floor");
     ushort compactLeftBottom = unchecked((ushort)(
         compactLeftLanding.Position.Y.Whole + compactLeftLanding.Kinematics.Radius.Y));
-    SamusPoseTransitions.TryApplyCompactAerialLanding(compactLeftLanding, level, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusPoseTransitions.ApplyCompactAerialLanding(compactLeftLanding, level, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusPoseId.NormalLandingLeftPose, compactLeftLanding.Pose, "shot direction five selects A5 landing");
     AssertEqual(
         compactLeftBottom,
@@ -441,7 +441,7 @@ level, compactLeftLanding, 0, index, roomObjects: SamusRoomObjectFixtures.Uninst
     };
     SamusPoseMetadata.RefreshCollisionRadii(boxedCompact);
     SamusPresentation.InitializeAnimation(boxedCompact);
-    SamusAerialPoseTransitions.TryApplyCompactAerialTransition(boxedCompact, 
+    SamusAerialPoseTransitions.ApplyCompactAerialTransition(boxedCompact, 
 boxedLevel, SamusPoseId.NormalJumpAimDiagonalDownRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusPoseId.CrouchingRightPose, boxedCompact.Pose, "boxed compact expansion selects crouch");
     AssertEqual(10, boxedCompact.Kinematics.Radius.Y, "boxed compact fallback retains live radius until alpha");

@@ -846,7 +846,7 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType == RoomCollisionType.SpecialBlock && block.Behavior.Special == SpecialBlockReaction.CollectibleTrigger ||
             block.CollisionType == RoomCollisionType.ShootableBlock && block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
         {
-            roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
+            roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
             return;
         }
 
@@ -870,7 +870,7 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetBlueDoorOrientation(out _))
         {
-            roomObjects.DoorObjects.TrySpawnBlueDoorOpening(
+            roomObjects.DoorObjects.SpawnBlueDoorOpening(
                 level,
                 block.At,
                 block.Behavior,
@@ -909,7 +909,7 @@ public sealed class SamusBombProjectileSystem
             }
             // Spawn is synchronous: an accepted bomb-block reaction applies its temporary solid-block
             // or air collision before the bomb proceeds to its next border/cross member.
-            roomObjects.BlockReactions.TrySpawnBombReactionBlock(
+            roomObjects.BlockReactions.SpawnBombReactionBlock(
                 level,
                 block.At,
                 block.Behavior,
@@ -924,7 +924,7 @@ public sealed class SamusBombProjectileSystem
             if (block.CollisionType == RoomCollisionType.ShootableBlock &&
                 block.Behavior.TryGetDownwardGateTrigger(out _))
             {
-                roomObjects.Gates.TrySpawnDownwardGateTrigger(
+                roomObjects.Gates.SpawnDownwardGateTrigger(
                     level,
                     block.At,
                     block.Behavior,
@@ -957,7 +957,7 @@ public sealed class SamusBombProjectileSystem
 
         if (block.CollisionType == RoomCollisionType.SpecialBlock)
         {
-            roomObjects.BlockReactions.TrySpawnBombedSpecialBlock(
+            roomObjects.BlockReactions.SpawnBombedSpecialBlock(
                 level,
                 block.At,
                 block.Behavior,

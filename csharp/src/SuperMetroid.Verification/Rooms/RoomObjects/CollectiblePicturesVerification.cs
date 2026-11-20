@@ -71,7 +71,7 @@ internal static class CollectiblePicturesVerification
         roomObjects.Step(level);
         for (int item = 0; item < Items.Length; item++)
         {
-            roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(new Position16<RoomBlocks>((ushort)(item + 1), 1));
+            roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(new Position16<RoomBlocks>((ushort)(item + 1), 1));
         }
         StepUntil(
             () => roomObjects.CollectiblePhases.All(phase => phase == CollectiblePhase.Visible),

@@ -89,7 +89,7 @@ internal static class BotwoonWallObjectsVerification
         RoomLevelData level = CreateRoom(new(width, height), words,
             new RoomBlockBehavior[words.Length]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        roomObjects.BossRoomMutations.BotwoonWall.TrySpawn(level,
+        roomObjects.BossRoomMutations.BotwoonWall.Spawn(level,
                 clear ? BotwoonWallMutation.Clear :
                     BotwoonWallMutation.Crumble);
         var guarded = NewBotwoonWallSourceGuard(new TestAddressSpace());

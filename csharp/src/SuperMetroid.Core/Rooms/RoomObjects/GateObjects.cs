@@ -69,7 +69,7 @@ internal sealed class GateObjects
     }
 
     /// <summary>Runs the gate-trigger shot step and wakes its adjacent gate.</summary>
-    public void TrySpawnDownwardGateTrigger(
+    public void SpawnDownwardGateTrigger(
         RoomLevelData level,
         Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,

@@ -564,7 +564,7 @@ internal static class LookupStream1Verification
                 or SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose
                 ? null
                 : unchecked((byte)native[pose]);
-            AssertEqual(expectedOrigin, SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)).ProjectileHeight, "Physical projectile origin matches the native byte");
+            AssertEqual(expectedOrigin, (SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)) as SamusArmedPoseDefinition)?.ProjectileHeight, "Physical projectile origin matches the native byte");
         }
         Console.WriteLine("Body graphics origins:253 native installed origins and physical projectile origins pass.");
     }

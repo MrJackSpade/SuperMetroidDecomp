@@ -25,7 +25,7 @@ internal static class MotherBrainTubeCollapseDefinitions
 
     /// <summary>
     /// The tubes the collapse drops, in the order they fall (#2258): what falls, the blocks clearing its place leaves, and
-    /// the wait after the clear before the next tube falls, which the main tube, falling last, does not have.
+    /// the wait after the clear before the next tube falls; the main tube falls last and waits for none.
     /// </summary>
     internal static IReadOnlyList<MotherBrainTubeDrop> Drops { get; } =
     [
@@ -45,8 +45,7 @@ internal static class MotherBrainTubeCollapseDefinitions
             new(new(8, 2), MotherBrainRoomMutation.ClearCeilingTube), StepWaitUpdates),
         new MotherBrainBottomTubeDrop(MotherBrainTubePiece.BottomMiddleRight,
             new(new(9, 10), MotherBrainRoomMutation.ClearBottomMiddleSideTube), MainTubeWaitUpdates),
-        new MotherBrainBottomTubeDrop(MotherBrainTubePiece.Main,
-            new(new(7, 7), MotherBrainRoomMutation.ClearBottomMiddleTubes), WaitAfterUpdates: null),
+        new MotherBrainMainTubeDrop(new(new(7, 7), MotherBrainRoomMutation.ClearBottomMiddleTubes)),
     ];
 
     /// <summary>The gravity a falling tube gains each update.</summary>

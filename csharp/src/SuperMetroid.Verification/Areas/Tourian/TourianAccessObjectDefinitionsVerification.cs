@@ -29,7 +29,7 @@ internal static class TourianAccessObjectDefinitionsVerification
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[blockCount], new RoomBlockBehavior[blockCount], new RoomBlockAppearance[blockCount]), RoomLevelData.NothingBeyondGrid(), []);
             var roomObjects = RoomObjectFixtures.Unbound();
 
-            roomObjects.Tourian.TrySpawnTourianAccess(level, clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble);
+            roomObjects.Tourian.SpawnTourianAccess(level, clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble);
             AssertEqual(1, roomObjects.Places.ActiveCount, "Tourian access spawn occupies one PLM slot");
             RoomObjectPlaceSnapshot place = roomObjects.PopulationPlaces.Single();
             AssertEqual(0, place.UpdatePosition, "Tourian access takes the first free slot in processing order");

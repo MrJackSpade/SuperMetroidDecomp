@@ -253,7 +253,7 @@ internal static class GModeGateGlitchVerification
 
         RoomLevelData freeLevel = DoorRoom();
         var freeObjects = RoomObjectFixtures.Unbound();
-        freeObjects.DoorObjects.TrySpawnBlueDoorOpening(
+        freeObjects.DoorObjects.SpawnBlueDoorOpening(
                 freeLevel,
                 freeLevel.BlockAt(doorIndex),
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
@@ -267,7 +267,7 @@ internal static class GModeGateGlitchVerification
         RoomLevelData fullLevel = DoorRoom();
         var fullObjects = RoomObjectFixtures.Unbound();
         FillSuspendedObjectPool(fullObjects);
-        fullObjects.DoorObjects.TrySpawnBlueDoorOpening(
+        fullObjects.DoorObjects.SpawnBlueDoorOpening(
                 fullLevel,
                 fullLevel.BlockAt(doorIndex),
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),

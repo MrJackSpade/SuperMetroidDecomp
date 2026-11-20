@@ -43,7 +43,7 @@ internal static class PoseProjectileOriginVerification
                 or SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose
                 ? null
                 : PhysicalOrigin(rom, pose);
-            AssertEqual(expected, SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)).ProjectileHeight,
+            AssertEqual(expected, (SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)) as SamusArmedPoseDefinition)?.ProjectileHeight,
                 "Every pose's byte-valued correction is compiled");
         }
         // Each artwork class is bound once and every pose and direction checked under it. Only the body's tables are
@@ -54,7 +54,7 @@ internal static class PoseProjectileOriginVerification
             samus.Artwork.Body = artwork[artIndex].Gameplay;
             foreach (int pose in Enumerable.Range(0, SamusPoseNumbering.RecordCount).Where(SamusPoseNumbering.NamesPose)
                 // A pose from which nothing is fired, a drained one, holds no projectile height to start a shot from.
-                .Where(pose => SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)).ProjectileHeight is not null))
+                .Where(pose => SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)) is SamusArmedPoseDefinition))
             for (byte direction = 0; direction < 10; direction++)
             {
                 guardedPose = samus.Pose = SamusPoseNumbering.FromNumber(pose);

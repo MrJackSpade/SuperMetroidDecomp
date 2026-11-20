@@ -94,7 +94,7 @@ internal static class CollectiblesVerification
             fixture.RoomObjects.Step(fixture.Level);
             if (item.Presentation == CollectiblePresentation.ChozoOrb)
             {
-                fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(fixture.Block);
+                fixture.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(fixture.Block);
                 StepUntil(
                     () => fixture.RoomObjects.CollectiblePhases[0] == CollectiblePhase.Visible,
                     _ => fixture.RoomObjects.Step(fixture.Level),
@@ -138,7 +138,7 @@ internal static class CollectiblesVerification
             // a destructible special block, exactly as the block beside Morph Ball does.
             // The new actor must not inherit Item/Triggered and publish the old message.
             AssertTrue(
-                fixture.RoomObjects.TrySpawnBombedSpecialBlock(
+                fixture.RoomObjects.SpawnBombedSpecialBlock(
                     fixture.Level,
                     fixture.Block,
                     behavior: 8,
@@ -211,7 +211,7 @@ internal static class CollectiblesVerification
         CollectibleFixture shot = LoadCollectible(bus, header: unchecked(0xef7f + (int)InWorldCollectibleKind.MissileTank * 4), roomArgument: 150, precollected: false);
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.ShootableBlock), shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).Terrain,
             "shot-item setup installs type-C concealed block");
-        shot.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(shot.Block);
+        shot.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(shot.Block);
         StepUntil(
             () => shot.RoomObjects.CollectiblePhases[0] == CollectiblePhase.ShotBlockVisible,
             _ => shot.RoomObjects.Step(shot.Level),

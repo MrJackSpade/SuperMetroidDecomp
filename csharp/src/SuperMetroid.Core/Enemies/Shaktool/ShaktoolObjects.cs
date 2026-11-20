@@ -27,7 +27,7 @@ internal sealed class ShaktoolObjects
     /// Spawns the Shaktool room's controller and runs its scroll setup: the room's first screen open with the camera
     /// aligned to its top, and every other screen closed.
     /// </summary>
-    public void TrySpawnShaktoolRoomController(RoomScrollGrid scrolls)
+    public void SpawnShaktoolRoomController(RoomScrollGrid scrolls)
     {
         Ensure.NotNull(scrolls);
         if (_places.Spawn() is not { } place)

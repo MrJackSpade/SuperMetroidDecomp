@@ -63,7 +63,7 @@ internal static class MotherBrainFakeDeathObjectsVerification
             width * height).ToArray();
         RoomLevelData level = CreateRoom(new(width, height), terrain, new RoomBlockBehavior[terrain.Length]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        roomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(level, request);
+        roomObjects.BossRoomMutations.MotherBrainRoom.Spawn(level, request);
         string mutation = request.ToString();
         int originX = request.Block.X;
         int originY = request.Block.Y;

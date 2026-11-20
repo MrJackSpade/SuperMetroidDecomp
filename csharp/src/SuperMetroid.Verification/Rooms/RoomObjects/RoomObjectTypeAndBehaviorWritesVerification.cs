@@ -38,7 +38,7 @@ internal static class RoomObjectTypeAndBehaviorWritesVerification
         RoomBlockCell[] shown = Shown(level, blocks);
         RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
 
-        roomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(level,
+        roomObjects.BossRoomMutations.MotherBrainRoom.Spawn(level,
             new MotherBrainMutationRequest(origin, MotherBrainRoomMutation.EscapeDoor));
         AssertEqual(Solid.WithCollision(RoomCollisionType.DoorBlock), level.GetCollisionBlock(origin).Terrain,
             "the escape door's block becomes a door block keeping its terrain's picture");

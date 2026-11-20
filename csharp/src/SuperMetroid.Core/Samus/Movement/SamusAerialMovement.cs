@@ -160,7 +160,7 @@ public static class SamusAerialMovement
             !samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) &&
             samus.LiquidPhysics.IsTopBoundarySubmerged(samus);
         if (!fullySubmergedWithoutGravity)
-            TryRestartSpaceJump(samus, controllerNewInput);
+            RestartSpaceJump(samus, controllerNewInput);
 
         // The underwater Space Jump sound plays only at the last tick of the spin's
         // start and middle frames. Movement owns it, so it is published before the
@@ -700,7 +700,7 @@ public static class SamusAerialMovement
     /// Screw Attack can use this physics when both items are
     /// equipped even though its visible pose is the Screw Attack pose.
     /// </summary>
-    private static void TryRestartSpaceJump(
+    private static void RestartSpaceJump(
         SamusState samus,
         GameplayAction controllerNewInput)
     {

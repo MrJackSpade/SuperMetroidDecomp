@@ -271,14 +271,14 @@ internal static class RoomObjectSystemAccess
         /// method is called because it denotes an area-dependent/duplicate path.
         /// </remarks>
         /// <returns>Whether the reaction took a room-object place: false only when every place is occupied.</returns>
-        internal bool TrySpawnBombReactionBlock(
+        internal bool SpawnBombReactionBlock(
             RoomLevelData level,
             Position16<RoomBlocks> position,
             byte behavior,
             SamusProjectileType projectileType)
         {
             int active = self.Places.ActiveCount;
-            self.BlockReactions.TrySpawnBombReactionBlock(
+            self.BlockReactions.SpawnBombReactionBlock(
                 level,
                 position,
                 RoomBlockBehaviorCodec.Decode(behavior),
@@ -442,7 +442,7 @@ internal static class RoomObjectSystemAccess
         /// synchronously; observably no terrain changes and no active slot survives.
         /// </remarks>
         /// <returns>Whether the reveal holds a room-object place once its setup has run.</returns>
-        internal bool TrySpawnBombedSpecialBlock(
+        internal bool SpawnBombedSpecialBlock(
             RoomLevelData level,
             Position16<RoomBlocks> position,
             byte behavior,
@@ -450,7 +450,7 @@ internal static class RoomObjectSystemAccess
             SamusProjectileType projectileType)
         {
             int active = self.Places.ActiveCount;
-            self.BlockReactions.TrySpawnBombedSpecialBlock(
+            self.BlockReactions.SpawnBombedSpecialBlock(
                 level,
                 position,
                 RoomBlockBehaviorCodec.Decode(area, behavior),

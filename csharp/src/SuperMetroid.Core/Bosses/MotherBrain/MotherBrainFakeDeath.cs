@@ -126,6 +126,9 @@ internal sealed class MotherBrainFakeDeath
                 case MotherBrainTopTubeDrop top:
                     SpawnMotherBrainTopTube(top.Kind, top.Segment, top.Start);
                     break;
+                case MotherBrainMainTubeDrop:
+                    SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.Main);
+                    break;
                 default:
                     throw new InvalidOperationException($"Mother Brain's tube collapse cannot drop {drop}.");
             }
@@ -134,8 +137,8 @@ internal sealed class MotherBrainFakeDeath
         }
 
         _access.RequestMotherBrainObject(drop.Clears.Block, drop.Clears.RoomObject);
-        if (drop.WaitAfterUpdates is { } wait)
-            state.TubeCollapseTimer.LastFor(wait);
+        if (drop is MotherBrainFollowedTubeDrop followed)
+            state.TubeCollapseTimer.LastFor(followed.WaitAfterUpdates);
         state.TubeCollapse = new(tube.Following, MotherBrainTubeDropStage.Standing);
     }
 

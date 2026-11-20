@@ -29,7 +29,7 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     /// collision kind and behaviour change: its picture and what it shows stay. The object holds its place until the room
     /// objects first update, and leaves the room then.
     /// </summary>
-    public void TrySpawnCrittersEscapeWall(RoomLevelData level, Position16<RoomBlocks> origin)
+    public void SpawnCrittersEscapeWall(RoomLevelData level, Position16<RoomBlocks> origin)
     {
         Ensure.NotNull(level);
         if (_places.Spawn() is not { } place)
@@ -48,7 +48,7 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     /// removes the wall unless the critters-escaped event is set, so the passage
     /// stays shut when the animals were left behind.
     /// </summary>
-    public void TrySpawnCrateriaMainstreetEscapePassage(RoomLevelData level)
+    public void SpawnCrateriaMainstreetEscapePassage(RoomLevelData level)
     {
         Ensure.NotNull(level);
         if (_places.IsFull)

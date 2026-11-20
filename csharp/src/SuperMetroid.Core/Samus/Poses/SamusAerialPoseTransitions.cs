@@ -38,7 +38,7 @@ internal static class SamusAerialPoseTransitions
     /// The wall jumps' input transitions use this very same route for their diagonal-aim
     /// poses and gun-extended Shot poses; they do not have a separate wall-fire transition.
     /// </remarks>
-    public static void TryApplySpinOrWallJumpToNormalJumpTransition(
+    public static void ApplySpinOrWallJumpToNormalJumpTransition(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
@@ -122,7 +122,7 @@ internal static class SamusAerialPoseTransitions
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source/target movement families or facing metadata do not describe an admitted normal-jump/falling turn.</exception>
     /// <exception cref="InvalidDataException">The source pose aims in no shot direction.</exception>
-    public static void TryApplyAerialTurn(
+    public static void ApplyAerialTurn(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId genericTargetPose,
@@ -578,7 +578,7 @@ internal static class SamusAerialPoseTransitions
             // has no room data, so accepting the request would bypass the expansion
             // collision probe; a request with room data must use the collision-aware change explicitly.
             throw new InvalidOperationException(
-                "Radius-ten aerial transitions require TryApplyCompactAerialTransition and active room collision data.");
+                "Radius-ten aerial transitions require ApplyCompactAerialTransition and active room collision data.");
         }
         if (!SamusPoseMetadata.IsSameFacingAerialAimFireOrForwardTransition(samus.Pose, targetPose))
         {
@@ -626,7 +626,7 @@ internal static class SamusAerialPoseTransitions
     /// directions are blocked, the crouch selector selects ordinary crouch; if a compensating shift's
     /// second probe is blocked, the collision exit retains the source. Neither case installs the target.
     /// </remarks>
-    public static void TryApplyCompactAerialTransition(
+    public static void ApplyCompactAerialTransition(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,

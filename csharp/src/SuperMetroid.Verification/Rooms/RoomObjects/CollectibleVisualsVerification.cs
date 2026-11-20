@@ -84,7 +84,7 @@ internal static class CollectibleVisualsVerification
             CollectibleFixture fixture = LoadCollectible(bus, header, 0, false);
             RoomObjectFixtures.VisualsOf(fixture.RoomObjects).Rebind(RoomObjectFixtures.Installed with { RoomObjectCollectibleVisuals = stock });
             if (header == shotBlockHeader)
-                fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(
+                fixture.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(
                         fixture.Block);
             fixture.RoomObjects.Step(fixture.Level);
             AssertEqual(1, fixture.RoomObjects.CollectibleObjects.Collectibles.Count,

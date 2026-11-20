@@ -64,7 +64,7 @@ internal static class KraidRoomVisualsVerification
         RoomLevelData level = CreateRoom(new(width, 16), words,
             new RoomBlockBehavior[words.Length]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        roomObjects.BossRoomMutations.KraidRoom.TrySpawn(level, new(new(5, 5), mutation));
+        roomObjects.BossRoomMutations.KraidRoom.Spawn(level, new(new(5, 5), mutation));
         var guard = NewKraidRoomSourceGuard(new TestAddressSpace());
         roomObjects.Step(level);
         Position16<RoomBlocks> block = new(5 + blockOffset, 5);

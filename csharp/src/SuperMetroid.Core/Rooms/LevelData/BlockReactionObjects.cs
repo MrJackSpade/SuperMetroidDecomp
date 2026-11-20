@@ -168,7 +168,7 @@ internal sealed class BlockReactionObjects
     }
 
     /// <summary>Selects the normal-bomb or Power Bomb reactions; only the latter plays its block's sound.</summary>
-    public void TrySpawnBombReactionBlock(
+    public void SpawnBombReactionBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
@@ -330,7 +330,7 @@ internal sealed class BlockReactionObjects
     }
 
     /// <summary>Spawns the room object of a special block a normal bomb hits, by the block's reaction.</summary>
-    public void TrySpawnBombedSpecialBlock(
+    public void SpawnBombedSpecialBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,

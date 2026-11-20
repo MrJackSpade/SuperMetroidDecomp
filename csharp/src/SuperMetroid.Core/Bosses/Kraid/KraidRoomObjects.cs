@@ -13,7 +13,7 @@ internal sealed class KraidRoomObjects(RoomObjectPlaceList places)
     /// deactivates the block's collision while keeping its appearance; the mutation's terrain change then draws its
     /// crumble frames on the authored cadence and is gone.
     /// </summary>
-    public void TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<KraidRoomMutation> request)
+    public void Spawn(RoomLevelData level, RoomObjectSpawnRequest<KraidRoomMutation> request)
     {
         Ensure.NotNull(level);
         TerrainChange change = Ensure.Listed(Changes, request.RoomObject);

@@ -12,7 +12,7 @@ internal sealed class CrocomireArenaObjects(RoomObjectPlaceList places)
     /// Spawns one of Crocomire's arena mutations at its block. Each mutation's setup does nothing; its terrain change
     /// draws once and is gone on the next update.
     /// </summary>
-    public void TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<CrocomireArenaMutation> request)
+    public void Spawn(RoomLevelData level, RoomObjectSpawnRequest<CrocomireArenaMutation> request)
     {
         Ensure.NotNull(level);
         TerrainChange change = Ensure.Listed(Changes, request.RoomObject);

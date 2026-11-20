@@ -19,7 +19,7 @@ internal sealed class EnemyBreakableTerrainObjects
     /// it shows until the break draws, as the setup rewrites only the block's type (#2502). A full room skips the setup and
     /// reports failure.
     /// </summary>
-    public void TrySpawnEnemyBreakableBlock(RoomLevelData level, Position16<RoomBlocks> position)
+    public void SpawnEnemyBreakableBlock(RoomLevelData level, Position16<RoomBlocks> position)
     {
         Ensure.NotNull(level);
         // A full room skips the setup, and the block is reported as not broken.

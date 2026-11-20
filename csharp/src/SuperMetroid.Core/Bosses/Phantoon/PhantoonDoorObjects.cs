@@ -13,7 +13,7 @@ internal sealed class PhantoonDoorObjects(RoomObjectPlaceList places)
     /// top block solid (<see cref="PhantoonDoorBlockHeldSolid"/>), and its terrain change draws its frame on its first
     /// update and leaves the room on its second.
     /// </summary>
-    public void TrySpawn(RoomLevelData level, PhantoonDoorChange change)
+    public void Spawn(RoomLevelData level, PhantoonDoorChange change)
     {
         Ensure.NotNull(level);
         TerrainChange terrainChange = Ensure.Listed(Changes, change);

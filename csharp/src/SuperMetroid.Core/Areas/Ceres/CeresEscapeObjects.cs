@@ -19,7 +19,7 @@ internal sealed class CeresEscapeObjects
     /// each below it down the door solid. Only each block's collision changes: its picture, what it shows and its behaviour
     /// stay, so the door looks the same and stops Samus instead of leading out.
     /// </summary>
-    public void TrySealElevatorDoor(RoomLevelData level)
+    public void SealElevatorDoor(RoomLevelData level)
     {
         Ensure.NotNull(level);
         Position16<RoomBlocks> top = level.GridBlock(CeresElevatorDoorSealDefinitions.DoorTop);

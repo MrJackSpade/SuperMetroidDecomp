@@ -614,7 +614,7 @@ internal sealed class EnemyTerrain
     internal bool ReactToEnemySpikeBlock(RoomLevelData level, Position16<RoomBlocks> position, RoomCollisionBlock block)
     {
         if (!EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior)) return true;
-        _breakableTerrain.TrySpawnEnemyBreakableBlock(level, position);
+        _breakableTerrain.SpawnEnemyBreakableBlock(level, position);
         return false; // The enemy passes through even when the room was too full to break the block.
     }
 }

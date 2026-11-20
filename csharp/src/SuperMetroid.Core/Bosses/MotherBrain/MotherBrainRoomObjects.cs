@@ -12,7 +12,7 @@ internal sealed class MotherBrainRoomObjects(RoomObjectPlaceList places)
     /// Spawns one of Mother Brain's room changes at its block: a terrain change that draws its layout on its first update
     /// and is gone on the next.
     /// </summary>
-    public void TrySpawn(RoomLevelData level, MotherBrainRoomChangeRequest request)
+    public void Spawn(RoomLevelData level, MotherBrainRoomChangeRequest request)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(request);

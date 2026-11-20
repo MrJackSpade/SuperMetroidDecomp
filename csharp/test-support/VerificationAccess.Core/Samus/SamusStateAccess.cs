@@ -23,7 +23,7 @@ internal static class SamusStateAccess
         /// Compatibility name for the `$13/$14` Fire subset. Keeping this narrow wrapper makes
         /// existing focused tests readable while all input-table exits share one native handler.
         /// </summary>
-        internal void TryApplySpinToNormalJumpFireTransition(
+        internal void ApplySpinToNormalJumpFireTransition(
             RoomLevelData level,
             SamusPoseId targetPose,
             int frameCounter,
@@ -35,7 +35,7 @@ internal static class SamusStateAccess
                 throw new InvalidOperationException(
                     $"Spin-fire compatibility route requires pose $13/$14, not ${(int)SamusPoseNumbers.Number(targetPose):X2}.");
             }
-            SamusAerialPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(self, 
+            SamusAerialPoseTransitions.ApplySpinOrWallJumpToNormalJumpTransition(self, 
 
                 level,
                 targetPose,

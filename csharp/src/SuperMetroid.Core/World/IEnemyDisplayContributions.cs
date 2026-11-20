@@ -4,7 +4,9 @@ using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
-namespace SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
+
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// What the room's encounters show over the room, by what each is (#2571): the overlays written over the foreground and

@@ -576,7 +576,7 @@ internal sealed class SuperMetroidRuntime
     {
         // Main gameplay begins by determining which enemies to process,
         // before colour effects and Samus. The grapple scan uses this list.
-        room.Enemies.ProcessingWindow.PrepareEnemyProcessingList(room.Camera.PixelPosition);
+        room.Enemies.PrepareEnemyProcessingList(room.Camera.PixelPosition);
     }
 
     /// <summary>Runs the room's colour effects and Hyper Beam's colour effect.</summary>

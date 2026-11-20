@@ -76,7 +76,7 @@ internal sealed class EnemyFramePhase
     {
         bool hyperBeamBefore = samus.HyperBeamEnabled;
         if (processingList == EnemyProcessingList.Unprepared)
-            room.Enemies.ProcessingWindow.PrepareEnemyProcessingList(room.Camera.PixelPosition);
+            room.Enemies.PrepareEnemyProcessingList(room.Camera.PixelPosition);
         EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = samus, SamusColours = _player.Colours, NewlyPressedControllerInput = _playerActions.NewlyPressed, Level = room.LevelData, ControllerInput = _playerActions.Current, SamusProjectiles = room.Projectiles, ShortCounter = _clock.ShortCounter, SamusBombs = room.BombProjectiles, FrameCounter = _clock.Counter, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
         var effectSite = EnemyRoomEffectSite.Of(room, samus);
         _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result, effectSite);

@@ -41,7 +41,7 @@ internal static class MetroidDeathDropsVerification
         // A frozen Metroid takes the frozen branch of its shot AI; one missile finishes it.
         metroid.Freeze.Restart(100);
         metroid.Health = 1;
-        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new((ushort)(metroid.Position.X.Whole - 0x80), (ushort)(metroid.Position.Y.Whole - 0x70)));
+        runtime.Enemies.PrepareEnemyProcessingList(new((ushort)(metroid.Position.X.Whole - 0x80), (ushort)(metroid.Position.Y.Whole - 0x70)));
 
         var shot = runtime.Projectiles.Shots[0];
         shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile); shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right; if (alreadyMarked) shot.Spend();

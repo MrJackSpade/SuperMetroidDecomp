@@ -1,7 +1,6 @@
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 
-namespace SuperMetroid.Core.Areas.Ceres;
+namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// The Ceres Baby Metroid's behaviour while Ridley holds, drops or retrieves it (#2571): each action moves the Baby itself

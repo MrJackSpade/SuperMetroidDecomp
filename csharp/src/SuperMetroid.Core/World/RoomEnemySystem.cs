@@ -104,7 +104,7 @@ namespace SuperMetroid.Core.World;
 /// meets, and the gunship's lower part copies fields from the place before it. A compacted list would lose that.
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources, IStepBeforeEnemySelection
+public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
 {
     /// <summary>The enemies' draw phase: the live enemies the enemy pass queues to draw, and the frames each one shows.</summary>
     internal EnemyDrawList Drawing { get; }
@@ -316,11 +316,21 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources, 
         }
     }
 
-    /// <inheritdoc/>
-    void IStepBeforeEnemySelection.StepBeforeEnemySelection()
+    /// <summary>
+    /// Steps the species' work that runs before selection (the Morph Ball eye's beam), then decides which enemies to process.
+    /// </summary>
+    /// <remarks>
+    /// Main gameplay builds the window first, before Samus's input and movement, so the grapple's endpoint scan sees this
+    /// update's interactive enemies, including one a death explosion respawned at the end of the previous update. The
+    /// Morph Ball eye's beam steps earlier still, at the start of the update, which shows as it starts, a beam set up on
+    /// one update beginning on the next, and as it ends, the full beam seeing the eye shut down on the update after.
+    /// </remarks>
+    /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
+    internal void PrepareEnemyProcessingList(Position16<RoomPixels> camera)
     {
         foreach (IStepBeforeEnemySelection step in SpeciesComposition.BeforeSelection)
             step.StepBeforeEnemySelection();
+        ProcessingWindow.DetermineWhichEnemiesToProcess(camera);
     }
 
     /// <summary>Grapple endpoint resolution against the room's enemies.</summary>
@@ -355,8 +365,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources, 
         BossPresentation = new BossPresentation(Presentation, BossArtworkBinding);
         Places = new EnemyPlaces();
         Audio = new EnemyAudioQueue(session.AudioRequests);
-        // The species' work before selection steps through this system, once the composition below has built it.
-        ProcessingWindow = new EnemyProcessingWindow(FrameContext, this, Places);
+        ProcessingWindow = new EnemyProcessingWindow(FrameContext, Places);
         Lifecycle = new EnemyLifecycle(Room, Places, ProcessingWindow);
         PopulationLoader = new EnemyPopulationLoader(Room, RoomStatus, Places, Lifecycle);
         Earthquake = Ensure.NotNull(dependencies.Earthquake);
@@ -367,7 +376,19 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources, 
         DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, Lifecycle, compatibility.PowerBombRadius, Audio);
         Collision = new EnemyCollision(new EnemyCollisionDependencies { Lifecycle = Lifecycle, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, Projectiles = Projectiles, EffectActors = EffectActors, Places = Places, PowerBombRadius = compatibility.PowerBombRadius });
         GrappleBehavior = new GrappleBehavior(Lifecycle, DeathsAndDrops);
-        SpeciesComposition = new RoomEnemySpecies(this, dependencies);
+        SpeciesComposition = new RoomEnemySpecies(new RoomEnemySpeciesDependencies
+        {
+            Session = session, Room = Room, Places = Places, Lifecycle = Lifecycle, Audio = Audio, Projectiles = Projectiles,
+            EffectActors = EffectActors, Collision = Collision, DeathsAndDrops = DeathsAndDrops, Terrain = Terrain,
+            Earthquake = Earthquake, PassEvents = PassEvents, FrameContext = FrameContext, Presentation = Presentation,
+            BossPresentation = BossPresentation, BossArtworkBinding = BossArtworkBinding, BossEncounters = BossEncounters,
+            RoomStatus = RoomStatus, RoomFx = RoomFx, ScrollCap = ScrollCap, CameraDistance = CameraDistance,
+            CameraFloor = CameraFloor, PuyoCeilingTurn = PuyoCeilingTurn, DoorPassage = dependencies.DoorPassage,
+            Scenery = dependencies.Scenery, BullInheritance = compatibility.BullInheritance,
+            BeetomInheritance = compatibility.BeetomInheritance, FadeStepCount = compatibility.FadeStepCount,
+            UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence, YardKickDistance = compatibility.YardKickDistance,
+            FallingSparkFloorProbe = compatibility.FallingSparkFloorProbe,
+        });
         AnimationPlayer = new EnemyAnimationPlayer(Presentation);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { LateDraws = SpeciesComposition.LateDraws, FrameContext = FrameContext, AnimationPlayer = AnimationPlayer, Presentation = Presentation, Room = Room, PuyoCeilingTurn = PuyoCeilingTurn });
         Places.InstallPlaces(Species);

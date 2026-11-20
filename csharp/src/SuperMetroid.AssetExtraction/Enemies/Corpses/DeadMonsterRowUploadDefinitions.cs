@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
@@ -11,21 +12,41 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 [EncodingOwner("bank-$A9 dead-monster row upload lists")]
 internal static class DeadMonsterRowUploadDefinitions
 {
+    /// <summary>Where the cartridge holds a list: the species whose lists hold it and its variant among them.</summary>
+    /// <param name="Species">The species whose lists hold it.</param>
+    /// <param name="Variant">Its place among the species' lists, the species' corpse variant that names it.</param>
+    internal readonly record struct NativeList(RottingCorpseSpecies Species, int Variant);
+
+    /// <summary>Each list's place among the cartridge's lists.</summary>
+    private static readonly FrozenDictionary<CorpseRowUploadList, NativeList> NativeLists = new Dictionary<CorpseRowUploadList, NativeList>
+    {
+        [CorpseRowUploadList.SidehopperBabyMetroidVictim] = new(RottingCorpseSpecies.Sidehopper, 0),
+        [CorpseRowUploadList.SidehopperAlreadyDead] = new(RottingCorpseSpecies.Sidehopper, 1),
+        [CorpseRowUploadList.ZoomerOnItsBack] = new(RottingCorpseSpecies.Zoomer, 0),
+        [CorpseRowUploadList.ZoomerUpright] = new(RottingCorpseSpecies.Zoomer, 1),
+        [CorpseRowUploadList.SecondZoomerOnItsBack] = new(RottingCorpseSpecies.Zoomer, 2),
+        [CorpseRowUploadList.RipperLevel] = new(RottingCorpseSpecies.Ripper, 0),
+        [CorpseRowUploadList.RipperTilted] = new(RottingCorpseSpecies.Ripper, 1),
+        [CorpseRowUploadList.Skree] = new(RottingCorpseSpecies.Skree, 0),
+        [CorpseRowUploadList.SecondSkree] = new(RottingCorpseSpecies.Skree, 1),
+        [CorpseRowUploadList.ThirdSkree] = new(RottingCorpseSpecies.Skree, 2),
+    }.ToFrozenDictionary();
+
+    /// <summary>Where the cartridge holds <paramref name="list"/>.</summary>
+    internal static NativeList Native(CorpseRowUploadList list) => Ensure.Listed(NativeLists, list);
+
     /// <summary>The rows <paramref name="list"/> uploads, in native descriptor order.</summary>
     /// <exception cref="InvalidDataException">The cartridge has no such row upload list.</exception>
     internal static ImmutableArray<CorpseRowUpload> ForList(CorpseRowUploadList list)
     {
-        int Variant(int count) => (uint)list.Variant < count
-            ? list.Variant
-            : throw new InvalidDataException($"Corpse {list.Name} has no row upload list.");
-        return list.Species switch
+        NativeList native = Native(list);
+        return native.Species switch
         {
-            RottingCorpseSpecies.Sidehopper => SidehopperRows(Variant(2)),
-            RottingCorpseSpecies.Zoomer => ZoomerRows(Variant(3)),
-            RottingCorpseSpecies.Ripper => RipperRows(Variant(2)),
-            RottingCorpseSpecies.Skree => SkreeRows(Variant(3)),
-            RottingCorpseSpecies.Torizo => throw new InvalidDataException("The Torizo corpse uploads its rows by halves."),
-            _ => throw new InvalidDataException($"Corpse {list.Name} has no row upload list."),
+            RottingCorpseSpecies.Sidehopper => SidehopperRows(native.Variant),
+            RottingCorpseSpecies.Zoomer => ZoomerRows(native.Variant),
+            RottingCorpseSpecies.Ripper => RipperRows(native.Variant),
+            RottingCorpseSpecies.Skree => SkreeRows(native.Variant),
+            _ => throw new InvalidDataException($"Corpse {list} has no row upload list."),
         };
     }
 

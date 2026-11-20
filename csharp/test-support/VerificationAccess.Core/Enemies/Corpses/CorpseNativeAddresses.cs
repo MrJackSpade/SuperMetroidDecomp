@@ -9,23 +9,26 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal static class CorpseNativeAddresses
 {
     /// <summary>The bank-$A9 address of <paramref name="table"/>, from each species' first list and its lists' length.</summary>
-    internal static ushort TransferTableAddress(CorpseRowUploadList table) => checked((ushort)(table.Species switch
+    internal static ushort TransferTableAddress(CorpseRowUploadList table)
     {
-        RottingCorpseSpecies.Sidehopper => 0xe0e0 + 42 * table.Variant,
-        RottingCorpseSpecies.Zoomer => 0xe134 + 18 * table.Variant,
-        RottingCorpseSpecies.Ripper => 0xe16a + 18 * table.Variant,
-        RottingCorpseSpecies.Skree => 0xe18e + 34 * table.Variant,
-        RottingCorpseSpecies.Torizo => throw new ArgumentOutOfRangeException(nameof(table), table, "The Torizo corpse has no transfer list."),
-        _ => throw new ArgumentOutOfRangeException(nameof(table), table, "This species has no corpse transfer lists."),
-    }));
+        DeadMonsterRowUploadDefinitions.NativeList native = DeadMonsterRowUploadDefinitions.Native(table);
+        return checked((ushort)(native.Species switch
+        {
+            RottingCorpseSpecies.Sidehopper => 0xe0e0 + 42 * native.Variant,
+            RottingCorpseSpecies.Zoomer => 0xe134 + 18 * native.Variant,
+            RottingCorpseSpecies.Ripper => 0xe16a + 18 * native.Variant,
+            RottingCorpseSpecies.Skree => 0xe18e + 34 * native.Variant,
+            _ => throw new ArgumentOutOfRangeException(nameof(table), table, "This species has no corpse transfer lists."),
+        }));
+    }
 
     /// <summary>The ten transfer lists, Sidehopper, Zoomer, Ripper then Skree, in native table order.</summary>
     internal static CorpseRowUploadList[] AllTransferTables { get; } =
     [
-        new(RottingCorpseSpecies.Sidehopper, 0), new(RottingCorpseSpecies.Sidehopper, 1),
-        new(RottingCorpseSpecies.Zoomer, 0), new(RottingCorpseSpecies.Zoomer, 1), new(RottingCorpseSpecies.Zoomer, 2),
-        new(RottingCorpseSpecies.Ripper, 0), new(RottingCorpseSpecies.Ripper, 1),
-        new(RottingCorpseSpecies.Skree, 0), new(RottingCorpseSpecies.Skree, 1), new(RottingCorpseSpecies.Skree, 2),
+        CorpseRowUploadList.SidehopperBabyMetroidVictim, CorpseRowUploadList.SidehopperAlreadyDead,
+        CorpseRowUploadList.ZoomerOnItsBack, CorpseRowUploadList.ZoomerUpright, CorpseRowUploadList.SecondZoomerOnItsBack,
+        CorpseRowUploadList.RipperLevel, CorpseRowUploadList.RipperTilted,
+        CorpseRowUploadList.Skree, CorpseRowUploadList.SecondSkree, CorpseRowUploadList.ThirdSkree,
     ];
 
     /// <summary>The bank-$A9 transfer list stored at <paramref name="address"/>.</summary>

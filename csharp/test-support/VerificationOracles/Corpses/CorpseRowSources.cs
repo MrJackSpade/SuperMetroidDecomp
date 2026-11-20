@@ -23,15 +23,15 @@ internal static class CorpseRowSources
     /// <exception cref="InvalidDataException">The kind has no row upload list.</exception>
     internal static int Of(CorpseRowUploadList kind, int index)
     {
-        int variant = kind.Variant;
-        return kind.Species switch
+        DeadMonsterRowUploadDefinitions.NativeList native = DeadMonsterRowUploadDefinitions.Native(kind);
+        int variant = native.Variant;
+        return native.Species switch
         {
             RottingCorpseSpecies.Sidehopper => Row(0x2040 + variant * 0x2e0, 0xa0, index, variant == 0 ? 0x20 : 0),
             RottingCorpseSpecies.Zoomer => Row(0x2940 + variant * 0xc0, 0x60, index, 0),
             RottingCorpseSpecies.Ripper => Row(0x2b80 + variant * 0xc0, 0x60, index, 0),
             RottingCorpseSpecies.Skree => Row(0x2640 + variant * 0x100, 0x40, index, 0),
-            RottingCorpseSpecies.Torizo => throw new InvalidDataException("The Torizo corpse uploads its rows by halves."),
-            _ => throw new InvalidDataException($"Corpse kind {kind.Name} has no row upload list."),
+            _ => throw new InvalidDataException($"Corpse kind {kind} has no row upload list."),
         };
     }
 

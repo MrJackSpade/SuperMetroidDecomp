@@ -222,12 +222,12 @@ internal sealed class BlockReactionObjects
         RoomLevelData level,
         Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
-        SamusProjectileType projectileType,
+        BlockStrike strike,
         bool solidBlock)
     {
         Ensure.NotNull(level);
         if (behavior == EscapeAnimalWallDefinitions.ReactionBehavior)
-            return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, position, projectileType);
+            return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, position, strike);
         if (ShotBlockReactions.Of(behavior.Shootable) is not { } reaction)
         {
             throw new UnsupportedShotBlockReactionException(

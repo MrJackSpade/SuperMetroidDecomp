@@ -172,7 +172,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
         // The trigger block is a permanent Power Bomb block: behaviour nine of the shootable table.
         const byte permanentPowerBombBlock = 9;
         AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, trigger, permanentPowerBombBlock,
-                SamusProjectileType.Of(SamusProjectileFamily.PowerBomb), solidBlock: true),
+                BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.PowerBomb)), solidBlock: true),
             "a Power Bomb breaks the trigger block");
         AssertTrue(!roomObjects.BlockReactions.IsBrokenOpen(trigger), "the trigger block is not broken open as its breakup starts");
         bool breakupRunsFirst = roomObjects.PopulationPlaces.Single(place => place.Block == trigger).UpdatePosition

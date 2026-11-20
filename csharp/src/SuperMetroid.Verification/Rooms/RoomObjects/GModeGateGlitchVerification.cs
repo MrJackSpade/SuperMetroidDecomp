@@ -92,7 +92,7 @@ internal static class GModeGateGlitchVerification
                     level,
                     gate.Block,
                     DownwardGateDefinitions.ClosedGateBehavior,
-                    SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false),
+                    BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false)),
                     solidBlock: true),
                 "direct G-Mode fixture fills the native forty-slot PLM pool");
         }
@@ -257,7 +257,7 @@ internal static class GModeGateGlitchVerification
                 freeLevel,
                 freeLevel.BlockAt(doorIndex),
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
-                SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
+                BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false))),
             "G-Mode shot at a blue door allocates its inert opening actor while a slot remains");
         AssertEqual(RoomCollisionType.SolidBlock,
             freeLevel.GetCollisionBlockByIndex(doorIndex).CollisionType,
@@ -272,7 +272,7 @@ internal static class GModeGateGlitchVerification
                 fullLevel,
                 fullLevel.BlockAt(doorIndex),
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
-                SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
+                BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false))),
             "overloaded G-Mode PLM pool drops a blue-door opening request");
         AssertEqual(RoomCollisionType.ShootableBlock,
             fullLevel.GetCollisionBlockByIndex(doorIndex).CollisionType,

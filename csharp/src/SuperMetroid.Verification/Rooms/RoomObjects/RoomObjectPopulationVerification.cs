@@ -229,7 +229,7 @@ internal static class RoomObjectPopulationVerification
         var blueObjects = RoomObjectFixtures.Bound(new RoomObjectRoom(blueLevel, new SharedGameState(new SharedRandom()), AreaId.Crateria),
             RoomObjectServiceFixtures.Uninstalled, RoomObjectFixtures.Unbound());
         AssertTrue(blueObjects.DoorObjects.TrySpawnBlueDoorOpening(blueLevel, new(1, 1),
-                RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)), SamusProjectileType.None),
+                RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)), BlockStrike.GrappleTouch.Instance),
             "a shot blue cap stands at the door's block");
         var blueDoor = new DoorDefinition(
             Name: "fixture door",
@@ -257,7 +257,7 @@ internal static class RoomObjectPopulationVerification
         var openObjects = RoomObjectFixtures.Bound(new RoomObjectRoom(openLevel, landingSiteOpened, AreaId.Crateria),
             RoomObjectServiceFixtures.Uninstalled, RoomObjectFixtures.Unbound());
         AssertTrue(openObjects.DoorObjects.TrySpawnBlueDoorOpening(openLevel, new(1, 1),
-                RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)), SamusProjectileType.None),
+                RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)), BlockStrike.GrappleTouch.Instance),
             "a shot blue cap stands at the door's block once more");
         AssertTrue(openObjects.DoorObjects.TrySpawnDoorClosingObject(openLevel, blueDoor),
             "the door places its own closer beside the shot cap");

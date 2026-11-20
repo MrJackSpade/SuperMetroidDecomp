@@ -327,7 +327,7 @@ internal sealed class ProjectileTerrainCollision
                 // Setting up the probe's room object ends the span. With every room-object place taken nothing is set
                 // up, and the span goes on.
                 endSpan = roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
-                    level, block.At, block.Behavior, shot.Type,
+                    level, block.At, block.Behavior, BlockStrike.By(shot.Type),
                     block.CollisionType == RoomCollisionType.ShootableBlock);
                 return block.CollisionType == RoomCollisionType.ShootableBlock;
             }
@@ -353,7 +353,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetDownwardGateTrigger(out _))
         {
-            roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.At, block.Behavior, shot.Type);
+            roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.At, block.Behavior, BlockStrike.By(shot.Type));
             return;
         }
 
@@ -377,7 +377,7 @@ internal sealed class ProjectileTerrainCollision
                 level,
                 block.At,
                 block.Behavior,
-                shot.Type);
+                BlockStrike.By(shot.Type));
             return;
         }
 
@@ -396,7 +396,7 @@ internal sealed class ProjectileTerrainCollision
                 level,
                 block.At,
                 block.Behavior,
-                shot.Type,
+                BlockStrike.By(shot.Type),
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
         }
     }
@@ -407,7 +407,7 @@ internal sealed class ProjectileTerrainCollision
         RoomCollisionBlock block,
         SamusProjectileType projectileType)
     {
-        if (roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, projectileType))
+        if (roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType)))
         {
             return;
         }

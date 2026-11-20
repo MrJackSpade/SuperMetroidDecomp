@@ -47,8 +47,8 @@ internal static class EscapeAnimalBlocksVerification
             AssertEqual(0x4f, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(15, 10)).Behavior), "grapple leaves rescue wall intact");
             AssertTrue(!system.HasEvent(StoryEvent.CrittersEscaped), "grapple alone cannot rescue animals");
         }
-        AssertTrue(!roomObjects.TrySpawnProjectileShotBlock(level, origin, 0x4f, SamusProjectileType.None, true), "native zero grapple word rejected");
-        AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, origin, 0x4f, SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false), true), "nonzero beam opens rescue wall");
+        AssertTrue(!roomObjects.TrySpawnProjectileShotBlock(level, origin, 0x4f, BlockStrike.GrappleTouch.Instance, true), "native zero grapple word rejected");
+        AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, origin, 0x4f, BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false)), true), "nonzero beam opens rescue wall");
         AssertTrue(!system.HasEvent(StoryEvent.CrittersEscaped), "rescue event waits for animation");
         for (int frame = 0; frame < 16; frame++)
             roomObjects.Step(level);

@@ -53,7 +53,7 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
             var roomObjects = RoomObjectFixtures.Unbound();
             RoomBlockBehavior behavior = RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(orientation));
             AssertTrue(roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, level.BlockAt(origin), behavior,
-                SamusProjectileType.None),
+                BlockStrike.GrappleTouch.Instance),
                 $"{orientation} blue door allocates its native opening actor");
             var guarded = NewBlueDoorDrawReadGuard(rom, lists);
             roomObjects.Step(level);

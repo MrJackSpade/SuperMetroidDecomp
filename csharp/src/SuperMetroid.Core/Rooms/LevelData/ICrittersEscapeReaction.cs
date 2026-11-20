@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 internal interface ICrittersEscapeReaction
 {
     /// <summary>Runs the critters' escape-block shot reaction for the block at <paramref name="position"/>, or returns false when the shot does not trigger it.</summary>
-    bool TrySpawnCrittersEscapeReaction(RoomLevelData level, Position16<RoomBlocks> position, SamusProjectileType projectileType);
+    bool TrySpawnCrittersEscapeReaction(RoomLevelData level, Position16<RoomBlocks> position, BlockStrike strike);
 }

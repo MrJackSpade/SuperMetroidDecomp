@@ -114,7 +114,7 @@ internal static class NoobTubeObjectVerification
 
         // A non-power-bomb hit is consumed by the same resident collision dispatcher but
         // only queues the retail ineffective-shot sound and clears the transient hit word.
-        AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(new(blockX, blockY), SamusProjectileType.Of(SamusProjectileFamily.Missile)),
+        AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(new(blockX, blockY), BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.Missile))),
             "n00b-tube collision block locates its resident PLM");
         StepNoobTube(roomObjects, level);
         AssertTrue(roomObjects.Sounds.SoundRequests.Contains(new SoundRequest(

@@ -19,14 +19,15 @@ internal sealed class ProjectileTriggerObjects
 
     /// <summary>
     /// Publishes a projectile's hit on a resident-trigger block to the room object at <paramref name="block"/>: the first
-    /// active place at that block in update order takes the hit's family, whatever room object it holds. The grapple
-    /// beam's touch (<see cref="SamusProjectileType.None"/>) arrives as a beam.
+    /// active place at that block in update order takes the family the strike lands as, whatever room object it holds; the
+    /// grapple beam's touch (<see cref="BlockStrike.GrappleTouch"/>) lands as a beam.
     /// </summary>
     /// <returns>Whether an active place lies at <paramref name="block"/>.</returns>
     public bool TryNotifyResidentProjectileHit(
         Position16<RoomBlocks> block,
-        SamusProjectileType projectileType)
+        BlockStrike strike)
     {
+        Ensure.NotNull(strike);
         foreach (RoomObjectPlace place in _places.InUpdateOrder)
         {
             if (!place.Active || place.Block != block)
@@ -35,7 +36,7 @@ internal sealed class ProjectileTriggerObjects
             // An object a shot can strike keeps the strike until its next update; the hit means nothing to any other
             // object, which takes it all the same, so a place later in the order never sees it.
             if (place.Behaviour is IShootableRoomObject shootable)
-                shootable.Strike(new ResidentObjectProjectileHit(projectileType.Family));
+                shootable.Strike(new ResidentObjectProjectileHit(strike.Family));
             return true;
         }
 

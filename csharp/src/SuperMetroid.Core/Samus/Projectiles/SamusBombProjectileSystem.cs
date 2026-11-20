@@ -856,7 +856,7 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType is RoomCollisionType.SolidBlock or RoomCollisionType.ShootableBlock &&
             block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
-            if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, projectileType))
+            if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType)))
             {
                 throw new InvalidOperationException(
                     $"Bombed resident-trigger block {block.Position} has no active room-object owner.");
@@ -874,7 +874,7 @@ public sealed class SamusBombProjectileSystem
                 level,
                 block.At,
                 block.Behavior,
-                projectileType);
+                BlockStrike.By(projectileType));
             return;
         }
 
@@ -928,7 +928,7 @@ public sealed class SamusBombProjectileSystem
                     level,
                     block.At,
                     block.Behavior,
-                    projectileType);
+                    BlockStrike.By(projectileType));
                 return;
             }
 
@@ -950,7 +950,7 @@ public sealed class SamusBombProjectileSystem
                 level,
                 block.At,
                 block.Behavior,
-                projectileType,
+                BlockStrike.By(projectileType),
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
             return;
         }

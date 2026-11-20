@@ -143,9 +143,10 @@ internal sealed class DoorObjects
         RoomLevelData level,
         Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
-        SamusProjectileType projectileType)
+        BlockStrike strike)
     {
         Ensure.NotNull(level);
+        Ensure.NotNull(strike);
         if (!behavior.TryGetBlueDoorOrientation(out ColoredDoorOrientation orientation))
         {
             throw new ArgumentOutOfRangeException(
@@ -155,7 +156,7 @@ internal sealed class DoorObjects
         }
 
         // A Power Bomb opens no blue cap: the cap stays shut and no room object takes a place.
-        if (projectileType.Family == SamusProjectileFamily.PowerBomb)
+        if (strike.Family == SamusProjectileFamily.PowerBomb)
             return false;
 
         if (_places.Spawn() is not { } place)

@@ -57,7 +57,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
         kept.Check("the blue door's opening", Terrain(RoomCollisionType.ShootableBlock), [block], level =>
             AssertTrue(RoomObjectFixtures.Unbound().DoorObjects.TrySpawnBlueDoorOpening(level, block,
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)),
-                SamusProjectileType.None), "the blue door's opening takes a place"));
+                BlockStrike.GrappleTouch.Instance), "the blue door's opening takes a place"));
         kept.Check("the passable block's setup", Terrain(RoomCollisionType.SpecialAir), [block], level =>
             DoorObjects.SetupPassableBlock(level, PlaceAt(RoomObjectFixtures.Unbound(), block)));
         kept.AssertEveryCaseKept();
@@ -144,7 +144,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
         {
             RoomBlockBehavior behavior = RoomBlockBehavior.Reacting(ShootableReaction.PermanentBreak1x1);
             level.SetBehavior(block, behavior);
-            AssertTrue(RoomObjectFixtures.Unbound().BlockReactions.TrySpawnProjectileShotBlock(level, block, behavior, SamusProjectileType.None,
+            AssertTrue(RoomObjectFixtures.Unbound().BlockReactions.TrySpawnProjectileShotBlock(level, block, behavior, BlockStrike.GrappleTouch.Instance,
                 solidBlock: true), "the break takes a place");
         });
         var plant = new Position16<RoomBlocks>(1, 1);

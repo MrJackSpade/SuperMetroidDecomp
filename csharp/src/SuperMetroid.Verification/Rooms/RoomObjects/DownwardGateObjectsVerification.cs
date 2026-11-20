@@ -192,7 +192,7 @@ internal static class DownwardGateObjectsVerification
                 level,
                 level.BlockAt(gateBlockIndex - 1),
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
-                SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false)),
+                BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false))),
             "power beam reaches the sleeping blue gate");
         StepDownwardGateObject(roomObjects, level);
         AssertTrue(roomObjects.PopulationPlaces.Single(place => place.Behaviour is DownwardGateObject).Behaviour is
@@ -227,7 +227,7 @@ internal static class DownwardGateObjectsVerification
                 level,
                 level.BlockAt(gateBlockIndex - 1),
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
-                SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false)),
+                BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false))),
             "second power beam reaches the sleeping open blue gate");
         // The open-state collision image remains for sixteen frames before $BBE1 spawns
         // the downward-moving actor, exactly as list $BC13 specifies.

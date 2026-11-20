@@ -752,14 +752,14 @@ public static class SamusGrappleMovement
                 // blue door setup's power-bomb rejection; the ordinary opening owner
                 // supplies all four cap blocks, timing, collision changes, and sound.
                 if (block.Behavior.TryGetDownwardGateTrigger(out _))
-                    roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
+                    roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.At, block.Behavior, BlockStrike.GrappleTouch.Instance);
                 else if (block.Behavior.TryGetBlueDoorOrientation(out _))
-                    roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
+                    roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, block.At, block.Behavior, BlockStrike.GrappleTouch.Instance);
                 else if (block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
                 {
                     // A shot-triggered block also reacts to the grapple: its resident actor hears of a hit with no
                     // weapon, and decides itself whether to refuse the hit or wake up.
-                    if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, projectileType: SamusProjectileType.None))
+                    if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.GrappleTouch.Instance))
                         throw new InvalidOperationException(
                             $"Grapple trigger block {block.Position} has no resident room-object owner.");
                 }
@@ -773,7 +773,7 @@ public static class SamusGrappleMovement
                             level,
                             block.At,
                             block.Behavior,
-                            projectileType: SamusProjectileType.None,
+                            BlockStrike.GrappleTouch.Instance,
                             solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
                     }
                     catch (UnsupportedShotBlockReactionException error)

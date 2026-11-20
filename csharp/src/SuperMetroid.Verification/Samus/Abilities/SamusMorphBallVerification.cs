@@ -1227,7 +1227,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
             powerBombShotLevel,
             powerBombShotLevel.BlockAt(shotIndex),
             behavior: 8,
-            projectileType: SamusProjectileType.Of(SamusProjectileFamily.PowerBomb),
+            projectileType: BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.PowerBomb)),
             solidBlock: true),
         "power bomb allocates BTS-eight respawning block PLM");
     AssertEqual(RoomTerrainBlock.Of(0x057, BlockMirroring.None, RoomCollisionType.SolidBlock),
@@ -1323,7 +1323,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
             superShotLevel,
             superShotLevel.BlockAt(shotIndex),
             behavior: 10,
-            projectileType: SamusProjectileType.Of(SamusProjectileFamily.Missile),
+            projectileType: BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.Missile)),
             solidBlock: true),
         "ordinary missile is rejected by Super Missile block setup");
     AssertEqual(RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.ShootableBlock),
@@ -1335,7 +1335,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
             superShotLevel,
             superShotLevel.BlockAt(shotIndex),
             behavior: 10,
-            projectileType: SamusProjectileType.Of(SamusProjectileFamily.SuperMissile),
+            projectileType: BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
             solidBlock: true),
         "Super Missile allocates BTS-A respawning block PLM");
     AssertEqual(RoomTerrainBlock.Of(0x09f, BlockMirroring.None, RoomCollisionType.SolidBlock),
@@ -1392,28 +1392,28 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
             noOpShotLevel,
             noOpShotLevel.BlockAt(shotIndex),
             behavior: 12,
-            projectileType: SamusProjectileType.None,
+            BlockStrike.GrappleTouch.Instance,
             solidBlock: true),
         "BTS-C allocates retail no-op shot PLM");
     AssertTrue(noOpShotObjects.TrySpawnProjectileShotBlock(
             noOpShotLevel,
             noOpShotLevel.BlockAt(shotIndex),
             behavior: 0x80,
-            projectileType: SamusProjectileType.None,
+            BlockStrike.GrappleTouch.Instance,
             solidBlock: true),
         "negative type-C BTS allocates area-table no-op shot PLM");
     AssertTrue(!noOpShotObjects.TrySpawnProjectileShotBlock(
             noOpShotLevel,
             noOpShotLevel.BlockAt(shotIndex),
             behavior: 0x80,
-            projectileType: SamusProjectileType.None,
+            BlockStrike.GrappleTouch.Instance,
             solidBlock: false),
         "negative type-four BTS exits before shot PLM allocation");
     AssertTrue(noOpShotObjects.TrySpawnProjectileShotBlock(
             noOpShotLevel,
             noOpShotLevel.BlockAt(shotIndex),
             behavior: 0x10,
-            projectileType: SamusProjectileType.Of(SamusProjectileFamily.PowerBomb),
+            projectileType: BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.PowerBomb)),
             solidBlock: true),
         "BTS-ten allocates the native B974 collision-probe PLM");
     AssertEqual(3, noOpShotObjects.Places.ActiveCount,

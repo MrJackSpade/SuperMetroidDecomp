@@ -42,8 +42,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyPlaces _places;
     /// <summary>The wings each body found when it was placed, which its room lists right after it.</summary>
     private readonly EnemyPartLinks<RoomEnemyPlace> _wingsOfBody = new();
-    /// <summary>The body each pair of wings found when it was placed, which its room lists right before them.</summary>
-    private readonly EnemyPartLinks<RoomEnemyPlace> _bodyOfWings = new();
+    /// <summary>The body each body placed handed the wings its room lists right after it.</summary>
+    private readonly EnemyPartLinks<KiHunterWingsBody> _bodyOfWings = new();
     /// <summary>
     /// The settings of the wings each body's wings were placed with, which name the health at which the body loses them;
     /// a body reads them after its wings were deleted as set up, as a wingless Ki-Hunter's are.
@@ -91,7 +91,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Ki-Hunter body.</summary>
     internal void InitializeKiHunter(RoomEnemyOccupant occupant, RoomEnemyPlace body)
     {
-        _wingsOfBody.Place(body, _places.ListedAfter(body, 1));
+        RoomEnemyPlace wings = _places.ListedAfter(body, 1);
+        _wingsOfBody.Place(body, wings);
+        _bodyOfWings.Place(wings, new KiHunterWingsBody(body, occupant));
         var state = new KiHunterBodyState(KiHunterAction.FlyingPatrol);
         body.SetSpeciesState(state);
 
@@ -114,11 +116,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Initializes the Ki-Hunter's wings, which find their body listed right before them.</summary>
+    /// <summary>Initializes the Ki-Hunter's wings, which the body listed right before them handed itself as it was placed.</summary>
     internal void InitializeKiHunterWings(RoomEnemyOccupant occupant, RoomEnemyPlace wings)
     {
-        _bodyOfWings.Place(wings, _places.ListedBefore(wings, 1));
-        RoomEnemyPlace body = GetKiHunterBody(wings);
+        KiHunterWingsBody partner = _bodyOfWings.Of(wings);
+        RoomEnemyPlace body = partner.Place;
         _wingSettingsOfBody.Place(body, occupant.SpawnSettings<KiHunterWingsSpawnSettings>());
         var state = new KiHunterWingState(KiHunterWingAction.FollowBody);
         wings.SetSpeciesState(state);
@@ -126,9 +128,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         wings.Processing = wings.Processing.With(EnemyProcessing.Animates);
         StartKiHunterAnimation(wings, state, KiHunterSegment.WingsLeft);
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
-        RoomEnemyOccupant bodyOccupant = body.Occupant ?? throw new InvalidDataException(
-            $"Ki-Hunter wings in place {wings.Ordinal} follow a body place {body.Ordinal} that holds no enemy.");
-        if (bodyOccupant.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
+        if (partner.Occupant.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
             wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
     }
 
@@ -710,8 +710,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private RoomEnemyPlace GetKiHunterWings(RoomEnemyPlace body) => _wingsOfBody.Of(body);
 
-    /// <summary>The body the wings found when they were placed, which their room lists right before them.</summary>
-    private RoomEnemyPlace GetKiHunterBody(RoomEnemyPlace wings) => _bodyOfWings.Of(wings);
+    /// <summary>The place of the body that handed itself to the wings, which their room lists right before them.</summary>
+    private RoomEnemyPlace GetKiHunterBody(RoomEnemyPlace wings) => _bodyOfWings.Of(wings).Place;
 
     /// <summary>Restarts a body animation from its first step.</summary>
     private static void StartKiHunterAnimation(RoomEnemyPlace body, KiHunterBodyState state, KiHunterSegment segment) =>

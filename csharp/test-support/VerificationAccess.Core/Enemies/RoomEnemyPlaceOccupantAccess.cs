@@ -4,11 +4,11 @@ namespace SuperMetroid.Core.Enemies;
 internal static class RoomEnemyPlaceOccupantAccess
 {
     /// <summary>
-    /// The enemy <paramref name="place"/> holds, which a check calling a species behaviour hands it with the place. A check
-    /// that left the place unbound, using it only as the source its behaviour spawns from, gets the fixtures' stand-in
-    /// (<see cref="EnemyPlaceFixtures.StandIn"/>) as an occupant no place holds, so the place and the states the check
-    /// installed there stay as they are.
+    /// The enemy <paramref name="place"/> holds, which a check calling a species behaviour hands it with the place. The
+    /// check binds the place before asking (#2558).
     /// </summary>
+    /// <exception cref="InvalidOperationException">The check has bound no enemy in the place.</exception>
     internal static RoomEnemyOccupant HeldOccupant(this RoomEnemyPlace place) =>
-        Ensure.NotNull(place).Occupant ?? EnemyOccupantFixtures.Of(EnemyPlaceFixtures.StandIn);
+        Ensure.NotNull(place).Occupant
+            ?? throw new InvalidOperationException($"A check asks for the enemy in place {place.Ordinal}, where it has bound none.");
 }

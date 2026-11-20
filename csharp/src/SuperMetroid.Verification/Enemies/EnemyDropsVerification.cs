@@ -395,7 +395,7 @@ internal static class EnemyDropsVerification
             "death actor retains killed enemy X position");
         AssertEqual((ushort)123, explosion.Position.Y.Whole,
             "death actor retains killed enemy Y position");
-        AssertEqual(KilledEnemy.Of(enemy, respawns: true), explosion.StateOf<EnemyDeathExplosionState>().KilledEnemy,
+        AssertEqual(KilledEnemy.Of((PopulatedEnemyPlace)enemy.History, respawns: true), explosion.StateOf<EnemyDeathExplosionState>().KilledEnemy,
             "respawning slot zero is retained as the killed enemy, marked to respawn");
         AssertEqual(
             EnemyDeathExplosions.Animation(EnemyDeathExplosion.Small),

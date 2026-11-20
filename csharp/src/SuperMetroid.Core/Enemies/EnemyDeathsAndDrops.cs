@@ -108,16 +108,15 @@ internal sealed class EnemyDeathsAndDrops
     {
         Ensure.NotNull(enemy);
         EnemyProjectile? explosion = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathExplosion, ExplosionsAndPickups, graphics: SpriteGraphics.SharedStandard);
+        Position16<RoomPixels> killedAt = enemy.Position.Whole;
+        RoomEnemyOccupant? dropper = enemy.Occupant;
+        PopulatedEnemyPlace killedIn = enemy.Kill(respawns);
         if (explosion is not null)
         {
-            explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
-            explosion.State = new EnemyDeathExplosionState(KilledEnemy.Of(enemy, respawns), enemy.Occupant);
+            explosion.Position = explosion.Position.WithWhole(killedAt);
+            explosion.State = new EnemyDeathExplosionState(KilledEnemy.Of(killedIn, respawns), dropper);
             explosion.StartAnimation(new EnemyDeathAndDropAnimation(EnemyDeathExplosions.Animation(deathAnimation)));
         }
-
-        enemy.Clear();
-        if (respawns)
-            enemy.AwaitRespawn();
     }
 
     /// <summary>Chooses the definition's death explosion, raising the smaller ones for Super Missile kills.</summary>
@@ -536,13 +535,12 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>
     /// Runs the respawn cue for the respawning enemy a death actor retains: the enemy is set up again from the population
-    /// it spawned from.
+    /// entry its place keeps when the cue runs (#1542).
     /// </summary>
-    /// <exception cref="InvalidOperationException">No enemy has been spawned in the place, so none was killed there.</exception>
-    internal void RespawnEnemyFromSnapshot(RoomEnemyPlace place)
+    internal void RespawnEnemyFromSnapshot(PopulatedEnemyPlace killedIn)
     {
-        RoomEnemyPlacement spawn = place.LastSpawn ?? throw new InvalidOperationException(
-            $"A respawn cue reached enemy place {place.Ordinal}, where no enemy has been spawned.");
+        RoomEnemyPlace place = killedIn.Place;
+        RoomEnemyPlacement spawn = killedIn.LastSpawn;
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(spawn.DefinitionId);
         // Unlike the room's enemy setup and an ordinary enemy spawn, a respawn
         // never sets the frame: the actor keeps the empty frame its death left,

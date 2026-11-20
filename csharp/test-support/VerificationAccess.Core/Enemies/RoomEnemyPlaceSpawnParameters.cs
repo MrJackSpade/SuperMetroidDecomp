@@ -13,18 +13,20 @@ internal static class RoomEnemyPlaceSpawnParameters
     /// its own.
     /// </summary>
     internal static void Bind(this RoomEnemyPlace place, EnemyDefinitionId species, RoomEnemyDefinition definition) =>
-        place.Bind((place.Occupant?.Spawn ?? place.LastSpawn) is { } entry
-            ? entry with { DefinitionId = species }
+        place.Bind(place.History is PopulatedEnemyPlace populated
+            ? populated.LastSpawn with { DefinitionId = species }
             : PlacementFor(species, EnemySpawnSettings.None), definition);
 
     /// <summary>
     /// Sets the spawn settings the place's population entry gives its species (#1471): the place's enemy is bound again
     /// from its entry with <paramref name="settings"/>, as a population load binds it, before the check initializes it.
     /// </summary>
+    /// <exception cref="InvalidOperationException">The check has bound no enemy in the place.</exception>
     internal static void SetSpawnSettings(this RoomEnemyPlace place, EnemySpawnSettings settings)
     {
-        // A place no enemy has been bound in takes the fixtures' stand-in, as an unbound source place does.
-        RoomEnemyPlacement entry = place.Occupant?.Spawn ?? place.LastSpawn ?? place.HeldOccupant().Spawn;
+        RoomEnemyPlacement entry = place.History is PopulatedEnemyPlace populated
+            ? populated.LastSpawn
+            : throw new InvalidOperationException($"A check sets the spawn settings of enemy place {place.Ordinal}, where it has bound no enemy.");
         place.Bind(entry with { SpawnSettings = settings }, place.Definition);
     }
 
@@ -33,7 +35,7 @@ internal static class RoomEnemyPlaceSpawnParameters
     /// the room origin in a place no enemy has been spawned in.
     /// </summary>
     internal static void BindPlaced(this RoomEnemyPlace place, EnemyDefinitionId species, EnemySpawnSettings settings) =>
-        place.Bind(((place.Occupant?.Spawn ?? place.LastSpawn) ?? PlacementFor(species, settings))
+        place.Bind((place.History is PopulatedEnemyPlace populated ? populated.LastSpawn : PlacementFor(species, settings))
             with { DefinitionId = species, SpawnSettings = settings }, place.Definition);
 
     /// <summary>

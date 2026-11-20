@@ -8,19 +8,19 @@ namespace SuperMetroid.Core.Enemies;
 public sealed record KilledEnemy
 {
     /// <summary>Keeps the killed enemy's place and whether it respawns.</summary>
-    private KilledEnemy(RoomEnemyPlace enemy, bool respawns)
+    private KilledEnemy(PopulatedEnemyPlace enemy, bool respawns)
     {
         Enemy = enemy;
         Respawns = respawns;
     }
 
-    /// <summary>The enemy in <paramref name="place"/>, which respawns when the explosion ends if <paramref name="respawns"/>.</summary>
-    /// <param name="place">The killed enemy's place.</param>
+    /// <summary>The enemy killed in <paramref name="place"/>, which respawns when the explosion ends if <paramref name="respawns"/>.</summary>
+    /// <param name="place">The history of the killed enemy's place, which keeps the entry a respawn rebuilds it from.</param>
     /// <param name="respawns">Whether the explosion's respawn cue rebuilds the enemy from its snapshot.</param>
-    public static KilledEnemy Of(RoomEnemyPlace place, bool respawns) => new(Ensure.NotNull(place), respawns);
+    public static KilledEnemy Of(PopulatedEnemyPlace place, bool respawns) => new(Ensure.NotNull(place), respawns);
 
-    /// <summary>The killed enemy's place.</summary>
-    public RoomEnemyPlace Enemy { get; }
+    /// <summary>The history of the killed enemy's place.</summary>
+    public PopulatedEnemyPlace Enemy { get; }
 
     /// <summary>Whether the explosion's respawn cue rebuilds the enemy from its snapshot.</summary>
     public bool Respawns { get; }

@@ -122,9 +122,16 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         public bool IsEmpty(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).IsFree;
 
         /// <inheritdoc/>
-        /// <exception cref="InvalidOperationException">No enemy has been spawned in the place.</exception>
-        public int DirectionChangePeriod(RoomEnemyPlace enemy) => (Ensure.NotNull(enemy).LastSpawn ?? throw new InvalidOperationException(
-            $"An Evir body reads the direction-change period of enemy place {enemy.Ordinal}, where no enemy has been spawned.")).SpawnSettingsOf<EvirSpawnSettings>().DirectionChangePeriod;
+        public int DirectionChangePeriod(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).History switch
+        {
+            // A place that holds its enemy, or waits for its killed enemy's respawn, still reads that enemy's entry.
+            PopulatedEnemyPlace { Occupancy: OccupiedEnemyPlace or VacatedEnemyPlace { AwaitsRespawn: true } } taken =>
+                taken.LastSpawn.SpawnSettingsOf<EvirSpawnSettings>().DirectionChangePeriod,
+            _ => FreePlacePeriod,
+        };
+
+        /// <summary>The period a free place's cleared record reads.</summary>
+        private const int FreePlacePeriod = 0;
 
         /// <inheritdoc/>
         public bool IsEvirSpit(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).Holds(EnemyDefinitionId.EvirProjectile);

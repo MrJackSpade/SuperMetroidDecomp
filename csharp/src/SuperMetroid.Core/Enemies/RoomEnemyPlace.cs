@@ -36,11 +36,17 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     [IntegerQuantity("place among the room's enemy places")]
     public int Ordinal { get; }
     /// <summary>
-    /// The enemy holding the place (#2558), which carries its identity and the population entry it was spawned from; null
-    /// while the place holds no enemy, whether it is free or <see cref="AwaitsRespawn"/>. Each binding installs a new
-    /// occupant.
+    /// What the place has held since its room loaded (#2558): nothing yet, or the history of a populated place, which
+    /// keeps the population entry its latest occupant was spawned from and whether an enemy holds it now.
     /// </summary>
-    public RoomEnemyOccupant? Occupant { get; private set; }
+    public EnemyPlaceHistory History { get; private set; } = NeverPopulatedEnemyPlace.Instance;
+
+    /// <summary>
+    /// The enemy holding the place (#2558), which carries its identity and the population entry it was spawned from; null
+    /// while the place holds no enemy, whether it was never populated, was vacated or <see cref="AwaitsRespawn"/>. Each
+    /// binding installs a new occupant.
+    /// </summary>
+    public RoomEnemyOccupant? Occupant => History is PopulatedEnemyPlace { Occupancy: OccupiedEnemyPlace occupied } ? occupied.Occupant : null;
 
     /// <summary>Whether the place holds an enemy of <paramref name="definition"/>; false while it holds none.</summary>
     /// <param name="definition">The enemy asked about.</param>
@@ -48,17 +54,17 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
 
     /// <summary>
     /// Whether the place holds no enemy but stays taken until the death explosion of the respawning enemy killed in it
-    /// rebuilds that enemy from its population entry (#1851). No spawn takes the place meanwhile, and the enemy passes
-    /// that reach every place pass it over as they pass a free one; the enemy pass still counts its updates on the update
-    /// its enemy died.
+    /// rebuilds that enemy from its population entry (#1851), as its history records. No spawn takes the place meanwhile,
+    /// and the enemy passes that reach every place pass it over as they pass a free one; the enemy pass still counts its
+    /// updates on the update its enemy died.
     /// </summary>
-    public bool AwaitsRespawn { get; private set; }
+    public bool AwaitsRespawn => History is PopulatedEnemyPlace { AwaitsRespawn: true };
 
     /// <summary>
-    /// Whether the place is free for a spawn: it holds no enemy and does not await one's respawn. A place's earlier
-    /// occupant's partners read it as gone only once it is free.
+    /// Whether the place is free for a spawn: it was never populated, or its last occupant left it with no respawn pending.
+    /// A place's earlier occupant's partners read it as gone only once it is free.
     /// </summary>
-    internal bool IsFree => Occupant is null && !AwaitsRespawn;
+    internal bool IsFree => History is NeverPopulatedEnemyPlace or PopulatedEnemyPlace { Occupancy: VacatedEnemyPlace { AwaitsRespawn: false } };
     /// <summary>Immutable resolved definition for the current enemy identity, supplying initialization, collision, and AI definitions.</summary>
     public RoomEnemyDefinition Definition { get; private set; }
 
@@ -128,10 +134,11 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     {
         ReleaseEntity();
         var occupant = new RoomEnemyOccupant(spawn);
-        Occupant = occupant;
-        LastSpawn = spawn;
+        if (History is PopulatedEnemyPlace populated)
+            populated.Occupy(occupant);
+        else
+            History = new PopulatedEnemyPlace(this, occupant);
         Definition = definition;
-        AwaitsRespawn = false;
         OccupantStates = new();
         AnimationClock = new();
         Entity = _registry.Create(occupant, this);
@@ -150,15 +157,21 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     }
 
     /// <summary>
-    /// Keeps the place of a respawning enemy just killed in it taken until its death explosion rebuilds it
-    /// (<see cref="AwaitsRespawn"/>). The killed enemy's population entry stays in <see cref="LastSpawn"/> for the rebuild.
+    /// Empties the place when its enemy is killed (<see cref="Clear"/>) and, for a respawning enemy, keeps it taken until
+    /// its death explosion rebuilds it (<see cref="AwaitsRespawn"/>). A place already cleared is killed again when a second
+    /// death reaches it in the same update.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The place still holds an enemy.</exception>
-    internal void AwaitRespawn()
+    /// <param name="respawns">Whether the killed enemy respawns from the place's entry.</param>
+    /// <returns>The place's history, which keeps the entry a respawn rebuilds the enemy from.</returns>
+    /// <exception cref="InvalidOperationException">No enemy has been spawned in the place, so none can be killed there.</exception>
+    internal PopulatedEnemyPlace Kill(bool respawns)
     {
-        if (Occupant is { } held)
-            throw new InvalidOperationException($"Enemy place {Ordinal} still holds {held.DefinitionId}; only a killed enemy's place awaits its respawn.");
-        AwaitsRespawn = true;
+        if (History is not PopulatedEnemyPlace populated)
+            throw new InvalidOperationException($"Enemy place {Ordinal} is killed, but no enemy has been spawned there.");
+        Clear();
+        if (respawns)
+            populated.AwaitRespawn();
+        return populated;
     }
 
     /// <summary>
@@ -178,17 +191,11 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// </summary>
     internal void Vacate()
     {
-        Occupant = null;
+        if (History is PopulatedEnemyPlace populated)
+            populated.Vacate();
         ReleaseEntity();
         OccupantStates = new();
     }
-    /// <summary>
-    /// What the place's last occupant left of its spawn: the population entry it was spawned from, which a death
-    /// explosion's respawn cue rebuilds whatever the place holds when the cue runs (#1542), as the game keeps a place's
-    /// spawn entry until the place is populated again. The occupant's own entry while one holds the place; null for a
-    /// place no enemy has been spawned in.
-    /// </summary>
-    internal RoomEnemyPlacement? LastSpawn { get; private set; }
     /// <summary>The enemy's room position with its fraction of a pixel, each whole coordinate wrapping around the room.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Collision half-extents in pixels, initially the definition's.</summary>
@@ -286,8 +293,8 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// <summary>
     /// Empties the place when its occupant is killed: its identity, its species states and the place's live values. The
     /// kill clears what the occupant leaves, so the enemies that read the place find no species state there. The
-    /// population entry the occupant was spawned from survives the kill (<see cref="LastSpawn"/>): a respawn rebuilds the
-    /// enemy from it (#2256).
+    /// population entry the occupant was spawned from survives the kill in the place's <see cref="History"/>: a respawn
+    /// rebuilds the enemy from it (#2256).
     /// </summary>
     internal void Clear()
     {
@@ -311,7 +318,6 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
         Shake.End();
         Invincibility.End();
         HurtFlashFrames = 0;
-        AwaitsRespawn = false;
         DrawOffset = Offset16<RoomPixels>.Zero;
     }
 }

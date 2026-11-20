@@ -23,18 +23,19 @@ internal static class RoomEnemySlotSpawnWords
     /// </summary>
     internal static void SetSpawnWords(this RoomEnemyPlace place, EnemyDefinitionId species, Func<PopulationWords, PopulationWords> change)
     {
-        RoomEnemyPlacement? current = place.Occupant?.Spawn ?? place.LastSpawn;
-        Position16<RoomPixels> position = current is null ? Position16<RoomPixels>.Zero : RoomEnemyPopulationRecordCodec.PositionWordsOf(current.Placing);
         PopulationWords blank = EnemySpawnSettingsCodec.Blank(species);
+        if (place.History is not PopulatedEnemyPlace populated)
+        {
+            place.PopulateFor(species, EnemySpawnSettingsCodec.Decode(species, change(blank), Position16<RoomPixels>.Zero));
+            return;
+        }
+        RoomEnemyPlacement current = populated.LastSpawn;
+        Position16<RoomPixels> position = RoomEnemyPopulationRecordCodec.PositionWordsOf(current.Placing);
         Type kind = KindOf(EnemySpawnSettingsCodec.Decode(species, blank, position).GetType());
-        PopulationWords words = current is not null && KindOf(current.SpawnSettings.GetType()) == kind
+        PopulationWords words = KindOf(current.SpawnSettings.GetType()) == kind
             ? EnemySpawnSettingsCodec.Encode(species, current.SpawnSettings)
             : blank;
-        EnemySpawnSettings settings = EnemySpawnSettingsCodec.Decode(species, change(words), position);
-        if (current is null)
-            place.PopulateFor(species, settings);
-        else
-            place.SetSpawnSettings(settings);
+        place.SetSpawnSettings(EnemySpawnSettingsCodec.Decode(species, change(words), position));
     }
 
     /// <summary>The kind of settings <paramref name="settings"/> is: its own type, or the settings its species' parts share.</summary>

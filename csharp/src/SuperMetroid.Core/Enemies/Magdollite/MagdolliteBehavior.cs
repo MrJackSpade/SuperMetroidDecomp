@@ -19,7 +19,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
     public EnemyOccupant Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(place).SpawnSettings<MagdolliteSpawnSettings>() switch
         {
-            MagdolliteHeadSpawnSettings => EnemyOccupant.Of(new MagdolliteHeadEntity(this, place, common)),
+            MagdolliteHeadSpawnSettings => EnemyOccupant.FromSurroundings(new MagdolliteHeadEntity(this, place, common)),
             MagdolliteBodySpawnSettings => EnemyOccupant.Of(new MagdolliteBodyEntity(this, place, common)),
             MagdolliteOverlaySpawnSettings => EnemyOccupant.Of(new MagdolliteOverlayEntity(this, place, common)),
             var part => throw new InvalidOperationException($"Undefined Magdollite part {part}."),

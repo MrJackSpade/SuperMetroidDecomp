@@ -23,9 +23,9 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.BombTorizo)
-            return EnemyOccupant.Of(new BombTorizoEntity(this, place, common));
+            return EnemyOccupant.FromSurroundings(new BombTorizoEntity(this, place, common));
         if (definition == EnemyDefinitionId.GoldenTorizo)
-            return EnemyOccupant.Of(new GoldenTorizoEntity(this, place, common));
+            return EnemyOccupant.FromSurroundings(new GoldenTorizoEntity(this, place, common));
         throw new InvalidOperationException($"The Torizo species creates no {place.DefinitionId}.");
     }
 

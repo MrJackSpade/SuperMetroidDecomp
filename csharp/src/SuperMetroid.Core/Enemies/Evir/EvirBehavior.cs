@@ -23,7 +23,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             return place.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
                 ? EnemyOccupant.Of(new EvirArmsEntity(this, place, common))
-                : EnemyOccupant.Of(new EvirBodyEntity(this, place, common));
+                : EnemyOccupant.FromSurroundings(new EvirBodyEntity(this, place, common));
         }
         if (definition == EnemyDefinitionId.EvirProjectile)
             return EnemyOccupant.Of(new EvirSpitEntity(this, place, common));

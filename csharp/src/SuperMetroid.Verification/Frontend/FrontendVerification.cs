@@ -479,9 +479,10 @@ internal static void VerifyDemoInputObject()
     demo.Enable();
     demo.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
 
-    // The first six records at $91:8694. The two one-frame X edges are separated by held-X
-    // records; normal projectile cooldown/motion code, not this program, decides each shot.
-    int[] boundaries = [90, 1, 40, 1, 29, 70];
+    // The first seven records at $91:8694, the last two one run of nothing held played as one input (#2557). The two
+    // one-frame X edges are separated by held-X records; normal projectile cooldown/motion code, not this program, decides
+    // each shot.
+    int[] boundaries = [90, 1, 40, 1, 29, 90];
     GameplayAction[] held =
         [0, GameplayAction.Shoot, GameplayAction.Shoot, GameplayAction.Shoot,
             GameplayAction.Shoot, 0];
@@ -506,7 +507,7 @@ internal static void VerifyDemoInputObject()
         }
     }
 
-    AssertEqual(231, elapsed, "old Mother Brain demo-input duration");
+    AssertEqual(251, elapsed, "old Mother Brain demo-input duration");
     AssertEqual(DemoInputRomDataIntroMotherBrain.NextRecord, DemoInputNativeListAddresses.Address(demo.Position),
         "old Mother Brain next record pointer");
     // Loading a record and publishing its first visible frame happen in the same handler call, so each record holds

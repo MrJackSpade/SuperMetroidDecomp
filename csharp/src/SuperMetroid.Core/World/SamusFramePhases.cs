@@ -164,31 +164,15 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>
-    /// Runs Samus's movement for a pose stored without
-    /// initializing it: the cached movement type, not the pose, selects the mover.
+    /// Runs Samus's movement for a pose stored without initializing it: the cached movement type, not the pose, selects
+    /// the mover, as the game's movement for each type does (#2291, #2553). The drained pose is stored only over the
+    /// special movement type, whose momentum reset only clears the momentum-transition selector, and the two jumps.
     /// </summary>
     private void StepUninitializedPoseMovement(SamusControlFrame frame, SamusState samus, RoomScope room)
     {
-        RoomTerrain terrain = room.SamusTerrain;
-        // The drained pose is stored uninitialized only over the special movement type, whose momentum reset only clears the
-        // momentum-transition selector, and the two jumps (#2291).
         SamusMovementType movement = SamusPoseMetadata.ReadMovementType(samus);
-        if (movement == SamusMovementType.SpinJumping)
-        {
-            frame.Record(SamusAerialMovement.StepSpinJump(
-                SamusMovement.SpinJumping, terrain, samus, _playerActions.Current, _clock.Counter,
-                _playerActions.NewlyPressed));
-        }
-        else if (movement == SamusMovementType.NormalJumping)
-        {
-            frame.Record(SamusAerialMovement.StepNormalJump(
-                SamusMovement.NormalJumping, terrain, samus, _playerActions.Current, _clock.Counter));
-        }
-        else if (movement != SamusMovementType.Special)
-        {
-            throw new NotSupportedException(
-                $"Cached movement type {movement} has no movement under uninitialized pose {samus.Pose}.");
-        }
+        if (movement != SamusMovementType.Special)
+            RunMovementOfType(frame, samus, room, movement);
     }
 
     /// <summary>
@@ -718,9 +702,13 @@ internal sealed class SamusFramePhases
     /// does, with the few poses whose step their own family takes named in their type's movement.
     /// </summary>
     /// <exception cref="InvalidDataException">The pose's movement type has no movement its pose owns.</exception>
-    private void RunPoseMovement(SamusControlFrame frame, SamusState samus, RoomScope room)
+    private void RunPoseMovement(SamusControlFrame frame, SamusState samus, RoomScope room) =>
+        RunMovementOfType(frame, samus, room, SamusPoseMetadata.ReadMovementType(samus.Pose));
+
+    /// <summary>Runs the normal movement of <paramref name="movement"/>, the movement type that selects Samus's mover.</summary>
+    /// <exception cref="InvalidDataException">The movement type has no movement its pose owns.</exception>
+    private void RunMovementOfType(SamusControlFrame frame, SamusState samus, RoomScope room, SamusMovementType movement)
     {
-        SamusMovementType movement = SamusPoseMetadata.ReadMovementType(samus.Pose);
         // The special movement type returns before this, and grappling, a compact airborne pose and the unused movement
         // types are owned by their own movers; any other is corrupt pose state.
         SamusPoseMovement step = SamusMovementTypeDefinitions.Movements[movement].PoseMovement is { } owned

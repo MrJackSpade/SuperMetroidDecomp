@@ -8,7 +8,6 @@ public sealed class SparkEnemyState
     internal SparkSpawnSettings Settings { get; }
 
     /// <summary>Starts the state in <paramref name="action"/>, playing <paramref name="playback"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal SparkEnemyState(SparkAction action, AnimationPlayback<SparkSegment> playback, SparkSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

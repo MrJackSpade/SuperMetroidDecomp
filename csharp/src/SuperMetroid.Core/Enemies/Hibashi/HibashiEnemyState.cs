@@ -11,7 +11,6 @@ public sealed class HibashiEnemyState
     internal HibashiSpawnSettings Settings { get; }
 
     /// <summary>Starts the flame in <paramref name="action"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal HibashiEnemyState(HibashiAction action, HibashiSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

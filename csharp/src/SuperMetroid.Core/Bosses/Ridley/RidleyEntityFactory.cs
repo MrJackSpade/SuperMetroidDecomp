@@ -34,7 +34,7 @@ internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRi
     }
 
     /// <inheritdoc/>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)
     {
         IEnemyEntityFactory untold = this;
         Ensure.NotNull(registry).Add(untold);

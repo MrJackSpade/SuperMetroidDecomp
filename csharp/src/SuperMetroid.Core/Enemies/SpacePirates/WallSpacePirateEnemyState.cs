@@ -10,7 +10,6 @@ public sealed class WallSpacePirateEnemyState
     internal WallSpacePirateSpawnSettings Settings { get; }
 
     /// <summary>Starts the state in <paramref name="action"/> on <paramref name="wall"/>, jumping as <paramref name="jump"/> does.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal WallSpacePirateEnemyState(WallSpacePirateAction action, HorizontalDirection wall, WallSpacePirateJump jump, WallSpacePirateSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

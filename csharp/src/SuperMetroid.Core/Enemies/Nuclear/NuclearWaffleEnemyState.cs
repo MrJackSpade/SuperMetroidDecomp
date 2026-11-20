@@ -13,7 +13,6 @@ public sealed class NuclearWaffleEnemyState
     internal NuclearWaffleSpawnSettings Settings { get; }
 
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal NuclearWaffleEnemyState(NuclearWaffleAction action, NuclearWaffleSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

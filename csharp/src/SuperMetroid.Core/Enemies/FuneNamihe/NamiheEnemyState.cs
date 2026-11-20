@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 public sealed class NamiheEnemyState : FuneNamiheEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal NamiheEnemyState(NamiheAction action, NamiheSpawnSettings settings)
     {
         Action = action;

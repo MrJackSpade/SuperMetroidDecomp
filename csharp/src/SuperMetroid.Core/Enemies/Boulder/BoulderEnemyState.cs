@@ -8,7 +8,6 @@ public sealed class BoulderEnemyState
     internal BoulderSpawnSettings Settings { get; }
 
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal BoulderEnemyState(BoulderAction action, BoulderSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

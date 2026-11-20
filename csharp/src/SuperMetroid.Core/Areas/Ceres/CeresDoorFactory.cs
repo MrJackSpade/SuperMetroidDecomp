@@ -36,7 +36,7 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
     }
 
     /// <inheritdoc/>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)
     {
         IEnemyEntityFactory untold = this;
         Ensure.NotNull(registry).Add(untold);

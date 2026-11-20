@@ -13,7 +13,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemySettingsFactory<Br
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Gamet, EnemyDefinitionId.Geega, EnemyDefinitionId.Zeb, EnemyDefinitionId.Zebbo];
 
     /// <inheritdoc/>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)
     {
         Ensure.NotNull(registry).Add<BrinstarPipeBugSpawnSettings>(this);
         registry.Add<NorfairPipeBugSpawnSettings>(this);

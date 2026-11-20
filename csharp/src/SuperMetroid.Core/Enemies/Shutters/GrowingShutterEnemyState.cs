@@ -21,7 +21,6 @@ public sealed class GrowingShutterEnemyState
     /// Creates the state of a shutter spawned at row <paramref name="spawnY"/> growing <paramref name="growth"/>, starting in
     /// <paramref name="action"/>.
     /// </summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal GrowingShutterEnemyState(GrowingShutterAction action, int spawnY, VerticalDirection growth, GrowingShutterSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

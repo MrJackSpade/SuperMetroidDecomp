@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// A species owner whose population entries tell it <typeparamref name="TSettings"/> (#2554): an entry carrying those
+/// A species whose population entries tell it <typeparamref name="TSettings"/> (#2554): an entry carrying those
 /// settings hands them to the factory as it builds the entry's enemy, which holds them for its life.
 /// </summary>
 /// <typeparam name="TSettings">The settings the species' entries tell it.</typeparam>
@@ -18,5 +18,5 @@ internal interface IEnemySettingsFactory<TSettings> : IEnemySpeciesFactory where
     IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, TSettings settings);
 
     /// <inheritdoc/>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry) => Ensure.NotNull(registry).Add(this);
+    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry) => Ensure.NotNull(registry).Add(this);
 }

@@ -42,7 +42,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemySettingsFactory<Sk
 
 
     /// <summary>Initializes the Skultera.</summary>
-    internal static SkulteraEnemyState InitializeSkultera(RoomEnemyPlace place, SkulteraSpawnSettings settings)
+    internal static SkulteraEnemyState InitializeSkultera(SkulteraSpawnSettings settings)
     {
         // The placement names the way it starts swimming and the speed it swims at either way.
         bool startsLeft = settings.StartDirection == HorizontalDirection.Left;

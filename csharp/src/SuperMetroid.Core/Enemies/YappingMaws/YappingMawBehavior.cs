@@ -115,7 +115,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySettingsFactory<
         switch (state.Action)
         {
             case YappingMawAction.WaitingForSamus:
-                WaitForSamusWithYappingMaw(place, state, samus);
+                WaitForSamusWithYappingMaw(state, samus);
                 break;
             case YappingMawAction.BeginExtension:
                 BeginYappingMawExtension(place, state);
@@ -141,7 +141,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySettingsFactory<
 
     /// <summary>Waits for Samus, including the deliberately approximate distance check.</summary>
     private static void WaitForSamusWithYappingMaw(
-        RoomEnemyPlace place,
         YappingMawEnemyState state,
         SamusState samus)
     {

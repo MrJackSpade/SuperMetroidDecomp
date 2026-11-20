@@ -53,7 +53,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemySettingsFactory<Spark
         var state = new SparkEnemyState(definition.Action,
             new(SparkAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation), settings);
 
-        SetSparkActionTimer(place, state, additionalTime: 0);
+        SetSparkActionTimer(state, additionalTime: 0);
 
         place.AnimationClock.StepOnNextUpdate();
         // Spark keeps its population properties: the setup's extra property change before Phantoon's
@@ -75,7 +75,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemySettingsFactory<Spark
 
                 state.Action = SparkAction.IntermittentActive;
                 StartSparkAnimation(place, state, SparkSegment.FlickerOn);
-                SetSparkActionTimer(place, state, additionalTime: 0);
+                SetSparkActionTimer(state, additionalTime: 0);
                 return;
 
             case SparkAction.IntermittentActive:
@@ -84,7 +84,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemySettingsFactory<Spark
 
                 state.Action = SparkAction.IntermittentInactive;
                 StartSparkAnimation(place, state, SparkSegment.FlickerOut);
-                SetSparkActionTimer(place, state, additionalTime: SparkTimingDefinitions.ExtraTimeOut);
+                SetSparkActionTimer(state, additionalTime: SparkTimingDefinitions.ExtraTimeOut);
                 return;
 
             case SparkAction.EmitFallingSparks:
@@ -92,7 +92,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemySettingsFactory<Spark
                     return;
 
                 _fallingSparksBehavior.SpawnFallingSpark(place);
-                SetSparkActionTimer(place, state, additionalTime: 0);
+                SetSparkActionTimer(state, additionalTime: 0);
                 return;
 
             default:
@@ -108,7 +108,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemySettingsFactory<Spark
     /// <summary>
     /// Sets the Spark's action timer: its placement's wait between actions (#2450) and <paramref name="additionalTime"/>.
     /// </summary>
-    private static void SetSparkActionTimer(RoomEnemyPlace place, SparkEnemyState state, int additionalTime)
+    private static void SetSparkActionTimer(SparkEnemyState state, int additionalTime)
     {
         state.ActionTimer = UpdateCountdown.For(state.Settings.BaseActionTime + additionalTime);
     }

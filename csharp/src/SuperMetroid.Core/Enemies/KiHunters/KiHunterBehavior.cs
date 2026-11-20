@@ -19,7 +19,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemySettingsFactory<Ki
     ];
 
     /// <inheritdoc/>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)
     {
         Ensure.NotNull(registry).Add<KiHunterSpawnSettings>(this);
         registry.Add<KiHunterWingsSpawnSettings>(this);

@@ -13,7 +13,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemySettingsFactory<Grap
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.GrappleRipper, EnemyDefinitionId.Ripper, EnemyDefinitionId.JetRipper];
 
     /// <inheritdoc/>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)
     {
         Ensure.NotNull(registry).Add<GrappleRipperSpawnSettings>(this);
         registry.Add<RipperSpawnSettings>(this);
@@ -108,7 +108,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemySettingsFactory<Grap
     }
 
     /// <summary>Initializes the Ripper.</summary>
-    internal static RipperEnemyState InitializeRipper(RoomEnemyPlace place, RipperSpawnSettings settings)
+    internal static RipperEnemyState InitializeRipper(RipperSpawnSettings settings)
     {
         // The spawn's direction chooses the positive speed and the right-facing animation, or the negative speed and the
         // left-facing animation. Unlike a reversal, initialization keeps the population's frame timer.

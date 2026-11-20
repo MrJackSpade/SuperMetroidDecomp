@@ -9,7 +9,7 @@ internal sealed class SkulteraEntity(SkulteraBehavior species, RoomEnemyPlace pl
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal SkulteraEnemyState State { get; } = SkulteraBehavior.InitializeSkultera(place, settings);
+    internal SkulteraEnemyState State { get; } = SkulteraBehavior.InitializeSkultera(settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunSkulteraMainAi(Place, State, frame);

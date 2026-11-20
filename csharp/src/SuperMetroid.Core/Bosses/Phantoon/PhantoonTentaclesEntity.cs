@@ -15,7 +15,7 @@ internal sealed class PhantoonTentaclesEntity(PhantoonBehavior species, RoomEnem
 {
     /// <inheritdoc/>
     /// <remarks>The part sets up as it is built, joining the encounter (#2554).</remarks>
-    internal override PhantoonPart Part { get; } = species.InitializePhantoonTentacles(place, phantoon);
+    internal override PhantoonPart Part { get; } = PhantoonBehavior.InitializePhantoonTentacles(phantoon);
 
     /// <summary>Takes no action of its own: the tentacles plays its own animation.</summary>
     /// <param name="frame">The enemy frame.</param>

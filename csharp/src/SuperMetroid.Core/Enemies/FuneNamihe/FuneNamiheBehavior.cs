@@ -16,7 +16,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemySettingsFactory<
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fune, EnemyDefinitionId.Namihe];
 
     /// <inheritdoc/>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)
     {
         Ensure.NotNull(registry).Add<FuneSpawnSettings>(this);
         registry.Add<NamiheSpawnSettings>(this);
@@ -149,11 +149,11 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemySettingsFactory<
         RoomEnemyPlace place,
         FuneNamiheEnemyState state)
     {
-        state.Playback = EnemyAnimationPlayback.Start(place, FuneNamiheAnimations.StartingWith(SelectFuneNamiheAnimation(place, state)));
+        state.Playback = EnemyAnimationPlayback.Start(place, FuneNamiheAnimations.StartingWith(SelectFuneNamiheAnimation(state)));
     }
 
     /// <summary>The animation for <paramref name="state"/>'s species and activity, facing as <paramref name="place"/>'s spawn settings say.</summary>
-    internal static FuneNamiheSegment SelectFuneNamiheAnimation(RoomEnemyPlace place, FuneNamiheEnemyState state) =>
+    internal static FuneNamiheSegment SelectFuneNamiheAnimation(FuneNamiheEnemyState state) =>
         Ensure.NotNull(state).Animation(state.SharedSettings.Facing);
 
     /// <summary>Publishes the shared enemy-library spit cue for the outer enemy audio queue.</summary>

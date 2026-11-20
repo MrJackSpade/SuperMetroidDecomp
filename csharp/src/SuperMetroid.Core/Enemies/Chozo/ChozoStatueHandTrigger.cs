@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
@@ -9,6 +10,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <param name="statues">The Chozo statue species, which runs the trigger's effects.</param>
 /// <param name="statue">The statue's place.</param>
 /// <param name="state">The statue the hand belongs to.</param>
+[RoomLifetime]
 internal sealed class ChozoStatueHandTrigger(ChozoStatueBehavior statues, RoomEnemyPlace statue, ChozoStatueState state) : IChozoStatueHandActivation
 {
     /// <summary>The Chozo statue species.</summary>

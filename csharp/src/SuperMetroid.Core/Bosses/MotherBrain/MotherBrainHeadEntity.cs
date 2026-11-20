@@ -16,7 +16,7 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     private EnemyShotReaction OwnShotReaction => field ??= Species.Combat.HeadShotReactionOf(Encounter);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal MotherBrainEnemyState State { get; } = species.Head.InitializeMotherBrainHead(place, encounter);
+    internal MotherBrainEnemyState State { get; } = MotherBrainHead.InitializeMotherBrainHead(place, encounter);
 
     /// <inheritdoc/>
     internal override MotherBrainEnemyState Encounter => State;

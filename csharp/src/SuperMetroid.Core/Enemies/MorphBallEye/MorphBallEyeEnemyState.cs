@@ -12,7 +12,6 @@ public sealed class MorphBallEyeEnemyState
     internal MorphBallEyeBodySpawnSettings Settings { get; }
 
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal MorphBallEyeEnemyState(MorphBallEyeAction action, MorphBallEyeBodySpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

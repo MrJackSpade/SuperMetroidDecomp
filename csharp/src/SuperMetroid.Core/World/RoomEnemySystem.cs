@@ -676,7 +676,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         NorfairRidleyBehavior = new NorfairRidleyBehavior(new NorfairRidleyBehaviorDependencies { Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, DeathsAndDrops = DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyBody = RidleyBody, RidleyProjectiles = RidleyProjectiles, RoomFx = RoomFx, Presentation = Presentation });
         PuyoBehavior = new PuyoBehavior(Room, Terrain, PuyoCeilingTurn);
         PrePhantoonRoomBehavior = new PrePhantoonRoomBehavior(Projectiles);
-        PowampBehavior = new PowampBehavior(Terrain, Projectiles, Places, Collision, DeathsAndDrops);
+        PowampBehavior = new PowampBehavior(Terrain, Projectiles, Collision, DeathsAndDrops);
         PolypBehavior = new PolypBehavior(Room, Projectiles);
         PlatformsBehavior = new PlatformsBehavior(Terrain);
         PipeBugsBehavior = new PipeBugsBehavior(Places);
@@ -695,7 +695,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         MetroidBehavior = new MetroidBehavior(Room, Terrain, Audio, EffectActors, FrameContext, DeathsAndDrops);
         MetareeBehavior = new MetareeBehavior(Projectiles, Audio);
         OumBehavior = new OumBehavior(Terrain, Collision, Audio);
-        MamaTurtleBehavior = new MamaTurtleBehavior(Terrain, Earthquake, Places, Collision, Audio);
+        MamaTurtleBehavior = new MamaTurtleBehavior(Terrain, Earthquake, Collision, Audio);
         MagdolliteBehavior = new MagdolliteBehavior(Room, Projectiles, Places, Collision, DeathsAndDrops, Audio);
         HoltzBehavior = new HoltzBehavior(Room, Terrain, Places, Audio);
         KzanBehavior = new KzanBehavior(Places, Audio);

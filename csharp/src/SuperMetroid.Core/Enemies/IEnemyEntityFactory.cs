@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>A species owner whose population entries tell it nothing, building the enemies of its definitions by definition.</summary>
+/// <summary>A species whose population entries tell it nothing, building the enemies of its definitions by definition.</summary>
 internal interface IEnemyEntityFactory : IEnemySpeciesFactory
 {
     /// <summary>
@@ -16,5 +16,5 @@ internal interface IEnemyEntityFactory : IEnemySpeciesFactory
     IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup);
 
     /// <inheritdoc/>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry) => Ensure.NotNull(registry).Add(this);
+    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry) => Ensure.NotNull(registry).Add(this);
 }

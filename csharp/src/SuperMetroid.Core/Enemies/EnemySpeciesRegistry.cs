@@ -22,14 +22,14 @@ internal sealed class EnemySpeciesRegistry
     /// only <see cref="Add{TSettings}(IEnemySettingsFactory{TSettings})"/> writes it, under the type the factory takes, so
     /// every value is a factory of its key's settings.
     /// </summary>
-    private readonly Dictionary<(Type Settings, EnemyDefinitionId Definition), IEnemySpeciesFactory> _told = [];
+    private readonly Dictionary<EnemySettingsKey, IEnemySpeciesFactory> _told = [];
 
     /// <summary>
     /// The group factory taking each kind of head settings for each of its definitions, keyed by the settings' type and the
     /// definition: only <see cref="Add{TSettings}(IEnemySettingsGroupFactory{TSettings})"/> writes it, under the type the
     /// factory takes.
     /// </summary>
-    private readonly Dictionary<(Type Settings, EnemyDefinitionId Definition), IEnemySpeciesFactory> _toldGroups = [];
+    private readonly Dictionary<EnemySettingsKey, IEnemySpeciesFactory> _toldGroups = [];
 
     /// <summary>The shared participation every entity composes.</summary>
     internal EnemyCommonParticipation Common { get; }
@@ -49,7 +49,7 @@ internal sealed class EnemySpeciesRegistry
                     throw new InvalidOperationException(
                         $"Enemy definition {definition} has two factories: {_owners[definition].GetType().Name} and {factory.GetType().Name}.");
             }
-            factory.RegisterIn(this);
+            factory.EnrollIn(this);
         }
     }
 
@@ -98,11 +98,11 @@ internal sealed class EnemySpeciesRegistry
     internal void Add<TSettings>(IEnemySettingsFactory<TSettings> factory) where TSettings : EnemySpawnSettings
     {
         foreach (EnemyDefinitionId definition in Ensure.NotNull(factory).Definitions)
-            _told.Add((typeof(TSettings), definition), factory);
+            _told.Add(new EnemySettingsKey(typeof(TSettings), definition), factory);
     }
 
     /// <summary>Records <paramref name="factory"/> as the one building the group its head's definition heads.</summary>
-    internal void Add(IEnemyGroupFactory factory) => _untoldGroups.Add(Ensure.NotNull(factory).Head, factory);
+    internal void Add(IEnemyGroupFactory factory) => _untoldGroups.Add(Ensure.NotNull(factory).HeadDefinition, factory);
 
     /// <summary>
     /// Records <paramref name="factory"/> as the one building the groups headed by its definitions whose entries tell
@@ -111,7 +111,7 @@ internal sealed class EnemySpeciesRegistry
     internal void Add<TSettings>(IEnemySettingsGroupFactory<TSettings> factory) where TSettings : EnemySpawnSettings
     {
         foreach (EnemyDefinitionId definition in Ensure.NotNull(factory).Definitions)
-            _toldGroups.Add((typeof(TSettings), definition), factory);
+            _toldGroups.Add(new EnemySettingsKey(typeof(TSettings), definition), factory);
     }
 
     /// <summary>
@@ -130,7 +130,7 @@ internal sealed class EnemySpeciesRegistry
     {
         RoomEnemyPlace place = Ensure.NotNull(placing).Place;
         if (_untoldGroups.TryGetValue(place.DefinitionId, out IEnemyGroupFactory? group))
-            return group.CreateGroup(place, PartsOf(placing, group.PartCount), Common, placing.Setup);
+            return group.CreateGroup(new EnemyGroupPlaces(place, PartsOf(placing, group.PartCount)), Common);
         if (!_untold.TryGetValue(place.DefinitionId, out IEnemyEntityFactory? factory))
             throw new InvalidOperationException($"No enemy species owns definition {place.DefinitionId} with an entry that tells it nothing.");
         return EnemyPlaced.Single(factory.Create(place, Common, placing.Setup));
@@ -142,12 +142,12 @@ internal sealed class EnemySpeciesRegistry
     {
         Ensure.NotNull(settings);
         Ensure.NotNull(placing);
-        (Type, EnemyDefinitionId) key = (typeof(TSettings), placing.Place.DefinitionId);
+        var key = new EnemySettingsKey(typeof(TSettings), placing.Place.DefinitionId);
         // Each dictionary holds under a settings type only a factory registered as taking that type.
         if (_toldGroups.TryGetValue(key, out IEnemySpeciesFactory? groupOwner))
         {
             var group = (IEnemySettingsGroupFactory<TSettings>)groupOwner;
-            return group.CreateGroup(placing.Place, PartsOf(placing, group.PartCount), Common, placing.Setup, settings);
+            return group.CreateGroup(new EnemyGroupPlaces(placing.Place, PartsOf(placing, group.PartCount)), Common, settings);
         }
         if (!_told.TryGetValue(key, out IEnemySpeciesFactory? owner))
             throw new InvalidOperationException($"No enemy species in the room takes {typeof(TSettings).Name} for {placing.Place.DefinitionId}.");

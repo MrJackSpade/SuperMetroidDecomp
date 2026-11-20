@@ -15,7 +15,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
         new KzanTopEntity(this, place, common, settings);
 
     /// <inheritdoc/>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)
     {
         IEnemyEntityFactory untold = this;
         Ensure.NotNull(registry).Add(untold);
@@ -110,7 +110,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
         switch (state.Action)
         {
             case KzanAction.WaitingToFall:
-                RunKzanWaitingToFall(place, state);
+                RunKzanWaitingToFall(state);
                 return;
 
             case KzanAction.Falling:
@@ -132,7 +132,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
     }
 
     /// <summary>Decrements the wrapping top wait and resets the fall speed when descent begins.</summary>
-    private static void RunKzanWaitingToFall(RoomEnemyPlace place, KzanEnemyState state)
+    private static void RunKzanWaitingToFall(KzanEnemyState state)
     {
         state.FallWaitTimer = state.FallWaitTimer.Decrement().Remaining;
         if (!state.FallWaitTimer.IsZero)

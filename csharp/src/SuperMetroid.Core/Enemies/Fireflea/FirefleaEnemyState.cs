@@ -11,7 +11,6 @@ public sealed class FirefleaEnemyState
     internal FirefleaSpawnSettings Settings { get; }
 
     /// <summary>Starts the state of a Fireflea flying <paramref name="flight"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal FirefleaEnemyState(FirefleaFlightState flight, FirefleaSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

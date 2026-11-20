@@ -7,7 +7,6 @@ public sealed class EvirBodyState : EvirPartState
     internal EvirSpawnSettings Settings { get; }
 
     /// <summary>Starts the state of a body whose spit the room lists at <paramref name="spit"/>, two places after it.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal EvirBodyState(RoomEnemyPlace spit, EvirSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

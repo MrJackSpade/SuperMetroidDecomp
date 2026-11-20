@@ -24,7 +24,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySettingsFactory<
     }
 
     /// <summary>Initializes the Multiviola.</summary>
-    internal static MultiviolaEnemyState InitializeMultiviola(RoomEnemyPlace place, MultiviolaSpawnSettings settings)
+    internal static MultiviolaEnemyState InitializeMultiviola(MultiviolaSpawnSettings settings)
     {
         var state = new MultiviolaEnemyState(settings)
         {

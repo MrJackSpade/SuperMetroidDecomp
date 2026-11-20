@@ -11,7 +11,6 @@ public sealed class SkulteraEnemyState
     internal SkulteraSpawnSettings Settings { get; }
 
     /// <summary>Starts the state in <paramref name="action"/> toward <paramref name="heading"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal SkulteraEnemyState(SkulteraAction action, HorizontalDirection heading, SkulteraSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

@@ -69,7 +69,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemySettingsFactory<Gr
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kamer, EnemyDefinitionId.ShutterDestroyable, EnemyDefinitionId.ShutterGrowing, EnemyDefinitionId.ShutterShootable];
 
     /// <inheritdoc/>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)
     {
         Ensure.NotNull(registry).Add<GrowingShutterSpawnSettings>(this);
         registry.Add<ShutterSpawnSettings>(this);
@@ -563,7 +563,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemySettingsFactory<Gr
             : place.Position.Y.Whole - state.LowerEndpointY;
         if (beforeEndpoint < 0)
             return;
-        StopVerticalShutter(place, state, direction);
+        StopVerticalShutter(state, direction);
     }
 
     /// <summary>
@@ -578,7 +578,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemySettingsFactory<Gr
             place.Position.Y.Whole - previousY);
 
     /// <summary>Enters a timed rest or permanent stop at the endpoint the shutter reached moving toward <paramref name="moved"/>.</summary>
-    private static void StopVerticalShutter(RoomEnemyPlace place, VerticalShutterEnemyState state, VerticalDirection moved)
+    private static void StopVerticalShutter(VerticalShutterEnemyState state, VerticalDirection moved)
     {
         ShutterSpawnSettings settings = state.Settings;
         ShutterRest rest = moved == VerticalDirection.Up ? settings.RestAfterMovingUp : settings.RestAfterMovingDown;

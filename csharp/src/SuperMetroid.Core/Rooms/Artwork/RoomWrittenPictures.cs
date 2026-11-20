@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
 
@@ -40,6 +41,6 @@ public abstract class RoomWrittenPictures
         /// with one is.
         /// </exception>
         internal override ImmutableArray<PlacedWrittenPicture> Resolve(RoomWarningText overlay, RoomAppearanceView appearance) =>
-            throw new InvalidDataException($"{room} shows a warning with no installed warning picture sheet.");
+            throw new InvalidDataException($"{room} shows the warning {overlay} with no installed warning picture sheet.");
     }
 }

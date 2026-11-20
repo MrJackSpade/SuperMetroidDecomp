@@ -9,33 +9,17 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>The Magdollite species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemySettingsFactory<MagdolliteHeadSpawnSettings>, IEnemySettingsFactory<MagdolliteBodySpawnSettings>,
-    IEnemySettingsFactory<MagdolliteOverlaySpawnSettings>
+internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemySettingsFactory<MagdolliteSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Magdollite];
 
-    /// <summary>The Magdollite part the placement names: its head, rising body or tracking overlay (#2342, #2474).</summary>
-    /// <exception cref="InvalidOperationException">The placement names no Magdollite part.</exception>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
-    {
-        Ensure.NotNull(registry).Add<MagdolliteHeadSpawnSettings>(this);
-        registry.Add<MagdolliteBodySpawnSettings>(this);
-        registry.Add<MagdolliteOverlaySpawnSettings>(this);
-    }
-
-    /// <inheritdoc/>
-    /// <summary>A Magdollite's head, rising as its placement names.</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MagdolliteHeadSpawnSettings settings) =>
-        new MagdolliteHeadEntity(this, place, common, setup, settings);
-
-    /// <summary>A Magdollite's body, listed after its head.</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MagdolliteBodySpawnSettings settings) =>
-        new MagdolliteBodyEntity(this, place, common);
-
-    /// <summary>A Magdollite's overlay, listed after its head and body.</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MagdolliteOverlaySpawnSettings settings) =>
-        new MagdolliteOverlayEntity(this, place, common);
+    /// <summary>
+    /// The Magdollite part the placement names: its head, rising body or tracking overlay (#2342, #2474), each part's settings
+    /// building their own part (#2554).
+    /// </summary>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, MagdolliteSpawnSettings settings) =>
+        Ensure.NotNull(settings).Create(this, place, common, setup);
 
     /// <summary>Supplies the room's apex overreads.</summary>
     private readonly EnemyRoomBinding _room;

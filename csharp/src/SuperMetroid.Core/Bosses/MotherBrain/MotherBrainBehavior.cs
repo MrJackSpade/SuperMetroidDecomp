@@ -23,7 +23,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyGroupFactory, I
         new MotherBrainTubesEntity(this, place, common, setup, settings);
 
     /// <inheritdoc/>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)
     {
         IEnemyGroupFactory group = this;
         Ensure.NotNull(registry).Add(group);
@@ -31,7 +31,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyGroupFactory, I
     }
 
     /// <inheritdoc/>
-    public EnemyDefinitionId Head => EnemyDefinitionId.MotherBrainBody;
+    public EnemyDefinitionId HeadDefinition => EnemyDefinitionId.MotherBrainBody;
 
     /// <inheritdoc/>
     public int PartCount => MotherBrainFightDefinitions.HeadPlacesAfterBody;
@@ -40,8 +40,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyGroupFactory, I
     /// Mother Brain's body, which heads her head, the one part its room lists right after it (#2146, #2554): the head holds
     /// the encounter her body began from its setup (#2218).
     /// </summary>
-    public EnemyPlaced CreateGroup(RoomEnemyPlace head, IReadOnlyList<RoomEnemyPlace> parts, EnemyCommonParticipation common, EnemySetup setup)
+    public EnemyPlaced CreateGroup(EnemyGroupPlaces places, EnemyCommonParticipation common)
     {
+        RoomEnemyPlace head = Ensure.NotNull(places).Head;
         var body = new MotherBrainBodyEntity(this, head, common, _bossArtwork);
         return new EnemyPlaced(body, [(brain, brainCommon, _) => new MotherBrainHeadEntity(this, brain, brainCommon, body.State)]);
     }

@@ -17,7 +17,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
         [EnemyDefinitionId.PhantoonBody, EnemyDefinitionId.PhantoonEye, EnemyDefinitionId.PhantoonMouth, EnemyDefinitionId.PhantoonTentacles];
 
     /// <inheritdoc/>
-    public EnemyDefinitionId Head => EnemyDefinitionId.PhantoonBody;
+    public EnemyDefinitionId HeadDefinition => EnemyDefinitionId.PhantoonBody;
 
     /// <inheritdoc/>
     public int PartCount => PhantoonPartListingDefinitions.PartsAfterBody;
@@ -26,8 +26,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
     /// Phantoon's body, which heads his eye, tentacles and mouth, listed right after it in that order (#2146, #2252, #2554):
     /// his body begins the encounter over their places, and each part joins it from its setup.
     /// </summary>
-    public EnemyPlaced CreateGroup(RoomEnemyPlace head, IReadOnlyList<RoomEnemyPlace> parts, EnemyCommonParticipation common, EnemySetup setup)
+    public EnemyPlaced CreateGroup(EnemyGroupPlaces places, EnemyCommonParticipation common)
     {
+        RoomEnemyPlace head = Ensure.NotNull(places).Head;
+        IReadOnlyList<RoomEnemyPlace> parts = places.Parts;
         var body = new PhantoonBodyEntity(this, head, common, _bossArtwork, parts);
         PhantoonEnemyState phantoon = body.Part.Phantoon;
         return new EnemyPlaced(body,
@@ -115,7 +117,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
     }
 
     /// <summary>Sets Phantoon's eye up, listed right after his body, closed; its start ends any wave.</summary>
-    internal PhantoonPart InitializePhantoonEye(RoomEnemyPlace eye, PhantoonEnemyState state)
+    /// <param name="state">The encounter his body began, which the part joins (#2252).</param>
+    internal static PhantoonPart InitializePhantoonEye(PhantoonEnemyState state)
     {
         StartPhantoonPart(state.EyePart);
         state.Wave.Length = null;
@@ -123,14 +126,16 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyGroupFactory
     }
 
     /// <summary>Sets Phantoon's tentacles up, listed after his eye.</summary>
-    internal PhantoonPart InitializePhantoonTentacles(RoomEnemyPlace tentacles, PhantoonEnemyState state)
+    /// <param name="state">The encounter his body began, which the part joins (#2252).</param>
+    internal static PhantoonPart InitializePhantoonTentacles(PhantoonEnemyState state)
     {
         StartPhantoonPart(state.TentaclesPart);
         return state.TentaclesPart;
     }
 
     /// <summary>Sets Phantoon's mouth up, listed after his tentacles.</summary>
-    internal PhantoonPart InitializePhantoonMouth(RoomEnemyPlace mouth, PhantoonEnemyState state)
+    /// <param name="state">The encounter his body began, which the part joins (#2252).</param>
+    internal static PhantoonPart InitializePhantoonMouth(PhantoonEnemyState state)
     {
         StartPhantoonPart(state.MouthPart);
         return state.MouthPart;

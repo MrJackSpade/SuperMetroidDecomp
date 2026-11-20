@@ -49,7 +49,7 @@ internal sealed class MotherBrainHead
     /// <summary>Sets Mother Brain's head up when the room spawns it.</summary>
     /// <param name="head">The head's place.</param>
     /// <param name="state">The encounter her body began, which the head joins and holds from here (#2218).</param>
-    internal MotherBrainEnemyState InitializeMotherBrainHead(RoomEnemyPlace head, MotherBrainEnemyState state)
+    internal static MotherBrainEnemyState InitializeMotherBrainHead(RoomEnemyPlace head, MotherBrainEnemyState state)
     {
 
         head.Health = MotherBrainFightDefinitions.FirstPhaseHealth;

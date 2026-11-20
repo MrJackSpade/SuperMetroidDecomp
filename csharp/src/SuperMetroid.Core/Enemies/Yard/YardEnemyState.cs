@@ -9,7 +9,6 @@ public sealed class YardEnemyState
     internal YardSpawnSettings Settings { get; }
 
     /// <summary>Starts the Yard in <paramref name="movement"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal YardEnemyState(YardMovement movement, YardSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

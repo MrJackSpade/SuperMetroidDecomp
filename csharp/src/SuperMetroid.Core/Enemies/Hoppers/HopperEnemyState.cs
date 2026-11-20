@@ -10,7 +10,6 @@ public sealed class HopperEnemyState
     internal HopperSpawnSettings Settings { get; }
 
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal HopperEnemyState(HopperAction action, HopperSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

@@ -11,7 +11,6 @@ public sealed class BrinstarPipeBugState
     internal BrinstarPipeBugSpawnSettings Settings { get; }
 
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal BrinstarPipeBugState(BrinstarPipeBugAction action, BrinstarPipeBugSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

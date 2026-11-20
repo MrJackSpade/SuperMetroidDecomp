@@ -11,7 +11,6 @@ public sealed class EtecoonEnemyState
     internal EtecoonSpawnSettings Settings { get; }
 
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal EtecoonEnemyState(EtecoonAction action, EtecoonSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

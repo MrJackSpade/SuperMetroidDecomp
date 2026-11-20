@@ -19,7 +19,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         new EscapeEtecoonEntity(this, place, common, settings);
 
     /// <inheritdoc/>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)
     {
         IEnemyEntityFactory untold = this;
         Ensure.NotNull(registry).Add(untold);

@@ -12,7 +12,6 @@ public sealed class VerticalShutterEnemyState
     internal ShutterSpawnSettings Settings { get; }
 
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal VerticalShutterEnemyState(VerticalShutterAction action, ShutterSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

@@ -14,7 +14,6 @@ public sealed class ChootEnemyState
     /// Starts the state in <paramref name="action"/>. The Choot falls along its spawn settings' falling path after each
     /// apex, which it reads where it falls (#2476), with the path's loop distance (#2531).
     /// </summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal ChootEnemyState(ChootAction action, ChootSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

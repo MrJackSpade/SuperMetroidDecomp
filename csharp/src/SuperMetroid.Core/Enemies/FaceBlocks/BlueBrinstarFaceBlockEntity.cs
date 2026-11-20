@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="setup">How the enemy comes to be set up, whose surroundings its initialization reads.</param>
+/// <param name="settings">What the enemy's population entry tells its species.</param>
 internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup, FaceBlockSpawnSettings settings)
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {

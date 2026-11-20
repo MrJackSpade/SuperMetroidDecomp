@@ -151,13 +151,13 @@ internal sealed class KraidLimbs
     /// Below half health the arm switches to its slow swing, unless its stored animation is
     /// already the slow one or a later animation.
     /// </summary>
-    private KraidPartSegment? SelectKraidArmSpeedAnimation(KraidEnemyState state) =>
+    private static KraidPartSegment? SelectKraidArmSpeedAnimation(KraidEnemyState state) =>
         state.Parts.Body.Health < state.HalfHealth && state.ArmState.SwingsNormally
             ? KraidPartSegment.ArmSlow
             : null;
 
     /// <summary>Keeps the arm aligned to the body and advances its animation.</summary>
-    internal void RunKraidArmMain(RoomEnemyPlace arm, KraidEnemyState state, int cameraY)
+    internal static void RunKraidArmMain(RoomEnemyPlace arm, KraidEnemyState state, int cameraY)
     {
         RoomEnemyPlace body = state.Parts.Body;
         arm.Position = arm.Position.WithWhole(body.Position.Whole + KraidArenaDefinitions.ArmOffset);

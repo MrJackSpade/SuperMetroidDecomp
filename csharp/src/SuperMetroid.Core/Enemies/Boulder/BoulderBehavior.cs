@@ -216,7 +216,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemySettingsFactory<Bou
         _terrain.MoveEnemyVertically(level, place, verticalDisplacement);
         place.Position = place.Position.WithWhole(place.Position.Whole - new Offset16<RoomPixels>(0, state.VerticalCompensation));
 
-        SignedSixteenSixteen horizontalDisplacement = ReadBoulderHorizontalDisplacement(place, state);
+        SignedSixteenSixteen horizontalDisplacement = ReadBoulderHorizontalDisplacement(state);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, horizontalDisplacement))
         {
             // The boulder breaks: hidden and gone, it does nothing more.
@@ -243,10 +243,10 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemySettingsFactory<Bou
 
     /// <summary>Moves the boulder horizontally by its travel speed on the quadratic speed curve, toward its roll.</summary>
     private static void AddBoulderHorizontalVelocity(RoomEnemyPlace place, BoulderEnemyState state) =>
-        place.Position = place.Position.WithX(place.Position.X.MovedBy(ReadBoulderHorizontalDisplacement(place, state)));
+        place.Position = place.Position.WithX(place.Position.X.MovedBy(ReadBoulderHorizontalDisplacement(state)));
 
     /// <summary>Reads the quadratic speed sample and signs it toward the roll its spawn settings name.</summary>
-    private static SignedSixteenSixteen ReadBoulderHorizontalDisplacement(RoomEnemyPlace place, BoulderEnemyState state) =>
+    private static SignedSixteenSixteen ReadBoulderHorizontalDisplacement(BoulderEnemyState state) =>
         state.TravelCurvePlace.Speed.Toward(state.Settings.Roll != BoulderRoll.Right ? HorizontalDirection.Left : HorizontalDirection.Right);
 
     /// <summary>Moves the boulder vertically by its place's speed on the quadratic speed curve, toward <paramref name="direction"/>.</summary>

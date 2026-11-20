@@ -11,7 +11,6 @@ public sealed class CacatacEnemyState
     internal CacatacSpawnSettings Settings { get; }
 
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal CacatacEnemyState(CacatacAction action, CacatacSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

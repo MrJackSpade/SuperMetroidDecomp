@@ -16,7 +16,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyGroupFactory
         [EnemyDefinitionId.DraygonArms, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail];
 
     /// <inheritdoc/>
-    public EnemyDefinitionId Head => EnemyDefinitionId.DraygonBody;
+    public EnemyDefinitionId HeadDefinition => EnemyDefinitionId.DraygonBody;
 
     /// <inheritdoc/>
     public int PartCount => DraygonPartListingDefinitions.PartsAfterBody;
@@ -25,8 +25,10 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyGroupFactory
     /// Draygon's body, which heads his eye, tail and arms, listed right after it in that order (#2146, #2298, #2554): his
     /// body begins the encounter over their places, and each part joins it from its setup.
     /// </summary>
-    public EnemyPlaced CreateGroup(RoomEnemyPlace head, IReadOnlyList<RoomEnemyPlace> parts, EnemyCommonParticipation common, EnemySetup setup)
+    public EnemyPlaced CreateGroup(EnemyGroupPlaces places, EnemyCommonParticipation common)
     {
+        RoomEnemyPlace head = Ensure.NotNull(places).Head;
+        IReadOnlyList<RoomEnemyPlace> parts = places.Parts;
         var body = new DraygonBodyEntity(this, head, common, _bossArtwork, parts);
         return new EnemyPlaced(body,
         [

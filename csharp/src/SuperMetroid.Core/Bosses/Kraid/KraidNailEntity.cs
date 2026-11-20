@@ -15,7 +15,7 @@ internal sealed class KraidNailEntity(KraidBehavior species, RoomEnemyPlace plac
     : KraidEntity(species, place, common), IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    internal override KraidEnemyState Encounter { get; } = species.Projectiles.InitializeKraidNail(place, kraid, nail);
+    internal override KraidEnemyState Encounter { get; } = KraidProjectiles.InitializeKraidNail(place, kraid, nail);
 
     /// <inheritdoc/>
     internal override KraidPartState PartState => Encounter.Nail(nail);

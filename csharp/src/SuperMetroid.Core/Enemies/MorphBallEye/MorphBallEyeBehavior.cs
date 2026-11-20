@@ -20,7 +20,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySettingsFactor
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MorphBallEye];
 
     /// <inheritdoc/>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)
     {
         Ensure.NotNull(registry).Add<MorphBallEyeBodySpawnSettings>(this);
         registry.Add<MorphBallEyeMountSpawnSettings>(this);

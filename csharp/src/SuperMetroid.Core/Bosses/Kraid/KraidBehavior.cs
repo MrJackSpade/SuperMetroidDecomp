@@ -21,7 +21,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
     ];
 
     /// <inheritdoc/>
-    public EnemyDefinitionId Head => EnemyDefinitionId.Kraid;
+    public EnemyDefinitionId HeadDefinition => EnemyDefinitionId.Kraid;
 
     /// <inheritdoc/>
     public int PartCount => KraidParts.PartCount;
@@ -30,8 +30,10 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyGroupFactory
     /// Kraid's body, which heads his other seven parts, listed right after it (#1877, #2146, #2554): his body begins the
     /// encounter over their places, and each part, a respawned fingernail again, joins it from its setup.
     /// </summary>
-    public EnemyPlaced CreateGroup(RoomEnemyPlace head, IReadOnlyList<RoomEnemyPlace> parts, EnemyCommonParticipation common, EnemySetup setup)
+    public EnemyPlaced CreateGroup(EnemyGroupPlaces places, EnemyCommonParticipation common)
     {
+        RoomEnemyPlace head = Ensure.NotNull(places).Head;
+        IReadOnlyList<RoomEnemyPlace> parts = places.Parts;
         var body = new KraidBodyEntity(this, head, common, new KraidParts(head, parts));
         KraidEnemyState kraid = body.Encounter;
         return new EnemyPlaced(body,

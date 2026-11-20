@@ -66,7 +66,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemySettingsFactory<Hop
             Kind = kind,
         };
 
-        SetHopperAnimation(place, state, ReadHopperAnimation(place, state, HopperPhase.Landed));
+        SetHopperAnimation(place, state, ReadHopperAnimation(state, HopperPhase.Landed));
         return state;
     }
 
@@ -141,14 +141,14 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemySettingsFactory<Hop
     /// <summary>Installs the jumping animation and starts the hop along the chosen heading.</summary>
     internal static void StartHopperJump(RoomEnemyPlace place, HopperEnemyState state)
     {
-        SetHopperAnimation(place, state, ReadHopperAnimation(place, state, HopperPhase.Jumping));
+        SetHopperAnimation(place, state, ReadHopperAnimation(state, HopperPhase.Jumping));
         state.Action = HopperAction.HoppingAway;
     }
 
     /// <summary>Starts the landed animation and returns the actor to its wait-for-hop action.</summary>
     internal static void LandHopper(RoomEnemyPlace place, HopperEnemyState state)
     {
-        SetHopperAnimation(place, state, ReadHopperAnimation(place, state, HopperPhase.Landed));
+        SetHopperAnimation(place, state, ReadHopperAnimation(state, HopperPhase.Landed));
         state.Action = HopperAction.WaitToHop;
     }
 
@@ -231,7 +231,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemySettingsFactory<Hop
     private static HopperSurface SurfaceOf(HopperEnemyState state) => state.Settings.Surface;
 
     /// <summary>Selects the animation for this kind on its surface in its jumping or landing half.</summary>
-    private static HopperSegment ReadHopperAnimation(RoomEnemyPlace place, HopperEnemyState state, HopperPhase phase) =>
+    private static HopperSegment ReadHopperAnimation(HopperEnemyState state, HopperPhase phase) =>
         HopperAnimationChoices.Animation(state.Kind, SurfaceOf(state), phase);
 
     /// <summary>Starts a new animation, its first step playing on the next update.</summary>

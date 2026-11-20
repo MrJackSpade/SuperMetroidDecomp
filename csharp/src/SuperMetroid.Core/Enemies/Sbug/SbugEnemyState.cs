@@ -13,7 +13,6 @@ public sealed class SbugEnemyState
     internal SbugSpawnSettings Settings { get; }
 
     /// <summary>Creates the state of an Sbug starting in <paramref name="action"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal SbugEnemyState(SbugAction action, SbugSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Bosses.Kraid;

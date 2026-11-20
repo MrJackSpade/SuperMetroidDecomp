@@ -23,9 +23,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
     /// The mama turtle, who heads the four babies her room lists right after her (#2146, #2554): each baby holds her from its
     /// setup and first crawls the way her placement names for it.
     /// </summary>
-    public EnemyPlaced CreateGroup(RoomEnemyPlace head, IReadOnlyList<RoomEnemyPlace> parts, EnemyCommonParticipation common,
-        EnemySetup setup, MamaTurtleSpawnSettings settings)
+    public EnemyPlaced CreateGroup(EnemyGroupPlaces places, EnemyCommonParticipation common, MamaTurtleSpawnSettings settings)
     {
+        RoomEnemyPlace head = Ensure.NotNull(places).Head;
         var mama = new MamaTurtleEntity(this, head, common);
         return new EnemyPlaced(mama, [.. Ensure.NotNull(settings).BabyHeadings.Select(heading =>
             (EnemyPartBuild)((baby, babyCommon, _) => new BabyTurtleEntity(this, baby, babyCommon, new BabyTurtleStart(head, mama.State, heading))))]);
@@ -42,7 +42,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemySettingsGroupFac
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects Mama Turtle and her babies to room terrain, collision, places, and earthquake output.</summary>
-    internal MamaTurtleBehavior(EnemyTerrain terrain, RoomEarthquake earthquake, EnemyPlaces places, EnemyCollision collision, EnemyAudioQueue audio)
+    internal MamaTurtleBehavior(EnemyTerrain terrain, RoomEarthquake earthquake, EnemyCollision collision, EnemyAudioQueue audio)
     {
         _audio = audio;
         _terrain = terrain;

@@ -12,7 +12,7 @@ internal sealed class OrdinaryRipperEntity(RipperBehavior species, RoomEnemyPlac
     private RipperSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal override RipperEnemyState State { get; } = RipperBehavior.InitializeRipper(place, settings);
+    internal override RipperEnemyState State { get; } = RipperBehavior.InitializeRipper(settings);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunRipperMainAi(Place, State, Settings, frame);

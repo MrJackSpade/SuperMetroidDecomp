@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's foot's own state beside what every part holds: the phase it runs and its second-phase thinking.</summary>

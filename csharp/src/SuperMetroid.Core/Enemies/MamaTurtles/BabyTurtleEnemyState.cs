@@ -16,10 +16,10 @@ public sealed class BabyTurtleEnemyState
         Mama = Ensure.NotNull(mama);
     }
 
-    /// <summary>The Mama the baby found as it was placed (#2554), whom its touch and shots wake.</summary>
     /// <summary>The place of the Mama that heads the baby.</summary>
     internal RoomEnemyPlace MamaPlace { get; }
 
+    /// <summary>The Mama the baby found as it was placed (#2554), whom its touch and shots wake.</summary>
     internal MamaTurtleEnemyState Mama { get; }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>

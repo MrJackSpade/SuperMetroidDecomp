@@ -13,7 +13,6 @@ public sealed class KzanEnemyState
     internal KzanSpawnSettings Settings { get; }
 
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    /// <param name="settings">What the enemy's population entry told its species.</param>
     internal KzanEnemyState(KzanAction action, KzanSpawnSettings settings)
     {
         Settings = Ensure.NotNull(settings);

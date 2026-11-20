@@ -28,7 +28,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IEnemySettingsFacto
         new GunshipBottomEntity(this, place, common, setup, settings);
 
     /// <inheritdoc/>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)
     {
         IEnemyEntityFactory untold = this;
         Ensure.NotNull(registry).Add(untold);

@@ -15,7 +15,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyGroupFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue];
 
     /// <inheritdoc/>
-    public EnemyDefinitionId Head => EnemyDefinitionId.Crocomire;
+    public EnemyDefinitionId HeadDefinition => EnemyDefinitionId.Crocomire;
 
     /// <inheritdoc/>
     public int PartCount => CrocomireFightDefinitions.TonguePlacesAfterBody;
@@ -24,8 +24,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyGroupFactory
     /// Crocomire's body, which heads his tongue, the one part its room lists right after it (#2146, #2554): the tongue holds
     /// his encounter from its setup; a defeated room's tongue is deleted before any setup.
     /// </summary>
-    public EnemyPlaced CreateGroup(RoomEnemyPlace head, IReadOnlyList<RoomEnemyPlace> parts, EnemyCommonParticipation common, EnemySetup setup)
+    public EnemyPlaced CreateGroup(EnemyGroupPlaces places, EnemyCommonParticipation common)
     {
+        RoomEnemyPlace head = Ensure.NotNull(places).Head;
         var body = new CrocomireBodyEntity(this, head, common, _bossArtwork);
         return new EnemyPlaced(body, [(tongue, tongueCommon, _) => Tongue(tongue, tongueCommon, body.State)]);
     }

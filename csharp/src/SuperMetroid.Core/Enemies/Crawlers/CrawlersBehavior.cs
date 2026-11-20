@@ -47,7 +47,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemySettingsFactory<Cr
         new OrangeZoomerEntity(this, place, common, settings);
 
     /// <inheritdoc/>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)
     {
         Ensure.NotNull(registry).Add<CrawlerSpawnSettings>(this);
         registry.Add<ViolaSpawnSettings>(this);

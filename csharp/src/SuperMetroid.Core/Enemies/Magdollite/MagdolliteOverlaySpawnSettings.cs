@@ -4,5 +4,6 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 internal sealed record MagdolliteOverlaySpawnSettings : MagdolliteSpawnSettings
 {
     /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).Place(this, placing);
+    internal override IEnemyEntity Create(MagdolliteBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
+        new MagdolliteOverlayEntity(species, place, common);
 }

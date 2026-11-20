@@ -6,5 +6,6 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 internal sealed record MagdolliteHeadSpawnSettings(SignedSixteenSixteen Speed, int Range) : MagdolliteSpawnSettings
 {
     /// <inheritdoc/>
-    internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).Place(this, placing);
+    internal override IEnemyEntity Create(MagdolliteBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) =>
+        new MagdolliteHeadEntity(species, place, common, setup, this);
 }

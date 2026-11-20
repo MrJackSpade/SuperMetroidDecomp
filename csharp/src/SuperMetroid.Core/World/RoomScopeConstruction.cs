@@ -161,7 +161,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         CeresHaze = new CeresHazeState(ridleyIsDead, immediateViewport);
 
     /// <summary>Composes the Tourian statues' room the statue room's setup builds over the room's effect (#2485).</summary>
-    /// <param name="fxOverlay">The room's effect, whose water the statues' particles splash through.</param>
+    /// <param name="water">The room effect's water, which the statues' particles splash through.</param>
     internal void ComposeTourianStatueRoom(RoomLiquidSurface water) => TourianStatueRoom = new TourianStatueRoom(water);
 
     /// <summary>Composes the Ceres pre-elevator hall's main and its debris countdown, carried from the previous room's main (#2287).</summary>

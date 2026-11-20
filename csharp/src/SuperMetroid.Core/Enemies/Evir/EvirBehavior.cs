@@ -22,12 +22,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory, IEnemyS
 
     /// <summary>
     /// What each body's and arms' placement told them, recorded as each is built: a body's first half-cycle reads the period
-    /// of the part its speed borrows from (<see cref="EvirBorrowedFirstHalfCycle"/>).
+    /// of the part its speed reads (<see cref="EvirBorrowedFirstHalfCycle"/>).
     /// </summary>
     private readonly EnemyPartLinks<EvirSpawnSettings> _settingsOf = new();
 
     /// <inheritdoc/>
-    void IEnemySpeciesFactory.RegisterIn(EnemySpeciesRegistry registry)
+    void IEnemySpeciesFactory.EnrollIn(EnemySpeciesRegistry registry)
     {
         IEnemyEntityFactory untold = this;
         Ensure.NotNull(registry).Add(untold);

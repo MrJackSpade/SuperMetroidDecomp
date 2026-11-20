@@ -9,7 +9,7 @@ internal sealed class MultiviolaEntity(MultiviolaBehavior species, RoomEnemyPlac
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
-    internal MultiviolaEnemyState State { get; } = MultiviolaBehavior.InitializeMultiviola(place, settings);
+    internal MultiviolaEnemyState State { get; } = MultiviolaBehavior.InitializeMultiviola(settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunMultiviolaMainAi(Place, State, frame);

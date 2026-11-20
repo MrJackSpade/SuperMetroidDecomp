@@ -27,9 +27,9 @@ public static class MapScreenDefinitions
     public const int PageCount = 1 + ZebesAreas * 2;
 
     /// <summary>The world-map background page of an area.</summary>
-    /// <param name="area">A playable Zebes area from zero through five.</param>
+    /// <param name="area">One of the playable Zebes areas.</param>
     public static MapScreenPageId WorldBackground(AreaId area) => new MapScreenPageId.WorldBackground(area);
     /// <summary>The room-map frame page of an area.</summary>
-    /// <param name="area">A playable Zebes area from zero through five.</param>
+    /// <param name="area">One of the playable Zebes areas.</param>
     public static MapScreenPageId RoomFrame(AreaId area) => new MapScreenPageId.RoomFrame(area);
 }

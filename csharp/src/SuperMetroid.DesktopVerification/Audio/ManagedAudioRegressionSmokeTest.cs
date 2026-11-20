@@ -76,14 +76,14 @@ public static class ManagedAudioRegressionSmokeTest
             tally);
         RunSoundScenario(
             "library-3-cinematic",
-            [RoomSound.BabyMetroidCry1],
+            [RoomSound.BabyMetroidHighCry],
             tally);
         RunSoundScenario(
             "three-library-overlap-and-cancel",
             [
                 SamusSound.UnchargedPowerBeam,
                 EnemySound.DudShot,
-                RoomSound.BabyMetroidCry1,
+                RoomSound.BabyMetroidHighCry,
             ],
             tally,
             cancelHalfway: true);

@@ -474,15 +474,15 @@ internal static class SpcSoundStreamDefinitions
         /// <summary>SPC $5208, sound3AnimationScripts_sound22; ROM pointer entry $CFBAD9. Unnamed sound command; original instruction-list identity.</summary>
         internal const ushort Sound22 = 0x5208;
         /// <summary>SPC $5229, sound3AnimationScripts_sound23; ROM pointer entry $CFBADB. Baby metroid cry 1</summary>
-        internal const ushort Sound23BabyMetroidCry1 = 0x5229;
+        internal const ushort Sound23BabyMetroidHighCry = 0x5229;
         /// <summary>SPC $5231, sound3AnimationScripts_sound24; ROM pointer entry $CFBADD. Baby metroid cry - Ceres</summary>
         internal const ushort Sound24BabyMetroidCryCeres = 0x5231;
         /// <summary>SPC $5239, sound3AnimationScripts_sound25; ROM pointer entry $CFBADF. Silence (clear speed booster / elevator sound)</summary>
         internal const ushort Sound25SilenceClearSpeedBoosterElevatorSound = 0x5239;
         /// <summary>SPC $5241, sound3AnimationScripts_sound26; ROM pointer entry $CFBAE1. Baby metroid cry 2</summary>
-        internal const ushort Sound26BabyMetroidCry2 = 0x5241;
+        internal const ushort Sound26BabyMetroidHitchedCry = 0x5241;
         /// <summary>SPC $524E, sound3AnimationScripts_sound27; ROM pointer entry $CFBAE3. Baby metroid cry 3</summary>
-        internal const ushort Sound27BabyMetroidCry3 = 0x524e;
+        internal const ushort Sound27BabyMetroidLowCry = 0x524e;
         /// <summary>SPC $5256, sound3AnimationScripts_sound28; ROM pointer entry $CFBAE5. Unnamed sound command; original instruction-list identity.</summary>
         internal const ushort Sound28 = 0x5256;
         /// <summary>SPC $5277, sound3AnimationScripts_sound29; ROM pointer entry $CFBAE7. Phantoon related</summary>

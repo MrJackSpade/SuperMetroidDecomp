@@ -135,14 +135,14 @@ internal static class LookupStream3Verification
             .Select(cell => ReadVerificationWord(rom, 0x8cd785 + 16 * frame + 2 * cell)).ToArray()).ToArray();
         IntroEyeTilemapPresentation stock = Load(native);
         Confirm(stock, native);
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles(-1).ToArray(), "negative eye frame");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles(4).ToArray(), "upper eye frame");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles((SuperMetroid.Core.Frontend.Intro.IntroEyeFrame)(-1)).ToArray(), "negative eye frame");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles((SuperMetroid.Core.Frontend.Intro.IntroEyeFrame)4).ToArray(), "upper eye frame");
         Console.WriteLine("Intro eye rectangles:24 native cells, the content identity and bounds pass; actual portrait draw copies pass.");
 
         static void Confirm(IntroEyeTilemapPresentation selected, ushort[][] expected)
         {
             for (int frame = 0; frame < expected.Length; frame++)
-                AssertTrue(expected[frame].SequenceEqual(BackgroundTileWordBytes.Words(selected.FrameTiles(frame))), $"eye rectangle {frame}");
+                AssertTrue(expected[frame].SequenceEqual(BackgroundTileWordBytes.Words(selected.FrameTiles(IntroEyeTilemapFormat.Eyes[frame]))), $"eye rectangle {frame}");
             string identity = SelectedPresentationHash.Create(nameof(IntroEyeTilemapPresentation), content =>
             {
                 content.Append("frames", expected.Length);
@@ -157,7 +157,7 @@ internal static class LookupStream3Verification
                 Version = IntroEyeTilemapFormat.Version,
                 Frames = frames.Select((words, frame) => new IntroEyeTilemapFrame
                 {
-                    Id = IntroEyeTilemapFormat.FrameId(frame),
+                    Id = IntroEyeTilemapFormat.FrameId(IntroEyeTilemapFormat.Eyes[frame]),
                     Cells = words.Select(raw =>
                     {
                         var word = new SnesBgTilemapWord(raw);

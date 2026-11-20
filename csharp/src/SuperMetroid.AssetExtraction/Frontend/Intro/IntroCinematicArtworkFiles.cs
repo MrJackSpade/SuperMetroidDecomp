@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Intro;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
@@ -262,10 +263,11 @@ public static class IntroCinematicArtworkFiles
         void WriteEyeFrames()
         {
             var frames = new IntroEyeTilemapFrame[IntroEyeTilemapFormat.FrameCount];
-            for (int frame = 0; frame < frames.Length; frame++)
+            for (int place = 0; place < frames.Length; place++)
             {
+                IntroEyeFrame frame = IntroEyeTilemapFormat.Eyes[place];
                 int pointer = FrontendSourceDefinitions.IntroEyeFrameRecords +
-                    frame * FrontendSourceDefinitions.IntroEyeFrameRecordStride;
+                    Ensure.Listed(FrontendSourceDefinitions.IntroEyeFrameRecordOf, frame) * FrontendSourceDefinitions.IntroEyeFrameRecordStride;
                 int source = (int)SnesAddress.InBank(IntroCinematicSourceDefinitions.SpritemapBank, pointer);
                 int function = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
                 if (function != IntroCinematicSourceDefinitions.PortraitTilemapDrawFunction ||
@@ -287,7 +289,7 @@ public static class IntroCinematicArtworkFiles
                         FlipY = word.FlipVertically,
                     };
                 }
-                frames[frame] = new IntroEyeTilemapFrame
+                frames[place] = new IntroEyeTilemapFrame
                 {
                     Id = IntroEyeTilemapFormat.FrameId(frame),
                     Cells = cells,

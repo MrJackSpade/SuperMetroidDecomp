@@ -48,8 +48,8 @@ internal static class GameOverBabyAnimationDefinitions
     /// </summary>
     internal static readonly NativeWordIdentities<GameOverBabySound> CryCallbacks = new(new Dictionary<GameOverBabySound, ushort>
     {
-        [GameOverBabySound.FirstCry] = 0xbc0c,
-        [GameOverBabySound.SecondCry] = 0xbc15,
-        [GameOverBabySound.ThirdCry] = 0xbc1e,
+        [GameOverBabySound.HighCry] = 0xbc0c,
+        [GameOverBabySound.HitchedCry] = 0xbc15,
+        [GameOverBabySound.LowCry] = 0xbc1e,
     });
 }

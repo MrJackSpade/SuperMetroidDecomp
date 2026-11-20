@@ -76,7 +76,7 @@ internal static class IntroScientistSpriteArtworkVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production scientist scenes never reread six native spritemaps");
 
-        document.Frames.Remove("delivered-baby-1");
+        document.Frames.Remove("delivered-baby-pulse-low");
         AssertThrows<InvalidDataException>(() =>
         {
             using var malformed = new MemoryStream();

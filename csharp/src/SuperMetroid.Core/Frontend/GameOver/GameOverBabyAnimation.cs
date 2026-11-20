@@ -19,9 +19,9 @@ internal static class GameOverBabyAnimation
         {
             [GameOverBabySegment.Crying] =
             [
-                .. Idling(), .. Idling(), .. Crying(GameOverBabySound.FirstCry),
-                .. Idling(), .. Idling(), .. Idling(), .. Idling(), .. Crying(GameOverBabySound.SecondCry),
-                .. Idling(), .. Idling(), .. Idling(), .. Crying(GameOverBabySound.ThirdCry),
+                .. Idling(), .. Idling(), .. Crying(GameOverBabySound.HighCry),
+                .. Idling(), .. Idling(), .. Idling(), .. Idling(), .. Crying(GameOverBabySound.HitchedCry),
+                .. Idling(), .. Idling(), .. Idling(), .. Crying(GameOverBabySound.LowCry),
             ],
         });
 

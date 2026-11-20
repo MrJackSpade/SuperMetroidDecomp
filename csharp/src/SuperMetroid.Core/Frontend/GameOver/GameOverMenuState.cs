@@ -246,9 +246,9 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// <exception cref="InvalidDataException">The cry is not one of the Baby's.</exception>
     private static SoundEffectId CrySound(GameOverBabySound sound) => sound switch
     {
-        GameOverBabySound.FirstCry => GameOverMenuDefinitions.FirstCry,
-        GameOverBabySound.SecondCry => GameOverMenuDefinitions.SecondCry,
-        GameOverBabySound.ThirdCry => GameOverMenuDefinitions.ThirdCry,
+        GameOverBabySound.HighCry => GameOverMenuDefinitions.HighCry,
+        GameOverBabySound.HitchedCry => GameOverMenuDefinitions.HitchedCry,
+        GameOverBabySound.LowCry => GameOverMenuDefinitions.LowCry,
         _ => throw new InvalidDataException($"Unknown game-over Baby sound {sound}."),
     };
 

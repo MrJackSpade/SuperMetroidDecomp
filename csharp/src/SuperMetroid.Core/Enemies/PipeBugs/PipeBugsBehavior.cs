@@ -13,16 +13,16 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A Brinstar Pipe Bug (Zeb or Zebbo), a Norfair one (Gamet) or a yellow one (Geega) (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Pipe Bugs definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition is EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo)
-            return new BrinstarPipeBugEntity(place, common);
+            return new BrinstarPipeBugEntity(occupant, place, common);
         if (definition == EnemyDefinitionId.Gamet)
-            return new NorfairPipeBugEntity(this, place, common);
+            return new NorfairPipeBugEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.Geega)
-            return new YellowPipeBugEntity(place, common);
-        throw new InvalidOperationException($"The Pipe Bugs species creates no {place.Occupant?.DefinitionId}.");
+            return new YellowPipeBugEntity(occupant, place, common);
+        throw new InvalidOperationException($"The Pipe Bugs species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>The room's enemy places, where each Norfair formation leader finds its formation when it is placed.</summary>

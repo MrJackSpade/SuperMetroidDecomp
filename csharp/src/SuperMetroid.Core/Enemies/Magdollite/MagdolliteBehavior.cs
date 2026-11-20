@@ -16,12 +16,12 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The Magdollite part the placement names: its head, rising body or tracking overlay (#2342, #2474).</summary>
     /// <exception cref="InvalidOperationException">The placement names no Magdollite part.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(place).SpawnSettings<MagdolliteSpawnSettings>() switch
         {
-            MagdolliteHeadSpawnSettings => new MagdolliteHeadEntity(this, place, common),
-            MagdolliteBodySpawnSettings => new MagdolliteBodyEntity(this, place, common),
-            MagdolliteOverlaySpawnSettings => new MagdolliteOverlayEntity(this, place, common),
+            MagdolliteHeadSpawnSettings => new MagdolliteHeadEntity(this, occupant, place, common),
+            MagdolliteBodySpawnSettings => new MagdolliteBodyEntity(this, occupant, place, common),
+            MagdolliteOverlaySpawnSettings => new MagdolliteOverlayEntity(this, occupant, place, common),
             var part => throw new InvalidOperationException($"Undefined Magdollite part {part}."),
         };
 

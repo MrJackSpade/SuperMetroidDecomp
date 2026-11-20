@@ -7,11 +7,15 @@ namespace SuperMetroid.Core.Enemies;
 /// <see cref="Capabilities"/>, and it owns no private shot reaction unless the species implements
 /// <see cref="IEnemyPrivateShotReaction"/>.
 /// </summary>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared responses.</param>
-internal abstract class CommonParticipationEnemyEntity(RoomEnemyPlace place, EnemyCommonParticipation common)
+internal abstract class CommonParticipationEnemyEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : IEnemyHurtReaction, IEnemyFrozenAi, IEnemyTouchReaction, IEnemyShotReaction, IEnemyBombReaction, IEnemyPowerBombReaction
 {
+    /// <summary>The occupant the entity is created for, which carries its identity (#2558).</summary>
+    protected RoomEnemyOccupant Occupant { get; } = Ensure.NotNull(occupant);
+
     /// <summary>The place the enemy occupies; its definition names the shared responses.</summary>
     protected RoomEnemyPlace Place { get; } = place;
 

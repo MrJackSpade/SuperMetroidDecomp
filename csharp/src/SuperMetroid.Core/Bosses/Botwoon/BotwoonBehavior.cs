@@ -24,7 +24,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Botwoon];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new BotwoonEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new BotwoonEntity(this, occupant, place, common);
 
     /// <summary>Active room services and RNG used by path and drop decisions.</summary>
     private readonly EnemyRoomBinding _room;
@@ -649,7 +649,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             var position = new Position16<RoomPixels>(
                 BotwoonDeathDefinitions.DropX.Of(random) + BotwoonDeathDefinitions.DropLeft,
                 BotwoonDeathDefinitions.DropY.Of(random) + BotwoonDeathDefinitions.DropTop);
-            _deathsAndDrops.SpawnEnemyDropFromDefinition(position, head.RequireOccupant().DefinitionId, samus);
+            _deathsAndDrops.SpawnEnemyDropFromDefinition(position, EnemyDefinitionId.Botwoon, samus);
         }
         state.WallSequence = UpdateCountdown.Lasting(BotwoonDeathDefinitions.WallExplosionDuration);
         state.LargeExplosionWait.LastFor(1);

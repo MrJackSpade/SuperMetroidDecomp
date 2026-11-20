@@ -11,11 +11,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// a bomb, and the pictures she shows on her boss body layer.
 /// </summary>
 /// <param name="species">The MotherBrain species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : MotherBrainEntity(species, place, common), IBossBodyFrames, IEnemyPrivateShotReaction
+internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+    : MotherBrainEntity(species, occupant, place, common), IBossBodyFrames, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public override void Initialize() => Species.Body.InitializeMotherBrainBody(Place);

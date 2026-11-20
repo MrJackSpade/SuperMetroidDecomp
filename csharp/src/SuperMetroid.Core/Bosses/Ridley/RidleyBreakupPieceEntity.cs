@@ -7,10 +7,11 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ridley's hitboxes, and takes the shared reactions its definition names.
 /// </summary>
 /// <param name="ridley">The Lower Norfair Ridley owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the piece occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class RidleyBreakupPieceEntity(NorfairRidleyBehavior ridley, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
+internal sealed class RidleyBreakupPieceEntity(NorfairRidleyBehavior ridley, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
     /// <inheritdoc/>
     public void Initialize() => ridley.Death.InitializeNorfairRidleyExplosion(Place);

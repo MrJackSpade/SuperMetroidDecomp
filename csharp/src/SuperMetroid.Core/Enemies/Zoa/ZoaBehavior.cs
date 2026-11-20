@@ -12,7 +12,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Zoa];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new ZoaEntity(place, common);
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new ZoaEntity(occupant, place, common);
 
     /// <summary>Advances Zoa's typed animation (#641) in place of the shared enemy animation.</summary>
     internal static void AdvanceZoaAnimation(RoomEnemyPlace place)

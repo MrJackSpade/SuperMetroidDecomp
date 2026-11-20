@@ -6,10 +6,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Mother Brain's head (#2146): its own AI, and the touch, shots and bombs its definition leaves to it.
 /// </summary>
 /// <param name="species">The MotherBrain species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the head occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : MotherBrainEntity(species, place, common), IEnemyPrivateShotReaction
+internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : MotherBrainEntity(species, occupant, place, common), IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public override void Initialize() => Species.Head.InitializeMotherBrainHead(Place);

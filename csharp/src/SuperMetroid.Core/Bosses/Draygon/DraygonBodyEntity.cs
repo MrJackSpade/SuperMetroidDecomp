@@ -8,11 +8,12 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// Power Bombs his definition leaves to him, met by his own frames' hitboxes.
 /// </summary>
 /// <param name="species">The Draygon species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : DraygonEntity(species, place, common, bossArtwork), IEnemyPrivateShotReaction
+internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+    : DraygonEntity(species, occupant, place, common, bossArtwork), IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public override void Initialize() => Species.Parts.InitializeDraygonBody(Place);

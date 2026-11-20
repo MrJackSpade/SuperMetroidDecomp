@@ -7,10 +7,11 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// Crocomire's component contact. Its frames carry no hitboxes (#1870, #1889).
 /// </summary>
 /// <param name="species">The Crocomire species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the tongue occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CrocomireEntity(species, place, common)
+internal sealed class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CrocomireEntity(species, occupant, place, common)
 {
     /// <inheritdoc/>
     public override void Initialize() => Species.Fight.InitializeCrocomireTongue(Place);

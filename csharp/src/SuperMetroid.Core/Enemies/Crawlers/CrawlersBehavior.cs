@@ -24,20 +24,20 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Zeela, Sova and both Zoomers in the shared family; or an orange Zoomer (#2146).
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no crawler definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Sciser)
-            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Sciser);
+            return new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser);
         if (definition == EnemyDefinitionId.Zero)
-            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Zero);
+            return new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero);
         if (definition == EnemyDefinitionId.Viola)
-            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Viola);
+            return new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Viola);
         if (definition is EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer)
-            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Shared);
+            return new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared);
         if (definition == EnemyDefinitionId.OrangeZoomer)
-            return new OrangeZoomerEntity(this, place, common);
-        throw new InvalidOperationException($"The crawler species creates no {place.Occupant?.DefinitionId}.");
+            return new OrangeZoomerEntity(this, occupant, place, common);
+        throw new InvalidOperationException($"The crawler species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Performs wall, floor, and slope probes for attached crawlers and falling Zoomers.</summary>

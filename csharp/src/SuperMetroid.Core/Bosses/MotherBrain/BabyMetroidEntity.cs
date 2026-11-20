@@ -4,10 +4,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>One Baby Metroid occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Baby Metroid species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public void Initialize(EnemyPopulationSurroundings surroundings) => BabyMetroidBehavior.SetUpBabyMetroid(Place, surroundings);

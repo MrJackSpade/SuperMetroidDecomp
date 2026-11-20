@@ -6,10 +6,11 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// them to it.
 /// </summary>
 /// <param name="species">The work robot species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the robot occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class WorkRobotEntity(WorkRobotBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal abstract class WorkRobotEntity(WorkRobotBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The work robot species owner.</summary>
     protected WorkRobotBehavior Species => species;

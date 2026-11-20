@@ -12,10 +12,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dragon];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(place).SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing
-            ? new DragonWingEntity(this, place, common)
-            : new DragonEntity(this, place, common);
+            ? new DragonWingEntity(this, occupant, place, common)
+            : new DragonEntity(this, occupant, place, common);
 
     /// <summary>Allocates Dragon's three-shot fireball volleys from the room projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;

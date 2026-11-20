@@ -121,8 +121,8 @@ internal sealed class EnemyDrawList
                 throw new InvalidDataException($"Enemy {occupant.DefinitionId} frame {shown} has no installed presentation.");
             // Only the draw pass shows a boss body frame; a frame without a body shows none.
             if (reached)
-                _animationPlayer.DrawBossBodyFrame(place, displays.GetDisplayFrame(shown));
-            prepared.Add(new PreparedEnemyDraw(place, origin, drawShading, shown, pictured, placed?.PictureDepth));
+                _animationPlayer.DrawBossBodyFrame(place, occupant, displays.GetDisplayFrame(shown));
+            prepared.Add(new PreparedEnemyDraw(place, occupant, origin, drawShading, shown, pictured, placed?.PictureDepth));
         }
         _prepared = prepared;
     }
@@ -154,7 +154,7 @@ internal sealed class EnemyDrawList
             // Every frame is one whole sheet picture placed at the enemy's origin. Collision still
             // uses the game's own frame hitboxes, never the picture.
             if (draw.Pictured)
-                _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(place.RequireOccupant().DefinitionId, EnemySheetDefinitions.FrameName(draw.Frame),
+                _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(draw.Occupant.DefinitionId, EnemySheetDefinitions.FrameName(draw.Frame),
                     draw.Origin)
                 {
                     Shading = draw.Shading,
@@ -182,7 +182,7 @@ internal sealed class EnemyDrawList
     /// <param name="Pictured">Whether the frame has a sheet picture: the empty frame, a frame shown only on a boss body and
     /// a frame whose pieces show nothing have none.</param>
     /// <param name="Depth">The depth the enemy places its picture at (#2210), or null for its picture's own.</param>
-    private readonly record struct PreparedEnemyDraw(RoomEnemyPlace Place,
+    private readonly record struct PreparedEnemyDraw(RoomEnemyPlace Place, RoomEnemyOccupant Occupant,
         Offset16<ScreenPixels> Origin, PictureShading Shading, EnemyFrameId Frame, bool Pictured, ActorDepth? Depth);
 
     /// <summary>

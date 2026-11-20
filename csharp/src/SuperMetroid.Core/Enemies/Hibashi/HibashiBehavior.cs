@@ -9,10 +9,10 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Hibashi];
 
     /// <summary>The Hibashi's flame, or the collision part its placement names (#2342).</summary>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         Ensure.NotNull(place).SpawnSettings<HibashiSpawnSettings>().Part == HibashiPart.CollisionPart
-            ? new HibashiCollisionPartEntity(place, common)
-            : new HibashiEntity(this, place, common);
+            ? new HibashiCollisionPartEntity(occupant, place, common)
+            : new HibashiEntity(this, occupant, place, common);
 
     /// <summary>The room's enemy places, where each visible geyser finds its hitbox when it is placed.</summary>
     private readonly EnemyPlaces _places;

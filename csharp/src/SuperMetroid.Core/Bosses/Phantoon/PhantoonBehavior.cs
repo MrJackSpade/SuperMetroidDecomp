@@ -18,18 +18,18 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Phantoon's body, eye, tentacles or mouth (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Phantoon definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.PhantoonBody)
-            return new PhantoonBodyEntity(this, place, common, _bossArtwork);
+            return new PhantoonBodyEntity(this, occupant, place, common, _bossArtwork);
         if (definition == EnemyDefinitionId.PhantoonEye)
-            return new PhantoonEyeEntity(this, place, common, _bossArtwork);
+            return new PhantoonEyeEntity(this, occupant, place, common, _bossArtwork);
         if (definition == EnemyDefinitionId.PhantoonTentacles)
-            return new PhantoonTentaclesEntity(this, place, common, _bossArtwork);
+            return new PhantoonTentaclesEntity(this, occupant, place, common, _bossArtwork);
         if (definition == EnemyDefinitionId.PhantoonMouth)
-            return new PhantoonMouthEntity(this, place, common, _bossArtwork);
-        throw new InvalidOperationException($"The Phantoon species creates no {place.Occupant?.DefinitionId}.");
+            return new PhantoonMouthEntity(this, occupant, place, common, _bossArtwork);
+        throw new InvalidOperationException($"The Phantoon species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>

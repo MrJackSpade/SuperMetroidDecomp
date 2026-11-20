@@ -11,10 +11,11 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// and wings, his hand-authored extended body and tail tip, his shot reaction and his Power Bomb reaction.
 /// </summary>
 /// <param name="body">The parts of Ridley's body both encounters run.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class RidleyEntity(RidleyBody body, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation,
+internal abstract class RidleyEntity(RidleyBody body, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation,
         IEnemyFrameHitboxes, IEnemyContactHooks, IEnemyAfterSamusContact, IEnemyDrawHooks, IEnemyPrivateShotReaction, IRidleyBodyOwner
 {
     /// <summary>The parts of Ridley's body both encounters run.</summary>

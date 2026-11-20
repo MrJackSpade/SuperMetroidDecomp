@@ -31,16 +31,16 @@ internal sealed class EnemyAnimationPlayer
     /// <exception cref="InvalidOperationException">
     /// The frame is shown before its boss attached the body it shows on, or by a part its boss does not draw there.
     /// </exception>
-    internal void DrawBossBodyFrame(RoomEnemyPlace place, EnemyFrameId selected)
+    internal void DrawBossBodyFrame(RoomEnemyPlace place, RoomEnemyOccupant occupant, EnemyFrameId selected)
     {
         if ((place.Entity as IBossBodyFrames)?.FindBodyFrame(selected) is not { } frame)
             return;
         // Every boss that shows a body attaches it at initialization; Mother Brain's shows only once her second phase begins.
         BossBodyParts body = _presentation.BossBody
             ?? throw new InvalidOperationException("A boss body frame was shown before its owner attached the body it shows on.");
-        if (!place.AnimationClock.ShowsNewFrame && body.ShowsSelected(place.RequireOccupant().DefinitionId, selected))
+        if (!place.AnimationClock.ShowsNewFrame && body.ShowsSelected(Ensure.NotNull(occupant).DefinitionId, selected))
             return;
-        body.ShowSelected(place.RequireOccupant().DefinitionId, selected, frame);
+        body.ShowSelected(occupant.DefinitionId, selected, frame);
     }
 
     /// <summary>

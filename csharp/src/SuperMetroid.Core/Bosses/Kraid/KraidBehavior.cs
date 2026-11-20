@@ -22,26 +22,26 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>One of Kraid's eight parts, each joining its own reference as it initializes (#1877, #2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Kraid definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Kraid)
-            return new KraidBodyEntity(this, place, common);
+            return new KraidBodyEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.KraidArm)
-            return new KraidArmEntity(this, place, common);
+            return new KraidArmEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.KraidFoot)
-            return new KraidFootEntity(this, place, common);
+            return new KraidFootEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.KraidLintTop)
-            return new KraidLintEntity(this, place, common, Parts.TopLintReference, KraidLintPart.Top);
+            return new KraidLintEntity(this, occupant, place, common, Parts.TopLintReference, KraidLintPart.Top);
         if (definition == EnemyDefinitionId.KraidLintMiddle)
-            return new KraidLintEntity(this, place, common, Parts.MiddleLintReference, KraidLintPart.Middle);
+            return new KraidLintEntity(this, occupant, place, common, Parts.MiddleLintReference, KraidLintPart.Middle);
         if (definition == EnemyDefinitionId.KraidLintBottom)
-            return new KraidLintEntity(this, place, common, Parts.BottomLintReference, KraidLintPart.Bottom);
+            return new KraidLintEntity(this, occupant, place, common, Parts.BottomLintReference, KraidLintPart.Bottom);
         if (definition == EnemyDefinitionId.KraidFirstNail)
-            return new KraidNailEntity(this, place, common, Parts.FirstNailReference, KraidNailPart.First);
+            return new KraidNailEntity(this, occupant, place, common, Parts.FirstNailReference, KraidNailPart.First);
         if (definition == EnemyDefinitionId.KraidSecondNail)
-            return new KraidNailEntity(this, place, common, Parts.SecondNailReference, KraidNailPart.Second);
-        throw new InvalidOperationException($"The Kraid species creates no {place.Occupant?.DefinitionId}.");
+            return new KraidNailEntity(this, occupant, place, common, Parts.SecondNailReference, KraidNailPart.Second);
+        throw new InvalidOperationException($"The Kraid species creates no {occupant.DefinitionId}.");
     }
     /// <summary>Kraid's body layer: the body frame he shows, drawn from his installed body sheet.</summary>
     internal KraidBodyLayer BodyLayer { get; }

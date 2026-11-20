@@ -18,15 +18,15 @@ internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRi
 
     /// <summary>Lower Norfair Ridley, Ceres Ridley, or a piece of the breakup explosion (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Ridley definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Ridley)
-            return new NorfairRidleyEntity(norfair, place, common);
+            return new NorfairRidleyEntity(norfair, occupant, place, common);
         if (definition == EnemyDefinitionId.RidleyCeres)
-            return new CeresRidleyEntity(ceres, escape, place, common);
+            return new CeresRidleyEntity(ceres, escape, occupant, place, common);
         if (definition == EnemyDefinitionId.RidleyBreakupPiece)
-            return new RidleyBreakupPieceEntity(norfair, place, common);
-        throw new InvalidOperationException($"The Ridley factory creates no {place.Occupant?.DefinitionId}.");
+            return new RidleyBreakupPieceEntity(norfair, occupant, place, common);
+        throw new InvalidOperationException($"The Ridley factory creates no {occupant.DefinitionId}.");
     }
 }

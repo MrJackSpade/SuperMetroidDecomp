@@ -20,16 +20,16 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Mother Brain's body, her head, or a tube of her fake death (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Mother Brain definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.MotherBrainBody)
-            return new MotherBrainBodyEntity(this, place, common, _bossArtwork);
+            return new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork);
         if (definition == EnemyDefinitionId.MotherBrainHead)
-            return new MotherBrainHeadEntity(this, place, common);
+            return new MotherBrainHeadEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.MotherBrainTubes)
-            return new MotherBrainTubesEntity(this, place, common);
-        throw new InvalidOperationException($"The Mother Brain species creates no {place.Occupant?.DefinitionId}.");
+            return new MotherBrainTubesEntity(this, occupant, place, common);
+        throw new InvalidOperationException($"The Mother Brain species creates no {occupant.DefinitionId}.");
     }
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;

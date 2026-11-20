@@ -16,18 +16,18 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// body's definition; only their placement tells them apart.
     /// </summary>
     /// <exception cref="InvalidOperationException">The place holds no Evir definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.Evir)
         {
             return place.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
-                ? new EvirArmsEntity(this, place, common)
-                : new EvirBodyEntity(this, place, common);
+                ? new EvirArmsEntity(this, occupant, place, common)
+                : new EvirBodyEntity(this, occupant, place, common);
         }
         if (definition == EnemyDefinitionId.EvirProjectile)
-            return new EvirSpitEntity(this, place, common);
-        throw new InvalidOperationException($"The Evir species creates no {place.Occupant?.DefinitionId}.");
+            return new EvirSpitEntity(this, occupant, place, common);
+        throw new InvalidOperationException($"The Evir species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>The room's enemy places, where each Evir part finds its partners when it is placed.</summary>

@@ -45,11 +45,6 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// <param name="definition">The enemy asked about.</param>
     public bool Holds(EnemyDefinitionId definition) => Occupant is { } occupant && occupant.DefinitionId == definition;
 
-    /// <summary>The enemy holding the place, which the caller knows holds one.</summary>
-    /// <exception cref="InvalidOperationException">The place holds no enemy.</exception>
-    public RoomEnemyOccupant RequireOccupant() =>
-        Occupant ?? throw new InvalidOperationException($"Enemy place {Ordinal} holds no enemy.");
-
     /// <summary>
     /// Whether the place holds no enemy but stays taken until the death explosion of the respawning enemy killed in it
     /// rebuilds that enemy from its population entry (#1851). No spawn takes the place meanwhile, and the enemy passes
@@ -130,12 +125,13 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     internal void Bind(EnemyDefinitionId definitionId, RoomEnemyDefinition definition)
     {
         ReleaseEntity();
-        Occupant = new RoomEnemyOccupant(definitionId);
+        var occupant = new RoomEnemyOccupant(definitionId);
+        Occupant = occupant;
         Definition = definition;
         AwaitsRespawn = false;
         OccupantStates = new();
         AnimationClock = new();
-        Entity = _registry.Create(this);
+        Entity = _registry.Create(occupant, this);
     }
 
     /// <summary>

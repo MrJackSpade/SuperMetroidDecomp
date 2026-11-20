@@ -8,11 +8,12 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// before it sets up, so his parts reach one another (#1877), and answers his hitboxes.
 /// </summary>
 /// <param name="species">The Kraid species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="reference">Kraid's reference to the part, which it joins as it initializes.</param>
-internal abstract class KraidEntity(KraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, KraidPartReference reference)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyFrameHitboxes
+internal abstract class KraidEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KraidPartReference reference)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyFrameHitboxes
 {
     /// <summary>The Kraid species owner.</summary>
     protected KraidBehavior Species => species;

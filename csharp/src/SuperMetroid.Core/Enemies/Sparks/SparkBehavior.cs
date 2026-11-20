@@ -19,7 +19,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Spark];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new SparkEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new SparkEntity(this, occupant, place, common);
 
     /// <summary>Owner of the falling-spark projectile emitted by one spark action.</summary>
     private readonly FallingSparksBehavior _fallingSparksBehavior;

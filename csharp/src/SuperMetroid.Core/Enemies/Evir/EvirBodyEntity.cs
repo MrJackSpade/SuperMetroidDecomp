@@ -5,10 +5,11 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// where its definition leaves them to it, each followed by the Evir's follow-up to its arms and spit.
 /// </summary>
 /// <param name="species">The Evir species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class EvirBodyEntity(EvirBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class EvirBodyEntity(EvirBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public void Initialize(EnemyPopulationSurroundings surroundings) => species.InitializeEvirBody(Place, surroundings.Samus);

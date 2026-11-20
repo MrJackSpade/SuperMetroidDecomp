@@ -14,7 +14,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DeadTourianCorpseSpeciesDefinitions.Species.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new DeadTourianEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new DeadTourianEntity(this, occupant, place, common);
 
     /// <summary>Supplies the room RNG used during decomposition.</summary>
     private readonly EnemyRoomBinding _room;
@@ -47,9 +47,9 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             : throw new ArgumentOutOfRangeException(nameof(definitionId));
 
     /// <summary>Initializes a Tourian corpse, checking its corpse is one of its species' before registering state and starting its rot.</summary>
-    internal static void InitializeDeadTourianCorpse(RoomEnemyPlace place)
+    internal static void InitializeDeadTourianCorpse(RoomEnemyPlace place, RoomEnemyOccupant occupant)
     {
-        DeadTourianCorpseSpecies species = SpeciesOf(place.Occupant?.DefinitionId);
+        DeadTourianCorpseSpecies species = SpeciesOf(Ensure.NotNull(occupant).DefinitionId);
         DeadTourianCorpseDefinition definition = place.SpawnSettings<CorpseSpawnSettings>().Corpse;
         if (definition.Species != species)
         {

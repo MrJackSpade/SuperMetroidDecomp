@@ -25,14 +25,14 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
     /// <summary>The gunship's top hull, which moves the ship, or its bottom hull with the entrance pad (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no gunship definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.ShipTop)
-            return new GunshipTopEntity(this, place, common);
+            return new GunshipTopEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.ShipBottomEntrance)
-            return new GunshipBottomEntity(this, place, common);
-        throw new InvalidOperationException($"The gunship species creates no {place.Occupant?.DefinitionId}.");
+            return new GunshipBottomEntity(this, occupant, place, common);
+        throw new InvalidOperationException($"The gunship species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Queues engine and entrance-pad sounds at the frame boundaries.</summary>

@@ -6,10 +6,11 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// reactions where its definition leaves them to it; its intangibility normally keeps Samus and her shots from reaching it.
 /// </summary>
 /// <param name="species">The Dragon species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the wing occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class DragonWingEntity(DragonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class DragonWingEntity(DragonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public void Initialize() => species.InitializeDragonWing(Place);

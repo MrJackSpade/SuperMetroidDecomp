@@ -17,18 +17,18 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Draygon's body, eye, tail or arms (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Draygon definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.DraygonBody)
-            return new DraygonBodyEntity(this, place, common, _bossArtwork);
+            return new DraygonBodyEntity(this, occupant, place, common, _bossArtwork);
         if (definition == EnemyDefinitionId.DraygonEye)
-            return new DraygonEyeEntity(this, place, common, _bossArtwork);
+            return new DraygonEyeEntity(this, occupant, place, common, _bossArtwork);
         if (definition == EnemyDefinitionId.DraygonTail)
-            return new DraygonTailEntity(this, place, common, _bossArtwork);
+            return new DraygonTailEntity(this, occupant, place, common, _bossArtwork);
         if (definition == EnemyDefinitionId.DraygonArms)
-            return new DraygonArmsEntity(this, place, common, _bossArtwork);
-        throw new InvalidOperationException($"The Draygon species creates no {place.Occupant?.DefinitionId}.");
+            return new DraygonArmsEntity(this, occupant, place, common, _bossArtwork);
+        throw new InvalidOperationException($"The Draygon species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>

@@ -8,10 +8,11 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 /// instead of its own, keep the previous room's death quota and enemy count, and leave a pending wall-jump shake for a
 /// later room.
 /// </summary>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the crack occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class NoobTubeCrackEntity(RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization
+internal sealed class NoobTubeCrackEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization
 {
     /// <summary>Places the crack, which keeps no state of its own.</summary>
     public void Initialize()

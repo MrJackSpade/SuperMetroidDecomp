@@ -12,7 +12,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fireflea];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new FirefleaEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new FirefleaEntity(this, occupant, place, common);
 
     /// <summary>Runs common touch handling before Fireflea's unconditional death call.</summary>
     private readonly EnemyCollision _collision;

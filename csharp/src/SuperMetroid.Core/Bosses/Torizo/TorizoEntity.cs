@@ -9,10 +9,11 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// and bomb reactions; each runs its own fight.
 /// </summary>
 /// <param name="species">The Torizo species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the Torizo occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction, ILitTorizo
+internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction, ILitTorizo
 {
     /// <summary>The Torizo species owner.</summary>
     protected TorizoBehavior Species => species;

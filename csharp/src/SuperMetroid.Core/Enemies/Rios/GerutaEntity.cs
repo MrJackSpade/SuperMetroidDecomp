@@ -5,10 +5,11 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// follower its room lists right after it (<see cref="GerutaFollowerEntity"/>).
 /// </summary>
 /// <param name="species">The Geruta species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class GerutaEntity(GerutaBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+internal sealed class GerutaEntity(GerutaBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
     public void Initialize() => GerutaBehavior.InitializeGeruta(Place);

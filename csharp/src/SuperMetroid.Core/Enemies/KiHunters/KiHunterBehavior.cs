@@ -20,14 +20,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A body of any colour, or its wings (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Ki-Hunter definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition is EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterRed or EnemyDefinitionId.KihunterYellow)
-            return new KiHunterBodyEntity(this, place, common);
+            return new KiHunterBodyEntity(this, occupant, place, common);
         if (definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterRedWings or EnemyDefinitionId.KihunterYellowWings)
-            return new KiHunterWingsEntity(this, place, common);
-        throw new InvalidOperationException($"The Ki-Hunter species creates no {place.Occupant?.DefinitionId}.");
+            return new KiHunterWingsEntity(this, occupant, place, common);
+        throw new InvalidOperationException($"The Ki-Hunter species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Provides the active room state used by Ki-Hunter movement.</summary>

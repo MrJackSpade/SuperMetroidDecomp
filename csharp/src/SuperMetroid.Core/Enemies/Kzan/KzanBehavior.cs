@@ -12,14 +12,14 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A Kzan's top, or the bottom that follows it (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Kzan definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.KzanTop)
-            return new KzanTopEntity(this, place, common);
+            return new KzanTopEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.KzanBottom)
-            return new KzanBottomEntity(this, place, common);
-        throw new InvalidOperationException($"The Kzan species creates no {place.Occupant?.DefinitionId}.");
+            return new KzanBottomEntity(this, occupant, place, common);
+        throw new InvalidOperationException($"The Kzan species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>The room's enemy places, where each bottom finds its top when it is placed.</summary>

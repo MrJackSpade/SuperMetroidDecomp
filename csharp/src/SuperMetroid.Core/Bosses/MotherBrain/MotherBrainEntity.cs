@@ -8,10 +8,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Every part answers her hitboxes; each runs its own AI and animation.
 /// </summary>
 /// <param name="species">The MotherBrain species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class MotherBrainEntity(MotherBrainBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
+internal abstract class MotherBrainEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
     /// <summary>The MotherBrain species owner.</summary>
     protected MotherBrainBehavior Species => species;

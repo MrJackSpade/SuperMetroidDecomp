@@ -13,7 +13,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dessgeega, EnemyDefinitionId.DessgeegaLarge, EnemyDefinitionId.Sidehopper, EnemyDefinitionId.SidehopperLarge, EnemyDefinitionId.SidehopperTourian];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new HoppersEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new HoppersEntity(this, occupant, place, common);
 
     /// <summary>Supplies the shared RNG seed consumed during Hopper initialization.</summary>
     private readonly EnemyRoomBinding _room;
@@ -54,9 +54,9 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Hopper.</summary>
-    internal void InitializeHopper(RoomEnemyPlace place)
+    internal void InitializeHopper(RoomEnemyPlace place, RoomEnemyOccupant occupant)
     {
-        HopperKind kind = HopperAnimationChoices.KindOf(place.Occupant?.DefinitionId);
+        HopperKind kind = HopperAnimationChoices.KindOf(Ensure.NotNull(occupant).DefinitionId);
         // The placement's reseed is followed by a draw it never reads, which later consumers observe.
         _room.Random.Reseed(SpeciesRandomReseed.HopperPlacement);
         _room.Random.Generate();

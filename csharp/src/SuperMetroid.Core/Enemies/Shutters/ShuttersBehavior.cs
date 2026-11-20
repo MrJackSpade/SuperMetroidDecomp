@@ -70,18 +70,18 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The growing shutter, a shootable vertical shutter, the Kamer that reuses it, or a destroyable vertical shutter (#2146, #2179).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Shutters definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.ShutterGrowing)
-            return new GrowingShutterEntity(this, place, common);
+            return new GrowingShutterEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.ShutterShootable)
-            return new ShootableShutterEntity(this, place, common);
+            return new ShootableShutterEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.Kamer)
-            return new KamerEntity(this, place, common);
+            return new KamerEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.ShutterDestroyable)
-            return new DestroyableShutterEntity(this, place, common);
-        throw new InvalidOperationException($"The Shutters species creates no {place.Occupant?.DefinitionId}.");
+            return new DestroyableShutterEntity(this, occupant, place, common);
+        throw new InvalidOperationException($"The Shutters species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Initializes the growing shutter.</summary>

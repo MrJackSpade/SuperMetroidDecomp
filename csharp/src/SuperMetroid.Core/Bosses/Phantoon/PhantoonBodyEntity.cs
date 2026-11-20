@@ -8,11 +8,12 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// before the ordinary passes, and the touch and bombs his definition leaves to him.
 /// </summary>
 /// <param name="species">The Phantoon species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : PhantoonEntity(species, place, common, bossArtwork), IEnemyContactHooks, IEnemyPrivateShotReaction
+internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+    : PhantoonEntity(species, occupant, place, common, bossArtwork), IEnemyContactHooks, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public override void Initialize() => Species.InitializePhantoonBody(Place);

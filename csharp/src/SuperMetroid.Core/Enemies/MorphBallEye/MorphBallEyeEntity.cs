@@ -5,10 +5,11 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// the eye that opens. Its placement names it the eye rather than a beam mount (<see cref="MorphBallEyeMountEntity"/>).
 /// </summary>
 /// <param name="species">The MorphBallEye species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the eye occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MorphBallEyeEntity(MorphBallEyeBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+internal sealed class MorphBallEyeEntity(MorphBallEyeBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
     public void Initialize() => MorphBallEyeBehavior.InitializeMorphBallEyeBody(Place);

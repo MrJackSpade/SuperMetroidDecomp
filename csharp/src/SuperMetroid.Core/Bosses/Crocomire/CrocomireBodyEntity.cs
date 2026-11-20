@@ -11,11 +11,12 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// boss body layer.
 /// </summary>
 /// <param name="species">The Crocomire species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CrocomireEntity(species, place, common), IEnemyNormalBombAdmission, IBossBodyFrames
+internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+    : CrocomireEntity(species, occupant, place, common), IEnemyNormalBombAdmission, IBossBodyFrames
 {
     /// <inheritdoc/>
     public override void Initialize() => Species.Fight.InitializeCrocomire(Place);

@@ -19,7 +19,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Metroid];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new MetroidEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => new MetroidEntity(this, occupant, place, common);
 
     /// <summary>Supplies room RNG for the five scattered death drops and idle cries.</summary>
     private readonly EnemyRoomBinding _room;

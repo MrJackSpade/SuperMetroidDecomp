@@ -16,14 +16,14 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>An escaping Etecoon, or the escaping Dachora (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no escape animals definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.EtecoonEscape)
-            return new EscapeEtecoonEntity(this, place, common);
+            return new EscapeEtecoonEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.DachoraEscape)
-            return new EscapeDachoraEntity(this, place, common);
-        throw new InvalidOperationException($"The escape animals species creates no {place.Occupant?.DefinitionId}.");
+            return new EscapeDachoraEntity(this, occupant, place, common);
+        throw new InvalidOperationException($"The escape animals species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Provides room events and live Samus state used by both escape-animal branches.</summary>

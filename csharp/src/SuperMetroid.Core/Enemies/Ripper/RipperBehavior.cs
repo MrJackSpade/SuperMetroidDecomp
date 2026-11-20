@@ -14,16 +14,16 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The grapple Ripper, the ordinary Ripper or the jet Ripper (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Ripper definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).RequireOccupant().DefinitionId;
+        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.GrappleRipper)
-            return new GrappleRipperEntity(this, place, common);
+            return new GrappleRipperEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.JetRipper)
-            return new JetRipperEntity(this, place, common);
+            return new JetRipperEntity(this, occupant, place, common);
         if (definition == EnemyDefinitionId.Ripper)
-            return new OrdinaryRipperEntity(this, place, common);
-        throw new InvalidOperationException($"The Ripper species creates no {place.Occupant?.DefinitionId}.");
+            return new OrdinaryRipperEntity(this, occupant, place, common);
+        throw new InvalidOperationException($"The Ripper species creates no {occupant.DefinitionId}.");
     }
 
     /// <summary>Resolves horizontal wall collisions for all three Ripper variants.</summary>

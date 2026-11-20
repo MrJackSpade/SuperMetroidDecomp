@@ -7,10 +7,11 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// that selects it.
 /// </summary>
 /// <param name="species">The Shutters species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the shutter occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class DestroyableShutterEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : VerticalShutterEntity(species, place, common)
+internal sealed class DestroyableShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : VerticalShutterEntity(species, occupant, place, common)
 {
     /// <summary>A destroyable shutter shows the fully grown shutter.</summary>
     protected override ShutterSegment Pose => ShutterSegment.FullyGrown;

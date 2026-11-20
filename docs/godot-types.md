@@ -75,7 +75,7 @@ godot/
     core/          GameSession, GameLoop, GameMode, Progress, SaveFile, Options, SoundRequests
     shared/        the values of section 4
     collision/     CollisionWorld, Collider, Mover
-    input/         InputSampler, GameInput, bindings
+    input/         InputSampler, GameInput, GameAction, the input sources (the player's devices, a recording)
     audio/         AudioDirector
     content/       ContentLibrary, the values-from-files mechanism, the asset file formats
     actors/        Enemy, Projectile, Pickup, Effect
@@ -216,12 +216,14 @@ way to change a thing is to ask it, which is what keeps move 4 true.
 
 | Type | What it is | Holds and does |
 | --- | --- | --- |
-| `PixelPosition`, `PixelVelocity` | Exact position and signed velocity | Whole pixels plus a fraction; adding, comparing, converting for display. Never floats. |
+| `Pixels` | An exact distance along one axis | Whole pixels plus a fraction of a pixel, the fraction always a non-negative part of one pixel. Adding, comparing, replacing either part alone, converting for display. Never floats. |
+| `PixelPosition`, `PixelOffset`, `PixelVelocity` | A place in a room; a distance and direction; a signed speed | Each is two `Pixels`, across and down. A velocity is the offset moved in one update. Position plus offset is a position; position minus position is an offset. |
 | `PixelRect` | Integer rectangle | A collider's shape. |
 | `Facing`, `Aim` | Left or right; where a weapon points | Plain enums used by every actor. No per-actor direction enums. |
 | `Countdown` | A timer in updates | Counts down, reports when it ends. |
 | `WrappingCounter` | A counter that wraps | Wraps by itself at its own limit. Used only where the wrap is something the player can observe. |
-| `GameRandom` | The gameplay random generator | One per session. Cosmetics never use it. |
+| `GameRandom` | The gameplay random generator | One per session. Cosmetics never use it. It draws from an `IRandomSequence`: the engine's plain one by default, or one the `GameDefinition` supplies when a game's outcomes must follow a particular sequence. |
+| `GameAction`, `GameInput` | An action by name; one update's input | The engine names its standard actions; a game adds its own by name. A `GameInput` says which actions are held and which were newly pressed. |
 | `GameClock` | The count of updates played | One per session. Anything that acts "every N updates" reads it. Nothing keeps its own global counter. |
 | `HitKind` | A named kind of damage | The engine provides contact and hazard. The game names the rest (here: each beam property, missile, super missile, bomb, power bomb, each special attack, each body power). |
 | `Hit` | One hit being delivered | A damage amount, the set of `HitKind`s it carries, its direction, and who caused it. |

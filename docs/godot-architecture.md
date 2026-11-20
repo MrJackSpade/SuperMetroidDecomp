@@ -346,15 +346,26 @@ freely for the look; they are only off limits as a clock or as a source of gamep
 - Textures are unfiltered.
 - Godot's physics rate is sixty per second; that tick is the game's update.
 - Godot's generated `.godot/` folder and `assets/` are git-ignored. Everything else in `godot/` is committed.
+- The project was created on Godot 4.7.2 (.NET build) and targets .NET 10, the newest of each when it was made. It
+  uses Godot's Compatibility renderer, which is all a pixel game of flat images needs.
+- The project, its one C# assembly and its root namespace are all named `Engine`. Inside that namespace Godot's own
+  `Engine` and `Input` classes are written `Godot.Engine` and `Godot.Input`.
+- The game to run is named by the project setting `engine/game_definition`. With none set, the program prints the
+  error and exits with a failing code.
 
 ## Building and checking
 
-- The Godot project is built and run from the command line without opening the editor. One script builds it and
-  one script runs its checks; both are written with the project's first code and are the only way the agent builds
-  or checks.
-- A check is a C# class under `engine/tests/` or `game/tests/`, in the folder mirroring what it checks, run by one
-  test-runner scene. No third-party test framework. Engine checks use only the engine's own stand-in content, so
-  they pass with `game/` and `assets/` deleted.
+- The Godot project is built and run from the command line without opening the editor. `godot/build.ps1` builds it
+  and `godot/check.ps1` builds it and then runs its checks; they are the only way the agent builds or checks.
+- The scripts find Godot through the `GODOT4_BIN` environment variable, set at user scope to the Godot .NET
+  executable (the main one, not the `_console` launcher, which fails when its path contains a space).
+- Checks run with `--headless`: no window opens and nothing is drawn, so running them does not use the graphics
+  card.
+- A check is a public, parameterless method marked `[Check]`, on a class under `engine/tests/` or `game/tests/` in
+  the folder mirroring what it checks. The one test-runner scene finds every such method, runs each on a fresh
+  instance, prints every failure in full and exits with a failing code if any failed. `check.ps1` followed by names
+  runs only the checks whose class or method name contains one of them. No third-party test framework.
+- Engine checks use only the engine's own stand-in content, so they pass with `game/` and `assets/` deleted.
 - A check builds the smallest scene that shows the behaviour and asserts what the player would observe. It does not
   assert internal fields, and nothing is made public for it.
 - A failure anywhere prints the full error and ends the process with a failing exit code. No dialogs, in the game

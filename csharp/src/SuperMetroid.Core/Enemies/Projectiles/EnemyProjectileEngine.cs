@@ -78,8 +78,8 @@ internal sealed class EnemyProjectileEngine
     /// <summary>What each new projectile starts from: what its place's previous projectile left there, in this room or the room before.</summary>
     private readonly EnemyProjectilePlaceLeftovers _leftovers = new(PlaceCount);
 
-    /// <summary>The latest projectile of each place the room has spawned into, live or gone, in place order.</summary>
-    public IEnumerable<EnemyProjectile> EnemyProjectiles => _places.OfType<EnemyProjectile>();
+    /// <summary>The projectiles holding their places, in place order: the pool's occupants (#2558).</summary>
+    public IEnumerable<EnemyProjectile> EnemyProjectiles => _places.OfType<EnemyProjectile>().Where(projectile => projectile.IsActive);
 
     /// <summary>How many places no live projectile holds: the free places a spawn can take.</summary>
     public int FreePlaceCount => _places.Count(projectile => projectile is not { IsActive: true });

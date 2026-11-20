@@ -35,7 +35,6 @@ internal static class EnemyProjectileDefinitionsVerification
     internal static void VerifyEnemyProjectileDefinitions(CartridgeImportAddressSpace rom)
     {
         RoomEnemyProjectileKind[] kinds = Enum.GetValues<RoomEnemyProjectileKind>()
-            .Where(kind => kind != RoomEnemyProjectileKind.None)
             .Distinct()
             .ToArray();
         // #1269 added Mother Brain's small purple breath and the Climb's fake-wall explosion; #2024 removed the spike-clearing
@@ -191,8 +190,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 {
                     RoomEnemyProjectileKind.SporeSpawnStalk => SporeSpawnProjectileSegment.Stalk,
                     RoomEnemyProjectileKind.SporeSpawnSpore => SporeSpawnProjectileSegment.SporeShot,
-                    RoomEnemyProjectileKind.None or
-                        RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
+                    RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
                         RoomEnemyProjectileKind.YappingMawBody or
                         RoomEnemyProjectileKind.SkreeMetareeParticle or
                         RoomEnemyProjectileKind.CrocomireProjectile or
@@ -304,8 +302,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 {
                     RoomEnemyProjectileKind.GoldenTorizoEgg => TorizoProjectileSegment.ChozoOrbWallImpact,
                     RoomEnemyProjectileKind.GoldenTorizoSuperMissile => TorizoProjectileSegment.SuperMissileImpact,
-                    RoomEnemyProjectileKind.None or
-                        RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
+                    RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
                         RoomEnemyProjectileKind.YappingMawBody or
                         RoomEnemyProjectileKind.SkreeMetareeParticle or
                         RoomEnemyProjectileKind.CrocomireProjectile or
@@ -452,10 +449,6 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
         }
-
-        AssertThrows<InvalidDataException>(
-            () => EnemyProjectileKinds.Get(RoomEnemyProjectileKind.None),
-            "inactive enemy-projectile identity has no definition");
 
         Console.WriteLine(
             $"Enemy projectile definitions: {kinds.Length:N0} complete seven-word records, " +

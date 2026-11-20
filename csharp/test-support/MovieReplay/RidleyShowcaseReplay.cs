@@ -830,9 +830,10 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 string owner = $"Enemy projectile {place}";
                 EnemyProjectile? latest = runtime.Enemies.Projectiles.LatestInPlace(place);
                 // Identical cartridge definitions that differ only in their way or look name one kind (#2278); a place the room
-                // has spawned nothing into holds none.
-                Check(owner + " identity", EnemyProjectileNativeWords.IdentityWord(latest?.Kind ?? RoomEnemyProjectileKind.None,
-                        W(NativeSnapshotMemory.EnemyProjectileId + index)),
+                // has spawned nothing into, or whose projectile has gone, holds none.
+                Check(owner + " identity", latest is { IsActive: true } live
+                        ? EnemyProjectileNativeWords.IdentityWord(live.Kind, W(NativeSnapshotMemory.EnemyProjectileId + index))
+                        : 0,
                     NativeSnapshotMemory.EnemyProjectileId + index);
                 if (latest is not { IsActive: true } projectile || W(NativeSnapshotMemory.EnemyProjectileId + index) == 0) continue;
                 Check(owner + " X", projectile.Position.X.Whole, NativeSnapshotMemory.EnemyProjectileX + index);
@@ -902,18 +903,16 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                             nativeRemainingAfterburns == 0xff ? 0 : nativeRemainingAfterburns);
                         // The cartridge stores the kind a directional afterburn's successor takes, its own (#2245); a centre stores
                         // none. Each way's afterburn is one of its axis's kind's definitions (#2378).
-                        RoomEnemyProjectileKind successorKind = projectile.Kind == RoomEnemyProjectileKind.RidleyAfterburnCenter
-                            ? RoomEnemyProjectileKind.None
-                            : projectile.Kind;
                         Check(owner + " next afterburn kind",
-                            EnemyProjectileNativeWords.IdentityWord(successorKind, W(NativeSnapshotMemory.EnemyProjectileVariableF + index)),
+                            projectile.Kind == RoomEnemyProjectileKind.RidleyAfterburnCenter
+                                ? 0
+                                : EnemyProjectileNativeWords.IdentityWord(projectile.Kind, W(NativeSnapshotMemory.EnemyProjectileVariableF + index)),
                             NativeSnapshotMemory.EnemyProjectileVariableF + index);
                         break;
                     case RoomEnemyProjectileKind.DustOrExplosion:
                     case RoomEnemyProjectileKind.EnemyDeathExplosion:
                     case RoomEnemyProjectileKind.EnemyDeathPickup:
                         break;
-                    case RoomEnemyProjectileKind.None:
                     case RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace:
                     case RoomEnemyProjectileKind.YappingMawBody:
                     case RoomEnemyProjectileKind.SkreeMetareeParticle:

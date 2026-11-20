@@ -91,7 +91,7 @@ public sealed class TorizoEnemyState
     /// <summary>Whether any egg Golden Torizo laid remains; the eggs that have gone are forgotten.</summary>
     internal bool EggsRemain()
     {
-        LaidEggs.RemoveAll(egg => egg.Kind != RoomEnemyProjectileKind.GoldenTorizoEgg);
+        LaidEggs.RemoveAll(egg => !egg.IsActive || egg.Kind != RoomEnemyProjectileKind.GoldenTorizoEgg);
         return LaidEggs.Count > 0;
     }
 

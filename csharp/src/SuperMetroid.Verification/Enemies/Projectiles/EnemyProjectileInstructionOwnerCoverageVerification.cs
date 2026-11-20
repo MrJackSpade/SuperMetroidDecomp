@@ -28,9 +28,6 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
         int checksum = 0;
         foreach (RoomEnemyProjectileKind kind in Enum.GetValues<RoomEnemyProjectileKind>())
         {
-            if (kind == RoomEnemyProjectileKind.None)
-                continue;
-
             // Every translated kind has a definition; the catalog rejects any other.
             _ = EnemyProjectileKinds.Get(kind);
             var projectile = new EnemyProjectile(0, default)

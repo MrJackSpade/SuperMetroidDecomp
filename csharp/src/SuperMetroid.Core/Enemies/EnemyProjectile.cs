@@ -32,10 +32,29 @@ public sealed class EnemyProjectile
     /// (<see cref="BotwoonSegmentFallDelay"/>).
     /// </summary>
     public int Place { get; }
-    /// <summary>What the projectile is, or <see cref="RoomEnemyProjectileKind.None"/> once it is gone or has freed its place.</summary>
-    public RoomEnemyProjectileKind Kind { get; internal set; }
-    /// <summary>Gets whether the projectile holds its place and takes part in the projectile passes.</summary>
-    public bool IsActive => Kind != RoomEnemyProjectileKind.None;
+    /// <summary>
+    /// What the projectile is, from the binding that gives it its kind on (#2558); a projectile that has gone or freed its
+    /// place is still the kind it was. Giving the projectile a kind makes it hold its place.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The projectile has not been given a kind.</exception>
+    public RoomEnemyProjectileKind Kind
+    {
+        get => _kind ?? throw new InvalidOperationException($"Enemy projectile in place {Place} has not been given a kind.");
+        internal set
+        {
+            _kind = value;
+            IsActive = true;
+        }
+    }
+
+    /// <summary>The kind behind <see cref="Kind"/>; null only between the spawn that creates the projectile and its binding.</summary>
+    private RoomEnemyProjectileKind? _kind;
+
+    /// <summary>
+    /// Whether the projectile holds its place and takes part in the projectile passes: from its binding until it is
+    /// deleted or frees its place.
+    /// </summary>
+    public bool IsActive { get; private set; }
     /// <summary>
     /// Where the projectile is, in whole room pixels and fractions of a pixel, to which its motion adds in 256ths of a
     /// pixel. Every projectile is placed in the room and drawn where its place lies on screen, the Mother Brain death
@@ -187,7 +206,7 @@ public sealed class EnemyProjectile
     /// its place for the next projectile spawned there (<see cref="EnemyProjectileHandOver"/>). From the next pass on it
     /// takes no part in the game.
     /// </summary>
-    internal void FreePlace() => Kind = RoomEnemyProjectileKind.None;
+    internal void FreePlace() => IsActive = false;
 
     /// <summary>
     /// Ends the projectile: it frees its place, shows and runs nothing more, and keeps none of its family's state. Its
@@ -203,7 +222,7 @@ public sealed class EnemyProjectile
     /// <summary>Sets everything but the position and velocity to what a projectile holds before its spawner sets it up.</summary>
     private void Vacate()
     {
-        Kind = RoomEnemyProjectileKind.None;
+        IsActive = false;
         Motion = null;
         Frame = null;
         FrameHold = WrappingCountdown.Start(0);

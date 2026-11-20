@@ -38,7 +38,7 @@ public sealed class MapHighlightAnimation
     public void Reset() => player.Show(player.Playback.Animation, 1);
 
     /// <summary>The frame of the cycle the highlighted sprites show.</summary>
-    private MapHighlightFrame Frame => player.Showing;
+    internal MapHighlightFrame Frame => player.Showing;
 
     /// <summary>The shading the map's highlighted sprites show (#1512, #1597): the highlight shade of the step shown.</summary>
     public PictureShading Shading => PictureShading.Shaded(MapSpriteShades.Highlight(Frame));

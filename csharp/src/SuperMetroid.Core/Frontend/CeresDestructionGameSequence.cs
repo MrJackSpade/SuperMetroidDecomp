@@ -72,8 +72,8 @@ internal sealed class CeresDestructionGameSequence(
         session.display.PublishCeresDestruction(cinematic);
         if (cinematic.Finished)
         {
-            // The cinematic's end turns the screen black, and the game loads the Zebes landing: Crateria and the
-            // arrival on Zebes.
+            // The cinematic's end forces blank and enters the game load. The load's own
+            // Zebes-landing branch, not cinematic code, selects Crateria and the Zebes arrival.
             session.Enter(GameDataLoadRoute.ZebesLanding);
             session.display.PublishBlack();
         }

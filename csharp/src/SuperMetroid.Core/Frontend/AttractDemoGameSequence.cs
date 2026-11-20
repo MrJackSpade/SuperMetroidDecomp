@@ -129,7 +129,7 @@ internal sealed class AttractDemoGameSequence(FrontendSession session, AttractDe
         {
             live.Runtime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.AttractDemo }, live.Room);
             session.display.PublishGameplay(live);
-            // The player's own actions are read again here, so a newly pressed button cancels the demo.
+            // The demo's movement phase has restored the physical controller pair at this point.
             if (live.Runtime.PlayerActions.NewlyPressed != GameplayAction.None)
                 FinishAttractPlayback(end: AttractPlaybackEnd.Cancelled);
             else

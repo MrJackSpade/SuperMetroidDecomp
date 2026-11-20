@@ -73,7 +73,8 @@ internal static class IntroSamusDemoMovement
         }
         else
         {
-            // The intro demo moves Samus only in the SR388 left-facing run and stand.
+            // This controller is installed only for the SR388 left-facing run/stand animation;
+            // a different pose means cinematic ownership escaped its declared state machine.
             throw new InvalidOperationException(
                 $"SR388 intro demo reached invalid grounded-left pose {poseAtFrameStart}.");
         }
@@ -87,7 +88,7 @@ internal static class IntroSamusDemoMovement
             ? proposed.ProspectivePose
             : fallback;
         SamusPoseId? wallPose = SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(samus, level, candidate,
-            movement.Horizontal.Collided, IntroCollisionRoomObjects.Instance);
+            movement.Horizontal.Collided, out _, IntroCollisionRoomObjects.Instance);
         if (wallPose is { } stoppedPose)
         {
             SamusGroundedPoseTransitions.ApplyRanIntoWallPoseChange(samus, stoppedPose);

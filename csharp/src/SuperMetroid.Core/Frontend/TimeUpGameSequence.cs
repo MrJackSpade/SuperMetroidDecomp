@@ -67,7 +67,7 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
     private void WhiteOut(ControllerButton controllerInput, LoadedGameplay live)
     {
         // The white-out runs the whole main-gameplay update, then advances every colour
-        // toward the white target by the white-out's step. It owns that update, so a Samus out of
+        // toward the white target with denominator eight. It owns that update, so a Samus out of
         // health without reserves does not die behind it (#2509).
         gameplay.RunMainGameplayUpdate(controllerInput, GameplayUpdateOwner.TimeUpWhiteOut, live);
         if (live.Runtime.FadeOut.Step())

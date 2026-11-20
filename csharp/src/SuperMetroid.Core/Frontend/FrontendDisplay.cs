@@ -15,8 +15,8 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>
 /// The frontend's published display: one immutable frame at a time, stamped with the number of the update that
 /// published it. Each scene publishes its composed frame through here once per update; the session may then set the
-/// screen's brightness, which dims that frame until the next scene publishes, and the backend draws the published
-/// display packet.
+/// screen's brightness, which dims that frame until the next scene publishes, and pixels are drawn from the published
+/// frame on demand.
 /// </summary>
 internal sealed class FrontendDisplay
 {

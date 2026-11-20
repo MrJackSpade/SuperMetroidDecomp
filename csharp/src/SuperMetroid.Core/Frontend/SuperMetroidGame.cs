@@ -72,7 +72,7 @@ public sealed class SuperMetroidGame
     /// <param name="random">The session's random number generator, which the frontend and every gameplay runtime share.</param>
     /// <param name="audioOutput">What the session's audio produces for its host.</param>
     /// <param name="artwork">The installed catalogs the game draws from.</param>
-    private SuperMetroidGame(
+    internal SuperMetroidGame(
         SaveSlotStore saves,
         GameplayAssists? assists,
         SuperMetroidGameHostServices hostServices,
@@ -150,7 +150,7 @@ public sealed class SuperMetroidGame
     }
 
     /// <summary>Runs one update and returns its status.</summary>
-    private FrontendFrame Step(ControllerButton controllerInput)
+    public FrontendFrame Step(ControllerButton controllerInput)
     {
         // The sound queues read whether the door transition has disabled sound effects from the door's phase itself as each
         // request is made (#2499); the phase's audio here chooses only the update's own audio processing.
@@ -236,9 +236,9 @@ public sealed class SuperMetroidGame
         // The sound acceptance clock acts on this update's requests during the update's own
         // samples; its acknowledgements become visible to the next update's sound queues.
         AudioFrameEvents audio = new(Session.audioSession.Advance(audioRequests));
-        // The pause steps publish held input after they return, though Samus's drawing step, which ends by publishing
-        // it, did not run; only the held input is published, and the press edge and the auto-jump timer stay as they
-        // are.
+        // The pause phases publish held input after they return, even though Samus's
+        // drawing step, which ends by publishing it, did not run. Publish only the held input;
+        // updating the press edge or auto-jump timer here would invent gameplay.
         if (publishesHeldInputAfterPause && gameplay is PhaseGameplay.InRoom { Live.Runtime: var pausedRuntime })
             pausedRuntime.Player.Samus.InputSnapshot.PublishHeldInput(pausedRuntime.PlayerActions.Current);
         return new(Session.GameState, PhaseName, FrameNumber, audio);
@@ -332,7 +332,7 @@ public sealed class SuperMetroidGame
     /// loading. These phases run once per update and do not run gameplay, which advances it
     /// itself. Saves keep no copy of the generator.
     /// </summary>
-    private void AdvanceMenuRandom(IGamePhase phase, PhaseGameplay gameplay)
+    internal void AdvanceMenuRandom(IGamePhase phase, PhaseGameplay gameplay)
     {
         Ensure.NotNull(phase);
         switch (phase.RandomStep)
@@ -348,8 +348,8 @@ public sealed class SuperMetroidGame
                 Session.Random.Generate();
                 break;
             case PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance when gameplay is PhaseGameplay.InRoom { Live: var paused }:
-                // The liquid wave and the statues' descent still advance on the update before the pause screen; a lava
-                // or acid wave stirs the random number (SharedRandom.SwapHalves).
+                // The liquid wave and the statues' descent still advance on the update before the pause screen; a lava or
+                // acid wave swaps the halves of the random number.
                 paused.Runtime.DoorTransition.AdvanceEffectsAndRandom(paused.Room, paused.Runtime.Player.Samus);
                 break;
             case PhaseRandomStep.Advance:
@@ -362,7 +362,7 @@ public sealed class SuperMetroidGame
             default:
                 throw new InvalidOperationException($"Undefined {nameof(PhaseRandomStep)} {phase.RandomStep} on {phase.Need}.");
         }
-        // Gameplay advances the generator itself after its liquid wave and statue descent, so neither a gameplay update
-        // nor an update that finishes a waiting step advances it here.
+        // Gameplay advances the generator itself after its liquid wave and statue descent. Do not
+        // advance here for gameplay updates or for an update that finishes a waiting step.
     }
 }

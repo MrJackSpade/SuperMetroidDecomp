@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
@@ -16,6 +17,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Core.Frontend;
@@ -52,12 +54,6 @@ internal sealed class FrontendSession
         // Power-on starts the title sequence.
         Phase = new TitleResetPhase(this);
     }
-
-    /// <summary>One phase for every sequence of the game, each of which names the phase it hands over to.</summary>
-    internal GamePhases Phases { get; }
-
-    /// <summary>The phase of the sequence the game is running.</summary>
-    internal IGamePhase RunningPhase { get; private set; }
 
     /// <summary>
     /// The gameplay screen's fade, shared by the pause and unpause fades and the transitions between rendered phases: its
@@ -109,14 +105,14 @@ internal sealed class FrontendSession
     private SuperMetroidRuntime? runtime;
     /// <summary>Live gameplay runtime, absent during frontend-only phases.</summary>
     internal SuperMetroidRuntime? Runtime => runtime;
-    /// <summary>The options every selected game starts with: unchosen until the options menu first closes.</summary>
-    internal GameplayOptionsChoice OptionsChoice { get; private set; } = GameplayOptionsChoice.Unchosen;
+    /// <summary>The choices the options menu closed with, which every selected game starts with; null before any.</summary>
+    internal SelectedGameplayOptions? ChosenOptions { get; private set; }
     /// <summary>Keeps <paramref name="options"/>'s choices for the selected game the menu starts.</summary>
     internal void ChooseOptions(GameOptionsMenuState options)
     {
         Ensure.NotNull(options);
-        OptionsChoice = new ChosenGameplayOptions(new SelectedGameplayOptions(options.JapaneseText, options.ControllerBindings,
-            options.MoonwalkEnabled, options.IconCancelEnabled));
+        ChosenOptions = new SelectedGameplayOptions(options.JapaneseText, options.ControllerBindings, options.MoonwalkEnabled,
+            options.IconCancelEnabled);
     }
     /// <summary>Ceres elevator departure and blackout transition state.</summary>
     internal readonly CeresDepartureState ceresDeparture = new();
@@ -188,7 +184,7 @@ internal sealed class FrontendSession
     /// <summary>The ending transition after the Zebes escape, one level darker every frame.</summary>
     internal ScreenFade EscapeFade { get; } = new(DisplayBrightness.Full);
     /// <summary>The room state whose music was last queued.</summary>
-    internal RoomStateSettings? LastAudioRoomState { get; private set; }
+    internal RoomStateSettings? LastAudioRoomState { get; set; }
     /// <summary>The runtime whose room's enemies' start music was last queued (#2562).</summary>
     private SuperMetroidRuntime? _startMusicQueuedForRuntime;
     /// <summary>Which of that runtime's room loads it was: its count of rooms loaded then.</summary>
@@ -222,7 +218,7 @@ internal sealed class FrontendSession
     internal void Enter(IGamePhase phase) => Phase = Ensure.NotNull(phase);
 
     /// <summary>Enters the fade into Landing Site or Ceres arrival; <see cref="BeginGameplayFadeIn"/> sets its fade.</summary>
-    private void EnterGameplayFadeIn() => Enter(new GamePhase(Phases.GameplayFadeIn,
+    private void EnterGameplayFadeIn() => Enter(new GamePhase(SuperMetroidGameState.GameplayFadeIn,
         PhaseRandomStep.RuntimeOwned,
         step: (controllerInput, live) => GameplayPhases.RunGameplayFadeIn(controllerInput, live),
         name: () => GameplayFadeLeadsToCeresArrival
@@ -230,7 +226,7 @@ internal sealed class FrontendSession
             : $"Landing Site fade-in (brightness {GameplayFadeIn.Level})"));
 
     /// <summary>Enters main gameplay.</summary>
-    internal void EnterMainGameplay() => Enter(new GamePhase(Phases.MainGameplay,
+    internal void EnterMainGameplay() => Enter(new GamePhase(SuperMetroidGameState.MainGameplay,
         PhaseRandomStep.RuntimeOwned,
         step: (controllerInput, live) => GameplayPhases.RunMainGameplay(controllerInput, live),
         name: () => "Gameplay"));
@@ -418,7 +414,7 @@ internal sealed class FrontendSession
             },
             Artwork = Artwork,
             // Attract scripts retain the default controls and options of their private runtime.
-            Selected = attract ? null : OptionsChoice.StartingOptions,
+            Selected = attract ? null : ChosenOptions ?? new SelectedGameplayOptions(false, ControllerBindings.Default, false, false),
         });
         runtime = created;
         return created;
@@ -429,7 +425,7 @@ internal sealed class FrontendSession
     {
         Ensure.NotNull(selected);
         // Live edits in options take precedence over the snapshot loaded at file select.
-        if (OptionsChoice is not ChosenGameplayOptions { Options: var options }) return;
+        if (ChosenOptions is not { } options) return;
         selected.Options.ControllerBindings = options.ControllerBindings;
         selected.Options.MoonwalkEnabled = options.MoonwalkEnabled;
         selected.Options.IconCancelEnabled = options.IconCancelEnabled;
@@ -626,7 +622,7 @@ internal sealed class FrontendSession
     /// Bombs. The frontend cinematic uses isolated actor state, so its gameplay consequence
     /// is made explicit at the shared Ceres handoff.
     /// </summary>
-    private static void RestoreSpacetimeRestartInventory(
+    internal static void RestoreSpacetimeRestartInventory(
         SamusState samus,
         SuperMetroidSaveSlot slot)
     {

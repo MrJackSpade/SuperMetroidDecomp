@@ -655,7 +655,7 @@ internal sealed class RoomLoader
 
         // A door that exchanges explored maps stores the live map as the departed area's,
         // then, with the destination's definition loaded, loads the live map from the entered area's.
-        if (ExploredMapExchangeDoorDefinitions.Doors.Contains(door))
+        if (door.ExchangesExploredMaps)
         {
             _system.StoredExploredMaps.StoreLiveMap(_room.LoadedRoom.Area);
             _system.StoredExploredMaps.LoadLiveMap(room.Area);

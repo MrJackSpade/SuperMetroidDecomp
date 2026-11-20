@@ -13,4 +13,11 @@ internal sealed record CollectibleDefinition(
     CollectibleGrant Grant,
     GameplayMessageId Message,
     CollectiblePickupConsequence Consequence,
-    CollectiblePictureSource Picture);
+    CollectiblePictureSource Picture)
+{
+    /// <summary>
+    /// The placements whose pickup starts the room's lava rising once the pickup's message closes (#2562): the Speed
+    /// Booster's Chozo orb, whose pickup leaves the lava's motion to the message's close; none for every other item.
+    /// </summary>
+    internal IReadOnlySet<CollectiblePresentation> LavaRisingPlacements { get; init; } = new HashSet<CollectiblePresentation>();
+}

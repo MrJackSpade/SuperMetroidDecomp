@@ -243,7 +243,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Surface = BaseLine;
 
         Type = definition.Type;
-        overlayLook = RoomEffectOverlayLook.Of(definition.Type, definition.EffectBlend);
+        overlayLook = definition.OverlayLook;
         VisorAnimation = definition.VisorAnimation;
         if (effectOverlayAnimation is not null)
             throw new InvalidOperationException($"The room's effect already plays {effectOverlayAnimation.Playback.PlayingSegment}: each room builds its own.");
@@ -545,7 +545,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         LiquidLevelSpeed = definition.LiquidLevelSpeed;
         LiquidMoveDelay = WrappingCountdown.Start(definition.LiquidMoveDelay);
         Liquid = definition.Liquid;
-        overlayLook = RoomEffectOverlayLook.Of(Type, definition.EffectBlend);
+        overlayLook = definition.OverlayLook;
         VisorAnimation = definition.VisorAnimation;
         Tint = definition.Tint;
     }

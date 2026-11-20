@@ -129,17 +129,18 @@ internal static class RoomFxRecordCatalogSource
     }
 
     /// <summary>
-    /// Renders a room effect's blend as the generated catalog spells it: the <see cref="RoomEffectBlendDefinitions"/>
-    /// member it is, or null where the effect shows none (#1545).
+    /// Renders a room effect's overlay look as the generated catalog spells it (#1545, #2554): the liquid or atmosphere of
+    /// the <see cref="RoomEffectBlendDefinitions"/> member its blend is, or null where the effect shows nothing there.
     /// </summary>
-    private static string EffectBlend(RoomEffectBlend? blend)
+    private static string OverlayLook(RoomFxType type, RoomEffectOverlayLook? look)
     {
-        if (blend is null)
+        if (look is null)
             return "null";
         PropertyInfo[] members = [.. typeof(RoomEffectBlendDefinitions).GetProperties(BindingFlags.Public | BindingFlags.Static)
-            .Where(property => ReferenceEquals(property.GetValue(null), blend))];
-        return members.Length == 1 ? $"{nameof(RoomEffectBlendDefinitions)}.{members[0].Name}"
-            : throw new InvalidDataException($"Blend {blend} is not one {nameof(RoomEffectBlendDefinitions)} member.");
+            .Where(property => ReferenceEquals(property.GetValue(null), look.Blend))];
+        string kind = RoomFxTypes.ShowsLiquid(type) ? nameof(RoomEffectOverlayLook.Liquid) : nameof(RoomEffectOverlayLook.Atmosphere);
+        return members.Length == 1 ? $"{nameof(RoomEffectOverlayLook)}.{kind}({nameof(RoomEffectBlendDefinitions)}.{members[0].Name})"
+            : throw new InvalidDataException($"Blend {look.Blend} is not one {nameof(RoomEffectBlendDefinitions)} member.");
     }
 
     /// <summary>Renders one member of a closed identity as the generated catalog spells it.</summary>
@@ -202,7 +203,7 @@ internal static class RoomFxRecordCatalogSource
         $"new({SurfaceY(record.LiquidStartLevel)}, {SurfaceY(record.LiquidTargetLevel)}, " +
         $"{LevelSpeed(record.LiquidLevelSpeed)}, " +
         $"{record.LiquidMoveDelay.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {Member(record.Type)}, " +
-        $"{Member(record.VisorAnimation)}, {EffectBlend(record.EffectBlend)}, " +
+        $"{Member(record.VisorAnimation)}, {OverlayLook(record.Type, record.OverlayLook)}, " +
         $"{Liquid(record.Liquid)}, {Effects(record.ColourEffects)}, " +
         $"{Effects(record.BlockAnimations)}, {Member(record.Tint)})";
 

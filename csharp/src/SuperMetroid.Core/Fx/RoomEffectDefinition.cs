@@ -17,9 +17,10 @@ namespace SuperMetroid.Core.Fx;
 /// <param name="LiquidMoveDelay">The updates the liquid waits, once its level has somewhere to go, before it starts to move.</param>
 /// <param name="Type">The kind of effect the room shows.</param>
 /// <param name="VisorAnimation">Whether the room animates Samus's visor.</param>
-/// <param name="EffectBlend">
-/// How the effect's overlay blends with the room, or null when the effect shows no overlay (#1545): every effect that shows
-/// on the overlay describes one, and no other effect does, which the room's load checks (<see cref="RoomEffectOverlayLook.Of"/>, #2544).
+/// <param name="OverlayLook">
+/// What the effect shows on the effect overlay and how it blends with the room (#1545, #2544, #2554): its liquid or its
+/// atmosphere, or null for an effect that shows nothing there. Every effect that shows on the overlay has one, and no other
+/// effect does.
 /// </param>
 /// <param name="Liquid">The liquid the effect fills the room with, or null for an effect with none.</param>
 /// <param name="ColourEffects">The colour effects the room effect starts, in the order they start.</param>
@@ -32,7 +33,7 @@ public sealed record RoomEffectDefinition(
     int LiquidMoveDelay,
     RoomFxType Type,
     RoomVisorAnimation VisorAnimation,
-    RoomEffectBlend? EffectBlend,
+    RoomEffectOverlayLook? OverlayLook,
     RoomLiquid? Liquid,
     ImmutableArray<ColourEffectId> ColourEffects,
     ImmutableArray<BlockAnimation> BlockAnimations,
@@ -44,4 +45,11 @@ public sealed record RoomEffectDefinition(
     /// </summary>
     /// <exception cref="ArgumentException">The liquid is not the kind the effect has.</exception>
     public RoomLiquid? Liquid { get; init; } = RoomLiquid.OfEffect(Type, Liquid);
+
+    /// <summary>
+    /// What the effect shows on the effect overlay: its liquid's or its atmosphere's look for an effect that shows there, and
+    /// none for every other effect.
+    /// </summary>
+    /// <exception cref="ArgumentException">The look is not the kind the effect shows.</exception>
+    public RoomEffectOverlayLook? OverlayLook { get; init; } = RoomEffectOverlayLook.Checked(Type, OverlayLook);
 }

@@ -77,6 +77,15 @@ internal static class RoomFxRecordCodec
         return blend;
     }
 
+    /// <summary>
+    /// What an effect of <paramref name="type"/> blending as <paramref name="blend"/> shows on the effect overlay: its liquid
+    /// or its atmosphere, or nothing for an effect that names no blend.
+    /// </summary>
+    private static RoomEffectOverlayLook? OverlayLook(RoomFxType type, RoomEffectBlend? blend) =>
+        blend is null ? null
+        : RoomFxTypes.ShowsLiquid(type) ? RoomEffectOverlayLook.Liquid(blend)
+        : RoomEffectOverlayLook.Atmosphere(blend);
+
     /// <summary>Whether an effect of <paramref name="type"/> shows the blend effect blend byte <paramref name="value"/> names.</summary>
     private static bool EffectShowsBlend(RoomFxType type, byte value) => type switch
     {
@@ -108,7 +117,7 @@ internal static class RoomFxRecordCodec
             native[RoomFxRomDataRecordTooling.TimerOffset],
             type,
             VisorAnimation(native[RoomFxRomDataRecordTooling.DefaultBlendOffset], context),
-            EffectBlend(type, native[RoomFxRomDataRecordTooling.EffectBlendOffset], context),
+            OverlayLook(type, EffectBlend(type, native[RoomFxRomDataRecordTooling.EffectBlendOffset], context)),
             Liquid(type, native[RoomFxRomDataRecordTooling.LiquidOptionsOffset]),
             PaletteEffects(area, native[RoomFxRomDataRecordTooling.PaletteFxBitsetOffset]),
             AnimatedTiles(area, native[RoomFxRomDataRecordTooling.AnimatedTileBitsetOffset]),

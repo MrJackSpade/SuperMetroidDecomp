@@ -57,19 +57,22 @@ internal sealed class IntroCeresFlightState
     /// <summary>The rear view's five station, asteroid, vortex and star actors, in spawn order, created when the camera switches to it.</summary>
     internal IReadOnlyList<CeresRearViewActor> RearViewActors { get; private set; } = [];
     /// <summary>
-    /// The rear-view flash's white wash (<see cref="WhiteWash"/>): full white when the rear view starts, one step fewer each
-    /// update, stopping at none; none before the rear view.
+    /// The rear-view flash's white wash (<see cref="WhiteWash"/>): full white when the rear view starts, which starts it
+    /// afresh, one step fewer each update, stopping at none; only the rear view shows it.
     /// </summary>
-    private WhiteWash? rearViewFlash;
+    private WhiteWash rearViewFlash = WhiteWash.FullWhite(CeresFlightSceneDefinitions.RearViewFlashUpdatesPerStep,
+        CeresFlightSceneDefinitions.RearViewFlashFirstStepUpdate);
     /// <summary>
     /// The SPACE COLONY caption's typing (#2488), played by the shared player from the title's setup: its letters, with
-    /// Japanese text its katakana caption, its hold and the fade-out cue; none before the title.
+    /// Japanese text its katakana caption, its hold and the fade-out cue; it shows nothing before the title.
     /// </summary>
-    private AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue>? caption;
+    private AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption =
+        AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue>.Starting(
+            SpaceColonyCaptionAnimations.Segments, SpaceColonyCaptionAnimations.Typing(SpaceColonyCaptionText.English));
     /// <summary>How many of the caption's letters are shown, in order; none before the title.</summary>
-    internal int CaptionLettersShown => caption?.Shown?.Letters ?? 0;
+    internal int CaptionLettersShown => caption.Shown?.Letters ?? 0;
     /// <summary>Whether the Japanese text's katakana caption has shown, from the update it shows until the flight ends.</summary>
-    internal bool JapaneseCaptionShown => caption?.Shown?.Shows == SpaceColonyCaptionText.WithKatakana;
+    internal bool JapaneseCaptionShown => caption.Shown?.Shows == SpaceColonyCaptionText.WithKatakana;
     /// <summary>Whether the Japanese text is selected, which shows the katakana caption.</summary>
     private readonly bool japaneseText;
 
@@ -224,7 +227,7 @@ internal sealed class IntroCeresFlightState
         }
         if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
         {
-            layers.Add((rearViewFlash ?? throw new InvalidOperationException("The rear view shows no flash before its setup.")).Layer);
+            layers.Add(rearViewFlash.Layer);
         }
         return new(new FramePaint(Backdrop), layers.ToArray(), fade.Level);
     }
@@ -310,7 +313,7 @@ internal sealed class IntroCeresFlightState
     private void StepFlyingTowardCeres()
     {
         // The white flash fades by one step per frame, stopping at none.
-        (rearViewFlash ?? throw new InvalidOperationException("The rear view flies with no flash set up.")).Fade();
+        rearViewFlash.Fade();
 
         // The rear view drifts left by an eighth of a pixel and grows the rear-of-gunship turning
         // image in two bands: the slow step until twelve floor pixels per screen pixel, then the fast step until thirty-two.
@@ -340,8 +343,7 @@ internal sealed class IntroCeresFlightState
     /// Types the title's letters every sixteen frames, optionally adds katakana, then holds the completed caption before
     /// the fade step installs the ordinary fade owner.
     /// </summary>
-    private void StepSpaceColonyTitle() =>
-        (caption ?? throw new InvalidOperationException("The SPACE COLONY title runs with no caption set up.")).Step(CarryOut);
+    private void StepSpaceColonyTitle() => caption.Step(CarryOut);
 
     /// <summary>Carries out <paramref name="cue"/> of the caption's typing.</summary>
     /// <exception cref="InvalidOperationException">The cue is not one the caption's typing raises.</exception>

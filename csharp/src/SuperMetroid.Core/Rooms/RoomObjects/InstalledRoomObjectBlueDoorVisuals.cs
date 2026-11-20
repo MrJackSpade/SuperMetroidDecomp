@@ -19,15 +19,11 @@ public sealed class InstalledRoomObjectBlueDoorVisuals : IRoomObjectFamilyPictur
     IReadOnlyDictionary<RoomObjectDraw, RoomObjectFrameImage> IRoomObjectFamilyPictures.Pictures =>
         new Dictionary<RoomObjectDraw, RoomObjectFrameImage>(Images.All)
         {
-            [BlueDoorCaps.ClosedSolid(ColoredDoorOrientation.Left)] = ClosedSolid(ColoredDoorOrientation.Left),
-            [BlueDoorCaps.ClosedSolid(ColoredDoorOrientation.Right)] = ClosedSolid(ColoredDoorOrientation.Right),
-            [BlueDoorCaps.ClosedSolid(ColoredDoorOrientation.Up)] = ClosedSolid(ColoredDoorOrientation.Up),
-            [BlueDoorCaps.ClosedSolid(ColoredDoorOrientation.Down)] = ClosedSolid(ColoredDoorOrientation.Down),
+            [BlueDoorCaps.ClosedSolid(ColoredDoorOrientation.Left)] = Image(BlueDoorCaps.ClosedSolid(ColoredDoorOrientation.Left)),
+            [BlueDoorCaps.ClosedSolid(ColoredDoorOrientation.Right)] = Image(BlueDoorCaps.ClosedSolid(ColoredDoorOrientation.Right)),
+            [BlueDoorCaps.ClosedSolid(ColoredDoorOrientation.Up)] = Image(BlueDoorCaps.ClosedSolid(ColoredDoorOrientation.Up)),
+            [BlueDoorCaps.ClosedSolid(ColoredDoorOrientation.Down)] = Image(BlueDoorCaps.ClosedSolid(ColoredDoorOrientation.Down)),
         };
-
-    /// <summary>The picture the closed cap facing <paramref name="orientation"/> shows drawn solid: its facing's closed cap.</summary>
-    private RoomObjectFrameImage ClosedSolid(ColoredDoorOrientation orientation) =>
-        Images.Image(BlueDoorCaps.VisualSource(BlueDoorCaps.ClosedSolid(orientation)));
 
     /// <summary>The picture <paramref name="draw"/> shows; the closed cap drawn solid shows its facing's closed cap.</summary>
     /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>

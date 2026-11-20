@@ -270,27 +270,26 @@ internal sealed class MotherBrainProjectiles
             if (TryDestroyMotherBrainBombWithSamusBomb(bomb, state, samusBombs, samus))
                 return;
 
-            SignedEightEight acceleration;
-            if (bombState.Bounces == 0)
+            // A bomb landed from its last bounce expires.
+            if (bombState.Bounces is not MotherBrainBombBounces.Flying flying)
             {
-                // Only the initial fall applies its horizontal drag: the speed loses it, stopping at rest, and keeps its
-                // direction.
+                ExpireMotherBrainBomb(bomb, state);
+                return;
+            }
+
+            SignedEightEight acceleration;
+            if (flying is MotherBrainBombBounces.Flying.Bouncing bouncing)
+                acceleration = bouncing.Gravity.Entry;
+            else
+            {
+                // The remaining member, MotherBrainBombBounces.Flying.Falling. Only the initial fall applies its horizontal
+                // drag: the speed loses it, stopping at rest, and keeps its direction.
                 bomb.Velocity = bomb.Velocity.WithX(bomb.Velocity.X.SlowedBy(MotherBrainBombBounceDefinitions.FallDrag));
                 acceleration = MotherBrainBombBounceDefinitions.FallAcceleration;
             }
-            else
-            {
-                if (MotherBrainBombBounces.YAcceleration(bombState.Bounces) is not { } bounceAcceleration)
-                {
-                    ExpireMotherBrainBomb(bomb, state);
-                    return;
-                }
-
-                acceleration = bounceAcceleration;
-            }
 
             if (MoveMotherBrainBomb(this, bomb, acceleration))
-                bombState.Bounces++;
+                bombState.Bounces = flying.Bounced;
         }
 
         /// <summary>Consumes an overlapping Samus bomb and resolves the Mother Brain bomb explosion.</summary>

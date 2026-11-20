@@ -89,7 +89,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
         _status.CeresStatus = CeresEscapeStatus.RidleyEscaped;
         Stage = CeresEscapeStage.Getaway;
         Floor.Active = true;
-        Floor.Flight = UpdateCountdown.Lasting(CeresRidleyGetawayCurve.Duration);
+        Floor.Flight = ListStep<CeresRidleyGetawayStep>.FirstOf(CeresRidleyGetawayCurve.Steps);
         Floor.Angle = CeresRidleyGetawayDefinitions.InitialAngle;
         Floor.Offset = CeresRidleyGetawayDefinitions.InitialFloorOffset;
         Floor.Zoom = CeresRidleyGetawayDefinitions.InitialZoom;
@@ -112,21 +112,8 @@ internal sealed class CeresEscape : IGameplayShadingSource
     {
         if (Stage != CeresEscapeStage.Getaway)
             return;
-        int update = Floor.Flight.Age;
-        bool flown = Floor.Flight.IsOver;
-        Floor.Flight.Step();
-
-        // The getaway requests the departure sound on its first update only.
-        if (update == 0)
-            _audio.QueueEnemySound(EnemySound.CeresRidleyGetaway, priority: SoundRequestPriority.Normal);
-
-        // Ridley's shove takes Samus's movement so the rotating boss image cannot overlap her from the following update
-        // onward.
-        if (update == CeresRidleyGetawayDefinitions.SamusShoveUpdate)
-            samus.CeresRidleyEjection.Request(samus);
-
         // The update after the curves' last ends the getaway.
-        if (flown)
+        if (Floor.Flight is not { } flying)
         {
             // The getaway's end restores the ordinary view and clears all rotation and scroll values, so the
             // self-destruct warning shows over the room, not the turning floor.
@@ -139,9 +126,20 @@ internal sealed class CeresEscape : IGameplayShadingSource
             BeginSelfDestruct();
             return;
         }
+        int update = flying.Place;
+        Floor.Flight = flying.Following;
 
-        FloorZoom zoom = CeresRidleyGetawayCurve.ZoomAt(update);
-        Offset16<FloorPixels> drift = CeresRidleyGetawayCurve.DriftAt(update);
+        // The getaway requests the departure sound on its first update only.
+        if (update == 0)
+            _audio.QueueEnemySound(EnemySound.CeresRidleyGetaway, priority: SoundRequestPriority.Normal);
+
+        // Ridley's shove takes Samus's movement so the rotating boss image cannot overlap her from the following update
+        // onward.
+        if (update == CeresRidleyGetawayDefinitions.SamusShoveUpdate)
+            samus.CeresRidleyEjection.Request(samus);
+
+        FloorZoom zoom = flying.Entry.Zoom;
+        Offset16<FloorPixels> drift = flying.Entry.Drift;
         Floor.Zoom = zoom;
         // The update's drift is added to the vertical offset and subtracted from the horizontal offset. Over the whole
         // getaway the drift curve takes the offset from its start, (-128, 32), no further than -268 across and between

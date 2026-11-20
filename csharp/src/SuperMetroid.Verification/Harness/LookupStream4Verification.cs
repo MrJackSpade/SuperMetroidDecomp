@@ -873,7 +873,7 @@ internal static class LookupStream4Verification
         // The station's escape flies the getaway (#2228), from its second frame.
         CeresEscape escape = enemies.CeresEscape;
         escape.BeginGetaway();
-        escape.Floor.Flight = UpdateCountdownAccess.AtAge(CeresRidleyGetawayCurve.Duration, 1);
+        escape.Floor.Flight = ListStep<CeresRidleyGetawayStep>.At(CeresRidleyGetawayCurve.Steps, 1);
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         void tick(int frameCounter) => escape.RunGetawayRoomMain(samus, map, frameCounter);
         byte[] untouched = new byte[SnesVram.ByteCount];

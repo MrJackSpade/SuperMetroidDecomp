@@ -12,10 +12,11 @@ public sealed class CeresTurningFloor
     /// <summary>Gets whether the getaway's turning floor currently owns the Ridley and Baby presentation.</summary>
     public bool Active { get; internal set; }
     /// <summary>
-    /// The getaway's flight along its curves, counted once each getaway update: its age is the update of the getaway the
-    /// next update flies, and the update after it is over ends the getaway.
+    /// The getaway's flight along its curves (<see cref="CeresRidleyGetawayCurve.Steps"/>): the step the next getaway update
+    /// flies, its place the update of the getaway; none once every step is flown, which ends the getaway on the update
+    /// after the last (#2553).
     /// </summary>
-    public UpdateCountdown Flight { get; internal set; } = UpdateCountdown.Ended();
+    public ListStep<CeresRidleyGetawayStep>? Flight { get; internal set; }
     /// <summary>Gets how far the getaway has turned its floor clockwise, wrapping at a full turn.</summary>
     public RotationAngle Angle { get; internal set; }
     /// <summary>Gets the floor point the getaway places at the screen's top-left before turning and zooming the floor.</summary>

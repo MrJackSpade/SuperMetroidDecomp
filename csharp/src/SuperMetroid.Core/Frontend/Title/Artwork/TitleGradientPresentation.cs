@@ -11,8 +11,15 @@ public sealed class TitleGradientPresentation
     /// <summary>The independently authored gradients in order of their zoom ranges, from no zoom up.</summary>
     private readonly ScreenGradient[] variants;
 
-    /// <summary>Retains the gradients the import validated.</summary>
-    internal TitleGradientPresentation(ScreenGradient[] variants) => this.variants = variants;
+    /// <summary>
+    /// Retains the gradients the import validated: one for each of the <see cref="TitleGradientFormat.VariantCount"/> zoom
+    /// ranges, which together reach the floor's own size.
+    /// </summary>
+    /// <exception cref="ArgumentException">The gradients are not one for each zoom range.</exception>
+    internal TitleGradientPresentation(ScreenGradient[] variants) =>
+        this.variants = Ensure.NotNull(variants).Length == TitleGradientFormat.VariantCount
+            ? variants
+            : throw new ArgumentException($"The title has {TitleGradientFormat.VariantCount} gradients, one for each zoom range, not {variants.Length}.", nameof(variants));
 
     /// <summary>
     /// Returns the gradient the title shows at <paramref name="zoom"/> (#1781): the gradient whose zoom range, each
@@ -35,15 +42,15 @@ public sealed class TitleGradientPresentation
                 "The title never zooms its floor out past the floor's own size.");
         }
         // The ranges follow one another from no zoom up, each one range width past the last, and together end at the
-        // floor's own size, so a zoom below it lies in exactly one.
+        // floor's own size (one for each gradient, which the constructor requires), so a zoom below it lies in exactly
+        // one: past every earlier range, in the last (#2553).
         FloorZoom rangeEnd = FloorZoom.FromFloorPixelsPerScreenPixel(0);
-        foreach (ScreenGradient variant in variants)
+        foreach (ScreenGradient variant in variants.AsSpan()[..^1])
         {
             rangeEnd = rangeEnd.Widened(TitleGradientFormat.ZoomRangeWidth);
             if (zoom < rangeEnd)
                 return variant;
         }
-        throw new InvalidOperationException(
-            $"The title's {variants.Length} gradient zoom ranges end at {rangeEnd}, below zoom {zoom}.");
+        return variants[^1];
     }
 }

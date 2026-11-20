@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.VerificationImporters;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
 
@@ -16,7 +17,7 @@ internal static class LookupRetailDoorListsVerification
         ushort[] rooms = File.ReadLines(Path.GetFullPath(Path.Combine("upstream-sm", "assets", "names.txt")))
             .Select(TryParseRoomHeaderPointer).Where(pointer => pointer.HasValue)
             .Select(pointer => (pointer ?? throw new InvalidOperationException("Verification requires pointer."))).Distinct().Order().ToArray();
-        var physical = EnumerateRetailDoorPointers().ToHashSet();
+        var physical = RetailDoorHeaderCatalog.EnumeratePointers().ToHashSet();
         physical.Add(0x88fc);
         physical.Add(0xa18a);
         var originalLists = new HashSet<ushort>();

@@ -1,4 +1,4 @@
-using F = SuperMetroid.Core.Frontend.Intro.Artwork.CinematicSpriteFamily;
+using F = SuperMetroid.Core.Frontend.Ending.EndingSpriteFamily;
 using L = SuperMetroid.Core.Frontend.Ending.EndingSpriteLayer;
 using R = SuperMetroid.Core.Frontend.Ending.EndingSpriteRole;
 

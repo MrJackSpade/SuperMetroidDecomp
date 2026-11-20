@@ -218,12 +218,12 @@ internal static class EndingCreditsPresentation
 
     /// <summary>Places the jumping Samus's frames, and the falling Samus's once she falls back.</summary>
     internal static void DrawJump(EndingCreditsState ending, ScreenSprites sprites, EndingRewardJump jump) =>
-        jump.Draw(sprites, ActorArt(ending, CinematicSpriteFamily.EndingReward),
+        jump.Draw(sprites, ActorArt(ending, EndingSpriteFamily.EndingReward),
             new CinematicSpriteSheet(Sheet(ending, EndingSpriteSheets.FallingSamusAndLogo), CinematicSpriteFamily.EndingReward, ending.screen.Colours.Drawn));
 
     /// <summary>A family's frames from the sheet they lie on, drawn in the ending's colours under the colouring each actor names.</summary>
-    internal static IIntroCinematicSpritePresentation ActorArt(EndingCreditsState ending, CinematicSpriteFamily family) =>
-        new CinematicSpriteSheet(Sheet(ending, EndingSpriteSheets.Of(family, ending.Stage.EndingReward)), family, ending.screen.Colours.Drawn);
+    internal static IIntroCinematicSpritePresentation ActorArt(EndingCreditsState ending, EndingSpriteFamily family) =>
+        new CinematicSpriteSheet(Sheet(ending, EndingSpriteSheets.Of(family, ending.Stage.EndingReward)), EndingSpriteSheets.Cinematic(family), ending.screen.Colours.Drawn);
 
     /// <summary>One of the installed sprite sheets the ending draws from.</summary>
     private static SpriteSheet Sheet(EndingCreditsState ending, SpriteSheetId sheet) => ending.InstalledArtwork.SpriteSheet(sheet);

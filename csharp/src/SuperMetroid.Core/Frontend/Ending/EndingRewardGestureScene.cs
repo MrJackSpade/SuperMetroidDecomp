@@ -22,7 +22,7 @@ internal sealed class EndingRewardGestureScene(EndingRewardGesture gesture) : En
     internal override void DrawActors(EndingCreditsState ending, ScreenSprites sprites, Func<EndingSpriteLayer, bool> shows)
     {
         if (shows(EndingSpriteLayer.Actors))
-            Gesture.Draw(sprites, EndingCreditsPresentation.ActorArt(ending, CinematicSpriteFamily.EndingReward));
+            Gesture.Draw(sprites, EndingCreditsPresentation.ActorArt(ending, EndingSpriteFamily.EndingReward));
     }
     /// <inheritdoc/>
     internal override LayeredScene CaptureScreen(EndingCreditsState ending, FramePaint paint) =>

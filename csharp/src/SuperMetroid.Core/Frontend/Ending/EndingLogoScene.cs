@@ -25,7 +25,7 @@ internal sealed class EndingLogoScene(EndingLogo logo) : EndingScene
     internal override void DrawActors(EndingCreditsState ending, ScreenSprites sprites, Func<EndingSpriteLayer, bool> shows)
     {
         if (shows(EndingSpriteLayer.Actors))
-            Logo.Draw(sprites, EndingCreditsPresentation.ActorArt(ending, CinematicSpriteFamily.EndingLogo));
+            Logo.Draw(sprites, EndingCreditsPresentation.ActorArt(ending, EndingSpriteFamily.EndingLogo));
     }
 
     /// <inheritdoc/>

@@ -28,18 +28,30 @@ internal static class EndingSpriteSheets
     /// The sheet the frames of <paramref name="family"/> lie on in an ending of <paramref name="reward"/>; the reward's
     /// falling Samus draws from <see cref="FallingSamusAndLogo"/> instead.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="family"/> is not an ending family.</exception>
-    internal static SpriteSheetId Of(CinematicSpriteFamily family, EndingReward reward) => family == CinematicSpriteFamily.EndingReward
-        ? Reward(reward)
-        : Ensure.Listed(FamilySheets, family);
+    internal static SpriteSheetId Of(EndingSpriteFamily family, EndingReward reward) => FamilySheets[family](reward);
 
-    /// <summary>The sheet of each ending family other than the reward's, whose sheet depends on the reward.</summary>
-    private static FrozenDictionary<CinematicSpriteFamily, SpriteSheetId> FamilySheets => field ??= new Dictionary<CinematicSpriteFamily, SpriteSheetId>
+    /// <summary>The sheet of each ending family in an ending of each reward: only the reward's own depends on the reward.</summary>
+    private static IdentityTable<EndingSpriteFamily, Func<EndingReward, SpriteSheetId>> FamilySheets => field ??= new(new Dictionary<EndingSpriteFamily, Func<EndingReward, SpriteSheetId>>
     {
-        [CinematicSpriteFamily.EndingCloud] = Clouds,
-        [CinematicSpriteFamily.EndingExplosion] = Explosion,
-        [CinematicSpriteFamily.EndingCompletionText] = Explosion,
-        [CinematicSpriteFamily.EndingAnimalEscape] = Explosion,
-        [CinematicSpriteFamily.EndingLogo] = FallingSamusAndLogo,
-    }.ToFrozenDictionary();
+        [EndingSpriteFamily.EndingCloud] = static _ => Clouds,
+        [EndingSpriteFamily.EndingExplosion] = static _ => Explosion,
+        [EndingSpriteFamily.EndingCompletionText] = static _ => Explosion,
+        [EndingSpriteFamily.EndingReward] = Reward,
+        [EndingSpriteFamily.EndingAnimalEscape] = static _ => Explosion,
+        [EndingSpriteFamily.EndingLogo] = static _ => FallingSamusAndLogo,
+    });
+
+    /// <summary>The cinematic sprite family <paramref name="family"/> is, whose installed pictures it draws.</summary>
+    internal static CinematicSpriteFamily Cinematic(EndingSpriteFamily family) => CinematicFamilies[family];
+
+    /// <summary>The cinematic sprite family each ending family is.</summary>
+    private static IdentityTable<EndingSpriteFamily, CinematicSpriteFamily> CinematicFamilies => field ??= new(new Dictionary<EndingSpriteFamily, CinematicSpriteFamily>
+    {
+        [EndingSpriteFamily.EndingCloud] = CinematicSpriteFamily.EndingCloud,
+        [EndingSpriteFamily.EndingExplosion] = CinematicSpriteFamily.EndingExplosion,
+        [EndingSpriteFamily.EndingCompletionText] = CinematicSpriteFamily.EndingCompletionText,
+        [EndingSpriteFamily.EndingReward] = CinematicSpriteFamily.EndingReward,
+        [EndingSpriteFamily.EndingAnimalEscape] = CinematicSpriteFamily.EndingAnimalEscape,
+        [EndingSpriteFamily.EndingLogo] = CinematicSpriteFamily.EndingLogo,
+    });
 }

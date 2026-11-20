@@ -35,16 +35,8 @@ internal static class SamusAtmosphereSheetComposer
             frames.Add(Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.FrameName(SamusAtmosphereSheetDefinitions.FootstepSplash[frame]), SamusAtmosphericPictures.FootstepSplash, frame));
             frames.Add(Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.FrameName(SamusAtmosphereSheetDefinitions.LavaAndDust[frame]), SamusAtmosphericPictures.LavaAndDust, frame));
         }
-        for (int frame = 0; frame < SamusAtmosphereSheetDefinitions.DivingSplash.Count; frame++)
-        {
-            frames.Add(Spritemap(inputs, spritemaps, SamusAtmosphereSheetDefinitions.FrameName(SamusAtmosphereSheetDefinitions.DivingSplash[frame]),
-                SamusAtmosphericArtworkDefinitions.DivingSplashFirstEntry + frame));
-        }
-        for (int frame = 0; frame < SamusAtmosphereSheetDefinitions.Bubbles.Count; frame++)
-        {
-            frames.Add(Spritemap(inputs, spritemaps, SamusAtmosphereSheetDefinitions.FrameName(SamusAtmosphereSheetDefinitions.Bubbles[frame]),
-                SamusAtmosphericArtworkDefinitions.BubblesFirstEntry + frame));
-        }
+        foreach (SamusAtmosphereFrame frame in SamusAtmosphereSheetDefinitions.DivingSplash.Concat(SamusAtmosphereSheetDefinitions.Bubbles))
+            frames.Add(Spritemap(inputs, spritemaps, SamusAtmosphereSheetDefinitions.FrameName(frame)));
         return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);
     }
 
@@ -58,9 +50,10 @@ internal static class SamusAtmosphereSheetComposer
     }
 
     /// <summary>
-    /// A Samus spritemap over the standard OBJ sheet. A zero entry in the installed pointer table names direct-page
-    /// scratch the port does not model and draws nothing (owner decision on #1318), so its frame is empty.
+    /// The Samus spritemap the atmosphere frame <paramref name="name"/> shows over the standard OBJ sheet. A frame the import
+    /// decoded no composition for names direct-page scratch the port does not model and draws nothing (owner decision on
+    /// #1318), so its frame is empty.
     /// </summary>
-    private static SheetFrameSource Spritemap(SamusSheetInputs inputs, SamusSpritemapSources spritemaps, string name, int index) =>
-        new(name, spritemaps.TryGetFrame(index, out SpriteFrame? frame) ? frame : new SpriteFrame(name, []), inputs.StandardObjects);
+    private static SheetFrameSource Spritemap(SamusSheetInputs inputs, SamusSpritemapSources spritemaps, string name) =>
+        new(name, spritemaps.TryGetAtmosphereFrame(name, out SpriteFrame? frame) ? frame : new SpriteFrame(name, []), inputs.StandardObjects);
 }

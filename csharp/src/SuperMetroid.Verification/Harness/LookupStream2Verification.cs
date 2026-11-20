@@ -1206,7 +1206,7 @@ internal static class LookupStream2Verification
             int firstCharacter = EncounterCharacterPlacementDefinitions.GunshipFirstCharacter
                 + enumerated * GunshipLiftoffCharacterDefinitions.ByteCount / SpriteCharacterTableLayout.CharacterByteCount;
             AssertEqual(destination, ObjCharacterNativeWords.Of(firstCharacter), "Gunship original destination");
-            AssertEqual(InstalledArtworkId.GunshipLiftoffFirstTiles + enumerated, transfer.Asset, "Gunship typed transfer identity");
+            AssertEqual(GunshipLiftoffTransferDefinitions.Frames[enumerated].Asset, transfer.Asset, "Gunship typed transfer identity");
             AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");
             enemies.GunshipBehavior.WaitForGunshipEngines(place);
             AssertEqual(enumerated + 1 == GunshipTakeoffDefinitions.EngineStartUpdates,

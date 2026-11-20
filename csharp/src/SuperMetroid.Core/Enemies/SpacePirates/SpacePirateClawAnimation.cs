@@ -6,12 +6,12 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <summary>A Ninja Pirate claw's typed animation.</summary>
 /// <param name="segment">The segment the animation starts at.</param>
 /// <param name="cues">The behaviour that started the animation, which owns its cues.</param>
-internal sealed class SpacePirateClawAnimation(SpacePirateProjectileSegment segment, IEnemyProjectileCues<SpacePirateClawCue> cues)
-    : EnemyProjectileFrameAnimation<SpacePirateProjectileSegment, SpacePirateClawCue>(SpacePirateClawAnimations.StartingWith(segment), cues)
+internal sealed class SpacePirateClawAnimation(SpacePirateClawSegment segment, IEnemyProjectileCues<SpacePirateClawCue> cues)
+    : EnemyProjectileFrameAnimation<SpacePirateClawSegment, SpacePirateClawCue>(SpacePirateClawAnimations.StartingWith(segment), cues)
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<SpacePirateProjectileSegment, EnemyProjectileFrameId, SpacePirateClawCue> Segments => SpacePirateClawAnimations.Segments;
+    private protected override AnimationSegments<SpacePirateClawSegment, EnemyProjectileFrameId, SpacePirateClawCue> Segments => SpacePirateClawAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<SpacePirateProjectileSegment, Animation<SpacePirateProjectileSegment>> StartingAt => SpacePirateClawAnimations.StartingAt;
+    private protected override IReadOnlyDictionary<SpacePirateClawSegment, Animation<SpacePirateClawSegment>> StartingAt => SpacePirateClawAnimations.StartingAt;
 }

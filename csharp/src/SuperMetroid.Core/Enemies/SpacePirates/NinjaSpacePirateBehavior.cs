@@ -471,8 +471,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             SpriteGraphics.SpawnedBy(source));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(source.Position.Whole + spawnOffset);
         projectile.StartAnimation(new SpacePirateClawAnimation(thrown == HorizontalDirection.Right
-            ? SpacePirateProjectileSegment.ClawRight
-            : SpacePirateProjectileSegment.ClawLeft, claw));
+            ? SpacePirateClawSegment.ClawRight
+            : SpacePirateClawSegment.ClawLeft, claw));
     }
 
     /// <summary>Flies a claw out along its throw and back, with exact camera culling.</summary>

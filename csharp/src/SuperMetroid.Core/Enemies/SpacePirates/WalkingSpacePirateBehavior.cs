@@ -343,8 +343,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(muzzle);
         projectile.StartAnimation(new SpacePirateLaserAnimation(direction == HorizontalDirection.Right
-            ? SpacePirateProjectileSegment.LaserRight
-            : SpacePirateProjectileSegment.LaserLeft, laser));
+            ? SpacePirateLaserSegment.LaserRight
+            : SpacePirateLaserSegment.LaserLeft, laser));
 
         // The laser holds still through its three two-frame muzzle frames until its animation fires it, running its flight
         // at once.

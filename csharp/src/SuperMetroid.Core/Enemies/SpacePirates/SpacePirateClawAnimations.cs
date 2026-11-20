@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
-using P = SuperMetroid.Core.Enemies.SpacePirates.SpacePirateProjectileSegment;
+using P = SuperMetroid.Core.Enemies.SpacePirates.SpacePirateClawSegment;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static class SpacePirateClawAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<SpacePirateProjectileSegment, EnemyProjectileFrameId, SpacePirateClawCue> Segments { get; } = new(
-        new Dictionary<SpacePirateProjectileSegment, AnimationBeat<EnemyProjectileFrameId, SpacePirateClawCue>[]>
+    internal static AnimationSegments<SpacePirateClawSegment, EnemyProjectileFrameId, SpacePirateClawCue> Segments { get; } = new(
+        new Dictionary<SpacePirateClawSegment, AnimationBeat<EnemyProjectileFrameId, SpacePirateClawCue>[]>
     {
         [P.ClawLeft] =
         [
@@ -44,14 +44,14 @@ internal static class SpacePirateClawAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start: a claw's throw, played whole, then its spin looping (#2276).</summary>
-    internal static IReadOnlyDictionary<SpacePirateProjectileSegment, Animation<SpacePirateProjectileSegment>> StartingAt { get; } = new Dictionary<SpacePirateProjectileSegment, Animation<SpacePirateProjectileSegment>>
+    internal static IReadOnlyDictionary<SpacePirateClawSegment, Animation<SpacePirateClawSegment>> StartingAt { get; } = new Dictionary<SpacePirateClawSegment, Animation<SpacePirateClawSegment>>
     {
-        [P.ClawLeft] = Animation<SpacePirateProjectileSegment>.LeadingInto([Segments.Whole(P.ClawLeft)], [Segments.Whole(P.ClawLeftSpin)]),
-        [P.ClawRight] = Animation<SpacePirateProjectileSegment>.LeadingInto([Segments.Whole(P.ClawRight)], [Segments.Whole(P.ClawRightSpin)]),
+        [P.ClawLeft] = Animation<SpacePirateClawSegment>.LeadingInto([Segments.Whole(P.ClawLeft)], [Segments.Whole(P.ClawLeftSpin)]),
+        [P.ClawRight] = Animation<SpacePirateClawSegment>.LeadingInto([Segments.Whole(P.ClawRight)], [Segments.Whole(P.ClawRightSpin)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<SpacePirateProjectileSegment> StartingWith(SpacePirateProjectileSegment segment) => StartingAt[segment];
+    internal static Animation<SpacePirateClawSegment> StartingWith(SpacePirateClawSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, SpacePirateClawCue> Show(EnemyProjectileFrameId frame, int duration) =>

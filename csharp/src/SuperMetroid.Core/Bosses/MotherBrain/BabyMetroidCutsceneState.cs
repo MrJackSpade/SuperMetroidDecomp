@@ -21,10 +21,16 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [ArchitectureReview("back-reference", "The Baby of Mother Brain's late fight (#2471): the late fight makes and owns its Baby for the rest of the room, and the Baby's steps move the late fight that made it on, so the two share one lifetime.")]
 public sealed class BabyMetroidCutsceneState
 {
-    /// <summary>Makes the Baby of <paramref name="lateFight"/>, which it holds from here, before the final beam spawns it.</summary>
-    internal BabyMetroidCutsceneState(MotherBrainRainbowBeamAttackSequence lateFight)
+    /// <summary>
+    /// Makes the Baby of <paramref name="lateFight"/>, which it holds from here, in <paramref name="place"/>, which the final
+    /// beam's spawn gave it, initializing from the position the place still holds from its previous occupant
+    /// (<see cref="Initialize"/>).
+    /// </summary>
+    internal BabyMetroidCutsceneState(MotherBrainRainbowBeamAttackSequence lateFight, RoomEnemyPlace place)
     {
         LateFight = Ensure.NotNull(lateFight);
+        Place = Ensure.NotNull(place);
+        Initialize(place.Position);
     }
 
     /// <summary>
@@ -34,10 +40,10 @@ public sealed class BabyMetroidCutsceneState
     internal MotherBrainRainbowBeamAttackSequence LateFight { get; }
 
     /// <summary>
-    /// The Baby's place in the room's enemy list, or null before the final beam's spawn gives it one: the Baby is an enemy
-    /// of its own, which Mother Brain's onion rings find there, not an effect her body draws.
+    /// The Baby's place in the room's enemy list, which the final beam's spawn gave it: the Baby is an enemy of its own,
+    /// which Mother Brain's onion rings find there, not an effect her body draws.
     /// </summary>
-    public RoomEnemyPlace? Place { get; private set; }
+    public RoomEnemyPlace Place { get; }
 
     /// <summary>How far the Baby's hit area reaches to either side of its center: 36 room pixels.</summary>
     public const int XHitboxRadius = 36;
@@ -70,11 +76,10 @@ public sealed class BabyMetroidCutsceneState
     /// Room position, which the Baby's place holds (#2572): the Baby's steps move its place, which every other part of the
     /// game reads. The Baby moves in 256ths of a pixel; the finer part of its position never changes.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The final beam's spawn has not given the Baby its place.</exception>
     public FixedPosition<RoomPixels> Position
     {
-        get => HeldPlace.Position;
-        internal set => HeldPlace.Position = value;
+        get => Place.Position;
+        internal set => Place.Position = value;
     }
 
     /// <summary>
@@ -105,17 +110,11 @@ public sealed class BabyMetroidCutsceneState
     /// Enemy health, which the Baby's place holds (#2572): Mother Brain's onion rings and her drain lower it there, and the
     /// Baby's steps read it there. The Baby's enemy definition supplies 3,200.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The final beam's spawn has not given the Baby its place.</exception>
     public int Health
     {
-        get => HeldPlace.Health;
-        internal set => HeldPlace.Health = value;
+        get => Place.Health;
+        internal set => Place.Health = value;
     }
-
-    /// <summary>The Baby's place, which holds its position and health.</summary>
-    /// <exception cref="InvalidOperationException">The final beam's spawn has not given the Baby its place.</exception>
-    private RoomEnemyPlace HeldPlace => Place ??
-        throw new InvalidOperationException("The cutscene Baby Metroid has no place in the room yet: the final beam has not spawned it.");
 
     /// <summary>
     /// The Baby's shake when Mother Brain's onion ring strikes it (#2469): a hit starts it for sixteen updates; while it
@@ -187,15 +186,6 @@ public sealed class BabyMetroidCutsceneState
         PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.ArrivalWaitUpdates);
     }
 
-    /// <summary>
-    /// The Baby takes <paramref name="place"/>, which the final beam's spawn gave it, and initializes from the position the
-    /// place still holds from its previous occupant (<see cref="Initialize"/>).
-    /// </summary>
-    internal void Arrive(RoomEnemyPlace place)
-    {
-        Place = Ensure.NotNull(place);
-        Initialize(place.Position);
-    }
 
     /// <summary>
     /// Runs one update of the Baby's main AI: the phase first, then the unconditional enemy

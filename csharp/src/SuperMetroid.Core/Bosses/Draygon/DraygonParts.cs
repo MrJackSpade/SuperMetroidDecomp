@@ -62,7 +62,7 @@ internal sealed class DraygonParts
         RoomEnemyPlace[] parts = _places.ListedRunAfter(body, DraygonPartListingDefinitions.PartsAfterBody);
         var draygon = new DraygonEnemyState(body, eye: parts[0], tail: parts[1], arms: parts[2])
         {
-            Phase = DraygonPhase.IntroInitialDelay,
+            Phase = new DraygonPhase.IntroInitialDelay(),
         };
         // Draygon shows his body, eye and dying arms' frames on his body (#1354, #1466, #1515, #1540), nothing at first; the
         // room keeps showing it, hidden, once his body is deleted (#2194). The room's display reads only what he attaches;

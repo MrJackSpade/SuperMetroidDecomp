@@ -105,35 +105,35 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             case DraygonPhase.IntroDance:
                 Intro.RunDraygonIntroDance(state, samus, frameCounter);
                 break;
-            case DraygonPhase.SwoopSetup when state.PassDirection == HorizontalDirection.Right:
+            case DraygonPhase.RightSwoopSetup:
                 Swoops.SetupDraygonRightSwoop(state, samus, frameCounter);
                 break;
-            case DraygonPhase.SwoopSetup:
-                Swoops.SetupDraygonLeftSwoop(state, samus, frameCounter);
+            case DraygonPhase.LeftSwoopSetup leftSetup:
+                Swoops.SetupDraygonLeftSwoop(state, leftSetup.Path, samus, frameCounter);
                 break;
-            case DraygonPhase.SwoopDescending:
-                Swoops.DescendDraygonSwoop(state, samus, frameCounter, SwoopSideOf(state));
+            case DraygonPhase.SwoopDescending descending:
+                Swoops.DescendDraygonSwoop(state, descending.Path, samus, frameCounter, SwoopSideOf(state));
                 break;
-            case DraygonPhase.SwoopApex when state.PassDirection == HorizontalDirection.Right:
-                Swoops.CrossDraygonRightSwoopApex(state, samus, frameCounter);
+            case DraygonPhase.SwoopApex apex when state.PassDirection == HorizontalDirection.Right:
+                Swoops.CrossDraygonRightSwoopApex(state, apex.Path, samus, frameCounter);
                 break;
-            case DraygonPhase.SwoopApex:
-                Swoops.CrossDraygonLeftSwoopApex(state, samus, frameCounter);
+            case DraygonPhase.SwoopApex apex:
+                Swoops.CrossDraygonLeftSwoopApex(state, apex.Path, samus, frameCounter);
                 break;
-            case DraygonPhase.SwoopAscending:
-                Swoops.AscendDraygonSwoop(state, samus, frameCounter, SwoopSideOf(state));
+            case DraygonPhase.SwoopAscending ascending:
+                Swoops.AscendDraygonSwoop(state, ascending.Path, samus, frameCounter, SwoopSideOf(state));
                 break;
-            case DraygonPhase.GoopSetup:
-                Goop.SetupDraygonGoopPass(state, state.PassDirection, samus, frameCounter);
+            case DraygonPhase.GoopSetup goopSetup:
+                Goop.SetupDraygonGoopPass(state, goopSetup.Path, state.PassDirection, samus, frameCounter);
                 break;
-            case DraygonPhase.GoopApproach:
-                Goop.ApproachSamusForDraygonGoop(state, samus, frameCounter);
+            case DraygonPhase.GoopApproach approach:
+                Goop.ApproachSamusForDraygonGoop(state, approach.Path, samus, frameCounter);
                 break;
-            case DraygonPhase.GoopTail:
-                Goop.FireDraygonGoop(state, state.PassDirection, samus, frameCounter);
+            case DraygonPhase.GoopTail tail:
+                Goop.FireDraygonGoop(state, tail.Path, state.PassDirection, samus, frameCounter);
                 break;
-            case DraygonPhase.GoopRecovery:
-                Goop.ExitDraygonGoopPass(state, state.PassDirection, samus);
+            case DraygonPhase.GoopRecovery recovery:
+                Goop.ExitDraygonGoopPass(state, recovery.Path, state.PassDirection, samus);
                 break;
             case DraygonPhase.TryGrabSamus:
                 Grab.ChaseAndTryToGrabSamus(state, samus, frameCounter);

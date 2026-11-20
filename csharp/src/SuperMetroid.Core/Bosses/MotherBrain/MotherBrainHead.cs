@@ -272,7 +272,10 @@ internal sealed class MotherBrainHead
         switch (cue)
         {
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid }:
-                AimMotherBrainOnionRingsAt(lateFight.Encounter, lateFight.Baby.Position.Whole);
+                // Her brain's attacks on the Baby run only once it has arrived and latched on; an awaited Baby is nowhere
+                // to aim at, and the rings keep their aim.
+                if (lateFight.Baby is BabyMetroidArrival.Arrived { Baby: var aimedAt })
+                    AimMotherBrainOnionRingsAt(lateFight.Encounter, aimedAt.Position.Whole);
                 return null;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.CountBabyMetroidAttack }:
                 lateFight.IncrementLiveBabyMetroidAttackCounter();

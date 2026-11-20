@@ -60,18 +60,27 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         Revival = new MotherBrainRevivalPhases(State);
         ThirdPhaseFight = new MotherBrainThirdPhaseFight(State, encounter.Walk);
         ThirdPhaseDeath = new MotherBrainThirdPhaseDeath(State, encounter.Bursts);
-        Baby = new BabyMetroidCutsceneState(this);
     }
 
     /// <summary>The encounter the sequence runs, the one owner of the state its phases read and write.</summary>
     internal MotherBrainEnemyState Encounter { get; }
 
     /// <summary>
-    /// The Baby Metroid of her late fight (#2471), made with it: the final beam's spawn gives it its place in the room's
-    /// enemies (<see cref="BabyMetroidCutsceneState.Place"/>), from which on its own turn it latches on, drains, heals Samus
-    /// and dies; her brain's attacks on it aim at it.
+    /// The Baby Metroid of her late fight (#2471): awaited until the final beam's spawn builds it in its place in the room's
+    /// enemies (<see cref="BabyArrives"/>), from which on its own turn it latches on, drains, heals Samus and dies; her
+    /// brain's attacks on it aim at it.
     /// </summary>
-    public BabyMetroidCutsceneState Baby { get; }
+    public BabyMetroidArrival Baby { get; private set; } = BabyMetroidArrival.NotYet;
+
+    /// <summary>Builds the late fight's Baby in <paramref name="place"/>, which the final beam's spawn gave it, and holds it as arrived.</summary>
+    /// <param name="place">The Baby's place in the room's enemies.</param>
+    /// <returns>The arrived Baby.</returns>
+    internal BabyMetroidCutsceneState BabyArrives(RoomEnemyPlace place)
+    {
+        var baby = new BabyMetroidCutsceneState(this, place);
+        Baby = new BabyMetroidArrival.Arrived(baby);
+        return baby;
+    }
 
     /// <summary>
     /// The way the rainbow beam's cone points: the angle she aims it at Samus with, which the beam's

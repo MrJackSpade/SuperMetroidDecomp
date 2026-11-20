@@ -49,13 +49,12 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Places <paramref name="lateFight"/>'s Baby in the first free place of the room's enemies, runs its setup, and leaves
+    /// Builds <paramref name="lateFight"/>'s Baby in the first free place of the room's enemies, runs its setup, and leaves
     /// it undrawn until its first scheduled turn.
     /// </summary>
     internal void SpawnMotherBrainBabyMetroid(MotherBrainRainbowBeamAttackSequence lateFight)
     {
-        BabyMetroidCutsceneState baby = Ensure.NotNull(lateFight).Baby;
-        if (baby.Place is not null)
+        if (Ensure.NotNull(lateFight).Baby is not BabyMetroidArrival.Awaited)
         {
             throw new InvalidOperationException(
                 "Mother Brain attempted to allocate the cutscene Baby more than once.");
@@ -69,8 +68,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(population.DefinitionId);
         _lifecycle.InitializePlaceFromDefinition(babyPlace, population, definition);
-        // The Baby's place holds the Baby its late fight made from its setup (#2218, #2471).
-        _lifecycle.SetUpJoiningEnemy(babyPlace, baby);
+        // The Baby's setup builds the late fight's Baby in its place (#2218, #2471).
+        _lifecycle.SetUpJoiningEnemy(babyPlace, lateFight);
 
         // Spawning leaves the Baby undrawn after its setup while it animates.
         // Its animation is still live and shows its first visible frame on its first
@@ -81,13 +80,13 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         _places.CoverSpawn(babyPlace);
     }
 
-    /// <summary>Sets the Baby up and starts its first animation and fifteen nontransparent colors.</summary>
-    internal static BabyMetroidCutsceneState InitializeMotherBrainBabyMetroid(RoomEnemyPlace place, BabyMetroidCutsceneState baby)
+    /// <summary>Builds <paramref name="lateFight"/>'s Baby in <paramref name="place"/> and starts its first animation and fifteen nontransparent colors.</summary>
+    internal static BabyMetroidCutsceneState InitializeMotherBrainBabyMetroid(RoomEnemyPlace place, MotherBrainRainbowBeamAttackSequence lateFight)
     {
-        Ensure.NotNull(baby);
-        MotherBrainEnemyState state = baby.LateFight.Encounter;
+        Ensure.NotNull(lateFight);
+        MotherBrainEnemyState state = lateFight.Encounter;
         // The place keeps its previous occupant's fractions, which the Baby starts from (BabyMetroidArrivalFractions).
-        baby.Arrive(place);
+        BabyMetroidCutsceneState baby = lateFight.BabyArrives(place);
         // The place owns the Baby's contact, processing and presence (#2310): initialization makes it block the Plasma
         // Beam and starts its animation; its population entry's presence stands.
         place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);

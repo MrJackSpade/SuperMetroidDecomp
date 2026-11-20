@@ -129,7 +129,7 @@ internal sealed class DraygonCombat
                 ? DraygonSegment.EyeFacingRightDying
                 : DraygonSegment.EyeFacingLeftDying);
         state.EyeTracking.Action = DraygonEyeAction.Inert;
-        state.Phase = DraygonPhase.Dying;
+        state.Phase = new DraygonPhase.Dying();
 
         // The death behaviour releases Samus unconditionally, even during an
         // unrelated movement owner. In particular, this can interrupt a shinespark.

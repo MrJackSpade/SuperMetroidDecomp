@@ -77,7 +77,12 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="setup">How the half is set up: a linked half joins its primary, whom it holds as its linked half.</param>
     internal ZebetiteEnemyState InitializeZebetite(RoomEnemyPlace place, EnemySetup setup)
     {
-        var state = new ZebetiteEnemyState(place.Spawn.Population);
+        int generation = _room.Services.ZebetiteProgress.ZebetitesDestroyed;
+        // A barrier every Zebetite's fall has destroyed shows nothing; a new barrier shows its form's unhurt picture.
+        ZebetiteGenerationDefinition? standing = generation == PersistentProgress.ZebetiteCount ? null : Zebetites.Generation(generation);
+        var state = new ZebetiteEnemyState(place.Spawn.Population, standing is { } barrier
+            ? new ZebetiteShown.Picture(HealthPicture(barrier.Form, ZebetiteDefinitions.MaximumHealth))
+            : ZebetiteShown.AllDestroyed);
         if (state.Half == ZebetiteHalf.Linked)
             state.LinkedHalf = setup.EncounterOf<ZebetitePrimary>(place).Place;
 
@@ -87,19 +92,15 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.Restart();
         place.Shading = PulseShading;
 
-        int generation = _room.Services.ZebetiteProgress.ZebetitesDestroyed;
         state.Generation = generation;
-        if (generation == PersistentProgress.ZebetiteCount)
+        if (standing is not { } definition)
         {
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
             return state;
         }
 
-        ZebetiteGenerationDefinition definition = Zebetites.Generation(generation);
         state.Form = definition.Form;
         place.Radius = place.Radius.WithY(definition.HalfHeight);
-        // A new barrier shows its form's unhurt picture.
-        state.Picture = HealthPicture(definition.Form, ZebetiteDefinitions.MaximumHealth);
         place.Position = place.Position.WithWholeX(definition.X);
         place.Position = place.Position.WithWholeY(Zebetites.YPosition(definition, state.Half));
         return state;
@@ -202,7 +203,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         ZebetiteEnemyState state)
     {
-        state.Picture = HealthPicture(state.Form, place.Health);
+        state.Shown = new ZebetiteShown.Picture(HealthPicture(state.Form, place.Health));
         place.AnimationClock.StepOnNextUpdate();
     }
 
@@ -259,14 +260,13 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Shows a half's chosen picture where the shared enemy animation runs (#2250): a still picture, which shows for good on
-    /// the update its clock runs out, until the half chooses again.
+    /// the update its clock runs out, until the half chooses again. A destroyed barrier shows nothing.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The half shows a picture before its setup chose one.</exception>
     internal static void AdvanceZebetiteAnimation(RoomEnemyPlace place, ZebetiteEnemyState state)
     {
-        if (!place.AnimationClock.Expire())
+        if (state.Shown is not ZebetiteShown.Picture picture || !place.AnimationClock.Expire())
             return;
-        place.Frame = state.Picture ?? throw new InvalidOperationException("A Zebetite shows its picture before its setup chose one.");
+        place.Frame = picture.Frame;
         place.AnimationClock.ShowForGood();
     }
 

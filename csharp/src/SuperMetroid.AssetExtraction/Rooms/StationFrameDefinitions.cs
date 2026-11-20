@@ -13,14 +13,17 @@ internal static class StationFrameDefinitions
     /// <summary>The object's own block, which every frame writes first.</summary>
     private static readonly RoomObjectShapeRun Own = RoomObjectShapeRun.Row(new(0, 0), 1);
 
+    /// <summary>The object's own block with a second block above it, as a refill station's display writes.</summary>
+    private static readonly RoomObjectShapeRun[] OwnAndAbove = [Own, RoomObjectShapeRun.Row(new(0, -1), 1)];
+
     /// <summary>A map display: its second block beside the first, to its left.</summary>
     private static readonly StationFrameDefinition MapDisplay = new([RoomObjectKind.MapStation], [Own, RoomObjectShapeRun.Row(new(-1, 0), 1)]);
 
     /// <summary>An energy display: its second block above the first.</summary>
-    private static readonly StationFrameDefinition EnergyDisplay = new([RoomObjectKind.EnergyStation], [Own, RoomObjectShapeRun.Row(new(0, -1), 1)]);
+    private static readonly StationFrameDefinition EnergyDisplay = new([RoomObjectKind.EnergyStation], OwnAndAbove);
 
     /// <summary>A missile display: its second block above the first.</summary>
-    private static readonly StationFrameDefinition MissileDisplay = new([RoomObjectKind.MissileStation], [Own, RoomObjectShapeRun.Row(new(0, -1), 1)]);
+    private static readonly StationFrameDefinition MissileDisplay = new([RoomObjectKind.MissileStation], OwnAndAbove);
 
     /// <summary>The save pod: six two-block rows upward.</summary>
     private static readonly StationFrameDefinition SavePod = new([RoomObjectKind.SaveStation],

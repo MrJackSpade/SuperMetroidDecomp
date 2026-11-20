@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Samus;
 /// </summary>
 internal static class SamusMovementOwnerDefinitions
 {
+    /// <summary>The holds an owner ends when it takes her from a shinespark and from Crystal Flash.</summary>
+    private static readonly SamusMovementHoldEnd[] SparkAndCrystalFlash = [SamusMovementHoldEnd.Shinespark, SamusMovementHoldEnd.CrystalFlash];
+
     /// <summary>
     /// The holds each owner ends as it takes her movement. The windup and Draygon's grab take her from Crystal Flash, and a
     /// shinespark Draygon grabs keeps flying beneath the hold until the release ends it. Crystal Flash takes her from every
@@ -21,11 +24,11 @@ internal static class SamusMovementOwnerDefinitions
             [SamusMovementOwner.Shinespark] = [SamusMovementHoldEnd.CrystalFlash],
             [SamusMovementOwner.DraygonHold] = [SamusMovementHoldEnd.CrystalFlash],
             [SamusMovementOwner.CrystalFlash] = [SamusMovementHoldEnd.Shinespark, SamusMovementHoldEnd.DraygonHold, SamusMovementHoldEnd.Drain],
-            [SamusMovementOwner.CeresRidleyEjection] = [SamusMovementHoldEnd.Shinespark, SamusMovementHoldEnd.CrystalFlash],
-            [SamusMovementOwner.BombJump] = [SamusMovementHoldEnd.Shinespark, SamusMovementHoldEnd.CrystalFlash],
-            [SamusMovementOwner.Drained] = [SamusMovementHoldEnd.Shinespark, SamusMovementHoldEnd.CrystalFlash],
-            [SamusMovementOwner.Xray] = [SamusMovementHoldEnd.Shinespark, SamusMovementHoldEnd.CrystalFlash],
-            [SamusMovementOwner.Elevator] = [SamusMovementHoldEnd.Shinespark, SamusMovementHoldEnd.CrystalFlash],
+            [SamusMovementOwner.CeresRidleyEjection] = SparkAndCrystalFlash,
+            [SamusMovementOwner.BombJump] = SparkAndCrystalFlash,
+            [SamusMovementOwner.Drained] = SparkAndCrystalFlash,
+            [SamusMovementOwner.Xray] = SparkAndCrystalFlash,
+            [SamusMovementOwner.Elevator] = SparkAndCrystalFlash,
         };
 
     /// <summary>
@@ -39,7 +42,7 @@ internal static class SamusMovementOwnerDefinitions
     internal static readonly IReadOnlyDictionary<SamusMovementOwner, SamusMovementHoldEnd[]> HoldsEndedReturning =
         new Dictionary<SamusMovementOwner, SamusMovementHoldEnd[]>
         {
-            [SamusMovementOwner.DraygonHold] = [SamusMovementHoldEnd.Shinespark, SamusMovementHoldEnd.CrystalFlash],
+            [SamusMovementOwner.DraygonHold] = SparkAndCrystalFlash,
             [SamusMovementOwner.Knockback] = [SamusMovementHoldEnd.ShinesparkMovingHer],
             [SamusMovementOwner.Shinespark] = [SamusMovementHoldEnd.Drain],
             [SamusMovementOwner.Xray] = [SamusMovementHoldEnd.Shinespark],

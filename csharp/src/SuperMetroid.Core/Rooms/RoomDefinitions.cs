@@ -8,6 +8,10 @@ namespace SuperMetroid.Core.Rooms;
 [NumberedIdentities("Rooms such as Metroids1-4 and TourianEscape1-4 are distinct rooms with their own definitions; the number is part of each room's name, not a position anything indexes.")]
 public static class RoomDefinitions
 {
+    /// <summary><paramref name="room"/> as a wet room whose camera leads a fall by the shallower amount.</summary>
+    private static RoomDefinition WetWithShallowerFall(RoomDefinition room) =>
+        room with { CameraLead = RoomCameraLeads.ShallowerFall, Ground = RoomGroundDefinitions.Wet };
+
     /// <summary>The Landing Site room.</summary>
     public static RoomDefinition LandingSite { get; } = new("LandingSite", AreaId.Crateria, new(23, 1), new(9, 5)) { Ground = RoomGroundDefinitions.WetWhileRaining };
     /// <summary>The Gauntlet Entrance room.</summary>
@@ -31,13 +35,13 @@ public static class RoomDefinitions
     /// <summary>The Forgotten Highway Kagos room.</summary>
     public static RoomDefinition ForgottenHighwayKagos { get; } = new("ForgottenHighwayKagos", AreaId.Crateria, new(56, 5), new(1, 4)) { Ground = RoomGroundDefinitions.Wet };
     /// <summary>The Crab Maze room.</summary>
-    public static RoomDefinition CrabMaze { get; } = new("CrabMaze", AreaId.Crateria, new(53, 9), new(4, 2)) { CameraLead = RoomCameraLeads.ShallowerFall, Ground = RoomGroundDefinitions.Wet };
+    public static RoomDefinition CrabMaze { get; } = WetWithShallowerFall(new("CrabMaze", AreaId.Crateria, new(53, 9), new(4, 2)));
     /// <summary>The Forgotten Highway Elbow room.</summary>
     public static RoomDefinition ForgottenHighwayElbow { get; } = new("ForgottenHighwayElbow", AreaId.Crateria, new(52, 10), new(1, 1)) { Ground = RoomGroundDefinitions.Wet };
     /// <summary>The Crateria Tube room.</summary>
     public static RoomDefinition CrateriaTube { get; } = new("CrateriaTube", AreaId.Crateria, new(32, 5), new(1, 1));
     /// <summary>The Moat room.</summary>
-    public static RoomDefinition Moat { get; } = new("Moat", AreaId.Crateria, new(36, 5), new(2, 2)) { CameraLead = RoomCameraLeads.ShallowerFall, Ground = RoomGroundDefinitions.Wet };
+    public static RoomDefinition Moat { get; } = WetWithShallowerFall(new("Moat", AreaId.Crateria, new(36, 5), new(2, 2)));
     /// <summary>The Red Brinstar Elevator room.</summary>
     public static RoomDefinition RedBrinstarElevator { get; } = new("RedBrinstarElevator", AreaId.Crateria, new(34, 8), new(1, 1));
     /// <summary>The Gauntlet Energy Tank room.</summary>

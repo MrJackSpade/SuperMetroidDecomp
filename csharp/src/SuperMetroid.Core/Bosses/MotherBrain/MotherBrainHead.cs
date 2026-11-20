@@ -147,8 +147,7 @@ internal sealed class MotherBrainHead
 
         // The neck draw emits the joint nearest the brain first and the body-side joint
         // last. Equal-priority overlap therefore follows the same drawing precedence.
-        int shakeIndex = MotherBrainCadenceDefinitions.NeckShakeStep.Of(head.HurtFlash.UpdatesLeft);
-        Offset16<RoomPixels> neckShake = MotherBrainShakeDefinitions.Offsets[shakeIndex];
+        Offset16<RoomPixels> neckShake = MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.NeckShakeStep, head.HurtFlash.UpdatesLeft);
         foreach (MotherBrainNeckJoint joint in state.Neck.Joints.Reverse())
         {
             DrawMotherBrainWorldFrame(

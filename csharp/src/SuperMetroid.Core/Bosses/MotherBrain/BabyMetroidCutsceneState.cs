@@ -328,8 +328,8 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse:
             {
-                int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
-                Position = Position.WithWhole(head + MotherBrainShakeDefinitions.Offsets[shakingIndex] + BabyMetroidCutsceneFlightDefinitions.BrainLatchOffset);
+                Position = Position.WithWhole(head + MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.BabyShakeStep, enemyFrameCounter)
+                    + BabyMetroidCutsceneFlightDefinitions.BrainLatchOffset);
                 if (LateFight.State.Phase2CorpseState != MotherBrainPhase2CorpseState.Living)
                 {
                     Phase = BabyMetroidCutscenePhase.StopDraining;
@@ -429,8 +429,8 @@ public sealed class BabyMetroidCutsceneState
                 // The healing step pins the actor to its four-step shake before healing. The
                 // subsequent common mover is harmless because the touch response zeroed
                 // both velocities when it started this phase.
-                int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
-                Position = Position.WithWhole(samus.Position.Whole + MotherBrainShakeDefinitions.Offsets[shakingIndex] + BabyMetroidCutsceneFlightDefinitions.SamusLatchOffset);
+                Position = Position.WithWhole(samus.Position.Whole + MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.BabyShakeStep, enemyFrameCounter)
+                    + BabyMetroidCutsceneFlightDefinitions.SamusLatchOffset);
 
                 // Healing adds one energy each enemy update until Samus's health reaches her maximum.
                 int candidateHealth = samus.Health + 1;
@@ -557,8 +557,7 @@ public sealed class BabyMetroidCutsceneState
                 // which the common mover then applies, and places the Baby at the saved origin
                 // plus the undoubled shaking offsets.
                 Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FinestStep);
-                int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
-                Position = Position.WithWhole(FatalBlowOrigin + MotherBrainShakeDefinitions.Offsets[shakingIndex]);
+                Position = Position.WithWhole(FatalBlowOrigin + MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.BabyShakeStep, enemyFrameCounter));
                 if (PhaseTimer.StepRunsOut())
                 {
                     Position = Position.WithWhole(FatalBlowOrigin);

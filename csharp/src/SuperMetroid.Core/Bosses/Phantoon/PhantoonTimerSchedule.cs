@@ -28,9 +28,19 @@ public sealed class PhantoonTimerSchedule
     /// <summary>The length each pick takes, in pick order.</summary>
     internal ImmutableArray<PhantoonTimerLength> Picks { get; }
 
-    /// <summary>The duration, in updates, that pick <paramref name="pick"/>, zero through seven, takes.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="pick"/> is outside zero through seven.</exception>
-    public int this[int pick] => DurationOf(Picks[Ensure.BetweenInclusive(0, PickCount - 1, pick)]);
+    /// <summary>
+    /// The duration, in updates, a choice by a counter's cadence takes (#2556): the eight values <paramref name="cadence"/>
+    /// reads of <paramref name="counter"/> take the picks' durations in turn, in pick order.
+    /// </summary>
+    /// <param name="cadence">The field of the counter the choice reads, of eight values.</param>
+    /// <param name="counter">The counter the choice reads.</param>
+    /// <exception cref="ArgumentException"><paramref name="cadence"/> does not read eight values.</exception>
+    internal int ChosenOn(UpdateCounterField cadence, int counter) => cadence.Width == PickWidth
+        ? DurationOf(Picks[cadence.Of(counter)])
+        : throw new ArgumentException($"A Phantoon timer's choice reads {PickCount} values.", nameof(cadence));
+
+    /// <summary>The bits of a counter that read one of the <see cref="PickCount"/> picks.</summary>
+    private const int PickWidth = 3;
 
     /// <summary>
     /// The duration a random draw chooses (#2510): the eight values <paramref name="field"/> reads take the picks' durations

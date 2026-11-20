@@ -149,10 +149,10 @@ public sealed class SamusShinesparkState
     public Position16<RoomPixels> SecondOrbitingCopy { get; private set; }
 
     /// <summary>The echo the crash releases first, only when Samus's shot count leaves room for both.</summary>
-    public ShinesparkCrashEcho FirstReleasedEcho { get; } = new();
+    public ShinesparkCrashEcho FirstReleasedEcho { get; } = new(leavesOrbitHeight: true);
 
     /// <summary>The echo the crash releases second, whenever the shot count leaves room for one; it is drawn before the first.</summary>
-    public ShinesparkCrashEcho SecondReleasedEcho { get; } = new();
+    public ShinesparkCrashEcho SecondReleasedEcho { get; } = new(leavesOrbitHeight: false);
 
     /// <summary>
     /// Starting the X-ray scope clears the special suit-colouring timer and X-ray's colouring
@@ -544,24 +544,21 @@ public sealed class SamusShinesparkState
     /// <param name="samus">Samus, around whom the echo is placed.</param>
     /// <param name="cameraPosition">The camera's room position.</param>
     /// <param name="shot">The shot carrying one of the crash's released echoes.</param>
+    /// <param name="flight">The shot's flight, which carries its echo.</param>
     /// <returns>Whether the echo is still on the screen; its shot is cleared otherwise.</returns>
-    /// <exception cref="InvalidOperationException">The shot carries neither of the crash's released echoes.</exception>
-    internal bool StepReleasedEcho(SamusState samus, Position16<RoomPixels> cameraPosition, SamusProjectile shot)
+    internal bool StepReleasedEcho(SamusState samus, Position16<RoomPixels> cameraPosition, SamusProjectile shot, ShinesparkEchoShotState flight)
     {
-        ShinesparkCrashEcho echo = FirstReleasedEcho.IsCarriedBy(shot) ? FirstReleasedEcho
-            : SecondReleasedEcho.IsCarriedBy(shot) ? SecondReleasedEcho
-            : throw new InvalidOperationException("The shot carries none of the crash's released echoes.");
+        ShinesparkCrashEcho echo = flight.Echo;
 
         // The point is recalculated from Samus's current position on every update; these are expanding radial
         // copies, not ordinary projectiles with independent velocity.
-        ShinesparkEchoShotState flight = shot.KindStateAs<ShinesparkEchoShotState>();
         flight.Radius += ShinesparkDefinitions.EchoRadiusStep;
         Position16<RoomPixels> point = samus.Position.Whole +
             OffsetAlong(flight.Angle.ToAngle(), ShinesparkEchoReturn.PlacementRadius(flight.Radius));
         bool onScreen = CameraPastRoomEdge.FromCamera(point.X, cameraPosition.X) is >= 0 and < ShinesparkDefinitions.EchoScreenReach &&
             CameraPastRoomEdge.FromCamera(point.Y, cameraPosition.Y) is >= 0 and < ShinesparkDefinitions.EchoScreenReach;
 
-        if (echo == FirstReleasedEcho)
+        if (echo.LeavesOrbitHeight)
         {
             if (onScreen)
                 _orbitTravel.LeaveEchoHeight(point.Y);

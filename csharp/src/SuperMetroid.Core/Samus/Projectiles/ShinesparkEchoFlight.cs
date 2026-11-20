@@ -7,5 +7,5 @@ internal sealed class ShinesparkEchoFlight : SamusShotBehavior
 {
     /// <inheritdoc/>
     internal override void Run(SamusShotUpdate update) =>
-        update.Shots.Shinespark.StepShinesparkEcho(update.Samus, update.Shot, update.Camera);
+        update.Shots.Shinespark.StepShinesparkEcho(update.Samus, update.Shot, update.Shot.KindStateAs<ShinesparkEchoShotState>(), update.Camera);
 }

@@ -502,8 +502,8 @@ internal static class EnemySheetComposer
     /// no sprite piece, draw nothing to compose.
     /// </summary>
     private static IEnumerable<ComposedFrame> Composed(EnemyTileSourceArtwork enemies, IReadOnlyList<EnemyFrameId> shown) =>
-        Composed(enemies.Spritemaps ?? throw new InvalidDataException("Enemy sheets require the installed enemy compositions."),
-            enemies.ExtendedFrames ?? throw new InvalidDataException("Enemy sheets require the installed extended frames."), shown);
+        Composed(enemies.Spritemaps,
+            enemies.ExtendedFrames, shown);
 
     /// <summary>Each shown frame's composition by sheet frame name, from the enemy compositions and extended frames.</summary>
     private static IEnumerable<ComposedFrame> Composed(EnemySpritemapCatalog spritemaps, EnemyExtendedFrameCatalog extended, IReadOnlyList<EnemyFrameId> shown)

@@ -10,5 +10,5 @@ public sealed record EnemyProjectileSpritemapDocument
     /// <summary>Named bank-$8D Ceres elevator and Skree/Metaree debris compositions, each represented by ordered sprite parts.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
     /// <summary>Named visual frames keyed by the schema's bank-$86 spritemap-operand identities; editing these parts does not replace the timed instruction program.</summary>
-    public Dictionary<string, SpriteVisualPart[]>? ProgramFrames { get; init; }
+    public required Dictionary<string, SpriteVisualPart[]> ProgramFrames { get; init; }
 }

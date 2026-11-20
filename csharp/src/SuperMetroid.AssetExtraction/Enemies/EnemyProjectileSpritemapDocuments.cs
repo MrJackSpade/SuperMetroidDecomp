@@ -68,8 +68,7 @@ public static class EnemyProjectileSpritemapDocuments
             arrival[pose] = CompileParts(name, visual);
         }
         ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> definitions = EnemyProjectilePresentationFrameSets.All;
-        if (document.ProgramFrames is null ||
-            document.ProgramFrames.Count != definitions.Length)
+        if (document.ProgramFrames.Count != definitions.Length)
             throw new InvalidDataException(
                 "Enemy-projectile program frames have the wrong count.");
         var compiledPrograms = new Dictionary<EnemyProjectileFrameId, SpritePart[]>();

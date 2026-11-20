@@ -27,7 +27,6 @@ internal static class SporeSpawnSheetShades
     private const int BackgroundFirstInk = 112;
 
     /// <summary>The shades of his sprites and the objects he spawns.</summary>
-    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> Sprites(BossSourceArtwork bosses)
     {
         SporeSpawnColorCatalog colours = Colours(bosses);
@@ -43,7 +42,6 @@ internal static class SporeSpawnSheetShades
     }
 
     /// <summary>The shades of his room's pictures: each step of his death fade over its level and background.</summary>
-    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> Room(BossSourceArtwork bosses)
     {
         SporeSpawnColorCatalog colours = Colours(bosses);
@@ -57,9 +55,8 @@ internal static class SporeSpawnSheetShades
     }
 
     /// <summary>His installed colours.</summary>
-    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     private static SporeSpawnColorCatalog Colours(BossSourceArtwork bosses) =>
-        bosses.SporeSpawnColors ?? throw new InvalidDataException("Spore Spawn is shaded from the installed Spore Spawn colours.");
+        bosses.SporeSpawnColors;
 
     /// <summary>One frame's sixteen colours, each from <paramref name="colour"/>.</summary>
     private static RgbColor[] Frame(Func<int, RgbColor> colour) =>

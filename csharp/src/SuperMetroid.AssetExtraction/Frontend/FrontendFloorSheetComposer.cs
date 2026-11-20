@@ -251,7 +251,7 @@ internal static class FrontendFloorSheetComposer
         map.CopyTo(cells);
         map.CopyTo(cells.AsSpan(EndingFloorArtworkFormat.MapByteCount));
         return FloorSheetComposer.Compose(
-            [FloorSheetComposer.Whole(EndingFloorDefinitions.FrameName, cells, EndingFloorSceneCharacters.Of(sources.EndingMode7[scene]).Characters.Span)],
+            [FloorSheetComposer.Whole(EndingFloorDefinitions.FrameName, cells, sources.EndingMode7[scene].Characters.Span)],
             ScreenPaletteColours.EndingColours(sources.EndingPalettes, palette));
     }
 
@@ -280,7 +280,7 @@ internal static class FrontendFloorSheetComposer
     /// <exception cref="InvalidDataException">The icon's artwork is shorter than its chunks load.</exception>
     private static ComposedSpriteSheet RewardIcon(EndingFloorCharacters mode7, EndingPaletteSet palettes)
     {
-        ReadOnlySpan<byte> words = EndingRewardIconCharacters.Of(mode7.RewardIcon).Bytes.Span;
+        ReadOnlySpan<byte> words = mode7.RewardIcon.Bytes.Span;
         ReadOnlySpan<byte> map = mode7.RewardIcon.Map.Span;
         if (map.Length < FloorSheetComposer.CellCount || words.Length < FloorSheetComposer.TileSetBytes * sizeof(ushort))
             throw new InvalidDataException("The reward icon's artwork is shorter than its chunks load.");

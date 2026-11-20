@@ -42,8 +42,7 @@ public sealed class EnemyTileSourceArtwork
         AuxiliaryColors = parts.AuxiliaryColors;
         Spritemaps = parts.Spritemaps;
         ExtendedFrames = parts.ExtendedFrames;
-        FrameDisplays = Spritemaps is { } spritemaps && ExtendedFrames is { } extended
-            ? InstalledEnemyFrameDisplays.Of(spritemaps, extended).Displays() : null;
+        FrameDisplays = InstalledEnemyFrameDisplays.Of(Spritemaps, ExtendedFrames).Displays();
         GunshipLiftoff = parts.GunshipLiftoff;
         ProjectileSpritemaps = parts.ProjectileSpritemaps;
     }
@@ -58,41 +57,40 @@ public sealed class EnemyTileSourceArtwork
         : throw new InvalidDataException($"Enemy {enemy} has no installed palette.");
 
     /// <summary>Four editable Magdollite glow frames.</summary>
-    public MagdollitePaletteCycle? MagdollitePaletteCycle { get; }
+    public MagdollitePaletteCycle MagdollitePaletteCycle { get; }
 
     /// <summary>Six editable Work Robot glow records.</summary>
-    public WorkRobotPaletteCycle? WorkRobotPaletteCycle { get; }
+    public WorkRobotPaletteCycle WorkRobotPaletteCycle { get; }
 
     /// <summary>Editable Chozo statue and n00b-tube crack colours.</summary>
-    public ChozoAndTubeColorCatalog? ChozoAndTubeColors { get; }
+    public ChozoAndTubeColorCatalog ChozoAndTubeColors { get; }
 
     /// <summary>Editable Dachora normal, speed and shine colours.</summary>
-    public DachoraColorCatalog? DachoraColors { get; }
+    public DachoraColorCatalog DachoraColors { get; }
 
     /// <summary>Editable face-block glow, dead Sidehopper drain and Golden Torizo health colours.</summary>
-    public EnemyAuxiliaryColorCatalog? AuxiliaryColors { get; }
+    public EnemyAuxiliaryColorCatalog AuxiliaryColors { get; }
 
     /// <summary>Finds the installed tile sheet of <paramref name="enemy"/>.</summary>
     internal bool TryGetSheet(EnemyDefinitionId enemy, [NotNullWhen(true)] out RoomCharacterAtlas? sheet) =>
         sheets.TryGetValue(enemy, out sheet);
 
-    /// <summary>Installed visual-only OAM frames; null for constructed legacy fixtures.</summary>
-    public EnemySpritemapCatalog? Spritemaps { get; }
+    /// <summary>Installed visual-only OAM frames.</summary>
+    public EnemySpritemapCatalog Spritemaps { get; }
 
     /// <summary>Installed extended frame compositions the sheet composer composes the frames' whole pictures from.</summary>
-    public EnemyExtendedFrameCatalog? ExtendedFrames { get; }
+    public EnemyExtendedFrameCatalog ExtendedFrames { get; }
 
     /// <summary>
-    /// Every installed enemy frame as gameplay draws it, built from both enemy frame documents; null for constructed
-    /// fixtures that install only one of them.
+    /// Every installed enemy frame as gameplay draws it, built from both enemy frame documents.
     /// </summary>
-    public SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays? FrameDisplays { get; }
+    public SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays FrameDisplays { get; }
 
-    /// <summary>Five editable gunship takeoff character uploads; null for constructed fixtures.</summary>
-    public GunshipLiftoffArtworkCatalog? GunshipLiftoff { get; }
+    /// <summary>Five editable gunship takeoff character uploads.</summary>
+    public GunshipLiftoffArtworkCatalog GunshipLiftoff { get; }
 
-    /// <summary>Installed bank-$8D projectile compositions; null for constructed fixtures.</summary>
-    public EnemyProjectileSpritemapCatalog? ProjectileSpritemaps { get; }
+    /// <summary>Installed bank-$8D projectile compositions.</summary>
+    public EnemyProjectileSpritemapCatalog ProjectileSpritemaps { get; }
 
     /// <summary>The installed tiles of <paramref name="enemy"/>, as its room's graphics set shows them (#1406).</summary>
     /// <exception cref="InvalidDataException">The installed artwork holds no tile set for the enemy.</exception>

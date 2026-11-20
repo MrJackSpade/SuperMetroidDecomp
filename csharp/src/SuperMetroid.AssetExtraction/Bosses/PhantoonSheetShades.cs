@@ -22,10 +22,9 @@ internal static class PhantoonSheetShades
     private const int GroupColours = 16;
 
     /// <summary>The shades of his body sheet.</summary>
-    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> Body(BossSourceArtwork bosses)
     {
-        PhantoonColorCatalog phantoon = bosses.PhantoonColors ?? throw new InvalidDataException("Phantoon is shaded from the installed Phantoon colours.");
+        PhantoonColorCatalog phantoon = bosses.PhantoonColors;
         PhantoonBodyLook[] settled =
             [PhantoonBodyLook.Black, PhantoonBodyLook.White, PhantoonBodyLook.FadedOut,
             .. PhantoonHealthBandDefinitions.LowestFirst.Select(PhantoonBodyLook.Health)];
@@ -33,10 +32,9 @@ internal static class PhantoonSheetShades
     }
 
     /// <summary>The shades of his room's pictures: the room once the power has come on.</summary>
-    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> PowerOn(BossSourceArtwork bosses)
     {
-        PhantoonColorCatalog phantoon = bosses.PhantoonColors ?? throw new InvalidDataException("Phantoon's room is shaded from the installed Phantoon colours.");
+        PhantoonColorCatalog phantoon = bosses.PhantoonColors;
         // The parts the power recolours are the room's first colour groups, in order.
         int inks = PhantoonColorFormat.PoweredParts.Length * GroupColours;
         RgbColor[] powered = [.. Enumerable.Range(0, inks).Select(ink =>

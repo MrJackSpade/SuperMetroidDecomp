@@ -192,7 +192,7 @@ internal static class RoomBlockUploads
         {
             yield return new AppearanceOption(AppearanceInputSpellings.KraidBackdrop, RoomAppearanceValues.Shown,
                 new BgCharacterUpload(RoomBgArtwork.KraidBackdrop, BgCharacterSet.Tiles, RoomTileCharacters.KraidBackdropFirst,
-                    (inputs.Bosses.KraidBackground ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters."))
+                    inputs.Bosses.KraidBackground
                         .RoomBackgroundTiles.Characters));
         }
     }
@@ -235,8 +235,7 @@ internal static class RoomBlockUploads
     /// </summary>
     private static IEnumerable<AnimatedCharacterPlacement> CrocomireMeltBandFrames(RoomBlockSheetInputs inputs)
     {
-        CrocomireMeltingArtwork artwork = inputs.Bosses.CrocomireMelting
-            ?? throw new InvalidDataException("Installed boss artwork has no Crocomire melting graphics.");
+        CrocomireMeltingArtwork artwork = inputs.Bosses.CrocomireMelting;
         foreach (CrocomireMeltingIllustration illustration in MeltingOrder)
         {
             byte[] image = artwork.Characters(illustration).ToArray();

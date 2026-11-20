@@ -43,10 +43,6 @@ public sealed class EndingFloorSceneCharacters : EndingFloorSceneArtwork
         return new EndingFloorSceneCharacters(map, characters);
     }
 
-    /// <summary>The characters <paramref name="scene"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The scene was not read from installed artwork.</exception>
-    public static EndingFloorSceneCharacters Of(EndingFloorSceneArtwork scene) => scene as EndingFloorSceneCharacters
-        ?? throw new InvalidDataException("The ending backdrop was not read from installed artwork.");
 
     /// <summary>Reads and validates a 128x64 map's ordered tile indices.</summary>
     /// <param name="mapJson">Version-1 JSON containing 8192 ordered tile indices in the range 0..255.</param>

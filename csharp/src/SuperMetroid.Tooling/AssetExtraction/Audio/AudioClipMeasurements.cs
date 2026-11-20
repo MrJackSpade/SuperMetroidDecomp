@@ -20,10 +20,8 @@ internal static class AudioClipMeasurements
     /// <exception cref="ArgumentException">The track does not loop.</exception>
     internal static SeamProfile ShippedLoopSeam(ExtractedAudioAssetCatalog catalog, MusicTrackAnalysis track)
     {
-        if (track.Shape != MusicTrackShape.Loops)
+        if (track.Period is not MusicTrackPeriod.Loop (long first, long second))
             throw new ArgumentException($"{track.Bank} track {track.Track} does not loop.", nameof(track));
-        long first = track.Arrivals[0];
-        long second = track.Arrivals[1];
         long length = second - first;
         short[] pcm = MusicTrackRendering.Render(catalog, track, 0, second + length);
         return SeamProfile.Compare(pcm, first, second, length);
@@ -39,9 +37,9 @@ internal static class AudioClipMeasurements
     {
         if (track.Shape != MusicTrackShape.Loops)
             throw new ArgumentException($"{track.Bank} track {track.Track} does not loop.", nameof(track));
-        var observer = new PhasePeriodObserver();
-        var renderer = new SpcAudioClipRenderer(catalog, observer);
-        observer.Attach(renderer);
+        var renderer = new SpcAudioClipRenderer(catalog);
+        var observer = new PhasePeriodObserver(renderer);
+        renderer.Observe(observer);
         MusicTrackAnalysis.QueueBanks(renderer, track.Bank);
         renderer.AdvanceSequencerFrame();
         renderer.PlayTrack(MusicTrackNumbers.Decode(track.Bank, track.Track));
@@ -51,14 +49,12 @@ internal static class AudioClipMeasurements
     }
 
     /// <summary>Finds the first repeated phrase state, then counts its arrivals until the full state including tempo phase recurs.</summary>
-    private sealed class PhasePeriodObserver : ISpcDriverObserver
+    private sealed class PhasePeriodObserver(SpcAudioClipRenderer renderer) : ISpcDriverObserver
     {
         /// <summary>Phrase-state keys seen, without tempo phase.</summary>
         private readonly HashSet<string> seen = [];
         /// <summary>Reusable snapshot buffer.</summary>
         private readonly List<byte> state = [];
-        /// <summary>The renderer whose driver is observed.</summary>
-        private SpcAudioClipRenderer? renderer;
         /// <summary>The first repeated phrase state.</summary>
         private string? anchor;
         /// <summary>The full state at that state's first repeat.</summary>
@@ -68,9 +64,6 @@ internal static class AudioClipMeasurements
 
         /// <summary>The pass count once the full state recurs.</summary>
         internal int? Period { get; private set; }
-
-        /// <summary>Binds the renderer once it exists.</summary>
-        internal void Attach(SpcAudioClipRenderer value) => renderer = value;
 
         /// <inheritdoc />
         public void TickStarting(SoundClockStep<SoundEffectLibrary, byte> tick)
@@ -82,7 +75,7 @@ internal static class AudioClipMeasurements
         {
             if (Period is not null)
                 return;
-            ManagedSpcPlayer player = MusicTrackAnalysis.Required(renderer).Player;
+            ManagedSpcPlayer player = renderer.Player;
             string key = Snapshot(player, includeTempoPhase: false);
             if (anchor is null)
             {

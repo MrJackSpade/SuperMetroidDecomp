@@ -134,17 +134,17 @@ internal static class BossBodySheetComposer
         switch (owner)
         {
             case BossBodyOwner.Kraid:
-                return KraidFrames(bosses.KraidBackground ?? throw Missing(owner));
+                return KraidFrames(bosses.KraidBackground);
             case BossBodyOwner.Phantoon:
-                return EnemyFrames((bosses.PhantoonBg2Frames ?? throw Missing(owner)).Writes);
+                return EnemyFrames(bosses.PhantoonBg2Frames.Writes);
             case BossBodyOwner.Draygon:
-                return EnemyFrames((bosses.DraygonBg2Frames ?? throw Missing(owner)).Writes);
+                return EnemyFrames(bosses.DraygonBg2Frames.Writes);
             case BossBodyOwner.Crocomire:
-                CrocomireMeltingArtwork melting = bosses.CrocomireMelting ?? throw Missing(owner);
-                return [.. EnemyFrames((bosses.CrocomireBg2Frames ?? throw Missing(owner)).Writes),
+                CrocomireMeltingArtwork melting = bosses.CrocomireMelting;
+                return [.. EnemyFrames(bosses.CrocomireBg2Frames.Writes),
                     .. MeltingOrder.SelectMany(image => CrocomireMeltStates(melting, image))];
             case BossBodyOwner.MotherBrain:
-                return EnemyFrames((bosses.MotherBrainBodyBg2Frames ?? throw Missing(owner)).Writes);
+                return EnemyFrames(bosses.MotherBrainBodyBg2Frames.Writes);
             default:
                 throw new InvalidDataException($"Undefined boss body owner {owner}.");
         }
@@ -293,6 +293,4 @@ internal static class BossBodySheetComposer
         }
     }
 
-    /// <summary>The failure for a boss whose installed artwork is missing.</summary>
-    private static InvalidDataException Missing(BossBodyOwner owner) => new($"The installed boss artwork has no {owner} body.");
 }

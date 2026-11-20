@@ -223,15 +223,14 @@ internal static class EncounterLookUploads
                         $"{GunshipLiftoffTransferDefinitions.Frames[page].Asset}")))],
             ComposedEncounter.Crocomire => [.. Enumerable.Range(0, CrocomireSkeletonCharacterDefinitions.ChunkCount).Select(chunk =>
                 new EncounterArtworkUpload(SkeletonFirstCharacter(chunk),
-                    Whole((Bosses(installed).CrocomireSkeleton ?? throw new InvalidDataException(
-                        "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(chunk), CrocomireSkeletonCharacterDefinitions.ChunkByteCount,
+                    Whole(Bosses(installed).CrocomireSkeleton.Chunk(chunk), CrocomireSkeletonCharacterDefinitions.ChunkByteCount,
                         $"Crocomire skeleton chunk {chunk}")))],
             ComposedEncounter.BombTorizo => Torizo(TorizoLookUploadDefinitions.BombSequence[turn - 1], installed),
             ComposedEncounter.GoldenTorizo => Torizo(TorizoLookUploadDefinitions.GoldenSequence[turn - 1], installed),
             ComposedEncounter.CeresEscape => [.. TimerPages.Select(page => Timer(page, installed)),
                 .. Enumerable.Range(0, CeresWarningTextPageDefinitions.PageCount).Select(page => Warning(page, installed))],
             ComposedEncounter.CeresElevatorDoor => [new(EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter,
-                Whole((Areas(installed).CeresDoor ?? throw new InvalidDataException("Installed area artwork has no Ceres door visuals.")).Characters,
+                Whole(Areas(installed).CeresDoor.Characters,
                     CeresDoorVisualFormat.CharacterBytes, "the Ceres door characters"))],
             ComposedEncounter.MotherBrain => MotherBrainPages(MotherBrainLooks[turn - 1].Sheet, installed),
             _ => throw new InvalidDataException($"Undefined {nameof(ComposedEncounter)} {encounter}."),
@@ -241,7 +240,7 @@ internal static class EncounterLookUploads
     /// <summary>What Torizo artwork look <paramref name="look"/> copies, in the order its copies land, each where the cartridge copies it.</summary>
     private static EncounterArtworkUpload[] Torizo(TorizoArtworkLook look, IInstalledArtworkContent installed)
     {
-        TorizoSwapArtwork artwork = Bosses(installed).TorizoSwaps ?? throw new InvalidDataException("Torizo artwork looks require installed artwork.");
+        TorizoSwapArtwork artwork = Bosses(installed).TorizoSwaps;
         return [.. TorizoLookUploadDefinitions.Uploads[look].Select(upload => new EncounterArtworkUpload(upload.FirstCharacter,
             Whole(artwork.Characters(upload.Page, upload.PageByte, upload.ByteCount), upload.ByteCount, $"Torizo artwork look {look}")))];
     }
@@ -254,7 +253,7 @@ internal static class EncounterLookUploads
     /// <summary>Ceres warning page <paramref name="page"/>, where the cartridge copies it.</summary>
     private static EncounterArtworkUpload Warning(int page, IInstalledArtworkContent installed) =>
         new(CeresWarningGlyphDefinitions.WarningFirstCharacter + CeresWarningTextPages.ByteOffset(page) / SpriteCharacterTableLayout.CharacterByteCount,
-            (Areas(installed).CeresEscapeTiles ?? throw new InvalidDataException("Installed Ceres escape has no editable character pages."))
+            Areas(installed).CeresEscapeTiles
                 .TryResolve(CeresEscapeTileArtworkDefinitions.WarningText, CeresWarningTextPages.ByteOffset(page), CeresWarningTextPages.ByteCount(page),
                     out ReadOnlyMemory<byte> characters)
                 ? characters
@@ -267,15 +266,13 @@ internal static class EncounterLookUploads
         switch (sheet)
         {
             case MotherBrainSpriteSheet.Corpse:
-                RoomCharacterAtlas corpse = Bosses(installed).MotherBrainCorpse ?? throw new InvalidDataException(
-                    "Installed enemy artwork is missing mother-brain-corpse-tiles.png.");
+                RoomCharacterAtlas corpse = Bosses(installed).MotherBrainCorpse;
                 return [.. Enumerable.Range(0, MotherBrainCorpseSheet.RowCount).Select(page => new EncounterArtworkUpload(
                     MotherBrainCorpseSheet.PageFirstCharacter(page), corpse.Characters.Slice(MotherBrainCorpseSheet.PageOffset(page), MotherBrainCorpseSheet.PageByteCount)))];
             case MotherBrainSpriteSheet.EscapeTimer:
                 return [.. TimerPages.Select(page => Timer(page, installed))];
             case MotherBrainSpriteSheet.EscapeText:
-                RoomCharacterAtlas text = Bosses(installed).MotherBrainEscapeText ?? throw new InvalidDataException(
-                    "Installed enemy artwork is missing mother-brain-escape-text-tiles.png.");
+                RoomCharacterAtlas text = Bosses(installed).MotherBrainEscapeText;
                 return [.. Enumerable.Range(0, EscapeTextSheetFormat.PageCount).Select(page => new EncounterArtworkUpload(
                     EscapeTextPages.PageFirstCharacter(page), text.Characters.Slice(EscapeTextPages.PageOffset(page), EscapeTextPages.PageByteCount(page))))];
             case MotherBrainSpriteSheet.Legs:
@@ -283,8 +280,7 @@ internal static class EncounterLookUploads
             case MotherBrainSpriteSheet.Attack:
             case MotherBrainSpriteSheet.ExplodedDoor:
                 MotherBrainSpecialSpriteSheetDefinition definition = MotherBrainSpecialSpriteSheetDefinitions.All.Single(special => special.Sheet == sheet);
-                MotherBrainSpecialSpriteArtworkCatalog artwork = Bosses(installed).MotherBrainSpecialSprites ??
-                    throw new InvalidDataException($"Installed enemy artwork is missing {definition.FileName}.");
+                MotherBrainSpecialSpriteArtworkCatalog artwork = Bosses(installed).MotherBrainSpecialSprites;
                 return [.. Enumerable.Range(0, definition.PageCount).Select(page => new EncounterArtworkUpload(
                     MotherBrainSpecialSprites.PageFirstCharacter(definition, page), artwork.Get(definition.Sheet).Characters.Slice(
                         page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount, MotherBrainSpecialSpriteSheetDefinition.PageByteCount)))];

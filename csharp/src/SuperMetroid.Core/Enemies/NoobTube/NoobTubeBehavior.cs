@@ -177,6 +177,9 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
                 case NoobTubePieceMotion.CrackFalling:
                     DropNoobTubeCrack(context.Projectile);
                     break;
+                case NoobTubePieceMotion.ShardFlying or NoobTubePieceMotion.ShardFalling or NoobTubePieceMotion.BubbleFlying or
+                    NoobTubePieceMotion.BubbleFalling:
+                    throw new InvalidOperationException($"The n00b tube's crack does not move by {nameof(NoobTubePieceMotion)} {motion}.");
                 default:
                     throw new InvalidOperationException($"The n00b tube's crack does not move by {nameof(NoobTubePieceMotion)} {motion}.");
             }
@@ -197,8 +200,12 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
                 case NoobTubeProjectileCueKind.Delete:
                     projectile.Delete();
                     break;
-                default:
+                case NoobTubeProjectileCueKind.FlickerReflected or NoobTubeProjectileCueKind.FlickerHidden or
+                    NoobTubeProjectileCueKind.AssignShardFallingAngle or NoobTubeProjectileCueKind.AssignBubbleFallingAngle or
+                    NoobTubeProjectileCueKind.StartShardFall or NoobTubeProjectileCueKind.StartBubbleRise or NoobTubeProjectileCueKind.StartBubbleFall:
                     throw new InvalidDataException($"The n00b tube's crack ran {nameof(NoobTubeProjectileCueKind)} {cue.Kind}, a cue of its shards and bubbles.");
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(NoobTubeProjectileCueKind)} {cue.Kind}.");
             }
         }
     }
@@ -236,6 +243,8 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
                 case NoobTubePieceMotion.BubbleFlying:
                     MoveNoobTubeBubbleVertically(projectile, debris);
                     break;
+                case NoobTubePieceMotion.CrackFlickering or NoobTubePieceMotion.CrackFalling:
+                    throw new InvalidOperationException($"A n00b tube shard or bubble does not move by {nameof(NoobTubePieceMotion)} {motion}.");
                 default:
                     throw new InvalidOperationException($"A n00b tube shard or bubble does not move by {nameof(NoobTubePieceMotion)} {motion}.");
             }
@@ -282,8 +291,10 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
                 case NoobTubeProjectileCueKind.Delete:
                     projectile.Delete();
                     break;
-                default:
+                case NoobTubeProjectileCueKind.StartCrackFlicker or NoobTubeProjectileCueKind.StartCrackFall:
                     throw new InvalidDataException($"A n00b tube shard or bubble ran {nameof(NoobTubeProjectileCueKind)} {cue.Kind}, a cue of its crack.");
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(NoobTubeProjectileCueKind)} {cue.Kind}.");
             }
         }
     }

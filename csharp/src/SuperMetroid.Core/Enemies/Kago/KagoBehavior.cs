@@ -149,7 +149,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         /// <summary>Runs the shared enemy sound countdown every live bug state uses.</summary>
-        private void StepKagoBugSound(EnemyProjectile projectile)
+        private void StepKagoBugSound()
         {
             if (bug.SoundDelay.StepEnds())
                 audio.QueueEnemySound(EnemySoundEffectDefinitions.KagoBugSoundEffect, priority: SoundRequestPriority.Normal);
@@ -158,7 +158,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         /// <summary>Runs the idle bug for one update.</summary>
         private void RunKagoBugIdle(EnemyProjectile projectile)
         {
-            StepKagoBugSound(projectile);
+            StepKagoBugSound();
             EnableKagoBugShotCollisionWhenSeparated(projectile, bug);
 
             if (!bug.GroundWait.Count())
@@ -171,7 +171,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         /// <summary>Runs the bug rising through the air for one update.</summary>
         private void RunKagoBugJumping(EnemyProjectile projectile, RoomLevelData level)
         {
-            StepKagoBugSound(projectile);
+            StepKagoBugSound();
             EnableKagoBugShotCollisionWhenSeparated(projectile, bug);
 
             if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
@@ -198,7 +198,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         /// <summary>Runs the falling bug for one update.</summary>
         private void RunKagoBugFalling(EnemyProjectile projectile, RoomLevelData level)
         {
-            StepKagoBugSound(projectile);
+            StepKagoBugSound();
             EnableKagoBugShotCollisionWhenSeparated(projectile, bug);
 
             // The bug takes one of these each update, the first that applies. A wall takes this update, zeros X,
@@ -222,7 +222,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         /// <summary>Animation cue: starts the bug's jump, one random number choosing its height and, near its shell, its direction.</summary>
         private void StartKagoBugJump(EnemyProjectile projectile)
         {
-            StepKagoBugSound(projectile);
+            StepKagoBugSound();
             EnableKagoBugShotCollisionWhenSeparated(projectile, bug);
 
             int random = room.Random.Read();

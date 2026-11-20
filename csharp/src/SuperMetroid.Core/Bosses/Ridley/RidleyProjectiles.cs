@@ -199,7 +199,7 @@ internal sealed class RidleyProjectiles
     /// Ridley's fireball, an afterburn centre it leaves or a directional afterburn those spawn (#1760): its spawner starts
     /// its animation, and each kind starts its own flight. It keeps how many afterburns its chain has left.
     /// </summary>
-    /// <param name="ridley">Ridley's projectiles, which move the projectile and carry out its cues.</param>
+    /// <param name="ridley">Ridley's projectiles, which move the projectile and run its cues.</param>
     /// <param name="chain">What the projectile keeps: the afterburns its chain has left.</param>
     private sealed class FireballBehavior(RidleyProjectiles ridley, RidleyAfterburnChainState chain)
         : EnemyProjectileMotionBehavior<RidleyFireballMotion>(StartingMotions), IEnemyProjectileCues<RidleyFireballCue>

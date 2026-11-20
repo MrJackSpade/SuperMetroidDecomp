@@ -66,7 +66,7 @@ internal sealed class PhantoonCombat
     };
 
     /// <summary>The animation a shot destroyable flame runs: it dies, leaves its drop and is deleted.</summary>
-    private static EnemyProjectileAnimation DestroyableShot() => new PhantoonFlameAnimation(PhantoonFlameSegment.Dying);
+    private static PhantoonFlameAnimation DestroyableShot() => new PhantoonFlameAnimation(PhantoonFlameSegment.Dying);
 
     /// <summary>
     /// One of Phantoon's intro flames (#1760): its spawner starts its animation, and a shot one burns as the destroyable
@@ -77,10 +77,9 @@ internal sealed class PhantoonCombat
         PhantoonFlameMotion.IntroWaiting, () => new PhantoonFlameAnimation(PhantoonFlameSegment.Burning), orbit);
 
     /// <summary>
-    /// A Phantoon flame: every flame's motion, from the intro's wait and orbit to the rage and spiral, and the flame
-    /// animations' cues. A circling flame holds the encounter that spawned it (#2252), whose body it circles.
+    /// A Phantoon flame: the flame animations' cues; each kind of flame moves by its own behaviour, which keeps what its
+    /// motions read.
     /// </summary>
-    /// <param name="audio">The enemy sound queue the rain flames' sounds join.</param>
     /// <param name="deathsAndDrops">The drops a shot destroyable flame leaves.</param>
     /// <param name="initial">The motion the flame starts with.</param>
     /// <param name="shot">The animation a destroying shot starts.</param>
@@ -234,6 +233,9 @@ internal sealed class PhantoonCombat
                 case PhantoonFlameMotion.SpiralOrbiting:
                     RunPhantoonSpiralFlame(flame, orbit);
                     break;
+                case PhantoonFlameMotion.CasualFalling or PhantoonFlameMotion.CasualLanding or PhantoonFlameMotion.CasualBouncing or
+                    PhantoonFlameMotion.RainFalling:
+                    throw new InvalidOperationException($"A circling Phantoon flame does not move by {nameof(PhantoonFlameMotion)} {motion}.");
                 default:
                     throw new InvalidOperationException($"A circling Phantoon flame does not move by {nameof(PhantoonFlameMotion)} {motion}.");
             }
@@ -290,6 +292,9 @@ internal sealed class PhantoonCombat
                 case PhantoonFlameMotion.CasualBouncing:
                     RunPhantoonCasualFlameBouncing(context.Projectile, casual, context.Level);
                     break;
+                case PhantoonFlameMotion.IntroWaiting or PhantoonFlameMotion.IntroOrbiting or PhantoonFlameMotion.CasualFalling or
+                    PhantoonFlameMotion.RageOrbiting or PhantoonFlameMotion.RainFalling or PhantoonFlameMotion.SpiralOrbiting:
+                    throw new InvalidOperationException($"A landed casual flame does not move by {nameof(PhantoonFlameMotion)} {motion}.");
                 default:
                     throw new InvalidOperationException($"A landed casual flame does not move by {nameof(PhantoonFlameMotion)} {motion}.");
             }

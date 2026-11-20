@@ -263,6 +263,7 @@ internal sealed class EnemyDeathsAndDrops
     /// at all: an explosion in the first place never converts (<see cref="FirstPlaceExplosionLeavesNoPickup"/>).
     /// </summary>
     /// <param name="projectile">The finished death explosion.</param>
+    /// <param name="explosion">What the explosion keeps: the enemy it came from and the definition its drop rolls by.</param>
     /// <param name="samus">Samus, whose energy and ammunition the drop's roll reads.</param>
     internal EnemyDeathAndDropSegment ConvertEnemyDeathExplosionToPickup(EnemyProjectile projectile, EnemyDeathExplosionState explosion,
         SamusState samus)
@@ -581,7 +582,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>A death explosion, holding the enemy it came from and the definition its drop rolls by.</summary>
-    /// <param name="drops">The room's deaths and drops, which carry out the explosion's cues.</param>
+    /// <param name="drops">The room's deaths and drops, which run the explosion's cues.</param>
     /// <param name="explosion">What the explosion keeps.</param>
     private sealed class ExplosionBehavior(EnemyDeathsAndDrops drops, EnemyDeathExplosionState explosion)
         : EnemyProjectileBehavior, IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>, IDropCues
@@ -599,7 +600,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>A pickup, holding what it restores, how long it lasts and the enemy it came from; it waits to be collected.</summary>
-    /// <param name="drops">The room's deaths and drops, which tend the pickup and carry out its cues.</param>
+    /// <param name="drops">The room's deaths and drops, which tend the pickup and run its cues.</param>
     /// <param name="pickup">What the pickup keeps.</param>
     private sealed class PickupBehavior(EnemyDeathsAndDrops drops, EnemyPickupState pickup)
         : EnemyProjectileMotionBehavior<SingleMotion>(initial: SingleMotion.Moving),
@@ -622,7 +623,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>A direct drop that rolled no pickup: it holds still through its pause, then ends.</summary>
-    /// <param name="drops">The room's deaths and drops, which carry out the drop's cues.</param>
+    /// <param name="drops">The room's deaths and drops, which run the drop's cues.</param>
     /// <param name="killedEnemy">The enemy the drop came from.</param>
     private sealed class DormantDropBehavior(EnemyDeathsAndDrops drops, KilledEnemy killedEnemy)
         : EnemyProjectileBehavior, IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>, IDropCues

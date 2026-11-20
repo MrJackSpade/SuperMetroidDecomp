@@ -168,7 +168,7 @@ internal sealed class TorizoAttacks
                     projectile.Delete();
                     return null;
                 // The egg (EggBehavior), the eye beam (OwnedBehavior), the Chozo orbs (OrbBehavior) and the explosions that stay
-                // where they burst (AnchoredBehavior) carry out the cues that read what they keep.
+                // where they burst (AnchoredBehavior) run the cues that read what they keep.
                 case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.Hatch or TorizoProjectileCueKind.FloorImpactWaited or
                     TorizoProjectileCueKind.SpawnOrbDrops or TorizoProjectileCueKind.ReturnToOrigin }:
                     throw new InvalidDataException($"Torizo projectile {projectile.Kind} ran {cue}, a cue of a projectile that keeps what it reads.");
@@ -286,21 +286,14 @@ internal sealed class TorizoAttacks
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileMotionContext context, TorizoProjectileMotion motion)
         {
-            switch (motion)
-            {
-                case TorizoProjectileMotion.EggBouncing:
-                    BounceEgg(context.Projectile, egg, context.Level);
-                    break;
-                case TorizoProjectileMotion.EggCharging:
-                    RunGoldenTorizoEggHorizontalCharge(context.Projectile, egg, context.Level);
-                    break;
-                case TorizoProjectileMotion.EggDropping:
-                    RunGoldenTorizoEggFall(context.Projectile, egg, context.Level);
-                    break;
-                default:
-                    base.Move(context, motion);
-                    break;
-            }
+            if (motion == TorizoProjectileMotion.EggBouncing)
+                BounceEgg(context.Projectile, egg, context.Level);
+            else if (motion == TorizoProjectileMotion.EggCharging)
+                RunGoldenTorizoEggHorizontalCharge(context.Projectile, egg, context.Level);
+            else if (motion == TorizoProjectileMotion.EggDropping)
+                RunGoldenTorizoEggFall(context.Projectile, egg, context.Level);
+            else
+                base.Move(context, motion);
         }
 
         /// <inheritdoc/>
@@ -721,6 +714,7 @@ internal sealed class TorizoAttacks
         projectile.Velocity = projectile.Velocity.WithX(projectile.Velocity.X.SpedUpBy(TorizoMotionDefinitions.SonicBoomAcceleration));
         if (IsRunaway(projectile.Velocity.X))
             projectile.Delete();
+        return false;
     }
 
     /// <summary>

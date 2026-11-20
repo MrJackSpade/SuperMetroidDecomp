@@ -129,12 +129,12 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = source.Position;
     }
 
-    /// <summary>Flies the rock for one update, rising or falling.</summary>
     /// <summary>A Polyp's lava rock, which rises and falls along its speed curve, holding where on the curve it stands.</summary>
     /// <param name="rock">What the rock keeps.</param>
     internal static EnemyProjectileBehavior RockBehavior(PolypRockState rock) =>
         new SingleMotionProjectileBehavior(context => FlyPolypRock(context.Projectile, rock, context.Camera));
 
+    /// <summary>Flies the rock for one update, rising or falling.</summary>
     internal static void FlyPolypRock(
         EnemyProjectile projectile,
         PolypRockState rock,

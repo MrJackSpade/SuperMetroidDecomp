@@ -30,10 +30,10 @@ internal sealed class DraygonShots
         GoopShot, GoopTouch, flight);
 
     /// <summary>The animation a shot goop starts: it drops Draygon's eye's chances.</summary>
-    private static EnemyProjectileAnimation GoopShot() => new DraygonProjectileAnimation(DraygonProjectileSegment.GoopShot);
+    private static DraygonProjectileAnimation GoopShot() => new DraygonProjectileAnimation(DraygonProjectileSegment.GoopShot);
 
     /// <summary>The animation touching Samus starts on a goop: it sticks to her.</summary>
-    private static EnemyProjectileAnimation GoopTouch() => new DraygonProjectileAnimation(DraygonProjectileSegment.GoopTouch);
+    private static DraygonProjectileAnimation GoopTouch() => new DraygonProjectileAnimation(DraygonProjectileSegment.GoopTouch);
 
     /// <summary>
     /// A wall turret's shot: it holds still through its muzzle bloom until its animation fires it, and a shot one runs the
@@ -128,6 +128,7 @@ internal sealed class DraygonShots
 
         /// <summary>Follows Samus with attached goop, which falls off on its lifetime's last update.</summary>
         /// <param name="goop">The goop stuck to Samus.</param>
+        /// <param name="attached">What the stuck goop keeps: its place in the stack and its lifetime.</param>
         /// <param name="samus">Samus, whom the goop follows.</param>
         /// <param name="powerBomb">The power bomb explosion of the pass's bombs, which frees the goop's place.</param>
         internal static void RunAttachedDraygonGoop(
@@ -197,6 +198,8 @@ internal sealed class DraygonShots
                 case DraygonShotMotion.GoopFlying:
                     RunFlyingDraygonGoop(projectile, flight, context.Samus, context.SamusBombs.PowerBombExplosion);
                     break;
+                case DraygonShotMotion.GoopStuckToSamus:
+                    throw new InvalidOperationException($"A flying Draygon shot does not move by {nameof(DraygonShotMotion)} {motion}; a stuck goop does.");
                 default:
                     throw new InvalidOperationException($"A flying Draygon shot does not move by {nameof(DraygonShotMotion)} {motion}.");
             }

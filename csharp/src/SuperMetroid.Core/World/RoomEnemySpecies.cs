@@ -173,7 +173,8 @@ internal sealed class RoomEnemySpecies
         var ninjaSpacePirateBehavior = new NinjaSpacePirateBehavior(enemies.Room, enemies.Terrain, enemies.Projectiles, enemies.EffectActors, walkingSpacePirateBehavior);
         var multiviolaBehavior = new MultiviolaBehavior(enemies.Terrain);
         var babyMetroidCutsceneBehavior = new BabyMetroidCutsceneBehavior(new BabyMetroidCutsceneBehaviorDependencies { Lifecycle = enemies.Lifecycle, Room = enemies.Room, Audio = enemies.Audio, Places = enemies.Places, FrameContext = enemies.FrameContext, Projectiles = enemies.Projectiles, MotherBrainEncounter = MotherBrainEncounter });
-        var motherBrainBehavior = new MotherBrainBehavior(new MotherBrainBehaviorDependencies { PassEvents = enemies.PassEvents, Lifecycle = enemies.Lifecycle, Places = enemies.Places, Room = enemies.Room, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, Presentation = enemies.BossPresentation, FrameContext = enemies.FrameContext, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, MotherBrainEncounter = MotherBrainEncounter, RoomActors = new MotherBrainRoomActors(babyMetroidCutsceneBehavior, rinkaBehavior, walkingSpacePirateBehavior, RidleyProjectiles)  });
+        var partOffers = new EnemyPartOffers();
+        var motherBrainBehavior = new MotherBrainBehavior(new MotherBrainBehaviorDependencies { PartOffers = partOffers, PassEvents = enemies.PassEvents, Lifecycle = enemies.Lifecycle, Places = enemies.Places, Room = enemies.Room, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, Presentation = enemies.BossPresentation, FrameContext = enemies.FrameContext, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, MotherBrainEncounter = MotherBrainEncounter, RoomActors = new MotherBrainRoomActors(babyMetroidCutsceneBehavior, rinkaBehavior, walkingSpacePirateBehavior, RidleyProjectiles)  });
         var mochtroidBehavior = new MochtroidBehavior(enemies.Terrain, enemies.Audio, enemies.FrameContext, enemies.Collision);
         var metroidBehavior = new MetroidBehavior(enemies.Room, enemies.Terrain, enemies.Audio, enemies.EffectActors, enemies.FrameContext, enemies.DeathsAndDrops);
         var metareeBehavior = new MetareeBehavior(enemies.Projectiles, enemies.Audio);
@@ -182,7 +183,7 @@ internal sealed class RoomEnemySpecies
         var magdolliteBehavior = new MagdolliteBehavior(enemies.Room, enemies.Projectiles, enemies.Places, enemies.Collision, enemies.DeathsAndDrops, enemies.Audio);
         var holtzBehavior = new HoltzBehavior(enemies.Room, enemies.Terrain, enemies.Places, enemies.Audio);
         var kzanBehavior = new KzanBehavior(enemies.Places, enemies.Audio);
-        var kraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { PassEvents = enemies.PassEvents, Room = enemies.Room, Terrain = enemies.Terrain, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, EffectActors = enemies.EffectActors, Presentation = enemies.BossPresentation, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, CameraDistance = enemies.CameraDistance  });
+        var kraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { PartOffers = partOffers, PassEvents = enemies.PassEvents, Room = enemies.Room, Terrain = enemies.Terrain, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, EffectActors = enemies.EffectActors, Presentation = enemies.BossPresentation, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, CameraDistance = enemies.CameraDistance  });
         var kiHunterBehavior = new KiHunterBehavior(enemies.Room, enemies.Terrain, enemies.Projectiles, enemies.Audio, enemies.Places);
         var kagoBehavior = new KagoBehavior(enemies.Room, enemies.Projectiles, enemies.Earthquake, enemies.DeathsAndDrops, enemies.RoomStatus, enemies.Audio);
         var hoppersBehavior = new HoppersBehavior(enemies.Room, enemies.Terrain, enemies.Audio);
@@ -316,7 +317,7 @@ internal sealed class RoomEnemySpecies
             [
                 .. tourianEntranceStatueBehavior is null ? [EnemyDefinitionId.TourianStatue] : Array.Empty<EnemyDefinitionId>(),
                 .. elevatorDoors is null ? [EnemyDefinitionId.CeresElevatorDoor] : Array.Empty<EnemyDefinitionId>(),
-            ]);
+            ], partOffers);
         BeforeSelection = [new MorphBallEyeBeamStep(morphBallEyeBehavior)];
         // The room-wide glows step in the game's order: the work robots', the Magdollites', the face blocks'.
         Glows = [workRobotBehavior, magdolliteBehavior, blueBrinstarFaceBlockBehavior];
@@ -333,7 +334,7 @@ internal sealed class RoomEnemySpecies
         Gunship = new GunshipSession(gunshipBehavior);
         LoaderHooks = new LoaderOperations(rinkaBehavior, prePhantoonRoomBehavior, RidleyEncounter);
         LoadPreparation = new RoomLoadPreparation(gunshipBehavior, rinkaBehavior);
-        AttractDemoHooks = new AttractDemoOperations(kraidBehavior);
+        AttractDemoHooks = new AttractDemoOperations(enemies.Places);
         RoomObjectSpawns = new ObjectSpawns(noobTubeBehavior, eyeDoorBehavior, oldTourianEscapeShaftWallBehavior, draygonBehavior,
             motherBrainBehavior, torizoBehavior, escapeExplosionsBehavior);
         RoomObjectRequests = new ObjectRequests(chozoStatueBehavior, downwardGateBehavior);
@@ -562,11 +563,19 @@ internal sealed class RoomEnemySpecies
     }
 
     /// <summary>The attract demo's setup of Kraid's room.</summary>
-    /// <param name="kraid">Kraid.</param>
-    private sealed class AttractDemoOperations(KraidBehavior kraid) : IEnemyAttractDemoHooks
+    /// <param name="places">The room's enemy places, where the demo's Kraid stands.</param>
+    private sealed class AttractDemoOperations(EnemyPlaces places) : IEnemyAttractDemoHooks
     {
         /// <inheritdoc/>
-        public void StartKraidPhaseWait(int updates) => kraid.Parts.Encounter.BodyState.PhaseWait.LastFor(updates);
+        public void StartKraidPhaseWait(int updates)
+        {
+            // The demo starts the wait of the Kraid its room places, the encounter his body holds (#2554).
+            foreach (RoomEnemyPlace place in places.InUpdateOrder)
+            {
+                if (place.Entity is KraidBodyEntity body)
+                    body.Encounter.BodyState.PhaseWait.LastFor(updates);
+            }
+        }
     }
 
     /// <summary>The enemy-side effects room objects and room effects trigger, carried out by the owners they belong to.</summary>

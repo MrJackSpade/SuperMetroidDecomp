@@ -61,7 +61,6 @@ internal sealed class KraidRise
         // The body begins the encounter each of his parts joins as it sets up (#2218): a body that sets up again begins a
         // new one.
         var state = new KraidEnemyState(_parts);
-        _parts.Begin(state);
         // The room shows the body layer he draws himself, of this encounter, his backdrop's colours and his own (#2194).
         _bodyLayer.Show(state);
         _presentation.AttachBossBody(_bodyLayer);

@@ -49,5 +49,6 @@ internal sealed record MotherBrainBehaviorDependencies
     /// <summary>The other actors in the room that Mother Brain asks to spawn, fire or stop.</summary>
     public required IMotherBrainRoomActors RoomActors { get; init; }
 
-
+    /// <summary>Where the body offers its later parts the creation that builds each of them joining its encounter (#2554).</summary>
+    public required EnemyPartOffers PartOffers { get; init; }
 }

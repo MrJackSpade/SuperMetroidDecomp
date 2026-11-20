@@ -40,18 +40,6 @@ internal sealed class KraidParts
     /// <summary>His body, which runs first.</summary>
     internal RoomEnemyPlace Body => BodyReference.Place;
 
-    /// <summary>
-    /// The encounter his body began as it set up, which its state holds (#2218) and each of his other parts joins as it
-    /// sets up (#2420).
-    /// </summary>
-    /// <exception cref="InvalidOperationException">His body has not set up.</exception>
-    internal KraidEnemyState Encounter => _encounters.Of(Body);
-
-    /// <summary>The encounter each body began, under its place (#2554).</summary>
-    private readonly EnemyPartLinks<KraidEnemyState> _encounters = new();
-
-    /// <summary>Records <paramref name="kraid"/>, the encounter his body begins as it sets up, which his other parts join.</summary>
-    internal void Begin(KraidEnemyState kraid) => _encounters.Place(Body, kraid);
 
     /// <summary>His arm.</summary>
     internal RoomEnemyPlace Arm => ArmReference.Place;

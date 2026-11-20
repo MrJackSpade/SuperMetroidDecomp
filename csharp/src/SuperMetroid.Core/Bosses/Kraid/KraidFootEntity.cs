@@ -7,8 +7,10 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the foot occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class KraidFootEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : KraidLimbEntity(species, occupant, place, common, species.Parts.FootReference, () => species.Limbs.InitializeKraidFoot(place))
+/// <param name="encounter">The encounter his body began, which the part joins as it is built.</param>
+internal sealed class KraidFootEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    KraidEnemyState encounter)
+    : KraidLimbEntity(species, occupant, place, common, species.Parts.FootReference, () => species.Limbs.InitializeKraidFoot(place, encounter))
 {
 
     /// <summary>The foot's own part of the encounter.</summary>

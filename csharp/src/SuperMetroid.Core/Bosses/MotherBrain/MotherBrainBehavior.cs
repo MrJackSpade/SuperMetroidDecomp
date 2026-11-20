@@ -16,17 +16,18 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemySpawnFactory<En
     private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MotherBrainBody];
 
     /// <summary>
-    /// Mother Brain's body and her head, built the same way wherever they are set up; the tubes of her fake death are only
-    /// spawned joining her encounter (<see cref="CreateJoining"/>).
+    /// Mother Brain's body, built the same way wherever it is set up; her head joins the encounter her body offers it
+    /// (<see cref="BeginEncounter"/>), and the tubes of her fake death are only spawned joining her encounter
+    /// (<see cref="CreateJoining"/>).
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
     public void Register(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>(Definitions, Create);
-        registrar.Joins([EnemyDefinitionId.MotherBrainTubes]);
+        registrar.Joins([EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes]);
     }
 
     /// <summary>A tube of her fake death, which joins the encounter whose fake death drops it (#2146, #2218).</summary>
@@ -34,15 +35,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemySpawnFactory<En
         EnemyCommonParticipation common, MotherBrainEnemyState encounter) =>
         EnemyOccupant.Running(new MotherBrainTubesEntity(this, occupant, place, common, settings, encounter));
 
-    /// <summary>Mother Brain's body or her head (#2146).</summary>
+    /// <summary>Mother Brain's body (#2146).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Mother Brain definition.</exception>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.MotherBrainBody)
             return EnemyOccupant.Running(new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.MotherBrainHead)
-            return EnemyOccupant.Running(new MotherBrainHeadEntity(this, occupant, place, common));
         throw new InvalidOperationException($"The Mother Brain species creates no {occupant.DefinitionId}.");
     }
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
@@ -53,22 +52,21 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemySpawnFactory<En
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
 
-    /// <summary>The encounter each body began, under the place of the head its listing names, which the head joins (#2218, #2554).</summary>
-    private readonly EnemyPartLinks<MotherBrainEnemyState> _headEncounters = new();
+    /// <summary>Where her body offers her head the creation that builds it joining her encounter.</summary>
+    private readonly EnemyPartOffers _partOffers;
 
-    /// <summary>Sets her body up, beginning the encounter her head joins as it is placed.</summary>
+    /// <summary>
+    /// Sets her body up, beginning the encounter, and offers her head, which the room lists after her body, the creation
+    /// that builds it joining that encounter (#2218, #2554).
+    /// </summary>
     /// <returns>The encounter, which the body holds from its setup.</returns>
     internal MotherBrainEnemyState BeginEncounter(RoomEnemyOccupant body)
     {
         MotherBrainEnemyState state = Body.InitializeMotherBrainBody(body);
-        _headEncounters.Place(state.Head, state);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.MotherBrainHead, (occupant, _, place, common) =>
+            EnemyOccupant.Running(new MotherBrainHeadEntity(this, occupant, place, common, state)));
         return state;
     }
-
-    /// <summary>Sets her head up in <paramref name="head"/>, joining the encounter the body listed before it began.</summary>
-    /// <returns>The encounter, which the head holds from its setup.</returns>
-    internal MotherBrainEnemyState JoinEncounter(RoomEnemyPlace head) =>
-        MotherBrainHead.InitializeMotherBrainHead(head, _headEncounters.Of(head));
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
     internal MotherBrainProjectiles Projectiles { get; }
 
@@ -108,6 +106,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemySpawnFactory<En
         _room = dependencies.Room;
         _presentation = dependencies.Presentation.Surfaces;
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
+        _partOffers = dependencies.PartOffers;
         Projectiles = new MotherBrainProjectiles(_room, dependencies.Projectiles, dependencies.Earthquake, dependencies.DeathsAndDrops, _motherBrainEncounter, dependencies.RoomActors);
         Access = new MotherBrainEncounterAccess(_passEvents);
         Head = new MotherBrainHead(new MotherBrainHeadDependencies { Room = _room, Places = dependencies.Places, Projectiles = dependencies.Projectiles, Audio = dependencies.Audio, Presentation = _presentation, FrameContext = dependencies.FrameContext, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles });

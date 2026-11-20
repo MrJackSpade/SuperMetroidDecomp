@@ -10,11 +10,15 @@ internal sealed class EnemySpeciesRegistry
     /// <summary>How each definition a population places binds its entries.</summary>
     private readonly Dictionary<EnemyDefinitionId, Func<RoomEnemyPlacement, PopulationEnemySpawn>> _placed;
 
+    /// <summary>The creations parts already placed offer the parts the room lists after them.</summary>
+    private readonly EnemyPartOffers _offers;
+
     /// <summary>Composes the registry from <paramref name="registrar"/>'s registrations.</summary>
-    private EnemySpeciesRegistry(EnemyCommonParticipation common, EnemySpeciesRegistrar registrar)
+    private EnemySpeciesRegistry(EnemyCommonParticipation common, EnemySpeciesRegistrar registrar, EnemyPartOffers offers)
     {
         Common = Ensure.NotNull(common);
         _placed = registrar.Placed;
+        _offers = Ensure.NotNull(offers);
     }
 
     /// <summary>The shared participation every entity composes.</summary>
@@ -28,12 +32,13 @@ internal sealed class EnemySpeciesRegistry
     /// <param name="common">The shared participation every entity composes.</param>
     /// <param name="factories">The species' factories.</param>
     /// <param name="withoutScenery">The definitions whose owners the room's scenery does not let it build.</param>
+    /// <param name="offers">The creations parts already placed offer the parts the room lists after them.</param>
     /// <exception cref="InvalidOperationException">
     /// Two factories own one definition, none owns a bindable one the room's scenery allows, or one owns a definition the
     /// room's scenery does not allow.
     /// </exception>
     internal static EnemySpeciesRegistry ForRoom(EnemyCommonParticipation common, IEnumerable<IEnemyEntityFactory> factories,
-        IReadOnlyCollection<EnemyDefinitionId> withoutScenery)
+        IReadOnlyCollection<EnemyDefinitionId> withoutScenery, EnemyPartOffers offers)
     {
         Ensure.NotNull(withoutScenery);
         var registrar = new EnemySpeciesRegistrar();
@@ -50,20 +55,25 @@ internal sealed class EnemySpeciesRegistry
         if (unowned.Count != 0)
             throw new InvalidOperationException(
                 $"Bindable enemy definitions have no factory: {string.Join(", ", unowned)}.");
-        return new EnemySpeciesRegistry(common, registrar);
+        return new EnemySpeciesRegistry(common, registrar, offers);
     }
 
     /// <summary>
     /// Binds <paramref name="placement"/>, an entry of the room's population, to its species' creation, checking once that
-    /// its settings are the type that creation takes.
+    /// its settings are the type that creation takes: the creation an earlier part offered it (<see cref="EnemyPartOffers"/>),
+    /// or its species' own.
     /// </summary>
     /// <param name="placement">The population entry.</param>
     /// <returns>The bound entry, which builds its enemy with no further check.</returns>
     /// <exception cref="InvalidDataException">
     /// No species places the entry's enemy from a population, or the entry carries other settings than its species takes.
     /// </exception>
-    internal PopulationEnemySpawn Bind(RoomEnemyPlacement placement) =>
-        _placed.TryGetValue(Ensure.NotNull(placement).DefinitionId, out Func<RoomEnemyPlacement, PopulationEnemySpawn>? bind)
+    internal PopulationEnemySpawn Bind(RoomEnemyPlacement placement)
+    {
+        if (_offers.TryBind(Ensure.NotNull(placement), out PopulationEnemySpawn? offered))
+            return offered;
+        return _placed.TryGetValue(placement.DefinitionId, out Func<RoomEnemyPlacement, PopulationEnemySpawn>? bind)
             ? bind(placement)
-            : throw new InvalidDataException($"No species in this room places enemy {placement.DefinitionId} from its population.");
+            : throw new InvalidDataException($"No species in this room places enemy {placement.DefinitionId} from its population, and no part placed before it offered one.");
+    }
 }

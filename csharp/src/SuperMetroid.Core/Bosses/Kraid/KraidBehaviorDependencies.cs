@@ -44,4 +44,6 @@ internal sealed record KraidBehaviorDependencies
     /// <summary>The room camera's distance mode, which the fight requests.</summary>
     public required RoomCameraDistance CameraDistance { get; init; }
 
+    /// <summary>Where the body offers its later parts the creation that builds each of them joining its encounter (#2554).</summary>
+    public required EnemyPartOffers PartOffers { get; init; }
 }

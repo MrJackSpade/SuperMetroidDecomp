@@ -13,36 +13,50 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
 {
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-    [
-        EnemyDefinitionId.Kraid, EnemyDefinitionId.KraidArm, EnemyDefinitionId.KraidFoot, EnemyDefinitionId.KraidLintBottom,
-        EnemyDefinitionId.KraidLintMiddle, EnemyDefinitionId.KraidLintTop, EnemyDefinitionId.KraidFirstNail,
-        EnemyDefinitionId.KraidSecondNail,
-    ];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kraid];
 
-    /// <summary>One of Kraid's eight parts, each joining its own reference as it initializes (#1877, #2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Kraid definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// <summary>
+    /// Kraid's body, built the same way wherever it is set up; his seven other parts join the encounter his body offers
+    /// them as it sets up (<see cref="BeginKraid"/>), a respawned fingernail joining it again.
+    /// </summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void Register(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.Kraid)
-            return EnemyOccupant.Running(new KraidBodyEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.KraidArm)
-            return EnemyOccupant.Running(new KraidArmEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.KraidFoot)
-            return EnemyOccupant.Running(new KraidFootEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.KraidLintTop)
-            return EnemyOccupant.Running(new KraidLintEntity(this, occupant, place, common, Parts.TopLintReference, KraidLintPart.Top));
-        if (definition == EnemyDefinitionId.KraidLintMiddle)
-            return EnemyOccupant.Running(new KraidLintEntity(this, occupant, place, common, Parts.MiddleLintReference, KraidLintPart.Middle));
-        if (definition == EnemyDefinitionId.KraidLintBottom)
-            return EnemyOccupant.Running(new KraidLintEntity(this, occupant, place, common, Parts.BottomLintReference, KraidLintPart.Bottom));
-        if (definition == EnemyDefinitionId.KraidFirstNail)
-            return EnemyOccupant.Running(new KraidNailEntity(this, occupant, place, common, Parts.FirstNailReference, KraidNailPart.First));
-        if (definition == EnemyDefinitionId.KraidSecondNail)
-            return EnemyOccupant.Running(new KraidNailEntity(this, occupant, place, common, Parts.SecondNailReference, KraidNailPart.Second));
-        throw new InvalidOperationException($"The Kraid species creates no {occupant.DefinitionId}.");
+        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>(Definitions, Create);
+        registrar.Joins([
+            EnemyDefinitionId.KraidArm, EnemyDefinitionId.KraidFoot, EnemyDefinitionId.KraidLintBottom, EnemyDefinitionId.KraidLintMiddle,
+            EnemyDefinitionId.KraidLintTop, EnemyDefinitionId.KraidFirstNail, EnemyDefinitionId.KraidSecondNail,
+        ]);
     }
+
+    /// <summary>Where his body offers his other parts the creation that builds each of them joining his encounter.</summary>
+    private readonly EnemyPartOffers _partOffers;
+
+    /// <summary>
+    /// Sets his body up in <paramref name="body"/>, beginning the encounter, and offers each of his other parts, which the
+    /// room lists after his body, the creation that builds it joining that encounter (#2218, #2554).
+    /// </summary>
+    /// <returns>The encounter, which the body holds from its setup.</returns>
+    internal KraidEnemyState BeginKraid(RoomEnemyPlace body)
+    {
+        KraidEnemyState state = Rise.InitializeKraidBody(body);
+        Offer(EnemyDefinitionId.KraidArm, (occupant, place, common) => new KraidArmEntity(this, occupant, place, common, state));
+        Offer(EnemyDefinitionId.KraidFoot, (occupant, place, common) => new KraidFootEntity(this, occupant, place, common, state));
+        Offer(EnemyDefinitionId.KraidLintTop, (occupant, place, common) => new KraidLintEntity(this, occupant, place, common, Parts.TopLintReference, KraidLintPart.Top, state));
+        Offer(EnemyDefinitionId.KraidLintMiddle, (occupant, place, common) => new KraidLintEntity(this, occupant, place, common, Parts.MiddleLintReference, KraidLintPart.Middle, state));
+        Offer(EnemyDefinitionId.KraidLintBottom, (occupant, place, common) => new KraidLintEntity(this, occupant, place, common, Parts.BottomLintReference, KraidLintPart.Bottom, state));
+        Offer(EnemyDefinitionId.KraidFirstNail, (occupant, place, common) => new KraidNailEntity(this, occupant, place, common, Parts.FirstNailReference, KraidNailPart.First, state));
+        Offer(EnemyDefinitionId.KraidSecondNail, (occupant, place, common) => new KraidNailEntity(this, occupant, place, common, Parts.SecondNailReference, KraidNailPart.Second, state));
+        return state;
+    }
+
+    /// <summary>Offers <paramref name="part"/> the creation <paramref name="create"/> makes.</summary>
+    private void Offer(EnemyDefinitionId part, Func<RoomEnemyOccupant, RoomEnemyPlace, EnemyCommonParticipation, KraidEntity> create) =>
+        _partOffers.Offer<EnemySpawnSettings>(part, (occupant, _, place, common) => EnemyOccupant.Running(create(occupant, place, common)));
+
+    /// <summary>Kraid's body, which joins its own reference as it is set up (#1877, #2146).</summary>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new KraidBodyEntity(this, occupant, place, common));
     /// <summary>Kraid's body layer: the body frame he shows, drawn from his installed body sheet.</summary>
     private KraidBodyLayer BodyLayer { get; }
 
@@ -81,6 +95,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
     internal KraidBehavior(KraidBehaviorDependencies dependencies)
     {
         _bossArtwork = dependencies.Presentation.Artwork;
+        _partOffers = dependencies.PartOffers;
         Parts = new KraidParts();
         Access = new KraidEncounterAccess(dependencies.Room, dependencies.Audio);
         BodyLayer = new KraidBodyLayer(_bossArtwork, Parts);

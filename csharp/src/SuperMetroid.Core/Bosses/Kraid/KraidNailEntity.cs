@@ -12,8 +12,10 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="common">The shared participation.</param>
 /// <param name="reference">Kraid's reference to the fingernail, which it joins as it initializes.</param>
 /// <param name="nail">Which of his fingernails it is, whose state it holds from its setup (#2298).</param>
-internal sealed class KraidNailEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KraidPartReference reference, KraidNailPart nail)
-    : KraidEntity(species, occupant, place, common, reference, () => species.Projectiles.InitializeKraidNail(place, nail)), IEnemyTypedAnimation
+/// <param name="encounter">The encounter his body began, which the part joins as it is built.</param>
+internal sealed class KraidNailEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KraidPartReference reference, KraidNailPart nail,
+    KraidEnemyState encounter)
+    : KraidEntity(species, occupant, place, common, reference, () => species.Projectiles.InitializeKraidNail(place, nail, encounter)), IEnemyTypedAnimation
 {
 
     /// <inheritdoc/>

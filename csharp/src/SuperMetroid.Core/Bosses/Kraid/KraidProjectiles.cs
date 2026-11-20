@@ -38,10 +38,10 @@ internal sealed class KraidProjectiles
 
     /// <summary>Initializes one lint part.</summary>
     /// <returns>The encounter the lint joins, which it holds from its setup.</returns>
-    internal KraidEnemyState InitializeKraidLint(RoomEnemyPlace lint, KraidLintPart expected)
+    internal KraidEnemyState InitializeKraidLint(RoomEnemyPlace lint, KraidLintPart expected, KraidEnemyState state)
     {
         // The lint joins the encounter its body began, which it holds from here (#2218).
-        KraidEnemyState state = _parts.Encounter;
+        Ensure.NotNull(state);
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             KraidEncounterAccess.MarkKraidPartDead(lint);
@@ -61,10 +61,10 @@ internal sealed class KraidProjectiles
     /// deleting themselves only once his body's health reads below one.
     /// </summary>
     /// <returns>The encounter the fingernail joins, which it holds from its setup.</returns>
-    internal KraidEnemyState InitializeKraidNail(RoomEnemyPlace nail, KraidNailPart expected)
+    internal KraidEnemyState InitializeKraidNail(RoomEnemyPlace nail, KraidNailPart expected, KraidEnemyState state)
     {
         // The fingernail joins the encounter its body began, which it holds from here (#2218).
-        KraidEnemyState state = _parts.Encounter;
+        Ensure.NotNull(state);
         KraidNailState nailPart = state.Nail(expected);
         nail.Shading = _parts.Body.Shading;
         // A fingernail is set up at rest, so its sibling's launch reads it as stopped, as it reads a killed one.

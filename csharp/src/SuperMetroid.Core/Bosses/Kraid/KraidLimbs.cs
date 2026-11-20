@@ -31,10 +31,10 @@ internal sealed class KraidLimbs
 
     /// <summary>Installs the arm part in its place with the rising-or-sinking animation.</summary>
     /// <returns>The encounter the arm joins, which it holds from its setup.</returns>
-    internal KraidEnemyState InitializeKraidArm(RoomEnemyPlace arm)
+    internal KraidEnemyState InitializeKraidArm(RoomEnemyPlace arm, KraidEnemyState state)
     {
         // The arm joins the encounter its body began, which it holds from here (#2218).
-        KraidEnemyState state = _parts.Encounter;
+        Ensure.NotNull(state);
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             KraidEncounterAccess.MarkKraidPartDead(arm);
@@ -47,10 +47,10 @@ internal sealed class KraidLimbs
 
     /// <summary>Installs a foot part with its initial animation and shared body state.</summary>
     /// <returns>The encounter the foot joins, which it holds from its setup.</returns>
-    internal KraidEnemyState InitializeKraidFoot(RoomEnemyPlace foot)
+    internal KraidEnemyState InitializeKraidFoot(RoomEnemyPlace foot, KraidEnemyState state)
     {
         // The foot joins the encounter its body began, which it holds from here (#2218).
-        KraidEnemyState state = _parts.Encounter;
+        Ensure.NotNull(state);
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             KraidEncounterAccess.MarkKraidPartDead(foot);

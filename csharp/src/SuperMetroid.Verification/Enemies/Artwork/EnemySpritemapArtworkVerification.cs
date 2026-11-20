@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.World.Artwork;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Verification.Enemies.Puyo;
 using SuperMetroid.Verification.Enemies.Choot;
@@ -520,6 +521,8 @@ internal static class EnemySpritemapArtworkVerification
                 place.SetSpawnSettings(placed.SpawnSettings);
             place.Bind(definition, place.Definition);
             place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            // A boss's part draws in a room whose boss has attached the body its body frames show on (#2573).
+            BossBodyCanvasFixtures.AttachBodyOfPart(enemies, place);
             place.Shading = PictureShading.Standard;
             // The catalog-wide composition check includes families newer than the
             // fixture's actor-name mapping. Its frame identity owns the actual bank.

@@ -27,8 +27,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the platforms' animations: each publishes the horizontal direction main AI moves in.</summary>
-    private static void ApplyPlatformCue(RoomEnemyPlace place, PlatformCue cue) =>
-        SetPlatformHorizontalMovementFromCue(place, cue.Movement);
+    private static void ApplyPlatformCue(RoomEnemyPlace place, PlatformEnemyState state, PlatformCue cue) =>
+        SetPlatformHorizontalMovementFromCue(place, state, cue.Movement);
 
     /// <summary>
     /// Sets up a Tripper or a suspensor platform: its direction and speed from its spawn settings, its first rise and the
@@ -250,10 +250,10 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Sets the direction main AI moves the platform, <paramref name="movement"/>, as a movement cue asks.</summary>
     private static void SetPlatformHorizontalMovementFromCue(
-        RoomEnemyPlace place,
+        RoomEnemyPlace place, PlatformEnemyState state,
         HorizontalDirection movement)
     {
-        place.RequireSpeciesState<PlatformEnemyState>().XMovement = movement;
+        state.XMovement = movement;
     }
 
     /// <summary>Replaces a frozen Tripper's frame after common Bomb reaction using its movement direction.</summary>
@@ -267,18 +267,18 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs Platforms's main AI.</summary>
-    internal void RunPlatformsMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunPlatformsMainAi(RoomEnemyPlace place, PlatformEnemyState state, IEnemyAiFrame frame)
     {
-        RunPlatformMain(place, place.RequireSpeciesState<PlatformEnemyState>(), frame.Samus, frame.Level);
+        RunPlatformMain(place, state, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Platforms's typed animation.</summary>
-    internal static void AdvancePlatformsTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvancePlatformsTypedAnimation(RoomEnemyPlace place, PlatformEnemyState platformEnemyState, EnemyAnimationCueContext _) =>
         EnemyAnimationPlayback.Advance(place, PlatformAnimations.Segments,
             static (PlatformEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
-                ApplyPlatformCue(place, cue);
+                ApplyPlatformCue(place, platformEnemyState, cue);
                 return null;
             });
 

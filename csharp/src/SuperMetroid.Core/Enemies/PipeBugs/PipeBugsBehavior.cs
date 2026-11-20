@@ -624,14 +624,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         throw new InvalidOperationException($"A Pipe Bug animation raised {cue}, though no Pipe Bug animation has a cue.");
 
     /// <summary>Runs a Brinstar Pipe Bug's main AI.</summary>
-    internal static void RunBrinstarPipeBugMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunBrinstarPipeBug(place, place.RequireSpeciesState<BrinstarPipeBugState>(), frame.Samus, frame.Camera);
+    internal static void RunBrinstarPipeBugMainAi(RoomEnemyPlace place, BrinstarPipeBugState state, IEnemyAiFrame frame) =>
+        RunBrinstarPipeBug(place, state, frame.Samus, frame.Camera);
 
     /// <summary>Runs a Norfair Pipe Bug's main AI.</summary>
-    internal void RunNorfairPipeBugMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunNorfairPipeBug(place, place.RequireSpeciesState<NorfairPipeBugState>(), frame.Samus, frame.Camera);
+    internal void RunNorfairPipeBugMainAi(RoomEnemyPlace place, NorfairPipeBugState state, IEnemyAiFrame frame) =>
+        RunNorfairPipeBug(place, state, frame.Samus, frame.Camera);
 
     /// <summary>Runs a yellow Pipe Bug's main AI.</summary>
-    internal static void RunYellowPipeBugMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunYellowPipeBug(place, place.RequireSpeciesState<YellowPipeBugState>(), frame.Samus, frame.Camera);
+    internal static void RunYellowPipeBugMainAi(RoomEnemyPlace place, YellowPipeBugState state, IEnemyAiFrame frame) =>
+        RunYellowPipeBug(place, state, frame.Samus, frame.Camera);
 }

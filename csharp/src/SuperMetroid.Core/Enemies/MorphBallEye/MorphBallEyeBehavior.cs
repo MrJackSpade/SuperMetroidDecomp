@@ -297,9 +297,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Advances the eye body's typed animation: a tracking eye shows the pose its aim chose this update for good, until the
     /// next update's tracking chooses again; otherwise its eyelid animation plays.
     /// </summary>
-    internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemyPlace place, MorphBallEyeEnemyState morphBallEyeEnemyState, EnemyAnimationCueContext _)
     {
-        if (Ensure.NotNull(place).RequireSpeciesState<MorphBallEyeEnemyState>().Aim is { } aim)
+        if (morphBallEyeEnemyState.Aim is { } aim)
         {
             if (!place.AnimationClock.Expire())
                 return;
@@ -313,8 +313,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs MorphBallEye's main AI.</summary>
-    internal void RunMorphBallEyeMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMorphBallEyeMainAi(RoomEnemyPlace place, MorphBallEyeEnemyState state, IEnemyAiFrame frame)
     {
-        RunMorphBallEyeMain(place, place.RequireSpeciesState<MorphBallEyeEnemyState>(), frame.Samus);
+        RunMorphBallEyeMain(place, state, frame.Samus);
     }
 }

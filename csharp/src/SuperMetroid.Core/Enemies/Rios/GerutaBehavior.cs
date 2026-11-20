@@ -279,17 +279,17 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs a Geruta flame follower's main AI: it advances the shared enemy RNG, as every parent does, then follows its parent.</summary>
-    internal void RunGerutaFollowerMainAi(RoomEnemyPlace place)
+    internal void RunGerutaFollowerMainAi(RoomEnemyPlace place, GerutaFollowerState state)
     {
         _room.Random.Generate();
-        FollowGerutaParent(place, place.RequireSpeciesState<GerutaFollowerState>());
+        FollowGerutaParent(place, state);
     }
 
     /// <summary>Runs a Geruta parent's main AI.</summary>
-    internal void RunGerutaMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
+    internal void RunGerutaMainAi(RoomEnemyPlace place, GerutaEnemyState state, IEnemyAiFrame frame) =>
         RunGerutaMain(
             place,
-            place.RequireSpeciesState<GerutaEnemyState>(),
+            state,
             frame.Samus,
             frame.Level);
 

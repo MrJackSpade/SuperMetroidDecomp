@@ -10,7 +10,7 @@ internal sealed class SbugEntity(RoomEnemyPlace place, EnemyCommonParticipation 
     internal SbugEnemyState State { get; } = SbugBehavior.InitializeSbug(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => SbugBehavior.RunSbugMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => SbugBehavior.RunSbugMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SbugBehavior.AdvanceSbugTypedAnimation(Place, context);

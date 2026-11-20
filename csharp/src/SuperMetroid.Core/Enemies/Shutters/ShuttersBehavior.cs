@@ -329,39 +329,37 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances ShutterGrowing's typed animation.</summary>
-    internal static void AdvanceShutterGrowingTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceShutterGrowingTypedAnimation(RoomEnemyPlace place, GrowingShutterEnemyState state, EnemyAnimationCueContext _)
     {
         if (!place.AnimationClock.Expire())
             return;
-        GrowingShutterEnemyState state = place.RequireSpeciesState<GrowingShutterEnemyState>();
         state.Playback = PlayShutterAnimation(place, state.Playback);
     }
 
     /// <summary>Advances a vertical shutter's typed animation: a shootable or destroyable shutter's, or the Kamer's.</summary>
-    internal static void AdvanceVerticalShutterTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceVerticalShutterTypedAnimation(RoomEnemyPlace place, VerticalShutterEnemyState state, EnemyAnimationCueContext _)
     {
         if (!place.AnimationClock.Expire())
             return;
-        VerticalShutterEnemyState state = place.RequireSpeciesState<VerticalShutterEnemyState>();
         state.Playback = PlayShutterAnimation(place, state.Playback);
     }
 
     /// <summary>Runs ShutterGrowing's main AI.</summary>
-    internal void RunShutterGrowingMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunShutterGrowingMainAi(RoomEnemyPlace place, GrowingShutterEnemyState state, IEnemyAiFrame frame)
     {
         RunGrowingShutterMain(
             place,
-            place.RequireSpeciesState<GrowingShutterEnemyState>(),
+            state,
             frame.Samus,
             frame.Camera);
     }
 
     /// <summary>Runs a vertical shutter's main AI: a shootable or destroyable shutter's, or the Kamer's.</summary>
-    internal void RunVerticalShutterMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunVerticalShutterMainAi(RoomEnemyPlace place, VerticalShutterEnemyState state, IEnemyAiFrame frame)
     {
         RunVerticalShutterMain(
             place,
-            place.RequireSpeciesState<VerticalShutterEnemyState>(),
+            state,
             frame.Samus,
             frame.Camera);
     }

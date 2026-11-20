@@ -11,7 +11,7 @@ internal sealed class NorfairPipeBugEntity(PipeBugsBehavior species, RoomEnemyPl
     internal NorfairPipeBugState State { get; } = species.InitializeNorfairPipeBug(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunNorfairPipeBugMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunNorfairPipeBugMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PipeBugsBehavior.AdvanceNorfairPipeBugTypedAnimation(Place);

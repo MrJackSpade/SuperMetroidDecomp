@@ -64,9 +64,8 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Shows step <paramref name="step"/> of the belly glow <paramref name="torizo"/> lit over its belly (#1512, #1597, #2240).</summary>
     /// <param name="torizo">The Torizo whose fight start lit the glow.</param>
     /// <param name="step">The glow's step.</param>
-    internal static void ShowBellyGlow(RoomEnemyPlace torizo, ColourEffectFrame step)
+    internal static void ShowBellyGlow(RoomEnemyPlace torizo, TorizoEnemyState state, ColourEffectFrame step)
     {
-        TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
         state.Colours.ShowBellyGlow(step);
         torizo.Shading = state.Colours.Shading;
     }
@@ -104,7 +103,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case TorizoPhase.Falling:
-                Body.MaybeSpawnLowHealthDrool(torizo);
+                Body.MaybeSpawnLowHealthDrool(torizo, state);
                 Movement.ApplyTorizoGravity(torizo, state, level);
                 return;
 
@@ -137,7 +136,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case TorizoPhase.GoldenActive:
-                Body.MaybeSpawnLowHealthDrool(torizo);
+                Body.MaybeSpawnLowHealthDrool(torizo, state);
                 Movement.MoveBody(torizo, state, level);
                 return;
 
@@ -182,8 +181,8 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Replaces Torizo's posture, keeping the rest of its state.</summary>
-    private static void SetPosture(RoomEnemyPlace torizo, TorizoPosture posture) =>
-        torizo.RequireSpeciesState<TorizoEnemyState>().Posture = posture;
+    private static void SetPosture(RoomEnemyPlace torizo, TorizoEnemyState state, TorizoPosture posture) =>
+        state.Posture = posture;
 
     /// <summary>Queues <paramref name="sound"/> through the shared enemy queue.</summary>
     private void PlayTorizoSound(SoundEffectId sound)
@@ -192,32 +191,31 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Bomb Torizo's main AI.</summary>
-    internal void RunBombTorizoMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunBombTorizoMainAi(RoomEnemyPlace place, TorizoEnemyState state, IEnemyAiFrame frame)
     {
-        RunTorizoMain(place, place.RequireSpeciesState<TorizoEnemyState>(), frame.Samus, frame.Level);
+        RunTorizoMain(place, state, frame.Samus, frame.Level);
     }
 
     /// <summary>Runs Golden Torizo's main AI.</summary>
-    internal void RunGoldenTorizoMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunGoldenTorizoMainAi(RoomEnemyPlace place, TorizoEnemyState state, IEnemyAiFrame frame)
     {
         RunGoldenTorizoMain(
             place,
-            place.RequireSpeciesState<TorizoEnemyState>(),
+            state,
             frame.Samus,
             frame.Level);
     }
 
     /// <summary>Advances the typed animation of <paramref name="torizo"/>, either Torizo, in <paramref name="place"/>.</summary>
-    internal void AdvanceTorizoTypedAnimation(RoomEnemyPlace place, ILitTorizo torizo, EnemyAnimationCueContext context)
+    internal void AdvanceTorizoTypedAnimation(RoomEnemyPlace place, TorizoEnemyState state, ILitTorizo torizo, EnemyAnimationCueContext context)
     {
-        AdvanceTorizoAnimation(place, new TorizoCueInputs { Torizo = torizo, Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounter = _frameContext.FrameCounter });
+        AdvanceTorizoAnimation(place, state, new TorizoCueInputs { Torizo = torizo, Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounter = _frameContext.FrameCounter });
     }
     /// <summary>Runs Bomb or Golden Torizo's body animation where the shared enemy animation would.</summary>
-    internal void AdvanceTorizoAnimation(RoomEnemyPlace torizo, TorizoCueInputs inputs)
+    internal void AdvanceTorizoAnimation(RoomEnemyPlace torizo, TorizoEnemyState state, TorizoCueInputs inputs)
     {
         if (!torizo.AnimationClock.Expire())
             return;
-        TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
         AnimationPlayback<TorizoBodySegment> playback = state.BodyPlayback;
         // The death and wake repeats count the body's frame timer, as the animations' counted loops do.
         EnemyAnimationPlayback.Play(torizo, TorizoAnimations.Segments, ref playback,
@@ -270,7 +268,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.Signal { Kind: TorizoCueKind.BlowUpGut }:
                 state.GutBlownUp = true;
                 for (int piece = 0; piece < TorizoDeathDefinitions.GutDroolPieces; piece++)
-                    Attacks.SpawnBombTorizoLowHealthDrool(torizo);
+                    Attacks.SpawnBombTorizoLowHealthDrool(torizo, state);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.MarkFaceBlownUp }:
@@ -341,7 +339,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case TorizoCue.LowHealthExplosions explosions:
                 for (int explosion = 0; explosion < TorizoDeathDefinitions.LowHealthExplosions; explosion++)
-                    Attacks.SpawnBombTorizoLowHealthExplosion(torizo, explosions.Site);
+                    Attacks.SpawnBombTorizoLowHealthExplosion(torizo, state, explosions.Site);
                 torizo.HurtFlash.Restart(TorizoDeathDefinitions.LowHealthExplosionFlash);
                 return null;
 
@@ -357,16 +355,16 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnLowHealthDrool }:
                 if (torizo.Health < TorizoDecisionDefinitions.GutBlowUpHealth)
-                    Body.SpawnInitialDrool(torizo);
+                    Body.SpawnInitialDrool(torizo, state);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SetTurningAround }:
-                SetPosture(torizo, TorizoFacing.Posture(torizo).TurningAround);
+                SetPosture(torizo, state, TorizoFacing.Posture(torizo, state).TurningAround);
                 return null;
 
             case TorizoCue.Stepped stepped:
                 // The step replaces the whole posture: the way it faces, the foot it leads with, and any turn.
-                SetPosture(torizo, TorizoPosture.AfterStep(stepped.Direction, stepped.Foot));
+                SetPosture(torizo, state, TorizoPosture.AfterStep(stepped.Direction, stepped.Foot));
                 state.CountDecisionStep();
                 return null;
 
@@ -395,7 +393,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     torizo,
                     state,
                     inputs.Samus,
-                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo)));
+                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo, state)));
 
             case TorizoCue.Choice { Kind: TorizoChoiceKind.BombAttack } choice:
             {
@@ -406,7 +404,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnBombTorizoChozoOrbs }:
                 for (int orb = 0; orb < TorizoChozoOrbDefinitions.BombTorizoOrbsPerBurst; orb++)
-                    Attacks.SpawnBombTorizoChozoOrb(torizo);
+                    Attacks.SpawnBombTorizoChozoOrb(torizo, state);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnBombTorizoSonicBoom }:
@@ -448,7 +446,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnEgg }:
-                Attacks.SpawnGoldenTorizoEgg(torizo);
+                Attacks.SpawnGoldenTorizoEgg(torizo, state);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.ChestHeldOpen }:
@@ -488,10 +486,10 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     torizo,
                     state,
                     inputs.Samus,
-                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo)));
+                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo, state)));
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnEyeBeam }:
-                Attacks.SpawnGoldenTorizoEyeBeam(torizo);
+                Attacks.SpawnGoldenTorizoEyeBeam(torizo, state);
                 return null;
 
             case TorizoCue.Interrupt { Kind: TorizoInterruptKind.GoldenEyeBeamAtMediumRange } interrupt:
@@ -522,10 +520,10 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     state,
                     inputs.Samus,
                     inputs.ControllerInput,
-                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo)));
+                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo, state)));
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnGoldenTorizoChozoOrbs }:
-                Attacks.SpawnGoldenTorizoChozoOrb(torizo);
+                Attacks.SpawnGoldenTorizoChozoOrb(torizo, state);
                 return null;
 
             case TorizoCue.Branch { Kind: TorizoBranchKind.GoldenJumpBackFromSamusInFront } branch:
@@ -533,7 +531,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     torizo,
                     state,
                     inputs.Samus,
-                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo)));
+                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo, state)));
 
             case TorizoCue.Choice { Kind: TorizoChoiceKind.GoldenAttack } choice:
             {

@@ -11,5 +11,5 @@ internal sealed class JetRipperEntity(RipperBehavior species, RoomEnemyPlace pla
     internal override RipperEnemyState State { get; } = RipperBehavior.InitializeJetRipper(place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunJetRipperMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunJetRipperMainAi(Place, State, frame);
 }

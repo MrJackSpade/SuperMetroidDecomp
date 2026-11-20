@@ -115,9 +115,9 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Waver's main AI.</summary>
-    internal void RunWaverMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunWaverMainAi(RoomEnemyPlace place, WaverEnemyState state, IEnemyAiFrame frame)
     {
-        RunWaverMain(place, place.RequireSpeciesState<WaverEnemyState>(), frame.Level);
+        RunWaverMain(place, state, frame.Level);
     }
 
     /// <summary>Advances Waver's typed animation.</summary>

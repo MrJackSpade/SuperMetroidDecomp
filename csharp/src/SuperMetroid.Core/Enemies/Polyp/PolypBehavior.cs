@@ -105,9 +105,9 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"The Polyp's cue-free animation raised {cue}."));
 
     /// <summary>Runs Polyp's main AI.</summary>
-    internal void RunPolypMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunPolypMainAi(RoomEnemyPlace place, PolypEnemyState state, IEnemyAiFrame frame)
     {
-        RunPolypMain(place, place.RequireSpeciesState<PolypEnemyState>(), frame.Samus);
+        RunPolypMain(place, state, frame.Samus);
     }
 
     /// <summary>

@@ -17,5 +17,5 @@ internal sealed class EscapeDachoraEntity(EscapeAnimalsBehavior species, RoomEne
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceEscapeDachoraTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceEscapeDachoraTypedAnimation(Place, State, context);
 }

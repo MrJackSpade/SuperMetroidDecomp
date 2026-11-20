@@ -11,7 +11,7 @@ internal sealed class SkreeEntity(SkreeBehavior species, RoomEnemyPlace place, E
     internal SkreeEnemyState State { get; } = SkreeBehavior.InitializeSkree(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunSkreeMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSkreeMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SkreeBehavior.AdvanceSkreeTypedAnimation(Place, context);

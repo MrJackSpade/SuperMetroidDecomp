@@ -14,10 +14,10 @@ internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyPl
     internal BabyMetroidEnemyState State { get; } = BabyMetroidBehavior.SetUpBabyMetroid(place, setup.SurroundingsOf(place));
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunBabyMetroidMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBabyMetroidMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBabyMetroidAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBabyMetroidAnimation(Place, State);
 
     /// <summary>Whether Baby Metroid's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;

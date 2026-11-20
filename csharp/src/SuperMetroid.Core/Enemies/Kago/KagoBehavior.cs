@@ -269,11 +269,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Kago's typed animation.</summary>
-    internal static void AdvanceKagoTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceKagoTypedAnimation(RoomEnemyPlace place, KagoEnemyState state, EnemyAnimationCueContext _)
     {
         if (!place.AnimationClock.Expire())
             return;
-        KagoEnemyState state = place.RequireSpeciesState<KagoEnemyState>();
         AnimationPlayback<KagoSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, KagoAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free Kago animation raised {cue}."));

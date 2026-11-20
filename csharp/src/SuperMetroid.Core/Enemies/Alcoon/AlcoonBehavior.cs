@@ -43,7 +43,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (cue is AlcoonCue.Fire fire)
         {
-            SpawnAlcoonFireball(place, fire.Launch);
+            SpawnAlcoonFireball(place, state, fire.Launch);
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
             return null;
         }
@@ -370,9 +370,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         InitializeAlcoon(place, surroundings.Level);
 
     /// <summary>Runs Alcoon's main AI.</summary>
-    internal void RunAlcoonMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunAlcoonMainAi(RoomEnemyPlace place, AlcoonEnemyState state, IEnemyAiFrame frame)
     {
-        RunAlcoonMain(place, place.RequireSpeciesState<AlcoonEnemyState>(), frame.Samus, frame.Level);
+        RunAlcoonMain(place, state, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Alcoon's typed animation.</summary>
@@ -382,13 +382,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             (state, cue) => ApplyAlcoonCue(place, state, context.Level, cue));
 
     /// <summary>Spits an Alcoon fireball with the vertical speed of <paramref name="launch"/>.</summary>
-    internal void SpawnAlcoonFireball(RoomEnemyPlace alcoon, AlcoonFireballLaunch launch)
+    internal void SpawnAlcoonFireball(RoomEnemyPlace alcoon, AlcoonEnemyState state, AlcoonFireballLaunch launch)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
-        AlcoonEnemyState state = alcoon.RequireSpeciesState<AlcoonEnemyState>();
         bool movingLeft = FacesLeft(state);
 
         // The fireball takes its radii, damage, persistence, shot blocking, animation and motion from its definition

@@ -17,7 +17,7 @@ internal sealed class KagoEntity(KagoBehavior species, RoomEnemyPlace place, Ene
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KagoBehavior.AdvanceKagoTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KagoBehavior.AdvanceKagoTypedAnimation(Place, State, context);
 
     /// <summary>The Kago's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.KagoShotReaction : base.ShotReaction;

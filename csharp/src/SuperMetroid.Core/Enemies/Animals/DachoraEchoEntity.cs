@@ -13,7 +13,7 @@ internal sealed class DachoraEchoEntity(RoomEnemyPlace place, EnemyCommonPartici
     internal DachoraEchoState State { get; } = DachoraBehavior.InitializeDachoraEcho(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => DachoraBehavior.RunDachoraEchoMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => DachoraBehavior.RunDachoraEchoMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DachoraBehavior.AdvanceDachoraEchoTypedAnimation(Place, context);

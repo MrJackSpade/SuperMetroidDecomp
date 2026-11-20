@@ -17,10 +17,10 @@ internal sealed class RidleyBreakupPieceEntity(NorfairRidleyBehavior ridley, Roo
     internal RidleyExplosionFragmentState State { get; } = ridley.Death.InitializeNorfairRidleyExplosion(place, setup.EncounterOf<RidleyBreakupSource>(place));
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => ridley.Death.RunNorfairRidleyExplosionMain(Place, frame.Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => ridley.Death.RunNorfairRidleyExplosionMain(Place, State, frame.Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RidleyBodyAnimation.AdvanceRidleyBreakupAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RidleyBodyAnimation.AdvanceRidleyBreakupAnimation(Place, State);
 
     /// <summary>None: the piece's definition ignores Samus's touch.</summary>
     public EnemyReaction? SpeciesTouch => null;

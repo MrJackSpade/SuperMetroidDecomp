@@ -175,8 +175,8 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Choot's main AI.</summary>
-    internal static void RunChootMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal static void RunChootMainAi(RoomEnemyPlace place, ChootEnemyState state, IEnemyAiFrame frame)
     {
-        RunChootMain(place, place.RequireSpeciesState<ChootEnemyState>(), frame.Samus);
+        RunChootMain(place, state, frame.Samus);
     }
 }

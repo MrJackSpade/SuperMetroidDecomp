@@ -11,7 +11,7 @@ internal sealed class BombTorizoEntity(TorizoBehavior species, RoomEnemyPlace pl
     : TorizoEntity(species, place, common, TorizoVariant.Bomb, setup)
 {
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunBombTorizoMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunBombTorizoMainAi(Place, State, frame);
 
     /// <summary>Bomb Torizo's shot reaction, which its definition leaves to it.</summary>
     public override EnemyReaction? SpeciesShot => TorizoReactions.Shot;
@@ -19,7 +19,7 @@ internal sealed class BombTorizoEntity(TorizoBehavior species, RoomEnemyPlace pl
     /// <inheritdoc/>
     public override bool RunHurt(RoomEnemyFrame frame)
     {
-        Species.Combat.ApplyBombTorizoHurt(Place);
+        Species.Combat.ApplyBombTorizoHurt(Place, State);
         return true;
     }
 

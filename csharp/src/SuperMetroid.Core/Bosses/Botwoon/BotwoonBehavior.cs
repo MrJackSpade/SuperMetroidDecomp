@@ -534,9 +534,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         state.HeadPlayback = EnemyAnimationPlayback.StartUnlessPlaying(head, state.HeadPlayback, BotwoonAnimations.HeadStartingWith(segment));
 
     /// <summary>Advances Botwoon's typed animation.</summary>
-    internal void AdvanceBotwoonTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal void AdvanceBotwoonTypedAnimation(RoomEnemyPlace place, BotwoonEnemyState state, EnemyAnimationCueContext _)
     {
-        AdvanceBotwoonHeadAnimation(place, place.RequireSpeciesState<BotwoonEnemyState>());
+        AdvanceBotwoonHeadAnimation(place, state);
     }
 
     /// <summary>
@@ -718,12 +718,11 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// current traversal. The head and thirteen body actors remain alive until the tail has
     /// crossed the next hole, as his death requires.
     /// </summary>
-    internal static void ResolveBotwoonCombatAfterCommon(RoomEnemyPlace head)
+    internal static void ResolveBotwoonCombatAfterCommon(RoomEnemyPlace head, BotwoonEnemyState state)
     {
         if (head.Health != 0)
             return;
 
-        BotwoonEnemyState state = head.RequireSpeciesState<BotwoonEnemyState>();
         state.FatallyHit = true;
 
         // The dying head becomes intangible: it leaves the
@@ -772,9 +771,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     }
 
     /// <summary>Runs Botwoon's main AI.</summary>
-    internal void RunBotwoonMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunBotwoonMainAi(RoomEnemyPlace place, BotwoonEnemyState state, IEnemyAiFrame frame)
     {
-        RunBotwoonMain(place, place.RequireSpeciesState<BotwoonEnemyState>(), frame.Samus);
+        RunBotwoonMain(place, state, frame.Samus);
     }
 
     /// <summary>Applies power-bomb damage while preserving Botwoon's delayed death traversal.</summary>

@@ -21,7 +21,7 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyPlace 
     internal override DraygonPart Part => State.BodyPart;
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunDraygonBodyMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunDraygonBodyMainAi(Place, State, frame);
 
     /// <summary>The body's touch reaction, which its definition leaves to it.</summary>
     public override EnemyReaction? SpeciesTouch => DraygonReactions.Touch;

@@ -275,11 +275,11 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         InitializeElevator(place, surroundings.Samus);
 
     /// <summary>Runs Elevator's main AI.</summary>
-    internal void RunElevatorMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunElevatorMainAi(RoomEnemyPlace place, ElevatorEnemyState state, IEnemyAiFrame frame)
     {
         RunElevatorMain(
             place,
-            place.RequireSpeciesState<ElevatorEnemyState>(),
+            state,
             frame.Samus,
             frame.NewlyPressedControllerInput,
             frame.SamusProjectiles);

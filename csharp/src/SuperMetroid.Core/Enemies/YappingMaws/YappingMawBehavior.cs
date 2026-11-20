@@ -514,11 +514,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs YappingMaw's main AI.</summary>
-    internal void RunYappingMawMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunYappingMawMainAi(RoomEnemyPlace place, YappingMawEnemyState state, IEnemyAiFrame frame)
     {
         RunYappingMawMain(
             place,
-            place.RequireSpeciesState<YappingMawEnemyState>(),
+            state,
             frame.Samus,
             frame.Camera);
     }

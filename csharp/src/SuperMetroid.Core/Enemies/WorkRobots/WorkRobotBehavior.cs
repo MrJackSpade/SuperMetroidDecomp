@@ -249,12 +249,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// recoil ahead or behind and holds off its next laser for its recoil delay
     /// (<see cref="WorkRobotLaserDefinitions.RecoilDelay"/>).
     /// </summary>
-    private static void ResolveWorkRobotShotAfterCommon(RoomEnemyPlace robot, SamusState samus)
+    private static void ResolveWorkRobotShotAfterCommon(RoomEnemyPlace robot, WorkRobotEnemyState state, SamusState samus)
     {
         if (robot.Health == 0)
             return;
 
-        WorkRobotEnemyState state = robot.RequireSpeciesState<WorkRobotEnemyState>();
         bool facingLeft = state.Facing == HorizontalDirection.Left;
         if (facingLeft)
         {
@@ -313,9 +312,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyWorkRobotLaser(context.Projectile, context.Level));
 
     /// <summary>Runs a powered robot's main AI.</summary>
-    internal void RunWorkRobotMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunWorkRobotMainAi(RoomEnemyPlace place, WorkRobotEnemyState state, IEnemyAiFrame frame)
     {
-        WorkRobotEnemyState state = place.RequireSpeciesState<WorkRobotEnemyState>();
         state.FallVelocity = RunWorkRobotFall(place, state.FallVelocity, frame.Level);
     }
 

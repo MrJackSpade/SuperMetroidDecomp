@@ -24,10 +24,10 @@ internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyPl
     internal override CrocomireEnemyState Encounter => State;
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunCrocomireMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunCrocomireMainAi(Place, Encounter, frame);
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceCrocomireTypedAnimation(Place, context);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceCrocomireTypedAnimation(Place, Encounter, context);
 
     /// <inheritdoc/>
     public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>

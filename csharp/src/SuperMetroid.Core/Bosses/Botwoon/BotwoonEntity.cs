@@ -13,10 +13,10 @@ internal sealed class BotwoonEntity(BotwoonBehavior species, RoomEnemyPlace plac
     internal BotwoonEnemyState State { get; } = species.InitializeBotwoon(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunBotwoonMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBotwoonMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBotwoonTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBotwoonTypedAnimation(Place, State, context);
 
     /// <summary>Whether Botwoon's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;

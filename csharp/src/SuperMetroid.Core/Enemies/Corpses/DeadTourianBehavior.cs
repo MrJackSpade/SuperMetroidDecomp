@@ -64,9 +64,8 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the shared corpse behaviour: Samus touching it starts its wait before rotting (<see cref="CorpseRotScheduleDefinitions.PreRotDelayUpdates"/>), then the corpse rots until its last row has fallen.</summary>
-    private void RunDeadTourianCorpseMain(RoomEnemyPlace place, SamusState samus)
+    private void RunDeadTourianCorpseMain(RoomEnemyPlace place, DeadTourianCorpseEnemyState state, SamusState samus)
     {
-        DeadTourianCorpseEnemyState state = place.RequireSpeciesState<DeadTourianCorpseEnemyState>();
         switch (state.Phase)
         {
             case DeadTourianCorpsePhase.Waiting:
@@ -92,19 +91,18 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Touch and shot reactions for these three corpse-only actors are identical.</summary>
-    internal static void TriggerDeadTourianCorpseRotting(RoomEnemyPlace place)
+    internal static void TriggerDeadTourianCorpseRotting(RoomEnemyPlace place, DeadTourianCorpseEnemyState state)
     {
-        DeadTourianCorpseEnemyState state = place.RequireSpeciesState<DeadTourianCorpseEnemyState>();
         state.Phase = DeadTourianCorpsePhase.Rotting;
         place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
     }
 
     /// <summary>Power-bomb reactions reject actors whose decomposition already made them intangible.</summary>
-    private static void ResolveDeadTourianCorpsePowerBomb(RoomEnemyPlace place)
+    private static void ResolveDeadTourianCorpsePowerBomb(RoomEnemyPlace place, DeadTourianCorpseEnemyState state)
     {
         if (!place.Contact.HasAny(EnemyContact.IgnoresSamus))
-            TriggerDeadTourianCorpseRotting(place);
+            TriggerDeadTourianCorpseRotting(place, state);
     }
 
     /// <summary>
@@ -122,7 +120,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The rows <paramref name="place"/>'s frames show: its corpse's own, as its rot has left them (#1539).</summary>
-    internal static CorpseRotRows ShownDeadTourianRows(RoomEnemyPlace place) => place.RequireSpeciesState<DeadTourianCorpseEnemyState>().Rows.Shown;
+    internal static CorpseRotRows ShownDeadTourianRows(RoomEnemyPlace place, DeadTourianCorpseEnemyState state) => state.Rows.Shown;
 
     /// <summary>Spawns randomized dust for a completed rot row and gates its sound on the enemy counter.</summary>
     private void FinishDeadTourianCorpseRow(RoomEnemyPlace place) =>
@@ -133,11 +131,10 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         TriggerDeadTourianCorpseRotting(c.Enemy);
 
     /// <summary>Advances the Tourian corpses' typed animation.</summary>
-    internal static void AdvanceDeadTourianTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceDeadTourianTypedAnimation(RoomEnemyPlace place, DeadTourianCorpseEnemyState state, EnemyAnimationCueContext _)
     {
         if (!place.AnimationClock.Expire())
             return;
-        DeadTourianCorpseEnemyState state = place.RequireSpeciesState<DeadTourianCorpseEnemyState>();
         AnimationPlayback<DeadTourianSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, DeadTourianAnimations.Segments, ref playback,
             cue => throw new InvalidDataException($"A corpse pose published {cue.Kind}."));
@@ -145,9 +142,9 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Tourian corpses' main AI.</summary>
-    internal void RunDeadTourianMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunDeadTourianMainAi(RoomEnemyPlace place, DeadTourianCorpseEnemyState state, IEnemyAiFrame frame)
     {
-        RunDeadTourianCorpseMain(place, frame.Samus);
+        RunDeadTourianCorpseMain(place, state, frame.Samus);
     }
 
     /// <summary>The power-bomb response, which ignores corpses already marked decomposed.</summary>

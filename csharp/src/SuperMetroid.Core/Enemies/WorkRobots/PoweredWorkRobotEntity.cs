@@ -14,7 +14,7 @@ internal sealed class PoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnem
     internal WorkRobotEnemyState State { get; } = species.InitializePoweredWorkRobot(place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunWorkRobotMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunWorkRobotMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceWorkRobotTypedAnimation(Place, context);

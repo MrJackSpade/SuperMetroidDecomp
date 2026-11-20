@@ -15,7 +15,7 @@ internal sealed class KiHunterWingsEntity(KiHunterBehavior species, RoomEnemyPla
     internal KiHunterWingState State { get; } = species.InitializeKiHunterWings(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterWingsMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterWingsMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KiHunterBehavior.AdvanceKiHunterWingsTypedAnimation(Place);

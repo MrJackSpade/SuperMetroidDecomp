@@ -68,8 +68,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"A cue-free Multiviola animation raised {cue}."));
 
     /// <summary>Runs Multiviola's main AI.</summary>
-    internal void RunMultiviolaMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMultiviolaMainAi(RoomEnemyPlace place, MultiviolaEnemyState state, IEnemyAiFrame frame)
     {
-        RunMultiviolaMain(place, place.RequireSpeciesState<MultiviolaEnemyState>(), frame.Level);
+        RunMultiviolaMain(place, state, frame.Level);
     }
 }

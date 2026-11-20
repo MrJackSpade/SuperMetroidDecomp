@@ -14,7 +14,7 @@ internal sealed class GerutaFollowerEntity(GerutaBehavior species, RoomEnemyPlac
     internal GerutaFollowerState State { get; } = species.InitializeGerutaFollower(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunGerutaFollowerMainAi(Place);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunGerutaFollowerMainAi(Place, State);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GerutaBehavior.AdvanceGerutaFollowerTypedAnimation(Place);

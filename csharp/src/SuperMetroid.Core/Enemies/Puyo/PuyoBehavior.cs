@@ -366,8 +366,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"Puyo's cue-free animation raised {cue}."));
 
     /// <summary>Runs Puyo's main AI.</summary>
-    internal void RunPuyoMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunPuyoMainAi(RoomEnemyPlace place, PuyoEnemyState state, IEnemyAiFrame frame)
     {
-        RunPuyoMain(place, place.RequireSpeciesState<PuyoEnemyState>(), frame.Samus, frame.Level);
+        RunPuyoMain(place, state, frame.Samus, frame.Level);
     }
 }

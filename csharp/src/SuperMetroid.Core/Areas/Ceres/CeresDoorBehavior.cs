@@ -133,15 +133,14 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
     }
 
     /// <summary>Plays a door's or wall's typed animation in place of the shared enemy animation.</summary>
-    internal void AdvanceAnimation(RoomEnemyPlace place, SamusState samus)
+    internal void AdvanceAnimation(RoomEnemyPlace place, CeresDoorAnimationState state, SamusState samus)
     {
         Ensure.NotNull(place);
         if (!place.AnimationClock.Expire())
             return;
-        CeresDoorAnimationState state = place.RequireSpeciesState<CeresDoorAnimationState>();
         AnimationPlayback<CeresDoorSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, CeresDoorAnimations.Segments, ref playback,
-            cue => ApplyCue(place, samus, cue) is { } started
+            cue => ApplyCue(place, state, samus, cue) is { } started
                 ? new AnimationContinuation<CeresDoorSegment>(CeresDoorAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
@@ -175,7 +174,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
     /// Carries out one cue of a door's or wall's animation, returning the segment whose animation the owner starts on a waiting
     /// door's or wall's event, or null to run on.
     /// </summary>
-    private CeresDoorSegment? ApplyCue(RoomEnemyPlace place, SamusState samus, CeresDoorCue cue)
+    private CeresDoorSegment? ApplyCue(RoomEnemyPlace place, CeresDoorAnimationState state, SamusState samus, CeresDoorCue cue)
     {
         switch (cue.Kind)
         {
@@ -205,13 +204,13 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
                 place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
                 return null;
             case CeresDoorCueKind.ShowOverlay:
-                place.RequireSpeciesState<CeresDoorAnimationState>().Look = CeresRidleyRoomDoorLook.Overlay;
+                state.Look = CeresRidleyRoomDoorLook.Overlay;
                 return null;
             case CeresDoorCueKind.MakeInvisible:
                 place.Presence = place.Presence.With(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.MakeVisibleAndShowActor:
-                place.RequireSpeciesState<CeresDoorAnimationState>().Look = CeresRidleyRoomDoorLook.Actor;
+                state.Look = CeresRidleyRoomDoorLook.Actor;
                 place.Presence = place.Presence.Without(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.MakeVisible:

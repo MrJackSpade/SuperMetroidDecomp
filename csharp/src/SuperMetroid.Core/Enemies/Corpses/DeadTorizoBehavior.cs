@@ -60,16 +60,15 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the dead Torizo's main AI.</summary>
-    internal void RunDeadTorizoMain(RoomEnemyPlace place, SamusState samus)
+    internal void RunDeadTorizoMain(RoomEnemyPlace place, DeadTorizoEnemyState state, SamusState samus)
     {
-        DeadTorizoEnemyState state = place.RequireSpeciesState<DeadTorizoEnemyState>();
 
         // The custom detector remains enabled while the intact corpse is solid. Rotting
         // disables interaction separately, after publishing Samus's external displacement.
         if (!place.Contact.HasAny(EnemyContact.IgnoresSamus) &&
             DeadTorizoCustomHitboxOverlaps(place, samus))
         {
-            TriggerDeadTorizoRotting(place);
+            TriggerDeadTorizoRotting(place, state);
         }
 
         switch (state.Phase)
@@ -114,18 +113,17 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The rest of the corpse's shot and touch reactions.</summary>
-    internal static void TriggerDeadTorizoRotting(RoomEnemyPlace place)
+    internal static void TriggerDeadTorizoRotting(RoomEnemyPlace place, DeadTorizoEnemyState state)
     {
-        DeadTorizoEnemyState state = place.RequireSpeciesState<DeadTorizoEnemyState>();
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
         state.Phase = DeadTorizoPhase.Rotting;
     }
 
     /// <summary>The corpse's power bomb reaction.</summary>
-    internal static void TriggerDeadTorizoPowerBomb(RoomEnemyPlace place)
+    internal static void TriggerDeadTorizoPowerBomb(RoomEnemyPlace place, DeadTorizoEnemyState state)
     {
         if (!place.Contact.HasAny(EnemyContact.IgnoresSamus))
-            TriggerDeadTorizoRotting(place);
+            TriggerDeadTorizoRotting(place, state);
     }
 
     /// <summary>Checks asymmetric corpse touch boxes and publishes Samus's minimum separation displacement.</summary>
@@ -167,7 +165,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The body rows the dead Torizo in <paramref name="place"/> shows: its own, as its rot has left them (#1539).</summary>
-    internal static CorpseRotRows ShownDeadTorizoRows(RoomEnemyPlace place) => place.RequireSpeciesState<DeadTorizoEnemyState>().Rows.Shown;
+    internal static CorpseRotRows ShownDeadTorizoRows(RoomEnemyPlace place, DeadTorizoEnemyState state) => state.Rows.Shown;
 
     /// <summary>
     /// The sand rows <paramref name="state"/>'s sand heap shows (#1539): only the rows its heap has formed into, as the corpse's
@@ -204,11 +202,10 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         TriggerDeadTorizoRotting(c.Enemy);
 
     /// <summary>Advances the dead Torizo's typed animation.</summary>
-    internal static void AdvanceDeadTorizoTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceDeadTorizoTypedAnimation(RoomEnemyPlace place, DeadTorizoEnemyState state, EnemyAnimationCueContext _)
     {
         if (!place.AnimationClock.Expire())
             return;
-        DeadTorizoEnemyState state = place.RequireSpeciesState<DeadTorizoEnemyState>();
         AnimationPlayback<DeadTorizoSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, DeadTorizoAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free dead Torizo animation raised {cue}."));
@@ -216,9 +213,9 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the dead Torizo's main AI.</summary>
-    internal void RunDeadTorizoMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunDeadTorizoMainAi(RoomEnemyPlace place, DeadTorizoEnemyState state, IEnemyAiFrame frame)
     {
-        RunDeadTorizoMain(place, frame.Samus);
+        RunDeadTorizoMain(place, state, frame.Samus);
     }
 
     /// <summary>Starts corpse rotting on a power bomb without common damage handling.</summary>

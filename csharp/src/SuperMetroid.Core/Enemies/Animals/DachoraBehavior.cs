@@ -464,15 +464,15 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"A cue-free Dachora echo animation raised {cue}."));
 
     /// <summary>Runs a speed-boost echo's main AI, which needs only the frame counter's parity.</summary>
-    internal static void RunDachoraEchoMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunDachoraEcho(place, place.RequireSpeciesState<DachoraEchoState>(), frame.Clock.ShortCounter);
+    internal static void RunDachoraEchoMainAi(RoomEnemyPlace place, DachoraEchoState state, IEnemyAiFrame frame) =>
+        RunDachoraEcho(place, state, frame.Clock.ShortCounter);
 
     /// <summary>Runs the Dachora body's main AI, which reads Samus's gravity and the room's collision.</summary>
-    internal void RunDachoraMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunDachoraMainAi(RoomEnemyPlace place, DachoraEnemyState state, IEnemyAiFrame frame)
     {
         RunDachoraMain(
             place,
-            place.RequireSpeciesState<DachoraEnemyState>(),
+            state,
             frame.Samus,
             frame.Level);
     }

@@ -144,9 +144,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"A cue-free Fireflea animation raised {cue}."));
 
     /// <summary>Runs Fireflea's main AI.</summary>
-    internal static void RunFirefleaMainAi(RoomEnemyPlace place, IEnemyAiFrame _)
+    internal static void RunFirefleaMainAi(RoomEnemyPlace place, FirefleaEnemyState state, IEnemyAiFrame _)
     {
-        RunFirefleaMain(place, place.RequireSpeciesState<FirefleaEnemyState>());
+        RunFirefleaMain(place, state);
     }
 
     /// <summary>Advances darkness before a lethal common power-bomb death is finalized.</summary>

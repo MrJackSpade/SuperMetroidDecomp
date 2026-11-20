@@ -46,9 +46,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs an Sbug for one update through all of its actions.</summary>
-    internal static void RunSbugMain(RoomEnemyPlace place, SamusState samus)
+    internal static void RunSbugMain(RoomEnemyPlace place, SbugEnemyState state, SamusState samus)
     {
-        SbugEnemyState state = place.RequireSpeciesState<SbugEnemyState>();
         switch (state.Action)
         {
             case SbugAction.WaitForSamus:
@@ -163,5 +162,5 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"Sbug's cue-free animation raised {cue}."));
 
     /// <summary>Runs Sbug's main AI.</summary>
-    internal static void RunSbugMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) => RunSbugMain(place, frame.Samus);
+    internal static void RunSbugMainAi(RoomEnemyPlace place, SbugEnemyState state, IEnemyAiFrame frame) => RunSbugMain(place, state, frame.Samus);
 }

@@ -12,7 +12,7 @@ internal sealed class ElevatorEntity(ElevatorBehavior species, RoomEnemyPlace pl
     internal ElevatorEnemyState State { get; } = species.SetUpElevator(place, setup.SurroundingsOf(place));
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunElevatorMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunElevatorMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ElevatorBehavior.AdvanceElevatorTypedAnimation(Place, context);

@@ -11,7 +11,7 @@ internal sealed class MetareeEntity(MetareeBehavior species, RoomEnemyPlace plac
     internal MetareeEnemyState State { get; } = MetareeBehavior.InitializeMetaree(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetareeMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetareeMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MetareeBehavior.AdvanceMetareeTypedAnimation(Place, context);

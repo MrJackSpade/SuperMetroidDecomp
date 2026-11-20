@@ -306,8 +306,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             static (_, cue) => throw new InvalidOperationException($"The Wrecked Ship ghost's cue-free animation raised {cue}."));
 
     /// <summary>Runs the Wrecked Ship ghost's main AI.</summary>
-    internal static void RunWreckedShipGhostMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal static void RunWreckedShipGhostMainAi(RoomEnemyPlace place, WreckedShipGhostEnemyState state, IEnemyAiFrame frame)
     {
-        RunWreckedShipGhostMain(place, place.RequireSpeciesState<WreckedShipGhostEnemyState>(), frame.Samus);
+        RunWreckedShipGhostMain(place, state, frame.Samus);
     }
 }

@@ -11,10 +11,10 @@ internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyPlace place
     internal YardEnemyState State { get; } = YardEnemyBehavior.InitializeYard(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunYardMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunYardMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYardTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYardTypedAnimation(Place, State, context);
 
     /// <summary>Whether the Yard's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;

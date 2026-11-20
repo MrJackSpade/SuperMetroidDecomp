@@ -256,7 +256,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // this state boundary preserves a one-frame edge and prevents a held A/Start from
         // skipping both the options menu and the first narration page.
         controller.Latch(controllerInput);
-        bool explosionsExistedBeforeThisFrame = MotherBrainFlashback?.Explosions is not null;
+        bool explosionsExistedBeforeThisFrame = MotherBrainFlashback is { Fight: IntroMotherBrainFlashbackFight.Exploding };
         frameCounter++;
         crossfadeTick = null;
         switch (Phase)
@@ -503,24 +503,24 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (motherBrain.TakeMissileHit(flashbackProjectiles.EnemyImpacts, flashbackBombProjectiles))
         {
             var explosions = new IntroMotherBrainExplosionSystem();
-            flashback.Explosions = explosions;
+            flashback.Fight = new IntroMotherBrainFlashbackFight.Exploding(explosions);
             explosions.SpawnFourthHitExplosions();
         }
 
         flashback.Rinkas.Step(
             flashback.Samus,
             motherBrainExploding: motherBrain.ExplosionStarted,
-            explosionsAllocated: flashback.Explosions is not null);
+            explosionsAllocated: flashback.Fight is IntroMotherBrainFlashbackFight.Exploding);
 
         // Mother Brain's sprite steps last, so one spawned on this update shows its first frame on the
         // same update as the first page's input transition.
         motherBrain.Step();
-        if (explosionsExistedBeforeThisFrame)
+        if (explosionsExistedBeforeThisFrame && flashback.Fight is IntroMotherBrainFlashbackFight.Exploding exploding)
         {
             // The eight explosions spawn after this update has passed their places in the list,
             // so they first animate on the next update; the fourth hit comes on the update
             // they spawn.
-            flashback.Explosions?.Step(CrossfadeFinishing);
+            exploding.Explosions.Step(CrossfadeFinishing);
         }
     }
 
@@ -962,7 +962,8 @@ public sealed class IntroCinematicState : IFrontendScreen
             flashbackProjectiles.DrawExplosions(sprites, Position16<RoomPixels>.Zero, projectileArtwork);
         }
         flashback.Rinkas.Draw(screenSprites, IntroSprites(CinematicSpriteFamily.IntroRinka));
-        flashback.Explosions?.Draw(screenSprites, IntroSprites(CinematicSpriteFamily.IntroMotherBrainExplosion));
+        if (flashback.Fight is IntroMotherBrainFlashbackFight.Exploding exploding)
+            exploding.Explosions.Draw(screenSprites, IntroSprites(CinematicSpriteFamily.IntroMotherBrainExplosion));
         // The blank pose draws nothing.
         IntroMotherBrainSpriteState motherBrain = flashback.MotherBrain;
         if (motherBrain.IsVisible && motherBrain.Pose is { } motherBrainPose &&

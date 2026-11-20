@@ -156,9 +156,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Skultera's main AI.</summary>
-    internal void RunSkulteraMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunSkulteraMainAi(RoomEnemyPlace place, SkulteraEnemyState state, IEnemyAiFrame frame)
     {
-        RunSkulteraMain(place, place.RequireSpeciesState<SkulteraEnemyState>(), frame.Level);
+        RunSkulteraMain(place, state, frame.Level);
     }
 
     /// <summary>Advances Skultera's typed animation.</summary>

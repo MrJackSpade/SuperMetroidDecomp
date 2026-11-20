@@ -15,11 +15,10 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common, EnemySetup setup) => new ZoaEntity(place, common);
 
     /// <summary>Advances Zoa's typed animation (#641) in place of the shared enemy animation.</summary>
-    internal static void AdvanceZoaAnimation(RoomEnemyPlace place)
+    internal static void AdvanceZoaAnimation(RoomEnemyPlace place, ZoaEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        ZoaEnemyState state = place.RequireSpeciesState<ZoaEnemyState>();
         AnimationPlayback<ZoaSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, ZoaAnimations.Segments, ref playback,
             cue =>
@@ -141,8 +140,8 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, ZoaAnimations.StartingWith(segment));
 
     /// <summary>Runs Zoa's main AI.</summary>
-    internal static void RunZoaMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal static void RunZoaMainAi(RoomEnemyPlace place, ZoaEnemyState state, IEnemyAiFrame frame)
     {
-        RunZoaMain(place, place.RequireSpeciesState<ZoaEnemyState>(), frame.Samus, frame.Camera);
+        RunZoaMain(place, state, frame.Samus, frame.Camera);
     }
 }

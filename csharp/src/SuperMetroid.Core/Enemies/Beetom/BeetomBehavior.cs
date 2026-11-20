@@ -448,11 +448,10 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// and lets go of Samus. A hit that killed the Beetom took it from its place with its state, and the place's next
     /// Beetom starts detached, so there is nothing left to change.
     /// </summary>
-    private static void ResolveBeetomShotAfterCommon(RoomEnemyPlace place)
+    private static void ResolveBeetomShotAfterCommon(RoomEnemyPlace place, BeetomEnemyState state)
     {
         if (place.Health == 0)
             return;
-        BeetomEnemyState state = place.RequireSpeciesState<BeetomEnemyState>();
         if (place.Freeze.IsRunning && state.Action == BeetomAction.Draining)
         {
             state.Action = BeetomAction.StartDropping;
@@ -482,9 +481,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         InitializeBeetom(place, surroundings.Samus, surroundings.ControllerInput);
 
     /// <summary>Runs Beetom's main AI.</summary>
-    internal void RunBeetomMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunBeetomMainAi(RoomEnemyPlace place, BeetomEnemyState state, IEnemyAiFrame frame)
     {
-        RunBeetomMain(place, place.RequireSpeciesState<BeetomEnemyState>(), frame.Samus, frame.Level, frame.ControllerInput);
+        RunBeetomMain(place, state, frame.Samus, frame.Level, frame.ControllerInput);
     }
 
     /// <summary>Advances Beetom's typed animation.</summary>

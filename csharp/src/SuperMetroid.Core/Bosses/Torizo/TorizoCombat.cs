@@ -76,21 +76,20 @@ internal sealed class TorizoCombat
         TorizoBody.ShowLook(torizo, state, TorizoLook.GoldenHealth(GoldenTorizoHealthBand.Of(Ensure.AtLeastZero(health))));
 
     /// <summary>Runs Bomb Torizo's hurt behaviour (#2240): the low-health drool, then white or its own colours on alternating flash updates.</summary>
-    internal void ApplyBombTorizoHurt(RoomEnemyPlace torizo) =>
-        ApplyHurt(torizo, unflashed: state => TorizoBody.ShowLook(torizo, state, new TorizoLook(TorizoLookKind.Normal)));
+    internal void ApplyBombTorizoHurt(RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState) =>
+        ApplyHurt(torizo, torizoEnemyState, unflashed: state => TorizoBody.ShowLook(torizo, state, new TorizoLook(TorizoLookKind.Normal)));
 
     /// <summary>Runs Golden Torizo's hurt behaviour (#2240): the low-health drool, then white or its health's colours on alternating flash updates.</summary>
-    internal void ApplyGoldenTorizoHurt(RoomEnemyPlace torizo) =>
-        ApplyHurt(torizo, unflashed: state => ShowGoldenTorizoHealthShade(torizo, state, torizo.Health));
+    internal void ApplyGoldenTorizoHurt(RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState) =>
+        ApplyHurt(torizo, torizoEnemyState, unflashed: state => ShowGoldenTorizoHealthShade(torizo, state, torizo.Health));
 
     /// <summary>
     /// Runs a Torizo's hurt behaviour: the low-health drool, then on the flash's white updates white, and on the others the
     /// colours <paramref name="unflashed"/> shows.
     /// </summary>
-    private void ApplyHurt(RoomEnemyPlace torizo, Action<TorizoEnemyState> unflashed)
+    private void ApplyHurt(RoomEnemyPlace torizo, TorizoEnemyState state, Action<TorizoEnemyState> unflashed)
     {
-        _body.MaybeSpawnLowHealthDrool(torizo);
-        TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
+        _body.MaybeSpawnLowHealthDrool(torizo, state);
         if (!TorizoCadenceDefinitions.HurtWhiteShown.IsSetIn(torizo.HurtFlash.UpdatesLeft))
             unflashed(state);
         else
@@ -214,7 +213,7 @@ internal sealed class TorizoCombat
                     torizoState.CaughtSuperMissile = true;
                     torizoState.Phase = TorizoPhase.Idle;
                     c.Projectile.Spend();
-                    TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.Posture(enemy).LeadsWithFarFoot
+                    TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.Posture(enemy, torizoState).LeadsWithFarFoot
                         ? TorizoFacing.FacesRight(enemy)
                             ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileLeftLegForward
                             : TorizoAnimation.GoldenFacingLeftCatchingSuperMissileRightLegForward

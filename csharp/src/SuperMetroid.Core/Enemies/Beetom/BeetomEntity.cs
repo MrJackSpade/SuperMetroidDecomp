@@ -12,7 +12,7 @@ internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemyPlace place,
     internal BeetomEnemyState State { get; } = species.SetUpBeetom(place, setup.SurroundingsOf(place));
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunBeetomMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBeetomMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BeetomBehavior.AdvanceBeetomTypedAnimation(Place, context);

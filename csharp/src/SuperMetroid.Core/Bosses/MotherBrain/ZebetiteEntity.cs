@@ -13,10 +13,10 @@ internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemyPlace pl
     internal ZebetiteEnemyState State { get; } = species.InitializeZebetite(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunZebetiteMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunZebetiteMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ZebetiteBehavior.AdvanceZebetiteAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ZebetiteBehavior.AdvanceZebetiteAnimation(Place, State);
 
     /// <summary>Whether the Zebetite's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;

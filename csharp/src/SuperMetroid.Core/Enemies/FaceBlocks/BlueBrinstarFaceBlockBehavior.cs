@@ -138,11 +138,10 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>Advances the blue Brinstar face block's typed animation.</summary>
-    internal static void AdvanceBlueBrinstarFaceBlockTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceBlueBrinstarFaceBlockTypedAnimation(RoomEnemyPlace place, BlueBrinstarFaceBlockEnemyState state, EnemyAnimationCueContext _)
     {
         if (!place.AnimationClock.Expire())
             return;
-        var state = place.RequireSpeciesState<BlueBrinstarFaceBlockEnemyState>();
         AnimationPlayback<BlueBrinstarFaceBlockSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, BlueBrinstarFaceBlockAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free blue Brinstar face block animation raised {cue}."));
@@ -154,11 +153,11 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         InitializeBlueBrinstarFaceBlock(place, surroundings.Samus);
 
     /// <summary>Runs the blue Brinstar face block's main AI.</summary>
-    internal void RunBlueBrinstarFaceBlockMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunBlueBrinstarFaceBlockMainAi(RoomEnemyPlace place, BlueBrinstarFaceBlockEnemyState state, IEnemyAiFrame frame)
     {
         RunBlueBrinstarFaceBlockMain(
             place,
-            place.RequireSpeciesState<BlueBrinstarFaceBlockEnemyState>(),
+            state,
             frame.Samus);
     }
 }

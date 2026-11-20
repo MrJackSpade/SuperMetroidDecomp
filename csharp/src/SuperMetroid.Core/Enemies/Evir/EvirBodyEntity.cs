@@ -15,7 +15,7 @@ internal sealed class EvirBodyEntity(EvirBehavior species, RoomEnemyPlace place,
     internal EvirBodyState State { get; } = species.InitializeEvirBody(place, setup.SurroundingsOf(place).Samus);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirBodyMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirBodyMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => EvirBehavior.AdvanceEvirPartTypedAnimation<EvirBodyState>(Place);

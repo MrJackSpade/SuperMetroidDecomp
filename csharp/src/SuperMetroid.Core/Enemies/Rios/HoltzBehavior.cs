@@ -281,10 +281,10 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs a Holtz parent's main AI.</summary>
-    internal void RunHoltzMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
+    internal void RunHoltzMainAi(RoomEnemyPlace place, HoltzEnemyState state, IEnemyAiFrame frame) =>
         RunHoltzMain(
             place,
-            place.RequireSpeciesState<HoltzEnemyState>(),
+            state,
             frame.Samus,
             frame.Level);
 

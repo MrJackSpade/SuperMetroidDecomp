@@ -49,11 +49,10 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs a Mochtroid for one update, resetting its movement before it moves.</summary>
     private void RunMochtroidMain(
-        RoomEnemyPlace place,
+        RoomEnemyPlace place, MochtroidEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
-        MochtroidEnemyState state = place.RequireSpeciesState<MochtroidEnemyState>();
         MochtroidMovementMode selectedMode = state.MovementMode;
         state.MovementMode = MochtroidMovementMode.NotTouchingSamus;
         switch (selectedMode)
@@ -198,9 +197,9 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             static (state, cue) => throw new InvalidOperationException($"Mochtroid's cue-free animation raised {cue}."));
 
     /// <summary>Runs Mochtroid's main AI.</summary>
-    internal void RunMochtroidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMochtroidMainAi(RoomEnemyPlace place, MochtroidEnemyState state, IEnemyAiFrame frame)
     {
-        RunMochtroidMain(place, frame.Samus, frame.Level);
+        RunMochtroidMain(place, state, frame.Samus, frame.Level);
     }
 
     /// <summary>Runs the attachment and drain reaction for Samus overlap.</summary>

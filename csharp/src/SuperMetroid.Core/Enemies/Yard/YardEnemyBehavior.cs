@@ -138,9 +138,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.CrawlingVelocity = YardCrawlVelocity.Apply(state.CrawlSpeed, direction);
 
     /// <summary>Runs the Yard's main AI.</summary>
-    private void RunYardMain(RoomEnemyPlace place, SamusState samus, RoomLevelData level)
+    private void RunYardMain(RoomEnemyPlace place, YardEnemyState state, SamusState samus, RoomLevelData level)
     {
-        YardEnemyState state = place.RequireSpeciesState<YardEnemyState>();
 
         // A super-missile earthquake drops an attached/hiding Yard, but cannot restart one
         // that is already falling, kicked, or shot through the air.
@@ -591,17 +590,16 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Yard's main AI.</summary>
-    internal void RunYardMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunYardMainAi(RoomEnemyPlace place, YardEnemyState state, IEnemyAiFrame frame)
     {
-        RunYardMain(place, frame.Samus, frame.Level);
+        RunYardMain(place, state, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Yard's typed animation.</summary>
-    internal void AdvanceYardTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal void AdvanceYardTypedAnimation(RoomEnemyPlace place, YardEnemyState state, EnemyAnimationCueContext _)
     {
         if (!place.AnimationClock.Expire())
             return;
-        var state = place.RequireSpeciesState<YardEnemyState>();
         AnimationPlayback<YardSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, YardAnimations.Segments, ref playback,
             (cue, playing) => ApplyYardCue(place, state, cue, playing));

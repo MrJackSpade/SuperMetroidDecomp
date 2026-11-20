@@ -40,12 +40,11 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances room RNG and runs a fly's circle, attack or retreat phase.</summary>
-    private void RunFlyMain(RoomEnemyPlace place, SamusState samus)
+    private void RunFlyMain(RoomEnemyPlace place, FlyEnemyState state, SamusState samus)
     {
         // The flies advance the global RNG even though this family does not consume the
         // returned number. The side effect matters when several random enemies share a room.
         _room.Random.Generate();
-        FlyEnemyState state = place.RequireSpeciesState<FlyEnemyState>();
         switch (state.Action)
         {
             case FlyAction.Circling:
@@ -162,11 +161,10 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Flies's typed animation.</summary>
-    internal static void AdvanceFliesTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceFliesTypedAnimation(RoomEnemyPlace place, FlyEnemyState state, EnemyAnimationCueContext _)
     {
         if (!place.AnimationClock.Expire())
             return;
-        FlyEnemyState state = place.RequireSpeciesState<FlyEnemyState>();
         AnimationPlayback<FlySegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, FlyAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free fly animation raised {cue}."));
@@ -174,8 +172,8 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Flies's main AI.</summary>
-    internal void RunFliesMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunFliesMainAi(RoomEnemyPlace place, FlyEnemyState state, IEnemyAiFrame frame)
     {
-        RunFlyMain(place, frame.Samus);
+        RunFlyMain(place, state, frame.Samus);
     }
 }

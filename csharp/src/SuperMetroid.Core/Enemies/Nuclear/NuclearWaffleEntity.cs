@@ -11,8 +11,8 @@ internal sealed class NuclearWaffleEntity(NuclearWaffleBehavior species, RoomEne
     internal NuclearWaffleEnemyState State { get; } = species.InitializeNuclearWaffle(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunNuclearWaffleMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunNuclearWaffleMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => NuclearWaffleBehavior.AdvanceNuclearWaffleTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => NuclearWaffleBehavior.AdvanceNuclearWaffleTypedAnimation(Place, State, context);
 }

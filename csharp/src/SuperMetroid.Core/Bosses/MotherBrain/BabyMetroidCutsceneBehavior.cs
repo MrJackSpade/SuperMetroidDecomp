@@ -108,11 +108,10 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
     /// <summary>Advances the later Baby place, publishes cries/healing, and writes body and Baby animation changes for their next ordered enemy turns.</summary>
     internal void RunMotherBrainBabyMetroidMain(
-        RoomEnemyPlace place,
+        RoomEnemyPlace place, BabyMetroidCutsceneState baby,
         SamusState samus,
         Position16<RoomPixels> camera)
     {
-        BabyMetroidCutsceneState baby = place.RequireSpeciesState<BabyMetroidCutsceneState>();
         MotherBrainEnemyState state = baby.LateFight.Encounter;
 
         place.Shake.End();
@@ -220,9 +219,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         Ensure.NotNull(colours).ShowBabyFade(image);
 
     /// <summary>Runs BabyMetroidCutscene's main AI.</summary>
-    internal void RunBabyMetroidCutsceneMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunBabyMetroidCutsceneMainAi(RoomEnemyPlace place, BabyMetroidCutsceneState state, IEnemyAiFrame frame)
     {
-        RunMotherBrainBabyMetroidMain(place, frame.Samus, frame.Camera);
+        RunMotherBrainBabyMetroidMain(place, state, frame.Samus, frame.Camera);
     }
 
     /// <summary>
@@ -230,9 +229,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     /// timer would, and the clock notes each newly shown frame. A held pose rests: the last frame stays and the clock
     /// stops.
     /// </summary>
-    internal static void AdvanceBabyMetroidCutsceneAnimation(RoomEnemyPlace place)
+    internal static void AdvanceBabyMetroidCutsceneAnimation(RoomEnemyPlace place, BabyMetroidCutsceneState baby)
     {
-        BabyMetroidCutsceneState baby = place.RequireSpeciesState<BabyMetroidCutsceneState>();
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<MotherBrainBabySegment> playback = baby.Playback;

@@ -11,7 +11,7 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyPlace plac
     internal MetroidEnemyState State { get; } = species.InitializeMetroid(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMetroidTypedAnimation(Place, context);
@@ -20,12 +20,12 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyPlace plac
     /// <param name="frame">The enemy frame.</param>
     public override bool RunHurt(RoomEnemyFrame frame)
     {
-        MetroidBehavior.ApplyMetroidHurt(Place);
+        MetroidBehavior.ApplyMetroidHurt(Place, State);
         return true;
     }
 
     /// <summary>The frozen Metroid's behaviour, which retains its outer-body state.</summary>
-    public override void RunFrozen() => MetroidBehavior.RunMetroidFrozen(Place);
+    public override void RunFrozen() => MetroidBehavior.RunMetroidFrozen(Place, State);
 
     /// <summary>Whether the Metroid's own touch, its attachment and suit-dependent draining, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;

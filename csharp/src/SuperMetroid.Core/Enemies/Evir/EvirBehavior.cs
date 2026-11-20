@@ -425,29 +425,29 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs an Evir body's main AI: it bobs and turns.</summary>
-    internal static void RunEvirBodyMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunEvirMain(place, place.RequireSpeciesState<EvirBodyState>(), frame.Samus);
+    internal static void RunEvirBodyMainAi(RoomEnemyPlace place, EvirBodyState state, IEnemyAiFrame frame) =>
+        RunEvirMain(place, state, frame.Samus);
 
     /// <summary>Runs an Evir's arms' main AI: they follow the body.</summary>
-    internal static void RunEvirArmsMainAi(RoomEnemyPlace place) =>
-        PositionEvirArms(place, place.RequireSpeciesState<EvirArmsState>());
+    internal static void RunEvirArmsMainAi(RoomEnemyPlace place, EvirArmsState state) =>
+        PositionEvirArms(place, state);
 
     /// <summary>Runs EvirProjectile's main AI.</summary>
-    internal static void RunEvirProjectileMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal static void RunEvirProjectileMainAi(RoomEnemyPlace place, EvirSpitState state, IEnemyAiFrame frame)
     {
         RunEvirProjectileMain(
             place,
-            place.RequireSpeciesState<EvirSpitState>(),
+            state,
             frame.Samus,
             frame.Camera);
     }
 
     /// <summary>Advances an Evir body's or arms' cue-free typed animation, the part keeping its playback in its <typeparamref name="TState"/>.</summary>
-    internal static void AdvanceEvirPartTypedAnimation<TState>(RoomEnemyPlace place) where TState : EvirPartState
+    internal static void AdvanceEvirPartTypedAnimation<TState>(RoomEnemyPlace place, TState tState) where TState : EvirPartState
     {
         if (!place.AnimationClock.Expire())
             return;
-        EvirPartState state = place.RequireSpeciesState<TState>();
+        EvirPartState state = tState;
         AnimationPlayback<EvirSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, EvirAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"An Evir body's or arms' cue-free animation raised {cue}."));
@@ -455,11 +455,10 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances the Evir spit's typed animation, carrying out its cues.</summary>
-    internal void AdvanceEvirSpitTypedAnimation(RoomEnemyPlace place)
+    internal void AdvanceEvirSpitTypedAnimation(RoomEnemyPlace place, EvirSpitState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        EvirSpitState state = place.RequireSpeciesState<EvirSpitState>();
         AnimationPlayback<EvirSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, EvirAnimations.Segments, ref playback,
             cue => ApplyEvirCue(state, cue) is { } target

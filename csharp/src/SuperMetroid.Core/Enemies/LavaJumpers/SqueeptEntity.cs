@@ -14,7 +14,7 @@ internal sealed class SqueeptEntity(SqueeptBehavior species, RoomEnemyPlace plac
     internal SqueeptState State { get; } = SqueeptBehavior.InitializeSqueept(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunSqueeptMainAi(Place);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSqueeptMainAi(Place, State);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SqueeptBehavior.AdvanceSqueeptTypedAnimation(Place);

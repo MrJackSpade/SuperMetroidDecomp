@@ -11,5 +11,5 @@ internal sealed class OrangeZoomerEntity(CrawlersBehavior species, RoomEnemyPlac
     internal override CrawlerEnemyState State { get; } = CrawlersBehavior.InitializeOrangeZoomer(place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => species.RunOrangeZoomerMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => species.RunOrangeZoomerMainAi(Place, State, frame);
 }

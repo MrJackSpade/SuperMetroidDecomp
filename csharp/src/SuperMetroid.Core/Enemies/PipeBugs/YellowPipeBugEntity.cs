@@ -10,7 +10,7 @@ internal sealed class YellowPipeBugEntity(RoomEnemyPlace place, EnemyCommonParti
     internal YellowPipeBugState State { get; } = PipeBugsBehavior.InitializeYellowPipeBug(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunYellowPipeBugMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunYellowPipeBugMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PipeBugsBehavior.AdvanceYellowPipeBugTypedAnimation(Place);

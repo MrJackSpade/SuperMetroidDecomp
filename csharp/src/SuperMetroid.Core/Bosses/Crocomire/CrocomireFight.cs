@@ -143,9 +143,9 @@ internal sealed class CrocomireFight
     /// Runs the tongue's animation where the shared enemy animation runs: the frame changes when its timer
     /// runs out, and the clock notes each newly shown frame.
     /// </summary>
-    internal static void AdvanceCrocomireTongueAnimation(RoomEnemyPlace tongue)
+    internal static void AdvanceCrocomireTongueAnimation(RoomEnemyPlace tongue, CrocomireTongueState crocomireTongueState)
     {
-        CrocomireEnemyState state = tongue.RequireSpeciesState<CrocomireTongueState>().Crocomire;
+        CrocomireEnemyState state = crocomireTongueState.Crocomire;
         if (!tongue.AnimationClock.Expire())
             return;
 
@@ -171,9 +171,8 @@ internal sealed class CrocomireFight
     /// update its timer would, and the clock notes each newly shown frame as it does an
     /// authored timed frame.
     /// </summary>
-    internal void AdvanceCrocomireBodyAnimation(RoomEnemyPlace body, SamusState samus, RoomLevelData level, int cameraX)
+    internal void AdvanceCrocomireBodyAnimation(RoomEnemyPlace body, CrocomireEnemyState state, SamusState samus, RoomLevelData level, int cameraX)
     {
-        CrocomireEnemyState state = body.RequireSpeciesState<CrocomireEnemyState>();
         if (!body.AnimationClock.Expire())
             return;
 

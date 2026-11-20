@@ -11,5 +11,5 @@ internal sealed class GrappleRipperEntity(RipperBehavior species, RoomEnemyPlace
     internal override RipperEnemyState State { get; } = RipperBehavior.InitializeGrappleRipper(place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunGrappleRipperMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunGrappleRipperMainAi(Place, State, frame);
 }

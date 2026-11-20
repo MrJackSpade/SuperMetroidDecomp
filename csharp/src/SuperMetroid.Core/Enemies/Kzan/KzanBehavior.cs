@@ -204,8 +204,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"A cue-free Kzan animation raised {cue}."));
 
     /// <summary>Runs KzanTop's main AI.</summary>
-    internal void RunKzanTopMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunKzanTopMainAi(RoomEnemyPlace place, KzanEnemyState state, IEnemyAiFrame frame)
     {
-        RunKzanTopMain(place, place.RequireSpeciesState<KzanEnemyState>(), frame.Samus);
+        RunKzanTopMain(place, state, frame.Samus);
     }
 }

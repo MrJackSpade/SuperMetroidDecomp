@@ -15,7 +15,7 @@ internal sealed class EvirArmsEntity(EvirBehavior species, RoomEnemyPlace place,
     internal EvirArmsState State { get; } = species.InitializeEvirArms(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirArmsMainAi(Place);
+    public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirArmsMainAi(Place, State);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => EvirBehavior.AdvanceEvirPartTypedAnimation<EvirArmsState>(Place);

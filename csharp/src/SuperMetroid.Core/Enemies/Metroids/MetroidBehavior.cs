@@ -87,9 +87,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs a Metroid for one update and whichever of its four movements it is in.</summary>
-    private void RunMetroidMain(RoomEnemyPlace place, SamusState samus, RoomLevelData level)
+    private void RunMetroidMain(RoomEnemyPlace place, MetroidEnemyState state, SamusState samus, RoomLevelData level)
     {
-        MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
         int targetY = samus.Position.Y.Whole - MetroidBehaviorDefinitions.AimAboveSamus;
         switch (state.Movement)
         {
@@ -197,9 +196,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs a frozen Metroid's own step after the common thaw.</summary>
-    internal static void RunMetroidFrozen(RoomEnemyPlace place)
+    internal static void RunMetroidFrozen(RoomEnemyPlace place, MetroidEnemyState state)
     {
-        MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
         if (state.EscapeMovesLeft.IsRunning)
         {
             state.EscapeMovesLeft.Count();
@@ -214,9 +212,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Flashes the Metroid's outer bodies while it is hurt: its hit flash on alternate pairs of updates,
     /// its own colours between.
     /// </summary>
-    internal static void ApplyMetroidHurt(RoomEnemyPlace place)
+    internal static void ApplyMetroidHurt(RoomEnemyPlace place, MetroidEnemyState state)
     {
-        MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
         if (MetroidCadenceDefinitions.HurtOuterBodiesShowOwnColours.IsSetIn(place.HurtFlash.UpdatesLeft))
         {
             state.Electricity.Graphics = state.Electricity.Graphics.In(place.Shading);
@@ -229,9 +226,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Resolves a Metroid's touch of Samus: her body attack throws it away from her; otherwise it drains her.</summary>
-    internal void ResolveMetroidTouch(RoomEnemyPlace place, SamusState samus)
+    internal void ResolveMetroidTouch(RoomEnemyPlace place, MetroidEnemyState state, SamusState samus)
     {
-        MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
         int targetY = samus.Position.Y.Whole - MetroidBehaviorDefinitions.AimAboveSamus;
         if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
         {
@@ -290,13 +286,12 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Handles an unfrozen Metroid's recoil and ice build-up after it takes a shot.</summary>
     internal void ResolveMetroidNonFrozenShot(
-        RoomEnemyPlace place,
+        RoomEnemyPlace place, MetroidEnemyState state,
         SamusProjectileType collisionProjectileType,
         int collisionProjectileDamage,
         Position16<RoomPixels> recoilOrigin,
         SamusState samus)
     {
-        MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
         SamusProjectileFamily family = collisionProjectileType.Family;
         if (state.Movement == MetroidMovement.AttachedToSamus)
         {
@@ -350,9 +345,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Kills both composited outer layers and clears Samus's Metroid flash state.</summary>
-    internal static void FinishMetroidDeath(RoomEnemyPlace place, SamusState samus)
+    internal static void FinishMetroidDeath(RoomEnemyPlace place, MetroidEnemyState state, SamusState samus)
     {
-        MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
         state.Electricity.End();
         state.Shell.End();
         samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
@@ -431,9 +425,9 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Metroid's main AI.</summary>
-    internal void RunMetroidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMetroidMainAi(RoomEnemyPlace place, MetroidEnemyState state, IEnemyAiFrame frame)
     {
-        RunMetroidMain(place, frame.Samus, frame.Level);
+        RunMetroidMain(place, state, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Metroid's typed animation.</summary>

@@ -14,7 +14,7 @@ internal sealed class FakeKraidEntity(FakeKraidBehavior species, RoomEnemyPlace 
     internal FakeKraidEnemyState State { get; } = species.SetUpFakeKraid(place, setup.SurroundingsOf(place));
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunFakeKraidMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunFakeKraidMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFakeKraidTypedAnimation(Place, context);

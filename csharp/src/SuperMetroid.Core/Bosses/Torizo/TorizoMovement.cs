@@ -81,7 +81,7 @@ internal sealed class TorizoMovement
         TorizoEnemyState state,
         RoomLevelData level)
     {
-        _body.MaybeSpawnLowHealthDrool(torizo);
+        _body.MaybeSpawnLowHealthDrool(torizo, state);
 
         // Until its gut and face are blown up, which its death also does, health thresholds interrupt the current
         // authored animation with the core/head bursts.

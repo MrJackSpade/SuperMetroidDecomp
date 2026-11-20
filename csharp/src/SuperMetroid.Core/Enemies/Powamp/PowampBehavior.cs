@@ -357,7 +357,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Copies common shot/freeze presentation from the body to its balloon.</summary>
-    private void ResolvePowampShotAfterCommon(RoomEnemyPlace body)
+    private void ResolvePowampShotAfterCommon(RoomEnemyPlace body, PowampBodyState state)
     {
         PowampBalloon balloon = BalloonOf(body);
         if ((body.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
@@ -373,7 +373,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (body.Health == 0)
         {
             // The fatal action refuses Samus's later touch and shots (PowampBodyState.IsDying).
-            body.RequireSpeciesState<PowampBodyState>().Action = PowampAction.FatalDamage;
+            state.Action = PowampAction.FatalDamage;
         }
     }
 
@@ -495,11 +495,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => RaisesNoCues(cue));
 
     /// <summary>Advances the balloon's inflate or sink animation and the poses it shows.</summary>
-    internal static void AdvancePowampBalloonTypedAnimation(RoomEnemyPlace place)
+    internal static void AdvancePowampBalloonTypedAnimation(RoomEnemyPlace place, PowampBalloonState balloon)
     {
         if (!place.AnimationClock.Expire())
             return;
-        PowampBalloonState balloon = place.RequireSpeciesState<PowampBalloonState>();
         AnimationPlayback<PowampSegment> playback = balloon.Playback;
         // Every frame of the balloon's animations is one of its poses, so each frame shown records the next pose.
         EnemyAnimationPlayback.Play(place, PowampAnimations.Segments, ref playback, pose =>
@@ -534,8 +533,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         half.SpawnSettings<PowampSpawnSettings>().Contact == PowampContact.Refuses;
 
     /// <summary>Whether the body refuses Samus's touch and shots: its placement refuses them, or it is dying (#2474).</summary>
-    private static bool BodyRefusesContact(RoomEnemyPlace body) =>
-        PlacementRefusesContact(body) || body.RequireSpeciesState<PowampBodyState>().IsDying;
+    private static bool BodyRefusesContact(RoomEnemyPlace body, PowampBodyState state) =>
+        PlacementRefusesContact(body) || state.IsDying;
 
     /// <summary>The Powamp's shot reaction for a half that refuses shots while <paramref name="refusesContact"/> says so.</summary>
     private EnemyShotReaction ShotReactionSkipping(Func<RoomEnemyPlace, bool> refusesContact) => new()

@@ -21,8 +21,8 @@ internal sealed class GunshipTopEntity(GunshipBehavior species, RoomEnemyPlace p
     internal GunshipPieces Pieces => _top.Pieces;
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunGunshipMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunGunshipMainAi(Place, Ship, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GunshipBehavior.AdvanceGunshipAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GunshipBehavior.AdvanceGunshipAnimation(Place, Piece);
 }

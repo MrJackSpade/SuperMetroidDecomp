@@ -15,5 +15,5 @@ internal sealed class SurfaceCrawlerEntity(CrawlersBehavior species, RoomEnemyPl
     internal override CrawlerEnemyState State { get; } = CrawlersBehavior.InitializeCrawler(place, family);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => species.RunCrawlerMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => species.RunCrawlerMainAi(Place, State, frame);
 }

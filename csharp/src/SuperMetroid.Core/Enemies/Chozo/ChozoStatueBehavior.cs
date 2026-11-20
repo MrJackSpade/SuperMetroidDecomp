@@ -134,12 +134,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// the four statue animations raise. Every cue runs on to the next step, so none redirects.
     /// </summary>
     private ChozoStatueSegment? ApplyChozoStatueCue(
-        RoomEnemyPlace statue,
+        RoomEnemyPlace statue, ChozoStatueState state,
         ChozoStatueCue cue,
         SamusState samus,
         RoomLevelData level)
     {
-        ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
         switch (cue)
         {
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.AwaitHand }:
@@ -280,16 +279,16 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         _passEvents.Publish(new ChozoStatueObjectAsked(new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, roomObject)));
 
     /// <summary>Runs ChozoStatue's main AI.</summary>
-    internal static void RunChozoStatueMainAi(RoomEnemyPlace place, IEnemyAiFrame _)
+    internal static void RunChozoStatueMainAi(RoomEnemyPlace place, ChozoStatueState state, IEnemyAiFrame _)
     {
-        RunChozoStatueMain(place, place.RequireSpeciesState<ChozoStatueState>());
+        RunChozoStatueMain(place, state);
     }
 
     /// <summary>Advances ChozoStatue's typed animation.</summary>
-    internal void AdvanceChozoStatueTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
+    internal void AdvanceChozoStatueTypedAnimation(RoomEnemyPlace place, ChozoStatueState chozoStatueState, EnemyAnimationCueContext context) =>
         EnemyAnimationPlayback.Advance(place, ChozoStatueAnimations.Segments,
             static (ChozoStatueState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyChozoStatueCue(place, cue, context.Samus, context.Level) is { } target
+            (state, cue) => ApplyChozoStatueCue(place, chozoStatueState, cue, context.Samus, context.Level) is { } target
                 ? new AnimationContinuation<ChozoStatueSegment>(ChozoStatueAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 }

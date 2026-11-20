@@ -91,13 +91,12 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="camera">The enemy pass's camera, which the wait for the camera and the off-screen test read.</param>
     /// <param name="samusBombs">Samus's bomb and projectile counters, which draining Samus locks.</param>
     internal void RunBabyMetroidMain(
-        RoomEnemyPlace place,
+        RoomEnemyPlace place, BabyMetroidEnemyState state,
         SamusState samus,
         Position16<RoomPixels> camera,
         SamusBombProjectileSystem samusBombs)
     {
         Ensure.NotNull(samusBombs);
-        BabyMetroidEnemyState state = place.RequireSpeciesState<BabyMetroidEnemyState>();
         RunBabyMetroidState(place, state, samus, camera, samusBombs);
         place.Position = place.Position.MovedBy(state.Velocity);
         // The room's enemies run between a door fade's steps; the membrane pulse waits for the fade.
@@ -231,7 +230,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Action = BabyMetroidAction.FlyBesideSamus;
                     state.DepartureSide = HorizontalDirection.Left;
                     state.StateTimer.LastFor(BabyMetroidFightDefinitions.FlyBesideUpdates);
-                    SetBabyMetroidAnimation(place, BabyMetroidSegment.LatchedOn);
+                    SetBabyMetroidAnimation(place, state, BabyMetroidSegment.LatchedOn);
                     goto case BabyMetroidAction.FlyBesideSamus;
                 }
                 return;
@@ -261,7 +260,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 state.Action = BabyMetroidAction.HoldSamusBeforeRelease;
                 state.StateTimer.LastFor(BabyMetroidFightDefinitions.HoldBeforeReleaseUpdates);
-                SetBabyMetroidAnimation(place, BabyMetroidSegment.Remorse);
+                SetBabyMetroidAnimation(place, state, BabyMetroidSegment.Remorse);
                 return;
             }
 
@@ -350,7 +349,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Velocity = default;
         place.Position = place.Position.WithWhole(latch);
-        SetBabyMetroidAnimation(place, BabyMetroidSegment.LatchedOn);
+        SetBabyMetroidAnimation(place, state, BabyMetroidSegment.LatchedOn);
         state.Action = BabyMetroidAction.DrainSidehopper;
         state.PaceMembrane(BabyMetroidMembranePace.Feeding);
         state.ReactsToSamus = false;
@@ -367,7 +366,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.SidehopperDrain.StepRunsOut())
         {
             state.Action = BabyMetroidAction.ActivateSidehopperCorpse;
-            SetBabyMetroidAnimation(place, BabyMetroidSegment.FinishDraining);
+            SetBabyMetroidAnimation(place, state, BabyMetroidSegment.FinishDraining);
             state.PaceMembrane(BabyMetroidMembranePace.Calm);
         }
     }
@@ -426,7 +425,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             samusBombs.ReleaseCountAfterDrain();
             state.Action = BabyMetroidAction.BeginPostDrainPause;
             state.Velocity = default;
-            SetBabyMetroidAnimation(place, BabyMetroidSegment.FinishDraining);
+            SetBabyMetroidAnimation(place, state, BabyMetroidSegment.FinishDraining);
             state.PaceMembrane(BabyMetroidMembranePace.Calm);
             samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
             samus.Drained.LetFall(samus);
@@ -579,9 +578,8 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         DistanceAcrossRoomEdge.Between(center.Y, place.Position.Y.Whole) < place.Radius.Y + radius.Y + 1;
 
     /// <summary>Resolves the Baby's private touch reaction.</summary>
-    private static void ResolveBabyMetroidTouch(RoomEnemyPlace place, SamusState samus)
+    private static void ResolveBabyMetroidTouch(RoomEnemyPlace place, BabyMetroidEnemyState state, SamusState samus)
     {
-        BabyMetroidEnemyState state = place.RequireSpeciesState<BabyMetroidEnemyState>();
         if (!state.ReactsToSamus)
             return;
 
@@ -612,7 +610,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 BabyMetroidFlightDefinitions.LatchAcceleration,
                 samus.Position.Whole + BabyMetroidFightDefinitions.LatchOffset))
             {
-                SetBabyMetroidAnimation(place, BabyMetroidSegment.LatchedOn);
+                SetBabyMetroidAnimation(place, state, BabyMetroidSegment.LatchedOn);
                 state.PaceMembrane(BabyMetroidMembranePace.Feeding);
                 state.ReactsToSamus = false;
                 state.Velocity = default;
@@ -627,11 +625,10 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Resolves the recoil-only shot reaction: the Baby recoils away from <paramref name="recoilOrigin"/>.</summary>
     private static void ResolveBabyMetroidShot(
-        RoomEnemyPlace place,
+        RoomEnemyPlace place, BabyMetroidEnemyState state,
         int collisionDamage,
         SamusProjectile recoilOrigin)
     {
-        BabyMetroidEnemyState state = place.RequireSpeciesState<BabyMetroidEnemyState>();
         if (!state.ReactsToSamus)
             return;
 
@@ -684,9 +681,9 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts <paramref name="segment"/> with both animation timers reset.</summary>
-    private static void SetBabyMetroidAnimation(RoomEnemyPlace place, BabyMetroidSegment segment)
+    private static void SetBabyMetroidAnimation(RoomEnemyPlace place, BabyMetroidEnemyState state, BabyMetroidSegment segment)
     {
-        place.RequireSpeciesState<BabyMetroidEnemyState>().Playback = BabyMetroidAnimations.Starting(segment);
+        state.Playback = BabyMetroidAnimations.Starting(segment);
         place.AnimationClock.Restart();
     }
 
@@ -711,18 +708,17 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         InitializeBabyMetroid(place, surroundings.Camera.X);
 
     /// <summary>Runs Baby Metroid's main AI.</summary>
-    internal void RunBabyMetroidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunBabyMetroidMainAi(RoomEnemyPlace place, BabyMetroidEnemyState state, IEnemyAiFrame frame)
     {
-        RunBabyMetroidMain(place, frame.Samus, frame.Camera, frame.SamusBombs);
+        RunBabyMetroidMain(place, state, frame.Samus, frame.Camera, frame.SamusBombs);
     }
 
     /// <summary>
     /// Plays the Baby Metroid's animation where the shared enemy animation runs: the frame expires on the update its
     /// timer would, and the clock notes each newly shown frame. Its animations only cycle.
     /// </summary>
-    internal void AdvanceBabyMetroidAnimation(RoomEnemyPlace place)
+    internal void AdvanceBabyMetroidAnimation(RoomEnemyPlace place, BabyMetroidEnemyState state)
     {
-        BabyMetroidEnemyState state = place.RequireSpeciesState<BabyMetroidEnemyState>();
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<BabyMetroidSegment> playback = state.Playback;

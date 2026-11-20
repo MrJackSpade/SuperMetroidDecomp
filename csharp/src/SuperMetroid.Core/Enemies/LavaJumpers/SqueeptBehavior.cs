@@ -215,10 +215,10 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, NorfairLavaJumperAnimations.StartingWith(segment));
 
     /// <summary>Runs a jumping lava jumper's main AI.</summary>
-    internal void RunSqueeptMainAi(RoomEnemyPlace place) =>
+    internal void RunSqueeptMainAi(RoomEnemyPlace place, SqueeptState state) =>
         RunSqueeptMain(
             place,
-            place.RequireSpeciesState<SqueeptState>());
+            state);
 
     /// <summary>Advances a lava jumper follower's looping typed animation, which raises no cue.</summary>
     internal static void AdvanceNorfairLavaJumperFollowerTypedAnimation(RoomEnemyPlace place) =>

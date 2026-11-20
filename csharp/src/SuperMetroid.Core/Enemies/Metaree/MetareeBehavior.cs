@@ -152,9 +152,9 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SkreeMetareeAnimations.StartingWith(animation));
 
     /// <summary>Runs Metaree's main AI.</summary>
-    internal void RunMetareeMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMetareeMainAi(RoomEnemyPlace place, MetareeEnemyState state, IEnemyAiFrame frame)
     {
-        RunMetareeMain(place, place.RequireSpeciesState<MetareeEnemyState>(), frame.Samus, frame.Level);
+        RunMetareeMain(place, state, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Metaree's typed animation.</summary>

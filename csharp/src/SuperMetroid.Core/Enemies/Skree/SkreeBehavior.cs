@@ -42,9 +42,8 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Winds up near Samus, dives when the wind-up cue is ready, then burrows after floor contact.</summary>
-    internal void RunSkreeMain(RoomEnemyPlace place, SamusState samus, RoomLevelData level)
+    internal void RunSkreeMain(RoomEnemyPlace place, SkreeEnemyState state, SamusState samus, RoomLevelData level)
     {
-        SkreeEnemyState state = place.RequireSpeciesState<SkreeEnemyState>();
         switch (state.Action)
         {
             case SkreeAction.Idling:
@@ -125,9 +124,9 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SkreeMetareeAnimations.StartingWith(animation));
 
     /// <summary>Runs Skree's main AI.</summary>
-    internal void RunSkreeMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunSkreeMainAi(RoomEnemyPlace place, SkreeEnemyState state, IEnemyAiFrame frame)
     {
-        RunSkreeMain(place, frame.Samus, frame.Level);
+        RunSkreeMain(place, state, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Skree's typed animation.</summary>

@@ -12,7 +12,7 @@ internal sealed class AlcoonEntity(AlcoonBehavior species, RoomEnemyPlace place,
     internal AlcoonEnemyState State { get; } = species.SetUpAlcoon(place, setup.SurroundingsOf(place));
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunAlcoonMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunAlcoonMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceAlcoonTypedAnimation(Place, context);

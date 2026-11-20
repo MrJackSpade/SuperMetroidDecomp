@@ -11,7 +11,7 @@ internal sealed class CacatacEntity(CacatacBehavior species, RoomEnemyPlace plac
     internal CacatacEnemyState State { get; } = CacatacBehavior.InitializeCacatac(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunCacatacMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunCacatacMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceCacatacTypedAnimation(Place, context);

@@ -30,8 +30,8 @@ internal sealed class IntroMotherBrainFlashback(
     /// <summary>Mother Brain's sprite.</summary>
     internal IntroMotherBrainSpriteState MotherBrain { get; } = Ensure.NotNull(motherBrain);
 
-    /// <summary>The explosions Mother Brain's fourth hit spawns; none before it.</summary>
-    internal IntroMotherBrainExplosionSystem? Explosions { get; set; }
+    /// <summary>Where the flashback's fight stands: before Mother Brain's fourth hit, or exploding from it.</summary>
+    internal IntroMotherBrainFlashbackFight Fight { get; set; } = new IntroMotherBrainFlashbackFight.BeforeFourthHit();
 
     /// <summary>The flashback's Rinkas.</summary>
     internal IntroRinkaSystem Rinkas { get; } = Ensure.NotNull(rinkas);

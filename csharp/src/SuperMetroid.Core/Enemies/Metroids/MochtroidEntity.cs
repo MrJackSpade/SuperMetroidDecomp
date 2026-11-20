@@ -11,7 +11,7 @@ internal sealed class MochtroidEntity(MochtroidBehavior species, RoomEnemyPlace 
     internal MochtroidEnemyState State { get; } = MochtroidBehavior.InitializeMochtroid(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMochtroidMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMochtroidMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MochtroidBehavior.AdvanceMochtroidTypedAnimation(Place, context);

@@ -271,8 +271,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"A cue-free Boulder animation raised {cue}."));
 
     /// <summary>Runs Boulder's main AI.</summary>
-    internal void RunBoulderMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunBoulderMainAi(RoomEnemyPlace place, BoulderEnemyState state, IEnemyAiFrame frame)
     {
-        RunBoulderMain(place, place.RequireSpeciesState<BoulderEnemyState>(), frame.Samus, frame.Level);
+        RunBoulderMain(place, state, frame.Samus, frame.Level);
     }
 }

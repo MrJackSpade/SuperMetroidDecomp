@@ -220,12 +220,11 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Finishes a Rinka's reaction to a touch, a shot or a power bomb after the common damage: a killed Rinka either
     /// dies, or, one of Mother Brain's, hides and waits to respawn.
     /// </summary>
-    private void ResolveRinkaCombatAfterCommon(RoomEnemyPlace place)
+    private void ResolveRinkaCombatAfterCommon(RoomEnemyPlace place, RinkaEnemyState state)
     {
         if (place.Health != 0)
             return;
 
-        RinkaEnemyState state = place.RequireSpeciesState<RinkaEnemyState>();
         ReleaseSpecialRinkaSpawn(state);
         if (!IsSpecialRinka(place))
         {
@@ -246,14 +245,14 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs a frozen Rinka's own step before the common thaw: outside its flight window it thaws at once, and once the
     /// Rinkas are ending it dies; true when it died.
     /// </summary>
-    internal bool ThawOrDieWhileFrozen(RoomEnemyPlace place)
+    internal bool ThawOrDieWhileFrozen(RoomEnemyPlace place, RinkaEnemyState state)
     {
         if (RinkaIsOutsideFlightWindow(place))
             place.Freeze.End();
         if (!_rinkaTerminationFlag)
             return false;
 
-        ReleaseSpecialRinkaSpawn(place.RequireSpeciesState<RinkaEnemyState>());
+        ReleaseSpecialRinkaSpawn(state);
         RunRinkaDeathAnimation(place);
         return true;
     }
@@ -354,9 +353,9 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs Rinka's main AI.</summary>
-    internal void RunRinkaMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunRinkaMainAi(RoomEnemyPlace place, RinkaEnemyState state, IEnemyAiFrame frame)
     {
-        RunRinkaMain(place, place.RequireSpeciesState<RinkaEnemyState>(), frame.Samus);
+        RunRinkaMain(place, state, frame.Samus);
     }
 
     /// <summary>Advances Rinka's typed animation.</summary>

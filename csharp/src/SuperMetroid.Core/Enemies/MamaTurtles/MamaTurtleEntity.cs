@@ -11,10 +11,10 @@ internal sealed class MamaTurtleEntity(MamaTurtleBehavior species, RoomEnemyPlac
     internal MamaTurtleEnemyState State { get; } = species.InitializeMamaTurtle(place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunMamaTurtleMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunMamaTurtleMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceMamaTurtleTypedAnimation(Place, context);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceMamaTurtleTypedAnimation(Place, State, context);
 
     /// <inheritdoc/>
     protected override void ReactToOwnTouch(EnemyTouchContext context) => Species.ReactToMamaTurtleTouch(context);

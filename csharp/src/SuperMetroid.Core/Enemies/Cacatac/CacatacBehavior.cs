@@ -143,9 +143,9 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyCacatacSpike(context.Projectile, context.Camera));
 
     /// <summary>Runs Cacatac's main AI.</summary>
-    internal void RunCacatacMainAi(RoomEnemyPlace place, IEnemyAiFrame _)
+    internal void RunCacatacMainAi(RoomEnemyPlace place, CacatacEnemyState state, IEnemyAiFrame _)
     {
-        RunCacatacMain(place, place.RequireSpeciesState<CacatacEnemyState>());
+        RunCacatacMain(place, state);
     }
 
     /// <summary>Advances Cacatac's typed animation.</summary>

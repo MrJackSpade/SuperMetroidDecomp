@@ -11,7 +11,7 @@ internal sealed class OumEntity(OumBehavior species, RoomEnemyPlace place, Enemy
     internal OumEnemyState State { get; } = OumBehavior.InitializeOum(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunOumMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunOumMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceOumTypedAnimation(Place, context);

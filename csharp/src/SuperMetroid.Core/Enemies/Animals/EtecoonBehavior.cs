@@ -696,8 +696,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"A cue-free Etecoon animation raised {cue}."));
 
     /// <summary>Runs Etecoon's main AI.</summary>
-    internal void RunEtecoonMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunEtecoonMainAi(RoomEnemyPlace place, EtecoonEnemyState state, IEnemyAiFrame frame)
     {
-        RunEtecoonMain(place, place.RequireSpeciesState<EtecoonEnemyState>(), frame.Samus, frame.Level);
+        RunEtecoonMain(place, state, frame.Samus, frame.Level);
     }
 }

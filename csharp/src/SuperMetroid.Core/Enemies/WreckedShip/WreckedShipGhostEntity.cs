@@ -10,7 +10,7 @@ internal sealed class WreckedShipGhostEntity(RoomEnemyPlace place, EnemyCommonPa
     internal WreckedShipGhostEnemyState State { get; } = WreckedShipGhostBehavior.InitializeWreckedShipGhost(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(Place, State, frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => WreckedShipGhostBehavior.AdvanceWreckedShipGhostTypedAnimation(Place, context);

@@ -27,7 +27,11 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
         EyePart = new PhantoonPart(this, eye, PhantoonPartSegment.EyeClosed);
         TentaclesPart = new PhantoonPart(this, tentacles, PhantoonPartSegment.Tentacles);
         MouthPart = new PhantoonPart(this, mouth, PhantoonPartSegment.MouthInitial);
+        CarriedParts = [MouthPart, TentaclesPart, EyePart];
     }
+
+    /// <summary>The drawing parts his body carries to its place after its AI pass: his mouth, tentacles and eye.</summary>
+    internal IReadOnlyList<PhantoonPart> CarriedParts { get; }
 
     /// <summary>Phantoon's body's and his room's colours (#1512).</summary>
     internal PhantoonColours Colours { get; } = new();

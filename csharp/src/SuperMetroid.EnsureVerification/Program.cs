@@ -97,6 +97,7 @@ internal static class Program
                 new AnalyzerSuite(nameof(SharedPhaseContractAnalyzerTests.VerifySharedPhaseContractAnalyzer), SharedPhaseContractAnalyzerTests.VerifySharedPhaseContractAnalyzer),
                 new AnalyzerSuite(nameof(UnreadResultAnalyzerTests.VerifyUnreadResultAnalyzer), UnreadResultAnalyzerTests.VerifyUnreadResultAnalyzer),
                 new AnalyzerSuite(nameof(CatalogDecisionAnalyzerTests.VerifyCatalogDecisionAnalyzer), CatalogDecisionAnalyzerTests.VerifyCatalogDecisionAnalyzer),
+                new AnalyzerSuite(nameof(RepeatedDefinitionStructureAnalyzerTests.VerifyRepeatedDefinitionStructureAnalyzer), RepeatedDefinitionStructureAnalyzerTests.VerifyRepeatedDefinitionStructureAnalyzer),
                 new AnalyzerSuite(nameof(InlineDefinitionDataAnalyzerTests.VerifyInlineDefinitionDataAnalyzer), InlineDefinitionDataAnalyzerTests.VerifyInlineDefinitionDataAnalyzer),
                 new AnalyzerSuite(nameof(PrivateStateMemberAnalyzerTests.VerifyPrivateStateMemberAnalyzer), PrivateStateMemberAnalyzerTests.VerifyPrivateStateMemberAnalyzer),
                 new AnalyzerSuite(nameof(WholeImageFixtureInLoopAnalyzerTests.VerifyWholeImageFixtureInLoopAnalyzer), WholeImageFixtureInLoopAnalyzerTests.VerifyWholeImageFixtureInLoopAnalyzer),

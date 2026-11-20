@@ -1,3 +1,4 @@
+using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
@@ -10,27 +11,27 @@ public static class SlopeShapeDefinitions
 {
     /// <summary>A square shape whose bottom half is solid.</summary>
     public static SlopeShape SquareBottomHalf { get; } = new("SquareBottomHalf", SlopeShapeKind.Square,
-        [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8],
+        [.. Repeated(8, 16)],
         SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled);
 
     /// <summary>A square shape whose right half is solid.</summary>
     public static SlopeShape SquareRightHalf { get; } = new("SquareRightHalf", SlopeShapeKind.Square,
-        [16, 16, 16, 16, 16, 16, 16, 16, 0, 0, 0, 0, 0, 0, 0, 0],
+        [.. Repeated(16, 8), .. Repeated(0, 8)],
         SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled);
 
     /// <summary>A square shape whose bottom right quarter alone is solid.</summary>
     public static SlopeShape SquareBottomRightQuarter { get; } = new("SquareBottomRightQuarter", SlopeShapeKind.Square,
-        [16, 16, 16, 16, 16, 16, 16, 16, 8, 8, 8, 8, 8, 8, 8, 8],
+        [.. Repeated(16, 8), .. Repeated(8, 8)],
         SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled);
 
     /// <summary>A square shape solid in every quarter but the top left.</summary>
     public static SlopeShape SquareAllButTopLeft { get; } = new("SquareAllButTopLeft", SlopeShapeKind.Square,
-        [8, 8, 8, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0],
+        [.. Repeated(8, 8), .. Repeated(0, 8)],
         SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled);
 
     /// <summary>A square shape solid in every quarter.</summary>
     public static SlopeShape SquareFull { get; } = new("SquareFull", SlopeShapeKind.Square,
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [.. Repeated(0, 16)],
         SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled);
 
     /// <summary>A low peak: the surface rises from the block's bottom edges to seven pixels up in its middle.</summary>
@@ -45,7 +46,7 @@ public static class SlopeShapeDefinitions
 
     /// <summary>A flat surface halfway down the block.</summary>
     public static SlopeShape HalfHeight { get; } = new("HalfHeight", SlopeShapeKind.Profile,
-        [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8],
+        [.. Repeated(8, 16)],
         SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled);
 
     /// <summary>
@@ -55,12 +56,12 @@ public static class SlopeShapeDefinitions
     /// <see cref="Solid"/> keeps that shape's own behaviour, which this shape's would not (#1909).
     /// </summary>
     public static SlopeShape UnusedSolid { get; } = new("UnusedSolid", SlopeShapeKind.Profile,
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [.. Repeated(0, 16)],
         SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled);
 
     /// <summary>Stairs rising to the right four pixels a step, every four columns.</summary>
     public static SlopeShape FourPixelStairs { get; } = new("FourPixelStairs", SlopeShapeKind.Profile,
-        [12, 12, 12, 12, 8, 8, 8, 8, 4, 4, 4, 4, 0, 0, 0, 0],
+        [.. Repeated(12, 4), .. Repeated(8, 4), .. Repeated(4, 4), .. Repeated(0, 4)],
         SlopeSpeedDefinitions.DescendingStairs, SlopeSpeedDefinitions.DescendingStairs);
 
     /// <summary>Stairs rising to the right two pixels a step, every two columns.</summary>
@@ -70,12 +71,12 @@ public static class SlopeShapeDefinitions
 
     /// <summary>No surface in the block.</summary>
     public static SlopeShape Open { get; } = new("Open", SlopeShapeKind.Profile,
-        [16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16],
+        [.. Repeated(16, 16)],
         SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled);
 
     /// <summary>A surface below the block until its last three columns, which have none in it.</summary>
     public static SlopeShape Overhang { get; } = new("Overhang", SlopeShapeKind.Profile,
-        [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 16, 16, 16],
+        [.. Repeated(20, 13), .. Repeated(16, 3)],
         SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled);
 
     /// <summary>A slope rising one pixel a column across the block.</summary>
@@ -85,17 +86,17 @@ public static class SlopeShapeDefinitions
 
     /// <summary>A flat surface at the block's top: the slope blocks the Wrecked Ship Chozo statue opens use it.</summary>
     public static SlopeShape Solid { get; } = new("Solid", SlopeShapeKind.Profile,
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [.. Repeated(0, 16)],
         SlopeSpeedDefinitions.Unscaled, SlopeSpeedDefinitions.Unscaled);
 
     /// <summary>The lower block of a slope rising one pixel a column that starts halfway across the block before.</summary>
     public static SlopeShape UnitRiseLower { get; } = new("UnitRiseLower", SlopeShapeKind.Profile,
-        [16, 16, 16, 16, 16, 16, 16, 16, 16, 15, 14, 13, 12, 11, 10, 9],
+        [.. Repeated(16, 9), 15, 14, 13, 12, 11, 10, 9],
         SlopeSpeedDefinitions.UnitRise, SlopeSpeedDefinitions.UnitRise);
 
     /// <summary>The upper block of a slope rising one pixel a column that starts halfway across the block before.</summary>
     public static SlopeShape UnitRiseUpper { get; } = new("UnitRiseUpper", SlopeShapeKind.Profile,
-        [8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+        [8, 7, 6, 5, 4, 3, 2, 1, .. Repeated(0, 8)],
         SlopeSpeedDefinitions.UnitRise, SlopeSpeedDefinitions.UnitRise);
 
     /// <summary>The lower block of a slope rising half a pixel a column over two blocks.</summary>
@@ -110,42 +111,42 @@ public static class SlopeShapeDefinitions
 
     /// <summary>The lowest block of a slope rising a third of a pixel a column over three blocks.</summary>
     public static SlopeShape ThirdRiseLower { get; } = new("ThirdRiseLower", SlopeShapeKind.Profile,
-        [16, 16, 16, 15, 15, 15, 14, 14, 14, 13, 13, 13, 12, 12, 12, 11],
+        [.. Repeated(16, 3), .. Repeated(15, 3), .. Repeated(14, 3), .. Repeated(13, 3), .. Repeated(12, 3), 11],
         SlopeSpeedDefinitions.ThirdRise, SlopeSpeedDefinitions.ThirdRise);
 
     /// <summary>The middle block of a slope rising a third of a pixel a column over three blocks.</summary>
     public static SlopeShape ThirdRiseMiddle { get; } = new("ThirdRiseMiddle", SlopeShapeKind.Profile,
-        [11, 11, 10, 10, 10, 9, 9, 9, 8, 8, 8, 7, 7, 7, 6, 6],
+        [11, 11, .. Repeated(10, 3), .. Repeated(9, 3), .. Repeated(8, 3), .. Repeated(7, 3), 6, 6],
         SlopeSpeedDefinitions.ThirdRise, SlopeSpeedDefinitions.ThirdRise);
 
     /// <summary>The highest block of a slope rising a third of a pixel a column over three blocks.</summary>
     public static SlopeShape ThirdRiseUpper { get; } = new("ThirdRiseUpper", SlopeShapeKind.Profile,
-        [6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 1, 1, 1],
+        [6, .. Repeated(5, 3), .. Repeated(4, 3), .. Repeated(3, 3), .. Repeated(2, 3), .. Repeated(1, 3)],
         SlopeSpeedDefinitions.ThirdRise, SlopeSpeedDefinitions.ThirdRise);
 
     /// <summary>The lower block of a slope rising two pixels a column over two blocks' height.</summary>
     public static SlopeShape DoubleRiseLower { get; } = new("DoubleRiseLower", SlopeShapeKind.Profile,
-        [20, 20, 20, 20, 20, 20, 20, 20, 16, 14, 12, 10, 8, 6, 4, 2],
+        [.. Repeated(20, 8), 16, 14, 12, 10, 8, 6, 4, 2],
         SlopeSpeedDefinitions.DoubleRise, SlopeSpeedDefinitions.DoubleRise);
 
     /// <summary>The upper block of a slope rising two pixels a column over two blocks' height.</summary>
     public static SlopeShape DoubleRiseUpper { get; } = new("DoubleRiseUpper", SlopeShapeKind.Profile,
-        [16, 14, 12, 10, 8, 6, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0],
+        [16, 14, 12, 10, 8, 6, 4, 2, .. Repeated(0, 8)],
         SlopeSpeedDefinitions.DoubleRise, SlopeSpeedDefinitions.DoubleRise);
 
     /// <summary>The lowest block of a slope rising three pixels a column over three blocks' height.</summary>
     public static SlopeShape TripleRiseLower { get; } = new("TripleRiseLower", SlopeShapeKind.Profile,
-        [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 15, 12, 9, 6, 3],
+        [.. Repeated(20, 11), 15, 12, 9, 6, 3],
         SlopeSpeedDefinitions.TripleRise, SlopeSpeedDefinitions.TripleRise);
 
     /// <summary>The middle block of a slope rising three pixels a column over three blocks' height.</summary>
     public static SlopeShape TripleRiseMiddle { get; } = new("TripleRiseMiddle", SlopeShapeKind.Profile,
-        [20, 20, 20, 20, 20, 20, 14, 11, 8, 5, 2, 0, 0, 0, 0, 0],
+        [.. Repeated(20, 6), 14, 11, 8, 5, 2, .. Repeated(0, 5)],
         SlopeSpeedDefinitions.TripleRise, SlopeSpeedDefinitions.TripleRise);
 
     /// <summary>The highest block of a slope rising three pixels a column over three blocks' height.</summary>
     public static SlopeShape TripleRiseUpper { get; } = new("TripleRiseUpper", SlopeShapeKind.Profile,
-        [16, 13, 10, 7, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [16, 13, 10, 7, 4, 1, .. Repeated(0, 10)],
         SlopeSpeedDefinitions.TripleRise, SlopeSpeedDefinitions.TripleRise);
 
     /// <summary>Every slope shape, in the order the installation names them.</summary>

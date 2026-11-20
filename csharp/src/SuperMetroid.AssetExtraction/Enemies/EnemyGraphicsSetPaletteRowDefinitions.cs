@@ -1,3 +1,4 @@
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -281,7 +282,7 @@ internal static class EnemyGraphicsSetPaletteRowDefinitions
         [RoomEnemyGraphicsSetDefinitions.MotherBrainSave] = [],
         [RoomEnemyGraphicsSetDefinitions.Metroids1Default] = [1, 2],
         [RoomEnemyGraphicsSetDefinitions.DustTorizo] = [1],
-        [RoomEnemyGraphicsSetDefinitions.BigBoy] = [1, 1, 1],
+        [RoomEnemyGraphicsSetDefinitions.BigBoy] = [.. Repeated(1, 3)],
         [RoomEnemyGraphicsSetDefinitions.MotherBrainBeforeDefeat] = [1, 2, 1],
         [RoomEnemyGraphicsSetDefinitions.TourianEyeDoor] = [],
         [RoomEnemyGraphicsSetDefinitions.BlueHopper] = [1],

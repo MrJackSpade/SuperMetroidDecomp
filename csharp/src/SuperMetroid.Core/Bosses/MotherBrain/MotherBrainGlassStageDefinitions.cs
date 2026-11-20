@@ -1,3 +1,4 @@
+using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
@@ -25,16 +26,16 @@ internal static class MotherBrainGlassStageDefinitions
         new(MotherBrainGlassDraw.Intact, 2, null),
         new(MotherBrainGlassDraw.PaneCracked, 4, null),
         new(MotherBrainGlassDraw.PaneCrackedThrough, 6, new(
-            [MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Right],
-            [MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Right])),
+            [.. Repeated(MotherBrainGlassShard.Right, 4)],
+            [.. Repeated(MotherBrainGlassShard.Right, 4)])),
         new(MotherBrainGlassDraw.PaneTransition, 8, null),
         new(MotherBrainGlassDraw.PaneShifted, 10, null),
         new(MotherBrainGlassDraw.PaneShiftedCrumbling, 12, new(
-            [MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Left],
-            [MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Left])),
+            [.. Repeated(MotherBrainGlassShard.Left, 4)],
+            [.. Repeated(MotherBrainGlassShard.Left, 4)])),
         new(MotherBrainGlassDraw.PaneShiftedEmptying, 14, new(
             [MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Left, MotherBrainGlassShard.Left],
-            [MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre])),
+            [.. Repeated(MotherBrainGlassShard.Centre, 4)])),
         new(MotherBrainGlassDraw.RimBuckling, 16, new(
             [MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre],
             [MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre])),

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
@@ -18,31 +19,20 @@ internal static class GreyDoorObjectDrawDefinitions
         {
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Left, DoorCapLook.Cleared)] =
             [
-                RoomCollisionType.Air,
-                RoomCollisionType.Air,
-                RoomCollisionType.Air,
-                RoomCollisionType.Air,
+                .. Repeated(RoomCollisionType.Air, 4),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Left, DoorCapLook.Closed)] =
             [
                 RoomCollisionType.ShootableBlock,
-                RoomCollisionType.VerticalExtension,
-                RoomCollisionType.VerticalExtension,
-                RoomCollisionType.VerticalExtension,
+                .. Repeated(RoomCollisionType.VerticalExtension, 3),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Left, DoorCapLook.Ajar)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Left, DoorCapLook.HalfOpen)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Left, DoorCapLook.NearlyOpen)] =
             [
@@ -53,101 +43,62 @@ internal static class GreyDoorObjectDrawDefinitions
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Right, DoorCapLook.Cleared)] =
             [
-                RoomCollisionType.Air,
-                RoomCollisionType.Air,
-                RoomCollisionType.Air,
-                RoomCollisionType.Air,
+                .. Repeated(RoomCollisionType.Air, 4),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Right, DoorCapLook.Closed)] =
             [
                 RoomCollisionType.ShootableBlock,
-                RoomCollisionType.VerticalExtension,
-                RoomCollisionType.VerticalExtension,
-                RoomCollisionType.VerticalExtension,
+                .. Repeated(RoomCollisionType.VerticalExtension, 3),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Right, DoorCapLook.Ajar)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Right, DoorCapLook.HalfOpen)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Right, DoorCapLook.NearlyOpen)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Up, DoorCapLook.Cleared)] =
             [
-                RoomCollisionType.Air,
-                RoomCollisionType.Air,
-                RoomCollisionType.Air,
-                RoomCollisionType.Air,
+                .. Repeated(RoomCollisionType.Air, 4),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Up, DoorCapLook.Closed)] =
             [
                 RoomCollisionType.ShootableBlock,
-                RoomCollisionType.HorizontalExtension,
-                RoomCollisionType.HorizontalExtension,
-                RoomCollisionType.HorizontalExtension,
+                .. Repeated(RoomCollisionType.HorizontalExtension, 3),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Up, DoorCapLook.Ajar)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Up, DoorCapLook.HalfOpen)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Up, DoorCapLook.NearlyOpen)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Down, DoorCapLook.Cleared)] =
             [
-                RoomCollisionType.Air,
-                RoomCollisionType.Air,
-                RoomCollisionType.Air,
-                RoomCollisionType.Air,
+                .. Repeated(RoomCollisionType.Air, 4),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Down, DoorCapLook.Closed)] =
             [
                 RoomCollisionType.ShootableBlock,
-                RoomCollisionType.HorizontalExtension,
-                RoomCollisionType.HorizontalExtension,
-                RoomCollisionType.HorizontalExtension,
+                .. Repeated(RoomCollisionType.HorizontalExtension, 3),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Down, DoorCapLook.Ajar)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Down, DoorCapLook.HalfOpen)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new GreyDoorCaps.Draw(ColoredDoorOrientation.Down, DoorCapLook.NearlyOpen)] =
             [

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using F = SuperMetroid.Core.Samus.Artwork.SamusFullBodyCycleFamily;
 using G = SuperMetroid.Core.Samus.Colours.SamusGlowSegment;
 using S = SuperMetroid.Core.Samus.Colours.SamusSuit;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.Core.Samus.Colours;
 
@@ -35,7 +36,7 @@ internal static class SamusGlowAnimationDefinitions
         [G.PseudoScrewPowerPulse] = Each(SamusShades.ChargePulse(SamusChargeKind.PseudoScrew, S.Power), 1),
         [G.PseudoScrewVariaPulse] = Each(SamusShades.ChargePulse(SamusChargeKind.PseudoScrew, S.Varia), 1),
         [G.PseudoScrewGravityPulse] = Each(SamusShades.ChargePulse(SamusChargeKind.PseudoScrew, S.Gravity), 1),
-        [G.ChargedShotFlash] = Each([SamusShades.ChargedShotGlow, SamusShades.ChargedShotGlow, SamusShades.ChargedShotGlow], 1),
+        [G.ChargedShotFlash] = Each([.. Repeated(SamusShades.ChargedShotGlow, 3)], 1),
         [G.HyperShotGlow] = Each(SamusShades.HyperShot.Reverse(), 2),
         [G.HyperBeamCycle] = Each(SamusShades.HyperBeamCycle, 2),
         [G.CrystalFlashBody] = Each(SamusShades.CrystalFlashBody, 10),

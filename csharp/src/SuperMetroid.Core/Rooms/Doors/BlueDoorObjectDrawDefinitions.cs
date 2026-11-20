@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
@@ -25,30 +26,20 @@ internal static class BlueDoorObjectDrawDefinitions
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Left, DoorCapLook.ClosedSolid)] =
             [
                 RoomCollisionType.SolidBlock,
-                RoomCollisionType.VerticalExtension,
-                RoomCollisionType.VerticalExtension,
-                RoomCollisionType.VerticalExtension,
+                .. Repeated(RoomCollisionType.VerticalExtension, 3),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Left, DoorCapLook.Closed)] =
             [
                 RoomCollisionType.ShootableBlock,
-                RoomCollisionType.VerticalExtension,
-                RoomCollisionType.VerticalExtension,
-                RoomCollisionType.VerticalExtension,
+                .. Repeated(RoomCollisionType.VerticalExtension, 3),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Left, DoorCapLook.Ajar)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Left, DoorCapLook.HalfOpen)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Left, DoorCapLook.NearlyOpen)] =
             [
@@ -60,30 +51,20 @@ internal static class BlueDoorObjectDrawDefinitions
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Right, DoorCapLook.ClosedSolid)] =
             [
                 RoomCollisionType.SolidBlock,
-                RoomCollisionType.VerticalExtension,
-                RoomCollisionType.VerticalExtension,
-                RoomCollisionType.VerticalExtension,
+                .. Repeated(RoomCollisionType.VerticalExtension, 3),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Right, DoorCapLook.Closed)] =
             [
                 RoomCollisionType.ShootableBlock,
-                RoomCollisionType.VerticalExtension,
-                RoomCollisionType.VerticalExtension,
-                RoomCollisionType.VerticalExtension,
+                .. Repeated(RoomCollisionType.VerticalExtension, 3),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Right, DoorCapLook.Ajar)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Right, DoorCapLook.HalfOpen)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Right, DoorCapLook.NearlyOpen)] =
             [
@@ -95,72 +76,46 @@ internal static class BlueDoorObjectDrawDefinitions
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Up, DoorCapLook.ClosedSolid)] =
             [
                 RoomCollisionType.SolidBlock,
-                RoomCollisionType.HorizontalExtension,
-                RoomCollisionType.HorizontalExtension,
-                RoomCollisionType.HorizontalExtension,
+                .. Repeated(RoomCollisionType.HorizontalExtension, 3),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Up, DoorCapLook.Closed)] =
             [
                 RoomCollisionType.ShootableBlock,
-                RoomCollisionType.HorizontalExtension,
-                RoomCollisionType.HorizontalExtension,
-                RoomCollisionType.HorizontalExtension,
+                .. Repeated(RoomCollisionType.HorizontalExtension, 3),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Up, DoorCapLook.Ajar)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Up, DoorCapLook.HalfOpen)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Up, DoorCapLook.NearlyOpen)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Down, DoorCapLook.ClosedSolid)] =
             [
                 RoomCollisionType.SolidBlock,
-                RoomCollisionType.HorizontalExtension,
-                RoomCollisionType.HorizontalExtension,
-                RoomCollisionType.HorizontalExtension,
+                .. Repeated(RoomCollisionType.HorizontalExtension, 3),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Down, DoorCapLook.Closed)] =
             [
                 RoomCollisionType.ShootableBlock,
-                RoomCollisionType.HorizontalExtension,
-                RoomCollisionType.HorizontalExtension,
-                RoomCollisionType.HorizontalExtension,
+                .. Repeated(RoomCollisionType.HorizontalExtension, 3),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Down, DoorCapLook.Ajar)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Down, DoorCapLook.HalfOpen)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new BlueDoorCaps.Draw(ColoredDoorOrientation.Down, DoorCapLook.NearlyOpen)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
         };
 }

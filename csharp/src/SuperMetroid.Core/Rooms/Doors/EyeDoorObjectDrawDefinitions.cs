@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
@@ -20,10 +21,7 @@ internal static class EyeDoorObjectDrawDefinitions
         {
             [new EyeDoorDraws.Draw(EyeDoorLook.Clear, EyeDoorOrientation.Left)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new EyeDoorDraws.Draw(EyeDoorLook.EyeClosed, EyeDoorOrientation.Left)] =
             [
@@ -76,10 +74,7 @@ internal static class EyeDoorObjectDrawDefinitions
             ],
             [new EyeDoorDraws.Draw(EyeDoorLook.Clear, EyeDoorOrientation.Right)] =
             [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
+                .. Repeated(RoomCollisionType.SolidBlock, 4),
             ],
             [new EyeDoorDraws.Draw(EyeDoorLook.EyeClosed, EyeDoorOrientation.Right)] =
             [

@@ -19,6 +19,7 @@ using SuperMetroid.Core.Enemies.Skultera;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Core.Enemies.YappingMaws;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
@@ -440,10 +441,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         new(EnemyDefinitionId.Rio, new(432, 96), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Rio, new(744, 96), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.None, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.Runner)),
-        new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.Hidden, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)),
-        new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.Hidden, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)),
-        new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.Hidden, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)),
-        new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.Hidden, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)),
+        .. Repeated<RoomEnemyPlacement>(new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.Hidden, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)), 4),
     ], 8);
 
     /// <summary>The enemy population of the Hellway room.</summary>

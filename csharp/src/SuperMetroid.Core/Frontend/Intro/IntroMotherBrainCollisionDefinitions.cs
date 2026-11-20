@@ -1,4 +1,6 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Rooms.LevelData;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -34,5 +36,5 @@ internal static class IntroMotherBrainCollisionDefinitions
     /// tank, the notch above it and the pipe's base. They give the wall its blocking shape independently of the room's
     /// picture; a fitted curve would restate or alter it.
     /// </summary>
-    internal static ReadOnlySpan<int> LeftContourWidths => [6, 6, 5, 6, 4, 4, 4, 6, 7, 7, 7];
+    internal static ImmutableArray<int> LeftContourWidths { get; } = [6, 6, 5, 6, .. Repeated(4, 3), 6, .. Repeated(7, 3)];
 }

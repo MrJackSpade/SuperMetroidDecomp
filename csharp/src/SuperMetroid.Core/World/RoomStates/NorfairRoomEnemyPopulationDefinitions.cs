@@ -23,6 +23,7 @@ using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Core.Enemies.YappingMaws;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
@@ -34,10 +35,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     internal static PlacedRoomEnemyPopulationDefinition GrappleTutorial3 { get; } = new("GrappleTutorial3",
     [
         new(EnemyDefinitionId.Gamet, new(208, 360), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugLeaderSpawnSettings(TriggerWidth: 48, Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(208, 360), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(208, 360), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(208, 360), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(208, 360), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
+        .. Repeated<RoomEnemyPlacement>(new(EnemyDefinitionId.Gamet, new(208, 360), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))), 4),
         new(EnemyDefinitionId.Puyo, new(461, 332), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 0, HopDistance: 0)),
         new(EnemyDefinitionId.Puyo, new(442, 276), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 0, HopDistance: 0)),
         new(EnemyDefinitionId.Puyo, new(520, 418), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 0, HopDistance: 0)),
@@ -80,10 +78,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     internal static PlacedRoomEnemyPopulationDefinition PurpleFarming { get; } = new("PurpleFarming",
     [
         new(EnemyDefinitionId.Gamet, new(128, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugLeaderSpawnSettings(TriggerWidth: 48, Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(128, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(128, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(128, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(128, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
+        .. Repeated<RoomEnemyPlacement>(new(EnemyDefinitionId.Gamet, new(128, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))), 4),
     ], 1);
 
     /// <summary>The enemy population of the Ice Beam Gate room.</summary>
@@ -236,10 +231,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     internal static PlacedRoomEnemyPopulationDefinition PostCrocomireFarming { get; } = new("PostCrocomireFarming",
     [
         new(EnemyDefinitionId.Gamet, new(304, 456), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugLeaderSpawnSettings(TriggerWidth: 48, Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(304, 456), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(304, 456), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(304, 456), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(304, 456), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
+        .. Repeated<RoomEnemyPlacement>(new(EnemyDefinitionId.Gamet, new(304, 456), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))), 4),
         new(EnemyDefinitionId.GrappleRipper, new(256, 80), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Right, MinimumX: 232, MaximumX: 304)),
         new(EnemyDefinitionId.SuspensorPlatform, new(344, 328), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.Zero, VerticalAccelerationUpdates: 40)),
     ], 2);
@@ -530,10 +522,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     internal static PlacedRoomEnemyPopulationDefinition AcidSnakesTunnel { get; } = new("AcidSnakesTunnel",
     [
         new(EnemyDefinitionId.Gamet, new(272, 232), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugLeaderSpawnSettings(TriggerWidth: 48, Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(272, 232), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(272, 232), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(272, 232), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(272, 232), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
+        .. Repeated<RoomEnemyPlacement>(new(EnemyDefinitionId.Gamet, new(272, 232), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))), 4),
         new(EnemyDefinitionId.Dragon, new(512, 240), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new DragonSpawnSettings(Part: DragonPart.Body)),
         new(EnemyDefinitionId.Dragon, new(512, 240), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new DragonSpawnSettings(Part: DragonPart.Wing)),
         new(EnemyDefinitionId.Dragon, new(752, 240), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new DragonSpawnSettings(Part: DragonPart.Body)),
@@ -588,10 +577,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         new(EnemyDefinitionId.Metaree, new(280, 56), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Metaree, new(248, 64), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Gamet, new(688, 224), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugLeaderSpawnSettings(TriggerWidth: 48, Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(688, 224), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(688, 224), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(688, 224), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
-        new(EnemyDefinitionId.Gamet, new(688, 224), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))),
+        .. Repeated<RoomEnemyPlacement>(new(EnemyDefinitionId.Gamet, new(688, 224), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(3))), 4),
     ], 3);
 
     /// <summary>The enemy population of the Cathedral room.</summary>
@@ -705,10 +691,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     internal static PlacedRoomEnemyPopulationDefinition BatCave { get; } = new("BatCave",
     [
         new(EnemyDefinitionId.Gamet, new(96, 176), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugLeaderSpawnSettings(TriggerWidth: 32, Speed: SignedSixteenSixteen.FromWholePixels(2))),
-        new(EnemyDefinitionId.Gamet, new(96, 176), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(2))),
-        new(EnemyDefinitionId.Gamet, new(96, 176), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(2))),
-        new(EnemyDefinitionId.Gamet, new(96, 176), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(2))),
-        new(EnemyDefinitionId.Gamet, new(96, 176), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(2))),
+        .. Repeated<RoomEnemyPlacement>(new(EnemyDefinitionId.Gamet, new(96, 176), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(2))), 4),
         new(EnemyDefinitionId.Skree, new(200, 328), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Skree, new(168, 320), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Skree, new(128, 312), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -782,10 +765,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     [
         new(EnemyDefinitionId.Fune, new(496, 400), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FuneSpawnSettings(Facing: HorizontalDirection.Left, CooldownTime: 32, LaunchSpeed: SignedEightEight.FromPixels(2))),
         new(EnemyDefinitionId.Gamet, new(304, 448), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugLeaderSpawnSettings(TriggerWidth: 80, Speed: SignedSixteenSixteen.FromWholePixels(4))),
-        new(EnemyDefinitionId.Gamet, new(304, 448), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(4))),
-        new(EnemyDefinitionId.Gamet, new(304, 448), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(4))),
-        new(EnemyDefinitionId.Gamet, new(304, 448), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(4))),
-        new(EnemyDefinitionId.Gamet, new(304, 448), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(4))),
+        .. Repeated<RoomEnemyPlacement>(new(EnemyDefinitionId.Gamet, new(304, 448), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugFollowerSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(4))), 4),
     ], 2);
 
     /// <summary>The Norfair rooms' lists, in their authored order.</summary>

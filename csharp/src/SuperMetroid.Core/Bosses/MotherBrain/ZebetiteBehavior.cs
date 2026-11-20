@@ -131,9 +131,11 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place = zebetite.Place;
         if (state.Form == ZebetiteBarrierForm.SplitPair)
         {
-            RoomEnemyPlace secondary = SpawnZebetite(ZebetiteHalf.Linked);
-            secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedHalf = place;
-            state.LinkedHalf = secondary;
+            if (SpawnZebetite(ZebetiteHalf.Linked) is { } secondary)
+            {
+                secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedHalf = place;
+                state.LinkedHalf = secondary;
+            }
         }
 
         state.Action = ZebetiteAction.WaitForDoorTransition;
@@ -178,7 +180,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Services.ZebetiteProgress.ZebetitesDestroyed = nextGeneration;
         FinishZebetiteDeath(zebetite);
         if (nextGeneration < PersistentProgress.ZebetiteCount)
-            SpawnZebetite(ZebetiteHalf.Primary);
+            _ = SpawnZebetite(ZebetiteHalf.Primary);
     }
 
     /// <summary>
@@ -218,13 +220,17 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         throw new InvalidOperationException($"A {form} Zebetite has no picture at health {health}.");
     }
 
-    /// <summary>Finds a free place in the room's enemies and initializes a primary or linked half from its population entry.</summary>
-    private RoomEnemyPlace SpawnZebetite(ZebetiteHalf half)
+    /// <summary>
+    /// Finds a free place in the room's enemies and initializes a primary or linked half from its population entry; a full
+    /// pool spawns no half.
+    /// </summary>
+    private RoomEnemyPlace? SpawnZebetite(ZebetiteHalf half)
     {
         // The spawn takes the first free place. In particular, a primary's death vacates
         // its place before spawning the next generation; surviving linked halves keep
         // naming that reused place.
-        RoomEnemyPlace spawned = _places.FreePlaceWithRoom("The Zebetites' next generation");
+        if (_places.FindFreePlace() is not { } spawned)
+            return null;
 
         RoomEnemyPlacement population = Zebetites.SpawnPopulation(half, _room.Services.ZebetiteProgress.ZebetitesDestroyed);
 

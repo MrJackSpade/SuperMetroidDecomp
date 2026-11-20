@@ -178,7 +178,7 @@ internal sealed class EnemyProjectileEngine
                 else
                 {
                     // Every shot animation without a typed reaction of its own is the shared delete animation.
-                    enemyProjectile.StartAnimation(BehaviorOf(enemyProjectile).ShotAnimation());
+                    enemyProjectile.StartAnimation(enemyProjectile.Behavior.ShotAnimation());
                     enemyProjectile.HoldStill();
 
                     // A shot that destroys a projectile strips its behaviours and keeps only its damage: it no
@@ -224,15 +224,15 @@ internal sealed class EnemyProjectileEngine
             if (_places[place] is not { IsActive: true } projectile)
                 continue;
 
-            BehaviorOf(projectile).RunMotion(
+            projectile.Behavior.RunMotion(
                 new EnemyProjectileMotionContext(projectile, level, samus, camera, shortCounter, frameCounter, samusBombs));
             // The animation that runs next is that of whatever projectile the place holds after the motion, live
             // or not. A projectile that ended and spawned its replacement into its own place hands the rest of the pass
             // to the replacement, whose animation starts in this pass. One that freed its place without ending finishes
             // its update with its animation (a power-bombed Draygon goop that reaches Samus sticks to her through its
             // touch animation, EnemyProjectile.FreePlace). One that ended plays no animation, so nothing runs.
-            AdvanceEnemyProjectileAnimations(_places[place] ?? throw new InvalidOperationException(
-                $"Enemy-projectile place {place} lost its projectile during its own motion."), samus, camera, shortCounter, samusBombs);
+            if (_places[place] is { } occupant)
+                AdvanceEnemyProjectileAnimations(occupant, samus, camera, shortCounter, samusBombs);
         }
     }
 
@@ -325,7 +325,7 @@ internal sealed class EnemyProjectileEngine
         foreach (int place in EnemyProjectilePlaces.InRunOrder)
         {
             if (_places[place] is not { IsActive: true } projectile ||
-                BehaviorOf(projectile).IsHidden(projectile) ||
+                projectile.Behavior.IsHidden(projectile) ||
                 projectile.Depth != depth ||
                 projectile.Frame is not { } frame)
                 continue;
@@ -349,20 +349,6 @@ internal sealed class EnemyProjectileEngine
     internal EnemyProjectile? AllocateEnemyProjectile(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics) =>
         TryAllocateEnemyProjectile(kind, behavior, graphics, out EnemyProjectile? projectile) ? projectile : null;
 
-    /// <summary>
-    /// Spawns a fresh projectile as <see cref="AllocateEnemyProjectile"/> does, for a spawn whose room always leaves it a
-    /// place (#2554): one its load spawns into the pool the load has just cleared, which holds every place it needs.
-    /// </summary>
-    /// <param name="kind">What the projectile is, which names its definition.</param>
-    /// <param name="behavior">What the projectile's kind does, bound to it for its life.</param>
-    /// <param name="graphics">The sheet and shading the projectile draws with.</param>
-    /// <param name="spawn">The spawn, named in the failure.</param>
-    /// <exception cref="InvalidOperationException">Every place is held, which the spawn's room never leaves it.</exception>
-    internal EnemyProjectile AllocateEnemyProjectileWithRoom(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior,
-        SpriteGraphics graphics, string spawn) =>
-        TryAllocateEnemyProjectile(kind, behavior, graphics, out EnemyProjectile? projectile) ? projectile
-            : throw new InvalidOperationException($"{spawn} found every enemy-projectile place held.");
-
     /// <summary>Spawns a fresh projectile into the first free place searched from the last down; false when every place is held.</summary>
     private bool TryAllocateEnemyProjectile(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics,
         [NotNullWhen(true)] out EnemyProjectile? projectile)
@@ -372,9 +358,9 @@ internal sealed class EnemyProjectileEngine
             if (!IsFree(place))
                 continue;
             Places.RecordSpawn(place);
-            projectile = new EnemyProjectile(place, _leftovers.StartOf(place, _places[place]?.LeftInPlace), kind);
+            projectile = new EnemyProjectile(place, _leftovers.StartOf(place, _places[place]?.LeftInPlace), kind, behavior);
             _places[place] = projectile;
-            InitializeEnemyProjectileFromDefinition(projectile, kind, behavior, graphics);
+            InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);
             return true;
         }
         Places.RecordSpawn(null);
@@ -411,16 +397,13 @@ internal sealed class EnemyProjectileEngine
     /// </summary>
     /// <param name="projectile">The freshly spawned projectile.</param>
     /// <param name="kind">What the projectile is, which names its definition.</param>
-    /// <param name="behavior">What the projectile's kind does, bound to it for its life (#1760), which starts its motion (#1843).</param>
     /// <param name="graphics">The sheet and shading the projectile draws with.</param>
     private static void InitializeEnemyProjectileFromDefinition(
         EnemyProjectile projectile,
         RoomEnemyProjectileKind kind,
-        EnemyProjectileBehavior behavior,
         SpriteGraphics graphics)
     {
         EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
-        projectile.Bind(kind, behavior);
         // The spawn starts the animation timer at one, so the first step runs on the first pass. The spawner then starts
         // the animation it chooses.
         projectile.FrameHold = WrappingCountdown.OneFrame;
@@ -438,11 +421,6 @@ internal sealed class EnemyProjectileEngine
         projectile.Graphics = graphics;
     }
 
-    /// <summary>The behaviour bound to <paramref name="projectile"/> at its spawn.</summary>
-    /// <exception cref="InvalidOperationException">The projectile was given a kind without a behaviour.</exception>
-    private static EnemyProjectileBehavior BehaviorOf(EnemyProjectile projectile) =>
-        projectile.Behavior ?? throw new InvalidOperationException(
-            $"Enemy projectile {projectile.Kind} in place {projectile.Place} has no behaviour bound.");
 
     /// <summary>
     /// Moves one projectile axis by its own velocity on that axis through each crossed room block, colliding with the
@@ -595,7 +573,7 @@ internal sealed class EnemyProjectileEngine
         // prevents later persistent projectile families from needing bespoke hit effects.
         bool startsTouchReaction = EnemyProjectileKinds.Get(projectile.Kind).SamusTouch == EnemyProjectileSamusTouch.StartsTouchReaction;
         // Every touch animation without a typed reaction of its own is the shared delete animation.
-        if (BehaviorOf(projectile).TouchAnimation() is { } touchAnimation)
+        if (projectile.Behavior.TouchAnimation() is { } touchAnimation)
             projectile.StartAnimation(touchAnimation);
         else if (startsTouchReaction)
             projectile.StartAnimation(EnemyProjectileDeleteAnimation.Instance);

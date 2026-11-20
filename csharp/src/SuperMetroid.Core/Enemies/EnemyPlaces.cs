@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The room's enemy places, in <see cref="EnemyPlaceOrder"/>, with the extent of the places the population and later
@@ -14,22 +14,6 @@ internal sealed class EnemyPlaces
 
     /// <summary>The empty place a newly spawned enemy takes, or null when every place is taken.</summary>
     internal RoomEnemyPlace? FindFreePlace() => EnemyPlaceOrder.FirstFree(_places);
-
-    /// <summary>
-    /// The empty place a spawn whose room always leaves it one takes (#2554): the spawn's room never fills every place
-    /// before it.
-    /// </summary>
-    /// <param name="spawn">The spawn, named in the failure.</param>
-    /// <exception cref="InvalidOperationException">Every place is taken, which the spawn's room never leaves it.</exception>
-    internal RoomEnemyPlace FreePlaceWithRoom(string spawn)
-    {
-        foreach (RoomEnemyPlace place in _places)
-        {
-            if (place.IsFree)
-                return place;
-        }
-        throw new InvalidOperationException($"{spawn} found every enemy place taken.");
-    }
 
     /// <summary>
     /// Creates the places once, each bound to the species registry that creates its entity and given the record of what

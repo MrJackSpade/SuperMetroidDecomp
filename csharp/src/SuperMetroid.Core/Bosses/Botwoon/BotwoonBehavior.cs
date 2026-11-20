@@ -812,12 +812,15 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// </summary>
     /// <param name="occupant">The enemy holding <paramref name="head"/>.</param>
     /// <param name="head">Botwoon's head, whose position and graphics the segments start with.</param>
-    /// <returns>The segments from the tail to the segment behind the head.</returns>
-    private BotwoonSegmentState[] SpawnBotwoonBody(RoomEnemyOccupant occupant, RoomEnemyPlace head)
+    /// <returns>The segments from the tail to the segment behind the head; a segment the pool had no place for is not in it.</returns>
+    private List<BotwoonSegmentState> SpawnBotwoonBody(RoomEnemyOccupant occupant, RoomEnemyPlace head)
     {
-        var body = new BotwoonSegmentState[BotwoonFightDefinitions.BodySegments];
-        for (int segmentIndex = body.Length - 1; segmentIndex >= 0; segmentIndex--)
-            body[segmentIndex] = SpawnBotwoonBodySegment(occupant, head, segmentIndex);
+        var body = new List<BotwoonSegmentState>(BotwoonFightDefinitions.BodySegments);
+        for (int segmentIndex = BotwoonFightDefinitions.BodySegments - 1; segmentIndex >= 0; segmentIndex--)
+        {
+            if (SpawnBotwoonBodySegment(occupant, head, segmentIndex) is { } segment)
+                body.Insert(0, segment);
+        }
         return body;
     }
 
@@ -825,12 +828,12 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <param name="occupant">The enemy holding <paramref name="head"/>.</param>
     /// <param name="head">Botwoon's head, whose position and graphics the segment starts with.</param>
     /// <param name="segmentIndex">The segment's place in the body, from zero (the tail) to the last, behind the head.</param>
-    /// <returns>The segment, alive and inside the wall.</returns>
-    private BotwoonSegmentState SpawnBotwoonBodySegment(RoomEnemyOccupant occupant, RoomEnemyPlace head, int segmentIndex)
+    /// <returns>The segment, alive and inside the wall, or none when the pool is full.</returns>
+    private BotwoonSegmentState? SpawnBotwoonBodySegment(RoomEnemyOccupant occupant, RoomEnemyPlace head, int segmentIndex)
     {
-        // Botwoon's room load spawns his thirteen segments into the pool it has just cleared.
-        EnemyProjectile projectile = _projectiles.AllocateEnemyProjectileWithRoom(RoomEnemyProjectileKind.BotwoonBody, BodyAndSpit,
-            SpriteGraphics.SpawnedBy(occupant, head.Shading), "Botwoon's body segment");
+        if (_projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BotwoonBody, BodyAndSpit,
+                SpriteGraphics.SpawnedBy(occupant, head.Shading)) is not { } projectile)
+            return null;
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
 

@@ -79,7 +79,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Shading = state.Colours.Sprites;
 
         // He hangs from the ceiling by the stalk's links, the last he spawns highest (#1932).
-        state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => SpawnSporeSpawnStalk(occupant, body, segment)).Reverse()];
+        state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => SpawnSporeSpawnStalk(occupant, body, segment)).OfType<EnemyProjectile>().Reverse()];
 
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
@@ -534,13 +534,12 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             yBase: SporeSpawnArenaDefinitions.DeathDropCorner.Y,
             yScatter: SporeSpawnRandomDefinitions.DropY,
             samus: samus);
-    /// <summary>Spawns the stalk link at <paramref name="segment"/> from his body and returns it (#1932).</summary>
-    /// <exception cref="InvalidOperationException">No projectile place is free: he spawns his stalk into his room's empty places.</exception>
-    private EnemyProjectile SpawnSporeSpawnStalk(RoomEnemyOccupant occupant, RoomEnemyPlace body, Offset16<RoomPixels> segment)
+    /// <summary>Spawns the stalk link at <paramref name="segment"/> from his body and returns it, or none when the pool is full (#1932).</summary>
+    private EnemyProjectile? SpawnSporeSpawnStalk(RoomEnemyOccupant occupant, RoomEnemyPlace body, Offset16<RoomPixels> segment)
     {
-        // He spawns his stalk as his room loads, into its empty places.
-        EnemyProjectile stalk = _projectiles.AllocateEnemyProjectileWithRoom(RoomEnemyProjectileKind.SporeSpawnStalk, Stalk,
-            SpriteGraphics.SpawnedBy(occupant, body.Shading), "Spore Spawn's stalk");
+        if (_projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnStalk, Stalk,
+                SpriteGraphics.SpawnedBy(occupant, body.Shading)) is not { } stalk)
+            return null;
 
         stalk.StartAnimation(new SporeSpawnProjectileAnimation(Spawner, SporeSpawnProjectileSegment.Stalk));
         stalk.Position = stalk.Position.WithWhole(body.Position.Whole + segment);

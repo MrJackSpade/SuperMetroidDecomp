@@ -61,11 +61,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeYappingMaw(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         // The body links are created mouth end first and kept root to mouth.
-        var bodies = new EnemyProjectile[YappingMawAttackDefinitions.TongueLinks];
+        var bodies = new EnemyProjectile?[YappingMawAttackDefinitions.TongueLinks];
         for (int link = bodies.Length - 1; link >= 0; link--)
         {
-            EnemyProjectile body = _projectiles.AllocateEnemyProjectileWithRoom(RoomEnemyProjectileKind.YappingMawBody,
-                EnemyProjectileBehavior.Still, SpriteGraphics.SpawnedBy(occupant, place.Shading), $"Yapping Maw place {place.Ordinal}'s body");
+            // A full pool spawns no body, and the link shows nothing.
+            if (_projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.YappingMawBody,
+                    EnemyProjectileBehavior.Still, SpriteGraphics.SpawnedBy(occupant, place.Shading)) is not { } body)
+                continue;
 
             body.Position = body.Position.WithWhole(place.Position.Whole);
             body.InstallAnimation(new YappingMawBodyProjectileAnimation(occupant.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
@@ -374,7 +376,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         foreach (YappingMawLink link in state.Links)
-            link.Body.Delete();
+            link.Body?.Delete();
         state.RootEffectActor.End();
         ReleaseSamusFromYappingMaw(state, samus);
     }
@@ -398,7 +400,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             place.Shading,
             place.Freeze.UpdatesLeft);
         foreach (YappingMawLink link in state.Links)
-            link.Body.Graphics = link.Body.Graphics.In(shading);
+            if (link.Body is { } body)
+                body.Graphics = body.Graphics.In(shading);
 
         state.RootEffectActor.Graphics = state.RootEffectActor.Graphics.In(shading);
     }
@@ -435,7 +438,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Moves one tongue link's body projectile to its solved point.</summary>
     private static void PositionYappingMawBodyProjectile(YappingMawLink link, Position16<RoomPixels> position) =>
-        link.Body.Position = link.Body.Position.WithWhole(position);
+        if (link.Body is { } body)
+            body.Position = body.Position.WithWhole(position);
 
     /// <summary>The root plus one solved link's signed far-end offset, wrapping around the coordinate range.</summary>
     private static Position16<RoomPixels> YappingMawLinkPosition(YappingMawEnemyState state, int segment) =>

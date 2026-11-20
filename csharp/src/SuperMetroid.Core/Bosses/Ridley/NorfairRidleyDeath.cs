@@ -191,9 +191,9 @@ internal sealed class NorfairRidleyDeath
                 Presence: EnemyPresence.None,
                 CollidesByFrameHitboxes: false,
                 SpawnSettings: new RidleyExplosionSpawnSettings(part));
-            // Each piece's setup starts it from where its part of Ridley stands.
-            _lifecycle.SpawnEnemyJoiningWithRoom(population, new RidleyBreakupSource(state, body.Position.Whole),
-                "Lower Norfair Ridley's breakup");
+            // Each piece's setup starts it from where its part of Ridley stands. A full pool spawns no piece, and the
+            // breakup goes on without it.
+            _ = _lifecycle.SpawnEnemyJoining(population, new RidleyBreakupSource(state, body.Position.Whole));
         }
     }
 

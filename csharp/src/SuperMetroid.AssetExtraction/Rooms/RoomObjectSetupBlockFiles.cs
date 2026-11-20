@@ -115,19 +115,12 @@ public static class RoomObjectSetupBlockFiles
     /// collision; every other setup combines the block it substitutes with the struck block's collision, so its word
     /// carries none of its own.
     /// </summary>
-    private static RoomCollisionType WordCollision(RoomObjectSetupBlock block) => block switch
-    {
-        RoomObjectSetupBlock.TreadmillIdle => WreckedShipTreadmillBlockDefinitions.IdleCollision,
-        RoomObjectSetupBlock.TreadmillRunning => WreckedShipTreadmillBlockDefinitions.RunningCollision,
-        RoomObjectSetupBlock.BombBlockParent or RoomObjectSetupBlock.CrumbleBlockParent or RoomObjectSetupBlock.SpeedBoosterBlockParent
-            or RoomObjectSetupBlock.ShotBlockParent or RoomObjectSetupBlock.PowerBombBlockParent
-            or RoomObjectSetupBlock.SuperMissileBlockParent or RoomObjectSetupBlock.CritterWallStruck => RoomCollisionType.Air,
-        _ => throw new ArgumentOutOfRangeException(nameof(block), block, "Undefined room-object setup block."),
-    };
+    private static RoomCollisionType WordCollision(RoomObjectSetupBlock block) =>
+        Ensure.Listed(RoomObjectSetupBlockDefinitions.Blocks, block).WordCollision;
 
     /// <summary>Whether the game shows <paramref name="block"/> with the struck block's own mirroring, so its picture names a block only.</summary>
     private static bool KeepsStruckMirroring(RoomObjectSetupBlock block) =>
-        block is RoomObjectSetupBlock.CrumbleBlockParent or RoomObjectSetupBlock.SpeedBoosterBlockParent;
+        Ensure.Listed(RoomObjectSetupBlockDefinitions.Blocks, block).KeepsStruckMirroring;
 
     /// <summary>
     /// Reads every level word that holds <paramref name="block"/>, checks each carries the collision the game gives it

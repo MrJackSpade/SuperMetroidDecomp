@@ -95,7 +95,7 @@ public static class XrayRevealVisualFiles
             // The Brinstar-only copy reveals nothing in another area, whose table the import resolves to plain solid blocks
             // at the entries Brinstar gives its own Speed Booster blocks (#1805).
             XrayRevealDefinition? native = ReadNative(bus, type, value) is { } read &&
-                (read.Shape != XrayRevealShape.CopyBrinstar || area == AreaId.Brinstar) ? read : null;
+                XrayRevealShapes.RevealsIn(read.Shape, area) ? read : null;
             RoomBlockBehavior behavior = RoomBlockBehaviorCodec.Decode(area, value);
             if (native?.Shape != XrayReveals.Find(type, behavior))
                 throw new InvalidDataException(

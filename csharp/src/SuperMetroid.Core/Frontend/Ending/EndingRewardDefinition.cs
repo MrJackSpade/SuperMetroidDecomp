@@ -24,11 +24,4 @@ internal sealed record EndingRewardDefinition(
     IReadOnlyList<EndingSpriteDefinition> Idle,
     IReadOnlyList<EndingRewardActor> Gesture,
     EndingRewardJumpHead? JumpHead,
-    EndingRewardActor JumpBody)
-{
-    /// <summary>
-    /// Whether the reveal crossfades the waiting backdrop into the reward's colours: the background stays shown and the
-    /// sprites glow over it while it does.
-    /// </summary>
-    internal bool CrossfadesReveal => RevealFades.Count > 0;
-}
+    EndingRewardActor JumpBody);

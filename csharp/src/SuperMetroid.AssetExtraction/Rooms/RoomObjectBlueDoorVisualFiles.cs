@@ -7,6 +7,15 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>The installed pictures of the sixteen blue-door cap frames (#1557), and the published names that key them.</summary>
 public static class RoomObjectBlueDoorVisualFiles
 {
+    /// <summary>
+    /// The looks that show another look's artwork, with the look whose artwork each shows: the closed cap drawn solid shows
+    /// the closed cap's, so it shares that frame's name.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<DoorCapLook, DoorCapLook> SharedPictures = new Dictionary<DoorCapLook, DoorCapLook>
+    {
+        [DoorCapLook.ClosedSolid] = DoorCapLook.Closed,
+    };
+
     /// <summary>Editable blue-door cap and shared clear-frame JSON filename.</summary>
     private const string VisualFileName = "blue-doors.json";
 
@@ -59,8 +68,8 @@ public static class RoomObjectBlueDoorVisualFiles
         if (!RoomObjectDrawIdentity.TryFrame<BlueDoorCaps.Draw>(request, out var draw))
             throw new InvalidDataException($"Blue-door draw {request} has no visual ID.");
         string direction = DoorCapOrientations.VisualName(draw.Orientation);
-        // The closed cap drawn solid shows the closed cap's artwork, so it shares that frame's name.
-        DoorCapLook shown = draw.Look == DoorCapLook.ClosedSolid ? DoorCapLook.Closed : draw.Look;
+        DoorCapLook shown = SharedPictures.TryGetValue(draw.Look, out DoorCapLook picture) ? picture : draw.Look;
         return $"{direction}-{DoorCapLookNames.VisualName(shown)}";
     }
+
 }

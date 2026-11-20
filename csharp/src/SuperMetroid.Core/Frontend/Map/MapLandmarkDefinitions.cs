@@ -58,4 +58,6 @@ public static class MapLandmarkDefinitions
     ];
     /// <summary>Tourian's label to Crateria.</summary>
     internal static readonly ImmutableArray<MapElevatorLabel> TourianElevators = [new("Tourian.Elevator.ToCrateria", AreaId.Crateria)];
+    /// <summary>Ceres's labels: none, as no elevator leaves the station for another area.</summary>
+    internal static readonly ImmutableArray<MapElevatorLabel> CeresElevators = [];
 }

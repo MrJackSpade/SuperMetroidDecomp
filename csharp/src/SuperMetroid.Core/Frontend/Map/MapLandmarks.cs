@@ -21,7 +21,7 @@ public static class MapLandmarks
         _ => throw new ArgumentOutOfRangeException(nameof(area)),
     };
 
-    /// <summary>The elevator labels of one of the six Zebes areas' maps, in drawing order; Ceres has none.</summary>
+    /// <summary>The elevator labels of an area's map, in drawing order; Ceres has none.</summary>
     public static ImmutableArray<MapElevatorLabel> Elevators(AreaId area) => area switch
     {
         AreaId.Crateria => MapLandmarkDefinitions.CrateriaElevators,
@@ -30,8 +30,8 @@ public static class MapLandmarks
         AreaId.WreckedShip => MapLandmarkDefinitions.WreckedShipElevators,
         AreaId.Maridia => MapLandmarkDefinitions.MaridiaElevators,
         AreaId.Tourian => MapLandmarkDefinitions.TourianElevators,
-        AreaId.Ceres => throw new ArgumentOutOfRangeException(nameof(area), "Only the six Zebes areas have elevator map labels."),
-        _ => throw new ArgumentOutOfRangeException(nameof(area), "Only the six Zebes areas have elevator map labels."),
+        AreaId.Ceres => MapLandmarkDefinitions.CeresElevators,
+        _ => throw new ArgumentOutOfRangeException(nameof(area), "Undefined area."),
     };
 
     /// <summary>The map picture of the elevator label leading to <paramref name="destination"/>, one of the five for Crateria through Maridia.</summary>

@@ -76,7 +76,7 @@ internal sealed class EndingCreditsRoll
     private void ShowRewardFade(PacedFadeSteps fade)
     {
         EndingRewardDefinition reward = EndingRewardDefinitions.Rewards[_stage.EndingReward];
-        if (!reward.CrossfadesReveal) return;
+        if (!EndingRewardCast.CrossfadesReveal(_stage.EndingReward)) return;
         int step = fade.Taken;
         FadeWaitingBackdrop(EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps - step);
         foreach (EndingFade colours in reward.RevealFades)

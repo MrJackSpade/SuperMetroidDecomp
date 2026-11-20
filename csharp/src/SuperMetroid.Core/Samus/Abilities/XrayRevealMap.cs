@@ -60,7 +60,7 @@ public static class XrayRevealMap
                         CopyBlock(place, replacement);
                     continue;
                 }
-                if (reveal.Shape == XrayRevealShape.CopyBrinstar && area != AreaId.Brinstar)
+                if (!XrayRevealShapes.RevealsIn(reveal.Shape, area))
                     continue;
                 CopyBlock(place, shown.TopLeft);
                 if (shown.TopRight is { } topRight)

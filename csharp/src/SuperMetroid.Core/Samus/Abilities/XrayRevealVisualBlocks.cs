@@ -56,15 +56,9 @@ public readonly record struct XrayRevealVisualBlocks
 
     /// <summary>How many blocks a drawable copy shape shows.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="shape"/> copies no blocks.</exception>
-    public static int CountFor(XrayRevealShape shape) => shape switch
-    {
-        XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar => 1,
-        XrayRevealShape.CopyWide or XrayRevealShape.CopyTall => 2,
-        XrayRevealShape.CopySquare => 4,
-        XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension =>
-            throw new ArgumentOutOfRangeException(nameof(shape), shape, "An extension shape copies no blocks."),
-        _ => throw new ArgumentOutOfRangeException(nameof(shape), shape, $"Undefined {nameof(XrayRevealShape)}."),
-    };
+    public static int CountFor(XrayRevealShape shape) => XrayRevealShapes.CopiesBlocks(shape)
+        ? XrayRevealShapeDefinitions.Shapes[shape].CopiedBlocks
+        : throw new ArgumentOutOfRangeException(nameof(shape), shape, "An extension shape copies no blocks.");
 
     /// <summary>The blocks a drawable copy shape shows, from its blocks in reading order.</summary>
     /// <exception cref="ArgumentNullException"><paramref name="blocks"/> is null.</exception>

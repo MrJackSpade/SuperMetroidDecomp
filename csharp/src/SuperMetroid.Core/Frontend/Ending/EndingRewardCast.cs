@@ -7,6 +7,13 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 internal static class EndingRewardCast
 {
+    /// <summary>
+    /// Whether <paramref name="reward"/>'s reveal crossfades the waiting backdrop into its colours: the background stays
+    /// shown and the sprites glow over it while it does.
+    /// </summary>
+    /// <exception cref="KeyNotFoundException">The reward is undefined.</exception>
+    internal static bool CrossfadesReveal(EndingReward reward) => EndingRewardDefinitions.Rewards[reward].RevealFades.Count > 0;
+
     /// <summary>The idle actors the credits' end spawns for <paramref name="reward"/>, in spawn order.</summary>
     /// <exception cref="KeyNotFoundException">The reward is undefined.</exception>
     internal static IReadOnlyList<EndingSpriteDefinition> Idle(EndingReward reward) => EndingRewardDefinitions.Rewards[reward].Idle;

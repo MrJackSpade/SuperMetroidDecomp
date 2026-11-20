@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -22,6 +23,22 @@ public static class RoomObjectSamusEaterVisualFiles
         SamusEaterDraw.CeilingTeethBared,
         SamusEaterDraw.CeilingFangsOut,
     ]);
+
+    /// <summary>
+    /// Where each plant frame's four-wide foliage row starts beside the mouth's left half: below it for a floor plant,
+    /// above it for a ceiling one.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<SamusEaterDraw, Offset16<RoomBlocks>> FoliageStarts = new Dictionary<SamusEaterDraw, Offset16<RoomBlocks>>
+    {
+        [SamusEaterDraw.FloorIdle] = new(-2, -1),
+        [SamusEaterDraw.FloorTeethPeeking] = new(-2, -1),
+        [SamusEaterDraw.FloorTeethBared] = new(-2, -1),
+        [SamusEaterDraw.FloorFangsOut] = new(-2, -1),
+        [SamusEaterDraw.CeilingIdle] = new(-2, 1),
+        [SamusEaterDraw.CeilingTeethPeeking] = new(-2, 1),
+        [SamusEaterDraw.CeilingTeethBared] = new(-2, 1),
+        [SamusEaterDraw.CeilingFangsOut] = new(-2, 1),
+    };
 
     /// <summary>The Samus Eater plant as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -74,10 +91,9 @@ public static class RoomObjectSamusEaterVisualFiles
             list = default;
             return false;
         }
-        bool ceiling = RoomObjectDrawIdentity.FrameOf<SamusEaterDraw>(request, "Samus Eater") is SamusEaterDraw.CeilingIdle
-            or SamusEaterDraw.CeilingTeethPeeking or SamusEaterDraw.CeilingTeethBared or SamusEaterDraw.CeilingFangsOut;
+        Offset16<RoomBlocks> foliage = Ensure.Listed(FoliageStarts, RoomObjectDrawIdentity.FrameOf<SamusEaterDraw>(request, "Samus Eater"));
         list = RoomObjectShapeRun.DrawList(request, shape, RoomObjectShapeRun.Row(new(0, 0), 2), RoomObjectShapeRun.Row(new(-2, 0), 2),
-            RoomObjectShapeRun.Row(new(-2, ceiling ? 1 : -1), 4));
+            RoomObjectShapeRun.Row(foliage, 4));
         return true;
     }
 

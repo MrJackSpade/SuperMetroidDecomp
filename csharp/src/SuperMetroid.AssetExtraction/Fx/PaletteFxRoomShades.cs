@@ -56,6 +56,16 @@ internal static class PaletteFxRoomShades
     ];
 
     /// <summary>
+    /// The areas whose every room's pictures show colour objects no FX record names, with those objects: Tourian's, whose
+    /// statue room spawns the bosses' statue grey-outs.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<AreaId, ImmutableArray<ColourEffectId>> AreaColourEffects =
+        new Dictionary<AreaId, ImmutableArray<ColourEffectId>>
+        {
+            [AreaId.Tourian] = StatueGreyOuts,
+        };
+
+    /// <summary>
     /// The shades of every record of the room's colour groups that <paramref name="rooms"/>' palette effects show, coloured
     /// from <paramref name="colours"/>.
     /// </summary>
@@ -71,8 +81,8 @@ internal static class PaletteFxRoomShades
         {
             foreach (RoomEffectDefinition record in room.State.Fx?.Effects ?? [])
                 objects.UnionWith(record.ColourEffects);
-            if (room.Area == AreaId.Tourian)
-                objects.UnionWith(StatueGreyOuts);
+            if (AreaColourEffects.TryGetValue(room.Area, out ImmutableArray<ColourEffectId> areaEffects))
+                objects.UnionWith(areaEffects);
         }
         return [.. PaletteFxRecordShades.ShownBy(objects).Where(entry => FirstInks.ContainsKey(entry.Colours))
             .Select(entry => Shade(entry.Colours, entry.Frame, colours))];

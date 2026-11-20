@@ -268,7 +268,7 @@ internal static class NativeSnapshotMotherBrainImport
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
         sequence.State.HealthColoursEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
-        sequence.Revival.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
+        sequence.State.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
         // Once the sequence runs, the sub-function word holds the bursts' interval; their place was imported with the
         // encounter, whose cycle the sequence shares.
         // The cartridge's interval runs below zero on the update a burst is due: a count at zero or below is due next.

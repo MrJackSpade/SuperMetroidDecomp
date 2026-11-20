@@ -7,34 +7,56 @@ using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 
-/// <summary>How the death and drop programs match their native lists: each command, its operand bytes and the cue it becomes.</summary>
+/// <summary>
+/// How the death explosion and drop programs match their native lists (#2554): each command, its operand bytes and the cue
+/// it becomes, the explosions' and the drops' apart.
+/// </summary>
 internal static class EnemyDeathProjectileCueRules
 {
-    /// <summary>Each command the lists use, the cue it becomes and its operand byte count (the spawns carry a sprite object).</summary>
-    private static readonly Dictionary<NativeEnemyProjectileInstruction, EnemyDeathProjectileCueRulesCommand> Commands = new()
+    /// <summary>The explosions' signalling commands and the cue kinds they become.</summary>
+    private static readonly Dictionary<NativeEnemyProjectileInstruction, EnemyDeathExplosionCueKind> ExplosionSignals = new()
     {
-        [NativeEnemyProjectileInstruction.Delete] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathAndDropCueKind.Delete, null),
-        [NativeEnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_20] = new EnemyDeathProjectileCueRulesCommand(null, EnemyDeathExplosionDefinitions.WideSpriteSpread),
-        [NativeEnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_10] = new EnemyDeathProjectileCueRulesCommand(null, EnemyDeathExplosionDefinitions.NarrowSpriteSpread),
-        [NativeEnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathAndDropCueKind.PlayEnemyKilledSound, null),
-        [NativeEnemyProjectileInstruction.EDeathExplo_QueueSmallExplosionSoundFX] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathAndDropCueKind.PlaySmallExplosionSound, null),
-        [NativeEnemyProjectileInstruction.EDeathExplo_QueueContactKilledSoundFX] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathAndDropCueKind.PlayContactKilledSound, null),
-        [NativeEnemyProjectileInstruction.EnemyDeathExplosion_BecomePickup] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathAndDropCueKind.BecomePickup, null),
-        [NativeEnemyProjectileInstruction.Pickup_HandleRespawningEnemy] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathAndDropCueKind.RespawnEnemy, null),
+        [NativeEnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX] = EnemyDeathExplosionCueKind.PlayEnemyKilledSound,
+        [NativeEnemyProjectileInstruction.EDeathExplo_QueueSmallExplosionSoundFX] = EnemyDeathExplosionCueKind.PlaySmallExplosionSound,
+        [NativeEnemyProjectileInstruction.EDeathExplo_QueueContactKilledSoundFX] = EnemyDeathExplosionCueKind.PlayContactKilledSound,
+        [NativeEnemyProjectileInstruction.EnemyDeathExplosion_BecomePickup] = EnemyDeathExplosionCueKind.BecomePickup,
     };
 
-    /// <summary>The oracle rules for the death and drop programs.</summary>
-    /// <remarks>A deletion ends its list, and the conversion always continues at the drop or respawn tail it chooses.</remarks>
-    internal static NativeEnemyProjectileCueRules<EnemyDeathAndDropCue> Rules { get; } = new(
-        word => Commands.TryGetValue((NativeEnemyProjectileInstruction)word, out var command) ? command.OperandBytes : null,
+    /// <summary>The explosions' sprite-spawning commands, each carrying a sprite object word, and the spreads they land in.</summary>
+    private static readonly Dictionary<NativeEnemyProjectileInstruction, EnemyDeathSpriteSpread> ExplosionSpawns = new()
+    {
+        [NativeEnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_20] = EnemyDeathExplosionDefinitions.WideSpriteSpread,
+        [NativeEnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_10] = EnemyDeathExplosionDefinitions.NarrowSpriteSpread,
+    };
+
+    /// <summary>The drops' commands and the cue kinds they become.</summary>
+    private static readonly Dictionary<NativeEnemyProjectileInstruction, EnemyDeathAndDropCueKind> DropSignals = new()
+    {
+        [NativeEnemyProjectileInstruction.Delete] = EnemyDeathAndDropCueKind.Delete,
+        [NativeEnemyProjectileInstruction.Pickup_HandleRespawningEnemy] = EnemyDeathAndDropCueKind.RespawnEnemy,
+    };
+
+    /// <summary>The oracle rules for the explosion programs.</summary>
+    /// <remarks>The conversion ends the explosion's list: the projectile goes on in the drop or respawn tail it chooses.</remarks>
+    internal static NativeEnemyProjectileCueRules<EnemyDeathExplosionCue> ExplosionRules { get; } = new(
+        word => ExplosionSignals.ContainsKey((NativeEnemyProjectileInstruction)word) ? 0
+            : ExplosionSpawns.ContainsKey((NativeEnemyProjectileInstruction)word) ? 2 : null,
         (word, operands, cue, at) =>
         {
-            var command = Commands[(NativeEnemyProjectileInstruction)word];
-            EnemyDeathAndDropCue expected = command.Spread is { } spread
-                ? new EnemyDeathAndDropCue.SpawnEffectActor(
+            var instruction = (NativeEnemyProjectileInstruction)word;
+            EnemyDeathExplosionCue expected = ExplosionSpawns.TryGetValue(instruction, out EnemyDeathSpriteSpread spread)
+                ? new EnemyDeathExplosionCue.SpawnEffectActor(
                     RoomEffectActorNativeWords.Kinds.Decode(LittleEndianBytes.Word(operands[0], operands[1]), "death sprite object"), spread)
-                : new EnemyDeathAndDropCue.Signal(command.Kind ?? throw new InvalidDataException($"{at}: command names neither a signal nor a spread."));
+                : new EnemyDeathExplosionCue.Signal(ExplosionSignals[instruction]);
             VerificationAssertions.AssertEqual(expected, cue, $"{at}: cue");
         },
-        cue => cue is EnemyDeathAndDropCue.Signal { Kind: EnemyDeathAndDropCueKind.Delete or EnemyDeathAndDropCueKind.BecomePickup });
+        cue => cue is EnemyDeathExplosionCue.Signal { Kind: EnemyDeathExplosionCueKind.BecomePickup });
+
+    /// <summary>The oracle rules for the drop programs.</summary>
+    /// <remarks>A deletion ends its list.</remarks>
+    internal static NativeEnemyProjectileCueRules<EnemyDeathAndDropCue> DropRules { get; } = new(
+        word => DropSignals.ContainsKey((NativeEnemyProjectileInstruction)word) ? 0 : null,
+        (word, _, cue, at) => VerificationAssertions.AssertEqual(
+            new EnemyDeathAndDropCue.Signal(DropSignals[(NativeEnemyProjectileInstruction)word]), cue, $"{at}: cue"),
+        cue => cue is EnemyDeathAndDropCue.Signal { Kind: EnemyDeathAndDropCueKind.Delete });
 }

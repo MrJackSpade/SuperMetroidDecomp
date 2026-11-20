@@ -29,7 +29,7 @@ internal static class BabyMetroidHeadTargetVerification
         RoomEnemyPlace head = state.Head;
         MotherBrainRainbowBeamAttackSequence sequence = state.BeginLateFight();
         runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(sequence);
-        BabyMetroidCutsceneState baby = sequence.Baby.Arrived();
+        BabyMetroidCutsceneState baby = sequence.State.Baby.Arrived();
         RoomEnemyPlace place = baby.Place ?? throw new InvalidOperationException("Verification requires the Baby's place.");
 
         head.Position = head.Position.WithWhole(new(0x007d, 0x005d));

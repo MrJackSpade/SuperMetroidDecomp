@@ -50,8 +50,8 @@ internal static class EnemyDeathExplosionDefinitionsVerification
         RoomEnemyPlace clampedEnemy = clamped.Places.InUpdateOrder[0];
         clampedEnemy.Bind(EnemyDefinitionId.Sciser, clampedEnemy.Definition);
         clamped.DeathsAndDrops.StartGenericEnemyDeath(clampedEnemy, EnemyDeathExplosionDefinitions.LeftoverNumbered.Named(5), RoomEnemyFrameFixtures.StandaloneSamus());
-        AssertEqual(EnemyDeathAndDropSegment.SmallExplosion,
-            ProgramOf(clamped.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive)),
+        AssertEqual(EnemyDeathExplosionSegment.SmallExplosion,
+            ExplosionProgramOf(clamped.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive)),
             "a Fireflea health above four starts the small explosion");
 
         AssertThrows<InvalidDataException>(

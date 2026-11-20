@@ -223,7 +223,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             ShownFamily("enemy pickup", RoomEnemyProjectileKind.EnemyDeathPickup, PickupFrames),
             ShownFamily("enemy death", RoomEnemyProjectileKind.EnemyDeathExplosion,
-                EnemyDeathAndDropAnimations.Segments.Frames.Except(PickupFrames)),
+                EnemyDeathExplosionAnimations.Segments.Frames.Except(PickupFrames)),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, IReadOnlyList<EnemyProjectileFrameId> frames) in genericDeathFamilies)
         {

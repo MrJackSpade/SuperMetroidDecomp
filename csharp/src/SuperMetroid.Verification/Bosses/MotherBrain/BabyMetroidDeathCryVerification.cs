@@ -23,7 +23,7 @@ internal static class BabyMetroidDeathCryVerification
         ushort[] Shown() => MotherBrainLook.Over(motherBrain, InstalledFixtures.ImportMaps, InstalledFixtures.BossArtwork,
             [.. Enumerable.Range(0, 256).Select(index => (ushort)(index + 1))]);
         var sequence = MotherBrainLateFightFixtures.NewSequence();
-        var baby = sequence.Baby;
+        var baby = sequence.State.Baby;
         baby.Arrived().Phase = BabyMetroidCutscenePhase.FinalCharge;
         baby.Arrived().Health = 79;
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());

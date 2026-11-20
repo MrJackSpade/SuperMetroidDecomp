@@ -26,15 +26,15 @@ internal static class SuperMissileDeathAnimationVerification
     /// </summary>
     internal static void VerifySuperMissileDeathAnimation()
     {
-        AssertEqual(EnemyDeathAndDropSegment.BigExplosion, SuperMissileKillProgram(EnemyDefinitionId.Dragon),
+        AssertEqual(EnemyDeathExplosionSegment.BigExplosion, SuperMissileKillProgram(EnemyDefinitionId.Dragon),
             "a Super Missile kill keeps the Dragon's big explosion");
-        AssertEqual(EnemyDeathAndDropSegment.NormalExplosion, SuperMissileKillProgram(EnemyDefinitionId.Sova),
+        AssertEqual(EnemyDeathExplosionSegment.NormalExplosion, SuperMissileKillProgram(EnemyDefinitionId.Sova),
             "a Super Missile kill raises Sova's small explosion to explosion two");
         Console.WriteLine("  Super Missile death animation: headers three and four are kept, lower ones become two.");
     }
 
     /// <summary>Kills the selected retail enemy with a Super Missile and returns the spawned explosion's program.</summary>
-    private static EnemyDeathAndDropSegment SuperMissileKillProgram(EnemyDefinitionId enemyDefinition)
+    private static EnemyDeathExplosionSegment SuperMissileKillProgram(EnemyDefinitionId enemyDefinition)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
@@ -64,7 +64,7 @@ internal static class SuperMissileDeathAnimationVerification
 
         EnemyProjectile explosion = runtime.Enemies.Projectiles.EnemyProjectiles
             .Single(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
-        return ProgramOf(explosion);
+        return ExplosionProgramOf(explosion);
     }
 
     /// <summary>Runs the focused Super Missile death-program check.</summary>

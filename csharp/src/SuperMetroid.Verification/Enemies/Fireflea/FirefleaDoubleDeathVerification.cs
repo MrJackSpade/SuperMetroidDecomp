@@ -43,7 +43,7 @@ internal static class FirefleaDoubleDeathVerification
         AssertEqual((ushort)0, cleared.Position.X.Whole, "the second explosion reads the cleared X position");
         AssertEqual((ushort)0, cleared.Position.Y.Whole, "the second explosion reads the cleared Y position");
         AssertEqual(EnemyDefinitionId.None, cleared.StateOf<EnemyDeathExplosionState>().DropDefinitionId, "the second explosion carries header zero");
-        AssertEqual(EnemyDeathAndDropSegment.SmallExplosion, ProgramOf(cleared),
+        AssertEqual(EnemyDeathExplosionSegment.SmallExplosion, ExplosionProgramOf(cleared),
             "EnemyDeath's returned A selects the small explosion");
         AssertEqual(killsBefore + 2, runtime.Enemies.RoomStatus.EnemiesKilled, "both deaths count a kill");
         Console.WriteLine("Fireflea double death: a killing touch also spawns the cleared-slot small explosion.");

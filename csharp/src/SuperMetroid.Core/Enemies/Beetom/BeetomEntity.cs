@@ -19,27 +19,27 @@ internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemyOccupant occ
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BeetomBehavior.AdvanceBeetomTypedAnimation(Place);
 
     /// <summary>Whether the Beetom's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Place.Definition.Touch == BeetomReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the Beetom's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
+        if (Place.Definition.Touch == BeetomReactions.Touch)
             species.ReactToBeetomTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Beetom's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? BeetomBehavior.BeetomShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == BeetomReactions.Shot ? BeetomBehavior.BeetomShotReaction : base.ShotReaction;
 
     /// <summary>The Beetom's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        LeavesShotToSpecies && context.SelectedShot is null ? BeetomBehavior.BeetomBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == BeetomReactions.Shot ? BeetomBehavior.BeetomBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Beetom's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
+    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == BeetomReactions.Shot;
 }

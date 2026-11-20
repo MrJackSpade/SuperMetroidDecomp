@@ -22,18 +22,11 @@ internal sealed class RidleyBreakupPieceEntity(NorfairRidleyBehavior ridley, Roo
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RidleyBodyAnimation.AdvanceRidleyBreakupAnimation(Place);
 
-    /// <summary>None: the piece's definition ignores Samus's touch.</summary>
-    public EnemyReaction? SpeciesTouch => null;
-
-    /// <summary>None: the piece's definition ignores shots.</summary>
-    public EnemyReaction? SpeciesShot => null;
-
     /// <summary>None: the game defines no hitboxes for a breakup piece's frames (#2335).</summary>
     /// <param name="probe">The colliding edges and walker.</param>
     /// <param name="reaction">No reaction.</param>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe)
     {
-        reaction = null;
-        return null;
+        throw EnemyCollision.UncoveredFrame(Place);
     }
 }

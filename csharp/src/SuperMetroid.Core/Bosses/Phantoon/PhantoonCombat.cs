@@ -278,12 +278,11 @@ internal sealed class PhantoonCombat
                 SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
                 continue;
 
-            if (!EnemyCollision.TryFindFrameHitboxReaction(
+            if (EnemyCollision.FindFrameHitboxContact(
                     body,
                     projectile.Position.Whole,
                     projectile.Radius,
-                    contactKind: HitboxContactKind.Shot,
-                    out EnemyReaction? hitboxShot))
+                    contactKind: HitboxContactKind.Shot) is not EnemyHitboxContact.StruckHitbox { Reaction: var hitboxShot })
             {
                 continue;
             }
@@ -311,7 +310,7 @@ internal sealed class PhantoonCombat
             if (hitboxShot != PhantoonReactions.Shot)
             {
                 throw new InvalidDataException(
-                    $"Phantoon has no response to shot reaction {hitboxShot?.ToString() ?? "(unnamed)"}.");
+                    $"Phantoon has no response to shot reaction {hitboxShot}.");
             }
 
             // The shot is marked as having struck before Phantoon's reaction, whose damage does not turn it into an
@@ -556,7 +555,7 @@ internal sealed class PhantoonCombat
         if (context.HitboxTouch != PhantoonReactions.Touch)
         {
             throw new InvalidDataException(
-                $"Phantoon has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
+                $"Phantoon has no response to touch reaction {context.HitboxTouch}.");
         }
         _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
     }
@@ -565,10 +564,8 @@ internal sealed class PhantoonCombat
     /// The reaction of the first hitbox the probe overlaps on <paramref name="enemy"/>'s frame, one of Phantoon's parts,
     /// which its own entity asks for (#2301).
     /// </summary>
-    internal static bool FindPhantoonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static EnemyHitboxContact FindPhantoonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
-
         // Phantoon's frames' hitboxes are his collision definitions', never his editable background frames'; the
         // invulnerable body's centre point is a compatibility rule (PhantoonSolidifyingCentre).
         foreach (EnemyCollisionComponent component in
@@ -583,10 +580,9 @@ internal sealed class PhantoonCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
+                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
             }
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 }

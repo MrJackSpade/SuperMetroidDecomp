@@ -18,30 +18,30 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemyOccu
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceYappingMawTypedAnimation(Place);
 
     /// <summary>Whether the Yapping Maw's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Place.Definition.Touch == YappingMawReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the Yapping Maw's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
+        if (Place.Definition.Touch == YappingMawReactions.Touch)
             YappingMawBehavior.ReactToYappingMawTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Yapping Maw's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? YappingMawBehavior.YappingMawShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == YappingMawReactions.Shot ? YappingMawBehavior.YappingMawShotReaction : base.ShotReaction;
 
     /// <summary>The Yapping Maw's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? YappingMawBehavior.YappingMawBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == YappingMawReactions.Shot ? YappingMawBehavior.YappingMawBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>Runs the Yapping Maw's frozen behaviour after the common thaw.</summary>
     public override void RunFrozen() => YappingMawBehavior.RunYappingMawFrozen(Place, Place.RequireSpeciesState<YappingMawEnemyState>());
 
     /// <summary>The Yapping Maw's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
+    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == YappingMawReactions.Shot;
 }

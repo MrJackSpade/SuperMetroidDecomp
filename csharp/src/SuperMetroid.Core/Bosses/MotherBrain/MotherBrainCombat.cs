@@ -47,7 +47,7 @@ internal sealed class MotherBrainCombat
             if (c.HitboxShot != MotherBrainReactions.BodyShot)
             {
                 throw new InvalidDataException(
-                    $"Mother Brain's body selected the shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"} from " +
+                    $"Mother Brain's body selected the shot reaction {c.HitboxShot} from " +
                     $"frame {c.Enemy.Frame}; every body rectangle's shot reaction is the dud shot.");
             }
             // The common collision prelude still owns Super-Missile quake first.
@@ -219,23 +219,21 @@ internal sealed class MotherBrainCombat
     /// The reaction of the first hitbox the probe overlaps on her body's frame: her brain's rectangle until its first
     /// animation shows a body frame, then what its frame shows. Her body's own entity asks (#2301).
     /// </summary>
-    internal static bool FindMotherBrainBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
+    internal static EnemyHitboxContact FindMotherBrainBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe) =>
         FindHitboxReaction(enemy, enemy.Frame == EnemyFrameId.MotherBrainBrainHitArea
             ? MotherBrainCollisionDefinitions.BrainComponents
-            : MotherBrainCollision.ComponentsAt(enemy.Frame), probe, out reaction);
+            : MotherBrainCollision.ComponentsAt(enemy.Frame), probe);
 
     /// <summary>
     /// The reaction of the first hitbox the probe overlaps on her head: her brain, whose rectangle it owns (#2220). Her head's
     /// own entity asks (#2301).
     /// </summary>
-    internal static bool FindMotherBrainHeadHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
-        FindHitboxReaction(enemy, MotherBrainCollisionDefinitions.BrainComponents, probe, out reaction);
+    internal static EnemyHitboxContact FindMotherBrainHeadHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe) =>
+        FindHitboxReaction(enemy, MotherBrainCollisionDefinitions.BrainComponents, probe);
 
     /// <summary>The reaction of the first of <paramref name="components"/>' hitboxes the probe overlaps, placed from <paramref name="enemy"/>.</summary>
-    private static bool FindHitboxReaction(RoomEnemyPlace enemy, ReadOnlySpan<EnemyCollisionComponent> components, EnemyHitboxProbe probe,
-        out EnemyReaction? reaction)
+    private static EnemyHitboxContact FindHitboxReaction(RoomEnemyPlace enemy, ReadOnlySpan<EnemyCollisionComponent> components, EnemyHitboxProbe probe)
     {
-        reaction = null;
         foreach (EnemyCollisionComponent component in components)
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
@@ -247,10 +245,9 @@ internal sealed class MotherBrainCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
+                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
             }
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 }

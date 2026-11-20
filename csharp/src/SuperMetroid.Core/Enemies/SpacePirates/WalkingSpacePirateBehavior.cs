@@ -560,7 +560,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         if (context.UsesFrameHitboxes && context.HitboxTouch != SpacePirateReactions.Touch)
         {
             throw new InvalidDataException(
-                $"Space Pirate has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
+                $"Space Pirate has no response to touch reaction {context.HitboxTouch}.");
         }
         // While the Pirate is frozen, touching it deals neither Samus nor the Pirate contact damage.
         if (context.Place.Freeze.IsRunning)

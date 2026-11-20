@@ -16,8 +16,8 @@ internal sealed class BombTorizoEntity(TorizoBehavior species, RoomEnemyOccupant
     /// <summary>He is Crateria's Bomb Torizo.</summary>
     protected override TorizoVariant Variant => TorizoVariant.Bomb;
 
-    /// <summary>Bomb Torizo's shot reaction, which its definition leaves to it.</summary>
-    public override EnemyReaction? SpeciesShot => TorizoReactions.Shot;
+    /// <summary>The shot reaction of this Torizo's own that its definition names (#2558).</summary>
+    protected override EnemyReaction OwnShot => TorizoReactions.Shot;
 
     /// <inheritdoc/>
     public override bool RunHurt(RoomEnemyFrame frame)

@@ -47,14 +47,8 @@ internal abstract class DraygonEntity(DraygonBehavior species, RoomEnemyOccupant
             : throw new InvalidOperationException($"Enemy place {part.Ordinal} holds no part of Draygon.");
 
     /// <inheritdoc/>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
-        DraygonCombat.FindDraygonHitboxReaction(Place, probe, out reaction);
-
-    /// <summary>None: the parts other than the body name shared touch reactions.</summary>
-    public virtual EnemyReaction? SpeciesTouch => null;
-
-    /// <summary>None: the parts other than the body name shared shot reactions.</summary>
-    public virtual EnemyReaction? SpeciesShot => null;
+    public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
+        DraygonCombat.FindDraygonHitboxReaction(Place, probe);
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>

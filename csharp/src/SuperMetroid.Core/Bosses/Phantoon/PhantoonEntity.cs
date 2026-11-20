@@ -48,15 +48,9 @@ internal abstract class PhantoonEntity(PhantoonBehavior species, RoomEnemyOccupa
             : throw new InvalidOperationException($"Enemy place {part.Ordinal} holds no part of Phantoon.");
 
     /// <summary>The part's hitboxes, which its frame's components hold: every one of his parts finds its own (#2301).</summary>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => PhantoonCombat.FindPhantoonHitboxReaction(Place, probe, out reaction);
+    public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => PhantoonCombat.FindPhantoonHitboxReaction(Place, probe);
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
         PhantoonBodyLayerFrameDefinitions.Frames.Contains(selected) ? bossArtwork.Body(BossBodyOwner.Phantoon).Frame(selected) : null;
-
-    /// <summary>None: the drawing parts name shared touch reactions.</summary>
-    public virtual EnemyReaction? SpeciesTouch => null;
-
-    /// <summary>None: the drawing parts name shared shot reactions.</summary>
-    public virtual EnemyReaction? SpeciesShot => null;
 }

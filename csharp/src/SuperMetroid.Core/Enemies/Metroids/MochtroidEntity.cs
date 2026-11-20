@@ -18,22 +18,22 @@ internal sealed class MochtroidEntity(MochtroidBehavior species, RoomEnemyOccupa
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MochtroidBehavior.AdvanceMochtroidTypedAnimation(Place);
 
     /// <summary>Whether the Mochtroid's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Place.Definition.Touch == MochtroidReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the Mochtroid's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
+        if (Place.Definition.Touch == MochtroidReactions.Touch)
             species.ReactToMochtroidTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Mochtroid's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? MochtroidBehavior.MochtroidShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == MochtroidReactions.Shot ? MochtroidBehavior.MochtroidShotReaction : base.ShotReaction;
 
     /// <summary>The Mochtroid's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
+    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == MochtroidReactions.Shot;
 }

@@ -36,7 +36,7 @@ internal sealed class KraidCombat
     internal void ReactToArmBomb(EnemyBombContext c)
     {
         if (c.SelectedShot != EnemyReaction.Ignore && c.SelectedShot != KraidReactions.ArmShot)
-            throw new InvalidDataException($"Kraid's arm selected the bomb reaction {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
+            throw new InvalidDataException($"Kraid's arm selected the bomb reaction {c.SelectedShot}.");
 
         // The arm's shot reaction raises dust where the shot struck; the hit's direction is already recorded.
         // Protected arm frames ignore the shot.
@@ -48,7 +48,7 @@ internal sealed class KraidCombat
     internal static void ReactToFootBomb(EnemyBombContext c)
     {
         if (c.SelectedShot != EnemyReaction.Ignore)
-            throw new InvalidDataException($"Kraid's foot selected the bomb reaction {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
+            throw new InvalidDataException($"Kraid's foot selected the bomb reaction {c.SelectedShot}.");
     }
 
     /// <summary>The arm's shot reaction, which its hitboxes decide behind its definition's ignoring one.</summary>
@@ -59,7 +59,7 @@ internal sealed class KraidCombat
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
             if (!c.UsesFrameHitboxes || (c.HitboxShot != EnemyReaction.Ignore && c.HitboxShot != KraidReactions.ArmShot))
-                throw new InvalidDataException($"Kraid's arm selected the shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
+                throw new InvalidDataException($"Kraid's arm selected the shot reaction {c.HitboxShot}.");
 
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             if (c.HitboxShot == KraidReactions.ArmShot)
@@ -74,7 +74,7 @@ internal sealed class KraidCombat
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
             if (!c.UsesFrameHitboxes || c.HitboxShot != EnemyReaction.Ignore)
-                throw new InvalidDataException($"Kraid's foot selected the shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
+                throw new InvalidDataException($"Kraid's foot selected the shot reaction {c.HitboxShot}.");
 
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             return true;
@@ -295,14 +295,14 @@ internal sealed class KraidCombat
     }
 
     /// <summary>
-    /// The reaction of the first hitbox the probe overlaps on his foot's pose, or null when the pose has none; the foot's
-    /// own entity asks with its own pose (#2301).
+    /// The first hitbox the probe overlaps on his foot's pose, whose reaction runs, or none; the foot's own entity asks with
+    /// its own pose (#2301).
     /// </summary>
-    internal static bool? FindKraidFootHitboxReaction(RoomEnemyPlace enemy, KraidPartPose? pose, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <exception cref="InvalidDataException">The pose has no hitboxes.</exception>
+    internal static EnemyHitboxContact FindKraidFootHitboxReaction(RoomEnemyPlace enemy, KraidPartPose? pose, EnemyHitboxProbe probe)
     {
-        reaction = null;
         if (!KraidFootCollision.TryGetComponents(pose, out var footComponents))
-            return null;
+            throw EnemyCollision.UncoveredFrame(enemy);
 
         // Kraid's foot art is replaceable, but each pose still places two physical components against one shared hitbox
         // list, moved with the pose's step.
@@ -317,22 +317,21 @@ internal sealed class KraidCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
+                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
             }
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 
     /// <summary>
-    /// The reaction of the first hitbox the probe overlaps on his arm's frame, or null when the frame has none; the arm's
-    /// own entity asks (#2301).
+    /// The first hitbox the probe overlaps on his arm's frame, whose reaction runs, or none; the arm's own entity asks
+    /// (#2301).
     /// </summary>
-    internal static bool? FindKraidArmHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <exception cref="InvalidDataException">The frame has no hitboxes.</exception>
+    internal static EnemyHitboxContact FindKraidArmHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
         if (!KraidArmCollision.TryGetComponents(enemy.Frame, out var kraidComponents))
-            return null;
+            throw EnemyCollision.UncoveredFrame(enemy);
 
         // Kraid's arm art is editable, but the frame
         // also carries a separate, ordered list of physical components.
@@ -349,11 +348,10 @@ internal sealed class KraidCombat
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
 
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
+                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
             }
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 
     /// <summary>

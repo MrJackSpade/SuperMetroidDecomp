@@ -226,7 +226,7 @@ internal sealed class CrocomireCombat
         if ((context.HitboxTouch != CrocomireReactions.ClawTouch && context.HitboxTouch != EnemyReaction.OrdinaryTouch))
         {
             throw new InvalidDataException(
-                $"Crocomire has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(none)"}.");
+                $"Crocomire has no response to touch reaction {context.HitboxTouch}.");
         }
 
         _collision.ResolveOrdinaryTouch(context);
@@ -243,7 +243,7 @@ internal sealed class CrocomireCombat
         CrocomireEnemyState state,
         SamusProjectileType projectileType,
         Position16<RoomPixels> projectile,
-        EnemyReaction? reaction,
+        EnemyReaction reaction,
         Position16<RoomPixels> camera)
     {
         RoomEnemyPlace body = state.Body;
@@ -269,7 +269,7 @@ internal sealed class CrocomireCombat
             return;
         }
 
-        throw new InvalidOperationException($"Crocomire has no response to shot reaction {reaction?.ToString() ?? "(none)"}.");
+        throw new InvalidOperationException($"Crocomire has no response to shot reaction {reaction}.");
     }
 
     /// <summary>
@@ -386,14 +386,14 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>
-    /// The reaction of the first hitbox the probe overlaps on the body's frame, or null when the frame has no body hitboxes;
-    /// only his body's entity asks (#2179).
+    /// The first hitbox the probe overlaps on the body's frame, whose reaction runs, or none; only his body's entity asks
+    /// (#2179).
     /// </summary>
-    internal static bool? FindCrocomireBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <exception cref="InvalidDataException">The frame has no body hitboxes.</exception>
+    internal static EnemyHitboxContact FindCrocomireBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
         if (!CrocomireBodyCollision.HasFrame(enemy.Frame))
-            return null;
+            throw EnemyCollision.UncoveredFrame(enemy);
 
         // His body's hitboxes are the game's, whatever his installed pictures show; the first overlap wins, in the
         // order of his components and their hitboxes.
@@ -409,11 +409,10 @@ internal sealed class CrocomireCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
+                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
             }
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 
 }

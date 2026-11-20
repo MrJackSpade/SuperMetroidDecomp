@@ -81,18 +81,37 @@ internal static class EnemyInteractionCallbacks
             .ToFrozenDictionary(pair => pair.Key, pair => pair.Value);
 
     /// <summary>
-    /// The shared reaction a header's touch word names in <paramref name="bank"/>'s code, or the species' own
-    /// (<see cref="EnemyReaction.SpeciesOwn"/>) for a zero word or the species' own routine.
+    /// The shared reaction a header's touch word names in <paramref name="bank"/>'s code, or, for a zero word or the
+    /// species' own routine, <paramref name="speciesOwn"/>: the species' own reaction its compiled definition names.
     /// </summary>
-    internal static EnemyReaction DecodeTouch(int bank, int pointer) =>
-        DecodeHeader(bank, pointer, EnemyTouchCallbackDefinitions.LiteralNoOps) is { } shared ? shared : EnemyReaction.SpeciesOwn;
+    /// <exception cref="InvalidDataException"><paramref name="speciesOwn"/> is one of the engine's shared reactions.</exception>
+    internal static EnemyReaction DecodeTouch(int bank, int pointer, EnemyReaction speciesOwn) =>
+        DecodeHeader(bank, pointer, EnemyTouchCallbackDefinitions.LiteralNoOps) ?? SpeciesOwn(speciesOwn, "touch", bank, pointer);
 
     /// <summary>
-    /// The shared reaction a header's shot word names in <paramref name="bank"/>'s code, or the species' own
-    /// (<see cref="EnemyReaction.SpeciesOwn"/>) for a zero word or the species' own routine.
+    /// The shared reaction a header's shot word names in <paramref name="bank"/>'s code, or, for a zero word or the
+    /// species' own routine, <paramref name="speciesOwn"/>: the species' own reaction its compiled definition names.
     /// </summary>
-    internal static EnemyReaction DecodeShot(int bank, int pointer) =>
-        DecodeHeader(bank, pointer, EnemyShotCallbackDefinitions.LiteralNoOps) is { } shared ? shared : EnemyReaction.SpeciesOwn;
+    /// <exception cref="InvalidDataException"><paramref name="speciesOwn"/> is one of the engine's shared reactions.</exception>
+    internal static EnemyReaction DecodeShot(int bank, int pointer, EnemyReaction speciesOwn) =>
+        DecodeHeader(bank, pointer, EnemyShotCallbackDefinitions.LiteralNoOps) ?? SpeciesOwn(speciesOwn, "shot", bank, pointer);
+
+    /// <summary>Whether a header's touch word names the ignoring reaction in <paramref name="bank"/>'s code.</summary>
+    internal static bool NamesIgnoringTouch(int bank, int pointer) =>
+        DecodeHeader(bank, pointer, EnemyTouchCallbackDefinitions.LiteralNoOps) == EnemyReaction.Ignore;
+
+    /// <summary>Whether a header's shot word names the ignoring reaction in <paramref name="bank"/>'s code.</summary>
+    internal static bool NamesIgnoringShot(int bank, int pointer) =>
+        DecodeHeader(bank, pointer, EnemyShotCallbackDefinitions.LiteralNoOps) == EnemyReaction.Ignore;
+
+    /// <summary>
+    /// <paramref name="speciesOwn"/>, the species' own reaction a word that names none of the engine's leaves to the
+    /// species; a compiled definition that names a shared reaction there disagrees with the cartridge.
+    /// </summary>
+    private static EnemyReaction SpeciesOwn(EnemyReaction speciesOwn, string contact, int bank, int pointer) =>
+        EnemyReactionConstants.Shared.Contains(Ensure.NotNull(speciesOwn))
+            ? throw new InvalidDataException($"The {contact} word ${bank:X2}:{pointer:X4} names the species' own reaction, not {speciesOwn}.")
+            : speciesOwn;
 
     /// <summary>
     /// The shared reaction a header's Power Bomb word names in <paramref name="bank"/>'s code, or the common Power Bomb

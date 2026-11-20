@@ -30,30 +30,24 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyOccu
     private EnemyBombReaction OwnBombReaction => field ??= species.SporeSpawnBombReactionOf(this);
 
     /// <inheritdoc/>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
-        => SporeSpawnBehavior.FindSporeSpawnHitboxReaction(Place, probe, out reaction);
-
-    /// <summary>Spore Spawn's touch reaction, which its definition leaves to it.</summary>
-    public EnemyReaction? SpeciesTouch => SporeSpawnReactions.Touch;
-
-    /// <summary>Spore Spawn's shot reaction, which its definition leaves to it.</summary>
-    public EnemyReaction? SpeciesShot => SporeSpawnReactions.Shot;
+    public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe)
+        => SporeSpawnBehavior.FindSporeSpawnHitboxReaction(Place, probe);
 
     /// <summary>Whether Spore Spawn's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Place.Definition.Touch == SporeSpawnReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs Spore Spawn's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
+        if (Place.Definition.Touch == SporeSpawnReactions.Touch)
             species.ReactToSporeSpawnTouch(context, Encounter);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>Spore Spawn's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == SporeSpawnReactions.Shot ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>
     /// Spore Spawn's dud shot for a bomb whose hitbox selects it, in place of common bomb damage once the ignoring check has
@@ -78,7 +72,7 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyOccu
         EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>Spore Spawn's shot reaction and its dud shot, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) =>
         reaction == SporeSpawnReactions.Shot || reaction == EnemyReaction.DudShot;
 }

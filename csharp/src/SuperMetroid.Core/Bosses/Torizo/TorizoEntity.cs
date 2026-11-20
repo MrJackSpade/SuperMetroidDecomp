@@ -34,18 +34,12 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant o
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceTorizoTypedAnimation(Occupant, Place, this, context);
 
     /// <inheritdoc/>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
-        => TorizoCombat.FindTorizoHitboxReaction(Place, probe, out reaction);
+    public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe)
+        => TorizoCombat.FindTorizoHitboxReaction(Place, probe);
 
     /// <summary>Both Torizos' contact and shots meet their own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
-
-    /// <summary>Both Torizos' touch reaction, which their definitions leave to them.</summary>
-    public EnemyReaction? SpeciesTouch => TorizoReactions.Touch;
-
-    /// <summary>The shot reaction the Torizo's definition leaves to it.</summary>
-    public abstract EnemyReaction? SpeciesShot { get; }
 
     /// <summary>
     /// The Torizo's own hurt behaviour (#2240); the common animation runner still advances after it, as the enemies'
@@ -55,23 +49,26 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant o
     public abstract override bool RunHurt(RoomEnemyFrame frame);
 
     /// <summary>Whether the Torizo's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Place.Definition.Touch == TorizoReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the Torizo's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
+        if (Place.Definition.Touch == TorizoReactions.Touch)
             Species.Combat.ReactToTorizoTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Torizo's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == OwnShot ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>The Torizo's own shot reaction (#2240).</summary>
     protected abstract EnemyShotReaction OwnShotReaction { get; }
+
+    /// <summary>The shot reaction of the Torizo's own that its definition names (#2558).</summary>
+    protected abstract EnemyReaction OwnShot { get; }
 
     /// <summary>Runs the Torizo's own reaction to every bomb that overlaps it, before the ignoring check (#2240).</summary>
     /// <param name="context">The bomb contact.</param>
@@ -82,7 +79,7 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant o
     public void ShowGlow(ColourEffectFrame frame) => TorizoBehavior.ShowBellyGlow(Place, frame);
 
     /// <summary>The Torizo shot reactions both Torizos own, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
-    public virtual bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>
+    public virtual bool OwnsPrivateShotReaction(EnemyReaction reaction) =>
         reaction == TorizoReactions.Shot || reaction == TorizoReactions.StandUpSitDownShot;
 }

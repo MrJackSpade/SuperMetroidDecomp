@@ -25,25 +25,25 @@ internal abstract class WorkRobotEntity(WorkRobotBehavior species, RoomEnemyOccu
     public abstract void AdvanceTypedAnimation(EnemyAnimationCueContext context);
 
     /// <summary>Whether the Work Robot's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Place.Definition.Touch == WorkRobotReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the Work Robot's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
+        if (Place.Definition.Touch == WorkRobotReactions.Touch)
             WorkRobotBehavior.ReactToWorkRobotTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The Work Robot's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == WorkRobotReactions.Shot ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>The Work Robot's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? OwnBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == WorkRobotReactions.Shot ? OwnBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The robot's own stages around a bomb's common damage, as its power decides them.</summary>
     protected abstract EnemyBombReaction OwnBombReaction { get; }
@@ -52,6 +52,6 @@ internal abstract class WorkRobotEntity(WorkRobotBehavior species, RoomEnemyOccu
     protected abstract EnemyShotReaction OwnShotReaction { get; }
 
     /// <summary>The Work Robot's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
+    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == WorkRobotReactions.Shot;
 }

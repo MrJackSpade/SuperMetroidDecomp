@@ -21,22 +21,16 @@ internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemyOccu
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CeresSteamBehavior.AdvanceCeresSteamAnimation(Place);
 
     /// <inheritdoc/>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => CeresSteamBehavior.FindHitboxReaction(Place, probe, out reaction);
-
-    /// <summary>The steam's touch reaction, which its definition leaves to it.</summary>
-    public EnemyReaction? SpeciesTouch => CeresSteamReactions.Touch;
-
-    /// <summary>None: the steam's definition names the ignoring shot reaction.</summary>
-    public EnemyReaction? SpeciesShot => null;
+    public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => CeresSteamBehavior.FindHitboxReaction(Place, probe);
 
     /// <summary>Whether the steam's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Place.Definition.Touch == CeresSteamReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the steam's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
+        if (Place.Definition.Touch == CeresSteamReactions.Touch)
             species.ReactToCeresSteamTouch(context);
         else
             base.ReactToTouch(context);

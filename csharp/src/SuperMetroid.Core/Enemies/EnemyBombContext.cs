@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="PlacedBomb">The exploding bomb, holding its place, already marked with its hit direction.</param>
 /// <param name="OrdinaryProjectiles">Samus's beams and missiles (reactions read the first shot's aim).</param>
 /// <param name="Samus">Samus.</param>
-/// <param name="SelectedShot">The named reaction of the selected hitbox (the definition's on the radius path), if named.</param>
+/// <param name="SelectedShot">The shot reaction that runs: the selected hitbox's, or the definition's on the radius path.</param>
 /// <param name="UsesFrameHitboxes">Whether the overlap came from the enemy's authored extended hitboxes.</param>
 /// <param name="Camera">The camera's position as the bomb pass runs.</param>
 /// <remarks>The stages around common damage receive it as an <see cref="EnemyBombHitContext"/>, which adds the sampled health.</remarks>
@@ -19,7 +19,7 @@ internal record EnemyBombContext(
     SamusBombOccupant PlacedBomb,
     SamusProjectileSystem OrdinaryProjectiles,
     SamusState Samus,
-    EnemyReaction? SelectedShot,
+    EnemyReaction SelectedShot,
     bool UsesFrameHitboxes,
     Position16<RoomPixels> Camera)
 {

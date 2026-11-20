@@ -22,8 +22,8 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     public override void Initialize() => Species.Body.InitializeMotherBrainBody(Place);
 
     /// <summary>The body's hitboxes: her brain's rectangle until its first animation shows a body frame, then its frame's.</summary>
-    public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
-        MotherBrainCombat.FindMotherBrainBodyHitboxReaction(Place, probe, out reaction);
+    public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
+        MotherBrainCombat.FindMotherBrainBodyHitboxReaction(Place, probe);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunMotherBrainBodyMain(Place, Encounter, frame.Samus, frame.SamusBombs);
@@ -31,11 +31,8 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Body.AdvanceMotherBrainBodyAnimation(Encounter, context.Samus);
 
-    /// <summary>The body's shot reaction, which its definition leaves to it.</summary>
-    public override EnemyReaction? SpeciesShot => MotherBrainReactions.BodyShot;
-
     /// <summary>The body's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? Species.Combat.BodyShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == MotherBrainReactions.BodyShot ? Species.Combat.BodyShotReaction : base.ShotReaction;
 
     /// <summary>
     /// Makes a dud of a bomb that selects the body's shot reaction, before the ignoring check: the bomb's explosion is
@@ -63,6 +60,6 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     public override EnemyCapabilities Capabilities => EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>The body's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction == MotherBrainReactions.BodyShot;
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == MotherBrainReactions.BodyShot;
 }

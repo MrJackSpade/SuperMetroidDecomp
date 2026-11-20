@@ -67,7 +67,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
 
     /// <summary>Imports a ROM-shaped enemy header from the fixture's seeded bytes.</summary>
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
-        SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.LoadAt(this, FixtureHeaderPointer(pointer));
+        SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.LoadAt(this, FixtureHeaderPointer(pointer), pointer);
 
     /// <summary>
     /// The bank-$A0 header pointer a fixture seeds <paramref name="definition"/>'s header at: a member's retail pointer, as

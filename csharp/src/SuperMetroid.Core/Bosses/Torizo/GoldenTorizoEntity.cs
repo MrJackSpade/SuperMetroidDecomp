@@ -16,8 +16,8 @@ internal sealed class GoldenTorizoEntity(TorizoBehavior species, RoomEnemyOccupa
     /// <summary>He is Norfair's Golden Torizo.</summary>
     protected override TorizoVariant Variant => TorizoVariant.Golden;
 
-    /// <summary>Golden Torizo's own shot reaction, which its definition leaves to it.</summary>
-    public override EnemyReaction? SpeciesShot => TorizoReactions.GoldenShot;
+    /// <summary>The shot reaction of this Torizo's own that its definition names (#2558).</summary>
+    protected override EnemyReaction OwnShot => TorizoReactions.GoldenShot;
 
     /// <inheritdoc/>
     public override bool RunHurt(RoomEnemyFrame frame)
@@ -37,7 +37,7 @@ internal sealed class GoldenTorizoEntity(TorizoBehavior species, RoomEnemyOccupa
     }
 
     /// <summary>The Torizo shot reactions, which a normal bomb triggers as it does the common one, and Golden Torizo's own.</summary>
-    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
-    public override bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>
+    public override bool OwnsPrivateShotReaction(EnemyReaction reaction) =>
         base.OwnsPrivateShotReaction(reaction) || reaction == TorizoReactions.GoldenShot;
 }

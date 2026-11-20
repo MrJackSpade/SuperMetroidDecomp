@@ -210,6 +210,9 @@ internal static class EnemyDefinitionsVerification
         ushort Word(int offset) => ReadVerificationWord(bus, address + offset);
         byte Byte(int offset) => bus.ReadCartridgeByte(address + offset);
         byte bank = Byte(12);
+        // A word that names none of the engine's reactions leaves the contact to the species' own reaction the compiled
+        // definition names (#2558); the decode fails where the compiled definition names a shared one instead.
+        RoomEnemyDefinition compiled = RoomEnemyDefinitionLookup.Read(pointer);
         // The oracle decodes the header independently: a zero hurt byte is the standard four-frame flash. The +$2A word, a
         // hopper's kind, is compared with the hopper's own catalog by the hopper check (#1624). The tile word is the import's (#1513).
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
@@ -219,8 +222,8 @@ internal static class EnemyDefinitionsVerification
             EnemyGrappleResponseWords.Decode(Word(26)), EnemyInteractionCallbacks.HurtResponse(Word(28)),
             EnemyDeathExplosionWords.Selectors.Decode(Word(34), "enemy death explosion"),
             EnemyInteractionCallbacks.DecodePowerBomb(bank, Word(40)),
-            EnemyInteractionCallbacks.DecodeTouch(bank, Word(48)),
-            EnemyInteractionCallbacks.DecodeShot(bank, Word(50)),
+            EnemyInteractionCallbacks.DecodeTouch(bank, Word(48), compiled.Touch),
+            EnemyInteractionCallbacks.DecodeShot(bank, Word(50), compiled.Shot),
             EnemyInteractionCallbacks.HitboxScan(Word(48)),
             EnemyInteractionCallbacks.HitboxScan(Word(50)),
             EnemyHeaderTables.Drops(cartridge, Word(58)), EnemyHeaderTables.Vulnerability(cartridge, Word(60)));

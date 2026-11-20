@@ -19,8 +19,8 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="PowerBombReaction">
 /// The Power Bomb reaction: the ignoring one, or the common Power Bomb damage (<see cref="EnemyReaction.CommonPowerBomb"/>).
 /// </param>
-/// <param name="Touch">The Samus-contact reaction, or the species' own its hitboxes name (<see cref="EnemyReaction.SpeciesOwn"/>).</param>
-/// <param name="Shot">The projectile-hit reaction, or the species' own its hitboxes name (<see cref="EnemyReaction.SpeciesOwn"/>).</param>
+/// <param name="Touch">The Samus-contact reaction that runs when Samus meets the enemy by its radius: a shared one or its species' own.</param>
+/// <param name="Shot">The projectile-hit reaction that runs when a shot or bomb meets the enemy by its radius: a shared one or its species' own.</param>
 
 /// <param name="TouchHitboxScan">Whether Samus's touch is tested against the enemy's extended hitboxes or withheld.</param>
 /// <param name="ShotHitboxScan">Whether shots and bombs are tested against the enemy's extended hitboxes or withheld.</param>

@@ -50,20 +50,16 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>
-    /// The touch reaction a touch selects when it meets <paramref name="place"/> by its radius: the shared one its
-    /// definition names, or else the species' own its hitboxes name (<see cref="IEnemyFrameHitboxes.SpeciesTouch"/>);
-    /// null when neither names one.
+    /// The touch reaction a touch runs when it meets <paramref name="place"/> by its radius: the one its definition names,
+    /// shared or the species' own (#2558).
     /// </summary>
-    internal static EnemyReaction? TouchReactionOf(RoomEnemyPlace place) =>
-        place.Definition.Touch != EnemyReaction.SpeciesOwn ? place.Definition.Touch : (place.Entity as IEnemyFrameHitboxes)?.SpeciesTouch;
+    internal static EnemyReaction TouchReactionOf(RoomEnemyPlace place) => place.Definition.Touch;
 
     /// <summary>
-    /// The shot reaction a shot or bomb selects when it meets <paramref name="place"/> by its radius: the shared one its
-    /// definition names, or else the species' own its hitboxes name (<see cref="IEnemyFrameHitboxes.SpeciesShot"/>);
-    /// null when neither names one.
+    /// The shot reaction a shot or bomb runs when it meets <paramref name="place"/> by its radius: the one its definition
+    /// names, shared or the species' own (#2558).
     /// </summary>
-    internal static EnemyReaction? ShotReactionOf(RoomEnemyPlace place) =>
-        place.Definition.Shot != EnemyReaction.SpeciesOwn ? place.Definition.Shot : (place.Entity as IEnemyFrameHitboxes)?.SpeciesShot;
+    internal static EnemyReaction ShotReactionOf(RoomEnemyPlace place) => place.Definition.Shot;
 
     /// <summary>Runs the common radius-based touch between Samus and the enemy the enemy pass is processing.</summary>
     /// <param name="samus">Live player state receiving the touch reaction.</param>
@@ -113,28 +109,27 @@ internal sealed class EnemyCollision
             return;
         }
 
-        bool overlapsSamus;
-        EnemyReaction? hitboxTouch = TouchReactionOf(place);
+        EnemyReaction hitboxTouch;
         if (usesFrameHitboxes)
         {
-            overlapsSamus = TryFindFrameHitboxReaction(
-                place,
-                samus.Position.Whole,
-                samus.Kinematics.Radius,
-                contactKind: HitboxContactKind.Touch,
-                out hitboxTouch);
+            if (FindFrameHitboxContact(
+                    place,
+                    samus.Position.Whole,
+                    samus.Kinematics.Radius,
+                    contactKind: HitboxContactKind.Touch) is not EnemyHitboxContact.StruckHitbox struck)
+                return;
+            hitboxTouch = struck.Reaction;
         }
         else
         {
-            overlapsSamus = RadiusBoxesOverlap(
-                place.Position.Whole,
-                place.Radius,
-                samus.Position.Whole,
-                samus.Kinematics.Radius);
+            if (!RadiusBoxesOverlap(
+                    place.Position.Whole,
+                    place.Radius,
+                    samus.Position.Whole,
+                    samus.Kinematics.Radius))
+                return;
+            hitboxTouch = TouchReactionOf(place);
         }
-
-        if (!overlapsSamus)
-            return;
 
         // On the ordinary radius path a frozen enemy never reacts to Samus's touch, except a place awaiting its enemy's
         // respawn. The extended-hitbox path has no such gate.
@@ -236,28 +231,27 @@ internal sealed class EnemyCollision
                 continue;
             }
 
-            bool overlapsProjectile;
-            EnemyReaction? hitboxShot = ShotReactionOf(enemy);
+            EnemyReaction hitboxShot;
             if (usesFrameHitboxes)
             {
-                overlapsProjectile = TryFindFrameHitboxReaction(
-                    enemy,
-                    projectile.Position.Whole,
-                    projectile.Radius,
-                    contactKind: HitboxContactKind.Shot,
-                    out hitboxShot);
+                if (FindFrameHitboxContact(
+                        enemy,
+                        projectile.Position.Whole,
+                        projectile.Radius,
+                        contactKind: HitboxContactKind.Shot) is not EnemyHitboxContact.StruckHitbox struck)
+                    continue;
+                hitboxShot = struck.Reaction;
             }
             else
             {
-                overlapsProjectile = RadiusBoxesOverlap(
-                    enemy.Position.Whole,
-                    enemy.Radius,
-                    projectile.Position.Whole,
-                    projectile.Radius);
+                if (!RadiusBoxesOverlap(
+                        enemy.Position.Whole,
+                        enemy.Radius,
+                        projectile.Position.Whole,
+                        projectile.Radius))
+                    continue;
+                hitboxShot = ShotReactionOf(enemy);
             }
-
-            if (!overlapsProjectile)
-                continue;
 
             bool selectedIgnore = hitboxShot == EnemyReaction.Ignore;
             var shot = new EnemyShotContext(
@@ -465,7 +459,7 @@ internal sealed class EnemyCollision
         Ensure.NotNull(ordinaryProjectiles);
         RoomEnemyPlace enemy = Ensure.NotNull(occupant).Place;
 
-        EnemyReaction? radiusShot = ShotReactionOf(enemy);
+        EnemyReaction radiusShot = ShotReactionOf(enemy);
         bool usesCommonShot = radiusShot == EnemyReaction.OrdinaryShot;
         bool usesIgnoringShot = radiusShot == EnemyReaction.Ignore;
         bool usesPrivateShot = HasPrivateNormalBombShot(enemy, radiusShot);
@@ -506,22 +500,26 @@ internal sealed class EnemyCollision
                 continue;
             }
 
-            EnemyReaction? selectedShot = radiusShot;
-            bool overlaps = usesFrameHitboxes
-                ? TryFindFrameHitboxReaction(
-                    enemy,
-                    bomb.Position.Whole,
-                    bomb.Radius,
-                    contactKind: HitboxContactKind.Shot,
-                    out selectedShot)
-                : RadiusBoxesOverlap(
-                    enemy.Position.Whole,
-                    enemy.Radius,
-                    bomb.Position.Whole,
-                    bomb.Radius);
-            if (!overlaps)
+            EnemyReaction selectedShot;
+            if (usesFrameHitboxes)
             {
-                continue;
+                if (FindFrameHitboxContact(
+                        enemy,
+                        bomb.Position.Whole,
+                        bomb.Radius,
+                        contactKind: HitboxContactKind.Shot) is not EnemyHitboxContact.StruckHitbox struck)
+                    continue;
+                selectedShot = struck.Reaction;
+            }
+            else
+            {
+                if (!RadiusBoxesOverlap(
+                        enemy.Position.Whole,
+                        enemy.Radius,
+                        bomb.Position.Whole,
+                        bomb.Radius))
+                    continue;
+                selectedShot = radiusShot;
             }
 
             // Frame-hitbox actors run the reaction stored in the selected hitbox,
@@ -586,7 +584,7 @@ internal sealed class EnemyCollision
     /// </summary>
     private static bool HasPrivateNormalBombShot(
         RoomEnemyPlace enemy,
-        EnemyReaction? reaction) =>
+        EnemyReaction reaction) =>
         enemy.Entity is IEnemyPrivateShotReaction owner &&
         owner.OwnsPrivateShotReaction(reaction);
 
@@ -858,24 +856,22 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>
-    /// Tests the hitboxes of the frame an enemy shows and returns the reaction belonging to the first overlapping
-    /// hitbox. One frame may hold several hitboxes, each signed bounds about the enemy's origin with its own touch and
-    /// shot reactions.
+    /// Tests the hitboxes of the frame an enemy shows and returns the first overlapping hitbox, whose reaction runs, or
+    /// none. One frame may hold several hitboxes, each signed bounds about the enemy's origin with its own touch and shot
+    /// reactions.
     /// </summary>
-    internal static bool TryFindFrameHitboxReaction(
+    /// <exception cref="InvalidDataException">No geometry covers the frame the enemy shows.</exception>
+    internal static EnemyHitboxContact FindFrameHitboxContact(
         RoomEnemyPlace enemy,
         Position16<RoomPixels> targetPosition,
         Extent16<RoomPixels> targetRadius,
-        HitboxContactKind contactKind,
-        out EnemyReaction? reaction)
+        HitboxContactKind contactKind)
     {
-        reaction = null;
-
         // Frame-hitbox collision tests every frame an actor shows, and only an actor that has
         // shown none is skipped. The empty frame still has a point hitbox for an enemy that
         // collides by its frames' hitboxes, so it enters the same test as every other frame.
         if (enemy.Frame is null)
-            return false;
+            return EnemyHitboxContact.Missed;
 
         EnemyHitboxProbe target = EnemyHitboxProbe.Around(targetPosition, targetRadius, contactKind);
 
@@ -885,19 +881,21 @@ internal sealed class EnemyCollision
             // enemy origin. Run the same asymmetric overlap test before
             // selecting its common touch/shot reaction.
             if (!target.Overlaps(enemy.Position.X.Whole, enemy.Position.Y.Whole, enemy.Position.X.Whole, enemy.Position.Y.Whole))
-                return false;
-            reaction = contactKind == HitboxContactKind.Shot ? EnemyReaction.OrdinaryShot : EnemyReaction.OrdinaryTouch;
-            return true;
+                return EnemyHitboxContact.Missed;
+            return EnemyHitboxContact.Struck(contactKind == HitboxContactKind.Shot ? EnemyReaction.OrdinaryShot : EnemyReaction.OrdinaryTouch);
         }
 
-        // A species whose hitboxes the game defines answers for its own frames; null means none covers this frame.
-        if (enemy.Entity is IEnemyFrameHitboxes owner && owner.FindHitboxReaction(target, out reaction) is { } owned)
-            return owned;
+        // A species whose hitboxes the game defines answers for its own frames.
+        if (enemy.Entity is IEnemyFrameHitboxes owner)
+            return owner.FindHitboxReaction(target);
 
-        throw new InvalidDataException(
-            $"Enemy {enemy.Occupant?.DefinitionId} extended collision frame " +
-            $"{enemy.Frame} has no collision geometry.");
+        throw UncoveredFrame(enemy);
     }
+
+    /// <summary>The failure of a frame-hitbox test on a frame no collision geometry covers.</summary>
+    /// <param name="enemy">The enemy whose shown frame has no geometry.</param>
+    internal static InvalidDataException UncoveredFrame(RoomEnemyPlace enemy) =>
+        new($"Enemy {Ensure.NotNull(enemy).Occupant?.DefinitionId} extended collision frame {enemy.Frame} has no collision geometry.");
 
     /// <summary>
     /// Identifies actors whose contact with Samus is tested against their frames' hitboxes. This differs deliberately

@@ -22,26 +22,26 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyOccu
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadTorizoBehavior.AdvanceDeadTorizoTypedAnimation(Place);
 
     /// <summary>Whether the dead Torizo's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Place.Definition.Touch == CorpseReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the dead Torizo's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
+        if (Place.Definition.Touch == CorpseReactions.Touch)
             DeadTorizoBehavior.ReactToDeadTorizoTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The dead Torizo's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? species.DeadTorizoShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == CorpseReactions.Shot ? species.DeadTorizoShotReaction : base.ShotReaction;
 
     /// <summary>Runs the dead Torizo's own bomb reaction in place of common bomb damage, for a bomb whose hit selects the corpse's own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override bool TryReplaceCommonBombDamage(EnemyBombContext context)
     {
-        if (!(context.SelectedShot is null))
+        if (context.SelectedShot != CorpseReactions.Shot)
             return base.TryReplaceCommonBombDamage(context);
         DeadTorizoBehavior.ReplaceDeadTorizoBombDamage(context);
         return true;
@@ -51,6 +51,6 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyOccu
     public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? species.DeadTorizoPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The dead Torizo's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
+    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == CorpseReactions.Shot;
 }

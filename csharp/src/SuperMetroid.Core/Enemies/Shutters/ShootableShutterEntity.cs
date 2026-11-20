@@ -18,7 +18,7 @@ internal class ShootableShutterEntity(ShuttersBehavior species, RoomEnemyOccupan
     protected override ShutterSegment Pose => ShutterSegment.FullyGrown;
 
     /// <summary>The shootable shutter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? ownShot : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == ShutterReactions.Shot ? ownShot : base.ShotReaction;
 
     /// <summary>
     /// Runs the shootable shutter's own reaction to a bomb that selects its own shot reaction, before the ignoring check.
@@ -26,7 +26,7 @@ internal class ShootableShutterEntity(ShuttersBehavior species, RoomEnemyOccupan
     /// <param name="context">The bomb contact.</param>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        if (context.SelectedShot is not null)
+        if (context.SelectedShot != ShutterReactions.Shot)
             return base.TryReactToBomb(context);
         Species.ReactToShootableShutterBomb(Occupant, context);
         return true;

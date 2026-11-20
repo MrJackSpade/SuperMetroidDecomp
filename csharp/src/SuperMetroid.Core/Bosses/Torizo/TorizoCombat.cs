@@ -235,10 +235,8 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on a Torizo's frame, which his own entity asks for (#2301).</summary>
-    internal static bool FindTorizoHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static EnemyHitboxContact FindTorizoHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
-
         // The body's rectangles lie about Torizo's position; the probe meets their edges as every room position is
         // compared, by DistanceAcrossRoomEdge.LiesBefore, also an edge reaching past either end of the room.
         Position16<RoomPixels> origin = enemy.Position.Whole;
@@ -248,9 +246,8 @@ internal sealed class TorizoCombat
             EnemyCollisionHitbox hitbox = rectangles[index];
             if (!probe.Overlaps(origin.X + hitbox.Left, origin.Y + hitbox.Top, origin.X + hitbox.Right, origin.Y + hitbox.Bottom))
                 continue;
-            reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-            return true;
+            return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 }

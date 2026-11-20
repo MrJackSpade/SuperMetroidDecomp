@@ -38,7 +38,7 @@ internal sealed class EnemyCommonParticipation(Func<EnemyCollision> collision)
 
     /// <summary>
     /// The shared shot reaction <paramref name="definition"/> names, or the reaction of an enemy shots pass when it names
-    /// the species' own and the species has none.
+    /// a species' own that its entity does not answer.
     /// </summary>
     /// <param name="definition">The occupant's definition.</param>
     internal static EnemyShotReaction ShotReaction(RoomEnemyDefinition definition) =>

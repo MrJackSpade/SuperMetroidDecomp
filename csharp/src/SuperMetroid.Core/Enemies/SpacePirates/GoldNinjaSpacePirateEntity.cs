@@ -13,7 +13,7 @@ internal sealed class GoldNinjaSpacePirateEntity(NinjaSpacePirateBehavior specie
     : NinjaSpacePirateEntity(species, occupant, place, common)
 {
     /// <summary>The gold Ninja's own shot reaction where the definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? Species.Walking.GoldNinjaShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == SpacePirateReactions.Shot ? Species.Walking.GoldNinjaShotReaction : base.ShotReaction;
 
     /// <summary>
     /// Runs the gold Ninja's own reaction to a bomb its frames' hitboxes meet with one of the Pirates' own reactions, before

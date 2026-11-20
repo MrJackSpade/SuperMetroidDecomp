@@ -30,7 +30,7 @@ internal static class WorkRobotBombRejectionVerification
             bomb.OccupyAsPlaced(SamusProjectileType.Of(SamusProjectileFamily.Bomb));
             bomb.Position = FixedPosition<RoomPixels>.FromWhole(place.Position.Whole);
             var context = new EnemyBombContext(place.HeldOccupant(), bomb.HeldBomb(), ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
-                SelectedShot: null, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0))
+                SelectedShot: SuperMetroid.Core.Enemies.WorkRobots.WorkRobotReactions.Shot, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0))
             {
                 StruckOccupant = place.OccupantStates,
             };

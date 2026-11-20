@@ -52,7 +52,7 @@ internal sealed class DraygonCombat
         if (context.HitboxTouch != DraygonReactions.Touch)
         {
             throw new InvalidDataException(
-                $"Draygon has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
+                $"Draygon has no response to touch reaction {context.HitboxTouch}.");
         }
         _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
         ResolveDraygonReaction(context.Place, context.Samus);
@@ -170,7 +170,7 @@ internal sealed class DraygonCombat
             if (c.HitboxShot != DraygonReactions.Shot)
             {
                 throw new InvalidDataException(
-                    $"Draygon has no response to shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
+                    $"Draygon has no response to shot reaction {c.HitboxShot}.");
             }
             return false;
         },
@@ -185,10 +185,8 @@ internal sealed class DraygonCombat
     /// The reaction of the first hitbox the probe overlaps on <paramref name="enemy"/>'s frame, one of Draygon's parts,
     /// which its own entity asks for (#2301).
     /// </summary>
-    internal static bool FindDraygonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static EnemyHitboxContact FindDraygonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
-
         // Both sprite and body-layer art are replaceable presentation. Their
         // component offsets and hitboxes remain fixed gameplay data.
         foreach (EnemyCollisionComponent component in
@@ -203,10 +201,9 @@ internal sealed class DraygonCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
+                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
             }
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 }

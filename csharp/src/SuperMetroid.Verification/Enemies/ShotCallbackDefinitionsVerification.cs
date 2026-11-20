@@ -80,9 +80,9 @@ internal static class ShotCallbackDefinitionsVerification
         // A word naming one of the engine's two shared returns ignores the contact in every enemy bank; every other
         // ignoring reaction is one of the inventoried literal returns.
         var classifyShot = new Func<byte, ushort, bool>((bank, pointer) =>
-            EnemyInteractionCallbacks.DecodeShot(bank, pointer) == EnemyReaction.Ignore);
+            EnemyInteractionCallbacks.NamesIgnoringShot(bank, pointer));
         var classifyTouch = new Func<byte, ushort, bool>((bank, pointer) =>
-            EnemyInteractionCallbacks.DecodeTouch(bank, pointer) == EnemyReaction.Ignore);
+            EnemyInteractionCallbacks.NamesIgnoringTouch(bank, pointer));
         foreach (int address in shotCallbacks)
             AssertEqual(expectedShotNoOps.Contains(address) || IsEngineReturn((ushort)address),
                 classifyShot(SnesLittleEndianConstants.BankByte(address), (ushort)address), "real shot classifier native parity");
@@ -129,7 +129,7 @@ internal static class ShotCallbackDefinitionsVerification
             ushort touchWord = unchecked((ushort)callback);
             enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
             {
-                Touch = EnemyInteractionCallbacks.DecodeTouch(touchBank, touchWord),
+                Touch = EnemyInteractionCallbacks.DecodeTouch(touchBank, touchWord, EnemyDefinitionFixtures.Blank.Touch),
             });
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
@@ -154,7 +154,7 @@ internal static class ShotCallbackDefinitionsVerification
             ushort shotWord = unchecked((ushort)callback);
             enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
             {
-                Shot = EnemyInteractionCallbacks.DecodeShot(shotBank, shotWord),
+                Shot = EnemyInteractionCallbacks.DecodeShot(shotBank, shotWord, EnemyDefinitionFixtures.Blank.Shot),
             });
             var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             SamusProjectile projectile = projectiles.Shots[0];

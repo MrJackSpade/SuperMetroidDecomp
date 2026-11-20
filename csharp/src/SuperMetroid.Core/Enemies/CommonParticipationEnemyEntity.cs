@@ -25,12 +25,6 @@ internal abstract class CommonParticipationEnemyEntity(RoomEnemyOccupant occupan
     /// <inheritdoc/>
     public virtual EnemyCapabilities Capabilities => EnemyCapabilities.None;
 
-    /// <summary>Whether the definition names no shared touch reaction, leaving Samus's touch to the species.</summary>
-    protected bool LeavesTouchToSpecies => Place.Definition.Touch == EnemyReaction.SpeciesOwn;
-
-    /// <summary>Whether the definition names no shared shot reaction, leaving shots and bombs to the species.</summary>
-    protected bool LeavesShotToSpecies => Place.Definition.Shot == EnemyReaction.SpeciesOwn;
-
     /// <summary>Whether the definition names no shared Power Bomb reaction, leaving the blast to the species or to common damage.</summary>
     protected bool LeavesPowerBombToSpecies => Place.Definition.PowerBombReaction == EnemyReaction.CommonPowerBomb;
 

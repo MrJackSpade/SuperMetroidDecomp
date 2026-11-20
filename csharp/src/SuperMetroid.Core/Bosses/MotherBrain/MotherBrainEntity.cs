@@ -38,16 +38,9 @@ internal abstract class MotherBrainEntity(MotherBrainBehavior species, RoomEnemy
     /// <inheritdoc/>
     public abstract void AdvanceTypedAnimation(EnemyAnimationCueContext context);
 
-    /// <summary>None: the body and tubes name shared touch reactions.</summary>
-    public virtual EnemyReaction? SpeciesTouch => null;
-
-    /// <summary>None: the tubes name a shared shot reaction.</summary>
-    public virtual EnemyReaction? SpeciesShot => null;
-
     /// <summary>None: only her body and her head have hitboxes of their own, which their entities find (#2301).</summary>
-    public virtual bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    public virtual EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe)
     {
-        reaction = null;
-        return null;
+        throw EnemyCollision.UncoveredFrame(Place);
     }
 }

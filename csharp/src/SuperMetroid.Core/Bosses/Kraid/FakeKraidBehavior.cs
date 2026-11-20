@@ -310,9 +310,9 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
         AfterCommon = c =>
         {
-            // The bomb selects the fake Kraid's own shot reaction, which its definition leaves to it, rather than the
-            // empty frame's ordinary one.
-            if (c.SelectedShot is null && c.HealthBefore != 0 && c.Enemy.Health == 0)
+            // The bomb selects the fake Kraid's own shot reaction, which its definition names, rather than the empty
+            // frame's ordinary one.
+            if (c.SelectedShot == KraidReactions.FakeKraidShot && c.HealthBefore != 0 && c.Enemy.Health == 0)
                 KillFakeKraid(c.Occupant, c.Samus);
         },
     };

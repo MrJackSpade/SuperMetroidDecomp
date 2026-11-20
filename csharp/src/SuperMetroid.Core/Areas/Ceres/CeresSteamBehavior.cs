@@ -101,7 +101,7 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
         {
             throw new InvalidDataException(
                 $"Ceres steam touches through its frames' hitboxes with {CeresSteamReactions.Touch}; " +
-                $"frame hitboxes={context.UsesFrameHitboxes}, touch={context.HitboxTouch?.ToString() ?? "(unnamed)"}, " +
+                $"frame hitboxes={context.UsesFrameHitboxes}, touch={context.HitboxTouch}, " +
                 $"frame={context.Place.Frame}.");
         }
 
@@ -112,23 +112,20 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
 
     /// <summary>The reaction of the plume rectangle the frame shown has, when the probe overlaps it.</summary>
     /// <exception cref="InvalidDataException">The frame shown is not one of the steam's frames.</exception>
-    internal static bool? FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static EnemyHitboxContact FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
-
         // Only the frame's plume rectangle damages Samus, whatever its installed picture shows; a hidden plume has none.
         if (enemy.Frame is not { } frame || !CeresSteamCollisionDefinitions.Plumes.TryGetValue(frame, out EnemyHitboxRectangle? plume))
             throw new InvalidDataException($"Ceres steam frame {enemy.Frame} has no plume collision.");
         if (plume is not { } rectangle)
-            return false;
+            return EnemyHitboxContact.Missed;
 
         // The probe compares the edges by their signed distances, so an edge past the room's edge needs no wrapping.
         Position16<RoomPixels> vent = enemy.Position.Whole;
         if (!probe.Overlaps(vent.X + rectangle.Left, vent.Y + rectangle.Top, vent.X + rectangle.Right, vent.Y + rectangle.Bottom))
-            return false;
-        reaction = probe.SelectsShot
+            return EnemyHitboxContact.Missed;
+        return EnemyHitboxContact.Struck(probe.SelectsShot
             ? CeresSteamCollisionDefinitions.ShotReaction
-            : CeresSteamCollisionDefinitions.TouchReaction;
-        return true;
+            : CeresSteamCollisionDefinitions.TouchReaction);
     }
 }

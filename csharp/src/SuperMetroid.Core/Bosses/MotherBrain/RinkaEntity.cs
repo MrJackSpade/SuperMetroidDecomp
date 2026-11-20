@@ -29,25 +29,25 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occup
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RinkaBehavior.AdvanceRinkaTypedAnimation(Place);
 
     /// <summary>Whether Rinka's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Place.Definition.Touch == RinkaReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs Rinka's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
+        if (Place.Definition.Touch == RinkaReactions.Touch)
             species.ReactToRinkaTouch(Occupant, context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>Rinka's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? ownShot : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == RinkaReactions.Shot ? ownShot : base.ShotReaction;
 
     /// <summary>Rinka's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? ownBomb : base.CommonBombDamageReaction(context);
+        context.SelectedShot == RinkaReactions.Shot ? ownBomb : base.CommonBombDamageReaction(context);
 
     /// <summary>Rinka's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
     public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? ownPowerBomb : base.PowerBombReaction;
@@ -56,6 +56,6 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occup
     public override bool PreemptFrozenTurn() => species.ThawOrDieWhileFrozen(Occupant);
 
     /// <summary>Rinka's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
+    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == RinkaReactions.Shot;
 }

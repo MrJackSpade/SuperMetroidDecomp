@@ -31,8 +31,8 @@ internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOc
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceCrocomireTypedAnimation(Place, context);
 
     /// <inheritdoc/>
-    public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
-        CrocomireCombat.FindCrocomireBodyHitboxReaction(Place, probe, out reaction);
+    public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
+        CrocomireCombat.FindCrocomireBodyHitboxReaction(Place, probe);
 
     /// <summary>Crocomire's components own his touch: Samus meets his body through their contact.</summary>
     protected override bool OwnsTouch => true;

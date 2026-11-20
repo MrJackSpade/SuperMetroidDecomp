@@ -29,13 +29,13 @@ internal abstract class ShuttersEntity(ShuttersBehavior species, RoomEnemyOccupa
     public abstract void AdvanceTypedAnimation(EnemyAnimationCueContext context);
 
     /// <summary>Whether the vertical shutter's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Place.Definition.Touch == ShutterReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the vertical shutter's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
+        if (Place.Definition.Touch == ShutterReactions.Touch)
             species.ReactToVerticalShutterTouch(Occupant, context);
         else
             base.ReactToTouch(context);
@@ -48,6 +48,6 @@ internal abstract class ShuttersEntity(ShuttersBehavior species, RoomEnemyOccupa
     /// <summary>
     /// The shootable and destroyable vertical shutters' shot reactions, which a normal bomb triggers as it does the common one.
     /// </summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
+    /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == ShutterReactions.Shot;
 }

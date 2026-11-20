@@ -24,12 +24,6 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupa
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunDraygonBodyMainAi(Place, frame);
 
-    /// <summary>The body's touch reaction, which its definition leaves to it.</summary>
-    public override EnemyReaction? SpeciesTouch => DraygonReactions.Touch;
-
-    /// <summary>The body's shot reaction, which its definition leaves to it.</summary>
-    public override EnemyReaction? SpeciesShot => DraygonReactions.Shot;
-
     /// <summary>
     /// The body's hurt behaviour: it flashes body, eye and tail together, while a connected grapple's electrocution may
     /// drain another <see cref="DraygonArenaDefinitions.GrappleShockDamage"/> at its shock cadence.
@@ -42,20 +36,20 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupa
     }
 
     /// <summary>Whether the body's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Place.Definition.Touch == DraygonReactions.Touch || base.ReactsToTouch;
 
     /// <summary>Runs the body's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
+        if (Place.Definition.Touch == DraygonReactions.Touch)
             Species.Combat.ReactToDraygonTouch(context);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The body's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => LeavesShotToSpecies ? Species.Combat.DraygonShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Place.Definition.Shot == DraygonReactions.Shot ? Species.Combat.DraygonShotReaction : base.ShotReaction;
 
     /// <summary>
     /// The body's dud shot for a bomb whose hitbox selects it, in place of common bomb damage once the ignoring check has
@@ -83,6 +77,6 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupa
     public override EnemyCapabilities Capabilities => EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>The body's shot reaction and its dud shot, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction == DraygonReactions.Shot || reaction == EnemyReaction.DudShot;
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == DraygonReactions.Shot || reaction == EnemyReaction.DudShot;
 }

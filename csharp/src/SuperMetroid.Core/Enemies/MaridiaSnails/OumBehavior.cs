@@ -456,7 +456,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 throw new InvalidDataException(
                     $"Maridia Large Snail has no response to shot reaction " +
-                    $"{c.HitboxShot?.ToString() ?? "(unnamed)"}.");
+                    $"{c.HitboxShot}.");
             }
             return false;
         },
@@ -472,7 +472,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             throw new InvalidDataException(
                 $"Maridia Large Snail has no response to touch reaction " +
-                $"{context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
+                $"{context.HitboxTouch}.");
         }
 
         // The damaging touch hurts Samus as any enemy does and then shoves her as the harmless touch does. A harmless
@@ -484,10 +484,8 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The reaction of the first of the occupant's hitboxes the probe overlaps on the frame it shows.</summary>
     /// <exception cref="InvalidDataException">The frame shown has no Oum collision.</exception>
-    internal static bool? FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static EnemyHitboxContact FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
-
         // The frame's hitboxes are read in order, and the first the probe overlaps gives the reaction.
         foreach (EnemyCollisionHitbox hitbox in
                  OumCollisionDefinitions.Frames.Of(enemy.Frame))
@@ -498,9 +496,8 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
             int bottom = enemy.Position.Y.Whole + hitbox.Bottom;
             if (!probe.Overlaps(left, top, right, bottom))
                 continue;
-            reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-            return true;
+            return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 }

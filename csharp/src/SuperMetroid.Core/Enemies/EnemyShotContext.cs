@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="ProjectileDirection">The incoming projectile's direction.</param>
 /// <param name="Family">The incoming projectile family.</param>
 /// <param name="UsesFrameHitboxes">Whether the overlap came from the enemy's authored extended hitboxes.</param>
-/// <param name="HitboxShot">The named shot reaction of the overlapping hitbox, if named.</param>
+/// <param name="HitboxShot">The shot reaction that runs: the overlapping hitbox's, or the definition's on the radius path.</param>
 /// <param name="Camera">The camera's position as the shot pass runs.</param>
 /// <remarks>The stages from vulnerability on receive it as an <see cref="EnemyShotHitContext"/>, which adds the sampled health.</remarks>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
@@ -29,7 +29,7 @@ internal record EnemyShotContext(
     SamusProjectileDirection ProjectileDirection,
     SamusProjectileFamily Family,
     bool UsesFrameHitboxes,
-    EnemyReaction? HitboxShot,
+    EnemyReaction HitboxShot,
     Position16<RoomPixels> Camera)
 {
     /// <summary>The place the struck occupant was spawned in, which the reaction reads and writes.</summary>

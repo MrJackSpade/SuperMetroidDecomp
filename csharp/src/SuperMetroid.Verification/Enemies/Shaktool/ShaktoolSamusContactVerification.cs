@@ -26,7 +26,7 @@ internal static class ShaktoolSamusContactVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Shaktool);
         RoomEnemyPlace segment = runtime.Enemies.Places.InUpdateOrder[0];
         AssertEqual(EnemyDefinitionId.Shaktool, segment.Occupant?.DefinitionId, "slot zero is a Shaktool segment");
-        AssertEqual<EnemyReaction?>(null, segment.Definition.Touch, "Shaktool's definition leaves its touch to the species");
+        AssertEqual(SuperMetroid.Core.Enemies.Shaktool.ShaktoolReactions.Touch, segment.Definition.Touch, "Shaktool's definition names the species' own touch");
         AssertTrue(segment.Entity is IEnemyTouchReaction { ReactsToTouch: true }, "the Shaktool entity reacts to Samus's touch");
         AssertTrue(segment.SpritemapPointer != 0, "the loaded segment publishes a sprite map");
 

@@ -35,16 +35,9 @@ internal abstract class KraidEntity(KraidBehavior species, RoomEnemyOccupant occ
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);
 
-    /// <summary>None: no part but the arm has a touch reaction its hitboxes name.</summary>
-    public virtual EnemyReaction? SpeciesTouch => null;
-
-    /// <summary>None: the arm's, foot's and body's definitions name the ignoring shot reaction.</summary>
-    public EnemyReaction? SpeciesShot => null;
-
     /// <summary>None: only his arm and foot have hitboxes of their own, which their entities find (#2301).</summary>
-    public virtual bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    public virtual EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe)
     {
-        reaction = null;
-        return null;
+        throw EnemyCollision.UncoveredFrame(Place);
     }
 }

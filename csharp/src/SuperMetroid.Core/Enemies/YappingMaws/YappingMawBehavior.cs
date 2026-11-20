@@ -64,12 +64,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         var bodies = new EnemyProjectile[YappingMawAttackDefinitions.TongueLinks];
         for (int link = bodies.Length - 1; link >= 0; link--)
         {
-            EnemyProjectile? body = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.YappingMawBody, EnemyProjectileBehavior.Still, SpriteGraphics.SpawnedBy(occupant, place.Shading));
-            if (body is null)
-            {
-                throw new InvalidDataException(
-                    $"Yapping Maw place {place.Ordinal} could not allocate all four body projectiles.");
-            }
+            EnemyProjectile body = _projectiles.AllocateEnemyProjectileWithRoom(RoomEnemyProjectileKind.YappingMawBody,
+                EnemyProjectileBehavior.Still, SpriteGraphics.SpawnedBy(occupant, place.Shading), $"Yapping Maw place {place.Ordinal}'s body");
 
             body.Position = body.Position.WithWhole(place.Position.Whole);
             body.InstallAnimation(new YappingMawBodyProjectileAnimation(occupant.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down

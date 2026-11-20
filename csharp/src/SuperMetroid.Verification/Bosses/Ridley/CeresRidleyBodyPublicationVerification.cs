@@ -41,7 +41,7 @@ internal static class CeresRidleyBodyPublicationVerification
         RotationAngle? previousAngle = null;
         foreach ((int nmiFrame, CeresFloorActorPicture wings) in new[] { new VerifyCeresRidleyBodyPublicationCase(0, CeresFloorActorPicture.WingsLowered), new VerifyCeresRidleyBodyPublicationCase(8, CeresFloorActorPicture.WingsRaised) })
         {
-            escape.RunGetawayRoomMain(runtime.Player.IntroducedSamus, runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ridley's arena shows his floor."), nmiFrame);
+            escape.RunGetawayRoomMain(runtime.Player.Samus, runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ridley's arena shows his floor."), nmiFrame);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             AssertTrue(previousAngle is not { } previous || escape.Floor.Angle != previous, "the getaway turns Ridley between the two frames");
             previousAngle = escape.Floor.Angle;

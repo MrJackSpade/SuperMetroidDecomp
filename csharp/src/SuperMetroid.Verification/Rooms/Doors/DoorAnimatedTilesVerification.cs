@@ -34,7 +34,7 @@ internal static class DoorAnimatedTilesVerification
         for (int area = 1; area <= 4; area++)
             runtime.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.StatuesHallway);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.LockOutPlayer();
 
         // Select the source room's door into the statue room.

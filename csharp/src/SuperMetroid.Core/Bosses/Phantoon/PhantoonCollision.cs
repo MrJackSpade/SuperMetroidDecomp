@@ -12,7 +12,7 @@ internal static class PhantoonCollision
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of Phantoon's body
     /// pictures.</exception>
     internal static ImmutableArray<EnemyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
-        frame is { } shown && FrameComponents.TryGetValue(shown, out ImmutableArray<EnemyCollisionComponent> components)
-            ? components
+        frame is not { } shown ? []
+            : FrameComponents.TryGetValue(shown, out ImmutableArray<EnemyCollisionComponent> components) ? components
             : throw new InvalidDataException($"Phantoon frame {frame} has no hitbox identity.");
 }

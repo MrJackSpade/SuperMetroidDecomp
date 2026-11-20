@@ -73,7 +73,7 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGamePhase
             // perform their own setup on the following update.
             session.audio.QueueMusic(MusicRequest.Stop);
             session.audio.QueueCancelSoundEffects(SoundRequestPriority.Essential);
-            SamusState endingSamus = session.GameplayRuntime.Player.IntroducedSamus;
+            SamusState endingSamus = session.GameplayRuntime.Player.Samus;
             session.Show(new EndingCreditsState(session.audio, new EndingCreditsSetup { GameTimeHours = session.Assists.EndingClearTimeMinutes is { } endingMinutes ? endingMinutes / 60 : session.GameplayRuntime.GameTime.Hours, GameTimeMinutes = session.Assists.EndingClearTimeMinutes is { } totalMinutes ? totalMinutes % 60 : session.GameplayRuntime.GameTime.Minutes, Inventory = new EndingInventorySnapshot(
                     endingSamus.MaxHealth,
                     endingSamus.MaxReserveEnergy,

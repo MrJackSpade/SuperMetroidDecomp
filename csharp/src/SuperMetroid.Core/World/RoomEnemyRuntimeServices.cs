@@ -63,14 +63,14 @@ internal sealed class RoomEnemyRuntimeServices(
     /// <summary>Releases Samus's stationary script lock and reopens the player's grounded-movement gate.</summary>
     public void EnableControls()
     {
-        player.IntroducedSamus.Control.Unlock();
+        player.Samus.Control.Unlock();
         player.GroundedSamusMovementEnabled = true;
     }
 
     /// <summary>Locks Samus stationary and closes the player's grounded-movement gate.</summary>
     public void DisableControls()
     {
-        player.IntroducedSamus.Control.LockStationary();
+        player.Samus.Control.LockStationary();
         player.GroundedSamusMovementEnabled = false;
     }
 

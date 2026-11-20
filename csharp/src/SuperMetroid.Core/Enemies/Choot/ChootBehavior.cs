@@ -95,7 +95,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // where it lies within a pixel stays until the final spawn reset, just as in the game.
         place.Position = place.Position.WithWhole(state.InitialFallingPosition);
         state.FallingOrigin = state.InitialFallingPosition;
-        state.FallingLoop = UpdateCountdown.Lasting(ChootFalls.LoopUpdates(occupant.SpawnSettings<ChootSpawnSettings>().FallingPath));
+        state.FallingLoop = ChootFallLoop.Starting(occupant.SpawnSettings<ChootSpawnSettings>().FallingPath);
         // A population loop count of zero falls one loop, as a count of one does.
         state.FallingPatternLoopCounter = Math.Max(1, occupant.SpawnSettings<ChootSpawnSettings>().PatternLoops);
         SetChootAnimation(place, state, ChootSegment.Falling);
@@ -105,27 +105,25 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Follows authored path offsets, advancing its origin at each loop's end and restoring the exact spawn state after the final loop.</summary>
     private static void RunChootFall(RoomEnemyOccupant occupant, RoomEnemyPlace place, ChootEnemyState state)
     {
-        ChootFallingPath fallingPath = occupant.SpawnSettings<ChootSpawnSettings>().FallingPath;
-        if (state.FallingLoop.IsOver)
+        if (state.FallingLoop is ChootFallLoop.AtSample at)
         {
-            state.FallingOrigin = state.FallingOrigin.WithY(state.FallingOrigin.Y + ChootFalls.LoopYDistance(fallingPath));
-            state.FallingLoop = UpdateCountdown.Lasting(ChootFalls.LoopUpdates(fallingPath));
-            if (--state.FallingPatternLoopCounter > 0)
-                return;
-
-            // The last loop's end restores the exact spawn position, with no fraction of a pixel, restarts the idle
-            // animation, and rearms the same calculated ascent for the next activation.
-            state.YSpeedCurvePlace = state.InitialYSpeedCurvePlace;
-            place.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);
-            SetChootAnimation(place, state, ChootSegment.Idle);
-            state.Action = ChootAction.WaitingForSamus;
+            place.Position = place.Position.WithWhole(state.FallingOrigin + at.Offset);
+            state.FallingLoop = at.Counted();
             return;
         }
 
-        Offset16<RoomPixels> pathOffset = ChootFalls.At(fallingPath, state.FallingLoop.Age)
-            ?? throw new InvalidDataException($"Choot falling path {fallingPath} ends before its loop's {state.FallingLoop.Length} updates.");
-        place.Position = place.Position.WithWhole(state.FallingOrigin + pathOffset);
-        state.FallingLoop.Count();
+        ChootFallingPath fallingPath = occupant.SpawnSettings<ChootSpawnSettings>().FallingPath;
+        state.FallingOrigin = state.FallingOrigin.WithY(state.FallingOrigin.Y + ChootFalls.LoopYDistance(fallingPath));
+        state.FallingLoop = ChootFallLoop.Starting(fallingPath);
+        if (--state.FallingPatternLoopCounter > 0)
+            return;
+
+        // The last loop's end restores the exact spawn position, with no fraction of a pixel, reinstalls
+        // the idle animation, and rearms the same calculated ascent for the next activation.
+        state.YSpeedCurvePlace = state.InitialYSpeedCurvePlace;
+        place.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);
+        SetChootAnimation(place, state, ChootSegment.Idle);
+        state.Action = ChootAction.WaitingForSamus;
     }
 
     /// <summary>

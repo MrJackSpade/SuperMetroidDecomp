@@ -211,8 +211,8 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     internal ShowingAnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue>? RoomFlash { get; set; }
 
-    /// <summary>Where the tube collapse stands, or null until her fake-death flash starts the collapse.</summary>
-    internal MotherBrainTubeCollapseProgress? TubeCollapse { get; set; }
+    /// <summary>Where the tube collapse stands: at its first tube, standing, until her fake-death flash starts it there.</summary>
+    internal MotherBrainTubeCollapseProgress TubeCollapse { get; set; } = MotherBrainTubeCollapseProgress.Start;
     /// <summary>Independent countdown used by selected tube spawn stages; a stage moves on as it runs out.</summary>
     public BossCountdown TubeCollapseTimer { get; } = new();
 

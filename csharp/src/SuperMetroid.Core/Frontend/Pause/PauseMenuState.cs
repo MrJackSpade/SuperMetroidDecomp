@@ -88,11 +88,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private DisplayBrightness TransitionBrightness => transitionFade.Level;
     /// <summary>The equipment control the cursor rests on (#1772); its category is the column the cursor is in.</summary>
     private PauseEquipmentControl SelectedControl { get; set; } = PauseEquipmentControls.ReserveMode;
-    /// <summary>The map page's scroll, framed from the visible area cells when the map page is set up.</summary>
-    internal MapScroll? CurrentMapScroll { get; private set; }
-    /// <summary>The map page's scroll, which exists once the map page is set up.</summary>
-    private MapScroll ActiveMapScroll => CurrentMapScroll ??
-        throw new InvalidOperationException("The pause map scroll has not been set up.");
+    /// <summary>The map page's scroll, framed from the visible area cells as the pause sets up (#2554).</summary>
+    private MapScroll ActiveMapScroll { get; }
     /// <summary>The map screen's scroll position.</summary>
     private Offset16<MapPixels> MapScrollPosition => ActiveMapScroll.Scroll;
     /// <summary>Animated map arrows and their current visibility state.</summary>
@@ -139,7 +136,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         LoadMapPage();
         SelectFirstCollectedEquipment();
-        SetupMapScrolling();
+        ActiveMapScroll = MapScrolling();
     }
 
     /// <summary>Whether the map or the equipment page is shown.</summary>
@@ -368,7 +365,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Frames the map page from the visible cells' reach and Samus's map cell.</summary>
-    private void SetupMapScrolling()
+    private MapScroll MapScrolling()
     {
         // The map's scroll limits come from either the downloaded map or the persistent explored plane, never their
         // union, unlike the map's drawing, which also displays explored secrets: unioning the planes would move the map's
@@ -385,7 +382,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 map.IsDiscoverable(cell),
                 mapRevealMode));
         // The player's map cell: the room's map cell plus Samus's room screen.
-        CurrentMapScroll = MapScroll.Centred(MapFramingDefinitions.Pause, limits, SamusMapCell().ToMapPixels());
+        return MapScroll.Centred(MapFramingDefinitions.Pause, limits, SamusMapCell().ToMapPixels());
     }
 
     /// <summary>The area-map cell of Samus's current room screen.</summary>

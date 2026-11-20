@@ -198,7 +198,7 @@ public sealed class SuperMetroidGame
         // it, did not run; only the held input is published, and the press edge and the auto-jump timer stay as they
         // are.
         if (publishesHeldInputAfterPause)
-            Session.GameplayRuntime.Player.IntroducedSamus.InputSnapshot.PublishHeldInput(Session.GameplayRuntime.PlayerActions.Current);
+            Session.GameplayRuntime.Player.Samus.InputSnapshot.PublishHeldInput(Session.GameplayRuntime.PlayerActions.Current);
         return new(Session.GameState, PhaseName, FrameNumber, audio);
     }
 
@@ -245,9 +245,7 @@ public sealed class SuperMetroidGame
         Room = GameplayActiveRoom?.Name,
         RoomState = GameplayActiveRoomState?.Name,
         Door = GameplayActiveDoor?.Name,
-        // A host also takes a snapshot when an update fails, which may be the update that creates the gameplay runtime before
-        // it gives the runtime its Samus, so a missing Samus is kept here (#2503).
-        Samus = Session.Runtime is { Player.Samus: { } samus } runtime
+        Samus = Session.Runtime is { Player.Samus: var samus } runtime
             ? new SamusSnapshot
             {
                 Pose = samus.Pose,
@@ -310,7 +308,7 @@ public sealed class SuperMetroidGame
             case PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance:
                 // The liquid wave and the statues' descent still advance on the update before the pause screen; a lava
                 // or acid wave stirs the random number (SharedRandom.SwapHalves).
-                Session.GameplayRuntime.DoorTransition.AdvanceEffectsAndRandom(Session.GameplayRuntime.Room.LoadedScope, Session.GameplayRuntime.Player.IntroducedSamus);
+                Session.GameplayRuntime.DoorTransition.AdvanceEffectsAndRandom(Session.GameplayRuntime.Room.LoadedScope, Session.GameplayRuntime.Player.Samus);
                 break;
             case PhaseRandomStep.Advance:
                 if (DisplayFrameWaitContinuation.DrawsRandom(PhaseIsWaitingOutDisplayFrame))

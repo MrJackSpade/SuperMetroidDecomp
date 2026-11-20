@@ -45,7 +45,7 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         draygon.Body.Health = 0;
 
         // A Screw Attack spin harms the enemy without hurting Samus, as the movie's spark does.
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.EquippedItems |= SamusEquipmentFlags.ScrewAttack;
         samus.Pose = SamusPoseId.ScrewAttackRightPose;

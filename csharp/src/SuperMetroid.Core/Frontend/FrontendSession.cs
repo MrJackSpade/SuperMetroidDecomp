@@ -187,8 +187,7 @@ internal sealed class FrontendSession
         if (existing)
         {
             // Selecting a save loads it, its explored maps with it, and loads the live map from its area's.
-            SuperMetroidSaveSlot save = saves.ReadSlot(slot)
-                ?? throw new InvalidDataException($"Selected save slot {slot} holds no valid save.");
+            SuperMetroidSaveSlot save = saves.ReadSavedSlot(slot);
             StoredExploredMapLoads.LoadFile(storedExploredMaps, save.Progression);
             storedExploredMaps.LoadLiveMap(save.Checkpoint.Area);
         }
@@ -573,7 +572,7 @@ internal sealed class FrontendSession
             runtime.FrameBoundary.PublishWhileLoading();
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            SamusState restartedSamus = runtime.Player.IntroducedSamus;
+            SamusState restartedSamus = runtime.Player.Samus;
             RestoreSpacetimeRestartInventory(restartedSamus, restartSlot);
             runtime.Assists.GrantLoadoutToRestoredSamus(restartedSamus);
             restartedSamus.SelectBeam();
@@ -586,9 +585,7 @@ internal sealed class FrontendSession
 
         if (LoadingExistingSave)
         {
-            SuperMetroidSaveSlot slot = saves.ReadSlot(SelectedSaveSlot)
-                ?? throw new InvalidDataException(
-                    $"Selected save slot {SelectedSaveSlot} became invalid during startup.");
+            SuperMetroidSaveSlot slot = saves.ReadSavedSlot(SelectedSaveSlot);
             InitializeSelectedGameHud(slot);
             runtime.FrameBoundary.PublishWhileLoading();
 
@@ -600,7 +597,7 @@ internal sealed class FrontendSession
                 runtime.RoomLoader.RestoreSavedPlayerState(slot);
                 runtime.RoomLoader.InitializeStartingCeresRoom();
                 runtime.RoomLoader.InitializeCeresStartSamus();
-                SamusState ceresSamus = runtime.Player.IntroducedSamus;
+                SamusState ceresSamus = runtime.Player.Samus;
                 slot.ApplyTo(ceresSamus);
                 runtime.Assists.GrantLoadoutToRestoredSamus(ceresSamus);
                 ceresSamus.SelectBeam();
@@ -612,9 +609,7 @@ internal sealed class FrontendSession
             // Loading the save restores the controls and options it holds; the choices the player has made in the
             // options menu since replace them, as the game keeps them live.
             ApplySelectedGameOptions();
-            RoomStateSettings loadedState = runtime.Room.ActiveRoom?.State
-                ?? throw new InvalidOperationException(
-                    "Saved-game appearance started without an active room state.");
+            RoomStateSettings loadedState = runtime.Room.LoadedRoom.State;
             // Samus's appearance starts her fanfare and then the room's track behind it
             // (SavedGameAppearanceMusicDefinitions). This room state is marked as already handled, so the room's
             // change of music does not replace the fanfare with the room's track at once.

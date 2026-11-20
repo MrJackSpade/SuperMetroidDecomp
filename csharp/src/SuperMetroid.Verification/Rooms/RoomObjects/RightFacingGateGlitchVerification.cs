@@ -248,7 +248,7 @@ internal static class RightFacingGateGlitchVerification
         AssertEqual(0x000a, shotBlock.RoomArgument,
             "Authored East Tunnel green-right trigger table row");
 
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWholeX(238);

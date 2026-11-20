@@ -37,7 +37,7 @@ internal static class KraidArmSamusContactVerification
         arm.Contact = EnemyContact.None;
         arm.Processing = EnemyProcessing.OffScreen | EnemyProcessing.Animates;
         arm.Presence = EnemyPresence.None;
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Position = samus.Position.WithWhole(new(0x007f, 0x019a));
         samus.Kinematics.Radius = new(5, 19);
         samus.InvincibilityTimer = WrappingCountdown.Start(0);

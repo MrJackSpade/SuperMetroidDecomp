@@ -393,8 +393,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>Initializes one wall actor at its place, on its side of the chamber, drawing nothing.</summary>
     private void SpawnCeresRidleyGetawayWall(Position16<RoomPixels> position, HorizontalDirection side)
     {
-        RoomEnemyPlace wall = _places.FindFreePlace() ??
-            throw new InvalidOperationException("Ceres Ridley getaway has no free enemy place for a turning-floor wall.");
+        RoomEnemyPlace wall = _places.FreePlaceWithRoom("Ceres Ridley's getaway wall");
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(EnemyDefinitionId.CeresGetawayChamberWall);
         RoomEnemyPlacement population = new(

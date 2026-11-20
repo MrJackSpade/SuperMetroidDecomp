@@ -167,7 +167,7 @@ internal static class AttractDemoSceneVerification
             var setup = (AttractDemoSamusSetup.Posed)scene.Samus.Setup;
             SuperMetroid.Core.Runtime.SuperMetroidRuntime runtime = SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification.CreateRetailRuntimeFixture();
             runtime.AttractDemo.InitializeAttractDemo(scene);
-            SuperMetroid.Core.Samus.SamusState samus = runtime.Player.IntroducedSamus;
+            SuperMetroid.Core.Samus.SamusState samus = runtime.Player.Samus;
             AssertEqual(setup.Pose, samus.Pose, $"{scene.Input.Recording} starts Samus in its setup's pose");
             AssertEqual(setup.Energy ?? scene.Health, samus.Health, $"{scene.Input.Recording} starts Samus with its setup's energy");
             AssertEqual(scene.Health, samus.MaxHealth, $"{scene.Input.Recording} gives Samus its energy capacity");

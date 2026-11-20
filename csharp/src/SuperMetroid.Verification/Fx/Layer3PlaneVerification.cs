@@ -46,7 +46,7 @@ internal static class Layer3PlaneVerification
         // A HUD change reaches the next NMI's plane; the published one keeps its rows. Lost energy redraws the energy
         // count with digits the HUD's artwork shows, so the NMI can picture them (#1392).
         ushort[] before = runtime.Hud.TileWords(runtime.InstalledHudArtwork);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Health = samus.Health == 42 ? 37 : 42;
         runtime.Hud.UpdateGameplayCounters(samus, runtime.AudioRequests, timeIsFrozen: false);
         ushort[] after = runtime.Hud.TileWords(runtime.InstalledHudArtwork);

@@ -63,8 +63,7 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IGamePh
     {
         if (session.Demo.AwaitsScene)
         {
-            AttractDemoScene scene = session.Demo.NextScene
-                ?? throw new InvalidDataException("The demo loader ran past the end of its set.");
+            AttractDemoScene scene = session.Demo.SceneToBegin;
             // A separate runtime owns all demo progression and inventory. Never
             // restore demo state into a selected save or publish checkpoints.
             session.CreateGameplayRuntime(GameplayRuntimePurpose.AttractDemo);

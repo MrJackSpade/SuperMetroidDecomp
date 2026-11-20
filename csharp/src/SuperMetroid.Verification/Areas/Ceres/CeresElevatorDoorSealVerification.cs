@@ -94,7 +94,7 @@ internal static class CeresElevatorDoorSealVerification
     /// </summary>
     private static DoorDefinition? WalkRightIntoTheDoor(SuperMetroidRuntime runtime, RoomLevelData level, out int rightmostPixel)
     {
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(224, 640));
         samus.Kinematics.Radius = new(5, 16);
         for (int pixel = 0; pixel < 32 && runtime.RoomObjects.DoorContacts.EnteredDoor is null; pixel++)

@@ -45,7 +45,7 @@ internal static class EscapeAcidRiseVerification
         AssertEqual(AcidStartLevel, (int)loaded.Whole, "the acid starts at the room effect's level");
         AssertEqual(SignedEightEight.Zero, acid.LiquidLevelSpeed, "the acid starts still");
 
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         // Each step places Samus, steps one update, and reports whether, where the update left her, she had passed the
         // trigger point; the trigger reads her after her own movement.
         bool StepWithSamusAt(int x, int y)

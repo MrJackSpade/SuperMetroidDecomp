@@ -26,7 +26,7 @@ internal sealed class ShallowWaterJumpScenario
     /// <summary>Owns the initialized retail-room runtime advanced by this scenario.</summary>
     internal SuperMetroidRuntime Runtime { get; }
     /// <summary>Exposes the runtime's Samus state for takeoff and per-frame capture.</summary>
-    internal SamusState Samus => Runtime.Player.IntroducedSamus;
+    internal SamusState Samus => Runtime.Player.Samus;
 
     /// <summary>Places Samus standing in the water and settles two frames, ready for takeoff.</summary>
     internal ShallowWaterJumpScenario(SuperMetroidRuntime runtime)

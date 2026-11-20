@@ -32,7 +32,7 @@ internal static class XrayNoFxDarkeningVerification
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
         AssertTrue(runtime.RoomFxOverlay.CaptureForDisplay() is null, "fixture has no visible room FX");
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
         SamusPoseMetadata.RefreshCollisionRadii(samus);

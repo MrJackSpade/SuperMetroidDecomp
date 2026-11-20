@@ -54,7 +54,7 @@ internal static class PauseDoorShinesparkVerification
             var level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(32, 16), words, bts,
             doorBlocks: doorBlocks);
             runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Control.Unlock();
             samus.Health = 999;
             samus.Pose = SamusPoseId.FacingRightNormalPose;

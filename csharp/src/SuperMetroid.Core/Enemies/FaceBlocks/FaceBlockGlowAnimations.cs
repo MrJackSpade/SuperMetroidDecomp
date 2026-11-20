@@ -33,7 +33,7 @@ internal static class FaceBlockGlowAnimations
 
     /// <summary>The levels the glow's steps show, in the order it shows them, from its first step.</summary>
     internal static IReadOnlyList<FaceBlockGlowLevel> Cycle { get; } =
-        [.. Segments.Beats(FaceBlockGlowSegment.Glowing).Select(beat => beat.ShownFrame ?? throw new InvalidOperationException("Every beat of the glow shows a level."))];
+        Segments.FramesShownBy(FaceBlockGlowSegment.Glowing);
 
     /// <summary>
     /// Each level the glow shows, once, in the order its cycle first shows them: the import installs one shade for each,

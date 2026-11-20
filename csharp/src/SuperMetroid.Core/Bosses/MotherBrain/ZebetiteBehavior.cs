@@ -224,8 +224,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         // The spawn takes the first free place. In particular, a primary's death vacates
         // its place before spawning the next generation; surviving linked halves keep
         // naming that reused place.
-        RoomEnemyPlace spawned = _places.FindFreePlace() ??
-            throw new InvalidOperationException("Zebetite progression filled every enemy place.");
+        RoomEnemyPlace spawned = _places.FreePlaceWithRoom("The Zebetites' next generation");
 
         RoomEnemyPlacement population = Zebetites.SpawnPopulation(half, _room.Services.ZebetiteProgress.ZebetitesDestroyed);
 

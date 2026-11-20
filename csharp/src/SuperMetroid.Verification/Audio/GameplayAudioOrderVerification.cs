@@ -34,7 +34,7 @@ internal static class GameplayAudioOrderVerification
     {
         (SuperMetroidRuntime runtime, AudioQueues audio) = KiHunterRoomWithSessionAudio();
         _ = KiHunterAtItsSpit(runtime);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Missiles = samus.MaxMissiles = 5;
         samus.SelectedHudItem = HudItem.Missile;
         SoundRequestsMark samusLibrary = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Samus);
@@ -90,7 +90,7 @@ internal static class GameplayAudioOrderVerification
     internal static void VerifyEchoFollowsTheUpdatesEarlierSounds()
     {
         (SuperMetroidRuntime runtime, AudioQueues audio) = KiHunterRoomWithSessionAudio();
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.LiquidPhysics.BeginFrameSoundRequests();
         audio.AdvanceFrame(default);
         // The echo Samus's animation requests at its cue joins her audio requests (#2092).
@@ -157,7 +157,7 @@ internal static class GameplayAudioOrderVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CrateriaKihunter);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.PoseId = SamusPoseId.FacingLeftNormalPose;
         samus.Position = samus.Position.WithWhole(new(64, 128));
         samus.Control.Unlock();

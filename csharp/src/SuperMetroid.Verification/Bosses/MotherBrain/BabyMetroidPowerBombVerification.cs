@@ -28,7 +28,7 @@ internal static class BabyMetroidPowerBombVerification
         state.Action = BabyMetroidAction.WaitForCamera;
 
         runtime.Enemies.Collision.ResolveOrdinaryPowerBombHits(
-            babyMetroid.Position.Whole, 64, runtime.Room.LoadedLevelData, new(512, 0), runtime.Player.IntroducedSamus);
+            babyMetroid.Position.Whole, 64, runtime.Room.LoadedLevelData, new(512, 0), runtime.Player.Samus);
         AssertEqual(BabyMetroidAction.WaitForCamera, state.Action, "the blast runs no step of the Shitroid's behaviour");
         Console.WriteLine("  Shitroid Power Bomb: the blast passes the Shitroid by.");
     }

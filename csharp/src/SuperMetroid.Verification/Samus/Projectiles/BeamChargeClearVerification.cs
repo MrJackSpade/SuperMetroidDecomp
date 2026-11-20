@@ -54,7 +54,7 @@ internal static class BeamChargeClearVerification
                 y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
             level.SetBehavior(index, RoomBlockBehavior.None);
         }
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.EquippedBeams = SamusBeamFlags.Charge;

@@ -99,7 +99,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
             new RuntimeFrameRequest { Owner = GameplayUpdateOwner.PauseDarkening });
         session.WriteCompletedSave(outcome);
         session.display.PublishGameplay(session.GameplayRuntime);
-        if (gameplay.RouteOutOfHealth(session.GameplayRuntime.Player.IntroducedSamus, outcome.OutOfHealth))
+        if (gameplay.RouteOutOfHealth(session.GameplayRuntime.Player.Samus, outcome.OutOfHealth))
         {
             // The darkening's update never begins Samus's death, but out of health with AUTO reserves she enters the refill
             // in the pause's place. The darkening's fade still takes this update's step, and the screen stays at that
@@ -142,7 +142,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         SelectedRoom pauseRoom = session.GameplayRuntime.Room.ActiveRoom ??
             throw new InvalidOperationException(
                 "Pause setup requires an active room.");
-        session.Show(new PauseMenuState(new PauseMenuEntry { Samus = session.GameplayRuntime.Player.IntroducedSamus, System = session.GameplayRuntime.System, Area = pauseRoom.Area, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayHud = session.GameplayRuntime.AcceptedHud, MapRevealMode = session.Assists.MapReveal, ScreenContent = session.Artwork.ScreenContent, SpriteSheets = session.Artwork.SpriteSheets }));
+        session.Show(new PauseMenuState(new PauseMenuEntry { Samus = session.GameplayRuntime.Player.Samus, System = session.GameplayRuntime.System, Area = pauseRoom.Area, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayHud = session.GameplayRuntime.AcceptedHud, MapRevealMode = session.Assists.MapReveal, ScreenContent = session.Artwork.ScreenContent, SpriteSheets = session.Artwork.SpriteSheets }));
         session.BeginPauseFade(DisplayBrightness.Black);
         session.display.PublishMenu(session.ActivePauseMenu);
         session.SetDisplayBrightness(session.PauseBrightness);
@@ -175,7 +175,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
             session.GameplayRuntime.Room.LoadedScope.BombProjectiles);
         // The paused update writes the HUD after reading pause input; the next displayed frame shows
         // its rows, including the first frame of the unpause fade.
-        session.GameplayRuntime.Hud.UpdateGameplayCounters(session.GameplayRuntime.Player.IntroducedSamus, session.GameplayRuntime.AudioRequests,
+        session.GameplayRuntime.Hud.UpdateGameplayCounters(session.GameplayRuntime.Player.Samus, session.GameplayRuntime.AudioRequests,
             timeIsFrozen: true);
         session.display.PublishMenu(session.ActivePauseMenu);
         if (unpauseRequested)
@@ -202,7 +202,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         // Unpausing restores gameplay's layers, colours, room effects and block animations on a blank screen, as they
         // were before the pause.
         // The pause is entered only from main gameplay, whose updates all run with Samus (#2503).
-        SamusState resumedSamus = session.GameplayRuntime.Player.IntroducedSamus;
+        SamusState resumedSamus = session.GameplayRuntime.Player.Samus;
         // The equipment screen's category button response changes the equipped beams. Unpausing shows the newly
         // equipped beams' colours before its frame; the projectiles fired from then on show the beams' own pictures (#1586).
         session.GameplayRuntime.SamusPhases.ShowEquippedBeamColours(resumedSamus.EquippedBeams);

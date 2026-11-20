@@ -25,5 +25,5 @@ internal sealed class GameplayTimeFreeze
 
     /// <summary>The effective global freeze, including X-ray's owner.</summary>
     /// <remarks>Only gameplay's phases read it, each of which runs with Samus introduced.</remarks>
-    public bool TimeIsFrozen => GameplayTimeFrozen || _player.IntroducedSamus.Xray.TimeIsFrozen;
+    public bool TimeIsFrozen => GameplayTimeFrozen || _player.Samus.Xray.TimeIsFrozen;
 }

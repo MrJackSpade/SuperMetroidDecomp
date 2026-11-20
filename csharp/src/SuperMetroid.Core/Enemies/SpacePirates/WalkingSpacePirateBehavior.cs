@@ -379,8 +379,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Requires the enemy to have been initialized as a walking pirate.</summary>
     internal static WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(
         RoomEnemyPlace place) =>
-        place.SpeciesState<WalkingSpacePirateEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy place {place.Ordinal} has no initialized walking Space Pirate state.");
+        Ensure.NotNull(place).RequireSpeciesState<WalkingSpacePirateEnemyState>();
 
     /// <summary>
     /// The Pirates' and Mother Brain's laser (#1760): its spawner starts its animation and chooses its way, and the

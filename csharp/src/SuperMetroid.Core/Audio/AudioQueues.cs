@@ -360,7 +360,7 @@ public sealed class AudioQueues
                 break;
 
             case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RepeatRequest:
-                requests.Add(AudioRequest.ForSound(library, SoundHandshakes.Awaited(library)));
+                requests.Add(AudioRequest.ForSound(library, SoundHandshakes.Awaited(library)?.Sound));
                 break;
 
             case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Withdraw:

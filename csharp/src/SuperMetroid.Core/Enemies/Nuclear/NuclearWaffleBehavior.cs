@@ -132,9 +132,9 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         var links = new NuclearWaffleLink<EnemyProjectile>[NuclearWaffleDefinitions.ProjectileLinks];
         for (int segmentIndex = 0; segmentIndex < links.Length; segmentIndex++)
         {
-            EnemyProjectile? segment = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.NuclearWaffleBody, EnemyProjectileBehavior.Still, graphics);
-            if (segment is null)
-                throw new InvalidOperationException("Nuclear Waffle exhausted the enemy-projectile pool during room load.");
+            // The waffle's room load spawns its links into the pool it has just cleared.
+            EnemyProjectile segment = _projectiles.AllocateEnemyProjectileWithRoom(RoomEnemyProjectileKind.NuclearWaffleBody,
+                EnemyProjectileBehavior.Still, graphics, "Nuclear Waffle's body link");
 
             // The link starts as its definition has it: its animation, size and damage. It then starts at the head
             // as one link of the body, which shots cannot destroy.
@@ -292,8 +292,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!place.AnimationClock.Expire())
             return;
-        NuclearWaffleEnemyState state = place.SpeciesState<NuclearWaffleEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy place {place.Ordinal} has no initialized Nuclear Waffle state.");
+        NuclearWaffleEnemyState state = place.RequireSpeciesState<NuclearWaffleEnemyState>();
         AnimationPlayback<NuclearWaffleSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, NuclearWaffleAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"Nuclear Waffle's cue-free animation raised {cue}."));

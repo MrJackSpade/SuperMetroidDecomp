@@ -27,8 +27,11 @@ internal sealed class TorizoColours
     /// <summary>The colouring last shown whole: loaded, written by a hurt, or reached by a completed fade.</summary>
     private TorizoLook settled = new(TorizoLookKind.BombStatue);
 
-    /// <summary>The colouring the animation's fade runs toward, or null before it names one.</summary>
-    private TorizoLook? target;
+    /// <summary>
+    /// The colouring the animation's fade runs toward: the loaded colouring until his animation names one, so a fade before
+    /// then runs toward the colours shown.
+    /// </summary>
+    private TorizoLook target = new(TorizoLookKind.BombStatue);
 
     /// <summary>How far the running fade has come from <see cref="settled"/>, or null while none runs.</summary>
     private StepCountedFadeProgress? fade;
@@ -101,11 +104,10 @@ internal sealed class TorizoColours
     /// glow showing its step over it. The counter decides only when the fade completes; how far the colours have come is
     /// the fade's own steps (#2302).
     /// </summary>
-    /// <exception cref="InvalidOperationException">No fade target is named.</exception>
     internal void Step(SharedFadeStepCount counter)
     {
         Ensure.NotNull(counter);
-        TorizoLook to = target ?? throw new InvalidOperationException("A Torizo's fade steps once its animation names its colours.");
+        TorizoLook to = target;
         if (counter.Step > TorizoShadeDefinitions.FadeLastStep)
         {
             counter.Reset();

@@ -96,14 +96,23 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     RoomEnemyPlace? IEnemyLifecycle.SpawnEnemyJoining<TEncounter>(RoomEnemyPlacement population, TEncounter encounter) =>
         Spawn(population, place => place.SetSpeciesState(Ensure.NotNull(encounter)));
 
+    /// <inheritdoc/>
+    void IEnemyLifecycle.SpawnEnemyJoiningWithRoom<TEncounter>(RoomEnemyPlacement population, TEncounter encounter, string spawn) =>
+        SpawnAt(_places.FreePlaceWithRoom(spawn), population, place => place.SetSpeciesState(Ensure.NotNull(encounter)));
+
     /// <summary>
     /// Installs <paramref name="population"/> in the first free place, gives it what <paramref name="joining"/> installs (nothing for a plain spawn),
     /// runs its initialization AI, starts its animation when it runs one and extends the live enemy range.
     /// </summary>
-    private RoomEnemyPlace? Spawn(RoomEnemyPlacement population, Action<RoomEnemyPlace> joining)
+    private RoomEnemyPlace? Spawn(RoomEnemyPlacement population, Action<RoomEnemyPlace> joining) =>
+        _places.FindFreePlace() is { } place ? SpawnAt(place, population, joining) : null;
+
+    /// <summary>
+    /// Installs <paramref name="population"/> in <paramref name="place"/>, a free one, gives it what <paramref name="joining"/>
+    /// installs, runs its initialization AI, starts its animation when it runs one and extends the live enemy range.
+    /// </summary>
+    private RoomEnemyPlace SpawnAt(RoomEnemyPlace place, RoomEnemyPlacement population, Action<RoomEnemyPlace> joining)
     {
-        if (_places.FindFreePlace() is not { } place)
-            return null;
         InitializePlaceFromDefinition(place, population, _room.Definitions.ReadEnemyDefinition(population.DefinitionId));
         joining(place);
         SetUpSpawnedEnemy(place);

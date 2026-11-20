@@ -125,9 +125,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
             session.ChooseOptions(session.ActiveOptions);
             if (session.LoadingExistingSave)
             {
-                SuperMetroidSaveSlot selectedSlot = session.saves.ReadSlot(session.SelectedSaveSlot)
-                    ?? throw new InvalidDataException(
-                        "The selected save became invalid before the game started.");
+                SuperMetroidSaveSlot selectedSlot = session.saves.ReadSavedSlot(session.SelectedSaveSlot);
                 if (selectedSlot.StartupRoute ==
                     SaveStartupRoute.OpeningCinematic)
                 {
@@ -187,8 +185,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
     private void RunAreaMap(ControllerButton controllerInput)
     {
         session.ContinueSavedGame();
-        SuperMetroidSaveSlot mapSlot = session.saves.ReadSlot(session.SelectedSaveSlot)
-            ?? throw new InvalidDataException("The selected save became invalid before map selection.");
+        SuperMetroidSaveSlot mapSlot = session.saves.ReadSavedSlot(session.SelectedSaveSlot);
         if (mapSlot.StartupRoute == SaveStartupRoute.CeresDestruction)
         {
             StartSavedCeresDestruction(mapSlot);

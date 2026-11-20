@@ -27,6 +27,18 @@ internal interface IEnemyLifecycle
     /// <typeparam name="TEncounter">The encounter's type, under which the occupant finds it.</typeparam>
     RoomEnemyPlace? SpawnEnemyJoining<TEncounter>(RoomEnemyPlacement population, TEncounter encounter) where TEncounter : class;
 
+    /// <summary>
+    /// Spawns <paramref name="population"/> joining <paramref name="encounter"/> as <see cref="SpawnEnemyJoining"/> does,
+    /// for a spawn whose room always leaves it a place (#2554).
+    /// </summary>
+    /// <param name="population">The spawned enemy's population entry.</param>
+    /// <param name="encounter">The encounter it joins.</param>
+    /// <param name="spawn">The spawn, named in the failure.</param>
+    /// <typeparam name="TEncounter">The encounter's type, under which the occupant finds it.</typeparam>
+    /// <exception cref="InvalidOperationException">Every place is taken, which the spawn's room never leaves it.</exception>
+    void SpawnEnemyJoiningWithRoom<TEncounter>(RoomEnemyPlacement population, TEncounter encounter, string spawn)
+        where TEncounter : class;
+
     /// <summary>Runs the place's main AI inside the supplied frame.</summary>
     void RunMainAi(RoomEnemyPlace place, IEnemyAiFrame frame);
 

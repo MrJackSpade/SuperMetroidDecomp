@@ -67,8 +67,7 @@ internal static class SamusProjectilePlayback
         if (segment is not { } selected)
             return Extent16<RoomPixels>.Zero;
         AnimationPhase<SamusProjectileSegment> first = SamusProjectileAnimations.StartingWith(selected).Phases[0];
-        if (SamusProjectileAnimations.Segments.Beats(first.Segment)[first.FirstBeat].ShownFrame is not { } frame)
-            throw new InvalidDataException($"Samus projectile animation {selected} does not open with a frame.");
-        return SamusProjectileFrameDefinitions.Radius(frame);
+        // Every projectile animation opens with a frame.
+        return SamusProjectileFrameDefinitions.Radius(SamusProjectileAnimations.Segments.FrameShownAt(first.Segment, first.FirstBeat));
     }
 }

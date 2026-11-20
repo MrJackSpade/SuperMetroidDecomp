@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -345,20 +346,40 @@ internal sealed class EnemyProjectileEngine
     /// <param name="kind">What the projectile is, which names its definition.</param>
     /// <param name="behavior">What the projectile's kind does, bound to it for its life (#1760), which starts its motion (#1843).</param>
     /// <param name="graphics">The sheet and shading the projectile draws with.</param>
-    internal EnemyProjectile? AllocateEnemyProjectile(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics)
+    internal EnemyProjectile? AllocateEnemyProjectile(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics) =>
+        TryAllocateEnemyProjectile(kind, behavior, graphics, out EnemyProjectile? projectile) ? projectile : null;
+
+    /// <summary>
+    /// Spawns a fresh projectile as <see cref="AllocateEnemyProjectile"/> does, for a spawn whose room always leaves it a
+    /// place (#2554): one its load spawns into the pool the load has just cleared, which holds every place it needs.
+    /// </summary>
+    /// <param name="kind">What the projectile is, which names its definition.</param>
+    /// <param name="behavior">What the projectile's kind does, bound to it for its life.</param>
+    /// <param name="graphics">The sheet and shading the projectile draws with.</param>
+    /// <param name="spawn">The spawn, named in the failure.</param>
+    /// <exception cref="InvalidOperationException">Every place is held, which the spawn's room never leaves it.</exception>
+    internal EnemyProjectile AllocateEnemyProjectileWithRoom(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior,
+        SpriteGraphics graphics, string spawn) =>
+        TryAllocateEnemyProjectile(kind, behavior, graphics, out EnemyProjectile? projectile) ? projectile
+            : throw new InvalidOperationException($"{spawn} found every enemy-projectile place held.");
+
+    /// <summary>Spawns a fresh projectile into the first free place searched from the last down; false when every place is held.</summary>
+    private bool TryAllocateEnemyProjectile(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics,
+        [NotNullWhen(true)] out EnemyProjectile? projectile)
     {
         foreach (int place in EnemyProjectilePlaces.InRunOrder)
         {
             if (!IsFree(place))
                 continue;
             Places.RecordSpawn(place);
-            var projectile = new EnemyProjectile(place, _leftovers.StartOf(place, _places[place]?.LeftInPlace), kind);
+            projectile = new EnemyProjectile(place, _leftovers.StartOf(place, _places[place]?.LeftInPlace), kind);
             _places[place] = projectile;
             InitializeEnemyProjectileFromDefinition(projectile, kind, behavior, graphics);
-            return projectile;
+            return true;
         }
         Places.RecordSpawn(null);
-        return null;
+        projectile = null;
+        return false;
     }
 
     /// <summary>

@@ -37,7 +37,7 @@ internal static class OldTourianEscapeShaftWallVerification
 
         int Explosions() => runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Position = samus.Position.WithWhole(new(0x00e8, 0x088b));
         runtime.StepFrame(0);
         AssertEqual(0, Explosions(), "Samus left of X $F0 leaves the wall asleep");

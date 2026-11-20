@@ -123,7 +123,7 @@ internal sealed class BeamCombos
             _pool.ShotCount.CountSpecialAttack(parts.Count);
             // The attack waits the cooldown of its first place's projectile: the combination's charged shot.
             shared.SetSharedCooldown(SamusProjectileCooldowns.Read(beam, BeamShotCooldowns.Shot.Charged));
-            sound = BeamComboDefinitions.ActivationSounds.TryGetValue(kind, out SoundEffectId activationSound)
+            sound = BeamComboDefinitions.ActivationSounds.TryGetValue(kind, out SoundEffectId? activationSound)
                 ? activationSound
                 : throw new InvalidOperationException($"Undefined combo {kind}.");
         }

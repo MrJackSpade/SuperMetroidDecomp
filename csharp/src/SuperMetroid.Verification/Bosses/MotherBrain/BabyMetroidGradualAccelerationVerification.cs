@@ -34,7 +34,7 @@ internal static class BabyMetroidGradualAccelerationVerification
         state.Action = BabyMetroidAction.RiseAfterFeeding;
         state.Velocity = default;
         babyMetroid.Position = babyMetroid.Position.WithWholeX(0x02d6).WithWholeY(0x009c).WithFractionY(0x6b00);
-        runtime.Enemies.BabyMetroidBehavior.RunBabyMetroidMain(babyMetroid, runtime.Player.IntroducedSamus, new Position16<RoomPixels>(0x0200, 0x0000), runtime.BombProjectiles);
+        runtime.Enemies.BabyMetroidBehavior.RunBabyMetroidMain(babyMetroid, runtime.Player.Samus, new Position16<RoomPixels>(0x0200, 0x0000), runtime.BombProjectiles);
 
         AssertEqual((ushort)0xfff1, state.Velocity.Y.RawValue, "the reversal step borrows once, reaching Y velocity $FFF1");
         AssertEqual((ushort)0x009c, babyMetroid.Position.Y.Whole, "the rise stays within the same pixel");
@@ -57,7 +57,7 @@ internal static class BabyMetroidGradualAccelerationVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemyPlace babyMetroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
             place.Holds(EnemyDefinitionId.BabyMetroid));
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         BabyMetroidEnemyState state = babyMetroid.SpeciesState<BabyMetroidEnemyState>()
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
         foreach ((ushort ySpeed, ushort expectedX, ushort expectedSpeed) in new VerifyBabyMetroidDrainCarryCase[]
@@ -107,7 +107,7 @@ internal static class BabyMetroidGradualAccelerationVerification
         BabyMetroidEnemyState state = babyMetroid.SpeciesState<BabyMetroidEnemyState>()
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
         BabyMetroidBehavior behavior = runtime.Enemies.BabyMetroidBehavior;
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         RoomEnemyPlace victim = behavior.RequireBabyMetroidVictim(babyMetroid);
 
         // The departing flight goes to Samus's left, then her right (#2165); the other flights have no side.

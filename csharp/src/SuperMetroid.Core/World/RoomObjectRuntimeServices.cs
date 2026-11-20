@@ -30,7 +30,7 @@ internal sealed class RoomObjectRuntimeServices(
     /// Reads the current player state each time a room object asks, including after a room transition; a room object
     /// reading her before the scenario introduces her fails there.
     /// </summary>
-    public IRoomSamus Current => player.IntroducedSamus.RoomView;
+    public IRoomSamus Current => player.Samus.RoomView;
 
     /// <summary>Starts the room's earthquake for a room object.</summary>
     public void Start(EarthquakeShake shake, int frames) => Enemies.Earthquake.Start(shake, frames);

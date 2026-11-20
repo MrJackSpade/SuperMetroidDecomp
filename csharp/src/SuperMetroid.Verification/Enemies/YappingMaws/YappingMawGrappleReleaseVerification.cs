@@ -31,7 +31,7 @@ internal static class YappingMawGrappleReleaseVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RedBrinstarFirefleas, camera: new Position16<RoomPixels>(768, 0));
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.PoseId = SamusPoseId.GrappleSwingLeftPose;
         samus.Position = samus.Position.WithWhole(new(936, 172));
         SamusPoseMetadata.RefreshCollisionRadii(samus);

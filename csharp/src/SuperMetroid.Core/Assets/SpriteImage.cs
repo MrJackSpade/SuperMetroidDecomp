@@ -135,13 +135,23 @@ public sealed class SpriteImage
     }
 
     /// <summary>The place of <paramref name="key"/> among <see cref="ColourKeys"/>, or null where the image holds no pixel of it.</summary>
-    public int? PlaceOf(ColourKey key) => content.Value.Places.TryGetValue(key, out int place) ? place : null;
+    public int? PlaceOf(ColourKey key) => TryGetPlace(key, out int place) ? place : null;
+
+    /// <summary>Finds the place of <paramref name="key"/> among <see cref="ColourKeys"/>: false where the image holds no pixel of it.</summary>
+    public bool TryGetPlace(ColourKey key, out int place) => content.Value.Places.TryGetValue(key, out place);
 
     /// <summary>
     /// The colour the image's scene shows where nothing is drawn, as the key its shades recolour it by, for a room tileset's
     /// picture; null for every other image.
     /// </summary>
     public ColourKey? Backdrop { get; }
+
+    /// <summary>Finds the backdrop a room tileset's picture names, which every other image lacks.</summary>
+    public bool TryGetBackdrop(out ColourKey backdrop)
+    {
+        backdrop = Backdrop.GetValueOrDefault();
+        return Backdrop.HasValue;
+    }
 
     /// <summary>The shades the import pre-coloured the image in besides its own colours (#1512).</summary>
     public ImmutableDictionary<PictureShade, PictureRecolouring> Shades { get; }

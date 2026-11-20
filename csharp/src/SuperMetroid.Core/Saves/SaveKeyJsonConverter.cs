@@ -45,17 +45,17 @@ internal class SaveKeyJsonConverter<TIdentity> : JsonConverter<TIdentity>
 
     /// <summary>The save's name of <paramref name="value"/>.</summary>
     /// <exception cref="JsonException">The value is no member of the identity.</exception>
-    private protected virtual string NameOf(TIdentity value) => MemberName(value) ??
-        throw new JsonException($"{value} is no {typeof(TIdentity).Name} a save can name.");
+    private protected virtual string NameOf(TIdentity value) => names.TryGetValue(value, out string? name) ? name
+        : throw new JsonException($"{value} is no {typeof(TIdentity).Name} a save can name.");
 
     /// <summary>The value the save's <paramref name="text"/> names.</summary>
     /// <exception cref="JsonException">The text names no member.</exception>
-    private protected virtual TIdentity Named(string text) => Member(text) ??
-        throw new JsonException($"'{text}' names no {typeof(TIdentity).Name}.");
+    private protected virtual TIdentity Named(string text) => TryMember(text, out TIdentity identity) ? identity
+        : throw new JsonException($"'{text}' names no {typeof(TIdentity).Name}.");
 
     /// <summary>The save's name of a member, or null for a value that is no member.</summary>
     private protected string? MemberName(TIdentity value) => names.TryGetValue(value, out string? name) ? name : null;
 
-    /// <summary>The member a save's name names, its case ignored, or null when it names none.</summary>
-    private protected TIdentity? Member(string text) => identities.TryGetValue(text, out TIdentity identity) ? identity : null;
+    /// <summary>Whether a save's name names a member, its case ignored, and the <paramref name="identity"/> it names.</summary>
+    private protected bool TryMember(string text, out TIdentity identity) => identities.TryGetValue(text, out identity);
 }

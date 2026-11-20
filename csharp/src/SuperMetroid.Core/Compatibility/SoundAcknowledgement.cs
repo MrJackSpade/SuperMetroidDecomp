@@ -15,27 +15,27 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 [CompatibilityService("what one sound library reports back as acknowledged")]
 public readonly record struct SoundAcknowledgement<TSound>
-    where TSound : struct, IEquatable<TSound>
+    where TSound : notnull, IEquatable<TSound>
 {
 
     /// <summary>The music-load reporter reports new music loading instead of an acknowledgement; it matches no request.</summary>
     public static SoundAcknowledgement<TSound> MusicLoading { get; } = new() { IsMusicLoading = true };
 
-    /// <summary>The library acknowledges <paramref name="sound"/>, or reports nothing for none.</summary>
-    public static SoundAcknowledgement<TSound> Of(TSound? sound) => new() { Sound = sound };
+    /// <summary>The library acknowledges <paramref name="request"/>, or reports nothing for no request.</summary>
+    public static SoundAcknowledgement<TSound> Of(RequestedSound<TSound>? request) => new() { Request = request };
 
     /// <summary>The acknowledged request, or none.</summary>
-    private TSound? Sound { get; init; }
+    private RequestedSound<TSound>? Request { get; init; }
 
     /// <summary>Whether the library reports new music loading.</summary>
     private bool IsMusicLoading { get; init; }
 
     /// <summary>Whether the library reports nothing at all.</summary>
-    public bool IsNone => !IsMusicLoading && Sound is null;
+    public bool IsNone => !IsMusicLoading && Request is null;
 
     /// <summary>Whether this acknowledges <paramref name="request"/>; nothing acknowledges no request.</summary>
-    public bool Acknowledges(TSound? request) => !IsMusicLoading && Nullable.Equals(Sound, request);
+    public bool Acknowledges(RequestedSound<TSound>? request) => !IsMusicLoading && Nullable.Equals(Request, request);
 
     /// <inheritdoc />
-    public override string ToString() => IsMusicLoading ? "music loading" : Sound?.ToString() ?? "none";
+    public override string ToString() => IsMusicLoading ? "music loading" : Request?.Sound.ToString() ?? "none";
 }

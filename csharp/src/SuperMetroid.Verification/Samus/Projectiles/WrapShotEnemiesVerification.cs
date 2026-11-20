@@ -68,7 +68,7 @@ internal static class WrapShotEnemiesVerification
                 GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
                 bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
                 shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)(left ? 0 : 768), 0), bombs, new SharedGameState(new SharedRandom()));
-                runtime.Enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, runtime.Room.LoadedRoom.Area, runtime.Player.IntroducedSamus);
+                runtime.Enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, runtime.Room.LoadedRoom.Area, runtime.Player.Samus);
             }
             AssertEqual(RoomTerrainBlock.Of(0x052, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlockByIndex(target).Terrain, "Same shot actually triggers the remote tile");
             AssertEqual(health, enemy.Health, "Remote enemy health is unchanged");
@@ -78,7 +78,7 @@ internal static class WrapShotEnemiesVerification
             // live projectile. A real collision proves the negative was spatial,
             // not a dead projectile, inactive enemy or disabled collision path.
             enemy.Position = enemy.Position.WithWhole(shots.Shots[0].Position.Whole);
-            runtime.Enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, runtime.Room.LoadedRoom.Area, runtime.Player.IntroducedSamus);
+            runtime.Enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, runtime.Room.LoadedRoom.Area, runtime.Player.Samus);
             AssertTrue(shots.Shots[0].IsSpent, "World-space overlap reaches the same enemy collision dispatcher: the shot is spent on it");
         }
         Console.WriteLine("PASS wrap-shot enemy separation: both remote tile hits spare eligible enemies; world-space controls collide.");

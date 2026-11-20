@@ -50,7 +50,7 @@ internal static class HeroShotRuntimeVerification
                     y >= 32 || x == 54 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
                 level.SetBehavior(index, RoomBlockBehavior.None);
             }
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Control.Unlock();
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.Position = samus.Position.WithWhole(new(512, 490));

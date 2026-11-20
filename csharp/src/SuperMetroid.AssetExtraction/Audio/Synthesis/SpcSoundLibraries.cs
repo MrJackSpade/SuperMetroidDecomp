@@ -54,7 +54,7 @@ internal sealed class SpcSoundLibraries
         // The native library priority/cancellation gates pass a changed request that names a sound, which selects its
         // stream; otherwise the library advances the sound it plays, if any.
         ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
-        int? changed = poll.Changed ? poll.Request : null;
+        int? changed = poll.Changed ? poll.Request?.Sound : null;
         if (changed is { } command && command != ManagedSpcSoundLibrary.SilentCommand &&
             !RejectsRequest(libraryIndex, command, library.Priority, library.Mode))
             StartSound(libraryIndex, command);

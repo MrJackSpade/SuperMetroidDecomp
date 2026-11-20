@@ -30,7 +30,7 @@ internal static class ShaktoolSamusContactVerification
         AssertTrue(segment.Entity is IEnemyTouchReaction { ReactsToTouch: true }, "the Shaktool entity reacts to Samus's touch");
         AssertTrue(segment.SpritemapPointer != 0, "the loaded segment publishes a sprite map");
 
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Position = samus.Position.WithWhole(segment.Position.Whole);
         samus.Kinematics.Radius = new(5, 19);
         samus.InvincibilityTimer = WrappingCountdown.Start(0);

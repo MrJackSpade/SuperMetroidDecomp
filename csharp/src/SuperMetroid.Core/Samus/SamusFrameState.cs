@@ -14,8 +14,13 @@ internal sealed class SamusFrameState : IRoomSamusAccess
     /// <summary>Samus's colours, which outlive each Samus (#1405).</summary>
     public SamusColours Colours { get; }
 
-    /// <summary>Samus's frame state, her colours in their starting shades.</summary>
-    internal SamusFrameState() => Colours = new SamusColours();
+    /// <summary>Samus's frame state, her colours in their starting shades, with the Samus the runtime starts with.</summary>
+    /// <param name="samus">The Samus the runtime starts with, which each game's start, saved game's load, Zebes arrival or attract demo replaces.</param>
+    internal SamusFrameState(SamusState samus)
+    {
+        Colours = new SamusColours();
+        Samus = samus;
+    }
 
     /// <summary>The saved-game load appearance, before ordinary Samus drawing resumes.</summary>
     private UpdateCountdown LoadAppearance { get; set; } = UpdateCountdown.Ended();
@@ -30,20 +35,17 @@ internal sealed class SamusFrameState : IRoomSamusAccess
     internal bool AdvanceLoadAppearance() => LoadAppearance.StepEnds();
 
     /// <summary>
-    /// Normal-gameplay Samus rendering state. Null means the current scenario has not
-    /// explicitly introduced Samus; the Landing Site cinematic does not do so by itself.
+    /// Samus (#2554): the one the runtime started with, until a game's start, a saved game's load, the Zebes arrival or an
+    /// attract demo initializes the Samus it plays with, as each does before its first room loads.
     /// </summary>
-    public SamusState? Samus { get; internal set; }
+    public SamusState Samus
+    {
+        get;
+        internal set => field = Ensure.NotNull(value);
+    }
 
-    /// <summary>Samus once the scenario has introduced her; gameplay phases that move, draw or damage her require it.</summary>
-    public SamusState IntroducedSamus => Samus ??
-        throw new InvalidOperationException("Samus has not been introduced; this gameplay phase requires her actor.");
-
-    /// <summary>
-    /// Samus as the room's colour effects see her each time one reads her (#2391); an effect reading her before the scenario
-    /// introduces her fails there.
-    /// </summary>
-    IRoomSamus IRoomSamusAccess.Current => IntroducedSamus.RoomView;
+    /// <summary>Samus as the room's colour effects see her each time one reads her (#2391).</summary>
+    IRoomSamus IRoomSamusAccess.Current => Samus.RoomView;
 
     /// <summary>
     /// The input transition the latched held and newly pressed actions selected, which the pose-transition phase applies

@@ -120,6 +120,9 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     private YardKickTrackingDistance YardKickDistance { get; } = new();
 
+    /// <summary>Initialises the runtime's first Samus and each new one its setups start.</summary>
+    private SamusInitialization SamusInitialization { get; }
+
     /// <summary>
     /// The step count every gradual fade shares, created with the runtime and handed to the owners whose fades count on it:
     /// the door transition's fades, the death and time-up fades of <see cref="FadeOut"/>, and every room's enemies, whose
@@ -192,8 +195,6 @@ internal sealed class SuperMetroidRuntime
         SamusOverreads = artwork.SamusOverreads;
         System = new SharedGameState(session.GameState.Random, session.GameState.EarthquakeSoundDelay, session.GameState.StoredExploredMaps);
         Display = new GameplayDisplayState();
-        Player = new SamusFrameState();
-        DoorFade = new DoorFade(Player.Colours);
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
@@ -204,9 +205,6 @@ internal sealed class SuperMetroidRuntime
             artwork.EnemySheets, artwork.EnemyFrameDisplays);
 
         BeamCharge = new BeamChargeState();
-        Freeze = new GameplayTimeFreeze(Player);
-        Assists = new ActiveAssists(Player, System, assists);
-        TourianStatueDependencies = new TourianStatueSequenceDependencies { Player = Player, System = System, Assists = Assists, Freeze = Freeze };
         BossArtwork = new BossArtworkBinding(artwork.ScreenContent.CeresRidleyGetawayBoostDelays, artwork.ScreenContent.EscapeTypewriter,
             artwork.ScreenContent.MotherBrainRainbowBeamColours, artwork.KraidEyes, artwork.BossBodySheets);
         Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies
@@ -217,6 +215,13 @@ internal sealed class SuperMetroidRuntime
             RoomBlockSheets = artwork.RoomBlockSheets, RoomVisualLayouts = artwork.RoomVisualLayouts, RoomLevelStreams = artwork.RoomLevelStreams,
             BossArtwork = BossArtwork, Room = Room, Hud = Hud,
         });
+        SamusInitialization = new SamusInitialization(AudioRequests, SamusOverreads, UnauthoredBoostCadence, BeamCharge, Artwork.SamusArtwork,
+            YardKickDistance);
+        Player = new SamusFrameState(SamusInitialization.Initialize());
+        DoorFade = new DoorFade(Player.Colours);
+        Freeze = new GameplayTimeFreeze(Player);
+        Assists = new ActiveAssists(Player, System, assists);
+        TourianStatueDependencies = new TourianStatueSequenceDependencies { Player = Player, System = System, Assists = Assists, Freeze = Freeze };
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Hud = Hud });
         ScreenLayers = new GameplayScreenLayers(Room);
         Xray = new XrayReveal(BackgroundScroll, System, artwork.XrayRevealVisuals);
@@ -229,7 +234,7 @@ internal sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing,  Display = Display, EnemyPhase = EnemyPhase, LiquidWaveAndStatueDescent = LiquidWaveAndStatueDescent, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, System);
         RoomObjectVisuals = new RoomObjectVisuals(artwork.RoomObjects);
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, RoomObjectVisuals = RoomObjectVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, ScrollCellsPastRoomScreens = artwork.ScrollCellsPastRoomScreens, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance });
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, RoomObjectVisuals = RoomObjectVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, ScrollCellsPastRoomScreens = artwork.ScrollCellsPastRoomScreens, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance, SamusInitialization = SamusInitialization });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { AttractSession = AttractSession, PlayerActions = PlayerActions, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, SuitPickup = SuitPickup, System = System });
@@ -315,7 +320,7 @@ internal sealed class SuperMetroidRuntime
     internal SuperMetroidSaveSnapshot SaveSnapshotAt(LoadStation station)
     {
         Ensure.NotNull(station);
-        SamusState samus = Player.IntroducedSamus;
+        SamusState samus = Player.Samus;
         System.StoredExploredMaps.StoreLiveMap(station.Area);
         return SuperMetroidSaveSnapshot.Capture(samus, System, new SaveSnapshotContext
         {
@@ -444,7 +449,7 @@ internal sealed class SuperMetroidRuntime
         Ensure.NotNull(request);
         // Every gameplay update runs with Samus: each game's start, a saved game's load and the attract demo create her
         // before their first room loads, and only those setups, between updates, replace her.
-        SamusState samus = Player.IntroducedSamus;
+        SamusState samus = Player.Samus;
         Assists.GrantLoadoutToNewSamus(samus);
         AmmoLoanGuard infiniteAmmoGuard =
             AmmoLoanGuard.Begin(Assists.Current.AmmoNeverRunsOut, samus);
@@ -1138,7 +1143,7 @@ internal sealed class SuperMetroidRuntime
     {
         // A frame is shown only from a loaded room, and every room loads with Samus introduced.
         RoomScope room = Room.LoadedScope;
-        SamusState samus = Player.IntroducedSamus;
+        SamusState samus = Player.Samus;
         IEnemyDisplaySources enemyDisplays = room.Enemies.DisplaySources;
         var frameEnd = new GameplayFrameEndDisplayInputs(
             Room.DoorTransitionShownLayers,
@@ -1166,7 +1171,7 @@ internal sealed class SuperMetroidRuntime
         var shading = new GameplayShadingBuilder();
         foreach (IGameplayShadingSource source in ShadingSources(samus))
             source.ShadeGameplay(shading);
-        return shading.Build(Room.LoadedScope.Assets.BlockSheet.Sheet.Image);
+        return shading.Build(Room.LoadedScope.Assets.BlockSheet.Sheet.Image, Room.LoadedScope.Assets.BlockSheet.Backdrop);
     }
 
     /// <summary>The owners of the colour effects the frame shows, in the order they are laid over each other.</summary>

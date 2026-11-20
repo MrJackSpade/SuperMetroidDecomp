@@ -48,7 +48,7 @@ internal static class PillarFirstEntryVerification
         AssertTrue(doorX >= 0, "Pillar Room incoming retail door exists");
         runtime.LoadCartridgeRoomForDebug(source,
             new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.EquippedItems = samus.CollectedItems = (SamusEquipmentFlags.ScrewAttack |
             SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots |

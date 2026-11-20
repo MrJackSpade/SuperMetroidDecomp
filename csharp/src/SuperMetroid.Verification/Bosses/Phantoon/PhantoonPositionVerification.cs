@@ -59,7 +59,7 @@ internal static class PhantoonPositionVerification
         PhantoonEnemyState loaded = runtime.Enemies.BossEncounters.Phantoon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.Phantoon.");
         AssertEqual(120, loaded.PhaseWait.UpdatesLeft,
             "Original NTSC Phantoon initializer waits 120 frames, not PAL's 96");
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Position = samus.Position.WithWhole(new(40, 184));
         samus.Control.LockOutPlayer();
         var positions = new HashSet<MotherBrainRinkaDoorSpawnExpected>();

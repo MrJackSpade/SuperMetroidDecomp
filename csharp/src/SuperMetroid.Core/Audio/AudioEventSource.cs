@@ -44,7 +44,7 @@ internal sealed class AudioEventSource
                     events.Add(new AudioEvent.StopMusic());
                     break;
                 case AudioRequest.RequestSound sound:
-                    clock.Request(sound.Sound.Library, sound.Sound);
+                    clock.Request(sound.Sound.Library, new RequestedSound<SoundEffectId>(sound.Sound));
                     break;
                 case AudioRequest.ClearSoundRequest clear:
                     clock.Request(clear.Library, null);
@@ -71,7 +71,7 @@ internal sealed class AudioEventSource
     /// <summary>A library starts a sound only for a changed request, other than none, taken at the previous check.</summary>
     private static void AddStart(List<AudioEvent> events, SoundClockStep<SoundEffectLibrary, SoundEffectId> step, SoundRequestCheck<SoundEffectId> check)
     {
-        if (check.Changed && check.Request is SoundEffectId sound)
+        if (check.Changed && check.Request?.Sound is SoundEffectId sound)
             events.Add(new AudioEvent.StartSoundEffect(sound, step.SampleOffset));
     }
 }

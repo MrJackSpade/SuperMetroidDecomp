@@ -38,7 +38,7 @@ internal static class DraygonTurretCadenceVerification
         int StepWith(byte counter8, ushort counter16)
         {
             int before = WallTurrets();
-            stepped = runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, ShortCounter = new SuperMetroid.Core.Compatibility.ShortFrameCount(counter8), FrameCounter = counter16 };
+            stepped = runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = runtime.Player.Samus, ShortCounter = new SuperMetroid.Core.Compatibility.ShortFrameCount(counter8), FrameCounter = counter16 };
             runtime.Enemies.StepStandaloneFrame(stepped);
             return WallTurrets() - before;
         }
@@ -62,7 +62,7 @@ internal static class DraygonTurretCadenceVerification
             return velocity;
         }
         var beforeTurret = SpawnGoop();
-        runtime.Enemies.DraygonBehavior.Turrets.SpawnDraygonWallTurret(runtime.Player.IntroducedSamus, 0);
+        runtime.Enemies.DraygonBehavior.Turrets.SpawnDraygonWallTurret(runtime.Player.Samus, 0);
         var afterTurret = SpawnGoop();
         AssertEqual(beforeTurret, afterTurret, "goop speed does not inherit a turret's parameter");
         AssertEqual(EnemyMath.VelocityAlong(afterTurret.Heading, DraygonProjectileSpeeds.Goop), afterTurret.Velocity,
@@ -77,20 +77,20 @@ internal static class DraygonTurretCadenceVerification
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Spawn(bombed.Position.Whole);
         PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.ExplosionRadius), PowerBombRadius.FromWholePixels(32));
-        runtime.Player.IntroducedSamus.SlowdownLevel = 3;
+        runtime.Player.Samus.SlowdownLevel = 3;
         ushort bombedX = bombed.Position.X.Whole;
-        runtime.Enemies.AdvanceEnemyProjectileAnimations(runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus,
+        runtime.Enemies.AdvanceEnemyProjectileAnimations(runtime.Room.LoadedLevelData, runtime.Player.Samus,
             new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), new SuperMetroid.Core.Compatibility.ShortFrameCount(runtime.Enemies.NextStandaloneProjectileFrame()),
             samusBombs: runtime.BombProjectiles, frameCounter: runtime.Enemies.FrameContext.EnemyPassCount);
         AssertTrue(!bombed.IsActive, "a power-bombed goop loses its projectile ID");
-        AssertEqual(0, runtime.Player.IntroducedSamus.SlowdownLevel, "$86:8D93 clears Samus's X speed divisor");
+        AssertEqual(0, runtime.Player.Samus.SlowdownLevel, "$86:8D93 clears Samus's X speed divisor");
         AssertTrue(bombed.Position.X.Whole != bombedX, "the goop routine still moves the released slot");
 
         // #1269: DraygonReaction_Common's dead branch ($A5:9618) has no "already dying"
         // test. A later hit on the zero-health body reinstalls the drift function.
         boss.Body.Health = 0;
         boss.Phase = DraygonPhase.DyingWaitForEvirs;
-        runtime.Enemies.DraygonBehavior.Combat.ResolveDraygonReaction(boss.Body, runtime.Player.IntroducedSamus);
+        runtime.Enemies.DraygonBehavior.Combat.ResolveDraygonReaction(boss.Body, runtime.Player.Samus);
         AssertEqual(DraygonPhase.Dying, boss.Phase,
             "a hit on the dead body restarts the drift to the death spot");
         Console.WriteLine("Draygon turret cadence: $A5:87AA follows NMI_FrameCounter ($05B6), not $05B5; goop speed is two; power bombs delete goop; dead-body hits restart the death drift.");

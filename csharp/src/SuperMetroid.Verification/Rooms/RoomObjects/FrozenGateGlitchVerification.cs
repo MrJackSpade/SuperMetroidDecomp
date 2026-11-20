@@ -99,7 +99,7 @@ internal static class FrozenGateGlitchVerification
         AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingClosed },
             "Caterpillar gate rests closed, waiting for a trigger or Samus in its column");
 
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWholeX(FrozenGateStartX);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);

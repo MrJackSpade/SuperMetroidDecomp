@@ -28,8 +28,8 @@ internal static class CeresRidleyWallVerification
         ridley.MovementAnimationEnabled = true;
         ridley.Flight.Velocity = ridley.Flight.Velocity.WithX(new SignedEightEight(unchecked((ushort)-768)));
         body.Position = body.Position.WithWhole(new(41, 100));
-        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeX(20);
-        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeY(168);
+        runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWholeX(20);
+        runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWholeY(168);
         runtime.StepFrame(0);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(40, body.Position.X.Whole, "Ceres lunge clips at native left bound");

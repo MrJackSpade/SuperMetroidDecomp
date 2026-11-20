@@ -37,8 +37,8 @@ internal static class GameplayCaptureIntegrationTestsVerification
         for (int i = 0; i < 50; i++) runtime.BombProjectiles.PowerBombExplosion.StepFrame(runtime.Artwork.SamusArtwork.PowerBombGlowColors);
         runtime.MessageBox.Begin(GameplayMessageId.MapDataAccessCompleted, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
         for (int i = 0; i < 13; i++) runtime.MessageBox.Step(0);
-        runtime.SuitPickup.Begin(runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
-        runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Player.Colours);
+        runtime.SuitPickup.Begin(runtime.Player.Samus, new(0, 0), SamusSuitPickupKind.Varia);
+        runtime.SuitPickup.Step(runtime.Player.Samus, runtime.Player.Colours);
         RgbaPixel[] expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
         LayeredScene captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(captured.Layers.Length == 5 && captured.Layers[0] is GameplaySceneLayer && captured.Layers[1] is HudLayer
@@ -49,7 +49,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         // The packet is drawn again only if the effect updates changed anything it reaches (#1532).
         byte[] retainedGraph = GraphDigest(retained);
         runtime.MessageBox.Step(ControllerButton.A);
-        runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Player.Colours);
+        runtime.SuitPickup.Step(runtime.Player.Samus, runtime.Player.Colours);
         runtime.BombProjectiles.PowerBombExplosion.StepFrame(runtime.Artwork.SamusArtwork.PowerBombGlowColors);
         if (!GraphDigest(retained).SequenceEqual(retainedGraph))
             AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay packet survives all effect updates");

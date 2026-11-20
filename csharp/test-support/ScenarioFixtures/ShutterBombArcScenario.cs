@@ -38,7 +38,7 @@ internal sealed class ShutterBombArcScenario
     /// <summary>Initialized retail room fixture stepped by this controller sequence.</summary>
     internal SuperMetroidRuntime Runtime { get; }
     /// <summary>Samus state owned by the scenario runtime.</summary>
-    internal SamusState Samus => Runtime.Player.IntroducedSamus;
+    internal SamusState Samus => Runtime.Player.Samus;
     /// <summary>Shutter enemy tracked for position comparison.</summary>
     internal RoomEnemyPlace Platform => Runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[SlotIndex];
 

@@ -39,7 +39,7 @@ internal static class EscapeRoomEffectsVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Get(room));
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
         int explosionFrames = 0;
         bool visibleExplosion = false, visibleShake = false;
         var offsets = new HashSet<OctantVector>();
@@ -62,7 +62,7 @@ internal static class EscapeRoomEffectsVerification
                 foreach (var sprite in runtime.Enemies.RoomEffectActors.Where(s => s.IsActive))
                 {
                     int x = sprite.Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X, y = sprite.Position.Y.Whole - runtime.Room.LoadedCamera.PixelPosition.Y;
-                    if (Math.Abs(sprite.Position.X.Whole - runtime.Player.IntroducedSamus.Position.X.Whole) < 40 && Math.Abs(sprite.Position.Y.Whole - runtime.Player.IntroducedSamus.Position.Y.Whole) < 40) continue;
+                    if (Math.Abs(sprite.Position.X.Whole - runtime.Player.Samus.Position.X.Whole) < 40 && Math.Abs(sprite.Position.Y.Whole - runtime.Player.Samus.Position.Y.Whole) < 40) continue;
                     int changed = 0;
                     for (int py = Math.Max(32, y - 8); py < Math.Min(224, y + 8); py++)
                         for (int px = Math.Max(0, x - 8); px < Math.Min(256, x + 8); px++)
@@ -96,7 +96,7 @@ internal static class EscapeRoomEffectsVerification
             runtime.RoomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(door.Block, BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false)));
             for (int frame = 0; frame < 32; frame++) runtime.StepFrame(0);
             AssertEqual(0, runtime.RoomObjects.GreyDoorSnapshots.Count, "exit door finishes opening");
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(48, 112));
             samus.Kinematics.Radius = new(5, 16);
             for (int frame = 0; frame < 32 && runtime.EnteredDoor is null; frame++)

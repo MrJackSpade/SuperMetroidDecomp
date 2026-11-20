@@ -27,7 +27,7 @@ internal static class RespawnedEnemyContactVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Hellway);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
 
         RoomEnemyPlace enemy = runtime.Enemies.Places.InUpdateOrder.Single(place =>

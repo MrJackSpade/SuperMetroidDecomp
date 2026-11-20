@@ -43,20 +43,20 @@ internal static class PhantoonSheetShades
     }
 
     /// <summary>The sixteen colours of his body showing <paramref name="look"/>.</summary>
-    private static RgbColor[] Colours(PhantoonColorCatalog phantoon, PhantoonBodyLook look) => look.Kind switch
+    private static RgbColor[] Colours(PhantoonColorCatalog phantoon, PhantoonBodyLook look) => look.Band is { } band
+        // A health colouring shows its band's colours; the others are named by their kind.
+        ? [.. Enumerable.Range(0, PhantoonColorFormat.HealthBandColorCount).Select(colour => phantoon.ResolveHealth(HealthRow(band), colour))]
+        : look.Kind switch
     {
         PhantoonBodyLookKind.Black => new RgbColor[GroupColours],
         PhantoonBodyLookKind.White => [.. Enumerable.Repeat(RgbColor.White, GroupColours)],
         PhantoonBodyLookKind.FadedOut => [.. Enumerable.Range(0, PhantoonColorFormat.FadeOutCount).Select(phantoon.ResolveFadeOut)],
-        PhantoonBodyLookKind.Health => [.. Enumerable.Range(0, PhantoonColorFormat.HealthBandColorCount).Select(colour => phantoon.ResolveHealth(HealthRow(look), colour))],
         _ => throw new InvalidDataException($"Undefined Phantoon body colouring {look.Kind}."),
     };
 
-    /// <summary>The installed health colours' row of <paramref name="look"/>'s band: they hold his bands lowest first (#2259).</summary>
-    /// <exception cref="InvalidDataException">The health colouring names no band.</exception>
-    private static int HealthRow(PhantoonBodyLook look)
+    /// <summary>The installed health colours' row of <paramref name="band"/>: they hold his bands lowest first (#2259).</summary>
+    private static int HealthRow(PhantoonHealthBand band)
     {
-        PhantoonHealthBand band = look.Band ?? throw new InvalidDataException("A Phantoon health colouring names its health band.");
         for (int row = 0; row < PhantoonHealthBandDefinitions.LowestFirst.Count; row++)
         {
             if (PhantoonHealthBandDefinitions.LowestFirst[row] == band)

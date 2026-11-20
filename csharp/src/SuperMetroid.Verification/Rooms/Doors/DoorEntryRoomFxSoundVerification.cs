@@ -42,7 +42,7 @@ internal static class DoorEntryRoomFxSoundVerification
         var random = new SharedRandom();
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
         var runtime = LoadRisingTide(entry, random, game.AudioForVerification);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         game.AdoptRuntime(runtime);
         global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
@@ -54,7 +54,7 @@ internal static class DoorEntryRoomFxSoundVerification
             loaded.RoomLoader.InitializeStartingCeresRoom();
             loaded.RoomLoader.InitializeCeresStartSamus();
             loaded.LoadCartridgeRoomThroughDoorForVerification(door);
-            loaded.Player.IntroducedSamus.Control.LockOutPlayer();
+            loaded.Player.Samus.Control.LockOutPlayer();
             return loaded;
         }
 

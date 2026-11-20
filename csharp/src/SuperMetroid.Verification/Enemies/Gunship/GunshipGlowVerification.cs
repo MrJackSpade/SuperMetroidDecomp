@@ -88,7 +88,7 @@ internal static class GunshipGlowVerification
         AssertEqual(3, pieces.Length, "the Landing Site places the gunship's three pieces");
         // Samus stands beside the landed ship, so the camera shows it.
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0400, 0x0400));
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         RoomEnemyPlace top = pieces.Single(piece => piece.Holds(EnemyDefinitionId.ShipTop));
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;

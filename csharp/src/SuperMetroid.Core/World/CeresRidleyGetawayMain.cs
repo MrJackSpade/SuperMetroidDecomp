@@ -9,7 +9,7 @@ internal sealed class CeresRidleyGetawayMain(RoomFloor floor) : IRoomMain
     /// <inheritdoc/>
     public RoomMainOutcome Run(RoomMainUpdate update)
     {
-        update.Room.Enemies.Ceres.RunCeresRidleyGetawayRoomMain(update.Player.IntroducedSamus, floor, update.FrameCounter);
+        update.Room.Enemies.Ceres.RunCeresRidleyGetawayRoomMain(update.Player.Samus, floor, update.FrameCounter);
         return RoomMainOutcome.None;
     }
 }

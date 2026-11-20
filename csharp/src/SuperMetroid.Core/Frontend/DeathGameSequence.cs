@@ -37,7 +37,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
         DeathSequenceStep.FinalGameplayPass => "Death: final gameplay pass",
         DeathSequenceStep.BlackingOutSurroundings => "Death: surroundings black out",
         DeathSequenceStep.WaitingForMusic => "Death: waiting for music",
-        DeathSequenceStep.SamusDying => $"Death: {session.GameplayRuntime.Player.IntroducedSamus.DeathSequence.Phase}",
+        DeathSequenceStep.SamusDying => $"Death: {session.GameplayRuntime.Player.Samus.DeathSequence.Phase}",
         DeathSequenceStep.FinalBlackOut => "Death: final black-out",
         _ => throw new InvalidOperationException($"Undefined {nameof(DeathSequenceStep)} {session.DeathStep}."),
     };
@@ -78,7 +78,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.Death });
         session.display.PublishGameplay(session.GameplayRuntime);
         BeginDeathFade();
-        SamusState dyingSamus = session.GameplayRuntime.Player.IntroducedSamus;
+        SamusState dyingSamus = session.GameplayRuntime.Player.Samus;
         dyingSamus.SelectBeam();
         dyingSamus.ClearHurtTimers();
         dyingSamus.KnockbackActive = false;
@@ -106,11 +106,11 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
     /// <summary>One update of the fatal pose, which begins Samus's death animation once the death music is processed.</summary>
     private void WaitForMusic(ControllerButton controllerInput)
     {
-        session.GameplayRuntime.DeathSequence.DrawFatalSamusFrame(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus);
+        session.GameplayRuntime.DeathSequence.DrawFatalSamusFrame(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.Samus);
         session.display.PublishGameplay(session.GameplayRuntime);
         if (!session.audio.HasQueuedMusic)
         {
-            session.GameplayRuntime.DeathSequence.BeginDeathSequenceAfterMusicWait(session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus);
+            session.GameplayRuntime.DeathSequence.BeginDeathSequenceAfterMusicWait(session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.Samus);
             session.Enter(DeathSequenceStep.SamusDying);
         }
     }
@@ -119,7 +119,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
     private void StepSamusDying(ControllerButton controllerInput)
     {
         SamusDeathSequenceStepResult deathStep =
-            session.GameplayRuntime.DeathSequence.StepDeathSequenceFrame(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus);
+            session.GameplayRuntime.DeathSequence.StepDeathSequenceFrame(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.Samus);
         session.display.PublishGameplay(session.GameplayRuntime);
         if (deathStep.Completed)
         {

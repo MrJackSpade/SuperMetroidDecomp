@@ -26,7 +26,7 @@ internal static class RetailEyeCaptureTests
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MorphBall,
             new Position16<RoomPixels>(EyeCaptureFixture.CameraX, EyeCaptureFixture.CameraY));
         var body = runtime.Enemies.Places.InUpdateOrder[1];
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.CollectedItems = SamusEquipmentFlags.MorphBall;
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + 64)), body.Position.Y.Whole));
         samus.Control.LockOutPlayer();

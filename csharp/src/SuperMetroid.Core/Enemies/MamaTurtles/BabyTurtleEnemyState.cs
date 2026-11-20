@@ -6,7 +6,16 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 public sealed class BabyTurtleEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal BabyTurtleEnemyState(BabyTurtleAction action) => Action = action;
+    /// <param name="action">The baby's first action.</param>
+    /// <param name="mama">The state of the Mama its room lists before it, which the baby holds from its setup.</param>
+    internal BabyTurtleEnemyState(BabyTurtleAction action, MamaTurtleEnemyState mama)
+    {
+        Action = action;
+        Mama = Ensure.NotNull(mama);
+    }
+
+    /// <summary>The Mama the baby found as it was placed (#2554), whom its touch and shots wake.</summary>
+    internal MamaTurtleEnemyState Mama { get; }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BabyTurtleSegment> Playback { get; set; }

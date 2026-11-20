@@ -126,7 +126,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal BabyTurtleEnemyState InitializeBabyTurtle(RoomEnemyPlace place)
     {
-        var state = new BabyTurtleEnemyState(BabyTurtleAction.CrawlingNotCarryingSamus)
+        // The baby holds the Mama its room lists before it, placed before it and found as she was placed.
+        var state = new BabyTurtleEnemyState(BabyTurtleAction.CrawlingNotCarryingSamus, EnemyPartners.Listed<MamaTurtleEntity>(MamaOf(place)).State)
         {
             SpawnTopCenter = new Position16<RoomPixels>(place.Position.X.Whole, place.Position.Y.Whole - place.Radius.Y),
             Heading = place.SpawnSettings<BabyTurtleSpawnSettings>().Heading,
@@ -575,7 +576,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.X));
 
         RoomEnemyPlace parentPlace = MamaOf(baby);
-        MamaTurtleEnemyState parent = EnemyPartners.Listed<MamaTurtleEntity>(parentPlace).State;
+        MamaTurtleEnemyState parent = state.Mama;
         if (!parent.LiesInShell)
             return;
 
@@ -676,18 +677,15 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.X));
-        WakeMamaTurtle(baby);
+        WakeMamaTurtle(state);
     }
 
     /// <summary>Finishes the Baby Turtle's reaction to a shot on <paramref name="baby"/>: its mother wakes.</summary>
-    private void ResolveBabyTurtleShotAfterCommon(RoomEnemyPlace baby) =>
+    private static void ResolveBabyTurtleShotAfterCommon(BabyTurtleEnemyState baby) =>
         WakeMamaTurtle(baby);
 
     /// <summary>Wakes <paramref name="baby"/>'s Mama after a baby touch or shot reaction.</summary>
-    private void WakeMamaTurtle(RoomEnemyPlace baby)
-    {
-        MamaStateOf(baby).Wake();
-    }
+    private static void WakeMamaTurtle(BabyTurtleEnemyState baby) => baby.Mama.Wake();
 
     /// <summary>Runs Mama's expanded private damage box: Samus, while not invincible, touching it is hurt as by any enemy.</summary>
     private void ResolveMamaTurtleExpandedContact(
@@ -700,9 +698,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         _collision.ResolveOrdinaryTouch(mama, samus, pseudoScrew);
     }
-
-    /// <summary>The state of <paramref name="baby"/>'s Mama, who found it when she was placed.</summary>
-    private MamaTurtleEnemyState MamaStateOf(RoomEnemyPlace baby) => EnemyPartners.Listed<MamaTurtleEntity>(MamaOf(baby)).State;
 
     /// <summary>The place of <paramref name="baby"/>'s Mama, who linked it when she was placed.</summary>
     /// <exception cref="InvalidOperationException">No Mama Turtle found <paramref name="baby"/> as she was placed.</exception>
@@ -733,9 +728,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the baby wake reaction after common bomb damage.</summary>
-    internal EnemyBombReaction BabyTurtleBombReaction => field ??= new()
+    /// <param name="state">The baby's state, which the reaction acts on.</param>
+    internal static EnemyBombReaction BabyTurtleBombReactionOf(BabyTurtleEnemyState state) => new()
     {
-        AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy),
+        AfterCommon = _ => ResolveBabyTurtleShotAfterCommon(state),
     };
 
     /// <summary>Runs MamaTurtle's main AI.</summary>
@@ -783,9 +779,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the baby wake reaction after common projectile damage.</summary>
-    internal EnemyShotReaction BabyTurtleShotReaction => field ??= new()
+    /// <param name="state">The baby's state, which the reaction acts on.</param>
+    internal static EnemyShotReaction BabyTurtleShotReactionOf(BabyTurtleEnemyState state) => new()
     {
-        AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy),
+        AfterCommon = _ => ResolveBabyTurtleShotAfterCommon(state),
     };
 
     /// <summary>Routes Mama contact to shell and fall handling.</summary>

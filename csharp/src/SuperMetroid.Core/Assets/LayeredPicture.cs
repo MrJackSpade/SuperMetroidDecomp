@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public abstract record LayeredPicture
 {
+    /// <summary>Only the picture's cases derive from it.</summary>
     private protected LayeredPicture()
     {
     }
@@ -39,13 +40,12 @@ public abstract record LayeredPicture
     /// part shows nothing: the blank picture when both are none.
     /// </summary>
     /// <exception cref="InvalidDataException">The two parts differ in size.</exception>
-    public static LayeredPicture Of(SpriteSheetFrame? behind, SpriteSheetFrame? inFront) => (behind, inFront) switch
+    public static LayeredPicture Of(SpriteSheetFrame? behind, SpriteSheetFrame? inFront)
     {
-        ({ } back, { } front) => new TwoPartPicture(back, front),
-        ({ } back, null) => new BehindPicture(back),
-        (null, { } front) => new InFrontPicture(front),
-        (null, null) => Nothing,
-    };
+        if (behind is { } back)
+            return inFront is { } both ? new TwoPartPicture(back, both) : new BehindPicture(back);
+        return inFront is { } front ? new InFrontPicture(front) : Nothing;
+    }
 }
 
 /// <summary>A picture that shows nothing: neither part is installed.</summary>
@@ -61,6 +61,7 @@ public sealed record BlankPicture : LayeredPicture
 /// <summary>A picture that shows something: at least one of its parts is installed, so it has a size.</summary>
 public abstract record ShownLayeredPicture : LayeredPicture
 {
+    /// <summary>Only the shown picture's cases derive from it.</summary>
     private protected ShownLayeredPicture()
     {
     }

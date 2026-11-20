@@ -143,7 +143,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Melting.RunCrocomireMelting(state);
                 return;
             case CrocomireDeathStage.ClearMeltImage:
-                Melting.FinishCrocomireMeltingPass(state);
+                CrocomireMelting.FinishCrocomireMeltingPass(state);
                 return;
             case CrocomireDeathStage.FinalSink:
                 BridgeCollapse.RunCrocomireFinalSink(state, camera);

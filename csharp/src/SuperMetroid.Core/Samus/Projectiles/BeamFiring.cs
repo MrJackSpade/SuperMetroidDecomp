@@ -152,7 +152,7 @@ internal sealed class BeamFiring
                 _charge.ClearCount();
                 _charge.ClearFlare();
                 samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
-                return new SoundRequest(comboSound, SoundRequestPriority.Normal);
+                return comboSound is { } combo ? new SoundRequest(combo, SoundRequestPriority.Normal) : null;
             }
             return null;
         }

@@ -61,7 +61,7 @@ internal sealed class CrocomireBodyLayer
     /// Hides his body from room row <paramref name="roomRow"/> down, until a frame is shown on it again (#1515, #2031): his
     /// body's picture shows only above that row, reckoned from where he lies.
     /// </summary>
-    internal void HideCrocomireBodyBelow(CrocomireEnemyState state, int roomRow) =>
+    internal static void HideCrocomireBodyBelow(CrocomireEnemyState state, int roomRow) =>
         state.BodyParts.ShowAbove(roomRow - state.Body.Position.Y.Whole);
 
     /// <summary>Levels the melt's stretch: every line shows his body as it lies now (#1468, #1802, #2031).</summary>

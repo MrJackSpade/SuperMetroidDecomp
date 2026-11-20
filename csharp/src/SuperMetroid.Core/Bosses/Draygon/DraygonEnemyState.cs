@@ -14,7 +14,7 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// The body the boss shows its parts' frames on (#1353, #1466, #1515, #2554): its own, made as it sets up and attached
     /// to the room's display then, nothing showing at first.
     /// </summary>
-    internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts => field ??= SuperMetroid.Core.Enemies.BossBodies.new BossBodyParts(BossBodyOwner.Draygon, this);
+    internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts => field ??= new SuperMetroid.Core.Enemies.BossBodies.BossBodyParts(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Draygon, this);
 
     /// <inheritdoc />
     Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => BodyPlacement;

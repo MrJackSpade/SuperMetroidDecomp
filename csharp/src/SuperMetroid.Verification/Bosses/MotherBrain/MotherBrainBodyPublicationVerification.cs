@@ -40,7 +40,7 @@ internal static class MotherBrainBodyPublicationVerification
 
         // Phase two: the transition reveals her body as it stands (#1515); her posture scroll places it.
         ushort[] staged = Words(((BossBodyParts)runtime.Enemies.Presentation.BossBodyDisplay!).Publish());
-        runtime.Enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
+        MotherBrainAscent.SetupMotherBrainPhaseTwoGraphics(state);
         // Her body is placed at her once her rise places it (#1949, #2031), each frame lying where the import placed it
         // against her.
         state.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(65, 280));

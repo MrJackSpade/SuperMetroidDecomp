@@ -255,7 +255,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 FakeDeath.DrawNextMuralRows(state);
                 return;
             case MotherBrainAscentPhase.SetupPhase2Graphics:
-                Ascent.SetupMotherBrainPhaseTwoGraphics(state);
+                MotherBrainAscent.SetupMotherBrainPhaseTwoGraphics(state);
                 return;
             case MotherBrainAscentPhase.SetupPhase2Brain:
                 MotherBrainAscent.SetupMotherBrainPhaseTwoBrain(state);

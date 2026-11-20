@@ -42,11 +42,16 @@ public sealed class BlockParameterCarryOver<TBehavior, TReading>
     /// written as.
     /// </param>
     /// <exception cref="ArgumentNullException">An argument is null.</exception>
-    public BlockParameterCarryOver(IEnumerable<(TBehavior Behavior, TReading Reading)> kept)
+    public BlockParameterCarryOver(IEnumerable<KeptReading> kept)
     {
-        foreach ((TBehavior behavior, TReading reading) in Ensure.NotNull(kept))
-            carrying.TryAdd(reading, Ensure.NotNull(behavior));
+        foreach (KeptReading each in Ensure.NotNull(kept))
+            carrying.TryAdd(each.Reading, Ensure.NotNull(each.Behavior));
     }
+
+    /// <summary>A kept behaviour the converter writes, with the reading it is written as.</summary>
+    /// <param name="Behavior">The kept behaviour.</param>
+    /// <param name="Reading">The reading the converter writes it as.</param>
+    public readonly record struct KeptReading(TBehavior Behavior, TReading Reading);
 
     /// <summary>The behaviour a write of <paramref name="reading"/> keeps: the first kept behaviour holding it.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No kept behaviour holds <paramref name="reading"/>.</exception>

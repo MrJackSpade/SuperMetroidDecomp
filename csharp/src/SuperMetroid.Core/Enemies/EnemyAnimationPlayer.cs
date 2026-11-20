@@ -31,7 +31,7 @@ internal sealed class EnemyAnimationPlayer
     /// <exception cref="InvalidOperationException">
     /// The frame is shown before its boss attached the body it shows on, or by a part its boss does not draw there.
     /// </exception>
-    internal void DrawBossBodyFrame(RoomEnemyPlace place, EnemyFrameId selected)
+    internal static void DrawBossBodyFrame(RoomEnemyPlace place, EnemyFrameId selected)
     {
         if (place.Entity is not IBossBodyFrames boss || boss.FindBodyFrame(selected) is not { } frame)
             return;

@@ -11,20 +11,21 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// </summary>
 public sealed class SidehopperDrain
 {
-    /// <summary>Whether the corpse was placed already dead, which shows the drained corpses' colours.</summary>
-    private readonly bool placedDead;
+    /// <summary>How the corpse was laid out: as the Baby Metroid's victim, or already dead, which shows the drained corpses' colours.</summary>
+    private readonly DeadSidehopperLayout layout;
 
-    private SidehopperDrain(SidehopperDrainStage stage, bool placedDead)
+    /// <summary>A drain at <paramref name="stage"/> of a corpse laid out as <paramref name="layout"/>.</summary>
+    private SidehopperDrain(SidehopperDrainStage stage, DeadSidehopperLayout layout)
     {
         Stage = stage;
-        this.placedDead = placedDead;
+        this.layout = layout;
     }
 
     /// <summary>The drain a Baby Metroid makes for its victim: untouched until the Baby latches on.</summary>
-    internal static SidehopperDrain ForVictim() => new(SidehopperDrainStage.Untouched, placedDead: false);
+    internal static SidehopperDrain ForVictim() => new(SidehopperDrainStage.Untouched, DeadSidehopperLayout.BabyMetroidVictim);
 
     /// <summary>The drain of a corpse placed already dead: drained from the start.</summary>
-    internal static SidehopperDrain PlacedDead() => new(SidehopperDrainStage.Drained, placedDead: true);
+    internal static SidehopperDrain PlacedDead() => new(SidehopperDrainStage.Drained, DeadSidehopperLayout.AlreadyDead);
 
     /// <summary>How far the drain has gone.</summary>
     public SidehopperDrainStage Stage { get; private set; }
@@ -47,7 +48,7 @@ public sealed class SidehopperDrain
     /// drained corpses' colours; the victim shows the colours the Baby Metroid's room entry gives it until the drain's first
     /// shaded stage, then each stage of the drain in turn.
     /// </summary>
-    internal PictureShading Shading => placedDead ? TourianCorpseShades.InDrainedColours
+    internal PictureShading Shading => layout == DeadSidehopperLayout.AlreadyDead ? TourianCorpseShades.InDrainedColours
         : !Stage.IsShaded ? TourianCorpseShades.InBabyMetroidTargetColours
         : PictureShading.Shaded(TourianCorpseShades.SidehopperDrain(Stage));
 }

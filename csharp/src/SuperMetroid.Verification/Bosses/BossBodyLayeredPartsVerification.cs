@@ -81,7 +81,7 @@ internal static class BossBodyLayeredPartsVerification
         int areaTop = BossBodySourceDefinitions.AreaFromBoss[BossBodyOwner.Crocomire].Y;
         foreach (int row in new[] { 64, 40, 8 })
         {
-            enemies.CrocomireBehavior.BodyLayer.HideCrocomireBodyBelow(state, state.Body.Position.Y.Whole + areaTop + row);
+            CrocomireBodyLayer.HideCrocomireBodyBelow(state, state.Body.Position.Y.Whole + areaTop + row);
             AssertEqual<int?>(areaTop + row, ((BossBodyParts).Presentation.BossBodyDisplay!).Publish().ShownAbove, $"the acid hides Crocomire's body from row {row}");
             Compare($"hidden from row {row}");
         }

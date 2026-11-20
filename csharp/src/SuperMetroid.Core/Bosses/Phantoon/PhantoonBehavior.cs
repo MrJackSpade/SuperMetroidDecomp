@@ -254,7 +254,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 Death.RunPhantoonWavyPixelatedDeath(state);
                 break;
             case PhantoonPhase.AlmostDead:
-                Death.ClearPhantoonDeathGraphics(state);
+                PhantoonDeath.ClearPhantoonDeathGraphics(state);
                 break;
             case PhantoonPhase.Dead:
                 Death.ActivateWreckedShipAfterPhantoon(body, state, samus);

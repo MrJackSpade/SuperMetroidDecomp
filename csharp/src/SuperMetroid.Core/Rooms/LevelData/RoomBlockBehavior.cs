@@ -73,11 +73,11 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 
     /// <summary>Writes behaviours as slopes.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, SlopeGeometry> SlopeWrites =
-        new(Kept.Select(static readings => (readings, readings.Slope)));
+        new(Kept.Select(static readings => new BlockParameterCarryOver<RoomBlockReadings, SlopeGeometry>.KeptReading(readings, readings.Slope)));
 
     /// <summary>Writes behaviours as extension offsets.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, int> ExtensionWrites =
-        new(Kept.Select(static readings => (readings, readings.ExtensionOffset)));
+        new(Kept.Select(static readings => new BlockParameterCarryOver<RoomBlockReadings, int>.KeptReading(readings, readings.ExtensionOffset)));
 
     /// <summary>
     /// Writes behaviours as one reacting kind's reactions: the kept behaviours that give the kind a reaction, read as it. A
@@ -86,8 +86,8 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     private static BlockParameterCarryOver<RoomBlockReadings, TReaction> ReactionWrites<TReaction>(Func<RoomBlockReadings, TReaction?> read)
         where TReaction : struct, Enum =>
         new(Kept.SelectMany(readings => read(readings) is { } reaction
-            ? [(readings, reaction)]
-            : Array.Empty<(RoomBlockReadings, TReaction)>()));
+            ? [new BlockParameterCarryOver<RoomBlockReadings, TReaction>.KeptReading(readings, reaction)]
+            : Array.Empty<BlockParameterCarryOver<RoomBlockReadings, TReaction>.KeptReading>()));
 
     /// <summary>The kept behaviours in order: each of the catalog's, followed by its resolutions in the areas.</summary>
     private static List<RoomBlockReadings> KeptInOrder()

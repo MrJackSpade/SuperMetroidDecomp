@@ -15,7 +15,7 @@ public sealed class BabyMetroidEnemyState
     /// The drain of its victim, the dead Sidehopper placed directly after it (#2554): the Baby owns it and latches it on as
     /// it feeds; the victim holds it from its own setup and steps it as it drains.
     /// </summary>
-    internal SidehopperDrain VictimDrain { get; } = SidehopperDrain.ForVictim();
+    internal SidehopperDrain VictimDrain { get; } = global::SuperMetroid.Core.Enemies.Corpses.SidehopperDrain.ForVictim();
 
     /// <summary>Starts the state in <paramref name="action"/>, playing the animation starting at <paramref name="animation"/> (#2319).</summary>
     internal BabyMetroidEnemyState(BabyMetroidAction action, BabyMetroidSegment animation)

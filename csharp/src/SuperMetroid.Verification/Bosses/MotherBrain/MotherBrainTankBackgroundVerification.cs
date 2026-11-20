@@ -39,7 +39,7 @@ internal static class MotherBrainTankBackgroundVerification
         BossBodyParts image = ((BossBodyParts)runtime.Enemies.Presentation.BossBodyDisplay!);
         AssertTrue(!image.IsShown && Words(image.Publish()).All(word => word == 0x0338),
             "Initializer attaches her body showing nothing, which her room does not show yet");
-        runtime.Enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
+        MotherBrainAscent.SetupMotherBrainPhaseTwoGraphics(state);
         // Since #1356 her room shows her body from the transition (#1515), and the room's pipe background stays untouched.
         AssertTrue(image.IsShown && ReferenceEquals(image, ((BossBodyParts)runtime.Enemies.Presentation.BossBodyDisplay!))
                 && Words(image.Publish())[..0x400].All(word => word == 0x0338),
@@ -49,7 +49,7 @@ internal static class MotherBrainTankBackgroundVerification
         AssertTrue((artwork.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires Mother Brain's body BG2 frames.")).TryGet(0xa252, out var writes),
             "Crouched body BG2 artwork is installed");
         SuperMetroid.Core.PrivateState.Set(state.Body.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), true);
-        runtime.Enemies.AnimationPlayer.DrawBossBodyFrame(state.Body, EnemyFrameId.MotherBrainBodyCrouched);
+        EnemyAnimationPlayer.DrawBossBodyFrame(state.Body, EnemyFrameId.MotherBrainBodyCrouched);
         var expectedImage = Enumerable.Repeat((ushort)0x0338, EnemyBg2FrameLayout.TilemapCellCount).ToArray();
         foreach (var write in writes.Span)
             write.Words.CopyTo(expectedImage.AsSpan(write.FirstCell));

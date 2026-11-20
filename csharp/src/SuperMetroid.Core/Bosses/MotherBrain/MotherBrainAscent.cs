@@ -35,7 +35,7 @@ internal sealed class MotherBrainAscent
     }
 
     /// <summary>Reveals her body and requests her first artwork.</summary>
-    internal void SetupMotherBrainPhaseTwoGraphics(MotherBrainEnemyState state)
+    internal static void SetupMotherBrainPhaseTwoGraphics(MotherBrainEnemyState state)
     {
         // The ascent installs the attack and back-leg colours, all but the backdrop colour,
         // which belongs to the room and must remain untouched.

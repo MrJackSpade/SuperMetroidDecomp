@@ -121,7 +121,7 @@ internal sealed class EnemyDrawList
                 throw new InvalidDataException($"Enemy {place.DefinitionId} frame {shown} has no installed presentation.");
             // Only the draw pass shows a boss body frame; a frame without a body shows none.
             if (reached)
-                _animationPlayer.DrawBossBodyFrame(place, displays.GetDisplayFrame(shown));
+                EnemyAnimationPlayer.DrawBossBodyFrame(place, displays.GetDisplayFrame(shown));
             prepared.Add(new PreparedEnemyDraw(place, origin, drawShading, shown, pictured, placed?.PictureDepth));
         }
         _prepared = prepared;

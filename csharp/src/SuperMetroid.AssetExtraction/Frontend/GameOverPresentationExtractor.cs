@@ -50,20 +50,11 @@ public static class GameOverPresentationExtractor
             };
         }
 
-        var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
-        {
-            [GameOverPresentationNames.BabyFrameName(GameOverBabyFrame.Closed)] =
-                MenuSpriteExtractor.Read(bus,
-                    GameOverBabyAnimationDefinitions.Spritemaps.Word(GameOverBabyFrame.Closed)),
-            [GameOverPresentationNames.BabyFrameName(GameOverBabyFrame.Middle)] =
-                MenuSpriteExtractor.Read(bus,
-                    GameOverBabyAnimationDefinitions.Spritemaps.Word(GameOverBabyFrame.Middle)),
-            [GameOverPresentationNames.BabyFrameName(GameOverBabyFrame.Open)] =
-                MenuSpriteExtractor.Read(bus,
-                    GameOverBabyAnimationDefinitions.Spritemaps.Word(GameOverBabyFrame.Open)),
-            [GameOverPresentationDefinitions.EggFrame] =
-                MenuSpriteExtractor.Read(bus, GameOverSourceDefinitions.EggSpritemap),
-        };
+        var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
+        foreach (GameOverBabyFrame frame in GameOverSheetComposer.BabyFrames)
+            sprites.Add(GameOverPresentationNames.BabyFrameName(frame),
+                MenuSpriteExtractor.Read(bus, GameOverBabyAnimationDefinitions.Spritemaps.Word(frame)));
+        sprites.Add(GameOverPresentationDefinitions.EggFrame, MenuSpriteExtractor.Read(bus, GameOverSourceDefinitions.EggSpritemap));
         foreach (MenuMissileFrame frame in MenuMissileAnimationDefinitions.Roll)
         {
             sprites.Add(MenuMissileFrames.Name(frame),

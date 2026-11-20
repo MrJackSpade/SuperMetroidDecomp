@@ -71,6 +71,14 @@ public readonly record struct SpritePart(
     public static SpritePart Single(int character, int palette, ActorDepth depth, PictureFlip flip = PictureFlip.None) =>
         Create(Offset16<ScreenPixels>.Zero, false, character, palette, depth, flip);
 
+    /// <summary>
+    /// The piece mirrored top to bottom about the sprite's origin (#2557): its rows start as far below the origin as they
+    /// ended above it, and its own vertical mirroring is reversed.
+    /// </summary>
+    /// <param name="height">The piece's height in pixels at its screen's sprite size.</param>
+    public SpritePart MirroredVertically(int height) =>
+        this with { Offset = new(Offset.X, -Offset.Y - height), Flip = Flip ^ PictureFlip.Vertical };
+
     /// <summary>Whether the piece's pixels are drawn in reverse horizontal order.</summary>
     public bool FlipsHorizontally => (Flip & PictureFlip.Horizontal) != PictureFlip.None;
 

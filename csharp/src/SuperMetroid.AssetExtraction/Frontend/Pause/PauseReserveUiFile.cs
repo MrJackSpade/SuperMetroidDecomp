@@ -22,9 +22,9 @@ public static class PauseReserveUiFile
         try { document = JsonAssetDocument.Read<PauseReserveUiDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Pause reserve UI document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause reserve UI JSON.", error); }
-        if (document.Version != PauseReserveUiDefinitions.Version || document.Labels is null || document.Labels.Count != 4 ||
+        if (document.Version != PauseReserveUiDefinitions.Version || document.Labels is null || document.Labels.Count != PauseReserveUiDefinitions.Labels.Count ||
             document.Digits is null || document.Digits.Cells is null || document.Digits.Cells.Length != PauseReserveUiDefinitions.DigitCount ||
-            document.Arrow is null || document.Arrow.Cells is null || document.Arrow.Cells.Length != 10 ||
+            document.Arrow is null || document.Arrow.Cells is null || document.Arrow.Cells.Length != PauseReserveUiDefinitions.ArrowCellCount ||
             document.Arrow.Frames is null || document.Arrow.Frames.Length != PauseReserveArrowDefinitions.ArrowFrames ||
             (uint)document.Arrow.EnabledPalette > 7 || (uint)document.Arrow.DisabledPalette > 7)
             throw new InvalidDataException("Pause reserve UI requires four labels, ten digits, ten arrow cells, and 32 arrow frames.");

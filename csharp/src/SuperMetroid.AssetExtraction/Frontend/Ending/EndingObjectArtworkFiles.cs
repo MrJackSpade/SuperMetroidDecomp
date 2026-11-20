@@ -70,106 +70,24 @@ public static class EndingObjectArtworkFiles
             EndingSourceDefinitions.Artwork.PostShotLogoMap,
             EndingObjectArtworkFormat.PostShotLogoMapByteCount);
 
-        var cloudFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (CinematicSpriteFrameDefinition definition in EndingCloudSpriteDefinitions.Frames)
-            cloudFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
-                bus, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
-        using (var sprites = new MemoryStream())
-        {
-            EndingCloudSpritePresentation.Write(sprites, new EndingCloudSpriteDocument
+        // Each sprite family's frames are its definitions' spritemaps; the completion text's typed steps come first, then the
+        // digits and the colon, as the editable file lists them.
+        WriteSprites(EndingCloudSpriteFormat.FileName, stream => EndingCloudSpritePresentation.Write(stream,
+            new EndingCloudSpriteDocument { Version = EndingCloudSpriteFormat.Version, Frames = Frames(Spritemaps(EndingCloudSpriteDefinitions.Frames)) }));
+        WriteSprites(EndingExplosionSpriteFormat.FileName, stream => EndingExplosionSpritePresentation.Write(stream,
+            new EndingExplosionSpriteDocument { Version = EndingExplosionSpriteFormat.Version, Frames = Frames(Spritemaps(EndingExplosionSpriteDefinitions.Frames)) }));
+        WriteSprites(EndingCompletionTextSpriteFormat.FileName, stream => EndingCompletionTextSpritePresentation.Write(stream,
+            new EndingCompletionTextSpriteDocument
             {
-                Version = EndingCloudSpriteFormat.Version,
-                Frames = cloudFrames,
-            });
-            byte[] file = sprites.ToArray();
-            string name = EndingCloudSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(importData, name),
-                       FileMode.CreateNew, FileAccess.Write))
-                output.Write(file);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
-        }
-        var explosionFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (CinematicSpriteFrameDefinition definition in
-            EndingExplosionSpriteDefinitions.Frames)
-            explosionFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
-                bus, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
-        using (var sprites = new MemoryStream())
-        {
-            EndingExplosionSpritePresentation.Write(sprites,
-                new EndingExplosionSpriteDocument
-                {
-                    Version = EndingExplosionSpriteFormat.Version,
-                    Frames = explosionFrames,
-                });
-            byte[] file = sprites.ToArray();
-            string name = EndingExplosionSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(importData, name),
-                       FileMode.CreateNew, FileAccess.Write))
-                output.Write(file);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
-        }
-        var completionFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        // The typed texts' steps come first, then the digits and the colon, as the editable file lists them.
-        foreach (EndingTypedStepDefinition step in EndingCompletionTextSpriteDefinitions.Typings)
-            completionFrames.Add(step.Name, IntroCinematicSpriteFrameExtractor.Extract(
-                bus, CinematicSpritemapSources.Of(step.Typed), step.StockPartCount, step.Name));
-        foreach (CinematicSpriteFrameDefinition definition in
-            EndingCompletionTextSpriteDefinitions.Frames)
-            completionFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
-                bus, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
-        using (var sprites = new MemoryStream())
-        {
-            EndingCompletionTextSpritePresentation.Write(sprites,
-                new EndingCompletionTextSpriteDocument
-                {
-                    Version = EndingCompletionTextSpriteFormat.Version,
-                    Frames = completionFrames,
-                });
-            byte[] file = sprites.ToArray();
-            string name = EndingCompletionTextSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(importData, name),
-                       FileMode.CreateNew, FileAccess.Write))
-                output.Write(file);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
-        }
-        var rewardFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (CinematicSpriteFrameDefinition definition in EndingRewardSpriteDefinitions.Frames)
-            rewardFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
-                bus, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
-        using (var sprites = new MemoryStream())
-        {
-            EndingRewardSpritePresentation.Write(sprites,
-                new EndingRewardSpriteDocument
-                {
-                    Version = EndingRewardSpriteFormat.Version,
-                    Frames = rewardFrames,
-                });
-            byte[] file = sprites.ToArray();
-            string name = EndingRewardSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(importData, name),
-                       FileMode.CreateNew, FileAccess.Write))
-                output.Write(file);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
-        }
-        var logoFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (CinematicSpriteFrameDefinition definition in EndingLogoSpriteDefinitions.Frames)
-            logoFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
-                bus, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
-        using (var sprites = new MemoryStream())
-        {
-            EndingLogoSpritePresentation.Write(sprites,
-                new EndingLogoSpriteDocument
-                {
-                    Version = EndingLogoSpriteFormat.Version,
-                    Frames = logoFrames,
-                });
-            byte[] file = sprites.ToArray();
-            string name = EndingLogoSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(importData, name),
-                       FileMode.CreateNew, FileAccess.Write))
-                output.Write(file);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
-        }
+                Version = EndingCompletionTextSpriteFormat.Version,
+                Frames = Frames(EndingCompletionTextSpriteDefinitions.Typings
+                    .Select(step => (step.Name, CinematicSpritemapSources.Of(step.Typed), step.StockPartCount))
+                    .Concat(Spritemaps(EndingCompletionTextSpriteDefinitions.Frames))),
+            }));
+        WriteSprites(EndingRewardSpriteFormat.FileName, stream => EndingRewardSpritePresentation.Write(stream,
+            new EndingRewardSpriteDocument { Version = EndingRewardSpriteFormat.Version, Frames = Frames(Spritemaps(EndingRewardSpriteDefinitions.Frames)) }));
+        WriteSprites(EndingLogoSpriteFormat.FileName, stream => EndingLogoSpritePresentation.Write(stream,
+            new EndingLogoSpriteDocument { Version = EndingLogoSpriteFormat.Version, Frames = Frames(Spritemaps(EndingLogoSpriteDefinitions.Frames)) }));
 
         using var manifest = new FileStream(Path.Combine(importData,
             EndingObjectArtworkFormat.ManifestFileName), FileMode.CreateNew,
@@ -189,11 +107,7 @@ public static class EndingObjectArtworkFiles
                 IntroCinematicArtworkFormat.TileColumns, out Extent16<ImagePixels> size);
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
-            byte[] file = png.ToArray();
-            using (var output = new FileStream(Path.Combine(importData, name),
-                       FileMode.CreateNew, FileAccess.Write))
-                output.Write(file);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
+            WriteFile(name, png.ToArray());
         }
 
         void ExportMap(string name, int source, int count)
@@ -203,11 +117,36 @@ public static class EndingObjectArtworkFiles
             if (decoded.Length < count)
                 throw new InvalidDataException($"Ending map source ${source:X6} is shorter than {name}'s native DMA.");
             byte[] native = decoded.AsSpan(0, count).ToArray();
-            byte[] json = RoomBackgroundTilemapExtractor.Encode(native);
-            using (var output = new FileStream(Path.Combine(importData, name),
-                       FileMode.CreateNew, FileAccess.Write))
-                output.Write(json);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(json)));
+            WriteFile(name, RoomBackgroundTilemapExtractor.Encode(native));
+        }
+
+        // Each frame of a sprite family, in order, from the spritemap its source names.
+        Dictionary<string, SpriteVisualPart[]> Frames(IEnumerable<(string Name, ushort Spritemap, int StockParts)> sources)
+        {
+            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
+            foreach ((string name, ushort spritemap, int stockParts) in sources)
+                frames.Add(name, IntroCinematicSpriteFrameExtractor.Extract(bus, spritemap, stockParts, name));
+            return frames;
+        }
+
+        // The spritemap each of a sprite family's definitions' poses names.
+        static IEnumerable<(string Name, ushort Spritemap, int StockParts)> Spritemaps(IEnumerable<CinematicSpriteFrameDefinition> definitions) =>
+            definitions.Select(definition => (definition.Name, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount));
+
+        // A sprite family's document as <paramref name="write"/> serializes it.
+        void WriteSprites(string name, Action<Stream> write)
+        {
+            using var sprites = new MemoryStream();
+            write(sprites);
+            WriteFile(name, sprites.ToArray());
+        }
+
+        // Writes a new import-data file and records its digest.
+        void WriteFile(string name, byte[] file)
+        {
+            using (var output = new FileStream(Path.Combine(importData, name), FileMode.CreateNew, FileAccess.Write))
+                output.Write(file);
+            hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
         }
     }
 
@@ -297,90 +236,23 @@ public static class EndingObjectArtworkFiles
                 .ToArray(), WaitingTilemap = LoadMap(EndingObjectArtworkFormat.WaitingTilemapFileName,
                 EndingObjectArtworkFormat.WaitingTilemapByteCount), PostCreditsFragmentB = LoadMap(EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
                 EndingObjectArtworkFormat.PostCreditsFragmentBByteCount), PostShotLogoMap = LoadMap(EndingObjectArtworkFormat.PostShotLogoMapFileName,
-                EndingObjectArtworkFormat.PostShotLogoMapByteCount), CloudSprites = LoadCloudSprites(), ExplosionSprites = LoadExplosionSprites(), CompletionTextSprites = LoadCompletionTextSprites(), RewardSprites = LoadRewardSprites(), LogoSprites = LoadLogoSprites() };
+                EndingObjectArtworkFormat.PostShotLogoMapByteCount), CloudSprites = LoadSprites(EndingCloudSpriteFormat.FileName, "cloud", EndingCloudSpritePresentation.Load),
+            ExplosionSprites = LoadSprites(EndingExplosionSpriteFormat.FileName, "explosion", EndingExplosionSpritePresentation.Load),
+            CompletionTextSprites = LoadSprites(EndingCompletionTextSpriteFormat.FileName, "completion text", EndingCompletionTextSpritePresentation.Load),
+            RewardSprites = LoadSprites(EndingRewardSpriteFormat.FileName, "reward", EndingRewardSpritePresentation.Load),
+            LogoSprites = LoadSprites(EndingLogoSpriteFormat.FileName, "logo", EndingLogoSpritePresentation.Load) };
 
-        EndingCloudSpritePresentation LoadCloudSprites()
+        // A sprite family's file, read by the family's presentation and named in a failure as <paramref name="what"/>.
+        T LoadSprites<T>(string name, string what, Func<Stream, T> load)
         {
-            string name = EndingCloudSpriteFormat.FileName;
             string installedPath = Path.Combine(importData, name);
             try
             {
-                return EndingCloudSpritePresentation.Load(new MemoryStream(
-                    File.ReadAllBytes(installedPath),
-                    writable: false));
+                return load(new MemoryStream(File.ReadAllBytes(installedPath), writable: false));
             }
             catch (InvalidDataException error)
             {
-                throw new InvalidDataException(
-                    $"Invalid ending cloud sprites {installedPath}: {error.Message}", error);
-            }
-        }
-
-        EndingExplosionSpritePresentation LoadExplosionSprites()
-        {
-            string name = EndingExplosionSpriteFormat.FileName;
-            string installedPath = Path.Combine(importData, name);
-            try
-            {
-                return EndingExplosionSpritePresentation.Load(new MemoryStream(
-                    File.ReadAllBytes(installedPath),
-                    writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException(
-                    $"Invalid ending explosion sprites {installedPath}: {error.Message}", error);
-            }
-        }
-
-        EndingCompletionTextSpritePresentation LoadCompletionTextSprites()
-        {
-            string name = EndingCompletionTextSpriteFormat.FileName;
-            string installedPath = Path.Combine(importData, name);
-            try
-            {
-                return EndingCompletionTextSpritePresentation.Load(new MemoryStream(
-                    File.ReadAllBytes(installedPath),
-                    writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException(
-                    $"Invalid ending completion text sprites {installedPath}: {error.Message}", error);
-            }
-        }
-
-        EndingRewardSpritePresentation LoadRewardSprites()
-        {
-            string name = EndingRewardSpriteFormat.FileName;
-            string installedPath = Path.Combine(importData, name);
-            try
-            {
-                return EndingRewardSpritePresentation.Load(new MemoryStream(
-                    File.ReadAllBytes(installedPath),
-                    writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException(
-                    $"Invalid ending reward sprites {installedPath}: {error.Message}", error);
-            }
-        }
-
-        EndingLogoSpritePresentation LoadLogoSprites()
-        {
-            string name = EndingLogoSpriteFormat.FileName;
-            string installedPath = Path.Combine(importData, name);
-            try
-            {
-                return EndingLogoSpritePresentation.Load(new MemoryStream(
-                    File.ReadAllBytes(installedPath),
-                    writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException(
-                    $"Invalid ending logo sprites {installedPath}: {error.Message}", error);
+                throw new InvalidDataException($"Invalid ending {what} sprites {installedPath}: {error.Message}", error);
             }
         }
 

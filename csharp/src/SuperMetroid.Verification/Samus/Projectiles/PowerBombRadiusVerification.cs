@@ -50,7 +50,7 @@ internal static class PowerBombRadiusVerification
             Compare(explosion, original, $"Power Bomb update {++updates}");
         }
         while (!completed);
-        AssertEqual(PowerBombExplosionPhase.Inactive, original.Phase, "the original Power Bomb ends on the same update");
+        AssertEqual(new PowerBombExplosionPhase.Inactive(), original.Phase, "the original Power Bomb ends on the same update");
         AssertTrue(original.HeldUpdates == 2 + 3, "the flash holds on two yellow shapes and the blast on three white shapes");
 
         explosion.BeginCrystalFlash(new(128, 128));
@@ -62,7 +62,7 @@ internal static class PowerBombRadiusVerification
             original.StepCrystalFlash(explosion.Blast.Phase);
             Compare(explosion, original, $"Crystal Flash update {++updates}");
         }
-        while (explosion.Blast.Phase == PowerBombExplosionPhase.CrystalFlashExplosion);
+        while (explosion.Blast.Phase is PowerBombExplosionPhase.Running.CrystalFlashExplosion);
         Console.WriteLine("  Power Bomb radius: every update of a Power Bomb and a Crystal Flash grows as the original's words do.");
     }
 
@@ -106,7 +106,7 @@ internal static class PowerBombRadiusVerification
         AssertEqual(Length(original.BlastRadius), explosion.Blast.ExplosionRadius, $"{context}: blast radius");
         // A finished blast keeps no speed: the original's word stays until the next start sets it, and nothing reads it
         // in between (#2350).
-        if (explosion.Blast.Phase != PowerBombExplosionPhase.Inactive)
+        if (explosion.Blast.Phase is not PowerBombExplosionPhase.Inactive)
             AssertEqual(Length(original.Speed), explosion.Blast.RadiusSpeed, $"{context}: radius speed");
     }
 
@@ -121,7 +121,7 @@ internal static class PowerBombRadiusVerification
     private sealed class OriginalExplosion
     {
         /// <summary>The stage the next update runs.</summary>
-        internal PowerBombExplosionPhase Phase { get; private set; } = PowerBombExplosionPhase.PendingPreExplosionSetup;
+        internal PowerBombExplosionPhase Phase { get; private set; } = new PowerBombExplosionPhase.Running.PendingPreExplosionSetup();
 
         /// <summary>The flash's radius word.</summary>
         internal int FlashRadius { get; private set; }
@@ -146,12 +146,12 @@ internal static class PowerBombRadiusVerification
         {
             switch (Phase)
             {
-                case PowerBombExplosionPhase.PendingPreExplosionSetup:
+                case PowerBombExplosionPhase.Running.PendingPreExplosionSetup:
                     FlashRadius = OriginalStartingRadius;
                     Speed = OriginalFlashSpeed;
-                    Phase = PowerBombExplosionPhase.PreExplosionWhite;
+                    Phase = new PowerBombExplosionPhase.Running.PreExplosionWhite();
                     return;
-                case PowerBombExplosionPhase.PreExplosionWhite:
+                case PowerBombExplosionPhase.Running.PreExplosionWhite:
                     FlashRadius = (FlashRadius + Speed) & 0xffff;
                     if (FlashRadius < OriginalWhiteFlashLimit)
                     {
@@ -159,17 +159,17 @@ internal static class PowerBombRadiusVerification
                         return;
                     }
                     _shapes = 0;
-                    Phase = PowerBombExplosionPhase.PreExplosionYellow;
+                    Phase = new PowerBombExplosionPhase.Running.PreExplosionYellow();
                     return;
-                case PowerBombExplosionPhase.PreExplosionYellow:
+                case PowerBombExplosionPhase.Running.PreExplosionYellow:
                     FlashRadius = GrowUnlessCarrying(FlashRadius, -OriginalFlashSlowing);
                     if (++_shapes < OriginalYellowShapes)
                         return;
                     BlastRadius = OriginalStartingRadius;
                     Speed = OriginalBlastSpeed;
-                    Phase = PowerBombExplosionPhase.ExplosionYellow;
+                    Phase = new PowerBombExplosionPhase.Running.ExplosionYellow();
                     return;
-                case PowerBombExplosionPhase.ExplosionYellow:
+                case PowerBombExplosionPhase.Running.ExplosionYellow:
                     BlastRadius = (BlastRadius + Speed) & 0xffff;
                     if (BlastRadius < OriginalYellowBlastLimit)
                     {
@@ -177,26 +177,26 @@ internal static class PowerBombRadiusVerification
                         return;
                     }
                     _shapes = 0;
-                    Phase = PowerBombExplosionPhase.ExplosionWhite;
+                    Phase = new PowerBombExplosionPhase.Running.ExplosionWhite();
                     return;
-                case PowerBombExplosionPhase.ExplosionWhite:
+                case PowerBombExplosionPhase.Running.ExplosionWhite:
                     BlastRadius = GrowUnlessCarrying(BlastRadius, OriginalBlastAcceleration);
                     if (++_shapes < OriginalWhiteShapes)
                         return;
                     _afterglow = 32;
-                    Phase = PowerBombExplosionPhase.Afterglow;
+                    Phase = new PowerBombExplosionPhase.Running.Afterglow();
                     return;
-                case PowerBombExplosionPhase.Afterglow:
+                case PowerBombExplosionPhase.Running.Afterglow:
                     if (--_afterglow != 0)
                         return;
                     // Cleanup clears both radii and leaves the speed.
                     FlashRadius = 0;
                     BlastRadius = 0;
-                    Phase = PowerBombExplosionPhase.Inactive;
+                    Phase = new PowerBombExplosionPhase.Inactive();
                     return;
                 case PowerBombExplosionPhase.Inactive:
-                case PowerBombExplosionPhase.CrystalFlashExplosion:
-                case PowerBombExplosionPhase.CrystalFlashAfterglow:
+                case PowerBombExplosionPhase.Running.CrystalFlashExplosion:
+                case PowerBombExplosionPhase.Running.CrystalFlashAfterglow:
                 default:
                     throw new InvalidOperationException($"The original Power Bomb has no stage {Phase}.");
             }
@@ -208,19 +208,19 @@ internal static class PowerBombRadiusVerification
             FlashRadius = OriginalStartingRadius;
             BlastRadius = OriginalStartingRadius;
             Speed = 0;
-            Phase = PowerBombExplosionPhase.CrystalFlashExplosion;
+            Phase = new PowerBombExplosionPhase.Running.CrystalFlashExplosion();
         }
 
         /// <summary>Runs one update of Crystal Flash's bubble; its afterglow changes no radius, so the phase is taken as run.</summary>
         internal void StepCrystalFlash(PowerBombExplosionPhase productionPhase)
         {
-            if (Phase != PowerBombExplosionPhase.CrystalFlashExplosion)
+            if (Phase is not PowerBombExplosionPhase.Running.CrystalFlashExplosion)
                 throw new InvalidOperationException($"The original Crystal Flash has no stage {Phase}.");
             BlastRadius = (BlastRadius + Speed) & 0xffff;
             if (BlastRadius < OriginalCrystalFlashLimit)
                 Speed = (Speed + OriginalBlastAcceleration) & 0xffff;
             else
-                Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
+                Phase = new PowerBombExplosionPhase.Running.CrystalFlashAfterglow();
             if (productionPhase != Phase)
                 throw new InvalidOperationException($"Crystal Flash's bubble reached {productionPhase}, the original {Phase}.");
         }

@@ -60,7 +60,7 @@ internal static class SoundQueuePowerBombAdmissionVerification
         AssertTrue(flashing.CrystalFlash.TryBegin(flashing, chord), "Crystal Flash is accepted");
         for (int frame = 0; frame < 10; frame++)
             flashing.CrystalFlash.Step(flashing, (ushort)frame);
-        AssertEqual(CrystalFlashPhase.DrainingAmmo, flashing.CrystalFlash.Phase, "Crystal Flash's raise completes");
+        AssertEqual(new CrystalFlashPhase.Moving.DrainingAmmo(), flashing.CrystalFlash.Phase, "Crystal Flash's raise completes");
         AssertTurnedAway(audio, requests, RoomSound.Silence, "Crystal Flash's silence");
 
         // The health warning starts below 31 energy and stops at 31 or more; its latch changes either way.

@@ -761,7 +761,7 @@ internal static class RidleyFullMovieVerification
         game.Step(0);
         AssertEqual(0x27bc, runtime.System.RandomNumber, "native sound-wait HDMA swap then RNG");
         AssertEqual(0xa4e1, runtime.Clock.Counter, "sound wait accepts exactly one NMI");
-        AssertEqual(DoorTransitionPhase.FadeOutSourceRoom, game.DoorTransitionPhaseForVerification, "source fade begins after sound drain");
+        AssertEqual(new DoorTransitionPhase.Running.FadeOutSourceRoom(), game.DoorTransitionPhaseForVerification, "source fade begins after sound drain");
         var actor = runtime.Enemies.Places.InUpdateOrder[6];
         AssertEqual(EnemyDefinitionId.Zebbo, actor.DefinitionId, "native source-room pipe bug");
         var pipeBugPointers = new PipeBugNativeInstructionPointers(CartridgeImportSource.Require(bus));
@@ -776,9 +776,9 @@ internal static class RidleyFullMovieVerification
         AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeSpritemap, actor.SpritemapPointer, "fade changes to the native enemy sprite");
         AssertEqual(2, actor.AnimationClock.Hold, "fade installs the native visual duration");
         int fadeSteps = 0;
-        while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FadeOutSourceRoom && fadeSteps++ < 32)
+        while (game.DoorTransitionPhaseForVerification is DoorTransitionPhase.Running.FadeOutSourceRoom && fadeSteps++ < 32)
             game.Step(0);
-        AssertEqual(DoorTransitionPhase.BeginDoorDisplay, game.DoorTransitionPhaseForVerification, "source palette fade finishes");
+        AssertEqual(new DoorTransitionPhase.Running.BeginDoorDisplay(), game.DoorTransitionPhaseForVerification, "source palette fade finishes");
         AssertEqual(0xe19e, runtime.System.RandomNumber, "native update 172 fade endpoint RNG");
         // Original native input-boundary records 173..178. The first dispatch
         // still runs source HDMA; beginning the door's display disables it for the following ones.
@@ -787,12 +787,12 @@ internal static class RidleyFullMovieVerification
         // (updates 175 and 176), each drawing its recorded random number.
         DoorTransitionPhase[] loadingPhases =
         [
-            DoorTransitionPhase.AlignSourceCamera,
-            DoorTransitionPhase.DestinationSetupWait,
-            DoorTransitionPhase.DestinationSetupWait,
-            DoorTransitionPhase.MoveToDoorScrollStart,
-            DoorTransitionPhase.PlaceSamusInDestination,
-            DoorTransitionPhase.LoadDestinationRoom,
+            new DoorTransitionPhase.Running.AlignSourceCamera(),
+            new DoorTransitionPhase.Running.DestinationSetupWait(),
+            new DoorTransitionPhase.Running.DestinationSetupWait(),
+            new DoorTransitionPhase.Running.MoveToDoorScrollStart(),
+            new DoorTransitionPhase.Running.PlaceSamusInDestination(),
+            new DoorTransitionPhase.Running.LoadDestinationRoom(),
         ];
         for (int index = 0; index < nativeLoadingRandom.Length; index++)
         {
@@ -813,7 +813,7 @@ internal static class RidleyFullMovieVerification
             }
         }
         game.Step(0); // The atomic destination loader must use the pre-setup source.
-        AssertEqual(DoorTransitionPhase.WaitForDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "loaded destination owns the opening trajectory");
+        AssertEqual(new DoorTransitionPhase.Running.WaitForDoorOpeningScroll(), game.DoorTransitionPhaseForVerification, "loaded destination owns the opening trajectory");
         AssertEqual(FixedCoordinate.Of(0x010d, 0xc800), samus.Kinematics.Position.X, "destination load carries both loading IRQ steps without restarting the scroll");
         AssertEqual(0, runtime.Clock.ShortCounter, "door end-drawing IRQ clears the adjacent byte counter");
         ushort[] beamPalette = ReadRetailBeamPalette(bus, samus.EquippedBeams.ToEquipmentWord());
@@ -823,19 +823,19 @@ internal static class RidleyFullMovieVerification
             AssertEqual(beamPalette[color], scrolling[GameplayShownColours.SamusBeamsFirst + color].ToWord(), "beam palette is live during door scrolling");
         AssertEqual(0, scrolling[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex].ToWord(), "visor remains faded before scroll completes");
         int scrollCalls = 0;
-        while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForDoorOpeningScroll && scrollCalls < 64)
+        while (game.DoorTransitionPhaseForVerification is DoorTransitionPhase.Running.WaitForDoorOpeningScroll && scrollCalls < 64)
         {
             game.Step(0);
             AssertEqual(0, runtime.Clock.ShortCounter, "every moving door IRQ renews the byte-counter reset");
             scrollCalls++;
         }
         AssertEqual(61, scrollCalls, "left trajectory completes on its 61st remaining IRQ call");
-        AssertEqual(DoorTransitionPhase.AlignSamusWithDoorway, game.DoorTransitionPhaseForVerification, "post-scroll NMI remains inside the loading coroutine");
+        AssertEqual(new DoorTransitionPhase.Running.AlignSamusWithDoorway(), game.DoorTransitionPhaseForVerification, "post-scroll NMI remains inside the loading coroutine");
         AssertEqual(0x3be0, GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources)[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex].ToWord(),
             "final scrolling update publishes native visor green before PLMs");
         AssertEqual(FixedCoordinate.Of(0x00de, 0x2000), samus.Kinematics.Position.X, "native source frame 276 scrolling endpoint");
         game.Step(0);
-        AssertEqual(DoorTransitionPhase.StepDestinationBlockAnimations, game.DoorTransitionPhaseForVerification, "loading alignment precedes music wait");
+        AssertEqual(new DoorTransitionPhase.Running.StepDestinationBlockAnimations(), game.DoorTransitionPhaseForVerification, "loading alignment precedes music wait");
         AssertEqual(0x5a88, runtime.System.RandomNumber, "loading continuation does not advance outer RNG");
         AssertEqual(FixedCoordinate.Of(0x00d8, 0x2000), samus.Kinematics.Position.X, "native final doorway alignment preserves original subposition");
         AssertEqual(yFixed, samus.Kinematics.Position.Y, "left door endpoint preserves perpendicular coordinate");
@@ -844,16 +844,16 @@ internal static class RidleyFullMovieVerification
         game.Step(0);
         AssertEqual(0xa1ea, runtime.System.RandomNumber, "native music-wait outer dispatch RNG");
         int musicWaits = 0;
-        while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForMusicQueue && musicWaits++ < 32)
+        while (game.DoorTransitionPhaseForVerification is DoorTransitionPhase.Running.WaitForMusicQueue && musicWaits++ < 32)
             game.Step(0);
-        AssertEqual(DoorTransitionPhase.FinishDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "native music queue reaches final door dispatch");
+        AssertEqual(new DoorTransitionPhase.Running.FinishDoorOpeningScroll(), game.DoorTransitionPhaseForVerification, "native music queue reaches final door dispatch");
         int nmiBeforeNudge = runtime.Clock.Counter;
         int samusAnimation = samus.AnimationNumber;
         var ridley = runtime.Enemies.Places.InUpdateOrder[0];
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
         ushort bodyInstruction = pointers.Enemy(runtime.Enemies, ridley);
         game.Step(0);
-        AssertEqual(DoorTransitionPhase.DrawFirstDestinationFrame, game.DoorTransitionPhaseForVerification, "final nudge returns before first fade");
+        AssertEqual(new DoorTransitionPhase.Running.DrawFirstDestinationFrame(), game.DoorTransitionPhaseForVerification, "final nudge returns before first fade");
         AssertEqual(unchecked((ushort)(nmiBeforeNudge + 1)), runtime.Clock.Counter, "final transition accepts exactly one NMI");
         AssertEqual(samusAnimation, samus.AnimationNumber, "final transition does not animate Samus");
         AssertEqual(bodyInstruction, pointers.Enemy(runtime.Enemies, ridley), "final transition does not advance destination enemy instructions");

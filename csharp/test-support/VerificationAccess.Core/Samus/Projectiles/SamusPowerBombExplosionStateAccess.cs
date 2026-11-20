@@ -16,8 +16,8 @@ internal static class SamusPowerBombExplosionStateAccess
         internal void ForceActive(bool active)
         {
             SetPrivate(explosion.Blast, nameof(PowerBombBlastTimeline.IsRunning), active);
-            if (!active && explosion.Blast.Phase != PowerBombExplosionPhase.Inactive)
-                SetPrivate(explosion.Blast, nameof(PowerBombBlastTimeline.Phase), PowerBombExplosionPhase.Inactive);
+            if (!active && explosion.Blast.Phase is not PowerBombExplosionPhase.Inactive)
+                SetPrivate(explosion.Blast, nameof(PowerBombBlastTimeline.Phase), new PowerBombExplosionPhase.Inactive());
         }
     }
 

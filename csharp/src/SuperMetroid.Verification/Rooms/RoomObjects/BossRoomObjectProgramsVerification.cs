@@ -236,10 +236,9 @@ internal static class BossRoomObjectProgramsVerification
         AssertEqual(RoomObjectInstruction.Delete, At(noGlass + 4), "already shattered glass ends");
 
         int cursor = entry + 15;
-        IReadOnlyList<MotherBrainGlassStage> stages = MotherBrainGlassStageDefinitions.Stages;
-        for (int index = 0; index < stages.Count; index++)
+        int index = 0;
+        for (MotherBrainGlassStage? stage = MotherBrainGlassStageDefinitions.First; stage is not null; index++)
         {
-            MotherBrainGlassStage stage = stages[index];
             string at = $"glass stage {index}";
             int start = cursor;
             AssertShown(cursor, stage.Image, 1, at);
@@ -247,25 +246,27 @@ internal static class BossRoomObjectProgramsVerification
             AssertEqual(stage.BreaksAtHits, (int)Word(cursor + 6), $"{at} hits");
             AssertEqual(start, (int)Word(cursor + 8), $"{at} repeats itself");
             cursor += 10;
-            bool last = index + 1 == stages.Count;
-            MotherBrainGlassDraw next = last ? MotherBrainGlassStageDefinitions.ShatteredImage : stages[index + 1].Image;
-            if (stage.Burst is { } burst)
+            MotherBrainGlassStage? following = stage switch
             {
-                AssertBurst(cursor, burst.First, $"{at} first burst");
+                MotherBrainGlassStage.Cracks cracks => cracks.Next,
+                MotherBrainGlassStage.Bursts.Into into => into.Next,
+                _ => null,
+            };
+            if (stage is MotherBrainGlassStage.Bursts bursts)
+            {
+                MotherBrainGlassDraw next = following?.Image ?? MotherBrainGlassStageDefinitions.ShatteredImage;
+                AssertBurst(cursor, bursts.Burst.First, $"{at} first burst");
                 AssertShown(cursor + 10, next, MotherBrainGlassStageDefinitions.BurstFrameDuration, $"{at} burst image");
-                AssertBurst(cursor + 14, burst.Second, $"{at} second burst");
+                AssertBurst(cursor + 14, bursts.Burst.Second, $"{at} second burst");
                 cursor += 24;
             }
-            else
-            {
-                AssertTrue(!last, "the last glass stage bursts");
-            }
+            stage = following;
         }
         AssertShown(cursor, MotherBrainGlassStageDefinitions.ShatteredImage, MotherBrainGlassStageDefinitions.FinalShatterDuration, "shattered glass");
         AssertEqual(RoomObjectInstruction.SetEvent, At(cursor + 4), "shattered glass sets its event");
         AssertEqual((ushort)StoryEvent.MotherBrainGlassDestroyed.Number(), Word(cursor + 6), "glass sets its destroyed event");
         AssertEqual(RoomObjectInstruction.Delete, At(cursor + 8), "shattered glass ends");
-        Console.WriteLine($"  Mother Brain glass: {stages.Count} typed stages match bank $84.");
+        Console.WriteLine($"  Mother Brain glass: {index} typed stages match bank $84.");
     }
 
     /// <summary>

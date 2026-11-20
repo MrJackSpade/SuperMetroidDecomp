@@ -95,11 +95,11 @@ internal static class CrystalFlashCleanupVerification
                     assertEffect: collected => AssertEqual(10, collected.PowerBombs,
                         "refill after placement reaches ten without increasing capacity"));
             }
-            bool active = samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive;
+            bool active = samus.CrystalFlash.Phase is not CrystalFlashPhase.Inactive;
             bool testContact = capacity == 11 && started >= 0 && frame == started + 30;
             if (testContact)
             {
-                AssertEqual(CrystalFlashPhase.DrainingAmmo, samus.CrystalFlash.Phase,
+                AssertEqual(new CrystalFlashPhase.Moving.DrainingAmmo(), samus.CrystalFlash.Phase,
                     "contact fixture enters the intended ammo-drain phase");
                 // Replace the population at the contact boundary; retain retail AI,
                 // header damage and the runtime's ordinary collision ordering. A
@@ -139,16 +139,16 @@ internal static class CrystalFlashCleanupVerification
                 contactVerified = true;
                 Console.WriteLine($"Runtime Crystal Flash contact: health {beforeHealth}->{samus.Health}, retail damage={contactDamage}; no retained immunity or knockback.");
             }
-            if (started < 0 && samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive) started = frame;
-            bubble |= runtime.BombProjectiles.PowerBombExplosion.Blast.Phase == PowerBombExplosionPhase.CrystalFlashExplosion;
-            drained |= samus.CrystalFlash.Phase == CrystalFlashPhase.DrainingAmmo;
+            if (started < 0 && samus.CrystalFlash.Phase is not CrystalFlashPhase.Inactive) started = frame;
+            bubble |= runtime.BombProjectiles.PowerBombExplosion.Blast.Phase is PowerBombExplosionPhase.Running.CrystalFlashExplosion;
+            drained |= samus.CrystalFlash.Phase is CrystalFlashPhase.Moving.DrainingAmmo;
             if (started >= 0)
             {
                 scenes.Add(VerifyCrystalFlashVisualFrame(runtime, bus, frame - started));
                 AssertEqual(512, samus.Position.X.Whole, "Crystal Flash owns horizontal movement");
                 AssertEqual(startingY - Math.Min(frame - started + 1, 10) * 2, samus.Position.Y.Whole,
                     "held Jump cannot replace the native Crystal Flash vertical trajectory");
-                if (samus.CrystalFlash.Phase == CrystalFlashPhase.Inactive) { finished = frame; break; }
+                if (samus.CrystalFlash.Phase is CrystalFlashPhase.Inactive) { finished = frame; break; }
             }
         }
         VerifyCrystalFlashVisualFrameResult[] visibility = CrystalFlashVisualsVerification.Visibility(scenes);

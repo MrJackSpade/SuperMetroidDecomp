@@ -898,7 +898,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     }
     AssertEqual(0, powerBombs.Bombs[0].Fuse.UpdatesLeft,
         "the fuse has run out once the explosion starts");
-    AssertEqual(PowerBombExplosionPhase.PendingPreExplosionSetup,
+    AssertEqual(new PowerBombExplosionPhase.Running.PendingPreExplosionSetup(),
         powerBombs.PowerBombExplosion.Blast.Phase,
         "fuse expiry allocates HDMA list without executing setup");
     AssertEqual(PowerBombRadius.Zero, powerBombs.PowerBombExplosion.Blast.PreExplosionRadius,
@@ -917,7 +917,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     powerBombs.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, powerBombSamus, 0, 0);
     AssertEqual(PowerBombRadius.FromWholePixels(4), powerBombs.PowerBombExplosion.Blast.PreExplosionRadius,
         "first HDMA pass initializes the 4.00-pixel radius without expanding it");
-    AssertEqual(PowerBombExplosionPhase.Inactive, powerBombs.PowerBombExplosion.Blast.RenderedPhase,
+    AssertEqual(new PowerBombExplosionPhase.Inactive(), powerBombs.PowerBombExplosion.Blast.RenderedPhase,
         "setup pass has not generated an explosion window");
 
     // The following HDMA pass runs the new pre-instruction. White pre-flash grows 4.00 by 48.00,
@@ -930,13 +930,13 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         "white pre-explosion subtracts $0080 acceleration");
 
     int whiteFlashFrames = 1;
-    while (powerBombs.PowerBombExplosion.Blast.Phase == PowerBombExplosionPhase.PreExplosionWhite)
+    while (powerBombs.PowerBombExplosion.Blast.Phase is PowerBombExplosionPhase.Running.PreExplosionWhite)
     {
         powerBombs.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, powerBombSamus, 0, 0);
         whiteFlashFrames++;
         AssertTrue(whiteFlashFrames < 32, "white pre-explosion phase terminates");
     }
-    AssertEqual(PowerBombExplosionPhase.PreExplosionYellow,
+    AssertEqual(new PowerBombExplosionPhase.Running.PreExplosionYellow(),
         powerBombs.PowerBombExplosion.Blast.Phase,
         "white threshold advances to yellow shape phase");
     AssertTrue(powerBombs.PowerBombExplosion.Blast.PreExplosionRadius >= PowerBombRadius.FromWholePixels(146),
@@ -945,7 +945,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         "yellow pre-explosion shows its first oval on its next update");
 
     StepFrames(4, _ => powerBombs.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, powerBombSamus, 0, 0));
-    AssertEqual(PowerBombExplosionPhase.ExplosionYellow,
+    AssertEqual(new PowerBombExplosionPhase.Running.ExplosionYellow(),
         powerBombs.PowerBombExplosion.Blast.Phase,
         "four 192-byte yellow shapes advance to damaging explosion");
     AssertEqual(PowerBombRadius.FromWholePixels(4), powerBombs.PowerBombExplosion.Blast.ExplosionRadius,
@@ -954,13 +954,13 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         "damaging yellow explosion restarts with zero speed");
 
     int yellowExplosionFrames = 0;
-    while (powerBombs.PowerBombExplosion.Blast.Phase == PowerBombExplosionPhase.ExplosionYellow)
+    while (powerBombs.PowerBombExplosion.Blast.Phase is PowerBombExplosionPhase.Running.ExplosionYellow)
     {
         powerBombs.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, powerBombSamus, 0, 0);
         yellowExplosionFrames++;
         AssertTrue(yellowExplosionFrames < 128, "yellow explosion reaches $8600 threshold");
     }
-    AssertEqual(PowerBombExplosionPhase.ExplosionWhite,
+    AssertEqual(new PowerBombExplosionPhase.Running.ExplosionWhite(),
         powerBombs.PowerBombExplosion.Blast.Phase,
         "yellow radius threshold advances to white shape phase");
     AssertTrue(powerBombs.PowerBombExplosion.Blast.ExplosionRadius >= PowerBombRadius.FromWholePixels(134),
@@ -969,7 +969,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         "white explosion shows its first oval on its next update");
 
     int whiteExplosionFrames = 0;
-    while (powerBombs.PowerBombExplosion.Blast.Phase == PowerBombExplosionPhase.ExplosionWhite)
+    while (powerBombs.PowerBombExplosion.Blast.Phase is PowerBombExplosionPhase.Running.ExplosionWhite)
     {
         powerBombs.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, powerBombSamus, 0, 0);
         whiteExplosionFrames++;
@@ -977,7 +977,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     }
     AssertEqual(17, whiteExplosionFrames,
         "$9246-$9F06 white phase contains seventeen 192-byte shapes");
-    AssertEqual(PowerBombExplosionPhase.Afterglow,
+    AssertEqual(new PowerBombExplosionPhase.Running.Afterglow(),
         powerBombs.PowerBombExplosion.Blast.Phase,
         "white shapes advance to stage-five afterglow");
 

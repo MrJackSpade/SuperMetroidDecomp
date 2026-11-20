@@ -118,8 +118,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         place.Shake.End();
         if (state.PendingBabyCryCount != 0 &&
-            baby.Phase is BabyMetroidCutscenePhase.HealSamusToFullHealth or
-                BabyMetroidCutscenePhase.IdleUntilNoHealth)
+            baby.Phase is BabyMetroidCutscenePhase.Flying.HealSamusToFullHealth or
+                BabyMetroidCutscenePhase.Flying.IdleUntilNoHealth)
         {
             // However many rings struck it since its last turn, the Baby cries once, and every one of those cries is spent.
             state.PendingBabyCryCount = 0;
@@ -133,7 +133,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             randomNumber: _room.Random.Read());
         // Both outcomes of healing Samus queue the energy sound after her energy rises.
         // Use the phase that ran, including its final full-health update.
-        if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&
+        if (step.PhaseBefore is BabyMetroidCutscenePhase.Flying.HealSamusToFullHealth &&
             samus.Health >= MotherBrainHealthSounds.MinimumEnergy &&
             MotherBrainCadenceDefinitions.BabyHealSound.IsDue(_frameContext.EnemyPassCount))
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);

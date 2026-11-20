@@ -126,7 +126,7 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
     {
         session.doorTransition.Step(session.GameplayRuntime, session.audio, controllerInput, session.RoomLoadProgress);
         session.display.PublishGameplay(session.GameplayRuntime);
-        if (session.doorTransition.Phase == DoorTransitionPhase.Complete)
+        if (session.doorTransition.Phase is DoorTransitionPhase.Complete)
         {
             // The door forces full brightness before the destination fade-in, so a door
             // taken mid-pause-fade still leaves the screen fully lit.

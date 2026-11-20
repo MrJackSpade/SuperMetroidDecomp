@@ -73,7 +73,7 @@ internal static class SamusDeathFrameSelectionVerification
                     AssertEqual(0, sprites.Draws.Length, context + ": draws no explosion");
                 }
             }
-            AssertEqual(SamusDeathSequencePhase.Complete, samus.DeathSequence.Phase, $"death facing {facing}: completes");
+            AssertEqual(new SamusDeathSequencePhase.Begun.Complete(), samus.DeathSequence.Phase, $"death facing {facing}: completes");
         }
         Console.WriteLine($"Samus death frame selection: phase, explosion frame and sheet frame match on all {CompletionUpdate} updates facing each way.");
     }
@@ -92,10 +92,10 @@ internal static class SamusDeathFrameSelectionVerification
     /// <summary>The phase after <paramref name="update"/>: sixteen pose calls, sixty flash calls, the explosion, then completion.</summary>
     private static SamusDeathSequencePhase ExpectedPhase(int update) => update switch
     {
-        < 16 => SamusDeathSequencePhase.PreFlashing,
-        < FirstExplosionUpdate => SamusDeathSequencePhase.Flashing,
-        < CompletionUpdate => SamusDeathSequencePhase.SuitExplosion,
-        _ => SamusDeathSequencePhase.Complete,
+        < 16 => new SamusDeathSequencePhase.Begun.PreFlashing(),
+        < FirstExplosionUpdate => new SamusDeathSequencePhase.Begun.Flashing(),
+        < CompletionUpdate => new SamusDeathSequencePhase.Begun.SuitExplosion(),
+        _ => new SamusDeathSequencePhase.Begun.Complete(),
     };
 
     /// <summary>Runs the death frame-selection fixture.</summary>

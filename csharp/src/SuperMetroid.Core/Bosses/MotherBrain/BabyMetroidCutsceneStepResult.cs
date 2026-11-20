@@ -25,13 +25,13 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     BabyMetroidVisibilityRequest Visibility)
 {
     /// <summary>The step on which the Baby deletes itself, the last of the cutscene.</summary>
-    public bool BabyDeleted => PhaseAfter == BabyMetroidCutscenePhase.Deleted;
+    public bool BabyDeleted => PhaseAfter is BabyMetroidCutscenePhase.Deleted;
 
     /// <summary>The one-update fatal-impact edge, before the ongoing shake phase.</summary>
-    public bool FatalBlowStarted => PhaseBefore == BabyMetroidCutscenePhase.FinalCharge &&
-        PhaseAfter == BabyMetroidCutscenePhase.TakeFinalBlow;
+    public bool FatalBlowStarted => PhaseBefore is BabyMetroidCutscenePhase.Flying.FinalCharge &&
+        PhaseAfter is BabyMetroidCutscenePhase.Flying.TakeFinalBlow;
 
     /// <summary>The theme timer's expiry queues the theme before entering Hyper Beam preparation.</summary>
-    public bool SamusThemeStarted => PhaseBefore == BabyMetroidCutscenePhase.PlaySamusTheme &&
-        PhaseAfter == BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
+    public bool SamusThemeStarted => PhaseBefore is BabyMetroidCutscenePhase.Flying.PlaySamusTheme &&
+        PhaseAfter is BabyMetroidCutscenePhase.Flying.PrepareSamusForHyperBeam;
 }

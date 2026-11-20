@@ -20,10 +20,10 @@ internal static class PowerBombAfterglowShapeVerification
         var explosion = new SamusPowerBombExplosionState();
         explosion.Arm();
         explosion.Spawn(new(32, 208));
-        for (int frame = 0; frame < 200 && explosion.Blast.Phase != PowerBombExplosionPhase.Afterglow; frame++)
+        for (int frame = 0; frame < 200 && explosion.Blast.Phase is not PowerBombExplosionPhase.Running.Afterglow; frame++)
             explosion.StepFrame(explosionGlowColors);
-        AssertEqual(PowerBombExplosionPhase.Afterglow, explosion.Blast.Phase, "reported blast reaches the fade transition");
-        AssertEqual(PowerBombExplosionPhase.ExplosionWhite, explosion.Blast.RenderedPhase, "transition retains the final expanding oval");
+        AssertEqual(new PowerBombExplosionPhase.Running.Afterglow(), explosion.Blast.Phase, "reported blast reaches the fade transition");
+        AssertEqual(new PowerBombExplosionPhase.Running.ExplosionWhite(), explosion.Blast.RenderedPhase, "transition retains the final expanding oval");
         int radius = explosion.Blast.RenderedOvalRadius
             ?? throw new InvalidOperationException("The final white frame showed no authored oval.");
         // The final white oval: centred on the blast at the bottom-left, the white explosion's last oval wide and three

@@ -29,7 +29,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = (runtime.Enemies.BossEncounters.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.MotherBrain."));
         var step = new BabyMetroidCutsceneStepResult(
-            BabyMetroidCutscenePhase.TakeFinalBlow, BabyMetroidCutscenePhase.TakeFinalBlow,
+            new BabyMetroidCutscenePhase.Flying.TakeFinalBlow(), new BabyMetroidCutscenePhase.Flying.TakeFinalBlow(),
             LatchSoundQueued: false, ReleaseDustClouds: [],
             AmbientCrySoundQueued: false,
             DeathExplosion: new DustExplosionRequest(new(0x0080, 0x0080), DustExplosionAnimation.SmallExplosion, MotherBrainSoundDefinitions.Explosion),

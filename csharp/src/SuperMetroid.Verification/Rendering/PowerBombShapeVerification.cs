@@ -63,7 +63,7 @@ internal static class PowerBombShapeVerification
         var explosion = new SamusPowerBombExplosionState();
         explosion.Spawn(new(100, 120));
         int cases = 0;
-        foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite, PowerBombExplosionPhase.ExplosionYellow })
+        foreach (var phase in new[] { new PowerBombExplosionPhase.Running.PreExplosionWhite(), new PowerBombExplosionPhase.Running.ExplosionYellow() })
         {
             PrivateState.Set(explosion.Blast, "RenderedPhase", phase);
             for (int radius = 0; radius < 256; radius++)
@@ -85,7 +85,7 @@ internal static class PowerBombShapeVerification
         foreach (short centerY in new short[] { -16, 128, 240 })
         {
             explosion.Spawn(new(unchecked((ushort)centerX), unchecked((ushort)centerY)));
-            PrivateState.Set(explosion.Blast, "RenderedPhase", PowerBombExplosionPhase.ExplosionYellow);
+            PrivateState.Set(explosion.Blast, "RenderedPhase", new PowerBombExplosionPhase.Running.ExplosionYellow());
             PrivateState.Set(explosion.Blast, "RenderedExplosionRadius", PowerBombRadius.FromWholePixels(radius));
             PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.GlowColor), explosion.Blast.GlowColor.FadeLevels.WithRed(31).ToColour());
             ColourAddWindowLayer layer = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))

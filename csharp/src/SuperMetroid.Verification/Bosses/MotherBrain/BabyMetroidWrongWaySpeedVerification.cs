@@ -19,7 +19,7 @@ internal static class BabyMetroidWrongWaySpeedVerification
         var motherBrain = MotherBrainLateFightFixtures.NewSequence();
         var baby = motherBrain.Baby;
         MotherBrainLateFightFixtures.Arrive(baby, FixedPosition<RoomPixels>.FromStoredParts(0, 0x1400, 0, 0x3100));
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.MoveToFinalChargeStart);
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", new BabyMetroidCutscenePhase.Flying.MoveToFinalChargeStart());
         global::SuperMetroid.Core.PrivateState.Set(baby, "Position", FixedPosition<RoomPixels>.FromWhole(new(0x0133, 0x004d)).WithFractionsOf(baby.Position));
         baby.Velocity = new PixelVelocity<RoomPixels>(new SignedEightEight(0x015f), new SignedEightEight(0x012b));
 

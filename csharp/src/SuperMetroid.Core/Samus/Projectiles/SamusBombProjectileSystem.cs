@@ -144,8 +144,8 @@ public sealed class SamusBombProjectileSystem
         // frame. A power bomb spawned later in her input phase consequently receives
         // its first radius update on the next frame, not on its fuse-expiration frame.
         bool crystalFlashBlastWasRunning = PowerBombExplosion.Blast.Phase is
-            PowerBombExplosionPhase.CrystalFlashExplosion or
-            PowerBombExplosionPhase.CrystalFlashAfterglow;
+            PowerBombExplosionPhase.Running.CrystalFlashExplosion or
+            PowerBombExplosionPhase.Running.CrystalFlashAfterglow;
         bool powerBombCleanup = PowerBombExplosion.StepFrame(_artwork.PowerBombGlowColors);
         if (powerBombCleanup && !crystalFlashBlastWasRunning)
         {

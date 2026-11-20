@@ -49,14 +49,14 @@ internal static class BabyMetroidPresenceVerification
             AssertEqual(processing, place.Processing, $"enemy frame {enemyFrame}: the Baby's processing stands");
         }
 
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.DeathSequence);
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", new BabyMetroidCutscenePhase.Flying.DeathSequence());
         int frame = 0;
-        while (baby.Phase == BabyMetroidCutscenePhase.DeathSequence)
+        while (baby.Phase is BabyMetroidCutscenePhase.Flying.DeathSequence)
         {
             if (frame == 1000)
                 throw new InvalidOperationException("The Baby's fade to black never finished.");
             RunMain(frame);
-            bool flickering = place.RequireSpeciesState<BabyMetroidCutsceneState>().Phase == BabyMetroidCutscenePhase.DeathSequence;
+            bool flickering = place.RequireSpeciesState<BabyMetroidCutsceneState>().Phase is BabyMetroidCutscenePhase.Flying.DeathSequence;
             EnemyPresence expected = flickering && frame % 2 == 1 ? EnemyPresence.None : EnemyPresence.Hidden;
             AssertEqual(expected, place.Presence, flickering
                 ? $"enemy frame {frame}: the death's flicker shows the Baby on odd frames and hides it on even"
@@ -65,7 +65,7 @@ internal static class BabyMetroidPresenceVerification
         }
         AssertTrue(frame > 2, "the flicker ran on both parities before the fade finished");
 
-        while (baby.Phase != BabyMetroidCutscenePhase.FinalCutscene)
+        while (baby.Phase is not BabyMetroidCutscenePhase.Flying.FinalCutscene)
         {
             if (frame == 2000)
                 throw new InvalidOperationException("Mother Brain's readying never reached the final cutscene.");
@@ -76,7 +76,7 @@ internal static class BabyMetroidPresenceVerification
 
         // The update that reaches the final cutscene shows the room lights' first recovery step; the call after the
         // seventh ends it.
-        for (int lights = 1; place.RequireSpeciesState<BabyMetroidCutsceneState>().Phase == BabyMetroidCutscenePhase.FinalCutscene; lights++)
+        for (int lights = 1; place.RequireSpeciesState<BabyMetroidCutsceneState>().Phase is BabyMetroidCutscenePhase.Flying.FinalCutscene; lights++)
         {
             AssertEqual(EnemyPresence.Hidden, place.Presence, $"recovery step {lights}: the Baby stays hidden and in its place");
             AssertTrue(!baby.IsDeleted, $"recovery step {lights}: Mother Brain's rings still look for the Baby");
@@ -84,7 +84,7 @@ internal static class BabyMetroidPresenceVerification
                 throw new InvalidOperationException("The final cutscene did not end after the room lights' seven recovery steps.");
             RunMain(frame++);
         }
-        AssertEqual(BabyMetroidCutscenePhase.Deleted, baby.Phase, "the call after the last recovery step ends the cutscene");
+        AssertEqual(new BabyMetroidCutscenePhase.Deleted(), baby.Phase, "the call after the last recovery step ends the cutscene");
         AssertEqual(EnemyPresence.Hidden | EnemyPresence.Deleted, place.Presence, "the cutscene's end deletes the Baby's place");
         AssertTrue(baby.IsDeleted, "Mother Brain's rings no longer look for the deleted Baby");
         Console.WriteLine("Baby Metroid presence: the place alone holds the Baby's contact, processing, flicker, hiding and deletion.");

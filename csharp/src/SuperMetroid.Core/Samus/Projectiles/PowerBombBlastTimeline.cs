@@ -50,21 +50,19 @@ public sealed class PowerBombBlastTimeline
     /// otherwise the blast's own radius as the frame built it. A blast that started after the frame chose its oval shows
     /// nothing until the next frame.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The shown phase is undefined.</exception>
     public int ShownRadius => RenderedPhase switch
     {
         PowerBombExplosionPhase.Inactive => 0,
-        PowerBombExplosionPhase.PreExplosionWhite => RenderedPreExplosionRadius.WholePixels,
-        PowerBombExplosionPhase.PreExplosionYellow or PowerBombExplosionPhase.ExplosionWhite or PowerBombExplosionPhase.Afterglow =>
+        PowerBombExplosionPhase.Running.PreExplosionWhite => RenderedPreExplosionRadius.WholePixels,
+        PowerBombExplosionPhase.Running.PreExplosionYellow or PowerBombExplosionPhase.Running.ExplosionWhite or PowerBombExplosionPhase.Running.Afterglow =>
             RenderedOvalRadius ?? RenderedExplosionRadius.WholePixels,
-        PowerBombExplosionPhase.PendingPreExplosionSetup or PowerBombExplosionPhase.ExplosionYellow or
-            PowerBombExplosionPhase.CrystalFlashExplosion or PowerBombExplosionPhase.CrystalFlashAfterglow =>
-            RenderedExplosionRadius.WholePixels,
-        _ => throw new InvalidOperationException($"Undefined {nameof(PowerBombExplosionPhase)} {RenderedPhase}."),
+        // The remaining phases: the pending pre-explosion setup, the yellow explosion and Crystal Flash's explosion and
+        // afterglow.
+        _ => RenderedExplosionRadius.WholePixels,
     };
 
     /// <summary>Current semantic phase of the blast's resting animation.</summary>
-    public PowerBombExplosionPhase Phase { get; private set; }
+    public PowerBombExplosionPhase Phase { get; private set; } = new PowerBombExplosionPhase.Inactive();
 
     /// <summary>
     /// Phase whose oval the current update chose.
@@ -73,7 +71,7 @@ public sealed class PowerBombBlastTimeline
     /// An update can advance <see cref="Phase"/> after choosing its oval. Keeping the shown phase separate prevents the
     /// display from showing the next phase one frame early at the yellow/white transition boundaries.
     /// </remarks>
-    private PowerBombExplosionPhase RenderedPhase { get; set; }
+    private PowerBombExplosionPhase RenderedPhase { get; set; } = new PowerBombExplosionPhase.Inactive();
 
     /// <summary>Pre-explosion radius consumed before the end-of-frame update.</summary>
     private PowerBombRadius RenderedPreExplosionRadius { get; set; }
@@ -84,8 +82,8 @@ public sealed class PowerBombBlastTimeline
     /// <summary>The blast's glow: the colour it adds to the scene inside its oval.</summary>
     public RgbColor GlowColor { get; private set; }
 
-    /// <summary>True from the blast's start until its animation ends.</summary>
-    public bool IsRunning { get; private set; }
+    /// <summary>True from the blast's start until its animation ends: its phase is one of a running blast's.</summary>
+    public bool IsRunning => Phase is PowerBombExplosionPhase.Running;
 
     /// <summary>
     /// The fade steps the afterglow has still to take (#2529), one each update: the white explosion's last update primes
@@ -100,7 +98,7 @@ public sealed class PowerBombBlastTimeline
     {
         // The blast takes its first step on the next update, which sets up the pre-explosion and its speed; its radius
         // first grows on the update after.
-        Clear(PowerBombExplosionPhase.PendingPreExplosionSetup, PowerBombRadius.Zero);
+        Clear(new PowerBombExplosionPhase.Running.PendingPreExplosionSetup(), PowerBombRadius.Zero);
         GlowColor = RgbColor.Black;
     }
 
@@ -109,7 +107,7 @@ public sealed class PowerBombBlastTimeline
     /// </summary>
     public void BeginCrystalFlash()
     {
-        Clear(PowerBombExplosionPhase.CrystalFlashExplosion, PowerBombExplosionDefinitions.InitialRadius);
+        Clear(new PowerBombExplosionPhase.Running.CrystalFlashExplosion(), PowerBombExplosionDefinitions.InitialRadius);
         GlowColor = RgbColor.Black;
     }
 
@@ -121,13 +119,12 @@ public sealed class PowerBombBlastTimeline
     /// </summary>
     private void Clear(PowerBombExplosionPhase phase, PowerBombRadius radius)
     {
-        IsRunning = phase != PowerBombExplosionPhase.Inactive;
         PreExplosionRadius = radius;
         ExplosionRadius = radius;
         _radiusSpeed = PowerBombRadius.Zero;
         RenderedOvalRadius = null;
         Phase = phase;
-        RenderedPhase = PowerBombExplosionPhase.Inactive;
+        RenderedPhase = new PowerBombExplosionPhase.Inactive();
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
         RenderedExplosionRadius = PowerBombRadius.Zero;
         _afterglowFades.End();
@@ -141,7 +138,7 @@ public sealed class PowerBombBlastTimeline
     public void StepFrame(InstalledPowerBombGlowColors colors)
     {
         Ensure.NotNull(colors);
-        if (!IsRunning)
+        if (Phase is not PowerBombExplosionPhase.Running running)
             return;
 
         // Every stage first chooses this frame's oval and only then
@@ -149,53 +146,48 @@ public sealed class PowerBombBlastTimeline
         // that phase here so the drawn blast is this update's, not the state prepared for the following one.
         RenderedPhase = Phase;
 
-        switch (Phase)
+        if (running is PowerBombExplosionPhase.Running.PendingPreExplosionSetup)
         {
-            case PowerBombExplosionPhase.PendingPreExplosionSetup:
-                PreExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
-                _radiusSpeed = PowerBombExplosionDefinitions.InitialPreExplosionSpeed;
-                Phase = PowerBombExplosionPhase.PreExplosionWhite;
-                RenderedPhase = PowerBombExplosionPhase.Inactive;
-                return;
-
-            case PowerBombExplosionPhase.PreExplosionWhite:
-                StepPreExplosionWhite(colors);
-                return;
-
-            case PowerBombExplosionPhase.PreExplosionYellow:
-                StepPreExplosionYellow(colors);
-                return;
-
-            case PowerBombExplosionPhase.ExplosionYellow:
-                StepExplosionYellow(colors);
-                return;
-
-            case PowerBombExplosionPhase.ExplosionWhite:
-                StepExplosionWhite(colors);
-                return;
-
-            case PowerBombExplosionPhase.Afterglow:
-                StepAfterglow();
-                return;
-
-            case PowerBombExplosionPhase.CrystalFlashExplosion:
-                StepCrystalFlashExplosion(colors);
-                return;
-
-            case PowerBombExplosionPhase.CrystalFlashAfterglow:
-                StepCrystalFlashAfterglow();
-                return;
-
-            case PowerBombExplosionPhase.Inactive:
-            default:
-                throw new InvalidOperationException($"A running Power Bomb blast has invalid phase {Phase}.");
+            PreExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
+            _radiusSpeed = PowerBombExplosionDefinitions.InitialPreExplosionSpeed;
+            Phase = new PowerBombExplosionPhase.Running.PreExplosionWhite();
+            RenderedPhase = new PowerBombExplosionPhase.Inactive();
+        }
+        else if (running is PowerBombExplosionPhase.Running.PreExplosionWhite)
+        {
+            StepPreExplosionWhite(colors);
+        }
+        else if (running is PowerBombExplosionPhase.Running.PreExplosionYellow)
+        {
+            StepPreExplosionYellow(colors);
+        }
+        else if (running is PowerBombExplosionPhase.Running.ExplosionYellow)
+        {
+            StepExplosionYellow(colors);
+        }
+        else if (running is PowerBombExplosionPhase.Running.ExplosionWhite)
+        {
+            StepExplosionWhite(colors);
+        }
+        else if (running is PowerBombExplosionPhase.Running.Afterglow)
+        {
+            StepAfterglow();
+        }
+        else if (running is PowerBombExplosionPhase.Running.CrystalFlashExplosion)
+        {
+            StepCrystalFlashExplosion(colors);
+        }
+        else
+        {
+            // The remaining member, PowerBombExplosionPhase.Running.CrystalFlashAfterglow.
+            StepCrystalFlashAfterglow();
         }
     }
 
     /// <summary>Clears every blast field during room/runtime reset.</summary>
     public void Reset()
     {
-        Clear(PowerBombExplosionPhase.Inactive, PowerBombRadius.Zero);
+        Clear(new PowerBombExplosionPhase.Inactive(), PowerBombRadius.Zero);
         GlowColor = RgbColor.Black;
     }
 
@@ -220,7 +212,7 @@ public sealed class PowerBombBlastTimeline
         // Advancing past the wait runs the yellow stage's setup, starts its radius step,
         // and waits again during this same effect pass.
         _ovals.Start(PowerBombOvalAnimations.PreExplosionYellow);
-        Phase = PowerBombExplosionPhase.PreExplosionYellow;
+        Phase = new PowerBombExplosionPhase.Running.PreExplosionYellow();
     }
 
     /// <summary>
@@ -282,7 +274,7 @@ public sealed class PowerBombBlastTimeline
         // yellow explosion update. PreExplosionRadius keeps its own value.
         ExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
         _radiusSpeed = PowerBombRadius.Zero;
-        Phase = PowerBombExplosionPhase.ExplosionYellow;
+        Phase = new PowerBombExplosionPhase.Running.ExplosionYellow();
     }
 
     /// <summary>Expands the damaging yellow radius with acceleration, then starts the white explosion's ovals.</summary>
@@ -304,7 +296,7 @@ public sealed class PowerBombBlastTimeline
         // The white explosion starts its expanding ovals (PowerBombExplosionDefinitions.WhiteOvalRadii) on the next update.
         _ovals.Start(PowerBombOvalAnimations.ExplosionWhite);
         RenderedOvalRadius = null;
-        Phase = PowerBombExplosionPhase.ExplosionWhite;
+        Phase = new PowerBombExplosionPhase.Running.ExplosionWhite();
     }
 
     /// <summary>Shows the white ovals (<see cref="PowerBombExplosionDefinitions.WhiteOvalRadii"/>) and primes the afterglow that fades the glow.</summary>
@@ -330,7 +322,7 @@ public sealed class PowerBombBlastTimeline
         // The white explosion primes the afterglow's fades. The afterglow then takes its first fade on the following
         // frame.
         _afterglowFades.Restart(PowerBombExplosionDefinitions.AfterglowFades);
-        Phase = PowerBombExplosionPhase.Afterglow;
+        Phase = new PowerBombExplosionPhase.Running.Afterglow();
     }
 
     /// <summary>Fades the glow colour's three components one step every update and ends the blast after the last step.</summary>
@@ -340,7 +332,7 @@ public sealed class PowerBombBlastTimeline
             return;
 
         // The update after the last fade ends the blast without fading the colour again, leaving the colour its fades left.
-        Clear(PowerBombExplosionPhase.Inactive, PowerBombRadius.Zero);
+        Clear(new PowerBombExplosionPhase.Inactive(), PowerBombRadius.Zero);
     }
 
     /// <summary>Uses the explosion curve to expand Crystal Flash only to its smaller radius limit.</summary>
@@ -363,7 +355,7 @@ public sealed class PowerBombBlastTimeline
 
         // As with the ordinary afterglow, the Crystal Flash afterglow fades a step on every update.
         _afterglowFades.Restart(PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(RenderedExplosionRadius));
-        Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
+        Phase = new PowerBombExplosionPhase.Running.CrystalFlashAfterglow();
     }
 
     /// <summary>Fades Crystal Flash's afterglow for its authored length, then clears the blast.</summary>
@@ -375,7 +367,7 @@ public sealed class PowerBombBlastTimeline
             return;
 
         // The update after the afterglow's last fade ends the blast and clears every blast value, its speed included.
-        Clear(PowerBombExplosionPhase.Inactive, PowerBombRadius.Zero);
+        Clear(new PowerBombExplosionPhase.Inactive(), PowerBombRadius.Zero);
         // The blast's end turns its glow off, however bright the installed colours left it.
         GlowColor = RgbColor.Black;
     }

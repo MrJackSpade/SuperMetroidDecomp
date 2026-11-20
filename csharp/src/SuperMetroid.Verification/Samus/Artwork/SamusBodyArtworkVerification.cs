@@ -232,7 +232,7 @@ internal static class SamusBodyArtworkVerification
         };
         deathSamus.DeathSequence.Begin(deathSamus, cameraPosition: new(0, 0));
         var deathCgram = new SamusColours();
-        for (int frame = 0; deathSamus.DeathSequence.Phase != SamusDeathSequencePhase.SuitExplosion;
+        for (int frame = 0; deathSamus.DeathSequence.Phase is not SamusDeathSequencePhase.Begun.SuitExplosion;
             frame++)
         {
             AssertTrue(frame < 200, "retail Samus death reaches the explosion draw phase");

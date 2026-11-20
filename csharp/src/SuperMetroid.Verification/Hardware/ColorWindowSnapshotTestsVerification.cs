@@ -75,7 +75,7 @@ internal static class ColorWindowSnapshotTestsVerification
                 explosion.StepFrame(explosionGlowColors);
                 if (retained is not null) Compare(copy, retained);
             }
-            AssertTrue(!explosion.IsActive && phases.Contains(PowerBombExplosionPhase.Afterglow),
+            AssertTrue(!explosion.IsActive && phases.Contains(new PowerBombExplosionPhase.Running.Afterglow()),
                 "Power Bomb fixture reaches afterglow and completes");
         }
 

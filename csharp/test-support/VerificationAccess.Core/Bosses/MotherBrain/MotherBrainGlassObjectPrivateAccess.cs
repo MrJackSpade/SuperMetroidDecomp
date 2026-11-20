@@ -24,9 +24,9 @@ internal static class MotherBrainGlassObjectPrivateAccess
         }
 
         /// <summary>The private property <c>Stage</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassStage> Stage
+        internal global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassStage Stage
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassObject, global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassStage>>(self, "Stage");
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassObject, global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassStage>(self, "Stage");
         }
     }
 

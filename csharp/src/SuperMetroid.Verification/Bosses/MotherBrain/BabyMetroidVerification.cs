@@ -97,13 +97,13 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     // approximate four-second host delay.
     for (int call = 1; call <= 248; call++)
         baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
-    AssertEqual(BabyMetroidCutscenePhase.DashOntoScreen, baby.Phase,
+    AssertEqual(new BabyMetroidCutscenePhase.Flying.DashOntoScreen(), baby.Phase,
         "Baby dash delay retains function at timer zero");
     AssertEqual(0, baby.PhaseTimer.CartridgeCount, "Baby dash delay exact zero boundary");
     AssertEqual(new Position16<RoomPixels>(0x0140, 0x0060), baby.Position.Whole, "Baby remains still through call 248");
 
     baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
-    AssertEqual(BabyMetroidCutscenePhase.CurveTowardMotherBrainHead, baby.Phase,
+    AssertEqual(new BabyMetroidCutscenePhase.Flying.CurveTowardMotherBrainHead(), baby.Phase,
         "Baby call 249 falls through into curve function");
     AssertEqual(SuperMetroid.Core.Spatial.RotationAngleConstants.FromRaw(0xd680), baby.Angle, "Baby first curve angle");
     AssertEqual(SignedEightEight.FromPixels(10), baby.Speed, "Baby first curve speed");
@@ -119,7 +119,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     bool sawMotherBrainInterrupt = false;
     bool sawLatchSound = false;
     int calls = 249;
-    while (baby.Phase != BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse &&
+    while (baby.Phase is not BabyMetroidCutscenePhase.Flying.WaitForMotherBrainToTurnToCorpse &&
            calls < 700)
     {
         SamusPoseId samusPoseBeforeStep = samus.Pose;
@@ -132,7 +132,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
 
         if (calls == 259)
         {
-            AssertEqual(BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace, baby.Phase,
+            AssertEqual(new BabyMetroidCutscenePhase.Flying.GetRightUpInMotherBrainsFace(), baby.Phase,
                 "Baby curve timer expires on call 259");
             AssertEqual(ExpectedBabyPoint(0x00da, 0x0c00, 0x0086, 0x7a00),
                 BabyPoint(),
@@ -140,7 +140,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         }
         else if (calls == 269)
         {
-            AssertEqual(BabyMetroidCutscenePhase.LatchOntoMotherBrain, baby.Phase,
+            AssertEqual(new BabyMetroidCutscenePhase.Flying.LatchOntoMotherBrain(), baby.Phase,
                 "Baby face timer expires on call 269");
             AssertTrue(samusPoseBeforeStep != samus.Pose,
                 "Baby face completion calls drained controller one");
@@ -155,7 +155,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     // GradduallyAccelerateTowardsPoint ($A9:F46B) runs as its ADC/SBC carry chain (#1269);
     // the earlier signed-integer approximation reached the pin three calls later.
     AssertEqual(422, calls, "Baby entrance reaches exact head pin on call 422");
-    AssertEqual(BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse, baby.Phase,
+    AssertEqual(new BabyMetroidCutscenePhase.Flying.WaitForMotherBrainToTurnToCorpse(), baby.Phase,
         "Baby enters corpse-state wait after pin");
 
     AssertTrue(sawMotherBrainInterrupt, "Baby overwrites Mother Brain final-beam function");

@@ -612,7 +612,7 @@ internal sealed class SamusFramePhases
         // movement mode, Flash resumes under the drained pose. The Super Metroid never installs that
         // movement lock, so its interruption continues Flash immediately. Model the physical movement
         // owner, not merely the fact that a cinematic pose exists.
-        if (samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive &&
+        if (samus.CrystalFlash.Phase is not CrystalFlashPhase.Inactive &&
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && samus.Control.InputLocked))
             return SamusMovementOwner.CrystalFlash;
         // The drain's operations install special-movement-type poses that do not move Samus.

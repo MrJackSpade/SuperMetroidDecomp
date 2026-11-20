@@ -89,7 +89,7 @@ internal static class CinematicCrystalFlashVerification
         superRuntime.StepFrame(0);
         AssertTrue(superRuntime.LatestGameplayFrame?.CrystalFlashMovement is not null,
             "Super Metroid drained pose does not suppress retained Flash movement");
-        AssertEqual(CrystalFlashPhase.DrainingAmmo, superSamus.CrystalFlash.Phase,
+        AssertEqual(new CrystalFlashPhase.Moving.DrainingAmmo(), superSamus.CrystalFlash.Phase,
             "Super Metroid interruption retains Flash ammo handler");
 
         // Drained animation command `$F7` later replaces the same physical movement word.
@@ -99,7 +99,7 @@ internal static class CinematicCrystalFlashVerification
         for (int frame = 0; frame < 96; frame++)
         {
             superRuntime.StepFrame(0);
-            if (superSamus.CrystalFlash.Phase != CrystalFlashPhase.Inactive)
+            if (superSamus.CrystalFlash.Phase is not CrystalFlashPhase.Inactive)
                 continue;
             superInstalledFalling = true;
             break;
@@ -126,11 +126,11 @@ internal static class CinematicCrystalFlashVerification
         AssertEqual(DrainedSamusPhase.Inactive, failedSamus.Drained.Phase,
             "delayed Flash replaces the earlier drained movement owner");
         for (int frame = 0; frame < 400 &&
-            failedSamus.CrystalFlash.Phase != CrystalFlashPhase.Inactive; frame++)
+            failedSamus.CrystalFlash.Phase is not CrystalFlashPhase.Inactive; frame++)
         {
             failedRuntime.StepFrame(0);
         }
-        AssertEqual(CrystalFlashPhase.Inactive, failedSamus.CrystalFlash.Phase,
+        AssertEqual(new CrystalFlashPhase.Inactive(), failedSamus.CrystalFlash.Phase,
             "post-crouch Flash timing completes normally");
         AssertTrue(!failedSamus.InputSnapshot.CrystalFlashPoseInputLocked,
             "post-crouch Flash timing restores input instead of retaining a suit");
@@ -163,11 +163,11 @@ internal static class CinematicCrystalFlashVerification
         foreach (int movementCalls in new[] { 0, 5, 12 })
         {
             (_, _, SamusState ceresSamus) = CreateCinematicFlashRuntime(movementCalls);
-            AssertTrue(ceresSamus.CrystalFlash.Phase != CrystalFlashPhase.Inactive,
+            AssertTrue(ceresSamus.CrystalFlash.Phase is not CrystalFlashPhase.Inactive,
                 "Flash owns movement before the room-main request");
 
             ceresSamus.CeresRidleyEjection.Request(ceresSamus);
-            AssertEqual(CrystalFlashPhase.Inactive, ceresSamus.CrystalFlash.Phase,
+            AssertEqual(new CrystalFlashPhase.Inactive(), ceresSamus.CrystalFlash.Phase,
                 $"Ceres ejection replaces Flash movement after {movementCalls} calls");
             AssertEqual(SamusSpecialColouringKind.CrystalFlash,
                 ceresSamus.SpecialColouring.Holder,

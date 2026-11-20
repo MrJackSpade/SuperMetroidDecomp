@@ -18,14 +18,14 @@ internal static class BabyMetroidFatalBlowShakeVerification
         var motherBrain = MotherBrainLateFightFixtures.NewSequence();
         var baby = motherBrain.Baby;
         MotherBrainLateFightFixtures.Arrive(baby, FixedPosition<RoomPixels>.Zero);
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.FinalCharge);
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", new BabyMetroidCutscenePhase.Flying.FinalCharge());
         global::SuperMetroid.Core.PrivateState.Set(baby, "Position", FixedPosition<RoomPixels>.FromWhole(new(0x00c8, 0x0057)).WithFractionsOf(baby.Position));
         global::SuperMetroid.Core.PrivateState.Set(baby, "Health", 0);
         var head = new Position16<RoomPixels>(0x00c8, 0x0077);
 
         // Frame-counter index 0: zero offsets around the origin; velocity zeroed then decremented.
         baby.Step(samus, head, Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
-        AssertEqual(BabyMetroidCutscenePhase.TakeFinalBlow, baby.Phase, "zero health starts the fatal blow");
+        AssertEqual(new BabyMetroidCutscenePhase.Flying.TakeFinalBlow(), baby.Phase, "zero health starts the fatal blow");
         AssertEqual((ushort)0xffff, baby.Velocity.Y.RawValue, "the first shake call decrements the cleared Y velocity");
 
         // Index 1: offsets (-1,+1), undoubled.

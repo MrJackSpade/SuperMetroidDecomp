@@ -337,7 +337,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.PirateMotherBrainLaser,
-            Laser,
+            new LaserBehavior(new PirateLaserState(speed, direction)),
             graphics: default);
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(muzzle);
@@ -347,7 +347,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         // The laser holds still through its three two-frame muzzle frames until its animation fires it, running its flight
         // at once.
-        projectile.State = new PirateLaserState(speed, direction);
 
         // The setup replaces the projectile definition's properties with the enemy's damage and the
         // laser's own property. The laser does not take the Pirate's pictures or colours: it draws from the room's
@@ -362,9 +361,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Flies a laser one step its way, deleting it once it leaves the 256x256 camera square.</summary>
     private static void FlyPirateLaser(
         EnemyProjectile projectile,
+        PirateLaserState laser,
         Position16<RoomPixels> camera)
     {
-        PirateLaserState laser = projectile.StateOf<PirateLaserState>();
         int pixels = laser.Speed == PirateLaserSpeed.Slow
             ? SpacePirateMotionDefinitions.WalkingSlowLaserStep
             : SpacePirateMotionDefinitions.WalkingFastLaserStep;
@@ -383,15 +382,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     internal static WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(WalkingSpacePirateEnemyState state) =>
         state;
 
-    /// <summary>
-    /// The Pirates' and Mother Brain's laser (#1760): its spawner starts its animation and chooses its way, and the
-    /// animation fires it.
-    /// </summary>
-    internal static readonly EnemyProjectileBehavior Laser = new LaserBehavior();
-
     /// <summary>A laser: it flies its way until it leaves the camera, once its animation fires it (#2278).</summary>
-    private sealed class LaserBehavior()
-        : SingleMotionProjectileBehavior(context => FlyPirateLaser(context.Projectile, context.Camera), initial: null),
+    /// <param name="laser">What the laser keeps: its speed and the way it flies.</param>
+    private sealed class LaserBehavior(PirateLaserState laser)
+        : SingleMotionProjectileBehavior(context => FlyPirateLaser(context.Projectile, laser, context.Camera), initial: null),
             IEnemyProjectileCues<SpacePirateProjectileCue>
     {
         /// <inheritdoc/>
@@ -403,14 +397,14 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             if (cue.Kind != SpacePirateProjectileCueKind.FireLaser)
                 throw new InvalidOperationException($"A laser's animation published {cue}.");
             EnemyProjectile projectile = context.Projectile;
-            HorizontalDirection chosen = projectile.StateOf<PirateLaserState>().Direction;
+            HorizontalDirection chosen = laser.Direction;
             if (cue.Direction != chosen)
                 throw new InvalidOperationException($"A laser its firer aimed {chosen} played the animation that fires it {cue.Direction}.");
 
             // The laser flies from now on, and its first flight runs at once, so it moves on the update it fires and may
             // leave the screen then.
             StartMoving(projectile);
-            FlyPirateLaser(projectile, context.Camera);
+            FlyPirateLaser(projectile, laser, context.Camera);
         }
     }
 

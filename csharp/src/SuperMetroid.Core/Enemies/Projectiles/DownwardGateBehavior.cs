@@ -14,7 +14,7 @@ internal sealed class DownwardGateBehavior
     /// Each gate's own projectile, by the gate's room block (#2455): the last one spawned for it, which its wake takes on.
     /// A room has one gate per block.
     /// </summary>
-    private readonly Dictionary<Position16<RoomBlocks>, EnemyProjectile> _gateProjectiles = [];
+    private readonly Dictionary<Position16<RoomBlocks>, DownwardGateProjectile> _gateProjectiles = [];
 
     /// <summary>Binds gate room-object requests to the current room's projectile owner.</summary>
     internal DownwardGateBehavior(EnemyProjectileEngine projectiles)
@@ -55,8 +55,11 @@ internal sealed class DownwardGateBehavior
         if (projectile is null)
             return; // The projectile spawn's deliberate finite-pool failure.
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Gate, graphics: default);
         bool closed = request.Kind == DownwardGateProjectileKind.Closed;
+        // The gate's block ties the actor to its gate, which keeps it to wake it when the gate opens again.
+        var gate = new DownwardGateState(request.RoomObjectBlock,
+            closed ? DownwardGateProjectileAnimations.ClosedStage : DownwardGateProjectileAnimations.SlidingDownStage);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, new GateBehavior(gate), graphics: default);
         projectile.StartAnimation(new DownwardGateProjectileAnimation(closed
             ? DownwardGateProjectileSegment.Closed
             : DownwardGateProjectileSegment.Moving));
@@ -69,50 +72,44 @@ internal sealed class DownwardGateBehavior
                 ? DownwardGateDefinitions.ClosedPositionOffsetPixels
                 : 0)));
 
-        // The gate's block ties the actor to its gate, which keeps it to wake it when the gate opens again.
-        projectile.State = new DownwardGateState(request.RoomObjectBlock,
-            closed ? DownwardGateProjectileAnimations.ClosedStage : DownwardGateProjectileAnimations.SlidingDownStage);
-        _gateProjectiles[request.RoomObjectBlock] = projectile;
+        _gateProjectiles[request.RoomObjectBlock] = new DownwardGateProjectile(projectile, gate);
     }
 
     /// <summary>Takes the gate's own projectile on to its next stage, a closed gate rising.</summary>
     /// <exception cref="InvalidDataException">The gate's projectile has gone or now holds something else.</exception>
     private void WakeDownwardGateProjectile(Position16<RoomBlocks> roomObjectBlock)
     {
-        if (!_gateProjectiles.TryGetValue(roomObjectBlock, out EnemyProjectile? projectile) ||
-            !projectile.IsActive ||
-            projectile.Kind is not (RoomEnemyProjectileKind.DownwardGateMoving or RoomEnemyProjectileKind.DownwardGateClosed) ||
-            projectile.StateOf<DownwardGateState>().RoomObjectBlock != roomObjectBlock)
+        if (!_gateProjectiles.TryGetValue(roomObjectBlock, out DownwardGateProjectile? gate) ||
+            !gate.Projectile.IsActive ||
+            gate.Projectile.Kind is not (RoomEnemyProjectileKind.DownwardGateMoving or RoomEnemyProjectileKind.DownwardGateClosed))
         {
             throw new InvalidDataException(
                 $"Downward gate room object at block {roomObjectBlock} has no associated gate projectile.");
         }
 
-        AdvanceDownwardGateStage(projectile);
+        AdvanceDownwardGateStage(gate.Projectile, gate.State);
     }
 
     /// <summary>
     /// Moves the gate at its speed, a whole pixel an update, and shows its next place each time it has moved a block.
     /// </summary>
-    internal static void RunDownwardGateProjectileMovement(EnemyProjectile projectile)
+    internal static void RunDownwardGateProjectileMovement(EnemyProjectile projectile, DownwardGateState gate)
     {
-        DownwardGateState gate = projectile.StateOf<DownwardGateState>();
         for (int pixel = 0; pixel < projectile.Velocity.Y.MagnitudeWholePixels; pixel++)
             gate.BlockTravel.Step();
         if (gate.BlockTravel.IsOver)
         {
             // The next stage's animation shows its first frame on this same enemy-projectile pass; the travel starts again
             // from the block, whatever the update moved past it.
-            AdvanceDownwardGateStage(projectile);
+            AdvanceDownwardGateStage(projectile, gate);
             gate.BlockTravel.Restart(RoomGridConversions.BlockPixels);
         }
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
     }
 
     /// <summary>Takes a gate on to the next stage of its travel, starting the animation that stage shows.</summary>
-    private static void AdvanceDownwardGateStage(EnemyProjectile projectile)
+    private static void AdvanceDownwardGateStage(EnemyProjectile projectile, DownwardGateState gate)
     {
-        DownwardGateState gate = projectile.StateOf<DownwardGateState>();
         gate.Stage = DownwardGateProjectileAnimations.NextStage.TryGetValue(gate.Stage, out DownwardGateProjectileSegment next)
             ? next
             : throw new InvalidOperationException($"A downward gate at stage {gate.Stage} has no stage to go on to.");
@@ -141,17 +138,20 @@ internal sealed class DownwardGateBehavior
         }
     }
 
-    /// <summary>A downward gate, moving or closed (#1760).</summary>
-    internal static readonly EnemyProjectileBehavior Gate = new GateBehavior();
-
     /// <summary>
     /// A downward gate: it slides by its vertical velocity, down while moving and up while closed, from when its animation
     /// starts it sliding until the animation stops it, and handles its animation's cues.
     /// </summary>
-    private sealed class GateBehavior() : SingleMotionProjectileBehavior(
-        context => RunDownwardGateProjectileMovement(context.Projectile), initial: null), IEnemyProjectileCues<DownwardGateProjectileCue>
+    /// <param name="gate">What the gate's actor keeps: its gate's block, its stage and its travel through the block.</param>
+    private sealed class GateBehavior(DownwardGateState gate) : SingleMotionProjectileBehavior(
+        context => RunDownwardGateProjectileMovement(context.Projectile, gate), initial: null), IEnemyProjectileCues<DownwardGateProjectileCue>
     {
         /// <inheritdoc/>
         public void RunCue(EnemyProjectileCueContext context, DownwardGateProjectileCue cue) => ApplyDownwardGateCue(context.Projectile, cue);
     }
+
+    /// <summary>A gate's actor and what it keeps, which its gate wakes when it opens again.</summary>
+    /// <param name="Projectile">The gate's actor.</param>
+    /// <param name="State">What the actor keeps.</param>
+    private sealed record DownwardGateProjectile(EnemyProjectile Projectile, DownwardGateState State);
 }

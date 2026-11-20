@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 /// mirrors, whether a shard's hiding flicker hides it, and how far along its swaying fall it is.
 /// </summary>
 /// <param name="column">The column the debris starts at.</param>
-internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState, IFlickeringProjectileState
+internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState
 {
     /// <summary>Whether a shard's hiding flicker hides it on this update (#2455); a bubble never hides.</summary>
     public bool IsHidden { get; internal set; }

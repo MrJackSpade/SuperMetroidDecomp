@@ -307,7 +307,7 @@ internal sealed class EnemyProjectileEngine
         for (int place = _places.Length - 1; place >= 0; place--)
         {
             if (_places[place] is not { IsActive: true } projectile ||
-                projectile.State is IFlickeringProjectileState { IsHidden: true } ||
+                projectile.Behavior.IsHidden ||
                 projectile.Depth != depth ||
                 projectile.Frame is not { } frame)
                 continue;

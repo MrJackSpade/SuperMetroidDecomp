@@ -144,6 +144,12 @@ public sealed class EnemyProjectile
         Motion = behavior.InitialMotion(kind);
     }
 
+    /// <summary>
+    /// Hands the projectile, keeping its kind and motion, to <paramref name="behavior"/>: what its family keeps on it becomes
+    /// another of the family's states, as a death explosion that becomes its pickup (#2554).
+    /// </summary>
+    internal void Rebind(EnemyProjectileBehavior behavior) => Behavior = Ensure.NotNull(behavior);
+
     /// <summary>Moves the projectile by <paramref name="motion"/>, one of its behaviour's motions, from its next pass.</summary>
     /// <typeparam name="TMotion">The behaviour's motions.</typeparam>
     internal void StartMotion<TMotion>(TMotion motion) where TMotion : struct, Enum => Motion = motion;

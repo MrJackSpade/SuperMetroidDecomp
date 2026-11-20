@@ -48,6 +48,13 @@ internal class EnemyProjectileBehavior
     internal EnemyProjectileAnimation? TouchAnimation() => _touch?.Invoke();
 
     /// <summary>
+    /// Whether the projectile's flicker hides it on this update (#1839, #2455): the family of a projectile that flickers
+    /// hides it on the updates its flicker chooses, and it is drawn only while shown. The n00b tube's crack and shards
+    /// flicker so.
+    /// </summary>
+    internal virtual bool IsHidden => false;
+
+    /// <summary>
     /// The motion a projectile of <paramref name="kind"/> starts with when its spawner binds this behaviour to it (#1843),
     /// or null when it starts holding still. A kind of this class itself never moves itself.
     /// </summary>

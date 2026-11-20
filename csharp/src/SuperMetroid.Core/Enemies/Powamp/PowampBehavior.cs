@@ -463,10 +463,11 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// A Powamp spike (#1760): it flies outward, accelerating, with room collision. A shot spike runs the same private
-    /// delete animation its definition names as its shot animation.
+    /// delete animation its definition names as its shot animation. It holds the way it flies.
     /// </summary>
-    internal static readonly EnemyProjectileBehavior Spike = new SingleMotionProjectileBehavior(
-        context => FlyPowampSpike(context.Projectile, context.Level),
+    /// <param name="spike">What the spike keeps.</param>
+    internal static EnemyProjectileBehavior SpikeBehavior(PowampSpikeState spike) => new SingleMotionProjectileBehavior(
+        context => FlyPowampSpike(context.Projectile, spike, context.Level),
         shot: () => new PowampSpikeAnimation(PowampSpikeSegment.Delete));
 
     /// <summary>Advances the body's pulse.</summary>
@@ -559,12 +560,11 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 spike,
                 RoomEnemyProjectileKind.PowampSpike,
-                Spike,
+                SpikeBehavior(new PowampSpikeState(direction)),
                 SpriteGraphics.SpawnedBy(body).In(look));
             spike.StartAnimation(new PowampSpikeAnimation(PowampSpikeSegment.Flying));
             spike.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
             spike.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
-            spike.State = new PowampSpikeState(direction);
             lastSpikePlace = spike.Place;
         }
         return lastSpikePlace;
@@ -573,9 +573,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Flies the Powamp spike for one update.</summary>
     internal static void FlyPowampSpike(
         EnemyProjectile spike,
+        PowampSpikeState flight,
         RoomLevelData level)
     {
-        CompassDirection direction = spike.StateOf<PowampSpikeState>().Direction;
+        CompassDirection direction = flight.Direction;
 
         PixelVelocity<RoomPixels> acceleration = PowampMotion.SpikeAcceleration(direction);
         spike.Velocity = spike.Velocity.WithX(spike.Velocity.X + acceleration.X);

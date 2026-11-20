@@ -129,6 +129,23 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Phase = ChozoStatuePhase.Activated;
     }
 
+    /// <summary>What <c>ApplyChozoStatueCue</c> does for each <see cref="ChozoStatueCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<ChozoStatueCueKind, Action<ChozoStatueState>> ApplyChozoStatueCueForChozoStatueCueKind => field ??= new(new Dictionary<ChozoStatueCueKind, Action<ChozoStatueState>>
+    {
+        [ChozoStatueCueKind.AwaitHand] = state => state.AwaitHand(),
+        [ChozoStatueCueKind.StartLoweringAcid] = state =>
+        {
+            // The cue writes the liquid motion values consumed by the liquid's step once, when
+            // it runs; the liquid owns them from then on.
+            _roomFx.FxOverlay.MoveLiquidAfter(ChozoStatueFxData.LoweringDelay, ChozoStatueFxData.LoweringVelocity);
+        },
+        [ChozoStatueCueKind.SetLoweredAcidPosition] = state => _roomFx.FxOverlay.SetLiquidLevel(ChozoStatueRoomDefinitions.LoweredAcidY),
+        [ChozoStatueCueKind.UnlockSamus] = state => EnableChozoStatueSamusControls(),
+        [ChozoStatueCueKind.PlayGrabSound] = state => _audio.QueueEnemySound(EnemySoundEffectDefinitions.ChozoGrabsSamusSound, priority: SoundRequestPriority.Normal),
+        [ChozoStatueCueKind.PlayFootstepSound] = state => _audio.QueueEnemySound(EnemySoundEffectDefinitions.ChozoFootstepsSound, priority: SoundRequestPriority.Normal),
+        [ChozoStatueCueKind.ReleaseSamus] = state => FinishWreckedShipChozoSequence(),
+    });
+
     /// <summary>
     /// Carries out one cue of the Chozo statues' animations: every cue
     /// the four statue animations raise. Every cue runs on to the next step, so none redirects.
@@ -140,56 +157,26 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
-        switch (cue)
-        {
-            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.AwaitHand }:
-                state.AwaitHand();
-                return;
-
-            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.StartLoweringAcid }:
-                // The cue writes the liquid motion values consumed by the liquid's step once, when
-                // it runs; the liquid owns them from then on.
-                _roomFx.FxOverlay.MoveLiquidAfter(ChozoStatueFxData.LoweringDelay, ChozoStatueFxData.LoweringVelocity);
-                return;
-
-            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.SetLoweredAcidPosition }:
-                _roomFx.FxOverlay.SetLiquidLevel(ChozoStatueRoomDefinitions.LoweredAcidY);
-                return;
-
-            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.UnlockSamus }:
-                EnableChozoStatueSamusControls();
-                return;
-
-            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.PlayGrabSound }:
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.ChozoGrabsSamusSound, priority: SoundRequestPriority.Normal);
-                return;
-
-            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.PlayFootstepSound }:
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.ChozoFootstepsSound, priority: SoundRequestPriority.Normal);
-                return;
-
-            case ChozoStatueCue.Footstep footstep:
+        cue.React(new ChozoStatueCueReactions(
+            Footstep: footstep =>
+            {
                 ProcessChozoStatueFootstep(
                     statue,
                     level,
                     footstep.OffsetX);
-                return;
-
-            case ChozoStatueCue.Move move:
+            },
+            Move: move =>
+            {
                 ProcessChozoStatueMovement(
                     statue,
                     samus,
                     level,
                     move.Step);
-                return;
-
-            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.ReleaseSamus }:
-                FinishWreckedShipChozoSequence();
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(ChozoStatueCueKind)} {cue}.");
-        }
+            },
+            Signal: signal =>
+            {
+                ApplyChozoStatueCueForChozoStatueCueKind[signal.Kind](state);
+            }));
     }
 
     /// <summary>Moves the statue through terrain, then places Samus at the authored carry offset from its accepted position.</summary>

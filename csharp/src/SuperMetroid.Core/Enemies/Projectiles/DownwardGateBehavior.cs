@@ -121,26 +121,23 @@ internal sealed class DownwardGateBehavior
         projectile.StartAnimation(new DownwardGateProjectileAnimation(owner, gate.Stage));
     }
 
+    /// <summary>What <c>ApplyDownwardGateCue</c> does for each <see cref="DownwardGateProjectileCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<DownwardGateProjectileCueKind, Action<GateBehavior, EnemyProjectile>> ApplyDownwardGateCueForDownwardGateProjectileCueKind => field ??= new(new Dictionary<DownwardGateProjectileCueKind, Action<GateBehavior, EnemyProjectile>>
+    {
+        [DownwardGateProjectileCueKind.StartSliding] = static (owner, projectile) => owner.StartMoving(projectile),
+        [DownwardGateProjectileCueKind.StopSliding] = static (owner, projectile) => projectile.HoldStill(),
+        [DownwardGateProjectileCueKind.Delete] = static (owner, projectile) => projectile.Delete(),
+    });
+
     /// <summary>Carries out one cue of the gate's animations.</summary>
     private static void ApplyDownwardGateCue(GateBehavior owner, EnemyProjectile projectile, DownwardGateProjectileCue cue)
     {
-        switch (cue)
-        {
-            case DownwardGateProjectileCue.SetYVelocity setYVelocity:
-                projectile.Velocity = projectile.Velocity.WithY(setYVelocity.YVelocity);
-                break;
-            case DownwardGateProjectileCue.Signal { Kind: DownwardGateProjectileCueKind.StartSliding }:
-                owner.StartMoving(projectile);
-                break;
-            case DownwardGateProjectileCue.Signal { Kind: DownwardGateProjectileCueKind.StopSliding }:
-                projectile.HoldStill();
-                break;
-            case DownwardGateProjectileCue.Signal { Kind: DownwardGateProjectileCueKind.Delete }:
-                projectile.Delete();
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DownwardGateProjectileCueKind)} {cue}.");
-        }
+        cue.React(new DownwardGateProjectileCueReactions(
+            SetYVelocity: setYVelocity => projectile.Velocity = projectile.Velocity.WithY(setYVelocity.YVelocity),
+            Signal: signal =>
+            {
+                ApplyDownwardGateCueForDownwardGateProjectileCueKind[signal.Kind](owner, projectile);
+            }));
     }
 
     /// <summary>A downward gate, moving or closed (#1760).</summary>

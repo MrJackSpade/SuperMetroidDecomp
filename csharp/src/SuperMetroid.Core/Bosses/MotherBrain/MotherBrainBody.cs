@@ -160,45 +160,43 @@ internal sealed class MotherBrainBody
         state.BodyPlayback = playback;
     }
 
+    /// <summary>What <c>ApplyMotherBrainBodyCue</c> does for each <see cref="MotherBrainBodyCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<MotherBrainBodyCueKind, Action<MotherBrainEnemyState, SamusState>> ApplyMotherBrainBodyCueForMotherBrainBodyCueKind => field ??= new(new Dictionary<MotherBrainBodyCueKind, Action<MotherBrainEnemyState, SamusState>>
+    {
+        [MotherBrainBodyCueKind.FireHandBeam] = (state, samus) =>
+        {
+            _motherBrainEncounter.RequestBodySound(MotherBrainSoundDefinitions.HandBeam);
+            SpawnMotherBrainHandBeamCharging(state, samus);
+        },
+        [MotherBrainBodyCueKind.AdvanceHandBeamPhase] = (state, samus) =>
+        {
+            // The hand beam's hold has elapsed: firing finishes. The game steps the hand beam's phase on by one here,
+            // and only the firing phase plays this animation, which starts as the phase becomes firing (#2471).
+            state.HandBeamPhase = MotherBrainHandBeamPhase.Finish;
+        },
+    });
+
     /// <summary>Carries out one cue of a body animation.</summary>
     private void ApplyMotherBrainBodyCue(MotherBrainEnemyState state, SamusState samus, MotherBrainBodyCue cue)
     {
-        switch (cue)
-        {
-            // Pose is shared encounter state, not a property of the displayed frame. Body AI
-            // waits on these exact values while the animation continues independently.
-            case MotherBrainBodyCue.SetPose setPose:
-                state.Pose = setPose.Pose;
-                return;
-            // The walking steps' visible motion is occasionally opposite their signed Y
-            // addition. The animations keep the additions the walking steps perform; the posture
-            // changes move her vertically only.
-            case MotherBrainBodyCue.Move move:
-                MoveMotherBrainBody(state, move.Offset);
-                return;
-            case MotherBrainBodyCue.StepAndMove stepAndMove:
+        cue.React(new MotherBrainBodyCueReactions(
+            SetPose: setPose => state.Pose = setPose.Pose,
+            Move: move => MoveMotherBrainBody(state, move.Offset),
+            StepAndMove: stepAndMove =>
+            {
                 RunMotherBrainFootstep(state);
                 MoveMotherBrainBody(state, stepAndMove.Offset);
-                return;
-            case MotherBrainBodyCue.SpawnHandDust spawnHandDust:
+            },
+            SpawnHandDust: spawnHandDust =>
+            {
                 _projectiles.SpawnDustOrExplosion(
                     new(state.Body.Position.X.Whole + spawnHandDust.Offset.X, state.Body.Position.Y.Whole + spawnHandDust.Offset.Y),
                     spawnHandDust.Dust);
-                return;
-            case MotherBrainBodyCue.Signal { Kind: MotherBrainBodyCueKind.FireHandBeam }:
+            },
+            Signal: signal =>
             {
-                _motherBrainEncounter.RequestBodySound(MotherBrainSoundDefinitions.HandBeam);
-                SpawnMotherBrainHandBeamCharging(state, samus);
-                return;
-            }
-            case MotherBrainBodyCue.Signal { Kind: MotherBrainBodyCueKind.AdvanceHandBeamPhase }:
-                // The hand beam's hold has elapsed: firing finishes. The game steps the hand beam's phase on by one here,
-                // and only the firing phase plays this animation, which starts as the phase becomes firing (#2471).
-                state.HandBeamPhase = MotherBrainHandBeamPhase.Finish;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(MotherBrainBodyCueKind)} {cue}.");
-        }
+                ApplyMotherBrainBodyCueForMotherBrainBodyCueKind[signal.Kind](state, samus);
+            }));
     }
 
     /// <summary>

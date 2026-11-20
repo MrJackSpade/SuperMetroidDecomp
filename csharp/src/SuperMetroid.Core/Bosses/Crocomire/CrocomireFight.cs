@@ -212,22 +212,21 @@ internal sealed class CrocomireFight
         CrocomireBodyCue cue)
     {
         RoomEnemyPlace body = state.Body;
-        switch (cue)
-        {
-            case CrocomireBodyCue.Step step:
+        return cue.Match(new CrocomireBodyCueCases<CrocomireBodyAnimation?>(
+            Step: step =>
+            {
                 if (step.Move.RaisesFootDust)
                     SpawnCrocomireRandomFootDust(state);
                 if (StepMoves(step.Move.Condition, state, body, cameraX))
                     MoveCrocomire(body, level, step.Move.HorizontalPixels);
                 return null;
-            case CrocomireBodyCue.Dust dust:
+            },
+            Dust: dust =>
+            {
                 _access.SpawnCrocomireDust(state, dust.Offset);
                 return null;
-            case CrocomireBodyCue.Signal signal:
-                return ApplyCrocomireBodySignal(state, samus, level, signal.Kind);
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CrocomireBodyCue)} {cue}.");
-        }
+            },
+            Signal: signal => ApplyCrocomireBodySignal(state, samus, level, signal.Kind)));
     }
 
     /// <summary>Whether a step under <paramref name="condition"/> moves the body now.</summary>

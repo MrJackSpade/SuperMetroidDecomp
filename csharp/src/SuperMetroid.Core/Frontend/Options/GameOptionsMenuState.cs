@@ -335,20 +335,17 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
 
         if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
             return;
-        switch (controllerRow)
-        {
-            case GameOptionsControllerRow.Exit:
-                BeginDissolveTo(GameOptionsPage.Primary);
-                break;
-            case GameOptionsControllerRow.Reset:
+        controllerRow.React(new GameOptionsControllerRowReactions(
+            AssignsAction: _ =>
+            {
+                throw new InvalidOperationException("Controller action rows are handled before navigation rows.");
+            },
+            Exit: _ => BeginDissolveTo(GameOptionsPage.Primary),
+            Reset: _ =>
+            {
                 ControllerBindings = Input.ControllerBindings.Default;
                 LoadVisiblePage();
-                break;
-            case GameOptionsControllerRow.AssignsAction:
-                throw new InvalidOperationException("Controller action rows are handled before navigation rows.");
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(GameOptionsControllerRow)} {controllerRow}.");
-        }
+            }));
     }
 
     /// <summary>Handles icon-cancel and moonwalk toggles or returns to the primary page.</summary>

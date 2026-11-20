@@ -534,25 +534,27 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         EnemyAnimationPlayback.Show(head, advance, static frame => BotwoonVisualDefinitions.HeadFrames.Of(frame));
     }
 
+    /// <summary>What <c>ApplyBotwoonHeadCue</c> does for each <see cref="BotwoonHeadCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<BotwoonHeadCueKind, Action<BotwoonEnemyState>> ApplyBotwoonHeadCueForBotwoonHeadCueKind => field ??= new(new Dictionary<BotwoonHeadCueKind, Action<BotwoonEnemyState>>
+    {
+        [BotwoonHeadCueKind.QueueSpitSound] = state => RequestBotwoonSound(BotwoonSoundDefinitions.Spit),
+        [BotwoonHeadCueKind.ReachSpitFrame] = state =>
+        {
+            // Only his aim starts the spitting animation, and it waits for the spit, so the spit always finds the
+            // head waiting; the volley follows on his next head step.
+            state.HeadAction = BotwoonHeadAction.SpitAimedVolley;
+        },
+    });
+
     /// <summary>Applies frame cues for facing radius, spit audio, or the volley trigger.</summary>
     private void ApplyBotwoonHeadCue(RoomEnemyPlace head, BotwoonEnemyState state, BotwoonHeadCue cue)
     {
-        switch (cue)
-        {
-            case BotwoonHeadCue.ApplyFacingRadius radius:
-                head.Radius = BotwoonAnimations.HeadRadius(radius.Facing);
-                return;
-            case BotwoonHeadCue.Signal { Kind: BotwoonHeadCueKind.QueueSpitSound }:
-                RequestBotwoonSound(BotwoonSoundDefinitions.Spit);
-                return;
-            case BotwoonHeadCue.Signal { Kind: BotwoonHeadCueKind.ReachSpitFrame }:
-                // Only his aim starts the spitting animation, and it waits for the spit, so the spit always finds the
-                // head waiting; the volley follows on his next head step.
-                state.HeadAction = BotwoonHeadAction.SpitAimedVolley;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BotwoonHeadCue)} {cue}.");
-        }
+        cue.React(new BotwoonHeadCueReactions(
+            ApplyFacingRadius: radius => head.Radius = BotwoonAnimations.HeadRadius(radius.Facing),
+            Signal: signal =>
+            {
+                ApplyBotwoonHeadCueForBotwoonHeadCueKind[signal.Kind](state);
+            }));
     }
 
     /// <summary>Emits a volley's spit projectiles, fanned out across the aimed direction, and starts his head's cooldown after it.</summary>

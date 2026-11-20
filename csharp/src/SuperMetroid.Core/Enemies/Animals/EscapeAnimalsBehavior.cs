@@ -151,25 +151,35 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = playback;
     }
 
+    /// <summary>What <c>ApplyEscapeEtecoonCue</c> comes to for each <see cref="EscapeEtecoonCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<EscapeEtecoonCueKind, Func<EscapeEtecoonEnemyState, EscapeEtecoonSegment?>> ApplyEscapeEtecoonCueForEscapeEtecoonCueKind => field ??= new(new Dictionary<EscapeEtecoonCueKind, Func<EscapeEtecoonEnemyState, EscapeEtecoonSegment?>>
+    {
+        [EscapeEtecoonCueKind.Escapes] = static state =>
+        {
+            state.Escape();
+            return null;
+        },
+        [EscapeEtecoonCueKind.ExpressesGratitude] = static state =>
+        {
+            state.ExpressGratitude();
+            return null;
+        },
+    });
+
     /// <summary>Carries out one cue of an Etecoon's animation, returning the segment a branch continues at, or null to run on.</summary>
     private static EscapeEtecoonSegment? ApplyEscapeEtecoonCue(RoomEnemyPlace place, EscapeEtecoonEnemyState state, SamusState samus, EscapeEtecoonCue cue)
     {
-        switch (cue)
-        {
-            case EscapeEtecoonCue.Signal { Kind: EscapeEtecoonCueKind.Escapes }:
-                state.Escape();
-                return null;
-            case EscapeEtecoonCue.Signal { Kind: EscapeEtecoonCueKind.ExpressesGratitude }:
-                state.ExpressGratitude();
-                return null;
-            case EscapeEtecoonCue.LowTideRunStarts lowTide:
-                return IsAcidLow(samus) ? null : HighTideRun(lowTide.Running);
-            case EscapeEtecoonCue.Move move:
+        return cue.Match(new EscapeEtecoonCueCases<EscapeEtecoonSegment?>(
+            LowTideRunStarts: lowTide => IsAcidLow(samus) ? null : HighTideRun(lowTide.Running),
+            Move: move =>
+            {
                 place.Position = place.Position.WithWholeX(place.Position.X.Whole + move.Offset);
                 return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EscapeEtecoonCue)} {cue}.");
-        }
+            },
+            Signal: signal =>
+            {
+                return ApplyEscapeEtecoonCueForEscapeEtecoonCueKind[signal.Kind](state);
+            }));
     }
 
     /// <summary>The run an escaping Etecoon starts the way it runs once the rising acid is high (#2167).</summary>
@@ -182,18 +192,14 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private AnimationContinuation<EscapeDachoraSegment>? ApplyEscapeDachoraCue(RoomEnemyPlace place, SamusState samus, EscapeDachoraCue cue)
     {
-        switch (cue)
-        {
-            case EscapeDachoraCue.Move move:
+        return cue.Match(new EscapeDachoraCueCases<AnimationContinuation<EscapeDachoraSegment>?>(
+            LowTideLapEnds: lowTide => IsAcidLow(samus) ? null : RisingTideTakesOver(lowTide.Lap),
+            LapEnds: lap => HasCrittersEscaped() ? EscapeTakesOver(lap.Lap) : null,
+            Move: move =>
+            {
                 place.Position = place.Position.WithWholeX(place.Position.X.Whole + move.Offset);
                 return null;
-            case EscapeDachoraCue.LowTideLapEnds lowTide:
-                return IsAcidLow(samus) ? null : RisingTideTakesOver(lowTide.Lap);
-            case EscapeDachoraCue.LapEnds lap:
-                return HasCrittersEscaped() ? EscapeTakesOver(lap.Lap) : null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EscapeDachoraCue)} {cue}.");
-        }
+            }));
     }
 
     /// <summary>

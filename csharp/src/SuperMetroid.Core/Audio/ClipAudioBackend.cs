@@ -62,17 +62,19 @@ public sealed class ClipAudioBackend
         bool lastChecked = false;
         foreach (AudioEvent audioEvent in events)
         {
-            switch (audioEvent)
-            {
-                case AudioEvent.ChangeMusicDataSet change:
+            audioEvent.React(new AudioEventReactions(
+                ChangeMusicDataSet: change =>
+                {
                     RequireBeforeSteps(stepped, audioEvent);
                     SwitchClipSet(change.DataSet, frameStart);
-                    break;
-                case AudioEvent.SelectMusicTrack selection:
+                },
+                SelectMusicTrack: selection =>
+                {
                     RequireBeforeSteps(stepped, audioEvent);
                     State.SongChange.Hold(new SongChange(selection.Track));
-                    break;
-                case AudioEvent.ClockStep step:
+                },
+                ClockStep: step =>
+                {
                     if (step.SampleOffset < cursor || step.SampleOffset >= FramesPerUpdate)
                         throw new InvalidDataException($"Clock step at sample {step.SampleOffset} is out of order or outside the update.");
                     Mix(frameStart, cursor, step.SampleOffset);
@@ -81,15 +83,13 @@ public sealed class ClipAudioBackend
                     lastStep = step.SampleOffset;
                     lastChecked = step.ChecksRequests;
                     Step(frameStart + cursor, step.Steps, step.ChecksRequests);
-                    break;
-                case AudioEvent.StartSoundEffect startSoundEffect:
+                },
+                StartSoundEffect: startSoundEffect =>
+                {
                     if (!lastChecked || lastStep != startSoundEffect.SampleOffset)
                         throw new InvalidDataException($"{audioEvent} does not follow its request-checking clock step.");
                     StartSoundEffect(startSoundEffect.SoundEffect, frameStart + startSoundEffect.SampleOffset);
-                    break;
-                default:
-                    throw new InvalidDataException($"Unknown audio event {audioEvent}.");
-            }
+                }));
         }
         Mix(frameStart, cursor, FramesPerUpdate);
         State.RenderedTo(frameStart + FramesPerUpdate);

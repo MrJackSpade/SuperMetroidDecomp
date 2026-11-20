@@ -226,33 +226,29 @@ internal sealed class MotherBrainProjectiles
             RunCueForMotherBrainHandBeamCue[cue](context);
         }
 
+        /// <summary>What <c>ApplyMotherBrainEffectCue</c> does for each <see cref="MotherBrainEffectCueKind"/> member, each member's own arm.</summary>
+        private IdentityTable<MotherBrainEffectCueKind, Action<EnemyProjectile>> ApplyMotherBrainEffectCueForMotherBrainEffectCueKind => field ??= new(new Dictionary<MotherBrainEffectCueKind, Action<EnemyProjectile>>
+        {
+            [MotherBrainEffectCueKind.DropDrool] = projectile =>
+            {
+                // After its release starts its fall, the released drool drops before its first falling frame.
+                projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole + MotherBrainFightDefinitions.DroolReleaseDrop);
+            },
+            [MotherBrainEffectCueKind.EndSmallPurpleBreath] = projectile => MotherBrains.Of(projectile).MotherBrain.SmallPurpleBreathActive = false,
+            [MotherBrainEffectCueKind.ReleaseDrool] = projectile => projectile.StartMotion(this, MotherBrainProjectileMotion.DroolFalling),
+            [MotherBrainEffectCueKind.StopMoving] = projectile => projectile.HoldStill(),
+            [MotherBrainEffectCueKind.Delete] = projectile => projectile.Delete(),
+        });
+
         /// <summary>Carries out one cue of Mother Brain's effect animations.</summary>
         private void ApplyMotherBrainEffectCue(EnemyProjectile projectile, MotherBrainEffectCue cue)
         {
-            switch (cue)
-            {
-                case MotherBrainEffectCue.SetRadius setRadius:
-                    projectile.Radius = setRadius.Radius;
-                    break;
-                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.DropDrool }:
-                    // After its release starts its fall, the released drool drops before its first falling frame.
-                    projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole + MotherBrainFightDefinitions.DroolReleaseDrop);
-                    break;
-                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.EndSmallPurpleBreath }:
-                    MotherBrains.Of(projectile).MotherBrain.SmallPurpleBreathActive = false;
-                    break;
-                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.ReleaseDrool }:
-                    projectile.StartMotion(this, MotherBrainProjectileMotion.DroolFalling);
-                    break;
-                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.StopMoving }:
-                    projectile.HoldStill();
-                    break;
-                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.Delete }:
-                    projectile.Delete();
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(MotherBrainEffectCueKind)} {cue}.");
-            }
+            cue.React(new MotherBrainEffectCueReactions(
+                SetRadius: setRadius => projectile.Radius = setRadius.Radius,
+                Signal: signal =>
+                {
+                    ApplyMotherBrainEffectCueForMotherBrainEffectCueKind[signal.Kind](projectile);
+                }));
         }
 
         /// <summary>Moves the bomb.</summary>

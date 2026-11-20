@@ -8,21 +8,46 @@ internal abstract record EscapeDachoraCue
     {
     }
 
+    /// <summary>What <paramref name="cases"/> makes of this escape dachora cue, through the case it is.</summary>
+    /// <typeparam name="TResult">What the escape dachora cue is made into.</typeparam>
+    /// <param name="cases">What each case is made into.</param>
+    internal abstract TResult Match<TResult>(EscapeDachoraCueCases<TResult> cases);
+
+
     /// <summary>
     /// A low-tide lap ends (#2167): once the rising acid is above its low surface (<see cref="EscapeAnimalMotionDefinitions.LowAcidSurfaceY"/>) the owner takes the Dachora on into the high-tide
     /// laps, counting on the laps it had left.
     /// </summary>
     /// <param name="Lap">The way the lap ran.</param>
-    internal sealed record LowTideLapEnds(HorizontalDirection Lap) : EscapeDachoraCue;
+    internal sealed record LowTideLapEnds(HorizontalDirection Lap) : EscapeDachoraCue
+    {
+        /// <inheritdoc/>
+        internal override TResult Match<TResult>(EscapeDachoraCueCases<TResult> cases) => Ensure.NotNull(cases).LowTideLapEnds(this);
+    }
 
     /// <summary>
     /// A lap ends, after a low-tide lap's tide test (#2167): once the critters have escaped the owner starts the Dachora's
     /// run for the escape.
     /// </summary>
     /// <param name="Lap">The way the lap ran.</param>
-    internal sealed record LapEnds(HorizontalDirection Lap) : EscapeDachoraCue;
+    internal sealed record LapEnds(HorizontalDirection Lap) : EscapeDachoraCue
+    {
+        /// <inheritdoc/>
+        internal override TResult Match<TResult>(EscapeDachoraCueCases<TResult> cases) => Ensure.NotNull(cases).LapEnds(this);
+    }
 
     /// <summary>Moves the Dachora by the cue's pixels (#2151).</summary>
     /// <param name="Offset">The cue's signed pixel offset.</param>
-    internal sealed record Move(int Offset) : EscapeDachoraCue;
+    internal sealed record Move(int Offset) : EscapeDachoraCue
+    {
+        /// <inheritdoc/>
+        internal override TResult Match<TResult>(EscapeDachoraCueCases<TResult> cases) => Ensure.NotNull(cases).Move(this);
+    }
 }
+
+/// <summary>What each case of a <see cref="EscapeDachoraCue"/> is made into (#2553).</summary>
+/// <typeparam name="TResult">What the escape dachora cue is made into.</typeparam>
+/// <param name="LowTideLapEnds">Makes a <see cref="EscapeDachoraCue.LowTideLapEnds"/> into the result.</param>
+/// <param name="LapEnds">Makes a <see cref="EscapeDachoraCue.LapEnds"/> into the result.</param>
+/// <param name="Move">Makes a <see cref="EscapeDachoraCue.Move"/> into the result.</param>
+internal sealed record EscapeDachoraCueCases<TResult>(Func<EscapeDachoraCue.LowTideLapEnds, TResult> LowTideLapEnds, Func<EscapeDachoraCue.LapEnds, TResult> LapEnds, Func<EscapeDachoraCue.Move, TResult> Move);

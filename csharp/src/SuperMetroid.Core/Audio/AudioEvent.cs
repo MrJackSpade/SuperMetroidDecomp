@@ -16,10 +16,18 @@ public abstract record AudioEvent
     {
     }
 
+    /// <summary>Carries out the reaction <paramref name="reactions"/> has to this audio event, through the case it is.</summary>
+    /// <param name="reactions">What its owner does on each case.</param>
+    internal abstract void React(AudioEventReactions reactions);
+
+
     /// <summary>Switches to <see cref="DataSet"/>'s clip set before the update's clock steps run; the song stops.</summary>
     /// <param name="DataSet">The music data set switched to, or null for only the shared sounds.</param>
     public sealed record ChangeMusicDataSet(MusicDataSet? DataSet) : AudioEvent
     {
+        /// <inheritdoc/>
+        internal override void React(AudioEventReactions reactions) => Ensure.NotNull(reactions).ChangeMusicDataSet(this);
+
         /// <inheritdoc />
         public override string ToString() => $"data set:{DataSet?.ToString() ?? "shared"}";
     }
@@ -31,6 +39,9 @@ public abstract record AudioEvent
     /// <param name="Track">The track selected, or null to stop the music.</param>
     public sealed record SelectMusicTrack(MusicTrack? Track) : AudioEvent
     {
+        /// <inheritdoc/>
+        internal override void React(AudioEventReactions reactions) => Ensure.NotNull(reactions).SelectMusicTrack(this);
+
         /// <inheritdoc />
         public override string ToString() => Track is MusicTrack track ? $"music:{track}" : "music:stop";
     }
@@ -41,6 +52,9 @@ public abstract record AudioEvent
     /// <param name="ChecksRequests">Whether the step also checks the three sound libraries' requests.</param>
     public sealed record ClockStep(int SampleOffset, int Steps, bool ChecksRequests) : AudioEvent
     {
+        /// <inheritdoc/>
+        internal override void React(AudioEventReactions reactions) => Ensure.NotNull(reactions).ClockStep(this);
+
         /// <inheritdoc />
         public override string ToString() => $"step@{SampleOffset}x{Steps}{(ChecksRequests ? "+check" : "")}";
     }
@@ -50,7 +64,17 @@ public abstract record AudioEvent
     /// <param name="SampleOffset">Sound samples from the update's start of the checking step.</param>
     public sealed record StartSoundEffect(SoundEffectId SoundEffect, int SampleOffset) : AudioEvent
     {
+        /// <inheritdoc/>
+        internal override void React(AudioEventReactions reactions) => Ensure.NotNull(reactions).StartSoundEffect(this);
+
         /// <inheritdoc />
         public override string ToString() => $"start@{SampleOffset}:{SoundEffect}";
     }
 }
+
+/// <summary>What the owner of a <see cref="AudioEvent"/> does on each of its cases (#2553).</summary>
+/// <param name="ChangeMusicDataSet">Reacts to a <see cref="AudioEvent.ChangeMusicDataSet"/>.</param>
+/// <param name="SelectMusicTrack">Reacts to a <see cref="AudioEvent.SelectMusicTrack"/>.</param>
+/// <param name="ClockStep">Reacts to a <see cref="AudioEvent.ClockStep"/>.</param>
+/// <param name="StartSoundEffect">Reacts to a <see cref="AudioEvent.StartSoundEffect"/>.</param>
+public sealed record AudioEventReactions(Action<AudioEvent.ChangeMusicDataSet> ChangeMusicDataSet, Action<AudioEvent.SelectMusicTrack> SelectMusicTrack, Action<AudioEvent.ClockStep> ClockStep, Action<AudioEvent.StartSoundEffect> StartSoundEffect);

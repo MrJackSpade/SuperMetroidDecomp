@@ -43,20 +43,21 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         _scrollCap = scrollCap;
     }
 
+    /// <summary>What <c>ApplyYappingMawCue</c> does for each <see cref="YappingMawCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<YappingMawCueKind, Action<YappingMawEnemyState>> ApplyYappingMawCueForYappingMawCueKind => field ??= new(new Dictionary<YappingMawCueKind, Action<YappingMawEnemyState>>
+    {
+        [YappingMawCueKind.PlayBiteSound] = state => PlayYappingMawAttackSound(state),
+    });
+
     /// <summary>Carries out one cue of the Yapping Maw's animations: holding a grabbed Samus at a mouth offset, or the bite sound.</summary>
     private void ApplyYappingMawCue(YappingMawEnemyState state, YappingMawCue cue)
     {
-        switch (cue)
-        {
-            case YappingMawCue.HoldSamus hold:
-                SetYappingMawHeldOffset(state, hold.Aim);
-                break;
-            case YappingMawCue.Signal { Kind: YappingMawCueKind.PlayBiteSound }:
-                PlayYappingMawAttackSound(state);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined Yapping Maw cue {cue}.");
-        }
+        cue.React(new YappingMawCueReactions(
+            HoldSamus: hold => SetYappingMawHeldOffset(state, hold.Aim),
+            Signal: signal =>
+            {
+                ApplyYappingMawCueForYappingMawCueKind[signal.Kind](state);
+            }));
     }
 
     /// <summary>Initializes the Yapping Maw.</summary>

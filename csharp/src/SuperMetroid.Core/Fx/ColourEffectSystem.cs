@@ -314,29 +314,27 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <exception cref="InvalidOperationException">The effect watches a condition of no defined kind.</exception>
     private void CheckCondition(RoomColourEffect effect, ColourEffectInputs conditions)
     {
-        switch (effect.WatchedCondition)
-        {
-            case ColourEffectCondition.WatchesNothing:
-                return;
-            case ColourEffectCondition.EndsWhenTorizoDies:
+        effect.WatchedCondition.React(new ColourEffectConditionReactions(
+            WatchesNothing: _ =>
+            {
+            },
+            RestartsWhileSamusIsHigh: high =>
+            {
+                if (conditions.SamusY < high.Height)
+                    effect.Restart();
+            },
+            EndsWhenTorizoDies: _ =>
+            {
                 // An effect watching for a Torizo's defeat lights that Torizo, its target (ColourEffectTarget.OnLitTorizo.Accept).
                 if (effect.Target is ColourEffectTarget.OnLitTorizo { Torizo.IsDefeated: true })
                     effect.End();
-                return;
-            case ColourEffectCondition.EndsWhenAreaMiniBossDies:
+            },
+            EndsWhenAreaMiniBossDies: _ =>
+            {
                 if (conditions.AreaMiniBossDefeated)
                     effect.End();
-                return;
-            case ColourEffectCondition.RestartsWhileSamusIsHigh high:
-                if (conditions.SamusY < high.Height)
-                    effect.Restart();
-                return;
-            case ColourEffectCondition.BurnsSamusInHeat:
-                BurnSamusInHeat(effect, conditions.EquippedItems, conditions.Samus, conditions.FrameCounter);
-                return;
-            default:
-                throw new InvalidOperationException($"Colour effect {effect.Effect} watches undefined condition {effect.Condition}.");
-        }
+            },
+            BurnsSamusInHeat: _ => BurnSamusInHeat(effect, conditions.EquippedItems, conditions.Samus, conditions.FrameCounter)));
     }
 
     /// <summary>
@@ -375,17 +373,9 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <exception cref="InvalidOperationException">The step is of no defined kind.</exception>
     private void CarryOut(RoomColourEffect effect, ColourEffectCue cue)
     {
-        switch (cue)
-        {
-            case ColourEffectCue.PublishHeatPhase publishHeatPhase:
-                _session.PublishedHeatPhase = publishHeatPhase.Phase;
-                return;
-            case ColourEffectCue.QueueSound queueSound:
-                sounds.QueueSound(queueSound.Sound, ColourEffectSoundPriorities.CueSound);
-                return;
-            default:
-                throw new InvalidOperationException($"Colour effect {effect.Effect} raised undefined step {cue}.");
-        }
+        cue.React(new ColourEffectCueReactions(
+            QueueSound: queueSound => sounds.QueueSound(queueSound.Sound, ColourEffectSoundPriorities.CueSound),
+            PublishHeatPhase: publishHeatPhase => _session.PublishedHeatPhase = publishHeatPhase.Phase));
     }
 
     /// <summary>

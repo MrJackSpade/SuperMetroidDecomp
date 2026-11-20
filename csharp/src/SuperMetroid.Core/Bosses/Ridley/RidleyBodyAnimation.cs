@@ -42,6 +42,50 @@ internal sealed class RidleyBodyAnimation
         ridley.Flight.BodyPlayback = playback;
     }
 
+    /// <summary>What <c>ApplyCue</c> comes to for each <see cref="RidleyBodyCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<RidleyBodyCueKind, Func<RoomEnemyPlace, SamusState, IRidleyBodyOwner, RidleyFlightState, RidleyBodySegment?>> ApplyCueForRidleyBodyCueKind => field ??= new(new Dictionary<RidleyBodyCueKind, Func<RoomEnemyPlace, SamusState, IRidleyBodyOwner, RidleyFlightState, RidleyBodySegment?>>
+    {
+        [RidleyBodyCueKind.MayCutFireballingShort] = (place, samus, owner, flight) => owner.CutFireballingShort(samus),
+        [RidleyBodyCueKind.Roar] = (place, samus, owner, flight) =>
+        {
+            flight.Roaring = true;
+            _audio.QueueEnemySound(RidleySoundDefinitions.Roar, priority: SoundRequestPriority.Normal);
+            return null;
+        },
+        [RidleyBodyCueKind.StopRoaring] = (place, samus, owner, flight) =>
+        {
+            flight.Roaring = false;
+            return null;
+        },
+        [RidleyBodyCueKind.FaceForward] = (place, samus, owner, flight) =>
+        {
+            flight.FacingDirection = RidleyFacing.Turning;
+            return null;
+        },
+        [RidleyBodyCueKind.AimFireball] = (place, samus, owner, flight) =>
+        {
+            RidleyProjectiles.CalculateRidleyFireballVelocity(place, flight, samus);
+            return null;
+        },
+        [RidleyBodyCueKind.SpawnFireballWithAfterburn] = (place, samus, owner, flight) =>
+        {
+            _ridleyProjectiles.SpawnRidleyFireball(place, flight, afterburns: RidleyFireballDefinitions.AfterburnStages);
+            return null;
+        },
+        [RidleyBodyCueKind.SpawnFireballWithoutAfterburn] = (place, samus, owner, flight) =>
+        {
+            _ridleyProjectiles.SpawnRidleyFireball(place, flight, afterburns: 0);
+            return null;
+        },
+        [RidleyBodyCueKind.LiftOff] = (place, samus, owner, flight) =>
+        {
+            // The take-off hands control to the encounter's flight and starts his rise in the same update.
+            owner.LiftOff();
+            flight.Velocity = flight.Velocity.WithY(RidleyFlightDefinitions.LiftoffRise);
+            return null;
+        },
+    });
+
     /// <summary>Carries out one cue of Ridley's body animation, returning the segment whose animation a continue-at cue continues in.</summary>
     /// <param name="place">Ridley's body.</param>
     /// <param name="ridley">Ridley's encounter.</param>
@@ -51,47 +95,27 @@ internal sealed class RidleyBodyAnimation
     private RidleyBodySegment? ApplyCue(RoomEnemyPlace place, RidleyEncounterState ridley, SamusState samus, RidleyBodyCue cue, IRidleyBodyOwner owner)
     {
         RidleyFlightState flight = ridley.Flight;
-        switch (cue)
-        {
-            case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.MayCutFireballingShort }:
-                return owner.CutFireballingShort(samus);
-            case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.Roar }:
-                flight.Roaring = true;
-                _audio.QueueEnemySound(RidleySoundDefinitions.Roar, priority: SoundRequestPriority.Normal);
-                return null;
-            case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.StopRoaring }:
-                flight.Roaring = false;
-                return null;
-            case RidleyBodyCue.SetClawHeight setClawHeight:
-                flight.ClawHeight = setClawHeight.Height;
-                return null;
-            case RidleyBodyCue.Move move:
+        return cue.Match(new RidleyBodyCueCases<RidleyBodySegment?>(
+            Move: move =>
+            {
                 place.Position += move.Displacement;
                 return null;
-            case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.FaceForward }:
-                flight.FacingDirection = RidleyFacing.Turning;
+            },
+            SetClawHeight: setClawHeight =>
+            {
+                flight.ClawHeight = setClawHeight.Height;
                 return null;
-            case RidleyBodyCue.Flip flip:
+            },
+            Flip: flip =>
+            {
                 RidleyTail.MirrorRidleyTail(ridley.Tail);
                 flight.FacingDirection = flip.Facing == HorizontalDirection.Left ? RidleyFacing.Left : RidleyFacing.Right;
                 return null;
-            case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.AimFireball }:
-                RidleyProjectiles.CalculateRidleyFireballVelocity(place, flight, samus);
-                return null;
-            case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.SpawnFireballWithAfterburn }:
-                _ridleyProjectiles.SpawnRidleyFireball(place, flight, afterburns: RidleyFireballDefinitions.AfterburnStages);
-                return null;
-            case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.SpawnFireballWithoutAfterburn }:
-                _ridleyProjectiles.SpawnRidleyFireball(place, flight, afterburns: 0);
-                return null;
-            case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.LiftOff }:
-                // The take-off hands control to the encounter's flight and starts his rise in the same update.
-                owner.LiftOff();
-                flight.Velocity = flight.Velocity.WithY(RidleyFlightDefinitions.LiftoffRise);
-                return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(RidleyBodyCueKind)} {cue}.");
-        }
+            },
+            Signal: signal =>
+            {
+                return ApplyCueForRidleyBodyCueKind[signal.Kind](place, samus, owner, flight);
+            }));
     }
 
     /// <summary>

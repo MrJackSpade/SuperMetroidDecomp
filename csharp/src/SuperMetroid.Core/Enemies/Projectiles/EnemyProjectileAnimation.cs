@@ -25,26 +25,25 @@ internal abstract class EnemyProjectileAnimation
         EnemyProjectileFrameStep step = NextFrame(context);
         if (projectile.Animation != this)
             return;
-        switch (step)
-        {
-            case EnemyProjectileFrameStep.Show shown:
+        step.React(new EnemyProjectileFrameStepReactions(
+            Show: shown =>
+            {
                 projectile.FrameHold = WrappingCountdown.Start(shown.Duration);
                 projectile.Frame = shown.Frame;
-                return;
-            case EnemyProjectileFrameStep.ShowForGood held:
+            },
+            ShowForGood: held =>
+            {
                 // A frame shown for good stops the hold: the projectile shows it until its owner sets the hold again or
                 // starts another animation.
                 projectile.StopFrameHold();
                 projectile.Frame = held.Frame;
-                return;
-            case EnemyProjectileFrameStep.Rest:
+            },
+            Rest: _ =>
+            {
                 // A held timeline rests on the frame it shows: the hold stops until the projectile's owner sets it again or
                 // starts another animation.
                 projectile.StopFrameHold();
-                return;
-            default:
-                throw new InvalidOperationException($"A projectile animation took an undefined step {step}.");
-        }
+            }));
     }
 
     /// <summary>Advances the timeline to its next frame, a frame shown for good, or its rest.</summary>

@@ -458,6 +458,40 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         }
     }
 
+    /// <summary>What <c>ApplyMagdolliteCue</c> does for each <see cref="MagdolliteCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<MagdolliteCueKind, Action<RoomEnemyPlace, MagdollitePartState>> ApplyMagdolliteCueForMagdolliteCueKind => field ??= new(new Dictionary<MagdolliteCueKind, Action<RoomEnemyPlace, MagdollitePartState>>
+    {
+        [MagdolliteCueKind.FinishSubmerge] = (place, state) => place.RequireSpeciesState<MagdolliteHeadState>().FinishSubmerge(),
+        [MagdolliteCueKind.FinishEmerge] = (place, state) => place.RequireSpeciesState<MagdolliteHeadState>().FinishEmerge(),
+        [MagdolliteCueKind.FinishThrow] = (place, state) => place.RequireSpeciesState<MagdolliteOverlayState>().FinishThrow(),
+        [MagdolliteCueKind.SinkAndShowParts] = (place, state) =>
+        {
+            (_, RoomEnemyPlace body, RoomEnemyPlace overlay) = RequireMagdolliteComposite(place);
+            int sunkY = state.OriginY + MagdolliteMotionDefinitions.SunkDepth;
+            place.Position = place.Position.WithWholeY(sunkY);
+            body.Position = body.Position.WithWholeY(sunkY);
+            body.Presence = body.Presence.Without(EnemyPresence.Hidden);
+            overlay.Presence = overlay.Presence.Without(EnemyPresence.Hidden);
+        },
+        [MagdolliteCueKind.RestoreOrigins] = (place, state) =>
+        {
+            (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(place);
+            place.Position = place.Position.WithWholeY(state.OriginY);
+            body.Position = body.Position.WithWholeY(state.OriginY);
+        },
+        [MagdolliteCueKind.SurfaceAndHideParts] = (place, state) =>
+        {
+            (_, RoomEnemyPlace body, RoomEnemyPlace overlay) = RequireMagdolliteComposite(place);
+            int surfacedY = state.OriginY + MagdolliteMotionDefinitions.SurfacedDepth;
+            place.Position = place.Position.WithWholeY(surfacedY);
+            body.Position = body.Position.WithWholeY(surfacedY);
+            body.Presence = body.Presence.With(EnemyPresence.Hidden);
+            overlay.Presence = overlay.Presence.With(EnemyPresence.Hidden);
+        },
+        [MagdolliteCueKind.SpawnLava] = (place, state) => SpawnMagdolliteLava(place, place.RequireSpeciesState<MagdolliteOverlayState>().ThrowDirection),
+        [MagdolliteCueKind.StartCooldown] = (place, state) => place.RequireSpeciesState<MagdolliteOverlayState>().AttackCooldown = UpdateCountdown.Lasting(MagdolliteMotionDefinitions.AttackCooldown),
+    });
+
     /// <summary>
     /// Carries out one cue of a Magdollite part's animations: a sound heard while the part is in view, a move of the part or
     /// of the head with the body's pillar, a shift from the throw's origin, or a signal (<see cref="MagdolliteCueKind"/>).
@@ -469,73 +503,25 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         MagdolliteCue cue,
         Position16<RoomPixels> camera)
     {
-        switch (cue)
-        {
-            case MagdolliteCue.PlaySoundIfOnScreen playSound:
+        cue.React(new MagdolliteCueReactions(
+            PlaySoundIfOnScreen: playSound =>
             {
                 if (EnemyView.Contains(place.Position.Whole, camera))
                     _audio.QueueEnemySound(playSound.Sound, priority: SoundRequestPriority.Normal);
-                break;
-            }
-            case MagdolliteCue.Move move:
-                place.Position += move.Offset;
-                break;
-            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.FinishSubmerge }:
-                place.RequireSpeciesState<MagdolliteHeadState>().FinishSubmerge();
-                break;
-            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.FinishEmerge }:
-                place.RequireSpeciesState<MagdolliteHeadState>().FinishEmerge();
-                break;
-            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.FinishThrow }:
-                place.RequireSpeciesState<MagdolliteOverlayState>().FinishThrow();
-                break;
-            case MagdolliteCue.MoveWithPillar moveWithPillar:
+            },
+            Move: move => place.Position += move.Offset,
+            MoveWithPillar: moveWithPillar =>
             {
                 // Only the head's submerge and emerge raise it, moving the head with the body's pillar.
                 (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(place);
                 place.Position += moveWithPillar.Offset;
                 body.Position += moveWithPillar.Offset;
-                break;
-            }
-            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SinkAndShowParts }:
+            },
+            ShiftFromThrowOrigin: shift => place.Position = place.Position.WithWhole(place.RequireSpeciesState<MagdolliteOverlayState>().ThrowOrigin + shift.Offset),
+            Signal: signal =>
             {
-                (_, RoomEnemyPlace body, RoomEnemyPlace overlay) = RequireMagdolliteComposite(place);
-                int sunkY = state.OriginY + MagdolliteMotionDefinitions.SunkDepth;
-                place.Position = place.Position.WithWholeY(sunkY);
-                body.Position = body.Position.WithWholeY(sunkY);
-                body.Presence = body.Presence.Without(EnemyPresence.Hidden);
-                overlay.Presence = overlay.Presence.Without(EnemyPresence.Hidden);
-                break;
-            }
-            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.RestoreOrigins }:
-            {
-                (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(place);
-                place.Position = place.Position.WithWholeY(state.OriginY);
-                body.Position = body.Position.WithWholeY(state.OriginY);
-                break;
-            }
-            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SurfaceAndHideParts }:
-            {
-                (_, RoomEnemyPlace body, RoomEnemyPlace overlay) = RequireMagdolliteComposite(place);
-                int surfacedY = state.OriginY + MagdolliteMotionDefinitions.SurfacedDepth;
-                place.Position = place.Position.WithWholeY(surfacedY);
-                body.Position = body.Position.WithWholeY(surfacedY);
-                body.Presence = body.Presence.With(EnemyPresence.Hidden);
-                overlay.Presence = overlay.Presence.With(EnemyPresence.Hidden);
-                break;
-            }
-            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SpawnLava }:
-                SpawnMagdolliteLava(place, place.RequireSpeciesState<MagdolliteOverlayState>().ThrowDirection);
-                break;
-            case MagdolliteCue.ShiftFromThrowOrigin shift:
-                place.Position = place.Position.WithWhole(place.RequireSpeciesState<MagdolliteOverlayState>().ThrowOrigin + shift.Offset);
-                break;
-            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.StartCooldown }:
-                place.RequireSpeciesState<MagdolliteOverlayState>().AttackCooldown = UpdateCountdown.Lasting(MagdolliteMotionDefinitions.AttackCooldown);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(MagdolliteCue)} {cue}.");
-        }
+                ApplyMagdolliteCueForMagdolliteCueKind[signal.Kind](place, state);
+            }));
     }
 
     /// <summary>

@@ -33,26 +33,23 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
+    /// <summary>What <c>ApplyHopperCue</c> does for each <see cref="HopperCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<HopperCueKind, Action<RoomEnemyPlace, HopperEnemyState>> ApplyHopperCueForHopperCueKind => field ??= new(new Dictionary<HopperCueKind, Action<RoomEnemyPlace, HopperEnemyState>>
+    {
+        [HopperCueKind.ProcessOffScreen] = static (place, state) => place.Processing = place.Processing.With(EnemyProcessing.OffScreen),
+        [HopperCueKind.StopProcessingOffScreen] = static (place, state) => place.Processing = place.Processing.Without(EnemyProcessing.OffScreen),
+        [HopperCueKind.ReadyToHop] = static (place, state) => state.ReadyToHop = true,
+    });
+
     /// <summary>Carries out one cue of the hoppers' animations.</summary>
     private void ApplyHopperCue(RoomEnemyPlace place, HopperEnemyState state, HopperCue cue)
     {
-        switch (cue)
-        {
-            case HopperCue.Signal { Kind: HopperCueKind.ProcessOffScreen }:
-                place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
-                break;
-            case HopperCue.Signal { Kind: HopperCueKind.StopProcessingOffScreen }:
-                place.Processing = place.Processing.Without(EnemyProcessing.OffScreen);
-                break;
-            case HopperCue.PlaySound sound:
-                _audio.QueueEnemySound(sound.Sound, priority: SoundRequestPriority.Normal);
-                break;
-            case HopperCue.Signal { Kind: HopperCueKind.ReadyToHop }:
-                state.ReadyToHop = true;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined hopper cue {cue}.");
-        }
+        cue.React(new HopperCueReactions(
+            PlaySound: sound => _audio.QueueEnemySound(sound.Sound, priority: SoundRequestPriority.Normal),
+            Signal: signal =>
+            {
+                ApplyHopperCueForHopperCueKind[signal.Kind](place, state);
+            }));
     }
 
     /// <summary>Initializes the Hopper.</summary>

@@ -708,28 +708,30 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         /// <summary>The way each acid was spat, given as its Ki-Hunter spits it.</summary>
         internal EnemyProjectileStates<KiHunterAcidState> Spits { get; } = new();
 
+        /// <summary>What <c>RunCue</c> does for each <see cref="KiHunterAcidSpitCueKind"/> member, each member's own arm.</summary>
+        private static IdentityTable<KiHunterAcidSpitCueKind, Action<EnemyProjectile>> RunCueForKiHunterAcidSpitCueKind => field ??= new(new Dictionary<KiHunterAcidSpitCueKind, Action<EnemyProjectile>>
+        {
+            [KiHunterAcidSpitCueKind.StopMoving] = static projectile => projectile.HoldStill(),
+            [KiHunterAcidSpitCueKind.Delete] = static projectile => projectile.Delete(),
+        });
+
         /// <summary>Carries out one cue of the acid's animations: its launch either way, its stop on the floor, or its deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, KiHunterAcidSpitCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
-            switch (cue)
-            {
-                case KiHunterAcidSpitCue.Launch launch:
+            cue.React(new KiHunterAcidSpitCueReactions(
+                Launch: launch =>
+                {
                     // The launch cue names the way the acid's animation spits it, which must be the way its Ki-Hunter spat it (#2338).
                     HorizontalDirection spat = Spits.Of(projectile).Spat;
                     if (launch.Direction != spat)
                         throw new InvalidOperationException($"Acid spat {spat} played the animation that launches it {launch.Direction}.");
                     projectile.StartMotion(this, KiHunterAcidMotion.Launching);
-                    break;
-                case KiHunterAcidSpitCue.Signal { Kind: KiHunterAcidSpitCueKind.StopMoving }:
-                    projectile.HoldStill();
-                    break;
-                case KiHunterAcidSpitCue.Signal { Kind: KiHunterAcidSpitCueKind.Delete }:
-                    projectile.Delete();
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KiHunterAcidSpitCue)} {cue}.");
-            }
+                },
+                Signal: signal =>
+                {
+                    RunCueForKiHunterAcidSpitCueKind[signal.Kind](projectile);
+                }));
         }
 
         /// <summary>What <c>Move</c> does for each <see cref="KiHunterAcidMotion"/> member, each member's own arm.</summary>

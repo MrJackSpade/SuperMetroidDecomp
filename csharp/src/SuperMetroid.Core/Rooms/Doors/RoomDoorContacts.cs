@@ -27,19 +27,12 @@ internal sealed class RoomDoorContacts
     /// <param name="contact">The contact her collision made.</param>
     internal void Meet(DoorContact contact)
     {
-        switch (Ensure.NotNull(contact))
-        {
-            case DoorContact.EntersDoor entered:
-                EnteredDoor ??= entered.Door;
-                return;
-            case DoorContact.StandsAtElevator:
-                ElevatorStand.Stand();
-                return;
-            case DoorContact.BrushesElevator:
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DoorContact)} {contact}.");
-        }
+        Ensure.NotNull(contact).React(new DoorContactReactions(
+            EntersDoor: entered => EnteredDoor ??= entered.Door,
+            StandsAtElevator: _ => ElevatorStand.Stand(),
+            BrushesElevator: _ =>
+            {
+            }));
     }
 
     /// <summary>

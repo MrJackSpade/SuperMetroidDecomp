@@ -142,20 +142,17 @@ internal sealed class IntroMotherBrainSpriteState
         return true;
     }
 
+    /// <summary>What <c>Step</c> does for each <see cref="IntroMotherBrainCue"/> member, each member's own arm.</summary>
+    private IdentityTable<IntroMotherBrainCue, Action> StepForIntroMotherBrainCue => field ??= new(new Dictionary<IntroMotherBrainCue, Action>
+    {
+        [IntroMotherBrainCue.StartNextPage] = () => NextPageRequested = true,
+        [IntroMotherBrainCue.StartCrossFade] = () => phase = IntroMotherBrainPhase.CrossfadingToNextPage,
+    });
+
     /// <summary>Runs one cinematic sprite update for Mother Brain's definition.</summary>
     public void Step() => actor.Step(cue =>
     {
-        switch (cue)
-        {
-            case IntroMotherBrainCue.StartNextPage:
-                NextPageRequested = true;
-                return;
-            case IntroMotherBrainCue.StartCrossFade:
-                phase = IntroMotherBrainPhase.CrossfadingToNextPage;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroMotherBrainCue)} {cue}.");
-        }
+        StepForIntroMotherBrainCue[cue]();
     });
 
     /// <summary>Shakes the room picture: its scroll alternates between the flashback's scroll and four pixels further.</summary>

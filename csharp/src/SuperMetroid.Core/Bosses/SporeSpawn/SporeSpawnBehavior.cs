@@ -424,50 +424,39 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
+    /// <summary>What <c>ApplySporeSpawnCue</c> does for each <see cref="SporeSpawnCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<SporeSpawnCueKind, Action<RoomEnemyPlace, SporeSpawnEnemyState, SamusState>> ApplySporeSpawnCueForSporeSpawnCueKind => field ??= new(new Dictionary<SporeSpawnCueKind, Action<RoomEnemyPlace, SporeSpawnEnemyState, SamusState>>
+    {
+        [SporeSpawnCueKind.WidenSway] = (body, state, samus) => state.SwayRadius = state.SwayRadius.Widened(),
+        [SporeSpawnCueKind.ReopenToHits] = (body, state, samus) => state.Damaged = false,
+        [SporeSpawnCueKind.Harden] = (body, state, samus) =>
+        {
+            body.Position = body.Position.WithWhole(new(SporeSpawnArenaDefinitions.CentreX, SporeSpawnArenaDefinitions.CentreY));
+            body.Contact = body.Contact.Replace(EnemyContact.IgnoresSamus, EnemyContact.SolidToSamus);
+            body.Processing = body.Processing.With(EnemyProcessing.Animates);
+        },
+        [SporeSpawnCueKind.RequestDeathDrops] = (body, state, samus) => RequestSporeSpawnDeathDrops(samus),
+        [SporeSpawnCueKind.SpawnHardeningDust] = (body, state, samus) => SpawnSporeSpawnHardeningDust(body),
+        [SporeSpawnCueKind.SpawnDyingExplosion] = (body, state, samus) => SpawnSporeSpawnDyingExplosion(body),
+    });
+
     /// <summary>Carries out one cue of Spore Spawn's body animation.</summary>
     internal void ApplySporeSpawnCue(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnCue cue, SamusState samus)
     {
-        switch (cue)
-        {
-            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.WidenSway }:
-                state.SwayRadius = state.SwayRadius.Widened();
-                return;
-            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.ReopenToHits }:
-                state.Damaged = false;
-                return;
-            case SporeSpawnCue.SetSway setSway:
+        cue.React(new SporeSpawnCueReactions(
+            ShowDeathShade: showDeathShade => ShowSporeSpawnDeathShade(body, state, showDeathShade.DeathShadeStep),
+            QueueSound: queueSound => RequestSporeSpawnSound(queueSound.Sound),
+            SetMovement: setMovement => state.Movement = setMovement.Movement,
+            SetSway: setSway =>
+            {
                 state.SwayRadius = setSway.Radius;
                 state.SwayStep = setSway.Step;
-                return;
-            case SporeSpawnCue.SetSporeGeneration setSporeGeneration:
-                state.SporeGenerationSuppressed = setSporeGeneration.SporeGenerationSuppressed;
-                return;
-            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.Harden }:
-                body.Position = body.Position.WithWhole(new(SporeSpawnArenaDefinitions.CentreX, SporeSpawnArenaDefinitions.CentreY));
-                body.Contact = body.Contact.Replace(EnemyContact.IgnoresSamus, EnemyContact.SolidToSamus);
-                body.Processing = body.Processing.With(EnemyProcessing.Animates);
-                return;
-            case SporeSpawnCue.QueueSound queueSound:
-                RequestSporeSpawnSound(queueSound.Sound);
-                return;
-            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.RequestDeathDrops }:
-                RequestSporeSpawnDeathDrops(samus);
-                return;
-            case SporeSpawnCue.SetMovement setMovement:
-                state.Movement = setMovement.Movement;
-                return;
-            case SporeSpawnCue.ShowDeathShade showDeathShade:
-                ShowSporeSpawnDeathShade(body, state, showDeathShade.DeathShadeStep);
-                return;
-            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.SpawnHardeningDust }:
-                SpawnSporeSpawnHardeningDust(body);
-                return;
-            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.SpawnDyingExplosion }:
-                SpawnSporeSpawnDyingExplosion(body);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SporeSpawnCueKind)} {cue}.");
-        }
+            },
+            SetSporeGeneration: setSporeGeneration => state.SporeGenerationSuppressed = setSporeGeneration.SporeGenerationSuppressed,
+            Signal: signal =>
+            {
+                ApplySporeSpawnCueForSporeSpawnCueKind[signal.Kind](body, state, samus);
+            }));
     }
 
     /// <summary>Shows <paramref name="band"/>'s colours of <paramref name="state"/> on his <paramref name="body"/>.</summary>

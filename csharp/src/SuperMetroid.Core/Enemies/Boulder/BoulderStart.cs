@@ -8,6 +8,9 @@ internal abstract record BoulderStart
     {
     }
 
+    /// <summary>How many pixels above its resting place the Boulder hangs before it starts.</summary>
+    internal abstract int InitialLift { get; }
+
     /// <summary>Hangs above its resting place and falls, bouncing before it rolls.</summary>
     internal sealed record FallsFrom : BoulderStart
     {
@@ -17,6 +20,9 @@ internal abstract record BoulderStart
 
         /// <summary>The pixels it hangs above its resting place, one or more.</summary>
         internal int Drop { get; }
+
+        /// <inheritdoc/>
+        internal override int InitialLift => Drop;
     }
 
     /// <summary>Rolls at once, without falling or bouncing.</summary>
@@ -24,6 +30,13 @@ internal abstract record BoulderStart
     {
         /// <summary>The one start of its kind.</summary>
         internal static RollsAtOnce Instance { get; } = new();
+
+        /// <inheritdoc/>
+        /// <remarks>
+        /// A Boulder that rolls at once still hangs a pixel above its resting place, and its trigger starts it rolling
+        /// instead of falling.
+        /// </remarks>
+        internal override int InitialLift => BoulderMotionDefinitions.RollingStartLift;
 
         /// <summary>Creates the one start of its kind.</summary>
         private RollsAtOnce()

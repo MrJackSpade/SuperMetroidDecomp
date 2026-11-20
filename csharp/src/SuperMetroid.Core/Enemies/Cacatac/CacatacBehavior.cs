@@ -32,23 +32,22 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
+    /// <summary>What <c>ApplyCacatacCue</c> does for each <see cref="CacatacCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<CacatacCueKind, Action<CacatacEnemyState>> ApplyCacatacCueForCacatacCueKind => field ??= new(new Dictionary<CacatacCueKind, Action<CacatacEnemyState>>
+    {
+        [CacatacCueKind.RestorePatrol] = state => RestoreCacatacPatrol(state),
+        [CacatacCueKind.PlaySpikeSound] = state => PlayCacatacSpikeSound(),
+    });
+
     /// <summary>Carries out one cue of Cacatac's animations.</summary>
     private void ApplyCacatacCue(RoomEnemyPlace place, CacatacEnemyState state, CacatacCue cue)
     {
-        switch (cue)
-        {
-            case CacatacCue.Signal { Kind: CacatacCueKind.RestorePatrol }:
-                RestoreCacatacPatrol(state);
-                break;
-            case CacatacCue.Signal { Kind: CacatacCueKind.PlaySpikeSound }:
-                PlayCacatacSpikeSound();
-                break;
-            case CacatacCue.SpawnSpike spike:
-                SpawnCacatacSpike(place, spike.Direction);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined Cacatac cue {cue}.");
-        }
+        cue.React(new CacatacCueReactions(
+            SpawnSpike: spike => SpawnCacatacSpike(place, spike.Direction),
+            Signal: signal =>
+            {
+                ApplyCacatacCueForCacatacCueKind[signal.Kind](state);
+            }));
     }
 
     /// <summary>Initializes the Cacatac.</summary>

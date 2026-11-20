@@ -14,6 +14,11 @@ internal abstract record DoorContact
     {
     }
 
+    /// <summary>Carries out the reaction <paramref name="reactions"/> has to this door contact, through the case it is.</summary>
+    /// <param name="reactions">What its owner does on each case.</param>
+    internal abstract void React(DoorContactReactions reactions);
+
+
     /// <summary>Whether the block stops Samus as a solid block does: the elevator's door, which leads to no room.</summary>
     public abstract bool Blocks { get; }
 
@@ -38,12 +43,18 @@ internal abstract record DoorContact
     internal sealed record EntersDoor(DoorDefinition Door) : DoorContact
     {
         /// <inheritdoc/>
+        internal override void React(DoorContactReactions reactions) => Ensure.NotNull(reactions).EntersDoor(this);
+
+        /// <inheritdoc/>
         public override bool Blocks => false;
     }
 
     /// <summary>Samus stands at the elevator's door, which arms the elevator.</summary>
     internal sealed record StandsAtElevator : DoorContact
     {
+        /// <inheritdoc/>
+        internal override void React(DoorContactReactions reactions) => Ensure.NotNull(reactions).StandsAtElevator(this);
+
         /// <summary>The one stand at the elevator's door.</summary>
         internal static StandsAtElevator Instance { get; } = new();
 
@@ -54,6 +65,9 @@ internal abstract record DoorContact
     /// <summary>Samus meets the elevator's door in a pose other than standing, which stops her and arms nothing.</summary>
     internal sealed record BrushesElevator : DoorContact
     {
+        /// <inheritdoc/>
+        internal override void React(DoorContactReactions reactions) => Ensure.NotNull(reactions).BrushesElevator(this);
+
         /// <summary>The one brush of the elevator's door.</summary>
         internal static BrushesElevator Instance { get; } = new();
 
@@ -61,3 +75,9 @@ internal abstract record DoorContact
         public override bool Blocks => true;
     }
 }
+
+/// <summary>What the owner of a <see cref="DoorContact"/> does on each of its cases (#2553).</summary>
+/// <param name="EntersDoor">Reacts to a <see cref="DoorContact.EntersDoor"/>.</param>
+/// <param name="StandsAtElevator">Reacts to a <see cref="DoorContact.StandsAtElevator"/>.</param>
+/// <param name="BrushesElevator">Reacts to a <see cref="DoorContact.BrushesElevator"/>.</param>
+internal sealed record DoorContactReactions(Action<DoorContact.EntersDoor> EntersDoor, Action<DoorContact.StandsAtElevator> StandsAtElevator, Action<DoorContact.BrushesElevator> BrushesElevator);

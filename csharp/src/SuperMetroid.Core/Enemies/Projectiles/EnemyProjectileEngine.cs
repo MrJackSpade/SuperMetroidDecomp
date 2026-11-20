@@ -26,23 +26,22 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 [RoomLifetime]
 internal sealed class EnemyProjectileEngine
 {
+    /// <summary>What <c>ApplyCommonCue</c> does for each <see cref="EnemyProjectileCommonCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<EnemyProjectileCommonCueKind, Action<EnemyProjectile>> ApplyCommonCueForEnemyProjectileCommonCueKind => field ??= new(new Dictionary<EnemyProjectileCommonCueKind, Action<EnemyProjectile>>
+    {
+        [EnemyProjectileCommonCueKind.Delete] = static projectile => projectile.Delete(),
+        [EnemyProjectileCommonCueKind.ReturnToOrigin] = static projectile => projectile.Position = projectile.Position.WithWhole(projectile.Anchor),
+    });
+
     /// <summary>Carries out one shared cue of a typed projectile animation, for every kind whose animations publish them.</summary>
     internal void ApplyCommonCue(EnemyProjectile projectile, EnemyProjectileCommonCue cue)
     {
-        switch (cue)
-        {
-            case EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.Delete }:
-                projectile.Delete();
-                break;
-            case EnemyProjectileCommonCue.Scatter scatter:
-                Scatter(projectile, scatter.Spread);
-                break;
-            case EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.ReturnToOrigin }:
-                projectile.Position = projectile.Position.WithWhole(projectile.Anchor);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EnemyProjectileCommonCueKind)} {cue}.");
-        }
+        cue.React(new EnemyProjectileCommonCueReactions(
+            Scatter: scatter => Scatter(projectile, scatter.Spread),
+            Signal: signal =>
+            {
+                ApplyCommonCueForEnemyProjectileCommonCueKind[signal.Kind](projectile);
+            }));
     }
 
     /// <summary>Supplies room RNG and artwork for projectile effects.</summary>

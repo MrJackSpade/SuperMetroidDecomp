@@ -30,23 +30,22 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio = audio;
     }
 
+    /// <summary>What <c>ApplyHibashiCue</c> does for each <see cref="HibashiCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<HibashiCueKind, Action<RoomEnemyPlace>> ApplyHibashiCueForHibashiCueKind => field ??= new(new Dictionary<HibashiCueKind, Action<RoomEnemyPlace>>
+    {
+        [HibashiCueKind.PlayEruptionSound] = place => PlayHibashiEruptionSound(),
+        [HibashiCueKind.FinishActivity] = place => FinishHibashiActivity(place),
+    });
+
     /// <summary>Carries out one cue of the Hibashi's eruption: its sound, an eruption frame's hitbox, or finishing.</summary>
     private void ApplyHibashiCue(RoomEnemyPlace place, HibashiCue cue)
     {
-        switch (cue)
-        {
-            case HibashiCue.Signal { Kind: HibashiCueKind.PlayEruptionSound }:
-                PlayHibashiEruptionSound();
-                break;
-            case HibashiCue.EruptionStep step:
-                ApplyHibashiEruptionStep(place, step.Step);
-                break;
-            case HibashiCue.Signal { Kind: HibashiCueKind.FinishActivity }:
-                FinishHibashiActivity(place);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined Hibashi cue {cue}.");
-        }
+        cue.React(new HibashiCueReactions(
+            EruptionStep: step => ApplyHibashiEruptionStep(place, step.Step),
+            Signal: signal =>
+            {
+                ApplyHibashiCueForHibashiCueKind[signal.Kind](place);
+            }));
     }
 
     /// <summary>Initializes the collision part, which holds the one-frame hitbox animation.</summary>

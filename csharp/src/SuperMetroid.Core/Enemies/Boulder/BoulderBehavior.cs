@@ -52,20 +52,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousY = place.Position.Y;
 
         BoulderSpawnSettings settings = place.SpawnSettings<BoulderSpawnSettings>();
-        int initialYOffset;
-        switch (settings.Start)
-        {
-            case BoulderStart.FallsFrom fall:
-                initialYOffset = fall.Drop;
-                break;
-            case BoulderStart.RollsAtOnce:
-                // A Boulder that rolls at once still hangs a pixel above its resting place, and its trigger starts it
-                // rolling instead of falling.
-                initialYOffset = BoulderMotionDefinitions.RollingStartLift;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BoulderStart)} {settings.Start}.");
-        }
+        int initialYOffset = settings.Start.InitialLift;
         place.Position = place.Position.WithWholeY(state.RestingY - initialYOffset);
 
         InitializeBoulderForBoulderRoll[settings.Roll](state);

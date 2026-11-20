@@ -175,9 +175,9 @@ internal sealed class DraygonParts
     /// <remarks>Draygon's cues never continue the running part's play elsewhere.</remarks>
     private void ApplyDraygonCue(DraygonEnemyState state, SamusState samus, DraygonCue cue)
     {
-        switch (cue)
-        {
-            case DraygonCue.StartPartAnimations start:
+        cue.React(new DraygonCueReactions(
+            StartPartAnimations: start =>
+            {
                 state.BodyPart.SetAnimation(start.Body);
                 state.EyePart.SetAnimation(start.Eye);
                 state.TailPart.SetAnimation(start.Tail);
@@ -186,38 +186,20 @@ internal sealed class DraygonParts
                 state.Tail.AnimationClock.StepOnNextUpdate();
                 state.Eye.AnimationClock.StepOnNextUpdate();
                 state.Body.AnimationClock.StepOnNextUpdate();
-                return;
-            case DraygonCue.TrackWithEye track:
-                Track(state.EyeTracking, track.Facing);
-                return;
-            case DraygonCue.ShiftBodyPicture shift:
-                state.BodyPictureShift = shift.Shift;
-                return;
-            case DraygonCue.QueueSound sound:
-                RequestDraygonSound(sound.Sound);
-                return;
-            case DraygonCue.SpawnDyingEffect dying:
-                SpawnRandomDyingDraygonEffect(state, dying.Kind);
-                return;
-            case DraygonCue.ParalyseTailAndArms:
+            },
+            TrackWithEye: track => Track(state.EyeTracking, track.Facing),
+            ShiftBodyPicture: shift => state.BodyPictureShift = shift.Shift,
+            QueueSound: sound => RequestDraygonSound(sound.Sound),
+            SpawnDyingEffect: dying => SpawnRandomDyingDraygonEffect(state, dying.Kind),
+            ParalyseTailAndArms: _ =>
+            {
                 state.TailPart.StartAnimation(DraygonSegment.Rest);
                 state.ArmsPart.StartAnimation(DraygonSegment.Rest);
-                return;
-            case DraygonCue.SetBodyIntangible:
-                state.Body.Contact = state.Body.Contact.With(EnemyContact.IgnoresSamus);
-                return;
-            case DraygonCue.SetBodyPhase bodyPhase:
-                state.Phase = bodyPhase.Phase;
-                return;
-            case DraygonCue.TailWhipHit:
-                ApplyDraygonTailWhipHit(state, samus);
-                return;
-            case DraygonCue.SpawnGoop goop:
-                SpawnDraygonGoop(state, goop.Direction);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined Draygon cue {cue}.");
-        }
+            },
+            SetBodyIntangible: _ => state.Body.Contact = state.Body.Contact.With(EnemyContact.IgnoresSamus),
+            SetBodyPhase: bodyPhase => state.Phase = bodyPhase.Phase,
+            TailWhipHit: _ => ApplyDraygonTailWhipHit(state, samus),
+            SpawnGoop: goop => SpawnDraygonGoop(state, goop.Direction)));
     }
 
     /// <summary>Queues a sound from one of Draygon's animations as the animation makes it, after the update's earlier requests.</summary>

@@ -21,7 +21,7 @@ public static class AreaIds
         All.Contains(area) ? area : throw new ArgumentOutOfRangeException(nameof(area), area, "Unknown area ID.");
 
     /// <summary>Whether <paramref name="area"/> is one of the six Zebes areas.</summary>
-    public static bool IsZebes(AreaId area) => area != AreaId.Ceres && All.Contains(area);
+    public static bool IsZebes(AreaId area) => area != AreaId.Ceres;
 
     /// <summary>Whether <paramref name="area"/> is one of the six Zebes areas, and which: <paramref name="zebes"/>.</summary>
     public static bool IsZebes(AreaId area, out ZebesArea zebes) => ZebesOf.TryGetValue(area, out zebes);

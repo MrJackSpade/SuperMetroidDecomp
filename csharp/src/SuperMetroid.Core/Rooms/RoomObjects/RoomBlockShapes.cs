@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
@@ -18,15 +19,22 @@ internal static class RoomBlockShapes
 
     /// <summary>
     /// A line of blocks from the object's block, one for each of <paramref name="collisions"/> in order: down its column
-    /// when <paramref name="down"/>, otherwise rightward along its row.
+    /// along <paramref name="axis"/>: down its column, or rightward along its row.
     /// </summary>
-    /// <param name="down">Whether the line runs down the column.</param>
+    /// <param name="axis">The axis the line runs along (#2560).</param>
     /// <param name="collisions">How each block of the line collides, from the object's block on.</param>
-    internal static RoomBlockShape Line(bool down, IReadOnlyList<RoomCollisionType> collisions)
+    internal static RoomBlockShape Line(Axis axis, IReadOnlyList<RoomCollisionType> collisions)
     {
         var cells = new RoomBlockShapeCell[collisions.Count];
         for (int place = 0; place < cells.Length; place++)
-            cells[place] = new(down ? new(0, place) : new(place, 0), collisions[place]);
+        {
+            cells[place] = new(axis switch
+            {
+                Axis.Vertical => new(0, place),
+                Axis.Horizontal => new(place, 0),
+                _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, "Undefined axis."),
+            }, collisions[place]);
+        }
         return new(cells);
     }
 

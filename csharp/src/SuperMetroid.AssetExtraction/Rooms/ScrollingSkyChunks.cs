@@ -34,17 +34,18 @@ internal static class ScrollingSkyChunks
     /// <exception cref="ArgumentOutOfRangeException">The sky is unknown or the chunk lies outside the sky's span.</exception>
     internal static int PageOf(ScrollingSky sky, int chunk)
     {
-        bool ocean = sky switch
-        {
-            ScrollingSky.Land => false,
-            ScrollingSky.Ocean => true,
-            _ => throw new ArgumentOutOfRangeException(nameof(sky), sky, "Unknown scrolling sky."),
-        };
+        if (sky is not (ScrollingSky.Land or ScrollingSky.Ocean))
+            throw new ArgumentOutOfRangeException(nameof(sky), sky, "Unknown scrolling sky.");
         if ((uint)chunk >= ChunkCount)
             throw new ArgumentOutOfRangeException(nameof(chunk), chunk, "The chunk lies outside the scrolling sky's span.");
-        if (!ocean)
-            return chunk % LandChunks;
-        int own = chunk % OceanChunks;
-        return own < OceanSkippedPage ? own : own + 1;
+        return sky switch
+        {
+            ScrollingSky.Land => chunk % LandChunks,
+            ScrollingSky.Ocean => OceanPageOf(chunk % OceanChunks),
+            _ => throw new ArgumentOutOfRangeException(nameof(sky), sky, "Unknown scrolling sky."),
+        };
     }
+
+    /// <summary>The page the ocean sky's chunk <paramref name="own"/> of its repeating span shows: past its skipped page, the page after.</summary>
+    private static int OceanPageOf(int own) => own < OceanSkippedPage ? own : own + 1;
 }

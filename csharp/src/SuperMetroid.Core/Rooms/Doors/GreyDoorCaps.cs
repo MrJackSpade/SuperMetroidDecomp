@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
@@ -10,7 +11,7 @@ internal static class GreyDoorCaps
 {
     /// <summary>The block shape of each grey-cap draw: its four blocks down its column or along its row.</summary>
     private static readonly Dictionary<Draw, RoomBlockShape> Shapes = GreyDoorObjectDrawDefinitions.Collisions
-        .ToDictionary(pair => pair.Key, pair => RoomBlockShapes.Line(pair.Key.Vertical, pair.Value));
+        .ToDictionary(pair => pair.Key, pair => RoomBlockShapes.Line(pair.Key.LineAxis, pair.Value));
 
     /// <summary>One of the twenty grey door cap pictures: its facing and what it shows.</summary>
     /// <param name="Orientation">The cap's facing.</param>
@@ -23,8 +24,8 @@ internal static class GreyDoorCaps
         /// <summary>Whether this is the cleared opening rather than the grey cap.</summary>
         internal bool IsCleared => Look == DoorCapLook.Cleared;
 
-        /// <summary>Whether this cap's four blocks stand in a column: a left or right cap's.</summary>
-        internal bool Vertical => Orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right;
+        /// <summary>The axis this cap's four blocks stand along: a column for a left or right cap's, a row otherwise (#2560).</summary>
+        internal Axis LineAxis => DoorCapAxes.Of(Orientation);
 
         /// <summary>The cap's four blocks from its first and how each collides.</summary>
         internal RoomBlockShape Blocks => Shapes[this];

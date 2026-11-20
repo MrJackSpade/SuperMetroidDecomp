@@ -57,7 +57,7 @@ public static class RoomObjectColoredDoorVisualFiles
     private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         bool found = RoomObjectDrawIdentity.TryFrame<ColoredDoorCaps.Draw>(request, out ColoredDoorCaps.Draw cap);
-        list = found ? RoomObjectShapeRun.DrawList(request, cap.Blocks, RoomObjectShapeRun.Line(cap.Vertical, cap.Blocks)) : default;
+        list = found ? RoomObjectShapeRun.DrawList(request, cap.Blocks, RoomObjectShapeRun.Line(cap.LineAxis, cap.Blocks)) : default;
         return found;
     }
 

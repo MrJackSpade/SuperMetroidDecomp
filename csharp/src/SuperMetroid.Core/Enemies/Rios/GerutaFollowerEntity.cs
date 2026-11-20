@@ -8,11 +8,13 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the follower occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class GerutaFollowerEntity(GerutaBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="parent">The parent the room lists right before the follower, which offered it its creation (#2554).</param>
+internal sealed class GerutaFollowerEntity(GerutaBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    GerutaEntity parent)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal GerutaFollowerState State { get; } = species.InitializeGerutaFollower(place);
+    internal GerutaFollowerState State { get; } = species.InitializeGerutaFollower(place, parent);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunGerutaFollowerMainAi(Place, State);

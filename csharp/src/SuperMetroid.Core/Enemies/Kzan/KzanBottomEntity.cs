@@ -10,9 +10,12 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 internal sealed class KzanBottomEntity(KzanBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi
 {
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializeKzanBottom(Place);
+    /// <summary>The place of the top the bottom follows, which its room lists directly before it, found as it is built.</summary>
+    private RoomEnemyPlace Top { get; } = species.TopOf(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunKzanBottomMain(Place);
+    public void Initialize() => KzanBehavior.FollowKzanTop(Place, Top);
+
+    /// <inheritdoc/>
+    public void RunMainAi(IEnemyAiFrame frame) => KzanBehavior.FollowKzanTop(Place, Top);
 }

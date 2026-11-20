@@ -9,25 +9,42 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyF
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Squeept];
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemyFollowerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        settings.Role == EnemyFollowerRole.Follower
-            ? EnemyOccupant.Running(new NorfairLavaJumperFollowerEntity(this, occupant, place, common))
-            : EnemyOccupant.Running(new SqueeptEntity(this, occupant, place, common));
+    /// <summary>
+    /// A parent, which offers the follower its room lists right after it the creation that builds that follower following
+    /// it (#2164, #2554); a follower joins the parent listed before it, so the population may not place one first.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A follower is listed with no parent of its species before it.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemyFollowerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        if (Ensure.NotNull(settings).Role == EnemyFollowerRole.Follower)
+        {
+            throw new InvalidDataException(
+                $"Norfair lava-jumping follower in place {Ensure.NotNull(place).Ordinal} must immediately follow a parent of the same definition.");
+        }
+        var parent = new SqueeptEntity(this, occupant, place, common);
+        _partOffers.Offer<EnemyFollowerSpawnSettings>(EnemyDefinitionId.Squeept, (later, laterSettings, laterPlace, laterCommon) =>
+            laterSettings.Role == EnemyFollowerRole.Follower
+                ? EnemyOccupant.Running(new NorfairLavaJumperFollowerEntity(this, later, laterPlace, laterCommon, parent))
+                : Create(later, laterSettings, laterPlace, laterCommon));
+        return EnemyOccupant.Running(parent);
+    }
+
+    /// <summary>Where a parent offers the follower listed after it the creation that builds it following the parent.</summary>
+    private readonly EnemyPartOffers _partOffers;
 
     /// <summary>Supplies one random number per parent and follower AI frame.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>The room's enemy places, where each follower finds its parent when it is placed.</summary>
     private readonly EnemyPlaces _places;
-    /// <summary>The parent each follower found when it was placed, which its room lists right before it.</summary>
-    private readonly EnemyPartLinks<RoomEnemyPlace> _parents = new();
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds lava-jumper behavior to room RNG and the room's enemies.</summary>
-    internal SqueeptBehavior(EnemyRoomBinding room, EnemyPlaces places, EnemyAudioQueue audio)
+    internal SqueeptBehavior(EnemyRoomBinding room, EnemyPlaces places, EnemyAudioQueue audio,
+        EnemyPartOffers partOffers)
     {
+        _partOffers = partOffers;
         _audio = audio;
         _room = room;
         _places = places;
@@ -35,15 +52,20 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyF
 
     /// <summary>Initializes a lava jumper's cosmetic follower.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal NorfairLavaJumperFollowerState InitializeNorfairLavaJumperFollower(RoomEnemyPlace place)
+    /// <exception cref="InvalidDataException">The room lists another enemy between the follower and <paramref name="parent"/>.</exception>
+    internal NorfairLavaJumperFollowerState InitializeNorfairLavaJumperFollower(RoomEnemyPlace place, SqueeptEntity parent)
     {
         // Every room with it places this cosmetic second half immediately after its moving parent, which it
         // finds when it is placed and follows from then on; a population that places anything else there is refused.
-        _parents.Place(place, _places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader));
-        SqueeptState parent = ValidateSqueeptParent(place);
+        if (_places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader) != Ensure.NotNull(parent).Place)
+        {
+            throw new InvalidDataException(
+                $"Norfair lava-jumping follower in place {place.Ordinal} must immediately follow a parent of the same definition.");
+        }
         var state = new NorfairLavaJumperFollowerState
         {
-            Parent = parent,
+            Parent = parent.State,
+            ParentPlace = parent.Place,
             Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation),
         };
         return state;
@@ -159,7 +181,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyF
     /// </summary>
     private void FollowSqueeptParent(RoomEnemyPlace follower, NorfairLavaJumperFollowerState followerState)
     {
-        RoomEnemyPlace parent = GetPrecedingSqueeptPlace(follower);
+        RoomEnemyPlace parent = followerState.ParentPlace;
 
         // The follower reads its parent's health, freeze, vertical speed and position in the parent's place; a parent
         // deleted without a kill is read as it left them (RoomEnemyPlace.FoundEntity), and a killed parent's emptied place
@@ -182,24 +204,6 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyF
 
         follower.Presence = follower.Presence.Without(EnemyPresence.Hidden);
         follower.Position = follower.Position.WithWholeY(parent.Position.Y.Whole);
-    }
-
-    /// <summary>The parent the follower found when it was placed, the enemy its room lists directly before it.</summary>
-    private RoomEnemyPlace GetPrecedingSqueeptPlace(RoomEnemyPlace follower) => _parents.Of(follower);
-
-    /// <summary>Rejects a follower population entry without a same-species parent directly before it.</summary>
-    private SqueeptState ValidateSqueeptParent(RoomEnemyPlace follower)
-    {
-        RoomEnemyPlace parent = GetPrecedingSqueeptPlace(follower);
-        if (parent.Entity is not SqueeptEntity parentEntity)
-        {
-            throw new InvalidDataException(
-                $"Norfair lava-jumping follower in place {follower.Ordinal} must immediately follow " +
-                "a parent of the same definition. " +
-                $"Preceding place: definition={parent.Occupant?.DefinitionId}, " +
-                $"health={parent.Health}, spawn={parent.Occupant?.Spawn.SpawnSettings}, contact={parent.Contact}, processing={parent.Processing}, presence={parent.Presence}.");
-        }
-        return parentEntity.State;
     }
 
     /// <summary>Moves the jumper up or down by one update of its vertical speed.</summary>

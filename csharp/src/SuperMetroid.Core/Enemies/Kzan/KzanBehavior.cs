@@ -20,8 +20,6 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The room's enemy places, where each bottom finds its top when it is placed.</summary>
     private readonly EnemyPlaces _places;
-    /// <summary>The top each bottom found when it was placed, which its room lists right before it.</summary>
-    private readonly EnemyPartLinks<RoomEnemyPlace> _tops = new();
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -54,24 +52,16 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         return state;
     }
 
-    /// <summary>Places the lower actor below the preceding top (<see cref="KzanMotionDefinitions.BottomBelowTop"/>) during setup.</summary>
-    /// <exception cref="InvalidDataException">The enemy before the bottom is not a Kzan top.</exception>
-    internal void InitializeKzanBottom(RoomEnemyPlace place)
-    {
-        _tops.Place(place, _places.Member(place, KzanPartListingDefinitions.Listing, EnemyDefinitionId.KzanBottom, EnemyDefinitionId.KzanTop));
-        FollowKzanTop(place);
-    }
-
-    /// <summary>Keeps the lower actor below the top on every enemy update.</summary>
-    internal void RunKzanBottomMain(RoomEnemyPlace place) => FollowKzanTop(place);
+    /// <summary>The place of the top <paramref name="bottom"/> follows, the enemy its room lists directly before it.</summary>
+    internal RoomEnemyPlace TopOf(RoomEnemyPlace bottom) =>
+        _places.Member(bottom, KzanPartListingDefinitions.Listing, EnemyDefinitionId.KzanBottom, EnemyDefinitionId.KzanTop);
 
     /// <summary>
-    /// Follows the top the bottom found when it was placed, the enemy its room lists directly before it, whatever that
-    /// place holds now.
+    /// Keeps the lower actor below <paramref name="top"/> (<see cref="KzanMotionDefinitions.BottomBelowTop"/>), the top it
+    /// found when it was placed, whatever that place holds now: as it is set up and on every enemy update.
     /// </summary>
-    private void FollowKzanTop(RoomEnemyPlace bottom)
+    internal static void FollowKzanTop(RoomEnemyPlace bottom, RoomEnemyPlace top)
     {
-        RoomEnemyPlace top = _tops.Of(bottom);
         bottom.Position = bottom.Position.WithWhole(new(top.Position.X.Whole, top.Position.Y.Whole + KzanMotionDefinitions.BottomBelowTop));
     }
 

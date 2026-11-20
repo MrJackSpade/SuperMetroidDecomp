@@ -16,8 +16,6 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
 
     /// <summary>The room's enemy places, where each visible geyser finds its hitbox when it is placed.</summary>
     private readonly EnemyPlaces _places;
-    /// <summary>The hitbox part each visible geyser found when it was placed, which its room lists right after it.</summary>
-    private readonly EnemyPartLinks<RoomEnemyPlace> _hitboxes = new();
     /// <summary>Receives each eruption's sound in the order the game queues them.</summary>
     private readonly EnemyAudioQueue _audio;
 
@@ -62,8 +60,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
     /// <returns>The state the enemy holds from its setup.</returns>
     internal HibashiEnemyState InitializeHibashi(RoomEnemyPlace place)
     {
-        var state = new HibashiEnemyState(HibashiAction.Inactive);
-        _hitboxes.Place(place, _places.Member(place, HibashiPartListingDefinitions.Listing, HibashiMember.Flame, HibashiMember.Hitbox));
+        var state = new HibashiEnemyState(HibashiAction.Inactive,
+            hitbox: _places.Member(place, HibashiPartListingDefinitions.Listing, HibashiMember.Flame, HibashiMember.Hitbox));
         state.InactiveTimer = UpdateCountdown.For(HibashiDefinitions.FirstWait);
         state.Playback = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Flame));
         state.SpawnY = place.Position.Y.Whole;
@@ -103,7 +101,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
         if (!state.InactiveTimer.StepEnds())
             return;
 
-        RoomEnemyPlace hitbox = GetFollowingHibashiPart(flame);
+        RoomEnemyPlace hitbox = state.Hitbox;
         state.Action = HibashiAction.Active;
         state.Playback = EnemyAnimationPlayback.Start(flame, HibashiAnimations.StartingWith(HibashiSegment.Flame));
 
@@ -136,7 +134,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
     /// </summary>
     private void ApplyHibashiEruptionStep(RoomEnemyPlace flame, HibashiEnemyState state, HibashiEruptionStep step)
     {
-        RoomEnemyPlace hitbox = GetFollowingHibashiPart(flame);
+        RoomEnemyPlace hitbox = state.Hitbox;
         hitbox.Position = hitbox.Position.WithWholeY(state.SpawnY - step.YOffset);
         hitbox.Radius = hitbox.Radius.WithY(step.YRadius);
         if (step.Width == HibashiStepWidth.Restored)
@@ -150,7 +148,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
     /// <exception cref="InvalidOperationException">The flame is not erupting.</exception>
     private void FinishHibashiActivity(RoomEnemyPlace flame, HibashiEnemyState state)
     {
-        RoomEnemyPlace hitbox = GetFollowingHibashiPart(flame);
+        RoomEnemyPlace hitbox = state.Hitbox;
 
         if (state.Action != HibashiAction.Active)
             throw new InvalidOperationException($"A Hibashi's eruption finished while it was {state.Action}.");
@@ -160,9 +158,6 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
         flame.Presence = flame.Presence.With(EnemyPresence.Hidden);
         hitbox.Contact = hitbox.Contact.With(EnemyContact.IgnoresSamus);
     }
-
-    /// <summary>The hitbox part the visible geyser found when it was placed; every room that has the geyser lists one right after it.</summary>
-    private RoomEnemyPlace GetFollowingHibashiPart(RoomEnemyPlace flame) => _hitboxes.Of(flame);
 
     /// <summary>Runs the flame's main AI.</summary>
     internal void RunHibashiMainAi(RoomEnemyOccupant occupant, HibashiFlameSpawnSettings hibashiFlameSpawnSettings, RoomEnemyPlace place, HibashiEnemyState hibashiEnemyState) =>

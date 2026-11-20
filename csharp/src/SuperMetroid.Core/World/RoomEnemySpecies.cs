@@ -170,8 +170,8 @@ internal sealed class RoomEnemySpecies
         var owtchBehavior = new OwtchBehavior(enemies.Room);
         var oldTourianEscapeShaftWallBehavior = new OldTourianEscapeShaftWallBehavior(enemies.Projectiles, enemies.Audio);
         var nuclearWaffleBehavior = new NuclearWaffleBehavior(enemies.Projectiles, enemies.EffectActors, enemies.Audio);
-        var gerutaBehavior = new GerutaBehavior(enemies.Room, enemies.Terrain, enemies.Places, enemies.Audio);
-        var squeeptBehavior = new SqueeptBehavior(enemies.Room, enemies.Places, enemies.Audio);
+        var gerutaBehavior = new GerutaBehavior(enemies.Room, enemies.Terrain, enemies.Places, enemies.Audio, partOffers);
+        var squeeptBehavior = new SqueeptBehavior(enemies.Room, enemies.Places, enemies.Audio, partOffers);
         var noobTubeBehavior = new NoobTubeBehavior(enemies.Room, enemies.Projectiles);
         var ninjaSpacePirateBehavior = new NinjaSpacePirateBehavior(enemies.Room, enemies.Terrain, enemies.Projectiles, enemies.EffectActors, walkingSpacePirateBehavior);
         var multiviolaBehavior = new MultiviolaBehavior(enemies.Terrain);
@@ -183,10 +183,10 @@ internal sealed class RoomEnemySpecies
         var oumBehavior = new OumBehavior(enemies.Terrain, enemies.Collision, enemies.Audio);
         var mamaTurtleBehavior = new MamaTurtleBehavior(enemies.Terrain, enemies.Earthquake, enemies.Places, enemies.Collision, enemies.Audio);
         var magdolliteBehavior = new MagdolliteBehavior(enemies.Room, enemies.Projectiles, enemies.Places, enemies.Collision, enemies.DeathsAndDrops, enemies.Audio);
-        var holtzBehavior = new HoltzBehavior(enemies.Room, enemies.Terrain, enemies.Places, enemies.Audio);
+        var holtzBehavior = new HoltzBehavior(enemies.Room, enemies.Terrain, enemies.Places, enemies.Audio, partOffers);
         var kzanBehavior = new KzanBehavior(enemies.Places, enemies.Audio);
         var kraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { PartOffers = partOffers, PassEvents = enemies.PassEvents, Room = enemies.Room, Terrain = enemies.Terrain, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, EffectActors = enemies.EffectActors, Presentation = enemies.BossPresentation, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, CameraDistance = enemies.CameraDistance  });
-        var kiHunterBehavior = new KiHunterBehavior(enemies.Room, enemies.Terrain, enemies.Projectiles, enemies.Audio, enemies.Places);
+        var kiHunterBehavior = new KiHunterBehavior(enemies.Room, enemies.Terrain, enemies.Projectiles, enemies.Audio, enemies.Places, partOffers);
         var kagoBehavior = new KagoBehavior(enemies.Room, enemies.Projectiles, enemies.Earthquake, enemies.DeathsAndDrops, enemies.RoomStatus, enemies.Audio);
         var hoppersBehavior = new HoppersBehavior(enemies.Room, enemies.Terrain, enemies.Audio);
         var hibashiBehavior = new HibashiBehavior(enemies.Places, enemies.Audio);
@@ -206,7 +206,7 @@ internal sealed class RoomEnemySpecies
         var deadTorizoBehavior = new DeadTorizoBehavior(enemies.Room, enemies.FrameContext, enemies.Projectiles, enemies.Presentation, enemies.Audio);
         var dachoraBehavior = new DachoraBehavior(enemies.Terrain, partOffers, enemies.Audio);
         var crocomireAccess = new CrocomireEncounterAccess(enemies.PassEvents, enemies.Room, enemies.Projectiles, enemies.Audio);
-        var crocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { Access = crocomireAccess, Places = enemies.Places, BodyLayer = new CrocomireBodyLayer(enemies.EffectActors, enemies.BossPresentation.Surfaces, crocomireAccess, enemies.RoomFx), Room = enemies.Room, Terrain = enemies.Terrain, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Presentation = enemies.BossPresentation, FrameContext = enemies.FrameContext, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, CameraDistance = enemies.CameraDistance, RoomStatus = enemies.RoomStatus, Encounters = enemies.BossEncounters });
+        var crocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { PartOffers = partOffers, Access = crocomireAccess, Places = enemies.Places, BodyLayer = new CrocomireBodyLayer(enemies.EffectActors, enemies.BossPresentation.Surfaces, crocomireAccess, enemies.RoomFx), Room = enemies.Room, Terrain = enemies.Terrain, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Presentation = enemies.BossPresentation, FrameContext = enemies.FrameContext, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, CameraDistance = enemies.CameraDistance, RoomStatus = enemies.RoomStatus, Encounters = enemies.BossEncounters });
         var crawlersBehavior = new CrawlersBehavior(enemies.Terrain, enemies.Earthquake);
         var chozoStatueBehavior = new ChozoStatueBehavior(enemies.Room, enemies.Terrain, enemies.Projectiles, enemies.Audio, enemies.RoomFx, enemies.PassEvents);
         var chootBehavior = new ChootBehavior();

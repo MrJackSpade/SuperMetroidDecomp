@@ -12,19 +12,31 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemySpawnFactory<Enem
 {
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Crocomire];
 
-    /// <summary>Crocomire's body, or his tongue (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Crocomire definition.</exception>
+    /// <summary>
+    /// Crocomire's body, built the same way wherever it is set up, which offers his tongue, listed right after it, the
+    /// creation that builds it joining his encounter (#2146, #2400, #2554); a tongue no body offered is rejected where it
+    /// is bound.
+    /// </summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void Register(EnemySpeciesRegistrar registrar)
+    {
+        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>(Definitions, Create);
+        registrar.Joins([EnemyDefinitionId.CrocomireTongue]);
+    }
+
+    /// <summary>Crocomire's body, which offers his tongue the creation that builds it joining his encounter.</summary>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.Crocomire)
-            return EnemyOccupant.Running(new CrocomireBodyEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.CrocomireTongue)
-            return EnemyOccupant.Running(new CrocomireTongueEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The Crocomire species creates no {occupant.DefinitionId}.");
+        var body = new CrocomireBodyEntity(this, occupant, place, common, _bossArtwork);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.CrocomireTongue, (tongue, _, tonguePlace, tongueCommon) =>
+            EnemyOccupant.Running(new CrocomireTongueEntity(this, tongue, tonguePlace, tongueCommon, body.Encounter)));
+        return EnemyOccupant.Running(body);
     }
+
+    /// <summary>Where his body offers his tongue the creation that builds it joining his encounter.</summary>
+    private readonly EnemyPartOffers _partOffers;
 
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
@@ -57,6 +69,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemySpawnFactory<Enem
     internal CrocomireBehavior(CrocomireBehaviorDependencies dependencies)
     {
         _bossArtwork = dependencies.Presentation.Artwork;
+        _partOffers = dependencies.PartOffers;
         _room = dependencies.Room;
         Access = dependencies.Access;
         BodyLayer = dependencies.BodyLayer;

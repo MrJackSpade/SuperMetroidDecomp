@@ -8,11 +8,13 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the follower occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class NorfairLavaJumperFollowerEntity(SqueeptBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="parent">The parent the room lists right before the follower, which offered it its creation (#2554).</param>
+internal sealed class NorfairLavaJumperFollowerEntity(SqueeptBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    SqueeptEntity parent)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal NorfairLavaJumperFollowerState State { get; } = species.InitializeNorfairLavaJumperFollower(place);
+    internal NorfairLavaJumperFollowerState State { get; } = species.InitializeNorfairLavaJumperFollower(place, parent);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunNorfairLavaJumperFollowerMain(Place, State);

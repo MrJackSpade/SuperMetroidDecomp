@@ -64,7 +64,8 @@ internal sealed class CrocomireFight
     internal CrocomireEnemyState InitializeCrocomire(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         _roomStatus.Boss = AreaBoss.Crocomire;
-        var state = new CrocomireEnemyState(occupant, place);
+        var state = new CrocomireEnemyState(occupant, place,
+            tongue: _places.Member(place, CrocomirePartListingDefinitions.Listing, EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue));
         // Once attached, the room's shaking and his melt's display read his encounter from the room (#2194); his parts
         // each hold the encounter from their own setup.
         _encounters.Attach(state);
@@ -100,17 +101,14 @@ internal sealed class CrocomireFight
         return state;
     }
 
-    /// <summary>Sets Crocomire's tongue up when the room spawns it.</summary>
+    /// <summary>Sets Crocomire's tongue up when the room spawns it, joining <paramref name="state"/>, the encounter his body began.</summary>
     /// <returns>The tongue's state, which holds the encounter it joined, from its setup.</returns>
-    /// <exception cref="InvalidDataException">The enemy its room lists as Crocomire's body is not his body.</exception>
-    internal CrocomireTongueState InitializeCrocomireTongue(RoomEnemyPlace place)
+    /// <exception cref="InvalidDataException">The room lists the tongue elsewhere than right after his body.</exception>
+    internal CrocomireTongueState InitializeCrocomireTongue(RoomEnemyPlace place, CrocomireEnemyState state)
     {
         // The tongue joins the encounter its body has set up, in a defeated room too, where it is deleted at once (#2400).
-        RoomEnemyPlace body = _places.Member(place, CrocomirePartListingDefinitions.Listing, EnemyDefinitionId.CrocomireTongue, EnemyDefinitionId.Crocomire);
-        CrocomireEnemyState state = body.Entity is CrocomireBodyEntity crocomire
-            ? crocomire.Encounter
-            : throw new InvalidDataException($"Crocomire's tongue in place {place.Ordinal} finds no Crocomire in place {body.Ordinal}.");
-        state.JoinTongue(place);
+        if (Ensure.NotNull(state).Tongue != place)
+            throw new InvalidDataException($"Crocomire's tongue set up as enemy {place.Ordinal}, but his body lists enemy {state.Tongue.Ordinal} as it.");
         var tongueState = new CrocomireTongueState(state);
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {

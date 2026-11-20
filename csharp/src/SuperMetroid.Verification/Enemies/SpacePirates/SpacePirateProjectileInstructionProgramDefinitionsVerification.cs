@@ -68,13 +68,13 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             EnemyProjectile laser = enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<RoomPixels>(128, 96), movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, PirateLaserSpeed.Fast) ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<R....");
             AssertEqual(program, NativePointer(laser),
                 "real Pirate/Mother Brain laser producer selects its facing program");
-            AssertEqual<Enum?>(null, laser.Motion,
+            AssertEqual<Enum?>(null, laser.MotionKind,
                 "laser initializer keeps muzzle frames stationary");
             RunForcedTicks(enemies, laser, 3);
             AssertEqual((ushort)128, laser.Position.X.Whole,
                 "three laser muzzle frames remain stationary");
             RunForcedTick(enemies, laser);
-            AssertEqual<Enum?>(movement, laser.Motion,
+            AssertEqual<Enum?>(movement, laser.MotionKind,
                 "laser program installs its facing movement callback");
             AssertEqual(movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, laser.StateOf<PirateLaserState>().Direction,
                 "the laser flies the way its producer chose");
@@ -106,7 +106,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             AssertEqual(program, NativePointer(claw),
                 "real Ninja Pirate claw producer selects its facing program");
             RunForcedTick(enemies, claw);
-            AssertEqual<Enum?>(movement, claw.Motion,
+            AssertEqual<Enum?>(movement, claw.MotionKind,
                 "claw program installs its facing movement callback");
             AssertEqual(direction != 0 ? HorizontalDirection.Right : HorizontalDirection.Left, claw.StateOf<NinjaPirateClawState>().Thrown,
                 "the claw flies along the throw its producer chose");

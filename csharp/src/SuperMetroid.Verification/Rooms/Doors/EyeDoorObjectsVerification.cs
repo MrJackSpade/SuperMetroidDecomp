@@ -76,7 +76,7 @@ internal static class EyeDoorObjectsVerification
         system.SetOpenedDoorBit(5);
         enemies.StepEnemyProjectiles(level, samus);
         AssertEqual<Enum?>(null,
-            attack.Motion,
+            attack.MotionKind,
             "opened door impact executes its native clear-pre-instruction command");
 
         enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(

@@ -80,37 +80,37 @@ internal static class KraidNailSiblingVerification
         {
             var nail = enemies.Places.InUpdateOrder[slot];
             var sibling = enemies.Places.InUpdateOrder[13 - slot];
-            var part = (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)nail).PartState);
+            var part = nail.RequireSpeciesState<KraidNailState>();
             random = (ushort)raw;
-            (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)sibling).PartState).NailVelocity = (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)sibling).PartState).NailVelocity.WithY((SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)sibling).PartState).NailVelocity.Y.WithWholePixels(unchecked((short)raw)));
-            (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)nail).PartState).NailVelocity = (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)nail).PartState).NailVelocity.WithY((SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)nail).PartState).NailVelocity.Y.WithWholePixels(unchecked((short)~raw)));
-            (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)sibling).PartState).AlternateSpawn = siblingAlternate;
+            sibling.RequireSpeciesState<KraidNailState>().NailVelocity = sibling.RequireSpeciesState<KraidNailState>().NailVelocity.WithY(sibling.RequireSpeciesState<KraidNailState>().NailVelocity.Y.WithWholePixels(unchecked((short)raw)));
+            nail.RequireSpeciesState<KraidNailState>().NailVelocity = nail.RequireSpeciesState<KraidNailState>().NailVelocity.WithY(nail.RequireSpeciesState<KraidNailState>().NailVelocity.Y.WithWholePixels(unchecked((short)~raw)));
+            sibling.RequireSpeciesState<KraidNailState>().AlternateSpawn = siblingAlternate;
             part.AlternateSpawn = !siblingAlternate;
             bool diagonal = (random & 1) == 0 || siblingAlternate;
-            int table = (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)sibling).PartState).NailVelocity.Y.WholePixels < 0 ? 0xa7be3e : 0xa7be46;
+            int table = sibling.RequireSpeciesState<KraidNailState>().NailVelocity.Y.WholePixels < 0 ? 0xa7be3e : 0xa7be46;
             int pointer = 0xa70000 | Word(table + (random & 6));
-            (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)nail).PartState).NailVelocity = (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)nail).PartState).NailVelocity.WithX((SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)nail).PartState).NailVelocity.X.WithFraction(ushort.MaxValue)).WithFractionY(ushort.MaxValue);
+            nail.RequireSpeciesState<KraidNailState>().NailVelocity = nail.RequireSpeciesState<KraidNailState>().NailVelocity.WithX(nail.RequireSpeciesState<KraidNailState>().NailVelocity.X.WithFraction(ushort.MaxValue)).WithFractionY(ushort.MaxValue);
             initialize(nail, part);
-            AssertEqual((ushort)0, (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)nail).PartState).NailVelocity.X.Fraction, "Launch clears old X fraction");
-            AssertEqual((ushort)0, (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)nail).PartState).NailVelocity.Y.Fraction, "Launch clears old Y fraction");
-            AssertEqual(diagonal ? Word(pointer + 6) : (ushort)0, (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)nail).PartState).NailVelocity.Y.UnsignedWholePixels, "Nail launch Y velocity comes from sibling sign");
-            AssertEqual(diagonal ? Word(pointer + 2) : (ushort)1, (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)nail).PartState).NailVelocity.X.UnsignedWholePixels, "Nail launch X velocity and horizontal override");
+            AssertEqual((ushort)0, nail.RequireSpeciesState<KraidNailState>().NailVelocity.X.Fraction, "Launch clears old X fraction");
+            AssertEqual((ushort)0, nail.RequireSpeciesState<KraidNailState>().NailVelocity.Y.Fraction, "Launch clears old Y fraction");
+            AssertEqual(diagonal ? Word(pointer + 6) : (ushort)0, nail.RequireSpeciesState<KraidNailState>().NailVelocity.Y.UnsignedWholePixels, "Nail launch Y velocity comes from sibling sign");
+            AssertEqual(diagonal ? Word(pointer + 2) : (ushort)1, nail.RequireSpeciesState<KraidNailState>().NailVelocity.X.UnsignedWholePixels, "Nail launch X velocity and horizontal override");
             AssertEqual(!diagonal, part.AlternateSpawn, "Nail spawn mode consults sibling flag, writes own flag");
-            AssertEqual(siblingAlternate, (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)sibling).PartState).AlternateSpawn, "Sibling flag remains unchanged");
-            AssertEqual((ushort)raw, (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)sibling).PartState).NailVelocity.Y.UnsignedWholePixels, "Sibling velocity remains unchanged");
-            AssertEqual((diagonal ? KraidNailPhase.Fire : KraidNailPhase.WaitForLint), (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)nail).PartState).Phase, "Sibling choice selects actual launch phase");
+            AssertEqual(siblingAlternate, sibling.RequireSpeciesState<KraidNailState>().AlternateSpawn, "Sibling flag remains unchanged");
+            AssertEqual((ushort)raw, sibling.RequireSpeciesState<KraidNailState>().NailVelocity.Y.UnsignedWholePixels, "Sibling velocity remains unchanged");
+            AssertEqual((diagonal ? KraidNailPhase.Fire : KraidNailPhase.WaitForLint), nail.RequireSpeciesState<KraidNailState>().Phase, "Sibling choice selects actual launch phase");
         }
 
         // A killed sibling has stopped: the launch reads no speed from it, whatever speed it last moved at.
         RoomEnemyPlace firstNail = enemies.Places.InUpdateOrder[6];
         RoomEnemyPlace secondNail = enemies.Places.InUpdateOrder[7];
-        KraidNailState killedSibling = (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)secondNail).PartState);
+        KraidNailState killedSibling = secondNail.RequireSpeciesState<KraidNailState>();
         killedSibling.NailVelocity = FixedVector<RoomPixels>.FromStoredParts(0, 0, 0x8000, 0);
         killedSibling.AlternateSpawn = false;
         random = 0;
         secondNail.Clear();
-        initialize(firstNail, (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)firstNail).PartState));
-        AssertEqual(KraidNailLaunch.FromSiblingVelocity(SignedSixteenSixteen.Zero).Y.UnsignedWholePixels, (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)firstNail).PartState).NailVelocity.Y.UnsignedWholePixels,
+        initialize(firstNail, firstNail.RequireSpeciesState<KraidNailState>());
+        AssertEqual(KraidNailLaunch.FromSiblingVelocity(SignedSixteenSixteen.Zero).Y.UnsignedWholePixels, firstNail.RequireSpeciesState<KraidNailState>().NailVelocity.Y.UnsignedWholePixels,
             "a launch after its sibling was killed reads the sibling as stopped");
         AssertTrue(KraidNailLaunch.FromSiblingVelocity(SignedSixteenSixteen.Zero).Y.UnsignedWholePixels != KraidNailLaunch.FromSiblingVelocity(FixedVector<RoomPixels>.FromStoredParts(0, 0, 0x8000, 0).Y).Y.UnsignedWholePixels,
             "a stopped sibling launches its pair differently from one moving down");
@@ -119,8 +119,8 @@ internal static class KraidNailSiblingVerification
         // to wait for the lint (#1620).
         killedSibling.AlternateSpawn = true;
         random = 1;
-        initialize(firstNail, (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)firstNail).PartState));
-        AssertEqual(KraidNailPhase.WaitForLint, (SuperMetroid.Core.Enemies.EnemyPartners.Listed<KraidEntity>((KraidNailState)firstNail).PartState).Phase,
+        initialize(firstNail, firstNail.RequireSpeciesState<KraidNailState>());
+        AssertEqual(KraidNailPhase.WaitForLint, firstNail.RequireSpeciesState<KraidNailState>().Phase,
             "a launch after its sibling was killed reads the sibling as having taken no alternate spawn");
         Console.WriteLine("Kraid nail sibling: both slots, all RNG/sign words and both sibling spawn modes match native launch handoff without ROM access, and a killed sibling reads as stopped.");
     }

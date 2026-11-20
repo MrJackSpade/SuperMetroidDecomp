@@ -39,7 +39,7 @@ internal static class NativeEnemyProjectileParity
             AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyProjectileProgramFrameOperands.OwnOperand(native.Operand),
                 projectile.PresentationOperandAddress, $"{at}: frame");
             if (native.FrameBehaviorCleared)
-                AssertEqual<Enum?>(null, projectile.Motion, $"{at}: cleared pre-instruction");
+                AssertEqual<Enum?>(null, projectile.MotionKind, $"{at}: cleared pre-instruction");
             else if (native.FrameBehavior is { } installed)
                 AssertEqual(EnemyProjectileMotionAccess.FromWord(installed), projectile.Motion, $"{at}: installed pre-instruction");
         }

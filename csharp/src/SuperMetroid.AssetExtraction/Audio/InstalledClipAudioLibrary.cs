@@ -47,8 +47,6 @@ public sealed class InstalledClipAudioLibrary
         Ensure.NotNull(manifest);
         if (manifest.SampleRate != AudioSession.SampleRate)
             throw new InvalidDataException($"Audio clip manifest has rate {manifest.SampleRate}.");
-        if (manifest.InitialBeat is null)
-            throw new InvalidDataException("Audio clip manifest gives no beat length before any song has played.");
         foreach (MusicClipEntry entry in manifest.Music)
         {
             ValidateClip(entry.Clip);
@@ -58,20 +56,7 @@ public sealed class InstalledClipAudioLibrary
                 throw new InvalidDataException($"{entry.AudioSet} track {entry.Track} has no tempo at frame zero.");
         }
         foreach (InstalledSoundEffectClip entry in manifest.SoundEffects)
-        {
-            if (entry.Layers.Count == 0 && entry.ActiveFrames is null)
-                throw new InvalidDataException($"Never-ending {entry.Sound} has no layers.");
-            foreach (InstalledSoundEffectLayer layer in entry.Layers)
-            {
-                ValidateClip(layer.Clip);
-                if ((layer.LoopStart is null) != (entry.ActiveFrames is not null) ||
-                    layer.LoopStart is long loop && (loop < 0 || loop >= layer.Clip.Frames))
-                {
-                    throw new InvalidDataException(
-                        $"{entry.Sound} has inconsistent loop bounds.");
-                }
-            }
-        }
+            entry.Validate();
         return manifest;
     }
 

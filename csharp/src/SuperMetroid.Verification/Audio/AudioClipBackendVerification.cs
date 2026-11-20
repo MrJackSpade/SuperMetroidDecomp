@@ -129,7 +129,7 @@ internal static class AudioClipBackendVerification
         InstalledSoundEffectClip high = clips.Manifest.SoundEffects.First(entry =>
             entry.Sound.Library == SoundEffectLibrary.Enemies &&
             entry.Policy is { Priority: SoundEffectPriorityEffect.High, IgnoresPriority: false } &&
-            entry.ActiveFrames > (SoundStartUpdates + 6) * ManagedSnesDsp.NativeStereoFramesPerVideoFrame);
+            entry.PlayedEntry().ActiveFrames > (SoundStartUpdates + 6) * ManagedSnesDsp.NativeStereoFramesPerVideoFrame);
         InstalledSoundEffectClip low = clips.Manifest.SoundEffects.First(entry =>
             entry.Sound.Library == SoundEffectLibrary.Enemies &&
             entry.Policy is { Priority: SoundEffectPriorityEffect.Low, IgnoresPriority: false } && entry.Sound != high.Sound);

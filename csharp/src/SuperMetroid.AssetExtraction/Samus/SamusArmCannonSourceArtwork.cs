@@ -133,6 +133,17 @@ public sealed class SamusArmCannonSourceArtwork
     /// <summary>The installed cover tile <paramref name="direction"/> shows at opening frame 1–3.</summary>
     private int OpeningTile(int direction, int frame) => openingTiles[direction][frame - 1];
 
+    /// <summary>The installed cover tile native direction 0–9 shows at opening frame 1–3.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The direction is no native direction, or the frame no opening frame.</exception>
+    public int OpeningTileIndex(int direction, int frame)
+    {
+        if ((uint)direction >= SamusProjectileDirectionCodec.Count)
+            throw new ArgumentOutOfRangeException(nameof(direction));
+        if (frame < 1 || frame >= SamusArmCannonArtworkFormat.FramesPerDirection)
+            throw new ArgumentOutOfRangeException(nameof(frame), frame, "The closed cover frame 0 shows no tile.");
+        return OpeningTile(direction, frame);
+    }
+
     /// <summary>Requires an authored cover appearance to be one small piece at the cover's origin.</summary>
     private static SpritePart RequireAppearance(SpriteVisualPart? value, string name) =>
         value is { OffsetX: 0, OffsetY: 0, Size: 8 }

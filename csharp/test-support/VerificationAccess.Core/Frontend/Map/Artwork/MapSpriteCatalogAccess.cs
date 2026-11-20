@@ -10,6 +10,6 @@ internal static class MapSpriteCatalogAccess
     extension(MapSpriteCompositions self)
     {
         /// <summary>Loads the installed shared 4-bpp map-object characters into the screen's OBJ character region.</summary>
-        public void LoadArtworkTo(VramRegion destination) => destination.Load(MapSpriteArtwork.Of(self).Page.Characters);
+        public void LoadArtworkTo(VramRegion destination) => destination.Load(((MapSpriteArtwork)self).Page.Characters);
     }
 }

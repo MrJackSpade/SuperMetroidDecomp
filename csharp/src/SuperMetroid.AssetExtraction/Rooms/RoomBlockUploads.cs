@@ -334,8 +334,9 @@ internal static class RoomBlockUploads
     {
         foreach (ComposedEncounter encounter in EncounterLookUploads.Of(RoomEnemyGraphicsSetLists.MembersOf(RoomEnemyGraphicsSetLists.Of(state))))
         {
-            if (EncounterLookUploads.ShownAs(encounter) is not EncounterArtwork shownAs || !EncounterLookUploads.ShownIn(encounter, state))
+            if (!EncounterLookUploads.IsShown(encounter) || !EncounterLookUploads.ShownIn(encounter, state))
                 continue;
+            EncounterArtwork shownAs = EncounterLookUploads.ShownAs(encounter);
             EncounterLookSteps steps = EncounterLookUploads.Steps(encounter, inputs.Objects);
             IReadOnlyList<ComposedLook> looks = EncounterLookUploads.Looks(encounter);
             for (int look = 1; look < looks.Count; look++)
@@ -449,6 +450,7 @@ internal static class RoomBlockUploads
     /// <summary>What one tileset's rooms show over their characters.</summary>
     /// <param name="ceres">Whether the tileset's rooms are Ceres rooms, which load no common room elements.</param>
     /// <param name="inputs">The installed artwork the uploads are drawn from.</param>
+    /// <param name="bg3Content">The tileset's BG3 content, read whole.</param>
     internal sealed class TilesetUploads(bool ceres, RoomBlockSheetInputs inputs, BgArtworkBindings bg3Content)
     {
         /// <summary>What the rooms show over their tile characters after loading, collectibles aside, each once.</summary>

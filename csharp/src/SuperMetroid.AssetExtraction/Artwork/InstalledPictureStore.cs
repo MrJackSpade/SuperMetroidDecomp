@@ -33,10 +33,10 @@ internal sealed class InstalledPictureStore
     private readonly Dictionary<string, StoredPictureDocument> tagged;
 
     /// <summary>The recolour-region maps the pictures are shown with, or null where the store lists none.</summary>
-    private readonly InstalledMaps<int>? recolourRegionMaps;
+    private readonly InstalledMaps<int> recolourRegionMaps;
 
     /// <summary>The blend maps the pictures are shown with, or null where the store lists none.</summary>
-    private readonly InstalledMaps<bool>? blendMaps;
+    private readonly InstalledMaps<bool> blendMaps;
 
     /// <summary>Opens the store in <paramref name="directory"/> from its index, reading each page's size from its header.</summary>
     /// <exception cref="InvalidDataException">The index does not describe a store of this format, or a page's header is invalid.</exception>
@@ -59,10 +59,10 @@ internal sealed class InstalledPictureStore
             pages[page] = new InstalledPage(Path.Combine(directory, PictureStoreFiles.PageFile(page)));
         recolourRegionMaps = manifest.RecolourRegionMaps is { } regions
             ? new InstalledMaps<int>(PictureStoreFiles.RecolourRegionMapsFile(content), regions.Maps, RecolourRegionMapFile.Decode, "recolour-region")
-            : null;
+            : InstalledMaps<int>.None("recolour-region");
         blendMaps = manifest.BlendMaps is { } blending
             ? new InstalledMaps<bool>(PictureStoreFiles.BlendMapsFile(content), blending.Maps, BlendMapFile.Decode, "blend")
-            : null;
+            : InstalledMaps<bool>.None("blend");
     }
 
     /// <summary>
@@ -96,10 +96,8 @@ internal sealed class InstalledPictureStore
     {
         Ensure.NotNull(document);
         var named = new Dictionary<FrameRectangle, InstalledPictureReferenceDocument?>();
-        foreach ((string name, InstalledSheetFrameDocument? frame) in document.Frames ?? throw new InvalidDataException($"Sprite sheet {sheet} has no frame list."))
+        foreach ((string name, InstalledSheetFrameDocument frame) in document.Frames)
         {
-            if (frame is null)
-                throw new InvalidDataException($"Sprite sheet {sheet} frame {name} is null.");
             var rectangle = new FrameRectangle(frame.Corner, frame.Size);
             if (!rectangle.LiesInside(document.Size))
                 throw new InvalidDataException($"Sprite sheet {sheet} frame {name} at {rectangle} leaves its {document.Size.X}x{document.Size.Y} image.");
@@ -142,12 +140,12 @@ internal sealed class InstalledPictureStore
     /// nothing for a frame naming no such map.
     /// </summary>
     /// <exception cref="InvalidDataException">The store lists no such map, or lists it of another size.</exception>
-    private static void RequireListed<T>(InstalledMaps<T>? maps, string? tag, string kind, string sheet, string frame, Extent16<ImagePixels> size)
+    private static void RequireListed<T>(InstalledMaps<T> maps, string? tag, string kind, string sheet, string frame, Extent16<ImagePixels> size)
         where T : unmanaged, IEquatable<T>
     {
         if (tag is null)
             return;
-        if (maps is null || !maps.Listed.TryGetValue(tag, out Extent16<ImagePixels> listed))
+        if (!maps.Listed.TryGetValue(tag, out Extent16<ImagePixels> listed))
             throw new InvalidDataException($"Sprite sheet {sheet} frame {frame} names {kind} map '{tag}', which the picture store does not list.");
         if (listed != size)
             throw new InvalidDataException(
@@ -185,8 +183,8 @@ internal sealed class InstalledPictureStore
             if (page.IsClear(stored))
                 throw new InvalidDataException($"Sprite sheet {sheet} frame {string.Join(", ", FramesAt(document, rectangle))} names rectangle {stored} of "
                     + $"picture-store page {PictureStoreFiles.PageFile(picture.Page)}, which shows nothing: an installed picture shows something.");
-            PictureMap<int>? regionMap = picture.RecolourRegionMap is { } regionTag ? MapOf(recolourRegionMaps, regionTag, "recolour-region") : null;
-            PictureMap<bool>? blendMap = picture.BlendMap is { } blendTag ? MapOf(blendMaps, blendTag, "blend") : null;
+            PictureMap<int>? regionMap = picture.RecolourRegionMap is { } regionTag ? MapOf(recolourRegionMaps, regionTag) : null;
+            PictureMap<bool>? blendMap = picture.BlendMap is { } blendTag ? MapOf(blendMaps, blendTag) : null;
             // A repeated picture is one period, copied to each period of the rectangle (#1651); any other lies once.
             foreach (FrameRectangle placed in picture.PlacesIn(rectangle))
             {
@@ -199,10 +197,10 @@ internal sealed class InstalledPictureStore
     }
 
     /// <summary>The map tagged <paramref name="tag"/> among <paramref name="maps"/>, the store's maps of its kind.</summary>
-    /// <exception cref="InvalidDataException">The store has no maps of this kind, or the map file is malformed or disagrees with the listing.</exception>
-    private static PictureMap<T> MapOf<T>(InstalledMaps<T>? maps, string tag, string kind)
+    /// <exception cref="InvalidDataException">The store holds no such map, or the map file is malformed or disagrees with the listing.</exception>
+    private static PictureMap<T> MapOf<T>(InstalledMaps<T> maps, string tag)
         where T : unmanaged, IEquatable<T> =>
-        (maps ?? throw new InvalidDataException($"A frame names {kind} map {tag}, but the picture store lists no {kind} maps.")).Map(tag);
+        maps.Map(tag);
 
     /// <summary>The names of <paramref name="document"/>'s frames that lie at <paramref name="rectangle"/>, in name order.</summary>
     private static IEnumerable<string> FramesAt(InstalledSheetDocument document, FrameRectangle rectangle) =>
@@ -288,8 +286,20 @@ internal sealed class InstalledPictureStore
             maps = new Lazy<Dictionary<string, PictureMap<T>>>(() => Checked(decode(File.ReadAllBytes(path), path)));
         }
 
+        /// <summary>No maps of <paramref name="kind"/>: the index lists none, so a frame naming one is rejected.</summary>
+        private InstalledMaps(string kind)
+        {
+            path = $"(no {kind} map file)";
+            this.kind = kind;
+            Listed = [];
+            maps = new Lazy<Dictionary<string, PictureMap<T>>>(() => []);
+        }
+
         /// <summary>The size of each map the store lists, by tag.</summary>
         internal Dictionary<string, Extent16<ImagePixels>> Listed { get; }
+
+        /// <summary>The maps of <paramref name="kind"/> of a store whose index lists none.</summary>
+        internal static InstalledMaps<T> None(string kind) => new(kind);
 
         /// <summary>The map tagged <paramref name="tag"/>.</summary>
         /// <exception cref="InvalidDataException">The map file is malformed, disagrees with the listing, or holds no such map.</exception>

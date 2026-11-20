@@ -88,13 +88,20 @@ public static class GameAssetInstaller
     /// this importer's format and the supported source. Hosts bind these resources to a mutable-memory-only runtime; no
     /// gameplay ROM reader exists.
     /// </summary>
-    public static GameInstallation? TryOpenExtractedContent(string root)
+    public static GameInstallation? TryOpenExtractedContent(string root) =>
+        HoldsCurrentExtractedContent(root) ? new GameInstallation(Path.GetFullPath(root)) : null;
+
+    /// <summary>
+    /// Whether <paramref name="root"/> holds a current extracted-content installation, as <see cref="TryOpenExtractedContent"/>
+    /// opens: an interrupted publish is recovered first.
+    /// </summary>
+    public static bool HoldsCurrentExtractedContent(string root)
     {
         var installation = new GameInstallation(Path.GetFullPath(root));
-        if (IsExtractedContentComplete(installation)) return installation;
+        if (IsExtractedContentComplete(installation)) return true;
         using FileStream gate = Lock(installation.Root);
         RecoverInterruptedPublish(installation);
-        return IsExtractedContentComplete(installation) ? installation : null;
+        return IsExtractedContentComplete(installation);
     }
 
     /// <summary>Serializes setup, reuses a current installation or extracts <paramref name="components"/> from a newly supplied ROM.</summary>

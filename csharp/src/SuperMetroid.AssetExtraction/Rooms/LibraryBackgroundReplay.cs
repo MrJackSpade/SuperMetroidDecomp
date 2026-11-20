@@ -58,8 +58,7 @@ internal static class LibraryBackgroundReplay
                 case LibraryBackgroundCommand.Decompress:
                     if (instruction.Destination != LibraryBackgroundDestination.TilemapStaging || instruction.Source is not LibraryBackgroundSource.CompressedTilemap compressed)
                         throw new InvalidDataException($"A decompression in list {list} stages {instruction.Source} at {instruction.Destination}.");
-                    staging.WriteDecompressed(LibraryBackgroundStagingDefinitions.TilemapStagingBankOffset, BackgroundTileWords.ToBytes((artwork.TilemapArt ?? throw new InvalidOperationException(
-                        "Library-background decompression requires installed tilemaps.")).Get(compressed.Tilemap).Tiles.Span),
+                    staging.WriteDecompressed(LibraryBackgroundStagingDefinitions.TilemapStagingBankOffset, BackgroundTileWords.ToBytes(artwork.TilemapArt.Get(compressed.Tilemap).Tiles.Span),
                         instruction.Source);
                     break;
                 case LibraryBackgroundCommand.ClearFxTilemap:
@@ -108,8 +107,8 @@ internal static class LibraryBackgroundReplay
             RequireWholeStatueGhost(transfer, artwork);
         else if (transfer.Source == LibraryBackgroundSource.HudCharacters && transfer.ByteCount == HudTileAtlasFormat.CharacterByteCount)
             vram.ExecuteQueuedAssetWrite(KraidHudCharacters(transfer, artwork).Span, destination);
-        else if (transfer.Source is LibraryBackgroundSource.SkyPage sky && artwork.SkyArt is { } skies)
-            vram.ExecuteQueuedAssetWrite(BackgroundTileWords.ToBytes(skies.Page(sky.Page, transfer.ByteCount / sizeof(ushort)).Span), destination);
+        else if (transfer.Source is LibraryBackgroundSource.SkyPage sky)
+            vram.ExecuteQueuedAssetWrite(BackgroundTileWords.ToBytes(artwork.SkyArt.Page(sky.Page, transfer.ByteCount / sizeof(ushort)).Span), destination);
         else
             // A source no bound catalog owns must not fall back to the cartridge's bytes.
             throw new InvalidDataException(
@@ -121,8 +120,7 @@ internal static class LibraryBackgroundReplay
     /// <exception cref="InvalidDataException">The transfer brings only some of them.</exception>
     private static void RequireWholeStatueGhost(LibraryBackgroundInstruction transfer, LibraryBackgroundArtwork artwork)
     {
-        RoomCharacterAtlases characters = artwork.CharacterArt
-            ?? throw new InvalidOperationException("The Tourian statue ghost's library characters have no installed character artwork.");
+        RoomCharacterAtlases characters = artwork.CharacterArt;
         ReadOnlyMemory<byte> ghost = characters.Get(RoomCharacterSet.TourianStatueGhost).Characters;
         if (transfer.ByteCount != ghost.Length)
             throw new InvalidDataException($"Tourian statue-ghost transfer requested {transfer.ByteCount} bytes, not its {ghost.Length}.");
@@ -135,8 +133,7 @@ internal static class LibraryBackgroundReplay
     {
         if (transfer.Command != LibraryBackgroundCommand.TransferForKraid)
             throw new InvalidDataException($"A library background's {transfer.Command} moves the HUD's characters, which only Kraid's list copies.");
-        HudTileAtlas hud = artwork.HudArt
-            ?? throw new InvalidOperationException("Kraid's library background moves the HUD's characters, which have no installed artwork.");
+        HudTileAtlas hud = artwork.HudArt;
         return hud.Bytes[..transfer.ByteCount];
     }
 

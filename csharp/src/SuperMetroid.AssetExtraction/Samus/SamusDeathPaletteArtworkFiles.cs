@@ -146,9 +146,7 @@ public static class SamusDeathPaletteArtworkFiles
     }
 
     /// <summary>The artwork file stores the cartridge's colour words; each must be a fifteen-bit color.</summary>
-    private static RgbColor[] Colors(ushort[]? words) => words is null
-        ? throw new InvalidDataException("Samus death-palette artwork is missing a palette.")
-        : Array.ConvertAll(words, word =>
+    private static RgbColor[] Colors(ushort[] words) => Array.ConvertAll(words, word =>
         RgbColor.IsColorWord(word) ? RgbColor.FromWord(word)
             : throw new InvalidDataException($"Samus death-palette color ${word:X4} sets bit 15."));
 

@@ -34,11 +34,11 @@ internal static class MapSpriteSheetComposer
     internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps) => Sources(Ensure.NotNull(maps).Sprites, maps);
 
     /// <summary>What the map sprite sheet composes from <paramref name="sprites"/>, coloured with the menus of <paramref name="maps"/>.</summary>
-    internal static SpriteSheetSources Sources(MapSpriteCompositions sprites, ImportAreaMapPresentation maps)
+    internal static SpriteSheetSources Sources(MapSpriteArtwork sprites, ImportAreaMapPresentation maps)
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(maps);
-        MapSpriteArtwork artwork = MapSpriteArtwork.Of(sprites);
+        MapSpriteArtwork artwork = sprites;
         // Each sprite is pictured once, its palette-inheriting parts in its standard colouring's set (#1513).
         List<ColouredFrame<MapSpriteColouring>> frames = [.. MapSpriteArtwork.FrameNames.Select(frame =>
         {

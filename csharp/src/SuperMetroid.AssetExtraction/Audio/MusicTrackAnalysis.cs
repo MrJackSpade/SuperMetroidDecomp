@@ -67,9 +67,12 @@ internal sealed record MusicTrackAnalysis(
         renderer.AdvanceSequencerFrame();
         renderer.PlayTrack(MusicTrackNumbers.Decode(bank, track));
         // A period is found only among the started track's phrases, so the track has started by the time one is.
-        while (observer.Outcome is not { } period || observer.StartSample is not long start)
+        while (true)
+        {
+            if (observer.Outcome is { } period && observer.StartSample is long start)
+                return new MusicTrackAnalysis(bank, track, period, start, observer.TempoChanges);
             renderer.AdvanceSequencerFrame();
-        return new MusicTrackAnalysis(bank, track, period, start, observer.TempoChanges);
+        }
     }
 
     /// <summary>The native sample position of <paramref name="tick"/> in the renderer's current frame.</summary>

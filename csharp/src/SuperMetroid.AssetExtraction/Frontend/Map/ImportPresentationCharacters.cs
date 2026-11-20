@@ -22,7 +22,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="TitleGraphics">The title's characters and compositions, which the title and title floor sheets are composed from (#1583).</param>
 internal sealed record ImportPresentationCharacters(
     MapCharacterArtwork Characters,
-    MapSpriteCompositions Sprites,
+    MapSpriteArtwork Sprites,
     EscapeTimerCharacters EscapeTimerTiles,
     RoomFxBlockAnimationAtlas BlockAnimationAtlas,
     WorldMapCharacters WorldCharacters,

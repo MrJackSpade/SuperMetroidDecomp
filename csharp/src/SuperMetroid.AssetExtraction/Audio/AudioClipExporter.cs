@@ -27,8 +27,9 @@ internal static class AudioClipExporter
 
     /// <summary>One music track to export.</summary>
     /// <param name="Bank">The track's bank.</param>
+    /// <param name="DataSet">The music data set the bank holds.</param>
     /// <param name="Track">The track number.</param>
-    internal sealed record MusicKey(AudioBank Bank, int Track);
+    internal sealed record MusicKey(AudioBank Bank, MusicDataSet DataSet, int Track);
 
     /// <summary>One sound effect to export, rendered from the common upload alone.</summary>
     /// <param name="Library">The effect's library.</param>
@@ -56,11 +57,12 @@ internal static class AudioClipExporter
         var keys = new List<MusicKey>();
         foreach (AudioUploadAssetDefinition bank in AudioAssetCatalogDefinitions.Music)
         {
+            MusicDataSet dataSet = Enum.GetValues<MusicDataSet>().Single(set => AudioAssetCatalogDefinitions.Get(set) == bank);
             IReadOnlyList<ushort> pointers = catalog.GetMusicBank(bank.AudioSet).TrackPointers;
             for (int track = 1; track < pointers.Count; track++)
             {
                 if (pointers[track] != 0)
-                    keys.Add(new MusicKey(bank.AudioSet, track));
+                    keys.Add(new MusicKey(bank.AudioSet, dataSet, track));
             }
         }
         return keys;
@@ -125,8 +127,7 @@ internal static class AudioClipExporter
             if (sample - start < clipFrames)
                 segments.Add(new SongTempo(sample - start, DriverTempoBeats.LengthAt(tempo)));
         }
-        MusicDataSet dataSet = AudioAssetCatalogDefinitions.Get(key.Bank).DataSet
-            ?? throw new InvalidDataException($"{key.Bank} holds no music data set, so it has no tracks to export.");
+        MusicDataSet dataSet = key.DataSet;
         return new MusicClipEntry(
             dataSet,
             // The data set and its track number decode into the song (#1748).
@@ -164,16 +165,15 @@ internal static class AudioClipExporter
         {
             IReadOnlyList<SoundEffectRendering.LoopingLayer> layers =
                 SoundEffectRendering.RenderLoopingLayers(catalog, null, key.Library, key.Command, effect.ChannelPrograms.Count);
-            return new InstalledSoundEffectClip(sound, policy, null,
-                [.. layers.Select(layer => new InstalledSoundEffectLayer(
+            return new InstalledSoundEffectClip.Repeating(sound, policy,
+                [.. layers.Select(layer => new InstalledSoundEffectClip.LoopingLayer(
                     Write(root, SoundEffectDirectory, files, layer.Clip), layer.LoopStart))]);
         }
         SoundEffectRendering.OneShot shot = SoundEffectRendering.RenderOneShot(catalog, null, key.Library, key.Command);
         // A silent effect still occupies its library until its logical end, so it keeps an entry without layers.
-        return new InstalledSoundEffectClip(sound, policy, shot.ActiveFrames,
-            shot.Clip.Length == 0
-                ? []
-                : [new InstalledSoundEffectLayer(Write(root, SoundEffectDirectory, files, shot.Clip), null)]);
+        return shot.Clip.Length == 0
+            ? new InstalledSoundEffectClip.Silent(sound, policy, shot.ActiveFrames)
+            : new InstalledSoundEffectClip.OneShot(sound, policy, shot.ActiveFrames, Write(root, SoundEffectDirectory, files, shot.Clip));
     }
 
     /// <summary>

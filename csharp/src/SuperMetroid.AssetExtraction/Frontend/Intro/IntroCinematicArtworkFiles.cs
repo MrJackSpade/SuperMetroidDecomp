@@ -142,18 +142,19 @@ public static class IntroCinematicArtworkFiles
         WriteDiscoveryActorSprites();
         WriteScientistSprites();
         IntroCinematicPalette opening = WritePalette();
-        CeresFlightPalette? flight = null;
+        var flightFiles = new Dictionary<string, byte[]>(StringComparer.Ordinal);
         foreach ((string name, byte[] file) in CeresFlightArtworkExtractor.Extract(bus))
         {
             using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(file);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
-            if (name == CeresFlightPaletteFormat.FileName)
-                flight = CeresFlightPaletteFile.Read(new MemoryStream(file, writable: false));
+            flightFiles.Add(name, file);
         }
+        CeresFlightPalette flight = flightFiles.TryGetValue(CeresFlightPaletteFormat.FileName, out byte[]? flightPalette)
+            ? CeresFlightPaletteFile.Read(new MemoryStream(flightPalette, writable: false))
+            : throw new InvalidDataException("The Ceres flight extraction wrote no palette.");
         // The game reads the scenes' backdrops, taken once from their extracted colours, and neither palette (#1544).
-        WriteFile(IntroBackdropFiles.FileName, IntroBackdropFiles.Extract(opening,
-            flight ?? throw new InvalidDataException("The Ceres flight extraction wrote no palette.")));
+        WriteFile(IntroBackdropFiles.FileName, IntroBackdropFiles.Extract(opening, flight));
         foreach ((string name, byte[] file) in CeresDestructionArtworkExtractor.Extract(bus))
         {
             using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))

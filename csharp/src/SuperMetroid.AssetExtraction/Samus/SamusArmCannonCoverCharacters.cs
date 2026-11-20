@@ -37,11 +37,10 @@ public sealed class SamusArmCannonCoverCharacters
         : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>The cover character for native direction 0-9 and opening frame 1-3, as owned artwork.</summary>
-    /// <exception cref="InvalidDataException">The frame names no cover tile.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The direction is no native direction, or the frame no opening frame.</exception>
     public SpriteArtwork CoverTile(int direction, int frame)
     {
-        int index = Cannon.CoverTileIndex(direction, frame) ??
-            throw new InvalidDataException($"Arm-cannon direction {direction} frame {frame} names no installed cover tile.");
+        int index = Cannon.OpeningTileIndex(direction, frame);
         return coverCharacters.GetOrAdd(index, key => new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover, key),
             TileCharacters(key).Span));
     }

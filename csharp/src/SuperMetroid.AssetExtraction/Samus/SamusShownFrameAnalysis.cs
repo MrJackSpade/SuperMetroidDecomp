@@ -159,7 +159,8 @@ internal sealed class SamusShownFrameAnalysis
     private static int Number(SamusAnimationPlace place) => SamusAnimationLayout.Offset(place);
 
     /// <summary>The step <paramref name="pose"/>'s animation reads at <paramref name="frame"/> places into its layout.</summary>
-    private SamusPoseAnimationStep? StepAt(SamusPoseId pose, int frame) => layout.Read(SamusAnimationDelays.AnimationForPose(pose), frame)?.Step;
+    private SamusPoseAnimationStep? StepAt(SamusPoseId pose, int frame) =>
+        layout.TryRead(SamusAnimationDelays.AnimationForPose(pose), frame, out SamusAnimationLayout.StepRead read) ? read.Step : null;
 
     /// <summary>
     /// Follows every pending frame on through its animation, and applies <paramref name="publications"/> to every pose,

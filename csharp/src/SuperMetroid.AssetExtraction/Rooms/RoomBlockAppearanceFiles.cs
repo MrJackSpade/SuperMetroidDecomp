@@ -53,13 +53,13 @@ public static class RoomBlockAppearanceFiles
         string path = Path.Combine(directory, FileNameOf(tileset));
         BlockAppearancesDocument document = JsonSerializer.Deserialize<BlockAppearancesDocument>(File.ReadAllBytes(path), JsonOptions)
             ?? throw new InvalidDataException($"Block appearance record {path} is empty.");
-        if (document.Version != Version || document.Tileset is null)
+        if (document.Version != Version)
             throw new InvalidDataException($"Block appearance record {path} is not revision {Version}.");
         if (document.Tileset != RoomBlockSheet.NameOf(tileset))
             throw new InvalidDataException($"Block appearance record {path} describes {document.Tileset}, not {RoomBlockSheet.NameOf(tileset)}.");
         try
         {
-            string?[]?[] blocks = document.Blocks ?? throw new InvalidDataException("A block appearance record lists no blocks.");
+            string[]?[] blocks = document.Blocks;
             int[] shown = [.. Enumerable.Range(0, blocks.Length).Where(block => blocks[block] is not null)];
             return new RoomBlockAppearances(Inputs(blocks), shown);
         }
@@ -69,22 +69,21 @@ public static class RoomBlockAppearanceFiles
         }
 
         // Each block's inputs, as the record spells them; none for a block no room shows.
-        static ImmutableArray<AppearanceInput>[] Inputs(string?[]?[] blocks) =>
+        static ImmutableArray<AppearanceInput>[] Inputs(string[]?[] blocks) =>
             [.. blocks.Select((tokens, block) => tokens is null ? ImmutableArray<AppearanceInput>.Empty
-                : ImmutableArray.CreateRange(tokens.Select(token =>
-                    AppearanceInputSpellings.Parse(token ?? throw new InvalidDataException($"Block {block} lists a null input.")))))];
+                : ImmutableArray.CreateRange(tokens.Select(AppearanceInputSpellings.Parse)))];
     }
 
     /// <summary>Each block's inputs, as the record spells them, null for a block no room shows.</summary>
-    private static string?[]?[] Tokens(RoomBlockAppearances appearances) =>
+    private static string[]?[] Tokens(RoomBlockAppearances appearances) =>
         [.. Enumerable.Range(0, appearances.Count).Select(block => appearances.Shows(block)
-            ? appearances.Of(block).Select(input => (string?)input.Token).ToArray() : null)];
+            ? appearances.Of(block).Select(input => input.Token).ToArray() : null)];
 
     /// <summary>One tileset's record.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Tileset">The tileset's installed name.</param>
     /// <param name="Blocks">Each block's inputs, by block index, null for a block no room shows.</param>
-    private sealed record BlockAppearancesDocument(int Version, string? Tileset, string?[]?[]? Blocks);
+    private sealed record BlockAppearancesDocument(int Version, string Tileset, string[]?[] Blocks);
 
     /// <summary>Strict camel-case record fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -93,5 +92,7 @@ public static class RoomBlockAppearanceFiles
         PropertyNameCaseInsensitive = true,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = false,
+        RespectNullableAnnotations = true,
+        RespectRequiredConstructorParameters = true,
     };
 }

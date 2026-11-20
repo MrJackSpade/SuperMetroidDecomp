@@ -10,6 +10,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// library's logical end and each allocated channel's first repeated state.
 /// Positions are native stereo frames from the accepting poll.
 /// </summary>
+/// <param name="renderer">The renderer whose frame count positions each poll.</param>
 /// <param name="soundLibrary">The library the sound belongs to.</param>
 /// <param name="command">The request byte.</param>
 internal sealed class SoundEffectObserver(SpcAudioClipRenderer renderer, SoundEffectLibrary soundLibrary, int command) : ISpcDriverObserver

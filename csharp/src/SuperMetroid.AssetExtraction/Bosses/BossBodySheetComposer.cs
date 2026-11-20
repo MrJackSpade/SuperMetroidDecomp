@@ -90,19 +90,10 @@ internal static class BossBodySheetComposer
     internal static ComposedBossBodySheet Compose(RoomBlockSheetInputs inputs, BossBodyOwner owner)
     {
         EnemyDefinitionId enemy = Enemies[owner];
-        BossRoomCharacters? characters = null;
-        foreach (RoomDefinition room in RetailRooms.All)
-        {
-            RoomStateSettings? state = RoomStateLists.GetStates(room)
-                .FirstOrDefault(candidate => candidate.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == enemy));
-            if (state is not null)
-            {
-                characters = RoomBlockUploads.ShownUnderBoss(inputs, state);
-                break;
-            }
-        }
-        if (characters is null)
-            throw new InvalidDataException($"No room state shows {owner}.");
+        RoomStateSettings state = RetailRooms.All.SelectMany(RoomStateLists.GetStates)
+            .FirstOrDefault(candidate => candidate.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == enemy))
+            ?? throw new InvalidDataException($"No room state shows {owner}.");
+        BossRoomCharacters characters = RoomBlockUploads.ShownUnderBoss(inputs, state);
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(characters.Tileset.Palette));
         var painter = new BossBodyPainter(owner, characters, colours);
         foreach (BossBodyFrameSource frame in Frames(inputs.Bosses, owner))

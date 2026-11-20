@@ -28,5 +28,6 @@ internal static class StraddledTerrainFormat
         WriteIndented = false,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         RespectRequiredConstructorParameters = true,
+        RespectNullableAnnotations = true,
     };
 }

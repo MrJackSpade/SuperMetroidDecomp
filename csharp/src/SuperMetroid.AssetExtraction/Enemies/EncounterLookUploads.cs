@@ -153,13 +153,19 @@ internal static class EncounterLookUploads
     }
 
     /// <summary>
-    /// The encounter gameplay shows <paramref name="encounter"/>'s looks as, or none for an encounter whose looks gameplay
-    /// never shows: each of its frames is drawn in one look only, which is its one finished picture.
+    /// Whether gameplay shows <paramref name="encounter"/>'s looks: an encounter whose looks it never shows draws each of its
+    /// frames in one look only, which is its one finished picture.
     /// </summary>
+    internal static bool IsShown(ComposedEncounter encounter) =>
+        encounter is not (ComposedEncounter.DraygonEvirs or ComposedEncounter.MotherBrain);
+
+    /// <summary>The encounter gameplay shows <paramref name="encounter"/>'s looks as, for an encounter it shows (<see cref="IsShown"/>).</summary>
+    /// <exception cref="InvalidOperationException">Gameplay never shows the encounter's looks.</exception>
     /// <exception cref="InvalidDataException">The encounter is not one the import composes.</exception>
-    internal static EncounterArtwork? ShownAs(ComposedEncounter encounter) => encounter switch
+    internal static EncounterArtwork ShownAs(ComposedEncounter encounter) => !IsShown(encounter)
+        ? throw new InvalidOperationException($"Gameplay never shows {encounter}'s looks.")
+        : encounter switch
     {
-        ComposedEncounter.DraygonEvirs or ComposedEncounter.MotherBrain => null,
         ComposedEncounter.Gunship => EncounterArtwork.Gunship,
         ComposedEncounter.Crocomire => EncounterArtwork.Crocomire,
         ComposedEncounter.BombTorizo => EncounterArtwork.BombTorizo,

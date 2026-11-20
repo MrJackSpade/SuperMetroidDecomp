@@ -156,17 +156,12 @@ internal sealed class EnemyTileArtworkReader
     internal ImportEnemyArtwork LoadForImport(string importData)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
-        EnemyTileArtworkParts enemySheets = EnemySheets(importData);
         CrocomireMeltingArtwork crocomire = CrocomireMelting(importData);
         CrocomireSkeletonArtwork skeleton = CrocomireSkeleton(importData);
-        EnemySpritemapCatalog spritemaps = Spritemaps(importData);
-        EnemyProjectileSpritemapCatalog projectileSpritemaps = ProjectileSpritemaps(importData);
-        EnemyExtendedFrameCatalog extendedFrames = ExtendedFrames(importData);
         PhantoonBg2FrameCatalog phantoonBg2Frames = PhantoonBg2Frames(importData);
         DraygonBg2FrameCatalog draygonBg2Frames = DraygonBg2Frames(importData);
         CrocomireBg2FrameCatalog crocomireBg2Frames = CrocomireBg2Frames(importData);
         MotherBrainBodyBg2FrameCatalog motherBrainBodyBg2Frames = MotherBrainBodyBg2Frames(importData);
-        GunshipLiftoffArtworkCatalog gunshipLiftoff = GunshipLiftoff(importData);
         TorizoSwapArtwork torizoInstructionVram = TorizoSwaps(importData);
         CeresEscapeTileArtwork ceresEscapeTiles = CeresEscapeTiles(importData);
         CeresEscapeOverlays ceresEscapeOverlay = CeresEscapeOverlayTilemaps(importData);
@@ -176,14 +171,10 @@ internal sealed class EnemyTileArtworkReader
         KraidBackgroundArtwork kraidBackground = KraidBackground(importData);
         KraidColorCatalog kraidColors = KraidColors(importData);
         CeresDoorSourceArtwork ceresDoor = CeresDoor(importData);
-        MagdollitePaletteCycle magdollitePaletteCycle = MagdollitePaletteCycle(importData);
-        WorkRobotPaletteCycle workRobotPaletteCycle = WorkRobotPaletteCycle(importData);
         CrocomireColorCatalog crocomireColors = CrocomireColors(importData);
         DraygonColorCatalog draygonColors = DraygonColors(importData);
         PhantoonColorCatalog phantoonColors = PhantoonColors(importData);
-        ChozoAndTubeColorCatalog chozoAndTubeColors = ChozoAndTubeColors(importData);
         SporeSpawnColorCatalog sporeSpawnColors = SporeSpawnColors(importData);
-        DachoraColorCatalog dachoraColors = DachoraColors(importData);
         BabyMetroidColorCatalog babyMetroidColors = BabyMetroidColors(importData);
         BabyMetroidCutsceneColorCatalog babyMetroidCutsceneColors = BabyMetroidCutsceneColors(importData);
         BotwoonColorCatalog botwoonColors = BotwoonColors(importData);
@@ -191,15 +182,8 @@ internal sealed class EnemyTileArtworkReader
         ZebetiteColorCatalog zebetiteColors = ZebetiteColors(importData);
         NorfairRidleyColorCatalog norfairRidleyColors = NorfairRidleyColors(importData);
         TourianStatuePalettes tourianStatueColors = TourianStatueColors(importData);
-        EnemyAuxiliaryColorCatalog auxiliaryColors = AuxiliaryColors(importData);
         return new ImportEnemyArtwork(
-            EnemyTileSourceArtwork.FromInstalledArtwork(enemySheets with
-            {
-                Spritemaps = spritemaps, ExtendedFrames = extendedFrames,
-                GunshipLiftoff = gunshipLiftoff, ProjectileSpritemaps = projectileSpritemaps,
-                MagdollitePaletteCycle = magdollitePaletteCycle, WorkRobotPaletteCycle = workRobotPaletteCycle,
-                ChozoAndTubeColors = chozoAndTubeColors, DachoraColors = dachoraColors, AuxiliaryColors = auxiliaryColors,
-            }),
+            EnemyTileSourceArtwork.FromInstalledArtwork(EnemyParts(importData)),
             new BossSourceArtwork
             {
                 CrocomireMelting = crocomire, CrocomireSkeleton = skeleton, CrocomireBg2Frames = crocomireBg2Frames,
@@ -223,11 +207,11 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>
     /// Every retail enemy's characters and colours, and those of the artwork graphics sets load for no enemy (#1686), read
-    /// from each header's character page and colour document in <paramref name="importData"/>: the parts of the enemy
-    /// catalog that hold no frames or colour cycles.
+    /// from each header's character page and colour document in <paramref name="importData"/>, with the frames, colour
+    /// cycles and colour catalogs the enemy catalog holds beside them, each read from its own files.
     /// </summary>
     /// <exception cref="InvalidDataException">A file is invalid, or the manifest keys a header that is neither.</exception>
-    internal EnemyTileArtworkParts EnemySheets(string importData)
+    internal EnemyTileArtworkParts EnemyParts(string importData)
     {
         var sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>();
         var palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>();
@@ -253,7 +237,15 @@ internal sealed class EnemyTileArtworkReader
         }
         if (!unplacedSheets.Keys.ToHashSet().SetEquals(EnemyTileSourceDefinitions.Unplaced) || unplacedSheets.Count != EnemyTileSourceDefinitions.Unplaced.Count)
             throw new InvalidDataException("Enemy tile manifest omits or substitutes artwork a graphics set loads for no enemy.");
-        return new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, UnplacedSheets = unplacedSheets, UnplacedPalettes = unplacedPalettes };
+        return new EnemyTileArtworkParts
+        {
+            Sheets = sheets, Palettes = palettes, UnplacedSheets = unplacedSheets, UnplacedPalettes = unplacedPalettes,
+            Spritemaps = Spritemaps(importData), ExtendedFrames = ExtendedFrames(importData),
+            GunshipLiftoff = GunshipLiftoff(importData), ProjectileSpritemaps = ProjectileSpritemaps(importData),
+            MagdollitePaletteCycle = MagdollitePaletteCycle(importData), WorkRobotPaletteCycle = WorkRobotPaletteCycle(importData),
+            ChozoAndTubeColors = ChozoAndTubeColors(importData), DachoraColors = DachoraColors(importData),
+            AuxiliaryColors = AuxiliaryColors(importData),
+        };
     }
 
     /// <summary>Requires <paramref name="entry"/>'s page to hold the retail <paramref name="byteCount"/> bytes.</summary>

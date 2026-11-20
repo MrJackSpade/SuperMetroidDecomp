@@ -223,7 +223,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
         /// <inheritdoc/>
         public void BlackOutEyes() =>
             // The statue shows its eye colours blacked out, then its grey, as the shades the import pre-colours (#1512).
-            sequence._statue.ShowStatueLook(definition.ClearedShade);
+            sequence._statue.ShowStatueLook(definition.ClearedShade, definition.DrawnInRoomBackground);
 
         /// <inheritdoc/>
         public void SpawnEyeGlow() => sequence._statue.SpawnEyeGlow(definition.Eye);
@@ -250,7 +250,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
         public void FinishRelease() => sequence._statue.Animation.FinishRelease(TourianGreyStatueSets.Alone[definition.Statue]);
 
         /// <inheritdoc/>
-        public void TurnGrey() => sequence._statue.ShowStatueLook(definition.GreyShade);
+        public void TurnGrey() => sequence._statue.ShowStatueLook(definition.GreyShade, definition.DrawnInRoomBackground);
 
         /// <summary>The statue's animation <paramref name="animation"/>, from its start.</summary>
         private AnimationContinuation<TourianStatueBlockSegment> Start(TourianStatueBlockSegment animation) =>

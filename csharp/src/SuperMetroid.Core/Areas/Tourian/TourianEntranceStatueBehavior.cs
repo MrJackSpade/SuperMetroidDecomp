@@ -74,12 +74,12 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>
-    /// Shows a released statue's look, its blacked-out eyes or its grey: over the room's pictures for a statue drawn in the
-    /// room's background, otherwise over the scene's sprites.
+    /// Shows a released statue's look, its blacked-out eyes or its grey: over the room's pictures for a statue
+    /// <paramref name="drawnInRoomBackground"/>, otherwise over the scene's sprites.
     /// </summary>
-    internal void ShowStatueLook(PictureShade look)
+    internal void ShowStatueLook(PictureShade look, bool drawnInRoomBackground)
     {
-        if (TourianStatueShades.RoomPictureLooks.Contains(look))
+        if (drawnInRoomBackground)
         {
             _roomLooks.Add(look);
             return;

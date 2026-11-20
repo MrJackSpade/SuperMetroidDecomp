@@ -77,6 +77,12 @@ public sealed class TourianStatueAnimationDefinition
     /// </summary>
     public required TourianSpriteStatue? GreyedSprite { get; init; }
 
+    /// <summary>
+    /// Whether the statue is drawn in the room's background, as Kraid's and Draygon's are, so that its looks show over the
+    /// room's pictures rather than over the scene's sprites: a statue with no sprite statue of its own is.
+    /// </summary>
+    public bool DrawnInRoomBackground => GreyedSprite is null;
+
     /// <summary>The statue greyed, which a statue released on an earlier visit shows (#1512).</summary>
     public required PictureShade GreyShade { get; init; }
 

@@ -969,7 +969,7 @@ internal static class LookupStream3Verification
             pictures => pictures == GameplayPictures.EscapeTimer ? PictureShading.Shaded(step) : PictureShading.Standard);
         var fade = new GameplayDisplayFade(new ColourFlash(RgbColor.Black), GameplayFadeSpares.Hud);
         var gameplay = new GameplayShading(RgbColor.Black, shadings.ToImmutableDictionary(), fade);
-        PictureShading timer = gameplay.OfEscapeTimer(PictureShading.Standard);
+        PictureShading timer = gameplay.OfGroupShaded(PictureShading.Standard, GameplayPictures.EscapeTimer);
         AssertTrue(timer.Shades.SequenceEqual([step]) && timer.Effects.IsEmpty,
             "the escape timer's draw shows its door shade, which keeps its lit colours, without the display's fade");
         AssertTrue(gameplay.OfSprite(PictureShading.Standard, isSamus: false).Effects.SequenceEqual([fade.Effect]),

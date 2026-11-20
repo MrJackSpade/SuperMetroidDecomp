@@ -14,7 +14,7 @@ internal static class CeresFloorDrawingsPrivateAccess
     extension(global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresFloorDrawings)
     {
         /// <summary>The private method <c>Cells</c>, invoked by name.</summary>
-        internal static global::System.Collections.Generic.IReadOnlyDictionary<int, int> Cells(global::SuperMetroid.Core.Rooms.Backgrounds.CeresFloorActorPicture frame) =>
-            PrivateState.InvokeStatic<global::System.Collections.Generic.IReadOnlyDictionary<int, int>>(typeof(global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresFloorDrawings), "Cells", [typeof(global::SuperMetroid.Core.Rooms.Backgrounds.CeresFloorActorPicture)], new object?[] { frame });
+        internal static global::System.Collections.Generic.Dictionary<int, int> Cells(global::SuperMetroid.Core.Rooms.Backgrounds.CeresFloorActorPicture frame) =>
+            PrivateState.InvokeStatic<global::System.Collections.Generic.Dictionary<int, int>>(typeof(global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresFloorDrawings), "Cells", [typeof(global::SuperMetroid.Core.Rooms.Backgrounds.CeresFloorActorPicture)], new object?[] { frame });
     }
 }

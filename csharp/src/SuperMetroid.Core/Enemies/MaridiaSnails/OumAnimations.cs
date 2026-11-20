@@ -114,7 +114,7 @@ internal static class OumAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static IReadOnlyDictionary<OumSegment, Animation<OumSegment>> StartingAt { get; } = new Dictionary<OumSegment, Animation<OumSegment>>
+    private static Dictionary<OumSegment, Animation<OumSegment>> StartingAt { get; } = new Dictionary<OumSegment, Animation<OumSegment>>
     {
         [P.FacingLeftIdle] = new([Segments.Whole(P.FacingLeftIdle)], AnimationEnd.Holds),
         [P.FacingLeftAttacking] = new([Segments.Whole(P.FacingLeftAttacking)], AnimationEnd.Holds),

@@ -14,9 +14,9 @@ internal static class OumAnimationsPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.MaridiaSnails.OumAnimations)
     {
         /// <summary>The private property <c>StartingAt</c>, reached by name.</summary>
-        internal static global::System.Collections.Generic.IReadOnlyDictionary<global::SuperMetroid.Core.Enemies.MaridiaSnails.OumSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Enemies.MaridiaSnails.OumSegment>> StartingAt
+        internal static global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Enemies.MaridiaSnails.OumSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Enemies.MaridiaSnails.OumSegment>> StartingAt
         {
-            get => PrivateState.StaticGet<global::System.Collections.Generic.IReadOnlyDictionary<global::SuperMetroid.Core.Enemies.MaridiaSnails.OumSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Enemies.MaridiaSnails.OumSegment>>>(typeof(global::SuperMetroid.Core.Enemies.MaridiaSnails.OumAnimations), "StartingAt");
+            get => PrivateState.StaticGet<global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Enemies.MaridiaSnails.OumSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Enemies.MaridiaSnails.OumSegment>>>(typeof(global::SuperMetroid.Core.Enemies.MaridiaSnails.OumAnimations), "StartingAt");
         }
     }
 }

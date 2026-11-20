@@ -14,9 +14,9 @@ internal static class HoltzAnimationsPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.Rios.HoltzAnimations)
     {
         /// <summary>The private property <c>StartingAt</c>, reached by name.</summary>
-        internal static global::System.Collections.Generic.IReadOnlyDictionary<global::SuperMetroid.Core.Enemies.Rios.HoltzSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Enemies.Rios.HoltzSegment>> StartingAt
+        internal static global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Enemies.Rios.HoltzSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Enemies.Rios.HoltzSegment>> StartingAt
         {
-            get => PrivateState.StaticGet<global::System.Collections.Generic.IReadOnlyDictionary<global::SuperMetroid.Core.Enemies.Rios.HoltzSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Enemies.Rios.HoltzSegment>>>(typeof(global::SuperMetroid.Core.Enemies.Rios.HoltzAnimations), "StartingAt");
+            get => PrivateState.StaticGet<global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Enemies.Rios.HoltzSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Enemies.Rios.HoltzSegment>>>(typeof(global::SuperMetroid.Core.Enemies.Rios.HoltzAnimations), "StartingAt");
         }
     }
 }

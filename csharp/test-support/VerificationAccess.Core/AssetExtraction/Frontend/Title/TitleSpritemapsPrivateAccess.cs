@@ -14,9 +14,9 @@ internal static class TitleSpritemapsPrivateAccess
     extension(global::SuperMetroid.AssetExtraction.Frontend.Title.TitleSpritemaps self)
     {
         /// <summary>The private property <c>Spritemaps</c>, reached by name.</summary>
-        internal global::System.Collections.Generic.IReadOnlySet<int> Spritemaps
+        internal global::System.Collections.Generic.HashSet<int> Spritemaps
         {
-            get => PrivateState.Get<global::SuperMetroid.AssetExtraction.Frontend.Title.TitleSpritemaps, global::System.Collections.Generic.IReadOnlySet<int>>(self, "Spritemaps");
+            get => PrivateState.Get<global::SuperMetroid.AssetExtraction.Frontend.Title.TitleSpritemaps, global::System.Collections.Generic.HashSet<int>>(self, "Spritemaps");
         }
     }
 }

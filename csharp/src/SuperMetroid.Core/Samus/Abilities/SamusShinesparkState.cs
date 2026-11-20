@@ -30,7 +30,7 @@ public sealed class SamusShinesparkState
     private readonly SuitPickupSparkCarryover<SamusSuitPickupStage> _acceleration;
 
     /// <summary>
-    /// How far the crash's orbiting copies have turned, 0 through <c>LargestTravel</c>:
+    /// How far the crash's orbiting copies have turned, 0 through the largest travel <see cref="CrashOrbitTravelCarryover"/> carries over:
     /// the crash's entry keeps what the last orbit or the first echo it released left, and the first echo overwrites it
     /// with its height while it flies.
     /// </summary>

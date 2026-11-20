@@ -14,9 +14,9 @@ internal static class GerutaAnimationsPrivateAccess
     extension(global::SuperMetroid.Core.Enemies.Rios.GerutaAnimations)
     {
         /// <summary>The private property <c>StartingAt</c>, reached by name.</summary>
-        internal static global::System.Collections.Generic.IReadOnlyDictionary<global::SuperMetroid.Core.Enemies.Rios.GerutaSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Enemies.Rios.GerutaSegment>> StartingAt
+        internal static global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Enemies.Rios.GerutaSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Enemies.Rios.GerutaSegment>> StartingAt
         {
-            get => PrivateState.StaticGet<global::System.Collections.Generic.IReadOnlyDictionary<global::SuperMetroid.Core.Enemies.Rios.GerutaSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Enemies.Rios.GerutaSegment>>>(typeof(global::SuperMetroid.Core.Enemies.Rios.GerutaAnimations), "StartingAt");
+            get => PrivateState.StaticGet<global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Enemies.Rios.GerutaSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Enemies.Rios.GerutaSegment>>>(typeof(global::SuperMetroid.Core.Enemies.Rios.GerutaAnimations), "StartingAt");
         }
     }
 }

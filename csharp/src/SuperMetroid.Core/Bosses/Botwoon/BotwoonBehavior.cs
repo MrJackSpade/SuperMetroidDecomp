@@ -816,6 +816,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
     /// <summary>Spawns one of Botwoon's body segments.</summary>
     /// <param name="head">Botwoon's head, whose position and graphics the segment starts with.</param>
+    /// <param name="botwoon">Botwoon's state, which the segment holds.</param>
     /// <param name="segmentIndex">The segment's place in the body, zero (the tail) through twelve (behind the head).</param>
     /// <returns>The segment, alive and inside the wall, or none when the pool is full.</returns>
     internal BotwoonSegmentState? SpawnBotwoonBodySegment(RoomEnemyPlace head, BotwoonEnemyState botwoon, int segmentIndex)

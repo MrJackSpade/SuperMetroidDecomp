@@ -453,7 +453,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Routes bomb hits through common shot logic and mirrors damage state to the balloon.</summary>
     /// <param name="state">The enemy's state, which the reaction acts on, after a hit has killed it too.</param>
-    internal EnemyBombReaction PowampBombReactionOf(PowampBodyState state) => new()
+    internal static EnemyBombReaction PowampBombReactionOf(PowampBodyState state) => new()
     {
         RunsGenericDeath = false,
         // Powamp's shot reaction runs the common damage without the hit burst.
@@ -496,7 +496,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Propagates power-bomb reaction state from the body to its balloon.</summary>
     /// <param name="state">The body's state, which the reaction acts on.</param>
-    internal EnemyPowerBombReaction PowampBodyPowerBombReactionOf(PowampBodyState state) => new()
+    internal static EnemyPowerBombReaction PowampBodyPowerBombReactionOf(PowampBodyState state) => new()
     {
         AfterCommon = c => ResolvePowampPowerBombAfterCommon(c.Enemy, state),
     };
@@ -506,7 +506,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Skips later shots once fatal damage begins and mirrors surviving body presentation to the balloon.</summary>
     /// <param name="state">The body's state, which the reaction acts on after a hit has killed it too.</param>
-    internal EnemyShotReaction PowampBodyShotReactionOf(PowampBodyState state) =>
+    internal static EnemyShotReaction PowampBodyShotReactionOf(PowampBodyState state) =>
         ShotReactionSkipping(body => BodyRefusesContact(body, state), body => ResolvePowampShotAfterCommon(body, state));
 
     /// <summary>Whether a half's placement refuses Samus's touch and shots (#2474), as a grappled balloon's does.</summary>

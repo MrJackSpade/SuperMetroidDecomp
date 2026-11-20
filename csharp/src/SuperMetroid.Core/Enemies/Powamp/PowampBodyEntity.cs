@@ -11,13 +11,13 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyPlace pl
     : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's own bomb reaction, built over its state (#2554).</summary>
-    private EnemyBombReaction OwnPowampBombReaction => field ??= species.PowampBombReactionOf(State);
+    private EnemyBombReaction OwnPowampBombReaction => field ??= PowampBehavior.PowampBombReactionOf(State);
 
     /// <summary>The body's own shot reaction, built over its state (#2554).</summary>
-    private EnemyShotReaction OwnShotReaction => field ??= species.PowampBodyShotReactionOf(State);
+    private EnemyShotReaction OwnShotReaction => field ??= PowampBehavior.PowampBodyShotReactionOf(State);
 
     /// <summary>The body's own Power Bomb reaction, built over its state (#2554).</summary>
-    private EnemyPowerBombReaction OwnPowerBombReaction => field ??= species.PowampBodyPowerBombReactionOf(State);
+    private EnemyPowerBombReaction OwnPowerBombReaction => field ??= PowampBehavior.PowampBodyPowerBombReactionOf(State);
 
     /// <summary>The enemy's state, which its initialization builds as the enemy is built (#2554).</summary>
     internal PowampBodyState State { get; } = species.InitializePowampBody(place);

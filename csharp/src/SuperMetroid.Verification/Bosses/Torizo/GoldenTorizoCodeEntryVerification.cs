@@ -26,12 +26,12 @@ internal static class GoldenTorizoCodeEntryVerification
         BindInstalledArtwork(installation)(game, false);
         game.InitializeDirectRoomVerification();
         var runtime = game.GameplayRuntimeForVerification;
-        runtime.Player.IntroducedSamus.EquippedBeams = SamusBeamFlags.Wave;
-        runtime.Player.IntroducedSamus.CollectedBeams = SamusBeamFlags.Wave;
+        runtime.Player.Samus.EquippedBeams = SamusBeamFlags.Wave;
+        runtime.Player.Samus.CollectedBeams = SamusBeamFlags.Wave;
         runtime.PlayerActions.Latch(GoldenTorizoCodeDefinitions.ControllerChord);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.GoldenTorizo);
-        AssertEqual(GoldenTorizoCodeDefinitions.Beams, runtime.Player.IntroducedSamus.EquippedBeams, "GT code retains exact native beam grant");
-        AssertEqual(GoldenTorizoCodeDefinitions.Items, runtime.Player.IntroducedSamus.EquippedItems, "GT code retains exact native equipment grant");
+        AssertEqual(GoldenTorizoCodeDefinitions.Beams, runtime.Player.Samus.EquippedBeams, "GT code retains exact native beam grant");
+        AssertEqual(GoldenTorizoCodeDefinitions.Items, runtime.Player.Samus.EquippedItems, "GT code retains exact native equipment grant");
         AssertEqual(SamusShades.Beam(SamusBeamCombination.Wave), runtime.Player.Colours.Beams,
             "the room load showed the entering Wave beam's colours before the code changed the equipment");
         // The granted Spazer, Plasma, Ice and Wave beams have no beam artwork of their own; their projectiles show the

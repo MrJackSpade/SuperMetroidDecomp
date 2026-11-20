@@ -39,7 +39,7 @@ internal static class CrocomirePresentation1193Verification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Crocomire);
         var boss = runtime.Enemies.BossEncounters.Crocomire;
         var death = boss?.Death;
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         PlaceSamusInArena();
 
         void PlaceSamusInArena()

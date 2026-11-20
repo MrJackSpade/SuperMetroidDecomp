@@ -80,7 +80,7 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session) : IG
         {
             // The fatal cinematic's fade-out ends already
             // fully black, after clearing Samus's HUD selection and hurt timers.
-            SamusState lostSamus = session.GameplayRuntime.Player.IntroducedSamus;
+            SamusState lostSamus = session.GameplayRuntime.Player.Samus;
             lostSamus.SelectBeam();
             lostSamus.ClearHurtTimers();
             session.Close<CeresDestructionCinematicState>();

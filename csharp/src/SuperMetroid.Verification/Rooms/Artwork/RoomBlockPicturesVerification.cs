@@ -284,7 +284,7 @@ internal static class RoomBlockPicturesVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(room);
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
         return runtime;
     }
 
@@ -556,7 +556,7 @@ internal static class RoomBlockPicturesVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(room);
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
         // The tileset's animations and the characters each paints are the room's, read once for all its frames.
         var animations = new RoomAnimatedCharacters(UploadsOf(runtime).Options, BgCharacterSet.Tiles, AnimatedTilesOf(runtime, room.Name));
         int rebound = 0;
@@ -648,7 +648,7 @@ internal static class RoomBlockPicturesVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         progress?.Invoke(runtime);
         runtime.LoadCartridgeRoomForDebug(room, state: state);
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
         // The tileset's animations and the characters each paints are the room's, read once for all its frames.
         var animations = new RoomAnimatedCharacters(UploadsOf(runtime).Options, BgCharacterSet.Tiles, AnimatedTilesOf(runtime, room.Name));
         int checkedPictures = 0, uploaded = 0;

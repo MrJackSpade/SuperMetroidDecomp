@@ -190,7 +190,7 @@ internal static class ProjectileInheritanceProbeVerification
                 y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
             level.SetBehavior(index, RoomBlockBehavior.None);
         }
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(0);
         samus.Missiles = samus.MaxMissiles = 10;
@@ -231,7 +231,7 @@ internal static class ProjectileInheritanceProbeVerification
             var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RestoreGraph<SuperMetroidRuntime>(captured, InstalledFixtures.BoundContent);
             // The host binds a restored runtime to its content as it binds a new one.
             BindRetailRuntimeFixture(restored);
-            restored.Player.IntroducedSamus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(weapon);
+            restored.Player.Samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(weapon);
             restored.StepFrame((ControllerButton.Right | restored.Options.ControllerBindings.Shoot));
             var shot = restored.Projectiles.Shots.First(slot => slot.IsActive);
             AssertEqual(family, shot.Type.Family, "Each resumed runtime fires the weapon it selected");

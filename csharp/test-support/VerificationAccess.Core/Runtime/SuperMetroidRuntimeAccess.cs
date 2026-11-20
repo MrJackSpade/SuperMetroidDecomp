@@ -94,7 +94,7 @@ internal static class SuperMetroidRuntimeAccess
             });
             // The room load hands the scope its enemy system before loading the population, as here.
             self.Room.Adopt(scope with { Enemies = enemies, Looks = looks });
-            enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(scope.Room.State.EnemyPopulation, scope.Appearance, scope.LevelData, self.Player.IntroducedSamus) with { Camera = scope.Camera.PixelPosition });
+            enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(scope.Room.State.EnemyPopulation, scope.Appearance, scope.LevelData, self.Player.Samus) with { Camera = scope.Camera.PixelPosition });
             return enemies;
         }
 
@@ -152,7 +152,7 @@ internal static class SuperMetroidRuntimeAccess
             // Radius is pose data, so construct/refresh pose $01 before deriving the surface
             // center. The temporary Y=0 is never rendered or stepped.
             self.InitializeDebugSamus(new(xPosition, 0));
-            ushort yRadius = self.Player.IntroducedSamus.Kinematics.Radius.Y;
+            ushort yRadius = self.Player.Samus.Kinematics.Radius.Y;
 
             if ((uint)minimumFloorBlockY >= self.Room.LevelData.Size.Y)
                 throw new ArgumentOutOfRangeException(nameof(minimumFloorBlockY));
@@ -196,12 +196,12 @@ internal static class SuperMetroidRuntimeAccess
                     // Entry placement clamps a requested origin left of or above the room to zero.
                     (ushort)Math.Max(0, xPosition - 0x60),
                     (ushort)Math.Max(0, restingY - desiredScreenY)));
-                self.Player.IntroducedSamus.Position = self.Player.IntroducedSamus.Position.WithWholeY(restingY);
+                self.Player.Samus.Position = self.Player.Samus.Position.WithWholeY(restingY);
                 self.Player.GroundedSamusMovementEnabled = true;
                 self.BombProjectiles.Reset();
                 self.Projectiles.Reset();
-                self.Player.IntroducedSamus.HorizontalSpeed.ClearSpeedEchoes();
-                self.Player.IntroducedSamus.Shinespark.ForgetCrashEchoes();
+                self.Player.Samus.HorizontalSpeed.ClearSpeedEchoes();
+                self.Player.Samus.Shinespark.ForgetCrashEchoes();
                 return new DebugGroundedSamusPlacement(
                     new(xPosition, restingY),
                     desiredScreenY,

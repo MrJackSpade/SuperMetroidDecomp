@@ -34,7 +34,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     internal void RunReserveTankRefill(ControllerButton controllerInput)
     {
         // The refill begins from main gameplay, whose updates all run with Samus, and no update replaces her (#2503).
-        SamusState samus = session.GameplayRuntime.Player.IntroducedSamus;
+        SamusState samus = session.GameplayRuntime.Player.Samus;
         SamusReserveAutoRecoveryStep reserveStep = default;
         RuntimeFrameOutcome outcome = session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.ReserveRefill, AfterFrameBoundary = refillOwner =>
             {
@@ -91,7 +91,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     internal void RunMainGameplayUpdate(ControllerButton controllerInput, GameplayUpdateOwner owner)
     {
         // Every gameplay update runs with Samus, and no update replaces her (#2503).
-        SamusState samus = session.GameplayRuntime.Player.IntroducedSamus;
+        SamusState samus = session.GameplayRuntime.Player.Samus;
         RuntimeFrameOutcome outcome = session.GameplayRuntime.StepFrame(controllerInput,
             new RuntimeFrameRequest { Owner = owner });
         session.WriteCompletedSave(outcome);

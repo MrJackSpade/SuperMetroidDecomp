@@ -28,7 +28,7 @@ internal static class ContactDamageSoundVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MtEverest);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.SpeedBooster;
         RoomEnemyPlace sciser = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.Sciser);
         int healthBefore = sciser.Health;

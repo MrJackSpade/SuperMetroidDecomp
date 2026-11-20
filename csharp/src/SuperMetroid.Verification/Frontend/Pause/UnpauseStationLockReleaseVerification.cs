@@ -29,7 +29,7 @@ internal static class UnpauseStationLockReleaseVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.Control.LockAtStation();
         runtime.FrameBoundary.BeginAcceptedFrame(0);

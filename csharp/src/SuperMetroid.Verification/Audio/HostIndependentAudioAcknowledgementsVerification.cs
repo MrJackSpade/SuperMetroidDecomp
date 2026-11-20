@@ -99,7 +99,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
@@ -117,7 +117,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            runtime.MeetDoorBlock(block, runtime.Player.IntroducedSamus.Pose.ForRoomCollision());
+            runtime.MeetDoorBlock(block, runtime.Player.Samus.Pose.ForRoomCollision());
             game.Session.Enter(DoorTransitionStep.EnteringDoor);
             return;
         }

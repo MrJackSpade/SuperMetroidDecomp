@@ -80,9 +80,9 @@ internal static class ChargeFlareProductionVerification
         runtime.Artwork.ChargeFlarePlacement = placement;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;
-        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
-        SamusPresentation.InitializeAnimation(runtime.Player.IntroducedSamus);
+        runtime.Player.Samus.Pose = SamusPoseId.FacingRightNormalPose;
+        runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
+        SamusPresentation.InitializeAnimation(runtime.Player.Samus);
         InstalledFixtures.BindProjectileArtwork(runtime);
         runtime.Projectiles.Charge.SetFlareCount(30);
         foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
@@ -100,7 +100,7 @@ internal static class ChargeFlareProductionVerification
         static IEnumerable<SamusColouredDraw> FlareDraws(SuperMetroidRuntime target)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.Samus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
             target.Sprites.FinalizeFrame();
             SamusColouredDraw[] flare = [.. target.Sprites.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusChargeFlare).Cast<SamusColouredDraw>()];
             AssertTrue(flare.Length > 0, "The actor pass draws the charge flare");

@@ -40,7 +40,7 @@ internal static class LowerNorfairHandVerification
         hand = level.GetCollisionBlock(new(4, 8));
         AssertEqual(RoomCollisionType.SpecialBlock, hand.CollisionType, "destroyed cover becomes solid hand");
         AssertEqual(ChozoStatueRoomDefinitions.LowerNorfairHandBehavior, hand.Behavior, "Norfair hand activation behaviour");
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         foreach (bool hasSpaceJump in new[] { false, true })
         {
             samus.CollectedItems = hasSpaceJump ? SamusEquipmentFlags.SpaceJump : 0;

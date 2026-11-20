@@ -57,7 +57,7 @@ internal static class RidleyPlayerOpeningVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley, camera: new Position16<RoomPixels>(0, 0));
         // The recorded random word drives Ridley's room, so its enemies are rebuilt with case services over the room's own.
         var enemies = runtime.ReloadRoomEnemiesForVerification(loaded => new VerificationRoomEnemyServices(loaded));
-        var body = enemies.Places.InUpdateOrder[0]; var state = enemies.NorfairRidley(); var samus = runtime.Player.IntroducedSamus;
+        var body = enemies.Places.InUpdateOrder[0]; var state = enemies.NorfairRidley(); var samus = runtime.Player.Samus;
         var seed = Read(375);
         // Ridley's body plays typed animations (#1287, #1600); the recording's native pointer selects the matching playback.
         var pointers = new RidleyBodyNativeInstructionPointers(bus);

@@ -38,7 +38,7 @@ internal static class SaveStationSoundVerification
             place.Active && place.Behaviour is SaveStationObject);
         int column = station.Block.X;
         int row = station.Block.Y;
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);

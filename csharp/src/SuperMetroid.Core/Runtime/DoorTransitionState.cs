@@ -62,7 +62,7 @@ internal sealed class DoorTransitionState
         if (IsActive)
             throw new InvalidOperationException("A door transition is already active.");
 
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         runtime.Hud.EnableMinimapAfterDoorEntry();
         samus.Control.LockOutPlayer();
         runtime.DoorTransition.Passage.Start();
@@ -90,7 +90,7 @@ internal sealed class DoorTransitionState
         if (stage is not (OrdinaryDoorTransition or OpeningDoorTransition))
             throw new InvalidOperationException("Door transition has not begun.");
         // A door transition carries the one Samus through both rooms.
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
 
         // The haze steps before the stage's work: the two fades name their fade, and every other update steps it plainly.
         CeresHazeState? haze = runtime.Room.LoadedScope.CeresHaze;

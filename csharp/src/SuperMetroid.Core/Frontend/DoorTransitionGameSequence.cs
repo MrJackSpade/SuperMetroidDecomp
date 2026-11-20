@@ -70,7 +70,7 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
             if (session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.DoorArming == ElevatorArming.None)
                 return true;
             // The elevator locks Samus; an upward elevator then finishes at once.
-            session.GameplayRuntime.Player.IntroducedSamus.Control.LockOutPlayer();
+            session.GameplayRuntime.Player.Samus.Control.LockOutPlayer();
             if (session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.ElevatorTravel == ElevatorTravelDirection.Up)
                 return true;
             session.DownwardsElevator.Begin();
@@ -79,7 +79,7 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
         // A downward elevator's delay. The elevator gate is still clear, so the ride continues behind it.
         if (session.DownwardsElevator.CountFrame())
             return true;
-        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitFrame(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus);
+        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitFrame(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.Samus);
         session.display.PublishGameplay(session.GameplayRuntime);
         return false;
     }
@@ -89,12 +89,12 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
     {
         // The update's liquid wave and statue descent advance before this step. A rising
         // liquid's rumble or ambient sound they request is queued as it runs, ahead of the cancels.
-        session.GameplayRuntime.DoorTransition.RunDoorWaitOpening(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus);
+        session.GameplayRuntime.DoorTransition.RunDoorWaitOpening(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.Samus);
         // The door sets the door/enemy pause flags, then runs the source
         // enemy/draw owners while sounds are still admitted, so an enemy cue's
         // sound on this frame is queued, as it runs, before the door's cancels.
         session.doorTransition.Begin(session.GameplayRuntime);
-        SamusState doorSamus = session.GameplayRuntime.Player.IntroducedSamus;
+        SamusState doorSamus = session.GameplayRuntime.Player.Samus;
         session.GameplayRuntime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, session.GameplayRuntime.Room.LoadedScope, doorSamus);
         // The door queues Samus's door-entry sound stop, then queues
         // the enemy library's silence so movement/charge loops terminate rather than leaking
@@ -136,7 +136,7 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
             // Returning to gameplay restores sound admission (#2499). The game resumes spin audio only after it is
             // restored at the final fade boundary, not on each fade frame.
             session.Enter(SuperMetroidGameState.MainGameplay);
-            if (SamusSpinSound.Select(session.GameplayRuntime.Player.IntroducedSamus) is { } spinSound)
+            if (SamusSpinSound.Select(session.GameplayRuntime.Player.Samus) is { } spinSound)
                 session.audio.QueueSound(spinSound, priority: SoundRequestPriority.High);
         }
     }

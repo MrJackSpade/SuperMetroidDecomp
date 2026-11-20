@@ -28,19 +28,19 @@ internal static class TourianStatueXrayFreezeVerification
             runtime.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
         AssertTrue(runtime.Room.LoadedScope.TourianStatues is not null, "the statue room runs the statue sequence");
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
 
         var objects = runtime.TourianStatues.Statues;
         string Snapshot() => string.Join(" ", objects.Select(o => $"{o.Player.Playback.Place}/{o.Player.UpdatesLeft}"));
 
         runtime.StepFrame(0);
-        PrivateState.Set(runtime.Player.IntroducedSamus.Xray, nameof(SamusXrayState.SuspendedSubsystems), XraySuspendedSubsystems.All);
+        PrivateState.Set(runtime.Player.Samus.Xray, nameof(SamusXrayState.SuspendedSubsystems), XraySuspendedSubsystems.All);
         string frozen = Snapshot();
         for (int frame = 0; frame < 20; frame++)
             runtime.StepFrame(0);
         AssertEqual(frozen, Snapshot(), "the X-ray scope freezes every statue program");
 
-        PrivateState.Set(runtime.Player.IntroducedSamus.Xray, nameof(SamusXrayState.SuspendedSubsystems), XraySuspendedSubsystems.None);
+        PrivateState.Set(runtime.Player.Samus.Xray, nameof(SamusXrayState.SuspendedSubsystems), XraySuspendedSubsystems.None);
         runtime.StepFrame(0);
         AssertTrue(frozen != Snapshot(), "the statues resume once the scope re-enables animated tiles");
         Console.WriteLine("Tourian statue X-ray freeze: the scope suspends the statues' animated-tile programs.");

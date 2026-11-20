@@ -277,13 +277,13 @@ internal static class SpacetimeBeamVerification
         SuperMetroidRuntime runtime = skippedGame.GameplayRuntimeForVerification;
         AssertEqual(AreaId.Ceres, runtime.Room.LoadedRoom.Area,
             "SpaceTime save restarts at Ceres");
-        AssertEqual((ushort)0x100e, runtime.Player.IntroducedSamus.EquippedBeams.ToEquipmentWord(),
+        AssertEqual((ushort)0x100e, runtime.Player.Samus.EquippedBeams.ToEquipmentWord(),
             "SpaceTime Ceres restart retains equipped beams");
-        AssertEqual(0, runtime.Player.IntroducedSamus.MaxMissiles,
+        AssertEqual(0, runtime.Player.Samus.MaxMissiles,
             "SpaceTime Ceres restart loses Missiles after the intro flashback");
-        AssertEqual(7, runtime.Player.IntroducedSamus.SuperMissiles,
+        AssertEqual(7, runtime.Player.Samus.SuperMissiles,
             "SpaceTime Ceres restart retains Super Missiles");
-        AssertEqual(3, runtime.Player.IntroducedSamus.PowerBombs,
+        AssertEqual(3, runtime.Player.Samus.PowerBombs,
             "SpaceTime Ceres restart retains Power Bombs");
         AssertTrue(!runtime.System.Progress.Events.Members.Any(),
             "SpaceTime Ceres restart begins with fresh progression events");

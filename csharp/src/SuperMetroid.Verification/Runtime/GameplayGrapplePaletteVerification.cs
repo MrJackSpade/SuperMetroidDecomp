@@ -38,7 +38,7 @@ internal static class GameplayGrapplePaletteVerification
         // pictures the room's tileset sheet holds.
         var level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(32, 16), words, new RoomBlockBehavior[512]);
         runtime.Room.Adopt(scope with { LevelData = level });
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         // The beam colours are import data (#1637): the import's read holds them.
         var palettes = InstalledFixtures.ImportProjectiles.BeamPalettes;
         // Grapple firing names the Ice beam's shade and the flare's (#1512); the import resolves both.

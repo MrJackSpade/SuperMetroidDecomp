@@ -37,7 +37,7 @@ internal static class DraygonHoldStandUpVerification
         // No enemy's solid body takes part in the stand-up's collision.
         foreach (var enemy in runtime.Enemies.Places.InUpdateOrder)
             enemy.Clear();
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         int ballRadius = SamusPoseMetadata.ReadPoseYRadius(SamusPoseId.DraygonHeldBallLeftPose);
         int standUpRadius = SamusPoseMetadata.ReadPoseYRadius(SamusPoseId.DraygonHeldStandingUpLeftPose);

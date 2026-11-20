@@ -101,7 +101,7 @@ internal static class MetroidBombPlacementVerification
             level.SetBehavior(index, RoomBlockBehavior.None);
         }
         runtime.InitializeDebugGroundedSamus(128, 100, 10);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.PoseId = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);

@@ -33,7 +33,7 @@ internal static class TourianStatueDescentRoundingVerification
         AssertTrue(runtime.Display.Latched is not OrdinaryRoomFrameLatch { TourianStatueVerticalOffset: not null },
             "a room without the statues latches no descent");
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
 
         // The statue's base decoration reads the descent from the room each update and so sits that far below its anchor
         // on the update the descent moves (#2033).

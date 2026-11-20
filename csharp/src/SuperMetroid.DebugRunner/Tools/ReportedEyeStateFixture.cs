@@ -25,7 +25,7 @@ internal static class ReportedEyeStateFixture
         // graphics, HDMA initialization, and camera-dependent render snapshots.
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BlueBrinstarEnergyTank, new Position16<RoomPixels>(384, 512));
         var body = runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[1];
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.CollectedItems = SamusEquipmentFlags.MorphBall;
         samus.Control.LockOutPlayer();
         samus.Position = samus.Position.WithWhole(new((ushort)(body.Position.X.Whole - 64), (ushort)(body.Position.Y.Whole - 32)));

@@ -195,7 +195,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         // Suit pickup: the light beam is a live HDMA window; its COLDATA follows the NMI.
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         runtime.SuitPickup.Begin(samus, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(samus, runtime.Player.Colours);
         RgbColor suitBefore = runtime.PublishDisplayFrame().RoomLatch.Tints.SuitPickup;

@@ -98,7 +98,7 @@ internal static class GreenHillGateGlitchVerification
             checked((ushort)startX),
             desiredScreenY: 171,
             minimumFloorBlockY: 60);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.PoseId = SamusPoseId.MovingLeftGunExtendedPose;
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);

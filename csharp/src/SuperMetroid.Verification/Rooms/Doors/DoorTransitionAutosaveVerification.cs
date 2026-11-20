@@ -95,7 +95,7 @@ internal static class DoorTransitionAutosaveVerification
                 AssertEqual(game.FrameNumber, loaded.Game.FrameNumber, "restored frame cadence");
                 AssertSameBytes(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Encode(game.Saves, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
                     SuperMetroid.Diagnostics.Saves.SaveRamCodec.Encode(loaded.Game.Saves, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), "restored continuation saves");
-                AssertEqual(runtime.Player.IntroducedSamus.Position.X.Whole, loaded.Game.GameplayRuntimeForVerification.Player.IntroducedSamus.Position.X.Whole, "restored Samus movement");
+                AssertEqual(runtime.Player.Samus.Position.X.Whole, loaded.Game.GameplayRuntimeForVerification.Player.Samus.Position.X.Whole, "restored Samus movement");
                 AssertEqual(runtime.System.RandomNumber, loaded.Game.GameplayRuntimeForVerification.System.RandomNumber, "restored RNG");
                 AssertTrue(expectedPcm.SequenceEqual(actualPcm), "restored continuation PCM");
                 AssertTrue(DoorTransitionAutosave.TrySave(true, false, SuperMetroidGameState.MainGameplay,
@@ -162,7 +162,7 @@ internal static class DoorTransitionAutosaveVerification
                 int x = doorBlock.X, y = doorBlock.Y;
                 runtime.LoadCartridgeRoomForDebug(source, camera: new Position16<RoomPixels>((ushort)(x / 16 * 256), (ushort)(y / 16 * 256)));
                 var block = runtime.Room.LoadedLevelData.GetCollisionBlock(doorBlock);
-                var samus = runtime.Player.IntroducedSamus;
+                var samus = runtime.Player.Samus;
                 samus.Control.Unlock();
                 samus.PoseId = SamusPoseId.FacingRightNormalPose;
                 samus.Position = samus.Position.WithWhole(new((ushort)(x * 16 + 8), (ushort)(y * 16 + 8)));

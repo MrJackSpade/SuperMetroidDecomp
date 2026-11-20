@@ -15,5 +15,5 @@ internal sealed class RoomObjectSamusAccess(SamusFrameState player) : IRoomSamus
     /// <summary>
     /// The current Samus; a room object reading her before the scenario introduces her fails there.
     /// </summary>
-    public IRoomSamus Current => _player.IntroducedSamus.RoomView;
+    public IRoomSamus Current => _player.Samus.RoomView;
 }

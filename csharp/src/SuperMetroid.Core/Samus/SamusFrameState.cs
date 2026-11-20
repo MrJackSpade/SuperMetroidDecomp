@@ -14,8 +14,13 @@ internal sealed class SamusFrameState : IRoomSamusAccess
     /// <summary>Samus's colours, which outlive each Samus (#1405).</summary>
     public SamusColours Colours { get; }
 
-    /// <summary>Samus's frame state, her colours in their starting shades.</summary>
-    internal SamusFrameState() => Colours = new SamusColours();
+    /// <summary>Samus's frame state, her colours in their starting shades, with the Samus the runtime starts with.</summary>
+    /// <param name="samus">The Samus the runtime starts with, which each game's start, saved game's load, Zebes arrival or attract demo replaces.</param>
+    internal SamusFrameState(SamusState samus)
+    {
+        Colours = new SamusColours();
+        Samus = samus;
+    }
 
     /// <summary>The saved-game load appearance, before ordinary Samus drawing resumes.</summary>
     internal UpdateCountdown LoadAppearance { get; private set; } = UpdateCountdown.Ended();
@@ -30,33 +35,17 @@ internal sealed class SamusFrameState : IRoomSamusAccess
     internal bool AdvanceLoadAppearance() => LoadAppearance.StepEnds();
 
     /// <summary>
-    /// Whether the scenario has introduced Samus (#2554): not until it explicitly does (the Landing Site cinematic does not
-    /// by itself), then the Samus it introduced.
+    /// Samus (#2554): the one the runtime started with, until a game's start, a saved game's load, the Zebes arrival or an
+    /// attract demo initializes the Samus it plays with, as each does before its first room loads.
     /// </summary>
-    internal SamusIntroduction Introduction { get; private set; } = SamusIntroduction.NotIntroduced.Instance;
-
-    /// <summary>Normal-gameplay Samus, for a reader that also runs before the scenario introduces her.</summary>
-    public SamusState? Samus
+    public SamusState Samus
     {
-        get => Introduction is SamusIntroduction.Introduced introduced ? introduced.Samus : null;
-        internal set => Introduction = new SamusIntroduction.Introduced(Ensure.NotNull(value));
+        get;
+        internal set => field = Ensure.NotNull(value);
     }
 
-    /// <summary>Samus once the scenario has introduced her; gameplay phases that move, draw or damage her require it.</summary>
-    /// <exception cref="InvalidOperationException">The gameplay phase ran before the scenario introduced her.</exception>
-    public SamusState IntroducedSamus => Introduction switch
-    {
-        SamusIntroduction.Introduced introduced => introduced.Samus,
-        SamusIntroduction.NotIntroduced => throw new InvalidOperationException(
-            "Samus has not been introduced; this gameplay phase requires her actor."),
-        _ => throw new InvalidOperationException($"Undefined {nameof(SamusIntroduction)} {Introduction}."),
-    };
-
-    /// <summary>
-    /// Samus as the room's colour effects see her each time one reads her (#2391); an effect reading her before the scenario
-    /// introduces her fails there.
-    /// </summary>
-    IRoomSamus IRoomSamusAccess.Current => IntroducedSamus.RoomView;
+    /// <summary>Samus as the room's colour effects see her each time one reads her (#2391).</summary>
+    IRoomSamus IRoomSamusAccess.Current => Samus.RoomView;
 
     /// <summary>
     /// The input transition the latched held and newly pressed actions selected, which the pose-transition phase applies

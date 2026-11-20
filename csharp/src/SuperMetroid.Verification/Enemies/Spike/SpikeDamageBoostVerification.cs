@@ -43,7 +43,7 @@ internal static class SpikeDamageBoostVerification
         level.SetTerrain(hazardBlock, SpikeAirTerrain);
         level.SetBehavior(hazardBlock, SpikeHazardDefinitions.DamagingSpikeAirBehavior);
         runtime.InitializeDebugGroundedSamus(128, 160, 16);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.Health = 99;
         samus.EquippedItems = SamusEquipmentFlags.MorphBall;

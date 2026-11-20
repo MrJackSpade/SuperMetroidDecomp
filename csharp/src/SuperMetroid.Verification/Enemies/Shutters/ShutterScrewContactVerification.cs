@@ -48,7 +48,7 @@ internal static class ShutterScrewContactVerification
         static void Confirm(SuperMetroidRuntime runtime, SamusBodyAttack contactDamage, int?[] contactPlaces, bool reacts, string contacts)
         {
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.ThreeMusketeers);
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             RoomEnemyPlace shutter = runtime.Enemies.Places.InUpdateOrder[ShutterPlace];
             VerticalShutterEnemyState state = (runtime.Enemies.VerticalShutterStates[ShutterPlace] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.VerticalShutterStates[10]."));
             AssertEqual(ShutterTriggerMode.OneShotReaction, shutter.SpawnSettings<ShutterSpawnSettings>().TriggerMode, "the movie's shutter waits only for a shot");

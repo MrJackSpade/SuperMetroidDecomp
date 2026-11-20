@@ -29,7 +29,7 @@ internal static class ElevatubeScrollingVerification
             runtime.LoadCartridgeRoomForDebug(door.DestinationRoom);
             runtime.LoadCartridgeRoomThroughDoorForVerification(door,
                 camera: new Position16<RoomPixels>(0, fromNorth ? (ushort)0 : (ushort)2304));
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             var camera = runtime.Room.LoadedCamera;
             samus.Position = samus.Position.WithWholeX(MaridiaElevatubeDefinitions.SamusCenterX);
             samus.Position = samus.Position.WithWholeY(fromNorth ? MaridiaElevatubeDefinitions.FromNorth.StartingY

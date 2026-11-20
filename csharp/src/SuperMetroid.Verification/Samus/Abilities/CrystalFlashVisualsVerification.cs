@@ -26,7 +26,7 @@ internal static class CrystalFlashVisualsVerification
     /// </summary>
     internal static CrystalFlashFrameScenes VerifyCrystalFlashVisualFrame(SuperMetroidRuntime runtime, SuperMetroid.AssetExtraction.Cartridge.ISnesAddressSpace bus, int elapsed)
     {
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         var packet = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         if (samus.SpecialColouring.Holds(SamusSpecialColouringKind.CrystalFlash))
         {

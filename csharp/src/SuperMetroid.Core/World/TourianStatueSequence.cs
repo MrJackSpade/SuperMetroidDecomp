@@ -240,7 +240,7 @@ public sealed class TourianStatueSequence
         // which the grey-out hands its frames to (#2288).
         void StartGreyOut(TourianStatueAnimationDefinition definition, ITourianStatueActors statue)
         {
-            SamusEquipmentFlags equipped = _player.IntroducedSamus.EquippedItems;
+            SamusEquipmentFlags equipped = _player.Samus.EquippedItems;
             if (definition.GreyedSprite is { } sprite)
                 _roomColourEffects.StartShownOn(definition.ColourEffect, statue.SpriteStatueGreyOut(sprite), equipped);
             else

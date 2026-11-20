@@ -564,7 +564,7 @@ internal sealed class FrontendSession
             runtime.FrameBoundary.PublishWhileLoading();
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            SamusState restartedSamus = runtime.Player.IntroducedSamus;
+            SamusState restartedSamus = runtime.Player.Samus;
             RestoreSpacetimeRestartInventory(restartedSamus, restartSlot);
             runtime.Assists.GrantLoadoutToRestoredSamus(restartedSamus);
             restartedSamus.SelectBeam();
@@ -589,7 +589,7 @@ internal sealed class FrontendSession
                 runtime.RoomLoader.RestoreSavedPlayerState(slot);
                 runtime.RoomLoader.InitializeStartingCeresRoom();
                 runtime.RoomLoader.InitializeCeresStartSamus();
-                SamusState ceresSamus = runtime.Player.IntroducedSamus;
+                SamusState ceresSamus = runtime.Player.Samus;
                 slot.ApplyTo(ceresSamus);
                 runtime.Assists.GrantLoadoutToRestoredSamus(ceresSamus);
                 ceresSamus.SelectBeam();

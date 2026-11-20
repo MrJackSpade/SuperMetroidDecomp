@@ -42,7 +42,7 @@ internal static class AirSpikeAlphaRadiusVerification
                 ? SpikeHazardDefinitions.DamagingSpikeAirBehavior : RoomBlockBehavior.None);
         }
 
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWholeX(SpikeColumn * 16 + 8);

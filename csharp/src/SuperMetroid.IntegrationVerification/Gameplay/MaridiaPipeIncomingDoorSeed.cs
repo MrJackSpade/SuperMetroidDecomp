@@ -27,8 +27,8 @@ internal static class MaridiaPipeIncomingDoorSeed
         ushort y = checked((ushort)(entryBlock.At.Y * 16 - 96));
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.PlasmaSpark,
             new Position16<RoomPixels>((ushort)(LittleEndianBytes.HighByteInPlace(x)), (ushort)(LittleEndianBytes.HighByteInPlace(y))));
-        runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithX(new FixedCoordinate(x, 0));
-        runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithY(new FixedCoordinate(y, 0));
+        runtime.Player.Samus.Kinematics.Position = runtime.Player.Samus.Kinematics.Position.WithX(new FixedCoordinate(x, 0));
+        runtime.Player.Samus.Kinematics.Position = runtime.Player.Samus.Kinematics.Position.WithY(new FixedCoordinate(y, 0));
         Console.WriteLine($"incoming seed block={entry} Samus={x}/{y} door={door.Pointer:X4}");
     }
 }

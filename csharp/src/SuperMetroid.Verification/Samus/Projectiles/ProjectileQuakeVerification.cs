@@ -29,7 +29,7 @@ internal static class ProjectileQuakeVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
         var enemies = runtime.Enemies;
-        enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus);
+        enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.Samus);
         var actor = enemies.Projectiles.EnemyProjectiles.First(p => p.Kind == RoomEnemyProjectileKind.TourianStatueRidley);
         foreach (var other in enemies.Projectiles.EnemyProjectiles)
             if (other != actor) other.Kind = 0;

@@ -360,7 +360,7 @@ internal static class OutOfHealthGameStateVerification
         }
         RoomLevelData level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(32, 16), words, bts, doorBlocks: doorBlocks);
         runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.Health = 999;
         samus.ReserveEnergy = 0;
@@ -404,7 +404,7 @@ internal static class OutOfHealthGameStateVerification
         AssertTrue(runtime.Room.LoadedScope.CeresElevatorShaft is not null, "the elevator door's event starts the shaft's turn");
         // The shaft stays dormant until the elevator room's door is destroyed, while Samus lands on the elevator.
         runtime.EnemySession.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -436,7 +436,7 @@ internal static class OutOfHealthGameStateVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -460,7 +460,7 @@ internal static class OutOfHealthGameStateVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite, camera);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;

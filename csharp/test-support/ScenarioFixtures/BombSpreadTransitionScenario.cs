@@ -35,7 +35,7 @@ internal sealed class BombSpreadTransitionScenario
     /// <summary>Production gameplay runtime stepped by the scenario.</summary>
     internal SuperMetroidRuntime Runtime { get; }
     /// <summary>Samus state owned by the scenario runtime.</summary>
-    internal SamusState Samus => Runtime.Player.IntroducedSamus;
+    internal SamusState Samus => Runtime.Player.Samus;
     /// <summary>Number of updates recorded for the aerial or walljump route.</summary>
     internal int FrameCount => WallRoute ? 300 : 260;
 

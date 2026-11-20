@@ -103,7 +103,7 @@ internal static class BombTorizoDroolSineVerification
         int wordOffset)
     {
         int address = table + wordOffset;
-        return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+        return rom.ReadCartridgeWord(address);
     }
 
 

@@ -30,25 +30,25 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         foreach ((int address, bool facingRight) in new[] { (0x86b376, true), (0x86b380, false) })
         {
             Offset16<RoomPixels> muzzle = facingRight ? TorizoProjectilePlacementDefinitions.EyeBeamMuzzle : TorizoProjectilePlacementDefinitions.EyeBeamMuzzle.MirroredX();
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileSegment.EyeBeam),
+            AssertEqual(rom.ReadCartridgeWord(address), TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileSegment.EyeBeam),
                 $"eye beam facing right {facingRight} instruction");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 2)), muzzle.X, $"eye beam facing right {facingRight} X offset");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 6)), muzzle.Y, $"eye beam facing right {facingRight} Y offset");
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord(address + 2)), muzzle.X, $"eye beam facing right {facingRight} X offset");
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord(address + 6)), muzzle.Y, $"eye beam facing right {facingRight} Y offset");
         }
 
         var guarded = NewTorizoRandomizedProjectileReadGuard(rom);
         foreach ((int address, TorizoRandomizedProjectileDefinition definition, string name)
             in definitions)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), TorizoNativeListAddresses.ProjectileEntry(definition.Animation),
+            AssertEqual(rom.ReadCartridgeWord(address), TorizoNativeListAddresses.ProjectileEntry(definition.Animation),
                 $"{name} instruction");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), definition.Offset.X,
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 2))), definition.Offset.X,
                 $"{name} X offset");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))), definition.BaseVelocity.X.InTwoHundredFiftySixthsOfPixel,
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 4))), definition.BaseVelocity.X.InTwoHundredFiftySixthsOfPixel,
                 $"{name} base X velocity");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6))), definition.Offset.Y,
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 6))), definition.Offset.Y,
                 $"{name} Y offset");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 8))), definition.BaseVelocity.Y.InTwoHundredFiftySixthsOfPixel,
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 8))), definition.BaseVelocity.Y.InTwoHundredFiftySixthsOfPixel,
                 $"{name} base Y velocity");
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));

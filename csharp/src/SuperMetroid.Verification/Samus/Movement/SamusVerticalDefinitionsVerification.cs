@@ -34,8 +34,8 @@ internal static class SamusVerticalDefinitionsVerification
             int address = launch == 2 ? 0x909eb9 : launch == 1
                 ? high ? 0x909edd : 0x909ed1
                 : high ? 0x909ec5 : 0x909eb9;
-            ushort whole = CartridgeImportSource.Require(rom).ReadCartridgeWord((address + medium * 2));
-            ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6 + medium * 2));
+            ushort whole = rom.ReadCartridgeWord((address + medium * 2));
+            ushort fraction = rom.ReadCartridgeWord((address + 6 + medium * 2));
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
                 samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen((ushort)raw, (ushort)raw);
@@ -45,8 +45,8 @@ internal static class SamusVerticalDefinitionsVerification
                 else SamusAerialMovement.InitializeJump(samus);
                 AssertEqual(unchecked((ushort)(whole + (boost ? raw >> 1 : 0))), samus.Kinematics.VerticalVelocity.Speed.Whole, "Native independent whole launch addition");
                 AssertEqual(unchecked((ushort)(fraction + (boost ? raw : 0))), samus.Kinematics.VerticalVelocity.Speed.Fraction, "Native fractional overflow does not carry");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea7 + medium * 2)), samus.Kinematics.YAcceleration.Whole, "Native gravity whole word");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea1 + medium * 2)), samus.Kinematics.YAcceleration.Fraction, "Native gravity fractional word");
+                AssertEqual(rom.ReadCartridgeWord((0x909ea7 + medium * 2)), samus.Kinematics.YAcceleration.Whole, "Native gravity whole word");
+                AssertEqual(rom.ReadCartridgeWord((0x909ea1 + medium * 2)), samus.Kinematics.YAcceleration.Fraction, "Native gravity fractional word");
                 AssertEqual(SamusVerticalDirection.Up, samus.Kinematics.VerticalVelocity.Direction, "Launch remains upward");
                 cases++;
             }

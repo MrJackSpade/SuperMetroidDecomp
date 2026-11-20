@@ -31,7 +31,7 @@ internal static class SpcSoundLibrary2PointersVerification
         for (int command = 1; command <= count; command++)
         {
             int address = source + (command - 1) * sizeof(ushort);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort native = rom.ReadCartridgeWord(address);
             AssertEqual(native, SpcSoundEffectTables.StreamPointer(library, command), "original sound stream dispatch");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, count + 1, 256, int.MaxValue })

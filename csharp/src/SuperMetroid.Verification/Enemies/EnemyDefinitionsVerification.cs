@@ -215,7 +215,7 @@ internal static class EnemyDefinitionsVerification
         byte bank = Byte(12);
         // The oracle decodes the header independently: a zero hurt byte is the standard four-frame flash. The +$2A word, a
         // hopper's kind, is compared with the hopper's own catalog by the hopper check (#1624). The tile word is the import's (#1513).
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         return new RoomEnemyDefinition(
             Word(4), Word(6), new(Word(8), Word(10)), Byte(13) == 0 ? 4 : Byte(13),
             SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Enemies, Word(14)), AreaBossWords.Decode(Word(16)),

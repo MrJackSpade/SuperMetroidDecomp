@@ -37,7 +37,7 @@ internal static class RidleyAttackChoicesVerification
             if (SituationOf(row) is not { } situation)
                 continue;
             int address = 0xa6b38c + row * 16 + choice * 2;
-            native[row, choice] = RidleyNativeWords.NorfairPhases.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
+            native[row, choice] = RidleyNativeWords.NorfairPhases.Decode(rom.ReadCartridgeWord(address),
                 "Ridley action");
             AssertEqual(native[row, choice], RidleyAttackChoices.Resolve(situation, choice), "Every reachable native Ridley action pointer");
         }

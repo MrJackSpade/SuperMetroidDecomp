@@ -26,8 +26,8 @@ internal static class SparkMovementDefinitionsVerification
         place.Bind(EnemyDefinitionId.Spark, place.Definition);
         for (ushort selector = 0; selector < 3; selector++)
         {
-            ushort nativeList = CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.AnimationScriptTable + selector * 2);
-            var nativeAction = SparksNativeWords.SparkActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.FunctionTable + selector * 2),
+            ushort nativeList = rom.ReadCartridgeWord(SparkNativeValues.AnimationScriptTable + selector * 2);
+            var nativeAction = SparksNativeWords.SparkActions.Decode(rom.ReadCartridgeWord(SparkNativeValues.FunctionTable + selector * 2),
                 $"Spark selector {selector}'s function");
             SparkMovementDefinition definition = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.SparkStart(selector);
             AssertEqual(nativeList, NativeEnemyAnimationOracle.EntryOf(SparkNativeListAddresses.Entries, definition.Animation),

@@ -15,7 +15,7 @@ internal static class IntroMotherBrainInputDefinitionsVerification
     internal static void VerifyIntroMotherBrainDemoInput(CartridgeImportAddressSpace bus,
         ImportIntroCinematicArtwork stock)
     {
-        ushort ReferenceWord(ushort pointer) => CartridgeImportSource.Require(bus).ReadCartridgeWord(DemoInputRomData.BankBase | pointer);
+        ushort ReferenceWord(ushort pointer) => bus.ReadCartridgeWord(DemoInputRomData.BankBase | pointer);
         var compiled = new DemoInputState();
         var reference = new NativeDemoInputReference(ReferenceWord);
         compiled.Clear();

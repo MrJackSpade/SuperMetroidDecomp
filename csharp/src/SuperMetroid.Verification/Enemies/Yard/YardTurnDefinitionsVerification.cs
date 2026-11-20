@@ -37,13 +37,13 @@ internal static class YardTurnDefinitionsVerification
         {
             YardCrawlStep definition =
                 YardTurns.ForCrawl(movement, suppressed);
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address)), definition.Lookahead.X,
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord(address)), definition.Lookahead.X,
                 $"Yard turn {movement}/{suppressed} lookahead X");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), definition.Lookahead.Y,
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 2))), definition.Lookahead.Y,
                 $"Yard turn {movement}/{suppressed} lookahead Y");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.WhenSurfaceEnds),
+            AssertEqual(rom.ReadCartridgeWord((address + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.WhenSurfaceEnds),
                 $"Yard turn {movement}/{suppressed} outside list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.WhenSurfaceMet),
+            AssertEqual(rom.ReadCartridgeWord((address + 6)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.WhenSurfaceMet),
                 $"Yard turn {movement}/{suppressed} inside list");
         }
 

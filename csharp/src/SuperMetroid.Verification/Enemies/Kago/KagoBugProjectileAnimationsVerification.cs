@@ -9,7 +9,7 @@ internal static class KagoBugProjectileAnimationsVerification
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyKagoBugProjectileAnimations(CartridgeImportAddressSpace rom)
     {
-        int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
+        int steps = Family.CompareAll(rom);
         Console.WriteLine($"  Kago bug programs: {Entries.Length} programs ({steps} steps) match bank $86.");
     }
 }

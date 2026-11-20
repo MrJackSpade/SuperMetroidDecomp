@@ -25,7 +25,7 @@ public static class ZebetiteColorExtractor
             {
                 int address = MotherBrainSourceDefinitions.Zebetite.PulseColors +
                     (frame * ZebetiteColorFormat.ColorsPerFrame + color) * MotherBrainSourceDefinitions.ColorWordBytes;
-                int word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+                int word = bus.ReadCartridgeWord(address);
                 frames[frame][color] = new PaletteRgb5
                 {
                     Red = word & 31,

@@ -93,10 +93,10 @@ internal static class EnemyRomTablePointersVerification
         CartridgeImportAddressSpace rom)
     {
 
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers),
+        AssertEqual(rom.ReadCartridgeWord(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers),
             TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileSegment.SuperMissileLeft),
             "Golden Torizo left reflected-Super list");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 2)),
+        AssertEqual(rom.ReadCartridgeWord((EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 2)),
             TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileSegment.SuperMissileRight),
             "Golden Torizo right reflected-Super list");
         Suite(nameof(VerifyWorkRobotInitialSelection), () => VerifyWorkRobotInitialSelection(rom));

@@ -126,7 +126,7 @@ internal static class DoorDefinitionsVerification
 
     /// <summary>Reads a native door word solely for verification against compiled definitions.</summary>
     internal static ushort ReadVerificationWord(ISnesAddressSpace bus, int address) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+        bus.ReadCartridgeWord(address);
 
     /// <summary>Provides an unbacked address space that fails any attempted door collision read or write.</summary>
     internal static CartridgeReadGuard NewDoorNoReadAddressSpace() =>

@@ -50,7 +50,7 @@ internal static class GroundedBombSpreadVerification
                 for (int slotIndex = 0; slotIndex < bombs.Bombs.Count; slotIndex++)
                 {
                     var slot = bombs.Bombs[slotIndex];
-                    ushort Read(int address) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + slotIndex * 2);
+                    ushort Read(int address) => RomDataReader.ReadWordFixedBank(bus, address + slotIndex * 2);
                     ushort encodedX = Read(MorphBallBombDefinitions.XVelocities);
                     long initialY = -(Read(MorphBallBombDefinitions.YSpeeds) + (hold >> 6 & 3)) * 65536L + Read(MorphBallBombDefinitions.YSubspeeds);
                     long expectedX = 512L * 65536 + tick * (encodedX & 0x7fff) * 256L * ((encodedX & 0x8000) == 0 ? 1 : -1);

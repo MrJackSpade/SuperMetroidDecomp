@@ -36,7 +36,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
             int address = EnemySpeciesSourceDefinitions.Magdollite.CycleColors +
                 (frame * EnemySpeciesSourceDefinitions.Magdollite.RowColors +
                  MagdollitePaletteCycle.FirstAnimatedColor + color) * sizeof(ushort);
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address),
+            AssertEqual(RomDataReader.ReadWordFixedBank(rom, address),
                 native.Resolve(frame, color),
                 $"Magdollite palette frame {frame} color {color} preserves native RGB5");
         }

@@ -93,6 +93,7 @@ public static class RoomBlockAppearanceFiles
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = false,
         RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
         RespectRequiredConstructorParameters = true,
     };
 }

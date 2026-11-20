@@ -22,11 +22,11 @@ internal static class DraygonHealthPaletteDefinitionsVerification
         ushort[] thresholds = new ushort[8];
         for (int index = 0; index < thresholds.Length; index++)
         {
-            thresholds[index] = CartridgeImportSource.Require(rom).ReadCartridgeWord((DraygonHealthBandDefinitions.NativeThresholdAddress + index * 2));
+            thresholds[index] = rom.ReadCartridgeWord((DraygonHealthBandDefinitions.NativeThresholdAddress + index * 2));
             AssertEqual(thresholds[index], DraygonHealthBandDefinitions.HighestFirst[index].MinimumHealth ?? 0, $"Draygon band {DraygonHealthBandDefinitions.HighestFirst[index]} minimum health");
         }
         AssertEqual((ushort)0xffff,
-            CartridgeImportSource.Require(rom).ReadCartridgeWord((DraygonHealthBandDefinitions.NativeThresholdAddress + 16)),
+            rom.ReadCartridgeWord((DraygonHealthBandDefinitions.NativeThresholdAddress + 16)),
             "Draygon health threshold native terminator");
 
         for (ushort health = 0;

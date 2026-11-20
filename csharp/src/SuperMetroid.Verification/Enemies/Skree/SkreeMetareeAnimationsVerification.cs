@@ -15,7 +15,7 @@ internal static class SkreeMetareeAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifySkreeMetareeAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
             SkreeMetareeAnimations.Segments, SkreeMetareeAnimations.StartingAt, SkreeMetareeFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<SkreeMetareeCue>(
                 word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,

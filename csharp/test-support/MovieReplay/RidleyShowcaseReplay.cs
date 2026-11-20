@@ -103,7 +103,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
         var (bus, runtime, samus, game) = NativeSnapshotImport.ImportNativeSnapshot(memory.ToWorkRam(), ridleyMovie.InitialSaveRam);
         Game = game;
         // Ridley's body, fragments and fireballs play typed animations (#1287, #1600); compare their playbacks as native pointers.
-        var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
+        var pointers = new RidleyNativeInstructionPointers(bus);
         RoomObjectPlace[] initialObjects = [.. runtime.RoomObjects.Places.InUpdateOrder];
         var checkedProjectileCompositions = new HashSet<CheckedProjectileComposition>();
         ushort[]? pendingLoadedOwners = null;
@@ -864,7 +864,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     var actualOam = new OamBuffer();
                     expectedOam.BeginFrame();
                     actualOam.BeginFrame();
-                    ImportedSpritemapOracle.DrawEnemyProjectile(CartridgeImportSource.Require(bus), expectedOam, nativeMap, new(128, 96), 0, true);
+                    ImportedSpritemapOracle.DrawEnemyProjectile(bus, expectedOam, nativeMap, new(128, 96), 0, true);
                     actualOam.AddEnemySpritemap(parts.Span, new Position16<ScreenPixels>(128, 96), 0, 0,
                         clipVerticalWrap: true, originYIsOnScreen: true);
                     // A picture stored again in a record that lists its objects in another order draws the same pixels

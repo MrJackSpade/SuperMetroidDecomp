@@ -31,7 +31,7 @@ internal static class SamusCueValuePlaceReadsVerification
     /// <summary>Drives each reported chain and compares it with the cartridge's bytes.</summary>
     internal static void VerifySamusCueValuePlaceReads(ISnesAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         VerifyChain(cartridge, SamusPoseId.MorphingTransitionRightPose, "rainbow stop",
             samus => samus.Drained.DisableRainbowAndStartStandingAnimation(samus), SamusPoseId.GlitchBallRightPose);
         VerifyChain(cartridge, SamusPoseId.UnmorphingTransitionLeftPose, "Hyper Beam freeze",

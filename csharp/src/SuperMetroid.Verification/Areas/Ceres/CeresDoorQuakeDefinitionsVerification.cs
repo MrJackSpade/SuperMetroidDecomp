@@ -28,7 +28,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
 
         for (ushort phase = 0; phase < 4; phase++)
         {
-            short expected = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + phase * 2));
+            short expected = unchecked((short)rom.ReadCartridgeWord(sourceAddress + phase * 2));
             AssertEqual(expected, CeresDoorQuake.XOffset(phase),
                 $"Ceres private door quake phase {phase}");
         }
@@ -36,7 +36,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         for (int timer = 0; timer <= ushort.MaxValue; timer++)
         {
             AssertEqual(
-                unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + timer % 4 * 2)),
+                unchecked((short)rom.ReadCartridgeWord(sourceAddress + timer % 4 * 2)),
                 CeresDoorQuake.XOffset((ushort)timer),
                 $"Ceres private door quake timer ${timer:X4}");
         }

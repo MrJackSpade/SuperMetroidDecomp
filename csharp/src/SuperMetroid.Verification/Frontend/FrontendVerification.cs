@@ -528,7 +528,7 @@ internal static void VerifyDemoInputObject()
 
 /// <summary>Reads a fixture instruction from bank $91 through the cartridge import boundary.</summary>
 internal static ushort ReadDemoFixtureWord(ISnesAddressSpace bus, ushort pointer) =>
-    CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(DemoInputRomData.BankBase | pointer);
+    bus.ReadCartridgeWordFixedBank(DemoInputRomData.BankBase | pointer);
 /// <summary>Writes a little-endian fixture word at a mapped SNES ROM address.</summary>
 internal static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
 {

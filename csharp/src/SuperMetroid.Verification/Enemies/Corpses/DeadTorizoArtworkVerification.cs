@@ -156,7 +156,7 @@ internal static class DeadTorizoArtworkVerification
     /// <summary>Obtains a sand line's WRAM destination and sheet source from separate retail tables.</summary>
     private static ReadNativeDeadTorizoSandLineOffsetsResult ReadNativeDeadTorizoSandLineOffsets(ISnesAddressSpace rom, ushort line)
     {
-        return new ReadNativeDeadTorizoSandLineOffsetsResult(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d67c + line * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d69c + line * 2)));
+        return new ReadNativeDeadTorizoSandLineOffsetsResult(rom.ReadCartridgeWord((0xa9d67c + line * 2)), rom.ReadCartridgeWord((0xa9d69c + line * 2)));
     }
 
     /// <summary>The corpse as the character rot oracle stages it from installed art.</summary>

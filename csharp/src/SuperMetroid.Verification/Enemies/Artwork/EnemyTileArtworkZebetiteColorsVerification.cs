@@ -130,7 +130,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             {
                 int address = 0xa6fd87 + counter * 4 + color * 2;
                 cgram.SetColor(PulseFirstColour + color,
-                    RgbColor.FromWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(address)));
+                    RgbColor.FromWord(bus.ReadCartridgeWord(address)));
             }
         }
 

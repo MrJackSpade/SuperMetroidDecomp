@@ -34,7 +34,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         {
             InstructionMechanicsWord definition =
                 SpacePirateProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
+            ushort native = rom.ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
             AssertEqual(definition.Value, native,
                 $"Space Pirate projectile mechanics word $86:{definition.Address:X4}");
         }
@@ -44,7 +44,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         var executedOperands = new HashSet<ushort>();
         var guard = NewSpacePirateProjectileInstructionReadGuard(rom);
         Func<EnemyProjectileAnimation, ushort?> nativePointers =
-            SpacePirateProjectileNativeListAddresses.Family.NativePointers(CartridgeImportSource.Require(rom));
+            SpacePirateProjectileNativeListAddresses.Family.NativePointers(rom);
 
         foreach ((bool movingRight, ushort program, ushort loop,
                   Enum movement, ushort expectedX) in new[]

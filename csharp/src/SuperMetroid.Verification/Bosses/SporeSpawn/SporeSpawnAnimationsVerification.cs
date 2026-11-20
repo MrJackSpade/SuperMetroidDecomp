@@ -32,7 +32,7 @@ internal static class SporeSpawnAnimationsVerification
     /// <summary>Every body program matches its native list, and every projectile program its bank-$86 list.</summary>
     internal static void VerifySporeSpawnAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<SporeSpawnBodySegment>().Length, BodyEntries.Length, "every typed Spore Spawn body program has a native entry");
         for (int index = 0; index < BodyEntries.Length; index++)
             AssertEqual((SporeSpawnBodySegment)index, BodyEntries[index].Program, "the Spore Spawn body programs are declared in authored order");
@@ -127,7 +127,7 @@ internal static class SporeSpawnAnimationsVerification
     /// </summary>
     private static int VerifyProjectilePrograms(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int updates = 0;
         foreach ((SporeSpawnProjectileSegment program, ushort entry) in ProjectileEntries)
         {
@@ -220,7 +220,7 @@ internal static class SporeSpawnAnimationsVerification
 
     /// <summary>Reads one native bank-$A5 word for the independent reference trace.</summary>
     internal static ushort ReadSporeSpawnProgramWord(CartridgeImportAddressSpace source, ushort address) =>
-        CartridgeImportSource.Require(source).ReadCartridgeWord((BodyBankNumber << 16) | address);
+        source.ReadCartridgeWord((BodyBankNumber << 16) | address);
 
     /// <summary>A guard over the cartridge that rejects any production read of Spore Spawn's native body lists.</summary>
     internal static MutableCartridgeReadGuard NewSporeSpawnInstructionReadGuard(ISnesAddressSpace source)

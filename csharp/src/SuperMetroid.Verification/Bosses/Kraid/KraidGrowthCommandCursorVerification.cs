@@ -23,7 +23,7 @@ internal static class KraidGrowthCommandCursorVerification
     internal static void VerifyKraidGrowthCommandCursor()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var native = new KraidHeadNativeCursors(CartridgeImportSource.Require(rom));
+        var native = new KraidHeadNativeCursors(rom);
         var guard = new KraidHeadProgramReadGuard(rom);
         var referenceArt = new EnemyIdentityFixture().Build().Bosses.KraidBackground;
         var head = KraidHeadTilemapAtlas.Load(new MemoryStream(KraidHeadTilemapFiles.Encode(

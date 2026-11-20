@@ -23,8 +23,8 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
         var state = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.PostLandingDelay);
         for (ushort phase = 0; phase < 4; phase++)
         {
-            ushort vx = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.HorizontalVelocityWords + phase * 2));
-            ushort vy = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.VerticalVelocityWords + phase * 2));
+            ushort vx = rom.ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.HorizontalVelocityWords + phase * 2));
+            ushort vy = rom.ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.VerticalVelocityWords + phase * 2));
             AssertEqual(vx, DeadSidehopperLaunchDefinitions.Launches[phase].X.RawValue, "Native corpse X launch");
             AssertEqual(vy, DeadSidehopperLaunchDefinitions.Launches[phase].Y.RawValue, "Native corpse Y launch");
             foreach (SidehopperDrainStage drainStage in new[] { SidehopperDrainStage.Untouched, SidehopperDrainStage.LatchedOn })

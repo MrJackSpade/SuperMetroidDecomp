@@ -53,7 +53,7 @@ internal static class SamusProjectilesVerification
 /// direction table at $93:8433 selects for <paramref name="direction"/>.
 /// </summary>
 static byte ReadRetailPowerBeamRadiusByte(ISnesAddressSpace rom, int direction, int offset) =>
-    rom.ReadCartridgeByte(0x930000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord((0x938433 + direction * 2)) + offset));
+    rom.ReadCartridgeByte(0x930000 | (rom.ReadCartridgeWord((0x938433 + direction * 2)) + offset));
 
 /// <summary>Checks beam and missile records, charge, impact, OAM, sound, and cartridge-timed projectile lifecycles.</summary>
 internal static void VerifySamusPowerBeamProjectiles()
@@ -102,7 +102,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         return created;
     }
     SamusBombProjectileSystem CreateSyntheticBombs() => new(GameplayAudioRequests.Standalone(), InstalledFixtures.SamusArtwork(projectileFrames: fixtureFrames));
-    ushort NativeWord(int a) => CartridgeImportSource.Require(nativeProjectileRom).ReadCartridgeWord(a);
+    ushort NativeWord(int a) => nativeProjectileRom.ReadCartridgeWord(a);
     ushort NativeDamage(int table, int beam) => NativeWord(0x930000 | NativeWord(table + beam * 2));
     RoomLevelData air = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid(), []);
 

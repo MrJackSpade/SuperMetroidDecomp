@@ -40,6 +40,7 @@ public static class InstalledAudioClips
     {
         Converters = { new SoundEffectIdJsonConverter() },
         RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
         RespectRequiredConstructorParameters = true,
         AllowOutOfOrderMetadataProperties = true,
     };

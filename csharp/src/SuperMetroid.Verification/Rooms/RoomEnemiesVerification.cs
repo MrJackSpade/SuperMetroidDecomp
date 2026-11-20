@@ -759,11 +759,11 @@ static List<VramWriteEntry> ReadRetailCeresEscapeTransfers(ISnesAddressSpace rom
     var records = new List<VramWriteEntry>();
     for (int record = 0; record < 32; record++, pointer += 7)
     {
-        ushort size = CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer);
+        ushort size = rom.ReadCartridgeWord(pointer);
         if (size == 0) return records;
         records.Add(new VramWriteEntry(size,
-            CartridgeImportSource.Require(rom).ReadCartridgeLong((pointer + 2)),
-            VramDmaDestination.FromNative(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 5)))));
+            rom.ReadCartridgeLong((pointer + 2)),
+            VramDmaDestination.FromNative(rom.ReadCartridgeWord((pointer + 5)))));
     }
     throw new InvalidDataException("Native Ceres transfer fixture lacks a terminator.");
 }
@@ -884,10 +884,10 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertEqual(511, state.PhaseTimer.CartridgeCount, "Ceres Ridley first delay decrement");
     var nativeRidleyRom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
-    ushort initialRidleyMap = CartridgeImportSource.Require(nativeRidleyRom).ReadCartridgeWord(0xa6e53e);
+    ushort initialRidleyMap = nativeRidleyRom.ReadCartridgeWord(0xa6e53e);
     AssertEqual(initialRidleyMap, ridley.SpritemapPointer, "Ceres Ridley left-facing initial map");
     AssertEqual(0xe540, new SuperMetroid.TestSupport.MovieReplay.RidleyBodyNativeInstructionPointers(
-        CartridgeImportSource.Require(nativeRidleyRom)).Body(state.Flight), "Ceres Ridley initial list sleeps");
+        nativeRidleyRom).Body(state.Flight), "Ceres Ridley initial list sleeps");
 
     for (int frame = 0; frame < 512; frame++)
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });

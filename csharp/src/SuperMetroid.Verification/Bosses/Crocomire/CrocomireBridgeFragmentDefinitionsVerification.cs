@@ -18,7 +18,7 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
         // The cartridge table holds one X word per fragment, in launch order.
         for (int fragment = 0; fragment < CrocomireBridgeFragmentDefinitions.FragmentCount; fragment++)
         {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + fragment * sizeof(ushort));
+            ushort expected = rom.ReadCartridgeWord(sourceAddress + fragment * sizeof(ushort));
             AssertEqual(expected, CrocomireBridgeFragmentDefinitions.XPosition(fragment),
                 $"Crocomire bridge fragment {fragment}");
         }

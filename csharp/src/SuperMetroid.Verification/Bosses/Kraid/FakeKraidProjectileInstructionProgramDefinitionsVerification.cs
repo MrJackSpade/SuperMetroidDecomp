@@ -127,7 +127,7 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
     internal static ushort ReadFakeKraidProjectileInstructionWord(
         CartridgeImportAddressSpace source,
         ushort address) =>
-        CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
+        source.ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
 
     /// <summary>Runs the Fake Kraid projectile program command and returns its suite status.</summary>
     [VerificationCommand("--fake-kraid-projectile-instruction-mechanics")]

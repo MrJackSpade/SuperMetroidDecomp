@@ -33,7 +33,7 @@ internal static class CrocomireAnimationsVerification
     /// </summary>
     internal static void VerifyCrocomireBodyAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertTrue(BodyEntriesAscend, "native body entries ascend");
         AssertEqual(Enum.GetValues<CrocomireBodyAnimation>().Length, BodyStarts.Count, "every body animation has a native entry");
 
@@ -228,7 +228,7 @@ internal static class CrocomireAnimationsVerification
     /// <summary>Each tongue program plays its native list update by update through the production interpreter.</summary>
     internal static void VerifyCrocomireTongueAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<CrocomireTongueSegment>().Length, TongueEntries.Length, "every tongue program has a native entry");
         foreach ((CrocomireTongueSegment program, ushort entry) in TongueEntries)
         {
@@ -260,7 +260,7 @@ internal static class CrocomireAnimationsVerification
     /// </summary>
     internal static void VerifyCrocomireProjectileAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
 
         (RoomEnemySystem mouthSystem, CrocomireEnemyState mouthState) = NewCrocomire();
         mouthSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(mouthState.Body, gradient: CrocomireProjectileDefinitions.AuthoredGradients[0]);

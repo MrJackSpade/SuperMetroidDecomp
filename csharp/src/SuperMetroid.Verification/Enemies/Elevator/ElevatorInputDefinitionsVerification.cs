@@ -25,7 +25,7 @@ internal static class ElevatorInputDefinitionsVerification
         {
             ushort tableByteOffset = (ushort)(direction * 2);
             ElevatorTravelDirection travel = direction == 0 ? ElevatorTravelDirection.Down : ElevatorTravelDirection.Up;
-            GameplayAction native = GameplayActionWordCodec.FromJoypadWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset), "native elevator departure mask");
+            GameplayAction native = GameplayActionWordCodec.FromJoypadWord(rom.ReadCartridgeWord(inputTable + tableByteOffset), "native elevator departure mask");
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().IsAreaBossDefeated = () => true;
@@ -70,7 +70,7 @@ internal static class ElevatorInputDefinitionsVerification
         ElevatorTravelDirection[] tableOrder = [ElevatorTravelDirection.Down, ElevatorTravelDirection.Up];
         for (int entry = 0; entry < tableOrder.Length; entry++)
         {
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa394e2 + entry * 2);
+            ushort native = rom.ReadCartridgeWord(0xa394e2 + entry * 2);
             AssertEqual(GameplayActionWordCodec.FromJoypadWord(native, "native elevator direction mask"), ElevatorActorDefinitions.RequiredDirectionInputs[tableOrder[entry]], "elevator named direction matches native mask");
         }
     }

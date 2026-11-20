@@ -38,7 +38,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         var colors = new PaletteRgb5[EnemyPaletteSheetFile.ColorCount];
         for (int color = 0; color < colors.Length; color++)
         {
-            ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord((NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource + color * 2));
+            ushort word = rom.ReadCartridgeWord((NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource + color * 2));
             colors[color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         }
         // This instruction-only fixture never renders character graphics, but the

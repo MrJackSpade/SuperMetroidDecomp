@@ -26,7 +26,7 @@ internal static class ProjectileFrameBindingsVerification
         foreach (ushort pointer in SamusProjectileFrameDefinitions.TimedRecordAddresses)
         {
             int address = SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(pointer + 2));
-            ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
+            ushort native = RomDataReader.ReadWordFixedBank(rom, address);
             AssertEqual(ProjectileSpriteNative.FirstStored(native), stock.Resolve(pointer),
                 $"timed projectile $93:{pointer:X4} keeps the composition its native sprite reference stores");
         }

@@ -51,13 +51,13 @@ internal static class MotherBrainRainbowPaletteExtractor
             for (int frame = 0; frame < frames; frame++)
             {
                 int pointerAddress = table + frame * sizeof(ushort);
-                int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAddress);
+                int pointer = bus.ReadCartridgeWord(pointerAddress);
                 if (pointer == 0)
                     throw new InvalidDataException($"Mother Brain palette table ${table:X6} ends before frame {frame}.");
                 values[frame] = ReadFrame(MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer,
                     bodyCount, legCount, trailing);
             }
-            if (CartridgeImportSource.Require(bus).ReadCartridgeWord((table + frames * sizeof(ushort))) != 0)
+            if (bus.ReadCartridgeWord((table + frames * sizeof(ushort))) != 0)
                 throw new InvalidDataException($"Mother Brain palette table ${table:X6} lacks its native terminator.");
             return values;
         }
@@ -69,13 +69,13 @@ internal static class MotherBrainRainbowPaletteExtractor
             {
                 int address = MotherBrainSourceDefinitions.Palettes.FakeDeathToGreyPointerTable +
                     frame * sizeof(ushort);
-                int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+                int pointer = bus.ReadCartridgeWord(address);
                 if (pointer == 0)
                     throw new InvalidDataException($"Mother Brain fake-death fade ends before frame {frame}.");
                 frames[frame] = ReadColors(MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer,
                     MotherBrainRainbowPaletteGeometry.FakeDeathColors);
             }
-            if (CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainSourceDefinitions.Palettes.FakeDeathToGreyPointerTable +
+            if (bus.ReadCartridgeWord((MotherBrainSourceDefinitions.Palettes.FakeDeathToGreyPointerTable +
                 frames.Length * sizeof(ushort))) != 0)
                 throw new InvalidDataException("Mother Brain fake-death fade lacks its native terminator.");
             return frames;
@@ -99,7 +99,7 @@ internal static class MotherBrainRainbowPaletteExtractor
 
         PaletteRgb5 ReadColor(int address)
         {
-            int word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+            int word = bus.ReadCartridgeWord(address);
             return ToColor(word);
         }
 

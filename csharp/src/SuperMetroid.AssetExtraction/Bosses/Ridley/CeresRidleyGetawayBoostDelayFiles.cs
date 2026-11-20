@@ -32,7 +32,7 @@ public static class CeresRidleyGetawayBoostDelayFiles
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         foreach (SnesAddress capsule in CapsuleFrames)
             RequireRuns(cartridge, capsule, CapsuleRunCount);
         int capsuleBytes = CapsuleRunCount * DescriptorBytes;

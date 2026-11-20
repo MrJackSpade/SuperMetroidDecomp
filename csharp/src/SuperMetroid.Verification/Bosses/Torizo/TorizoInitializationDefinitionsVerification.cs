@@ -18,9 +18,9 @@ internal static class TorizoInitializationDefinitionsVerification
     {
         for (int variant = 0; variant < 2; variant++)
         {
-            ushort[] native = [CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXPositions + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYPositions + variant * 2),
-                CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeAnimationScripts + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakePropertyMasks + variant * 2),
-                CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXRadii + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYRadii + variant * 2)];
+            ushort[] native = [rom.ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXPositions + variant * 2), rom.ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYPositions + variant * 2),
+                rom.ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeAnimationScripts + variant * 2), rom.ReadCartridgeWord(EnemyRomTablePointersTorizo.WakePropertyMasks + variant * 2),
+                rom.ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXRadii + variant * 2), rom.ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYRadii + variant * 2)];
             var compiled = variant == 0 ? TorizoInitializationDefinitions.Bomb : TorizoInitializationDefinitions.Golden;
             ushort[] actual = [compiled.Position.X, compiled.Position.Y, TorizoNativeListAddresses.Entry(compiled.Animation), checked((ushort)EnemyPropertyWordCodec.EncodePropertyWord(new EnemyPropertyState(EnemyContact.None, compiled.Processing, EnemyPresence.None, CollidesByFrameHitboxes: false, NewInstructionFrame: false))), compiled.Radius.X, compiled.Radius.Y];
             AssertTrue(native.SequenceEqual(actual), "Every Torizo initialization record word matches ROM");

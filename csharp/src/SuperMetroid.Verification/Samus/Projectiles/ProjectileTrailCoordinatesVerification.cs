@@ -39,7 +39,7 @@ internal static class ProjectileTrailCoordinatesVerification
     internal static void VerifyProjectileTrailCoordinates(ISnesAddressSpace bus)
     {
         Dictionary<ProjectileTrailPlacementList, ushort> starts = Enum.GetValues<ProjectileTrailPlacementList>().ToDictionary(
-            list => list, list => ProjectileTrailPlacementSources.Start(CartridgeImportSource.Require(bus), list).Offset);
+            list => list, list => ProjectileTrailPlacementSources.Start(bus, list).Offset);
         ushort[] orderedStarts = [.. starts.Values.Distinct().Order()];
         foreach ((ProjectileTrailPlacementList list, int count) in ProjectileTrailPlacementSources.OwnPlacementCounts)
         {
@@ -165,8 +165,8 @@ internal static class ProjectileTrailCoordinatesVerification
         foreach ((ushort type, int dataTable, int index) in ReflectableTrailTypes())
         for (ushort direction = 0; direction < 10; direction++)
         {
-            ushort data = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), dataTable + index * 2);
-            ushort listStart = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x930000 | unchecked((ushort)(data + 2 + direction * 2)));
+            ushort data = RomDataReader.ReadWordFixedBank(bus, dataTable + index * 2);
+            ushort listStart = RomDataReader.ReadWordFixedBank(bus, 0x930000 | unchecked((ushort)(data + 2 + direction * 2)));
             system.Reset();
             var shot = new SamusProjectile(0)
             {
@@ -185,8 +185,8 @@ internal static class ProjectileTrailCoordinatesVerification
     /// <summary>The bank-$9B list <paramref name="type"/>'s selector row and direction entry name.</summary>
     private static ushort DirectionList(ISnesAddressSpace bus, ushort type, ushort direction)
     {
-        ushort directions = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SelectorTable(type) + (type & 15) * 2);
-        return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x9b0000 | unchecked((ushort)(directions + direction * 2)));
+        ushort directions = RomDataReader.ReadWordFixedBank(bus, SelectorTable(type) + (type & 15) * 2);
+        return RomDataReader.ReadWordFixedBank(bus, 0x9b0000 | unchecked((ushort)(directions + direction * 2)));
     }
 
     /// <summary>
@@ -211,7 +211,7 @@ internal static class ProjectileTrailCoordinatesVerification
 
     /// <summary>The trail word of the timed record at bank-$93 <paramref name="record"/>: the placement it reads from its list.</summary>
     private static int TrailWord(ISnesAddressSpace bus, int record) => RomDataReader.ReadWordFixedBank(
-        CartridgeImportSource.Require(bus), 0x930000 | unchecked((ushort)(record + 6)));
+        bus, 0x930000 | unchecked((ushort)(record + 6)));
 
     /// <summary>
     /// Every frame a projectile of <paramref name="type"/> can show, whatever its direction: the frames of every animation of
@@ -260,11 +260,11 @@ internal static class ProjectileTrailCoordinatesVerification
 
     /// <summary>Reads a native trail table word for the cartridge-side oracle.</summary>
     private static ushort ReadRetailTrailWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+        RomDataReader.ReadWordFixedBank(bus, address);
 
     /// <summary>Reads a cartridge byte for a native bank-$9B trail operand.</summary>
     private static byte ReadRetailTrailOperandByte(ISnesAddressSpace bus, int address) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeByte(address);
+        bus.ReadCartridgeByte(address);
 
     /// <summary>Reads a modeled peripheral response or rejects an unmodeled hardware operand.</summary>
     private static byte ReadNativeTrailOperandDeviceByte(ISnesAddressSpace bus, int address) =>

@@ -28,7 +28,7 @@ internal static class ProjectileTrailArtworkVerification
             ushort cursor = start;
             while (true)
             {
-                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.MovementBank.Value | cursor);
+                ushort word = RomDataReader.ReadWordFixedBank(bus, SamusSourceDefinitions.MovementBank.Value | cursor);
                 if (word == 0) break;
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
@@ -69,7 +69,7 @@ internal static class ProjectileTrailArtworkVerification
         {
             if (ProjectileTrailSparkleAnimations.TryRead(address, out _))
             {
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailSparkleAnimations.Read(address), "Compiled trail program preserves every authored mechanics word");
+                AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), ProjectileTrailSparkleAnimations.Read(address), "Compiled trail program preserves every authored mechanics word");
                 programWords++;
             }
             else
@@ -85,7 +85,7 @@ internal static class ProjectileTrailArtworkVerification
         foreach (ushort coordinate in new ushort[] { 0, 1, 255, 256, 65535 })
         {
             ushort frame = ProjectileTrailNative.Address(pose);
-            ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.MovementBank.Value | (frame + 2));
+            ushort attributes = RomDataReader.ReadWordFixedBank(bus, SamusSourceDefinitions.MovementBank.Value | (frame + 2));
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var side = system.AddTrail(Position16<RoomPixels>.Of(coordinate, coordinate)).Left;
             side.RestoreNative((ushort)(frame + 4), 3, pose);
@@ -153,13 +153,13 @@ internal static class ProjectileTrailArtworkVerification
                 for (int operations = 0; ; operations++)
                 {
                     AssertTrue(operations < 16, "native trail reaches a timed frame or terminator");
-                    ushort command = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x900000 | cursor);
+                    ushort command = rom.ReadCartridgeWordFixedBank(0x900000 | cursor);
                     if (command < 0x8000)
                     {
                         side.FrameHold = command;
                         if (command != 0)
                         {
-                            words[side] = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x900000 | (unchecked((ushort)(cursor + 2))));
+                            words[side] = rom.ReadCartridgeWordFixedBank(0x900000 | (unchecked((ushort)(cursor + 2))));
                             side.InstructionPointer = unchecked((ushort)(cursor + 4));
                         }
                         break;

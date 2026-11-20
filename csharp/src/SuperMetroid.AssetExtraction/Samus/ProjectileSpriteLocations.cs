@@ -23,7 +23,7 @@ internal static class ProjectileSpriteLocations
     /// </exception>
     internal static Dictionary<SamusProjectileFrameId, ProjectileSpriteId> RecordSprites(ISnesAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
         Dictionary<int, ProjectileSpriteId> stored = StoredProjectiles().ToDictionary(entry => entry.Key, entry => entry.Value);
         ProjectileSpriteId SpriteAt(SamusProjectileFrameId frame, int record)

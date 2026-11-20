@@ -27,7 +27,7 @@ internal static class SpeciesRandomReseedVerification
     /// <summary>Runs every species' reseeding setup and compares the seed it wrote with the cartridge's.</summary>
     internal static void VerifySpeciesRandomReseeds(CartridgeImportAddressSpace rom)
     {
-        int Word(int address) => CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+        int Word(int address) => rom.ReadCartridgeWord(address);
 
         var shared = new SharedRandom();
         shared.Reseed(SpeciesRandomReseed.PolypPlacement);

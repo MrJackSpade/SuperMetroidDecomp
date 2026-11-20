@@ -113,7 +113,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         void VerifyFrame(int source, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < SporeSpawnColorFormat.ColorsPerFrame; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     source + color * SporeSpawnSourceDefinitions.ColorWordBytes), resolve(color),
                     $"installed {name} color {color} matches cartridge");
         }

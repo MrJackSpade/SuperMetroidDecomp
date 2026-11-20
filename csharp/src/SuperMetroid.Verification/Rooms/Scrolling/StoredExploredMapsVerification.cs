@@ -109,7 +109,7 @@ internal static class StoredExploredMapsVerification
     /// <summary>Compares the doors that exchange explored maps with the doors whose cartridge elevator properties carry <c>$40</c>.</summary>
     internal static void VerifyExploredMapExchangeDoors(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         DoorDefinition[] native = [.. DoorHeaderSourceDefinitions.ByPointer
             .Where(pair => (cartridge.ReadCartridgeByte(0x830000 | (pair.Key + 2)) & 0x40) != 0)
             .Select(pair => pair.Value)];

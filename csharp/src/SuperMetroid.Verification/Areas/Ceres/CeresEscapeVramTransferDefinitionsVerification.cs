@@ -35,13 +35,13 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         foreach (TileTransferDefinition record in records)
         {
             int address = 0xa60000 | record.Pointer;
-            AssertEqual(record.ByteCount, CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
+            AssertEqual(record.ByteCount, rom.ReadCartridgeWord(address),
                 $"Ceres transfer ${record.Pointer:X4} byte count");
-            AssertEqual(SnesAddressMath.OffsetInBank(record.SourceAddress), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)),
+            AssertEqual(SnesAddressMath.OffsetInBank(record.SourceAddress), rom.ReadCartridgeWord((address + 2)),
                 $"Ceres transfer ${record.Pointer:X4} source offset");
             AssertEqual(SnesAddressMath.BankNumber(record.SourceAddress), rom.ReadCartridgeByte(address + 4),
                 $"Ceres transfer ${record.Pointer:X4} source bank");
-            AssertEqual(record.DestinationWord, CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 5)),
+            AssertEqual(record.DestinationWord, rom.ReadCartridgeWord((address + 5)),
                 $"Ceres transfer ${record.Pointer:X4} VRAM destination");
             AssertTrue(CeresEscapeVramTransferDefinitions.TryGet(record.Pointer,
                     out var selected) && selected == record,
@@ -49,7 +49,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         }
         foreach (ushort terminator in new ushort[] { 0xc3d4, 0xc4fc, 0xc536 })
         {
-            AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | terminator)),
+            AssertEqual(0, rom.ReadCartridgeWord((0xa60000 | terminator)),
                 $"Ceres transfer ${terminator:X4} native terminator");
             AssertTrue(CeresEscapeVramTransferDefinitions.IsTerminator(terminator),
                 $"Ceres transfer ${terminator:X4} compiled terminator");

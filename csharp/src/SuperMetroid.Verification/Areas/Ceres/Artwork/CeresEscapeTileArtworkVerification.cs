@@ -63,9 +63,9 @@ internal static class CeresEscapeTileArtworkVerification
                 transfer.Pointer >= CeresEscapeVramTransferDefinitions.TimerBackgrounds)
                 continue;
             int descriptor = 0xa60000 | transfer.Pointer;
-            ushort byteCount = CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor);
-            int source = (CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2));
-            ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5));
+            ushort byteCount = rom.ReadCartridgeWord(descriptor);
+            int source = (rom.ReadCartridgeLong(descriptor + 2));
+            ushort destination = rom.ReadCartridgeWord((descriptor + 5));
             nativeQueue.Enqueue(byteCount, source, VramDmaDestination.FromNative(destination));
         }
         var nativeVram = new SnesVram();

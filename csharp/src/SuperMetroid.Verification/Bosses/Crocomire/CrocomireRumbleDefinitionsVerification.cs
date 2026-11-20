@@ -63,7 +63,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         for (int index = firstWord; index < expectedWords.Length; index++)
         {
             AssertTrue(assigned[index], $"Crocomire rumble source word {index} ownership");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((sourceAddress + index * 2)), expectedWords[index],
+            AssertEqual(rom.ReadCartridgeWord((sourceAddress + index * 2)), expectedWords[index],
                 $"Crocomire rumble source word {index}");
         }
 
@@ -159,7 +159,7 @@ internal static class CrocomireRumbleDefinitionsVerification
     {
         const int sourceAddress = 0xa498ca;
 
-        ushort target = CartridgeImportSource.Require(rom).ReadCartridgeWord((sourceAddress + index));
+        ushort target = rom.ReadCartridgeWord((sourceAddress + index));
         if (target == 0x8080)
         {
             yOffset = 0x8080;
@@ -180,9 +180,9 @@ internal static class CrocomireRumbleDefinitionsVerification
                 }
 
                 index += 2;
-                cooldown = CartridgeImportSource.Require(rom).ReadCartridgeWord((sourceAddress + index));
+                cooldown = rom.ReadCartridgeWord((sourceAddress + index));
                 index += 2;
-                delta = CartridgeImportSource.Require(rom).ReadCartridgeWord((sourceAddress + index));
+                delta = rom.ReadCartridgeWord((sourceAddress + index));
             }
 
             index += 2;

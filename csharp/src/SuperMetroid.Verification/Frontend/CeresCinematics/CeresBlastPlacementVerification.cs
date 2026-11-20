@@ -22,7 +22,7 @@ internal static class CeresBlastPlacementVerification
     {
         for (int index = 0; index < wave.Count; index++)
         {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
+            ushort expected = rom.ReadCartridgeWord(address + index * 2);
             AssertEqual(expected, actual(wave[index]), $"original Ceres blast {index} field");
         }
     }

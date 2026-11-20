@@ -34,6 +34,7 @@ public static class EnemyProjectileSpritemapDocuments
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
         RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
     };
 
     /// <summary>Loads named projectile compositions and timed-program visual frames, validating names/counts and part bounds without importing timing, motion, collision, or callbacks.</summary>

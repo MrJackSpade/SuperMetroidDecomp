@@ -102,11 +102,11 @@ internal static class ProjectileRadiiVerification
         foreach (int address in addresses)
         {
             ushort pointer = (ushort)(address - 4);
-            ushort duration = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x930000 | pointer));
+            ushort duration = rom.ReadCartridgeWord((0x930000 | pointer));
             AssertTrue(duration < 0x8000, "Inventory entry is a timed frame, not executable data");
             int activeRecord = 0x930000 | pointer;
             // A record storing a composition again, byte for byte, shows that composition (#2295).
-            ushort expectedSprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(CartridgeImportSource.Require(rom).ReadCartridgeWord((activeRecord + 2)));
+            ushort expectedSprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(rom.ReadCartridgeWord((activeRecord + 2)));
             var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer), Damage = 30 };
             AssertEqual(false, projectiles.Animation.AdvanceProjectileAnimation(slot), "Timed projectile record survives");
             // A list repeating one still picture is held: the shot keeps the picture, standing at the list's end (#2347).

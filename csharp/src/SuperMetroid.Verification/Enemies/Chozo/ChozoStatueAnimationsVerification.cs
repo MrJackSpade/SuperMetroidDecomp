@@ -12,7 +12,7 @@ internal static class ChozoStatueAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyChozoStatueAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
             ChozoStatueAnimations.Segments, ChozoStatueAnimations.StartingAt, ChozoStatueFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<ChozoStatueCue>(
                 word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,

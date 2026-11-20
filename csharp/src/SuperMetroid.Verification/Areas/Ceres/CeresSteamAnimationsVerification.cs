@@ -21,7 +21,7 @@ internal static class CeresSteamAnimationsVerification
     /// </summary>
     internal static void VerifyCeresSteamAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int beats = NativeEnemyAnimationOracle.CompareAll(cartridge, Bank, Entries, CeresSteamAnimations.Segments, CeresSteamAnimations.StartingAt,
             CeresSteamFrameDefinitionsConstants.Spritemap,
             new NativeEnemyCueRules<CeresSteamCueKind>(word => Instructions.ContainsKey(word) ? 0 : null,

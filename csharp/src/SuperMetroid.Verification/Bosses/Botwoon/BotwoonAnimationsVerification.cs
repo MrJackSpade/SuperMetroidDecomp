@@ -54,15 +54,15 @@ internal static class BotwoonAnimationsVerification
         var drawn = new HashSet<ushort>();
         for (int angle = 0; angle < 256; angle++)
         {
-            ushort moving = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonMovingListTable + 2 * (angle >> 5)));
+            ushort moving = rom.ReadCartridgeWord((BotwoonMovingListTable + 2 * (angle >> 5)));
             CompareBotwoonHead(rom, moving, BotwoonHeadAnimationSegment.MovingToward(AimAngleConstants.FromClockwiseSteps(angle)), $"moving angle ${angle:X2}", inputs, drawn);
-            ushort spitting = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSpitListTable + 2 * (unchecked((byte)(angle + 16)) >> 5)));
+            ushort spitting = rom.ReadCartridgeWord((BotwoonSpitListTable + 2 * (unchecked((byte)(angle + 16)) >> 5)));
             CompareBotwoonHead(rom, spitting, BotwoonHeadAnimationSegment.SpittingToward(AimAngleConstants.FromClockwiseSteps(angle)), $"spitting angle ${angle:X2}", inputs, drawn);
             compared += 2;
         }
         for (int octant = 0; octant < 8; octant++)
         {
-            CompareBotwoonHead(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonHiddenListTable + 2 * octant)), BotwoonHeadAnimationSegment.Hidden,
+            CompareBotwoonHead(rom, rom.ReadCartridgeWord((BotwoonHiddenListTable + 2 * octant)), BotwoonHeadAnimationSegment.Hidden,
                 $"hidden duplicate {octant}", inputs, drawn);
             compared++;
         }
@@ -97,7 +97,7 @@ internal static class BotwoonAnimationsVerification
             animateHead(movingHead, movingState);
             AssertTrue(PlaysHead(movingState, BotwoonHeadAnimationSegment.Moving(octantDirections[octant])),
                 $"moving head toward octant {octant}");
-            CompareBotwoonHead(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonMovingListTable + 2 * octant)), movingEnemies, movingHead,
+            CompareBotwoonHead(rom, rom.ReadCartridgeWord((BotwoonMovingListTable + 2 * octant)), movingEnemies, movingHead,
                 movingState, $"AI-selected moving octant {octant}", inputs);
 
             (RoomEnemySystem spitEnemies, RoomEnemyPlace spitHead, BotwoonEnemyState spitState) = NewBotwoonHead();
@@ -146,7 +146,7 @@ internal static class BotwoonAnimationsVerification
 
         for (ushort selector = 0; selector < 64; selector += 2)
         {
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSegmentListTable + selector));
+            ushort native = rom.ReadCartridgeWord((BotwoonSegmentListTable + selector));
             _ = BotwoonAnimations.BodySegments.Beats(BotwoonSegmentSelectorCodec.Program(selector));
             AssertTrue(native != 0, $"Botwoon segment selector ${selector:X2} has a native list");
         }
@@ -165,7 +165,7 @@ internal static class BotwoonAnimationsVerification
         {
             var projectile = new EnemyProjectile(0, default) { Kind = RoomEnemyProjectileKind.BotwoonBody };
             projectile.StartAnimation(new BotwoonSegmentAnimation(BotwoonSegmentSelectorCodec.Program(selector)));
-            CompareBotwoonProjectile(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSegmentListTable + selector)), projectile, Pass,
+            CompareBotwoonProjectile(rom, rom.ReadCartridgeWord((BotwoonSegmentListTable + selector)), projectile, Pass,
                 $"segment selector ${selector:X2}");
         }
 
@@ -305,7 +305,7 @@ internal static class BotwoonAnimationsVerification
             {
                 for (int command = 0; command < 8; command++)
                 {
-                    ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | cursor));
+                    ushort word = rom.ReadCartridgeWord((0x860000 | cursor));
                     if (word < 0x8000)
                     {
                         timer = word;
@@ -315,7 +315,7 @@ internal static class BotwoonAnimationsVerification
                     }
                     if (word == (ushort)NativeEnemyProjectileInstruction.GotoY)
                     {
-                        cursor = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | unchecked((ushort)(cursor + 2))));
+                        cursor = rom.ReadCartridgeWord((0x860000 | unchecked((ushort)(cursor + 2))));
                         continue;
                     }
                     AssertEqual((ushort)NativeEnemyProjectileInstruction.Sleep, word, $"Botwoon {label}: native list uses only frames, goto and sleep");
@@ -360,11 +360,11 @@ internal static class BotwoonAnimationsVerification
             bool sound = false;
             for (int command = 0; command < 8; command++)
             {
-                ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | cursor));
+                ushort word = rom.ReadCartridgeWord((0xb30000 | cursor));
                 if (word < 0x8000)
                 {
                     Timer = word;
-                    Spritemap = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | unchecked((ushort)(cursor + 2))));
+                    Spritemap = rom.ReadCartridgeWord((0xb30000 | unchecked((ushort)(cursor + 2))));
                     cursor = unchecked((ushort)(cursor + 4));
                     NewFrame = true;
                     return sound;

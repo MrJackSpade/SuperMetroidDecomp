@@ -210,5 +210,5 @@ internal static class GrappleFlarePresentationVerification
 
     /// <summary>Reads one native facing-row selector offset to check both rows choose the shared main flare.</summary>
     private static ushort ReadNativeGrappleFlareSpritemapOffset(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+        RomDataReader.ReadWordFixedBank(bus, address);
 }

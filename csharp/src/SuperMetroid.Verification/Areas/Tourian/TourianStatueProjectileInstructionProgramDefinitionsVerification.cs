@@ -36,7 +36,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         {
             InstructionMechanicsWord definition =
                 TourianStatueProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
+            ushort native = rom.ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
             AssertEqual(definition.Value, native,
                 $"Tourian statue projectile mechanics word $86:{definition.Address:X4}");
         }
@@ -46,7 +46,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         var executedOperands = new HashSet<ushort>();
         var guard = NewTourianStatueProjectileInstructionReadGuard(rom);
         Func<EnemyProjectileAnimation, ushort?> nativePointers =
-            TourianStatueProjectileNativeListAddresses.Family.NativePointers(CartridgeImportSource.Require(rom));
+            TourianStatueProjectileNativeListAddresses.Family.NativePointers(rom);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: InstalledFixtures.BossArtwork,
             statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
         enemies.VerificationServices().NextRandom = () => 4;

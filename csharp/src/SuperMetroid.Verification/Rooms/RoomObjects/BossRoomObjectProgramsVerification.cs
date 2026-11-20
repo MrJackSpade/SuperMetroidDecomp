@@ -29,7 +29,7 @@ internal static class BossRoomObjectProgramsVerification
     /// <summary>Botwoon's wall changes play as their native lists do; only the crumble opens the scrolls as it starts.</summary>
     internal static void VerifyBotwoonWallPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int frames = 0;
         foreach ((BotwoonWallMutation mutation, ushort entry) in BotwoonWallEntries)
         {
@@ -55,7 +55,7 @@ internal static class BossRoomObjectProgramsVerification
     /// </summary>
     internal static void VerifyMotherBrainFakeDeathPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         const string family = "Mother Brain fake death";
         AssertEqual(Enum.GetValues<MotherBrainRoomMutation>().Length, MotherBrainFakeDeathEntries.Count,
             $"every {family} mutation has a native list");
@@ -97,7 +97,7 @@ internal static class BossRoomObjectProgramsVerification
         IReadOnlyDictionary<TMutation, TerrainChange> changes, NativeTerrainChanges.StepReader steps, string family)
         where TMutation : struct, Enum
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<TMutation>().Length, entries.Count, $"every {family} mutation has a native list");
         AssertEqual(entries.Count, changes.Count, $"every {family} mutation has a typed change");
         int frames = 0;
@@ -130,7 +130,7 @@ internal static class BossRoomObjectProgramsVerification
     /// </summary>
     internal static void VerifyDraygonCannonPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
         int frames = 0;
@@ -205,7 +205,7 @@ internal static class BossRoomObjectProgramsVerification
     /// </summary>
     internal static void VerifyMotherBrainGlassPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
         void AssertShown(int cursor, MotherBrainGlassDraw image, int updates, string at)
@@ -276,7 +276,7 @@ internal static class BossRoomObjectProgramsVerification
     /// </summary>
     internal static void VerifyBombTorizoHandPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
         void AssertShown(int cursor, BombTorizoHandDraw image, int updates, string at)

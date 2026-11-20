@@ -20,11 +20,11 @@ public static class BeamPaletteExtractor
         for (int index = 0; index < BeamTileAtlasDefinitions.SelectionCount; index++)
         {
             SamusBeamCombination selection = SamusBeamCombinationTableOrder.FromTableIndex(index);
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.PalettePointers.Value + selection.TableIndex * 2);
+            int pointer = RomDataReader.ReadWordFixedBank(bus, SamusSourceDefinitions.PalettePointers.Value + selection.TableIndex * 2);
             var colors = new PaletteRgb5[BeamPaletteDefinitions.ColorCount];
             for (int i = 0; i < colors.Length; i++)
             {
-                colors[i] = PaletteRgb5.From(RgbColor.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                colors[i] = PaletteRgb5.From(RgbColor.FromWord(RomDataReader.ReadWordFixedBank(bus,
                     SamusSourceDefinitions.MovementBank.Value | (pointer + i * 2))));
             }
             palettes.Add(BeamPaletteFile.Key(selection), colors);

@@ -36,7 +36,7 @@ public static class BabyMetroidCutsceneColorExtractor
             for (int color = 0; color < count; color++)
             {
                 int address = source + color * MotherBrainSourceDefinitions.ColorWordBytes;
-                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+                int native = RomDataReader.ReadWordFixedBank(bus, address);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Cutscene Baby color ${address:X6} has an unrepresentable high bit.");

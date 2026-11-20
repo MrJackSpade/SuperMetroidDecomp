@@ -103,24 +103,24 @@ public static class IntroCinematicArtworkFiles
 
         var hashes = new Dictionary<string, string>();
         WriteSheet(IntroCinematicArtworkFormat.BackgroundFileName,
-            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.BackgroundCharacters,
+            RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.BackgroundCharacters,
                 maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount),
             IntroCinematicArtworkFormat.BackgroundByteCount);
         WriteSheet(IntroCinematicArtworkFormat.IntroObjectFileName,
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.IntroObjectCharacters,
+            RomDataReader.ReadFixedBank(bus, IntroCinematicSourceDefinitions.IntroObjectCharacters,
                 IntroCinematicArtworkFormat.IntroObjectByteCount),
             IntroCinematicArtworkFormat.IntroObjectByteCount);
         WriteSheet(IntroCinematicArtworkFormat.CinematicObjectFileName,
-            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.ObjectCharacters,
+            RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.ObjectCharacters,
                 maximumOutputBytes: IntroCinematicArtworkFormat.CinematicObjectByteCount),
             IntroCinematicArtworkFormat.CinematicObjectByteCount);
         WritePage(IntroCinematicArtworkFormat.PortraitTilemapFileName,
-            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.SamusHeadTilemap,
+            RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.SamusHeadTilemap,
                 maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageByteCount));
         WritePage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
-            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.FirstNarrationTilemap,
+            RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.FirstNarrationTilemap,
                 maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageByteCount));
-        byte[] backgroundPages = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
+        byte[] backgroundPages = RomDataReader.Decompress(bus,
             IntroCinematicSourceDefinitions.BackgroundPageTilemaps,
             maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageCount *
                 IntroCinematicArtworkFormat.BackgroundPageByteCount);
@@ -236,7 +236,7 @@ public static class IntroCinematicArtworkFiles
             for (int index = 0; index < cells.Length; index++)
             {
                 int source = IntroCinematicSourceDefinitions.FinalTextLine + index * sizeof(ushort);
-                var word = new SnesBgTilemapWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(source));
+                var word = new SnesBgTilemapWord(bus.ReadCartridgeWord(source));
                 cells[index] = new RoomBackgroundTilemapCell
                 {
                     TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
@@ -268,7 +268,7 @@ public static class IntroCinematicArtworkFiles
                 int pointer = FrontendSourceDefinitions.IntroEyeFrameRecords +
                     frame * FrontendSourceDefinitions.IntroEyeFrameRecordStride;
                 int source = (int)SnesAddress.InBank(IntroCinematicSourceDefinitions.SpritemapBank, pointer);
-                int function = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
+                int function = bus.ReadCartridgeWord(source);
                 if (function != IntroCinematicSourceDefinitions.PortraitTilemapDrawFunction ||
                     bus.ReadCartridgeByte(source + 2) != IntroEyeTilemapFormat.Columns ||
                     bus.ReadCartridgeByte(source + 3) != IntroEyeTilemapFormat.Rows)
@@ -277,7 +277,7 @@ public static class IntroCinematicArtworkFiles
                 for (int cellIndex = 0; cellIndex < cells.Length; cellIndex++)
                 {
                     int wordSource = source + 4 + cellIndex * sizeof(ushort);
-                    var word = new SnesBgTilemapWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(wordSource));
+                    var word = new SnesBgTilemapWord(bus.ReadCartridgeWord(wordSource));
                     cells[cellIndex] = new RoomBackgroundTilemapCell
                     {
                         TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,

@@ -68,7 +68,7 @@ internal static class ChargeFlarePlacementVerification
             var native = new OamBuffer();
             int xTable = running ? SamusSourceDefinitions.ChargeFlareRunningXOffsets.Value : SamusSourceDefinitions.ChargeFlareDefaultXOffsets.Value;
             int yTable = running ? SamusSourceDefinitions.ChargeFlareRunningYOffsets.Value : SamusSourceDefinitions.ChargeFlareDefaultYOffsets.Value;
-            short Word(int address) => unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWord(address));
+            short Word(int address) => unchecked((short)bus.ReadCartridgeWord(address));
             var world = new Position16<RoomPixels>(coordinate, coordinate);
             var point = transform is { } selectedTransform ? selectedTransform.Transform(world) : world;
             ushort x = unchecked((ushort)(point.X + Word(xTable + row * 2)));
@@ -107,7 +107,7 @@ internal static class ChargeFlarePlacementVerification
             // The pose's offset is signed: the cartridge's unsigned read of a negative offset is a deleted presentation
             // quirk (#1795), so the expected placement subtracts the signed offset.
             int yOffset = unchecked((sbyte)bus.ReadCartridgeByte(record + 4));
-            short Word(int address) => unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWord(address));
+            short Word(int address) => unchecked((short)bus.ReadCartridgeWord(address));
             ushort x = unchecked((ushort)(100 + Word(SamusSourceDefinitions.ChargeFlareDefaultXOffsets.Value + turnRow * 2)));
             ushort y = unchecked((ushort)(100 + Word(SamusSourceDefinitions.ChargeFlareDefaultYOffsets.Value + turnRow * 2) - yOffset));
             ushort selector = (ushort)(component == ChargeFlareComponent.MainFlare ? 0 : facingLeft ? (component == ChargeFlareComponent.SlowSparks ? 42 : 48) : (component == ChargeFlareComponent.SlowSparks ? 30 : 36));

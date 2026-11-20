@@ -22,6 +22,7 @@ internal static class BossAndIntroOverreadFormat
         WriteIndented = false,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
         RespectRequiredConstructorParameters = true,
     };
 }

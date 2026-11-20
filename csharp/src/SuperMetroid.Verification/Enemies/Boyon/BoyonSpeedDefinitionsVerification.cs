@@ -28,12 +28,12 @@ internal static class BoyonSpeedDefinitionsVerification
             for (int multiplier = 0; multiplier < 8; multiplier++)
             {
                 actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, (ushort)((height << 8) | multiplier));
-                int authoredHeight = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa286ef + height * 2));
+                int authoredHeight = rom.ReadCartridgeWord((0xa286ef + height * 2));
                 initialize(actor);
                 initialized++;
                 // The Boyon reads its multiplier and height from its spawn settings where it uses them (#2476).
                 BoyonSpawnSettings settings = actor.SpawnSettings<BoyonSpawnSettings>();
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa286df + multiplier * 2)), settings.SpeedMultiplier, "Boyon real initialized multiplier without bus");
+                AssertEqual(rom.ReadCartridgeWord((0xa286df + multiplier * 2)), settings.SpeedMultiplier, "Boyon real initialized multiplier without bus");
                 AssertEqual(authoredHeight, SignedSixteenSixteen.FromWholePixels(settings.JumpHeight).InTwoFiftySixths, "Boyon real initialized height without bus");
             }
         }

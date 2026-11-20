@@ -54,7 +54,7 @@ internal static class SamusDrawingDefinitionsVerification
         // checks the indirection used by live rendering, not only the pointer table itself.
         for (int pose = 0; pose < poseCount; pose++)
         {
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.AnimationDefinitionListPointers.Value +
+            ushort pointer = bus.ReadCartridgeWord((SamusSourceDefinitions.AnimationDefinitionListPointers.Value +
                     pose * sizeof(ushort)));
             AssertTrue(pointer >= 0x8000,
                 $"pose ${pose:X2} graphics selector remains in bank $92 ROM");

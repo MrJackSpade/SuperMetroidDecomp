@@ -44,8 +44,8 @@ internal static class EnemyBg2FrameFiles
             for (int component = 0; component < componentCount; component++)
             {
                 int record = root + 2 + component * 8;
-                int stream = CartridgeImportSource.Require(bus).ReadCartridgeWord((record + 4));
-                if (CartridgeImportSource.Require(bus).ReadCartridgeWord((((int)SnesAddress.InBank(bank, stream)))) !=
+                int stream = bus.ReadCartridgeWord((record + 4));
+                if (bus.ReadCartridgeWord((((int)SnesAddress.InBank(bank, stream)))) !=
                     EnemySourceDefinitions.Bg2StreamMarker)
                 {
                     if (allowMixedOam)
@@ -56,7 +56,7 @@ internal static class EnemyBg2FrameFiles
                 // Mixed body roots store OAM-style offsets even on BG2
                 // components. ProcessExtendedTilemap ignores both fields.
                 if (!allowMixedOam &&
-                    (CartridgeImportSource.Require(bus).ReadCartridgeWord(record) != 0 || CartridgeImportSource.Require(bus).ReadCartridgeWord((record + 2)) != 0))
+                    (bus.ReadCartridgeWord(record) != 0 || bus.ReadCartridgeWord((record + 2)) != 0))
                     throw new InvalidDataException(
                         $"{family} frame {frame.Frame} at {location} uses an unexpected BG2 component offset.");
                 int cursor = unchecked((ushort)(stream + 2));
@@ -65,13 +65,13 @@ internal static class EnemyBg2FrameFiles
                      command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)
                 {
                     int address = ((int)SnesAddress.InBank(bank, cursor));
-                    int destination = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+                    int destination = bus.ReadCartridgeWord(address);
                     if (destination == CartridgeFormatDefinitions.ListTerminator)
                     {
                         terminated = true;
                         break;
                     }
-                    int count = CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2));
+                    int count = bus.ReadCartridgeWord((address + 2));
                     int relative = destination - EnemySourceDefinitions.Bg2WorkingTilemap;
                     if (relative < 0 || (relative & 1) != 0 ||
                         count is < 1 or > EnemyBg2FrameLayout.TilemapWidth)
@@ -86,7 +86,7 @@ internal static class EnemyBg2FrameFiles
                             $"{family} BG2 stream ${bank:X2}:{stream:X4} crosses its tilemap row.");
                     var tiles = new RoomBackgroundTilemapCell[count];
                     for (int tile = 0; tile < count; tile++)
-                        tiles[tile] = BackgroundTileCells.Of(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4 + tile * 2)));
+                        tiles[tile] = BackgroundTileCells.Of(bus.ReadCartridgeWord((address + 4 + tile * 2)));
                     writes.Add(new EnemyBg2WriteDocument
                     {
                         X = x,

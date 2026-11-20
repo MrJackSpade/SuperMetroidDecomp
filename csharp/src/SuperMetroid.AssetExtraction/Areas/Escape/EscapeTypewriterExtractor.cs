@@ -47,8 +47,8 @@ public static class EscapeTypewriterExtractor
             EscapeTypewriterMessageId.Zebes => (int)EscapeSourceDefinitions.ZebesWarningText,
             _ => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
         };
-        if (CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor) != DelayCommand ||
-            CartridgeImportSource.Require(bus).ReadCartridgeWord((cursor + 2)) != EscapeTypewriterDefinitions.CharacterDelayFrames)
+        if (bus.ReadCartridgeWord(cursor) != DelayCommand ||
+            bus.ReadCartridgeWord((cursor + 2)) != EscapeTypewriterDefinitions.CharacterDelayFrames)
         {
             throw new InvalidDataException($"Escape typewriter program {id} has an unexpected delay header.");
         }
@@ -56,7 +56,7 @@ public static class EscapeTypewriterExtractor
         var lines = new List<EscapeTypewriterLineDocument>();
         for (int lineIndex = 0; lineIndex < 16; lineIndex++)
         {
-            var command = (EscapeTypewriterCommand)CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor);
+            var command = (EscapeTypewriterCommand)bus.ReadCartridgeWord(cursor);
             if (!Enum.IsDefined(command))
                 throw new InvalidDataException($"Escape typewriter program {id} expected a destination at ${cursor:X6}.");
             switch (command)
@@ -68,13 +68,13 @@ public static class EscapeTypewriterExtractor
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(EscapeTypewriterCommand)} {command}.");
             }
-            int destination = CartridgeImportSource.Require(bus).ReadCartridgeWord((cursor + 2));
+            int destination = bus.ReadCartridgeWord((cursor + 2));
             cursor += 4;
             var characters = new List<char>();
             while (true)
             {
                 // Either control word ends the line's characters.
-                if (Enum.IsDefined((EscapeTypewriterCommand)CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor))) break;
+                if (Enum.IsDefined((EscapeTypewriterCommand)bus.ReadCartridgeWord(cursor))) break;
                 char character = (char)bus.ReadCartridgeByte(cursor++);
                 if (character is not (' ' or '!' or >= 'A' and <= 'Z'))
                     throw new InvalidDataException(

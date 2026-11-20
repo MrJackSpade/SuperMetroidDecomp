@@ -99,7 +99,7 @@ internal static class FirefleaFxVerification
         AssertEqual(12, looks.Length, "Fireflea flash looks");
         for (int i = 0; i < looks.Length; i++)
         {
-            ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.FlashReferenceAddress + 2 * i));
+            ushort word = rom.ReadCartridgeWord((FirefleaFxDefinitions.FlashReferenceAddress + 2 * i));
             AssertEqual(LittleEndianBytes.HighByte(word), looks[i].Level, $"Original Fireflea flash {i}");
             AssertEqual((byte)0, LittleEndianBytes.LowByte(word), $"Original Fireflea flash {i} carries nothing");
         }
@@ -116,7 +116,7 @@ internal static class FirefleaFxVerification
     {
         AssertEqual(6, FirefleaFxDefinitions.DarknessLevels.Length, "Fireflea darkness steps");
         for (int step = 0; step < FirefleaFxDefinitions.DarknessLevels.Length; step++)
-            AssertEqual(LittleEndianBytes.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.DarknessReferenceAddress + step * 2))) & FadeLevelColour.FullLevel,
+            AssertEqual(LittleEndianBytes.HighByte(rom.ReadCartridgeWord((FirefleaFxDefinitions.DarknessReferenceAddress + step * 2))) & FadeLevelColour.FullLevel,
                 new FirefleaDarkness(step).Level, $"Original Fireflea darkness of step {step}");
         AssertEqual(new FirefleaDarkness(5), new FirefleaDarkness(5).Deeper, "a death past the fifth keeps the deepest darkness");
         AssertThrows<ArgumentOutOfRangeException>(() => new FirefleaDarkness(6), "Darkness upper bound");

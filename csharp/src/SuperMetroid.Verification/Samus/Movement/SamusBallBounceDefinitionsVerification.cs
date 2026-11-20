@@ -13,8 +13,8 @@ internal static class SamusBallBounceDefinitionsVerification
     /// <summary>Exercises signed landing speed, bounce phase, facing, and spring-ball branches while guarding physics ROM reads.</summary>
     internal static void VerifySamusBallBounceDefinitions(CartridgeImportAddressSpace rom)
     {
-        ushort whole = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusMovementDefinitionsVerticalMotionConstants.BallBounceSpeed);
-        ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusMovementDefinitionsVerticalMotionConstants.BallBounceSubspeed);
+        ushort whole = rom.ReadCartridgeWord(SamusMovementDefinitionsVerticalMotionConstants.BallBounceSpeed);
+        ushort fraction = rom.ReadCartridgeWord(SamusMovementDefinitionsVerticalMotionConstants.BallBounceSubspeed);
         AssertEqual(whole, SamusVerticalMotionDefinitions.BallBounceSpeed.Whole, "Native ball rebound whole definition");
         AssertEqual(fraction, SamusVerticalMotionDefinitions.BallBounceSpeed.Fraction, "Native ball rebound fraction definition");
         int cases = 0;

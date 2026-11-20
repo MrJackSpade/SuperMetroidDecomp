@@ -28,18 +28,18 @@ internal static class YardDirectionDefinitionsVerification
             YardDirectionDefinition definition =
                 YardDirections.ForDirection(SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction));
             int record = directionAddress + direction * 8;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.CrawlingAnimation),
+            AssertEqual(rom.ReadCartridgeWord(record), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.CrawlingAnimation),
                 $"Yard direction {direction} crawling list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.PositionOf(definition.BlockSide),
+            AssertEqual(rom.ReadCartridgeWord((record + 2)), SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.PositionOf(definition.BlockSide),
                 $"Yard direction {direction} block side");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingAnimation),
+            AssertEqual(rom.ReadCartridgeWord((record + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingAnimation),
                 $"Yard direction {direction} hiding list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), definition.AirborneFacingDirection == HorizontalDirection.Right ? (ushort)1 : (ushort)0,
+            AssertEqual(rom.ReadCartridgeWord((record + 6)), definition.AirborneFacingDirection == HorizontalDirection.Right ? (ushort)1 : (ushort)0,
                 $"Yard direction {direction} airborne facing");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((oppositeAddress + direction * 2)),
+            AssertEqual(rom.ReadCartridgeWord((oppositeAddress + direction * 2)),
                 SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.NumberOf(definition.OppositeDirection),
                 $"Yard direction {direction} opposite");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((movementAddress + direction * 2)),
+            AssertEqual(rom.ReadCartridgeWord((movementAddress + direction * 2)),
                 YardNativeWords.Crawls.Word(definition.Crawl),
                 $"Yard direction {direction} movement function");
         }
@@ -50,10 +50,10 @@ internal static class YardDirectionDefinitionsVerification
             int row = facing == HorizontalDirection.Right ? 1 : 0;
             YardAirborneAnimationDefinition definition =
                 YardDirections.ForAirborneFacing(facing);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + row * 4)),
+            AssertEqual(rom.ReadCartridgeWord((source + row * 4)),
                 NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.VisibleAnimation),
                 $"Yard airborne ${source:X6} facing {facing} visible list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + row * 4 + 2)),
+            AssertEqual(rom.ReadCartridgeWord((source + row * 4 + 2)),
                 NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingAnimation),
                 $"Yard airborne ${source:X6} facing {facing} hiding list");
         }

@@ -56,7 +56,7 @@ internal static class TitleColourFadesVerification
     /// </summary>
     internal static void VerifyTitleColourFades(CartridgeImportAddressSpace bus)
     {
-        var cartridge = CartridgeImportSource.Require(bus);
+        var cartridge = bus;
         ushort Title(int pointer) => RomDataReader.ReadWordFixedBank(cartridge, 0x8b0000 | pointer);
         ushort Effects(int pointer) => RomDataReader.ReadWordFixedBank(cartridge, 0x8d0000 | pointer);
 

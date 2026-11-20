@@ -46,7 +46,7 @@ internal static class XrayRevealVisualInstallationVerification
             stock.Apply(RoomCollisionType.ShootableBlock, RoomBlockBehaviorCodec.Decode(3)),
             "stock square shot-block reveal installs all four row-major blocks");
         InstalledXrayOverlays overlays = stock.Overlays;
-        ushort NativeWord(int address) => CartridgeImportSource.Require(nativeBus).ReadCartridgeWord(address);
+        ushort NativeWord(int address) => nativeBus.ReadCartridgeWord(address);
         // The tanks' draws follow the four that reveal the item in each block pair (#1538).
         for (int tank = 0; tank < XrayRevealVisualFiles.TankDrawOrder.Count; tank++)
         {

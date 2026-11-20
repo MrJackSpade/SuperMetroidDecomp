@@ -36,14 +36,14 @@ public static class RoomMetatileArtworkFiles
         string importData = ImportDataDirectory.Of(directory);
         Directory.CreateDirectory(importData);
         IReadOnlyDictionary<string, byte[]> files = RoomMetatileExtractor.Extract(bus);
-        RoomTilesetSourceMap tilesets = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
+        RoomTilesetSourceMap tilesets = RoomTilesetSources.Read(bus);
         var entries = new Dictionary<string, RoomMetatileFileEntry>();
         foreach ((string name, RoomBlockSource source) in ExpectedSources())
         {
             SnesAddress address = source.Set is { } set ? tilesets.Blocks[set]
                 : RoomTilesetSourceDefinitions.CreBlocks;
             byte[] json = files[name];
-            int nativeLength = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address).Length;
+            int nativeLength = RomDataReader.Decompress(bus, address).Length;
             RoomMetatileFormat.ValidateBlockCount(nativeLength);
             using (var output = new FileStream(Path.Combine(importData, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(json);

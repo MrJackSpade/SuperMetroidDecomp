@@ -31,7 +31,7 @@ internal static class RoomEnemyDefinitionImporterAccess
         internal static RoomEnemyDefinition LoadAt(ISnesAddressSpace bus, int headerPointer)
         {
             Ensure.NotNull(bus);
-            IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+            IImportCartridgeSource cartridge = bus;
             ushort Word(int offset) => RoomEnemyDefinitionImporter.ReadWord(cartridge, headerPointer, offset);
             byte Byte(int offset) => RoomEnemyDefinitionImporter.ReadByte(cartridge, headerPointer, offset);
             int bank = Byte(RoomEnemyDefinitionImporter.BankOffset);

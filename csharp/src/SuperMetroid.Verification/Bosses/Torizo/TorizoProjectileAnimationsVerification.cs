@@ -148,7 +148,7 @@ internal static class TorizoProjectileAnimationsVerification
     /// <summary>Every projectile animation matches the native lists it plays, and every native list is played by some animation.</summary>
     internal static void VerifyTorizoProjectileAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int steps = NativeEnemyProjectileProgramOracle.CompareByEntry(cartridge, ProjectileLists, ProjectileAnimationEntries,
             TorizoProjectileAnimations.Segments, TorizoProjectileAnimations.StartingAt,
             EnemyProjectileProgramFrameOperands.KeyOf, CueRules, named: NamedProjectileAnimationEntries);

@@ -27,9 +27,9 @@ internal static class RipperBehaviorVerification
                      new VerifyRipperBehaviorCase(EnemyRomTablePointersRipper.RipperPopulationRecord, EnemyDefinitionId.Ripper),
                  })
         {
-            AssertEqual(definition, EnemyDefinitionIdsConstants.FromHeaderPointer(CartridgeImportSource.Require(rom).ReadCartridgeWord(record)),
+            AssertEqual(definition, EnemyDefinitionIdsConstants.FromHeaderPointer(rom.ReadCartridgeWord(record)),
                 $"retail Ripper population ${record:X6} definition");
-            ushort extra = CartridgeImportSource.Require(rom).ReadCartridgeWord(record + 10);
+            ushort extra = rom.ReadCartridgeWord(record + 10);
             AssertTrue(!SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0, extra).CollidesByFrameHitboxes,
                 $"retail Ripper population ${record:X6} uses ordinary OAM");
         }

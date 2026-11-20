@@ -22,7 +22,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
     {
         CeresDoorSourceArtwork door = stock.Areas.CeresDoor
             ?? throw new InvalidDataException("Installed Ceres-door visuals are missing.");
-        byte[] nativeTiles = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] nativeTiles = RomDataReader.ReadFixedBank(bus,
             CeresSourceDefinitions.Door.Characters, CeresDoorVisualFormat.CharacterBytes);
         CeresDoorVisuals visual = door.Visuals;
         AssertTrue(door.Characters.Span.SequenceEqual(nativeTiles),
@@ -54,7 +54,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
         const int stripCells = 4, stripFirstCell = 12 * 128 + 14;
         for (int frame = 0; frame < strips.Length; frame++)
         {
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            ushort pointer = RomDataReader.ReadWordFixedBank(bus,
                 EnemyRomTablePointers.Ceres.DoorTransferPointers + frame * sizeof(ushort));
             int record = 0xa60000 | pointer;
             AssertEqual((byte)0x80, CpuBusRegionRead.Read(bus, record),
@@ -64,16 +64,16 @@ internal static class EnemyTileArtworkCeresDoorVerification
                     CeresSourceDefinitionsDoorConstants.PlatformFrames + CeresSourceDefinitionsDoorConstants.PlatformFrameBytes,
                 source, $"Ceres-door Mode-7 transfer {frame} source");
             AssertEqual(stripCells,
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 4),
+                RomDataReader.ReadWordFixedBank(bus, record + 4),
                 $"Ceres-door Mode-7 transfer {frame} length");
             AssertEqual(stripFirstCell,
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6),
+                RomDataReader.ReadWordFixedBank(bus, record + 6),
                 $"Ceres-door Mode-7 transfer {frame} destination");
             AssertEqual((byte)0, CpuBusRegionRead.Read(bus, record + 8),
                 $"Ceres-door Mode-7 transfer {frame} increment mode");
             AssertEqual((byte)0, CpuBusRegionRead.Read(bus, record + 9),
                 $"Ceres-door Mode-7 transfer {frame} terminator");
-            byte[] nativeFrame = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source, stripCells);
+            byte[] nativeFrame = RomDataReader.ReadFixedBank(bus, source, stripCells);
             IReadOnlyDictionary<int, int> pictured = CeresFloorDrawings.Cells(strips[frame]);
             AssertTrue(nativeFrame.Select((tile, cell) => pictured[stripFirstCell + cell] == tile).All(same => same),
                 $"the import pictures Ceres-door floor strip {frame} from the native transfer");
@@ -83,7 +83,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
     /// <summary>The colour the cartridge's colour word at <paramref name="address"/> holds: five bits each of red, green and blue.</summary>
     private static RgbColor Native(ISnesAddressSpace bus, int address)
     {
-        int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+        int word = RomDataReader.ReadWordFixedBank(bus, address);
         return new FadeLevelColour(word & 31, word >> 5 & 31, word >> 10 & 31).ToColour();
     }
 }

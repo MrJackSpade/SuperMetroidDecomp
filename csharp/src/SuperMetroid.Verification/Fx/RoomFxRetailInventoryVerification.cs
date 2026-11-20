@@ -619,15 +619,15 @@ internal static class RoomFxRetailInventoryVerification
         string name)
     {
         int header = RoomFxNativeSources.AnimatedTilesBank | objectPointer;
-        AssertEqual(expectedInstruction, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), header),
+        AssertEqual(expectedInstruction, RomDataReader.ReadWordFixedBank(bus, header),
             $"retail {name} animated-tile instruction list");
-        AssertEqual(expectedSize, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), header + 2),
+        AssertEqual(expectedSize, RomDataReader.ReadWordFixedBank(bus, header + 2),
             $"retail {name} animated-tile frame size");
-        AssertEqual(expectedDestination, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), header + 4),
+        AssertEqual(expectedDestination, RomDataReader.ReadWordFixedBank(bus, header + 4),
             $"retail {name} animated-tile VRAM destination");
         AssertEqual(expectedFirstSource,
             RomDataReader.ReadWordFixedBank(
-                CartridgeImportSource.Require(bus),
+                bus,
                 RoomFxNativeSources.AnimatedTilesBank | expectedInstruction + 2),
             $"retail {name} animated-tile first source frame");
     }
@@ -637,7 +637,7 @@ internal static class RoomFxRetailInventoryVerification
     {
         if ((uint)fieldOffset >= RoomFxToolingRomData.Record.ByteCount)
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
-        return CartridgeImportSource.Require(bus).ReadCartridgeByte(
+        return bus.ReadCartridgeByte(
             RoomFxRomDataBanksTooling.RoomDefinitions | (record + fieldOffset));
     }
 
@@ -646,7 +646,7 @@ internal static class RoomFxRetailInventoryVerification
     {
         if ((uint)fieldOffset > RoomFxToolingRomData.Record.ByteCount - sizeof(ushort))
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
-        return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+        return RomDataReader.ReadWordFixedBank(bus,
             RoomFxRomDataBanksTooling.RoomDefinitions | (record + fieldOffset));
     }
 
@@ -858,13 +858,13 @@ internal static class RoomFxRetailInventoryVerification
         int table = RoomFxNativeSources.EarthquakeDisplacementTable +
             NativeEarthquakeTypes.TypeOf(RoomEarthquakeDefinitions.RisingLiquidShake) *
             RoomFxNativeSources.EarthquakeDisplacementRecordBytes;
-        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table)),
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table)),
             firstActiveShake.Foreground.X, "room $02/$28 first shake BG1 X");
-        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 2)),
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table + 2)),
             firstActiveShake.Foreground.Y, "room $02/$28 first shake BG1 Y");
-        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 4)),
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table + 4)),
             firstActiveShake.Background.X, "room $02/$28 first shake BG2 X");
-        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 6)),
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table + 6)),
             firstActiveShake.Background.Y, "room $02/$28 first shake BG2 Y");
 
         StepAndVerifySound(2);

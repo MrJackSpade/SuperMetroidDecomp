@@ -24,7 +24,7 @@ internal static class ProjectileDamageVerification
     /// <summary>Exercises beam, missile, bomb, hyper, and combo initializers with cartridge damage reads forbidden.</summary>
     internal static void VerifyProjectileDamage(CartridgeImportAddressSpace rom)
     {
-        ushort Word(int address) => CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address);
+        ushort Word(int address) => rom.ReadCartridgeWordFixedBank(address);
         Suite(nameof(VerifyComboMechanicsDefinitions), () => VerifyComboMechanicsDefinitions(rom, Word));
         int[] headers = Enumerable.Range(0, 24).Select(i => 0x938431 + i * 22).Concat(LaterProjectileHeaders).ToArray();
         var bus = NewProjectileDamageReadGuard(rom);

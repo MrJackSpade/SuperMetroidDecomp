@@ -40,15 +40,15 @@ internal static class EscapeTimerSheetComposer
     /// <summary>Reads one timer spritemap's parts, with characters counted from the timer artwork's first.</summary>
     private static System.Collections.Immutable.ImmutableArray<SpriteFramePart> ReadSpritemap(ISnesAddressSpace bus, int address)
     {
-        int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+        int count = RomDataReader.ReadWordFixedBank(bus, address);
         if (count > MaximumParts)
             throw new InvalidDataException($"Escape timer spritemap ${address:X6} exceeds OAM capacity.");
         var parts = new SpriteFramePart[count];
         for (int index = 0; index < count; index++)
         {
             int source = address + sizeof(ushort) + index * 5;
-            var x = new SnesSpritemapXWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source));
-            var attributes = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source + 3));
+            var x = new SnesSpritemapXWord(RomDataReader.ReadWordFixedBank(bus, source));
+            var attributes = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(bus, source + 3));
             Extent16<ScreenPixels> size = x.IsLarge ? new(16, 16) : new(8, 8);
             parts[index] = new SpriteFramePart(
                 new Offset16<ScreenPixels>(checked((short)x.SignedOffset), unchecked((sbyte)bus.ReadCartridgeByte(source + 2))),

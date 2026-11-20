@@ -70,7 +70,7 @@ internal static class CrystalFlashVisualsVerification
         return new CrystalFlashFrameScenes(elapsed, packet, new LayeredScene(beamsDark, packet.Layers, packet.Brightness),
             new LayeredScene(beamsLight, packet.Layers, packet.Brightness), withoutWindow, centerX, centerY);
 
-        ushort Word(int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+        ushort Word(int address) => bus.ReadCartridgeWord(address);
     }
 
     /// <summary>

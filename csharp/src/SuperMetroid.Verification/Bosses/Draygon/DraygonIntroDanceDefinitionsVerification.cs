@@ -51,7 +51,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         {
             int slotIndex = NativeDancerSlot(dancer);
             int address = source + (slotIndex - 28) * 2;
-            short native = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
+            short native = unchecked((short)rom.ReadCartridgeWord(address));
             AssertEqual(native % DraygonIntroDanceDefinitionsConstants.NativeMovementRecordBytes, 0,
                 $"Draygon intro Evir slot {slotIndex} latency is whole records");
             AssertEqual(-native / DraygonIntroDanceDefinitionsConstants.NativeMovementRecordBytes,
@@ -137,7 +137,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
             for (int slotIndex = 31; slotIndex >= 28; slotIndex--)
             {
                 int actor = slotIndex - 28;
-                short latency = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(latencySource + actor * 2));
+                short latency = unchecked((short)rom.ReadCartridgeWord(latencySource + actor * 2));
                 int streamOffset = expectedStreamOffset + latency;
                 if (streamOffset < 0 || !expectedActive[actor])
                     continue;

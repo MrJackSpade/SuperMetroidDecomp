@@ -743,7 +743,7 @@ internal static class EnemyTrigonometryVerification
         short Reference(int index)
         {
             int address = EnemyMathReferenceData.SignedNegativeCosine + index * 2;
-            return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
+            return unchecked((short)rom.ReadCartridgeWord(address));
         }
         // The cartridge's 320 words are the negative cosine, the sine a quarter turn back, for the first quarter turn
         // of angles, then the sine for every angle: each word is the sine a quarter turn behind its place.

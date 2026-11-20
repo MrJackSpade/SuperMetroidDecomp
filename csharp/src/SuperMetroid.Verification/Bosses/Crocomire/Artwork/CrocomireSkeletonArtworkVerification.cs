@@ -126,5 +126,5 @@ internal static class CrocomireSkeletonArtworkVerification
 
     /// <summary>Reads a native destination or source-table word for the independent upload oracle.</summary>
     private static ushort ReadNativeCrocomireSkeletonWord(ISnesAddressSpace rom, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
+        RomDataReader.ReadWordFixedBank(rom, address);
 }

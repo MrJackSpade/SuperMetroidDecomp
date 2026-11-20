@@ -598,7 +598,7 @@ internal static class MapPresentationVerification
     /// <summary>Checks that the year card's first letter is the first spritemap its native text list names.</summary>
     private static void VerifyTitleSpriteSources(ISnesAddressSpace bus)
     {
-        ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+        ushort yearPointer = RomDataReader.ReadWordFixedBank(bus,
             TitleSourceDefinitions.TextLists[TitleSequencePhase.YearText] + 6);
         AssertEqual(yearPointer, SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus).Cards[new(TitleSequencePhase.YearText, 1)],
             "the year's first letter is the year card's first listed spritemap");

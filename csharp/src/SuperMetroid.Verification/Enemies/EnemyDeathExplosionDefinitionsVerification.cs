@@ -22,7 +22,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
 
         for (ushort animation = 0; animation < 5; animation++)
         {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86efd5 + animation * 2));
+            ushort expected = rom.ReadCartridgeWord((0x86efd5 + animation * 2));
             EnemyDeathExplosion explosion = EnemyDeathExplosionWords.Selectors.Decode(animation, "death explosion");
             AssertEqual(expected,
                 EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosions.Animation(explosion)),

@@ -46,14 +46,14 @@ internal static class FullBodyPalettePointerListsVerification
             {
                 ushort suitOffset = (ushort)(suit * 2);
                 ushort expectedList = (ushort)(family.FirstList + suit * family.Phases * 2);
-                AssertEqual(expectedList, CartridgeImportSource.Require(rom).ReadCartridgeWord((family.Top + suitOffset)),
+                AssertEqual(expectedList, rom.ReadCartridgeWord((family.Top + suitOffset)),
                     $"{family.Name} top-level list for suit {suit}");
                 for (int phase = 0; phase < family.Phases; phase++)
                 {
                     int shade = family.PingPong ? Math.Min(phase, 6 - phase) : phase;
                     ushort expectedPalette = (ushort)(family.FirstPalette + suit * 0x200 + shade * 0x20);
                     AssertEqual(expectedPalette,
-                        CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusPaletteDefinitionsBanksConstants.Movement | (expectedList + phase * 2))),
+                        rom.ReadCartridgeWord((SamusPaletteDefinitionsBanksConstants.Movement | (expectedList + phase * 2))),
                         $"{family.Name} nested pointer for suit {suit}, phase {phase}");
                 }
             }
@@ -141,7 +141,7 @@ internal static class FullBodyPalettePointerListsVerification
     {
         for (int color = 0; color < SamusColourSets.ColoursPerSet; color++)
             AssertEqual((ushort)(RomDataReader.ReadWordFixedBank(
-                    CartridgeImportSource.Require(rom),
+                    rom,
                     SamusSourceDefinitions.PaletteBank.Value | (pointer + color * sizeof(ushort))) & 0x7fff),
                 actual.ShownSuit(InstalledFixtures.SamusShadeSources)[color],
                 $"{context} CGRAM color {color} matches ROM");

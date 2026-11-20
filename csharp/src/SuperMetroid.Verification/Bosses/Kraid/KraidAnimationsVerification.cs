@@ -35,7 +35,7 @@ internal static class KraidAnimationsVerification
     /// </summary>
     internal static void VerifyKraidPartAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<KraidPartSegment>().Length, PartEntries.Length, "every typed Kraid part program has a native entry");
         AssertTrue(PartEntriesAscend, "native Kraid part entries ascend");
 
@@ -408,7 +408,7 @@ internal static class KraidAnimationsVerification
     /// </summary>
     internal static void VerifyKraidRockAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<KraidRockSegment>().Length, RockEntries.Length, "every typed rock program has a native entry");
         VerifyRockProducers();
         foreach ((KraidRockSegment program, ushort entry) in RockEntries)

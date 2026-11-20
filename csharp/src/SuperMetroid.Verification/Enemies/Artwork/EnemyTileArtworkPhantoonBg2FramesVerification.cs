@@ -48,17 +48,17 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
             int componentCount = rom.ReadCartridgeByte(root);
             for (int component = 0; component < componentCount; component++)
             {
-                ushort stream = CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 2 + component * 8 + 4));
+                ushort stream = rom.ReadCartridgeWord((root + 2 + component * 8 + 4));
                 int cursor = ((int)new SnesAddress(PhantoonBg2FrameDefinitionsConstants.Bank, unchecked((ushort)(stream + 2))));
                 for (int command = 0; command < 128; command++)
                 {
-                    ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor);
+                    ushort destination = rom.ReadCartridgeWord(cursor);
                     if (destination == 0xffff)
                         break;
-                    int count = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2));
+                    int count = rom.ReadCartridgeWord((cursor + 2));
                     var tiles = new ushort[count];
                     for (int tile = 0; tile < count; tile++)
-                        tiles[tile] = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 4 + tile * 2));
+                        tiles[tile] = rom.ReadCartridgeWord((cursor + 4 + tile * 2));
                     native.Add(new EnemyTileArtworkDraygonBg2FramesNative(destination, tiles));
                     cursor += 4 + count * 2;
                 }
@@ -136,15 +136,15 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                 // invulnerable body's point is its compatibility rule. Each dropped native component is that point.
                 for (int index = 0; index < rom.ReadCartridgeByte(root); index++)
                 {
-                    ushort pointPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(root + 2 + index * 8 + 6);
+                    ushort pointPointer = rom.ReadCartridgeWord(root + 2 + index * 8 + 6);
                     checkedLists.Add(pointPointer);
                     int point = ((int)new SnesAddress(PhantoonBg2FrameDefinitionsConstants.Bank, pointPointer));
-                    AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWord(point), $"Phantoon {frame.Name} dropped component holds one point");
+                    AssertEqual((ushort)1, rom.ReadCartridgeWord(point), $"Phantoon {frame.Name} dropped component holds one point");
                     for (int bound = 0; bound < 4; bound++)
-                        AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord(point + 2 + bound * 2), $"Phantoon {frame.Name} dropped point is zero-sized");
-                    AssertEqual((EnemyReaction?)EnemyReaction.Ignore, EnemyReactionAccess.Of(0xa7, CartridgeImportSource.Require(rom).ReadCartridgeWord(point + 10), shot: false),
+                        AssertEqual((ushort)0, rom.ReadCartridgeWord(point + 2 + bound * 2), $"Phantoon {frame.Name} dropped point is zero-sized");
+                    AssertEqual((EnemyReaction?)EnemyReaction.Ignore, EnemyReactionAccess.Of(0xa7, rom.ReadCartridgeWord(point + 10), shot: false),
                         $"Phantoon {frame.Name} dropped point's touch");
-                    AssertEqual((EnemyReaction?)EnemyReaction.Ignore, EnemyReactionAccess.Of(0xa7, CartridgeImportSource.Require(rom).ReadCartridgeWord(point + 12), shot: true),
+                    AssertEqual((EnemyReaction?)EnemyReaction.Ignore, EnemyReactionAccess.Of(0xa7, rom.ReadCartridgeWord(point + 12), shot: true),
                         $"Phantoon {frame.Name} dropped point's shot");
                 }
                 continue;
@@ -155,33 +155,33 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
             {
                 int record = root + 2 + index * 8;
                 EnemyCollisionComponent component = components[index];
-                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(record)), component.Offset.X,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord(record)), component.Offset.X,
                     $"Phantoon {frame.Name} component X");
-                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2))), component.Offset.Y,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), component.Offset.Y,
                     $"Phantoon {frame.Name} component Y");
                 // The ROM names the component's hitbox list by address; every compiled component must hold exactly
                 // the rectangles and reactions of the list the ROM names.
-                ushort listPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6));
+                ushort listPointer = rom.ReadCartridgeWord((record + 6));
                 checkedLists.Add(listPointer);
                 int listAddress = ((int)new SnesAddress(PhantoonBg2FrameDefinitionsConstants.Bank, listPointer));
                 IReadOnlyList<EnemyCollisionHitbox> hitboxes = component.Hitboxes;
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress), checked((ushort)hitboxes.Count),
+                AssertEqual(rom.ReadCartridgeWord(listAddress), checked((ushort)hitboxes.Count),
                     $"Phantoon {frame.Name} component {index} rectangle count");
                 for (int hitboxIndex = 0; hitboxIndex < hitboxes.Count; hitboxIndex++)
                 {
                     int address = listAddress + 2 + hitboxIndex * 12;
                     EnemyCollisionHitbox hitbox = hitboxes[hitboxIndex];
-                    AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address)), hitbox.Left,
+                    AssertEqual(unchecked((short)rom.ReadCartridgeWord(address)), hitbox.Left,
                         "Phantoon compiled left bound");
-                    AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), hitbox.Top,
+                    AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 2))), hitbox.Top,
                         "Phantoon compiled top bound");
-                    AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))), hitbox.Right,
+                    AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 4))), hitbox.Right,
                         "Phantoon compiled right bound");
-                    AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6))), hitbox.Bottom,
+                    AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 6))), hitbox.Bottom,
                         "Phantoon compiled bottom bound");
-                    AssertEqual(EnemyReactionAccess.Of(0xa7, CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 8)), shot: false),
+                    AssertEqual(EnemyReactionAccess.Of(0xa7, rom.ReadCartridgeWord((address + 8)), shot: false),
                         (EnemyReaction?)hitbox.Touch, "Phantoon compiled touch reaction");
-                    AssertEqual(EnemyReactionAccess.Of(0xa7, CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 10)), shot: true),
+                    AssertEqual(EnemyReactionAccess.Of(0xa7, rom.ReadCartridgeWord((address + 10)), shot: true),
                         (EnemyReaction?)hitbox.Shot, "Phantoon compiled shot reaction");
                 }
             }

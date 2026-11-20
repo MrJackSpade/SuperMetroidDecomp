@@ -57,11 +57,11 @@ internal static class EndingLogoVerification
                     "a crossfade step covers the logo's background and sprite colours");
                 for (int p = 0; p < 2; p++)
                 {
-                    int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                    int pointer = RomDataReader.ReadWordFixedBank(bus,
                         EndingPaletteSources.NativeTableAddress +
                         shownStep.Step * 4 + p * 2);
                     for (int i = 0; i < 16; i++)
-                        AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8c0000 | (pointer - 30 + i * 2)),
+                        AssertEqual(RomDataReader.ReadWordFixedBank(bus, 0x8c0000 | (pointer - 30 + i * 2)),
                             step.Colours[p * 16 + i].ToWord(), "native logo crossfade palette table entry");
                 }
             }
@@ -133,20 +133,20 @@ internal static class EndingLogoVerification
             EndingLogoActorDefinition actual = EndingLogoDefinitions.Actors[index];
             int spawn = 0x8be554 + index * 6;
             AssertEqual((byte)0xa0, bus.ReadCartridgeByte(spawn), "native LDY actor definition" );
-            ushort nativePointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((spawn + 1));
+            ushort nativePointer = bus.ReadCartridgeWord((spawn + 1));
             int address = EndingLogoDefinitions.NativeDefinitionBank | nativePointer;
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), index < CinematicActorNativeMotions.LogoHalves.Count ? CinematicActorNativeMotions.LogoHalves[index] : CinematicActorNativeMotions.NoMotion,
+            AssertEqual(bus.ReadCartridgeWord((address + 2)), index < CinematicActorNativeMotions.LogoHalves.Count ? CinematicActorNativeMotions.LogoHalves[index] : CinematicActorNativeMotions.NoMotion,
                 $"logo actor {index} routine: the S halves move into place, the circles hold still");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
+            AssertEqual(bus.ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
                 $"logo actor {index} initial instruction list");
-            int initialize = 0x8b0000 | CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+            int initialize = 0x8b0000 | bus.ReadCartridgeWord(address);
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize), "native LDA X origin");
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize + 6), "native LDA Y origin");
             // The logo scene sets both camera coordinates to 256, so each native origin lies 256 pixels right of and below
             // its place on the screen.
             Offset16<ScreenPixels> origin = actual.Origin;
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 1)) - 256, (int)origin.X, "native actor X origin, less the logo's camera");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 7)) - 256, (int)origin.Y, "native actor Y origin, less the logo's camera");
+            AssertEqual(bus.ReadCartridgeWord((initialize + 1)) - 256, (int)origin.X, "native actor X origin, less the logo's camera");
+            AssertEqual(bus.ReadCartridgeWord((initialize + 7)) - 256, (int)origin.Y, "native actor Y origin, less the logo's camera");
         }
         Suite(nameof(VerifyEndingLogoPaletteSources), () => VerifyEndingLogoPaletteSources(bus));
         AssertThrows<ArgumentOutOfRangeException>(

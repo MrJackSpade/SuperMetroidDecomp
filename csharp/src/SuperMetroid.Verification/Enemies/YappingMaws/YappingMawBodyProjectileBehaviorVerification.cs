@@ -15,7 +15,7 @@ internal static class YappingMawBodyProjectileBehaviorVerification
     /// <summary>Each facing's initializer starts all four body links on that facing's program, matching the native list.</summary>
     internal static void VerifyYappingMawBodyProjectileBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, YappingMawBodyProjectileNativeListAddresses.Extent, "Yapping Maw body");
         foreach ((ushort facing, YappingMawBodyProjectileSegment program) in new VerifyYappingMawBodyProjectileBehaviorCase[]
                  { new VerifyYappingMawBodyProjectileBehaviorCase(0, YappingMawBodyProjectileSegment.FacingDown), new VerifyYappingMawBodyProjectileBehaviorCase(1, YappingMawBodyProjectileSegment.FacingUp) })

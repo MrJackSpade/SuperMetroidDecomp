@@ -41,7 +41,7 @@ internal static class SamusVisorColorsVerification
         for (int index = 0; index < SamusVisorColorFormat.ColorCount; index++)
         {
             int address = SamusSourceDefinitions.VisorColors.Value + index * sizeof(ushort);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort native = rom.ReadCartridgeWord(address);
             AssertEqual(native, catalog.Resolve(index), $"native visor color {index}");
         }
 
@@ -63,7 +63,7 @@ internal static class SamusVisorColorsVerification
         for (int index = 0; index < colors.Length; index++)
         {
             int address = SamusSourceDefinitions.VisorColors.Value + index * sizeof(ushort);
-            ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort word = rom.ReadCartridgeWord(address);
             colors[index] = new PaletteRgb5
             {
                 Red = word & 31,
@@ -100,7 +100,7 @@ internal static class SamusVisorColorsVerification
             bool actualWrite = installed.Cycle.UpdatesLeft == SamusShadeDefinitionsVisorConstants.FrameDelay;
             // The room's cycle is stored after the widening glow's shades.
             if (expectedWrite)
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value +
+                AssertEqual(rom.ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value +
                         (SamusShadeDefinitions.Visor.XrayWideningShades + native.Cycle.Showing.Step) * sizeof(ushort)), installedColours.ShownVisor(installedSources),
                     $"room visor frame {frame} matches native color word");
             AssertEqual(expectedWrite, actualWrite, $"room visor frame {frame} action");
@@ -140,7 +140,7 @@ internal static class SamusVisorColorsVerification
                 int sourceShade = shown.Effect == SamusShades.VisorCycle[0].Effect
                     ? SamusShadeDefinitions.Visor.XrayWideningShades + shown.Step
                     : shown.Step;
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value + sourceShade * sizeof(ushort)), installedColours.ShownVisor(installedSources),
+                AssertEqual(rom.ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value + sourceShade * sizeof(ushort)), installedColours.ShownVisor(installedSources),
                     $"X-ray visor call {call} matches native color word");
             }
             AssertEqual(expected, actual, $"X-ray visor call {call} write");

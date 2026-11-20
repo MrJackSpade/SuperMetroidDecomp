@@ -176,7 +176,7 @@ internal static class QuicksandVerification
             if (instruction)
             {
                 // The reaction's native list plays as its typed change does (#1554): it ends on its first update.
-                NativeTerrainChanges.Compare(CartridgeImportSource.Require(rom), TerrainChange.MadeAtSpawn, native, NativeTerrainChanges.NoSteps,
+                NativeTerrainChanges.Compare(rom, TerrainChange.MadeAtSpawn, native, NativeTerrainChanges.NoSteps,
                     $"quicksand header {(int)header:X4}", out bool began);
                 AssertTrue(!began, $"quicksand header {(int)header:X4} opens nothing");
             }

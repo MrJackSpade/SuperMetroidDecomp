@@ -62,7 +62,7 @@ internal static class EscapeDachoraAnimationsVerification
     /// </summary>
     internal static void VerifyEscapeDachoraAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var branches = new List<(ushort Target, AnimationContinuation<EscapeDachoraSegment> Then, string At)>();
         int beats = NativeEnemyAnimationOracle.CompareAll(cartridge, Bank, Entries,
             EscapeDachoraAnimations.Segments, EscapeDachoraAnimationsConstants.StartingAt, EscapeDachoraFrameToolingDefinitions.Spritemap,

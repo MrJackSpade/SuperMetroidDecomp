@@ -213,7 +213,7 @@ internal static class RoomObjectFrameImageFiles
     private static ushort ReadWord(ISnesAddressSpace bus, int pointer) =>
         pointer >= ushort.MaxValue
             ? throw new InvalidDataException("A room-object draw-list word cannot start at the bank's last byte.")
-            : CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, pointer));
+            : bus.ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, pointer));
 
     /// <summary>The installed document: its format and every frame's picture.</summary>
     private sealed record FrameDocument(int Version, FrameEntry[] Frames);

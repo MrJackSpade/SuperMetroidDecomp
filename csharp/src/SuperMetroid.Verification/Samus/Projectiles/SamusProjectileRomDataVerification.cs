@@ -159,5 +159,5 @@ internal static class SamusProjectileRomDataVerification
 
     /// <summary>Reads a projectile table word from the retail cartridge as the audit's address oracle.</summary>
     internal static ushort ReadProjectileWord(CartridgeImportAddressSpace bus, int address) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+        bus.ReadCartridgeWord(address);
 }

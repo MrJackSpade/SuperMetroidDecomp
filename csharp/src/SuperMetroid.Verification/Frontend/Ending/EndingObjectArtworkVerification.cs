@@ -48,7 +48,7 @@ internal static class EndingObjectArtworkVerification
             int load = 0x8bd5af + 17 * index;
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(load), "native fragment bank LDA");
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(load + 5), "native fragment address LDA");
-            int source = (int)new SnesAddress(bus.ReadCartridgeByte(load + 2), CartridgeImportSource.Require(bus).ReadCartridgeWord(load + 6));
+            int source = (int)new SnesAddress(bus.ReadCartridgeByte(load + 2), bus.ReadCartridgeWord(load + 6));
             AssertEqual(source, EndingArtworkSources.ObjectFragment((EndingExplosionPicture)index), "native fragment compressed source");
             AssertEqual(names[index], EndingObjectArtworkFormat.FragmentFileName(index), "published fragment filename");
         }
@@ -68,9 +68,9 @@ internal static class EndingObjectArtworkVerification
         for (int index = 0; index < catalog.Count; index++)
         {
             int operand = 0x8becef + index * 8;
-            ushort map = CartridgeImportSource.Require(bus).ReadCartridgeWord(operand);
+            ushort map = bus.ReadCartridgeWord(operand);
             int header = 0x8c0000 | map;
-            int count = CartridgeImportSource.Require(bus).ReadCartridgeWord(header);
+            int count = bus.ReadCartridgeWord(header);
             AssertEqual(map, CinematicSpritemapSources.Of(catalog[index].Pose), "cloud native pointer operand");
             AssertEqual(count, catalog[index].StockPartCount, "cloud native OAM count");
             AssertEqual(names[index], catalog[index].Name, "cloud published asset key");

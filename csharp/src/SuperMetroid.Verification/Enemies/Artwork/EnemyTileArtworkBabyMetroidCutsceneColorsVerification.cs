@@ -31,7 +31,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         BabyMetroidCutsceneColorCatalog native = stock.Bosses.BabyMetroidCutsceneColors ??
             throw new InvalidDataException("Installed enemy art has no cutscene Baby colors.");
         for (int color = 0; color < BabyMetroidCutsceneColorFormat.InitialColorCount; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+            AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     MotherBrainSourceDefinitions.BabyMetroid.InitialColors + color * 2),
                 native.InitialColor(color),
                 $"installed cutscene Baby initial color {color}");
@@ -39,11 +39,11 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         {
             int source = MotherBrainSourceDefinitions.BabyMetroid.FadeColors(index);
             AssertEqual(unchecked((ushort)source),
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                RomDataReader.ReadWordFixedBank(rom,
                     FadePointerTable + index * 2),
                 $"native cutscene Baby fade selector {index}");
             for (int color = 0; color < BabyMetroidCutsceneColorFormat.FadeColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source + color * 2),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom, source + color * 2),
                     native.FadeColor(index, color),
                     $"installed cutscene Baby fade {index} color {color}");
         }

@@ -47,26 +47,26 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             int root = ((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, frame.Pointer));
             AssertEqual((byte)1, rom.ReadCartridgeByte(root),
                 $"Draygon {frame.Name} has one BG2 component");
-            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 2)),
+            AssertEqual((ushort)0, rom.ReadCartridgeWord((root + 2)),
                 $"Draygon {frame.Name} BG2 component X offset");
-            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 4)),
+            AssertEqual((ushort)0, rom.ReadCartridgeWord((root + 4)),
                 $"Draygon {frame.Name} BG2 component Y offset");
-            ushort stream = CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 6));
+            ushort stream = rom.ReadCartridgeWord((root + 6));
             AssertEqual(EnemyBg2FrameLayoutConstants.StreamMarker,
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, stream)))),
+                rom.ReadCartridgeWord((((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, stream)))),
                 $"Draygon {frame.Name} selects a BG2 command stream");
             int cursor = ((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, unchecked((ushort)(stream + 2))));
             var native = new List<EnemyTileArtworkDraygonBg2FramesNative>();
             for (int command = 0;
                  command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)
             {
-                ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor);
+                ushort destination = rom.ReadCartridgeWord(cursor);
                 if (destination == 0xffff)
                     break;
-                int count = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2));
+                int count = rom.ReadCartridgeWord((cursor + 2));
                 var tiles = new ushort[count];
                 for (int tile = 0; tile < count; tile++)
-                    tiles[tile] = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 4 + tile * 2));
+                    tiles[tile] = rom.ReadCartridgeWord((cursor + 4 + tile * 2));
                 native.Add(new EnemyTileArtworkDraygonBg2FramesNative(destination, tiles));
                 cursor += 4 + count * 2;
             }
@@ -128,19 +128,19 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             for (int index = 0; index < rom.ReadCartridgeByte(root); index++)
             {
                 int record = root + 2 + index * 8;
-                ushort listPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6));
-                if (CartridgeImportSource.Require(rom).ReadCartridgeWord(((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, listPointer))) == 0)
+                ushort listPointer = rom.ReadCartridgeWord((record + 6));
+                if (rom.ReadCartridgeWord(((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, listPointer))) == 0)
                 {
                     emptyComponents++;
                     continue;
                 }
                 AssertTrue(compiled < components.Length, $"Draygon {frame.Name} compiles each native component with hitboxes");
                 EnemyCollisionComponent component = components[compiled++];
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), unchecked((ushort)component.Offset.X),
+                AssertEqual(rom.ReadCartridgeWord(record), unchecked((ushort)component.Offset.X),
                     $"Draygon {frame.Name} collision X offset");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)component.Offset.Y),
+                AssertEqual(rom.ReadCartridgeWord((record + 2)), unchecked((ushort)component.Offset.Y),
                     $"Draygon {frame.Name} collision Y offset");
-                ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6));
+                ushort pointer = rom.ReadCartridgeWord((record + 6));
                 if (nativeLists.TryGetValue(pointer, out IReadOnlyList<EnemyCollisionHitbox>? shared))
                     AssertTrue(ReferenceEquals(shared, component.Hitboxes),
                         $"Draygon {frame.Name} shares the list every frame naming hitbox list {pointer:X4} holds");
@@ -155,23 +155,23 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         foreach ((ushort pointer, IReadOnlyList<EnemyCollisionHitbox> hitboxes) in nativeLists)
         {
             int list = ((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, pointer));
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Count,
+            AssertEqual(rom.ReadCartridgeWord(list), hitboxes.Count,
                 $"Draygon hitbox list {pointer:X4} rectangle count");
             for (int index = 0; index < hitboxes.Count; index++)
             {
                 int record = list + 2 + index * 12;
                 EnemyCollisionHitbox box = hitboxes[index];
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), unchecked((ushort)box.Left),
+                AssertEqual(rom.ReadCartridgeWord(record), unchecked((ushort)box.Left),
                     $"Draygon list {pointer:X4} box {index} left");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)box.Top),
+                AssertEqual(rom.ReadCartridgeWord((record + 2)), unchecked((ushort)box.Top),
                     $"Draygon list {pointer:X4} box {index} top");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), unchecked((ushort)box.Right),
+                AssertEqual(rom.ReadCartridgeWord((record + 4)), unchecked((ushort)box.Right),
                     $"Draygon list {pointer:X4} box {index} right");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), unchecked((ushort)box.Bottom),
+                AssertEqual(rom.ReadCartridgeWord((record + 6)), unchecked((ushort)box.Bottom),
                     $"Draygon list {pointer:X4} box {index} bottom");
-                AssertEqual(EnemyReactionAccess.Of(0xa5, CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 8)), shot: false), (EnemyReaction?)box.Touch,
+                AssertEqual(EnemyReactionAccess.Of(0xa5, rom.ReadCartridgeWord((record + 8)), shot: false), (EnemyReaction?)box.Touch,
                     $"Draygon list {pointer:X4} box {index} touch reaction");
-                AssertEqual(EnemyReactionAccess.Of(0xa5, CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 10)), shot: true), (EnemyReaction?)box.Shot,
+                AssertEqual(EnemyReactionAccess.Of(0xa5, rom.ReadCartridgeWord((record + 10)), shot: true), (EnemyReaction?)box.Shot,
                     $"Draygon list {pointer:X4} box {index} shot reaction");
             }
         }

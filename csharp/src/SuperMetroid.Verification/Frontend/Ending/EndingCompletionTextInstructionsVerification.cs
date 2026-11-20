@@ -54,9 +54,9 @@ internal static class EndingCompletionTextInstructionsVerification
             for (int letter = 0; letter < line.Letters; letter++)
             {
                 int operand = 0x8b0000 | (line.Start + letter * 4 + 2);
-                int map = CartridgeImportSource.Require(bus).ReadCartridgeWord(operand);
+                int map = bus.ReadCartridgeWord(operand);
                 int address = 0x8c0000 | map;
-                int count = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+                int count = bus.ReadCartridgeWord(address);
                 AssertEqual(2 * (letter + 1), count, "original prefix sprite count");
                 AssertEqual(new EndingTextTyping(texts[text], letter + 1), EndingCompletionTextSpriteDefinitions.Typings[catalogIndex].Typed,
                     "completion step typed as far as its letter");
@@ -68,9 +68,9 @@ internal static class EndingCompletionTextInstructionsVerification
         for (int glyph = 0; glyph < 11; glyph++, catalogIndex++)
         {
             int operand = 0x8bec83 + glyph * 8;
-            ushort map = CartridgeImportSource.Require(bus).ReadCartridgeWord(operand);
+            ushort map = bus.ReadCartridgeWord(operand);
             int header = 0x8c0000 | map;
-            int parts = CartridgeImportSource.Require(bus).ReadCartridgeWord(header);
+            int parts = bus.ReadCartridgeWord(header);
             AssertEqual(map, catalog[catalogIndex].Spritemap, "completion glyph catalog pointer");
             AssertEqual(parts, catalog[catalogIndex].StockPartCount, "completion glyph catalog part count");
         }

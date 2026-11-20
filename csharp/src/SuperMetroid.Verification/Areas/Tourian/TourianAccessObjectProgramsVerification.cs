@@ -94,7 +94,7 @@ internal static class TourianAccessObjectProgramsVerification
             for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
             {
                 RoomObjectDrawLists.Run run = draw.Runs.Span[runIndex];
-                AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
+                AssertRunHeader(rom.ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"Tourian draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} run header at +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)}");
                 cursor += 2;
                 foreach (RoomCollisionType collision in run.Collisions.Span)
@@ -113,7 +113,7 @@ internal static class TourianAccessObjectProgramsVerification
 
             void AssertTourianDrawCollision(RoomCollisionType expected)
             {
-                AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
+                AssertEqual(RoomLevelWordCodec.Decode(rom.ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
                     expected, $"Tourian draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} collision at +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)} decodes from the ROM word");
 
                 cursor += 2;

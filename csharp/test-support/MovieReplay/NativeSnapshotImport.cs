@@ -118,7 +118,7 @@ internal static class NativeSnapshotImport
             // plays, one of the heat shimmer's for an effect that chooses one; its native timer counts the plays its repeated
             // phase has left (#2006).
             PaletteFxImportedPlace resumed = PaletteFxNativeProgramOracle.PlaceAt(
-                paletteFxLists ??= PaletteFxNativeProgramOracle.Lists(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus)),
+                paletteFxLists ??= PaletteFxNativeProgramOracle.Lists(bus),
                 PaletteFxNativeProgramOracle.AnimationsOf(effect), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
             // A Torizo's belly glow watches the room's Torizo, which the room's load set up (#1700).
             ILitTorizo? litTorizo = effect is ColourEffectId.BombTorizoBelly or ColourEffectId.GoldenTorizoBelly
@@ -330,7 +330,7 @@ internal static class NativeSnapshotImport
         }
         // Every place takes the snapshot's projectile, or, for a free one, what it holds for the room's next spawn there.
         foreach (var projectile in runtime.Enemies.Projectiles.EveryPlace())
-            ImportNativeEnemyProjectile(runtime.Enemies, projectile, runtime.Enemies.GraphicsSet, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
+            ImportNativeEnemyProjectile(runtime.Enemies, projectile, runtime.Enemies.GraphicsSet, bus, W);
         // This is a one-time initial snapshot import. No native state is fed back during replay.
         runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
         runtime.Enemies.FrameContext.SeedEnemyPassCount(W(NativeSnapshotMemory.MainEnemyRoutineCount));
@@ -351,8 +351,8 @@ internal static class NativeSnapshotImport
             // The surface word is a signed line: one a tide carries above the room's top is negative.
             surface: CoordinateAxis.AsSigned(W(NativeSnapshotMemory.AcidSurface)));
         samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
-        var pipeBugPointers = new PipeBugNativeInstructionPointers(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
-        var kraidHeadCursors = new KraidHeadNativeCursors(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
+        var pipeBugPointers = new PipeBugNativeInstructionPointers(bus);
+        var kraidHeadCursors = new KraidHeadNativeCursors(bus);
         // EnemyData +$0E onward; +$00 is the identity, +$02..+$08 the 16.16 position and
         // +$0A/+$0C the radii, each imported as one typed value below.
         for (int index = 0; index < runtime.Enemies.Places.InUpdateOrder.Count; index++)
@@ -426,7 +426,7 @@ internal static class NativeSnapshotImport
             }
         }
         if (runtime.Enemies.BossEncounters.MotherBrain is not null)
-            ImportNativeMotherBrain(runtime, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
+            ImportNativeMotherBrain(runtime, bus, W);
         runtime.Clock.Import(memory[NativeSnapshotMemory.NmiCounterByte], W(NativeSnapshotMemory.NmiCounter));
         samus.CollectedItems = SamusEquipmentWordCodec.FromEquipmentWord(W(NativeSnapshotMemory.CollectedItems)); samus.CollectedBeams = SamusEquipmentWordCodec.FromBeamWord(W(NativeSnapshotMemory.CollectedBeams));
         samus.Missiles = SamusCountWords.Decode(W(NativeSnapshotMemory.Missiles)); samus.MaxMissiles = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxMissiles));

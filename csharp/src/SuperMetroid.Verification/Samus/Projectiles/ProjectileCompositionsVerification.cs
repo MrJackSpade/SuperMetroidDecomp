@@ -130,13 +130,13 @@ internal static class ProjectileCompositionsVerification
         OamBuffer oam, ushort pointer, Position16<ScreenPixels> origin)
     {
         int record = 0x930000 | pointer;
-        ushort partCount = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(record);
+        ushort partCount = source.ReadCartridgeWordFixedBank(record);
         int partAddress = SnesAddressMath.AddWithinBank(record, 2);
         for (int part = 0; part < partCount; part++)
         {
-            oam.AddProjectileSpritePart(new SnesSpritemapXWord(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(partAddress)),
+            oam.AddProjectileSpritePart(new SnesSpritemapXWord(source.ReadCartridgeWordFixedBank(partAddress)),
                 source.ReadCartridgeByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
-                new SnesObjAttributeWord(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(SnesAddressMath.AddWithinBank(partAddress, 3))),
+                new SnesObjAttributeWord(source.ReadCartridgeWordFixedBank(SnesAddressMath.AddWithinBank(partAddress, 3))),
                 origin);
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }

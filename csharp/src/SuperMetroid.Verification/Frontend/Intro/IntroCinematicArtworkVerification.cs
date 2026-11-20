@@ -69,7 +69,7 @@ internal static class IntroCinematicArtworkVerification
                         maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount)),
                 "extracted intro BG page preserves every native tile byte");
             AssertTrue(stock.IntroObjectCharacters.Characters.Span.SequenceEqual(
-                    RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.IntroObjectCharacters,
+                    RomDataReader.ReadFixedBank(bus, IntroCinematicSourceDefinitions.IntroObjectCharacters,
                         IntroCinematicArtworkFormat.IntroObjectByteCount)),
                 "installed fixed intro OBJ PNG preserves every native tile byte");
             AssertTrue(stock.CinematicObjectCharacters.Characters.Span.SequenceEqual(
@@ -120,7 +120,7 @@ internal static class IntroCinematicArtworkVerification
             Suite(nameof(VerifyIntroScientistSpriteArtwork), () => VerifyIntroScientistSpriteArtwork(bus, stock));
             Suite(nameof(VerifyIntroMotherBrainDemoInput), () => VerifyIntroMotherBrainDemoInput(bus, stock));
             AssertTrue(ScreenColourWords.Words(stock.Palette.BackgroundColours.AsSpan(), stock.Palette.SpriteColours.AsSpan()).AsSpan().SequenceEqual(
-                    RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.Palette,
+                    RomDataReader.ReadFixedBank(bus, IntroCinematicSourceDefinitions.Palette,
                         CgramPalettes.ByteCount)),
                 "installed opening palette preserves every native RGB5 word");
 
@@ -320,7 +320,7 @@ internal static class IntroCinematicArtworkVerification
     private static void VerifyIntroMotherBrainCollision(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         ImportIntroCinematicArtwork stock)
     {
-        RoomCollisionType[] native = VerifyIntroMotherBrainCollisionSource(CartridgeImportSource.Require(bus));
+        RoomCollisionType[] native = VerifyIntroMotherBrainCollisionSource(bus);
         var guarded = NewIntroArtworkSourceReadGuard(bus);
         var state = CreateRetailIntroFixture(characterArtwork: stock);
         state.SetupFirstIllustratedPage();

@@ -31,7 +31,7 @@ internal static class MotherBrainAnimationsVerification
     /// <summary>Every typed slot and brain program equals its native list, and the runners keep the native cadence.</summary>
     internal static void VerifyMotherBrainAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int body = CompareBody(cartridge).Values.Sum(list => list.BeatAddresses.Length);
         int head = CompareHead(cartridge).Values.Sum(list => list.BeatAddresses.Length);
         CompareBaby(cartridge);
@@ -190,7 +190,7 @@ internal static class MotherBrainAnimationsVerification
     /// </summary>
     internal static void VerifyMotherBrainProjectileAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int compared = 0;
         foreach ((MotherBrainGlassSegment program, ushort entry) in GlassEntries)
             compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainGlassShard, new MotherBrainGlassAnimation(program), entry, 64, $"glass {program}");

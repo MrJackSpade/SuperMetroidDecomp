@@ -90,7 +90,7 @@ internal static class EscapeAcidRiseVerification
     /// </summary>
     private static void VerifyDefinitionsAgainstRom(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(address);
         const int Setup = 0x8fc953;
         const int Entry = 0x84b968;

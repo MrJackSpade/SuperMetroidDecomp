@@ -145,7 +145,7 @@ public static class SamusBodyArtworkFiles
         // The import decides once which frames her body can show and which body frames the sheet pictures, from the frames
         // her animation shows as the game's layout of the programs reads them, and installs them with their placements: the
         // game binds those and nothing else.
-        SamusShownFrames shown = new SamusShownFrameAnalysis(SamusAnimationLayout.Read(CartridgeImportSource.Require(bus))).Installed();
+        SamusShownFrames shown = new SamusShownFrameAnalysis(SamusAnimationLayout.Read(bus)).Installed();
         InstalledSamusBody installed = LoadForImport(directory, importData).InstalledBody(shown);
         SamusArmCannonArtworkFiles.Install(directory, installed.ArmCannon);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
@@ -256,10 +256,10 @@ public static class SamusBodyArtworkFiles
             for (int position = 0; position < count; position++)
             {
                 int definitionAddress = CartridgeBankWindow.At(SamusSourceDefinitions.AnimationBank, start + position * 7);
-                int sourceOffset = CartridgeImportSource.Require(bus).ReadCartridgeWord(definitionAddress);
+                int sourceOffset = bus.ReadCartridgeWord(definitionAddress);
                 int sourceBank = bus.ReadCartridgeByte(definitionAddress + 2);
-                int firstSize = CartridgeImportSource.Require(bus).ReadCartridgeWord((definitionAddress + 3));
-                int secondSize = CartridgeImportSource.Require(bus).ReadCartridgeWord((definitionAddress + 5));
+                int firstSize = bus.ReadCartridgeWord((definitionAddress + 3));
+                int secondSize = bus.ReadCartridgeWord((definitionAddress + 5));
                 int byteCount = firstSize + secondSize;
                 if (sourceOffset < SnesBusLayout.RomWindowStart || firstSize == 0 || byteCount >
                     SamusBodyCharacterArtwork.BytesPerDefinitionSlot || byteCount % 32 != 0 ||
@@ -372,7 +372,7 @@ public static class SamusBodyArtworkFiles
 
     /// <summary>Reads a contiguous little-endian pointer table from the cartridge.</summary>
     private static ushort[] ReadPointers(ISnesAddressSpace bus, int start, int count) =>
-        Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(bus).ReadCartridgeWord((start + i * 2))).ToArray();
+        Enumerable.Range(0, count).Select(i => bus.ReadCartridgeWord((start + i * 2))).ToArray();
 
     /// <summary>The record of the body DMA definition at bank-$92 <paramref name="pointer"/>.</summary>
     private static int BodyRecord(int pointer) =>
@@ -390,15 +390,15 @@ public static class SamusBodyArtworkFiles
     private static SpriteVisualPart[] ReadSpritemap(ISnesAddressSpace bus, int pointer)
     {
         int address = CartridgeBankWindow.At(SamusSourceDefinitions.AnimationBank, pointer);
-        int count = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+        int count = bus.ReadCartridgeWord(address);
         if (pointer < SamusSourceDefinitions.FirstSpritemap || count > 128 || pointer + 2 + count * 5 > CartridgeFormatDefinitions.BankByteCount)
             throw new InvalidDataException($"Invalid Samus spritemap at $92:{pointer:X4}.");
         var parts = new SpriteVisualPart[count];
         for (int i = 0; i < count; i++)
         {
             int part = address + 2 + i * 5;
-            var record = new SpritemapPart(new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(part)),
-                new SnesSpritemapYByte(bus.ReadCartridgeByte(part + 2)), CartridgeImportSource.Require(bus).ReadCartridgeWord(part + 3));
+            var record = new SpritemapPart(new SnesSpritemapXWord(bus.ReadCartridgeWord(part)),
+                new SnesSpritemapYByte(bus.ReadCartridgeByte(part + 2)), bus.ReadCartridgeWord(part + 3));
             parts[i] = SpriteVisualPart.FromSpritePart(record.ToPart(), SpriteArtwork.CharactersPerRow);
         }
         return parts;

@@ -35,12 +35,12 @@ internal static class EnemyTileArtworkDachoraColorsVerification
             VerifyFrame(DachoraColourPhase.Shine, frame);
             AssertEqual(unchecked((ushort)DachoraColorSources.Source(
                     DachoraColourPhase.Speed, frame)),
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                RomDataReader.ReadWordFixedBank(rom,
                     DachoraColorSources.SpeedPointerTable + frame * sizeof(ushort)),
                 $"native Dachora speed selector {frame}");
             AssertEqual(unchecked((ushort)DachoraColorSources.Source(
                     DachoraColourPhase.Shine, frame)),
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                RomDataReader.ReadWordFixedBank(rom,
                     DachoraColorSources.ShinePointerTable + frame * sizeof(ushort)),
                 $"native Dachora shine selector {frame}");
         }
@@ -100,7 +100,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         {
             int source = DachoraColorSources.Source(phase, frame);
             for (int color = 0; color < DachoraColorFormat.ColorsPerFrame; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     source + color * sizeof(ushort)),
                     native.Resolve(phase, frame, color),
                     $"installed Dachora {phase} frame {frame} color {color}");

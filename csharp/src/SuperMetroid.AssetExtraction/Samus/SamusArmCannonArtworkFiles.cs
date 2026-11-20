@@ -29,22 +29,22 @@ public static class SamusArmCannonArtworkFiles
         Directory.CreateDirectory(importData);
         // The pose table is read by the cartridge's pose numbers and installed by pose name (#1595).
         Dictionary<SamusPoseId, int> descriptors = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose,
-            pose => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            pose => RomDataReader.ReadWordFixedBank(bus,
                 SamusSourceDefinitions.PoseDrawingDataPointers.Value + SamusPoseNumbers.Number(pose) * 2) - SamusSourceDefinitions.ArmCannonDrawingData);
         int[] drawingData = Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount)
             .Select(index => (int)bus.ReadCartridgeByte(SamusSourceDefinitions.MovementBank.Value |
                 (SamusSourceDefinitions.ArmCannonDrawingData + index))).ToArray();
         SpriteVisualPart[] appearances = Enumerable.Range(0, SamusProjectileDirectionCodec.Count)
             .Select(direction => SpriteVisualPart.FromSpritePart(new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(
-                CartridgeImportSource.Require(bus), SamusSourceDefinitions.ArmCannonSpriteAttributes.Value + direction * 2)).ToSinglePart(),
+                bus, SamusSourceDefinitions.ArmCannonSpriteAttributes.Value + direction * 2)).ToSinglePart(),
                 SpriteArtwork.CharactersPerRow)).ToArray();
         int[][] coverTiles = Enumerable.Range(0, SamusProjectileDirectionCodec.Count)
             .Select(direction =>
             {
-                int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                int list = RomDataReader.ReadWordFixedBank(bus,
                     SamusSourceDefinitions.TileListPointers.Value + direction * 2);
                 ushort[] sources = [.. Enumerable.Range(0, SamusArmCannonArtworkFormat.FramesPerDirection)
-                    .Select(frame => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                    .Select(frame => RomDataReader.ReadWordFixedBank(bus,
                         SamusSourceDefinitions.MovementBank.Value | (list + frame * 2)))];
                 // The closed frame uploads nothing; each opening frame names one installed cover tile.
                 if (sources[0] != 0)

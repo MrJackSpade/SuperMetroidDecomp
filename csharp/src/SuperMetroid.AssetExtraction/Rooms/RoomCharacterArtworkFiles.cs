@@ -34,7 +34,7 @@ public static class RoomCharacterArtworkFiles
         Directory.CreateDirectory(importData);
 
         IReadOnlyDictionary<string, byte[]> pngs = RoomCharacterAtlasExtractor.Extract(bus);
-        RoomTilesetSourceMap tilesets = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
+        RoomTilesetSourceMap tilesets = RoomTilesetSources.Read(bus);
         var entries = new Dictionary<string, RoomCharacterFileEntry>();
         foreach ((string name, RoomCharacterSource source) in ExpectedSources())
         {
@@ -42,7 +42,7 @@ public static class RoomCharacterArtworkFiles
             // The ghost sheet is stored uncompressed, so its length is the library background's.
             int nativeByteCount = source.Set == RoomCharacterSet.TourianStatueGhost
                 ? LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount
-                : RomDataReader.Decompress(CartridgeImportSource.Require(bus), source.Set is { } set
+                : RomDataReader.Decompress(bus, source.Set is { } set
                     ? tilesets.Characters[set]
                     : RoomTilesetSourceDefinitions.CreCharacters).Length;
             RoomCharacterAtlasFormat.ValidateTileCount(nativeByteCount);

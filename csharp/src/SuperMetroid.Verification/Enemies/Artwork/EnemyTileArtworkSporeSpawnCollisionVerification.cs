@@ -50,12 +50,12 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
             {
                 int record = root + 2 + component * 8;
                 EnemyCollisionComponent compiled = components[component];
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), unchecked((ushort)compiled.Offset.X),
+                AssertEqual(rom.ReadCartridgeWord(record), unchecked((ushort)compiled.Offset.X),
                     $"Spore Spawn frame {frame.Pointer:X4} component {component} X");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)compiled.Offset.Y),
+                AssertEqual(rom.ReadCartridgeWord((record + 2)), unchecked((ushort)compiled.Offset.Y),
                     $"Spore Spawn frame {frame.Pointer:X4} component {component} Y");
                 // The cartridge names each component's list by address; the compiled component holds the list itself.
-                ushort listPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6));
+                ushort listPointer = rom.ReadCartridgeWord((record + 6));
                 AssertHitboxListMatchesRom(listPointer, compiled.Hitboxes,
                     $"Spore Spawn frame {frame.Pointer:X4} component {component} list {listPointer:X4}");
                 seenLists.Add(listPointer);
@@ -101,23 +101,23 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         void AssertHitboxListMatchesRom(ushort pointer, IReadOnlyList<EnemyCollisionHitbox> hitboxes, string at)
         {
             int list = ((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, pointer));
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Count,
+            AssertEqual(rom.ReadCartridgeWord(list), hitboxes.Count,
                 $"{at} native hitbox count");
             for (int index = 0; index < hitboxes.Count; index++)
             {
                 int record = list + 2 + index * 12;
                 EnemyCollisionHitbox box = hitboxes[index];
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), unchecked((ushort)box.Left),
+                AssertEqual(rom.ReadCartridgeWord(record), unchecked((ushort)box.Left),
                     $"{at} box {index} left");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)box.Top),
+                AssertEqual(rom.ReadCartridgeWord((record + 2)), unchecked((ushort)box.Top),
                     $"{at} box {index} top");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), unchecked((ushort)box.Right),
+                AssertEqual(rom.ReadCartridgeWord((record + 4)), unchecked((ushort)box.Right),
                     $"{at} box {index} right");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), unchecked((ushort)box.Bottom),
+                AssertEqual(rom.ReadCartridgeWord((record + 6)), unchecked((ushort)box.Bottom),
                     $"{at} box {index} bottom");
-                AssertEqual(EnemyReactionAccess.Of(0xa5, CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 8)), shot: false), (EnemyReaction?)box.Touch,
+                AssertEqual(EnemyReactionAccess.Of(0xa5, rom.ReadCartridgeWord((record + 8)), shot: false), (EnemyReaction?)box.Touch,
                     $"{at} box {index} touch callback");
-                AssertEqual(EnemyReactionAccess.Of(0xa5, CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 10)), shot: true), (EnemyReaction?)box.Shot,
+                AssertEqual(EnemyReactionAccess.Of(0xa5, rom.ReadCartridgeWord((record + 10)), shot: true), (EnemyReaction?)box.Shot,
                     $"{at} box {index} shot callback");
             }
         }
@@ -136,24 +136,24 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
             for (int component = 0; component < count; component++)
             {
                 int record = root + 2 + 8 * component;
-                ushort centerX = unchecked((ushort)(0x100 + CartridgeImportSource.Require(rom).ReadCartridgeWord(record)));
-                ushort centerY = unchecked((ushort)(0x100 + CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2))));
-                int list = 0xa50000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6));
-                int rectangles = CartridgeImportSource.Require(rom).ReadCartridgeWord(list);
+                ushort centerX = unchecked((ushort)(0x100 + rom.ReadCartridgeWord(record)));
+                ushort centerY = unchecked((ushort)(0x100 + rom.ReadCartridgeWord((record + 2))));
+                int list = 0xa50000 | rom.ReadCartridgeWord((record + 6));
+                int rectangles = rom.ReadCartridgeWord(list);
                 for (int rectangle = 0; rectangle < rectangles; rectangle++)
                 {
                     int box = list + 2 + 12 * rectangle;
-                    ushort left = unchecked((ushort)(centerX + CartridgeImportSource.Require(rom).ReadCartridgeWord(box)));
-                    ushort top = unchecked((ushort)(centerY + CartridgeImportSource.Require(rom).ReadCartridgeWord((box + 2))));
-                    ushort right = unchecked((ushort)(centerX + CartridgeImportSource.Require(rom).ReadCartridgeWord((box + 4))));
-                    ushort bottom = unchecked((ushort)(centerY + CartridgeImportSource.Require(rom).ReadCartridgeWord((box + 6))));
+                    ushort left = unchecked((ushort)(centerX + rom.ReadCartridgeWord(box)));
+                    ushort top = unchecked((ushort)(centerY + rom.ReadCartridgeWord((box + 2))));
+                    ushort right = unchecked((ushort)(centerX + rom.ReadCartridgeWord((box + 4))));
+                    ushort bottom = unchecked((ushort)(centerY + rom.ReadCartridgeWord((box + 6))));
                     bool overlaps = shot
                         ? unchecked((short)(targetRight - left)) >= 0 && unchecked((short)(targetLeft - right)) < 0 &&
                           unchecked((short)(targetBottom - top)) >= 0 && unchecked((short)(targetTop - bottom)) < 0
                         : unchecked((short)(left - targetRight)) < 0 && unchecked((short)(right - targetLeft)) >= 0 &&
                           unchecked((short)(top - targetBottom)) < 0 && unchecked((short)(bottom - targetTop)) >= 0;
                     if (!overlaps) continue;
-                    callback = CartridgeImportSource.Require(rom).ReadCartridgeWord((box + (shot ? 10 : 8)));
+                    callback = rom.ReadCartridgeWord((box + (shot ? 10 : 8)));
                     return true;
                 }
             }

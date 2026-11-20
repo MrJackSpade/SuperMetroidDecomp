@@ -14,7 +14,7 @@ internal static class EndingLogoTablesVerification
         for (int step = 0; step < 16; step++)
         {
             int address = 0x8be5e7 + step * 4 + palette * 2;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
+            AssertEqual(rom.ReadCartridgeWord(address),
                 EndingPaletteSources.LogoCrossfadeSource(step, palette).Offset, "original ending palette source");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
@@ -42,10 +42,10 @@ internal static class EndingLogoTablesVerification
         {
             int address = 0x8be45a + index * 8;
             var actual = EndingPostShotUploads.Get(index);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), actual.Length, "native transfer length");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeLong((address + 2)), StagingSource(actual.Source) + actual.Offset,
+            AssertEqual(rom.ReadCartridgeWord(address), actual.Length, "native transfer length");
+            AssertEqual(rom.ReadCartridgeLong((address + 2)), StagingSource(actual.Source) + actual.Offset,
                 "native transfer source is its artwork's staging buffer plus the part's offset");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)),
+            AssertEqual(rom.ReadCartridgeWord((address + 6)),
                 SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinations.PostShotWordOf(actual), "native transfer destination word");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 6, int.MaxValue })

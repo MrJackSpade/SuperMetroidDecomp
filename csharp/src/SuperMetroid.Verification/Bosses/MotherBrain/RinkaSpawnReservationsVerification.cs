@@ -94,7 +94,7 @@ internal static class RinkaSpawnReservationsVerification
     /// <summary>Reads the eleven spawn-point records.</summary>
     private static SpawnRecord[] ReadTable(CartridgeImportAddressSpace rom)
     {
-        var source = CartridgeImportSource.Require(rom);
+        var source = rom;
         return [.. Enumerable.Range(0, SpawnPointCount).Select(index =>
         {
             int record = SpawnPointTable + 6 * index;

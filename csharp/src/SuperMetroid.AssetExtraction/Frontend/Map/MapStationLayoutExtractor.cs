@@ -29,18 +29,18 @@ public static class MapStationLayoutExtractor
                 MapStationKind.Map => MapSourceDefinitions.Landmarks.MapStationLists,
                 _ => throw new ArgumentOutOfRangeException(nameof(kind))
             };
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
+            int pointer = RomDataReader.ReadWordFixedBank(bus, table + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
             var rules = MapStationDiscoveryRules.Get(area, kind).ToArray();
             int count = 0;
             if (pointer != 0)
                 for (; count <= rules.Length; count++)
                 {
                     int address = MapSourceDefinitions.Menu.ObjectBank | (pointer + count * 4);
-                    int x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+                    int x = RomDataReader.ReadWordFixedBank(bus, address);
                     // A list ends at the first record whose horizontal word is negative as a signed word.
                     if (x > short.MaxValue) break;
                     if (count == rules.Length) throw new InvalidDataException($"Unexpected {area}/{kind} station record.");
-                    int y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2);
+                    int y = RomDataReader.ReadWordFixedBank(bus, address + 2);
                     var rule = rules[count];
                     if (Position16<MapTiles>.Of(x >> 3, y >> 3) != rule.Cell)
                         throw new InvalidDataException($"Station discovery definition differs from cartridge: {rule.Id}.");

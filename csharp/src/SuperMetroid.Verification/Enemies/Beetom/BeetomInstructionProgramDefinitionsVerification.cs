@@ -183,7 +183,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
     internal static ushort ReadBeetomInstructionWord(
         CartridgeImportAddressSpace source,
         ushort address) =>
-        CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa80000 | address);
+        source.ReadCartridgeWordFixedBank(0xa80000 | address);
 
     /// <summary>Runs the retail Beetom instruction suite from the verification command line.</summary>
     [VerificationCommand("--beetom-instruction-mechanics")]

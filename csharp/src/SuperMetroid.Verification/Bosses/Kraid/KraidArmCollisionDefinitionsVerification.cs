@@ -82,5 +82,5 @@ internal static class KraidArmCollisionDefinitionsVerification
     internal static ushort ReadKraidArmInstructionWord(
         CartridgeImportAddressSpace source,
         ushort address) =>
-        CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa70000 | address);
+        source.ReadCartridgeWordFixedBank(0xa70000 | address);
 }

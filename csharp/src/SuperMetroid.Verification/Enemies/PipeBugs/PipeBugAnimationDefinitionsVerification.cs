@@ -37,7 +37,7 @@ internal static class PipeBugAnimationDefinitionsVerification
             for (int index = 0; index < 4; index++)
             {
                 PipeBugSegment selector = PipeBugsNativeWords.BrinstarAnimations(kind).Decode(index, "Pipe Bug animation index");
-                ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(((strong ? strongTable : normalTable) + index * 2));
+                ushort expected = rom.ReadCartridgeWord(((strong ? strongTable : normalTable) + index * 2));
                 AssertEqual(expected,
                     NativeEnemyAnimationOracle.EntryOf(PipeBugNativeListAddresses.Entries, selector),
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");

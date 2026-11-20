@@ -18,8 +18,8 @@ public static class BeamTileExtractor
         for (int index = 0; index < BeamTileAtlasDefinitions.ArtworkCount; index++)
         {
             SamusBeamCombination selection = BeamTileAtlasDefinitions.SelectionAt(index);
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.TilePointers.Value + selection.TableIndex * 2);
-            byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            int pointer = RomDataReader.ReadWordFixedBank(bus, SamusSourceDefinitions.TilePointers.Value + selection.TableIndex * 2);
+            byte[] planar = RomDataReader.ReadFixedBank(bus,
                 SamusSourceDefinitions.CharacterDataBank.Value | pointer, BeamTileAtlasDefinitions.ByteCount);
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
                 BeamTileAtlasDefinitions.Width / 8, out Extent16<ImagePixels> size);

@@ -18,7 +18,7 @@ internal static class KagoBugProjectileBehaviorVerification
     /// <summary>Each of the bug's landing, falling and jumping programs matches its native list update for update, its cues included.</summary>
     internal static void VerifyKagoBugProjectileBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, KagoBugProjectileNativeListAddresses.Extent, "Kago bug");
         foreach (KagoBugProjectileSegment program in new[] { KagoBugProjectileSegment.Landed, KagoBugProjectileSegment.Falling, KagoBugProjectileSegment.JumpStart })
         {

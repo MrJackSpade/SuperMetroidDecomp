@@ -45,7 +45,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
     /// </summary>
     private static void VerifyChozoTerrainHeaders(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ChozoStatueRoomObject[] statueObjects = Enum.GetValues<ChozoStatueRoomObject>();
         AssertEqual(6, statueObjects.Length, "Chozo statue room object count");
 

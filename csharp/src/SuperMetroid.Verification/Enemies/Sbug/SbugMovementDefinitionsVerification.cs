@@ -28,7 +28,7 @@ internal static class SbugMovementDefinitionsVerification
         for (int facing = 0; facing < 8; facing++)
         {
             int address = instructionTable + facing * 2;
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort native = rom.ReadCartridgeWord(address);
             AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(SbugNativeListAddresses.Entries,
                     SbugMovement.FacingAnimation(SbugMovementDefinitions.Facings.InTurnOrder[facing])),
                 $"compiled Sbug facing selector {facing}");
@@ -37,7 +37,7 @@ internal static class SbugMovementDefinitionsVerification
         foreach (int behavior in AuthoredActivationSelectors)
         {
             int address = activationTable + behavior * 2;
-            var native = SbugNativeWords.SbugActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "Sbug activation function");
+            var native = SbugNativeWords.SbugActions.Decode(rom.ReadCartridgeWord(address), "Sbug activation function");
             var placed = (SbugSpawnSettings)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(
                 EnemyDefinitionId.Sbug, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(0, behavior << 8));
             AssertEqual(native, SbugMovement.ActivationAction(placed.Behavior),
@@ -59,7 +59,7 @@ internal static class SbugMovementDefinitionsVerification
             place.SetSpawnParameter2(EnemyDefinitionId.Sbug, 1);
             initialize(place);
 
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + selector * 2);
+            ushort native = rom.ReadCartridgeWord(instructionTable + selector * 2);
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
             CompassDirection forward = SbugBehavior.ForwardLeg(place).Facing;
             AssertEqual(SbugMovementDefinitions.Facings.InTurnOrder[selector], forward,
@@ -90,7 +90,7 @@ internal static class SbugMovementDefinitionsVerification
             runMain(place, samus);
 
             int address = activationTable + behavior * 2;
-            var native = SbugNativeWords.SbugActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "Sbug activation function");
+            var native = SbugNativeWords.SbugActions.Decode(rom.ReadCartridgeWord(address), "Sbug activation function");
             AssertEqual(native, state.Action, $"Sbug production activation {behavior}");
         }
 

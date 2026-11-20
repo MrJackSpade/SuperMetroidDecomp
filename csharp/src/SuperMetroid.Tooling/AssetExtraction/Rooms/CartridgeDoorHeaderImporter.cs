@@ -16,7 +16,7 @@ public static class CartridgeDoorHeaderImporter
     {
         Ensure.NotNull(bus);
         int address = DoorHeaderRomDataTooling.BankAddress | pointer;
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         byte Byte(int offset) => cartridge.ReadCartridgeByte(address + offset);
         ushort Word(int offset) => RomDataReader.ReadWordFixedBank(cartridge, address + offset);
         return new DoorDefinition(DoorHeaderSources.Door(pointer).Name, RoomHeaderSources.Room(Word(0)), DoorRecordCodec.DecodeOrientation(Byte(3)),

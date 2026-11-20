@@ -69,7 +69,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     /// <summary>Checks each pass's header: its distortion rows, its copy length and its graphics bank.</summary>
     internal static void VerifyCrocomireMeltHeaders(CartridgeImportAddressSpace rom)
     {
-        var source = CartridgeImportSource.Require(rom);
+        var source = rom;
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             int header = HeaderAddress(pass);
@@ -88,7 +88,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     /// <summary>Checks every band copy each pass makes: its graphics source and where in the image it lands.</summary>
     internal static void VerifyCrocomireMeltCopies(CartridgeImportAddressSpace rom)
     {
-        var source = CartridgeImportSource.Require(rom);
+        var source = rom;
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             int bands = CrocomireMelting.BandRound(pass);
@@ -108,7 +108,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     /// <summary>Checks every band upload each pass makes: its size, the characters it shows over and its row of the image.</summary>
     internal static void VerifyCrocomireMeltUploads(CartridgeImportAddressSpace rom)
     {
-        var source = CartridgeImportSource.Require(rom);
+        var source = rom;
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             int bands = CrocomireMelting.BandRound(pass);
@@ -191,7 +191,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         for (int index = 0; index < result.Length; index++)
         {
             int address = sourceAddress + index * 2;
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort expected = rom.ReadCartridgeWord(address);
             if (compareRom)
                 AssertEqual(expected, result[index],
                     $"installed Crocomire tilemap ${sourceAddress:X6} cell {index}");

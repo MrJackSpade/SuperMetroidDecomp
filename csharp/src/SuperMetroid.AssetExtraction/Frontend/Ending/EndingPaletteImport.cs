@@ -61,7 +61,7 @@ internal static class EndingPaletteImport
         int count)
     {
         if (id != EndingPaletteId.LogoCrossfade)
-            return RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            return RomDataReader.ReadFixedBank(bus,
                 EndingPaletteSources.Source(id), count * sizeof(ushort));
 
         var native = new byte[count * sizeof(ushort)];
@@ -74,7 +74,7 @@ internal static class EndingPaletteImport
             int index = (step * 2 + palette) * 16 + color;
             BinaryPrimitives.WriteUInt16LittleEndian(
                 native.AsSpan(index * sizeof(ushort)),
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                RomDataReader.ReadWordFixedBank(bus,
                     CartridgeBankWindow.At(EndingSourceDefinitions.LogoPaletteBank, source.Offset)));
         }
         return native;

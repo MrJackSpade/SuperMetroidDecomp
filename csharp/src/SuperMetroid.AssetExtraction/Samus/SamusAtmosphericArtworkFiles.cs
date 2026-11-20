@@ -108,7 +108,7 @@ public static class SamusAtmosphericArtworkFiles
     {
         var parts = new SpriteVisualPart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount];
         for (int frame = 0; frame < parts.Length; frame++)
-            parts[frame] = SpriteVisualPart.FromSpritePart(new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(
+            parts[frame] = SpriteVisualPart.FromSpritePart(new SnesObjAttributeWord(bus.ReadCartridgeWord(
                 SamusSourceDefinitions.MovementBank.Value | pointer + frame * 2)).ToSinglePart(), SpriteArtwork.CharactersPerRow);
         return parts;
     }
@@ -116,7 +116,7 @@ public static class SamusAtmosphericArtworkFiles
     /// <summary>Checks that each atmospheric type still selects its expected authored or zero list pointer.</summary>
     private static void AssertPointer(ISnesAddressSpace bus, int table, int type, int expected)
     {
-        int actual = CartridgeImportSource.Require(bus).ReadCartridgeWord((table + type * 2));
+        int actual = bus.ReadCartridgeWord((table + type * 2));
         if (actual != expected)
             throw new InvalidDataException(
                 $"Atmospheric type {type} points to ${actual:X4}, expected ${expected:X4}.");

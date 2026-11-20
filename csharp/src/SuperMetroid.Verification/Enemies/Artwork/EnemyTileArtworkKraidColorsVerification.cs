@@ -389,7 +389,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
                 // contraction step, rather than subtracting from a black synthetic eye.
                 for (int eye = 0; eye < 3; eye++)
                 {
-                    ushort target = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7b3d3 + 256 + (eye + 1) * 2));
+                    ushort target = rom.ReadCartridgeWord((0xa7b3d3 + 256 + (eye + 1) * 2));
                     ushort current = 0x03ff;
                     if ((current & 31) != (target & 31)) current--;
                     if ((current & 0x03e0) != (target & 0x03e0)) current -= 32;
@@ -407,7 +407,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         void Copy(int source, int destination)
         {
             for (int color = 0; color < 16; color++)
-                colors[destination + color] = CartridgeImportSource.Require(rom).ReadCartridgeWord((source + color * 2));
+                colors[destination + color] = rom.ReadCartridgeWord((source + color * 2));
         }
     }
 

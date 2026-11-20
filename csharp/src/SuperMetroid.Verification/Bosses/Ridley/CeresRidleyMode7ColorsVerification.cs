@@ -91,5 +91,5 @@ internal static class CeresRidleyMode7ColorsVerification
 
     /// <summary>Reads one native zoom color for the extracted-palette comparison.</summary>
     private static ushort ReadNativeCeresRidleyMode7Color(ISnesAddressSpace rom, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
+        RomDataReader.ReadWordFixedBank(rom, address);
 }

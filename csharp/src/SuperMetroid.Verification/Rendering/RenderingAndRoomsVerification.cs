@@ -268,7 +268,7 @@ internal static void VerifyHudState()
 
 /// <summary>Reads the synthetic Crateria map tile before a fixture temporarily replaces it.</summary>
 static ushort ReadFixtureMapWord(TestAddressSpace bus, Position16<MapTiles> tile) =>
-    SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+    SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(bus,
         0xb58000 + AreaMapPages.GetTilemapWordIndex(tile) * 2);
 
 /// <summary>Overwrites the synthetic Crateria bank-$B5 area-map tilemap word at <paramref name="tile"/>.</summary>

@@ -16,9 +16,9 @@ internal static class PhantoonTimersVerification
     {
         for (int i = 0; i < 8; i++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd41 + i * 2)), PhantoonTimerDefinitions.VulnerableWindow[i], "Native vulnerable timer");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd53 + i * 2)), PhantoonTimerDefinitions.EyeClosed[i], "Native eye-closed timer");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd63 + i * 2)), PhantoonTimerDefinitions.RainHiding[i], "Native rain timer");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cd41 + i * 2)), PhantoonTimerDefinitions.VulnerableWindow[i], "Native vulnerable timer");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cd53 + i * 2)), PhantoonTimerDefinitions.EyeClosed[i], "Native eye-closed timer");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cd63 + i * 2)), PhantoonTimerDefinitions.RainHiding[i], "Native rain timer");
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var body = enemies.Places.InUpdateOrder[0];
@@ -40,13 +40,13 @@ internal static class PhantoonTimersVerification
             randomValue = (ushort)raw;
             int priorCalls = calls;
             open(state);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd41 + (raw & 7) * 2)), state.PhaseWait.UpdatesLeft, "Real open-window timer masks full RNG word");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cd41 + (raw & 7) * 2)), state.PhaseWait.UpdatesLeft, "Real open-window timer masks full RNG word");
             AssertEqual(PhantoonPhase.EyeTracksSamus, state.Phase, "Open-window phase handoff");
             second(state);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd53 + (raw & 7) * 2)), state.Round.EyeClosedWait.UpdatesLeft, "Real second-round timer masks full RNG word");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cd53 + (raw & 7) * 2)), state.Round.EyeClosedWait.UpdatesLeft, "Real second-round timer masks full RNG word");
             SuperMetroid.Core.PrivateState.Set(state.BodyFade, nameof(PhantoonFadeProgress.IsFinished), true); // Completed fade; retain the actual fade-to-rain transition.
             rain(state);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd63 + (raw & 7) * 2)), state.PhaseWait.UpdatesLeft, "Real rain hiding timer masks full RNG word");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cd63 + (raw & 7) * 2)), state.PhaseWait.UpdatesLeft, "Real rain hiding timer masks full RNG word");
             AssertEqual(PhantoonPhase.SpawnFlameRain, state.Phase, "Rain timer phase handoff");
             AssertEqual(priorCalls + 3, calls, "Each selection consumes exactly one RNG call");
         }
@@ -57,7 +57,7 @@ internal static class PhantoonTimersVerification
             int priorCalls = calls;
             enemies.FrameContext.SeedFrame((ushort)nmi);
             first(state);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd53 + ((nmi >> 1) & 3) * 2)), state.Round.EyeClosedWait.UpdatesLeft, "Real first-round NMI selector uses four entries");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cd53 + ((nmi >> 1) & 3) * 2)), state.Round.EyeClosedWait.UpdatesLeft, "Real first-round NMI selector uses four entries");
             AssertEqual(priorCalls + 1, calls, "First-round direction preserves RNG consumption");
         }
         Console.WriteLine("Phantoon timers: 24 native words, 196608 random-selector calls and all 256 first-round NMI values match without a bus.");

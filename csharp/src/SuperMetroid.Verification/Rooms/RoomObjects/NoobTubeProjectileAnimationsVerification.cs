@@ -17,7 +17,7 @@ internal static class NoobTubeProjectileAnimationsVerification
     /// </summary>
     internal static void VerifyNoobTubeProjectileAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int steps = Family.CompareAll(cartridge);
         Func<EnemyProjectileAnimation, ushort?> pointers = Family.NativePointers(cartridge);
         foreach ((NoobTubeShard shard, ushort entry) in ShardEntries)

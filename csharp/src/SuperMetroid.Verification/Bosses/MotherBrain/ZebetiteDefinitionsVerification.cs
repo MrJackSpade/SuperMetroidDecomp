@@ -39,7 +39,7 @@ internal static class ZebetiteDefinitionsVerification
             ];
             for (int field = 0; field < actual.Length; field++)
             {
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((generationTables[field] + generation * 2)),
+                AssertEqual(rom.ReadCartridgeWord((generationTables[field] + generation * 2)),
                     actual[field],
                     $"Zebetite generation {generation} field {field}");
             }
@@ -59,7 +59,7 @@ internal static class ZebetiteDefinitionsVerification
                 health < 800 ? 1 : 0;
             bool linkedPair = form == ZebetiteBarrierForm.SplitPair;
             int table = linkedPair ? linkedHealthTable : bigHealthTable;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((table + tier * 2)),
+            AssertEqual(rom.ReadCartridgeWord((table + tier * 2)),
                 ZebetiteList(form, health),
                 $"Zebetite {(linkedPair ? "linked" : "big")} health {health}");
         }
@@ -84,7 +84,7 @@ internal static class ZebetiteDefinitionsVerification
             int record = linkedHalf ? linkedSpawn : primarySpawn;
             for (int word = 0; word < actual.Length; word++)
             {
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + word * 2)), actual[word],
+                AssertEqual(rom.ReadCartridgeWord((record + word * 2)), actual[word],
                     $"Zebetite {(linkedHalf ? "linked" : "primary")} spawn word {word}");
             }
         }
@@ -120,7 +120,7 @@ internal static class ZebetiteDefinitionsVerification
                 ZebetiteBehavior.ChooseZebetiteHealthPicture(place, state);
                 // The picture the native health table's list for this health shows (#2250).
                 int tier = health < 200 ? 4 : health < 400 ? 3 : health < 600 ? 2 : health < 800 ? 1 : 0;
-                ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(
+                ushort list = rom.ReadCartridgeWord(
                     (expected.Form == ZebetiteBarrierForm.SplitPair ? linkedHealthTable : bigHealthTable) + tier * 2);
                 AssertEqual<EnemyFrameId?>(NativePicture(rom, list), state.Picture,
                     $"production Zebetite generation {generation} health {health}");
@@ -182,5 +182,5 @@ internal static class ZebetiteDefinitionsVerification
 
     /// <summary>The installed frame the native bank-$A6 Zebetite list at <paramref name="list"/> shows.</summary>
     private static EnemyFrameId? NativePicture(CartridgeImportAddressSpace rom, ushort list) =>
-        RoomEnemyPlaceFrameAccess.FrameAt(0xa6, CartridgeImportSource.Require(rom).ReadCartridgeWord(MotherBrainNativeListAddresses.ZebetiteBank | (list + 2)));
+        RoomEnemyPlaceFrameAccess.FrameAt(0xa6, rom.ReadCartridgeWord(MotherBrainNativeListAddresses.ZebetiteBank | (list + 2)));
 }

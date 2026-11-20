@@ -22,7 +22,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
     /// <summary>Compares five native fuse, X, Y, and subvelocity records and verifies hold-modified launches without reading migrated ROM tables.</summary>
     internal static void VerifyBombSpreadLaunchDefinitions(CartridgeImportAddressSpace rom)
     {
-        int Word(int address) => CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+        int Word(int address) => rom.ReadCartridgeWord(address);
         var reference = Enumerable.Range(0,MorphBallBombDefinitions.PlaceCount).Select(i =>
             new BombSpreadLaunchDefinition(Word(MorphBallBombDefinitions.FuseTimers+i*2),
                 BombSpreadLaunchWords.Unpack(Word(MorphBallBombDefinitions.XVelocities+i*2)),

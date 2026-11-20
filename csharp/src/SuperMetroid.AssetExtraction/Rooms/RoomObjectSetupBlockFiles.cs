@@ -150,7 +150,7 @@ public static class RoomObjectSetupBlockFiles
 
         RoomBlockAppearance Shown(SnesAddress address)
         {
-            RoomTerrainBlock written = RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)address));
+            RoomTerrainBlock written = RoomLevelWordCodec.Decode(bus.ReadCartridgeWordFixedBank((int)address));
             if (written.Collision != WordCollision(block))
                 throw new InvalidDataException($"Room-object setup block {block} collides differently at {address}.");
             return written.Appearance;

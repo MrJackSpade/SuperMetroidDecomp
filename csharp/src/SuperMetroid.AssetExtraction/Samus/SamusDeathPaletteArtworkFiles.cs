@@ -67,7 +67,7 @@ public static class SamusDeathPaletteArtworkFiles
             suited[suit] = new ushort[SamusShadeDefinitions.Death.ExplosionShadeCount][];
             for (int palette = 0; palette < suited[suit].Length; palette++)
             {
-                int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.SuitPointers.Value +
+                int pointer = bus.ReadCartridgeWord((SamusSourceDefinitions.SuitPointers.Value +
                     suit * SamusShadeDefinitions.Death.ExplosionShadeCount * sizeof(ushort) +
                     palette * sizeof(ushort)));
                 suited[suit][palette] = ReadPalette(bus, pointer);
@@ -76,12 +76,12 @@ public static class SamusDeathPaletteArtworkFiles
         var suitless = new ushort[SamusShadeDefinitions.Death.ExplosionShadeCount][];
         for (int palette = 0; palette < suitless.Length; palette++)
         {
-            int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort)));
+            int pointer = bus.ReadCartridgeWord((SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort)));
             suitless[palette] = ReadPalette(bus, pointer);
         }
         var whiteout = new ushort[SamusShadeDefinitions.Death.WhiteoutShadeCount];
         for (int shade = 0; shade < whiteout.Length; shade++)
-            whiteout[shade] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort)));
+            whiteout[shade] = bus.ReadCartridgeWord((SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort)));
         var selectors = new ushort[SamusDeathSheetDefinitions.Explosion.Count];
         for (int frame = 0; frame < selectors.Length; frame++)
             selectors[frame] = bus.ReadCartridgeByte(
@@ -155,7 +155,7 @@ public static class SamusDeathPaletteArtworkFiles
     {
         var colors = new ushort[InstalledSamusDeathPalettes.ColorCount];
         for (int color = 0; color < colors.Length; color++)
-            colors[color] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.PaletteBank.Value |
+            colors[color] = bus.ReadCartridgeWord((SamusSourceDefinitions.PaletteBank.Value |
                 unchecked((ushort)(pointer + color * sizeof(ushort)))));
         return colors;
     }

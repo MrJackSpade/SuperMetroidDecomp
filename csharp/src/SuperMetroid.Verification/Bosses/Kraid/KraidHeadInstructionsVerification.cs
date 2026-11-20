@@ -38,7 +38,7 @@ internal static class KraidHeadInstructionsVerification
     /// <summary>Executes the head program from every native cursor and checks poses, durations, image uploads, cries and the resting cursor.</summary>
     private static void VerifyProductionInterpreter(CartridgeImportAddressSpace rom)
     {
-        var native = new KraidHeadNativeCursors(CartridgeImportSource.Require(rom));
+        var native = new KraidHeadNativeCursors(rom);
         foreach (KraidHeadNativeRecord record in native.Records)
         {
             var guard = new KraidHeadProgramReadGuard(rom);

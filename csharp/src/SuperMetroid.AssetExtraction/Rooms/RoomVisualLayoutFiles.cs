@@ -185,7 +185,7 @@ public static class RoomVisualLayoutFiles
     private static RoomVisualLayoutDocument Decode(ISnesAddressSpace bus,
         RoomLevelId level, int widthInBlocks)
     {
-        byte[] stream = RomDataReader.Decompress(CartridgeImportSource.Require(bus), RoomLevelSourceDefinitions.Addresses[level]);
+        byte[] stream = RomDataReader.Decompress(bus, RoomLevelSourceDefinitions.Addresses[level]);
         InstalledRoomLevel decoded = RoomLevelStreamDecoder.Decode(level, stream, widthInBlocks, RetailLevelAreas[level]);
         return new RoomVisualLayoutDocument(FormatVersion, level.Name, widthInBlocks, decoded.Size.Y,
             WritePlane([.. decoded.Foreground.Select(block => block.Appearance)]), WritePlane([.. decoded.Background]));

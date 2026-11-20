@@ -40,6 +40,7 @@ internal static class RoomDoorBlockFiles
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         RespectRequiredConstructorParameters = true,
         RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
         WriteIndented = true,
     };
 

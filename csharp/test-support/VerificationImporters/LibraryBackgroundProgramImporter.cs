@@ -107,7 +107,7 @@ internal static class LibraryBackgroundProgramImporter
                     vram.ExecuteQueuedAssetWrite(bytes, LibraryBackgroundOperands.DestinationWord(instruction.Destination));
                     break;
                 case LibraryBackgroundCommand.Decompress:
-                    byte[] expanded = RomDataReader.Decompress(CartridgeImportSource.Require(source), LibraryBackgroundOperandDecoding.Address(instruction.Source));
+                    byte[] expanded = RomDataReader.Decompress(source, LibraryBackgroundOperandDecoding.Address(instruction.Source));
                     if (LibraryBackgroundOperandDecoding.TilemapStagingOffset + expanded.Length > LibraryBackgroundListConstants.BankByteCount)
                         throw new InvalidDataException("Imported background decompression crosses bank $7E.");
                     for (int i = 0; i < expanded.Length; i++)
@@ -161,7 +161,7 @@ internal static class LibraryBackgroundProgramImporter
         private readonly byte[] _bytes = new byte[2 * SnesBusLayoutConstants2.BankBytes];
 
         /// <summary>The cartridge source this staging sits beside.</summary>
-        private readonly IImportCartridgeSource _cartridge = CartridgeImportSource.Require(cartridge);
+        private readonly IImportCartridgeSource _cartridge = cartridge;
 
         /// <inheritdoc />
         public byte ReadCartridgeByte(int cpuAddress) => _cartridge.ReadCartridgeByte(cpuAddress);

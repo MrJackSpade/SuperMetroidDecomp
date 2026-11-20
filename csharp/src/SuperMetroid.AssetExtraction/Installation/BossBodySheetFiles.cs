@@ -167,6 +167,7 @@ public static class BossBodySheetFiles
         PropertyNameCaseInsensitive = true,
         WriteIndented = false,
         RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
         RespectRequiredConstructorParameters = true,
     };
 }

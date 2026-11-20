@@ -244,6 +244,7 @@ public static class RoomBlockSheetFiles
         PropertyNameCaseInsensitive = true,
         WriteIndented = false,
         RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
         RespectRequiredConstructorParameters = true,
         Converters = { new WrittenPictureLayerJsonConverter() },
     };

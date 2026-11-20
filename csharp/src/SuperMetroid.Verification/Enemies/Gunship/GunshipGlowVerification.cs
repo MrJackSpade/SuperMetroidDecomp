@@ -60,7 +60,7 @@ internal static class GunshipGlowVerification
     /// </summary>
     internal static void VerifyGunshipGlow(CartridgeImportAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         CeresColourEffectsVerification.AssertSpawn(cartridge, GlowSpawn, GlowDefinition, GunshipLightDefinitions.Glow, "the top hull's initialisation");
         foreach (int branch in new[] { PostCeresBranch, LandedBranch })
         {

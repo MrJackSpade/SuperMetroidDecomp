@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </remarks>
 public static class RoomEnemyDefinitionCatalog
 {
-    /// <summary>The 147 referenced enemy definitions.</summary>
+    /// <summary>The referenced enemy definitions.</summary>
     internal static readonly RoomEnemyDefinitionEntry[] Definitions =
     [
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.Boyon, new(1000, 10, new(8, 8), 4, null, null, GrappleEnemyReaction.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, EnemyReaction.OrdinaryTouch, EnemyReaction.OrdinaryShot, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, new EnemyDropChances(20, 10, 85, 130, 5, 5), EnemyVulnerabilityDefinitions.Boyon)),

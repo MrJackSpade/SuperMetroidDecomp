@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Escape;
 /// at the screen's centre, moves into its corner while counting, and reports expiry when the countdown reaches zero.
 /// </summary>
 /// <remarks>
-/// The countdown is held in centiseconds and removes one or two each update by the cadence that makes 128 updates take
-/// 2.13 seconds (<see cref="EscapeTimerCadence"/>). Counting below zero stops at zero. An expired countdown is only drawn
+/// The countdown is held in centiseconds and removes one or two each update by the timer's cadence
+/// (<see cref="EscapeTimerCadence"/>). Counting below zero stops at zero. An expired countdown is only drawn
 /// until the time-up stops it (#2499).
 /// </remarks>
 public sealed class EscapeTimer

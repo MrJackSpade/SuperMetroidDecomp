@@ -16,14 +16,14 @@ public sealed class MorphBallEyeBeamState : IDisplayLatch
     /// <summary>
     /// The angle from the beam's centre to each of its edges, with its fraction of a step: zero when the beam appears,
     /// grown by <see cref="AngularHalfWidthGrowth"/> each widening update with the fraction carrying into whole steps,
-    /// and set to four whole steps, keeping its fraction, on the update it reaches four.
+    /// and set to <see cref="MorphBallEyeBeamDefinitions.FullHalfWidth"/>, keeping its fraction, on the update its whole steps reach it.
     /// </summary>
     public RotationAngle AngularHalfWidth { get; internal set; }
 
-    /// <summary>The whole steps of <see cref="AngularHalfWidth"/>, none through four, which the beam's window geometry uses.</summary>
+    /// <summary>The whole steps of <see cref="AngularHalfWidth"/>, which the beam's window geometry uses.</summary>
     private TrigonometryAngle AngularWidth => AngularHalfWidth.ToTrigonometryAngle();
 
-    /// <summary>The widening speed, the turn the half-width grows by each update: zero when the beam appears and raised by a quarter step before each widening update adds it.</summary>
+    /// <summary>The widening speed, the turn the half-width grows by each update: zero when the beam appears and raised by <see cref="MorphBallEyeBeamDefinitions.WidthGrowthStep"/> before each widening update adds it.</summary>
     public RotationAngle AngularHalfWidthGrowth { get; internal set; }
 
     /// <summary>The colour of the sixteen-colour yellow brightness cycle the full beam shows next.</summary>

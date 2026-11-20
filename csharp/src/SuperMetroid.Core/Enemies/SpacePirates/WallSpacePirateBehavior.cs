@@ -35,8 +35,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     internal static void InitializeWallSpacePirate(RoomEnemyPlace place)
     {
         WallSpacePirateSpawnSettings settings = place.SpawnSettings<WallSpacePirateSpawnSettings>();
-        // Angles are 256ths of a turn. A slow jump turns two steps a frame for 63 frames; a fast one turns four steps a
-        // frame for 32 frames, to endpoints two steps further round.
+        // Angles are 256ths of a turn. A slow jump turns fewer steps a frame for longer than a fast one, which ends a
+        // little further round.
         WallSpacePirateJump jump = settings.JumpSpeed switch
         {
             WallSpacePirateJumpSpeed.Slow => SpacePirateMotionDefinitions.SlowWallJump,
@@ -135,8 +135,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Applies the split alignment rule when a Pirate starts or lands on a wall.</summary>
     private static void SnapWallSpacePirateXToWallGrid(RoomEnemyPlace place)
     {
-        // The wall alignment deliberately has two alignment grids. Offsets 0..10 within a block round down to an
-        // eight-pixel boundary; 11..15 round up to the next block's start.
+        // The wall alignment deliberately has two alignment grids. Offsets within a block below the forward snap round
+        // down to a half-block boundary; the rest round up to the next block's start.
         int x = place.Position.X.Whole;
         place.Position = place.Position.WithWholeX(RoomGridConversions.OffsetWithinBlock(x) < SpacePirateMotionDefinitions.WallSnapForwardFrom
             ? RoomGridConversions.HalfBlockStart(x)

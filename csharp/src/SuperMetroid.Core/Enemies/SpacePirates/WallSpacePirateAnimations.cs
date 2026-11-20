@@ -98,7 +98,7 @@ internal static class WallSpacePirateAnimations
     internal static Animation<WallSpacePirateSegment> StartingWith(WallSpacePirateSegment segment) => StartingAt[segment];
 
     /// <summary>
-    /// A climb (#2276): its entry cue <paramref name="entry"/>, the climb <paramref name="climb"/> four times, then the
+    /// A climb (#2276): its entry cue <paramref name="entry"/>, the climb <paramref name="climb"/> over (<see cref="ClimbRepeats"/>), then the
     /// choice <paramref name="choice"/> of the next.
     /// </summary>
     private static AnimationPhase<WallSpacePirateSegment>[] Climb(WallSpacePirateSegment entry, WallSpacePirateSegment climb, WallSpacePirateSegment choice) =>

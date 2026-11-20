@@ -345,7 +345,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         NorfairPipeBugStagger stagger)
     {
         state.CountFormationTick();
-        // The member moves its stagger's way one pixel per frame. The game clamps exactly at the distance from where its
+        // The member moves its stagger's way at its rise speed. The game clamps exactly at the distance from where its
         // rise ended: one moving up stops once above it, one moving down once at or below it.
         bool up = stagger.Direction == VerticalDirection.Up;
         AddPipeBugLinearVelocity(

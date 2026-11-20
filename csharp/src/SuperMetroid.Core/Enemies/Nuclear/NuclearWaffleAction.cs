@@ -9,6 +9,6 @@ public enum NuclearWaffleAction
 {
     /// <summary>Counts down the wait, then starts a sweep from its start angle, the head and every link before both turns again, and enables offscreen processing.</summary>
     Waiting,
-    /// <summary>Positions the head and seven interleaved links, advances angular speed, and returns to waiting when the final projectile link reaches the endpoint.</summary>
+    /// <summary>Positions the head and its interleaved links, advances angular speed, and returns to waiting when the final projectile link reaches the endpoint.</summary>
     Sweeping,
 }

@@ -98,7 +98,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Alternates left and right diagonal legs on the enemy's own update count.</summary>
     private static void RunSbugZigZag(RoomEnemyPlace place, SbugEnemyState state)
     {
-        // The enemy's update count alternates the diagonal legs every sixteen updates, read before this update is
+        // The enemy's update count alternates the diagonal legs at its zigzag cadence, read before this update is
         // counted.
         SbugLeg leg = ZigZagLeg(place, secondLeg: SbugDefinitions.ZigZagSecondLeg.IsSetIn(place.FrameCounter));
         SetSbugFacing(place, state, leg.Facing);

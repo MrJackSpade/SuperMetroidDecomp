@@ -470,7 +470,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         if (faded)
         {
             // The colour fade finishes, then the waiting phase holds the
-            // backdrop for three seconds before displaying the producer panel.
+            // backdrop for its wait before displaying the producer panel.
             Enter(EndingCreditsPhase.PostCreditsWaitingBackdrop, EndingSequenceDefinitions.Timing.WaitingBackdropFrames);
         }
         return true;
@@ -585,7 +585,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
             return;
         }
         RequirePhase(EndingCreditsPhase.PostCreditsReward);
-        // Both 64-update halves advance their shared colour fade on their fourth update and every fourth update after.
+        // Both halves advance their shared colour fade on the last update of each of its steps.
         CreditsRoll.StepRewardFade(reveal.Fade);
         StepActors();
         if (!PhaseHold.Count())
@@ -612,7 +612,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     {
         if (Phase == EndingCreditsPhase.ItemPercentageScrollDown)
         {
-            // The item-percentage scroll moves the shown text down two pixels an update, eighty in all, before the final
+            // The item-percentage scroll moves the shown text down by its drop each update before the final
             // message starts above it.
             InstalledArtwork.PostCreditsText.Drop += EndingSequenceDefinitions.Timing.TextDropPixelsPerUpdate;
             if (PhaseHold.Count())

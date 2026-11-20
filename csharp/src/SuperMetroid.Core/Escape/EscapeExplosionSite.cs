@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Escape;
 /// <summary>
 /// Where an escape room's random explosions go off (#2287): a behaviour object (#2485) holding the cadence they go off at,
 /// whether they go off only over scenery, the kinds an explosion whose random draw leaves its kind open shows by its
-/// block's column, and what the room's quake does beside them. Outdoors they go off every second update and only over
-/// scenery, the room shaking on with them; indoors every fourth update anywhere on the screen. It replaces the outdoors
+/// block's column, and what the room's quake does beside them. Outdoors they go off at the outdoor cadence and only over
+/// scenery, the room shaking on with them; indoors at the slower indoor cadence anywhere on the screen. It replaces the outdoors
 /// test the escape rooms' mains made.
 /// </summary>
 public abstract class EscapeExplosionSite
@@ -45,10 +45,10 @@ public abstract class EscapeExplosionSite
     /// <param name="earthquake">The room's earthquake.</param>
     internal virtual void AfterExplosions(RoomEarthquake earthquake) => Ensure.NotNull(earthquake);
 
-    /// <summary>Under Zebes's sky: an explosion every second update over scenery, the room's quake kept shaking.</summary>
+    /// <summary>Under Zebes's sky: an explosion at the outdoor cadence over scenery, the room's quake kept shaking.</summary>
     public static EscapeExplosionSite Outdoors { get; } = new OutdoorSite();
 
-    /// <summary>Inside: an explosion every fourth update anywhere on the screen.</summary>
+    /// <summary>Inside: an explosion at the indoor cadence anywhere on the screen.</summary>
     public static EscapeExplosionSite Indoors { get; } = new IndoorSite();
 
     /// <summary>

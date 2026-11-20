@@ -109,7 +109,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         {
             if (state.StablePositionTimer.StepEnds())
             {
-                // Remaining inside the tiny box for 64 frames means "stationary" on both
+                // Remaining inside the tiny box for its still duration means "stationary" on both
                 // axes and therefore selects the central spawn offset.
                 state.SamusMotion = new(SamusAxisMotion.Still, SamusAxisMotion.Still);
                 SpawnWreckedShipGhost(place, state, samusPosition);
@@ -231,8 +231,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     {
         place.Position = place.Position.AdvanceY(state.VerticalVelocity);
 
-        // The ghost appears 64 pixels above a Samus who has been rising, and Samus can rise to within 70 pixels of the
-        // top of the Wrecked Ship's main shaft and save room, so a ghost can bob a few pixels either side of the room's
+        // The ghost appears above a Samus who has been rising, by its spawn offset, and Samus can rise nearly to the top of
+        // the Wrecked Ship's main shaft and save room, so a ghost can bob a few pixels either side of the room's
         // top edge; it turns back toward where it appeared the short way, as DistanceAcrossRoomEdge.LiesBefore reads it.
         SignedSixteenSixteen acceleration = WreckedShipGhostAppearanceDefinitions.BobAcceleration.Toward(
             DistanceAcrossRoomEdge.LiesBefore(place.Position.Y.Whole, state.BobbingOriginY) ? VerticalDirection.Down : VerticalDirection.Up);

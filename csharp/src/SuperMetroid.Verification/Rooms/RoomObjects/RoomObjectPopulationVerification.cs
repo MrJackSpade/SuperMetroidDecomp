@@ -1308,9 +1308,15 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(0x0040, electricity.Position.Y.Whole,
             "save electricity starts two blocks above the station PLM");
 
+        // The retail cartridge's discharge list names the operand its first update shows: the band moved to the sweep's
+        // start (#2557), which the typed program shows as the band at that placement.
+        var native = new SuperMetroid.TestSupport.MovieReplay.Verification.NativeEnemyProjectileListReader(
+            SaveStationElectricityNativeListAddresses.DischargeStart, electricity.FrameHold.RawValue);
         enemies.StepEnemyProjectiles(level, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-        AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.SaveStationElectricityBand),
-            electricity.PresentationOperandAddress, "save electricity shows its band through its typed program");
+        native.Step(CartridgeImportSource.Require(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom()));
+        AssertEqual(EnemyProjectileFrameId.SaveStationElectricityBand, electricity.Frame, "save electricity shows its band through its typed program");
+        AssertEqual(EnemyProjectileProgramFrameOperands.OwnOperand(native.Operand), electricity.PresentationOperandAddress,
+            "save electricity's first update shows the band where the cartridge's first discharge operand draws it");
         AssertEqual(Offset16<RoomPixels>.Of(0, SaveStationElectricityDefinitions.SweepStartPixelsBelow), electricity.FramePlacement,
             "save electricity's sweep places its band at its start (#2557)");
         AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, electricity.SpritemapPointer,

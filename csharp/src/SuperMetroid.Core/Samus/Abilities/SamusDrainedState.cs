@@ -264,19 +264,24 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Runs one update of drained Samus's fall, using
+    /// Runs one update of drained Samus's fall while she falls, using
     /// the shared Y-speed calculation and block collision.
     /// </summary>
-    internal DrainedSamusMovementResult StepFalling(
+    /// <returns>Whether she was falling and the fall stepped.</returns>
+    internal bool TryStepFalling(
         RoomLevelData level,
         ISamusRoomObjects roomObjects,
         SamusState samus,
-        int frameCounter)
+        int frameCounter,
+        out DrainedSamusMovementResult result)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (Phase != DrainedSamusPhase.Falling)
-            throw new InvalidOperationException("Drained Samus is not falling.");
+        {
+            result = default;
+            return false;
+        }
 
         BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, frameCounter, out _, out bool downwardDisplacement);
 
@@ -295,9 +300,10 @@ public sealed class SamusDrainedState
             Phase = DrainedSamusPhase.OnFloor;
         }
 
-        return new DrainedSamusMovementResult(
+        result = new DrainedSamusMovementResult(
             downwardDisplacement && vertical.Collided,
             impact);
+        return true;
     }
 
     /// <summary>Stands drained Samus up.</summary>

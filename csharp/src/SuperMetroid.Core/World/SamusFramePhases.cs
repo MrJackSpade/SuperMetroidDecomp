@@ -525,13 +525,14 @@ internal sealed class SamusFramePhases
         [SamusMovementOwner.Drained] = (frame, samus, room) =>
         {
             _player.ClearProspectivePoses();
-            if (samus.Drained.Phase == DrainedSamusPhase.Falling)
-            {
-                frame.Record(samus.Drained.StepFalling(
+            if (samus.Drained.TryStepFalling(
                     room.LevelData,
                     room.RoomObjects,
                     samus,
-                    _clock.Counter));
+                    _clock.Counter,
+                    out DrainedSamusMovementResult fall))
+            {
+                frame.Record(fall);
             }
             else if (samus.InitializedPose != samus.Pose)
             {

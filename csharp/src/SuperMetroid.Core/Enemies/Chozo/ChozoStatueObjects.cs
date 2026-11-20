@@ -18,7 +18,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     /// <summary>The room's room objects, which the hand checks and the statues' objects join.</summary>
     private readonly RoomObjectPlaceList _places;
 
-    /// <summary>Starts the statue's hand sequence, which the room's enemies run.</summary>
+    /// <summary>Starts the statue's hand sequence, which the room's enemies run, and names the room objects it spawns at once.</summary>
     private readonly IChozoStatueHandActivation _hands;
     /// <summary>The room's liquid, which the Lower Norfair statue lowers.</summary>
     private readonly IRoomLiquid _roomFx;
@@ -70,7 +70,8 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
             // Both triggers turn the hand block to air before waking the statue (#2502); its behaviour, picture and
             // what it shows survive until the room object the statue then spawns runs.
             level.SetCollision(block, RoomCollisionType.Air);
-            _hands.ActivateChozoStatueHand(level);
+            foreach (RoomObjectSpawnRequest<ChozoStatueRoomObject> request in _hands.ActivateChozoStatueHand())
+                TrySpawnChozoStatueObject(level, request);
         }
         check.Delete();
     }

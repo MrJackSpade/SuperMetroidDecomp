@@ -34,7 +34,7 @@ internal sealed class DoorTransitionState
     public DoorTransitionPhase Phase => stage.Phase;
 
     /// <summary>Gets whether the transition has begun and has not yet completed.</summary>
-    private bool IsActive => stage is OrdinaryDoorTransition;
+    private bool IsActive => stage is OrdinaryDoorTransition or OpeningDoorTransition;
 
     /// <summary>
     /// Whether the next update continues the destination's load from the update before, which began it on
@@ -100,19 +100,36 @@ internal sealed class DoorTransitionState
         Ensure.NotNull(runtime);
         Ensure.NotNull(audio);
         Ensure.NotNull(loaderProgress);
-        if (stage is not OrdinaryDoorTransition transition)
+        if (stage is not (OrdinaryDoorTransition or OpeningDoorTransition))
             throw new InvalidOperationException("Door transition has not begun.");
         // A door transition carries the one Samus through both rooms.
         SamusState samus = runtime.Player.Samus;
 
         // The haze steps before the stage's work: the two fades name their fade, and every other update steps it plainly.
         CeresHazeState? haze = runtime.Room.LoadedScope.CeresHaze;
-        if (transition.Phase == DoorTransitionPhase.FadeInDestinationRoom)
+        if (stage.Phase == DoorTransitionPhase.FadeInDestinationRoom)
             haze?.StepWhileRoomFadesIn();
-        else if (transition.Phase == DoorTransitionPhase.FadeOutSourceRoom)
+        else if (stage.Phase == DoorTransitionPhase.FadeOutSourceRoom)
             haze?.StepWhileRoomFadesOut();
         else
             haze?.Step();
+        switch (stage)
+        {
+            case OpeningDoorTransition opening:
+                StepScrollingIn(opening, runtime, audio, controllerInput, loaderProgress, samus);
+                return;
+            case OrdinaryDoorTransition ordinary:
+                StepToDestination(ordinary, runtime, audio, controllerInput, loaderProgress, samus);
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(DoorTransitionStage)} {stage}.");
+        }
+    }
+
+    /// <summary>Runs one update of the transition before the destination has loaded, up to its load.</summary>
+    private void StepToDestination(OrdinaryDoorTransition transition, SuperMetroidRuntime runtime, AudioQueues audio,
+        ControllerButton controllerInput, IRoomLoadProgress loaderProgress, SamusState samus)
+    {
         switch (transition.Phase)
         {
             case DoorTransitionPhase.WaitForSoundQueues:
@@ -190,17 +207,19 @@ internal sealed class DoorTransitionState
                 // This update sets up the destination's enemy graphics, music, projectiles, block animations,
                 // room objects, FX and backgrounds; each following update moves the door's scroll one step, from
                 // where it stood when loading began, until it finishes.
-                runtime.RoomLoader.LoadPendingDoorDestinationForTransition(transition.SourceSamus);
+                DoorOpeningSourceView sourceView =
+                    runtime.RoomLoader.LoadPendingDoorDestinationForTransition(transition.Door, transition.SourceSamus);
                 runtime.LiquidWaveAndStatueDescentOrder.ResumeAfterRoomLoad();
                 // The load re-asserted the door's gates over the destination's enemies:
                 // elevator AI stays frozen through the final colour fade. The destination stays dark until its fade in
                 // takes its first step.
-                runtime.RoomLoader.BeginDoorOpeningScroll(
+                DoorOpeningScrollState scroll = runtime.RoomLoader.BeginDoorOpeningScroll(
                     transition.Door,
                     transition.SourceSamus,
+                    sourceView,
                     loaderProgress,
                     completedLoadingScrollUpdates: DoorOpeningScrollDefinitions.LoadingScrollUpdates);
-                runtime.RoomLoader.StepDoorOpeningScroll(loaderProgress);
+                runtime.RoomLoader.StepDoorOpeningScroll(scroll, loaderProgress);
                 if (runtime.Options.IconCancelEnabled)
                 {
                     // Resetting the projectiles selects the beam again when Icon Cancel is
@@ -208,17 +227,29 @@ internal sealed class DoorTransitionState
                     samus.SelectedHudItem = SuperMetroid.Core.Samus.HudItem.Beam;
                     samus.AutoCancelledItem = null;
                 }
-                transition.FadeSteps = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeLastStep, runtime.FadeStepCount);
-                runtime.DoorFade.FadeIn(transition.FadeSteps);
-                transition.Enter(DoorTransitionPhase.WaitForDoorOpeningScroll);
+                var fadeIn = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeLastStep, runtime.FadeStepCount);
+                runtime.DoorFade.FadeIn(fadeIn);
+                // The transition goes on with the destination's opening scroll, at its wait for the scroll.
+                stage = new OpeningDoorTransition(scroll, fadeIn);
                 break;
 
+            default:
+                throw new InvalidOperationException($"Door transition phase {transition.Phase} does not run before the destination loads.");
+        }
+    }
+
+    /// <summary>Runs one update of the transition once the destination has loaded: its opening scroll and fade in.</summary>
+    private void StepScrollingIn(OpeningDoorTransition transition, SuperMetroidRuntime runtime, AudioQueues audio,
+        ControllerButton controllerInput, IRoomLoadProgress loaderProgress, SamusState samus)
+    {
+        switch (transition.Phase)
+        {
             case DoorTransitionPhase.WaitForDoorOpeningScroll:
                 // Every update finishes an empty sprite frame even while the transition
                 // only waits on the door's scroll, so no faded enemy of the room left behind shows over the moving
                 // destination doorway.
                 runtime.RunBlankGameplayFrame(controllerInput);
-                if (runtime.RoomLoader.StepDoorOpeningScroll(loaderProgress))
+                if (runtime.RoomLoader.StepDoorOpeningScroll(transition.Scroll, loaderProgress))
                 {
                     // The room's objects run on the scroll's final update, before the frame
                     // that precedes the destination fade-in. Their setup can alter visible
@@ -235,7 +266,7 @@ internal sealed class DoorTransitionState
                 // The transition waits one update after the room objects run. This continues the
                 // same update's work, so it aligns X without another random draw.
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.RoomLoader.AlignSamusAfterDoorLoading();
+                runtime.RoomLoader.AlignSamusAfterDoorLoading(transition.Scroll);
                 transition.Enter(DoorTransitionPhase.StepDestinationBlockAnimations);
                 break;
 
@@ -268,7 +299,7 @@ internal sealed class DoorTransitionState
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
                 // Samus's nudges off the screen's edges and an elevator door's control setup apply only once the
                 // opening scroll has finished and the music is queued, not during the visible scroll.
-                runtime.RoomLoader.FinishDoorOpeningScroll();
+                runtime.RoomLoader.FinishDoorOpeningScroll(transition.Scroll);
                 runtime.RoomLoader.EndDoorTransitionDisplay();
                 // This update ends here; the first destination fade starts on the next.
                 transition.Enter(DoorTransitionPhase.DrawFirstDestinationFrame);
@@ -303,10 +334,8 @@ internal sealed class DoorTransitionState
                 }
                 break;
 
-            case DoorTransitionPhase.Inactive:
-            case DoorTransitionPhase.Complete:
             default:
-                throw new InvalidOperationException($"Unknown door transition phase {transition.Phase}.");
+                throw new InvalidOperationException($"Door transition phase {transition.Phase} does not run once the destination has loaded.");
         }
     }
 }

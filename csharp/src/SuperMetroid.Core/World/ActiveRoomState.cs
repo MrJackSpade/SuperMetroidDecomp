@@ -39,26 +39,26 @@ internal sealed class ActiveRoomState
     /// <summary>The scope a room load is building; null between loads.</summary>
     private RoomScopeConstruction? _construction;
 
-    /// <summary>The loaded room's scope; gameplay runs only in a loaded room.</summary>
-    internal RoomScope LoadedScope => Scope ?? throw new InvalidOperationException("No room is loaded.");
-
     /// <summary>Starts building a room's scope; until <see cref="Adopt"/>, the room views below read its parts.</summary>
     /// <exception cref="InvalidOperationException">A load is already in progress.</exception>
     internal RoomScopeConstruction BeginConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
-        LoadStation? loadStation)
+        LoadStation? loadStation, ScrollBoundaryCamera camera, SamusBombProjectileSystem bombProjectiles)
     {
         if (_construction is not null)
             throw new InvalidOperationException("A room load is already building its scope.");
-        _construction = new RoomScopeConstruction(door, room, assets, loadStation, RoomMainHandOvers);
-        return _construction;
+        var construction = new RoomScopeConstruction(door, room, assets, loadStation, camera, bombProjectiles, RoomMainHandOvers);
+        _construction = construction;
+        return construction;
     }
 
     /// <summary>Makes <paramref name="scope"/> the loaded room's, ending any construction.</summary>
-    internal void Adopt(RoomScope scope)
+    /// <returns>The runtime's loaded room, which every step that runs in a room receives.</returns>
+    internal RoomScope Adopt(RoomScope scope)
     {
         Scope = Ensure.NotNull(scope);
         RoomsLoaded++;
         _construction = null;
+        return scope;
     }
 
     /// <summary>The value one room view reads: the part under construction during a load, otherwise the loaded scope's.</summary>
@@ -67,9 +67,6 @@ internal sealed class ActiveRoomState
 
     /// <summary>The selected room and state of the room loading or loaded.</summary>
     public SelectedRoom? ActiveRoom => View(c => c.Room, s => s.Room);
-    /// <summary>The loaded room's definition; gameplay runs only in a loaded room.</summary>
-    public SelectedRoom LoadedRoom => ActiveRoom ??
-        throw new InvalidOperationException("No room is loaded.");
 
     /// <summary>The load-station door whose setup established the current room.</summary>
     public DoorDefinition? ActiveDoor => View(c => c.Door, s => s.Door);
@@ -84,19 +81,13 @@ internal sealed class ActiveRoomState
     /// The loaded room's camera, which keeps the view within the room's scroll limits; null until a room loads.
     /// </summary>
     public ScrollBoundaryCamera? Camera => View(c => c.Camera, s => s.Camera);
-    /// <summary>The loaded room's scroll camera.</summary>
-    public ScrollBoundaryCamera LoadedCamera => Camera ??
-        throw new InvalidOperationException("No room camera is loaded.");
 
 
     /// <summary>
     /// Active room's loaded foreground, block behaviours and background. Rendering and collision must
     /// share this instance; null means no room level data has been loaded yet.
     /// </summary>
-    private RoomLevelData? LevelData => View(c => c.LevelData, s => s.LevelData);
-    /// <summary>The loaded room's level data.</summary>
-    public RoomLevelData LoadedLevelData => LevelData ??
-        throw new InvalidOperationException("No room level data is loaded.");
+    public RoomLevelData? LevelData => View(c => c.LevelData, s => s.LevelData);
 
     /// <summary>The loading or loaded room's bombs, for frame roots such as the accepted-frame publication.</summary>
     internal SamusBombProjectileSystem? BombProjectiles => View(c => c.BombProjectiles, s => s.BombProjectiles);

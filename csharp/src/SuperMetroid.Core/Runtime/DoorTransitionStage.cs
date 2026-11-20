@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
 /// Where the door transition stands: resting before the first door or after a door's transition has completed, or one
-/// door's transition under way (<see cref="OrdinaryDoorTransition"/>), which carries everything that transition holds.
+/// door's transition under way: up to its destination's load (<see cref="OrdinaryDoorTransition"/>), then through its
+/// opening scroll and fade in (<see cref="OpeningDoorTransition"/>), each carrying everything that part of it holds.
 /// </summary>
 internal abstract class DoorTransitionStage
 {

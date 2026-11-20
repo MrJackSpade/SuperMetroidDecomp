@@ -19,7 +19,7 @@ internal sealed class RoomEnemyRuntimeServices(
     SharedGameState system,
     RoomScrollGrid scrolls,
     SamusFrameState player,
-    RoomObjectSystem roomObjects,
+    RoomObjectsReachedByEnemies roomObjects,
     GameplayDisplayState display,
     RoomAreaProgress progress) : IRoomEnemyServices,
     IEnemyRandomNumbers, IRoomScrollZoneAccess, ISamusControlLock,

@@ -138,7 +138,7 @@ internal sealed class RoomEnemySpecies
             var statueScene = new TourianEntranceStatueBehavior(enemies.Projectiles, statueRoom);
             var unlockEffects = new TourianUnlockBehavior(enemies.Room, enemies.Projectiles, enemies.Earthquake, enemies.Audio, statueScene, statueRoom);
             tourianEntranceStatueBehavior = statueScene;
-            TourianStatue = new TourianStatueActors(statueScene, unlockEffects);
+            TourianStatue = new RoomTourianStatues(statueRoom, new TourianStatueActors(statueScene, unlockEffects));
         }
         var sporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = enemies.Audio, Room = enemies.Room, Presentation = enemies.Presentation, Projectiles = enemies.Projectiles, EffectActors = enemies.EffectActors, FrameContext = enemies.FrameContext, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, PassEvents = enemies.PassEvents, CameraFloor = enemies.CameraFloor });
         var fallingSparksBehavior = new FallingSparksBehavior(enemies.Room, enemies.Projectiles, enemies.EffectActors, enemies.FallingSparkFloorProbe);
@@ -428,7 +428,7 @@ internal sealed class RoomEnemySpecies
     /// The statue room's entrance statue and unlock effects as its statue sequence drives them; null in every other room
     /// (#2486).
     /// </summary>
-    internal ITourianStatueActors? TourianStatue { get; }
+    internal RoomTourianStatues? TourianStatue { get; }
 
     /// <summary>The ceiling tiles that fall in Ceres station during its escape.</summary>
     internal CeresFallingTiles CeresFallingTiles { get; }

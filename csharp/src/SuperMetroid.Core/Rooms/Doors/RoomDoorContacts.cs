@@ -56,10 +56,10 @@ internal sealed class RoomDoorContacts
     /// <exception cref="InvalidOperationException">Samus entered no door, or another one, while the destination loaded.</exception>
     internal void GoThroughEnteredDoor(DoorDefinition door)
     {
-        DoorDefinition entered = EnteredDoor
-            ?? throw new InvalidOperationException("The entered door disappeared while its destination's assets were prepared.");
-        if (entered != door)
-            throw new InvalidOperationException($"The entered door changed from {door.Name} to {entered.Name} while its destination's assets were prepared.");
+        Ensure.NotNull(door);
+        if (EnteredDoor != door)
+            throw new InvalidOperationException(
+                $"The entered door changed from {door.Name} to {EnteredDoor?.Name ?? "none"} while its destination's assets were prepared.");
         EnteredDoor = null;
     }
 }

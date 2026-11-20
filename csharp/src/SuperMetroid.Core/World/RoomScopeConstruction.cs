@@ -20,13 +20,16 @@ using SuperMetroid.Core.Bosses.Crocomire;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The room scope while <see cref="RoomLoader.LoadRoom"/> builds it. Each load step sets its part in the game's
-/// order, and later steps read the parts already built here, never the previous room's; <see cref="Complete"/> checks
-/// every required part. The load runs within one host call, so no frame observes a partial construction.
+/// The room scope while <see cref="RoomLoader.LoadRoom"/> builds it. The construction starts with the parts the load has
+/// before its first step (the room's level, camera and bombs); each load step composes its part in the game's order, and
+/// later steps read the parts already built here, never the previous room's. <see cref="Complete"/> takes the parts the
+/// load's later steps built, so a finished scope is never missing one. The load runs within one host call, so no frame
+/// observes a partial construction.
 /// </summary>
 [RoomLifetime]
 internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
-    LoadStation? loadStation, RoomMainHandOvers handOvers) : IDoorEventLoad
+    LoadStation? loadStation, ScrollBoundaryCamera camera, SamusBombProjectileSystem bombProjectiles,
+    RoomMainHandOvers handOvers) : IDoorEventLoad
 {
     /// <summary>What the previous room's main handed on, each hand-over given only to the main that carries it.</summary>
     private readonly RoomMainHandOvers _handOvers = Ensure.NotNull(handOvers);
@@ -55,11 +58,14 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// </summary>
     public EncounterLooks Looks { get; } = new();
 
-    /// <summary>The level allocation, once the level step has run.</summary>
-    public RoomLevelData? LevelData { get; set; }
+    /// <summary>The room's level, which its assets loaded.</summary>
+    public RoomLevelData LevelData => Assets.LevelData;
 
-    /// <summary>The camera, once the camera step has run.</summary>
-    public ScrollBoundaryCamera? Camera { get; set; }
+    /// <summary>The room's camera, which the camera step places.</summary>
+    public ScrollBoundaryCamera Camera { get; } = Ensure.NotNull(camera);
+
+    /// <summary>Samus's bombs in the room, built new for it before its load begins.</summary>
+    public SamusBombProjectileSystem BombProjectiles { get; } = Ensure.NotNull(bombProjectiles);
 
 
     /// <summary>The scrolling-sky updater, once the definition step has composed a sky room's main.</summary>
@@ -77,29 +83,11 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>Whether the room's setup has spawned the scrolling sky's drifting bands (#2485).</summary>
     private bool _setupSpawnedSkyBands;
 
-    /// <summary>Samus's projectiles, once the teardown step has built them.</summary>
-    public SamusProjectileSystem? Projectiles { get; set; }
-
-    /// <summary>Samus's bombs, once the teardown step has built them.</summary>
-    public SamusBombProjectileSystem? BombProjectiles { get; set; }
-
-    /// <summary>The effect-overlay FX, once the FX step has built it.</summary>
-    public RoomFxOverlayState? FxOverlay { private get; set; }
-
-    /// <summary>The colour effects, once the FX step has built them.</summary>
-    public ColourEffectSystem? ColourEffects { get; set; }
-
     /// <summary>The Ceres haze, once the room's setup has composed it for a room whose setup spawns one (#2485).</summary>
     public CeresHazeState? CeresHaze { get; private set; }
 
     /// <summary>The Tourian statues' room, once the statue room's setup has composed it (#2485).</summary>
     public TourianStatueRoom? TourianStatueRoom { get; private set; }
-
-    /// <summary>The block animations, once the definition step has built them.</summary>
-    public RoomBlockAnimations? BlockAnimations { get; set; }
-
-    /// <summary>The Tourian statues, once the post-enemy step has built them for the statue room.</summary>
-    public TourianStatueSequence? TourianStatues { get; set; }
 
     /// <summary>The room's main, once the definition step has composed the one its state names.</summary>
     public IRoomMain? Main { get; private set; }
@@ -109,12 +97,6 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
 
     /// <summary>The Ceres elevator shaft's turn, once the elevator door's room event has started it (#2485).</summary>
     public CeresElevatorShaftRoomMainState? CeresElevatorShaft { get; private set; }
-
-    /// <summary>The enemy system, once the enemy step has built it.</summary>
-    public RoomEnemySystem? Enemies { get; set; }
-
-    /// <summary>The room-object system, once the room-object population step has built it.</summary>
-    public RoomObjectSystem? RoomObjects { get; set; }
 
     /// <summary>
     /// Composes the scrolling sky's main (#2287): the sky, whose bands drift only where the room's effect or its setup
@@ -191,16 +173,24 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>Composes the Dachora room's main, which moves the camera toward its shaft while the shaft stands open (#2293).</summary>
     internal void ComposeDachoraShaftCameraMain() => Main = new DachoraShaftCameraMain();
 
-    /// <summary>The finished scope.</summary>
-    /// <exception cref="InvalidOperationException">A required load step has not run.</exception>
-    public RoomScope Complete() => new()
+    /// <summary>The finished scope, with the parts the load's later steps built.</summary>
+    /// <param name="blockAnimations">The room's block animations.</param>
+    /// <param name="fxOverlay">The room's effect.</param>
+    /// <param name="colourEffects">The room's colour effects.</param>
+    /// <param name="projectiles">Samus's projectiles in the room.</param>
+    /// <param name="roomObjects">The room's room objects.</param>
+    /// <param name="enemies">The room's enemies.</param>
+    /// <param name="tourianStatues">The statues' sequence, which only the statue room has.</param>
+    public RoomScope Complete(RoomBlockAnimations blockAnimations, RoomFxOverlayState fxOverlay, ColourEffectSystem colourEffects,
+        SamusProjectileSystem projectiles, RoomObjectSystem roomObjects, RoomEnemySystem enemies,
+        TourianStatueSequence? tourianStatues) => new()
     {
         Door = Door,
         Room = Room,
         Assets = Assets,
         LoadStation = LoadStation,
-        LevelData = LevelData ?? throw Missing(nameof(LevelData)),
-        Camera = Camera ?? throw Missing(nameof(Camera)),
+        LevelData = LevelData,
+        Camera = Camera,
         ArtworkFrames = ArtworkFrames,
         Appearance = Appearance,
         Looks = Looks,
@@ -216,19 +206,15 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
             ? new RoomSky(sky, new RoomBackgroundImageResolver(Assets.Pictures.Sky(sky.Sky, Assets.Tileset), Assets.BlockSheet))
             : null,
         Floor = Floor,
-        Projectiles = Projectiles ?? throw Missing(nameof(Projectiles)),
-        BombProjectiles = BombProjectiles ?? throw Missing(nameof(BombProjectiles)),
-        FxOverlay = FxOverlay ?? throw Missing(nameof(FxOverlay)),
-        ColourEffects = ColourEffects ?? throw Missing(nameof(ColourEffects)),
+        Projectiles = Ensure.NotNull(projectiles),
+        BombProjectiles = BombProjectiles,
+        FxOverlay = Ensure.NotNull(fxOverlay),
+        ColourEffects = Ensure.NotNull(colourEffects),
         CeresHaze = CeresHaze,
-        BlockAnimations = BlockAnimations ?? throw Missing(nameof(BlockAnimations)),
-        TourianStatues = TourianStatues,
+        BlockAnimations = Ensure.NotNull(blockAnimations),
+        TourianStatues = tourianStatues,
         Main = Main,
-        Enemies = Enemies ?? throw Missing(nameof(Enemies)),
-        RoomObjects = RoomObjects ?? throw Missing(nameof(RoomObjects)),
+        Enemies = Ensure.NotNull(enemies),
+        RoomObjects = Ensure.NotNull(roomObjects),
     };
-
-    /// <summary>The failure for a load that completed without building <paramref name="part"/>.</summary>
-    private static InvalidOperationException Missing(string part) =>
-        new($"The room load completed without building its {part}.");
 }

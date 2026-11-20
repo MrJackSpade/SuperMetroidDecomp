@@ -14,8 +14,12 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
 /// <param name="gameplay">The main gameplay update, which runs behind the brightening at the pause's end.</param>
-internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePhases gameplay) : IGameplayPhase
+/// <param name="step">The step the pause is at, one that shows no pause screen (<see cref="PauseMenuGameSequence"/> shows it).</param>
+internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePhases gameplay, PauseStep step) : IGameplayPhase
 {
+    /// <summary>The step the pause is at.</summary>
+    internal PauseStep CurrentStep => step;
+
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.Pause;
 
@@ -25,35 +29,31 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
     /// advances the liquid wave and the statues' descent before the generator, and the generator advances once before each
     /// pause-screen step.
     /// </remarks>
-    public PhaseRandomStep RandomStep => session.PauseStep switch
+    public PhaseRandomStep RandomStep => step switch
     {
         PauseStep.DarkeningGameplay or PauseStep.BrighteningGameplay => PhaseRandomStep.RuntimeOwned,
         PauseStep.PreparingPauseScreen => PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance,
-        PauseStep.FadingIn or PauseStep.Menu or PauseStep.FadingOut or PauseStep.RestoringGameplay => PhaseRandomStep.Advance,
-        _ => throw new InvalidOperationException($"Undefined {nameof(PauseStep)} {session.PauseStep}."),
+        PauseStep.RestoringGameplay => PhaseRandomStep.Advance,
+        _ => throw new InvalidOperationException($"Undefined {nameof(PauseStep)} {step}."),
     };
 
     /// <inheritdoc/>
     /// <remarks>Each step without gameplay publishes held input after it returns.</remarks>
-    public GamePhaseAudio Audio => session.PauseStep switch
+    public GamePhaseAudio Audio => step switch
     {
         PauseStep.DarkeningGameplay or PauseStep.BrighteningGameplay => GamePhaseAudio.Ordinary,
-        PauseStep.PreparingPauseScreen or PauseStep.FadingIn or PauseStep.Menu or PauseStep.FadingOut or
-            PauseStep.RestoringGameplay => GamePhaseAudio.PublishesHeldInputAfterPause,
-        _ => throw new InvalidOperationException($"Undefined {nameof(PauseStep)} {session.PauseStep}."),
+        PauseStep.PreparingPauseScreen or PauseStep.RestoringGameplay => GamePhaseAudio.PublishesHeldInputAfterPause,
+        _ => throw new InvalidOperationException($"Undefined {nameof(PauseStep)} {step}."),
     };
 
     /// <inheritdoc/>
-    public string Name => session.PauseStep switch
+    public string Name => step switch
     {
         PauseStep.DarkeningGameplay => $"Pausing: gameplay darken ({session.PauseBrightness})",
         PauseStep.PreparingPauseScreen => "Pausing: load pause assets",
-        PauseStep.FadingIn => $"Paused: fade in ({session.PauseBrightness})",
-        PauseStep.Menu => session.ScreenAs<PauseMenuState>()?.ScreenMode == PauseScreenMode.Equipment ? "Paused: equipment" : "Paused: map",
-        PauseStep.FadingOut => $"Unpausing: fade out ({session.PauseBrightness})",
         PauseStep.RestoringGameplay => "Unpausing: restore gameplay",
         PauseStep.BrighteningGameplay => $"Unpausing: gameplay brighten ({session.PauseBrightness})",
-        _ => throw new InvalidOperationException($"Undefined {nameof(PauseStep)} {session.PauseStep}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(PauseStep)} {step}."),
     };
 
     /// <inheritdoc/>
@@ -62,22 +62,13 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput, LoadedGameplay live)
     {
-        switch (session.PauseStep)
+        switch (step)
         {
             case PauseStep.DarkeningGameplay:
                 DarkenGameplay(controllerInput, live);
                 break;
             case PauseStep.PreparingPauseScreen:
                 PreparePauseScreen(controllerInput, live);
-                break;
-            case PauseStep.FadingIn:
-                FadeIn(controllerInput, live);
-                break;
-            case PauseStep.Menu:
-                RunMenu(controllerInput, live);
-                break;
-            case PauseStep.FadingOut:
-                FadeOut(controllerInput, live);
                 break;
             case PauseStep.RestoringGameplay:
                 RestoreGameplay(controllerInput, live);
@@ -86,7 +77,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
                 BrightenGameplay(controllerInput, live);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(PauseStep)} {session.PauseStep}.");
+                throw new InvalidOperationException($"Undefined {nameof(PauseStep)} {step}.");
         }
     }
 
@@ -143,58 +134,11 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         // environmental sound plays on under the menu.
         session.audio.QueueCancelSoundEffects(SoundRequestPriority.Normal);
         SelectedRoom pauseRoom = live.Room.Room;
-        session.Show(new PauseMenuState(new PauseMenuEntry { Samus = live.Runtime.Player.Samus, System = live.Runtime.System, Area = pauseRoom.Area, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayHud = live.Runtime.AcceptedHud, MapRevealMode = session.Assists.MapReveal, ScreenContent = session.Artwork.ScreenContent, SpriteSheets = session.Artwork.SpriteSheets }));
+        var menu = new PauseMenuState(new PauseMenuEntry { Samus = live.Runtime.Player.Samus, System = live.Runtime.System, Area = pauseRoom.Area, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayHud = live.Runtime.AcceptedHud, MapRevealMode = session.Assists.MapReveal, ScreenContent = session.Artwork.ScreenContent, SpriteSheets = session.Artwork.SpriteSheets });
         session.BeginPauseFade(0);
-        session.display.PublishMenu(session.ActivePauseMenu);
+        session.display.PublishMenu(menu);
         session.SetDisplayBrightness(session.PauseBrightness);
-        session.Enter(PauseStep.FadingIn);
-    }
-
-    /// <summary>One update of the pause screen brightening.</summary>
-    private void FadeIn(ControllerButton controllerInput, LoadedGameplay live)
-    {
-        live.Runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        bool lit = session.AdvanceScreenFadeIn();
-        session.ActivePauseMenu.AdvanceAnimations(live.Runtime.Clock.ShortCounter, PauseAnimationPhase.FadingIn);
-        session.display.PublishMenu(session.ActivePauseMenu);
-        session.SetDisplayBrightness(session.PauseBrightness);
-        if (lit)
-            session.Enter(PauseStep.Menu);
-    }
-
-    /// <summary>One update of the pause map and equipment screens.</summary>
-    private void RunMenu(ControllerButton controllerInput, LoadedGameplay live)
-    {
-        live.Runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        session.ActivePauseMenu.SynchronizeAcceptedHud(live.Runtime.AcceptedHud);
-        live.Runtime.UpdatePauseHeldButtonRepeat(Pause.PauseCadenceDefinitions.HeldInputRepeatDelay);
-        bool unpauseRequested = session.ActivePauseMenu.Step(
-            live.Runtime.PauseHeldButtonRepeat.Repeating,
-            live.Runtime.PlayerButtons.NewlyPressed,
-            live.Runtime.PlayerButtons.Current,
-            live.Runtime.Clock.ShortCounter,
-            live.Room.BombProjectiles);
-        // The paused update writes the HUD after reading pause input; the next displayed frame shows
-        // its rows, including the first frame of the unpause fade.
-        live.Runtime.Hud.UpdateGameplayCounters(live.Runtime.Player.Samus, live.Runtime.AudioRequests,
-            timeIsFrozen: true);
-        session.display.PublishMenu(session.ActivePauseMenu);
-        if (unpauseRequested)
-        {
-            session.BeginPauseFade(DisplayBrightness.Full);
-            session.Enter(PauseStep.FadingOut);
-        }
-    }
-
-    /// <summary>One update of the pause screen fading out.</summary>
-    private void FadeOut(ControllerButton controllerInput, LoadedGameplay live)
-    {
-        live.Runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        session.ActivePauseMenu.SynchronizeAcceptedHud(live.Runtime.AcceptedHud);
-        session.ActivePauseMenu.AdvanceAnimations(live.Runtime.Clock.ShortCounter, PauseAnimationPhase.FadingOut);
-        session.display.PublishMenu(session.ActivePauseMenu);
-        if (session.StepScreenFadeOut())
-            session.Enter(PauseStep.RestoringGameplay);
+        session.Enter(PauseMenuStep.FadingIn, menu);
     }
 
     /// <summary>Restores gameplay on a blank display.</summary>
@@ -221,7 +165,6 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         resumedSamus.Control.ReleaseRefillStationOnUnpause();
         live.Room.Enemies.Elevator.ResumeFromPause();
         live.Runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        session.Close<PauseMenuState>();
         session.BeginPauseFade(0);
         session.display.PublishBlack();
         session.Enter(PauseStep.BrighteningGameplay);
@@ -238,7 +181,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         {
             // The brightening explicitly restores main gameplay on its final frame.
             session.screenFade.StepEvery(1);
-            session.Enter(SuperMetroidGameState.MainGameplay);
+            session.EnterMainGameplay();
         }
     }
 }

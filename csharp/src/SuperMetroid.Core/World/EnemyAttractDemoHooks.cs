@@ -4,17 +4,11 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.World;
 
 /// <summary>The attract demo hooks over Kraid.</summary>
-/// <param name="encounters">The room's bosses' encounters, Kraid's among them once his body sets up.</param>
+/// <param name="encounters">The room's bosses' encounters, whose waits on Kraid his body's setup runs.</param>
 internal sealed class EnemyAttractDemoHooks(RoomBossEncounters encounters) : IEnemyAttractDemoHooks
 {
     /// <inheritdoc/>
-    /// <remarks>
-    /// The demo reaches the encounter Kraid's body began, which the room's bosses' encounters hold (#2218, #2554). A room
-    /// without Kraid has no phase wait to start.
-    /// </remarks>
-    public void StartKraidPhaseWait(int updates)
-    {
-        if (encounters.Kraid is { } kraid)
-            kraid.BodyState.PhaseWait.LastFor(updates);
-    }
+    /// <remarks>The wait is composed with the encounter Kraid's body begins, as it finishes setting up (#2218, #2554).</remarks>
+    public void StartKraidPhaseWaitAsHeSetsUp(int updates) =>
+        encounters.WhenKraidSetsUp(kraid => kraid.BodyState.PhaseWait.LastFor(updates));
 }

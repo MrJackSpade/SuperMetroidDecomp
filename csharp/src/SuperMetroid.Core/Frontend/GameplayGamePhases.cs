@@ -49,7 +49,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                 // so Samus, her projectiles and the enemies resume on the same update, which is main gameplay's own: its
                 // pause check, the Ceres elevator and Samus's death see the game in main gameplay (#2526).
                 live.Runtime.Freeze.GameplayTimeFrozen = false;
-                session.Enter(SuperMetroidGameState.MainGameplay);
+                session.EnterMainGameplay();
                 return GameplayUpdateOwner.MainGameplay;
             } }, live.Room);
         session.WriteCompletedSave(outcome, live.Runtime);
@@ -124,21 +124,19 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             case GameplayUpdateTransition.MapStationPause:
                 // The message box's close explicitly starts the pause for map acquisition, independently of Start or the
                 // station's input lock. Keep this separate from admission of a manual pause request.
-                session.Close<PauseMenuState>();
                 session.Enter(PauseStep.DarkeningGameplay);
                 break;
             case GameplayUpdateTransition.Pause:
                 // Samus's pause check runs during the main-gameplay update just completed. It sets the pause fade's wait
                 // before each step and starts the pause; the following update spends the first wait.
                 session.screenFade.SetCadence(PauseFadeTiming.WaitBeforeEachStep, PauseFadeTiming.WaitBeforeEachStep);
-                session.Close<PauseMenuState>();
                 session.Enter(PauseStep.DarkeningGameplay);
                 break;
             case GameplayUpdateTransition.CeresDeparture:
                 // The elevator has already selected standing pose and locked Samus. The following update owns the
                 // elevator hold (CeresElevatorDepartureDefinitions.DepartureHoldFrames); this update does not count it down.
                 session.ceresDeparture.Begin();
-                session.Enter(SuperMetroidGameState.CeresDeparture);
+                session.EnterCeresDeparture();
                 break;
             case GameplayUpdateTransition.Door door:
                 // A door hit enters the door transition during the gameplay update. The already-produced gameplay image
@@ -169,7 +167,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                 return false;
             case SamusOutOfHealthRoute.ReserveRefill:
                 session.reserveRecovery.Begin(samus);
-                session.Enter(SuperMetroidGameState.ReserveTankRefill);
+                session.EnterReserveTankRefill();
                 return true;
             case SamusOutOfHealthRoute.Death:
                 // Samus's death disables colour effects and locks her input and drawing.

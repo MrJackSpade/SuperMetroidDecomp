@@ -233,8 +233,14 @@ internal sealed class AcceptedFrameBoundary
         // The warning an escape shows in the room, as its sequence describes it (#1555, #2573): Zebes's at the background's
         // depth, Ceres's at the foreground's, each drawn from the warning picture sheet's frames for the inputs they depend on
         // (#1466). A room shows one escape's warning at most.
-        ShownRoomWarning? zebes = WarningOf(scope, scope.Enemies.DisplaySources.ZebesWarning, appearance, RoomWarningDepth.WithBackground);
-        ShownRoomWarning? ceres = WarningOf(scope, scope.Enemies.DisplaySources.CeresWarning, appearance, RoomWarningDepth.WithForeground);
+        // A room no enemy writes over shows neither (#2554).
+        ShownRoomWarning? zebes = null;
+        ShownRoomWarning? ceres = null;
+        if (scope.WrittenPictures is RoomWrittenPictures.Sheet written)
+        {
+            zebes = WarningOf(written, scope.Enemies.DisplaySources.ZebesWarning, appearance, RoomWarningDepth.WithBackground);
+            ceres = WarningOf(written, scope.Enemies.DisplaySources.CeresWarning, appearance, RoomWarningDepth.WithForeground);
+        }
         if (zebes is not null && ceres is not null)
             throw new InvalidOperationException($"{scope.Room.Definition.Name} shows both Zebes's and Ceres's warnings.");
         // The planes are shared until gameplay changes level data.
@@ -242,12 +248,12 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// The warning <paramref name="text"/> shows at <paramref name="depth"/>, drawn from the room's warning picture sheet's
-    /// frames for the inputs they depend on (#1466), or null while it shows nothing.
+    /// The warning <paramref name="text"/> shows at <paramref name="depth"/>, drawn from <paramref name="written"/>, the
+    /// room's warning picture sheet's frames for the inputs they depend on (#1466), or null while it shows nothing.
     /// </summary>
-    /// <exception cref="InvalidDataException">A warning shows in a room whose tileset has no installed warning picture sheet.</exception>
-    private static ShownRoomWarning? WarningOf(RoomScope scope, RoomWarningText text, RoomAppearanceView appearance, RoomWarningDepth depth) =>
-        text.Pictures.IsEmpty ? null : new ShownRoomWarning(scope.WrittenPictures.Resolve(text, appearance), depth);
+    private static ShownRoomWarning? WarningOf(RoomWrittenPictures.Sheet written, RoomWarningText text, RoomAppearanceView appearance,
+        RoomWarningDepth depth) =>
+        text.Pictures.IsEmpty ? null : new ShownRoomWarning(written.Resolve(text, appearance), depth);
 
     /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's HUD picture sheet.</summary>
     private HudPictures HudPicturesIn(SpriteSheet sheet) =>

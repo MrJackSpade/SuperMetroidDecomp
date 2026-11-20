@@ -11,10 +11,18 @@ namespace SuperMetroid.Core.Frontend;
 /// end of the game, which goes to the death black-out.
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class CeresDestructionGameSequence(FrontendSession session) : IRuntimePhase
+/// <param name="outcome">Whether Samus escaped Ceres or is aboard it.</param>
+/// <param name="cinematic">The destruction cinematic the sequence shows.</param>
+internal sealed class CeresDestructionGameSequence(
+    FrontendSession session,
+    CeresDestructionOutcome outcome,
+    CeresDestructionCinematicState cinematic) : IRuntimePhase, IScreenPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.CeresDestruction;
+
+    /// <summary>Whether Samus escaped Ceres or is aboard it.</summary>
+    internal CeresDestructionOutcome Outcome => outcome;
 
     /// <inheritdoc/>
     /// <remarks>The destruction cinematics share the intro's cinematic step and its random advance.</remarks>
@@ -24,20 +32,23 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session) : IR
     public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
     /// <inheritdoc/>
-    public string Name => session.CeresDestructionOutcome switch
+    public string Name => outcome switch
     {
-        CeresDestructionOutcome.SamusEscaped => $"Ceres destruction: {session.ScreenAs<CeresDestructionCinematicState>()?.Phase}",
-        CeresDestructionOutcome.SamusAboard => $"Ceres destruction with Samus: {session.ScreenAs<CeresDestructionCinematicState>()?.Phase}",
-        _ => throw new InvalidOperationException($"Undefined {nameof(CeresDestructionOutcome)} {session.CeresDestructionOutcome}."),
+        CeresDestructionOutcome.SamusEscaped => $"Ceres destruction: {cinematic.Phase}",
+        CeresDestructionOutcome.SamusAboard => $"Ceres destruction with Samus: {cinematic.Phase}",
+        _ => throw new InvalidOperationException($"Undefined {nameof(CeresDestructionOutcome)} {outcome}."),
     };
 
     /// <inheritdoc/>
-    public bool IsWaitingOutDisplayFrame => session.ScreenAs<CeresDestructionCinematicState>()?.IsWaitingOutDisplayFrame == true;
+    public bool IsWaitingOutDisplayFrame => cinematic.IsWaitingOutDisplayFrame;
+
+    /// <inheritdoc/>
+    public IFrontendScreen Screen => cinematic;
 
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput, SuperMetroidRuntime runtime)
     {
-        switch (session.CeresDestructionOutcome)
+        switch (outcome)
         {
             case CeresDestructionOutcome.SamusEscaped:
                 StepEscaped(controllerInput, runtime);
@@ -46,7 +57,7 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session) : IR
                 StepWithSamusAboard(controllerInput, runtime);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresDestructionOutcome)} {session.CeresDestructionOutcome}.");
+                throw new InvalidOperationException($"Undefined {nameof(CeresDestructionOutcome)} {outcome}.");
         }
     }
 
@@ -57,10 +68,9 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session) : IR
         // the elevator's departure from Ceres and a saved game resumed at the destruction, show the cinematic with a
         // runtime loaded.
         runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        CeresDestructionCinematicState destruction = session.ActiveCeresDestruction;
-        destruction.Step();
-        session.display.PublishCeresDestruction(destruction);
-        if (destruction.Finished)
+        cinematic.Step();
+        session.display.PublishCeresDestruction(cinematic);
+        if (cinematic.Finished)
         {
             // The cinematic's end forces blank and enters the game load. The load's own
             // Zebes-landing branch, not cinematic code, selects Crateria and the Zebes arrival.
@@ -74,17 +84,15 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session) : IR
     {
         // Samus is lost with Ceres only from the escape's time-up, which ends a gameplay runtime's updates with her (#2503).
         runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        CeresDestructionCinematicState fatalDestruction = session.ActiveCeresDestruction;
-        fatalDestruction.Step();
-        session.display.PublishCeresDestruction(fatalDestruction);
-        if (fatalDestruction.Finished)
+        cinematic.Step();
+        session.display.PublishCeresDestruction(cinematic);
+        if (cinematic.Finished)
         {
             // The fatal cinematic's fade-out ends already
             // fully black, after clearing Samus's HUD selection and hurt timers.
             SamusState lostSamus = runtime.Player.Samus;
             lostSamus.SelectBeam();
             lostSamus.ClearHurtTimers();
-            session.Close<CeresDestructionCinematicState>();
             session.BeginBlackDeathBlackOut();
         }
     }

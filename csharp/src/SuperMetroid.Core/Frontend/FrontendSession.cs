@@ -51,6 +51,8 @@ internal sealed class FrontendSession
         // Construction is power-on: boot evaluates the saves once before entering the main game loop.
         earthquakeSoundDelay = saves.EarthquakeSoundDelayAtPowerOn();
         DemoPlaylist = StockAttractDemoScenes.Playlist(saves.DetermineCompletionDemoSetUnlocked());
+        // Power-on starts the title sequence.
+        Phase = new TitleResetPhase(this);
     }
 
     /// <summary>
@@ -99,48 +101,10 @@ internal sealed class FrontendSession
         new(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Samus);
     /// <summary>The audio advance on <see cref="soundClock"/> and clip playback, advanced at the end of every update.</summary>
     internal readonly AudioSession audioSession;
-    /// <summary>The frontend screen showing now: the one menu or cinematic the current state runs, or none.</summary>
-    internal IFrontendScreen? Screen { get; private set; }
-    /// <summary>Shows <paramref name="screen"/> in place of whatever screen was showing.</summary>
-    internal T Show<T>(T screen)
-        where T : class, IFrontendScreen
-    {
-        Screen = Ensure.NotNull(screen);
-        return screen;
-    }
-    /// <summary>Closes the screen when it is a <typeparamref name="T"/>; any other screen stays.</summary>
-    internal void Close<T>()
-        where T : IFrontendScreen
-    {
-        if (Screen is T)
-            Screen = null;
-    }
-    /// <summary>The screen showing when it is a <typeparamref name="T"/>, or null.</summary>
-    internal T? ScreenAs<T>()
-        where T : class, IFrontendScreen => Screen as T;
-    /// <summary>The screen showing, which must be a <typeparamref name="T"/>.</summary>
-    private T RequireScreen<T>(string what)
-        where T : class, IFrontendScreen => Screen as T ?? throw new InvalidOperationException($"The {what} is not running.");
     /// <summary>Live gameplay runtime, absent during frontend-only phases.</summary>
     private SuperMetroidRuntime? runtime;
     /// <summary>Live gameplay runtime, absent during frontend-only phases.</summary>
     internal SuperMetroidRuntime? Runtime => runtime;
-    /// <summary>The state of the opening title sequence, which exists only while that phase runs.</summary>
-    internal TitleSequenceState ActiveTitle => RequireScreen<TitleSequenceState>("opening title sequence");
-    /// <summary>The state of the file-select menu, which exists only while that phase runs.</summary>
-    internal FileSelectMenuState ActiveFileSelect => RequireScreen<FileSelectMenuState>("file-select menu");
-    /// <summary>The state of the saved-game map, which exists only while that phase runs.</summary>
-    internal FileSelectMapMenuState ActiveFileSelectMap => RequireScreen<FileSelectMapMenuState>("saved-game map");
-    /// <summary>The state of the options menu, which exists only while that phase runs.</summary>
-    internal GameOptionsMenuState ActiveOptions => RequireScreen<GameOptionsMenuState>("options menu");
-    /// <summary>The state of the intro cinematic, which exists only while that phase runs.</summary>
-    internal IntroCinematicState ActiveIntro => RequireScreen<IntroCinematicState>("intro cinematic");
-    /// <summary>The state of the Ceres destruction cinematic, which exists only while that phase runs.</summary>
-    internal CeresDestructionCinematicState ActiveCeresDestruction => RequireScreen<CeresDestructionCinematicState>("Ceres destruction cinematic");
-    /// <summary>The state of the ending and credits, which exists only while that phase runs.</summary>
-    internal EndingCreditsState ActiveEndingCredits => RequireScreen<EndingCreditsState>("ending and credits");
-    /// <summary>The state of the pause menu, which exists only while that phase runs.</summary>
-    internal PauseMenuState ActivePauseMenu => RequireScreen<PauseMenuState>("pause menu");
     /// <summary>The choices the options menu closed with, which every selected game starts with; null before any.</summary>
     internal SelectedGameplayOptions? ChosenOptions { get; private set; }
     /// <summary>Keeps <paramref name="options"/>'s choices for the selected game the menu starts.</summary>
@@ -235,76 +199,52 @@ internal sealed class FrontendSession
     internal event Action? SavesChanged;
     /// <summary>Raises <see cref="SavesChanged"/> after the game changed its saves.</summary>
     internal void RaiseSavesChanged() => SavesChanged?.Invoke();
+    /// <summary>
+    /// The sequence the game is running, at its current step (#2554): one phase, which carries what that step runs on and
+    /// shows. A step that shows a menu or cinematic holds that screen, so the screen exists exactly while the game is at it.
+    /// </summary>
+    internal IGamePhase Phase { get; private set; }
     /// <summary>The sequence the game is running.</summary>
-    public SuperMetroidGameState GameState { get; private set; } = SuperMetroidGameState.Title;
-    /// <summary>The title sequence's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.Title"/>.</summary>
-    internal TitleStep TitleStep { get; private set; }
-    /// <summary>The screen of choosing a game; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.FileSelect"/>.</summary>
-    internal FileSelectStep FileSelectStep { get; private set; }
-    /// <summary>What the game load loads; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.LoadingGame"/>.</summary>
-    internal GameDataLoadRoute LoadingRoute { get; private set; }
-    /// <summary>The door transition's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.DoorTransition"/>.</summary>
-    internal DoorTransitionStep DoorTransitionStep { get; private set; }
+    public SuperMetroidGameState GameState => Phase.State;
+    /// <summary>The gameplay phases, which the pause's brightening and the time-up's white-out also run (<see cref="Frontend.GameplayGamePhases"/>).</summary>
+    internal GameplayGamePhases GameplayPhases => field ??= new GameplayGamePhases(this);
     /// <summary>
     /// Whether a door's transition is loading, scrolling into and fading in the next room: the step the door enters once its
     /// entry's stop requests are queued, during which it loads only the room's music data and sound effects are disabled.
     /// </summary>
-    internal bool TransitioningThroughDoor =>
-        GameState == SuperMetroidGameState.DoorTransition && DoorTransitionStep == DoorTransitionStep.Transitioning;
-    /// <summary>The pause's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.Pause"/>.</summary>
-    internal PauseStep PauseStep { get; private set; }
-    /// <summary>The death sequence's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.DeathSequence"/>.</summary>
-    internal DeathSequenceStep DeathStep { get; private set; }
-    /// <summary>How Ceres's destruction ends; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.CeresDestruction"/>.</summary>
-    internal CeresDestructionOutcome CeresDestructionOutcome { get; private set; }
-    /// <summary>The time-up's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.TimeUp"/>.</summary>
-    internal TimeUpStep TimeUpStep { get; private set; }
-    /// <summary>The ending's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.Ending"/>.</summary>
-    internal EndingStep EndingStep { get; private set; }
-    /// <summary>The attract demo's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.AttractDemo"/>.</summary>
-    internal AttractDemoStep AttractDemoStep { get; private set; }
+    internal bool TransitioningThroughDoor => Phase is DoorTransitionGameSequence { CurrentStep: DoorTransitionStep.Transitioning };
 
-    /// <summary>
-    /// Enters <paramref name="sequence"/> at its first step: the title starts, choosing a game shows the save slots, the
-    /// game load loads the chosen game, a door is entered, the pause darkens gameplay, the death sequence makes its final
-    /// gameplay pass, Ceres is destroyed after Samus escaped, the time-up whitens, the ending leaves Zebes and an attract
-    /// demo loads.
-    /// </summary>
-    internal void Enter(SuperMetroidGameState sequence)
-    {
-        GameState = sequence;
-        TitleStep = TitleStep.Starting;
-        FileSelectStep = FileSelectStep.SaveSlots;
-        LoadingRoute = GameDataLoadRoute.SelectedGame;
-        DoorTransitionStep = DoorTransitionStep.EnteringDoor;
-        PauseStep = PauseStep.DarkeningGameplay;
-        DeathStep = DeathSequenceStep.FinalGameplayPass;
-        CeresDestructionOutcome = CeresDestructionOutcome.SamusEscaped;
-        TimeUpStep = TimeUpStep.WhiteningOut;
-        EndingStep = EndingStep.LeavingZebes;
-        AttractDemoStep = AttractDemoStep.Loading;
-    }
+    /// <summary>Enters <paramref name="phase"/>: the sequence it runs, at its step.</summary>
+    internal void Enter(IGamePhase phase) => Phase = Ensure.NotNull(phase);
 
-    /// <summary>Enters the title sequence at <paramref name="step"/>.</summary>
-    internal void Enter(TitleStep step)
-    {
-        Enter(SuperMetroidGameState.Title);
-        TitleStep = step;
-    }
+    /// <summary>Enters the fade into Landing Site or Ceres arrival; <see cref="BeginGameplayFadeIn"/> sets its fade.</summary>
+    private void EnterGameplayFadeIn() => Enter(new GamePhase(SuperMetroidGameState.GameplayFadeIn,
+        PhaseRandomStep.RuntimeOwned,
+        step: (controllerInput, live) => GameplayPhases.RunGameplayFadeIn(controllerInput, live),
+        name: () => GameplayFadeLeadsToCeresArrival
+            ? $"Ceres elevator fade-in (brightness {GameplayFadeIn.Level})"
+            : $"Landing Site fade-in (brightness {GameplayFadeIn.Level})"));
 
-    /// <summary>Enters choosing a game at <paramref name="step"/>.</summary>
-    internal void Enter(FileSelectStep step)
-    {
-        Enter(SuperMetroidGameState.FileSelect);
-        FileSelectStep = step;
-    }
+    /// <summary>Enters main gameplay.</summary>
+    internal void EnterMainGameplay() => Enter(new GamePhase(SuperMetroidGameState.MainGameplay,
+        PhaseRandomStep.RuntimeOwned,
+        step: (controllerInput, live) => GameplayPhases.RunMainGameplay(controllerInput, live),
+        name: () => "Gameplay"));
+
+    /// <summary>Enters the AUTO reserves' refill.</summary>
+    internal void EnterReserveTankRefill() => Enter(new GamePhase(SuperMetroidGameState.ReserveTankRefill,
+        PhaseRandomStep.RuntimeOwned,
+        step: (controllerInput, live) => GameplayPhases.RunReserveTankRefill(controllerInput, live),
+        name: () => "Reserve tank refill"));
+
+    /// <summary>Enters the Ceres elevator's departure, which <see cref="ceresDeparture"/> runs.</summary>
+    internal void EnterCeresDeparture() => Enter(new CeresDepartureGameSequence(this));
+
+    /// <summary>Enters the game-over menu, which opens on its first update.</summary>
+    internal void EnterGameOverMenu() => Enter(new GameOverOpeningPhase(this));
 
     /// <summary>Enters the game load of <paramref name="route"/>.</summary>
-    internal void Enter(GameDataLoadRoute route)
-    {
-        Enter(SuperMetroidGameState.LoadingGame);
-        LoadingRoute = route;
-    }
+    internal void Enter(GameDataLoadRoute route) => Enter(new LoadingGameSequence(this, route));
 
     /// <summary>Enters the door transition through <paramref name="door"/>, the door Samus entered, as she reaches it.</summary>
     internal void EnterDoor(DoorDefinition door)
@@ -314,32 +254,16 @@ internal sealed class FrontendSession
     }
 
     /// <summary>Enters the door transition at <paramref name="step"/>.</summary>
-    internal void Enter(DoorTransitionStep step)
-    {
-        Enter(SuperMetroidGameState.DoorTransition);
-        DoorTransitionStep = step;
-    }
+    internal void Enter(DoorTransitionStep step) => Enter(new DoorTransitionGameSequence(this, step));
 
-    /// <summary>Enters the pause at <paramref name="step"/>.</summary>
-    internal void Enter(PauseStep step)
-    {
-        Enter(SuperMetroidGameState.Pause);
-        PauseStep = step;
-    }
+    /// <summary>Enters the pause at <paramref name="step"/>, one that shows no pause screen.</summary>
+    internal void Enter(PauseStep step) => Enter(new PauseGameSequence(this, GameplayPhases, step));
+
+    /// <summary>Enters the pause at <paramref name="step"/>, showing <paramref name="menu"/>.</summary>
+    internal void Enter(PauseMenuStep step, PauseMenuState menu) => Enter(new PauseMenuGameSequence(this, step, Ensure.NotNull(menu)));
 
     /// <summary>Enters the death sequence at <paramref name="step"/>.</summary>
-    internal void Enter(DeathSequenceStep step)
-    {
-        Enter(SuperMetroidGameState.DeathSequence);
-        DeathStep = step;
-    }
-
-    /// <summary>Enters Ceres's destruction with <paramref name="outcome"/>.</summary>
-    private void Enter(CeresDestructionOutcome outcome)
-    {
-        Enter(SuperMetroidGameState.CeresDestruction);
-        CeresDestructionOutcome = outcome;
-    }
+    internal void Enter(DeathSequenceStep step) => Enter(new DeathGameSequence(this, step));
 
     /// <summary>
     /// Shows Ceres's destruction cinematic with <paramref name="outcome"/>, in the loaded game's text language, and enters
@@ -351,32 +275,16 @@ internal sealed class FrontendSession
     internal void BeginCeresDestruction(CeresDestructionOutcome outcome, SuperMetroidRuntime gameplayRuntime)
     {
         Ensure.NotNull(gameplayRuntime);
-        Show(new CeresDestructionCinematicState(
+        Enter(new CeresDestructionGameSequence(this, outcome, new CeresDestructionCinematicState(
             audio, Artwork.ScreenContent.PowerBombGlowColors, Artwork.IntroCinematicArt, Artwork.SpriteSheets,
-            outcome, japaneseText: gameplayRuntime.JapaneseText));
-        Enter(outcome);
+            outcome, japaneseText: gameplayRuntime.JapaneseText)));
     }
 
     /// <summary>Enters the time-up at <paramref name="step"/>.</summary>
-    internal void Enter(TimeUpStep step)
-    {
-        Enter(SuperMetroidGameState.TimeUp);
-        TimeUpStep = step;
-    }
-
-    /// <summary>Enters the ending at <paramref name="step"/>.</summary>
-    internal void Enter(EndingStep step)
-    {
-        Enter(SuperMetroidGameState.Ending);
-        EndingStep = step;
-    }
+    internal void Enter(TimeUpStep step) => Enter(new TimeUpGameSequence(this, GameplayPhases, step));
 
     /// <summary>Enters the attract demo at <paramref name="step"/>.</summary>
-    internal void Enter(AttractDemoStep step)
-    {
-        Enter(SuperMetroidGameState.AttractDemo);
-        AttractDemoStep = step;
-    }
+    internal void Enter(AttractDemoStep step) => Enter(new AttractDemoGameSequence(this, step));
     /// <summary>The compatibility services fixed at construction; production uses the game's own timing.</summary>
     internal SuperMetroidGameHostServices HostServices { get; }
     /// <summary>How far room loading has progressed; see <see cref="IRoomLoadProgress"/>.</summary>
@@ -433,7 +341,7 @@ internal sealed class FrontendSession
     internal void BeginZebesEscapeFade()
     {
         EscapeFade.Restart(DisplayBrightness.Full, 0);
-        Enter(EndingStep.LeavingZebes);
+        Enter(new LeavingZebesPhase(this));
     }
     /// <summary>
     /// The escape countdown expired, or the game returns to the time-up it started (#2518). The whole gameplay display, Samus
@@ -644,7 +552,7 @@ internal sealed class FrontendSession
     {
         GameplayFadeIn.Restart(0, GameplayFadeDefinitions.FadeInWaitBeforeEachStep);
         GameplayFadeLeadsToCeresArrival = target == GameplayFadeTarget.CeresArrival;
-        Enter(SuperMetroidGameState.GameplayFadeIn);
+        EnterGameplayFadeIn();
     }
     /// <summary>
     /// The end of the fade-in selects the next state, which then enters main gameplay; the Ceres arrival is
@@ -653,7 +561,7 @@ internal sealed class FrontendSession
     /// </summary>
     internal void FinishGameplayFadeIn()
     {
-        Enter(SuperMetroidGameState.MainGameplay);
+        EnterMainGameplay();
         GameplayFadeLeadsToCeresArrival = false;
         screenFade.StepEvery(GameplayFadeDefinitions.MainGameplayUpdatesPerStep);
         RecordFullBrightness();

@@ -8,8 +8,12 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>An attract demo: loading its room, playing its recording, and returning to another demo or the title.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class AttractDemoGameSequence(FrontendSession session) : IFrontendPhase, IRuntimePhase, IGameplayPhase
+/// <param name="step">The step the attract demo is at.</param>
+internal sealed class AttractDemoGameSequence(FrontendSession session, AttractDemoStep step) : IFrontendPhase, IRuntimePhase, IGameplayPhase
 {
+    /// <summary>The step the attract demo is at.</summary>
+    internal AttractDemoStep CurrentStep => step;
+
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.AttractDemo;
 
@@ -21,25 +25,25 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IFronte
     public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
     /// <inheritdoc/>
-    public string Name => $"Attract demo: {session.AttractDemoStep}";
+    public string Name => $"Attract demo: {step}";
 
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <inheritdoc/>
-    public PhaseGameplayNeed Need => session.AttractDemoStep switch
+    public PhaseGameplayNeed Need => step switch
     {
         AttractDemoStep.Loading => session.Demo.AwaitsScene ? PhaseGameplayNeed.Nothing : PhaseGameplayNeed.Runtime,
         AttractDemoStep.Starting or AttractDemoStep.Playing => PhaseGameplayNeed.LoadedRoom,
         AttractDemoStep.Unloading or AttractDemoStep.Routing => PhaseGameplayNeed.Nothing,
-        _ => throw new InvalidOperationException($"Undefined {nameof(AttractDemoStep)} {session.AttractDemoStep}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(AttractDemoStep)} {step}."),
     };
 
     /// <inheritdoc/>
     /// <remarks>The demo starts and plays in the room its load built.</remarks>
     public void Step(ControllerButton controllerInput, LoadedGameplay live)
     {
-        switch (session.AttractDemoStep)
+        switch (step)
         {
             case AttractDemoStep.Starting:
                 // The demo's first gameplay pass runs one gameplay frame before revealing the room. Its
@@ -55,7 +59,7 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IFronte
             case AttractDemoStep.Unloading:
             case AttractDemoStep.Routing:
             default:
-                throw new InvalidOperationException($"The attract demo's {session.AttractDemoStep} runs without its room.");
+                throw new InvalidOperationException($"The attract demo's {step} runs without its room.");
         }
     }
 
@@ -73,7 +77,7 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IFronte
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        switch (session.AttractDemoStep)
+        switch (step)
         {
             case AttractDemoStep.Loading:
                 BeginScene();
@@ -90,7 +94,7 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IFronte
             case AttractDemoStep.Starting:
             case AttractDemoStep.Playing:
             default:
-                throw new InvalidOperationException($"Undefined {nameof(AttractDemoStep)} {session.AttractDemoStep}.");
+                throw new InvalidOperationException($"Undefined {nameof(AttractDemoStep)} {step}.");
         }
     }
 
@@ -142,23 +146,24 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IFronte
             session.Enter(AttractDemoStep.Loading);
             return;
         }
+        TitleSequenceState title;
         if (session.Demo.Cancelled)
-            session.Show(TitleSequenceState.ReturnFromDemo(
+            title = TitleSequenceState.ReturnFromDemo(
                 session.audio,
                 session.Artwork.ScreenContent.TitleGradient,
                 session.Artwork.ScreenContent.TitleBackdrop,
-                session.Artwork.SpriteSheets));
+                session.Artwork.SpriteSheets);
         else
         {
             session.audio.QueueMusic(MusicRequest.Stop);
-            session.Show(new TitleSequenceState(
+            title = new TitleSequenceState(
                 session.audio,
                 session.Artwork.ScreenContent.TitleGradient,
                 session.Artwork.ScreenContent.TitleBackdrop,
-                session.Artwork.SpriteSheets));
+                session.Artwork.SpriteSheets);
         }
-        session.Enter(TitleStep.Showing);
-        session.display.PublishMenu(session.ActiveTitle);
+        session.Enter(new TitleScreenPhase(session, title));
+        session.display.PublishMenu(title);
     }
 
     /// <summary>Starts the transition out of a completed or cancelled demo scene.</summary>

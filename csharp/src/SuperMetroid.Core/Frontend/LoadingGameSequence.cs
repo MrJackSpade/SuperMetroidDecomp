@@ -9,8 +9,12 @@ namespace SuperMetroid.Core.Frontend;
 /// screen holds for the load's waits.
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class LoadingGameSequence(FrontendSession session) : IFrontendPhase, IRuntimePhase, IGameplayPhase
+/// <param name="step">What the game load loads.</param>
+internal sealed class LoadingGameSequence(FrontendSession session, GameDataLoadRoute step) : IFrontendPhase, IRuntimePhase, IGameplayPhase
 {
+    /// <summary>What the game load loads.</summary>
+    internal GameDataLoadRoute Route => step;
+
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.LoadingGame;
 
@@ -21,12 +25,12 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IFrontendPh
     public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
     /// <inheritdoc/>
-    public string Name => session.LoadingRoute switch
+    public string Name => step switch
     {
         GameDataLoadRoute.SelectedGame => session.LoadingExistingSave ? "Loading saved game" : "Loading fresh Ceres game",
         GameDataLoadRoute.SavedCheckpoint => $"Loading saved checkpoint ({session.GameLoading.Wait.UpdatesLeft} updates)",
         GameDataLoadRoute.ZebesLanding => $"Loading Landing Site ({session.GameLoading.Wait.UpdatesLeft} updates)",
-        _ => throw new InvalidOperationException($"Undefined {nameof(GameDataLoadRoute)} {session.LoadingRoute}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(GameDataLoadRoute)} {step}."),
     };
 
     /// <inheritdoc/>
@@ -34,7 +38,7 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IFrontendPh
 
     /// <inheritdoc/>
     public PhaseGameplayNeed Need => session.ResumesGameLoadingWait ? PhaseGameplayNeed.LoadedRoom
-        : session.LoadingRoute == GameDataLoadRoute.ZebesLanding ? PhaseGameplayNeed.Runtime
+        : step == GameDataLoadRoute.ZebesLanding ? PhaseGameplayNeed.Runtime
         : PhaseGameplayNeed.Nothing;
 
     /// <inheritdoc/>
@@ -58,7 +62,7 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IFrontendPh
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        switch (session.LoadingRoute)
+        switch (step)
         {
             case GameDataLoadRoute.SelectedGame:
                 // The whole load happens in one update, then the black screen holds for its waits.
@@ -77,7 +81,7 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IFrontendPh
                 break;
             case GameDataLoadRoute.ZebesLanding:
             default:
-                throw new InvalidOperationException($"Undefined {nameof(GameDataLoadRoute)} {session.LoadingRoute}.");
+                throw new InvalidOperationException($"Undefined {nameof(GameDataLoadRoute)} {step}.");
         }
     }
 
@@ -114,7 +118,7 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IFrontendPh
                 session.display.PublishBlack();
                 break;
             case GameLoadingCompletion.MainGameplay:
-                session.Enter(SuperMetroidGameState.MainGameplay);
+                session.EnterMainGameplay();
                 session.display.PublishGameplay(live);
                 break;
             default:

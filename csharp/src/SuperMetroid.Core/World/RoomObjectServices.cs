@@ -23,10 +23,10 @@ internal sealed record RoomObjectServices
     public required IStoryEvents Events { get; init; }
 
     /// <summary>
-    /// The room's Tourian statue as its grey caps see it: the statue room's, whose finished sinking its grey door waits for,
-    /// or none in every other room, which places no cap waiting for it (#2486, #2554).
+    /// Whether the room's Tourian entrance statue has finished sinking, as its grey caps read it (#2486, #2554): only the
+    /// statue room's statues finish it.
     /// </summary>
-    internal required GreyDoorStatue TourianStatue { get; init; }
+    internal required ITourianStatueProgress TourianStatue { get; init; }
 
     /// <summary>The room FX the Speed Booster escape, the n00b tube, collectibles and Tourian's acid trigger drive.</summary>
     public required IRoomObjectFx RoomFx { get; init; }

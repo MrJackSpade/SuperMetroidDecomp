@@ -11,8 +11,12 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Going through a door: reaching it, beginning the transition, then loading and showing the next room.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGameplayPhase
+/// <param name="step">The step the door transition is at.</param>
+internal sealed class DoorTransitionGameSequence(FrontendSession session, DoorTransitionStep step) : IGameplayPhase
 {
+    /// <summary>The step the door transition is at.</summary>
+    internal DoorTransitionStep CurrentStep => step;
+
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.DoorTransition;
 
@@ -27,12 +31,12 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
         : GamePhaseAudio.DoorTransition;
 
     /// <inheritdoc/>
-    public string Name => session.DoorTransitionStep switch
+    public string Name => step switch
     {
         DoorTransitionStep.EnteringDoor => "Door collision",
         DoorTransitionStep.BeginningTransition => "Loading destination room",
         DoorTransitionStep.Transitioning => "Destination room ready",
-        _ => throw new InvalidOperationException($"Undefined {nameof(DoorTransitionStep)} {session.DoorTransitionStep}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(DoorTransitionStep)} {step}."),
     };
 
     /// <inheritdoc/>
@@ -41,7 +45,7 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput, LoadedGameplay live)
     {
-        switch (session.DoorTransitionStep)
+        switch (step)
         {
             case DoorTransitionStep.EnteringDoor:
                 if (StepEnteringDoor(controllerInput, live))
@@ -54,7 +58,7 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
                 StepTransition(controllerInput, live);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(DoorTransitionStep)} {session.DoorTransitionStep}.");
+                throw new InvalidOperationException($"Undefined {nameof(DoorTransitionStep)} {step}.");
         }
     }
 
@@ -135,7 +139,7 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
             session.RecordFullBrightness();
             // Returning to gameplay restores sound admission (#2499). The game resumes spin audio only after it is
             // restored at the final fade boundary, not on each fade frame.
-            session.Enter(SuperMetroidGameState.MainGameplay);
+            session.EnterMainGameplay();
             if (SamusSpinSound.Select(live.Runtime.Player.Samus) is { } spinSound)
                 session.audio.QueueSound(spinSound, priority: SoundRequestPriority.High);
         }

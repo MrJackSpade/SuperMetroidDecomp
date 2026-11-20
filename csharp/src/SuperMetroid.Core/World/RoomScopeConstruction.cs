@@ -17,6 +17,9 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Bosses.Crocomire;
 
+using SuperMetroid.Core.Rooms.RoomObjects;
+
+using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
@@ -122,15 +125,13 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         Main = new EscapeShakingMain(site,
             diagonal is { } shaking ? new EscapeDiagonalQuake(shaking, _handOvers.EscapeQuake) : null);
 
-    /// <summary>Composes the Maridia elevatube's main over the ride its entry door composed (#2287, #2554).</summary>
-    /// <param name="tube">The tube's ride.</param>
-    internal void ComposeElevatubeMain(MaridiaElevatubeRoomMainState tube) => Main = new MaridiaElevatubeMain(tube);
-
     /// <inheritdoc/>
+    /// <remarks>The ride's room main runs it (#2287, #2554): only the tube's entry door composes the two.</remarks>
     public IElevatubeRide ComposeElevatubeRide()
     {
         var tube = new MaridiaElevatubeRoomMainState(_handOvers.ElevatubeFraction);
         MaridiaElevatube = tube;
+        Main = new MaridiaElevatubeMain(tube);
         return tube;
     }
 
@@ -160,9 +161,32 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     internal void ComposeCeresHaze(bool ridleyIsDead, bool immediateViewport) =>
         CeresHaze = new CeresHazeState(ridleyIsDead, immediateViewport);
 
+    /// <summary>
+    /// The room's written pictures, bound once as it loads (#2554): a room whose enemies write warning text over it is bound
+    /// to its tileset's written picture sheet; any other room writes nothing.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The room's enemies write warning text but its tileset has no installed sheet.</exception>
+    private RoomWrittenPictures WrittenPicturesOfRoom()
+    {
+        bool written = false;
+        foreach (RoomEnemyPlacement placement in Room.State.EnemyPopulation.Placements.Span)
+            written |= RoomWrittenPictures.Writers.Contains(placement.DefinitionId);
+        if (!written)
+            return RoomWrittenPictures.Unwritten.Instance;
+        return Assets.Pictures.Written.TryGetValue(Assets.Tileset, out WrittenPictureSheet? sheet)
+            ? new RoomWrittenPictures.Sheet(new WrittenPictureResolver(sheet))
+            : throw new InvalidDataException($"{Room.Definition.Name}'s enemies write warning text, but its tileset {Assets.Tileset} has no installed written picture sheet.");
+    }
+
     /// <summary>Composes the Tourian statues' room the statue room's setup builds over the room's effect (#2485).</summary>
     /// <param name="water">The room effect's water, which the statues' particles splash through.</param>
-    internal void ComposeTourianStatueRoom(RoomLiquidSurface water) => TourianStatueRoom = new TourianStatueRoom(water);
+    internal void ComposeTourianStatueRoom(RoomLiquidSurface water) => TourianStatueRoom = new TourianStatueRoom(water, TourianStatueProgress);
+
+    /// <summary>
+    /// Whether the room's Tourian entrance statue has finished sinking, as its grey caps read it (#2554): unfinished from the
+    /// load, and finished only by the statue room's statues.
+    /// </summary>
+    internal TourianStatueProgress TourianStatueProgress { get; } = new();
 
     /// <summary>Composes the Ceres pre-elevator hall's main and its debris countdown, carried from the previous room's main (#2287).</summary>
     internal void ComposeFallingDebrisMain() =>
@@ -202,9 +226,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         // Only a library background the player sees as its own picture has one installed (#1649).
         BackgroundImage = RoomLibraryBackgroundPicture.Of(Room.State.Background, background => new RoomBackgroundImageResolver(
             Assets.Pictures.Background(background, background.PictureDoor(Door), Assets.Tileset), Assets.BlockSheet)),
-        WrittenPictures = Assets.Pictures.Written.TryGetValue(Assets.Tileset, out WrittenPictureSheet? written)
-            ? new RoomWrittenPictures.Sheet(new WrittenPictureResolver(written))
-            : new RoomWrittenPictures.Absent(Room.Definition.Name),
+        WrittenPictures = WrittenPicturesOfRoom(),
         FxOverlayPictures = new WrittenPictureResolver(Assets.Pictures.FxOverlay(Assets.Tileset)),
         HudPictures = Assets.Pictures.Hud(Assets.Tileset),
         MessageBoxes = Assets.Pictures.MessageBox(Assets.Tileset),

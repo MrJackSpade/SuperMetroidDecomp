@@ -6,7 +6,8 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The Continue-or-title menu after death.</summary>
 /// <param name="session">The frontend session the menu runs against.</param>
-internal sealed class GameOverMenuGamePhase(FrontendSession session) : IFrontendPhase
+/// <param name="menu">The menu the step shows.</param>
+internal sealed class GameOverMenuGamePhase(FrontendSession session, GameOverMenuState menu) : IFrontendPhase, IScreenPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.GameOverMenu;
@@ -22,39 +23,36 @@ internal sealed class GameOverMenuGamePhase(FrontendSession session) : IFrontend
 
     /// <inheritdoc/>
     /// <remarks>The menu's first two steps each wait out a frame of the display.</remarks>
-    public bool IsWaitingOutDisplayFrame => session.ScreenAs<GameOverMenuState>()?.IsWaitingOutDisplayFrame == true;
+    public bool IsWaitingOutDisplayFrame => menu.IsWaitingOutDisplayFrame;
+
+    /// <inheritdoc/>
+    public IFrontendScreen Screen => menu;
 
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        GameOverMenuState gameOver = session.ScreenAs<GameOverMenuState>() ?? session.Show(new GameOverMenuState(session.audio,
-            session.Artwork.ScreenContent, session.Artwork.SpriteSheets, continueLoadsCeresArrival: session.saves.ReadSlot(session.SelectedSaveSlot)?.StartupRoute ==
-                SaveStartupRoute.CeresElevatorArrival));
-        gameOver.Step(controllerInput);
-        session.display.PublishMenu(gameOver);
-        if (gameOver.Outcome == GameOverMenuOutcome.CeresArrival)
+        menu.Step(controllerInput);
+        session.display.PublishMenu(menu);
+        if (menu.Outcome == GameOverMenuOutcome.CeresArrival)
         {
             // Starting a game publishes the Ceres load and reloads the save slot in the same update;
             // the Ceres loader runs on the next update. Gameplay owners are
             // rebuilt from the save file, so only the live random number survives.
-            session.Close<GameOverMenuState>();
             session.ContinueSavedGame();
             session.ReleaseRuntime();
             session.Enter(GameDataLoadRoute.SelectedGame);
         }
-        else if (gameOver.Outcome == GameOverMenuOutcome.Continue)
+        else if (menu.Outcome == GameOverMenuOutcome.Continue)
         {
             // The game-over menu's continue enters the area map after the fully black
             // frame. Keep that boundary separate from save reload.
-            session.Close<GameOverMenuState>();
-            session.Enter(FileSelectStep.AreaMap);
+            session.Enter(new AreaMapOpeningPhase(session));
             session.display.PublishBlack();
         }
-        else if (gameOver.Outcome == GameOverMenuOutcome.Title)
+        else if (menu.Outcome == GameOverMenuOutcome.Title)
         {
             // The game-over menu's exit step soft-resets only after its fade reaches black.
-            session.Close<GameOverMenuState>();
-            session.Enter(TitleStep.Starting);
+            session.Enter(new TitleResetPhase(session));
             session.display.PublishBlack();
         }
     }

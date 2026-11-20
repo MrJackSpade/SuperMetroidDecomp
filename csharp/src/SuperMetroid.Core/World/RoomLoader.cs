@@ -798,6 +798,10 @@ internal sealed class RoomLoader
             FxOverlay = roomFxOverlay,
             DisplaysInitialViewport = viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport,
         });
+        // A room whose effect has water hands it to its setup, which composes what it builds over it: the statue room's
+        // statues (#2554).
+        if (roomFxOverlay.LiquidSurface is { } water)
+            room.State.SetupBehavior.ComposeOverWater(scope, water);
         room.State.MainBehavior.Compose(scope);
         // Every room loads with Samus: a new game's Ceres start has initialized her before its first room loads.
         SamusState loadingSamus = _player.Samus;
@@ -878,7 +882,7 @@ internal sealed class RoomLoader
             Samus = roomObjectSamus,
             Bosses = progress,
             Events = progress,
-            TourianStatue = scope.TourianStatueRoom is { } statueRoom ? new GreyDoorStatue.InStatueRoom(statueRoom) : new GreyDoorStatue.Absent(),
+            TourianStatue = scope.TourianStatueProgress,
             RoomFx = new RoomObjectFx(roomFxOverlay, () => _player.Samus),
             Earthquake = roomObjectServices,
             Enemies = roomObjectServices,
@@ -935,6 +939,8 @@ internal sealed class RoomLoader
         // A main that acts on one of the room's enemies waits on it; the enemy's setup composes it (#2486, #2554).
         if (room.State.MainBehavior is IRoomMainOverRoomEnemies overEnemies)
             overEnemies.ComposeOverRoomEnemies(scope, enemies);
+        // An attract demo's room setup that acts on one of the room's enemies waits on it the same way (#2554).
+        entry.AttractDemoEnemySetup?.Invoke(enemies.AttractDemoHooks);
         enemies.Load(new RoomEnemyLoadRequest(
             room.State.EnemyPopulation,
             scope.Appearance)

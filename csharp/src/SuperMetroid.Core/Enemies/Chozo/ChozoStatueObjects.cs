@@ -53,8 +53,9 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
             behavior == ChozoStatueRoomDefinitions.WreckedShipHandBehavior;
         bool lowerNorfair = _area == AreaId.Norfair &&
             behavior == ChozoStatueRoomDefinitions.LowerNorfairHandBehavior;
-        // Only a statue's hand, spawned by the statue it belongs to, holds a hand's behaviour.
-        if ((!wreckedShip && !lowerNorfair) || !_hands.TryGetValue(block, out IChozoStatueHandActivation? hand)) return;
+        if (!wreckedShip && !lowerNorfair) return;
+        // Only a statue's hand, spawned and bound by the statue it belongs to as the room loads, holds a hand's behaviour.
+        IChozoStatueHandActivation hand = _hands[block];
         // Both setups report the block solid regardless of admission. The morph-left pose
         // is deliberately absent: the game explicitly lists these three poses.
         bool eligible = movingDown && collisionPose is

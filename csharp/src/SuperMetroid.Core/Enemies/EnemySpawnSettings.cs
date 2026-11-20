@@ -23,4 +23,14 @@ public record EnemySpawnSettings
     /// <param name="species">The room's species registry.</param>
     /// <param name="placing">The occupant being placed.</param>
     internal virtual EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).PlaceUntold(placing);
+
+    /// <summary>
+    /// How many parts the entry carrying these settings for <paramref name="definition"/> heads, through the factory that
+    /// takes them: none for a single enemy (#2554). The room's load reads it to check every entry has its factory.
+    /// </summary>
+    /// <param name="species">The room's species registry.</param>
+    /// <param name="definition">The entry's definition.</param>
+    /// <exception cref="InvalidDataException">No species in the room builds the entry.</exception>
+    internal virtual int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) =>
+        Ensure.NotNull(species).PartsHeadedUntold(definition);
 }

@@ -12,8 +12,12 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
 /// <param name="gameplay">The main gameplay update, which runs behind the white-out.</param>
-internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePhases gameplay) : IGameplayPhase
+/// <param name="step">The step the time-up is at.</param>
+internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePhases gameplay, TimeUpStep step) : IGameplayPhase
 {
+    /// <summary>The step the time-up is at.</summary>
+    internal TimeUpStep CurrentStep => step;
+
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.TimeUp;
 
@@ -22,22 +26,22 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
     /// The white-out runs gameplay, which advances the generator itself. The fade to black runs no gameplay; the room
     /// liquid's wave and the statues' descent still advance before the generator until it clears the room's effects.
     /// </remarks>
-    public PhaseRandomStep RandomStep => session.TimeUpStep switch
+    public PhaseRandomStep RandomStep => step switch
     {
         TimeUpStep.WhiteningOut => PhaseRandomStep.RuntimeOwned,
         TimeUpStep.FadingToBlack => PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance,
-        _ => throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {session.TimeUpStep}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {step}."),
     };
 
     /// <inheritdoc/>
     public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
     /// <inheritdoc/>
-    public string Name => session.TimeUpStep switch
+    public string Name => step switch
     {
         TimeUpStep.WhiteningOut => "Time up: white-out",
         TimeUpStep.FadingToBlack => "Time up: fade to black",
-        _ => throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {session.TimeUpStep}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {step}."),
     };
 
     /// <inheritdoc/>
@@ -46,7 +50,7 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput, LoadedGameplay live)
     {
-        switch (session.TimeUpStep)
+        switch (step)
         {
             case TimeUpStep.WhiteningOut:
                 WhiteOut(controllerInput, live);
@@ -55,7 +59,7 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
                 FadeToBlack(controllerInput, live);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {session.TimeUpStep}.");
+                throw new InvalidOperationException($"Undefined {nameof(TimeUpStep)} {step}.");
         }
     }
 

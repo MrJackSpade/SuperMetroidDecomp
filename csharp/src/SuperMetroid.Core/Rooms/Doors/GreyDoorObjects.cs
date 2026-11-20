@@ -16,17 +16,17 @@ internal sealed class GreyDoorObjects
     private readonly SharedGameState _system;
     /// <summary>The room's area.</summary>
     private readonly AreaId _area;
-    /// <summary>The room's Tourian statue as its caps see it (#2486, #2554): the statue room's, or none.</summary>
-    private readonly GreyDoorStatue _tourianStatue;
+    /// <summary>Whether the room's Tourian statue has finished sinking, which a cap may wait for (#2486, #2554).</summary>
+    private readonly ITourianStatueProgress _tourianStatue;
     /// <summary>Queues the dud sound for shots rejected while the door is locked.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
     /// <summary>Binds the grey caps' conditions to the room's progression and its sound requests.</summary>
     /// <param name="system">The game's progress, whose bosses and events the caps' locks read.</param>
     /// <param name="area">The room's area, whose bosses the caps wait for.</param>
-    /// <param name="tourianStatue">The room's Tourian statue as its caps see it: the statue room's, or none in every other room.</param>
+    /// <param name="tourianStatue">Whether the room's Tourian statue has finished sinking, which only the statue room's statues finish.</param>
     /// <param name="sounds">The room objects' sound requests.</param>
-    internal GreyDoorObjects(SharedGameState system, AreaId area, GreyDoorStatue tourianStatue, RoomObjectSoundQueue sounds)
+    internal GreyDoorObjects(SharedGameState system, AreaId area, ITourianStatueProgress tourianStatue, RoomObjectSoundQueue sounds)
     {
         _system = system;
         _area = area;
@@ -41,7 +41,6 @@ internal sealed class GreyDoorObjects
     private static readonly SoundRequestPriority DudSoundPriority = SoundRequestPriority.Normal;
 
     /// <summary>The lock a cap placed with <paramref name="condition"/> waits on, with what its test reads.</summary>
-    /// <exception cref="InvalidDataException">The cap waits for the Tourian statue in a room other than the statue room.</exception>
     private GreyDoorLock LockFor(GreyDoorCondition condition) => condition switch
     {
         GreyDoorCondition.AreaBossDefeated => new GreyDoorLock.BossDefeated(condition, _system, _area, DefeatedBosses.AreaBoss),
@@ -49,7 +48,7 @@ internal sealed class GreyDoorObjects
         GreyDoorCondition.AreaTorizoDefeated => new GreyDoorLock.BossDefeated(condition, _system, _area, DefeatedBosses.AreaTorizo),
         GreyDoorCondition.EnemyDeathQuota => new GreyDoorLock.EnemyDeathQuota(_system),
         GreyDoorCondition.Never => new GreyDoorLock.Never(),
-        GreyDoorCondition.TourianStatueFinished => _tourianStatue.FinishedLock(),
+        GreyDoorCondition.TourianStatueFinished => new GreyDoorLock.TourianStatueFinished(_tourianStatue),
         GreyDoorCondition.CrittersEscaped => new GreyDoorLock.EventSet(condition, _system, StoryEvent.CrittersEscaped),
         _ => throw new InvalidDataException($"Undefined {nameof(GreyDoorCondition)} {condition}."),
     };
@@ -68,7 +67,6 @@ internal sealed class GreyDoorObjects
     /// condition, resolved into its lock, and its door. Installs its shootable collision and places the cap, which takes its
     /// first look on its first update.
     /// </summary>
-    /// <exception cref="InvalidDataException">The cap waits for the Tourian statue outside the statue room.</exception>
     internal void SetupGreyDoor(
         RoomLevelData level,
         RoomObjectPlace place,

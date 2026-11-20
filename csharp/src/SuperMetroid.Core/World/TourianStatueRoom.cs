@@ -19,10 +19,15 @@ public sealed class TourianStatueRoom : ITourianStatueRoom, ITourianStatueProgre
 
     /// <summary>Builds the statue room over its effect's water, the statue standing raised.</summary>
     /// <param name="water">The room effect's water surface, which the particles splash through (#2486, #2554).</param>
-    internal TourianStatueRoom(RoomLiquidSurface water) => _water = Ensure.NotNull(water);
+    /// <param name="progress">The room's statue progress, which the sinking's end marks and the room's grey caps read.</param>
+    internal TourianStatueRoom(RoomLiquidSurface water, TourianStatueProgress progress)
+    {
+        _water = Ensure.NotNull(water);
+        Animation = new TourianStatueAnimation(progress);
+    }
 
     /// <inheritdoc/>
-    public TourianStatueAnimation Animation { get; } = new();
+    public TourianStatueAnimation Animation { get; }
 
     /// <inheritdoc/>
     public bool IsFinished => Animation.Finished;

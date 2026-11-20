@@ -9,6 +9,9 @@ internal abstract record MagdolliteSpawnSettings : EnemySpawnSettings
     /// <inheritdoc/>
     internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).Place(this, placing);
 
+    /// <inheritdoc/>
+    internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);
+
     /// <summary>Builds the part these settings name in <paramref name="place"/>.</summary>
     /// <param name="species">The Magdollite species.</param>
     /// <param name="place">The part's place.</param>

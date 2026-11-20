@@ -6,4 +6,7 @@ internal sealed record EtecoonSpawnSettings(EtecoonRoute Route) : EnemySpawnSett
 {
     /// <inheritdoc/>
     internal override EnemyPlaced Place(EnemySpeciesRegistry species, EnemyPlacing placing) => Ensure.NotNull(species).Place(this, placing);
+
+    /// <inheritdoc/>
+    internal override int PartsHeadedIn(EnemySpeciesRegistry species, EnemyDefinitionId definition) => Ensure.NotNull(species).PartsHeadedBy(this, definition);
 }

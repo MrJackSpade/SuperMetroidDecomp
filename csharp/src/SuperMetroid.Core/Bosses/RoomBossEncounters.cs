@@ -43,11 +43,22 @@ internal sealed class RoomBossEncounters
     /// <summary>Has <paramref name="joins"/> run with the room's Crocomire as his body sets up.</summary>
     internal void WhenCrocomireJoins(Action<CrocomireEnemyState> joins) => _crocomireJoins.Add(Ensure.NotNull(joins));
 
-    /// <summary>Kraid's encounter, once his body has set up (#2554); none in a room without him.</summary>
-    internal KraidEnemyState? Kraid { get; private set; }
+    /// <summary>
+    /// What waits on the room's Kraid, composed with him as his body finishes setting up (#2554): the Kraid demo's phase
+    /// wait, which the demo composes before the room's enemies load.
+    /// </summary>
+    private readonly List<Action<KraidEnemyState>> _kraidSetUps = [];
 
-    /// <summary>Attaches the encounter Kraid's body began.</summary>
-    internal void Attach(KraidEnemyState kraid) => Kraid = Ensure.NotNull(kraid);
+    /// <summary>Has <paramref name="setUp"/> run with the room's Kraid as his body finishes setting up.</summary>
+    internal void WhenKraidSetsUp(Action<KraidEnemyState> setUp) => _kraidSetUps.Add(Ensure.NotNull(setUp));
+
+    /// <summary>Kraid's body has finished setting up the encounter <paramref name="kraid"/>: what waits on him runs.</summary>
+    internal void KraidSetUp(KraidEnemyState kraid)
+    {
+        Ensure.NotNull(kraid);
+        foreach (Action<KraidEnemyState> setUp in _kraidSetUps)
+            setUp(kraid);
+    }
 
     /// <summary>Phantoon's body sets up: the room reads <paramref name="phantoon"/> from now on.</summary>
     internal void Attach(PhantoonEnemyState phantoon) => Phantoon = Ensure.NotNull(phantoon);

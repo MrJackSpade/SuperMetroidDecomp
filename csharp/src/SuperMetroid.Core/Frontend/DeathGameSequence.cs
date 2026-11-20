@@ -10,8 +10,12 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Samus's death, from the final gameplay pass to the final black-out before the game-over menu.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class DeathGameSequence(FrontendSession session) : IGameplayPhase
+/// <param name="step">The step the death sequence is at.</param>
+internal sealed class DeathGameSequence(FrontendSession session, DeathSequenceStep step) : IGameplayPhase
 {
+    /// <summary>The step the death sequence is at.</summary>
+    internal DeathSequenceStep CurrentStep => step;
+
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.DeathSequence;
 
@@ -20,26 +24,26 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGameplayPhas
     /// The steps that draw Samus advance the generator through gameplay's own update or not at all; the final black-out
     /// only fades, and the generator advances before it.
     /// </remarks>
-    public PhaseRandomStep RandomStep => session.DeathStep switch
+    public PhaseRandomStep RandomStep => step switch
     {
         DeathSequenceStep.FinalGameplayPass or DeathSequenceStep.BlackingOutSurroundings or DeathSequenceStep.WaitingForMusic or
             DeathSequenceStep.SamusDying => PhaseRandomStep.RuntimeOwned,
         DeathSequenceStep.FinalBlackOut => PhaseRandomStep.Advance,
-        _ => throw new InvalidOperationException($"Undefined {nameof(DeathSequenceStep)} {session.DeathStep}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(DeathSequenceStep)} {step}."),
     };
 
     /// <inheritdoc/>
     public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
     /// <inheritdoc/>
-    public string Name => session.DeathStep switch
+    public string Name => step switch
     {
         DeathSequenceStep.FinalGameplayPass => "Death: final gameplay pass",
         DeathSequenceStep.BlackingOutSurroundings => "Death: surroundings black out",
         DeathSequenceStep.WaitingForMusic => "Death: waiting for music",
         DeathSequenceStep.SamusDying => $"Death: {session.Runtime?.Player.Samus.DeathSequence.Phase}",
         DeathSequenceStep.FinalBlackOut => "Death: final black-out",
-        _ => throw new InvalidOperationException($"Undefined {nameof(DeathSequenceStep)} {session.DeathStep}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(DeathSequenceStep)} {step}."),
     };
 
     /// <inheritdoc/>
@@ -48,7 +52,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGameplayPhas
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput, LoadedGameplay live)
     {
-        switch (session.DeathStep)
+        switch (step)
         {
             case DeathSequenceStep.FinalGameplayPass:
                 RunFinalGameplayPass(controllerInput, live);
@@ -66,7 +70,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGameplayPhas
                 FinalBlackOut(controllerInput, live);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(DeathSequenceStep)} {session.DeathStep}.");
+                throw new InvalidOperationException($"Undefined {nameof(DeathSequenceStep)} {step}.");
         }
     }
 
@@ -142,7 +146,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGameplayPhas
             // soft resets. Releasing the runtime leaves the frame clock with the
             // frontend, which keeps counting it, and the session's random generator, through the menu.
             session.ReleaseRuntime();
-            session.Enter(SuperMetroidGameState.GameOverMenu);
+            session.EnterGameOverMenu();
         }
     }
 

@@ -36,7 +36,8 @@ public sealed class SuperMetroidGame
         Session.Runtime?.BindArtwork(artwork.Gameplay);
         if (!ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
             Session.saves.BindMaps(artwork.ScreenContent.Maps);
-        Session.Screen?.BindArtwork(previous, artwork);
+        if (Session.Phase is IScreenPhase showing)
+            showing.Screen.BindArtwork(previous, artwork);
     }
 
 
@@ -128,7 +129,7 @@ public sealed class SuperMetroidGame
 
 
     /// <summary>The phase of the game state the session is in.</summary>
-    internal IGamePhase CurrentPhase => Phases.Of(Session.GameState);
+    internal IGamePhase CurrentPhase => Session.Phase;
 
     /// <summary>
     /// What <paramref name="phase"/>'s current step runs on, matched once from its need (#2554): a step that runs gameplay
@@ -243,39 +244,6 @@ public sealed class SuperMetroidGame
         return new(Session.GameState, PhaseName, FrameNumber, audio);
     }
 
-    /// <summary>The gameplay phases, which the pause's brightening and the time-up's white-out also run (<see cref="GameplayGamePhases"/>).</summary>
-    private GameplayGamePhases GameplayPhases => field ??= new GameplayGamePhases(Session);
-
-    /// <summary>One phase per sequence; each runs that sequence's update and owns its steps.</summary>
-    private GamePhaseTable Phases => field ??= new GamePhaseTable(
-        [
-            new TitleGameSequence(Session),
-            new FileSelectGameSequence(Session),
-            new LoadingGameSequence(Session),
-            new GamePhase(SuperMetroidGameState.GameplayFadeIn,
-                PhaseRandomStep.RuntimeOwned,
-                step: (controllerInput, live) => GameplayPhases.RunGameplayFadeIn(controllerInput, live),
-                name: () => Session.GameplayFadeLeadsToCeresArrival ? $"Ceres elevator fade-in (brightness {Session.GameplayFadeIn.Level})" : $"Landing Site fade-in (brightness {Session.GameplayFadeIn.Level})"),
-            new GamePhase(SuperMetroidGameState.MainGameplay,
-                PhaseRandomStep.RuntimeOwned,
-                step: (controllerInput, live) => GameplayPhases.RunMainGameplay(controllerInput, live),
-                name: () => "Gameplay"),
-            new DoorTransitionGameSequence(Session),
-            new PauseGameSequence(Session, GameplayPhases),
-            new GamePhase(SuperMetroidGameState.ReserveTankRefill,
-                PhaseRandomStep.RuntimeOwned,
-                step: (controllerInput, live) => GameplayPhases.RunReserveTankRefill(controllerInput, live),
-                name: () => "Reserve tank refill"),
-            new DeathGameSequence(Session),
-            new GameOverMenuGamePhase(Session),
-            new IntroCinematicGamePhase(Session),
-            new CeresDepartureGameSequence(Session),
-            new CeresDestructionGameSequence(Session),
-            new TimeUpGameSequence(Session, GameplayPhases),
-            new EndingGameSequence(Session),
-            new AttractDemoGameSequence(Session),
-        ]);
-
     /// <summary>
     /// Reads the current status without advancing the game-state loop. No update ran, so it publishes no audio; an update's
     /// audio events come only with the frame <see cref="Step"/> returns.
@@ -283,7 +251,7 @@ public sealed class SuperMetroidGame
     public FrontendFrame CurrentFrame => new(Session.GameState, PhaseName, FrameNumber, new AudioFrameEvents([]));
 
     /// <summary>Human-readable active subphase for diagnostics, without changing state.</summary>
-    private string PhaseName => Phases.Of(Session.GameState).Name;
+    private string PhaseName => Session.Phase.Name;
 
     /// <summary>
     /// The display the game last published, stamped with the current frame number, without advancing the game, its
@@ -357,7 +325,7 @@ public sealed class SuperMetroidGame
     /// True when the current phase's step is waiting out a frame of the display, so the next update finishes it instead
     /// of starting a new update of the phase (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    internal bool PhaseIsWaitingOutDisplayFrame => Phases.Of(Session.GameState).IsWaitingOutDisplayFrame;
+    internal bool PhaseIsWaitingOutDisplayFrame => Session.Phase.IsWaitingOutDisplayFrame;
 
     /// <summary>
     /// Advances the random generator once per update through the title, file selection and

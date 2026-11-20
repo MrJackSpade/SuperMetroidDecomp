@@ -31,6 +31,9 @@ internal sealed class EnemySpeciesRegistry
     /// </summary>
     private readonly Dictionary<EnemySettingsKey, IEnemySpeciesFactory> _toldGroups = [];
 
+    /// <summary>How many parts each group taking settings heads, under the key its factory is recorded at.</summary>
+    private readonly Dictionary<EnemySettingsKey, int> _toldGroupParts = [];
+
     /// <summary>The shared participation every entity composes.</summary>
     internal EnemyCommonParticipation Common { get; }
 
@@ -111,7 +114,61 @@ internal sealed class EnemySpeciesRegistry
     internal void Add<TSettings>(IEnemySettingsGroupFactory<TSettings> factory) where TSettings : EnemySpawnSettings
     {
         foreach (EnemyDefinitionId definition in Ensure.NotNull(factory).Definitions)
-            _toldGroups.Add(new EnemySettingsKey(typeof(TSettings), definition), factory);
+        {
+            var key = new EnemySettingsKey(typeof(TSettings), definition);
+            _toldGroups.Add(key, factory);
+            _toldGroupParts.Add(key, factory.PartCount);
+        }
+    }
+
+    /// <summary>
+    /// Checks <paramref name="population"/>, the room's population, once as the room loads it (#2554): every entry the
+    /// registry places has the factory its settings and definition name, and every group's head is followed by its parts.
+    /// The placements then reach their factories without a lookup that can miss.
+    /// </summary>
+    /// <param name="population">The room's population.</param>
+    /// <exception cref="InvalidDataException">An entry has no factory, or a head lists fewer parts after it than its group has.</exception>
+    internal void Validate(RoomEnemyPopulationDefinition population)
+    {
+        Ensure.NotNull(population);
+        ReadOnlySpan<RoomEnemyPlacement> placements = population.Placements.Span;
+        int index = 0;
+        while (index < placements.Length)
+        {
+            RoomEnemyPlacement entry = placements[index];
+            int parts = entry.SpawnSettings.PartsHeadedIn(this, entry.DefinitionId);
+            if (placements.Length - index - 1 < parts)
+                throw new InvalidDataException(
+                    $"Enemy {entry.DefinitionId} heads a group of {parts} parts, but its room lists {placements.Length - index - 1} enemies after it.");
+            index += 1 + parts;
+        }
+    }
+
+    /// <summary>How many parts an entry of <paramref name="definition"/> that tells its species nothing heads: none for a single enemy.</summary>
+    /// <exception cref="InvalidDataException">No species owns the definition with entries that tell it nothing.</exception>
+    internal int PartsHeadedUntold(EnemyDefinitionId definition)
+    {
+        if (_untoldGroups.TryGetValue(definition, out IEnemyGroupFactory? group))
+            return group.PartCount;
+        if (_untold.ContainsKey(definition))
+            return 0;
+        throw new InvalidDataException($"No enemy species owns definition {definition} with an entry that tells it nothing.");
+    }
+
+    /// <summary>
+    /// How many parts an entry of <paramref name="definition"/> telling <typeparamref name="TSettings"/> heads: none for a
+    /// single enemy.
+    /// </summary>
+    /// <exception cref="InvalidDataException">No species in the room takes the settings for the definition.</exception>
+    internal int PartsHeadedBy<TSettings>(TSettings settings, EnemyDefinitionId definition) where TSettings : EnemySpawnSettings
+    {
+        Ensure.NotNull(settings);
+        var key = new EnemySettingsKey(typeof(TSettings), definition);
+        if (_toldGroupParts.TryGetValue(key, out int parts))
+            return parts;
+        if (_told.ContainsKey(key))
+            return 0;
+        throw new InvalidDataException($"No enemy species in the room takes {typeof(TSettings).Name} for {definition}.");
     }
 
     /// <summary>
@@ -124,20 +181,22 @@ internal sealed class EnemySpeciesRegistry
     internal EnemyPlaced Place(RoomEnemyPlace place, EnemySetup setup, IReadOnlyList<RoomEnemyPlace> listedAfter) =>
         Ensure.NotNull(place).Spawn.Population.SpawnSettings.Place(this, new EnemyPlacing(place, setup, listedAfter));
 
-    /// <summary>Builds the enemy of an entry that tells its species nothing, through the factory of its definition.</summary>
-    /// <exception cref="InvalidOperationException">No species owns the place's definition with entries that tell it nothing.</exception>
+    /// <summary>
+    /// Builds the enemy of an entry that tells its species nothing, through the factory of its definition, which the room's
+    /// load checked it has (<see cref="Validate"/>).
+    /// </summary>
     internal EnemyPlaced PlaceUntold(EnemyPlacing placing)
     {
         RoomEnemyPlace place = Ensure.NotNull(placing).Place;
         if (_untoldGroups.TryGetValue(place.DefinitionId, out IEnemyGroupFactory? group))
             return group.CreateGroup(new EnemyGroupPlaces(place, PartsOf(placing, group.PartCount)), Common);
-        if (!_untold.TryGetValue(place.DefinitionId, out IEnemyEntityFactory? factory))
-            throw new InvalidOperationException($"No enemy species owns definition {place.DefinitionId} with an entry that tells it nothing.");
-        return EnemyPlaced.Single(factory.Create(place, Common, placing.Setup));
+        return EnemyPlaced.Single(_untold[place.DefinitionId].Create(place, Common, placing.Setup));
     }
 
-    /// <summary>Builds the enemy of an entry that tells its species <paramref name="settings"/>, through the factory taking them.</summary>
-    /// <exception cref="InvalidOperationException">No species in the room takes <typeparamref name="TSettings"/> for the place's definition.</exception>
+    /// <summary>
+    /// Builds the enemy of an entry that tells its species <paramref name="settings"/>, through the factory taking them,
+    /// which the room's load checked it has (<see cref="Validate"/>).
+    /// </summary>
     internal EnemyPlaced Place<TSettings>(TSettings settings, EnemyPlacing placing) where TSettings : EnemySpawnSettings
     {
         Ensure.NotNull(settings);
@@ -149,15 +208,12 @@ internal sealed class EnemySpeciesRegistry
             var group = (IEnemySettingsGroupFactory<TSettings>)groupOwner;
             return group.CreateGroup(new EnemyGroupPlaces(placing.Place, PartsOf(placing, group.PartCount)), Common, settings);
         }
-        if (!_told.TryGetValue(key, out IEnemySpeciesFactory? owner))
-            throw new InvalidOperationException($"No enemy species in the room takes {typeof(TSettings).Name} for {placing.Place.DefinitionId}.");
-        return EnemyPlaced.Single(((IEnemySettingsFactory<TSettings>)owner).Create(placing.Place, Common, placing.Setup, settings));
+        return EnemyPlaced.Single(((IEnemySettingsFactory<TSettings>)_told[key]).Create(placing.Place, Common, placing.Setup, settings));
     }
 
-    /// <summary>The places of a group's <paramref name="count"/> parts, the first <paramref name="count"/> listed after its head.</summary>
-    /// <exception cref="InvalidDataException">The room lists fewer places after the head than its group has parts.</exception>
-    private static RoomEnemyPlace[] PartsOf(EnemyPlacing placing, int count) => placing.ListedAfter.Count >= count
-        ? [.. placing.ListedAfter.Take(count)]
-        : throw new InvalidDataException(
-            $"Enemy {placing.Place.DefinitionId} heads a group of {count} parts, but its room lists {placing.ListedAfter.Count} enemies after it.");
+    /// <summary>
+    /// The places of a group's <paramref name="count"/> parts, the first <paramref name="count"/> listed after its head,
+    /// which the room's load checked it lists (<see cref="Validate"/>).
+    /// </summary>
+    private static RoomEnemyPlace[] PartsOf(EnemyPlacing placing, int count) => [.. placing.ListedAfter.Take(count)];
 }

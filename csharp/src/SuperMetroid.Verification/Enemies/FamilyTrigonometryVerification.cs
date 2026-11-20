@@ -89,7 +89,7 @@ internal static class FamilyTrigonometryVerification
             uint initial = bullOrigins[heading / 256];
             int angle = heading % 256;
             var bull = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers());
-            var bullState = new BullEnemyState(previous: null, BullAction.MovementDelay);
+            var bullState = new BullEnemyState(previous: null, BullAction.MovementDelay, new BullSpawnSettings(default, SignedEightEight.Zero));
             for (int speed = 0; speed <= 2880; speed++)
             {
                 bull.Position = new(SixteenSixteenWords.ToCoordinate(initial), SixteenSixteenWords.ToCoordinate(initial));

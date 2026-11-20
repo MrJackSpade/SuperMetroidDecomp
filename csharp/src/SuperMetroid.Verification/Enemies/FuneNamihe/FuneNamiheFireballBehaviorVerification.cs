@@ -36,8 +36,8 @@ internal static class FuneNamiheFireballBehaviorVerification
             source.SetSpawnParameter1(species, species == EnemyDefinitionId.Namihe ? 1 : 0);
             source.SetSpawnParameter2(species, 0);
             FuneNamiheEnemyState spitter = species == EnemyDefinitionId.Namihe
-                ? new NamiheEnemyState(NamiheAction.WaitForSamus)
-                : new FuneEnemyState(FuneAction.WaitForCooldown);
+                ? new NamiheEnemyState(NamiheAction.WaitForSamus, new NamiheSpawnSettings(HorizontalDirection.Left, LaunchSpeed: SignedEightEight.Zero, YProximity: 0))
+                : new FuneEnemyState(FuneAction.WaitForCooldown, new FuneSpawnSettings(HorizontalDirection.Left, CooldownTime: 0, LaunchSpeed: SignedEightEight.Zero));
             foreach (bool movingRight in new[] { false, true })
             {
                 foreach (EnemyProjectile candidate in enemies.Projectiles.EnemyProjectiles)

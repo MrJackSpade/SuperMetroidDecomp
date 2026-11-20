@@ -22,7 +22,7 @@ internal static class BullShotReactionGuardVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), compatibility);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         PlaceInheritance<BullEnemyState> inheritance = compatibility.BullInheritance;
-        BullEnemyState state = inheritance.Inherit(place.Ordinal, static previous => new BullEnemyState(previous, BullAction.MovementDelay)
+        BullEnemyState state = inheritance.Inherit(place.Ordinal, static previous => new BullEnemyState(previous, BullAction.MovementDelay, new BullSpawnSettings(default, SignedEightEight.Zero))
         {
             Action = BullAction.MovementDelay,
             ActivationTimer = UpdateCountdown.Lasting(100),
@@ -32,7 +32,7 @@ internal static class BullShotReactionGuardVerification
         BullBehavior.RunBullMain(place, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(1, state.ShotReactionDisableTimer.UpdatesLeft, "the guard counts down each update");
         AssertTrue(state.ShotReactionDisabled, "the counting guard stays set");
-        BullEnemyState successor = inheritance.Inherit(place.Ordinal, static previous => new BullEnemyState(previous, BullAction.MovementDelay));
+        BullEnemyState successor = inheritance.Inherit(place.Ordinal, static previous => new BullEnemyState(previous, BullAction.MovementDelay, new BullSpawnSettings(default, SignedEightEight.Zero)));
         AssertEqual(1, successor.ShotReactionDisableTimer.UpdatesLeft, "the next Bull set up in the same slot inherits the count");
         AssertTrue(successor.ShotReactionDisabled, "the next Bull set up in the same slot inherits the set guard");
 

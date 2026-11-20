@@ -41,7 +41,7 @@ internal static class BoyonSpeedDefinitionsVerification
         AssertThrows<InvalidDataException>(() => actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, 8), "Boyon import rejects the multiplier past its table");
         AssertThrows<InvalidDataException>(() => actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, 0x900), "Boyon import rejects the height past its table");
         Func<BoyonEnemyState, int, UnsignedSixteenSixteen> multiply = BoyonBehavior.MultiplyBoyonCurveEntry;
-        var curve = new BoyonEnemyState();
+        var curve = new BoyonEnemyState(new BoyonSpawnSettings(SpeedMultiplier: 1, JumpHeight: 0, TriggerDistance: 0));
         for (int index = 0; index <= ushort.MaxValue; index++)
         {
             byte sample = index < 23 ? rom.ReadCartridgeByte(0xa28701 + index) : (byte)255;

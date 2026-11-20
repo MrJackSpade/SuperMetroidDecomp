@@ -351,7 +351,7 @@ internal static class RoomObjectSystemAccess
                 return true;
             }
 
-            ShotBlockReaction? reaction = ShotBlockReactions.Of(bts.Shootable);
+            ShotBlockReaction? reaction = ShotBlockReactionReadings.HandledOrNone(bts.Shootable);
             if (reaction == ShotBlockReaction.RespawningBreak)
             {
                 // The setup throws away the original appearance. The shot-block parent with the block's collision kind

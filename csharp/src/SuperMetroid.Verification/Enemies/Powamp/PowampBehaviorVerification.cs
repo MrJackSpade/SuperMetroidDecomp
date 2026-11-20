@@ -29,7 +29,7 @@ internal static class PowampBehaviorVerification
         balloon.Bind(balloon.DefinitionId, default(RoomEnemyDefinition));
         PowampBehavior.InitializePowampBalloon(balloon, balloon.SpawnSettings<PowampSpawnSettings>());
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
-        body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0, PowampContact.Accepts));
+        body.SetSpawnSettings(new PowampSpawnSettings(GrappleTravelDistance: 0));
         body.Bind(EnemyDefinitionId.Powamp, body.Definition);
         body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
         enemies.PowampBehavior.InitializePowampBody(body);

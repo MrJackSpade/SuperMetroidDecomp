@@ -99,7 +99,7 @@ internal static class YardTurnDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Position = place.Position.WithWhole(new(0x0200, 0x0200));
             place.Radius = new(8, 8);
-            var state = new YardEnemyState(YardMovement.HoldingStill)
+            var state = new YardEnemyState(YardMovement.HoldingStill, new YardSpawnSettings(default, SignedEightEight.Zero))
             {
                 // A hiding animation is never a turn's result, so the assertion sees the turn's own choice.
                 Playback = new(YardAnimations.StartingWith(YardSegment.HidingOnFloorMovingLeft), AnimationPlace.StartOfAnimation),

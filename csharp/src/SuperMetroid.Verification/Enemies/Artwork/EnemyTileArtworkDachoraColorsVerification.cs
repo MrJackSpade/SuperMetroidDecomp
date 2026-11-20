@@ -65,7 +65,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Position = place.Position.WithWhole(new(96, 96));
         place.Radius = new(8, 8);
-        var state = new DachoraEnemyState(DachoraAction.WaitingForSamus);
+        var state = new DachoraEnemyState(DachoraAction.WaitingForSamus, []);
         DachoraBehavior.ShowDachoraColours(place, DachoraColourPhase.Default, 0);
         CheckLive(DachoraColourPhase.Default, 0);
 

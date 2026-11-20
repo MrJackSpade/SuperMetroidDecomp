@@ -32,7 +32,7 @@ internal static class LeadingPartPlacement
             place.SetSpawnSettings(new EvirSpawnSettings(EvirBodyPart.Body, SignedSixteenSixteen.FromSixteenthsOfPixel(0), 0));
         // A Powamp placement names whether it is the body or the balloon (#2163); the body owns the Powamp's members.
         if (definition == EnemyDefinitionId.Powamp)
-            place.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0, PowampContact.Accepts));
+            place.SetSpawnSettings(new PowampSpawnSettings(GrappleTravelDistance: 0));
         // A Morph Ball eye placement names the eye or its beam mount, and a Rio's or a lava jumper's whether it leads or
         // follows (#2164); the eye and the leading part carry the species' members.
         if (definition == EnemyDefinitionId.MorphBallEye)

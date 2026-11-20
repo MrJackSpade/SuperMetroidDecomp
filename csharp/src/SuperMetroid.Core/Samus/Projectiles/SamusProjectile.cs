@@ -168,21 +168,17 @@ public sealed class SamusProjectile
     /// <summary>
     /// Gives the projectile its kind's behaviour with the state the kind starts with: firing, a special attack, an
     /// echo's release, a Super Missile's link and a reflection install one. A particle moving on to its next behaviour
-    /// keeps its state and changes only <see cref="Behavior"/>.
+    /// keeps its state and changes only <see cref="Behavior"/>, to the next behaviour created with that state.
     /// </summary>
-    /// <param name="behavior">The behaviour the projectile runs from its next update.</param>
-    /// <param name="kindState">The state the kind keeps, new for this installation, or null for a kind that keeps none.</param>
-    internal void Install(SamusShotBehavior behavior, SamusShotKindState? kindState)
+    /// <param name="behavior">
+    /// The behaviour the projectile runs from its next update, created with the state its kind keeps, new for this
+    /// installation, when the kind keeps one.
+    /// </param>
+    internal void Install(SamusShotBehavior behavior)
     {
         Behavior = Ensure.NotNull(behavior);
-        KindState = kindState;
+        KindState = behavior.KindState;
     }
-
-    /// <summary>The state the projectile's kind keeps, which must be a <typeparamref name="TState"/>.</summary>
-    /// <exception cref="InvalidOperationException">The projectile keeps no such state.</exception>
-    internal TState KindStateAs<TState>() where TState : SamusShotKindState =>
-        KindState as TState ?? throw new InvalidOperationException(
-            $"The projectile in place {Place} keeps no {typeof(TState).Name}; it keeps {KindState?.GetType().Name ?? "nothing"}.");
 
     /// <summary>A live projectile animation marks the projectile drawable and updated.</summary>
     public bool IsActive => Animation is not null;

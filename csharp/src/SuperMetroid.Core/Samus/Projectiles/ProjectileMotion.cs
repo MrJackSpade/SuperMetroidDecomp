@@ -134,6 +134,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusState samus,
         SamusProjectile shot,
+        MissileShotState missile,
         Position16<RoomPixels> cameraPosition,
         SamusBombProjectileSystem samusBombs,
         ISamusRoomObjects roomObjects)
@@ -148,7 +149,6 @@ internal sealed class ProjectileMotion
             _trails.SpawnTrail(shot);
 
         SamusProjectileDirection direction = shot.Direction;
-        MissileShotState missile = shot.KindStateAs<MissileShotState>();
         if (!missile.Ignition.HasIgnited)
         {
             // A missile ignites on its first input phase: its velocity is rebuilt from its
@@ -181,6 +181,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusState samus,
         SamusProjectile shot,
+        SuperMissileShotState superMissile,
         Position16<RoomPixels> cameraPosition,
         SamusBombProjectileSystem samusBombs,
         ISamusRoomObjects roomObjects)
@@ -199,7 +200,6 @@ internal sealed class ProjectileMotion
             _trails.SpawnTrail(shot);
 
         SamusProjectileDirection direction = shot.Direction;
-        SuperMissileShotState superMissile = shot.KindStateAs<SuperMissileShotState>();
         if (!superMissile.Ignition.HasIgnited)
         {
             // A Super Missile ignites as a missile does on its first input phase, and then
@@ -308,8 +308,8 @@ internal sealed class ProjectileMotion
         const SamusProjectileKind kind = SamusProjectileKind.SuperMissileLink;
         link.Damage = SamusProjectileDamage.Read(kind);
         link.Animation = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
-        link.Install(SamusShotBehaviors.SuperMissileLink,
-            new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
+        link.Install(new SuperMissileLinkHold(
+            new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place)));
 
         ownerState.LinkPlace = link.Place;
         _pool.ShotCount.CountShot();

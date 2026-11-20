@@ -32,12 +32,12 @@ internal sealed class ProjectileAnimation
     /// radius, and an animation that ends deletes the projectile. A shot showing a still picture keeps it.
     /// </summary>
     /// <returns>Whether the animation ended and deleted the projectile.</returns>
-    /// <exception cref="InvalidOperationException">The projectile has ended and has no animation to play.</exception>
+    /// <param name="shot">The projectile.</param>
+    /// <param name="animation">The animation the projectile plays.</param>
     internal bool AdvanceProjectileAnimation(
-        SamusProjectile shot)
+        SamusProjectile shot,
+        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation)
     {
-        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation = shot.Animation
-            ?? throw new InvalidOperationException("An ended projectile has no animation to play.");
         if (SamusProjectilePlayback.StepToNewFrame(animation) is { } frame)
         {
             shot.Sprite = _artwork.ProjectileFrames.Resolve(frame);
@@ -58,18 +58,18 @@ internal sealed class ProjectileAnimation
         _pool.ShotCount.CountDeletion();
     }
 
-    /// <summary>Draws a shot's picture where it lies; the display clips it to the view.</summary>
+    /// <summary>Draws <paramref name="sprite"/>, the composition a shot shows, where it lies; the display clips it to the view.</summary>
     internal static void DrawShot(
         SpriteFrameBuffer sprites,
         SpriteSource source,
         SamusProjectile shot,
+        ProjectileSpriteId sprite,
         Position16<RoomPixels> cameraPosition,
         ProjectileDrawArtwork artwork)
     {
         Offset16<ScreenPixels> place = shot.Position.Whole.RelativeToCamera(cameraPosition);
         // Every placement is published wherever it lies; the display clips it to the view (#1541).
 
-        ProjectileSpriteId sprite = shot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.");
         // The empty composition an invisible projectile shows draws nothing, and so does a composition the sheet of the
         // beams it is pictured with holds as showing nothing (#1513, #1586).
         if (sprite.DrawsNothing)

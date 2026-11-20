@@ -28,9 +28,9 @@ internal sealed class SamusPoseAnimation
             throw new ArgumentException("An animation holds at least one segment.", nameof(segments));
         if (segments.Select(segment => segment.Name).Distinct().Count() != segments.Count)
             throw new ArgumentException("Two segments of an animation share a name.", nameof(segments));
-        if (segments.Any(segment => segment.End is null && segment.Delays.Count == 0))
+        if (segments.Any(segment => segment is SamusAnimationLead && segment.Delays.Count == 0))
             throw new ArgumentException("A lead of an animation holds no frame.", nameof(segments));
-        if (segments[^1].End is null)
+        if (segments[^1] is SamusAnimationLead)
             throw new ArgumentException("An animation's last segment is a lead, with no segment to play on into.", nameof(segments));
         this.segments = [.. segments];
         FrameOrder = Comparer<SamusAnimationFrame>.Create(Compare);
@@ -70,7 +70,7 @@ internal sealed class SamusPoseAnimation
     internal SamusAnimationFrame Require(SamusAnimationFrame frame)
     {
         SamusAnimationSegment segment = segments[IndexOf(frame.Segment)];
-        return frame.Frame >= 0 && (segment.End is not null || frame.Frame < segment.Delays.Count)
+        return frame.Frame >= 0 && (segment is SamusCuedAnimationSegment || frame.Frame < segment.Delays.Count)
             ? frame
             : throw new ArgumentException($"Animation {Name} has no frame {frame}.", nameof(frame));
     }
@@ -98,7 +98,7 @@ internal sealed class SamusPoseAnimation
         if (name is null || separator <= 0 || !SamusAnimationSegmentNameKeys.Installed.TryParse(name[..separator], out SamusAnimationSegmentName segment) ||
             !int.TryParse(name.AsSpan(separator + 1), NumberStyles.None, CultureInfo.InvariantCulture, out int frame))
             throw new InvalidDataException($"'{name}' names no animation frame.");
-        return Array.Find(segments, candidate => candidate.Name == segment) is { } named && (named.End is not null || frame < named.Delays.Count)
+        return Array.Find(segments, candidate => candidate.Name == segment) is { } named && (named is SamusCuedAnimationSegment || frame < named.Delays.Count)
             ? new SamusAnimationFrame(segment, frame)
             : throw new InvalidDataException($"'{name}' names no frame of the {Name} animation.");
     }
@@ -108,7 +108,7 @@ internal sealed class SamusPoseAnimation
     {
         SamusAnimationSegment segment = Segment(Require(frame).Segment);
         return frame.Frame < segment.Delays.Count ? new SamusAnimationDelay(segment.Delays[frame.Frame])
-            : frame.Frame == segment.CueFrame ? segment.End
+            : segment is SamusCuedAnimationSegment cued && frame.Frame == cued.CueFrame ? cued.End
             : null;
     }
 
@@ -123,7 +123,7 @@ internal sealed class SamusPoseAnimation
         Ensure.NotNull(framesBeyondAnimation);
         int index = IndexOf(Require(frame).Segment);
         SamusAnimationSegment segment = segments[index];
-        if (segment.End is not { } end || frame.Frame < segment.CueFrame || index == segments.Length - 1)
+        if (segment is not SamusCuedAnimationSegment { End: var end } || frame.Frame < segment.CueFrame || index == segments.Length - 1)
             return FrameAfter(frame);
         return frame.Frame == segment.CueFrame && end.ContinuesToNextSegment
             ? new SamusAnimationFrame(segments[index + 1].Name, 0)
@@ -137,7 +137,7 @@ internal sealed class SamusPoseAnimation
     private SamusAnimationFrame FrameAfter(SamusAnimationFrame frame)
     {
         int index = IndexOf(frame.Segment);
-        return segments[index].End is null && frame.Frame + 1 == segments[index].Delays.Count
+        return segments[index] is SamusAnimationLead && frame.Frame + 1 == segments[index].Delays.Count
             ? new SamusAnimationFrame(segments[index + 1].Name, 0)
             : frame with { Frame = frame.Frame + 1 };
     }

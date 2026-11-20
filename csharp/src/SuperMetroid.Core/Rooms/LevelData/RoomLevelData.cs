@@ -231,7 +231,8 @@ public sealed class RoomLevelData
     /// </summary>
     /// <param name="extension">An extension block the read found in the grid.</param>
     internal RoomCollisionBlock LinkedBlockOrEdgeSolid(RoomCollisionBlock extension) =>
-        GridBlockStepped(extension.At, extension.ExtensionLink) is { } reached ? GetCollisionBlock(reached) : EdgeSolid();
+        TryGridBlockStepped(extension.At, extension.ExtensionLink, out Position16<RoomBlocks> reached) ? GetCollisionBlock(reached)
+            : EdgeSolid(extension.At + extension.ExtensionLink);
 
     /// <summary>
     /// The block <paramref name="block"/> stands for, as Samus's body, her shots, missiles and bombs collide with and react
@@ -400,7 +401,7 @@ public sealed class RoomLevelData
     /// room's width or height (<see cref="TerrainBeyondRoom{TTerrain, TBehavior}.EdgeSolid"/>).
     /// </summary>
     internal RoomCollisionBlock GetCollisionBlockOrEdgeSolid(Position16<RoomBlocks> block) =>
-        Size.Contains(block) ? GetCollisionBlock(block) : EdgeSolid();
+        Size.Contains(block) ? GetCollisionBlock(block) : EdgeSolid(block);
 
     /// <summary>Reads the block containing a room pixel: sixteen pixels to a block.</summary>
     public RoomCollisionBlock GetCollisionBlockAtPixel(Position16<RoomPixels> position) =>
@@ -475,8 +476,9 @@ public sealed class RoomLevelData
         PublishedForeground = null;
     }
 
-    /// <summary>The block a collision probe outside the room reads.</summary>
-    private RoomCollisionBlock EdgeSolid() => new(Position: null, BeyondRoom.EdgeSolid, BeyondRoom.NoBehavior);
+    /// <summary>The block a collision probe outside the room reads at <paramref name="place"/>.</summary>
+    private RoomCollisionBlock EdgeSolid(Position16<RoomBlocks> place) =>
+        new(place, BeyondRoom.EdgeSolid, BeyondRoom.NoBehavior) { LiesBeyondRoom = true };
 
     /// <summary>A place in the level space past the grid, counted from the first block past it.</summary>
     internal int BeyondPlace(int place) => place - terrain.Length;

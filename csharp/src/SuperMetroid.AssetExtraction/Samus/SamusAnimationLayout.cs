@@ -136,7 +136,7 @@ internal sealed class SamusAnimationLayout
     private static int Span(SamusPoseAnimation animation, int index)
     {
         SamusAnimationSegment segment = animation.Segments[index];
-        if (segment.End is not { } end)
+        if (segment is not SamusCuedAnimationSegment { End: var end })
             return segment.Delays.Count;
         return segment.CueFrame + 1 + SamusAnimationCueValueDecoding.OperandFrames(end) + SamusAnimationUnnamedRunDefinitions.All
             .Where(run => run.Animation == animation.Name && run.After == segment.Name)
@@ -172,7 +172,7 @@ internal sealed class SamusAnimationLayout
                 int cue = start + segment.CueFrame;
                 int next = start + Span(animation, index);
                 // A lead has no cue: its last frame plays on into the next segment's first.
-                if (segment.End is { } end)
+                if (segment is SamusCuedAnimationSegment { End: var end })
                 {
                     if (end.ContinuesToNextSegment && next != cue + 1)
                         throw new InvalidDataException($"The {animation.Name} animation's {segment.Name} cue continues into the next segment past frames laid out after it.");

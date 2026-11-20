@@ -431,7 +431,7 @@ public static class SamusGrappleSwing
     {
         RoomCollisionBlock block =
             level.GetCollisionBlockOrEdgeSolid(blockPosition);
-        if (block.Position is null)
+        if (block.LiesBeyondRoom)
             return true;
 
         // The block an extension stands for collides in its stead, and one that leads outside the grid reads the

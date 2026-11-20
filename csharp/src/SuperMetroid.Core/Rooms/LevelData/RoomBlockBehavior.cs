@@ -240,6 +240,33 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// <summary>The reaction spike blocks and spike air read, or null when they have none for this behaviour.</summary>
     public SpikeReaction? Spike => Readings.Spike;
 
+    /// <summary>The reaction spike blocks and spike air read of the behaviour, when it gives them one (#2554).</summary>
+    /// <param name="reaction">The reaction they read.</param>
+    /// <returns>Whether the behaviour gives spikes a reaction: one a kind change brings to a spike may give it none.</returns>
+    public bool TryGetSpike(out SpikeReaction reaction) => TryRead(Spike, out reaction);
+
+    /// <summary>The reaction bombable blocks and bombable air read of the behaviour, when it gives them one (#2554).</summary>
+    /// <param name="reaction">The reaction they read.</param>
+    /// <returns>Whether the behaviour gives bombable blocks a reaction.</returns>
+    public bool TryGetBombable(out BombableReaction reaction) => TryRead(Bombable, out reaction);
+
+    /// <summary>The reaction special blocks read of the behaviour, when it gives them one (#2554).</summary>
+    /// <param name="reaction">The reaction they read.</param>
+    /// <returns>Whether the behaviour gives special blocks a reaction.</returns>
+    public bool TryGetSpecial(out SpecialBlockReaction reaction) => TryRead(Special, out reaction);
+
+    /// <summary>The reaction special-air blocks read of the behaviour, when it gives them one (#2554).</summary>
+    /// <param name="reaction">The reaction they read.</param>
+    /// <returns>Whether the behaviour gives special air a reaction.</returns>
+    public bool TryGetSpecialAir(out SpecialAirReaction reaction) => TryRead(SpecialAir, out reaction);
+
+    /// <summary>A reacting kind's reading, when the behaviour gives the kind one.</summary>
+    private static bool TryRead<TReaction>(TReaction? read, out TReaction reaction) where TReaction : struct
+    {
+        reaction = read.GetValueOrDefault();
+        return read.HasValue;
+    }
+
     /// <summary>The reaction grapple blocks read, or null when they have none for this behaviour.</summary>
     public GrappleReaction? Grapple => Readings.Grapple;
 

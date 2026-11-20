@@ -26,7 +26,7 @@ public static class SamusInsideBlockReactions
         void Visit(int y, bool bottomPoint, bool centerPoint)
         {
             var block = level.GetCollisionBlockOrEdgeSolid(new(RoomGridConversions.PixelToBlock(body.Position.X.Whole), RoomGridConversions.PixelToBlock(y)));
-            if (block.Position is null || !level.TryReachBlockStoodFor(ref block) ||
+            if (block.LiesBeyondRoom || !level.TryReachBlockStoodFor(ref block) ||
                 block.CollisionType != RoomCollisionType.SpecialAir)
                 return;
             // A scroll trigger wakes only from the inside-block sample at Samus's centre.
@@ -43,7 +43,9 @@ public static class SamusInsideBlockReactions
                 ApplyConveyor(conveyor);
                 return;
             }
-            SpecialAirInsideReaction reaction = SpecialAirReactions.InsideOf(block.Behavior.SpecialAir);
+            if (!block.Behavior.TryGetSpecialAir(out SpecialAirReaction specialAir))
+                throw new ArgumentOutOfRangeException(nameof(block), block, "A special-air block's inside-body reaction needs a reaction the block has.");
+            SpecialAirInsideReaction reaction = SpecialAirReactions.InsideOf(specialAir);
             // A sand reaction takes a room-object place before it acts; with every place taken it does nothing.
             if (QuicksandReactions.PlacesObject(reaction) &&
                 !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))
@@ -154,7 +156,9 @@ public static class SamusInsideBlockReactions
         ISamusRoomObjects roomObjects = terrain.RoomObjects;
         SamusKinematicsState body = contact.Body;
         surfaceContact = false;
-        SpecialAirCollisionReaction reaction = SpecialAirReactions.CollisionOf(block.Behavior.SpecialAir);
+        if (!block.Behavior.TryGetSpecialAir(out SpecialAirReaction specialAir))
+            throw new ArgumentOutOfRangeException(nameof(block), block, "A special-air block's movement-collision reaction needs a reaction the block has.");
+        SpecialAirCollisionReaction reaction = SpecialAirReactions.CollisionOf(specialAir);
         // A sand reaction takes a room-object place before it acts; with every place taken Samus passes as through air.
         if (QuicksandReactions.PlacesObject(reaction) &&
             !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))

@@ -65,7 +65,7 @@ internal static class SamusExtraDisplacement
     }
 
     /// <summary>Adds one whole pixel only to nonnegative external Y displacement before the grounded or extra-only collision scan.</summary>
-    private static SignedSixteenSixteen AddPositiveDownwardBias(SignedSixteenSixteen displacement) =>
+    internal static SignedSixteenSixteen AddPositiveDownwardBias(SignedSixteenSixteen displacement) =>
         displacement.IsNegative
             ? displacement
             : displacement + OnePixel;

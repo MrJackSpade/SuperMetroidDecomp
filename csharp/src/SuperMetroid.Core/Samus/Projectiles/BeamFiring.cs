@@ -304,7 +304,7 @@ internal sealed class BeamFiring
             // that, which is outside the emulation scope limit (#1500).
             SamusShotBehavior behavior = SamusBeamShotBehaviors.Resolve(charged, beamType);
             behavior.AdmitFiring();
-            projectile.Install(behavior, kindState: null);
+            projectile.Install(behavior);
             InitializePowerBeamVelocity(samus.ProjectileInheritance, projectile, _unauthoredFiring);
         }
         return new BeamShot(sound);
@@ -365,7 +365,7 @@ internal sealed class BeamFiring
             projectile,
             roomObjects,
             waveBeam: true);
-        projectile.Install(SamusShotBehaviors.HyperBeam, kindState: null);
+        projectile.Install(SamusShotBehaviors.HyperBeam);
         InitializePowerBeamVelocity(samus.ProjectileInheritance, projectile, _unauthoredFiring);
 
         // The shot starts the Hyper Beam's own suit glow, and its flare in place of the charge.
@@ -441,11 +441,11 @@ internal sealed class BeamFiring
         projectile.Radius = SamusProjectilePlayback.InitialRadius(segment);
         if (isSuperMissile)
         {
-            projectile.Install(SamusShotBehaviors.SuperMissile,
-                new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
+            projectile.Install(new SuperMissileFlight(
+                new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place)));
         }
         else
-            projectile.Install(SamusShotBehaviors.Missile, new MissileShotState(new SamusMissileIgnition.Pending()));
+            projectile.Install(new MissileFlight(new MissileShotState(new SamusMissileIgnition.Pending())));
 
         // The missile sound and the missile's shared cooldown. An item-selection press made while item cancel
         // is held asks for the selection to return to the beam after one shot; a successful

@@ -561,7 +561,9 @@ public sealed class SamusShinesparkState
     /// <param name="shot">The shot carrying one of the crash's released echoes.</param>
     /// <returns>Whether the echo is still on the screen; its shot is cleared otherwise.</returns>
     /// <exception cref="InvalidOperationException">The shot carries neither of the crash's released echoes.</exception>
-    internal bool StepReleasedEcho(SamusState samus, Position16<RoomPixels> cameraPosition, SamusProjectile shot)
+    /// <param name="flight">The echo's flight, which its shot keeps.</param>
+    internal bool StepReleasedEcho(SamusState samus, Position16<RoomPixels> cameraPosition, SamusProjectile shot,
+        ShinesparkEchoShotState flight)
     {
         ShinesparkCrashEcho echo = FirstReleasedEcho.IsCarriedBy(shot) ? FirstReleasedEcho
             : SecondReleasedEcho.IsCarriedBy(shot) ? SecondReleasedEcho
@@ -569,7 +571,6 @@ public sealed class SamusShinesparkState
 
         // The point is recalculated from Samus's current position on every update; these are expanding radial
         // copies, not ordinary projectiles with independent velocity.
-        ShinesparkEchoShotState flight = shot.KindStateAs<ShinesparkEchoShotState>();
         flight.Radius += ShinesparkDefinitions.EchoRadiusStep;
         Position16<RoomPixels> point = samus.Position.Whole +
             OffsetAlong(flight.Angle.ToAngle(), ShinesparkEchoReturn.PlacementRadius(flight.Radius));

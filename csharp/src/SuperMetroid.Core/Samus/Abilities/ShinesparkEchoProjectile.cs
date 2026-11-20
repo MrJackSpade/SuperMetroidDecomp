@@ -65,18 +65,16 @@ internal sealed class ShinesparkEchoProjectile
         echo.Position = echo.Position.WithWhole(start);
         echo.Type = SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho);
         echo.PicturedBeams = picturedBeams;
-        BeamCombos.InitializeComboShot(echo, BeamComboShotKind.Echo);
-        echo.Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(angle.ToTrigonometryAngle()));
+        BeamCombos.InitializeComboShot(echo, new BeamComboShot.Echo(SamusBeamEcho.ShinesparkEcho));
+        echo.Install(new ShinesparkEchoFlight(new ShinesparkEchoShotState(angle.ToTrigonometryAngle())));
         return echo;
     }
 
     /// <summary>Runs one update of the echo <paramref name="shot"/> carries, clearing the shot once the echo leaves the screen.</summary>
     internal void StepShinesparkEcho(SamusState samus,
-        SamusProjectile shot, Position16<RoomPixels> camera)
+        SamusProjectile shot, ShinesparkEchoShotState flight, Position16<RoomPixels> camera)
     {
-        if (shot.Behavior is not ShinesparkEchoFlight)
-            throw new InvalidOperationException("Departing echo no longer owns this shot.");
-        if (!samus.Shinespark.StepReleasedEcho(samus, camera, shot))
+        if (!samus.Shinespark.StepReleasedEcho(samus, camera, shot, flight))
             _animation.ClearProjectile(shot);
     }
 }

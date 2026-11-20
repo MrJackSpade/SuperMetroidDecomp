@@ -165,15 +165,6 @@ public sealed class SamusState
     /// <summary>The periodic damage liquids, spikes, heat, the grapple's spikes and turrets, and enemies add to through an update.</summary>
     public SamusPeriodicDamage PeriodicDamage { get; } = new();
 
-    /// <summary>
-    /// The ground her footstep and landing effects go by (#2416): every room load sets its room's, and a scene that
-    /// loads no room sets its own; null until either does.
-    /// </summary>
-    internal SamusGround? Ground { get; set; }
-
-    /// <summary>The ground her footstep and landing effects go by, once a room or a scene has set it.</summary>
-    /// <exception cref="InvalidOperationException">Nothing has set her ground yet.</exception>
-    internal SamusGround StandingGround => Ground ?? throw new InvalidOperationException("Samus's ground is read before any room or scene has set it.");
 
     /// <summary>
     /// Stored-shine colouring countdown and the shinespark's hold on her movement.
@@ -515,11 +506,8 @@ public sealed class SamusState
     /// </summary>
     public SamusPoseId? AnimatedPose { get; internal set; }
 
-    /// <summary>The step of the animated pose's animation that Samus's animation frame is on.</summary>
-    /// <exception cref="InvalidOperationException">The animation has not been started.</exception>
-    internal SamusPoseAnimationStep AnimationStep => SamusAnimationDelays.StepFor(
-        AnimatedPose ?? throw new InvalidOperationException("Samus's animation has not been started for any pose."), AnimationFrame,
-        FramesBeyondAnimation);
+    /// <summary>The step of the animation of <see cref="AnimationPose"/> that Samus's animation frame is on.</summary>
+    internal SamusPoseAnimationStep AnimationStep => SamusAnimationDelays.StepFor(AnimationPose, AnimationFrame, FramesBeyondAnimation);
 
     /// <summary>
     /// What an animation frame past her pose's animation reads, the session's installed service, which decides the frames her

@@ -184,8 +184,7 @@ public static class SamusMorphBallMovement
             // It cancels the stored bounce velocity, forces direction down, and executes
             // the downward move; an upward external displacement can still make the actual scan upward.
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
-            SignedSixteenSixteen displacement = SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(samus.Kinematics) ??
-                throw new InvalidOperationException("A nonzero external Y displacement always yields a scan distance.");
+            SignedSixteenSixteen displacement = SamusExtraDisplacement.AddPositiveDownwardBias(samus.Kinematics.ExtraDisplacement.Y);
             vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
             landed = !displacement.IsNegative && vertical.Collided;
             hitCeiling = displacement.IsNegative && vertical.Collided;

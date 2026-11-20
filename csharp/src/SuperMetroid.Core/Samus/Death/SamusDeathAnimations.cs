@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Samus.Abilities;
 using E = SuperMetroid.Core.Samus.Artwork.SamusDeathExplosionFrame;
-using W = SuperMetroid.Core.Samus.Death.SamusWhiteoutSegment;
 
 namespace SuperMetroid.Core.Samus.Death;
 
@@ -29,18 +29,6 @@ internal static class SamusDeathAnimations
     internal static Animation<SamusDeathFlashSegment> Flash { get; } =
         Animation<SamusDeathFlashSegment>.Looping([FlashSegments.Whole(SamusDeathFlashSegment.Flash)]);
 
-    /// <summary>The whiteout's shades, one update each.</summary>
-    internal static AnimationSegments<W, SamusWhiteoutShade, NoAnimationCue> WhiteoutSegments { get; } = new(
-        new Dictionary<W, AnimationBeat<SamusWhiteoutShade, NoAnimationCue>[]>
-        {
-            [W.Brightening] = [.. SamusWhiteoutShade.Brightening.Select(Whiteout)],
-            [W.Brightest] = [Whiteout(SamusWhiteoutShade.Brightest)],
-        });
-
-    /// <summary>The whiteout, brightening and then showing its brightest shade on every update.</summary>
-    internal static Animation<W> WhiteoutAnimation { get; } =
-        Animation<W>.LeadingInto([WhiteoutSegments.Whole(W.Brightening)], [WhiteoutSegments.Whole(W.Brightest)]);
-
     /// <summary>The suit explosion's pictures, each with the updates it shows for.</summary>
     internal static AnimationSegments<SamusDeathExplosionSegment, E, NoAnimationCue> ExplosionSegments { get; } = new(
         new Dictionary<SamusDeathExplosionSegment, AnimationBeat<E, NoAnimationCue>[]>
@@ -66,14 +54,10 @@ internal static class SamusDeathAnimations
         AnimationPlayer<SamusDeathFlashSegment, SamusDeathShade, NoAnimationCue>.StartingAfter(
             FlashSegments, Flash, SamusDeathSequenceDefinitions.FirstFlashShadeUpdates);
 
-    /// <summary>The whiteout before its first shade, which its first update shows.</summary>
-    internal static AnimationPlayer<W, SamusWhiteoutShade, NoAnimationCue> WhiteoutStarting() =>
-        AnimationPlayer<W, SamusWhiteoutShade, NoAnimationCue>.Starting(WhiteoutSegments, WhiteoutAnimation);
+    /// <summary>The whiteout's first shade: its shades brighten one update each to its brightest, where it rests.</summary>
+    internal static ListStep<SamusWhiteoutShade> WhiteoutStarting() =>
+        ListStep<SamusWhiteoutShade>.FirstOf([.. SamusWhiteoutShade.Brightening, SamusWhiteoutShade.Brightest]);
 
     /// <summary>Shows explosion picture <paramref name="frame"/> for <paramref name="updates"/> updates.</summary>
     private static AnimationBeat<E, NoAnimationCue> Picture(E frame, int updates) => new AnimationBeat<E, NoAnimationCue>.Frame(frame, updates);
-
-    /// <summary>Shows whiteout shade <paramref name="shade"/> for one update.</summary>
-    private static AnimationBeat<SamusWhiteoutShade, NoAnimationCue> Whiteout(SamusWhiteoutShade shade) =>
-        new AnimationBeat<SamusWhiteoutShade, NoAnimationCue>.Frame(shade, 1);
 }

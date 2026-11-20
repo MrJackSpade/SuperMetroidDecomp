@@ -14,12 +14,9 @@ public static class BombSpecialBlockReactions
     /// for a special block with <paramref name="reaction"/>. Brinstar's own Speed Booster blocks are revealed as Speed
     /// Booster blocks; the import resolves the same entries of the other areas' tables to plain solid blocks (#1805).
     /// </summary>
-    /// <param name="reaction">The block's reaction.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The block has no special-block reaction.</exception>
-    internal static BlockReactionChange ChangeFor(SpecialBlockReaction? reaction)
+    /// <param name="read">The block's reaction.</param>
+    internal static BlockReactionChange ChangeFor(SpecialBlockReaction read)
     {
-        SpecialBlockReaction read = reaction ??
-            throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "The block has no special-block reaction for a bomb.");
         if (SpeedBlockLookalikes.TryShowAsSpeedBlock(read, out BlockReactionChange? shown))
             return shown;
         return read switch

@@ -280,6 +280,7 @@ public sealed class SamusLiquidPhysicsState
     [IndependentFlag("Boss presence is an independent fact of the room the frame runs in.")]
     public void PrepareAnimationFrame(
         SamusState samus,
+        SamusGround ground,
         SharedRandom random,
         int frameCounter,
         bool bossPresent)
@@ -287,7 +288,7 @@ public sealed class SamusLiquidPhysicsState
         Ensure.NotNull(samus);
 
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
-        TrySpawnRunningFootsteps(samus, movementType, bossPresent);
+        TrySpawnRunningFootsteps(samus, ground, movementType, bossPresent);
 
         // The animation's liquid steps read Samus's occupied bottom pixel, Y + pose radius - 1.
         // The exclusive collision boundary would
@@ -323,7 +324,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         if (fxKind is RoomFxType.Lava or RoomFxType.Acid &&
-            IsBelowSurface(LavaAcidSurfaceY, bottom))
+            LavaAcidSurfaceY is int surface && surface < bottom)
         {
             if (fxKind == RoomFxType.Lava && samus.HorizontalSpeed.SpeedBoostCounter != default)
             {
@@ -355,7 +356,7 @@ public sealed class SamusLiquidPhysicsState
             // Both lava and acid now share one submerged delay.
             MediumLastEntered = SamusLiquidMedium.LavaOrAcid;
             samus.ExtraAnimationDelay = SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay;
-            TrySpawnLavaSurfaceSpray(samus, frameCounter);
+            TrySpawnLavaSurfaceSpray(samus, surface, frameCounter);
             if (SamusPoseMetadata.IsForwardFacingPose(samus.Pose) || gravitySuit)
                 samus.ExtraAnimationDelay = 0;
             return;
@@ -387,6 +388,7 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     public void HandleLandingSoundEffectsAndGraphics(
         SamusState samus,
+        SamusGround ground,
         SamusMovementType previousMovementType,
         SamusPoseId previousPose,
         UnsignedSixteenSixteen impactYSpeed)
@@ -420,16 +422,15 @@ public sealed class SamusLiquidPhysicsState
                 priority: SoundRequestPriority.Normal);
         }
 
-        HandleLandingGraphics(samus);
+        HandleLandingGraphics(samus, ground);
     }
 
     /// <summary>
     /// Raises the landing's splash on wet ground and its dust on dry ground whose landings raise dust, and otherwise shows
     /// nothing; the landing chooses its impact sound itself.
     /// </summary>
-    private void HandleLandingGraphics(SamusState samus)
+    private void HandleLandingGraphics(SamusState samus, SamusGround ground)
     {
-        SamusGround ground = samus.StandingGround;
         if (IsWet(samus, ground.Wetness))
             SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
         else if (ground.DryLandingsRaiseDust)
@@ -539,12 +540,14 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Starts the four-particle lava spray while Samus's top is above the surface and nothing holds the spray up.</summary>
+    /// <param name="samus">Samus, below the surface.</param>
+    /// <param name="surface">The lava or acid surface's line.</param>
+    /// <param name="frameCounter">The update counter.</param>
     private void TrySpawnLavaSurfaceSpray(
         SamusState samus,
+        int surface,
         int frameCounter)
     {
-        // The spray runs only while Samus is below the lava or acid surface, so the surface is present.
-        int surface = LavaAcidSurfaceY ?? throw new InvalidOperationException("Lava surface spray requires a lava or acid surface.");
         if (TopLine(samus) >= surface || !EffectWaits.SprayCanStart)
             return;
 
@@ -565,6 +568,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Emits wet-ground or boosted footstep art at running contact frames and applies the game's sound suppression.</summary>
     private void TrySpawnRunningFootsteps(
         SamusState samus,
+        SamusGround ground,
         SamusMovementType movementType,
         bool bossPresent)
     {
@@ -576,7 +580,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         bool cinematic = samus.Presentation.Mode == SamusPresentationMode.Cinematic;
-        if (IsWet(samus, samus.StandingGround.Wetness))
+        if (IsWet(samus, ground.Wetness))
             SpawnFootstepPair(samus, SamusParticleKind.SurfaceSplash);
         else if (samus.HorizontalSpeed.IsActivelySpeedBoosting &&
                  DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) == SamusLiquidMedium.Air)

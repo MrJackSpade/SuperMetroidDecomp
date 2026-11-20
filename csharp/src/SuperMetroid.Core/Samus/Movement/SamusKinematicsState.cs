@@ -36,8 +36,8 @@ public sealed class SamusKinematicsState
     internal SamusBodyAttack? ProbeBodyAttack { get; init; }
 
     /// <summary>The captured contact mode of an ownerless probe, otherwise <paramref name="owner"/>'s live mode.</summary>
-    internal SamusBodyAttack CollisionBodyAttack(SamusState? owner) =>
-        ProbeBodyAttack ?? owner?.HorizontalSpeed.BodyAttack ?? SamusBodyAttack.None;
+    internal SamusBodyAttack CollisionBodyAttack(SamusState owner) =>
+        ProbeBodyAttack ?? owner.HorizontalSpeed.BodyAttack;
 
     /// <summary>Constructs kinematics with no owner, for block collision that moves no Samus.</summary>
     public SamusKinematicsState()

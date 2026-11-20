@@ -228,7 +228,7 @@ internal sealed class BlockReactionObjects
         Ensure.NotNull(level);
         if (behavior == EscapeAnimalWallDefinitions.ReactionBehavior)
             return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, position, projectileType);
-        if (ShotBlockReactions.Of(behavior.Shootable) is not { } reaction)
+        if (!ShotBlockReactions.TryOf(behavior.Shootable, out ShotBlockReaction reaction))
         {
             throw new UnsupportedShotBlockReactionException(
                 nameof(behavior),
@@ -347,9 +347,9 @@ internal sealed class BlockReactionObjects
                 "The bomb-special setup accepts only normal-bomb and Power-Bomb families.");
         }
 
-        if (behavior.Special is null)
+        if (!behavior.TryGetSpecial(out SpecialBlockReaction special))
             throw new ArgumentOutOfRangeException(nameof(behavior), "The special block's behaviour has no special-block reaction.");
-        BlockReactionChange change = BombSpecialBlockReactions.ChangeFor(behavior.Special);
+        BlockReactionChange change = BombSpecialBlockReactions.ChangeFor(special);
 
         if (_places.Spawn() is not { } place)
             return false;

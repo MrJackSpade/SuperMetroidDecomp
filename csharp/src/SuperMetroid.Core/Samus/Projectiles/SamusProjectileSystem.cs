@@ -357,8 +357,8 @@ public sealed class SamusProjectileSystem
 
             // Killing a projectile replaces rather than clears a live beam. Consequently the
             // explosion's first frame is selected in this same projectile pass.
-            if (shot.Playback is not null)
-                _ = Animation.AdvanceProjectileAnimation(shot);
+            if (shot.Animation is { } animation)
+                _ = Animation.AdvanceProjectileAnimation(shot, animation);
         }
     }
 
@@ -437,9 +437,9 @@ public sealed class SamusProjectileSystem
                 continue;
 
             // Unlike a bomb or an explosion, a live shot is drawn wherever it lies, offscreen included; the display clips it.
-            if (shot.Sprite is not null)
+            if (shot.Sprite is { } sprite)
                 ProjectileAnimation.DrawShot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile),
-                    shot, cameraPosition, artwork);
+                    shot, sprite, cameraPosition, artwork);
         }
     }
 
@@ -475,13 +475,14 @@ public sealed class SamusProjectileSystem
         foreach (SamusProjectile shot in Pool.InUpdateOrder)
         {
             SamusProjectileFamily family = shot.Type.Family;
-            if (!shot.IsActive || family is not (
+            // An explosion shows its picture from the update its animation selects its first.
+            if (!shot.IsActive || shot.Sprite is not { } sprite || family is not (
                     SamusProjectileFamily.BeamExplosion or
                     SamusProjectileFamily.MissileExplosion))
                 continue;
 
             ProjectileAnimation.DrawShot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile),
-                shot, cameraPosition, artwork);
+                shot, sprite, cameraPosition, artwork);
         }
     }
 

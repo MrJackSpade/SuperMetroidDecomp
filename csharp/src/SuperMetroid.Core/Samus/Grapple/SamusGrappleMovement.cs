@@ -666,7 +666,7 @@ public static class SamusGrappleMovement
         ISamusRoomObjects roomObjects)
     {
         RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(endpoint.ToRoomBlock());
-        if (block.Position is null)
+        if (block.LiesBeyondRoom)
         {
             // The edge-solid block outside the room reacts as an ordinary solid endpoint: it stops
             // the beam without connecting, which queues grapple cancellation.
@@ -700,7 +700,7 @@ public static class SamusGrappleMovement
                 // beam through rejects it. Every other spike uses the empty reaction, which stops the
                 // beam without latching, and immediately deletes; the turret spike alone uses Draygon's
                 // broken-turret setup, which adds one whole periodic-damage unit and latches the beam.
-                if (block.Behavior.Spike is not { } spike)
+                if (!block.Behavior.TryGetSpike(out SpikeReaction spike))
                     throw new InvalidDataException($"Grapple reached spike block {block.Position} with no spike reaction ({block.Behavior}).");
                 if (spike.LetsGrappleBeamThrough)
                     return GrappleBlockReaction.Passes;

@@ -233,13 +233,14 @@ public sealed class SamusBombProjectileSystem
         {
             if (samus.Xray.TimeIsFrozen)
                 break;
-            if (bomb.Animation is null)
+            if (bomb.Animation is not { } animation)
                 continue;
 
             bool wasNormalBomb = bomb.Type.Family == SamusProjectileFamily.Bomb;
             bool bombExplosionStarted = AdvanceBomb(
                 terrain.Level,
                 bomb,
+                animation,
                 terrain.RoomObjects,
                 samus.Kinematics);
             if (bombExplosionStarted && wasNormalBomb)
@@ -251,10 +252,10 @@ public sealed class SamusBombProjectileSystem
             }
 
             // A bomb its own update ended this pass shows nothing more.
-            if (!bomb.IsActive)
+            if (bomb.Animation is not { } shown)
                 continue;
 
-            _ = AdvanceProjectileAnimation(bomb);
+            _ = AdvanceProjectileAnimation(bomb, shown);
         }
 
         // Main gameplay runs the bomb overlap check after the input phase (which placed/updated the
@@ -291,7 +292,8 @@ public sealed class SamusBombProjectileSystem
             // Bombs and Power Bombs show their animations' pictures; a Power Bomb's large flash is its blast's glowing
             // oval, drawn apart from them.
             SamusProjectileFamily family = bomb.Type.Family;
-            if (bomb.Animation is null ||
+            // A bomb shows its picture from the update its animation selects its first.
+            if (bomb.Animation is null || bomb.Sprite is not { } sprite ||
                 family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
                 continue;
 
@@ -303,7 +305,6 @@ public sealed class SamusBombProjectileSystem
             // The bomb is published wherever it lies; the display clips it to the view (#1541).
             Offset16<ScreenPixels> place = bomb.Position.Whole.RelativeToCamera(cameraPosition);
 
-            ProjectileSpriteId sprite = bomb.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.");
             // The empty composition draws nothing, and so does a composition the sheet of the beams the bomb is pictured
             // with holds as showing nothing (#1513, #1586).
             if (sprite.DrawsNothing)
@@ -566,6 +567,7 @@ public sealed class SamusBombProjectileSystem
     private bool AdvanceBomb(
         RoomLevelData level,
         SamusBomb bomb,
+        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation,
         ISamusRoomObjects roomObjects,
         SamusKinematicsState samusKinematics)
     {
@@ -592,7 +594,7 @@ public sealed class SamusBombProjectileSystem
             PowerBombFuseStep fuse = SamusPowerBombFuse.Step(bomb.Fuse, PowerBombExplosion.IsArmed);
             powerBombBoundaryReacts = fuse.BoundaryReacts;
             if (fuse.FastAnimation)
-                SamusPowerBombFuse.SwitchToFastAnimation(bomb.Animation);
+                SamusPowerBombFuse.SwitchToFastAnimation(animation);
             if (fuse.DeleteProjectile)
             {
                 ClearProjectile(bomb);
@@ -611,7 +613,7 @@ public sealed class SamusBombProjectileSystem
             {
                 // The fuse switches the bomb to the same frame of its fast animation, so its
                 // four-frame cycle keeps its place.
-                SamusPowerBombFuse.SwitchToFastAnimation(bomb.Animation);
+                SamusPowerBombFuse.SwitchToFastAnimation(animation);
             }
             else if (burnedOut)
             {
@@ -899,7 +901,7 @@ public sealed class SamusBombProjectileSystem
             // block returns early and therefore neither allocates a room object nor mutates terrain.
             if (block.Behavior.Bombable == BombableReaction.Inert)
                 return;
-            if (block.Behavior.Bombable is null)
+            if (!block.Behavior.TryGetBombable(out _))
             {
                 // A bombable block with no bomb reaction would make the game read unrelated data as a
                 // room-object definition; room data holds none, and the import refuses one.
@@ -977,13 +979,13 @@ public sealed class SamusBombProjectileSystem
     /// that ends deletes the bomb.
     /// </summary>
     /// <returns>Whether the animation ended and deleted the bomb.</returns>
-    /// <exception cref="InvalidOperationException">The bomb has ended and has no animation to play.</exception>
+    /// <param name="bomb">The bomb.</param>
+    /// <param name="animation">The animation the bomb plays.</param>
     /// <exception cref="InvalidDataException">The animation shows a still picture, which no bomb animation does.</exception>
     internal bool AdvanceProjectileAnimation(
-        SamusBomb bomb)
+        SamusBomb bomb,
+        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation)
     {
-        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation = bomb.Animation
-            ?? throw new InvalidOperationException("An inactive bomb has no animation to play.");
         if (SamusProjectilePlayback.StepToNewFrame(animation) is { } frame)
         {
             // A bomb's animations show no still picture: every frame lasts its updates.

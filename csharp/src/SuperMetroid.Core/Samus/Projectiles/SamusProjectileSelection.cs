@@ -31,14 +31,9 @@ internal static class SamusProjectileSelection
     /// <exception cref="ArgumentOutOfRangeException">No missile or bomb is of the family.</exception>
     internal static SamusProjectileKind NonBeam(SamusProjectileFamily family) => Lookup(NonBeamProjectiles, family);
 
-    /// <summary>
-    /// The kind of the particles of the special attack <paramref name="beams"/> fires, or null for a combination whose attack
-    /// has no particles of its own.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The combination pairs Spazer with Plasma, which fires no special attack.</exception>
-    internal static SamusProjectileKind? SpecialAttack(SamusBeamCombination beams) =>
-        !beams.CanBeEquipped ? throw new InvalidOperationException($"{beams} fires no special attack.")
-            : SpecialAttacks.TryGetValue(beams, out SamusProjectileKind kind) ? kind : null;
+    /// <summary>The kind of the particles of the special attack <paramref name="attack"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The attack's particles have no kind of their own: the Ice attack's are charged shots.</exception>
+    internal static SamusProjectileKind SpecialAttack(SamusComboKind attack) => Lookup(SpecialAttacks, attack);
 
     /// <summary>The kind <paramref name="echo"/> is.</summary>
     internal static SamusProjectileKind Echo(SamusBeamEcho echo) => Lookup(Echoes, echo);

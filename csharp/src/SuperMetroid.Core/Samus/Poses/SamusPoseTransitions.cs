@@ -297,7 +297,7 @@ internal static class SamusPoseTransitions
 
         // Only a pose-transition cue of the current pose's own animation leaves a pose pending; anything else means the
         // request named a target that was not read from that animation.
-        if (!SamusAnimationDelays.AnimationForPose(samus.Pose).Segments.Any(segment => segment.End is { } end && end.PublishedPoses.Contains(targetPose)))
+        if (!SamusAnimationDelays.AnimationForPose(samus.Pose).Segments.Any(segment => segment is SamusCuedAnimationSegment { End: var end } && end.PublishedPoses.Contains(targetPose)))
         {
             throw new InvalidOperationException(
                 $"Animation transition {samus.Pose} -> {targetPose} is no pose-transition cue of the pose's animation.");

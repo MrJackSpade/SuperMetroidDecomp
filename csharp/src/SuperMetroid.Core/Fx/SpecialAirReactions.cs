@@ -13,8 +13,7 @@ public static class SpecialAirReactions
 {
     /// <summary>What the special-air block with reaction <paramref name="reaction"/> does to Samus inside it.</summary>
     /// <param name="reaction">The block's reaction.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The block has no reaction.</exception>
-    public static SpecialAirInsideReaction InsideOf(SpecialAirReaction? reaction) => Validate(reaction, "inside-body") switch
+    public static SpecialAirInsideReaction InsideOf(SpecialAirReaction reaction) => reaction switch
     {
         SpecialAirReaction.FloorPlant => SpecialAirInsideReaction.BrinstarFloorPlant,
         SpecialAirReaction.CeilingPlant => SpecialAirInsideReaction.BrinstarCeilingPlant,
@@ -32,8 +31,7 @@ public static class SpecialAirReactions
 
     /// <summary>What the special-air block with reaction <paramref name="reaction"/> does when Samus's movement reaches it.</summary>
     /// <param name="reaction">The block's reaction.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The block has no reaction.</exception>
-    public static SpecialAirCollisionReaction CollisionOf(SpecialAirReaction? reaction) => Validate(reaction, "movement-collision") switch
+    public static SpecialAirCollisionReaction CollisionOf(SpecialAirReaction reaction) => reaction switch
     {
         SpecialAirReaction.FloorPlant or SpecialAirReaction.CeilingPlant => SpecialAirCollisionReaction.PassesThrough,
         SpecialAirReaction.SlowRespawningSpeedBlock => SpecialAirCollisionReaction.BrinstarSlowRespawningSpeedBlock,
@@ -52,11 +50,4 @@ public static class SpecialAirReactions
         var undefined => throw new InvalidOperationException($"Undefined {nameof(SpecialAirReaction)} {undefined}."),
     };
 
-    /// <summary>Requires the block to have a reaction.</summary>
-    /// <returns>The block's reaction.</returns>
-    private static SpecialAirReaction Validate(SpecialAirReaction? reaction, string context) =>
-        reaction ?? throw new ArgumentOutOfRangeException(
-            nameof(reaction),
-            reaction,
-            $"A special-air block's {context} reaction needs a reaction the block has.");
 }

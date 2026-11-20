@@ -539,8 +539,6 @@ public sealed class IntroCinematicState : IFrontendScreen
             SamusCompatibility.ForNewSamus(), flashbackProjectiles.Charge, flashbackSamusArtwork)
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
-            // No room loads for the flashback; her footsteps and landings go by its own ground.
-            Ground = IntroCinematicDefinitions.Flashback.Ground,
             Position = FixedPosition<RoomPixels>.FromWhole(IntroCinematicDefinitions.Flashback.SamusPosition),
             SelectedHudItem = HudItem.Missile,
             Missiles = IntroCinematicDefinitions.Flashback.Missiles,
@@ -853,7 +851,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Intro-demo state is not an animation shortcut. The intro demo's movement phase advances the same
         // animation delays as gameplay, including every visible hurt/fall frame.
         if (!groundedDemoStepped)
-            SamusPresentation.Animate(samus, new SamusAnimationStep { ControllerInput = demoInput, FrameCounter = frameCounter, Random = Random });
+            SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = IntroCinematicDefinitions.Flashback.Ground, ControllerInput = demoInput, FrameCounter = frameCounter, Random = Random });
 
         // The pose animation's transition steps publish a prospective pose; they are not ordinary frame
         // delays. The intro demo's movement phase consumes that publication before the value following the step

@@ -199,7 +199,4 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         foreach (Collider collider in EntityNode.CollidersOf(this))
             collider.Enabled = solid;
     }
-
-    /// <inheritdoc/>
-    public override void _ValidateProperty(Godot.Collections.Dictionary property) => DataValues.Validate(this, property);
 }

@@ -25,12 +25,12 @@ public partial class GameLoop : Node
     /// Starts a session of <paramref name="definition"/>'s game, taking its input from <paramref name="source"/> and
     /// its assets from <paramref name="content"/>.
     /// </summary>
-    public void Start(GameDefinition definition, IInputSource source, ContentLibrary content)
+    public void Start(GameDefinition definition, IInputSource source, ContentLibrary content, SaveFile saves, Options options)
     {
         if (_session is not null)
             throw new InvalidOperationException("The game loop has already been started.");
         _input = new InputSampler(source);
-        _session = new GameSession(definition, this, content);
+        _session = new GameSession(definition, this, content, saves, options);
     }
 
     /// <summary>The running game.</summary>
@@ -60,10 +60,15 @@ public partial class GameLoop : Node
             GameDefinition definition = ResourceLoader.Load<GameDefinition>(path)
                 ?? throw new InvalidOperationException($"\"{path}\" is not a game definition.");
 
+            var actions = GameAction.Standard.Concat(definition.Actions.Select(name => new GameAction(name))).ToList();
+            Options options = Options.Load(ProjectSettings.GlobalizePath("user://options.json"));
+            options.ApplyBindings(actions);
             var devices = new DeviceInputSource();
             AddChild(devices);
-            devices.Watch(GameAction.Standard.Concat(definition.Actions.Select(name => new GameAction(name))));
-            Start(definition, devices, ContentLibrary.ForProject());
+            devices.Watch(actions);
+            var saves = new SaveFile(ProjectSettings.GlobalizePath("user://saves"), definition.SaveSlots);
+            Start(definition, devices, ContentLibrary.ForProject(), saves, options);
+            AddChild(new Engine.Audio.AudioDirector(Session));
         }
         catch (Exception exception)
         {

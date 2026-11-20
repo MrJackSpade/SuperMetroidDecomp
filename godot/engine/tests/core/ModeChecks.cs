@@ -1,0 +1,192 @@
+using Engine.Core;
+using Engine.Input;
+using Engine.Shared;
+
+namespace Engine.Tests.Core;
+
+/// <summary>Checks of the engine's own modes: play, the change of rooms, pausing, messages, death, loading and cinematics.</summary>
+public sealed class ModeChecks
+{
+    [Check]
+    public void PlayStartsInTheFirstRoomAtItsEntryPoint()
+    {
+        using var game = new StandInGame();
+        var playing = (PlayingMode)game.Mode;
+        Expect.Equal("a", playing.RoomScene);
+        Expect.Equal(PixelPosition.FromWhole(40, 80), game.Session.Player.Position);
+        game.Step(3);
+        Expect.Equal(3L, game.Session.Progress.PlayUpdates);
+    }
+
+    [Check]
+    public void EnteringAnExitChangesRoomsAndHandsBackToTheSamePlay()
+    {
+        using var game = new StandInGame();
+        var playing = (PlayingMode)game.Mode;
+
+        game.StepUntil(() => game.Mode is RoomTransitionMode, GameAction.Right);
+        Expect.Equal("a", playing.RoomScene);
+        Expect.Equal(2, game.Loop.GetChildCount());
+        long playedBefore = game.Session.Progress.PlayUpdates;
+
+        game.StepUntil(() => game.Mode is PlayingMode, GameAction.Right);
+        Expect.True(ReferenceEquals(playing, game.Mode));
+        Expect.Equal("b", playing.RoomScene);
+        Expect.Equal(PixelPosition.FromWhole(40, 80), game.Session.Player.Position);
+        Expect.Equal(playedBefore, game.Session.Progress.PlayUpdates);
+        Expect.Equal(1, game.Loop.GetChildCount());
+        Expect.True(ReferenceEquals(playing.Room, game.Session.Player.GetParent()));
+    }
+
+    [Check]
+    public void AnExitThatLeadsNowhereIsRefused()
+    {
+        using var game = new StandInGame();
+        var playing = (PlayingMode)game.Mode;
+        var exit = new Engine.World.RoomExit { Name = "Nowhere" };
+        Expect.Throws<InvalidOperationException>(() => _ = new RoomTransitionMode(playing, exit));
+        exit.Free();
+    }
+
+    [Check]
+    public void PausingStopsPlayUntilItIsPressedAgain()
+    {
+        using var game = new StandInGame();
+        GameMode playing = game.Mode;
+
+        game.Press(GameAction.Pause);
+        Expect.True(game.Mode is PausedMode);
+        long played = game.Session.Progress.PlayUpdates;
+        game.Step(5);
+        Expect.Equal(played, game.Session.Progress.PlayUpdates);
+
+        game.Press(GameAction.Pause);
+        Expect.True(ReferenceEquals(playing, game.Mode));
+        Expect.Equal(1, game.Loop.GetChildCount());
+        game.Step(2);
+        Expect.Equal(played + 2, game.Session.Progress.PlayUpdates);
+    }
+
+    [Check]
+    public void AMessageAskedForIsShownUntilItIsConfirmed()
+    {
+        using var game = new StandInGame();
+        GameMode playing = game.Mode;
+
+        game.Session.RequestMessage("hello");
+        game.Step(1);
+        var message = (MessageBoxMode)game.Mode;
+        Expect.Equal("hello", message.Message);
+        Expect.Equal("HELLO", message.GetNode<Engine.Ui.MessageBox>("MessageBox").Message);
+        game.Step(5);
+        Expect.True(ReferenceEquals(message, game.Mode));
+
+        game.Press(GameAction.Confirm);
+        Expect.True(ReferenceEquals(playing, game.Mode));
+    }
+
+    [Check]
+    public void AYesOrNoMessageGivesItsAnswerToWhoeverAsked()
+    {
+        using var game = new StandInGame(() => new AskingMode());
+        var asking = (AskingMode)game.Mode;
+        game.Step(1);
+        var message = (MessageBoxMode)game.Mode;
+        Expect.True(message.YesIsChosen);
+
+        game.Press(GameAction.Right);
+        Expect.False(message.YesIsChosen);
+        Expect.True(asking.Answer is null);
+
+        game.Press(GameAction.Confirm);
+        Expect.True(ReferenceEquals(asking, game.Mode));
+        Expect.Equal<bool?>(false, asking.Answer);
+        Expect.Equal(1, asking.TimesResumed);
+    }
+
+    [Check]
+    public void ASaveAskedForDuringPlayIsWrittenToTheSessionsSlot()
+    {
+        using var game = new StandInGame();
+        game.Session.Progress.Record("before the save");
+        game.Session.RequestSave("", "Start");
+        Expect.False(game.Saves.Has(1));
+        game.Step(1);
+
+        SaveData save = game.Saves.Read(1);
+        Expect.Equal("a", save.Room);
+        Expect.Equal("Start", save.EntryPoint);
+        Expect.True(save.Facts.Contains("before the save"));
+    }
+
+    [Check]
+    public void DyingReloadsTheSaveAndForgetsWhatCameAfterIt()
+    {
+        using var game = new StandInGame();
+        GameMode firstPlay = game.Mode;
+        var firstPlayer = game.Session.Player;
+        game.Session.Progress.Record("before the save");
+        game.Session.RequestSave("", "Start");
+        game.Step(1);
+        game.Session.Progress.Record("after the save");
+
+        firstPlayer.TakeHit(new Hit(500, HitSide.Enemies, HitKind.Contact), firstPlayer.Hurtbox);
+        game.StepUntil(() => game.Mode is PlayingMode && !ReferenceEquals(game.Mode, firstPlay));
+
+        Expect.True(game.Session.Progress.Has("before the save"));
+        Expect.False(game.Session.Progress.Has("after the save"));
+        Expect.False(ReferenceEquals(firstPlayer, game.Session.Player));
+        Expect.False(Godot.GodotObject.IsInstanceValid(firstPlayer));
+        Expect.False(game.Session.Player.IsDead);
+        Expect.Equal("a", ((PlayingMode)game.Mode).RoomScene);
+        Expect.Equal(1, game.Loop.GetChildCount());
+    }
+
+    [Check]
+    public void DyingWithNoSaveStartsTheGameAgain()
+    {
+        using var game = new StandInGame();
+        GameMode firstPlay = game.Mode;
+        game.Session.Progress.Record("something happened");
+        game.Session.Player.TakeHit(new Hit(500, HitSide.Enemies, HitKind.Contact), game.Session.Player.Hurtbox);
+        game.StepUntil(() => game.Mode is PlayingMode && !ReferenceEquals(game.Mode, firstPlay));
+
+        Expect.False(game.Session.Progress.Has("something happened"));
+        Expect.Equal(PixelPosition.FromWhole(40, 80), game.Session.Player.Position);
+    }
+
+    [Check]
+    public void LeavingAModeLaidOverPlayForAnotherEndsPlayToo()
+    {
+        using var game = new StandInGame();
+        game.Press(GameAction.Pause);
+        var definition = (TwoRoomDefinition)game.Session.Definition;
+        Expect.Equal(2, game.Loop.GetChildCount());
+
+        // A game's own pause screen may quit to its title; the engine's hand-over then ends the play beneath it.
+        definition.QuitFromPause = true;
+        game.Press(GameAction.Cancel);
+        Expect.True(game.Mode is StandInMode);
+        Expect.Equal(1, game.Loop.GetChildCount());
+    }
+
+    [Check]
+    public void ACinematicPlaysToItsEndThenHandsOver()
+    {
+        using var game = new StandInGame(() => new StandInCinematic { Length = 4 });
+        var cinematic = (StandInCinematic)game.Mode;
+        game.Step(3);
+        Expect.True(ReferenceEquals(cinematic, game.Mode));
+        game.Step(1);
+        Expect.True(game.Mode is StandInMode);
+        Expect.True(cinematic.Played.SequenceEqual([0, 1, 2, 3]));
+    }
+
+    [Check]
+    public void ConfirmingSkipsACinematic()
+    {
+        using var game = new StandInGame(() => new StandInCinematic { Length = 500 });
+        game.Press(GameAction.Confirm);
+        Expect.True(game.Mode is StandInMode);
+    }
+}

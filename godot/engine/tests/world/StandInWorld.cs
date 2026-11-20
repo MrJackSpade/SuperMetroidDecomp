@@ -26,7 +26,12 @@ public sealed class StandInWorld : IDisposable
     public StandInWorld(params string[] rows)
     {
         StandInRoom.WriteAssets(Assets, rows);
-        _loop.Start(new StandInDefinition { UpdatesBeforeHandOver = 0 }, new ScriptedInputSource(), Assets.Library);
+        _loop.Start(
+            new StandInDefinition { UpdatesBeforeHandOver = 0 },
+            new ScriptedInputSource(),
+            Assets.Library,
+            new SaveFile(Path.Combine(Assets.Folder, "saves"), 3),
+            new Options());
         Room = new Room { Name = "Room" };
         Room.AddChild(new Terrain { Name = "Terrain", LayoutFile = "room.json" });
         _loop.AddChild(Room);

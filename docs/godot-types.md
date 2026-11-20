@@ -210,6 +210,29 @@ families. When several enemies share behaviour, the pull is to make a family bas
 (section 6, "Shared movement") or more in `Enemy` itself if every enemy has it. Access is tight so that the only
 way to change a thing is to ask it, which is what keeps move 4 true.
 
+**How the engine's code spells these rules.** The engine in `godot/engine/` is written; these are the conventions
+it settled, and new code follows them.
+
+- **Exact places beside Godot's.** Everything placed in a room has `new PixelPosition Position`, hiding `Node2D`'s
+  floating-point one. Gameplay reads and writes the exact one only; `EntityNode.Show` copies it to the node once per
+  update for drawing, and `EntityNode.StartingPlace` reads where a scene placed the node, once, as it enters its
+  room. Nothing else reads a node's own position.
+- **Distances in the inspector.** A distance or speed that is a setting is exported as a plain number, so the
+  inspector can show and edit fractions of a pixel, and is turned into `Pixels` with `Pixels.FromNumber` once, as
+  the values are filled. No arithmetic is done on the number.
+- **What every placed thing shares** is in `EntityNode` (its place, its colliders, reading collider sizes from its
+  data file), which is a set of functions the base classes call, not a base class.
+- **Small interfaces name capabilities:** `IRoomEntity` (enters a room and has a place), `IPlaced` (present only
+  when a condition holds), `IHittable` (takes hits), `ITriggerTarget` (can be told something by a `Trigger`),
+  `IMoves` (a movement component: it is stepped and reports what it met), `IHasValues` (its values come from a data
+  file).
+- **Namespaces follow folders,** with two exceptions made so that code reads naturally: the player's files in
+  `engine/actors/player/` are in `Engine.Actors`, because `Player` is both the folder and the class; and the
+  project does not use C#'s implicit usings for threading, because `Barrier` is the engine's type.
+- **An enemy can be asleep** (`Sleep`, `Wake`, its own methods): asleep, it is not stepped and cannot be hit, as
+  one waiting for an encounter to begin. Separately, the room does not step an enemy further from the view than
+  the room's active margin.
+
 ## 4. Values, resources and core
 
 ### Values (`engine/shared/`)
@@ -267,9 +290,9 @@ Each is a set of values, and so comes from a data file for this game (section 8,
 | `PickupType` | A kind of drop | Which inventory amount it adds to, and how much. |
 | `BlockType` | A reactive tile | Its rules (section 5). |
 | `LiquidType` | A kind of liquid | How it slows movement, the ongoing damage it does, which equipment cancels each, how it looks. |
-| `Area` | An area of the world | Name, its rooms, its map: the cells, what each shows, and its markers. |
+| `Area` | An area of the world as its map shows it | Its name, the fact that reveals its map, the cells of the map and the small picture each shows, which cells are secret, its markers, and the sheet the pictures come from. A room says which area it is in and which cell its top-left corner is. |
 | `FrameTimeline` | A timed sequence gameplay follows | Ordered steps, each with a picture to show, how many updates it lasts, and optional named cues; and where it loops or ends. |
-| `DemoRecording` | One title-screen demo | The recorded inputs, the room it plays in, and what the player starts with. |
+| `DemoRecording` | One title-screen demo | The room it plays in, the entry point the player starts at, and the actions held for each stretch of updates. `RecordedInputSource` plays it to the `InputSampler`. |
 | `GameText` | The game's words | Every message, menu label, narration line and credit, by name, per language. |
 | `GameDefinition` | The game the engine is running | The one thing the engine is pointed at: the first screen, the player's scene, the HUD, this game's lists (equipment and ammunition kinds, hit kinds, item types, bosses and story events, areas, music and sounds, input actions, options, extra game modes and session services) and its compatibility answers. Everything the engine knows about a particular game, it learns from this. |
 
@@ -295,8 +318,31 @@ Each is a set of values, and so comes from a data file for this game (section 8,
 | `SoundRequests` | What gameplay has asked to hear and, as gameplay sees it, what is still sounding | Accepting or refusing each request by priority, and answering "is this sound still going". Advanced once per update. | Play anything. |
 | `Escape` (this game's) | The escape countdown | Starting, counting, showing and ending the timed escape, and reporting that it is running. | Know which room the player is in. |
 
-The engine provides the modes any game has: loading, playing, room transition, paused, message box and death. This
-game adds title, attract demo, file select, options, game over, time up, and one per cinematic.
+`SaveData` is the saved form itself: what a slot's file holds, captured from a session and put back into one.
+`RoomVersion` is one set of a room's settings (its layout file, which of the layout's patches are in place, its music) with the `Condition` it applies under.
+
+**The engine's modes.** The engine provides the modes any game has. This game adds title, attract demo, file
+select, options, game over, time up, and one per cinematic.
+
+| Mode | Does | Hands over to |
+| --- | --- | --- |
+| `PlayingMode` | Owns the room being played and steps it. Writes a save when one was asked for. A game says what is stopped while the rest runs by overriding one method. | The mode after death when the player has died; a `MessageBoxMode` when a message was asked for; a `RoomTransitionMode` when the player entered an exit; the pause mode when pause is pressed while the player is in control. |
+| `RoomTransitionMode` | Fades out, takes the old room down and sets the next up with the player arriving at the exit the old one led to, fades in. Neither room is stepped meanwhile. | The same `PlayingMode`. |
+| `PausedMode` | Nothing; play is still beneath it. A game's pause screen is its own mode doing the same. | The same `PlayingMode`, on pause. |
+| `MessageBoxMode` | Shows a message from `GameText`; one that asks yes or no gives the answer to whoever asked. | The mode it was laid over, on confirm. |
+| `LoadingMode` | Begins the session's game again and puts the session's save slot into it, if the slot holds one. | A new `PlayingMode` in the saved room, or the first room. |
+| `Cinematic` (base, `engine/ui/`) | Plays update by update; confirm skips it unless it says otherwise. | The mode it names. |
+
+- **Laid over, or replacing.** A mode says which mode it is laid over (`Keeps`). That mode stays on screen, is not
+  stepped, and is told when control comes back (`Resume`). Any other hand-over ends the mode that finished, and
+  everything it was laid over.
+- **Asking, not reaching.** A room object does not start a mode. It asks the session: `RequestMessage` for a
+  message, `RequestSave` for a save. The mode in control takes the request and acts on it.
+- **Death.** There is no death mode in the engine: the player plays its own dying, and when it is over
+  `PlayingMode` hands to whatever the `GameDefinition` makes for after a death. The engine's default reloads; this
+  game's is its game-over screen.
+- **Where a game plugs in** is always the `GameDefinition`: the pause mode, the mode after death, the first mode,
+  how a room is made, the folders its words, sounds and music are in, how many save slots it has.
 
 **What is remembered.** A room forgets everything when it is left: enemies return, blocks regrow, barriers close.
 The only things that survive are facts in `Progress`.

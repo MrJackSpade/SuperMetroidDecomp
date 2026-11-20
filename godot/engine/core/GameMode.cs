@@ -26,8 +26,22 @@ public abstract partial class GameMode : Node
         Enter();
     }
 
+    /// <summary>Whether this mode has taken control at some point, and so is being returned to rather than started.</summary>
+    internal bool HasTakenControl => _session is not null;
+
+    /// <summary>
+    /// The mode this one is laid over and will hand back to, such as play beneath a pause screen. That mode is kept, and
+    /// stays on screen, while this one is in control. Null for a mode that replaces the one before it.
+    /// </summary>
+    public virtual GameMode? Keeps => null;
+
     /// <summary>Called once as this mode takes control, before its first update.</summary>
     protected virtual void Enter()
+    {
+    }
+
+    /// <summary>Called as control comes back to this mode from one that was laid over it.</summary>
+    protected internal virtual void Resume()
     {
     }
 

@@ -11,9 +11,18 @@ namespace Engine.Tests;
 /// </summary>
 public partial class TestRunner : Node
 {
+    private static Node? _stage;
+
+    /// <summary>
+    /// A node inside the scene tree, for the few checks whose subject works only there, such as playing sound. A check
+    /// that puts something under it takes it away again.
+    /// </summary>
+    public static Node Stage => _stage ?? throw new InvalidOperationException("The checks are not being run by the test runner.");
+
     /// <inheritdoc/>
     public override void _Ready()
     {
+        _stage = this;
         int exitCode;
         try
         {

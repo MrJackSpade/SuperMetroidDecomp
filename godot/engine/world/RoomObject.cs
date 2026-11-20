@@ -52,6 +52,9 @@ public abstract partial class RoomObject : Node2D, IRoomEntity, IPlaced, IHasVal
     /// <inheritdoc/>
     public virtual void ReadValues(DataNode data) => EntityNode.ReadColliders(this, data);
 
+    /// <inheritdoc/>
+    public override void _ValidateProperty(Godot.Collections.Dictionary property) => DataValues.Validate(this, property);
+
     /// <summary>Called once as the object enters its room, after its values are loaded: it asks progress about itself and sets itself up.</summary>
     protected virtual void OnEnterRoom()
     {

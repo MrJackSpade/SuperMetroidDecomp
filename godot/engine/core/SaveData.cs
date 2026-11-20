@@ -1,0 +1,80 @@
+using Engine.Actors;
+
+namespace Engine.Core;
+
+/// <summary>
+/// The saved form of a game: what has happened, what the player carries, and where they resume. It is what a save
+/// slot holds; it does not exist as live state during play.
+/// </summary>
+public sealed class SaveData
+{
+    /// <summary>The facts recorded in progress.</summary>
+    public List<string> Facts { get; set; } = [];
+
+    /// <summary>The map cells explored, each as "area|column|row".</summary>
+    public List<string> Explored { get; set; } = [];
+
+    /// <summary>How many updates of play have passed.</summary>
+    public long PlayUpdates { get; set; }
+
+    /// <summary>The equipment the player owns.</summary>
+    public List<string> Owned { get; set; } = [];
+
+    /// <summary>The equipment the player has switched on.</summary>
+    public List<string> SwitchedOn { get; set; } = [];
+
+    /// <summary>How much of each amount the player has, by name.</summary>
+    public Dictionary<string, int> Amounts { get; set; } = [];
+
+    /// <summary>The most of each amount the player can hold, by name.</summary>
+    public Dictionary<string, int> Capacities { get; set; } = [];
+
+    /// <summary>The scene of the room the player resumes in.</summary>
+    public string Room { get; set; } = "";
+
+    /// <summary>The entry point in that room the player resumes at.</summary>
+    public string EntryPoint { get; set; } = "";
+
+    /// <summary>The saved form of <paramref name="session"/>'s game, to resume in <paramref name="room"/> at <paramref name="entryPoint"/>.</summary>
+    public static SaveData Capture(GameSession session, string room, string entryPoint)
+    {
+        Inventory inventory = session.Player.Inventory;
+        return new SaveData
+        {
+            Facts = [.. session.Progress.Facts.Order(StringComparer.Ordinal)],
+            Explored = [.. session.Progress.Explored.Select(cell => $"{cell.Area}|{cell.Column}|{cell.Row}").Order(StringComparer.Ordinal)],
+            PlayUpdates = session.Progress.PlayUpdates,
+            Owned = [.. inventory.Owned.Order(StringComparer.Ordinal)],
+            SwitchedOn = [.. inventory.SwitchedOn.Order(StringComparer.Ordinal)],
+            Amounts = inventory.Amounts.ToDictionary(amount => amount, inventory.Amount),
+            Capacities = inventory.Amounts.ToDictionary(amount => amount, inventory.Capacity),
+            Room = room,
+            EntryPoint = entryPoint,
+        };
+    }
+
+    /// <summary>Puts this saved game into <paramref name="session"/>: its progress and its player's inventory.</summary>
+    public void ApplyTo(GameSession session)
+    {
+        foreach (string fact in Facts)
+            session.Progress.Record(fact);
+        foreach (string cell in Explored)
+        {
+            string[] parts = cell.Split('|');
+            if (parts.Length != 3 || !int.TryParse(parts[1], out int column) || !int.TryParse(parts[2], out int row))
+                throw new InvalidDataException($"The save holds an explored cell it cannot read: \"{cell}\".");
+            session.Progress.MarkExplored(parts[0], column, row);
+        }
+
+        session.Progress.RestorePlayUpdates(PlayUpdates);
+        Inventory inventory = session.Player.Inventory;
+        foreach (string equipment in Owned)
+            inventory.Grant(equipment);
+        foreach (string equipment in Owned.Except(SwitchedOn))
+            inventory.Switch(equipment, false);
+        foreach ((string amount, int capacity) in Capacities)
+            inventory.SetCapacity(amount, capacity);
+        foreach ((string amount, int quantity) in Amounts)
+            inventory.Restore(amount, quantity);
+    }
+}

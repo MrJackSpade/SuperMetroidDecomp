@@ -49,6 +49,32 @@ public partial class GameDefinition : Resource
     [Export]
     public string FirstEntryPoint { get; set; } = "";
 
+    /// <summary>How many save slots the game has.</summary>
+    [Export]
+    public int SaveSlots { get; set; } = 3;
+
+    /// <summary>The folder, within the assets tree, of the game's words: one file per language, named for it.</summary>
+    [Export]
+    public string TextFolder { get; set; } = "text";
+
+    /// <summary>The folder, within the assets tree, of the game's sounds: one file per sound, named for it.</summary>
+    [Export]
+    public string SoundFolder { get; set; } = "sounds";
+
+    /// <summary>The folder, within the assets tree, of the game's music: one file per piece, named for it.</summary>
+    [Export]
+    public string MusicFolder { get; set; } = "music";
+
+    /// <summary>How many updates the change from one room to the next takes.</summary>
+    [Export]
+    public int TransitionUpdates { get; set; } = 30;
+
+    /// <summary>Makes the mode laid over play when the player pauses.</summary>
+    public virtual GameMode CreatePauseMode(PlayingMode playing) => new PausedMode(playing);
+
+    /// <summary>Makes the mode that follows the player's death. The engine's reloads the session's save slot, or starts a new game.</summary>
+    public virtual GameMode CreateModeAfterDeath() => new LoadingMode();
+
     /// <summary>Makes the session's player.</summary>
     /// <exception cref="InvalidOperationException">No player scene is set, or its root is not a player.</exception>
     public virtual Player CreatePlayer()

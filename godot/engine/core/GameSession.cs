@@ -23,14 +23,18 @@ public sealed class GameSession
     /// Starts a session of <paramref name="definition"/>'s game, showing its modes under <paramref name="host"/> and
     /// loading its assets through <paramref name="content"/>.
     /// </summary>
-    public GameSession(GameDefinition definition, Node host, ContentLibrary content)
+    public GameSession(GameDefinition definition, Node host, ContentLibrary content, SaveFile saves, Options options)
     {
         ArgumentNullException.ThrowIfNull(definition);
         ArgumentNullException.ThrowIfNull(host);
         ArgumentNullException.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(saves);
+        ArgumentNullException.ThrowIfNull(options);
         _host = host;
         Definition = definition;
         Content = content;
+        Saves = saves;
+        Options = options;
         Random = new GameRandom(definition.CreateRandomSequence());
         Camera = new Camera(
             ProjectSettings.GetSetting("display/window/size/viewport_width").AsInt32(),
@@ -44,6 +48,51 @@ public sealed class GameSession
 
     /// <summary>Where the game's assets are loaded from.</summary>
     public ContentLibrary Content { get; }
+
+    /// <summary>The save slots.</summary>
+    public SaveFile Saves { get; }
+
+    /// <summary>The player's settings.</summary>
+    public Options Options { get; }
+
+    /// <summary>The save slot this session's game is saved to, numbered from 1.</summary>
+    public int Slot { get; set; } = 1;
+
+    /// <summary>The game's words in the language they were last asked for in.</summary>
+    private GameText? _text;
+
+    /// <summary>The language <see cref="_text"/> is in.</summary>
+    private string _textLanguage = "";
+
+    /// <summary>The game's words in the player's language, read from the language's file in the game's text folder.</summary>
+    public GameText Text
+    {
+        get
+        {
+            if (_text is null || _textLanguage != Options.Language)
+            {
+                _text = GameText.Read(Content.ReadData($"{Definition.TextFolder}/{Options.Language}.json"));
+                _textLanguage = Options.Language;
+            }
+
+            return _text;
+        }
+    }
+
+    /// <summary>
+    /// Starts the session's game afresh, as after a death or on loading a save: what has happened is forgotten and the
+    /// player is a new one.
+    /// </summary>
+    public void BeginAgain()
+    {
+        Progress = new Progress();
+        // A player left in a room went with the room; one that is in no room is done with here.
+        if (_player is not null && GodotObject.IsInstanceValid(_player) && _player.GetParent() is null)
+            _player.Free();
+        _player = null;
+        _messages.Clear();
+        SaveRequested = null;
+    }
 
     /// <summary>The view onto the room being played.</summary>
     public Camera Camera { get; }
@@ -91,7 +140,7 @@ public sealed class GameSession
     public GameRandom Random { get; }
 
     /// <summary>What has happened that must not be forgotten.</summary>
-    public Progress Progress { get; } = new();
+    public Progress Progress { get; private set; } = new();
 
     /// <summary>The mode in control.</summary>
     public GameMode Mode { get; private set; }
@@ -107,11 +156,29 @@ public sealed class GameSession
             ?? throw new InvalidOperationException($"{Mode.GetType().Name} named no mode to be in control next.");
         if (!ReferenceEquals(next, Mode))
         {
-            GameMode finished = Mode;
-            _host.RemoveChild(finished);
-            finished.Free();
+            // A mode the next one is laid over is kept, on screen, to be handed back to. The mode that finished, and
+            // anything it was laid over, is done with unless the next mode is it or keeps it.
+            var kept = new List<GameMode>();
+            for (GameMode? mode = next; mode is not null; mode = mode.Keeps)
+                kept.Add(mode);
+            var done = new List<GameMode>();
+            for (GameMode? mode = Mode; mode is not null; mode = mode.Keeps)
+            {
+                if (!kept.Contains(mode))
+                    done.Add(mode);
+            }
+
+            foreach (GameMode mode in done)
+            {
+                _host.RemoveChild(mode);
+                mode.Free();
+            }
+
             Mode = next;
-            Show(next);
+            if (next.HasTakenControl)
+                next.Resume();
+            else
+                Show(next);
         }
 
         Sounds.Step();

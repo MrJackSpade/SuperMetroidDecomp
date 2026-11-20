@@ -27,6 +27,15 @@ public sealed class TempAssets : IDisposable
         return this;
     }
 
+    /// <summary>Writes a file of bytes at <paramref name="path"/> within the folder.</summary>
+    public TempAssets WithBytes(string path, byte[] bytes)
+    {
+        string file = Path.Combine(Folder, path);
+        Directory.CreateDirectory(Path.GetDirectoryName(file) ?? Folder);
+        File.WriteAllBytes(file, bytes);
+        return this;
+    }
+
     /// <summary>Deletes the folder and everything in it.</summary>
     public void Dispose() => Directory.Delete(Folder, recursive: true);
 }

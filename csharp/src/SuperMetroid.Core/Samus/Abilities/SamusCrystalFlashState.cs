@@ -159,10 +159,8 @@ public sealed class SamusCrystalFlashState
         SamusGlowPlay.Restart(BubbleTurn, SamusGlowSegment.CrystalFlashBubble);
         Colouring = SpecialColouringStage.Showing;
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
-        samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackHold = UpdateCountdown.Ended();
+        EndHitImmunityAndKnockback(samus);
         samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
-        samus.KnockbackActive = false;
         Phase = CrystalFlashPhase.Raising;
         return true;
     }
@@ -193,8 +191,7 @@ public sealed class SamusCrystalFlashState
                 StepAmmoDrain(samus, frameCounter);
                 // The main phase clears both values after each ammunition drain,
                 // including its seven no-drain frames and the final phase-changing update.
-                samus.InvincibilityTimer = WrappingCountdown.Start(0);
-                samus.KnockbackHold = UpdateCountdown.Ended();
+                EndHitImmunity(samus);
                 break;
 
             case CrystalFlashPhase.Finishing:
@@ -227,9 +224,7 @@ public sealed class SamusCrystalFlashState
         Phase = CrystalFlashPhase.DrainingAmmo;
         // The raise becomes the main phase with one essential-priority request that silences the room library.
         samus.AudioRequests.QueueSound(RoomSound.Silence, SoundRequestPriority.Essential);
-        samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackHold = UpdateCountdown.Ended();
-        samus.KnockbackActive = false;
+        EndHitImmunityAndKnockback(samus);
     }
 
     /// <summary>
@@ -298,9 +293,7 @@ public sealed class SamusCrystalFlashState
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // Normal-input completion clears the same hit timers as the return path.
-        samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackHold = UpdateCountdown.Ended();
-        samus.KnockbackActive = false;
+        EndHitImmunityAndKnockback(samus);
         Phase = CrystalFlashPhase.Inactive;
     }
 
@@ -338,5 +331,19 @@ public sealed class SamusCrystalFlashState
 
         // Crystal Flash's shade holds Samus's colours on every update it runs, whether or not either timer runs out.
         return true;
+    }
+
+    /// <summary>Ends Samus's hit immunity: her invincibility and her knockback's hold run out at once.</summary>
+    private static void EndHitImmunity(SamusState samus)
+    {
+        samus.InvincibilityTimer = WrappingCountdown.Start(0);
+        samus.KnockbackHold = UpdateCountdown.Ended();
+    }
+
+    /// <summary>Ends Samus's hit immunity (<see cref="EndHitImmunity"/>) and her knockback with it.</summary>
+    private static void EndHitImmunityAndKnockback(SamusState samus)
+    {
+        EndHitImmunity(samus);
+        samus.KnockbackActive = false;
     }
 }

@@ -102,6 +102,18 @@ public sealed class SamusKinematicsState
     /// </summary>
     public SamusVerticalVelocity VerticalVelocity { get; set; }
 
+    /// <summary>
+    /// Turns Samus at her apex (#2557): an upward speed that has passed zero becomes a stationary downward one on this same
+    /// update; it returns whether she turned.
+    /// </summary>
+    internal bool TurnAtApex()
+    {
+        if (!VerticalVelocity.HasPassedApex)
+            return false;
+        VerticalVelocity = SamusVerticalVelocity.FallFromRest;
+        return true;
+    }
+
     /// <summary>The gravity applied to vertical speed.</summary>
     public UnsignedSixteenSixteen YAcceleration { get; set; }
 

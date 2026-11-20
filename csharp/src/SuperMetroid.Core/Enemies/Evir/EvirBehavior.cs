@@ -19,16 +19,19 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.Evir)
-        {
-            return occupant.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
-                ? EnemyOccupant.Of(new EvirArmsEntity(this, occupant, place, common))
-                : EnemyOccupant.FromSurroundings(new EvirBodyEntity(this, occupant, place, common));
-        }
-        if (definition == EnemyDefinitionId.EvirProjectile)
-            return EnemyOccupant.Of(new EvirSpitEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The Evir species creates no {occupant.DefinitionId}.");
+        return PartFactories.TryGetValue(definition, out EnemyPartFactory? factory) ? factory(occupant, place, common)
+            : throw new InvalidOperationException($"The Evir species creates no {occupant.DefinitionId}.");
     }
+
+    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
+    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
+        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+        {
+            [EnemyDefinitionId.Evir] = (occupant, place, common) => occupant.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
+                ? EnemyOccupant.Of(new EvirArmsEntity(this, occupant, place, common))
+                : EnemyOccupant.FromSurroundings(new EvirBodyEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.EvirProjectile] = (occupant, place, common) => EnemyOccupant.Of(new EvirSpitEntity(this, occupant, place, common)),
+        };
 
     /// <summary>The room's enemy places, where each Evir part finds its partners when it is placed.</summary>
     private readonly EnemyPlaces _places;

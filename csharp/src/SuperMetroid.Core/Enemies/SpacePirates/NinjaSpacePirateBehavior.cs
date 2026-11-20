@@ -20,12 +20,17 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.PirateGoldNinja)
-            return EnemyOccupant.Of(new GoldNinjaSpacePirateEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.PirateSilverNinja)
-            return EnemyOccupant.Of(new NinjaSpacePirateEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The ninja Space Pirate species creates no {occupant.DefinitionId}.");
+        return PartFactories.TryGetValue(definition, out EnemyPartFactory? factory) ? factory(occupant, place, common)
+            : throw new InvalidOperationException($"The ninja Space Pirate species creates no {occupant.DefinitionId}.");
     }
+
+    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
+    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
+        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+        {
+            [EnemyDefinitionId.PirateGoldNinja] = (occupant, place, common) => EnemyOccupant.Of(new GoldNinjaSpacePirateEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.PirateSilverNinja] = (occupant, place, common) => EnemyOccupant.Of(new NinjaSpacePirateEntity(this, occupant, place, common)),
+        };
 
     /// <summary>Provides the shared RNG used by divekick selection.</summary>
     private readonly EnemyRoomBinding _room;

@@ -29,12 +29,16 @@ internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRi
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.Ridley)
-            return EnemyOccupant.Of(new NorfairRidleyEntity(Norfair, occupant, place, common));
-        if (definition == EnemyDefinitionId.RidleyCeres)
-            return EnemyOccupant.Of(new CeresRidleyEntity(Ceres, escape, occupant, place, common));
-        if (definition == EnemyDefinitionId.RidleyBreakupPiece)
-            return EnemyOccupant.Of(new RidleyBreakupPieceEntity(Norfair, occupant, place, common));
-        throw new InvalidOperationException($"The Ridley factory creates no {occupant.DefinitionId}.");
+        return PartFactories.TryGetValue(definition, out EnemyPartFactory? factory) ? factory(occupant, place, common)
+            : throw new InvalidOperationException($"The Ridley factory creates no {occupant.DefinitionId}.");
     }
+
+    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
+    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
+        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+        {
+            [EnemyDefinitionId.Ridley] = (occupant, place, common) => EnemyOccupant.Of(new NorfairRidleyEntity(Norfair, occupant, place, common)),
+            [EnemyDefinitionId.RidleyCeres] = (occupant, place, common) => EnemyOccupant.Of(new CeresRidleyEntity(Ceres, escape, occupant, place, common)),
+            [EnemyDefinitionId.RidleyBreakupPiece] = (occupant, place, common) => EnemyOccupant.Of(new RidleyBreakupPieceEntity(Norfair, occupant, place, common)),
+        };
 }

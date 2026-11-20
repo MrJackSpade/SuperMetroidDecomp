@@ -19,12 +19,17 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.Crocomire)
-            return EnemyOccupant.Of(new CrocomireBodyEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.CrocomireTongue)
-            return EnemyOccupant.Of(new CrocomireTongueEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The Crocomire species creates no {occupant.DefinitionId}.");
+        return PartFactories.TryGetValue(definition, out EnemyPartFactory? factory) ? factory(occupant, place, common)
+            : throw new InvalidOperationException($"The Crocomire species creates no {occupant.DefinitionId}.");
     }
+
+    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
+    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
+        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+        {
+            [EnemyDefinitionId.Crocomire] = (occupant, place, common) => EnemyOccupant.Of(new CrocomireBodyEntity(this, occupant, place, common, _bossArtwork)),
+            [EnemyDefinitionId.CrocomireTongue] = (occupant, place, common) => EnemyOccupant.Of(new CrocomireTongueEntity(this, occupant, place, common)),
+        };
 
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;

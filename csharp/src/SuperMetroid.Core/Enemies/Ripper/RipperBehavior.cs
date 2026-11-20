@@ -17,14 +17,18 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.GrappleRipper)
-            return EnemyOccupant.Of(new GrappleRipperEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.JetRipper)
-            return EnemyOccupant.Of(new JetRipperEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.Ripper)
-            return EnemyOccupant.Of(new OrdinaryRipperEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The Ripper species creates no {occupant.DefinitionId}.");
+        return PartFactories.TryGetValue(definition, out EnemyPartFactory? factory) ? factory(occupant, place, common)
+            : throw new InvalidOperationException($"The Ripper species creates no {occupant.DefinitionId}.");
     }
+
+    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
+    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
+        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+        {
+            [EnemyDefinitionId.GrappleRipper] = (occupant, place, common) => EnemyOccupant.Of(new GrappleRipperEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.JetRipper] = (occupant, place, common) => EnemyOccupant.Of(new JetRipperEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.Ripper] = (occupant, place, common) => EnemyOccupant.Of(new OrdinaryRipperEntity(this, occupant, place, common)),
+        };
 
     /// <summary>Resolves horizontal wall collisions for all three Ripper variants.</summary>
     private readonly EnemyTerrain _terrain;

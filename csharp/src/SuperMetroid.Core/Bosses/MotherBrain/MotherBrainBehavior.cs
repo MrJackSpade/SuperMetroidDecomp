@@ -23,14 +23,18 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.MotherBrainBody)
-            return EnemyOccupant.Of(new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.MotherBrainHead)
-            return EnemyOccupant.Of(new MotherBrainHeadEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.MotherBrainTubes)
-            return EnemyOccupant.Of(new MotherBrainTubesEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The Mother Brain species creates no {occupant.DefinitionId}.");
+        return PartFactories.TryGetValue(definition, out EnemyPartFactory? factory) ? factory(occupant, place, common)
+            : throw new InvalidOperationException($"The Mother Brain species creates no {occupant.DefinitionId}.");
     }
+
+    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
+    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
+        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+        {
+            [EnemyDefinitionId.MotherBrainBody] = (occupant, place, common) => EnemyOccupant.Of(new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork)),
+            [EnemyDefinitionId.MotherBrainHead] = (occupant, place, common) => EnemyOccupant.Of(new MotherBrainHeadEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.MotherBrainTubes] = (occupant, place, common) => EnemyOccupant.Of(new MotherBrainTubesEntity(this, occupant, place, common)),
+        };
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Draws encounter artwork and applies installed colours.</summary>

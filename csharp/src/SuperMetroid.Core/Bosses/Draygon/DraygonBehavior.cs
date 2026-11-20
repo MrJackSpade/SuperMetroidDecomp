@@ -20,16 +20,19 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.DraygonBody)
-            return EnemyOccupant.Of(new DraygonBodyEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.DraygonEye)
-            return EnemyOccupant.Of(new DraygonEyeEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.DraygonTail)
-            return EnemyOccupant.Of(new DraygonTailEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.DraygonArms)
-            return EnemyOccupant.Of(new DraygonArmsEntity(this, occupant, place, common, _bossArtwork));
-        throw new InvalidOperationException($"The Draygon species creates no {occupant.DefinitionId}.");
+        return PartFactories.TryGetValue(definition, out EnemyPartFactory? factory) ? factory(occupant, place, common)
+            : throw new InvalidOperationException($"The Draygon species creates no {occupant.DefinitionId}.");
     }
+
+    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
+    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
+        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+        {
+            [EnemyDefinitionId.DraygonBody] = (occupant, place, common) => EnemyOccupant.Of(new DraygonBodyEntity(this, occupant, place, common, _bossArtwork)),
+            [EnemyDefinitionId.DraygonEye] = (occupant, place, common) => EnemyOccupant.Of(new DraygonEyeEntity(this, occupant, place, common, _bossArtwork)),
+            [EnemyDefinitionId.DraygonTail] = (occupant, place, common) => EnemyOccupant.Of(new DraygonTailEntity(this, occupant, place, common, _bossArtwork)),
+            [EnemyDefinitionId.DraygonArms] = (occupant, place, common) => EnemyOccupant.Of(new DraygonArmsEntity(this, occupant, place, common, _bossArtwork)),
+        };
 
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;

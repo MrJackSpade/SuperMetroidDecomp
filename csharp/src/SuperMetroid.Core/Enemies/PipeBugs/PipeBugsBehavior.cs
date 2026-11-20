@@ -16,14 +16,19 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition is EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo)
-            return EnemyOccupant.Of(new BrinstarPipeBugEntity(occupant, place, common));
-        if (definition == EnemyDefinitionId.Gamet)
-            return EnemyOccupant.Of(new NorfairPipeBugEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.Geega)
-            return EnemyOccupant.Of(new YellowPipeBugEntity(occupant, place, common));
-        throw new InvalidOperationException($"The Pipe Bugs species creates no {occupant.DefinitionId}.");
+        return PartFactories.TryGetValue(definition, out EnemyPartFactory? factory) ? factory(occupant, place, common)
+            : throw new InvalidOperationException($"The Pipe Bugs species creates no {occupant.DefinitionId}.");
     }
+
+    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
+    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
+        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+        {
+            [EnemyDefinitionId.Zeb] = (occupant, place, common) => EnemyOccupant.Of(new BrinstarPipeBugEntity(occupant, place, common)),
+            [EnemyDefinitionId.Zebbo] = (occupant, place, common) => EnemyOccupant.Of(new BrinstarPipeBugEntity(occupant, place, common)),
+            [EnemyDefinitionId.Gamet] = (occupant, place, common) => EnemyOccupant.Of(new NorfairPipeBugEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.Geega] = (occupant, place, common) => EnemyOccupant.Of(new YellowPipeBugEntity(occupant, place, common)),
+        };
 
     /// <summary>The room's enemy places, where each Norfair formation leader finds its formation when it is placed.</summary>
     private readonly EnemyPlaces _places;

@@ -16,9 +16,16 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(occupant).DefinitionId == EnemyDefinitionId.Namihe
-            ? EnemyOccupant.Of(new NamiheEntity(this, occupant, place, common))
-            : EnemyOccupant.Of(new FuneEntity(this, occupant, place, common));
+        PartFactories.TryGetValue(Ensure.NotNull(occupant).DefinitionId, out EnemyPartFactory? factory) ? factory(occupant, place, common)
+            : throw new InvalidOperationException($"The Fune and Namihe species creates no {occupant.DefinitionId}.");
+
+    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
+    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
+        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+        {
+            [EnemyDefinitionId.Fune] = (occupant, place, common) => EnemyOccupant.Of(new FuneEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.Namihe] = (occupant, place, common) => EnemyOccupant.Of(new NamiheEntity(this, occupant, place, common)),
+        };
 
     /// <summary>Allocates the shared directional fireball fired by either species' animation.</summary>
     private readonly EnemyProjectileEngine _projectiles;

@@ -23,12 +23,21 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition is EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterRed or EnemyDefinitionId.KihunterYellow)
-            return EnemyOccupant.Of(new KiHunterBodyEntity(this, occupant, place, common));
-        if (definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterRedWings or EnemyDefinitionId.KihunterYellowWings)
-            return EnemyOccupant.Of(new KiHunterWingsEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The Ki-Hunter species creates no {occupant.DefinitionId}.");
+        return PartFactories.TryGetValue(definition, out EnemyPartFactory? factory) ? factory(occupant, place, common)
+            : throw new InvalidOperationException($"The Ki-Hunter species creates no {occupant.DefinitionId}.");
     }
+
+    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
+    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
+        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+        {
+            [EnemyDefinitionId.KihunterGreen] = (occupant, place, common) => EnemyOccupant.Of(new KiHunterBodyEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.KihunterRed] = (occupant, place, common) => EnemyOccupant.Of(new KiHunterBodyEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.KihunterYellow] = (occupant, place, common) => EnemyOccupant.Of(new KiHunterBodyEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.KihunterGreenWings] = (occupant, place, common) => EnemyOccupant.Of(new KiHunterWingsEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.KihunterRedWings] = (occupant, place, common) => EnemyOccupant.Of(new KiHunterWingsEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.KihunterYellowWings] = (occupant, place, common) => EnemyOccupant.Of(new KiHunterWingsEntity(this, occupant, place, common)),
+        };
 
     /// <summary>Provides the active room state used by Ki-Hunter movement.</summary>
     private readonly EnemyRoomBinding _room;

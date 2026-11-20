@@ -27,18 +27,23 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.Sciser)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser));
-        if (definition == EnemyDefinitionId.Zero)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero));
-        if (definition == EnemyDefinitionId.Viola)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Viola));
-        if (definition is EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer)
-            return EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared));
-        if (definition == EnemyDefinitionId.OrangeZoomer)
-            return EnemyOccupant.Of(new OrangeZoomerEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The crawler species creates no {occupant.DefinitionId}.");
+        return PartFactories.TryGetValue(definition, out EnemyPartFactory? factory) ? factory(occupant, place, common)
+            : throw new InvalidOperationException($"The crawler species creates no {occupant.DefinitionId}.");
     }
+
+    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
+    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
+        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+        {
+            [EnemyDefinitionId.Sciser] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser)),
+            [EnemyDefinitionId.Zero] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero)),
+            [EnemyDefinitionId.Viola] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Viola)),
+            [EnemyDefinitionId.Zeela] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared)),
+            [EnemyDefinitionId.Sova] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared)),
+            [EnemyDefinitionId.Zoomer] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared)),
+            [EnemyDefinitionId.ArmoredZoomer] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared)),
+            [EnemyDefinitionId.OrangeZoomer] = (occupant, place, common) => EnemyOccupant.Of(new OrangeZoomerEntity(this, occupant, place, common)),
+        };
 
     /// <summary>Performs wall, floor, and slope probes for attached crawlers and falling Zoomers.</summary>
     private readonly EnemyTerrain _terrain;
@@ -76,25 +81,11 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void InitializeCrawler(RoomEnemyOccupant occupant, RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
     {
-        // The placement names the starting surface; the Viola alone takes its block side instead, and a Viola's
-        // placement names no surface.
-        CrawlerSurfaceOrientation orientation;
-        CrawlerSurfaceOrientation blockSide;
-        SignedEightEight? crawlSpeed;
-        if (animationFamily == CrawlerAnimationFamily.Viola)
-        {
-            ViolaSpawnSettings viola = occupant.SpawnSettings<ViolaSpawnSettings>();
-            orientation = viola.BlockSide;
-            blockSide = viola.BlockSide;
-            crawlSpeed = viola.CrawlSpeed;
-        }
-        else
-        {
-            CrawlerSpawnSettings settings = occupant.SpawnSettings<CrawlerSpawnSettings>();
-            orientation = settings.Orientation;
-            blockSide = settings.BlockSide;
-            crawlSpeed = settings.CrawlSpeed;
-        }
+        // The placement names the starting surface; the Viola's names only its block side, which it starts on.
+        CrawlerStartSettings settings = occupant.SpawnSettings<CrawlerStartSettings>();
+        CrawlerSurfaceOrientation orientation = settings.StartingSurface;
+        CrawlerSurfaceOrientation blockSide = settings.HeldBlockSide;
+        SignedEightEight? crawlSpeed = settings.StartingCrawlSpeed;
 
         // The crawler settles for its first update before it crawls.
         var state = new CrawlerEnemyState(CrawlerAction.Settling)

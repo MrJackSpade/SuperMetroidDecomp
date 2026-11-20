@@ -20,12 +20,17 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.MamaTurtle)
-            return EnemyOccupant.Of(new MamaTurtleEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.BabyTurtle)
-            return EnemyOccupant.Of(new BabyTurtleEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The mama turtle species creates no {occupant.DefinitionId}.");
+        return PartFactories.TryGetValue(definition, out EnemyPartFactory? factory) ? factory(occupant, place, common)
+            : throw new InvalidOperationException($"The mama turtle species creates no {occupant.DefinitionId}.");
     }
+
+    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
+    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
+        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+        {
+            [EnemyDefinitionId.MamaTurtle] = (occupant, place, common) => EnemyOccupant.Of(new MamaTurtleEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.BabyTurtle] = (occupant, place, common) => EnemyOccupant.Of(new BabyTurtleEntity(this, occupant, place, common)),
+        };
 
     /// <summary>Moves parent and children against room blocks during hover, fall, and crawling.</summary>
     private readonly EnemyTerrain _terrain;

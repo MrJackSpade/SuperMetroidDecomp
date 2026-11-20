@@ -21,16 +21,19 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.PhantoonBody)
-            return EnemyOccupant.Of(new PhantoonBodyEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.PhantoonEye)
-            return EnemyOccupant.Of(new PhantoonEyeEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.PhantoonTentacles)
-            return EnemyOccupant.Of(new PhantoonTentaclesEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.PhantoonMouth)
-            return EnemyOccupant.Of(new PhantoonMouthEntity(this, occupant, place, common, _bossArtwork));
-        throw new InvalidOperationException($"The Phantoon species creates no {occupant.DefinitionId}.");
+        return PartFactories.TryGetValue(definition, out EnemyPartFactory? factory) ? factory(occupant, place, common)
+            : throw new InvalidOperationException($"The Phantoon species creates no {occupant.DefinitionId}.");
     }
+
+    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
+    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
+        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+        {
+            [EnemyDefinitionId.PhantoonBody] = (occupant, place, common) => EnemyOccupant.Of(new PhantoonBodyEntity(this, occupant, place, common, _bossArtwork)),
+            [EnemyDefinitionId.PhantoonEye] = (occupant, place, common) => EnemyOccupant.Of(new PhantoonEyeEntity(this, occupant, place, common, _bossArtwork)),
+            [EnemyDefinitionId.PhantoonTentacles] = (occupant, place, common) => EnemyOccupant.Of(new PhantoonTentaclesEntity(this, occupant, place, common, _bossArtwork)),
+            [EnemyDefinitionId.PhantoonMouth] = (occupant, place, common) => EnemyOccupant.Of(new PhantoonMouthEntity(this, occupant, place, common, _bossArtwork)),
+        };
 
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;

@@ -25,24 +25,23 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.Kraid)
-            return EnemyOccupant.Of(new KraidBodyEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.KraidArm)
-            return EnemyOccupant.Of(new KraidArmEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.KraidFoot)
-            return EnemyOccupant.Of(new KraidFootEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.KraidLintTop)
-            return EnemyOccupant.Of(new KraidLintEntity(this, occupant, place, common, Parts.TopLintReference, KraidLintPart.Top));
-        if (definition == EnemyDefinitionId.KraidLintMiddle)
-            return EnemyOccupant.Of(new KraidLintEntity(this, occupant, place, common, Parts.MiddleLintReference, KraidLintPart.Middle));
-        if (definition == EnemyDefinitionId.KraidLintBottom)
-            return EnemyOccupant.Of(new KraidLintEntity(this, occupant, place, common, Parts.BottomLintReference, KraidLintPart.Bottom));
-        if (definition == EnemyDefinitionId.KraidFirstNail)
-            return EnemyOccupant.Of(new KraidNailEntity(this, occupant, place, common, Parts.FirstNailReference, KraidNailPart.First));
-        if (definition == EnemyDefinitionId.KraidSecondNail)
-            return EnemyOccupant.Of(new KraidNailEntity(this, occupant, place, common, Parts.SecondNailReference, KraidNailPart.Second));
-        throw new InvalidOperationException($"The Kraid species creates no {occupant.DefinitionId}.");
+        return PartFactories.TryGetValue(definition, out EnemyPartFactory? factory) ? factory(occupant, place, common)
+            : throw new InvalidOperationException($"The Kraid species creates no {occupant.DefinitionId}.");
     }
+
+    /// <summary>The factory of each part the species creates, by the definition that places it.</summary>
+    private IReadOnlyDictionary<EnemyDefinitionId, EnemyPartFactory> PartFactories => field ??=
+        new Dictionary<EnemyDefinitionId, EnemyPartFactory>
+        {
+            [EnemyDefinitionId.Kraid] = (occupant, place, common) => EnemyOccupant.Of(new KraidBodyEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.KraidArm] = (occupant, place, common) => EnemyOccupant.Of(new KraidArmEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.KraidFoot] = (occupant, place, common) => EnemyOccupant.Of(new KraidFootEntity(this, occupant, place, common)),
+            [EnemyDefinitionId.KraidLintTop] = (occupant, place, common) => EnemyOccupant.Of(new KraidLintEntity(this, occupant, place, common, Parts.TopLintReference, KraidLintPart.Top)),
+            [EnemyDefinitionId.KraidLintMiddle] = (occupant, place, common) => EnemyOccupant.Of(new KraidLintEntity(this, occupant, place, common, Parts.MiddleLintReference, KraidLintPart.Middle)),
+            [EnemyDefinitionId.KraidLintBottom] = (occupant, place, common) => EnemyOccupant.Of(new KraidLintEntity(this, occupant, place, common, Parts.BottomLintReference, KraidLintPart.Bottom)),
+            [EnemyDefinitionId.KraidFirstNail] = (occupant, place, common) => EnemyOccupant.Of(new KraidNailEntity(this, occupant, place, common, Parts.FirstNailReference, KraidNailPart.First)),
+            [EnemyDefinitionId.KraidSecondNail] = (occupant, place, common) => EnemyOccupant.Of(new KraidNailEntity(this, occupant, place, common, Parts.SecondNailReference, KraidNailPart.Second)),
+        };
     /// <summary>Kraid's body layer: the body frame he shows, drawn from his installed body sheet.</summary>
     private KraidBodyLayer BodyLayer { get; }
 

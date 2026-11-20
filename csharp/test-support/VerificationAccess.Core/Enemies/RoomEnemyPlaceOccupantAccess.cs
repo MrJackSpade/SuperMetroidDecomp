@@ -21,4 +21,14 @@ internal static class RoomEnemyPlaceOccupantAccess
         Ensure.NotNull(place).Bind(species, place.Definition);
         return place.HeldOccupant();
     }
+
+    /// <summary>
+    /// Binds <paramref name="species"/> placed with <paramref name="settings"/> in <paramref name="place"/>, which the check
+    /// has left holding no enemy of its own, and hands the new occupant to the species behaviour the check calls (#2558).
+    /// </summary>
+    internal static RoomEnemyOccupant BoundPlaced(this RoomEnemyPlace place, EnemyDefinitionId species, EnemySpawnSettings settings)
+    {
+        Ensure.NotNull(place).BindPlaced(species, settings);
+        return place.HeldOccupant();
+    }
 }

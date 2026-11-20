@@ -187,5 +187,12 @@ internal static class IntroMotherBrainDefinitionsVerification
 
     /// <summary>The updates one pass of looping <paramref name="program"/> lasts: the sum of its frames' durations.</summary>
     private static int LoopFrames(IntroMotherBrainExplosionAnimation program) =>
-        IntroMotherBrainAnimations.Explosions.Segments.Beats(program).OfType<AnimationBeat<CinematicSpritePose, NoAnimationCue>.Frame>().Sum(frame => frame.Duration);
+        IntroMotherBrainAnimations.Explosions.Segments.Beats(program).Sum(beat => beat switch
+        {
+            // A loop lasts its shown frames, its pauses and the updates it hides the actor; a cue takes no update.
+            AnimationBeat<CinematicSpritePose, NoAnimationCue>.Frame frame => frame.Duration,
+            AnimationBeat<CinematicSpritePose, NoAnimationCue>.Hidden hidden => hidden.Duration,
+            AnimationBeat<CinematicSpritePose, NoAnimationCue>.Pause pause => pause.Duration,
+            _ => 0,
+        });
 }

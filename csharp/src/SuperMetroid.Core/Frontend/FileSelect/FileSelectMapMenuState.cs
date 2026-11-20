@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// Entry, area/room confirmation, scrolling, return and load handoff each retain their
 /// own timer and input boundary; rendering never advances those owners.
 /// </remarks>
-public sealed class FileSelectMapMenuState : IMenuFrontendScreen
+public sealed class FileSelectMapMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <inheritdoc/>
     public void BindSpriteSheets(InstalledSpriteSheets sheets)

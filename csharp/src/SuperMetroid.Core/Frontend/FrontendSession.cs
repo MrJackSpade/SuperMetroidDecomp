@@ -534,20 +534,54 @@ internal sealed class FrontendSession
     /// the persisted HUD selection before the first live gameplay update.
     /// </summary>
     internal void InitializeSelectedGameHud(SuperMetroidSaveSlot slot) =>
-        GameplayRuntime.HudSetup.InitializeHud(new HudSnapshot(
-            slot.Health,
-            slot.MaxHealth,
-            slot.Missiles,
-            slot.MaxMissiles,
-            slot.SuperMissiles,
-            slot.MaxSuperMissiles,
-            slot.PowerBombs,
-            slot.MaxPowerBombs,
-            slot.EquippedItems,
-            // Loading clears the selection before the visible HUD is built.
-            SelectedItem: HudItem.Beam,
-            slot.ReserveEnergy,
-            slot.ReserveMode));
+        GameplayRuntime.HudSetup.InitializeHud(SavedGameHud(slot));
+
+    /// <summary>
+    /// The HUD a saved game shows (#2557): the slot's counters, equipment and reserve, with the selection cleared, as loading
+    /// clears it before the visible HUD is built.
+    /// </summary>
+    private static HudSnapshot SavedGameHud(SuperMetroidSaveSlot slot) => new(
+        slot.Health,
+        slot.MaxHealth,
+        slot.Missiles,
+        slot.MaxMissiles,
+        slot.SuperMissiles,
+        slot.MaxSuperMissiles,
+        slot.PowerBombs,
+        slot.MaxPowerBombs,
+        slot.EquippedItems,
+        SelectedItem: HudItem.Beam,
+        slot.ReserveEnergy,
+        slot.ReserveMode);
+
+    /// <summary>Shows <paramref name="hud"/> as a game starts and publishes the frame shown while the game loads.</summary>
+    private void ShowLoadingHud(HudSnapshot hud)
+    {
+        GameplayRuntime.HudSetup.InitializeHud(hud);
+        GameplayRuntime.FrameBoundary.PublishWhileLoading();
+    }
+
+    /// <summary>Loads the Ceres elevator room and sets Samus up at its start (#2557), returning her.</summary>
+    private SamusState LoadCeresElevator()
+    {
+        GameplayRuntime.RoomLoader.InitializeStartingCeresRoom();
+        GameplayRuntime.RoomLoader.InitializeCeresStartSamus();
+        return GameplayRuntime.Player.IntroducedSamus;
+    }
+
+    /// <summary>Gives Samus, her inventory restored, the session's loadout and selects her beam.</summary>
+    private void EquipRestoredSamus(SamusState samus)
+    {
+        GameplayRuntime.Assists.GrantLoadoutToRestoredSamus(samus);
+        samus.SelectBeam();
+    }
+
+    /// <summary>Saves the Ceres elevator arrival's automatic checkpoint to the selected slot and reports the saves changed.</summary>
+    private void SaveCeresArrival()
+    {
+        AutomaticCheckpointSaver.SaveCeresArrival(saves, GameplayRuntime, SelectedSaveSlot);
+        RaiseSavesChanged();
+    }
     /// <summary>Builds fresh Ceres or saved-game runtime state, including the selected HUD and room.</summary>
     internal bool SetupSelectedGame()
     {
@@ -558,28 +592,11 @@ internal sealed class FrontendSession
             // The game loaded the old inventory before the intro was selected. Ceres
             // setup then starts from fresh progression while retaining equipment and other
             // resources. The flashback specifically replaces and then clears Missiles.
-            runtime.HudSetup.InitializeHud(new HudSnapshot(
-                Health: restartSlot.Health,
-                MaxHealth: restartSlot.MaxHealth,
-                Missiles: 0,
-                MaxMissiles: 0,
-                SuperMissiles: restartSlot.SuperMissiles,
-                MaxSuperMissiles: restartSlot.MaxSuperMissiles,
-                PowerBombs: restartSlot.PowerBombs,
-                MaxPowerBombs: restartSlot.MaxPowerBombs,
-                EquippedItems: restartSlot.EquippedItems,
-                SelectedItem: HudItem.Beam,
-                ReserveHealth: restartSlot.ReserveEnergy,
-                ReserveMode: restartSlot.ReserveMode));
-            runtime.FrameBoundary.PublishWhileLoading();
-            runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
-            SamusState restartedSamus = runtime.Player.IntroducedSamus;
+            ShowLoadingHud(SavedGameHud(restartSlot) with { Missiles = 0, MaxMissiles = 0 });
+            SamusState restartedSamus = LoadCeresElevator();
             RestoreSpacetimeRestartInventory(restartedSamus, restartSlot);
-            runtime.Assists.GrantLoadoutToRestoredSamus(restartedSamus);
-            restartedSamus.SelectBeam();
-            AutomaticCheckpointSaver.SaveCeresArrival(saves, runtime, SelectedSaveSlot);
-            RaiseSavesChanged();
+            EquipRestoredSamus(restartedSamus);
+            SaveCeresArrival();
             spacetimeIntroRestartSlot = null;
             LoadingExistingSave = false;
             return true;
@@ -590,8 +607,7 @@ internal sealed class FrontendSession
             SuperMetroidSaveSlot slot = saves.ReadSlot(SelectedSaveSlot)
                 ?? throw new InvalidDataException(
                     $"Selected save slot {SelectedSaveSlot} became invalid during startup.");
-            InitializeSelectedGameHud(slot);
-            runtime.FrameBoundary.PublishWhileLoading();
+            ShowLoadingHud(SavedGameHud(slot));
 
             // A Ceres elevator save starts with the Ceres elevator's arrival, as a new game does; every other station
             // loads through the room loader below.
@@ -599,12 +615,9 @@ internal sealed class FrontendSession
             {
                 // The save's progress is restored before the room loads, so the room's state and its enemies see it.
                 runtime.RoomLoader.RestoreSavedPlayerState(slot);
-                runtime.RoomLoader.InitializeStartingCeresRoom();
-                runtime.RoomLoader.InitializeCeresStartSamus();
-                SamusState ceresSamus = runtime.Player.IntroducedSamus;
+                SamusState ceresSamus = LoadCeresElevator();
                 slot.ApplyTo(ceresSamus);
-                runtime.Assists.GrantLoadoutToRestoredSamus(ceresSamus);
-                ceresSamus.SelectBeam();
+                EquipRestoredSamus(ceresSamus);
                 ApplySelectedGameOptions();
                 return true;
             }
@@ -633,16 +646,13 @@ internal sealed class FrontendSession
 
         // A new game first shows the standard HUD, then loads the Ceres elevator room and finally sets Samus up for the
         // new game.
-        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.FrameBoundary.PublishWhileLoading();
-        runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        ShowLoadingHud(HudSnapshot.NewGame);
+        _ = LoadCeresElevator();
         // The intro's end publishes Ceres and its elevator checkpoint
         // and saves immediately before the Ceres game state. Both the
         // full cinematic and host-configured skip converge here, so neither path can omit
         // the automatic checkpoint.
-        AutomaticCheckpointSaver.SaveCeresArrival(saves, runtime, SelectedSaveSlot);
-        RaiseSavesChanged();
+        SaveCeresArrival();
         return true;
     }
     /// <summary>

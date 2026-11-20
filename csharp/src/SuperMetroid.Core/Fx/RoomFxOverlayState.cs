@@ -750,32 +750,19 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     private void StepLiquidTide()
     {
-        int peakPixels;
-        RotationAngle positiveDelta;
-        RotationAngle negativeDelta;
-        switch (Liquid?.Tide ?? LiquidTide.None)
+        LiquidTide tide = Liquid?.Tide ?? LiquidTide.None;
+        if (tide == LiquidTide.None)
         {
-            case LiquidTide.Small:
-                peakPixels = LiquidTideDefinitions.SmallTidePeakPixels;
-                positiveDelta = LiquidTideDefinitions.SmallTidePositivePhaseDelta;
-                negativeDelta = LiquidTideDefinitions.SmallTideNegativePhaseDelta;
-                break;
-            case LiquidTide.Large:
-                peakPixels = LiquidTideDefinitions.LargeTidePeakPixels;
-                positiveDelta = LiquidTideDefinitions.LargeTidePositivePhaseDelta;
-                negativeDelta = LiquidTideDefinitions.LargeTideNegativePhaseDelta;
-                break;
-            case LiquidTide.None:
-                TideOffset = SignedSixteenSixteen.Zero;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined liquid tide {Liquid?.Tide}.");
+            TideOffset = SignedSixteenSixteen.Zero;
+            return;
         }
+        // Each moving tide's reach and pace are its motion (#2557); a tide the catalog does not list fails loudly.
+        LiquidTideMotion motion = Ensure.Listed(LiquidTideDefinitions.Motions, tide);
 
         // The tide follows the negative cosine of its phase, not the sine: the sine a quarter turn behind it. A crest's
         // height is positive, so the offset lies above the base line exactly while the wave is negative.
-        TideOffset = Trigonometry.SineDisplacement((TidePhase - RotationAngle.QuarterTurn).ToTrigonometryAngle(), peakPixels);
-        AdvanceTidePhase(TideOffset.IsNegative ? negativeDelta : positiveDelta);
+        TideOffset = Trigonometry.SineDisplacement((TidePhase - RotationAngle.QuarterTurn).ToTrigonometryAngle(), motion.PeakPixels);
+        AdvanceTidePhase(TideOffset.IsNegative ? motion.AbovePhaseDelta : motion.AtOrBelowPhaseDelta);
     }
 
     /// <summary>Turns the tide phase on by <paramref name="delta"/>, continuing round past a full turn.</summary>

@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// same gameplay room.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class CeresDestructionCinematicState : IFrontendScreen
+internal sealed class CeresDestructionCinematicState : IFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <inheritdoc/>
     void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)
@@ -355,8 +355,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Runs one update of <see cref="CeresDestructionPhase.FlyingTowardZebes"/>.</summary>
     internal void RunFlyingTowardZebes()
     {
-        FloorScroll = FloorScroll.WithY(FloorScroll.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
-        FloorScroll = FloorScroll.WithX(FloorScroll.X + CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel);
+        FloorScroll += CeresDestructionSceneDefinitions.Motion.ZebesApproachScroll;
         if (Zoom < CeresDestructionSceneDefinitions.Motion.ZebesApproachZoomLimit)
             Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.NearZebesZoomStep);
         else
@@ -367,8 +366,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Runs one update of <see cref="CeresDestructionPhase.TurningTowardZebes"/>.</summary>
     internal void RunTurningTowardZebes()
     {
-        FloorScroll = FloorScroll.WithY(FloorScroll.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
-        FloorScroll = FloorScroll.WithX(FloorScroll.X + CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel);
+        FloorScroll += CeresDestructionSceneDefinitions.Motion.ZebesApproachScroll;
         if (FloorScroll.X.WholePixels < CeresDestructionSceneDefinitions.Places.TurnTowardZebesEndX)
         {
             Phase = CeresDestructionPhase.ClosingInOnZebes;
@@ -384,8 +382,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Runs one update of <see cref="CeresDestructionPhase.ClosingInOnZebes"/>.</summary>
     internal void RunClosingInOnZebes()
     {
-        FloorScroll = FloorScroll.WithY(FloorScroll.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
-        FloorScroll = FloorScroll.WithX(FloorScroll.X + CeresDestructionSceneDefinitions.Motion.EighthPixel);
+        FloorScroll += CeresDestructionSceneDefinitions.Motion.ZebesCloseInScroll;
         if (Zoom < CeresDestructionSceneDefinitions.Motion.FarZebesZoomLimit)
         {
             Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.FastZoomStep);
@@ -490,8 +487,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Drifts the Ceres camera by one sixteenth pixel down and one quarter pixel left.</summary>
     private void StepInitialDrift()
     {
-        FloorScroll = FloorScroll.WithY(FloorScroll.Y + CeresDestructionSceneDefinitions.Motion.SixteenthPixel);
-        FloorScroll = FloorScroll.WithX(FloorScroll.X + CeresDestructionSceneDefinitions.Motion.NegativeQuarterPixel);
+        FloorScroll += CeresDestructionSceneDefinitions.Motion.CeresDrift;
     }
 
 

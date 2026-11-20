@@ -52,7 +52,7 @@ internal sealed class EnemyObjectSpawns(
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request) => motherBrain.Projectiles.SpawnMotherBrainGlassProjectile(request);
 
     /// <inheritdoc/>
-    public EnemyProjectile? SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request) =>
+    public void SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request) =>
         bombTorizo.Attacks.SpawnBombTorizoStatueBreakingProjectile(request);
 
     /// <inheritdoc/>

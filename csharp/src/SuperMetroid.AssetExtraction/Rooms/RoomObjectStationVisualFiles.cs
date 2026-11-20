@@ -26,6 +26,11 @@ public static class RoomObjectStationVisualFiles
     public static InstalledRoomObjectStationVisuals Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the station draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a station draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a station draw.");
+
     /// <summary>
     /// The draw list of a station draw (#1862): its block shape written as rows, the object's block first. A display writes
     /// its second block beside or above the first, a save pod its six two-block rows upward, and a retracted map arm its
@@ -69,8 +74,7 @@ public static class RoomObjectStationVisualFiles
         {
             foreach (StationDraw frame in RoomObjectVisualIdDefinitions.StationPublishedOrder)
             {
-                TryGet(StationObjectDraws.Family.Of(frame), out var list);
-                yield return list;
+                yield return DrawListOf(StationObjectDraws.Family.Of(frame));
             }
         }
     }

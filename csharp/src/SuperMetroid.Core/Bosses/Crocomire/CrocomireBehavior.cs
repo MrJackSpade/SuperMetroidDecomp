@@ -123,7 +123,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Melting.ShowCrocomireMeltImage(state, show.Picture);
                 return;
             case CrocomireDeathStage.BeginMeltPass pass:
-                Melting.BeginCrocomireMeltPass(state, pass.Picture);
+                CrocomireMelting.BeginCrocomireMeltPass(state, pass.Picture);
                 return;
             case CrocomireDeathStage.ShowMeltBands:
                 CrocomireMelting.ShowNextCrocomireMeltBand(state);

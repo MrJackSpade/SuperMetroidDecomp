@@ -35,7 +35,7 @@ public static class SamusGroundedMovement
     /// <param name="elevatorIsMoving">Whether an elevator carries her this update.</param>
     /// <param name="roomObjects">The room's room objects and door contacts her scan reaches.</param>
     /// <param name="doorBlocks">What the door blocks the elevator carries her through do to her (#2545).</param>
-    internal static BlockMoveResult? StepFacingForward(
+    internal static void StepFacingForward(
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
@@ -65,7 +65,6 @@ public static class SamusGroundedMovement
         // particular, stale base/extra X speed is retained; facing forward clears those speeds at
         // setup time, not every frame in this movement step.
         samus.ForgetVerticalCollisionResult();
-        return vertical;
     }
 
     /// <summary>

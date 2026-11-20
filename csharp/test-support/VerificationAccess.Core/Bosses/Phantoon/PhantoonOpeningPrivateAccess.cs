@@ -14,7 +14,7 @@ internal static class PhantoonOpeningPrivateAccess
     extension(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonOpening self)
     {
         /// <summary>The private method <c>SpawnPhantoonStartingFlame</c>, invoked by name.</summary>
-        internal bool SpawnPhantoonStartingFlame(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState phantoon, global::SuperMetroid.Core.Spatial.TrigonometryAngle start) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonOpening, bool>(self, "SpawnPhantoonStartingFlame", [typeof(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState), typeof(global::SuperMetroid.Core.Spatial.TrigonometryAngle)], new object?[] { phantoon, start });
+        internal void SpawnPhantoonStartingFlame(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState phantoon, global::SuperMetroid.Core.Spatial.TrigonometryAngle start) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonOpening>(self, "SpawnPhantoonStartingFlame", [typeof(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState), typeof(global::SuperMetroid.Core.Spatial.TrigonometryAngle)], new object?[] { phantoon, start });
     }
 }

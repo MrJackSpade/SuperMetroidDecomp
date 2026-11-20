@@ -138,7 +138,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>Advances the blue Brinstar face block's typed animation.</summary>
-    internal static void AdvanceBlueBrinstarFaceBlockTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceBlueBrinstarFaceBlockTypedAnimation(RoomEnemyPlace place)
     {
         if (!place.AnimationClock.Expire())
             return;

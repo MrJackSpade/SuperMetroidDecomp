@@ -512,12 +512,6 @@ internal static class MapPresentationVerification
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
-                ToGrey = document.ToGrey.Select((item, index) => index == 0 ?
-                    item with { TrailingColor = null } : item).ToArray(),
-            }, ArtworkJson.Options))), "reject missing Mother Brain grey trailing color");
-        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
-            {
                 Normal = document.Normal with { Body = document.Normal.Body.Take(14).ToArray() },
             }, ArtworkJson.Options))), "reject truncated Mother Brain normal palette");
         MotherBrainBeamColourDocument beam = JsonSerializer.Deserialize<MotherBrainBeamColourDocument>(

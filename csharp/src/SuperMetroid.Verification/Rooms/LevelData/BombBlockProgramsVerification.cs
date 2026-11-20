@@ -299,10 +299,10 @@ internal static class BombBlockProgramsVerification
             BombBlockProducer.Collision =>
                 roomObjects.TrySpawnCollisionBombBlock(level, level.BlockAt(blockIndex), behavior),
             BombBlockProducer.Bomb =>
-                roomObjects.TrySpawnBombReactionBlock(level, level.BlockAt(blockIndex), behavior,
+                roomObjects.SpawnBombReactionBlock(level, level.BlockAt(blockIndex), behavior,
                     SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
             BombBlockProducer.PowerBomb =>
-                roomObjects.TrySpawnBombReactionBlock(level, level.BlockAt(blockIndex), behavior,
+                roomObjects.SpawnBombReactionBlock(level, level.BlockAt(blockIndex), behavior,
                     SamusProjectileType.Of(SamusProjectileFamily.PowerBomb)),
             _ => throw new ArgumentOutOfRangeException(nameof(producer)),
         };

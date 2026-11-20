@@ -38,9 +38,5 @@ public sealed class ShinesparkCrashEcho
     internal void MoveTo(Position16<RoomPixels> position) => _position = position;
 
     /// <summary>Samus's shots have been cleared, and with them the echo.</summary>
-    internal void Forget()
-    {
-        Shot = null;
-        _position = Position16<RoomPixels>.Zero;
-    }
+    internal void Forget() => Shot = null;
 }

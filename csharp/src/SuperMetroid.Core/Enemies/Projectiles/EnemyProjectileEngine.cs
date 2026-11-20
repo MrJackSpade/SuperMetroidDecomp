@@ -114,14 +114,13 @@ internal sealed class EnemyProjectileEngine
     /// Nuclear Waffle link, makes the dud sound and stays; a projectile that plays its shot animation, such as Kago's
     /// bug, switches to it.
     /// </summary>
-    public int ResolveEnemyProjectileSamusProjectileHits(
+    public void ResolveEnemyProjectileSamusProjectileHits(
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem samusBombs)
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(samusBombs);
 
-        int hitCount = 0;
         for (int enemyProjectileIndex = _places.Length - 1;
              enemyProjectileIndex >= 0;
              enemyProjectileIndex--)
@@ -167,11 +166,8 @@ internal sealed class EnemyProjectileEngine
                     enemyProjectile.PersistsOnSamusContact = false;
                     enemyProjectile.CanDamageSamus = true;
                 }
-                hitCount++;
             }
         }
-
-        return hitCount;
     }
 
     /// <summary>One projectile pass: every live projectile's motion, then its animation.</summary>

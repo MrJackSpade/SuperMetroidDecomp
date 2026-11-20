@@ -38,7 +38,7 @@ internal static class MapSpriteSheet
     {
         Ensure.NotNull(sheet);
         Ensure.NotNull(shading);
-        SpriteSheetFrame frame = sheet.Frame(MapSpriteNames.Name(id));
+        SpriteSheetFrame frame = sheet.Frame(Ensure.Listed(MapSpriteDefinitions.Names, id));
         Ensure.NotNull(sprites).AddImage(frame, origin, shading: shading);
     }
 }

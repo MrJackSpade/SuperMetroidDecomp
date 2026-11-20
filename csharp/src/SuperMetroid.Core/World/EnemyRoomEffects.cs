@@ -65,13 +65,13 @@ internal sealed class EnemyRoomEffects
                 case SporeSpawnCeilingChange ceiling:
                     // Its setup in a defeated room asks for the clear ceiling; the live death the animated crumble, on
                     // the exact collision update.
-                    site.RoomObjects.BossRoomMutations.SporeSpawnCeiling.TrySpawn(site.Level, ceiling.Mutation);
+                    site.RoomObjects.BossRoomMutations.SporeSpawnCeiling.Spawn(site.Level, ceiling.Mutation);
                     break;
                 case CrocomireArenaChange arena:
-                    site.RoomObjects.BossRoomMutations.CrocomireArena.TrySpawn(site.Level, arena.Request);
+                    site.RoomObjects.BossRoomMutations.CrocomireArena.Spawn(site.Level, arena.Request);
                     break;
                 case KraidRoomChange kraid:
-                    site.RoomObjects.BossRoomMutations.KraidRoom.TrySpawn(site.Level, kraid.Request);
+                    site.RoomObjects.BossRoomMutations.KraidRoom.Spawn(site.Level, kraid.Request);
                     break;
                 case MotherBrainDeathStepTaken death:
                     ApplyMotherBrainDeathStep(death.Step, site);
@@ -80,17 +80,17 @@ internal sealed class EnemyRoomEffects
                     site.FxOverlay.ApplyEntry(acid.Change);
                     break;
                 case MotherBrainRoomChangeRequest change:
-                    site.RoomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(site.Level, change);
+                    site.RoomObjects.BossRoomMutations.MotherBrainRoom.Spawn(site.Level, change);
                     break;
                 case BabyMetroidWallChange babyMetroidWall:
-                    site.RoomObjects.BossRoomMutations.BabyMetroidWall.TrySpawn(site.Level, babyMetroidWall.Request);
+                    site.RoomObjects.BossRoomMutations.BabyMetroidWall.Spawn(site.Level, babyMetroidWall.Request);
                     break;
                 case PhantoonDoorChanged door:
                     // The door's setup holds its top block solid until its first update draws the door.
-                    site.RoomObjects.BossRoomMutations.PhantoonDoor.TrySpawn(site.Level, door.Change);
+                    site.RoomObjects.BossRoomMutations.PhantoonDoor.Spawn(site.Level, door.Change);
                     break;
                 case ChozoStatueObjectAsked chozo:
-                    site.RoomObjects.ChozoStatue.TrySpawnChozoStatueObject(site.Level, chozo.Request);
+                    site.RoomObjects.ChozoStatue.SpawnChozoStatueObject(site.Level, chozo.Request);
                     break;
                 case TorizoBellyGlowRequest glow:
                     site.ColourEffects.StartTorizoBellyGlow(glow.Glow, glow.Torizo, site.Samus.EquippedItems);
@@ -119,7 +119,7 @@ internal sealed class EnemyRoomEffects
     /// </summary>
     private static void ApplyBotwoonWallChange(BotwoonWallMutation mutation, EnemyRoomEffectSite site)
     {
-        site.RoomObjects.BossRoomMutations.BotwoonWall.TrySpawn(site.Level, mutation);
+        site.RoomObjects.BossRoomMutations.BotwoonWall.Spawn(site.Level, mutation);
 
         if (mutation == BotwoonWallMutation.Clear)
         {

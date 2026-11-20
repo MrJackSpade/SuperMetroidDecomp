@@ -300,8 +300,6 @@ internal static class NativeEnemyFamilyStateImport
             // The cartridge keeps several of the body's values in each of words D, E and F; the phase says which.
             CrocomireNativeWords.ImportSharedWords(crocomireRecord, words.D, words.E, words.F);
         }
-        if (enemy.SpeciesState<CrocomireTongueState>() is { } crocomireTongueRecord)
-            crocomireTongueRecord.BodyXOffset = words.A;
         if (enemy.SpeciesState<DeadSidehopperEnemyState>() is { } deadSidehopperRecord)
         {
             deadSidehopperRecord.Action = CorpsesNativeWords.DeadSidehopperActions.Decode(words.A, "recorded DeadSidehopperAction");
@@ -924,8 +922,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             powampBalloon.Spawn = new(words.A, words.B);
             // The balloon reads its grappled rise from its spawn settings (#2439); the recording's copy must be the placement's.
-            if (words.D != enemy.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance)
-                throw new InvalidDataException($"Recorded Powamp grapple rise {words.D} is not its placement's {enemy.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance}.");
+            if (words.D != enemy.SpawnSettings<PowampBalloonSpawnSettings>().GrappleTravelDistance)
+                throw new InvalidDataException($"Recorded Powamp grapple rise {words.D} is not its placement's {enemy.SpawnSettings<PowampBalloonSpawnSettings>().GrappleTravelDistance}.");
             if (words.F != PowampNativeWords.BalloonIdleWord)
                 throw new InvalidDataException($"Recorded Powamp balloon runs ${words.F:X4}, not the balloon's empty routine.");
         }
@@ -979,7 +977,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.DeadTourianCorpses[index] is { } corpse)
         {
-            corpse.Phase = DeadTourianCorpsePhaseOf(corpse.Species, words.A);
+            corpse.Phase = DeadTourianCorpsePhaseOf(DeadTourianBehavior.SpeciesOf(enemy.DefinitionId), words.A);
             corpse.PreRotDelay.PlaceAt(UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
                 Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates)));
         }

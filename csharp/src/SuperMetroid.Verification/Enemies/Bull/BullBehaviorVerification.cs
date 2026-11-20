@@ -33,7 +33,7 @@ internal static class BullBehaviorVerification
             EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(BullAnimations.Segments, BullSegment.Idle)),
             "Bull normal loop");
 
-        BullBehavior.ResolveBullImmuneShot(place, state, BullMotion.ShotAngle(SamusProjectileDirection.Right));
+        BullBehavior.ResolveBullImmuneShot(place, state, BullMovementDefinitions.ShotAngles.For(SamusProjectileDirection.Right));
         AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.Shot, AnimationPlace.StartOfAnimation), state.Playback, "Bull immune-shot animation");
         ushort[] shot = BullAnimationsConstants.Spritemaps(BullSegment.Shot).ToArray();
         ushort[] expected = [.. Enumerable.Repeat(shot, 5).SelectMany(frames => frames), BullAnimationsConstants.Spritemaps(BullSegment.Idle).First()];
@@ -53,7 +53,7 @@ internal static class BullBehaviorVerification
             StruckOccupant = bombed.OccupantStates,
         };
         (enemies.BullBehavior.BombReaction.AfterCommon ?? throw new InvalidOperationException("The Bull has no bomb recoil."))(context);
-        AssertEqual(BullMotion.ShotAngle(SamusProjectileDirection.UpFacingRight), bombed.RequireSpeciesState<BullEnemyState>().Angle,
+        AssertEqual(BullMovementDefinitions.ShotAngles.For(SamusProjectileDirection.UpFacingRight), bombed.RequireSpeciesState<BullEnemyState>().Angle,
             "an unhurting bomb kicks the Bull straight up");
         Console.WriteLine("  Bull behavior: the normal loop, the five-repeat immune-shot reaction and the bomb's upward kick run as the cartridge does.");
     }
@@ -99,14 +99,14 @@ internal static class BullBehaviorVerification
         AssertEqual(360, Brake(), "braking a flight runs its acceleration out with 360 256ths left");
         AssertTrue(global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Enemies.Bull.BullEnemyState, global::SuperMetroid.Core.Spatial.SignedEightEight>(state, "Acceleration").IsZero, "braking a flight runs its acceleration out exactly");
 
-        BullBehavior.ResolveBullImmuneShot(slot, state, BullMotion.ShotAngle(SamusProjectileDirection.Right));
+        BullBehavior.ResolveBullImmuneShot(slot, state, BullMovementDefinitions.ShotAngles.For(SamusProjectileDirection.Right));
         AssertEqual(1536, state.Speed.InTwoHundredFiftySixthsOfPixel, "a kick throws the Bull at six pixels an update");
         state.AccelerationDelta = brakingStep;
         AssertEqual(304, Brake(), "a braked kick runs its acceleration below zero with 304 256ths left");
         AssertEqual(-8, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Enemies.Bull.BullEnemyState, global::SuperMetroid.Core.Spatial.SignedEightEight>(state, "Acceleration").InTwoHundredFiftySixthsOfPixel, "a braked kick's acceleration ends below zero");
 
         state.ShotReactionDisableTimer = UpdateCountdown.Ended();
-        BullBehavior.ResolveBullImmuneShot(slot, state, BullMotion.ShotAngle(SamusProjectileDirection.Right));
+        BullBehavior.ResolveBullImmuneShot(slot, state, BullMovementDefinitions.ShotAngles.For(SamusProjectileDirection.Right));
         state.AccelerationDelta = SignedEightEight.Zero;
         AssertEqual(0, Brake(), "a kick while the Bull waits brakes a pixel an interval onto exactly zero");
         Console.WriteLine("  Bull speed: flights and kicks keep the speed within 0 through 2880 256ths of a pixel an update.");

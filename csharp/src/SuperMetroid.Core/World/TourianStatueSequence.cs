@@ -141,7 +141,7 @@ public sealed class TourianStatueSequence
         if (_assists.Current.TourianStatuesOpen || _system.HasEvent(StoryEvent.TourianUnlocked))
         {
             Room.Descent = SignedSixteenSixteen.FromWholePixels(TourianStatueSequenceDefinitions.DescentDistance);
-            roomObjects.Tourian.TrySpawnTourianAccess(_level, TourianAccessFloor.Clear);
+            roomObjects.Tourian.SpawnTourianAccess(_level, TourianAccessFloor.Clear);
             EnableScrolling();
         }
         else
@@ -295,7 +295,7 @@ public sealed class TourianStatueSequence
         // three quarter-steps before a full 240 pixels.
         if (VerticalOffset == -TourianStatueSequenceDefinitions.DescentDistance)
         {
-            roomObjects.Tourian.TrySpawnTourianAccess(_level, TourianAccessFloor.Crumble);
+            roomObjects.Tourian.SpawnTourianAccess(_level, TourianAccessFloor.Crumble);
             _system.SetEvent(StoryEvent.TourianUnlocked);
         }
     }

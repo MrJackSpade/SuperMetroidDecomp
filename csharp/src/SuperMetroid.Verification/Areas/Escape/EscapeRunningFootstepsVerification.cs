@@ -14,7 +14,6 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Areas.Escape;
 
 using SuperMetroid.Verification.Harness;

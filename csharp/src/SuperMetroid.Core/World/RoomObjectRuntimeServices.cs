@@ -63,6 +63,6 @@ internal sealed class RoomObjectRuntimeServices(
         ChozoStatueObjects statueObjects = (destination.RoomObjects
             ?? throw new InvalidOperationException("A Chozo hand activated before the room's room objects were built.")).ChozoStatue;
         foreach (RoomObjectSpawnRequest<ChozoStatueRoomObject> request in Enemies.RoomObjectRequests.ActivateChozoStatueHandTrigger())
-            statueObjects.TrySpawnChozoStatueObject(level, request);
+            statueObjects.SpawnChozoStatueObject(level, request);
     }
 }

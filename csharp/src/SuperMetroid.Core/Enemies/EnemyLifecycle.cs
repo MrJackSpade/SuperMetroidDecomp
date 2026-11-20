@@ -139,14 +139,16 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     /// <summary>Exposes the enemies selected for Samus collision checks this frame.</summary>
     IReadOnlyList<RoomEnemyPlace> IEnemyLifecycle.InteractiveEnemies => _processingWindow.InteractiveEnemies;
 
-    /// <summary>Runs a loaded place's main AI through its species' main behaviour.</summary>
+    /// <summary>
+    /// Runs a loaded place's main AI through its species' main behaviour; an enemy with no main behaviour of its own, a
+    /// part another part moves or one that only animates, runs none.
+    /// </summary>
     internal static void RunMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         // A place awaiting its enemy's respawn has no behaviour; the enemy pass still counts its update.
         if (place.AwaitsRespawn)
             return;
-        if (place.Entity is not IEnemyAi entity)
-            throw new InvalidDataException($"Enemy {place.DefinitionId} has no main behaviour.");
-        entity.RunMainAi(frame);
+        if (place.Entity is IEnemyAi entity)
+            entity.RunMainAi(frame);
     }
 }

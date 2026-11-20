@@ -38,7 +38,7 @@ internal sealed class CeresRidleyFlight
     /// Ridley sets himself up. A Ceres Ridley whose boss is already dead never spawns: the room's state once its boss is
     /// dead places no Ridley, only its door.
     /// </summary>
-    internal CeresRidleyState InitializeCeresRidley(RoomEnemyPlace place)
+    internal void InitializeCeresRidley(RoomEnemyPlace place)
     {
         // Ceres Ridley starts with a fresh encounter, below, and the minimap stays off, which the room's load sees to once
         // the enemies are loaded; Ceres has no arena to mark explored.
@@ -60,7 +60,6 @@ internal sealed class CeresRidleyFlight
         // He arrives with the door's, container's and Baby's colours, his own hidden in black for his eye and body fades.
         ridley.Colours.ShowCeresArrival();
         _presentation.BossShadings.Show(BossShadingLayer.Ridley, ridley.Colours);
-        return ridley;
     }
 
     /// <summary>Ceres Ridley's lift-off starts his rise toward his hover.</summary>

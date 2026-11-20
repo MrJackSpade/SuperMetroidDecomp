@@ -14,4 +14,4 @@ internal sealed record MotherBrainTopTubeDrop(
     MotherBrainTopTubeSegment Segment,
     Position16<RoomPixels> Start,
     RoomObjectSpawnRequest<MotherBrainRoomMutation> Clears,
-    int WaitAfterUpdates) : MotherBrainTubeDrop(Clears, WaitAfterUpdates);
+    int WaitAfterUpdates) : MotherBrainFollowedTubeDrop(Clears, WaitAfterUpdates);

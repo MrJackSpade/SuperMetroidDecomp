@@ -253,12 +253,11 @@ internal static class GModeGateGlitchVerification
 
         RoomLevelData freeLevel = DoorRoom();
         var freeObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(freeObjects.DoorObjects.TrySpawnBlueDoorOpening(
+        freeObjects.DoorObjects.SpawnBlueDoorOpening(
                 freeLevel,
                 freeLevel.BlockAt(doorIndex),
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
-                SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
-            "G-Mode shot at a blue door allocates its inert opening actor while a slot remains");
+                SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
         AssertEqual(RoomCollisionType.SolidBlock,
             freeLevel.GetCollisionBlockByIndex(doorIndex).CollisionType,
             "blue-door setup changes only the cap origin to type-eight solid before its suspended list");
@@ -268,12 +267,11 @@ internal static class GModeGateGlitchVerification
         RoomLevelData fullLevel = DoorRoom();
         var fullObjects = RoomObjectFixtures.Unbound();
         FillSuspendedObjectPool(fullObjects);
-        AssertTrue(!fullObjects.DoorObjects.TrySpawnBlueDoorOpening(
+        fullObjects.DoorObjects.SpawnBlueDoorOpening(
                 fullLevel,
                 fullLevel.BlockAt(doorIndex),
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
-                SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
-            "overloaded G-Mode PLM pool drops a blue-door opening request");
+                SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
         AssertEqual(RoomCollisionType.ShootableBlock,
             fullLevel.GetCollisionBlockByIndex(doorIndex).CollisionType,
             "dropped blue-door request leaves its shootable-solid cap untouched");

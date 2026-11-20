@@ -61,7 +61,7 @@ internal static class EnemyDefinitionsVerification
             }
         }
 
-        AssertEqual(RoomEnemyDefinitionCatalog.Count, referencedPointers.Count,
+        AssertEqual(RoomEnemyDefinitionCatalog.ById.Count, referencedPointers.Count,
             "compiled enemy-header catalog covers every retail room population and graphics set");
         AssertTrue(referencedPointers.Order().SequenceEqual(RoomEnemyDefinitionCatalog.Pointers),
             "compiled enemy-header identities exactly match the independent room-state ROM walk");

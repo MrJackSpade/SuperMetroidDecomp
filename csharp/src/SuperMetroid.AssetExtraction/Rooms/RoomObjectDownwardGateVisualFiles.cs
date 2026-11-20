@@ -53,6 +53,11 @@ public static class RoomObjectDownwardGateVisualFiles
             yield return DownwardGateObjectDraws.Family.Of(gate);
     }
 
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the downward gate draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a downward gate draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a downward gate draw.");
+
     /// <summary>Builds the draw list of a recognized column or trigger draw from its geometry.</summary>
     private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
@@ -104,8 +109,7 @@ public static class RoomObjectDownwardGateVisualFiles
         {
             foreach (RoomObjectDraw draw in Draws())
             {
-                TryGet(draw, out var list);
-                yield return list;
+                yield return DrawListOf(draw);
             }
         }
     }

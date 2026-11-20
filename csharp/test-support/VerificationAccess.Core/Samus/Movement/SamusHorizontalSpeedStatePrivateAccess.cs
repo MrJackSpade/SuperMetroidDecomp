@@ -14,8 +14,8 @@ internal static class SamusHorizontalSpeedStatePrivateAccess
     extension(global::SuperMetroid.Core.Samus.Movement.SamusHorizontalSpeedState self)
     {
         /// <summary>The private method <c>AdvanceDepartingSpeedEcho</c>, invoked by name.</summary>
-        internal bool AdvanceDepartingSpeedEcho(global::SuperMetroid.Core.Samus.Movement.SpeedEcho echo, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> samusPosition) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Samus.Movement.SamusHorizontalSpeedState, bool>(self, "AdvanceDepartingSpeedEcho", [typeof(global::SuperMetroid.Core.Samus.Movement.SpeedEcho), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>)], new object?[] { echo, samusPosition });
+        internal void AdvanceDepartingSpeedEcho(global::SuperMetroid.Core.Samus.Movement.SpeedEcho echo, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> samusPosition) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Samus.Movement.SamusHorizontalSpeedState>(self, "AdvanceDepartingSpeedEcho", [typeof(global::SuperMetroid.Core.Samus.Movement.SpeedEcho), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>)], new object?[] { echo, samusPosition });
 
         /// <summary>The private method <c>CalculateTotalSpeed</c>, invoked by name.</summary>
         internal global::SuperMetroid.Core.Spatial.UnsignedSixteenSixteen CalculateTotalSpeed(global::SuperMetroid.Core.Spatial.UnsignedSixteenSixteen baseSpeed) =>

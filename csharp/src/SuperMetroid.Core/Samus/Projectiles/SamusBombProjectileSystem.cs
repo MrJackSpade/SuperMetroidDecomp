@@ -254,7 +254,7 @@ public sealed class SamusBombProjectileSystem
             if (!bomb.IsActive)
                 continue;
 
-            _ = AdvanceProjectileAnimation(bomb);
+            AdvanceProjectileAnimation(bomb);
         }
 
         // Main gameplay runs the bomb overlap check after the input phase (which placed/updated the
@@ -846,7 +846,7 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType == RoomCollisionType.SpecialBlock && block.Behavior.Special == SpecialBlockReaction.CollectibleTrigger ||
             block.CollisionType == RoomCollisionType.ShootableBlock && block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
         {
-            _ = roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
+            roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
             return;
         }
 
@@ -870,7 +870,7 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetBlueDoorOrientation(out _))
         {
-            roomObjects.DoorObjects.TrySpawnBlueDoorOpening(
+            roomObjects.DoorObjects.SpawnBlueDoorOpening(
                 level,
                 block.At,
                 block.Behavior,
@@ -909,7 +909,7 @@ public sealed class SamusBombProjectileSystem
             }
             // Spawn is synchronous: an accepted bomb-block reaction applies its temporary solid-block
             // or air collision before the bomb proceeds to its next border/cross member.
-            roomObjects.BlockReactions.TrySpawnBombReactionBlock(
+            roomObjects.BlockReactions.SpawnBombReactionBlock(
                 level,
                 block.At,
                 block.Behavior,
@@ -924,7 +924,7 @@ public sealed class SamusBombProjectileSystem
             if (block.CollisionType == RoomCollisionType.ShootableBlock &&
                 block.Behavior.TryGetDownwardGateTrigger(out _))
             {
-                roomObjects.Gates.TrySpawnDownwardGateTrigger(
+                roomObjects.Gates.SpawnDownwardGateTrigger(
                     level,
                     block.At,
                     block.Behavior,
@@ -957,7 +957,7 @@ public sealed class SamusBombProjectileSystem
 
         if (block.CollisionType == RoomCollisionType.SpecialBlock)
         {
-            roomObjects.BlockReactions.TrySpawnBombedSpecialBlock(
+            roomObjects.BlockReactions.SpawnBombedSpecialBlock(
                 level,
                 block.At,
                 block.Behavior,
@@ -976,10 +976,9 @@ public sealed class SamusBombProjectileSystem
     /// Plays the bomb's animation one update on: each frame it shows anew publishes its picture and radius, and an animation
     /// that ends deletes the bomb.
     /// </summary>
-    /// <returns>Whether the animation ended and deleted the bomb.</returns>
     /// <exception cref="InvalidOperationException">The bomb has ended and has no animation to play.</exception>
     /// <exception cref="InvalidDataException">The animation shows a still picture, which no bomb animation does.</exception>
-    private bool AdvanceProjectileAnimation(
+    private void AdvanceProjectileAnimation(
         SamusBomb bomb)
     {
         AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation = bomb.Animation
@@ -991,12 +990,10 @@ public sealed class SamusBombProjectileSystem
                 throw new InvalidDataException($"Bomb frame {frame} is a still picture.");
             bomb.Sprite = _artwork.ProjectileFrames.Resolve(frame);
             bomb.Radius = SamusProjectileFrameDefinitions.Radius(frame);
-            return false;
+            return;
         }
-        if (!animation.HasStopped)
-            return false;
-        ClearProjectile(bomb);
-        return true;
+        if (animation.HasStopped)
+            ClearProjectile(bomb);
     }
 
     /// <summary>Scans bombs from the first place up and publishes the last overlapping bomb's Samus launch direction.</summary>

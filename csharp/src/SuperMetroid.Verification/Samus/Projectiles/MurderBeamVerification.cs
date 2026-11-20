@@ -59,7 +59,8 @@ internal static class MurderBeamVerification
 
         shared.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeFire = projectiles.ObserveSlots();
-        SamusProjectileFrameResult fired = projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+        projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+        SamusProjectileFrameResult fired = projectiles.LastFrameResult;
         AssertEqual(0, slotsBeforeFire.FiredSlot(projectiles),
             "charged-left Murder Beam allocates slot zero");
         AssertTrue(fired.QueuedSoundEffect is null,
@@ -109,9 +110,8 @@ internal static class MurderBeamVerification
         target.Frame = EnemyFrameId.SkulteraSwimmingLeftTailStraight;
         combat.System.StepStandaloneFrame(combat.System.StandaloneFrame(combat.Level) with { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus });
 
-        AssertEqual(1, combat.System.ResolveShotsOnInteractiveEnemies(
-            projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
-            "invisible Murder Beam point overlaps an ordinary enemy");
+        combat.System.ResolveShotsOnInteractiveEnemies(
+            projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
         AssertEqual(800, target.Health,
             "charged vulnerability applies one 200-point Murder Beam hit");
         AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), shot.Type,
@@ -120,18 +120,16 @@ internal static class MurderBeamVerification
             "Murder Beam remains zero-list after enemy impact");
 
         target.Invincibility.End();
-        AssertEqual(1, combat.System.ResolveShotsOnInteractiveEnemies(
-            projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
-            "persistent Murder Beam can damage again after invincibility");
+        combat.System.ResolveShotsOnInteractiveEnemies(
+            projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
         AssertEqual(600, target.Health,
             "second Murder Beam contact repeats the native damage");
 
         target.Invincibility.End();
         target.Freeze.End();
         target.Health = 100;
-        AssertEqual(1, combat.System.ResolveShotsOnInteractiveEnemies(
-            projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
-            "lethal Murder Beam contact reaches Ice substitution");
+        combat.System.ResolveShotsOnInteractiveEnemies(
+            projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
         AssertEqual(100, target.Health,
             "lethal Ice-bearing Murder Beam preserves health while freezing");
         AssertEqual(400, target.Freeze.UpdatesLeft,

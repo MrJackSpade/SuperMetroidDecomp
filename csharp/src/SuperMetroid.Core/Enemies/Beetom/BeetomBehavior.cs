@@ -43,7 +43,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Beetom's animations: whether it keeps processing off screen.</summary>
-    private static BeetomSegment? ApplyBeetomCue(RoomEnemyPlace place, BeetomCue cue)
+    private static void ApplyBeetomCue(RoomEnemyPlace place, BeetomCue cue)
     {
         switch (cue.Kind)
         {
@@ -56,18 +56,15 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BeetomCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
 
     /// <summary>Initializes the Beetom.</summary>
-    private void InitializeBeetom(RoomEnemyPlace place, SamusState samus, GameplayAction controllerInput)
+    internal void InitializeBeetom(RoomEnemyPlace place, SamusState samus, GameplayAction controllerInput)
     {
         BeetomEnemyState state = _inheritance.Inherit(place.Ordinal, static previous => new BeetomEnemyState(previous, BeetomAction.DecideAction));
         place.SetSpeciesState(state);
 
-        state.ActionTimer = UpdateCountdown.Ended();
-        state.AttachedToSamus = false;
         state.ButtonCounter = BeetomMotionDefinitions.MashCount;
         state.LastSeenPlayerActions = controllerInput;
 
@@ -477,12 +474,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),
     };
 
-    /// <summary>Runs Beetom's initialization AI.</summary>
-    internal void SetUpBeetom(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
-    {
-        InitializeBeetom(place, surroundings.Samus, surroundings.ControllerInput);
-    }
-
     /// <summary>Runs Beetom's main AI.</summary>
     internal void RunBeetomMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
@@ -490,12 +481,10 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Beetom's typed animation.</summary>
-    internal static void AdvanceBeetomTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, BeetomAnimations.Segments,
+    internal static void AdvanceBeetomTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.AdvanceApplyingCues(place, BeetomAnimations.Segments,
             static (BeetomEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyBeetomCue(place, cue) is { } target
-                ? new AnimationContinuation<BeetomSegment>(BeetomAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
-                : null);
+            (BeetomEnemyState _, BeetomCue cue) => ApplyBeetomCue(place, cue));
 
     /// <summary>Clears attachment after every accepted common shot, including zero damage.</summary>
     /// <remarks>Beetom lets go after the common damage of every accepted hit, including a hit that deals it no

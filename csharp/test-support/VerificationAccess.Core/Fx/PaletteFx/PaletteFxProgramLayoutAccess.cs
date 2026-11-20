@@ -68,7 +68,7 @@ internal static class PaletteFxProgramLayoutAccess
             {
                 int frameBytes = 2 * (self.ColorsPerFrame + 2);
                 int neutral = self.TimerTwoPointer + 3 + 7 * frameBytes + 4;
-                return checked((ushort)(neutral + self.NeutralCount * frameBytes));
+                return checked((ushort)(neutral + CrateriaLightningPaletteFxColorDefinitionAccess.NeutralCount * frameBytes));
             }
         }
     }

@@ -192,7 +192,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                 if (requestWait.Age <= FileSelectMapDefinitions.LoadPreludeFrames) break;
                 if (!fade.IsBlack)
                 {
-                    _ = fade.Darken();
+                    fade.StepDarker();
                     break;
                 }
                 if (requestWait.IsOver)

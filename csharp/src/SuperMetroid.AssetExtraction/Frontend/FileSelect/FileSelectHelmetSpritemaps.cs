@@ -5,28 +5,12 @@ namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
 /// <summary>Selects the selected slot's helmet spritemap for each animation frame, which the import reads (#1502).</summary>
 public static class FileSelectHelmetSpritemaps
 {
-    /// <summary>The animation's frame list holds eight consecutive IDs and one repeated terminal ID.</summary>
-    private static int EntryCount => FileSelectHelmetAnimation.Turn.Count + 1;
-
-    /// <summary>Calculates the complete nine-entry frame list.</summary>
-    /// <remarks>
-    /// Frame indices 0..7 select consecutive spritemaps $2C..33. Entry 8 repeats
-    /// the final image; the game clamps the active frame to 7 before drawing.
-    /// Extraction reads each frame's spritemap with it. No generated table is stored.
-    /// The ninth entry remains representable for exact bounded source parity;
-    /// other indices reject before arithmetic, without narrowing or wrapping.
-    /// </remarks>
-    private static int SpritemapId(int frame)
-    {
-        if ((uint)frame >= EntryCount) throw new ArgumentOutOfRangeException(nameof(frame));
-        return 44 + Math.Min(frame, FileSelectHelmetAnimation.Turn.Count - 1);
-    }
-
     /// <summary>The spritemap ID of the helmet picture <paramref name="frame"/>, by its place in the turn (#2359).</summary>
+    /// <remarks>The turn's pictures select consecutive spritemaps $2C..33; extraction reads each picture's spritemap with it.</remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not a picture of the turn.</exception>
     internal static int SpritemapId(FileSelectHelmetFrame frame)
     {
         int place = FileSelectHelmetAnimation.Turn.ToList().IndexOf(frame);
-        return place >= 0 ? SpritemapId(place) : throw new ArgumentOutOfRangeException(nameof(frame));
+        return place >= 0 ? 44 + place : throw new ArgumentOutOfRangeException(nameof(frame));
     }
 }

@@ -11,7 +11,10 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 /// </summary>
 internal static class HibashiAnimations
 {
-    /// <summary>Every segment's beats.</summary>
+    /// <summary>
+    /// Every segment's beats. The hidden collision part's held frame is never drawn, but an enemy showing no frame takes
+    /// no part in Samus's collision, so its hold is what admits the part's hit area from its first update on (#2566).
+    /// </summary>
     internal static AnimationSegments<HibashiSegment, EnemyFrameId, HibashiCue> Segments { get; } = new(
         new Dictionary<HibashiSegment, AnimationBeat<EnemyFrameId, HibashiCue>[]>
     {

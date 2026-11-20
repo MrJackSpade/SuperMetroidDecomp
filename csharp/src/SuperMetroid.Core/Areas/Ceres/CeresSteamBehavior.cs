@@ -36,7 +36,7 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
             return;
         CeresSteamEnemyState state = place.RequireSpeciesState<CeresSteamEnemyState>();
         AnimationPlayback<CeresSteamSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, CeresSteamAnimations.Segments, ref playback, cue => CarryOut(place, cue));
+        EnemyAnimationPlayback.PlayApplyingCues(place, CeresSteamAnimations.Segments, ref playback, (CeresSteamCueKind cue) => CarryOut(place, cue));
         if (place.AnimationClock.IsStopped)
         {
             place.AnimationClock.HoldFor(state.UpdatesToActivation);
@@ -46,18 +46,18 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
     }
 
     /// <summary>Carries out one cue of a vent's animation; the play runs on after each.</summary>
-    private static AnimationContinuation<CeresSteamSegment>? CarryOut(RoomEnemyPlace place, CeresSteamCueKind cue)
+    private static void CarryOut(RoomEnemyPlace place, CeresSteamCueKind cue)
     {
         switch (cue)
         {
             case CeresSteamCueKind.Vanish:
                 place.Presence = place.Presence.With(EnemyPresence.Hidden);
                 place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-                return null;
+                return;
             case CeresSteamCueKind.Appear:
                 place.Presence = place.Presence.Without(EnemyPresence.Hidden);
                 place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
-                return null;
+                return;
             default:
                 throw new InvalidOperationException($"Undefined Ceres steam cue {cue}.");
         }

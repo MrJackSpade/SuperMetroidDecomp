@@ -26,8 +26,8 @@ internal static class RidleyTailPrivateAccess
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Ridley.RidleyTail), "AimRidleyTailWhip", [typeof(global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem), typeof(int)], new object?[] { state, samus, samusProjectiles, turnsBeyond });
 
         /// <summary>The private method <c>ResolveRidleyTailSamusContact</c>, invoked by name.</summary>
-        internal static bool ResolveRidleyTailSamusContact(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState state, global::SuperMetroid.Core.Samus.SamusState samus) =>
-            PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Core.Bosses.Ridley.RidleyTail), "ResolveRidleyTailSamusContact", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { body, state, samus });
+        internal static void ResolveRidleyTailSamusContact(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState state, global::SuperMetroid.Core.Samus.SamusState samus) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Ridley.RidleyTail), "ResolveRidleyTailSamusContact", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { body, state, samus });
 
         /// <summary>The private method <c>TickRidleyTailLink</c>, invoked by name.</summary>
         internal static void TickRidleyTailLink(global::SuperMetroid.Core.Bosses.Ridley.RidleyTailState tail, global::SuperMetroid.Core.Bosses.Ridley.RidleyTailLink link) =>

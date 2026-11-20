@@ -36,7 +36,7 @@ internal sealed class WhiteWash
         new(new PacedFadeSteps(Steps, updatesPerStep, firstStepUpdate));
 
     /// <summary>One update of the wash's fade: on the update its cadence is due it takes one step off, stopping at none.</summary>
-    internal void Fade() => _ = fade.Advance();
+    internal void Fade() => fade.Advance();
 
     /// <summary>The colour of a wash with <paramref name="stepsLeft"/> of its <see cref="Steps"/> steps left.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="stepsLeft"/> is outside 0-<see cref="Steps"/>.</exception>

@@ -32,9 +32,15 @@ public sealed class SharedRandom
     /// <returns>The new state as a sample, 0 through 65535.</returns>
     public int Generate()
     {
-        State = State.Next();
+        Advance();
         return State.Value;
     }
+
+    /// <summary>
+    /// Advances the generator to the sequence's next value without sampling it, as a draw whose value decides nothing does:
+    /// every later consumer still observes the advance.
+    /// </summary>
+    public void Advance() => State = State.Next();
 
     /// <summary>
     /// Overwrites the state with a species' seed (<see cref="SpeciesRandomReseed"/>), so later unrelated consumers draw on

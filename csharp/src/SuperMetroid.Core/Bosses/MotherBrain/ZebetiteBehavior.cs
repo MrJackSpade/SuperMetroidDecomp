@@ -272,7 +272,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs Zebetite's main AI.</summary>
-    internal void RunZebetiteMainAi(RoomEnemyPlace place, IEnemyAiFrame _)
+    internal void RunZebetiteMainAi(RoomEnemyPlace place)
     {
         RunZebetiteMain(place, place.RequireSpeciesState<ZebetiteEnemyState>());
     }

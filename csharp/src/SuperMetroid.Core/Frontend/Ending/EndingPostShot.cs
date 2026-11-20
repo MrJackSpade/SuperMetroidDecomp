@@ -26,8 +26,8 @@ internal sealed class EndingPostShot
     {
         Ensure.NotNull(screen);
         if (ReadyForWhiteFlash) throw new InvalidOperationException("Post-shot white-flash handoff must be consumed.");
-        _ = shotFade.Advance();
-        _ = samusFade.Advance();
+        shotFade.Advance();
+        samusFade.Advance();
         ApplyFade(screen.Colours, EndingFade.Shot, shotFade);
         ApplyFade(screen.Colours, EndingFade.ShootingSamus, samusFade);
         if (!RotationFinished)

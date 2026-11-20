@@ -216,7 +216,8 @@ internal static class RetailKraidCaptureTests
         // Kraid's collision walk starts at the native projectile count; one staged shot is count one.
         shots.Pool.ShotCount.Restore(1);
         // The native walk counts one missile in both its mouth and body passes (#1192, #1247).
-        if (runtime.Enemies.ResolveKraidProjectileHits(shots, InstalledFixtures.CreateBombSystem()) == 0)
+        runtime.Enemies.ResolveKraidProjectileHits(shots, InstalledFixtures.CreateBombSystem());
+        if (!shot.IsSpent)
             throw new InvalidOperationException("Kraid growth fixture failed to land its staged missile.");
     }
 }

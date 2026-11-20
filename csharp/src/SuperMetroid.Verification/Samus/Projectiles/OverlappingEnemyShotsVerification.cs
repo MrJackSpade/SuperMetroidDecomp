@@ -52,8 +52,7 @@ internal static class OverlappingEnemyShotsVerification
         shot.Animation = ProjectileFixturePlaybacks.Active();
         shot.Behavior = SamusShotBehaviors.Missile;
 
-        AssertEqual(3, enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
-            "one missile reaches all three overlapping Beetoms in the same pass");
+        enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
         foreach (var enemy in enemies.Places.InUpdateOrder.Take(3))
             AssertEqual(80, enemy.Health, "each overlapping Beetom takes native missile damage");
         AssertTrue(shot.IsSpent, "non-piercing shot is marked for deferred removal");
@@ -67,8 +66,9 @@ internal static class OverlappingEnemyShotsVerification
             enemy.HurtFlash.End();
             enemy.Invincibility.End();
         }
-        AssertEqual(0, enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
-            "removed projectile cannot damage the stack on the next pass");
+        enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
+        foreach (var enemy in enemies.Places.InUpdateOrder.Take(3))
+            AssertEqual(80, enemy.Health, "removed projectile cannot damage the stack on the next pass");
         Console.WriteLine("Overlapping Beetoms: all three receive one shot's damage; deferred removal prevents a later hit.");
     }
 

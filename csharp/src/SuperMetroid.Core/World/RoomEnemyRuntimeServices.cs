@@ -45,6 +45,9 @@ internal sealed class RoomEnemyRuntimeServices(
     /// <summary>Advances the shared system RNG once for an enemy request.</summary>
     public int Generate() => system.NextRandom();
 
+    /// <summary>Advances the shared system RNG once for an enemy draw whose value decides nothing.</summary>
+    public void Advance() => system.Random.Advance();
+
     /// <summary>Reads the current random number without drawing a new one.</summary>
     public int Read() => system.RandomNumber;
 

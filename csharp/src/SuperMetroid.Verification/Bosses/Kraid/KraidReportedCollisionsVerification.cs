@@ -82,7 +82,7 @@ internal static class KraidReportedCollisionsVerification
                 int damage = nail.Definition.Damage;
                 var interactive = (List<RoomEnemyPlace>)runtime.Enemies.ProcessingWindow.InteractiveEnemies;
                 interactive.Clear(); interactive.Add(nail);
-                AssertEqual(true, runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, runtime.Room.LoadedLevelData, nail, Position16<RoomPixels>.Zero), "Nail callback is dispatched");
+                runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, runtime.Room.LoadedLevelData, nail, Position16<RoomPixels>.Zero);
                 AssertEqual((ushort)(999 - damage), samus.Health, "Nail applies native touch damage");
                 AssertTrue(nail.AwaitsRespawn && nail.DefinitionId == EnemyDefinitionId.None,
                     "the nail dies and its place awaits its respawn");

@@ -54,7 +54,6 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? SkulteraSegment.SwimmingLeft
             : SkulteraSegment.SwimmingRight), AnimationPlace.StartOfAnimation);
 
-        state.Angle = RotationAngle.Zero;
         state.PreviousYOffset = EnemyMath.CircleNegativeSinePixels(state.Angle.ToTrigonometryAngle(), settings.Radius);
     }
 
@@ -162,7 +161,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Skultera's typed animation.</summary>
-    internal static void AdvanceSkulteraTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceSkulteraTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, SkulteraAnimations.Segments,
             static (SkulteraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>

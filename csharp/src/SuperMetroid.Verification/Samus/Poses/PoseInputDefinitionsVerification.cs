@@ -43,7 +43,7 @@ internal static class PoseInputDefinitionsVerification
                 $"Pose {pose} shares list {inputList} only with poses whose native lists hold its live conditions");
             AssertEqual(inputList, listByLiveConditions.TryAdd(live, inputList) ? inputList : listByLiveConditions[live],
                 $"Pose {pose}'s live native conditions select one input list");
-            AssertEqual(native.Count != 0, SamusPoseInputs.Match(inputList, allActions, allActions).HasConditions, "Native empty versus nonempty input program");
+            AssertEqual(native.Count != 0, SamusPoseInputRules.Match(inputList, allActions, allActions).HasConditions, "Native empty versus nonempty input program");
             for (int i = 0; i < native.Count; i++)
             {
                 newMask |= native[i].New; heldMask |= native[i].Held;

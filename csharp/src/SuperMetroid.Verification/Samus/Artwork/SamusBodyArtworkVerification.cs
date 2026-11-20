@@ -339,7 +339,7 @@ internal static class SamusBodyArtworkVerification
                             == whiteout.ToWord()),
                     $"death suit {suit} frame {frame} whiteout is one of the cartridge's whiteout shades");
                 AssertTrue(nativeSamus.DeathSequence.Whiteout == installedSamus.DeathSequence.Whiteout &&
-                    nativeStep.PhaseAfterStep == installedStep.PhaseAfterStep &&
+                    nativeSamus.DeathSequence.Phase == installedSamus.DeathSequence.Phase &&
                     nativeSamus.DeathSequence.Flash.UpdatesLeft == installedSamus.DeathSequence.Flash.UpdatesLeft &&
                     nativeSamus.DeathSequence.Flash.Shown == installedSamus.DeathSequence.Flash.Shown &&
                     nativeSamus.DeathSequence.Flashing.Age == installedSamus.DeathSequence.Flashing.Age &&

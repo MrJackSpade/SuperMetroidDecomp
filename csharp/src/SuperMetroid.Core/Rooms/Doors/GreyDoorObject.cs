@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -53,13 +52,10 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
     /// The shot at the cap's block it has yet to take (#2484, #2562). A shot that arrives before the cap waits for anything waits for
     /// it; a later shot before the cap takes it replaces it.
     /// </summary>
-    private readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> _strike = new();
-
-    /// <summary>The shot at the cap's block it has yet to take, or null for none.</summary>
-    internal ResidentObjectProjectileHit? AwaitingStrike => _strike.Awaiting;
+    internal readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> strike = new();
 
     /// <inheritdoc/>
-    public void Strike(ResidentObjectProjectileHit hit) => _strike.Land(hit);
+    public void Strike(ResidentObjectProjectileHit hit) => strike.Land(hit);
 
     /// <inheritdoc/>
     /// <remarks>Bomb Torizo's door is held open until Samus has Bombs; every other cap closes at once.</remarks>
@@ -94,18 +90,18 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
             case GreyDoorWait.Condition:
                 if (!Lock.IsUnlocked(context.Frame))
                 {
-                    if (_strike.Take() is not null)
+                    if (strike.Take() is not null)
                         doors.QueueDudSound();
                     return false;
                 }
                 Lock.RecordUnlocked();
-                _ = _strike.Take();
+                _ = strike.Take();
                 Waits = GreyDoorWait.Shot;
                 Phase = GreyDoorPhase.Flashing;
                 Play(GreyDoorDefinitions.Flash, place, context);
                 return true;
             case GreyDoorWait.Shot:
-                if (_strike.Take() is null)
+                if (strike.Take() is null)
                     return false;
                 Open(place, context);
                 return true;

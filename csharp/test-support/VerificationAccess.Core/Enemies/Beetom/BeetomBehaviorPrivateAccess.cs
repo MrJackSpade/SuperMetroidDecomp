@@ -16,10 +16,6 @@ internal static class BeetomBehaviorPrivateAccess
         /// <summary>The private method <c>ChooseDistantBeetomAction</c>, invoked by name.</summary>
         internal void ChooseDistantBeetomAction(global::SuperMetroid.Core.Enemies.Beetom.BeetomEnemyState state) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Beetom.BeetomBehavior>(self, "ChooseDistantBeetomAction", [typeof(global::SuperMetroid.Core.Enemies.Beetom.BeetomEnemyState)], new object?[] { state });
-
-        /// <summary>The private method <c>InitializeBeetom</c>, invoked by name.</summary>
-        internal void InitializeBeetom(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Input.GameplayAction controllerInput) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Beetom.BeetomBehavior>(self, "InitializeBeetom", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Input.GameplayAction)], new object?[] { place, samus, controllerInput });
     }
 
     /// <summary>The private static members checks name.</summary>

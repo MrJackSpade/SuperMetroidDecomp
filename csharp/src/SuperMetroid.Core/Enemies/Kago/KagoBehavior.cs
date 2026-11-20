@@ -4,7 +4,6 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Enemies.Kago;
 
@@ -269,7 +268,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Kago's typed animation.</summary>
-    internal static void AdvanceKagoTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceKagoTypedAnimation(RoomEnemyPlace place)
     {
         if (!place.AnimationClock.Expire())
             return;

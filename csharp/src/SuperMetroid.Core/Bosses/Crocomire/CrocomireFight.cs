@@ -116,7 +116,7 @@ internal sealed class CrocomireFight
 
         CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Fight);
         place.CollidesByFrameHitboxes = true;
-        var tongueState = new CrocomireTongueState(state) { BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset };
+        var tongueState = new CrocomireTongueState(state);
         place.SetSpeciesState(tongueState);
         place.Shading = state.Body.Shading;
     }

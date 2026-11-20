@@ -38,9 +38,6 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new BoulderEnemyState(BoulderAction.WaitingForSamus);
         place.SetSpeciesState(state);
 
-        state.BounceCurvePlace = QuadraticSpeedCurvePlace.Start;
-        state.TravelCurvePlace = QuadraticSpeedCurvePlace.Start;
-        state.ImpactsSoFar = 0;
         state.RestingY = place.Position.Whole.Y;
         state.PreviousY = place.Position.Y;
 
@@ -265,7 +262,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         QuadraticSpeedCurvePlace.Min(value + increment, maximum);
 
     /// <summary>Advances Boulder's typed animation.</summary>
-    internal static void AdvanceBoulderTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceBoulderTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, BoulderAnimations.Segments,
             static (BoulderEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Boulder animation raised {cue}."));

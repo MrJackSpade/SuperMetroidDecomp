@@ -7,13 +7,12 @@ public sealed class DeadTourianCorpseEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<DeadTourianSegment> Playback { get; set; }
 
-    /// <summary>Captures the corpse's species and its own rot schedule, and starts its own rows and its first phase.</summary>
-    internal DeadTourianCorpseEnemyState(DeadTourianCorpseSpecies species, CorpseRotSchedule rot, DeadTourianCorpsePhase phase)
+    /// <summary>Captures the corpse's own rot schedule, and starts its own rows and its first phase.</summary>
+    internal DeadTourianCorpseEnemyState(CorpseRotSchedule rot, DeadTourianCorpsePhase phase)
     {
         Phase = phase;
         Rot = Ensure.NotNull(rot);
         Rows = new RottingCorpseRows(rot.Rows.Count);
-        Species = species;
     }
 
     /// <summary>The phase main AI runs.</summary>
@@ -27,7 +26,4 @@ public sealed class DeadTourianCorpseEnemyState
     /// rotting and the corpse never returns to the delay. Touch/shot reactions enter rotting directly.
     /// </summary>
     public UpdateCountdown PreRotDelay { get; } = UpdateCountdown.Lasting(CorpseRotScheduleDefinitions.PreRotDelayUpdates);
-
-    /// <summary>The species whose corpse it is.</summary>
-    internal DeadTourianCorpseSpecies Species { get; }
 }

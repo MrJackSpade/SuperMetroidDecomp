@@ -28,12 +28,10 @@ internal static class TextAndMapClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingTextGlyphs.cs")]),
         new("SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteSheet", "map-sprite-sheet-complete-named-frames", ["Draw"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapSpriteSheet.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Map/MapSpriteDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Map/MapSpriteNames.cs")]),
+             new("csharp/src/SuperMetroid.Core/Frontend/Map/MapSpriteDefinitions.cs")]),
         new("SuperMetroid.Core.Frontend.Map.Artwork.MapArrowPresentation", "map-arrow-complete-direction-domain", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapArrowPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/MapArrowDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Map/MapArrowSprites.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/MapScrollControls.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/MapScroll.cs")]),
     ];

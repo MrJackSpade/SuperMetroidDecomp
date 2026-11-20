@@ -364,13 +364,13 @@ public sealed class SamusXrayState
     /// Executes the X-ray scope's movement: turning does nothing, while
     /// stable X-ray poses force the aim's hold and one of the five aims the angle selects.
     /// </summary>
-    internal SamusAnimationFrame? StepMovement(SamusState samus)
+    internal void StepMovement(SamusState samus)
     {
         Ensure.NotNull(samus);
         EnsureActive();
 
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.TurningOnGround)
-            return null;
+            return;
 
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         SamusAnimationFrame aim = facingLeft
@@ -383,7 +383,6 @@ public sealed class SamusXrayState
               Angle < XrayScopeDefinitions.AnimationAngles.RightLoweredFrom ? XrayScopeDefinitions.Aims.Level :
               Angle < XrayScopeDefinitions.AnimationAngles.RightDownFrom ? XrayScopeDefinitions.Aims.Lowered : XrayScopeDefinitions.Aims.Down;
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, aim, timer: XrayScopeDefinitions.Holds.Aim);
-        return aim;
     }
 
     /// <summary>

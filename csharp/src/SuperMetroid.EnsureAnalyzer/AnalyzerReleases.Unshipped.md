@@ -72,4 +72,5 @@ SME6469 | Design | Error | EnumerationOrderAnalyzer
 SME6470 | Design | Error | OneUpdateRequestAnalyzer
 SME6471 | Design | Error | MagnitudeAndSignAnalyzer
 SME6472 | Design | Error | InlineDefinitionDataAnalyzer
+SME6474 | Design | Error | UnreadResultAnalyzer
 SME6477 | Design | Error | PrivateStateMemberAnalyzer

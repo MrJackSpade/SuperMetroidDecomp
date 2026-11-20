@@ -14,16 +14,16 @@ internal static class PhantoonPatternsPrivateAccess
     extension(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPatterns self)
     {
         /// <summary>The private method <c>SpawnPhantoonRageFlame</c>, invoked by name.</summary>
-        internal bool SpawnPhantoonRageFlame(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState phantoon, global::SuperMetroid.Core.Bosses.Phantoon.PhantoonRageFlameStart start) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPatterns, bool>(self, "SpawnPhantoonRageFlame", [typeof(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState), typeof(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonRageFlameStart)], new object?[] { phantoon, start });
+        internal void SpawnPhantoonRageFlame(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState phantoon, global::SuperMetroid.Core.Bosses.Phantoon.PhantoonRageFlameStart start) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPatterns>(self, "SpawnPhantoonRageFlame", [typeof(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState), typeof(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonRageFlameStart)], new object?[] { phantoon, start });
 
         /// <summary>The private method <c>SpawnPhantoonRainFlame</c>, invoked by name.</summary>
-        internal bool SpawnPhantoonRainFlame(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, int columnX, int hangUpdates) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPatterns, bool>(self, "SpawnPhantoonRainFlame", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(int), typeof(int)], new object?[] { body, columnX, hangUpdates });
+        internal void SpawnPhantoonRainFlame(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, int columnX, int hangUpdates) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPatterns>(self, "SpawnPhantoonRainFlame", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(int), typeof(int)], new object?[] { body, columnX, hangUpdates });
 
         /// <summary>The private method <c>SpawnPhantoonSpiralFlame</c>, invoked by name.</summary>
-        internal bool SpawnPhantoonSpiralFlame(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState phantoon, global::SuperMetroid.Core.Spatial.TrigonometryAngle start) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPatterns, bool>(self, "SpawnPhantoonSpiralFlame", [typeof(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState), typeof(global::SuperMetroid.Core.Spatial.TrigonometryAngle)], new object?[] { phantoon, start });
+        internal void SpawnPhantoonSpiralFlame(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState phantoon, global::SuperMetroid.Core.Spatial.TrigonometryAngle start) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPatterns>(self, "SpawnPhantoonSpiralFlame", [typeof(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState), typeof(global::SuperMetroid.Core.Spatial.TrigonometryAngle)], new object?[] { phantoon, start });
     }
 
     /// <summary>The private static members checks name.</summary>

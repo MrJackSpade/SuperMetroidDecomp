@@ -25,14 +25,14 @@ internal static class OwtchPatrolStateVerification
         // The Owtch walks at its placement's speed (#2439).
         place.SetSpawnSettings(place.SpawnSettings<OwtchSpawnSettings>() with { Speed = SignedSixteenSixteen.FromParts(1, 32768) });
         place.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64)).WithFractionX(49152);
-        enemies.OwtchBehavior.RunOwtchMainAi(place, frame);
+        enemies.OwtchBehavior.RunOwtchMainAi(place);
         AssertEqual((ushort)102, place.Position.X.Whole, "Owtch rightward speed carries its fraction into the whole pixel");
         AssertEqual((ushort)16384, place.Position.X.Fraction, "Owtch rightward fraction after the carry");
 
         (enemies, place, _) = NewOwtch(OwtchBehaviorState.MovingLeft);
         place.SetSpawnSettings(place.SpawnSettings<OwtchSpawnSettings>() with { Speed = SignedSixteenSixteen.FromParts(1, 32768) });
         place.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64)).WithFractionX(16384);
-        enemies.OwtchBehavior.RunOwtchMainAi(place, frame);
+        enemies.OwtchBehavior.RunOwtchMainAi(place);
         AssertEqual((ushort)98, place.Position.X.Whole, "Owtch leftward speed wraps its whole word");
         AssertEqual((ushort)49152, place.Position.X.Fraction, "Owtch leftward fraction without a carry");
         OwtchEnemyState state;
@@ -44,7 +44,7 @@ internal static class OwtchPatrolStateVerification
         {
             (enemies, place, state) = NewOwtch(OwtchBehaviorState.Sinking);
             state.Sink = UpdateCountdownAccess.AtAge(OwtchMovementDefinitions.MaximumBurialDepth, depth);
-            enemies.OwtchBehavior.RunOwtchMainAi(place, frame);
+            enemies.OwtchBehavior.RunOwtchMainAi(place);
             AssertEqual(expectedDepth, state.Sink.Age, $"Owtch sinking from {depth}");
             AssertEqual(expectedBehavior, state.Behavior, $"Owtch sinking from {depth}: behavior");
         }
@@ -53,7 +53,7 @@ internal static class OwtchPatrolStateVerification
         (enemies, place, state) = NewOwtch(OwtchBehaviorState.Underground);
         state.Behavior = OwtchBehaviorState.Rising;
         state.Rise = UpdateCountdown.Lasting(1);
-        enemies.OwtchBehavior.RunOwtchMainAi(place, frame);
+        enemies.OwtchBehavior.RunOwtchMainAi(place);
         AssertTrue(state.Rise.IsOver, "Owtch rising from depth one surfaces");
         AssertTrue(state.Behavior is OwtchBehaviorState.MovingLeft or OwtchBehaviorState.MovingRight, "Owtch walks again once surfaced");
 

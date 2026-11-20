@@ -2,8 +2,6 @@ using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Grapple;

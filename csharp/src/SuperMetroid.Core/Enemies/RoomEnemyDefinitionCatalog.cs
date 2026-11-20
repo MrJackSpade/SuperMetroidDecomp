@@ -163,13 +163,10 @@ public static class RoomEnemyDefinitionCatalog
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.PirateSilverWalking, new(500, 15, new(16, 32), 4, EnemySound.Yell, null, GrappleEnemyReaction.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Big, null, null, null, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, new EnemyDropChances(0, 0, 0, 255, 0, 0), EnemyVulnerabilityDefinitions.DoubledByMissiles)),
     ];
 
-    /// <summary>Number of distinct enemy definitions reachable from room states.</summary>
-    private const int Count = 147;
-
     /// <summary>
     /// Each referenced identity's definition, looked up by identity rather than by ordering the identities (#1452);
-    /// the count and each identity's single definition are checked when it is built.
+    /// each identity's single definition is checked when it is built.
     /// </summary>
     internal static readonly FrozenDictionary<EnemyDefinitionId, RoomEnemyDefinition> ById =
-        RoomEnemyDefinitionLookup.Index(Definitions, Count);
+        RoomEnemyDefinitionLookup.Index(Definitions);
 }

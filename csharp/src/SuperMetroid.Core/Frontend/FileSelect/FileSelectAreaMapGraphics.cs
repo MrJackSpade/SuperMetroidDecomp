@@ -104,7 +104,7 @@ public sealed class FileSelectAreaMapGraphics
 
         void DrawArea(AreaId shown)
         {
-            Draw(MapSpriteNames.WorldLabel(shown), labels.Get(shown),
+            Draw(Ensure.Listed(MapSpriteDefinitions.WorldLabels, shown), labels.Get(shown),
                 shown == SelectedArea ? MapSpriteColouring.Labels : MapSpriteColouring.DimLabels);
         }
 

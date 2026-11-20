@@ -86,7 +86,7 @@ internal static class SamusPoseTransitions
     /// is known to have room for the destination pose, followed by grounded collision cleanup.
     /// </summary>
     /// <remarks>
-    /// Playable room code must call <see cref="SamusPoseTransitions.TryApplyAerialLanding"/> instead. The game
+    /// Playable room code must call <see cref="SamusPoseTransitions.ApplyAerialLandingInRoom"/> instead. The game
     /// sends every prospective landing pose through the changed-pose collision; omitting
     /// that probe lets the much taller landing body overlap a low ceiling. This roomless entry
     /// point is for cinematic movement only.
@@ -116,11 +116,7 @@ internal static class SamusPoseTransitions
     /// Applies a normal or spinning landing through the game's shared prospective-pose
     /// collision response before committing the taller landing body.
     /// </summary>
-    /// <returns>
-    /// True when the selected landing pose fit. False means the game's collision retained the
-    /// source pose or selected its stable-crouch fallback; the game then does not settle Samus on the landing.
-    /// </returns>
-    public static bool TryApplyAerialLanding(
+    public static void ApplyAerialLandingInRoom(
         SamusState samus,
         RoomLevelData level,
         bool wasSpinning,
@@ -163,7 +159,6 @@ internal static class SamusPoseTransitions
         else if (leavingScrewAttack)
             // Shade restoration belongs to the pose change, before the blocked-collision gate on settling.
             samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
-        return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
     /// <summary>
@@ -204,7 +199,7 @@ internal static class SamusPoseTransitions
         if (aim.DisablesShooting)
             return facingLeft ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose;
         bool shotHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
-        // The straight-down aims are consumed by TryApplyCompactAerialLanding, because the 10 -> 21 expansion needs room
+        // The straight-down aims are consumed by ApplyCompactAerialLanding, because the 10 -> 21 expansion needs room
         // collision data.
         SamusLandingChoice landing = aim is SamusPoseAim.Aiming { Direction: var direction } &&
             SamusAimedPoseChoiceDefinitions.Landings.TryGetValue(direction, out SamusLandingChoice? choice)
@@ -239,7 +234,7 @@ internal static class SamusPoseTransitions
     /// Both select the ordinary normal landing; the expansion from radius ten to 21 still runs the full
     /// block pose-change collision resolver; settling the landing clears motion only if accepted.
     /// </summary>
-    public static bool TryApplyCompactAerialLanding(
+    public static void ApplyCompactAerialLanding(
         SamusState samus,
         RoomLevelData level,
         int frameCounter,
@@ -278,7 +273,6 @@ internal static class SamusPoseTransitions
         // A collision-selected crouch is not allowed to clear velocity or arm autojump.
         if (collision == LargerPoseCollisionOutcome.Allowed)
             SettleAcceptedLanding(samus, leavingScrewAttack: false);
-        return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
     /// <summary>

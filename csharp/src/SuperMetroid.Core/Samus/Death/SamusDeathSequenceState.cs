@@ -187,7 +187,6 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         }
 
         return new SamusDeathSequenceStepResult(
-            Phase,
             draws,
             Phase == SamusDeathSequencePhase.Complete);
     }

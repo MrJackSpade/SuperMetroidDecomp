@@ -58,6 +58,11 @@ public static class RoomObjectSamusEaterVisualFiles
         _ => throw new InvalidOperationException($"Undefined SamusEaterDraw {frame}."),
     };
 
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the Samus eater draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a Samus eater draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a Samus eater draw.");
+
     /// <summary>
     /// The draw list of a plant draw (#1862): its block shape written as the right half of the mouth, its left half two
     /// blocks left, and the four-wide foliage below those for a floor plant or above them for a ceiling one.
@@ -83,8 +88,7 @@ public static class RoomObjectSamusEaterVisualFiles
         {
             foreach (SamusEaterDraw frame in FrameOrder)
             {
-                TryGet(SamusEaterObjectDraws.Family.Of(frame), out var list);
-                yield return list;
+                yield return DrawListOf(SamusEaterObjectDraws.Family.Of(frame));
             }
         }
     }

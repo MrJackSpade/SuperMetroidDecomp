@@ -21,7 +21,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// definition; only its placement tells them apart.
     /// </summary>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<PowampSpawnSettings>().Part == PowampPart.Balloon
+        Ensure.NotNull(place).SpawnSettings<PowampSpawnSettings>() is PowampBalloonSpawnSettings
             ? new PowampBalloonEntity(this, place, common)
             : new PowampBodyEntity(this, place, common);
 
@@ -187,7 +187,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         AdvancePowampWiggle(body, state, balloon, stop: PowampWiggleStop.Never);
         bool collided = _terrain.MoveEnemyVertically(level, body, state.YVelocity);
         int travelDistance = hold == PowampHold.Grappled
-            ? balloon.Place.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance
+            ? balloon.Place.SpawnSettings<PowampBalloonSpawnSettings>().GrappleTravelDistance
             : PowampMotionDefinitions.UngrappledRise;
 
         // The rise continues while the body is still below the target. A room collision completes the rise regardless

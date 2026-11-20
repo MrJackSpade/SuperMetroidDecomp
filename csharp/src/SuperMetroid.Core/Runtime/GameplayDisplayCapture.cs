@@ -157,7 +157,7 @@ public static class GameplayDisplayCapture
         // The room's background shows where its own scroll puts it, moved by the room's shake as any background is. Its scroll
         // is signed (#2305): the backend repeats each background picture by its own size, so a scroll left of or above the
         // background's origin needs no wrap.
-        Position16<RoomPixels> camera = scrolls.ForegroundPosition;
+        _ = scrolls.ForegroundPosition;
         Offset16<BackgroundPixels> backgroundScroll = scrolls.BackgroundScroll + shake.Background;
         if (latched.TourianStatueVerticalOffset is int descent)
             // The statue room's descent supplies the background's vertical scroll per line after the

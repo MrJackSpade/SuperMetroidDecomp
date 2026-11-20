@@ -160,8 +160,7 @@ internal static class SamusSuitColorsVerification
             "hurt-flash recovery restores the installed Varia color");
 
         samus.EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.ScrewAttack);
-        AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (0x1b) == 0, AnimationPastScrewAttackSpin = (0x1b) >= 27, AnimationBeforeWallJumpSpin = (0x1b) < 3, EquippedItems = samus.EquippedItems, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
-            "Screw Attack recovery frame restores the normal suit");
+        samus.HorizontalSpeed.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (0x1b) == 0, AnimationPastScrewAttackSpin = (0x1b) >= 27, AnimationBeforeWallJumpSpin = (0x1b) < 3, EquippedItems = samus.EquippedItems, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
         AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.Suits.Resolve(SamusSuit.Varia, 1),
             samusColours.ShownSuit(installedSources)[1],
             "Screw Attack recovery restores the installed Varia color");

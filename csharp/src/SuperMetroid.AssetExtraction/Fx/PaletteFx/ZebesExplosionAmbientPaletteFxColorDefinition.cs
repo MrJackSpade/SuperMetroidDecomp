@@ -13,6 +13,7 @@ public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
     /// <summary>The mutually exclusive ambient owner.</summary>
     public required ZebesExplosionAmbientPaletteFxProgramOwner Owner { get; init; }
 
+
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public required PaletteFxColorFrames ColorFrames { get; init; }
 }

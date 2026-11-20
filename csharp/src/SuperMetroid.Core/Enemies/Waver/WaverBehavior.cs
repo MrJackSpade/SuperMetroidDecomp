@@ -121,7 +121,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Waver's typed animation.</summary>
-    internal static void AdvanceWaverTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceWaverTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, WaverAnimations.Segments,
             static (WaverEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>

@@ -27,12 +27,12 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Mt. Everest room.</summary>
     internal static RoomEnemyPopulationDefinition MtEverest { get; } = new("MtEverest",
     [
-        new(EnemyDefinitionId.Powamp, new(512, 384), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampSpawnSettings(Part: PowampPart.Balloon, GrappleTravelDistance: 112, Contact: PowampContact.Refuses)),
-        new(EnemyDefinitionId.Powamp, new(512, 384), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampSpawnSettings(Part: PowampPart.Body, GrappleTravelDistance: 0, Contact: PowampContact.Accepts)),
-        new(EnemyDefinitionId.Powamp, new(776, 512), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampSpawnSettings(Part: PowampPart.Balloon, GrappleTravelDistance: 288, Contact: PowampContact.Refuses)),
-        new(EnemyDefinitionId.Powamp, new(776, 512), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampSpawnSettings(Part: PowampPart.Body, GrappleTravelDistance: 0, Contact: PowampContact.Accepts)),
-        new(EnemyDefinitionId.Powamp, new(1024, 560), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampSpawnSettings(Part: PowampPart.Balloon, GrappleTravelDistance: 48, Contact: PowampContact.Refuses)),
-        new(EnemyDefinitionId.Powamp, new(1024, 560), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampSpawnSettings(Part: PowampPart.Body, GrappleTravelDistance: 0, Contact: PowampContact.Accepts)),
+        new(EnemyDefinitionId.Powamp, new(512, 384), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampBalloonSpawnSettings(GrappleTravelDistance: 112, Contact: PowampContact.Refuses)),
+        new(EnemyDefinitionId.Powamp, new(512, 384), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampBodySpawnSettings(Contact: PowampContact.Accepts)),
+        new(EnemyDefinitionId.Powamp, new(776, 512), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampBalloonSpawnSettings(GrappleTravelDistance: 288, Contact: PowampContact.Refuses)),
+        new(EnemyDefinitionId.Powamp, new(776, 512), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampBodySpawnSettings(Contact: PowampContact.Accepts)),
+        new(EnemyDefinitionId.Powamp, new(1024, 560), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampBalloonSpawnSettings(GrappleTravelDistance: 48, Contact: PowampContact.Refuses)),
+        new(EnemyDefinitionId.Powamp, new(1024, 560), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PowampBodySpawnSettings(Contact: PowampContact.Accepts)),
         new(EnemyDefinitionId.Sciser, new(752, 903), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnCeiling, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
         new(EnemyDefinitionId.Sciser, new(552, 15200), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnCeiling, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(5, 4))),
         new(EnemyDefinitionId.Sciser, new(360, 576), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnLeftWall, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
@@ -594,7 +594,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population shared by the Draygon room and the Mother Brain room once each area's boss is dead.</summary>
     internal static RoomEnemyPopulationDefinition DraygonOrMotherBrainWhenAreaBossDead { get; } = new("DraygonOrMotherBrainWhenAreaBossDead",
     [
-    ], 191);
+    ], 0);
 
     /// <summary>The Maridia rooms' lists, in their authored order.</summary>
     internal static RoomEnemyPopulationDefinition[] Lists { get; } =

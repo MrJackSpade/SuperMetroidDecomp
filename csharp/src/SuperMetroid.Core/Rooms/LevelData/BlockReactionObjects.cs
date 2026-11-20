@@ -168,7 +168,7 @@ internal sealed class BlockReactionObjects
     }
 
     /// <summary>Selects the normal-bomb or Power Bomb reactions; only the latter plays its block's sound.</summary>
-    public bool TrySpawnBombReactionBlock(
+    public void SpawnBombReactionBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
@@ -193,7 +193,7 @@ internal sealed class BlockReactionObjects
         // The spawn takes the first free place in update order. Importantly, a full room never calls setup and
         // therefore must not change the live terrain.
         if (_places.Spawn() is not { } place)
-            return false;
+            return;
 
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         place.Block = position;
@@ -202,7 +202,7 @@ internal sealed class BlockReactionObjects
         {
             // The empty reaction's setup does nothing, and it leaves on its first update.
             place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
-            return true;
+            return;
         }
 
         // The setup discards the earlier appearance rather than preserving the visible block. Dimension-specific final
@@ -214,7 +214,6 @@ internal sealed class BlockReactionObjects
             : BlockReactionChanges.ReactionBomb(bombable), restore));
 
         level.SetTerrain(position, restore.Deactivated());
-        return true;
     }
 
     /// <summary>Selects a shot-block room object by behaviour, weapon family, and air-versus-solid collision semantics.</summary>
@@ -331,7 +330,7 @@ internal sealed class BlockReactionObjects
     }
 
     /// <summary>Spawns the room object of a special block a normal bomb hits, by the block's reaction.</summary>
-    public bool TrySpawnBombedSpecialBlock(
+    public void SpawnBombedSpecialBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
@@ -339,7 +338,7 @@ internal sealed class BlockReactionObjects
     {
         Ensure.NotNull(level);
         if (projectileType.Family == SamusProjectileFamily.PowerBomb)
-            return false;
+            return;
         if (projectileType.Family != SamusProjectileFamily.Bomb)
         {
             throw new ArgumentOutOfRangeException(
@@ -352,11 +351,10 @@ internal sealed class BlockReactionObjects
         BlockReactionChange change = BombSpecialBlockReactions.ChangeFor(behavior.Special);
 
         if (_places.Spawn() is not { } place)
-            return false;
+            return;
 
         place.Block = position;
         place.Become(new BlockReactionObject(change));
-        return true;
     }
 
     /// <summary>

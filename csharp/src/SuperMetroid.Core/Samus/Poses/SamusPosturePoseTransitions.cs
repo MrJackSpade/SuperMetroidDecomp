@@ -15,11 +15,10 @@ internal static class SamusPosturePoseTransitions
     /// <param name="targetPose">Final normal standing-right or standing-left pose matching the current crouch facing; animated stand-up and cross-facing routes are not accepted.</param>
     /// <param name="frameCounter">The frame counter supplied to changed-pose block reactions.</param>
     /// <param name="roomObjects">The room's room objects, receiving those collision reactions.</param>
-    /// <returns>True when the final standing pose and animation are installed; false when collision retains the source or substitutes stable crouch, which may change an aimed crouch even on failure.</returns>
     /// <remarks>These input transitions bypass the animated aimed stand-up poses. Accepted expansion applies the whole-pixel Y adjustment but retains the crouching radius until Samus's next input phase, matching the larger-radius check's previous-pose radius publication.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source and target are not a same-facing route from a crouch to a final standing pose.</exception>
-    public static bool TryApplyDirectCrouchToStandingTransition(
+    public static void ApplyDirectCrouchToStandingTransition(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
@@ -53,7 +52,7 @@ internal static class SamusPosturePoseTransitions
             // is boxed in: Samus takes the ordinary stable crouch for her facing.
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
                 samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
-            return false;
+            return;
         }
 
         samus.Pose = targetPose;
@@ -62,7 +61,6 @@ internal static class SamusPosturePoseTransitions
         // The ordinary input phase publishes the standing radius at the start of the next frame.
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
         SamusPresentation.InitializeAnimation(samus);
-        return true;
     }
 
     /// <summary>
@@ -75,11 +73,7 @@ internal static class SamusPosturePoseTransitions
     /// only ordinary crouching subtracts ten extra pixels; aimed crouches still
     /// jump, but retain only the collision resolver's bottom-alignment adjustment.
     /// </remarks>
-    /// <returns>
-    /// False when expansion is impossible. Simultaneous initial hits select ordinary stable
-    /// crouch; rejection by a compensating opposite-side probe retains the source pose.
-    /// </returns>
-    public static bool TryApplyCrouchJumpTransition(
+    public static void ApplyCrouchJumpTransition(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
@@ -111,7 +105,7 @@ internal static class SamusPosturePoseTransitions
         {
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
                 samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
-            return false;
+            return;
         }
 
         samus.Pose = targetPose;
@@ -126,7 +120,6 @@ internal static class SamusPosturePoseTransitions
 
         SamusPresentation.InitializeAnimation(samus);
         SamusAerialMovement.InitializeJump(samus);
-        return true;
     }
 
     /// <summary>
@@ -135,11 +128,7 @@ internal static class SamusPosturePoseTransitions
     /// of the pose-change collision. The admitted target set is exactly
     /// the unaimed and aimed crouching and standing transitions.
     /// </summary>
-    /// <returns>
-    /// False only when simultaneous floor and ceiling collision leave no room to
-    /// expand from radius 16 to radius 21; the game then retains the crouching pose.
-    /// </returns>
-    public static bool TryApplyPostureTransition(
+    public static void ApplyPostureTransition(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
@@ -210,7 +199,7 @@ internal static class SamusPosturePoseTransitions
             // posture change itself must not become camera movement.
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
             SamusPresentation.InitializeAnimation(samus);
-            return true;
+            return;
         }
 
         // Expanding from crouch radius 16 to standing-transition radius 21 invokes the
@@ -227,7 +216,7 @@ internal static class SamusPosturePoseTransitions
         {
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
                 samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
-            return false;
+            return;
         }
 
         samus.Pose = targetPose;
@@ -238,7 +227,6 @@ internal static class SamusPosturePoseTransitions
         // on a frozen enemy inside a ceiling, as in the Botwoon-pipe Mochtroid clip.
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
         SamusPresentation.InitializeAnimation(samus);
-        return true;
     }
 
     /// <summary>
@@ -253,7 +241,7 @@ internal static class SamusPosturePoseTransitions
     /// the larger-radius check; floor collision normally moves center up nine. If both sides constrain a
     /// radius-seven body, the crouch selector rejects the target and keeps Samus morphed.
     /// </remarks>
-    public static bool TryApplyMorphTransition(
+    public static void ApplyMorphTransition(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
@@ -294,7 +282,7 @@ internal static class SamusPosturePoseTransitions
             // rejects the morph when Samus lacks the Morph Ball. No radius, animation, or position
             // write from the rejected prospective pose survives that frame.
             if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.MorphBall))
-                return false;
+                return;
 
             SamusMovementType previousMovementType = SamusPoseMetadata.ReadMovementType(samus);
             int previousRadius = samus.Kinematics.Radius.Y;
@@ -329,7 +317,7 @@ internal static class SamusPosturePoseTransitions
             // to cancel.
             CancelBounceForPostureTransition(samus);
             SamusPresentation.InitializeAnimation(samus);
-            return true;
+            return;
         }
 
         SamusPoseId sourcePose = samus.Pose;
@@ -344,7 +332,7 @@ internal static class SamusPosturePoseTransitions
             // A Morph Ball source can only keep its pose here; a crouch applies only if the outcome asks for one.
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
                 samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
-            return false;
+            return;
         }
 
         samus.Pose = targetPose;
@@ -357,7 +345,6 @@ internal static class SamusPosturePoseTransitions
         // matters to the later enemy-projectile pickup overlap tests.
         CancelBounceForPostureTransition(samus);
         SamusPresentation.InitializeAnimation(samus);
-        return true;
     }
 
     /// <summary>
@@ -370,14 +357,13 @@ internal static class SamusPosturePoseTransitions
     /// <param name="targetPose">The Draygon-held stand-up, the only pose the ball's input transitions choose.</param>
     /// <param name="frameCounter">The frame counter supplied to changed-pose block reactions.</param>
     /// <param name="roomObjects">The room's room objects, receiving those collision reactions.</param>
-    /// <returns>True when the stand-up is installed; false when the collision keeps the ball.</returns>
     /// <remarks>
     /// As for the stand transitions, the collision radius stays the ball's until the input phase publishes the stand-up's
     /// at the start of the next frame.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source and target are not the Draygon-held ball and its stand-up.</exception>
-    public static bool TryApplyDraygonHoldStandUp(
+    public static void ApplyDraygonHoldStandUp(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
@@ -403,13 +389,12 @@ internal static class SamusPosturePoseTransitions
         {
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
                 samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
-            return false;
+            return;
         }
 
         samus.Pose = targetPose;
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
         SamusPresentation.InitializeAnimation(samus);
-        return true;
     }
 
     /// <summary>Shared bounce cancellation of the posture change.</summary>
@@ -433,7 +418,7 @@ internal static class SamusPosturePoseTransitions
     /// changed-pose setup, makes room for the target body's potentially larger radius,
     /// and preserves the existing horizontal and vertical speeds that describe Samus's current fall.
     /// </remarks>
-    public static bool TryApplyUnmorphToFallingTransition(
+    public static void ApplyUnmorphToFallingTransition(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
@@ -470,7 +455,7 @@ internal static class SamusPosturePoseTransitions
             // probe instead retains the visible unmorph frame and all of Samus's live speeds.
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
                 samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
-            return false;
+            return;
         }
 
         samus.Pose = targetPose;
@@ -481,7 +466,6 @@ internal static class SamusPosturePoseTransitions
         // direction and speed, because it can occur halfway through a fall, as it does when leaving Parlor's Morph Ball
         // tunnel.
         SamusPresentation.InitializeAnimation(samus);
-        return true;
     }
 
     /// <summary>
@@ -541,8 +525,7 @@ internal static class SamusPosturePoseTransitions
     /// Resolves an ordinary Morph-Ball downward collision through the solid-vertical transition and
     /// the ball bounce, including both automatic rebounds and the final grounded pose.
     /// </summary>
-    /// <returns>True only when the collision ends grounded; false means another rebound.</returns>
-    public static bool ApplyMorphBallLanding(SamusState samus)
+    public static void ApplyMorphBallLanding(SamusState samus)
     {
         if (!SamusPoseMetadata.IsAirborneMorphBallPose(samus.Pose) && !SamusPoseMetadata.IsGroundedMorphBallPose(samus.Pose))
             throw new InvalidOperationException($"Morph-Ball landing requires an airborne morph-ball pose, not {samus.Pose}.");
@@ -554,14 +537,14 @@ internal static class SamusPosturePoseTransitions
         {
             samus.MorphBallBounceState = SamusBallBounceState.FirstRebound;
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(SamusVerticalMotionDefinitions.BallBounceSpeed);
-            return false;
+            return;
         }
 
         if (samus.MorphBallBounceState == SamusBallBounceState.FirstRebound)
         {
             samus.MorphBallBounceState = SamusBallBounceState.SecondRebound;
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(SamusVerticalMotionDefinitions.SecondBallBounceSpeed);
-            return false;
+            return;
         }
 
         samus.MorphBallBounceState = SamusBallBounceState.None;
@@ -574,7 +557,6 @@ internal static class SamusPosturePoseTransitions
         // ground. Both airborne rebounds above retain their horizontal speed.
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
-        return true;
     }
 
     /// <summary>
@@ -582,7 +564,7 @@ internal static class SamusPosturePoseTransitions
     /// jump setup as a grounded Spring Ball press; otherwise the
     /// bounce advances through the Spring Ball family's two rebounds.
     /// </summary>
-    public static bool ApplySpringBallLanding(SamusState samus, GameplayAction controllerInput)
+    public static void ApplySpringBallLanding(SamusState samus, GameplayAction controllerInput)
     {
         if (!SamusPoseMetadata.IsAirborneSpringBallPose(samus.Pose) && !SamusPoseMetadata.IsGroundedSpringBallPose(samus.Pose))
             throw new InvalidOperationException($"Spring-Ball landing requires an airborne Spring Ball pose, not {samus.Pose}.");
@@ -594,7 +576,7 @@ internal static class SamusPosturePoseTransitions
             // The landing relaunch only initializes velocity. It retains the
             // current airborne pose/animation, unlike a fresh grounded Jump input.
             // Changing pose here also selects a different next-frame movement path.
-            return false;
+            return;
         }
 
         // The bounce is chosen by the rebound count only, so an ordinary-ball
@@ -604,14 +586,14 @@ internal static class SamusPosturePoseTransitions
         {
             samus.MorphBallBounceState = SamusBallBounceState.SpringBallFirstRebound;
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(SamusVerticalMotionDefinitions.BallBounceSpeed);
-            return false;
+            return;
         }
 
         if (samus.MorphBallBounceState is SamusBallBounceState.FirstRebound or SamusBallBounceState.SpringBallFirstRebound)
         {
             samus.MorphBallBounceState = SamusBallBounceState.SpringBallSecondRebound;
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(SamusVerticalMotionDefinitions.SecondBallBounceSpeed);
-            return false;
+            return;
         }
 
         samus.MorphBallBounceState = SamusBallBounceState.None;
@@ -624,7 +606,6 @@ internal static class SamusPosturePoseTransitions
         // the ball on the ground. Spring Ball shares this with ordinary ball landing.
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
-        return true;
     }
 
     /// <summary>

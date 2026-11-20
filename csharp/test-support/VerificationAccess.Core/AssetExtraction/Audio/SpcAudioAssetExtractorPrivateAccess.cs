@@ -14,13 +14,12 @@ internal static class SpcAudioAssetExtractorPrivateAccess
     extension(global::SuperMetroid.AssetExtraction.Audio.SpcAudioAssetExtractor)
     {
         /// <summary>The private method <c>TryDecodeBrr</c>, invoked by name.</summary>
-        internal static bool TryDecodeBrr(byte[] ram, bool[] written, int start, int loop, out short[] pcm, out int blockCount, out int? loopSampleIndex)
+        internal static bool TryDecodeBrr(byte[] ram, bool[] written, int start, int loop, out short[] pcm, out int? loopSampleIndex)
         {
-            object?[] invocationArguments = new object?[] { ram, written, start, loop, null, null, null };
-            bool invocationResult = PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.AssetExtraction.Audio.SpcAudioAssetExtractor), "TryDecodeBrr", [typeof(byte[]), typeof(bool[]), typeof(int), typeof(int), typeof(short[]).MakeByRefType(), typeof(int).MakeByRefType(), typeof(int?).MakeByRefType()], invocationArguments);
+            object?[] invocationArguments = new object?[] { ram, written, start, loop, null, null };
+            bool invocationResult = PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.AssetExtraction.Audio.SpcAudioAssetExtractor), "TryDecodeBrr", [typeof(byte[]), typeof(bool[]), typeof(int), typeof(int), typeof(short[]).MakeByRefType(), typeof(int?).MakeByRefType()], invocationArguments);
             pcm = (short[])invocationArguments[4]!;
-            blockCount = (int)invocationArguments[5]!;
-            loopSampleIndex = (int?)invocationArguments[6]!;
+            loopSampleIndex = (int?)invocationArguments[5]!;
             return invocationResult;
         }
     }

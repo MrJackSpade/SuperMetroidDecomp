@@ -82,7 +82,6 @@ global using static SuperMetroid.AssetExtraction.Frontend.Ending.EndingPaletteIm
 global using static SuperMetroid.AssetExtraction.Frontend.Ending.EndingScreenImagePrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.Ending.EndingScreenInksPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork.FileSelectSourcePresentationPrivateAccess;
-global using static SuperMetroid.AssetExtraction.Frontend.FileSelect.FileSelectHelmetSpritemapsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.FileSelectSheetComposerPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.FrontendFloorSheetComposerPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.GameOptionsSheetComposerPrivateAccess;
@@ -547,7 +546,6 @@ global using static SuperMetroid.Core.Enemies.Rios.RioBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Ripper.RipperAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Ripper.RipperBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.RoomEnemyAuxiliaryDefinitionCatalogPrivateAccess;
-global using static SuperMetroid.Core.Enemies.RoomEnemyDefinitionCatalogPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Sbug.SbugAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Sbug.SbugBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Shaktool.ShaktoolAnimationsPrivateAccess;

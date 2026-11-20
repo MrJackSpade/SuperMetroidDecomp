@@ -45,15 +45,21 @@ internal sealed class PacedFadeSteps
     /// <summary>
     /// One update of the fade: on the update its cadence is due it takes its next step, unless it has taken them all.
     /// </summary>
-    /// <returns>Whether the update took a step.</returns>
-    internal bool Advance()
+    internal void Advance()
     {
         if (!stepWait.Step())
-            return false;
+            return;
         stepWait.Restart(updatesPerStep);
-        if (IsComplete)
-            return false;
-        Taken++;
-        return true;
+        if (!IsComplete)
+            Taken++;
+    }
+
+    /// <summary>One update of the fade, as <see cref="Advance"/> runs it, for a scene that shows each step it takes.</summary>
+    /// <returns>Whether the update took a step.</returns>
+    internal bool AdvanceTakingStep()
+    {
+        int taken = Taken;
+        Advance();
+        return Taken != taken;
     }
 }

@@ -46,12 +46,19 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
     private protected abstract IReadOnlyDictionary<TSegment, Animation<TSegment>> StartingAt { get; }
 
     /// <summary>
-    /// The segment <paramref name="started"/>, one of the family's animations, starts at: its first phase's segment, which
-    /// every animation states; an animation of no phase starts at the segment <see cref="StartingAt"/> keys it by.
+    /// The animations the family's owners start, each with the segment it starts at: every animation of
+    /// <see cref="StartingAt"/> at its key, and the animations a family's owners start by their own identity (the n00b
+    /// tube's shards, #2044) at the segment the family names.
     /// </summary>
-    private protected TSegment SegmentStartedAt(Animation<TSegment> started) => Ensure.NotNull(started).Phases.Count > 0
-        ? started.Phases[0].Segment
-        : StartingAt.Single(pair => ReferenceEquals(pair.Value, started)).Key;
+    private protected virtual IEnumerable<KeyValuePair<TSegment, Animation<TSegment>>> StartedAnimations => StartingAt;
+
+    /// <summary>The segment <paramref name="started"/>, one of the animations the family's owners start, starts at.</summary>
+    /// <exception cref="InvalidOperationException">The family's owners start no such animation.</exception>
+    private protected TSegment SegmentStartedAt(Animation<TSegment> started)
+    {
+        Ensure.NotNull(started);
+        return StartedAnimations.Single(start => ReferenceEquals(start.Value, started)).Key;
+    }
 
     /// <summary>The projectile frame <paramref name="frame"/> shows.</summary>
     private protected abstract EnemyProjectileFrameId Present(TFrame frame);

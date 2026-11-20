@@ -32,6 +32,10 @@ internal sealed class NoobTubeProjectileAnimation
     /// <inheritdoc/>
     private protected override IReadOnlyDictionary<NoobTubeProjectileSegment, Animation<NoobTubeProjectileSegment>> StartingAt => NoobTubeProjectileAnimations.StartingAt;
 
+    /// <summary>The crack's and a bubble's animations at their keys, and each shard's flight at the segment its flight starts with.</summary>
+    private protected override IEnumerable<KeyValuePair<NoobTubeProjectileSegment, Animation<NoobTubeProjectileSegment>>> StartedAnimations =>
+        StartingAt.Concat(NoobTubeProjectileAnimations.ShardAnimations.Values.Select(shard => KeyValuePair.Create(shard.Phases[0].Segment, shard)));
+
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(NoobTubeProjectileFrame frame) =>
         ShowsMirroredFrame && frame.Mirrored is { } mirrored ? mirrored : frame.Shown;

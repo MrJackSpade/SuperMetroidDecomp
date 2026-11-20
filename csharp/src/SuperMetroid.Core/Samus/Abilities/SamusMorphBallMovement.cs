@@ -47,7 +47,7 @@ public static class SamusMorphBallMovement
             // A resting ball moves only by outside displacement and stops on a wall; it still publishes its total X
             // speed.
             var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed: default);
-            _ = MoveStoppingAtWalls(terrain, samus, requested);
+            _ = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requested);
         }
         else
         {
@@ -60,7 +60,7 @@ public static class SamusMorphBallMovement
                 liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidMedium.Air);
             UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType);
             var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
-            _ = MoveStoppingAtWalls(terrain, samus, requested);
+            _ = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requested);
         }
 
         BlockMoveResult vertical;
@@ -158,7 +158,7 @@ public static class SamusMorphBallMovement
             requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, calculation.Speed);
         }
 
-        _ = MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
+        _ = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
         BlockMoveResult vertical;
         bool landed;
@@ -173,7 +173,7 @@ public static class SamusMorphBallMovement
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
             SignedSixteenSixteen displacement = SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(samus.Kinematics) ??
                 throw new InvalidOperationException("A nonzero external Y displacement always yields a scan distance.");
-            vertical = MoveVertically(terrain, samus, displacement, frameCounter);
+            vertical = SamusTerrainMoves.MoveVertically(terrain, samus, displacement, frameCounter);
             landed = !displacement.IsNegative && vertical.Collided;
             hitCeiling = displacement.IsNegative && vertical.Collided;
         }
@@ -254,7 +254,7 @@ public static class SamusMorphBallMovement
 
         // The game skips horizontal movement entirely, including its slope alignment.
         _ = collisionDirection is { } direction
-            ? MoveStoppingAtWalls(terrain, samus, new SamusHorizontalDisplacement(requestedHorizontal, direction))
+            ? SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, new SamusHorizontalDisplacement(requestedHorizontal, direction))
             : BlockMoveResult.NotMoved;
 
         BlockMoveResult vertical = MoveVerticallyWithGravity(
@@ -290,7 +290,7 @@ public static class SamusMorphBallMovement
         // The transition movement deliberately supplies zero base speed but still uses pose direction,
         // collision, and the total speed already worked out this update.
         var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed: default);
-        _ = MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
+        _ = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
         BlockMoveResult vertical;
         bool landed = false;
@@ -348,7 +348,7 @@ public static class SamusMorphBallMovement
         displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             displacement);
-        BlockMoveResult vertical = MoveVertically(terrain, samus, displacement, frameCounter);
+        BlockMoveResult vertical = SamusTerrainMoves.MoveVertically(terrain, samus, displacement, frameCounter);
 
         hitCeiling = displacement.IsNegative && vertical.Collided;
         landed = !displacement.IsNegative && vertical.Collided;
@@ -368,34 +368,13 @@ public static class SamusMorphBallMovement
         SignedSixteenSixteen displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
             samus.HorizontalSpeed);
-        BlockMoveResult result = MoveVertically(terrain, samus, displacement, frameCounter);
+        BlockMoveResult result = SamusTerrainMoves.MoveVertically(terrain, samus, displacement, frameCounter);
         // No-speed Y movement can still go UP when a platform carries Samus. The
         // game publishes the same deferred ceiling hit as a velocity-driven
         // jump. Its speed/direction writes belong to the later winning transition.
         hitCeiling = displacement.IsNegative && result.Collided;
         return result;
     }
-
-    /// <summary>
-    /// Moves the ball by <paramref name="requested"/> through <paramref name="terrain"/>; a wall it meets stops its horizontal
-    /// momentum (#2557).
-    /// </summary>
-    private static BlockMoveResult MoveStoppingAtWalls(SamusTerrain terrain, SamusState samus, SamusHorizontalDisplacement requested)
-    {
-        BlockMoveResult moved = SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose,
-            new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
-        if (moved.Collided)
-            samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-        return moved;
-    }
-
-    /// <summary>
-    /// Moves the ball vertically by <paramref name="displacement"/> through <paramref name="terrain"/> (#2557), its block scan
-    /// running left to right on the updates the scan's cadence names.
-    /// </summary>
-    private static BlockMoveResult MoveVertically(SamusTerrain terrain, SamusState samus, SignedSixteenSixteen displacement, int frameCounter) =>
-        SamusBlockCollision.MoveVertical(terrain, samus.Kinematics, samus, samus.Pose,
-            new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
 
     /// <summary>Rejects a missing level or Samus state before entering a morph movement path.</summary>
     private static void Validate(

@@ -94,15 +94,10 @@ public static class SamusGroundedMovement
         // pose's direction is left, so the displacement is leftward even though its
         // base speed is zero, which matters once extra displacement contributes.
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right, samus, baseSpeed: default);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
-        if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+        SamusTerrain terrain = new() { Level = level, RoomObjects = roomObjects };
+        BlockMoveResult horizontal = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
-        BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-            level,
-            samus,
-            frameCounter,
-            roomObjects);
+        BlockMoveResult vertical = SamusTerrainMoves.ProbeGroundWithoutSpeed(terrain, samus, frameCounter);
 
         // Standing then cancels the speed boost and clears extra speed, base speed, and
         // acceleration mode after both moves, whichever way Samus faces.
@@ -164,19 +159,13 @@ public static class SamusGroundedMovement
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType: SamusMovementType.Running);
         bool movesLeft = (speed.AccelerationMode is SamusAccelerationMode.Accelerating or SamusAccelerationMode.Decelerating) == facingLeft;
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(movesLeft ? HorizontalDirection.Left : HorizontalDirection.Right, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
-
         // A wall clears X speed immediately after block collision. Total
         // speed deliberately remains published: the following grounding probe reads it
         // even if base speed was just cleared by a wall.
-        if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+        SamusTerrain terrain = new() { Level = level, RoomObjects = roomObjects };
+        BlockMoveResult horizontal = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
-        BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-            level,
-            samus,
-            frameCounter,
-            roomObjects);
+        BlockMoveResult vertical = SamusTerrainMoves.ProbeGroundWithoutSpeed(terrain, samus, frameCounter);
         return new GroundedMovementResult(horizontal, vertical);
     }
 
@@ -236,15 +225,10 @@ public static class SamusGroundedMovement
         // The turn's direction comes from the pose's facing rather than its name; the acceleration mode then chooses
         // whether she moves the way she faces or against it.
         var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
-        if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+        SamusTerrain terrain = new() { Level = level, RoomObjects = roomObjects };
+        BlockMoveResult horizontal = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
-        BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-            level,
-            samus,
-            frameCounter,
-            roomObjects);
+        BlockMoveResult vertical = SamusTerrainMoves.ProbeGroundWithoutSpeed(terrain, samus, frameCounter);
 
         // The turn cancels the speed boost on every turn update, even without the Speed Booster: the turn's setup
         // folded in her extra speed but left her running momentum until this movement, which cancels the momentum and
@@ -290,17 +274,12 @@ public static class SamusGroundedMovement
         // does for every other family. Do not derive either direction from the pose's name.
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType: SamusMovementType.Moonwalking);
         var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
-        if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+        SamusTerrain terrain = new() { Level = level, RoomObjects = roomObjects };
+        BlockMoveResult horizontal = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
         // Moonwalking then runs the same no-speed-calculation grounding probe as running.
         // The probe deliberately scales the downward probe by the total horizontal magnitude.
-        BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-            level,
-            samus,
-            frameCounter,
-            roomObjects);
+        BlockMoveResult vertical = SamusTerrainMoves.ProbeGroundWithoutSpeed(terrain, samus, frameCounter);
         return new GroundedMovementResult(horizontal, vertical);
     }
 
@@ -328,18 +307,13 @@ public static class SamusGroundedMovement
         // comes from the pose's own facing. Extra speed is included in the requested move
         // before the movement's unconditional cleanup, in the game's order.
         var requestedHorizontal = SamusHorizontalDisplacement.TowardFacing(samus, baseSpeed: default);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
-        if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+        SamusTerrain terrain = new() { Level = level, RoomObjects = roomObjects };
+        BlockMoveResult horizontal = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
         // The one-or-more-pixel downward grounding probe runs before all X values are
         // cleared. This preserves the same ledge behavior as ordinary wall stops even though the
         // ordinary wall-stop state normally begins with zero speed.
-        BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-            level,
-            samus,
-            frameCounter,
-            roomObjects);
+        BlockMoveResult vertical = SamusTerrainMoves.ProbeGroundWithoutSpeed(terrain, samus, frameCounter);
 
         // Ran-into-wall movement then cancels the speed boost and clears both run/base components plus
         // acceleration mode on every frame.
@@ -375,15 +349,10 @@ public static class SamusGroundedMovement
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         var requestedHorizontal = SamusHorizontalDisplacement.TowardFacing(samus, baseSpeed: default);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
-        if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+        SamusTerrain terrain = new() { Level = level, RoomObjects = roomObjects };
+        BlockMoveResult horizontal = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
-        BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-            level,
-            samus,
-            frameCounter,
-            roomObjects);
+        BlockMoveResult vertical = SamusTerrainMoves.ProbeGroundWithoutSpeed(terrain, samus, frameCounter);
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         // Landing art still uses standing movement: it does not reset Y values.
         // Settling the accepted landing owns its cleanup; a later hurt expiry may write
@@ -410,30 +379,7 @@ public static class SamusGroundedMovement
                 $"Knockback-ending movement requires the knockback movement type, not pose {samus.Pose}.");
         }
 
-        return RunNoSpeedCalculationGroundingProbe(
-            level,
-            samus,
-            frameCounter,
-            roomObjects);
-    }
-
-    /// <summary>
-    /// Moves Samus vertically without a speed calculation, including the external-Y
-    /// replacement path and its asymmetric positive one-pixel bias.
-    /// </summary>
-    internal static BlockMoveResult RunNoSpeedCalculationGroundingProbe(
-        RoomLevelData level,
-        SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
-    {
-        SignedSixteenSixteen displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
-            samus.Kinematics,
-            samus.HorizontalSpeed);
-
-        // The probe alternates its left-to-right and right-to-left horizontal scan order on
-        // the frame counter's parity. That parity can affect which simultaneous
-        // collision side effect wins.
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+        SamusTerrain terrain = new() { Level = level, RoomObjects = roomObjects };
+        return SamusTerrainMoves.ProbeGroundWithoutSpeed(terrain, samus, frameCounter);
     }
 }

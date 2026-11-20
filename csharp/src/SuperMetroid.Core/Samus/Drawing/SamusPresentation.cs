@@ -476,11 +476,11 @@ internal sealed class SamusPresentation
             return;
         DrawActiveSpeedBoosterEcho(samus,
             sprites,
-            samus.HorizontalSpeed.FirstSpeedEchoPosition,
+            samus.HorizontalSpeed.SpeedEchoes[SpeedEcho.First].Position,
             cameraPosition);
         DrawActiveSpeedBoosterEcho(samus,
             sprites,
-            samus.HorizontalSpeed.SecondSpeedEchoPosition,
+            samus.HorizontalSpeed.SpeedEchoes[SpeedEcho.Second].Position,
             cameraPosition);
     }
 

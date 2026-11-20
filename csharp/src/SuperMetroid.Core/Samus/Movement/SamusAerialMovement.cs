@@ -369,7 +369,7 @@ public static class SamusAerialMovement
         AerialMovementResult result;
         if (samus.Kinematics.VerticalVelocity.HasNoDirection)
         {
-            SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(level, samus, frameCounter, roomObjects);
+            _ = SamusTerrainMoves.ProbeGroundWithoutSpeed(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, frameCounter);
             result = new AerialMovementResult(false, false);
         }
         else

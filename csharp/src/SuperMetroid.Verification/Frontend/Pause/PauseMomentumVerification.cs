@@ -45,8 +45,8 @@ internal static class PauseMomentumVerification
                 AssertEqual(0, speed.CycleShadeStep, "unpause clears boost palette frame");
                 AssertEqual(1, speed.CycleShadeTimer, "unpause starts the boost palette glow again, so its next boosted update moves it on");
                 AssertEqual(SpeedEchoPhase.CapturingFirst, speed.SpeedEchoPhase, "unpause resets the echo cursor without departure");
-                AssertTrue(speed.FirstSpeedEchoPosition is null && speed.SecondSpeedEchoPosition is null &&
-                    speed.FirstSpeedEchoHorizontalSpeed == 0 && speed.SecondSpeedEchoHorizontalSpeed == 0, "unpause clears both echo positions and velocities");
+                AssertTrue(speed.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position is null && speed.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position is null &&
+                    speed.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].DepartureSpeed == 0 && speed.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].DepartureSpeed == 0, "unpause clears both echo positions and velocities");
             }
             else if (momentum && counter == default)
             {

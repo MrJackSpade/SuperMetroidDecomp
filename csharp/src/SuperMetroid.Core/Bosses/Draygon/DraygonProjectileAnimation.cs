@@ -10,7 +10,7 @@ internal sealed class DraygonProjectileAnimation(IEnemyProjectileCues<DraygonPro
     : EnemyProjectileFrameAnimation<DraygonProjectileSegment, DraygonProjectileCue>(DraygonProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunner<DraygonProjectileSegment, DraygonProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<DraygonProjectileSegment, EnemyProjectileFrameId, DraygonProjectileCue> Segments =>
+    private protected override UnpausedAnimationSegments<DraygonProjectileSegment, EnemyProjectileFrameId, DraygonProjectileCue> Segments =>
         DraygonProjectileAnimations.Segments;
 
     /// <inheritdoc/>

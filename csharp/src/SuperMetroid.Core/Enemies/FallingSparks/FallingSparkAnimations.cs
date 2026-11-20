@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 internal static class FallingSparkAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<FallingSparkSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<FallingSparkSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static UnpausedAnimationSegments<FallingSparkSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<FallingSparkSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused[]>
     {
         [P.Falling] =
         [
@@ -51,13 +51,13 @@ internal static class FallingSparkAnimations
     /// A spark flickering <paramref name="times"/> times (#2432): <paramref name="frame"/> for an update, then nothing for an
     /// update.
     /// </summary>
-    private static IEnumerable<AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>> Flickering(EnemyProjectileFrameId frame, int times) =>
-        Enumerable.Repeat<AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>([Show(frame, 1), Show(EnemyProjectileFrameId.Blank, 1)], times)
+    private static IEnumerable<AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused> Flickering(EnemyProjectileFrameId frame, int times) =>
+        Enumerable.Repeat<AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused[]>([Show(frame, 1), Show(EnemyProjectileFrameId.Blank, 1)], times)
             .SelectMany(flicker => flicker);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Event(cue);
 }

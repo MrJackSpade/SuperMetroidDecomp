@@ -33,13 +33,13 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
         : Playback.Animation.Phases[Playback.Place.Phase].Segment;
 
     /// <summary>The family's segments.</summary>
-    private protected abstract AnimationSegments<TSegment, TFrame, TEvent> Segments { get; }
+    private protected abstract UnpausedAnimationSegments<TSegment, TFrame, TEvent> Segments { get; }
 
     /// <summary>
     /// Plays <paramref name="animation"/> on from <paramref name="place"/> to its next frame through <see cref="Segments"/>,
     /// carrying out each event the play raises on the projectile of <paramref name="context"/> if the timeline raises any.
     /// </summary>
-    private protected abstract AnimationShown<TSegment, TFrame> PlayToNextFrame(EnemyProjectileCueContext context,
+    private protected abstract AnimationShown<TSegment, TFrame>.Unpaused PlayToNextFrame(EnemyProjectileCueContext context,
         ref Animation<TSegment> animation, ref AnimationPlace place);
 
     /// <summary>The family's animations, by the segment each starts at.</summary>
@@ -60,20 +60,19 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
     {
         Animation<TSegment> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
-        AnimationShown<TSegment, TFrame> shown = PlayToNextFrame(context, ref animation, ref place);
+        AnimationShown<TSegment, TFrame>.Unpaused shown = PlayToNextFrame(context, ref animation, ref place);
         Playback = new AnimationPlayback<TSegment>(animation, place);
         return shown.Match(NextFrameCases, this);
     }
 
     /// <summary>
-    /// What <c>NextFrame</c> makes of each <see cref="AnimationShown{TSegment, TFrame}"/>, built once (#2553): a frame shows
-    /// for its duration or for good, a pause keeps the frame shown for its duration, a rest holds the timeline, and the
-    /// animation's end deletes the projectile, as the common end deletes an enemy.
+    /// What <c>NextFrame</c> makes of each outcome of a projectile animation, which never pauses, built once (#2553): a frame
+    /// shows for its duration or for good, a rest holds the timeline, and the animation's end deletes the projectile, as the
+    /// cartridge's projectile instruction list deletes it at its end ($86:8154).
     /// </summary>
-    private static AnimationShownCases<TSegment, TFrame, EnemyProjectileTimelineAnimation<TSegment, TFrame, TEvent>, EnemyProjectileFrameStep> NextFrameCases { get; } = new(
+    private static UnpausedAnimationShownCases<TSegment, TFrame, EnemyProjectileTimelineAnimation<TSegment, TFrame, TEvent>, EnemyProjectileFrameStep> NextFrameCases { get; } = new(
         Frame: static (shownFrame, timeline) => new EnemyProjectileFrameStep.Show(timeline.Present(shownFrame.Shown), shownFrame.Duration),
         HeldFrame: static (held, timeline) => new EnemyProjectileFrameStep.ShowForGood(timeline.Present(held.Shown)),
-        Paused: static (paused, _) => new EnemyProjectileFrameStep.Wait(paused.Duration),
         Held: static (_, _) => EnemyProjectileFrameStep.Rests,
         Ended: static (_, _) => EnemyProjectileFrameStep.Ends);
 }

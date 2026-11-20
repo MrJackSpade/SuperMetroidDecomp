@@ -17,8 +17,8 @@ internal static class SporeSpawnProjectileAnimations
     /// impact properties after its first pose, queues its killed sound partway, then requests its drop and deletes
     /// itself.
     /// </summary>
-    internal static AnimationSegments<SporeSpawnProjectileSegment, EnemyProjectileFrameId, SporeSpawnProjectileCue> Segments { get; } = new(
-        new Dictionary<SporeSpawnProjectileSegment, AnimationBeat<EnemyProjectileFrameId, SporeSpawnProjectileCue>[]>
+    internal static UnpausedAnimationSegments<SporeSpawnProjectileSegment, EnemyProjectileFrameId, SporeSpawnProjectileCue> Segments { get; } = new(
+        new Dictionary<SporeSpawnProjectileSegment, AnimationBeat<EnemyProjectileFrameId, SporeSpawnProjectileCue>.Unpaused[]>
     {
         [P.SpawnerClosed] =
         [
@@ -76,14 +76,14 @@ internal static class SporeSpawnProjectileAnimations
     internal static Animation<SporeSpawnProjectileSegment> StartingWith(SporeSpawnProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for good: a still picture (#2235).</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, SporeSpawnProjectileCue> Hold(EnemyProjectileFrameId frame) =>
+    private static AnimationBeat<EnemyProjectileFrameId, SporeSpawnProjectileCue>.Unpaused Hold(EnemyProjectileFrameId frame) =>
         new AnimationBeat<EnemyProjectileFrameId, SporeSpawnProjectileCue>.HeldFrame(frame);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, SporeSpawnProjectileCue> Show(EnemyProjectileFrameId frame, int duration) =>
+    private static AnimationBeat<EnemyProjectileFrameId, SporeSpawnProjectileCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) =>
         new AnimationBeat<EnemyProjectileFrameId, SporeSpawnProjectileCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, SporeSpawnProjectileCue> Cue(SporeSpawnProjectileCue cue) =>
+    private static AnimationBeat<EnemyProjectileFrameId, SporeSpawnProjectileCue>.Unpaused Cue(SporeSpawnProjectileCue cue) =>
         new AnimationBeat<EnemyProjectileFrameId, SporeSpawnProjectileCue>.Event(cue);
 }

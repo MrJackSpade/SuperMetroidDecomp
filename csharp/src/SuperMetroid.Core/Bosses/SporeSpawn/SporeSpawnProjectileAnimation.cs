@@ -10,7 +10,7 @@ internal sealed class SporeSpawnProjectileAnimation(IEnemyProjectileCues<SporeSp
     : EnemyProjectileFrameAnimation<SporeSpawnProjectileSegment, SporeSpawnProjectileCue>(SporeSpawnProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunner<SporeSpawnProjectileSegment, SporeSpawnProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<SporeSpawnProjectileSegment, EnemyProjectileFrameId, SporeSpawnProjectileCue> Segments => SporeSpawnProjectileAnimations.Segments;
+    private protected override UnpausedAnimationSegments<SporeSpawnProjectileSegment, EnemyProjectileFrameId, SporeSpawnProjectileCue> Segments => SporeSpawnProjectileAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<SporeSpawnProjectileSegment, Animation<SporeSpawnProjectileSegment>>> StartingAt => SporeSpawnProjectileAnimations.StartingAt;

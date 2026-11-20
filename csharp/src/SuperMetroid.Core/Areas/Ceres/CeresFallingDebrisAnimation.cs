@@ -9,7 +9,7 @@ internal sealed class CeresFallingDebrisAnimation(CeresFallingDebrisSegment segm
     : EnemyProjectileSilentAnimation<CeresFallingDebrisSegment, CeresFallingDebrisLook>(CeresFallingDebrisAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<CeresFallingDebrisSegment, CeresFallingDebrisLook, NoAnimationCue> Segments => CeresFallingDebrisAnimations.Segments;
+    private protected override UnpausedAnimationSegments<CeresFallingDebrisSegment, CeresFallingDebrisLook, NoAnimationCue> Segments => CeresFallingDebrisAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<CeresFallingDebrisSegment, Animation<CeresFallingDebrisSegment>>> StartingAt => CeresFallingDebrisAnimations.StartingAt;

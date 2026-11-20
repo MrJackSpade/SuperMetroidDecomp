@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
-using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTurretCue>;
+using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTurretCue>.Unpaused;
 using D = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTurretDirection;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -24,7 +24,7 @@ internal static class MotherBrainTurretAnimations
     /// impact smoke stops flying and shows four eight-update puffs and a 32-update fade, room pictures drawn in
     /// their standard colours (#2260), then deletes itself.
     /// </summary>
-    internal static AnimationSegments<MotherBrainTurretPose, EnemyProjectileFrameId, MotherBrainTurretCue> Segments { get; } = new(
+    internal static UnpausedAnimationSegments<MotherBrainTurretPose, EnemyProjectileFrameId, MotherBrainTurretCue> Segments { get; } = new(
         new Dictionary<MotherBrainTurretPose, Beat[]>
     {
         [MotherBrainTurretPose.Turret(D.Left)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingLeft)],

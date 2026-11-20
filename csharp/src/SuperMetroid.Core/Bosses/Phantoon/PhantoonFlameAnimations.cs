@@ -18,8 +18,8 @@ internal static class PhantoonFlameAnimations
     /// update and a rain flame's impact one for a longer beat; a falling flame flickers between each of its three poses and nothing,
     /// one update each, in three runs (#2250).
     /// </summary>
-    internal static AnimationSegments<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments { get; } = new(
-        new Dictionary<PhantoonFlameSegment, AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>[]>
+    internal static UnpausedAnimationSegments<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments { get; } = new(
+        new Dictionary<PhantoonFlameSegment, AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Unpaused[]>
     {
         [P.Burning] =
         [
@@ -96,10 +96,10 @@ internal static class PhantoonFlameAnimations
     internal static Animation<PhantoonFlameSegment> StartingWith(PhantoonFlameSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue> Show(EnemyProjectileFrameId frame, int duration) =>
+    private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) =>
         new AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Frame(frame, duration);
 
     /// <summary>Raises <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue> Cue(PhantoonFlameCue cue) =>
+    private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Unpaused Cue(PhantoonFlameCue cue) =>
         new AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Event(cue);
 }

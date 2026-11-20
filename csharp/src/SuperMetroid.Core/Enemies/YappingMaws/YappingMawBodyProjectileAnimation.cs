@@ -8,7 +8,7 @@ internal sealed class YappingMawBodyProjectileAnimation(YappingMawBodyProjectile
     : EnemyProjectileFrameAnimation<YappingMawBodyProjectileSegment, EnemyProjectileCommonCue>(YappingMawBodyProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunners.Common<YappingMawBodyProjectileSegment>())
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<YappingMawBodyProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => YappingMawBodyProjectileAnimations.Segments;
+    private protected override UnpausedAnimationSegments<YappingMawBodyProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => YappingMawBodyProjectileAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<YappingMawBodyProjectileSegment, Animation<YappingMawBodyProjectileSegment>>> StartingAt => YappingMawBodyProjectileAnimations.StartingAt;

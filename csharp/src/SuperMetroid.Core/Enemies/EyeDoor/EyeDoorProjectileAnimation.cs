@@ -11,7 +11,7 @@ internal sealed class EyeDoorProjectileAnimation(IEnemyProjectileCues<EyeDoorPro
     : EnemyProjectileFrameAnimation<EyeDoorProjectileSegment, EyeDoorProjectileCue>(EyeDoorProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunner<EyeDoorProjectileSegment, EyeDoorProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<EyeDoorProjectileSegment, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments => EyeDoorProjectileAnimations.Segments;
+    private protected override UnpausedAnimationSegments<EyeDoorProjectileSegment, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments => EyeDoorProjectileAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<EyeDoorProjectileSegment, Animation<EyeDoorProjectileSegment>>> StartingAt => EyeDoorProjectileAnimations.StartingAt;

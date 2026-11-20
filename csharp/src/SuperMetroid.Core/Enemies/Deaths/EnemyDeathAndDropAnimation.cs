@@ -23,7 +23,7 @@ internal sealed class EnemyDeathAndDropAnimation(IEnemyProjectileBranchingCues<E
         StartingAt.Any(keyed => ReferenceEquals(keyed.Value, started)) ? base.SegmentStartedAt(started) : started.Phases[0].Segment;
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<EnemyDeathAndDropSegment, EnemyProjectileFrameId, EnemyDeathAndDropCue> Segments => EnemyDeathAndDropAnimations.Segments;
+    private protected override UnpausedAnimationSegments<EnemyDeathAndDropSegment, EnemyProjectileFrameId, EnemyDeathAndDropCue> Segments => EnemyDeathAndDropAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<EnemyDeathAndDropSegment, Animation<EnemyDeathAndDropSegment>>> StartingAt => EnemyDeathAndDropAnimations.StartingAt;

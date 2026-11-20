@@ -27,7 +27,7 @@ internal sealed class NoobTubeProjectileAnimation
         NoobTubeBehavior.NoobTubeProjectileBehavior owner, Animation<NoobTubeProjectileSegment> animation, NoobTubeShardMirroring mirroring)
         : base(animation, new PieceCues(Ensure.NotNull(owner), mirroring)) => _mirroring = mirroring;
     /// <inheritdoc/>
-    private protected override AnimationSegments<NoobTubeProjectileSegment, NoobTubeProjectileFrame, NoobTubeProjectileCue> Segments => NoobTubeProjectileAnimations.Segments;
+    private protected override UnpausedAnimationSegments<NoobTubeProjectileSegment, NoobTubeProjectileFrame, NoobTubeProjectileCue> Segments => NoobTubeProjectileAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<NoobTubeProjectileSegment, Animation<NoobTubeProjectileSegment>>> StartingAt => NoobTubeProjectileAnimations.StartingAt;
@@ -55,8 +55,8 @@ internal sealed class NoobTubeProjectileAnimation
         : EnemyProjectileCueRunner<NoobTubeProjectileSegment, NoobTubeProjectileCue>
     {
         /// <inheritdoc/>
-        internal override AnimationShown<NoobTubeProjectileSegment, TFrame> PlayToNextFrame<TFrame>(
-            AnimationSegments<NoobTubeProjectileSegment, TFrame, NoobTubeProjectileCue> segments, EnemyProjectileCueContext context,
+        internal override AnimationShown<NoobTubeProjectileSegment, TFrame>.Unpaused PlayToNextFrame<TFrame>(
+            UnpausedAnimationSegments<NoobTubeProjectileSegment, TFrame, NoobTubeProjectileCue> segments, EnemyProjectileCueContext context,
             ref Animation<NoobTubeProjectileSegment> animation, ref AnimationPlace place) =>
             Ensure.NotNull(segments).PlayToNextFrame(ref animation, ref place, cue =>
             {

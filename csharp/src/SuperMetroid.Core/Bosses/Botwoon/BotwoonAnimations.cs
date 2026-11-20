@@ -64,8 +64,8 @@ internal static class BotwoonAnimations
     /// body link cycles its facing's frames at <see cref="BodyFrameDuration"/> apiece, and a tail cap and the hidden segment show their
     /// one frame.
     /// </summary>
-    internal static AnimationSegments<BotwoonBodyAnimationSegment, EnemyProjectileFrameId, NoAnimationCue> BodySegments { get; } = new(
-        new Dictionary<BotwoonBodyAnimationSegment, AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>[]>
+    internal static UnpausedAnimationSegments<BotwoonBodyAnimationSegment, EnemyProjectileFrameId, NoAnimationCue> BodySegments { get; } = new(
+        new Dictionary<BotwoonBodyAnimationSegment, AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>.Unpaused[]>
         {
             [B.Link(CompassDirection.Up)] =
             [
@@ -142,8 +142,8 @@ internal static class BotwoonAnimations
         BodyAnimationKeys.ToDictionary(segment => segment, BodyAnimation);
 
     /// <summary>The spit's run, each beat the installed <see cref="EnemyProjectileFrameId"/> it shows: its frames at <see cref="SpitFrameDuration"/> apiece.</summary>
-    internal static AnimationSegments<BotwoonSpitSegment, EnemyProjectileFrameId, NoAnimationCue> SpitSegments { get; } = new(
-        new Dictionary<BotwoonSpitSegment, AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>[]>
+    internal static UnpausedAnimationSegments<BotwoonSpitSegment, EnemyProjectileFrameId, NoAnimationCue> SpitSegments { get; } = new(
+        new Dictionary<BotwoonSpitSegment, AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>.Unpaused[]>
         {
             [BotwoonSpitSegment.Flight] =
             [
@@ -238,6 +238,6 @@ internal static class BotwoonAnimations
         new AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>.Event(cue);
 
     /// <summary>Shows projectile frame <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, NoAnimationCue> Show(EnemyProjectileFrameId frame, int duration) =>
+    private static AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) =>
         new AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>.Frame(frame, duration);
 }

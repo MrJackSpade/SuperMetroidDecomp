@@ -1336,7 +1336,7 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     private bool InAnimationSegments(SemanticModel semantic, ExpressionSyntax expression) =>
         expression.Ancestors().OfType<PropertyDeclarationSyntax>().FirstOrDefault() is { } property
         && semantic.GetDeclaredSymbol(property) is IPropertySymbol { Type: INamedTypeSymbol type }
-        && SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, model.AnimationSegments);
+        && model.IsAnimationSegmentsType(type);
 
     /// <summary>Whether <paramref name="expression"/> lies in a catalog naming every frame or kind, which shows nothing.</summary>
     private bool InTable(SemanticModel semantic, ExpressionSyntax expression) =>

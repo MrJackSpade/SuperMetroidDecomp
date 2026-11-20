@@ -80,6 +80,33 @@ public static class SamusShades
             [SamusBeamCombination.SpazerPlasmaIceWave] = "BeamSpazerPlasmaIceWave",
         });
 
+    /// <summary>
+    /// The combination whose shade each beam combination shows. A combination the cartridge authors a shade for, and the
+    /// SpaceTime beam with its defined black (#1318), shows its own. Spazer with Plasma, the Chainsaw beam (Spazer, Plasma
+    /// and Wave, #1736) and the Murder beam (Spazer, Plasma, Ice and Wave), which the pause screen's category glitch
+    /// equips, read their colours past the end of the cartridge's beam shade table, which authors none for Spazer with
+    /// Plasma, so each shows the shade of its beams without Spazer, the combination the pause screen otherwise equips.
+    /// </summary>
+    private static readonly IdentityTable<SamusBeamCombination, SamusBeamCombination> ShownShades = new(new Dictionary<SamusBeamCombination, SamusBeamCombination>
+        {
+            [SamusBeamCombination.Power] = SamusBeamCombination.Power,
+            [SamusBeamCombination.Wave] = SamusBeamCombination.Wave,
+            [SamusBeamCombination.Ice] = SamusBeamCombination.Ice,
+            [SamusBeamCombination.IceWave] = SamusBeamCombination.IceWave,
+            [SamusBeamCombination.Spazer] = SamusBeamCombination.Spazer,
+            [SamusBeamCombination.SpazerWave] = SamusBeamCombination.SpazerWave,
+            [SamusBeamCombination.SpazerIce] = SamusBeamCombination.SpazerIce,
+            [SamusBeamCombination.SpazerIceWave] = SamusBeamCombination.SpazerIceWave,
+            [SamusBeamCombination.Plasma] = SamusBeamCombination.Plasma,
+            [SamusBeamCombination.PlasmaWave] = SamusBeamCombination.PlasmaWave,
+            [SamusBeamCombination.PlasmaIce] = SamusBeamCombination.PlasmaIce,
+            [SamusBeamCombination.PlasmaIceWave] = SamusBeamCombination.PlasmaIceWave,
+            [SamusBeamCombination.SpazerPlasma] = SamusBeamCombination.Plasma,
+            [SamusBeamCombination.SpazerPlasmaWave] = SamusBeamCombination.PlasmaWave,
+            [SamusBeamCombination.SpazerPlasmaIce] = SamusBeamCombination.SpazerPlasmaIce,
+            [SamusBeamCombination.SpazerPlasmaIceWave] = SamusBeamCombination.PlasmaIceWave,
+        });
+
     /// <summary>The suit's colours as gameplay starts, before any suit is loaded.</summary>
     public static PictureShade StartingSuit { get; } = new("SuitStarting", 0);
 
@@ -155,14 +182,12 @@ public static class SamusShades
     public static PictureShade GrappleFiringFlare { get; } = new("GrappleFlare", 0);
 
     /// <summary>
-    /// The beams' colours for one beam combination: the shade that combination shows. The Chainsaw beam, which has no
-    /// shade of its own, shows the colours of the combination it shares its shade with (#1736).
+    /// The beams' colours for one beam combination: the shade that combination shows (<see cref="ShownShades"/>).
     /// </summary>
     public static PictureShade Beam(SamusBeamCombination combination) => new(BeamKeys[ShownBeamShade(combination)], 0);
 
     /// <summary>The beam combination whose shade <paramref name="combination"/> shows.</summary>
-    internal static SamusBeamCombination ShownBeamShade(SamusBeamCombination combination) =>
-        combination == ChainsawBeamGraphicsDefinitions.Selection ? ChainsawBeamGraphicsDefinitions.ShownBeamShade : combination;
+    internal static SamusBeamCombination ShownBeamShade(SamusBeamCombination combination) => ShownShades[combination];
 
     /// <summary>The Crystal Flash's body colours at each step of its pulse, in the order the pulse shows them (#2387).</summary>
     public static IReadOnlyList<PictureShade> CrystalFlashBody { get; } =

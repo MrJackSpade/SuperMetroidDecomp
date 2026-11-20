@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
-using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassCue>;
+using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassCue>.Unpaused;
 using P = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassSegment;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -15,7 +15,7 @@ internal static class MotherBrainGlassAnimations
     /// Every glass segment: a shard spins through its frames with a symmetric cadence, twice; the sparkle alternates
     /// its two holds over its frames, then deletes itself.
     /// </summary>
-    internal static AnimationSegments<MotherBrainGlassSegment, EnemyProjectileFrameId, MotherBrainGlassCue> Segments { get; } = new(
+    internal static UnpausedAnimationSegments<MotherBrainGlassSegment, EnemyProjectileFrameId, MotherBrainGlassCue> Segments { get; } = new(
         new Dictionary<MotherBrainGlassSegment, Beat[]>
     {
         [P.ShardFlyingUp] =

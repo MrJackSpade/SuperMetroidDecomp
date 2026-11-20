@@ -13,7 +13,7 @@ internal sealed class SaveStationElectricityAnimation()
         Ensure.NotNull(started).Phases[0].Segment;
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<SaveStationElectricitySegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => SaveStationElectricityAnimations.Segments;
+    private protected override UnpausedAnimationSegments<SaveStationElectricitySegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => SaveStationElectricityAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<SaveStationElectricitySegment, Animation<SaveStationElectricitySegment>>> StartingAt => SaveStationElectricityAnimations.StartingAt;

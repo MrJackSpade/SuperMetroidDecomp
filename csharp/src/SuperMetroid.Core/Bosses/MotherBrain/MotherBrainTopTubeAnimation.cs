@@ -8,7 +8,7 @@ internal sealed class MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment segm
     : EnemyProjectileSilentFrameAnimation<MotherBrainTopTubeSegment>(MotherBrainTopTubeAnimations.StartingAt[segment])
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<MotherBrainTopTubeSegment, EnemyProjectileFrameId, NoAnimationCue> Segments =>
+    private protected override UnpausedAnimationSegments<MotherBrainTopTubeSegment, EnemyProjectileFrameId, NoAnimationCue> Segments =>
         MotherBrainTopTubeAnimations.Segments;
 
     /// <inheritdoc/>

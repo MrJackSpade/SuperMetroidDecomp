@@ -71,7 +71,7 @@ public sealed class RoomEffectActor
             $"Effect actor {Kind} has no animation to play.");
         Animation<RoomEffectActorSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
-        AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture> shown = RoomEffectActorAnimations.Segments.PlayToNextFrame(
+        AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Unpaused shown = RoomEffectActorAnimations.Segments.PlayToNextFrame(
             ref animation, ref place);
         // The animation's end ends the object; every other outcome stands its animation where the play stopped.
         if (shown is not AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Ended)
@@ -79,8 +79,8 @@ public sealed class RoomEffectActor
         shown.React(AdvanceAnimationReactions, this);
     }
 
-    /// <summary>What <c>AdvanceAnimation</c> does on each <see cref="AnimationShown{TSegment, TFrame}"/>, built once (#2553).</summary>
-    private static AnimationShownReactions<RoomEffectActorSegment, RoomEffectActorPicture, RoomEffectActor> AdvanceAnimationReactions { get; } = new(
+    /// <summary>What <c>AdvanceAnimation</c> does on each outcome of the object's animation, which never pauses, built once (#2553).</summary>
+    private static UnpausedAnimationShownReactions<RoomEffectActorSegment, RoomEffectActorPicture, RoomEffectActor> AdvanceAnimationReactions { get; } = new(
         Frame: static (frame, actor) =>
         {
             actor.Frame = frame.Shown;
@@ -92,7 +92,6 @@ public sealed class RoomEffectActor
             actor.Frame = held.Shown;
             actor.AnimationClock.ShowForGood();
         },
-        Paused: static (paused, actor) => actor.AnimationClock.Pause(paused.Duration),
         Held: static (_, actor) => actor.AnimationClock.Stop(),
         Ended: static (_, actor) => actor.End());
 

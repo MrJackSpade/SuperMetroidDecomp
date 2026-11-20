@@ -10,7 +10,7 @@ internal sealed class MotherBrainEffectAnimation(IEnemyProjectileCues<MotherBrai
     : EnemyProjectileFrameAnimation<MotherBrainEffectSegment, MotherBrainEffectCue>(MotherBrainEffectAnimations.StartingWith(segment), EnemyProjectileCueRunner<MotherBrainEffectSegment, MotherBrainEffectCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<MotherBrainEffectSegment, EnemyProjectileFrameId, MotherBrainEffectCue> Segments => MotherBrainEffectAnimations.Segments;
+    private protected override UnpausedAnimationSegments<MotherBrainEffectSegment, EnemyProjectileFrameId, MotherBrainEffectCue> Segments => MotherBrainEffectAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<MotherBrainEffectSegment, Animation<MotherBrainEffectSegment>>> StartingAt => MotherBrainEffectAnimations.StartingAt;

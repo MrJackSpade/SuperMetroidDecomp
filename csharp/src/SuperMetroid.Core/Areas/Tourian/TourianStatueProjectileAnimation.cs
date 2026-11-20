@@ -10,7 +10,7 @@ internal sealed class TourianStatueProjectileAnimation(IEnemyProjectileCues<Tour
     : EnemyProjectileFrameAnimation<TourianStatueProjectileSegment, TourianStatueProjectileCue>(TourianStatueProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunner<TourianStatueProjectileSegment, TourianStatueProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<TourianStatueProjectileSegment, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments => TourianStatueProjectileAnimations.Segments;
+    private protected override UnpausedAnimationSegments<TourianStatueProjectileSegment, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments => TourianStatueProjectileAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<TourianStatueProjectileSegment, Animation<TourianStatueProjectileSegment>>> StartingAt => TourianStatueProjectileAnimations.StartingAt;

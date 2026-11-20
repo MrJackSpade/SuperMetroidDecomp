@@ -84,7 +84,7 @@ internal sealed class CoreModel
         WeightedRandomChoice = SingleType("WeightedRandomChoice", arity: 1);
         SpawnedObjectOwner = SingleType("SpawnedObjectOwner");
         RoomEnemyPlace = SingleType("RoomEnemyPlace");
-        AnimationSegments = SingleType("AnimationSegments", arity: 3);
+        AnimationSegmentPlay = SingleType("AnimationSegmentPlay", arity: 5);
         _entity = SingleType("IEnemyEntity");
         INamedTypeSymbol factory = SingleType("IEnemyEntityFactory");
         INamedTypeSymbol timelineAnimation = SingleType("EnemyProjectileTimelineAnimation", arity: 3);
@@ -163,8 +163,14 @@ internal sealed class CoreModel
     /// <summary>An enemy place (#1961).</summary>
     public INamedTypeSymbol RoomEnemyPlace { get; }
 
-    /// <summary>The segments a family's typed animations declare, each segment's beats showing frames and raising cues.</summary>
-    public INamedTypeSymbol AnimationSegments { get; }
+    /// <summary>
+    /// The play of the segments a family's typed animations declare, each segment's beats showing frames and raising cues: the
+    /// base of a pausing family's and an unpausing family's segments alike (#2553).
+    /// </summary>
+    public INamedTypeSymbol AnimationSegmentPlay { get; }
+
+    /// <summary>Whether <paramref name="type"/> is a family's segments: a pausing or an unpausing family's (#2553).</summary>
+    public bool IsAnimationSegmentsType(INamedTypeSymbol type) => DerivesFrom(type, AnimationSegmentPlay);
 
     /// <summary>
     /// The base every projectile program family derives from (#1600), whose type arguments are its segment, frame and event
@@ -202,7 +208,7 @@ internal sealed class CoreModel
     /// <summary>Whether <paramref name="member"/> is a property or field holding a family's segments: an <c>AnimationSegments</c>.</summary>
     private bool IsAnimationSegments(ISymbol member) =>
         (member switch { IPropertySymbol property => property.Type, IFieldSymbol field => field.Type, _ => null })
-            is INamedTypeSymbol type && SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, AnimationSegments);
+            is INamedTypeSymbol type && IsAnimationSegmentsType(type);
 
     /// <summary>The programs motion handlers restart only the objects of some kinds in, read once (#1854, #1843).</summary>
     public KindRestarts KindRestarts => _kindRestarts ??= new KindRestarts(this);

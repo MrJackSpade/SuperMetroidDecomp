@@ -11,8 +11,8 @@ internal sealed class PrePhantoonRoomAnimation()
     : EnemyProjectileSilentAnimation<PrePhantoonRoomSegment, PrePhantoonRoomFrame>(BlankHeld)
 {
     /// <summary>The blank frame.</summary>
-    private static readonly AnimationSegments<PrePhantoonRoomSegment, PrePhantoonRoomFrame, NoAnimationCue> RoomSegments = new(
-        new Dictionary<PrePhantoonRoomSegment, AnimationBeat<PrePhantoonRoomFrame, NoAnimationCue>[]>
+    private static readonly UnpausedAnimationSegments<PrePhantoonRoomSegment, PrePhantoonRoomFrame, NoAnimationCue> RoomSegments = new(
+        new Dictionary<PrePhantoonRoomSegment, AnimationBeat<PrePhantoonRoomFrame, NoAnimationCue>.Unpaused[]>
         {
             [PrePhantoonRoomSegment.Blank] =
             [
@@ -31,7 +31,7 @@ internal sealed class PrePhantoonRoomAnimation()
     };
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<PrePhantoonRoomSegment, PrePhantoonRoomFrame, NoAnimationCue> Segments => RoomSegments;
+    private protected override UnpausedAnimationSegments<PrePhantoonRoomSegment, PrePhantoonRoomFrame, NoAnimationCue> Segments => RoomSegments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<PrePhantoonRoomSegment, Animation<PrePhantoonRoomSegment>>> StartingAt => RoomStartingAt;

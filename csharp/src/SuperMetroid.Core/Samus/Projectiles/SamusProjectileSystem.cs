@@ -136,29 +136,11 @@ public sealed class SamusProjectileSystem
         ShowBeamShade(colours, SamusBeamCombinations.Of(equippedBeams));
 
     /// <summary>
-    /// Shows a beam combination's shade as the beams' colours: a combination's, the glitched Chainsaw beam's, which
-    /// is Plasma and Wave's (#1736), or the Spacetime beam's (#1512).
+    /// Shows a beam combination's shade as the beams' colours: every combination the pause screen can equip, the glitched
+    /// Spazer-with-Plasma ones among them, shows one (<see cref="SamusShades.Beam"/>).
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The combination has no shade the game can show.</exception>
-    private static void ShowBeamShade(SamusColours colours, SamusBeamCombination selection)
-    {
-        Ensure.NotNull(colours);
-        switch (selection)
-        {
-            case ChainsawBeamGraphicsDefinitions.Selection:
-            case SpacetimeBeamGraphicsDefinitions.Selection:
-            case SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or
-                SamusBeamCombination.IceWave or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or
-                SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.Plasma or
-                SamusBeamCombination.PlasmaWave or SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave:
-                colours.ShowBeams(SamusShades.Beam(selection));
-                break;
-            case SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave:
-                throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no beam shade.");
-            default:
-                throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination.");
-        }
-    }
+    private static void ShowBeamShade(SamusColours colours, SamusBeamCombination selection) =>
+        Ensure.NotNull(colours).ShowBeams(SamusShades.Beam(selection));
 
     /// <summary>
     /// Runs the beam charge colours on

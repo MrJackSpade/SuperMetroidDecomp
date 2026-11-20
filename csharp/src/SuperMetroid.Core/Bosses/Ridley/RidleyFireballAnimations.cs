@@ -17,8 +17,8 @@ internal static class RidleyFireballAnimations
     /// its five-update spark, raising the spawn of its next afterburns after it, then plays the puff every run shares (#2331):
     /// four five-update poses of its fire cloud, and deletes itself.
     /// </summary>
-    internal static AnimationSegments<RidleyFireballSegment, EnemyProjectileFrameId, RidleyFireballCue> Segments { get; } = new(
-        new Dictionary<RidleyFireballSegment, AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>[]>
+    internal static UnpausedAnimationSegments<RidleyFireballSegment, EnemyProjectileFrameId, RidleyFireballCue> Segments { get; } = new(
+        new Dictionary<RidleyFireballSegment, AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>.Unpaused[]>
     {
         [P.Fireball] =
         [
@@ -85,10 +85,10 @@ internal static class RidleyFireballAnimations
     internal static Animation<RidleyFireballSegment> StartingWith(RidleyFireballSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue> Show(EnemyProjectileFrameId frame, int duration) =>
+    private static AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) =>
         new AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>.Frame(frame, duration);
 
     /// <summary>Raises <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue> Cue(RidleyFireballCue cue) =>
+    private static AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>.Unpaused Cue(RidleyFireballCue cue) =>
         new AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>.Event(cue);
 }

@@ -10,7 +10,7 @@ internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
 {
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> Segments => PoseSegments;
+    private protected override UnpausedAnimationSegments<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> Segments => PoseSegments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<FakeKraidProjectilePose, Animation<FakeKraidProjectilePose>>> StartingAt => PoseAnimations;
@@ -24,8 +24,8 @@ internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
     /// animations show it for the longest frame an animation gives and then rest on it; nothing reads the projectile's frame timer,
     /// so the pose simply stays until a shot deletes it.
     /// </summary>
-    private static AnimationSegments<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> PoseSegments { get; } = new(
-        Enum.GetValues<FakeKraidProjectilePose>().ToDictionary(pose => pose, pose => new AnimationBeat<FakeKraidProjectilePose, NoAnimationCue>[]
+    private static UnpausedAnimationSegments<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> PoseSegments { get; } = new(
+        Enum.GetValues<FakeKraidProjectilePose>().ToDictionary(pose => pose, pose => new AnimationBeat<FakeKraidProjectilePose, NoAnimationCue>.Unpaused[]
         {
             new AnimationBeat<FakeKraidProjectilePose, NoAnimationCue>.HeldFrame(pose),
         }));

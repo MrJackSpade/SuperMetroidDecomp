@@ -48,7 +48,6 @@ internal abstract class EnemyProjectileAnimation
             // starts another animation.
             projectile.StopFrameHold();
         },
-        Wait: static (wait, projectile) => projectile.FrameHold = WrappingCountdown.Start(wait.Duration),
         End: static (_, projectile) => projectile.Delete());
 
     /// <summary>Advances the timeline to its next frame, a frame shown for good, or its rest.</summary>

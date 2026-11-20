@@ -8,7 +8,7 @@ internal sealed class SkreeMetareeParticleAnimation(SkreeMetareeParticleSegment 
     : EnemyProjectileFrameAnimation<SkreeMetareeParticleSegment, EnemyProjectileCommonCue>(SkreeMetareeParticleAnimations.StartingWith(segment), EnemyProjectileCueRunners.Common<SkreeMetareeParticleSegment>())
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<SkreeMetareeParticleSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => SkreeMetareeParticleAnimations.Segments;
+    private protected override UnpausedAnimationSegments<SkreeMetareeParticleSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => SkreeMetareeParticleAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<SkreeMetareeParticleSegment, Animation<SkreeMetareeParticleSegment>>> StartingAt => SkreeMetareeParticleAnimations.StartingAt;
